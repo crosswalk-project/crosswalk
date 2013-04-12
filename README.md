@@ -1,11 +1,11 @@
 ## Introduction
-Cameo is an app runtime based on `Chromium`.
+Cameo is an app runtime based on Chromium.
 
 It's developed by Intel Open Source Technology Center.
 
 ## Documents
 
-Check out our [Wiki](wiki/).
+Check out our [Wiki](https://github.com/otcshare/cameo/wiki/).
 
 ## Community
 
@@ -17,4 +17,4 @@ We are also on IRC : #cameo on otcirc.jf.intel.com:6697
 
 ## License
 
-`cameo`'s code uses the BSD license, see our `LICENSE` file.
+cameo's code uses the BSD license, see our `LICENSE` file.
