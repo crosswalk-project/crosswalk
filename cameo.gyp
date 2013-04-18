@@ -115,6 +115,11 @@
         'src/browser/shell_web_contents_view_delegate_mac.mm',
         'src/browser/shell_web_contents_view_delegate_win.cc',
         'src/browser/shell_web_contents_view_delegate.h',
+        'src/browser/ui/native_app_window.h',
+        'src/browser/ui/native_app_window_win.cc',
+        'src/browser/ui/native_app_window_win.h',
+        'src/browser/ui/native_toolbar_win.cc',
+        'src/browser/ui/native_toolbar_win.h',
         'src/common/paths_mac.h',
         'src/common/paths_mac.mm',
         'src/common/shell_content_client.cc',
@@ -147,6 +152,8 @@
           ],
           'dependencies': [
             '../webkit/support/webkit_support.gyp:webkit_strings',
+            '../ui/views/controls/webview/webview.gyp:webview',
+            '../ui/views/views.gyp:views',
           ],
           'configurations': {
             'Debug_Base': {

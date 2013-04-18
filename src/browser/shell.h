@@ -41,6 +41,7 @@ class GURL;
 namespace content {
 
 class BrowserContext;
+class NativeAppWindow;
 class ShellDevToolsFrontend;
 class ShellJavaScriptDialogManager;
 class SiteInstance;
@@ -62,6 +63,10 @@ class Shell : public WebContentsDelegate,
   void Close();
   void ShowDevTools();
   void CloseDevTools();
+
+  bool is_devtools() const { return is_devtools_; }
+  void set_is_devtools(bool is_devtools) { is_devtools_ = is_devtools; }
+
 #if (defined(OS_WIN) && !defined(USE_AURA)) || defined(TOOLKIT_GTK)
   // Resizes the main window to the given dimensions.
   void SizeTo(int width, int height);
@@ -93,7 +98,10 @@ class Shell : public WebContentsDelegate,
       base::Callback<void(Shell*)> shell_created_callback);
 
   WebContents* web_contents() const { return web_contents_.get(); }
+
+#if !defined(OS_WIN)
   gfx::NativeWindow window() { return window_; }
+#endif
 
 #if defined(OS_MACOSX)
   // Public to be called by an ObjC bridge object.
@@ -142,6 +150,8 @@ class Shell : public WebContentsDelegate,
   virtual void RendererUnresponsive(WebContents* source) OVERRIDE;
   virtual void ActivateContents(WebContents* contents) OVERRIDE;
   virtual void DeactivateContents(WebContents* contents) OVERRIDE;
+
+  bool headless() const { return headless_; }
 
  private:
   enum UIControl {
@@ -218,7 +228,14 @@ class Shell : public WebContentsDelegate,
 
   bool is_fullscreen_;
 
+  bool is_devtools_;
+
+#if defined(OS_WIN)
+  NativeAppWindow* window_;
+#else
+  // TODO (hmin): Decouple app window with Shell.
   gfx::NativeWindow window_;
+#endif
   gfx::NativeEditView url_edit_view_;
 
   // Notification manager

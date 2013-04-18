@@ -43,6 +43,7 @@ bool Shell::quit_message_loop_ = true;
 Shell::Shell(WebContents* web_contents)
     : devtools_frontend_(NULL),
       is_fullscreen_(false),
+      is_devtools_(false),
       window_(NULL),
       url_edit_view_(NULL),
 #if defined(OS_WIN) && !defined(USE_AURA)
@@ -80,10 +81,11 @@ Shell::~Shell() {
 
 Shell* Shell::CreateShell(WebContents* web_contents) {
   Shell* shell = new Shell(web_contents);
-  shell->PlatformCreateWindow(kTestWindowWidth, kTestWindowHeight);
 
   shell->web_contents_.reset(web_contents);
   web_contents->SetDelegate(shell);
+
+  shell->PlatformCreateWindow(kTestWindowWidth, kTestWindowHeight);
 
   shell->PlatformSetContents();
 
@@ -183,6 +185,7 @@ void Shell::ShowDevTools() {
     return;
   }
   devtools_frontend_ = ShellDevToolsFrontend::Show(web_contents());
+  devtools_frontend_->set_inspected_shell(this);
 }
 
 void Shell::CloseDevTools() {

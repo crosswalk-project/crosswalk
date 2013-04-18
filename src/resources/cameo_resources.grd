@@ -1,14 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grit latest_public_release="0" current_release="1">
   <outputs>
-    <output filename="grit/cameo_resources.h" type="rc_header">
+    <output filename="grit/cameo_resources.h" type="rc_header" context="default_100_percent" >
       <emit emit_type='prepend'></emit>
     </output>
-    <output filename="cameo_resources.pak" type="data_package" />
-    <output filename="cameo_resources.rc" type="rc_all" />
+    <output filename="grit/cameo_resources_map.cc" type="resource_map_source" context="default_100_percent" />
+    <output filename="grit/cameo_resources_map.h" type="resource_map_header" context="default_100_percent" />
+    <output filename="cameo_resources.pak" type="data_package" context="default_100_percent" />
+    <output filename="cameo_resources.rc" type="rc_all" context="default_100_percent" />
   </outputs>
   <translations />
   <release seq="1">
+    <structures fallback_to_low_resolution="true">
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_BACK" file="browser_back_normal.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_BACK_D" file="browser_back_disabled.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_BACK_H" file="browser_back_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_BACK_P" file="browser_back_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_FORWARD" file="browser_forward_normal.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_FORWARD_D" file="browser_forward_disabled.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_FORWARD_H" file="browser_forward_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_FORWARD_P" file="browser_forward_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_STOP" file="browser_stop_normal.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_STOP_D" file="browser_stop_disabled.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_STOP_H" file="browser_stop_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_STOP_P" file="browser_stop_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_RELOAD" file="browser_reload_normal.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_RELOAD_D" file="browser_reload_disabled.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_RELOAD_H" file="browser_reload_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_RELOAD_P" file="browser_reload_pressed.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_TOOLS" file="browser_tools_normal.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_TOOLS_H" file="browser_tools_hover.png" />
+      <structure type="chrome_scaled_image" name="IDR_CAMEO_TOOLS_P" file="browser_tools_pressed.png" />
+    </structures>
     <includes>
       <include name="IDR_CONTENT_SHELL_DEVTOOLS_DISCOVERY_PAGE" file="shell_devtools_discovery_page.html" type="BINDATA" />
       <include name="IDR_CONTENT_SHELL_MISSING_IMAGE_GIF" file="missingImage.gif" type="BINDATA" />

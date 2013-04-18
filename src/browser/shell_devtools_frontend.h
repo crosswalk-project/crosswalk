@@ -23,9 +23,15 @@ class WebContents;
 class ShellDevToolsFrontend : public WebContentsObserver,
                               public DevToolsFrontendHostDelegate {
  public:
-  static ShellDevToolsFrontend* Show(WebContents* inspected_contents);
+  static ShellDevToolsFrontend* Show(WebContents* web_contents);
   void Focus();
   void Close();
+  Shell* inspected_shell() const {
+    return inspected_shell_;
+  }
+  void set_inspected_shell(Shell* inspected_shell) {
+    inspected_shell_ = inspected_shell;
+  }
 
  private:
   ShellDevToolsFrontend(Shell* frontend_shell, DevToolsAgentHost* agent_host);
@@ -52,6 +58,7 @@ class ShellDevToolsFrontend : public WebContentsObserver,
   virtual void RemoveFileSystem(const std::string& file_system_path) OVERRIDE {}
   virtual void InspectedContentsClosing() OVERRIDE;
 
+  Shell* inspected_shell_;
   Shell* frontend_shell_;
   scoped_refptr<DevToolsAgentHost> agent_host_;
   scoped_ptr<DevToolsClientHost> frontend_host_;
