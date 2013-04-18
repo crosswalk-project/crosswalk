@@ -24,15 +24,15 @@
 
 using WebKit::WebContextMenuData;
 
-namespace content {
+namespace cameo {
 
-WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
-    WebContents* web_contents) {
+content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
+    content::WebContents* web_contents) {
   return new ShellWebContentsViewDelegate(web_contents);
 }
 
 ShellWebContentsViewDelegate::ShellWebContentsViewDelegate(
-    WebContents* web_contents)
+    content::WebContents* web_contents)
     : web_contents_(web_contents),
       floating_(gtk_floating_container_new()) {
 }
@@ -42,8 +42,8 @@ ShellWebContentsViewDelegate::~ShellWebContentsViewDelegate() {
 }
 
 void ShellWebContentsViewDelegate::ShowContextMenu(
-    const ContextMenuParams& params,
-    ContextMenuSourceType type) {
+    const content::ContextMenuParams& params,
+    content::ContextMenuSourceType type) {
   GtkWidget* menu = gtk_menu_new();
 
   params_ = params;
@@ -162,7 +162,8 @@ void ShellWebContentsViewDelegate::ShowContextMenu(
   gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 3, GDK_CURRENT_TIME);
 }
 
-WebDragDestDelegate* ShellWebContentsViewDelegate::GetDragDestDelegate() {
+content::WebDragDestDelegate*
+ShellWebContentsViewDelegate::GetDragDestDelegate() {
   return NULL;
 }
 
@@ -236,4 +237,4 @@ void ShellWebContentsViewDelegate::OnInspectMenuActivated(GtkWidget* widget) {
   ShellDevToolsFrontend::Show(web_contents_);
 }
 
-}  // namespace content
+}  // namespace cameo

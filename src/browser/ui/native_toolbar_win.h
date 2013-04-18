@@ -18,8 +18,8 @@
 // ETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef CAMEO_SRC_UI_NATIVE_TOOLBAR_WIN_H_
-#define CAMEO_SRC_UI_NATIVE_TOOLBAR_WIN_H_
+#ifndef CAMEO_SRC_BROWSER_UI_NATIVE_TOOLBAR_WIN_H_
+#define CAMEO_SRC_BROWSER_UI_NATIVE_TOOLBAR_WIN_H_
 
 #include "base/basictypes.h"
 #include "cameo/src/browser/ui/native_app_window.h"
@@ -27,22 +27,18 @@
 #include "ui/views/controls/textfield/textfield_controller.h"
 #include "ui/views/widget/widget_delegate.h"
 
-namespace content {
-class Shell;
-}
-
 namespace views {
 class ImageButton;
 class Textfield;
 }
 
-namespace content {
+namespace cameo {
 
 class NativeToolbarWin : public views::WidgetDelegateView,
                          public views::TextfieldController,
                          public views::ButtonListener {
  public:
-  explicit NativeToolbarWin(content::Shell* shell);
+  explicit NativeToolbarWin(Shell* shell);
   ~NativeToolbarWin();
 
   void SetButtonEnabled(NativeAppWindow::ButtonType button, bool enabled);
@@ -72,7 +68,7 @@ class NativeToolbarWin : public views::WidgetDelegateView,
  private:
   void InitToolbar();
 
-  content::Shell* shell_;
+  Shell* shell_;
 
   views::ImageButton* back_button_;
   views::ImageButton* forward_button_;
@@ -85,4 +81,4 @@ class NativeToolbarWin : public views::WidgetDelegateView,
 
 }  // namespace cameo
 
-#endif  // CAMEO_SRC_UI_NATIVE_TOOLBAR_WIN_H_
+#endif  // CAMEO_SRC_BROWSER_UI_NATIVE_TOOLBAR_WIN_H_

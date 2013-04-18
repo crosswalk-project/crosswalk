@@ -34,7 +34,7 @@
 #include "ui/base/touch/touch_factory_x11.h"
 #endif
 
-namespace content {
+namespace cameo {
 
 namespace {
 
@@ -70,7 +70,7 @@ base::StringPiece PlatformResourceProvider(int key) {
 }  // namespace
 
 ShellBrowserMainParts::ShellBrowserMainParts(
-    const MainFunctionParams& parameters)
+    const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
       parameters_(parameters),
       run_message_loop_(true),
@@ -158,4 +158,4 @@ void ShellBrowserMainParts::PostMainMessageLoopRun() {
   off_the_record_browser_context_.reset();
 }
 
-}  // namespace
+}  // cameo

@@ -39,7 +39,7 @@ using WebTestRunner::WebTestDelegate;
 using WebTestRunner::WebTestInterfaces;
 using WebTestRunner::WebTestProxyBase;
 
-namespace content {
+namespace cameo {
 
 namespace {
 ShellContentRendererClient* g_renderer_client;
@@ -71,12 +71,13 @@ void ShellContentRendererClient::RenderThreadStarted() {
 #endif
 }
 
-void ShellContentRendererClient::RenderViewCreated(RenderView* render_view) {
+void ShellContentRendererClient::RenderViewCreated(
+    content::RenderView* render_view) {
   //TODO(nhu): implementation.
 }
 
 bool ShellContentRendererClient::OverrideCreatePlugin(
-    RenderView* render_view,
+    content::RenderView* render_view,
     WebFrame* frame,
     const WebPluginParams& params,
     WebPlugin** plugin) {
@@ -131,4 +132,4 @@ bool ShellContentRendererClient::AllowBrowserPlugin(
   return ContentRendererClient::AllowBrowserPlugin(container);
 }
 
-}  // namespace content
+}  // namespace cameo

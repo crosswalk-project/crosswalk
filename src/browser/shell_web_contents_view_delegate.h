@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
+#define CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
 
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view_delegate.h"
@@ -15,17 +15,17 @@
 #include "ui/base/gtk/owned_widget_gtk.h"
 #endif
 
-namespace content {
+namespace cameo {
 
-class ShellWebContentsViewDelegate : public WebContentsViewDelegate {
+class ShellWebContentsViewDelegate : public content::WebContentsViewDelegate {
  public:
-  explicit ShellWebContentsViewDelegate(WebContents* web_contents);
+  explicit ShellWebContentsViewDelegate(content::WebContents* web_contents);
   virtual ~ShellWebContentsViewDelegate();
 
   // Overridden from WebContentsViewDelegate:
-  virtual void ShowContextMenu(const ContextMenuParams& params,
-                               ContextMenuSourceType type) OVERRIDE;
-  virtual WebDragDestDelegate* GetDragDestDelegate() OVERRIDE;
+  virtual void ShowContextMenu(const content::ContextMenuParams& params,
+                               content::ContextMenuSourceType type) OVERRIDE;
+  virtual content::WebDragDestDelegate* GetDragDestDelegate() OVERRIDE;
 
 #if defined(TOOLKIT_GTK)
   virtual void Initialize(GtkWidget* expanded_container,
@@ -50,8 +50,8 @@ class ShellWebContentsViewDelegate : public WebContentsViewDelegate {
 #endif
 
  private:
-  WebContents* web_contents_;
-  ContextMenuParams params_;
+  content::WebContents* web_contents_;
+  content::ContextMenuParams params_;
 
 #if defined(TOOLKIT_GTK)
   ui::OwnedWidgetGtk floating_;
@@ -80,6 +80,6 @@ class ShellWebContentsViewDelegate : public WebContentsViewDelegate {
   DISALLOW_COPY_AND_ASSIGN(ShellWebContentsViewDelegate);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif // CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
+#endif // CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_

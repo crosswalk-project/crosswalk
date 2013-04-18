@@ -34,13 +34,13 @@
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 
-namespace content {
+namespace cameo {
 
 namespace {
 
 void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
-                             ProtocolHandlerMap* protocol_handlers) {
-  for (ProtocolHandlerMap::iterator it =
+                             content::ProtocolHandlerMap* protocol_handlers) {
+  for (content::ProtocolHandlerMap::iterator it =
            protocol_handlers->begin();
        it != protocol_handlers->end();
        ++it) {
@@ -58,13 +58,13 @@ ShellURLRequestContextGetter::ShellURLRequestContextGetter(
     const base::FilePath& base_path,
     MessageLoop* io_loop,
     MessageLoop* file_loop,
-    ProtocolHandlerMap* protocol_handlers)
+    content::ProtocolHandlerMap* protocol_handlers)
     : ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop) {
   // Must first be created on the UI thread.
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
 
   std::swap(protocol_handlers_, *protocol_handlers);
 
@@ -80,7 +80,7 @@ ShellURLRequestContextGetter::~ShellURLRequestContextGetter() {
 }
 
 net::URLRequestContext* ShellURLRequestContextGetter::GetURLRequestContext() {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
 
   if (!url_request_context_.get()) {
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
@@ -118,8 +118,8 @@ net::URLRequestContext* ShellURLRequestContextGetter::GetURLRequestContext() {
             net::DISK_CACHE,
             cache_path,
             0,
-            BrowserThread::GetMessageLoopProxyForThread(
-                BrowserThread::CACHE));
+            content::BrowserThread::GetMessageLoopProxyForThread(
+                content::BrowserThread::CACHE));
 
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.cert_verifier =
@@ -183,11 +183,12 @@ net::URLRequestContext* ShellURLRequestContextGetter::GetURLRequestContext() {
 
 scoped_refptr<base::SingleThreadTaskRunner>
     ShellURLRequestContextGetter::GetNetworkTaskRunner() const {
-  return BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+  return content::BrowserThread::GetMessageLoopProxyForThread(
+      content::BrowserThread::IO);
 }
 
 net::HostResolver* ShellURLRequestContextGetter::host_resolver() {
   return url_request_context_->host_resolver();
 }
 
-}  // namespace content
+}  // namespace cameo

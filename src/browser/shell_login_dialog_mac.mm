@@ -13,6 +13,11 @@
 #include "content/public/browser/browser_thread.h"
 #import "ui/base/cocoa/nib_loading.h"
 
+using content::BrowserThread;
+using content::RenderViewHost;
+using content::ResourceRequestInfo;
+using content::WebContents;
+
 namespace {
 
 const int kUsernameFieldTag = 1;
@@ -67,8 +72,8 @@ const int kPasswordFieldTag = 2;
   if (returnCode == NSRunStoppedResponse)
     return;
 
-  content::ShellLoginDialog* this_dialog =
-      reinterpret_cast<content::ShellLoginDialog*>(contextInfo);
+  cameo::ShellLoginDialog* this_dialog =
+      reinterpret_cast<cameo::ShellLoginDialog*>(contextInfo);
   if (returnCode == NSAlertFirstButtonReturn) {
     this_dialog->UserAcceptedAuth(
         base::SysNSStringToUTF16([usernameField_ stringValue]),
@@ -85,7 +90,7 @@ const int kPasswordFieldTag = 2;
 
 @end
 
-namespace content {
+namespace cameo {
 
 void ShellLoginDialog::PlatformCreateDialog(const string16& message) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -119,4 +124,4 @@ void ShellLoginDialog::PlatformRequestCancelled() {
   [helper_ cancel];
 }
 
-}  // namespace content
+}  // namespace cameo

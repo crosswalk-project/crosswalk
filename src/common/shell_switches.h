@@ -4,8 +4,8 @@
 
 // Defines all the "content_shell" command-line switches.
 
-#ifndef CONTENT_SHELL_SHELL_SWITCHES_H_
-#define CONTENT_SHELL_SHELL_SWITCHES_H_
+#ifndef CAMEO_SRC_COMMON_SHELL_SWITCHES_H_
+#define CAMEO_SRC_COMMON_SHELL_SWITCHES_H_
 
 namespace switches {
 
@@ -14,4 +14,4 @@ extern const char kHeadless[];
 
 }  // namespace switches
 
-#endif  // CONTENT_SHELL_SHELL_SWITCHES_H_
+#endif  // CAMEO_SRC_COMMON_SHELL_SWITCHES_H_

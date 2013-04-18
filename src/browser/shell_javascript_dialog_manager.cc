@@ -13,7 +13,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "net/base/net_util.h"
 
-namespace content {
+namespace cameo {
 
 ShellJavaScriptDialogManager::ShellJavaScriptDialogManager() {
 }
@@ -22,10 +22,10 @@ ShellJavaScriptDialogManager::~ShellJavaScriptDialogManager() {
 }
 
 void ShellJavaScriptDialogManager::RunJavaScriptDialog(
-    WebContents* web_contents,
+    content::WebContents* web_contents,
     const GURL& origin_url,
     const std::string& accept_lang,
-    JavaScriptMessageType javascript_message_type,
+    content::JavaScriptMessageType javascript_message_type,
     const string16& message_text,
     const string16& default_prompt_text,
     const DialogClosedCallback& callback,
@@ -66,7 +66,7 @@ void ShellJavaScriptDialogManager::RunJavaScriptDialog(
 }
 
 void ShellJavaScriptDialogManager::RunBeforeUnloadDialog(
-    WebContents* web_contents,
+    content::WebContents* web_contents,
     const string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
@@ -91,12 +91,13 @@ void ShellJavaScriptDialogManager::RunBeforeUnloadDialog(
   gfx::NativeWindow parent_window =
       web_contents->GetView()->GetTopLevelNativeWindow();
 
-  dialog_.reset(new ShellJavaScriptDialog(this,
-                                          parent_window,
-                                          JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
-                                          new_message_text,
-                                          string16(),  // default_prompt_text
-                                          callback));
+  dialog_.reset(new ShellJavaScriptDialog(
+      this,
+      parent_window,
+      content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM,
+      new_message_text,
+      string16(),  // default_prompt_text
+      callback));
 #else
   // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
   callback.Run(true, string16());
@@ -105,7 +106,7 @@ void ShellJavaScriptDialogManager::RunBeforeUnloadDialog(
 }
 
 void ShellJavaScriptDialogManager::ResetJavaScriptState(
-    WebContents* web_contents) {
+    content::WebContents* web_contents) {
 #if defined(OS_MACOSX) || defined(OS_WIN) || defined(TOOLKIT_GTK)
   if (dialog_.get()) {
     dialog_->Cancel();
@@ -125,4 +126,4 @@ void ShellJavaScriptDialogManager::DialogClosed(ShellJavaScriptDialog* dialog) {
 #endif
 }
 
-}  // namespace content
+}  // namespace cameo

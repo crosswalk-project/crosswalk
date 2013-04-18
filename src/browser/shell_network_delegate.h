@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_NETWORK_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_NETWORK_DELEGATE_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_NETWORK_DELEGATE_H_
+#define CAMEO_SRC_BROWSER_SHELL_NETWORK_DELEGATE_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "net/base/network_delegate.h"
 
-namespace content {
+namespace cameo {
 
 class ShellNetworkDelegate : public net::NetworkDelegate {
  public:
@@ -66,6 +66,6 @@ class ShellNetworkDelegate : public net::NetworkDelegate {
   DISALLOW_COPY_AND_ASSIGN(ShellNetworkDelegate);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_NETWORK_DELEGATE_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_NETWORK_DELEGATE_H_

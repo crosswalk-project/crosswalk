@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_MINIMAL_ASH_H_
-#define CONTENT_SHELL_MINIMAL_ASH_H_
+#ifndef CAMEO_SRC_BROWSER_MINIMAL_ASH_H_
+#define CAMEO_SRC_BROWSER_MINIMAL_ASH_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -33,7 +33,7 @@ class InputMethodEventFilter;
 }
 }
 
-namespace content {
+namespace cameo {
 
 // Creates a minimal environment for running the shell. We can't pull in all of
 // ash here, but we can create attach several of the same things we'd find in
@@ -62,6 +62,6 @@ class MinimalAsh : public aura::client::StackingClient {
   DISALLOW_COPY_AND_ASSIGN(MinimalAsh);
 };
 
-}  // namespace content;
+}  // namespace cameo;
 
-#endif  // CONTENT_SHELL_MINIMAL_ASH_H_
+#endif  // CAMEO_SRC_BROWSER_MINIMAL_ASH_H_

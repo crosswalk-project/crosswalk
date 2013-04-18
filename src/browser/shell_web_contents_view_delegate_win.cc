@@ -54,15 +54,15 @@ void MakeContextMenuItem(HMENU menu,
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 
-WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
-    WebContents* web_contents) {
+content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
+    content::WebContents* web_contents) {
   return new ShellWebContentsViewDelegate(web_contents);
 }
 
 ShellWebContentsViewDelegate::ShellWebContentsViewDelegate(
-    WebContents* web_contents)
+    content::WebContents* web_contents)
     : web_contents_(web_contents) {
 }
 
@@ -70,8 +70,8 @@ ShellWebContentsViewDelegate::~ShellWebContentsViewDelegate() {
 }
 
 void ShellWebContentsViewDelegate::ShowContextMenu(
-    const ContextMenuParams& params,
-    ContextMenuSourceType type) {
+    const content::ContextMenuParams& params,
+    content::ContextMenuSourceType type) {
   params_ = params;
   bool has_link = !params_.unfiltered_link_url.is_empty();
   bool has_selection = !params_.selection_text.empty();
@@ -229,7 +229,8 @@ void ShellWebContentsViewDelegate::MenuItemSelected(int selection) {
   }
 }
 
-WebDragDestDelegate* ShellWebContentsViewDelegate::GetDragDestDelegate() {
+content::WebDragDestDelegate*
+ShellWebContentsViewDelegate::GetDragDestDelegate() {
   return NULL;
 }
 
@@ -249,4 +250,4 @@ void ShellWebContentsViewDelegate::TakeFocus(bool reverse) {
 void ShellWebContentsViewDelegate::SizeChanged(const gfx::Size& size) {
 }
 
-}  // namespace content
+}  // namespace cameo

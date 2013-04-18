@@ -31,14 +31,14 @@ enum {
 // tear-down process. Is responsible for deleting itself when done.
 @interface ContentShellWindowDelegate : NSObject<NSWindowDelegate> {
  @private
-  content::Shell* shell_;
+  cameo::Shell* shell_;
 }
-- (id)initWithShell:(content::Shell*)shell;
+- (id)initWithShell:(cameo::Shell*)shell;
 @end
 
 @implementation ContentShellWindowDelegate
 
-- (id)initWithShell:(content::Shell*)shell {
+- (id)initWithShell:(cameo::Shell*)shell {
   if ((self = [super init])) {
     shell_ = shell;
   }
@@ -69,15 +69,15 @@ enum {
 
 @interface CrShellWindow : UnderlayOpenGLHostingWindow {
  @private
-  content::Shell* shell_;
+  cameo:::Shell* shell_;
 }
-- (void)setShell:(content::Shell*)shell;
+- (void)setShell:(cameo:::Shell*)shell;
 - (void)showDevTools:(id)sender;
 @end
 
 @implementation CrShellWindow
 
-- (void)setShell:(content::Shell*)shell {
+- (void)setShell:(cameo:::Shell*)shell {
   shell_ = shell;
 }
 
@@ -89,7 +89,7 @@ enum {
 
 namespace {
 
-NSString* kWindowTitle = @"Content Shell";
+NSString* kWindowTitle = @"Cameo";
 
 // Layout constants (in view coordinates)
 const CGFloat kButtonWidth = 72;
@@ -121,7 +121,7 @@ void MakeShellButton(NSRect* rect,
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 
 void Shell::PlatformInitialize(const gfx::Size& default_window_size) {
 }
@@ -278,7 +278,7 @@ void Shell::URLEntered(std::string url_string) {
   }
 }
 
-void Shell::HandleKeyboardEvent(WebContents* source,
+void Shell::HandleKeyboardEvent(content::WebContents* source,
                                 const NativeWebKeyboardEvent& event) {
   if (event.skip_in_browser)
     return;
@@ -296,4 +296,4 @@ void Shell::HandleKeyboardEvent(WebContents* source,
   }
 }
 
-}  // namespace content
+}  // namespace cameo

@@ -1,8 +1,8 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-#ifndef CONTENT_SHELL_SHELL_H_
-#define CONTENT_SHELL_SHELL_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_H_
+#define CAMEO_SRC_BROWSER_SHELL_H_
 
 
 #include <vector>
@@ -39,18 +39,21 @@ class ViewsDelegate;
 
 class GURL;
 namespace content {
-
 class BrowserContext;
+class SiteInstance;
+class WebContents;
+}
+
+namespace cameo {
+
 class NativeAppWindow;
 class ShellDevToolsFrontend;
 class ShellJavaScriptDialogManager;
-class SiteInstance;
-class WebContents;
 
-// This represents one window of the Content Shell, i.e. all the UI including
+// This represents one window of the Cameo Shell, i.e. all the UI including
 // buttons and url bar, as well as the web content area.
-class Shell : public WebContentsDelegate,
-              public NotificationObserver {
+class Shell : public content::WebContentsDelegate,
+              public content::NotificationObserver {
  public:
   virtual ~Shell();
 
@@ -75,14 +78,14 @@ class Shell : public WebContentsDelegate,
   // Do one time initialization at application startup.
   static void Initialize();
 
-  static Shell* CreateNewWindow(BrowserContext* browser_context,
+  static Shell* CreateNewWindow(content::BrowserContext* browser_context,
                                 const GURL& url,
-                                SiteInstance* site_instance,
+                                content::SiteInstance* site_instance,
                                 int routing_id,
                                 const gfx::Size& initial_size);
 
   // Returns the Shell object corresponding to the given RenderViewHost.
-  static Shell* FromRenderViewHost(RenderViewHost* rvh);
+  static Shell* FromRenderViewHost(content::RenderViewHost* rvh);
 
   // Returns the currently open windows.
   static std::vector<Shell*>& windows() { return windows_; }
@@ -97,7 +100,7 @@ class Shell : public WebContentsDelegate,
   static void SetShellCreatedCallback(
       base::Callback<void(Shell*)> shell_created_callback);
 
-  WebContents* web_contents() const { return web_contents_.get(); }
+  content::WebContents* web_contents() const { return web_contents_.get(); }
 
 #if !defined(OS_WIN)
   gfx::NativeWindow window() { return window_; }
@@ -113,43 +116,45 @@ class Shell : public WebContentsDelegate,
 #endif
 
   // WebContentsDelegate
-  virtual WebContents* OpenURLFromTab(WebContents* source,
-                                      const OpenURLParams& params) OVERRIDE;
-  virtual void LoadingStateChanged(WebContents* source) OVERRIDE;
+  virtual content::WebContents* OpenURLFromTab(
+      content::WebContents* source,
+      const content::OpenURLParams& params) OVERRIDE;
+  virtual void LoadingStateChanged(content::WebContents* source) OVERRIDE;
 #if defined(OS_ANDROID)
-  virtual void LoadProgressChanged(WebContents* source,
+  virtual void LoadProgressChanged(content::WebContents* source,
                                    double progress) OVERRIDE;
 #endif
-  virtual void ToggleFullscreenModeForTab(WebContents* web_contents,
+  virtual void ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                           bool enter_fullscreen) OVERRIDE;
   virtual bool IsFullscreenForTabOrPending(
-      const WebContents* web_contents) const OVERRIDE;
-  virtual void RequestToLockMouse(WebContents* web_contents,
+      const content::WebContents* web_contents) const OVERRIDE;
+  virtual void RequestToLockMouse(content::WebContents* web_contents,
                                   bool user_gesture,
                                   bool last_unlocked_by_target) OVERRIDE;
-  virtual void CloseContents(WebContents* source) OVERRIDE;
+  virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual bool CanOverscrollContent() const OVERRIDE;
-  virtual void WebContentsCreated(WebContents* source_contents,
+  virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
                                   const string16& frame_name,
                                   const GURL& target_url,
-                                  WebContents* new_contents) OVERRIDE;
+                                  content::WebContents* new_contents) OVERRIDE;
   virtual void DidNavigateMainFramePostCommit(
-      WebContents* web_contents) OVERRIDE;
-  virtual JavaScriptDialogManager* GetJavaScriptDialogManager() OVERRIDE;
+      content::WebContents* web_contents) OVERRIDE;
+  virtual content::JavaScriptDialogManager*
+      GetJavaScriptDialogManager() OVERRIDE;
 #if defined(OS_MACOSX)
   virtual void HandleKeyboardEvent(
-      WebContents* source,
-      const NativeWebKeyboardEvent& event) OVERRIDE;
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
 #endif
-  virtual bool AddMessageToConsole(WebContents* source,
+  virtual bool AddMessageToConsole(content::WebContents* source,
                                    int32 level,
                                    const string16& message,
                                    int32 line_no,
                                    const string16& source_id) OVERRIDE;
-  virtual void RendererUnresponsive(WebContents* source) OVERRIDE;
-  virtual void ActivateContents(WebContents* contents) OVERRIDE;
-  virtual void DeactivateContents(WebContents* contents) OVERRIDE;
+  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
+  virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
+  virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
 
   bool headless() const { return headless_; }
 
@@ -160,10 +165,10 @@ class Shell : public WebContentsDelegate,
     STOP_BUTTON
   };
 
-  explicit Shell(WebContents* web_contents);
+  explicit Shell(content::WebContents* web_contents);
 
   // Helper to create a new Shell given a newly created WebContents.
-  static Shell* CreateShell(WebContents* web_contents);
+  static Shell* CreateShell(content::WebContents* web_contents);
 
   // Helper for one time initialization of application
   static void PlatformInitialize(const gfx::Size& default_window_size);
@@ -187,18 +192,18 @@ class Shell : public WebContentsDelegate,
   // Set the title of shell window
   void PlatformSetTitle(const string16& title);
 #if defined(OS_ANDROID)
-  void PlatformToggleFullscreenModeForTab(WebContents* web_contents,
+  void PlatformToggleFullscreenModeForTab(content::WebContents* web_contents,
                                           bool enter_fullscreen);
   bool PlatformIsFullscreenForTabOrPending(
-      const WebContents* web_contents) const;
+      const content::WebContents* web_contents) const;
 #endif
 
   gfx::NativeView GetContentView();
 
   // NotificationObserver
   virtual void Observe(int type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) OVERRIDE;
+                       const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
 
 #if defined(OS_WIN) && !defined(USE_AURA)
   static ATOM RegisterWindowClass();
@@ -222,7 +227,7 @@ class Shell : public WebContentsDelegate,
 
   scoped_ptr<ShellJavaScriptDialogManager> dialog_manager_;
 
-  scoped_ptr<WebContents> web_contents_;
+  scoped_ptr<content::WebContents> web_contents_;
 
   ShellDevToolsFrontend* devtools_frontend_;
 
@@ -239,7 +244,7 @@ class Shell : public WebContentsDelegate,
   gfx::NativeEditView url_edit_view_;
 
   // Notification manager
-  NotificationRegistrar registrar_;
+  content::NotificationRegistrar registrar_;
 
 #if defined(OS_WIN) && !defined(USE_AURA)
   WNDPROC default_edit_wnd_proc_;
@@ -268,6 +273,7 @@ class Shell : public WebContentsDelegate,
   views::Widget* window_widget_;
 #endif
 
+  // Show chrome or not.
   bool headless_;
 
   // A container of all the open windows. We use a vector so we can keep track
@@ -283,4 +289,4 @@ class Shell : public WebContentsDelegate,
 
 }  // namespace content
 
-#endif  // CONTENT_SHELL_SHELL_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_H_

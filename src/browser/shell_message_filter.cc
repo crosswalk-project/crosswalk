@@ -14,7 +14,7 @@
 #include "webkit/fileapi/isolated_context.h"
 #include "webkit/quota/quota_manager.h"
 
-namespace content {
+namespace cameo {
 
 ShellMessageFilter::ShellMessageFilter(
     int render_process_id,
@@ -35,4 +35,4 @@ bool ShellMessageFilter::OnMessageReceived(const IPC::Message& message,
   return handled;
 }
 
-}  // namespace content
+}  // namespace cameo

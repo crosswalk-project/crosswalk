@@ -62,7 +62,7 @@ class ShellViewsDelegateAura : public views::DesktopTestViewsDelegate {
 // TODO(beng): This stuff should NOT be in the views namespace!
 namespace views {
 
-// Maintain the UI controls and web view for content shell
+// Maintain the UI controls and web view for cameo shell
 class ShellWindowDelegateView : public WidgetDelegateView,
                                 public TextfieldController,
                                 public ButtonListener {
@@ -73,7 +73,7 @@ class ShellWindowDelegateView : public WidgetDelegateView,
     STOP_BUTTON
   };
 
-  ShellWindowDelegateView(content::Shell* shell)
+  ShellWindowDelegateView(cameo::Shell* shell)
     : shell_(shell),
       toolbar_view_(new View),
       contents_view_(new View) {
@@ -251,7 +251,7 @@ class ShellWindowDelegateView : public WidgetDelegateView,
 
  private:
   // Hold a reference of Shell for deleting it when the window is closing
-  content::Shell* shell_;
+  cameo::Shell* shell_;
 
   // Window title
   string16 title_;
@@ -275,7 +275,7 @@ class ShellWindowDelegateView : public WidgetDelegateView,
 
 using views::ShellWindowDelegateView;
 
-namespace content {
+namespace cameo {
 
 #if defined(OS_CHROMEOS)
 MinimalAsh* Shell::minimal_ash_ = NULL;
@@ -288,7 +288,7 @@ void Shell::PlatformInitialize(const gfx::Size& default_window_size) {
   chromeos::DBusThreadManager::Initialize();
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, aura::TestScreen::Create());
-  minimal_ash_ = new content::MinimalAsh(default_window_size);
+  minimal_ash_ = new cameo::MinimalAsh(default_window_size);
 #else
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
@@ -376,4 +376,4 @@ void Shell::PlatformSetTitle(const string16& title) {
   window_widget_->UpdateWindowTitle();
 }
 
-}  // namespace content
+}  // namespace cameo

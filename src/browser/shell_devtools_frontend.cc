@@ -20,7 +20,7 @@
 
 #include "net/base/net_util.h"
 
-namespace content {
+namespace cameo {
 
 namespace {
 
@@ -46,7 +46,7 @@ GURL GetDevToolsPathAsURL() {
 
 // static
 ShellDevToolsFrontend* ShellDevToolsFrontend::Show(
-    WebContents* inspected_contents) {
+    content::WebContents* inspected_contents) {
   Shell* shell = Shell::CreateNewWindow(inspected_contents->GetBrowserContext(),
                                         GURL(),
                                         NULL,
@@ -55,7 +55,7 @@ ShellDevToolsFrontend* ShellDevToolsFrontend::Show(
   shell->set_is_devtools(true);
   ShellDevToolsFrontend* devtools_frontend = new ShellDevToolsFrontend(
       shell,
-      DevToolsAgentHost::GetOrCreateFor(
+      content::DevToolsAgentHost::GetOrCreateFor(
           inspected_contents->GetRenderViewHost()));
 
   ShellDevToolsDelegate* delegate = ShellContentBrowserClient::Get()->
@@ -74,14 +74,15 @@ void ShellDevToolsFrontend::Close() {
   frontend_shell_->Close();
 }
 
-ShellDevToolsFrontend::ShellDevToolsFrontend(Shell* frontend_shell,
-                                             DevToolsAgentHost* agent_host)
+ShellDevToolsFrontend::ShellDevToolsFrontend(
+    Shell* frontend_shell, content::DevToolsAgentHost* agent_host)
     : WebContentsObserver(frontend_shell->web_contents()),
       inspected_shell_(NULL),
       frontend_shell_(frontend_shell),
       agent_host_(agent_host) {
   frontend_host_.reset(
-      DevToolsClientHost::CreateDevToolsFrontendHost(web_contents(), this));
+      content::DevToolsClientHost::CreateDevToolsFrontendHost(
+          web_contents(), this));
 }
 
 ShellDevToolsFrontend::~ShellDevToolsFrontend() {
@@ -89,16 +90,18 @@ ShellDevToolsFrontend::~ShellDevToolsFrontend() {
 }
 
 void ShellDevToolsFrontend::RenderViewCreated(
-    RenderViewHost* render_view_host) {
-  DevToolsClientHost::SetupDevToolsFrontendClient(
+    content::RenderViewHost* render_view_host) {
+  content::DevToolsClientHost::SetupDevToolsFrontendClient(
       web_contents()->GetRenderViewHost());
-  DevToolsManager* manager = DevToolsManager::GetInstance();
+  content::DevToolsManager* manager = content::DevToolsManager::GetInstance();
   manager->RegisterDevToolsClientHostFor(agent_host_.get(),
                                          frontend_host_.get());
 }
 
-void ShellDevToolsFrontend::WebContentsDestroyed(WebContents* web_contents) {
-  DevToolsManager::GetInstance()->ClientHostClosing(frontend_host_.get());
+void ShellDevToolsFrontend::WebContentsDestroyed(
+    content::WebContents* web_contents) {
+  content::DevToolsManager::GetInstance()->ClientHostClosing(
+      frontend_host_.get());
   inspected_shell_->CloseDevTools();
   delete this;
 }
@@ -107,4 +110,4 @@ void ShellDevToolsFrontend::InspectedContentsClosing() {
   frontend_shell_->Close();
 }
 
-}  // namespace content
+}  // namespace cameo

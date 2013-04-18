@@ -9,7 +9,7 @@
 #include "cameo/src/browser/shell.h"
 #include "cameo/src/browser/shell_javascript_dialog_manager.h"
 
-namespace content {
+namespace cameo {
 
 class ShellJavaScriptDialog;
 
@@ -24,7 +24,7 @@ INT_PTR CALLBACK ShellJavaScriptDialog::DialogProc(HWND dialog,
           reinterpret_cast<ShellJavaScriptDialog*>(lparam);
       owner->dialog_win_ = dialog;
       SetDlgItemText(dialog, IDC_DIALOGTEXT, owner->message_text_.c_str());
-      if (owner->message_type_ == JAVASCRIPT_MESSAGE_TYPE_PROMPT)
+      if (owner->message_type_ == content::JAVASCRIPT_MESSAGE_TYPE_PROMPT)
         SetDlgItemText(dialog, IDC_PROMPTEDIT,
                        owner->default_prompt_text_.c_str());
       break;
@@ -49,7 +49,8 @@ INT_PTR CALLBACK ShellJavaScriptDialog::DialogProc(HWND dialog,
         case IDOK:
           finish = true;
           result = true;
-          if (owner->message_type_ == JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
+          if (owner->message_type_ ==
+              content::JAVASCRIPT_MESSAGE_TYPE_PROMPT) {
             int length =
                 GetWindowTextLength(GetDlgItem(dialog, IDC_PROMPTEDIT)) + 1;
             GetDlgItemText(dialog, IDC_PROMPTEDIT,
@@ -78,19 +79,19 @@ INT_PTR CALLBACK ShellJavaScriptDialog::DialogProc(HWND dialog,
 ShellJavaScriptDialog::ShellJavaScriptDialog(
     ShellJavaScriptDialogManager* manager,
     gfx::NativeWindow parent_window,
-    JavaScriptMessageType message_type,
+    content::JavaScriptMessageType message_type,
     const string16& message_text,
     const string16& default_prompt_text,
-    const JavaScriptDialogManager::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : manager_(manager),
       callback_(callback),
       message_text_(message_text),
       default_prompt_text_(default_prompt_text),
       message_type_(message_type) {
   int dialog_type;
-  if (message_type == JAVASCRIPT_MESSAGE_TYPE_ALERT)
+  if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_ALERT)
     dialog_type = IDD_ALERT;
-  else if (message_type == JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
+  else if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
     dialog_type = IDD_CONFIRM;
   else // JAVASCRIPT_MESSAGE_TYPE_PROMPT
     dialog_type = IDD_PROMPT;
@@ -110,4 +111,4 @@ void ShellJavaScriptDialog::Cancel() {
     DestroyWindow(dialog_win_);
 }
 
-}  // namespace content
+}  // namespace cameo

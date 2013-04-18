@@ -32,11 +32,11 @@
 #include "ui/views/controls/textfield/textfield.h"
 #include "ui/views/layout/box_layout.h"
 
-namespace content {
+namespace cameo {
 
 const int kButtonMargin = 2;
 
-NativeToolbarWin::NativeToolbarWin(content::Shell* shell)
+NativeToolbarWin::NativeToolbarWin(Shell* shell)
     : shell_(shell) {
 }
 

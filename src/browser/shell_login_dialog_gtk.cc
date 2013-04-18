@@ -17,7 +17,12 @@
 #include "content/public/browser/web_contents_view.h"
 #include "ui/base/gtk/gtk_hig_constants.h"
 
-namespace content {
+using content::BrowserThread;
+using content::RenderViewHost;
+using content::ResourceRequestInfo;
+using content::WebContents;
+
+namespace cameo {
 
 void ShellLoginDialog::PlatformCreateDialog(const string16& message) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -108,4 +113,4 @@ void ShellLoginDialog::OnResponse(GtkWidget* sender, int response_id) {
   gtk_widget_destroy(root_);
 }
 
-}  // namespace content
+}  // namespace cameo

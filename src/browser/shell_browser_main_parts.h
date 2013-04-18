@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_BROWSER_MAIN_PARTS_H_
-#define CONTENT_SHELL_SHELL_BROWSER_MAIN_PARTS_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_BROWSER_MAIN_PARTS_H_
+#define CAMEO_SRC_BROWSER_SHELL_BROWSER_MAIN_PARTS_H_
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
@@ -14,14 +14,18 @@ class Thread;
 }
 
 namespace content {
+struct MainFunctionParams;
+}
+
+namespace cameo {
 
 class ShellBrowserContext;
 class ShellDevToolsDelegate;
-struct MainFunctionParams;
 
-class ShellBrowserMainParts : public BrowserMainParts {
+class ShellBrowserMainParts : public content::BrowserMainParts {
  public:
-  explicit ShellBrowserMainParts(const MainFunctionParams& parameters);
+  explicit ShellBrowserMainParts(
+      const content::MainFunctionParams& parameters);
   virtual ~ShellBrowserMainParts();
 
   // BrowserMainParts overrides.
@@ -44,7 +48,7 @@ class ShellBrowserMainParts : public BrowserMainParts {
   scoped_ptr<ShellBrowserContext> off_the_record_browser_context_;
 
   // For running content_browsertests.
-  const MainFunctionParams& parameters_;
+  const content::MainFunctionParams& parameters_;
   bool run_message_loop_;
 
   ShellDevToolsDelegate* devtools_delegate_;
@@ -52,6 +56,6 @@ class ShellBrowserMainParts : public BrowserMainParts {
   DISALLOW_COPY_AND_ASSIGN(ShellBrowserMainParts);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_BROWSER_MAIN_PARTS_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_BROWSER_MAIN_PARTS_H_

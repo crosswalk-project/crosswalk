@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_
-#define CONTENT_SHELL_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_
+#ifndef CAMEO_SRC_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_
+#define CAMEO_SRC_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_
 
 #include "content/public/browser/access_token_store.h"
 
@@ -31,4 +31,4 @@ class ShellAccessTokenStore : public content::AccessTokenStore {
   DISALLOW_COPY_AND_ASSIGN(ShellAccessTokenStore);
 };
 
-#endif  // CONTENT_SHELL_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_
+#endif  // CAMEO_SRC_GEOLOCATION_SHELL_ACCESS_TOKEN_STORE_H_

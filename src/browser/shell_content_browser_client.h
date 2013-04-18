@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_CONTENT_BROWSER_CLIENT_H_
-#define CONTENT_SHELL_SHELL_CONTENT_BROWSER_CLIENT_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_CONTENT_BROWSER_CLIENT_H_
+#define CAMEO_SRC_BROWSER_SHELL_CONTENT_BROWSER_CLIENT_H_
 
 #include <string>
 
@@ -15,14 +15,14 @@
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 
-namespace content {
+namespace cameo {
 
 class ShellBrowserContext;
 class ShellBrowserMainParts;
 class ShellResourceDispatcherHostDelegate;
 
-class ShellContentBrowserClient : public ContentBrowserClient,
-                                  public NotificationObserver {
+class ShellContentBrowserClient : public content::ContentBrowserClient,
+                                  public content::NotificationObserver {
  public:
   // Gets the current instance.
   static ShellContentBrowserClient* Get();
@@ -31,30 +31,32 @@ class ShellContentBrowserClient : public ContentBrowserClient,
   virtual ~ShellContentBrowserClient();
 
   // ContentBrowserClient overrides.
-  virtual BrowserMainParts* CreateBrowserMainParts(
-      const MainFunctionParams& parameters) OVERRIDE;
-  virtual void RenderProcessHostCreated(RenderProcessHost* host) OVERRIDE;
+  virtual content::BrowserMainParts* CreateBrowserMainParts(
+      const content::MainFunctionParams& parameters) OVERRIDE;
+  virtual void RenderProcessHostCreated(
+      content::RenderProcessHost* host) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContext(
-      BrowserContext* browser_context,
-      ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::BrowserContext* browser_context,
+      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
-      BrowserContext* browser_context,
+      content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
-      ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
-  virtual void OverrideWebkitPrefs(RenderViewHost* render_view_host,
+  virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
                                    const GURL& url,
                                    webkit_glue::WebPreferences* prefs) OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
-  virtual AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
   virtual bool SupportsBrowserPlugin(content::BrowserContext* browser_context,
                                      const GURL& url) OVERRIDE;
-  virtual WebContentsViewDelegate* GetWebContentsViewDelegate(
-      WebContents* web_contents) OVERRIDE;
-  virtual QuotaPermissionContext* CreateQuotaPermissionContext() OVERRIDE;
+  virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
+      content::WebContents* web_contents) OVERRIDE;
+  virtual content::QuotaPermissionContext*
+      CreateQuotaPermissionContext() OVERRIDE;
 
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
@@ -65,8 +67,8 @@ class ShellContentBrowserClient : public ContentBrowserClient,
 
   // NotificationObserver implementation.
   virtual void Observe(int type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) OVERRIDE;
+                       const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
 
   ShellBrowserContext* browser_context();
   ShellBrowserContext* off_the_record_browser_context();
@@ -79,7 +81,7 @@ class ShellContentBrowserClient : public ContentBrowserClient,
 
  private:
   ShellBrowserContext* ShellBrowserContextForBrowserContext(
-      BrowserContext* content_browser_context);
+      content::BrowserContext* content_browser_context);
 
   scoped_ptr<ShellResourceDispatcherHostDelegate>
       resource_dispatcher_host_delegate_;
@@ -90,9 +92,9 @@ class ShellContentBrowserClient : public ContentBrowserClient,
 
   ShellBrowserMainParts* shell_browser_main_parts_;
 
-  NotificationRegistrar registrar_;
+  content::NotificationRegistrar registrar_;
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_CONTENT_BROWSER_CLIENT_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_CONTENT_BROWSER_CLIENT_H_

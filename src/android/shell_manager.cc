@@ -30,7 +30,7 @@ base::LazyInstance<GlobalState> g_global_state = LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 
 jobject CreateShellView(Shell* shell) {
   JNIEnv* env = base::android::AttachCurrentThread();
@@ -59,4 +59,4 @@ void LaunchShell(JNIEnv* env, jclass clazz, jstring jurl) {
                          gfx::Size());
 }
 
-}  // namespace content
+}  // namespace cameo

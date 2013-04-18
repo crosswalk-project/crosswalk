@@ -18,10 +18,8 @@
 #include "webkit/support/gc_extension.h"
 
 using WebKit::WebFrame;
-using WebTestRunner::WebTestDelegate;
-using WebTestRunner::WebTestInterfaces;
 
-namespace content {
+namespace cameo {
 
 namespace {
 ShellRenderProcessObserver* g_instance = NULL;
@@ -35,7 +33,7 @@ ShellRenderProcessObserver* ShellRenderProcessObserver::GetInstance() {
 ShellRenderProcessObserver::ShellRenderProcessObserver() {
   CHECK(!g_instance);
   g_instance = this;
-  RenderThread::Get()->AddObserver(this);
+  content::RenderThread::Get()->AddObserver(this);
 }
 
 ShellRenderProcessObserver::~ShellRenderProcessObserver() {
@@ -53,4 +51,4 @@ bool ShellRenderProcessObserver::OnControlMessageReceived(
   return handled;
 }
 
-}  // namespace content
+}  // namespace cameo

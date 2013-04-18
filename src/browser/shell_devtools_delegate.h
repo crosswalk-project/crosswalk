@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_DEVTOOLS_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_DEVTOOLS_DELEGATE_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_DELEGATE_H_
+#define CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_DELEGATE_H_
 
 #include <vector>
 
@@ -12,13 +12,15 @@
 #include "content/public/browser/devtools_http_handler_delegate.h"
 
 namespace content {
-
 class BrowserContext;
 class DevToolsHttpHandler;
+}
 
-class ShellDevToolsDelegate : public DevToolsHttpHandlerDelegate {
+namespace cameo {
+
+class ShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  ShellDevToolsDelegate(BrowserContext* browser_context, int port);
+  ShellDevToolsDelegate(content::BrowserContext* browser_context, int port);
   virtual ~ShellDevToolsDelegate();
 
   // Stops http server.
@@ -29,21 +31,21 @@ class ShellDevToolsDelegate : public DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual RenderViewHost* CreateNewTarget() OVERRIDE;
-  virtual TargetType GetTargetType(RenderViewHost*) OVERRIDE;
+  virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
+  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
   virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
 
-  DevToolsHttpHandler* devtools_http_handler() {
+  content::DevToolsHttpHandler* devtools_http_handler() {
     return devtools_http_handler_;
   }
 
  private:
-  BrowserContext* browser_context_;
-  DevToolsHttpHandler* devtools_http_handler_;
+  content::BrowserContext* browser_context_;
+  content::DevToolsHttpHandler* devtools_http_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ShellDevToolsDelegate);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_DEVTOOLS_DELEGATE_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_DELEGATE_H_

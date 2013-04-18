@@ -15,11 +15,12 @@ class Rect;
 
 namespace content {
 struct NativeWebKeyboardEvent;
-class Shell;
 class WebContents;
 }
 
-namespace content {
+namespace cameo {
+
+class Shell;
 
 // Base window class for native application.
 class NativeAppWindow {
@@ -53,7 +54,7 @@ class NativeAppWindow {
   };
 
   // Used by Shell to instantiate the platform-specific ShellWindow code.
-  static NativeAppWindow* Create(content::Shell* shell,
+  static NativeAppWindow* Create(Shell* shell,
                                  const CreateParams& params);
 
   virtual ~NativeAppWindow() {}
@@ -151,7 +152,7 @@ class NativeAppWindow {
   // appearance? e.g. SetSize, SetAlwaysOnTop etc.
 
  protected:
-  NativeAppWindow(content::Shell* shell, const CreateParams& params)
+  NativeAppWindow(cameo::Shell* shell, const CreateParams& params)
     : shell_(shell),
       resizable_(params.resizable),
       state_(params.state),
@@ -162,8 +163,8 @@ class NativeAppWindow {
     // TODO(hmin): Need to validate the value of maximum size and minimum size.
   }
 
-  // Weak reference to content shell.
-  content::Shell* shell_;
+  // Weak reference to cameo shell.
+  Shell* shell_;
   // The window size.
   gfx::Size size_;
   // The minimum size.
@@ -179,4 +180,5 @@ class NativeAppWindow {
 };
 
 }  // namespace cameo
+
 #endif  // CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_H_

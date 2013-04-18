@@ -2,17 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
-#define CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
+#define CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
 
 namespace content {
-
 class WebContents;
 class WebContentsViewDelegate;
+}
 
-WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
-    WebContents* web_contents);
+namespace cameo {
 
-}  // namespace content
+content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
+    content::WebContents* web_contents);
 
-#endif //CONTENT_SHELL_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
+}  // namespace cameo
+
+#endif //CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_

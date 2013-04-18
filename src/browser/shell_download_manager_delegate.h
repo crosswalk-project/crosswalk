@@ -2,32 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_
+#define CAMEO_SRC_BROWSER_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/download_manager_delegate.h"
 
 namespace content {
-
 class DownloadManager;
+}
+
+namespace cameo {
 
 class ShellDownloadManagerDelegate
-    : public DownloadManagerDelegate,
+    : public content::DownloadManagerDelegate,
       public base::RefCountedThreadSafe<ShellDownloadManagerDelegate> {
  public:
   ShellDownloadManagerDelegate();
 
-  void SetDownloadManager(DownloadManager* manager);
+  void SetDownloadManager(content::DownloadManager* manager);
 
   virtual void Shutdown() OVERRIDE;
   virtual bool DetermineDownloadTarget(
-      DownloadItem* download,
-      const DownloadTargetCallback& callback) OVERRIDE;
+      content::DownloadItem* download,
+      const content::DownloadTargetCallback& callback) OVERRIDE;
   virtual bool ShouldOpenDownload(
-      DownloadItem* item,
-      const DownloadOpenDelayedCallback& callback) OVERRIDE;
+      content::DownloadItem* item,
+      const content::DownloadOpenDelayedCallback& callback) OVERRIDE;
 
   // Inhibits prompting and sets the default download path.
   void SetDownloadBehaviorForTesting(
@@ -42,23 +44,23 @@ class ShellDownloadManagerDelegate
 
 
   void GenerateFilename(int32 download_id,
-                        const DownloadTargetCallback& callback,
+                        const content::DownloadTargetCallback& callback,
                         const base::FilePath& generated_name,
                         const base::FilePath& suggested_directory);
   void OnDownloadPathGenerated(int32 download_id,
-                               const DownloadTargetCallback& callback,
+                               const content::DownloadTargetCallback& callback,
                                const base::FilePath& suggested_path);
   void ChooseDownloadPath(int32 download_id,
-                          const DownloadTargetCallback& callback,
+                          const content::DownloadTargetCallback& callback,
                           const base::FilePath& suggested_path);
 
-  DownloadManager* download_manager_;
+  content::DownloadManager* download_manager_;
   base::FilePath default_download_path_;
   bool suppress_prompting_;
 
   DISALLOW_COPY_AND_ASSIGN(ShellDownloadManagerDelegate);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_DOWNLOAD_MANAGER_DELEGATE_H_

@@ -49,7 +49,7 @@
 namespace {
 
 #if defined(OS_WIN)
-// If "Content Shell" doesn't show up in your list of trace providers in
+// If "Cameo" doesn't show up in your list of trace providers in
 // Sawbuck, add these registry entries to your machine (NOTE the optional
 // Wow6432Node key for x64 machines):
 // 1. Find:  HKLM\SOFTWARE\[Wow6432Node\]Google\Sawbuck\Providers
@@ -57,12 +57,12 @@ namespace {
 // 3. Add these values:
 //    "default_flags"=dword:00000001
 //    "default_level"=dword:00000004
-//    @="Content Shell"
+//    @="Cameo"
 
-// {6A3E50A4-7E15-4099-8413-EC94D8C2A4B6}
-const GUID kContentShellProviderName = {
-    0x6a3e50a4, 0x7e15, 0x4099,
-        { 0x84, 0x13, 0xec, 0x94, 0xd8, 0xc2, 0xa4, 0xb6 } };
+// {87EC005B-FB99-4F76-826B-337116190236}
+const GUID kCameoProviderName = {
+     0x87ec005b, 0xfb99, 0x4f76,
+         { 0x82, 0x6b, 0x33, 0x71, 0x16, 0x19, 0x2, 0x36 } };
 #endif
 
 void InitLogging() {
@@ -80,7 +80,7 @@ void InitLogging() {
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 
 ShellMainDelegate::ShellMainDelegate() {
 }
@@ -91,7 +91,7 @@ ShellMainDelegate::~ShellMainDelegate() {
 bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
 #if defined(OS_WIN)
   // Enable trace control and transport through event tracing for Windows.
-  logging::LogEventProvider::Initialize(kContentShellProviderName);
+  logging::LogEventProvider::Initialize(kCameoProviderName);
 #endif
 #if defined(OS_MACOSX)
   // Needs to happen before InitializeResourceBundle() and before
@@ -101,8 +101,9 @@ bool ShellMainDelegate::BasicStartupComplete(int* exit_code) {
 #endif  // OS_MACOSX
 
   InitLogging();
-  CommandLine& command_line = *CommandLine::ForCurrentProcess();
+
   // TODO(nhu): handle the arguments.
+  // CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
   SetContentClient(&content_client_);
   return false;
@@ -114,7 +115,7 @@ void ShellMainDelegate::PreSandboxStartup() {
 
 int ShellMainDelegate::RunProcess(
     const std::string& process_type,
-    const MainFunctionParams& main_function_params) {
+    const content::MainFunctionParams& main_function_params) {
   if (!process_type.empty())
     return -1;
 
@@ -165,14 +166,16 @@ void ShellMainDelegate::InitializeResourceBundle() {
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
 }
 
-ContentBrowserClient* ShellMainDelegate::CreateContentBrowserClient() {
+content::ContentBrowserClient*
+ShellMainDelegate::CreateContentBrowserClient() {
   browser_client_.reset(new ShellContentBrowserClient);
   return browser_client_.get();
 }
 
-ContentRendererClient* ShellMainDelegate::CreateContentRendererClient() {
+content::ContentRendererClient*
+ShellMainDelegate::CreateContentRendererClient() {
   renderer_client_.reset(new ShellContentRendererClient);
   return renderer_client_.get();
 }
 
-}  // namespace content
+}  // namespace cameo

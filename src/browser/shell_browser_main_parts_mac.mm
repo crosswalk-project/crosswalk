@@ -10,7 +10,7 @@
 #include "base/memory/scoped_nsobject.h"
 #include "cameo/src/browser/shell_application_mac.h"
 
-namespace content {
+namespace cameo {
 
 void ShellBrowserMainParts::PreMainMessageLoopStart() {
   // Force the NSApplication subclass to be used.
@@ -22,4 +22,4 @@ void ShellBrowserMainParts::PreMainMessageLoopStart() {
   [nib instantiateNibWithOwner:NSApp topLevelObjects:nil];
 }
 
-}  // namespace content
+}  // namespace cameo

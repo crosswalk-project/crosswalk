@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_CONTENT_MAIN_H_
-#define CONTENT_SHELL_SHELL_CONTENT_MAIN_H_
+#ifndef CAMEO_SRC_APP_SHELL_CONTENT_MAIN_H_
+#define CAMEO_SRC_APP_SHELL_CONTENT_MAIN_H_
 
 #include "base/basictypes.h"
 
@@ -15,4 +15,4 @@ int ContentMain(int argc,
 }  // extern "C"
 #endif  // OS_MACOSX
 
-#endif  // CONTENT_SHELL_SHELL_CONTENT_MAIN_H_
+#endif  // CAMEO_SRC_APP_SHELL_CONTENT_MAIN_H_

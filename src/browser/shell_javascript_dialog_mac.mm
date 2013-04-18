@@ -83,15 +83,15 @@
 
 @end
 
-namespace content {
+namespace cameo {
 
 ShellJavaScriptDialog::ShellJavaScriptDialog(
     ShellJavaScriptDialogManager* manager,
     gfx::NativeWindow parent_window,
-    JavaScriptMessageType message_type,
+    content::JavaScriptMessageType message_type,
     const string16& message_text,
     const string16& default_prompt_text,
-    const JavaScriptDialogManager::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : manager_(manager),
       callback_(callback) {
   bool text_field = message_type == JAVASCRIPT_MESSAGE_TYPE_PROMPT;
@@ -135,4 +135,4 @@ void ShellJavaScriptDialog::Cancel() {
   [helper_ cancel];
 }
 
-}  // namespace content
+}  // namespace cameo

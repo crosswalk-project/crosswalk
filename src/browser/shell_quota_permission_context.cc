@@ -6,7 +6,7 @@
 
 #include "webkit/quota/quota_types.h"
 
-namespace content {
+namespace cameo {
 
 ShellQuotaPermissionContext::ShellQuotaPermissionContext() {}
 
@@ -29,4 +29,4 @@ void ShellQuotaPermissionContext::RequestQuotaPermission(
 
 ShellQuotaPermissionContext::~ShellQuotaPermissionContext() {}
 
-}  // namespace content
+}  // namespace cameo

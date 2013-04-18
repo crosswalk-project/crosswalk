@@ -4,8 +4,8 @@
 
 {
   'variables': {
-    'content_shell_product_name': 'Cameo',
-    'content_shell_version': '0.28.0.1',
+    'cameo_product_name': 'Cameo',
+    'cameo_version': '0.28.0.1',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -16,10 +16,10 @@
   },
   'targets': [
     {
-      'target_name': 'content_shell_lib',
+      'target_name': 'cameo_lib',
       'type': 'static_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
-      'defines': ['CONTENT_SHELL_VERSION="<(content_shell_version)"'],
+      'defines': ['CAMEO_VERSION="<(cameo_version)"'],
       'variables': {
         'chromium_code': 1,
       },
@@ -174,7 +174,7 @@
         }],
         ['OS=="android"', {
           'dependencies': [
-            'content_shell_jni_headers',
+            'cameo_jni_headers',
           ],
         }, {  # else: OS!="android"
           'dependencies': [
@@ -252,7 +252,7 @@
       ],
     },
     {
-      # We build a minimal set of resources so WebKit in content_shell has
+      # We build a minimal set of resources so WebKit in cameo has
       # access to necessary resources.
       'target_name': 'cameo_pak',
       'type': 'none',
@@ -311,7 +311,7 @@
         'chromium_code': 1,
       },
       'dependencies': [
-        'content_shell_lib',
+        'cameo_lib',
         'cameo_pak',
       ],
       'include_dirs': [
@@ -369,28 +369,28 @@
           ],
         }],  # toolkit_uses_gtk
         ['OS=="mac"', {
-          'product_name': '<(content_shell_product_name)',
+          'product_name': '<(cameo_product_name)',
           'dependencies!': [
-            'content_shell_lib',
+            'cameo_lib',
           ],
           'dependencies': [
-            'content_shell_framework',
-            'content_shell_helper_app',
+            'cameo_framework',
+            'cameo_helper_app',
           ],
           'copies': [
             {
-              'destination': '<(PRODUCT_DIR)/<(content_shell_product_name).app/Contents/Frameworks',
+              'destination': '<(PRODUCT_DIR)/<(cameo_product_name).app/Contents/Frameworks',
               'files': [
-                '<(PRODUCT_DIR)/<(content_shell_product_name) Helper.app',
+                '<(PRODUCT_DIR)/<(cameo_product_name) Helper.app',
               ],
             },
           ],
           'postbuilds': [
             {
-              'postbuild_name': 'Copy <(content_shell_product_name) Framework.framework',
+              'postbuild_name': 'Copy <(cameo_product_name) Framework.framework',
               'action': [
                 '../build/mac/copy_framework_unversioned.sh',
-                '${BUILT_PRODUCTS_DIR}/<(content_shell_product_name) Framework.framework',
+                '${BUILT_PRODUCTS_DIR}/<(cameo_product_name) Framework.framework',
                 '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
               ],
             },
@@ -399,8 +399,8 @@
               'action': [
                 'install_name_tool',
                 '-change',
-                '/Library/Frameworks/<(content_shell_product_name) Framework.framework/Versions/A/<(content_shell_product_name) Framework',
-                '@executable_path/../Frameworks/<(content_shell_product_name) Framework.framework/<(content_shell_product_name) Framework',
+                '/Library/Frameworks/<(cameo_product_name) Framework.framework/Versions/A/<(cameo_product_name) Framework',
+                '@executable_path/../Frameworks/<(cameo_product_name) Framework.framework/<(cameo_product_name) Framework',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -409,7 +409,7 @@
               'postbuild_name': 'Tweak Info.plist',
               'action': ['../build/mac/tweak_info_plist.py',
                          '--scm=1',
-                         '--version=<(content_shell_version)'],
+                         '--version=<(cameo_version)'],
             },
             {
               # This postbuid step is responsible for creating the following
@@ -424,7 +424,7 @@
               'action': [
                 '../build/mac/make_more_helpers.sh',
                 'Frameworks',
-                '<(content_shell_product_name)',
+                '<(cameo_product_name)',
               ],
             },
             {
@@ -444,9 +444,9 @@
     ['OS=="mac"', {
       'targets': [
         {
-          'target_name': 'content_shell_framework',
+          'target_name': 'cameo_framework',
           'type': 'shared_library',
-          'product_name': '<(content_shell_product_name) Framework',
+          'product_name': '<(cameo_product_name) Framework',
           'mac_bundle': 1,
           'mac_bundle_resources': [
             'src/mac/English.lproj/HttpAuth.xib',
@@ -454,7 +454,7 @@
             '<(PRODUCT_DIR)/cameo.pak'
           ],
           'dependencies': [
-            'content_shell_lib',
+            'cameo_lib',
           ],
           'include_dirs': [
             '..',
@@ -489,15 +489,15 @@
               ],
             }],
           ],
-        },  # target content_shell_framework
+        },  # target cameo_framework
         {
-          'target_name': 'content_shell_helper_app',
+          'target_name': 'cameo_helper_app',
           'type': 'executable',
           'variables': { 'enable_wexit_time_destructors': 1, },
-          'product_name': '<(content_shell_product_name) Helper',
+          'product_name': '<(cameo_product_name) Helper',
           'mac_bundle': 1,
           'dependencies': [
-            'content_shell_framework',
+            'cameo_framework',
           ],
           'sources': [
             'src/app/shell_main.cc',
@@ -523,13 +523,13 @@
               # The framework defines its load-time path
               # (DYLIB_INSTALL_NAME_BASE) relative to the main executable
               # (chrome).  A different relative path needs to be used in
-              # content_shell_helper_app.
+              # cameo_helper_app.
               'postbuild_name': 'Fix Framework Link',
               'action': [
                 'install_name_tool',
                 '-change',
-                '/Library/Frameworks/<(content_shell_product_name) Framework.framework/Versions/A/<(content_shell_product_name) Framework',
-                '@executable_path/../../../../Frameworks/<(content_shell_product_name) Framework.framework/<(content_shell_product_name) Framework',
+                '/Library/Frameworks/<(cameo_product_name) Framework.framework/Versions/A/<(cameo_product_name) Framework',
+                '@executable_path/../../../../Frameworks/<(cameo_product_name) Framework.framework/<(cameo_product_name) Framework',
                 '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
               ],
             },
@@ -544,7 +544,7 @@
                          '--breakpad=0',
                          '--keystone=0',
                          '--scm=0',
-                         '--version=<(content_shell_version)'],
+                         '--version=<(cameo_version)'],
             },
             {
               # Make sure there isn't any Objective-C in the helper app's
@@ -566,7 +566,7 @@
               },
             }],
           ],
-        },  # target content_shell_helper_app
+        },  # target cameo_helper_app
       ],
     }],  # OS=="mac"
     ['OS=="android"', {
@@ -574,7 +574,7 @@
         {
           # TODO(jrg): Update this action and other jni generators to only
           # require specifying the java directory and generate the rest.
-          'target_name': 'content_shell_jni_headers',
+          'target_name': 'cameo_jni_headers',
           'type': 'none',
           'sources': [
             'src/android/browsertests_apk/src/org/chromium/content_browsertests_apk/BrowserTestSystemMessageHandler.java',
@@ -593,11 +593,11 @@
           'includes': [ '../build/jni_generator.gypi' ],
         },
         {
-          'target_name': 'libcontent_shell_content_view',
+          'target_name': 'libcameo_content_view',
           'type': 'shared_library',
           'dependencies': [
-            'content_shell_jni_headers',
-            'content_shell_lib',
+            'cameo_jni_headers',
+            'cameo_lib',
             'cameo_pak',
             # Skia is necessary to ensure the dependencies needed by
             # WebContents are included.
@@ -617,7 +617,7 @@
           ],
         },
         {
-          'target_name': 'content_shell_java',
+          'target_name': 'cameo_java',
           'type': 'none',
           'dependencies': [
             'content_java',
@@ -625,31 +625,31 @@
           'variables': {
             'java_in_dir': '../content/android/java',
             'has_java_resources': 1,
-            'R_package': 'org.chromium.content_shell',
-            'R_package_relpath': 'org/chromium/content_shell',
+            'R_package': 'org.chromium.cameo',
+            'R_package_relpath': 'org/chromium/cameo',
           },
           'includes': [ '../build/java.gypi' ],
         },
         {
-          # content_shell_apk creates a .jar as a side effect. Any java targets
+          # cameo_apk creates a .jar as a side effect. Any java targets
           # that need that .jar in their classpath should depend on this target,
-          # content_shell_apk_java. Dependents of content_shell_apk receive its
+          # cameo_apk_java. Dependents of cameo_apk receive its
           # jar path in the variable 'apk_output_jar_path'. This target should
-          # only be used by targets which instrument content_shell_apk.
-          'target_name': 'content_shell_apk_java',
+          # only be used by targets which instrument cameo_apk.
+          'target_name': 'cameo_apk_java',
           'type': 'none',
           'dependencies': [
-            'content_shell_apk',
+            'cameo_apk',
           ],
           'includes': [ '../build/apk_fake_jar.gypi' ],
         },
         {
-          'target_name': 'content_shell_apk',
+          'target_name': 'cameo_apk',
           'type': 'none',
           'dependencies': [
             'content_java',
-            'content_shell_java',
-            'libcontent_shell_content_view',
+            'cameo_java',
+            'libcameo_content_view',
             '../base/base.gyp:base_java',
             '../media/media.gyp:media_java',
             '../net/net.gyp:net_java',
@@ -657,10 +657,10 @@
           ],
           'variables': {
             'apk_name': 'ContentShell',
-            'manifest_package_name': 'org.chromium.content_shell_apk',
+            'manifest_package_name': 'org.chromium.cameo_apk',
             'java_in_dir': 'android/shell_apk',
             'resource_dir': 'android/shell_apk/res',
-            'native_lib_target': 'libcontent_shell_content_view',
+            'native_lib_target': 'libcameo_content_view',
             'additional_input_paths': ['<(PRODUCT_DIR)/content_assets/cameo.pak'],
             'asset_location': '<(ant_build_out)/content_assets',
           },

@@ -26,13 +26,13 @@
 }
 
 - (IBAction)newDocument:(id)sender {
-  content::ShellBrowserContext* browserContext =
-      content::ShellContentBrowserClient::Get()->browser_context();
-  content::Shell::CreateNewWindow(browserContext,
-                                  GURL("about:blank"),
-                                  NULL,
-                                  MSG_ROUTING_NONE,
-                                  gfx::Size());
+  cameo::ShellBrowserContext* browserContext =
+      cameo::ShellContentBrowserClient::Get()->browser_context();
+  cameo::Shell::CreateNewWindow(browserContext,
+                                GURL("about:blank"),
+                                NULL,
+                                MSG_ROUTING_NONE,
+                                gfx::Size());
 }
 
 @end

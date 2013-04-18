@@ -34,18 +34,14 @@ class WebView;
 class Widget;
 }
 
-namespace content {
-class Shell;
-}
-
-namespace content {
+namespace cameo {
 
 class NativeToolbarWin;
 
 class NativeAppWindowWin : public NativeAppWindow,
                            public views::WidgetDelegateView {
  public:
-  explicit NativeAppWindowWin(content::Shell* shell,
+  explicit NativeAppWindowWin(Shell* shell,
                               const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowWin();
 

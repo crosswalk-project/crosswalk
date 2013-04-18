@@ -20,7 +20,7 @@
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   content::InitializeSandboxInfo(&sandbox_info);
-  content::ShellMainDelegate delegate;
+  cameo::ShellMainDelegate delegate;
   return content::ContentMain(instance, &sandbox_info, &delegate);
 }
 
@@ -32,7 +32,7 @@ int main(int argc, const char** argv) {
   // delegate types.
   return ::ContentMain(argc, argv);
 #else
-  content::ShellMainDelegate delegate;
+  cameo::ShellMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 #endif  // OS_MACOSX
 }

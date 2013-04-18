@@ -13,44 +13,44 @@
 #include "net/url_request/url_request.h"
 #include "ui/base/text/text_elider.h"
 
-namespace content {
+namespace cameo {
 
 ShellLoginDialog::ShellLoginDialog(
     net::AuthChallengeInfo* auth_info,
     net::URLRequest* request) : auth_info_(auth_info),
                                 request_(request) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ShellLoginDialog::PrepDialog, this,
                  ASCIIToUTF16(auth_info->challenger.ToString()),
                  UTF8ToUTF16(auth_info->realm)));
 }
 
 void ShellLoginDialog::OnRequestCancelled() {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ShellLoginDialog::PlatformRequestCancelled, this));
 }
 
 void ShellLoginDialog::UserAcceptedAuth(const string16& username,
                                         const string16& password) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&ShellLoginDialog::SendAuthToRequester, this,
                  true, username, password));
 }
 
 void ShellLoginDialog::UserCancelledAuth() {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
       base::Bind(&ShellLoginDialog::SendAuthToRequester, this,
                  false, string16(), string16()));
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ShellLoginDialog::PlatformCleanUp, this));
 }
 
@@ -70,7 +70,7 @@ void ShellLoginDialog::PlatformRequestCancelled() {}
 
 void ShellLoginDialog::PrepDialog(const string16& host,
                                   const string16& realm) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   // The realm is controlled by the remote server, so there is no reason to
   // believe it is of a reasonable length.
   string16 elided_realm;
@@ -92,16 +92,17 @@ void ShellLoginDialog::PrepDialog(const string16& host,
 void ShellLoginDialog::SendAuthToRequester(bool success,
                                            const string16& username,
                                            const string16& password) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
   if (success)
     request_->SetAuth(net::AuthCredentials(username, password));
   else
     request_->CancelAuth();
-  ResourceDispatcherHost::Get()->ClearLoginDelegateForRequest(request_);
+  content::ResourceDispatcherHost::Get()->ClearLoginDelegateForRequest(
+      request_);
 
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI, FROM_HERE,
       base::Bind(&ShellLoginDialog::PlatformCleanUp, this));
 }
 
-}  // namespace content
+}  // namespace cameo

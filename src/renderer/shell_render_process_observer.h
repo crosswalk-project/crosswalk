@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_RENDER_PROCESS_OBSERVER_H_
-#define CONTENT_SHELL_SHELL_RENDER_PROCESS_OBSERVER_H_
+#ifndef CAMEO_SRC_RENDERER_SHELL_RENDER_PROCESS_OBSERVER_H_
+#define CAMEO_SRC_RENDERER_SHELL_RENDER_PROCESS_OBSERVER_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -14,16 +14,13 @@ namespace WebKit {
 class WebFrame;
 }
 
-namespace WebTestRunner {
-class WebTestDelegate;
-class WebTestInterfaces;
+namespace content {
+class RenderView;
 }
 
-namespace content {
+namespace cameo {
 
-class RenderView;
-
-class ShellRenderProcessObserver : public RenderProcessObserver {
+class ShellRenderProcessObserver : public content::RenderProcessObserver {
  public:
   static ShellRenderProcessObserver* GetInstance();
 
@@ -40,6 +37,6 @@ class ShellRenderProcessObserver : public RenderProcessObserver {
   DISALLOW_COPY_AND_ASSIGN(ShellRenderProcessObserver);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_RENDER_PROCESS_OBSERVER_H_
+#endif  // CAMEO_SRC_RENDERER_SHELL_RENDER_PROCESS_OBSERVER_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_APPLICATION_MAC_H_
-#define CONTENT_SHELL_SHELL_APPLICATION_MAC_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_APPLICATION_MAC_H_
+#define CAMEO_SRC_BROWSER_SHELL_APPLICATION_MAC_H_
 
 #include "base/message_pump_mac.h"
 #include "base/mac/scoped_sending_event.h"
@@ -24,4 +24,4 @@
 
 @end
 
-#endif  // CONTENT_SHELL_SHELL_APPLICATION_MAC_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_APPLICATION_MAC_H_

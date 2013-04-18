@@ -11,7 +11,7 @@
 #include "ui/views/corewm/compound_event_filter.h"
 #include "ui/views/corewm/input_method_event_filter.h"
 
-namespace content {
+namespace cameo {
 
 MinimalAsh::MinimalAsh(const gfx::Size& default_window_size) {
   root_window_.reset(new aura::RootWindow(
@@ -51,4 +51,4 @@ aura::Window* MinimalAsh::GetDefaultParent(
   return root_window_.get();
 }
 
-}  // namespace content
+}  // namespace cameo

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_LOGIN_DIALOG_H_
-#define CONTENT_SHELL_SHELL_LOGIN_DIALOG_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_LOGIN_DIALOG_H_
+#define CAMEO_SRC_BROWSER_SHELL_LOGIN_DIALOG_H_
 
 #include "base/compiler_specific.h"
 #include "base/string16.h"
@@ -26,11 +26,11 @@ class AuthChallengeInfo;
 class URLRequest;
 }
 
-namespace content {
+namespace cameo {
 
 // This class provides a dialog box to ask the user for credentials. Useful in
 // ResourceDispatcherHostDelegate::CreateLoginDelegate.
-class ShellLoginDialog : public ResourceDispatcherHostLoginDelegate {
+class ShellLoginDialog : public content::ResourceDispatcherHostLoginDelegate {
  public:
   // Threading: IO thread.
   ShellLoginDialog(net::AuthChallengeInfo* auth_info, net::URLRequest* request);
@@ -92,6 +92,6 @@ class ShellLoginDialog : public ResourceDispatcherHostLoginDelegate {
 #endif
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_LOGIN_DIALOG_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_LOGIN_DIALOG_H_

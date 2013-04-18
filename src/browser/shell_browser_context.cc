@@ -28,9 +28,10 @@
 #include "base/base_paths_mac.h"
 #endif
 
-namespace content {
+namespace cameo {
 
-class ShellBrowserContext::ShellResourceContext : public ResourceContext {
+class ShellBrowserContext::ShellResourceContext
+    : public content::ResourceContext {
  public:
   ShellResourceContext() : getter_(NULL) {}
   virtual ~ShellResourceContext() {}
@@ -64,8 +65,8 @@ ShellBrowserContext::ShellBrowserContext(bool off_the_record)
 
 ShellBrowserContext::~ShellBrowserContext() {
   if (resource_context_.get()) {
-    BrowserThread::DeleteSoon(
-      BrowserThread::IO, FROM_HERE, resource_context_.release());
+    content::BrowserThread::DeleteSoon(
+      content::BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
 }
 
@@ -110,8 +111,10 @@ bool ShellBrowserContext::IsOffTheRecord() const {
   return off_the_record_;
 }
 
-DownloadManagerDelegate* ShellBrowserContext::GetDownloadManagerDelegate()  {
-  DownloadManager* manager = BrowserContext::GetDownloadManager(this);
+content::DownloadManagerDelegate*
+ShellBrowserContext::GetDownloadManagerDelegate()  {
+  content::DownloadManager* manager =
+      content::BrowserContext::GetDownloadManager(this);
 
   if (!download_manager_delegate_.get()) {
     download_manager_delegate_ = new ShellDownloadManagerDelegate();
@@ -126,13 +129,15 @@ net::URLRequestContextGetter* ShellBrowserContext::GetRequestContext()  {
 }
 
 net::URLRequestContextGetter* ShellBrowserContext::CreateRequestContext(
-    ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers) {
   DCHECK(!url_request_getter_);
   url_request_getter_ = new ShellURLRequestContextGetter(
       ignore_certificate_errors_,
       GetPath(),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
-      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
+      content::BrowserThread::UnsafeGetMessageLoopForThread(
+          content::BrowserThread::IO),
+      content::BrowserThread::UnsafeGetMessageLoopForThread(
+          content::BrowserThread::FILE),
       protocol_handlers);
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
@@ -166,20 +171,20 @@ net::URLRequestContextGetter*
     ShellBrowserContext::CreateRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory,
-        ProtocolHandlerMap* protocol_handlers) {
+        content::ProtocolHandlerMap* protocol_handlers) {
   return NULL;
 }
 
-ResourceContext* ShellBrowserContext::GetResourceContext()  {
+content::ResourceContext* ShellBrowserContext::GetResourceContext()  {
   return resource_context_.get();
 }
 
-GeolocationPermissionContext*
+content::GeolocationPermissionContext*
     ShellBrowserContext::GetGeolocationPermissionContext()  {
   return NULL;
 }
 
-SpeechRecognitionPreferences*
+content::SpeechRecognitionPreferences*
     ShellBrowserContext::GetSpeechRecognitionPreferences() {
   return NULL;
 }
@@ -188,4 +193,4 @@ quota::SpecialStoragePolicy* ShellBrowserContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-}  // namespace content
+}  // namespace cameo

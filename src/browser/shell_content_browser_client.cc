@@ -34,44 +34,11 @@
 #include "cameo/src/android/shell_descriptors.h"
 #endif
 
-namespace content {
+namespace cameo {
 
 namespace {
 
 ShellContentBrowserClient* g_browser_client;
-
-base::FilePath GetWebKitRootDirFilePath() {
-  base::FilePath base_path;
-  PathService::Get(base::DIR_SOURCE_ROOT, &base_path);
-  if (file_util::PathExists(
-          base_path.Append(FILE_PATH_LITERAL("third_party/WebKit")))) {
-    // We're in a WebKit-in-chrome checkout.
-    return base_path.Append(FILE_PATH_LITERAL("third_party/WebKit"));
-  } else if (file_util::PathExists(
-          base_path.Append(FILE_PATH_LITERAL("chromium")))) {
-    // We're in a WebKit-only checkout on Windows.
-    return base_path.Append(FILE_PATH_LITERAL("../.."));
-  } else if (file_util::PathExists(
-          base_path.Append(FILE_PATH_LITERAL("webkit/support")))) {
-    // We're in a WebKit-only/xcodebuild checkout on Mac
-    return base_path.Append(FILE_PATH_LITERAL("../../.."));
-  }
-  // We're in a WebKit-only, make-build, so the DIR_SOURCE_ROOT is already the
-  // WebKit root. That, or we have no idea where we are.
-  return base_path;
-}
-
-base::FilePath GetChromiumRootDirFilePath() {
-  base::FilePath webkit_path = GetWebKitRootDirFilePath();
-  if (file_util::PathExists(webkit_path.Append(
-          FILE_PATH_LITERAL("Source/WebKit/chromium/webkit/support")))) {
-    // We're in a WebKit-only checkout.
-    return webkit_path.Append(FILE_PATH_LITERAL("Source/WebKit/chromium"));
-  } else {
-    // We're in a Chromium checkout, and WebKit is in third_party/WebKit.
-    return webkit_path.Append(FILE_PATH_LITERAL("../.."));
-  }
-}
 
 }  // namespace
 
@@ -90,19 +57,19 @@ ShellContentBrowserClient::~ShellContentBrowserClient() {
   g_browser_client = NULL;
 }
 
-BrowserMainParts* ShellContentBrowserClient::CreateBrowserMainParts(
-    const MainFunctionParams& parameters) {
+content::BrowserMainParts* ShellContentBrowserClient::CreateBrowserMainParts(
+    const content::MainFunctionParams& parameters) {
   shell_browser_main_parts_ = new ShellBrowserMainParts(parameters);
   return shell_browser_main_parts_;
 }
 
 void ShellContentBrowserClient::RenderProcessHostCreated(
-    RenderProcessHost* host) {
+    content::RenderProcessHost* host) {
 }
 
 net::URLRequestContextGetter* ShellContentBrowserClient::CreateRequestContext(
-    BrowserContext* content_browser_context,
-    ProtocolHandlerMap* protocol_handlers) {
+    content::BrowserContext* content_browser_context,
+    content::ProtocolHandlerMap* protocol_handlers) {
   ShellBrowserContext* shell_browser_context =
       ShellBrowserContextForBrowserContext(content_browser_context);
   return shell_browser_context->CreateRequestContext(protocol_handlers);
@@ -110,10 +77,10 @@ net::URLRequestContextGetter* ShellContentBrowserClient::CreateRequestContext(
 
 net::URLRequestContextGetter*
 ShellContentBrowserClient::CreateRequestContextForStoragePartition(
-    BrowserContext* content_browser_context,
+    content::BrowserContext* content_browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
-    ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers) {
   ShellBrowserContext* shell_browser_context =
       ShellBrowserContextForBrowserContext(content_browser_context);
   return shell_browser_context->CreateRequestContextForStoragePartition(
@@ -125,7 +92,7 @@ void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
 }
 
 void ShellContentBrowserClient::OverrideWebkitPrefs(
-    RenderViewHost* render_view_host,
+    content::RenderViewHost* render_view_host,
     const GURL& url,
     webkit_glue::WebPreferences* prefs) {
 }
@@ -133,7 +100,7 @@ void ShellContentBrowserClient::OverrideWebkitPrefs(
 void ShellContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_.reset(
       new ShellResourceDispatcherHostDelegate());
-  ResourceDispatcherHost::Get()->SetDelegate(
+  content::ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
 
@@ -147,8 +114,9 @@ bool ShellContentBrowserClient::SupportsBrowserPlugin(
       switches::kEnableBrowserPluginForAllViewTypes);
 }
 
-WebContentsViewDelegate* ShellContentBrowserClient::GetWebContentsViewDelegate(
-    WebContents* web_contents) {
+content::WebContentsViewDelegate*
+ShellContentBrowserClient::GetWebContentsViewDelegate(
+    content::WebContents* web_contents) {
 #if !defined(USE_AURA)
   return CreateShellWebContentsViewDelegate(web_contents);
 #else
@@ -156,7 +124,7 @@ WebContentsViewDelegate* ShellContentBrowserClient::GetWebContentsViewDelegate(
 #endif
 }
 
-QuotaPermissionContext*
+content::QuotaPermissionContext*
 ShellContentBrowserClient::CreateQuotaPermissionContext() {
   return new ShellQuotaPermissionContext();
 }
@@ -185,13 +153,14 @@ void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
 }
 #endif
 
-void ShellContentBrowserClient::Observe(int type,
-                                        const NotificationSource& source,
-                                        const NotificationDetails& details) {
+void ShellContentBrowserClient::Observe(
+    int type,
+    const content::NotificationSource& source,
+    const content::NotificationDetails& details) {
   switch (type) {
-    case NOTIFICATION_RENDERER_PROCESS_CREATED: {
+    case content::NOTIFICATION_RENDERER_PROCESS_CREATED: {
       registrar_.Remove(this,
-                        NOTIFICATION_RENDERER_PROCESS_CREATED,
+                        content::NOTIFICATION_RENDERER_PROCESS_CREATED,
                         source);
       break;
     }
@@ -210,17 +179,18 @@ ShellBrowserContext*
   return shell_browser_main_parts_->off_the_record_browser_context();
 }
 
-AccessTokenStore* ShellContentBrowserClient::CreateAccessTokenStore() {
+content::AccessTokenStore*
+ShellContentBrowserClient::CreateAccessTokenStore() {
   return new ShellAccessTokenStore(browser_context()->GetRequestContext());
 }
 
 ShellBrowserContext*
 ShellContentBrowserClient::ShellBrowserContextForBrowserContext(
-    BrowserContext* content_browser_context) {
+    content::BrowserContext* content_browser_context) {
   if (content_browser_context == browser_context())
     return browser_context();
   DCHECK_EQ(content_browser_context, off_the_record_browser_context());
   return off_the_record_browser_context();
 }
 
-}  // namespace content
+}  // namespace cameo

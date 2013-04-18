@@ -18,7 +18,7 @@ static base::android::RegistrationMethod kShellRegistrationMethods[] = {
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 namespace android {
 
 bool RegisterShellJni(JNIEnv* env) {
@@ -27,4 +27,4 @@ bool RegisterShellJni(JNIEnv* env) {
 }
 
 }  // namespace android
-}  // namespace content
+}  // namespace cameo

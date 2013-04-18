@@ -11,16 +11,16 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/context_menu_params.h"
 
-namespace content {
+namespace cameo {
 
-WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
-    WebContents* web_contents) {
+content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
+    content::WebContents* web_contents) {
   return new ShellWebContentsViewDelegate(web_contents);
 }
 
 
 ShellWebContentsViewDelegate::ShellWebContentsViewDelegate(
-    WebContents* web_contents)
+    content::WebContents* web_contents)
     : web_contents_(web_contents) {
 }
 
@@ -28,8 +28,8 @@ ShellWebContentsViewDelegate::~ShellWebContentsViewDelegate() {
 }
 
 void ShellWebContentsViewDelegate::ShowContextMenu(
-    const ContextMenuParams& params,
-    ContextMenuSourceType type) {
+    const content::ContextMenuParams& params,
+    content::ContextMenuSourceType type) {
   if (params.is_editable && params.selection_text.empty()) {
     content::ContentViewCore* content_view_core =
         web_contents_->GetView()->GetContentNativeView();
@@ -40,8 +40,9 @@ void ShellWebContentsViewDelegate::ShowContextMenu(
   }
 }
 
-WebDragDestDelegate* ShellWebContentsViewDelegate::GetDragDestDelegate() {
+content::WebDragDestDelegate*
+ShellWebContentsViewDelegate::GetDragDestDelegate() {
   return NULL;
 }
 
-}  // namespace content
+}  // namespace cameo

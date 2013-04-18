@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_URL_REQUEST_CONTEXT_GETTER_H_
-#define CONTENT_SHELL_SHELL_URL_REQUEST_CONTEXT_GETTER_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_URL_REQUEST_CONTEXT_GETTER_H_
+#define CAMEO_SRC_BROWSER_SHELL_URL_REQUEST_CONTEXT_GETTER_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -25,7 +25,7 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 }
 
-namespace content {
+namespace cameo {
 
 class ShellURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
@@ -34,7 +34,7 @@ class ShellURLRequestContextGetter : public net::URLRequestContextGetter {
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
-      ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers);
 
   // net::URLRequestContextGetter implementation.
   virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
@@ -56,11 +56,11 @@ class ShellURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::NetworkDelegate> network_delegate_;
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
-  ProtocolHandlerMap protocol_handlers_;
+  content::ProtocolHandlerMap protocol_handlers_;
 
   DISALLOW_COPY_AND_ASSIGN(ShellURLRequestContextGetter);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_URL_REQUEST_CONTEXT_GETTER_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_URL_REQUEST_CONTEXT_GETTER_H_

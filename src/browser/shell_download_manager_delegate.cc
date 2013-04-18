@@ -27,7 +27,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "net/base/net_util.h"
 
-namespace content {
+namespace cameo {
 
 ShellDownloadManagerDelegate::ShellDownloadManagerDelegate()
     : download_manager_(NULL),
@@ -41,7 +41,7 @@ ShellDownloadManagerDelegate::~ShellDownloadManagerDelegate(){
 
 
 void ShellDownloadManagerDelegate::SetDownloadManager(
-    DownloadManager* download_manager) {
+    content::DownloadManager* download_manager) {
   download_manager_ = download_manager;
 }
 
@@ -50,9 +50,9 @@ void ShellDownloadManagerDelegate::Shutdown() {
 }
 
 bool ShellDownloadManagerDelegate::DetermineDownloadTarget(
-    DownloadItem* download,
-    const DownloadTargetCallback& callback) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+    content::DownloadItem* download,
+    const content::DownloadTargetCallback& callback) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   // This assignment needs to be here because even at the call to
   // SetDownloadManager, the system is not fully initialized.
   if (default_download_path_.empty()) {
@@ -62,8 +62,8 @@ bool ShellDownloadManagerDelegate::DetermineDownloadTarget(
 
   if (!download->GetForcedFilePath().empty()) {
     callback.Run(download->GetForcedFilePath(),
-                 DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-                 DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+                 content::DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                  download->GetForcedFilePath());
     return true;
   }
@@ -76,8 +76,8 @@ bool ShellDownloadManagerDelegate::DetermineDownloadTarget(
       download->GetMimeType(),
       "download");
 
-  BrowserThread::PostTask(
-      BrowserThread::FILE,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::FILE,
       FROM_HERE,
       base::Bind(
           &ShellDownloadManagerDelegate::GenerateFilename,
@@ -87,23 +87,23 @@ bool ShellDownloadManagerDelegate::DetermineDownloadTarget(
 }
 
 bool ShellDownloadManagerDelegate::ShouldOpenDownload(
-      DownloadItem* item,
-      const DownloadOpenDelayedCallback& callback) {
+      content::DownloadItem* item,
+      const content::DownloadOpenDelayedCallback& callback) {
   return true;
 }
 
 void ShellDownloadManagerDelegate::GenerateFilename(
     int32 download_id,
-    const DownloadTargetCallback& callback,
+    const content::DownloadTargetCallback& callback,
     const base::FilePath& generated_name,
     const base::FilePath& suggested_directory) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::FILE));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::FILE));
   if (!file_util::PathExists(suggested_directory))
     file_util::CreateDirectory(suggested_directory);
 
   base::FilePath suggested_path(suggested_directory.Append(generated_name));
-  BrowserThread::PostTask(
-      BrowserThread::UI,
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI,
       FROM_HERE,
       base::Bind(
           &ShellDownloadManagerDelegate::OnDownloadPathGenerated,
@@ -112,13 +112,14 @@ void ShellDownloadManagerDelegate::GenerateFilename(
 
 void ShellDownloadManagerDelegate::OnDownloadPathGenerated(
     int32 download_id,
-    const DownloadTargetCallback& callback,
+    const content::DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   if (suppress_prompting_) {
     // Testing exit.
-    callback.Run(suggested_path, DownloadItem::TARGET_DISPOSITION_OVERWRITE,
-                 DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
+    callback.Run(suggested_path, 
+                 content::DownloadItem::TARGET_DISPOSITION_OVERWRITE,
+                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                  suggested_path.AddExtension(FILE_PATH_LITERAL(".crdownload")));
     return;
   }
@@ -128,11 +129,11 @@ void ShellDownloadManagerDelegate::OnDownloadPathGenerated(
 
 void ShellDownloadManagerDelegate::ChooseDownloadPath(
     int32 download_id,
-    const DownloadTargetCallback& callback,
+    const content::DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  DownloadItem* item = download_manager_->GetDownload(download_id);
-  if (!item || (item->GetState() != DownloadItem::IN_PROGRESS))
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  content::DownloadItem* item = download_manager_->GetDownload(download_id);
+  if (!item || (item->GetState() != content::DownloadItem::IN_PROGRESS))
     return;
 
   base::FilePath result;
@@ -184,8 +185,8 @@ void ShellDownloadManagerDelegate::ChooseDownloadPath(
   NOTIMPLEMENTED();
 #endif
 
-  callback.Run(result, DownloadItem::TARGET_DISPOSITION_PROMPT,
-               DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
+  callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+               content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, result);
 }
 
 void ShellDownloadManagerDelegate::SetDownloadBehaviorForTesting(
@@ -194,4 +195,4 @@ void ShellDownloadManagerDelegate::SetDownloadBehaviorForTesting(
   suppress_prompting_ = true;
 }
 
-}  // namespace content
+}  // namespace cameo

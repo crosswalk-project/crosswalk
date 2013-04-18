@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_JAVASCRIPT_DIALOG_H_
-#define CONTENT_SHELL_SHELL_JAVASCRIPT_DIALOG_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_JAVASCRIPT_DIALOG_H_
+#define CAMEO_SRC_BROWSER_SHELL_JAVASCRIPT_DIALOG_H_
 
 #include "content/public/browser/javascript_dialog_manager.h"
 
@@ -19,7 +19,7 @@ class ShellJavaScriptDialogHelper;
 #endif  // __OBJC__
 #endif  // defined(OS_MACOSX)
 
-namespace content {
+namespace cameo {
 
 class ShellJavaScriptDialogManager;
 
@@ -28,10 +28,10 @@ class ShellJavaScriptDialog {
   ShellJavaScriptDialog(
       ShellJavaScriptDialogManager* manager,
       gfx::NativeWindow parent_window,
-      JavaScriptMessageType message_type,
+      content::JavaScriptMessageType message_type,
       const string16& message_text,
       const string16& default_prompt_text,
-      const JavaScriptDialogManager::DialogClosedCallback& callback);
+      const content::JavaScriptDialogManager::DialogClosedCallback& callback);
   ~ShellJavaScriptDialog();
 
   // Called to cancel a dialog mid-flight.
@@ -39,12 +39,12 @@ class ShellJavaScriptDialog {
 
  private:
   ShellJavaScriptDialogManager* manager_;
-  JavaScriptDialogManager::DialogClosedCallback callback_;
+  content::JavaScriptDialogManager::DialogClosedCallback callback_;
 
 #if defined(OS_MACOSX)
   ShellJavaScriptDialogHelper* helper_;  // owned
 #elif defined(OS_WIN)
-  JavaScriptMessageType message_type_;
+  content::JavaScriptMessageType message_type_;
   HWND dialog_win_;
   string16 message_text_;
   string16 default_prompt_text_;
@@ -59,6 +59,6 @@ class ShellJavaScriptDialog {
   DISALLOW_COPY_AND_ASSIGN(ShellJavaScriptDialog);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_JAVASCRIPT_DIALOG_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_JAVASCRIPT_DIALOG_H_

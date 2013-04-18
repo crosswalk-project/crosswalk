@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_ANDROID_SHELL_MANAGER_H_
-#define CONTENT_SHELL_ANDROID_SHELL_MANAGER_H_
+#ifndef CAMEO_SRC_ANDROID_SHELL_MANAGER_H_
+#define CAMEO_SRC_ANDROID_SHELL_MANAGER_H_
 
 #include <jni.h>
 
@@ -16,7 +16,7 @@ namespace WebKit {
 class WebLayer;
 }
 
-namespace content {
+namespace cameo {
 
 // Creates an Android specific shell view, which is our version of a shell
 // window.  This view holds the controls and content views necessary to
@@ -29,6 +29,6 @@ bool RegisterShellManager(JNIEnv* env);
 
 void ShellAttachLayer(WebKit::WebLayer* layer);
 void ShellRemoveLayer(WebKit::WebLayer* layer);
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_ANDROID_SHELL_MANAGER_H_
+#endif  // CAMEO_SRC_ANDROID_SHELL_MANAGER_H_

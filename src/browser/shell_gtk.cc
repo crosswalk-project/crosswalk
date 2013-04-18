@@ -18,7 +18,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/common/renderer_preferences.h"
 
-namespace content {
+namespace cameo {
 
 namespace {
 
@@ -107,7 +107,7 @@ void Shell::PlatformCreateWindow(int width, int height) {
     return;
 
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  gtk_window_set_title(window_, "Content Shell");
+  gtk_window_set_title(window_, "Cameo");
   g_signal_connect(G_OBJECT(window_), "destroy",
                    G_CALLBACK(OnWindowDestroyedThunk), this);
 
@@ -202,7 +202,7 @@ void Shell::PlatformSetContents() {
   if (headless_)
     return;
 
-  WebContentsView* content_view = web_contents_->GetView();
+  content::WebContentsView* content_view = web_contents_->GetView();
   gtk_container_add(GTK_CONTAINER(vbox_), content_view->GetNativeView());
 }
 
@@ -296,4 +296,4 @@ void Shell::PlatformSetTitle(const string16& title) {
   gtk_window_set_title(GTK_WINDOW(window_), title_utf8.c_str());
 }
 
-}  // namespace content
+}  // namespace cameo

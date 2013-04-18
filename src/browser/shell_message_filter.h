@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_MESSAGE_FILTER_H_
-#define CONTENT_SHELL_SHELL_MESSAGE_FILTER_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_MESSAGE_FILTER_H_
+#define CAMEO_SRC_BROWSER_SHELL_MESSAGE_FILTER_H_
 
 #include <string>
 #include <vector>
@@ -20,9 +20,9 @@ namespace webkit_database {
 class DatabaseTracker;
 }
 
-namespace content {
+namespace cameo {
 
-class ShellMessageFilter : public BrowserMessageFilter {
+class ShellMessageFilter : public content::BrowserMessageFilter {
  public:
   ShellMessageFilter(int render_process_id,
                      webkit_database::DatabaseTracker* database_tracker,
@@ -43,6 +43,6 @@ class ShellMessageFilter : public BrowserMessageFilter {
   DISALLOW_COPY_AND_ASSIGN(ShellMessageFilter);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif // CONTENT_SHELL_SHELL_MESSAGE_FILTER_H_
+#endif // CAMEO_SRC_BROWSER_SHELL_MESSAGE_FILTER_H_

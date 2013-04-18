@@ -8,7 +8,7 @@
 #include "cameo/src/browser/shell_login_dialog.h"
 #include "cameo/src/common/shell_switches.h"
 
-namespace content {
+namespace cameo {
 
 ShellResourceDispatcherHostDelegate::ShellResourceDispatcherHostDelegate() {
 }
@@ -23,7 +23,7 @@ bool ShellResourceDispatcherHostDelegate::AcceptAuthRequest(
   return accept_auth_request;
 }
 
-ResourceDispatcherHostLoginDelegate*
+content::ResourceDispatcherHostLoginDelegate*
 ShellResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, net::URLRequest* request) {
   if (!login_request_callback_.is_null()) {
@@ -40,4 +40,4 @@ ShellResourceDispatcherHostDelegate::CreateLoginDelegate(
 #endif
 }
 
-}  // namespace content
+}  // namespace cameo

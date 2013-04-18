@@ -16,13 +16,13 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "webkit/user_agent/user_agent_util.h"
 
-namespace content {
+namespace cameo {
 
 ShellContentClient::~ShellContentClient() {
 }
 
 std::string ShellContentClient::GetUserAgent() const {
-  std::string product = "Chrome/" CONTENT_SHELL_VERSION;
+  std::string product = "Chrome/" CAMEO_VERSION;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
@@ -49,4 +49,4 @@ gfx::Image& ShellContentClient::GetNativeImageNamed(int resource_id) const {
   return ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
 }
 
-}  // namespace content
+}  // namespace cameo

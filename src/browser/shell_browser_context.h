@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_BROWSER_CONTEXT_H_
-#define CONTENT_SHELL_SHELL_BROWSER_CONTEXT_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_BROWSER_CONTEXT_H_
+#define CAMEO_SRC_BROWSER_SHELL_BROWSER_CONTEXT_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -14,13 +14,16 @@
 #include "net/url_request/url_request_job_factory.h"
 
 namespace content {
-
 class DownloadManagerDelegate;
 class ResourceContext;
+}
+
+namespace cameo {
+
 class ShellDownloadManagerDelegate;
 class ShellURLRequestContextGetter;
 
-class ShellBrowserContext : public BrowserContext {
+class ShellBrowserContext : public content::BrowserContext {
  public:
   explicit ShellBrowserContext(bool off_the_record);
   virtual ~ShellBrowserContext();
@@ -28,7 +31,8 @@ class ShellBrowserContext : public BrowserContext {
   // BrowserContext implementation.
   virtual base::FilePath GetPath() OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
-  virtual DownloadManagerDelegate* GetDownloadManagerDelegate() OVERRIDE;
+  virtual content::DownloadManagerDelegate*
+  GetDownloadManagerDelegate() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContext() OVERRIDE;
   virtual net::URLRequestContextGetter* GetRequestContextForRenderProcess(
       int renderer_child_id) OVERRIDE;
@@ -39,19 +43,19 @@ class ShellBrowserContext : public BrowserContext {
       GetMediaRequestContextForStoragePartition(
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
-  virtual ResourceContext* GetResourceContext() OVERRIDE;
-  virtual GeolocationPermissionContext*
+  virtual content::ResourceContext* GetResourceContext() OVERRIDE;
+  virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
-  virtual SpeechRecognitionPreferences*
+  virtual content::SpeechRecognitionPreferences*
       GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
   net::URLRequestContextGetter* CreateRequestContext(
-      ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
-      ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers);
 
  private:
   class ShellResourceContext;
@@ -70,6 +74,6 @@ class ShellBrowserContext : public BrowserContext {
   DISALLOW_COPY_AND_ASSIGN(ShellBrowserContext);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_BROWSER_CONTEXT_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_BROWSER_CONTEXT_H_

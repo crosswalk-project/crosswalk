@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_CONTENT_RENDERER_CLIENT_H_
-#define CONTENT_SHELL_SHELL_CONTENT_RENDERER_CLIENT_H_
+#ifndef CAMEO_SRC_RENDERER_SHELL_CONTENT_RENDERER_CLIENT_H_
+#define CAMEO_SRC_RENDERER_SHELL_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -27,11 +27,11 @@ class MockWebHyphenator;
 class MockWebClipboardImpl;
 class TestShellWebMimeRegistryImpl;
 
-namespace content {
+namespace cameo {
 
 class ShellRenderProcessObserver;
 
-class ShellContentRendererClient : public ContentRendererClient {
+class ShellContentRendererClient : public content::ContentRendererClient {
  public:
   static ShellContentRendererClient* Get();
 
@@ -42,9 +42,9 @@ class ShellContentRendererClient : public ContentRendererClient {
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
-  virtual void RenderViewCreated(RenderView* render_view) OVERRIDE;
+  virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
   virtual bool OverrideCreatePlugin(
-      RenderView* render_view,
+      content::RenderView* render_view,
       WebKit::WebFrame* frame,
       const WebKit::WebPluginParams& params,
       WebKit::WebPlugin** plugin) OVERRIDE;
@@ -64,6 +64,6 @@ class ShellContentRendererClient : public ContentRendererClient {
   scoped_ptr<ShellRenderProcessObserver> shell_observer_;
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_CONTENT_RENDERER_CLIENT_H_
+#endif  // CAMEO_SRC_RENDERER_SHELL_CONTENT_RENDERER_CLIENT_H_

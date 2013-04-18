@@ -33,14 +33,14 @@
 static const int kTestWindowWidth = 800;
 static const int kTestWindowHeight = 600;
 
-namespace content {
+namespace cameo {
 
 std::vector<Shell*> Shell::windows_;
 base::Callback<void(Shell*)> Shell::shell_created_callback_;
 
 bool Shell::quit_message_loop_ = true;
 
-Shell::Shell(WebContents* web_contents)
+Shell::Shell(content::WebContents* web_contents)
     : devtools_frontend_(NULL),
       is_fullscreen_(false),
       is_devtools_(false),
@@ -55,8 +55,10 @@ Shell::Shell(WebContents* web_contents)
     headless_ = true;
   }
 
-  registrar_.Add(this, NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      Source<WebContents>(web_contents));
+  registrar_.Add(
+      this,
+      content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+      content::Source<content::WebContents>(web_contents));
   windows_.push_back(this);
 
   if (!shell_created_callback_.is_null()) {
@@ -79,7 +81,7 @@ Shell::~Shell() {
     MessageLoop::current()->PostTask(FROM_HERE, MessageLoop::QuitClosure());
 }
 
-Shell* Shell::CreateShell(WebContents* web_contents) {
+Shell* Shell::CreateShell(content::WebContents* web_contents) {
   Shell* shell = new Shell(web_contents);
 
   shell->web_contents_.reset(web_contents);
@@ -96,7 +98,7 @@ Shell* Shell::CreateShell(WebContents* web_contents) {
 
 void Shell::CloseAllWindows() {
   base::AutoReset<bool> auto_reset(&quit_message_loop_, false);
-  DevToolsManager::GetInstance()->CloseAllClientHosts();
+  content::DevToolsManager::GetInstance()->CloseAllClientHosts();
   std::vector<Shell*> open_windows(windows_);
   for (size_t i = 0; i < open_windows.size(); ++i)
     open_windows[i]->Close();
@@ -109,7 +111,7 @@ void Shell::SetShellCreatedCallback(
   shell_created_callback_ = shell_created_callback;
 }
 
-Shell* Shell::FromRenderViewHost(RenderViewHost* rvh) {
+Shell* Shell::FromRenderViewHost(content::RenderViewHost* rvh) {
   for (size_t i = 0; i < windows_.size(); ++i) {
     if (windows_[i]->web_contents() &&
         windows_[i]->web_contents()->GetRenderViewHost() == rvh) {
@@ -124,18 +126,21 @@ void Shell::Initialize() {
   PlatformInitialize(gfx::Size(kTestWindowWidth, kTestWindowHeight));
 }
 
-Shell* Shell::CreateNewWindow(BrowserContext* browser_context,
+Shell* Shell::CreateNewWindow(content::BrowserContext* browser_context,
                               const GURL& url,
-                              SiteInstance* site_instance,
+                              content::SiteInstance* site_instance,
                               int routing_id,
                               const gfx::Size& initial_size) {
-  WebContents::CreateParams create_params(browser_context, site_instance);
+  content::WebContents::CreateParams create_params(
+      browser_context, site_instance);
   create_params.routing_id = routing_id;
   if (!initial_size.IsEmpty())
     create_params.initial_size = initial_size;
   else
-    create_params.initial_size = gfx::Size(kTestWindowWidth, kTestWindowHeight);
-  WebContents* web_contents = WebContents::Create(create_params);
+    create_params.initial_size =
+        gfx::Size(kTestWindowWidth, kTestWindowHeight);
+  content::WebContents* web_contents =
+      content::WebContents::Create(create_params);
   Shell* shell = CreateShell(web_contents);
   if (!url.is_empty())
     shell->LoadURL(url);
@@ -147,9 +152,10 @@ void Shell::LoadURL(const GURL& url) {
 }
 
 void Shell::LoadURLForFrame(const GURL& url, const std::string& frame_name) {
-  NavigationController::LoadURLParams params(url);
-  params.transition_type = PageTransitionFromInt(
-      PAGE_TRANSITION_TYPED | PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  content::NavigationController::LoadURLParams params(url);
+  params.transition_type = content::PageTransitionFromInt(
+      content::PAGE_TRANSITION_TYPED |
+      content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
   params.frame_name = frame_name;
   web_contents_->GetController().LoadURLWithParams(params);
   web_contents_->GetView()->Focus();
@@ -201,8 +207,8 @@ gfx::NativeView Shell::GetContentView() {
   return web_contents_->GetView()->GetNativeView();
 }
 
-WebContents* Shell::OpenURLFromTab(WebContents* source,
-                                   const OpenURLParams& params) {
+content::WebContents* Shell::OpenURLFromTab(
+    content::WebContents* source, const content::OpenURLParams& params) {
   // The only one we implement for now.
   DCHECK(params.disposition == CURRENT_TAB);
   source->GetController().LoadURL(
@@ -210,12 +216,12 @@ WebContents* Shell::OpenURLFromTab(WebContents* source,
   return source;
 }
 
-void Shell::LoadingStateChanged(WebContents* source) {
+void Shell::LoadingStateChanged(content::WebContents* source) {
   UpdateNavigationControls();
   PlatformSetIsLoading(source->IsLoading());
 }
 
-void Shell::ToggleFullscreenModeForTab(WebContents* web_contents,
+void Shell::ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                        bool enter_fullscreen) {
 #if defined(OS_ANDROID)
   PlatformToggleFullscreenModeForTab(web_contents, enter_fullscreen);
@@ -226,7 +232,7 @@ void Shell::ToggleFullscreenModeForTab(WebContents* web_contents,
   }
 }
 
-bool Shell::IsFullscreenForTabOrPending(const WebContents* web_contents) const {
+bool Shell::IsFullscreenForTabOrPending(const content::WebContents* web_contents) const {
 #if defined(OS_ANDROID)
   return PlatformIsFullscreenForTabOrPending(web_contents);
 #else
@@ -234,13 +240,13 @@ bool Shell::IsFullscreenForTabOrPending(const WebContents* web_contents) const {
 #endif
 }
 
-void Shell::RequestToLockMouse(WebContents* web_contents,
+void Shell::RequestToLockMouse(content::WebContents* web_contents,
                                bool user_gesture,
                                bool last_unlocked_by_target) {
   web_contents->GotResponseToLockMouseRequest(true);
 }
 
-void Shell::CloseContents(WebContents* source) {
+void Shell::CloseContents(content::WebContents* source) {
   Close();
 }
 
@@ -252,25 +258,26 @@ bool Shell::CanOverscrollContent() const {
 #endif
 }
 
-void Shell::WebContentsCreated(WebContents* source_contents,
-                               int64 source_frame_id,
-                               const string16& frame_name,
-                               const GURL& target_url,
-                               WebContents* new_contents) {
+void Shell::WebContentsCreated(
+    content::WebContents* source_contents,
+    int64 source_frame_id,
+    const string16& frame_name,
+    const GURL& target_url,
+    content::WebContents* new_contents) {
   CreateShell(new_contents);
 }
 
-void Shell::DidNavigateMainFramePostCommit(WebContents* web_contents) {
+void Shell::DidNavigateMainFramePostCommit(content::WebContents* web_contents) {
   PlatformSetAddressBarURL(web_contents->GetURL());
 }
 
-JavaScriptDialogManager* Shell::GetJavaScriptDialogManager() {
+content::JavaScriptDialogManager* Shell::GetJavaScriptDialogManager() {
   if (!dialog_manager_.get())
     dialog_manager_.reset(new ShellJavaScriptDialogManager());
   return dialog_manager_.get();
 }
 
-bool Shell::AddMessageToConsole(WebContents* source,
+bool Shell::AddMessageToConsole(content::WebContents* source,
                                 int32 level,
                                 const string16& message,
                                 int32 line_no,
@@ -278,23 +285,24 @@ bool Shell::AddMessageToConsole(WebContents* source,
   return false;
 }
 
-void Shell::RendererUnresponsive(WebContents* source) {
+void Shell::RendererUnresponsive(content::WebContents* source) {
 }
 
-void Shell::ActivateContents(WebContents* contents) {
+void Shell::ActivateContents(content::WebContents* contents) {
   contents->GetRenderViewHost()->Focus();
 }
 
-void Shell::DeactivateContents(WebContents* contents) {
+void Shell::DeactivateContents(content::WebContents* contents) {
   contents->GetRenderViewHost()->Blur();
 }
 
 void Shell::Observe(int type,
-                    const NotificationSource& source,
-                    const NotificationDetails& details) {
-  if (type == NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
-    std::pair<NavigationEntry*, bool>* title =
-        Details<std::pair<NavigationEntry*, bool> >(details).ptr();
+                    const content::NotificationSource& source,
+                    const content::NotificationDetails& details) {
+  if (type == content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED) {
+    std::pair<content::NavigationEntry*, bool>* title =
+        content::Details<std::pair<content::NavigationEntry*, bool> >(
+            details).ptr();
 
     if (title->first) {
       string16 text = title->first->GetTitle();
@@ -303,4 +311,4 @@ void Shell::Observe(int type,
   }
 }
 
-}  // namespace content
+}  // namespace cameo

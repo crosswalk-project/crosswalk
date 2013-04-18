@@ -18,7 +18,7 @@
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
 
-namespace content {
+namespace cameo {
 
 void Shell::PlatformInitialize(const gfx::Size& default_window_size) {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
@@ -61,20 +61,22 @@ void Shell::PlatformSetTitle(const string16& title) {
   NOTIMPLEMENTED();
 }
 
-void Shell::LoadProgressChanged(WebContents* source, double progress) {
+void Shell::LoadProgressChanged(content::WebContents* source,
+                                double progress) {
   JNIEnv* env = AttachCurrentThread();
   Java_Shell_onLoadProgressChanged(env, java_object_.obj(), progress);
 }
 
-void Shell::PlatformToggleFullscreenModeForTab(WebContents* web_contents,
-                                               bool enter_fullscreen) {
+void Shell::PlatformToggleFullscreenModeForTab(
+    content::WebContents* web_contents,
+    bool enter_fullscreen) {
   JNIEnv* env = AttachCurrentThread();
   Java_Shell_toggleFullscreenModeForTab(
       env, java_object_.obj(), enter_fullscreen);
 }
 
 bool Shell::PlatformIsFullscreenForTabOrPending(
-    const WebContents* web_contents) const {
+    const content::WebContents* web_contents) const {
   JNIEnv* env = AttachCurrentThread();
   return Java_Shell_isFullscreenForTabOrPending(env, java_object_.obj());
 }
@@ -89,4 +91,4 @@ bool Shell::Register(JNIEnv* env) {
   return RegisterNativesImpl(env);
 }
 
-}  // namespace content
+}  // namespace cameo

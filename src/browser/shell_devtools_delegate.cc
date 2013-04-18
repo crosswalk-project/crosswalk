@@ -22,12 +22,12 @@ const char kSocketName[] = "content_shell_devtools_remote";
 }
 #endif
 
-namespace content {
+namespace cameo {
 
-ShellDevToolsDelegate::ShellDevToolsDelegate(BrowserContext* browser_context,
-                                             int port)
+ShellDevToolsDelegate::ShellDevToolsDelegate(
+    content::BrowserContext* browser_context, int port)
     : browser_context_(browser_context) {
-  devtools_http_handler_ = DevToolsHttpHandler::Start(
+  devtools_http_handler_ = content::DevToolsHttpHandler::Start(
 #if defined(OS_ANDROID)
       new net::UnixDomainSocketWithAbstractNamespaceFactory(
           kSocketName, base::Bind(&CanUserConnectToDevTools)),
@@ -63,7 +63,7 @@ std::string ShellDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
 }
 
-RenderViewHost* ShellDevToolsDelegate::CreateNewTarget() {
+content::RenderViewHost* ShellDevToolsDelegate::CreateNewTarget() {
   Shell* shell = Shell::CreateNewWindow(browser_context_,
                                         GURL(chrome::kAboutBlankURL),
                                         NULL,
@@ -72,8 +72,8 @@ RenderViewHost* ShellDevToolsDelegate::CreateNewTarget() {
   return shell->web_contents()->GetRenderViewHost();
 }
 
-DevToolsHttpHandlerDelegate::TargetType
-ShellDevToolsDelegate::GetTargetType(RenderViewHost*) {
+content::DevToolsHttpHandlerDelegate::TargetType
+ShellDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
   return kTargetTypeTab;
 }
 
@@ -82,4 +82,4 @@ std::string ShellDevToolsDelegate::GetViewDescription(
   return std::string();
 }
 
-}  // namespace content
+}  // namespace cameo

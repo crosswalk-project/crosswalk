@@ -19,19 +19,7 @@
 #include "content/public/browser/web_contents_view.h"
 #include "ui/base/win/hwnd_util.h"
 
-namespace {
-
-const wchar_t kWindowTitle[] = L"Content Shell";
-const wchar_t kWindowClass[] = L"CONTENT_SHELL";
-
-const int kButtonWidth = 72;
-const int kURLBarHeight = 24;
-
-const int kMaxURLLength = 1024;
-
-}  // namespace
-
-namespace content {
+namespace cameo {
 
 HINSTANCE Shell::instance_handle_;
 
@@ -111,4 +99,4 @@ void Shell::PlatformSetTitle(const string16& text) {
   window_->SetTitle(UTF16ToUTF8(text));
 }
 
-}  // namespace content
+}  // namespace cameo

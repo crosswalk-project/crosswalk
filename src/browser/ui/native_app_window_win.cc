@@ -42,7 +42,7 @@
 #include "ui/views/widget/native_widget_win.h"
 #include "ui/views/window/native_frame_view.h"
 
-namespace content {
+namespace cameo {
 
 namespace {
 
@@ -53,7 +53,7 @@ class NativeAppWindowClientView : public views::ClientView {
  public:
   NativeAppWindowClientView(views::Widget* widget,
                             views::View* contents_view,
-                            content::Shell* shell)
+                            Shell* shell)
       : views::ClientView(widget, contents_view),
         shell_(shell) {
   }
@@ -64,13 +64,13 @@ class NativeAppWindowClientView : public views::ClientView {
   }
 
  private:
-  content::Shell* shell_;
+  Shell* shell_;
 };
 
 }  // namespace
 
 NativeAppWindowWin::NativeAppWindowWin(
-    content::Shell* shell, const NativeAppWindow::CreateParams& create_params)
+    Shell* shell, const NativeAppWindow::CreateParams& create_params)
   : NativeAppWindow(shell, create_params),
     web_view_(NULL),
     toolbar_(NULL),
@@ -312,7 +312,7 @@ void NativeAppWindowWin::OnViewWasResized() {
 
 // static
 NativeAppWindow* NativeAppWindow::Create(
-  content::Shell* shell, const NativeAppWindow::CreateParams& create_params) {
+  Shell* shell, const NativeAppWindow::CreateParams& create_params) {
   return new NativeAppWindowWin(shell, create_params);
 }
 

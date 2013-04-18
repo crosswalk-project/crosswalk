@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
-#define CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
+#ifndef CAMEO_SRC_APP_SHELL_MAIN_DELEGATE_H_
+#define CAMEO_SRC_APP_SHELL_MAIN_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "cameo/src/common/shell_content_client.h"
 #include "content/public/app/content_main_delegate.h"
 
-namespace content {
+namespace cameo {
 class ShellContentBrowserClient;
 class ShellContentRendererClient;
 
@@ -18,7 +18,7 @@ class ShellContentRendererClient;
 class BrowserMainRunner;
 #endif
 
-class ShellMainDelegate : public ContentMainDelegate {
+class ShellMainDelegate : public content::ContentMainDelegate {
  public:
   ShellMainDelegate();
   virtual ~ShellMainDelegate();
@@ -28,9 +28,10 @@ class ShellMainDelegate : public ContentMainDelegate {
   virtual void PreSandboxStartup() OVERRIDE;
   virtual int RunProcess(
       const std::string& process_type,
-      const MainFunctionParams& main_function_params) OVERRIDE;
-  virtual ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
-  virtual ContentRendererClient* CreateContentRendererClient() OVERRIDE;
+      const content::MainFunctionParams& main_function_params) OVERRIDE;
+  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
+  virtual content::ContentRendererClient*
+      CreateContentRendererClient() OVERRIDE;
 
   static void InitializeResourceBundle();
 
@@ -46,6 +47,6 @@ class ShellMainDelegate : public ContentMainDelegate {
   DISALLOW_COPY_AND_ASSIGN(ShellMainDelegate);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_MAIN_DELEGATE_H_
+#endif  // CAMEO_SRC_APP_SHELL_MAIN_DELEGATE_H_

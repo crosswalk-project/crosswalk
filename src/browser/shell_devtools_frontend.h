@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_DEVTOOLS_FRONTEND_H_
-#define CONTENT_SHELL_SHELL_DEVTOOLS_FRONTEND_H_
+#ifndef CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_FRONTEND_H_
+#define CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_FRONTEND_H_
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -15,15 +15,18 @@
 #include "content/public/browser/web_contents_observer.h"
 
 namespace content {
-
 class RenderViewHost;
-class Shell;
 class WebContents;
+}
 
-class ShellDevToolsFrontend : public WebContentsObserver,
-                              public DevToolsFrontendHostDelegate {
+namespace cameo {
+
+class Shell;
+
+class ShellDevToolsFrontend : public content::WebContentsObserver,
+                              public content::DevToolsFrontendHostDelegate {
  public:
-  static ShellDevToolsFrontend* Show(WebContents* web_contents);
+  static ShellDevToolsFrontend* Show(content::WebContents* web_contents);
   void Focus();
   void Close();
   Shell* inspected_shell() const {
@@ -34,12 +37,15 @@ class ShellDevToolsFrontend : public WebContentsObserver,
   }
 
  private:
-  ShellDevToolsFrontend(Shell* frontend_shell, DevToolsAgentHost* agent_host);
+  ShellDevToolsFrontend(Shell* frontend_shell,
+                        content::DevToolsAgentHost* agent_host);
   virtual ~ShellDevToolsFrontend();
 
   // WebContentsObserver overrides
-  virtual void RenderViewCreated(RenderViewHost* render_view_host) OVERRIDE;
-  virtual void WebContentsDestroyed(WebContents* web_contents) OVERRIDE;
+  virtual void RenderViewCreated(
+      content::RenderViewHost* render_view_host) OVERRIDE;
+  virtual void WebContentsDestroyed(
+      content::WebContents* web_contents) OVERRIDE;
 
   // DevToolsFrontendHostDelegate implementation
   virtual void ActivateWindow() OVERRIDE {}
@@ -60,12 +66,12 @@ class ShellDevToolsFrontend : public WebContentsObserver,
 
   Shell* inspected_shell_;
   Shell* frontend_shell_;
-  scoped_refptr<DevToolsAgentHost> agent_host_;
-  scoped_ptr<DevToolsClientHost> frontend_host_;
+  scoped_refptr<content::DevToolsAgentHost> agent_host_;
+  scoped_ptr<content::DevToolsClientHost> frontend_host_;
 
   DISALLOW_COPY_AND_ASSIGN(ShellDevToolsFrontend);
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_DEVTOOLS_FRONTEND_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_FRONTEND_H_

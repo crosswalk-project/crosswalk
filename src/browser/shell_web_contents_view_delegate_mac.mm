@@ -38,12 +38,12 @@ enum {
 
 @interface ShellContextMenuDelegate : NSObject<NSMenuDelegate> {
  @private
-  content::ShellWebContentsViewDelegate* delegate_;
+  cameo::ShellWebContentsViewDelegate* delegate_;
 }
 @end
 
 @implementation ShellContextMenuDelegate
-- (id)initWithDelegate:(content::ShellWebContentsViewDelegate*) delegate {
+- (id)initWithDelegate:(cameo::ShellWebContentsViewDelegate*) delegate {
   if ((self = [super init])) {
     delegate_ = delegate;
   }
@@ -77,15 +77,15 @@ NSMenuItem* MakeContextMenuItem(NSString* title,
 
 }  // namespace
 
-namespace content {
+namespace cameo {
 
-WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
-  WebContents* web_contents) {
+content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
+  content::WebContents* web_contents) {
   return new ShellWebContentsViewDelegate(web_contents);
 }
 
 ShellWebContentsViewDelegate::ShellWebContentsViewDelegate(
-    WebContents* web_contents)
+    content::WebContents* web_contents)
     : web_contents_(web_contents) {
 }
 
@@ -93,8 +93,8 @@ ShellWebContentsViewDelegate::~ShellWebContentsViewDelegate() {
 }
 
 void ShellWebContentsViewDelegate::ShowContextMenu(
-    const ContextMenuParams& params,
-    ContextMenuSourceType type) {
+    const content::ContextMenuParams& params,
+    content::ContextMenuSourceType type) {
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDumpRenderTree))
     return;
 
@@ -265,14 +265,15 @@ void ShellWebContentsViewDelegate::ActionPerformed(int tag) {
   }
 }
 
-WebDragDestDelegate* ShellWebContentsViewDelegate::GetDragDestDelegate() {
+content::WebDragDestDelegate*
+ShellWebContentsViewDelegate::GetDragDestDelegate() {
   return NULL;
 }
 
-NSObject<RenderWidgetHostViewMacDelegate>*
+NSObject<content::RenderWidgetHostViewMacDelegate>*
 ShellWebContentsViewDelegate::CreateRenderWidgetHostViewDelegate(
     content::RenderWidgetHost* render_widget_host) {
   return NULL;
 }
 
-}  // namespace content
+}  // namespace cameo

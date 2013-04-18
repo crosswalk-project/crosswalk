@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CONTENT_SHELL_SHELL_CONTENT_CLIENT_H_
-#define CONTENT_SHELL_SHELL_CONTENT_CLIENT_H_
+#ifndef CAMEO_SRC_COMMON_SHELL_CONTENT_CLIENT_H_
+#define CAMEO_SRC_COMMON_SHELL_CONTENT_CLIENT_H_
 
 #include <string>
 #include <vector>
@@ -11,9 +11,9 @@
 #include "base/compiler_specific.h"
 #include "content/public/common/content_client.h"
 
-namespace content {
+namespace cameo {
 
-class ShellContentClient : public ContentClient {
+class ShellContentClient : public content::ContentClient {
  public:
   virtual ~ShellContentClient();
 
@@ -27,6 +27,6 @@ class ShellContentClient : public ContentClient {
   virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
 };
 
-}  // namespace content
+}  // namespace cameo
 
-#endif  // CONTENT_SHELL_SHELL_CONTENT_CLIENT_H_
+#endif  // CAMEO_SRC_COMMON_SHELL_CONTENT_CLIENT_H_

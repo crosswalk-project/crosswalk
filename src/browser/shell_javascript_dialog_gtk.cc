@@ -30,15 +30,15 @@ string16 GetPromptText(GtkDialog* dialog) {
 }  // namespace
 
 
-namespace content {
+namespace cameo {
 
 ShellJavaScriptDialog::ShellJavaScriptDialog(
     ShellJavaScriptDialogManager* manager,
     gfx::NativeWindow parent_window,
-    JavaScriptMessageType message_type,
+    content::JavaScriptMessageType message_type,
     const string16& message_text,
     const string16& default_prompt_text,
-    const JavaScriptDialogManager::DialogClosedCallback& callback)
+    const content::JavaScriptDialogManager::DialogClosedCallback& callback)
     : manager_(manager),
       callback_(callback),
       parent_window_(parent_window) {
@@ -124,4 +124,4 @@ void ShellJavaScriptDialog::OnResponse(GtkWidget* dialog, int response_id) {
   manager_->DialogClosed(this);
 }
 
-}  // namespace content
+}  // namespace cameo

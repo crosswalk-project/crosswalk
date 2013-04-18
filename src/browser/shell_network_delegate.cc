@@ -8,7 +8,7 @@
 #include "net/base/static_cookie_policy.h"
 #include "net/url_request/url_request.h"
 
-namespace content {
+namespace cameo {
 
 namespace {
 bool g_accept_all_cookies = true;
@@ -124,4 +124,4 @@ void ShellNetworkDelegate::OnRequestWaitStateChange(
     RequestWaitState waiting) {
 }
 
-}  // namespace content
+}  // namespace cameo
