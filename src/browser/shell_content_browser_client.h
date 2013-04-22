@@ -6,6 +6,7 @@
 #define CAMEO_SRC_BROWSER_SHELL_CONTENT_BROWSER_CLIENT_H_
 
 #include <string>
+#include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
@@ -21,8 +22,7 @@ class ShellBrowserContext;
 class ShellBrowserMainParts;
 class ShellResourceDispatcherHostDelegate;
 
-class ShellContentBrowserClient : public content::ContentBrowserClient,
-                                  public content::NotificationObserver {
+class ShellContentBrowserClient : public content::ContentBrowserClient {
  public:
   // Gets the current instance.
   static ShellContentBrowserClient* Get();
@@ -33,8 +33,6 @@ class ShellContentBrowserClient : public content::ContentBrowserClient,
   // ContentBrowserClient overrides.
   virtual content::BrowserMainParts* CreateBrowserMainParts(
       const content::MainFunctionParams& parameters) OVERRIDE;
-  virtual void RenderProcessHostCreated(
-      content::RenderProcessHost* host) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
@@ -43,11 +41,6 @@ class ShellContentBrowserClient : public content::ContentBrowserClient,
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
-  virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
-                                              int child_process_id) OVERRIDE;
-  virtual void OverrideWebkitPrefs(content::RenderViewHost* render_view_host,
-                                   const GURL& url,
-                                   webkit_glue::WebPreferences* prefs) OVERRIDE;
   virtual void ResourceDispatcherHostCreated() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual std::string GetDefaultDownloadName() OVERRIDE;
@@ -64,11 +57,6 @@ class ShellContentBrowserClient : public content::ContentBrowserClient,
       int child_process_id,
       std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
 #endif
-
-  // NotificationObserver implementation.
-  virtual void Observe(int type,
-                       const content::NotificationSource& source,
-                       const content::NotificationDetails& details) OVERRIDE;
 
   ShellBrowserContext* browser_context();
   ShellBrowserContext* off_the_record_browser_context();
@@ -87,8 +75,6 @@ class ShellContentBrowserClient : public content::ContentBrowserClient,
       resource_dispatcher_host_delegate_;
 
   base::FilePath webkit_source_dir_;
-
-  base::PlatformFile hyphen_dictionary_file_;
 
   ShellBrowserMainParts* shell_browser_main_parts_;
 

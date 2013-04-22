@@ -5,6 +5,8 @@
 #ifndef CAMEO_SRC_APP_SHELL_MAIN_DELEGATE_H_
 #define CAMEO_SRC_APP_SHELL_MAIN_DELEGATE_H_
 
+#include <string>
+
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "cameo/src/common/shell_content_client.h"

@@ -4,23 +4,8 @@
 
 #include "cameo/src/browser/shell_browser_main.h"
 
-#include <iostream>
-
-#include "base/command_line.h"
-#include "base/file_util.h"
-#include "base/files/file_path.h"
-#include "base/files/scoped_temp_dir.h"
-#include "base/logging.h"
-#include "base/memory/scoped_ptr.h"
 #include "base/message_loop.h"
-#include "base/strings/sys_string_conversions.h"
-#include "base/threading/thread_restrictions.h"
-#include "base/utf_string_conversions.h"
 #include "content/public/browser/browser_main_runner.h"
-#include "cameo/src/browser/shell.h"
-#include "cameo/src/common/shell_switches.h"
-#include "net/base/net_util.h"
-#include "webkit/support/webkit_support.h"
 
 // Main routine for running as the Browser process.
 int ShellBrowserMain(const content::MainFunctionParams& parameters) {

@@ -4,6 +4,9 @@
 
 #include "cameo/src/browser/shell.h"
 
+#include <string>
+#include <utility>
+
 #include "base/auto_reset.h"
 #include "base/command_line.h"
 #include "base/message_loop.h"
@@ -16,7 +19,6 @@
 #include "cameo/src/browser/shell_content_browser_client.h"
 #include "cameo/src/browser/shell_devtools_frontend.h"
 #include "cameo/src/browser/shell_javascript_dialog_manager.h"
-#include "cameo/src/common/shell_messages.h"
 #include "cameo/src/common/shell_switches.h"
 #include "content/public/browser/devtools_manager.h"
 #include "content/public/browser/navigation_entry.h"
@@ -30,13 +32,13 @@
 #include "content/public/common/renderer_preferences.h"
 
 // Content area size for newly created windows.
-static const int kTestWindowWidth = 800;
-static const int kTestWindowHeight = 600;
+static const int kDefaultWindowWidth = 800;
+static const int kDefaultWindowHeight = 600;
 
 namespace cameo {
 
 std::vector<Shell*> Shell::windows_;
-base::Callback<void(Shell*)> Shell::shell_created_callback_;
+base::Callback<void(Shell* shell)> Shell::shell_created_callback_;
 
 bool Shell::quit_message_loop_ = true;
 
@@ -87,7 +89,7 @@ Shell* Shell::CreateShell(content::WebContents* web_contents) {
   shell->web_contents_.reset(web_contents);
   web_contents->SetDelegate(shell);
 
-  shell->PlatformCreateWindow(kTestWindowWidth, kTestWindowHeight);
+  shell->PlatformCreateWindow(kDefaultWindowWidth, kDefaultWindowHeight);
 
   shell->PlatformSetContents();
 
@@ -106,7 +108,7 @@ void Shell::CloseAllWindows() {
 }
 
 void Shell::SetShellCreatedCallback(
-    base::Callback<void(Shell*)> shell_created_callback) {
+    base::Callback<void(Shell* shell)> shell_created_callback) {
   DCHECK(shell_created_callback_.is_null());
   shell_created_callback_ = shell_created_callback;
 }
@@ -123,7 +125,7 @@ Shell* Shell::FromRenderViewHost(content::RenderViewHost* rvh) {
 
 // static
 void Shell::Initialize() {
-  PlatformInitialize(gfx::Size(kTestWindowWidth, kTestWindowHeight));
+  PlatformInitialize(gfx::Size(kDefaultWindowWidth, kDefaultWindowHeight));
 }
 
 Shell* Shell::CreateNewWindow(content::BrowserContext* browser_context,
@@ -138,7 +140,7 @@ Shell* Shell::CreateNewWindow(content::BrowserContext* browser_context,
     create_params.initial_size = initial_size;
   else
     create_params.initial_size =
-        gfx::Size(kTestWindowWidth, kTestWindowHeight);
+        gfx::Size(kDefaultWindowWidth, kDefaultWindowHeight);
   content::WebContents* web_contents =
       content::WebContents::Create(create_params);
   Shell* shell = CreateShell(web_contents);
@@ -232,7 +234,8 @@ void Shell::ToggleFullscreenModeForTab(content::WebContents* web_contents,
   }
 }
 
-bool Shell::IsFullscreenForTabOrPending(const content::WebContents* web_contents) const {
+bool Shell::IsFullscreenForTabOrPending(
+    const content::WebContents* web_contents) const {
 #if defined(OS_ANDROID)
   return PlatformIsFullscreenForTabOrPending(web_contents);
 #else
@@ -251,11 +254,7 @@ void Shell::CloseContents(content::WebContents* source) {
 }
 
 bool Shell::CanOverscrollContent() const {
-#if defined(USE_AURA)
-  return true;
-#else
   return false;
-#endif
 }
 
 void Shell::WebContentsCreated(
@@ -275,17 +274,6 @@ content::JavaScriptDialogManager* Shell::GetJavaScriptDialogManager() {
   if (!dialog_manager_.get())
     dialog_manager_.reset(new ShellJavaScriptDialogManager());
   return dialog_manager_.get();
-}
-
-bool Shell::AddMessageToConsole(content::WebContents* source,
-                                int32 level,
-                                const string16& message,
-                                int32 line_no,
-                                const string16& source_id) {
-  return false;
-}
-
-void Shell::RendererUnresponsive(content::WebContents* source) {
 }
 
 void Shell::ActivateContents(content::WebContents* contents) {

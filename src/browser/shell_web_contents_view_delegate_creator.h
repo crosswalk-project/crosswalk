@@ -17,4 +17,4 @@ content::WebContentsViewDelegate* CreateShellWebContentsViewDelegate(
 
 }  // namespace cameo
 
-#endif //CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_CREATOR_H_

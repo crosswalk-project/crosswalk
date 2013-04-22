@@ -5,6 +5,8 @@
 #ifndef CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_FRONTEND_H_
 #define CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_FRONTEND_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"

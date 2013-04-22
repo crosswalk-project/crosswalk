@@ -19,21 +19,14 @@ ShellResourceDispatcherHostDelegate::~ShellResourceDispatcherHostDelegate() {
 bool ShellResourceDispatcherHostDelegate::AcceptAuthRequest(
     net::URLRequest* request,
     net::AuthChallengeInfo* auth_info) {
-  bool accept_auth_request = true;
-  return accept_auth_request;
+  return true;
 }
 
 content::ResourceDispatcherHostLoginDelegate*
 ShellResourceDispatcherHostDelegate::CreateLoginDelegate(
     net::AuthChallengeInfo* auth_info, net::URLRequest* request) {
-  if (!login_request_callback_.is_null()) {
-    login_request_callback_.Run();
-    login_request_callback_.Reset();
-    return NULL;
-  }
-
 #if !defined(OS_MACOSX) && !defined(TOOLKIT_GTK)
-// TODO: implement ShellLoginDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellLoginDialog for other platforms, drop this #if
   return NULL;
 #else
   return new ShellLoginDialog(auth_info, request);

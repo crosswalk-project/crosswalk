@@ -4,6 +4,12 @@
 
 #include "cameo/src/app/shell_main_delegate.h"
 
+#if defined(OS_WIN)
+#include <initguid.h>
+#endif
+
+#include <string>
+
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
@@ -29,7 +35,6 @@
 #include "content/public/common/content_ipc_logging.h"
 #define IPC_LOG_TABLE_ADD_ENTRY(msg_id, logger) \
     content::RegisterIPCLogger(msg_id, logger)
-#include "cameo/src/common/shell_messages.h"
 #endif
 
 #if defined(OS_ANDROID)
@@ -42,7 +47,6 @@
 #endif  // OS_MACOSX
 
 #if defined(OS_WIN)
-#include <initguid.h>
 #include "base/logging_win.h"
 #endif
 
@@ -53,7 +57,7 @@ namespace {
 // Sawbuck, add these registry entries to your machine (NOTE the optional
 // Wow6432Node key for x64 machines):
 // 1. Find:  HKLM\SOFTWARE\[Wow6432Node\]Google\Sawbuck\Providers
-// 2. Add a subkey with the name "{6A3E50A4-7E15-4099-8413-EC94D8C2A4B6}"
+// 2. Add a subkey with the name "{87EC005B-FB99-4F76-826B-337116190236}"
 // 3. Add these values:
 //    "default_flags"=dword:00000001
 //    "default_level"=dword:00000004
@@ -125,7 +129,7 @@ int ShellMainDelegate::RunProcess(
   // If no process type is specified, we are creating the main browser process.
   browser_runner_.reset(BrowserMainRunner::Create());
   int exit_code = browser_runner_->Initialize(main_function_params);
-  DCHECK(exit_code < 0)
+  DCHECK_LT(exit_code, 0)
       << "BrowserRunner::Initialize failed in ShellMainDelegate";
 
   return exit_code;

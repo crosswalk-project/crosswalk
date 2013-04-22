@@ -4,6 +4,8 @@
 
 #include "cameo/src/browser/shell_browser_main_parts.h"
 
+#include <string>
+
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
@@ -59,6 +61,7 @@ static GURL GetStartupURL() {
 
 base::StringPiece PlatformResourceProvider(int key) {
   if (key == IDR_DIR_HEADER_HTML) {
+    // IDR_DIR_HEADER_HTML is included in net_resources.pak
     base::StringPiece html_data =
         ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
             IDR_DIR_HEADER_HTML);
@@ -82,9 +85,6 @@ ShellBrowserMainParts::~ShellBrowserMainParts() {
 
 #if !defined(OS_MACOSX)
 void ShellBrowserMainParts::PreMainMessageLoopStart() {
-#if defined(USE_AURA) && defined(USE_X11)
-  ui::TouchFactory::SetTouchDeviceListFromCommandLine();
-#endif
 }
 #endif
 
@@ -144,18 +144,14 @@ void ShellBrowserMainParts::PreMainMessageLoopRun() {
   }
 }
 
-bool ShellBrowserMainParts::MainMessageLoopRun(int* result_code)  {
+bool ShellBrowserMainParts::MainMessageLoopRun(int* result_code) {
   return !run_message_loop_;
 }
 
 void ShellBrowserMainParts::PostMainMessageLoopRun() {
-#if defined(USE_AURA)
-  Shell::PlatformExit();
-#endif
   if (devtools_delegate_)
     devtools_delegate_->Stop();
   browser_context_.reset();
   off_the_record_browser_context_.reset();
 }
-
 }  // cameo

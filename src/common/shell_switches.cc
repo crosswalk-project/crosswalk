@@ -6,10 +6,10 @@
 
 namespace switches {
 
-// Makes Content Shell use the given path for its data directory.
-const char kContentShellDataPath[] = "data-path";
+// Makes Cameo use the given path for its data directory.
+const char kCameoDataPath[] = "data-path";
 
-// Start the Content Shell in headless mode.
+// Start the Cameo in headless mode.
 const char kHeadless[] = "headless";
 
 }  // namespace switches

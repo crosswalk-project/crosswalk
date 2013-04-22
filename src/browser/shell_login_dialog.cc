@@ -62,7 +62,7 @@ ShellLoginDialog::~ShellLoginDialog() {
 #if !defined(OS_MACOSX) && !defined(TOOLKIT_GTK)
 // Bogus implementations for linking. They are never called because
 // ResourceDispatcherHostDelegate::CreateLoginDelegate returns NULL.
-// TODO: implement ShellLoginDialog for other platforms, drop this #if
+// TODO(nhu): implement ShellLoginDialog for other platforms, drop this #if
 void ShellLoginDialog::PlatformCreateDialog(const string16& message) {}
 void ShellLoginDialog::PlatformCleanUp() {}
 void ShellLoginDialog::PlatformRequestCancelled() {}

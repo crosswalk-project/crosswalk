@@ -25,7 +25,6 @@
 #include "base/utf_string_conversions.h"
 #include "cameo/src/browser/shell.h"
 #include "grit/cameo_resources.h"
-//#include "grit/ui_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/views/background.h"
 #include "ui/views/controls/button/image_button.h"
@@ -227,4 +226,4 @@ void NativeToolbarWin::SetIsLoading(bool loading) {
   stop_or_refresh_button_->SchedulePaint();
 }
 
-}  // namespace nw
+}  // namespace cameo

@@ -82,4 +82,4 @@ class ShellWebContentsViewDelegate : public content::WebContentsViewDelegate {
 
 }  // namespace cameo
 
-#endif // CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_
+#endif  // CAMEO_SRC_BROWSER_SHELL_WEB_CONTENTS_VIEW_DELEGATE_H_

@@ -23,12 +23,6 @@ class ShellResourceDispatcherHostDelegate
   virtual content::ResourceDispatcherHostLoginDelegate* CreateLoginDelegate(
       net::AuthChallengeInfo* auth_info, net::URLRequest* request) OVERRIDE;
 
-  // Used for content_browsertests.
-  void set_login_request_callback(
-      base::Callback<void()> login_request_callback) {
-    login_request_callback_ = login_request_callback;
-  }
-
  private:
   base::Callback<void()> login_request_callback_;
 

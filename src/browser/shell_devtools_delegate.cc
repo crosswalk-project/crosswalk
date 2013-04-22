@@ -18,7 +18,7 @@
 #include "net/socket/unix_domain_socket_posix.h"
 
 namespace {
-const char kSocketName[] = "content_shell_devtools_remote";
+const char kSocketName[] = "cameo_devtools_remote";
 }
 #endif
 

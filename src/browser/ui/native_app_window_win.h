@@ -21,6 +21,8 @@
 #ifndef CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_
 #define CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_
 
+#include <string>
+
 #include "cameo/src/browser/ui/native_app_window.h"
 
 #include "third_party/skia/include/core/SkRegion.h"
@@ -117,4 +119,4 @@ class NativeAppWindowWin : public NativeAppWindow,
 
 }  // namespace cameo
 
-#endif  // CAMEO_SRC_UI_NATIVE_APP_WINDOW_WIN_H_
+#endif  // CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_

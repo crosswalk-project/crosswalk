@@ -13,6 +13,8 @@
 #include <commdlg.h>
 #endif
 
+#include <string>
+
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -36,7 +38,7 @@ ShellDownloadManagerDelegate::ShellDownloadManagerDelegate()
   AddRef();
 }
 
-ShellDownloadManagerDelegate::~ShellDownloadManagerDelegate(){
+ShellDownloadManagerDelegate::~ShellDownloadManagerDelegate() {
 }
 
 
@@ -117,7 +119,7 @@ void ShellDownloadManagerDelegate::OnDownloadPathGenerated(
   DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
   if (suppress_prompting_) {
     // Testing exit.
-    callback.Run(suggested_path, 
+    callback.Run(suggested_path,
                  content::DownloadItem::TARGET_DISPOSITION_OVERWRITE,
                  content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS,
                  suggested_path.AddExtension(FILE_PATH_LITERAL(".crdownload")));
@@ -159,7 +161,7 @@ void ShellDownloadManagerDelegate::ChooseDownloadPath(
   if (GetSaveFileName(&save_as))
     result = base::FilePath(std::wstring(save_as.lpstrFile));
 #elif defined(TOOLKIT_GTK)
-  GtkWidget *dialog;
+  GtkWidget* dialog;
   gfx::NativeWindow parent_window;
   std::string base_name = base::FilePath(suggested_path).BaseName().value();
 
@@ -176,7 +178,7 @@ void ShellDownloadManagerDelegate::ChooseDownloadPath(
                                     base_name.c_str());
 
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename;
+    char* filename;
     filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     result = base::FilePath(filename);
   }

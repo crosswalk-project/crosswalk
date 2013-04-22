@@ -53,7 +53,6 @@ static void RunTests(JNIEnv* env,
                      jobject obj,
                      jstring jfiles_dir,
                      jobject app_context) {
-
   // Command line basic initialization, will be fully initialized later.
   static const char* const kInitialArgv[] = { "ContentBrowserTestsActivity" };
   CommandLine::Init(arraysize(kInitialArgv), kInitialArgv);

@@ -21,6 +21,8 @@
 #ifndef CAMEO_SRC_BROWSER_UI_NATIVE_TOOLBAR_WIN_H_
 #define CAMEO_SRC_BROWSER_UI_NATIVE_TOOLBAR_WIN_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "cameo/src/browser/ui/native_app_window.h"
 #include "ui/views/controls/button/button.h"

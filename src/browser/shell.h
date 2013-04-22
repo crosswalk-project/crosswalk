@@ -4,7 +4,7 @@
 #ifndef CAMEO_SRC_BROWSER_SHELL_H_
 #define CAMEO_SRC_BROWSER_SHELL_H_
 
-
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -19,7 +19,7 @@
 #include "ui/gfx/size.h"
 
 #if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>
+#include "ui/base/gtk/gtk_compat.h"
 #include "ui/base/gtk/gtk_signal.h"
 
 typedef struct _GtkToolItem GtkToolItem;
@@ -98,7 +98,7 @@ class Shell : public content::WebContentsDelegate,
 
   // Used for content_browsertests. Called once.
   static void SetShellCreatedCallback(
-      base::Callback<void(Shell*)> shell_created_callback);
+      base::Callback<void(Shell* shell)> shell_created_callback);
 
   content::WebContents* web_contents() const { return web_contents_.get(); }
 
@@ -147,12 +147,6 @@ class Shell : public content::WebContentsDelegate,
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
 #endif
-  virtual bool AddMessageToConsole(content::WebContents* source,
-                                   int32 level,
-                                   const string16& message,
-                                   int32 line_no,
-                                   const string16& source_id) OVERRIDE;
-  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
   virtual void DeactivateContents(content::WebContents* contents) OVERRIDE;
 
@@ -238,7 +232,7 @@ class Shell : public content::WebContentsDelegate,
 #if defined(OS_WIN)
   NativeAppWindow* window_;
 #else
-  // TODO (hmin): Decouple app window with Shell.
+  // TODO(hmin): Decouple app window with Shell.
   gfx::NativeWindow window_;
 #endif
   gfx::NativeEditView url_edit_view_;
@@ -280,7 +274,7 @@ class Shell : public content::WebContentsDelegate,
   // of ordering.
   static std::vector<Shell*> windows_;
 
-  static base::Callback<void(Shell*)> shell_created_callback_;
+  static base::Callback<void(Shell* shell)> shell_created_callback_;
 
   // True if the destructur of Shell should post a quit closure on the current
   // message loop if the destructed Shell object was the last one.

@@ -12,11 +12,9 @@
 #include "cameo/src/browser/shell_browser_context.h"
 #include "cameo/src/browser/shell_browser_main_parts.h"
 #include "cameo/src/browser/shell_devtools_delegate.h"
-#include "cameo/src/browser/shell_message_filter.h"
 #include "cameo/src/browser/shell_quota_permission_context.h"
 #include "cameo/src/browser/shell_resource_dispatcher_host_delegate.h"
 #include "cameo/src/browser/shell_web_contents_view_delegate_creator.h"
-#include "cameo/src/common/shell_messages.h"
 #include "cameo/src/common/shell_switches.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
@@ -29,7 +27,6 @@
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
-#include "base/path_service.h"
 #include "base/platform_file.h"
 #include "cameo/src/android/shell_descriptors.h"
 #endif
@@ -47,8 +44,7 @@ ShellContentBrowserClient* ShellContentBrowserClient::Get() {
 }
 
 ShellContentBrowserClient::ShellContentBrowserClient()
-    : hyphen_dictionary_file_(base::kInvalidPlatformFileValue),
-      shell_browser_main_parts_(NULL) {
+    : shell_browser_main_parts_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -61,10 +57,6 @@ content::BrowserMainParts* ShellContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   shell_browser_main_parts_ = new ShellBrowserMainParts(parameters);
   return shell_browser_main_parts_;
-}
-
-void ShellContentBrowserClient::RenderProcessHostCreated(
-    content::RenderProcessHost* host) {
 }
 
 net::URLRequestContextGetter* ShellContentBrowserClient::CreateRequestContext(
@@ -87,16 +79,6 @@ ShellContentBrowserClient::CreateRequestContextForStoragePartition(
       partition_path, in_memory, protocol_handlers);
 }
 
-void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
-    CommandLine* command_line, int child_process_id) {
-}
-
-void ShellContentBrowserClient::OverrideWebkitPrefs(
-    content::RenderViewHost* render_view_host,
-    const GURL& url,
-    webkit_glue::WebPreferences* prefs) {
-}
-
 void ShellContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_.reset(
       new ShellResourceDispatcherHostDelegate());
@@ -117,11 +99,7 @@ bool ShellContentBrowserClient::SupportsBrowserPlugin(
 content::WebContentsViewDelegate*
 ShellContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
-#if !defined(USE_AURA)
   return CreateShellWebContentsViewDelegate(web_contents);
-#else
-  return NULL;
-#endif
 }
 
 content::QuotaPermissionContext*
@@ -153,23 +131,6 @@ void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
 }
 #endif
 
-void ShellContentBrowserClient::Observe(
-    int type,
-    const content::NotificationSource& source,
-    const content::NotificationDetails& details) {
-  switch (type) {
-    case content::NOTIFICATION_RENDERER_PROCESS_CREATED: {
-      registrar_.Remove(this,
-                        content::NOTIFICATION_RENDERER_PROCESS_CREATED,
-                        source);
-      break;
-    }
-
-    default:
-      NOTREACHED();
-  }
-}
-
 ShellBrowserContext* ShellContentBrowserClient::browser_context() {
   return shell_browser_main_parts_->browser_context();
 }
@@ -180,13 +141,13 @@ ShellBrowserContext*
 }
 
 content::AccessTokenStore*
-ShellContentBrowserClient::CreateAccessTokenStore() {
+    ShellContentBrowserClient::CreateAccessTokenStore() {
   return new ShellAccessTokenStore(browser_context()->GetRequestContext());
 }
 
 ShellBrowserContext*
-ShellContentBrowserClient::ShellBrowserContextForBrowserContext(
-    content::BrowserContext* content_browser_context) {
+    ShellContentBrowserClient::ShellBrowserContextForBrowserContext(
+        content::BrowserContext* content_browser_context) {
   if (content_browser_context == browser_context())
     return browser_context();
   DCHECK_EQ(content_browser_context, off_the_record_browser_context());

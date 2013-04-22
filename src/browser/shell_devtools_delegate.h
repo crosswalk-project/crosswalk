@@ -5,6 +5,7 @@
 #ifndef CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_DELEGATE_H_
 #define CAMEO_SRC_BROWSER_SHELL_DEVTOOLS_DELEGATE_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"

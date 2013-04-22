@@ -93,7 +93,7 @@ ShellJavaScriptDialog::ShellJavaScriptDialog(
     dialog_type = IDD_ALERT;
   else if (message_type == content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM)
     dialog_type = IDD_CONFIRM;
-  else // JAVASCRIPT_MESSAGE_TYPE_PROMPT
+  else  // JAVASCRIPT_MESSAGE_TYPE_PROMPT
     dialog_type = IDD_PROMPT;
 
   dialog_win_ = CreateDialogParam(GetModuleHandle(0),

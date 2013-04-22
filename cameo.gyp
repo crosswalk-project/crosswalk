@@ -63,12 +63,9 @@
         'src/android/shell_manager.h',
         'src/app/shell_main_delegate.cc',
         'src/app/shell_main_delegate.h',
-        'src/browser/minimal_ash.cc',
-        'src/browser/minimal_ash.h',
         'src/browser/shell.cc',
         'src/browser/shell.h',
         'src/browser/shell_android.cc',
-        'src/browser/shell_aura.cc',
         'src/browser/shell_gtk.cc',
         'src/browser/shell_mac.mm',
         'src/browser/shell_win.cc',
@@ -99,8 +96,6 @@
         'src/browser/shell_login_dialog_mac.mm',
         'src/browser/shell_login_dialog.cc',
         'src/browser/shell_login_dialog.h',
-        'src/browser/shell_message_filter.cc',
-        'src/browser/shell_message_filter.h',
         'src/browser/shell_network_delegate.cc',
         'src/browser/shell_network_delegate.h',
         'src/browser/shell_quota_permission_context.cc',
@@ -124,16 +119,12 @@
         'src/common/paths_mac.mm',
         'src/common/shell_content_client.cc',
         'src/common/shell_content_client.h',
-        'src/common/shell_messages.cc',
-        'src/common/shell_messages.h',
         'src/common/shell_switches.cc',
         'src/common/shell_switches.h',
         'src/geolocation/shell_access_token_store.cc',
         'src/geolocation/shell_access_token_store.h',
         'src/renderer/shell_content_renderer_client.cc',
         'src/renderer/shell_content_renderer_client.h',
-        'src/renderer/shell_render_process_observer.cc',
-        'src/renderer/shell_render_process_observer.h',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
@@ -183,26 +174,12 @@
             '../webkit/support/webkit_support.gyp:webkit_support',
           ],
         }],  # OS=="android"
-        ['os_posix==1 and use_aura==1 and linux_use_tcmalloc==1', {
+        ['os_posix==1 and linux_use_tcmalloc==1', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
             '../base/allocator/allocator.gyp:allocator',
           ],
         }],
-        ['use_aura==1', {
-          'dependencies': [
-            '../ui/aura/aura.gyp:aura',
-            '../ui/base/strings/ui_strings.gyp:ui_strings',
-            '../ui/views/controls/webview/webview.gyp:webview',
-            '../ui/views/views.gyp:views',
-            '../ui/views/views.gyp:views_test_support',
-            '../ui/ui.gyp:ui_resources',
-          ],
-          'sources/': [
-            ['exclude', 'src/shell_gtk.cc'],
-            ['exclude', 'src/shell_win.cc'],
-          ],
-        }],  # use_aura==1
         ['chromeos==1', {
           'dependencies': [
             '../ash/ash.gyp:ash',

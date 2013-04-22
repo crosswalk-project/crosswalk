@@ -9,7 +9,7 @@
 
 namespace switches {
 
-extern const char kContentShellDataPath[];
+extern const char kCameoDataPath[];
 extern const char kHeadless[];
 
 }  // namespace switches

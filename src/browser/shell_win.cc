@@ -81,7 +81,6 @@ void Shell::PlatformCreateWindow(int width, int height) {
 }
 
 void Shell::PlatformSetContents() {
-  //window_->SetWebContents(shell_->web_contents());
 }
 
 void Shell::SizeTo(int width, int height) {

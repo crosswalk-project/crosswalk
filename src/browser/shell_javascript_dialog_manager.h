@@ -5,6 +5,8 @@
 #ifndef CAMEO_SRC_BROWSER_SHELL_JAVASCRIPT_DIALOG_MANAGER_H_
 #define CAMEO_SRC_BROWSER_SHELL_JAVASCRIPT_DIALOG_MANAGER_H_
 
+#include <string>
+
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -52,7 +54,8 @@ class ShellJavaScriptDialogManager : public content::JavaScriptDialogManager {
   // The dialog being shown. No queueing.
   scoped_ptr<ShellJavaScriptDialog> dialog_;
 #else
-  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellJavaScriptDialog for other platforms,
+  // drop this #if
 #endif
 
   base::Closure dialog_request_callback_;

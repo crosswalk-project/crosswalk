@@ -59,7 +59,8 @@ void ShellJavaScriptDialogManager::RunJavaScriptDialog(
                                           default_prompt_text,
                                           callback));
 #else
-  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellJavaScriptDialog for other platforms,
+  // drop this #if
   *did_suppress_message = true;
   return;
 #endif
@@ -99,7 +100,8 @@ void ShellJavaScriptDialogManager::RunBeforeUnloadDialog(
       string16(),  // default_prompt_text
       callback));
 #else
-  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellJavaScriptDialog for other platforms,
+  // drop this #if
   callback.Run(true, string16());
   return;
 #endif
@@ -113,7 +115,8 @@ void ShellJavaScriptDialogManager::ResetJavaScriptState(
     dialog_.reset();
   }
 #else
-  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellJavaScriptDialog for other platforms,
+  // drop this #if
 #endif
 }
 
@@ -122,7 +125,8 @@ void ShellJavaScriptDialogManager::DialogClosed(ShellJavaScriptDialog* dialog) {
   DCHECK_EQ(dialog, dialog_.get());
   dialog_.reset();
 #else
-  // TODO: implement ShellJavaScriptDialog for other platforms, drop this #if
+  // TODO(nhu): implement ShellJavaScriptDialog for other platforms,
+  // drop this #if
 #endif
 }
 

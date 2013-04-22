@@ -75,26 +75,26 @@ void ShellBrowserContext::InitWhileIOAllowed() {
   if (cmd_line->HasSwitch(switches::kIgnoreCertificateErrors)) {
     ignore_certificate_errors_ = true;
   }
-  if (cmd_line->HasSwitch(switches::kContentShellDataPath)) {
-    path_ = cmd_line->GetSwitchValuePath(switches::kContentShellDataPath);
+  if (cmd_line->HasSwitch(switches::kCameoDataPath)) {
+    path_ = cmd_line->GetSwitchValuePath(switches::kCameoDataPath);
     return;
   }
 #if defined(OS_WIN)
   CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &path_));
-  path_ = path_.Append(std::wstring(L"content_shell"));
+  path_ = path_.Append(std::wstring(L"cameo"));
 #elif defined(OS_LINUX)
   scoped_ptr<base::Environment> env(base::Environment::Create());
   base::FilePath config_dir(
       base::nix::GetXDGDirectory(env.get(),
                                  base::nix::kXdgConfigHomeEnvVar,
                                  base::nix::kDotConfigDir));
-  path_ = config_dir.Append("content_shell");
+  path_ = config_dir.Append("cameo");
 #elif defined(OS_MACOSX)
   CHECK(PathService::Get(base::DIR_APP_DATA, &path_));
-  path_ = path_.Append("Chromium Content Shell");
+  path_ = path_.Append("Cameo");
 #elif defined(OS_ANDROID)
   CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &path_));
-  path_ = path_.Append(FILE_PATH_LITERAL("content_shell"));
+  path_ = path_.Append(FILE_PATH_LITERAL("cameo"));
 #else
   NOTIMPLEMENTED();
 #endif

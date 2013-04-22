@@ -5,6 +5,8 @@
 #ifndef CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_H_
 #define CAMEO_SRC_BROWSER_UI_NATIVE_APP_WINDOW_H_
 
+#include <string>
+
 #include "base/compiler_specific.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/size.h"
@@ -26,10 +28,10 @@ class Shell;
 class NativeAppWindow {
  public:
   enum State {
-    STATE_NORMAL = 0, // Normal window.
-    STATE_FULLSCREEN, // Fullscreen mode.
-    STATE_MAXIMIZED,  // Maximized mode.
-    STATE_MINIMIZED   // Minimized mode.
+    STATE_NORMAL = 0,  // Normal window.
+    STATE_FULLSCREEN,  // Fullscreen mode.
+    STATE_MAXIMIZED,   // Maximized mode.
+    STATE_MINIMIZED    // Minimized mode.
   };
 
   struct CreateParams {
