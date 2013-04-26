@@ -35,6 +35,9 @@ class ShellDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
   virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
   virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
+  virtual scoped_refptr<net::StreamListenSocket> CreateSocketForTethering(
+      net::StreamListenSocket::Delegate* delegate,
+      std::string* name) OVERRIDE;
 
   content::DevToolsHttpHandler* devtools_http_handler() {
     return devtools_http_handler_;

@@ -82,4 +82,11 @@ std::string ShellDevToolsDelegate::GetViewDescription(
   return std::string();
 }
 
+scoped_refptr<net::StreamListenSocket>
+ShellDevToolsDelegate::CreateSocketForTethering(
+    net::StreamListenSocket::Delegate* delegate,
+    std::string* name) {
+  return NULL;
+}
+
 }  // namespace cameo
