@@ -10,32 +10,9 @@
 import os
 import optparse
 import re
-import subprocess
 import sys
 
-def IsWindows():
-  return sys.platform == 'cygwin' or sys.platform.startswith('win')
-
-def IsLinux():
-  return sys.platform.startswith('linux')
-
-def IsMac():
-  return sys.platform.startswith('darwin')
-
-def GitExe():
-  if IsWindows():
-    return 'git.bat'
-  else:
-    return 'git'
-
-def GetCommandOutput(command):
-  proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT, bufsize=1)
-  output = proc.communicate()[0]
-  result = proc.returncode
-  if result:
-    raise Exception('%s: %s' % (subprocess.list2cmdline(diff), output))
-  return output
+from utils import GitExe, GetCommandOutput, TryAddDepotToolsToPythonPath
 
 def find_depot_tools_in_path():
   paths = os.getenv('PATH').split(os.path.pathsep)
@@ -93,17 +70,15 @@ def do_lint(repo, base, args):
   try:
     import cpplint
   except ImportError:
-    depot_tools_path = find_depot_tools_in_path()
-    if depot_tools_path != None:
-      sys.path.append(depot_tools_path)
+    TryAddDepotToolsToPythonPath()
 
   try:
     import cpplint
     import cpplint_chromium
     import gcl
   except ImportError:
-    sys.stderr.write("Can't find cpplint, please add your depot_tools \
-                      to PATH or PYTHONPATH")
+    sys.stderr.write("Can't find cpplint, please add your depot_tools "\
+                     "to PATH or PYTHONPATH\n")
     return 1
 
   '''Following code is referencing depot_tools/gcl.py: CMDlint
