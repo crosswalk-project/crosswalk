@@ -14,12 +14,9 @@ include_rules = [
 
   # Shell resources
   "+grit/net_resources.h",
-  "+grit/shell_resources.h",
+  "+grit/cameo_resources.h",
 
   # The content_shell for aura must work with the views and aura
   "+ui/aura",
   "+ui/views",
-
-  # For WebTestRunner library
-  "+third_party/WebKit/Tools/DumpRenderTree/chromium/TestRunner/public",
 ]

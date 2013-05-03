@@ -16,8 +16,8 @@ import org.chromium.content.browser.ResourceExtractor;
  */
 public class ContentShellApplication extends Application {
 
-    private static final String[] MANDATORY_PAK_FILES = new String[] {"content_shell.pak"};
-    private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "content_shell";
+    private static final String[] MANDATORY_PAK_FILES = new String[] {"cameo.pak"};
+    private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "cameo";
 
     @Override
     public void onCreate() {
