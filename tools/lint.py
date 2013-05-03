@@ -4,7 +4,6 @@
     It get the changeset from the repo and base specified by
     command line arguments. And run cpplint over the changeset.
 '''
-# TODO(wang16): Use pylint for .py files
 # TODO(wang16): Only show error for the lines do changed in the changeset
 
 import os
@@ -12,6 +11,8 @@ import re
 import sys
 
 from utils import GitExe, GetCommandOutput, TryAddDepotToolsToPythonPath
+
+PYTHON_EXTS = ['.py']
 
 def find_depot_tools_in_path():
   paths = os.getenv('PATH').split(os.path.pathsep)
@@ -60,12 +61,23 @@ def get_tracking_remote():
         'will use %s as comparasion base for linting' % remote
   return remote
 
+# return pyfiles, others
 def get_change_file_list(base):
   diff = [GitExe(), 'diff', '--name-only', base]
   output = GetCommandOutput(diff)
-  return [line.strip() for line in output.strip().split('\n')]
- 
-def do_lint(repo, base, args):
+  changes = [line.strip() for line in output.strip().split('\n')]
+  pyfiles = []
+  others = []
+  # pylint: disable=W0612
+  for change in changes:
+    root, ext = os.path.splitext(change)
+    if ext.lower() in PYTHON_EXTS:
+      pyfiles.append(change)
+    else:
+      others.append(change)
+  return pyfiles, others
+
+def do_cpp_lint(changeset, repo, args):
   # Try to import cpplint from depot_tools first
   try:
     import cpplint
@@ -79,33 +91,15 @@ def do_lint(repo, base, args):
   except ImportError:
     sys.stderr.write("Can't find cpplint, please add your depot_tools "\
                      "to PATH or PYTHONPATH\n")
-    return 1
-
-  # Following code is referencing depot_tools/gcl.py: CMDlint
-
-  # dir structure should be src/cameo for cameo
-  #                         src/third_party/WebKit for blink
-  #                         src/ for chromium
-  # lint.py should be located in src/cameo/tools/lint.py
-  _lint_py = os.path.abspath(__file__)
-  _dirs = _lint_py.split(os.path.sep)
-  src_root = os.path.sep.join(_dirs[:len(_dirs)-3])
-  if repo == 'cameo':
-    base_repo = os.path.join(src_root, 'cameo')
-  elif repo == 'chromium':
-    base_repo = src_root
-  elif repo == 'blink':
-    base_repo = os.path.join(src_root, 'third_party', 'WebKit')
-  else:
-    raise NotImplementedError('repo must in cameo, blink and chromium')
-  previous_cwd = os.getcwd()
-  os.chdir(base_repo)
-  if base == None:
-    base = get_tracking_remote()
-  changeset = get_change_file_list(base)
+    raise
+  print '_____ do cpp lint'
+  if len(changeset) == 0:
+    print 'changeset is empty except python files'
+    return
   # pass the build/header_guard check
   if repo == 'cameo':
     os.rename('.git', '.git.rename')
+  # Following code is referencing depot_tools/gcl.py: CMDlint
   try:
     # Process cpplints arguments if any.
     filenames = cpplint.ParseArguments(args + changeset)
@@ -130,12 +124,57 @@ def do_lint(repo, base, args):
                               extra_check_functions)
       else:
         print "Skipping file %s" % filename
+    print "Total errors found: %d\n" % cpplint_state.error_count
   finally:
     if repo == 'cameo':
       os.rename('.git.rename', '.git')
-    os.chdir(previous_cwd)
 
-  print "Total errors found: %d\n" % cpplint_state.error_count
+def do_py_lint(changeset):
+  print '_____ do python lint'
+  pylint_cmd = ['pylint']
+  _has_import_error = False 
+  for pyfile in changeset:
+    py_dir, py_name = os.path.split(os.path.abspath(pyfile))
+    previous_cwd = os.getcwd()
+    os.chdir(py_dir)
+    print 'pylint %s' % pyfile
+    try:
+      output = GetCommandOutput(pylint_cmd + [py_name]).strip()
+      if len(output) > 0:
+        print output
+    except Exception, e:
+      if not _has_import_error and \
+          'F0401:' in [error[:6] for error in str(e).splitlines()]:
+        _has_import_error = True
+      print e
+    os.chdir(previous_cwd)
+  if _has_import_error:
+    print 'You have error for python importing, please check your PYTHONPATH'
+ 
+def do_lint(repo, base, args):
+  # dir structure should be src/cameo for cameo
+  #                         src/third_party/WebKit for blink
+  #                         src/ for chromium
+  # lint.py should be located in src/cameo/tools/lint.py
+  _lint_py = os.path.abspath(__file__)
+  _dirs = _lint_py.split(os.path.sep)
+  src_root = os.path.sep.join(_dirs[:len(_dirs)-3])
+  if repo == 'cameo':
+    base_repo = os.path.join(src_root, 'cameo')
+  elif repo == 'chromium':
+    base_repo = src_root
+  elif repo == 'blink':
+    base_repo = os.path.join(src_root, 'third_party', 'WebKit')
+  else:
+    raise NotImplementedError('repo must in cameo, blink and chromium')
+  previous_cwd = os.getcwd()
+  os.chdir(base_repo)
+  if base == None:
+    base = get_tracking_remote()
+  changes_py, changes_others = get_change_file_list(base)
+  do_cpp_lint(changes_others, repo, args)
+  os.chdir(previous_cwd)
+  do_py_lint(changes_py)
   return 1
 
 from optparse import OptionParser, BadOptionError
