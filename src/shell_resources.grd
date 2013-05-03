@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/shell_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="shell_resources.pak" type="data_package" />
+    <output filename="shell_resources.rc" type="rc_all" />
+  </outputs>
+  <translations />
+  <release seq="1">
+    <includes>
+      <include name="IDR_CONTENT_SHELL_DEVTOOLS_DISCOVERY_PAGE" file="resources/shell_devtools_discovery_page.html" type="BINDATA" />
+      <include name="IDR_CONTENT_SHELL_MISSING_IMAGE_GIF" file="resources/missingImage.gif" type="BINDATA" />
+      <include name="IDR_CONTENT_SHELL_MISSING_IMAGE_PNG" file="resources/missingImage.png" type="BINDATA" />
+      <include name="IDR_CONTENT_SHELL_TEXT_AREA_RESIZE_CORNER_PNG" file="resources/textAreaResizeCorner.png" type="BINDATA" />
+    </includes>
+  </release>
+</grit>
