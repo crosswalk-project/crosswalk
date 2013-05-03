@@ -8,7 +8,6 @@
 # TODO(wang16): Only show error for the lines do changed in the changeset
 
 import os
-import optparse
 import re
 import sys
 
@@ -35,10 +34,11 @@ def get_tracking_remote():
     # we only need active branch first.
     if not branch.startswith('*'):
       continue
-    detail = branch[1:].strip().split(' ', 1)[1].strip().split(' ', 1)[1].strip()
+    detail = \
+        branch[1:].strip().split(' ', 1)[1].strip().split(' ', 1)[1].strip()
     if detail.startswith('['):
       remote = detail[1:].split(']', 1)[0]
-      remote = remote.split(':',1)[0].strip()
+      remote = remote.split(':', 1)[0].strip()
       # verify that remotes/branch or branch is a real branch
       # There is still chance that developer named his commit
       # as [origin/branch], in this case
@@ -81,8 +81,8 @@ def do_lint(repo, base, args):
                      "to PATH or PYTHONPATH\n")
     return 1
 
-  '''Following code is referencing depot_tools/gcl.py: CMDlint
-  '''
+  # Following code is referencing depot_tools/gcl.py: CMDlint
+
   # dir structure should be src/cameo for cameo
   #                         src/third_party/WebKit for blink
   #                         src/ for chromium
@@ -119,12 +119,14 @@ def do_lint(repo, base, args):
       black_list = gcl.DEFAULT_LINT_IGNORE_REGEX
     black_regex = re.compile(black_list)
     extra_check_functions = [cpplint_chromium.CheckPointerDeclarationWhitespace]
+    # pylint: disable=W0212
+    cpplint_state = cpplint._cpplint_state
     for filename in filenames:
       if white_regex.match(filename):
         if black_regex.match(filename):
           print "Ignoring file %s" % filename
         else:
-          cpplint.ProcessFile(filename, cpplint._cpplint_state.verbose_level,
+          cpplint.ProcessFile(filename, cpplint_state.verbose_level,
                               extra_check_functions)
       else:
         print "Skipping file %s" % filename
@@ -133,7 +135,7 @@ def do_lint(repo, base, args):
       os.rename('.git.rename', '.git')
     os.chdir(previous_cwd)
 
-  print "Total errors found: %d\n" % cpplint._cpplint_state.error_count
+  print "Total errors found: %d\n" % cpplint_state.error_count
   return 1
 
 from optparse import OptionParser, BadOptionError
@@ -157,7 +159,8 @@ def main():
       help='The repo to do lint, should be in [cameo, blink, chromium]\
             cameo by default')
   option_parser.add_option('--base', default=None,
-      help='The base point to get change set. If not specified, it will choose:\r\n' +
+      help='The base point to get change set. If not specified,' +
+           ' it will choose:\r\n' +
            '  1. Active branch\'s tracking branch if exist\n' +
            '  2. HEAD if current repo is dirty\n' +
            '  3. HEAD~ elsewise')
