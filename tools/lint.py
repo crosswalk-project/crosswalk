@@ -4,38 +4,15 @@
     It get the changeset from the repo and base specified by
     command line arguments. And run cpplint over the changeset.
 '''
-# TODO(wang16): Use pylint for .py files
 # TODO(wang16): Only show error for the lines do changed in the changeset
 
 import os
-import optparse
 import re
-import subprocess
 import sys
 
-def IsWindows():
-  return sys.platform == 'cygwin' or sys.platform.startswith('win')
+from utils import GitExe, GetCommandOutput, TryAddDepotToolsToPythonPath
 
-def IsLinux():
-  return sys.platform.startswith('linux')
-
-def IsMac():
-  return sys.platform.startswith('darwin')
-
-def GitExe():
-  if IsWindows():
-    return 'git.bat'
-  else:
-    return 'git'
-
-def GetCommandOutput(command):
-  proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT, bufsize=1)
-  output = proc.communicate()[0]
-  result = proc.returncode
-  if result:
-    raise Exception('%s: %s' % (subprocess.list2cmdline(diff), output))
-  return output
+PYTHON_EXTS = ['.py']
 
 def find_depot_tools_in_path():
   paths = os.getenv('PATH').split(os.path.pathsep)
@@ -58,10 +35,11 @@ def get_tracking_remote():
     # we only need active branch first.
     if not branch.startswith('*'):
       continue
-    detail = branch[1:].strip().split(' ', 1)[1].strip().split(' ', 1)[1].strip()
+    detail = \
+        branch[1:].strip().split(' ', 1)[1].strip().split(' ', 1)[1].strip()
     if detail.startswith('['):
       remote = detail[1:].split(']', 1)[0]
-      remote = remote.split(':',1)[0].strip()
+      remote = remote.split(':', 1)[0].strip()
       # verify that remotes/branch or branch is a real branch
       # There is still chance that developer named his commit
       # as [origin/branch], in this case
@@ -83,31 +61,97 @@ def get_tracking_remote():
         'will use %s as comparasion base for linting' % remote
   return remote
 
+# return pyfiles, others
 def get_change_file_list(base):
   diff = [GitExe(), 'diff', '--name-only', base]
   output = GetCommandOutput(diff)
-  return [line.strip() for line in output.strip().split('\n')]
- 
-def do_lint(repo, base, args):
+  changes = [line.strip() for line in output.strip().split('\n')]
+  pyfiles = []
+  others = []
+  # pylint: disable=W0612
+  for change in changes:
+    root, ext = os.path.splitext(change)
+    if ext.lower() in PYTHON_EXTS:
+      pyfiles.append(change)
+    else:
+      others.append(change)
+  return pyfiles, others
+
+def do_cpp_lint(changeset, repo, args):
   # Try to import cpplint from depot_tools first
   try:
     import cpplint
   except ImportError:
-    depot_tools_path = find_depot_tools_in_path()
-    if depot_tools_path != None:
-      sys.path.append(depot_tools_path)
+    TryAddDepotToolsToPythonPath()
 
   try:
     import cpplint
     import cpplint_chromium
     import gcl
   except ImportError:
-    sys.stderr.write("Can't find cpplint, please add your depot_tools \
-                      to PATH or PYTHONPATH")
-    return 1
+    sys.stderr.write("Can't find cpplint, please add your depot_tools "\
+                     "to PATH or PYTHONPATH\n")
+    raise
+  print '_____ do cpp lint'
+  if len(changeset) == 0:
+    print 'changeset is empty except python files'
+    return
+  # pass the build/header_guard check
+  if repo == 'cameo':
+    os.rename('.git', '.git.rename')
+  # Following code is referencing depot_tools/gcl.py: CMDlint
+  try:
+    # Process cpplints arguments if any.
+    filenames = cpplint.ParseArguments(args + changeset)
 
-  '''Following code is referencing depot_tools/gcl.py: CMDlint
-  '''
+    white_list = gcl.GetCodeReviewSetting("LINT_REGEX")
+    if not white_list:
+      white_list = gcl.DEFAULT_LINT_REGEX
+    white_regex = re.compile(white_list)
+    black_list = gcl.GetCodeReviewSetting("LINT_IGNORE_REGEX")
+    if not black_list:
+      black_list = gcl.DEFAULT_LINT_IGNORE_REGEX
+    black_regex = re.compile(black_list)
+    extra_check_functions = [cpplint_chromium.CheckPointerDeclarationWhitespace]
+    # pylint: disable=W0212
+    cpplint_state = cpplint._cpplint_state
+    for filename in filenames:
+      if white_regex.match(filename):
+        if black_regex.match(filename):
+          print "Ignoring file %s" % filename
+        else:
+          cpplint.ProcessFile(filename, cpplint_state.verbose_level,
+                              extra_check_functions)
+      else:
+        print "Skipping file %s" % filename
+    print "Total errors found: %d\n" % cpplint_state.error_count
+  finally:
+    if repo == 'cameo':
+      os.rename('.git.rename', '.git')
+
+def do_py_lint(changeset):
+  print '_____ do python lint'
+  pylint_cmd = ['pylint']
+  _has_import_error = False 
+  for pyfile in changeset:
+    py_dir, py_name = os.path.split(os.path.abspath(pyfile))
+    previous_cwd = os.getcwd()
+    os.chdir(py_dir)
+    print 'pylint %s' % pyfile
+    try:
+      output = GetCommandOutput(pylint_cmd + [py_name]).strip()
+      if len(output) > 0:
+        print output
+    except Exception, e:
+      if not _has_import_error and \
+          'F0401:' in [error[:6] for error in str(e).splitlines()]:
+        _has_import_error = True
+      print e
+    os.chdir(previous_cwd)
+  if _has_import_error:
+    print 'You have error for python importing, please check your PYTHONPATH'
+ 
+def do_lint(repo, base, args):
   # dir structure should be src/cameo for cameo
   #                         src/third_party/WebKit for blink
   #                         src/ for chromium
@@ -127,38 +171,10 @@ def do_lint(repo, base, args):
   os.chdir(base_repo)
   if base == None:
     base = get_tracking_remote()
-  changeset = get_change_file_list(base)
-  # pass the build/header_guard check
-  if repo == 'cameo':
-    os.rename('.git', '.git.rename')
-  try:
-    # Process cpplints arguments if any.
-    filenames = cpplint.ParseArguments(args + changeset)
-
-    white_list = gcl.GetCodeReviewSetting("LINT_REGEX")
-    if not white_list:
-      white_list = gcl.DEFAULT_LINT_REGEX
-    white_regex = re.compile(white_list)
-    black_list = gcl.GetCodeReviewSetting("LINT_IGNORE_REGEX")
-    if not black_list:
-      black_list = gcl.DEFAULT_LINT_IGNORE_REGEX
-    black_regex = re.compile(black_list)
-    extra_check_functions = [cpplint_chromium.CheckPointerDeclarationWhitespace]
-    for filename in filenames:
-      if white_regex.match(filename):
-        if black_regex.match(filename):
-          print "Ignoring file %s" % filename
-        else:
-          cpplint.ProcessFile(filename, cpplint._cpplint_state.verbose_level,
-                              extra_check_functions)
-      else:
-        print "Skipping file %s" % filename
-  finally:
-    if repo == 'cameo':
-      os.rename('.git.rename', '.git')
-    os.chdir(previous_cwd)
-
-  print "Total errors found: %d\n" % cpplint._cpplint_state.error_count
+  changes_py, changes_others = get_change_file_list(base)
+  do_cpp_lint(changes_others, repo, args)
+  os.chdir(previous_cwd)
+  do_py_lint(changes_py)
   return 1
 
 from optparse import OptionParser, BadOptionError
@@ -182,7 +198,8 @@ def main():
       help='The repo to do lint, should be in [cameo, blink, chromium]\
             cameo by default')
   option_parser.add_option('--base', default=None,
-      help='The base point to get change set. If not specified, it will choose:\r\n' +
+      help='The base point to get change set. If not specified,' +
+           ' it will choose:\r\n' +
            '  1. Active branch\'s tracking branch if exist\n' +
            '  2. HEAD if current repo is dirty\n' +
            '  3. HEAD~ elsewise')
