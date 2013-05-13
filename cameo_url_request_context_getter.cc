@@ -4,6 +4,7 @@
 #include "base/threading/worker_pool.h"
 #include "cameo/cameo_network_delegate.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/http/http_auth_handler_factory.h"
@@ -14,6 +15,7 @@
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
+#include "net/url_request/file_protocol_handler.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_job_factory_impl.h"
@@ -95,6 +97,13 @@ net::URLRequestContext* CameoURLRequestContextGetter::GetURLRequestContext() {
 
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
+
+    bool set_protocol = job_factory->SetProtocolHandler(
+        chrome::kFileScheme,
+        new net::FileProtocolHandler);
+    DCHECK(set_protocol);
+
+
     storage_->set_job_factory(job_factory.release());
   }
 
