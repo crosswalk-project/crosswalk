@@ -75,6 +75,8 @@
 	'cameo_web_contents_delegate.h',
 	'cameo_network_delegate.cc',
 	'cameo_network_delegate.h',
+	'renderer/cameo_content_renderer_client.h',
+	'renderer/cameo_content_renderer_client.cc',
       ],
       'conditions': [
         ['OS == "win" or (toolkit_uses_gtk == 1 and selinux == 0)', {

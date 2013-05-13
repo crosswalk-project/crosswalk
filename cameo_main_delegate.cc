@@ -2,6 +2,7 @@
 
 #include "base/path_service.h"
 #include "cameo/cameo_content_browser_client.h"
+#include "cameo/renderer/cameo_content_renderer_client.h"
 #include "ui/base/resource/resource_bundle.h"
 
 void CameoMainDelegate::PreSandboxStartup() {
@@ -15,4 +16,8 @@ void CameoMainDelegate::PreSandboxStartup() {
 
 content::ContentBrowserClient* CameoMainDelegate::CreateContentBrowserClient() {
   return new CameoContentBrowserClient;
+}
+
+content::ContentRendererClient* CameoMainDelegate::CreateContentRendererClient() {
+  return new CameoContentRendererClient;
 }

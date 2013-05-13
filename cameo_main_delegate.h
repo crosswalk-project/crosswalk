@@ -12,6 +12,7 @@ class CameoMainDelegate : public content::ContentMainDelegate {
   // ContentMainDelegate implementation.
   virtual void PreSandboxStartup() OVERRIDE;
   virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
+  virtual content::ContentRendererClient* CreateContentRendererClient() OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CameoMainDelegate);
