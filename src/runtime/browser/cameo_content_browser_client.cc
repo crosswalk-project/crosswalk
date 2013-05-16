@@ -1,0 +1,68 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "cameo/src/runtime/browser/cameo_content_browser_client.h"
+
+#include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
+#include "cameo/src/runtime/browser/runtime_context.h"
+#include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_view_delegate.h"
+#include "content/public/common/main_function_params.h"
+#include "net/url_request/url_request_context_getter.h"
+
+namespace cameo {
+
+namespace {
+
+// The application-wide singleton of ContentBrowserClient impl.
+CameoContentBrowserClient* g_browser_client = NULL;
+
+}  // namespace
+
+// static
+CameoContentBrowserClient* CameoContentBrowserClient::Get() {
+  return g_browser_client;
+}
+
+CameoContentBrowserClient::CameoContentBrowserClient() {
+  DCHECK(!g_browser_client);
+  g_browser_client = this;
+}
+
+CameoContentBrowserClient::~CameoContentBrowserClient() {
+  DCHECK(g_browser_client);
+  g_browser_client = NULL;
+}
+
+content::BrowserMainParts* CameoContentBrowserClient::CreateBrowserMainParts(
+    const content::MainFunctionParams& parameters) {
+  return new CameoBrowserMainParts(parameters);
+}
+
+net::URLRequestContextGetter* CameoContentBrowserClient::CreateRequestContext(
+    content::BrowserContext* browser_context,
+    content::ProtocolHandlerMap* protocol_handlers) {
+  return static_cast<RuntimeContext*>(browser_context)->
+      CreateRequestContext(protocol_handlers);
+}
+
+net::URLRequestContextGetter*
+CameoContentBrowserClient::CreateRequestContextForStoragePartition(
+    content::BrowserContext* browser_context,
+    const base::FilePath& partition_path,
+    bool in_memory,
+    content::ProtocolHandlerMap* protocol_handlers) {
+  return static_cast<RuntimeContext*>(browser_context)->
+      CreateRequestContextForStoragePartition(
+          partition_path, in_memory, protocol_handlers);
+}
+
+content::WebContentsViewDelegate*
+CameoContentBrowserClient::GetWebContentsViewDelegate(
+    content::WebContents* web_contents) {
+  return NULL;
+}
+
+}  // namespace cameo
