@@ -262,5 +262,14 @@
         }],  # toolkit_uses_gtk==1
       ],
     },
+    {
+      'target_name': 'cameo_builder',
+      'type': 'none',
+      'dependencies': [
+        'cameo',
+        'cameo_browsertest',
+        'cameo_unittest',
+      ],
+    },
   ],
 }
