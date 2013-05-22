@@ -9,5 +9,5 @@
 chromium_version = 'Trunk'
 chromium_cameo_point = 'af8c29c7b783b76f983ff2c877963d4dd9848e38'
 deps_cameo = {
-  'src': 'ssh://github.com/otcshare/chromium-cameo.git@%s' % chromium_cameo_point,
+  'src': 'ssh://git@github.com/otcshare/chromium-cameo.git@%s' % chromium_cameo_point,
 }
