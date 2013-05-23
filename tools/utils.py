@@ -15,6 +15,9 @@ def TryAddDepotToolsToPythonPath():
 def FindDepotToolsInPath():
   paths = os.getenv('PATH').split(os.path.pathsep)
   for path in paths:
+    if os.path.basename(path) == '':
+      # path is end with os.path.pathsep
+      path = os.path.dirname(path)
     if os.path.basename(path) == 'depot_tools':
       return path
   return None
