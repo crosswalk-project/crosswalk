@@ -173,8 +173,8 @@ def do_lint(repo, base, args):
     base = get_tracking_remote()
   changes_py, changes_others = get_change_file_list(base)
   do_cpp_lint(changes_others, repo, args)
-  os.chdir(previous_cwd)
   do_py_lint(changes_py)
+  os.chdir(previous_cwd)
   return 1
 
 from optparse import OptionParser, BadOptionError
