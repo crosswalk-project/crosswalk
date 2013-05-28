@@ -1,0 +1,45 @@
+<html>
+<body>
+<script>
+function getParameter(param) {
+  var query = window.location.search;
+  var iLen = param.length;
+  var iStart = query.indexOf(param);
+  if (iStart == -1)
+     return "";
+  iStart += iLen + 1;
+  var iEnd = query.indexOf("&", iStart);
+  if (iEnd == -1)
+     return query.substring(iStart);
+
+  return query.substring(iStart, iEnd);
+}
+function doSubmit() {
+  doClick("submit");
+}
+function doChooseColor() {
+  doClick("choose_color");
+}
+function doSelectFile() {
+  doClick("select_file");
+}
+function doClick(id){
+  var elem = document.getElementById(id);
+  elem.click();
+}
+if (getParameter("file") != "") {
+  document.title = "file selected: " + getParameter("file");
+} else if (getParameter("color") != "") {
+  document.title = "color chosen: " + getParameter("color").toLowerCase().replace("%23", "#");
+} else {
+  document.title = "nothing selected";
+}
+</script>
+<form>
+  Select a file: <input id="select_file" type="file" name="file" onchange="doSubmit()">
+  Choose color: <input id="choose_color" type="color" name="color" onchange="doSubmit()">
+  <input id="submit" type="submit">
+</form>
+</body>
+</html>
+

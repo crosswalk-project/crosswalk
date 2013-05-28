@@ -9,10 +9,28 @@
     <output filename="cameo_resources.pak" type="data_package" context="default_100_percent" />
     <output filename="cameo_resources.rc" type="rc_all" context="default_100_percent" />
   </outputs>
-  <release seq="1">
+  <release seq="1" allow_pseudo="false">
     <includes>
       <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
     </includes>
+    <messages fallback_to_english="true">
+      <message name="IDS_IMAGE_FILES" desc="The description of the image file extensions in the select file dialog.">
+        Image Files
+      </message>
+      <message name="IDS_AUDIO_FILES" desc="The description of the audio file extensions in the select file dialog.">
+        Audio Files
+      </message>
+      <message name="IDS_VIDEO_FILES" desc="The description of the video file extensions in the select file dialog.">
+        Video Files
+      </message>
+      <message name="IDS_CUSTOM_FILES" desc="The description of the custom file extensions in the select file dialog.">
+        Custom Files
+      </message>
+      <!-- Color chooser dialog default titles (only used on Linux) -->
+      <message name="IDS_SELECT_COLOR_DIALOG_TITLE" desc="The default title for the Select Color color chooser dialog.">
+        Select Color
+      </message>
+    </messages>
   </release>
   <translations />
 </grit>
