@@ -91,6 +91,7 @@
     'sources': [
       'src/runtime/browser/cameo_runtime_browsertest.cc',
       'src/runtime/browser/cameo_switches_browsertest.cc',
+      'src/runtime/browser/devtools/cameo_devtools_browsertest.cc',
       'src/test/base/cameo_test_launcher.cc',
       'src/test/base/in_process_browser_test.cc',
       'src/test/base/in_process_browser_test.h',

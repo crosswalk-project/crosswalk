@@ -9,6 +9,8 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/strings/string_number_conversions.h"
+#include "cameo/src/runtime/browser/devtools/remote_debugging_server.h"
 #include "cameo/src/runtime/browser/runtime.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
@@ -53,6 +55,19 @@ void CameoBrowserMainParts::PreEarlyInitialization() {
 void CameoBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
+
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
+    std::string port_str =
+        command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
+    int port;
+    const char* loopback_ip = "127.0.0.1";
+    if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
+      remote_debugging_server_.reset(
+          new RemoteDebuggingServer(runtime_context_.get(),
+              loopback_ip, port, std::string()));
+    }
+  }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::Create(runtime_context_.get(), startup_url_);
