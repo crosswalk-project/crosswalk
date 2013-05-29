@@ -12,6 +12,7 @@
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
+#include "cameo/src/runtime/browser/ui/app_modal_dialogs/javascript_dialog_manager.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -169,7 +170,9 @@ void Runtime::DidNavigateMainFramePostCommit(content::WebContents* web_contents)
 }
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager() {
-  return NULL;
+  if (!dialog_manager_)
+     dialog_manager_.reset(CreateJavaScriptDialogManagerInstance(this));
+  return dialog_manager_.get();
 }
 
 void Runtime::ActivateContents(content::WebContents* contents) {

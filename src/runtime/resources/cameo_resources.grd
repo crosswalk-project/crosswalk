@@ -9,5 +9,60 @@
     <output filename="cameo_resources.pak" type="data_package" context="default_100_percent" />
     <output filename="cameo_resources.rc" type="rc_all" context="default_100_percent" />
   </outputs>
-  <translations />
+  <translations>
+  </translations>
+  <release seq="1" allow_pseudo="false">
+    <messages fallback_to_english="true">
+      <!-- The minimum width of javascript alert popups. -->
+      <message name="IDS_ALERT_DIALOG_WIDTH_CHARS" use_name_for_id="true">
+        30
+      </message>
+
+      <!-- JavaScript Dialog Box strings -->
+      <message name="IDS_JAVASCRIPT_ALERT_DEFAULT_TITLE" desc="Title for JavaScript alert originating from a webpage if there is no hostname to display">
+        JavaScript Alert
+      </message>
+      <message name="IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE" desc="Title for JavaScript prompt and confirm originating from a webpage if there is no hostname to display">
+        JavaScript
+      </message>
+      <message name="IDS_JAVASCRIPT_ALERT_TITLE" desc="Title for JavaScript alert originating from a webpage">
+        The page at <ph name="SITE">$1<ex>http://www.google.com</ex></ph> says:
+      </message>
+      <message name="IDS_JAVASCRIPT_MESSAGEBOX_TITLE" desc="Title for JavaScript prompt and confirm originating from a webpage">
+        The page at <ph name="SITE">$1<ex>http://www.google.com</ex></ph> says:
+      </message>
+      <message name="IDS_JAVASCRIPT_MESSAGEBOX_SUPPRESS_OPTION" desc="Optional UI shown on the message box, in the form of a checkbox, allowing the user to suppress additional message boxes from the page.">
+        Prevent this page from creating additional dialogs.
+      </message>
+
+      <!-- "Before Unload" Dialog Box strings -->
+      <message name="IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE" desc="Title for the 'before unload' dialog.">
+        Confirm Navigation
+      </message>
+      <message name="IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER" desc="Text shown at the bottom of the dialog, after the message provided by the script.">
+        Are you sure you want to leave this page?
+      </message>
+      <message name="IDS_BEFOREUNLOAD_MESSAGEBOX_OK_BUTTON_LABEL" desc="The text on the button which navigates the user away from the page.">
+        Leave this Page
+      </message>
+      <message name="IDS_BEFOREUNLOAD_MESSAGEBOX_CANCEL_BUTTON_LABEL" desc="The text on the button which cancels the navigation away from the page.">
+        Stay on this Page
+      </message>
+
+      <!-- "Before Reload" Dialog Box strings (same as "Before Unload" but when reloading rather than unloading the page -->
+      <message name="IDS_BEFORERELOAD_MESSAGEBOX_TITLE" desc="Title for the 'before reload' dialog.">
+        Confirm Reload
+      </message>
+      <message name="IDS_BEFORERELOAD_MESSAGEBOX_FOOTER" desc="Text shown at the bottom of the dialog, after the message provided by the script.">
+        Are you sure you want to reload this page?
+      </message>
+      <message name="IDS_BEFORERELOAD_MESSAGEBOX_OK_BUTTON_LABEL" desc="The text on the button which reloads the page.">
+        Reload this Page
+      </message>
+      <message name="IDS_BEFORERELOAD_MESSAGEBOX_CANCEL_BUTTON_LABEL" desc="The text on the button which cancels the page reload.">
+        Don't Reload
+      </message>
+
+	</messages>
+  </release>
 </grit>

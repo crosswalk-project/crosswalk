@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "cameo/src/runtime/browser/ui/native_app_window.h"
+#include "content/public/browser/javascript_dialog_manager.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
@@ -22,6 +23,7 @@ namespace cameo {
 
 class NativeAppWindow;
 class RuntimeContext;
+class RuntimeJavaScriptDialogManager;
 
 // Runtime represents the running environment for a web page. It is responsible
 // for maintaning its owned WebContents and handling any communication between
@@ -90,6 +92,9 @@ class Runtime : public content::WebContentsDelegate,
 
   // The browsing context.
   cameo::RuntimeContext* runtime_context_;
+
+  // JavaScript dialog manager.
+  scoped_ptr<content::JavaScriptDialogManager> dialog_manager_;
 
   // Notification manager.
   content::NotificationRegistrar registrar_;
