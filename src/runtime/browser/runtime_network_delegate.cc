@@ -77,14 +77,14 @@ RuntimeNetworkDelegate::OnAuthRequired(
 bool RuntimeNetworkDelegate::OnCanGetCookies(
     const net::URLRequest& request,
     const net::CookieList& cookie_list) {
-  // TODO: We need to define a policy for cookie read/write.
+  // TODO(hmin): We need to define a policy for cookie read/write.
   return true;
 }
 
 bool RuntimeNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
                                             const std::string& cookie_line,
                                             net::CookieOptions* options) {
-  // TODO: We need to define a policy for cookie read/write.
+  // TODO(hmin): We need to define a policy for cookie read/write.
   return true;
 }
 

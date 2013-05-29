@@ -40,11 +40,11 @@ void CheckUserAgentStringOrdering(bool mobile_device) {
 
   // Not sure what can be done to better check the OS string, since it's highly
   // platform-dependent.
-  EXPECT_TRUE(os_str.size() > 0);
+  EXPECT_GT(os_str.size(), 0u);
 
   // Check that the version numbers match.
-  EXPECT_TRUE(webkit_version_str.size() > 0);
-  EXPECT_TRUE(safari_version_str.size() > 0);
+  EXPECT_GT(webkit_version_str.size(), 0u);
+  EXPECT_GT(safari_version_str.size(), 0u);
   EXPECT_EQ(webkit_version_str, safari_version_str);
 
   EXPECT_EQ(0u, product_str.find("Chrome/"));

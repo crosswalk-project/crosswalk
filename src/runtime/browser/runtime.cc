@@ -5,6 +5,7 @@
 #include "cameo/src/runtime/browser/runtime.h"
 
 #include <string>
+#include <utility>
 
 #include "base/command_line.h"
 #include "base/message_loop.h"
@@ -45,7 +46,7 @@ Runtime* Runtime::Create(RuntimeContext* runtime_context, const GURL& url) {
   return runtime;
 }
 
-//static
+// static
 Runtime* Runtime::CreateFromWebContents(WebContents* web_contents) {
   return new Runtime(web_contents);
 }
@@ -83,7 +84,7 @@ void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
 }
 
 gfx::Image Runtime::app_icon() const {
-  // TODO: Get the app icon for native app window either from app manifest
+  // TODO(hmin): Get the app icon for native app window either from app manifest
   // or from html favicon tag.
   return gfx::Image();
 }
@@ -122,7 +123,7 @@ void Runtime::LoadingStateChanged(content::WebContents* source) {
 
 void Runtime::ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                          bool enter_fullscreen) {
-  // TODO: add fullscreen mode support for native app window.
+  // TODO(hmin): add fullscreen mode support for native app window.
 }
 
 bool Runtime::IsFullscreenForTabOrPending(
@@ -165,7 +166,8 @@ void Runtime::WebContentsCreated(
   Runtime::CreateFromWebContents(new_contents);
 }
 
-void Runtime::DidNavigateMainFramePostCommit(content::WebContents* web_contents) {
+void Runtime::DidNavigateMainFramePostCommit(
+    content::WebContents* web_contents) {
 }
 
 content::JavaScriptDialogManager* Runtime::GetJavaScriptDialogManager() {

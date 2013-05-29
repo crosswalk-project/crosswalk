@@ -5,6 +5,8 @@
 #ifndef CAMEO_SRC_RUNTIME_BROWSER_RUNTIME_REGISTRY_H_
 #define CAMEO_SRC_RUNTIME_BROWSER_RUNTIME_REGISTRY_H_
 
+#include <vector>
+
 #include "base/observer_list.h"
 
 namespace content {
