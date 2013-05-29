@@ -66,6 +66,8 @@
         'src/runtime/browser/devtools/remote_debugging_server.h',
         'src/runtime/browser/runtime.cc',
         'src/runtime/browser/runtime.h',
+        'src/runtime/browser/geolocation/cameo_access_token_store.cc',
+        'src/runtime/browser/geolocation/cameo_access_token_store.h',
         'src/runtime/browser/runtime_context.cc',
         'src/runtime/browser/runtime_context.h',
         'src/runtime/browser/runtime_file_select_helper.cc',

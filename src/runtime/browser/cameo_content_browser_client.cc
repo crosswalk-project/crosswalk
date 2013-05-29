@@ -5,6 +5,7 @@
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
 
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
+#include "cameo/src/runtime/browser/geolocation/cameo_access_token_store.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/web_contents.h"
@@ -44,8 +45,9 @@ content::BrowserMainParts* CameoContentBrowserClient::CreateBrowserMainParts(
 net::URLRequestContextGetter* CameoContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers) {
-  return static_cast<RuntimeContext*>(browser_context)->
+  url_request_context_getter_ = static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContext(protocol_handlers);
+  return url_request_context_getter_;
 }
 
 net::URLRequestContextGetter*
@@ -57,6 +59,10 @@ CameoContentBrowserClient::CreateRequestContextForStoragePartition(
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
+}
+
+content::AccessTokenStore* CameoContentBrowserClient::CreateAccessTokenStore() {
+  return new CameoAccessTokenStore(url_request_context_getter_);
 }
 
 content::WebContentsViewDelegate*
