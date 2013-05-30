@@ -30,7 +30,8 @@ const double kGtkCursorBlinkCycleFactor = 2000.0;
 
 }  // namespace
 
-NativeAppWindowGtk::NativeAppWindowGtk(const NativeAppWindow::CreateParams& params)
+NativeAppWindowGtk::NativeAppWindowGtk(
+    const NativeAppWindow::CreateParams& params)
     : runtime_(params.runtime),
       minimum_size_(params.minimum_size),
       maximum_size_(params.maximum_size),
@@ -58,7 +59,7 @@ NativeAppWindowGtk::NativeAppWindowGtk(const NativeAppWindow::CreateParams& para
   SetMinimumSize(window_, minimum_size_);
   SetResizable(window_, resizable_);
 
-   // In some (older) versions of compiz, raising top-level windows when they
+  // In some (older) versions of compiz, raising top-level windows when they
   // are partially off-screen causes them to get snapped back on screen, not
   // always even on the current virtual desktop.  If we are running under
   // compiz, suppress such raises, as they are not necessary in compiz anyway.
@@ -224,7 +225,8 @@ gboolean NativeAppWindowGtk::OnWindowState(GtkWidget* window,
 
   if (is_fullscreen_ && !(state_ & GDK_WINDOW_STATE_FULLSCREEN)) {
     is_fullscreen_ = false;
-    content::RenderViewHost* rvh = runtime_->web_contents()->GetRenderViewHost();
+    content::RenderViewHost* rvh =
+        runtime_->web_contents()->GetRenderViewHost();
     if (rvh)
       rvh->ExitFullscreen();
   }

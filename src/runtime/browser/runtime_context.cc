@@ -45,7 +45,7 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
 };
 
 RuntimeContext::RuntimeContext()
-   : resource_context_ (new RuntimeResourceContext) {
+    : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
 }
 

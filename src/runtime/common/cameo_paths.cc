@@ -21,25 +21,24 @@ namespace cameo {
 
 bool PathProvider(int key, base::FilePath* path) {
   base::FilePath cur;
-  switch(key) {
-    case cameo::DIR_DATA_PATH:
+  switch (key) {
+    case cameo::DIR_DATA_PATH: {
       #if defined(OS_WIN)
         CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &cur));
         cur = cur.Append(std::wstring(L"cameo"));
       #elif defined(OS_LINUX)
-        {
-          scoped_ptr<base::Environment> env(base::Environment::Create());
-          base::FilePath config_dir(
-              base::nix::GetXDGDirectory(env.get(),
-                                         base::nix::kXdgConfigHomeEnvVar,
-                                         base::nix::kDotConfigDir));
-          cur = config_dir.Append("cameo");
-        }
+        scoped_ptr<base::Environment> env(base::Environment::Create());
+        base::FilePath config_dir(
+            base::nix::GetXDGDirectory(env.get(),
+                                       base::nix::kXdgConfigHomeEnvVar,
+                                       base::nix::kDotConfigDir));
+        cur = config_dir.Append("cameo");
       #else
         NOTIMPLEMENTED() << "Unsupported OS platform.";
         return false;
       #endif
       break;
+    }
     case cameo::DIR_TEST_DATA:
       if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;

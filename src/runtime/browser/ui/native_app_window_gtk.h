@@ -48,7 +48,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
 
  protected:
   // A set of helper functions.
-  // TODO: Is possible to extract them into a util file?
+  // TODO(hmin): Is possible to extract them into a util file?
   static void SetMinimumSize(GtkWindow* window, const gfx::Size& size);
   static void SetMaximumSize(GtkWindow* window, const gfx::Size& size);
   static void SetResizable(GtkWindow* window, bool resizable);

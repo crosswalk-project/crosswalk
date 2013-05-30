@@ -4,6 +4,8 @@
 
 #include "cameo/src/runtime/browser/runtime_url_request_context_getter.h"
 
+#include <algorithm>
+
 #include "base/logging.h"
 #include "base/string_number_conversions.h"
 #include "base/string_util.h"

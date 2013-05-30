@@ -12,9 +12,9 @@ namespace cameo {
 
 enum {
   PATH_START = 1000,
-  DIR_DATA_PATH = PATH_START, // Directory where the cache and local storage
-                              // data resides.
-  DIR_TEST_DATA,              // Directory where unit test data resides.
+  DIR_DATA_PATH = PATH_START,  // Directory where the cache and local storage
+                               // data resides.
+  DIR_TEST_DATA,               // Directory where unit test data resides.
   PATH_END
 };
 

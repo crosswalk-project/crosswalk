@@ -40,7 +40,7 @@ NativeAppWindowWin::NativeAppWindowWin(
   window_->SetBounds(window_bounds);
   window_->CenterWindow(window_bounds.size());
 
-  // TODO: Need to configure the maximum and minimum size of this window.
+  // TODO(hmin): Need to configure the maximum and minimum size of this window.
   window_->AddObserver(this);
 }
 
@@ -73,7 +73,7 @@ void NativeAppWindowWin::SetBounds(const gfx::Rect& bounds) {
 }
 
 void NativeAppWindowWin::Focus() {
-  //window_->Focus();
+  // window_->Focus();
 }
 
 void NativeAppWindowWin::Show() {
@@ -173,12 +173,12 @@ bool NativeAppWindowWin::ShouldShowWindowTitle() const {
 
 void NativeAppWindowWin::SaveWindowPlacement(const gfx::Rect& bounds,
                                           ui::WindowShowState show_state) {
-  // TODO: views::WidgetDelegate::SaveWindowPlacement(bounds, show_state);
+  // TODO(hmin): views::WidgetDelegate::SaveWindowPlacement(bounds, show_state);
 }
 
 bool NativeAppWindowWin::GetSavedWindowPlacement(gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
-  // TODO: Get the saved window placement.
+  // TODO(hmin): Get the saved window placement.
   return false;
 }
 
@@ -193,8 +193,8 @@ bool NativeAppWindowWin::CanMaximize() const {
 
 views::NonClientFrameView* NativeAppWindowWin::CreateNonClientFrameView(
     views::Widget* widget) {
-  // TODO: Need to return a non-client frame for frameless window. Here just
-  // return NULL means using a default one.
+  // TODO(hmin): Need to return a non-client frame for frameless window.
+  // Here just return NULL means using a default one.
   return NULL;
 }
 

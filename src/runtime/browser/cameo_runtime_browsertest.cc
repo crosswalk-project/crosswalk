@@ -28,7 +28,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 
 #if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>
+#include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
 using cameo::NativeAppWindow;
@@ -44,8 +44,8 @@ class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
   MockRuntimeRegistryObserver() {}
   virtual ~MockRuntimeRegistryObserver() {}
 
-  MOCK_METHOD1(OnRuntimeAdded, void(Runtime*));
-  MOCK_METHOD1(OnRuntimeRemoved, void(Runtime*));
+  MOCK_METHOD1(OnRuntimeAdded, void(Runtime* runtime));
+  MOCK_METHOD1(OnRuntimeRemoved, void(Runtime* runtime));
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MockRuntimeRegistryObserver);
@@ -172,7 +172,7 @@ IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, GetWindowTitle) {
   const char* window_title = gtk_window_get_title(window->GetNativeWindow());
   EXPECT_EQ(title, ASCIIToUTF16(window_title));
 #elif defined(TOOLKIT_VIEWS)
-  const int len = title.length() + 1; // NULL-terminated string.
+  const int len = title.length() + 1;  // NULL-terminated string.
   string16 window_title;
   ::GetWindowText(window->GetNativeWindow(),
                   WriteInto(&window_title, len), len);

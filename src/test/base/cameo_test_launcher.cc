@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "content/public/test/test_launcher.h"
-
 #include <stack>
 
 #include "base/command_line.h"
@@ -19,6 +17,7 @@
 #include "cameo/src/test/base/cameo_test_suite.h"
 #include "content/public/app/content_main.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/test/test_launcher.h"
 
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"

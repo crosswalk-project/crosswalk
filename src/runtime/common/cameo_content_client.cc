@@ -21,7 +21,7 @@ CameoContentClient::~CameoContentClient() {
 }
 
 std::string CameoContentClient::GetUserAgent() const {
-  // TODO: Define user agent for cameo.
+  // TODO(hmin): Define user agent for cameo.
   std::string product = "Chrome/" CAMEO_VERSION;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
