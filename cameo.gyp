@@ -132,6 +132,11 @@
              '../third_party/freetype2/freetype2.gyp:freetype2',
           ],
         }],  # use_custom_freetype==1
+        ['toolkit_uses_gtk==1', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],  # toolkit_uses_gtk==1
       ],
     },
     {
@@ -255,11 +260,6 @@
             '../sandbox/sandbox.gyp:sandbox',
           ],
         }],  # OS=="win" or (toolkit_uses_gtk == 1 and selinux == 0)
-        ['toolkit_uses_gtk==1', {
-          'dependencies': [
-            '../build/linux/system.gyp:gtk',
-          ],
-        }],  # toolkit_uses_gtk==1
       ],
     },
     {

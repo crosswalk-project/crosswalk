@@ -85,8 +85,10 @@ class NativeAppWindow {
   virtual bool IsMaximized() const = 0;
   virtual bool IsMinimized() const = 0;
   virtual bool IsFullscreen() const = 0;
+
+ protected:
+  virtual ~NativeAppWindow() {}
 };
 
 }  // namespace cameo
-
 #endif  // CAMEO_SRC_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_

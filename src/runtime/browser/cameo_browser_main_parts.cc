@@ -76,4 +76,4 @@ void CameoBrowserMainParts::PostMainMessageLoopRun() {
   runtime_context_.reset();
 }
 
-}  // cameo
+}  // namespace cameo

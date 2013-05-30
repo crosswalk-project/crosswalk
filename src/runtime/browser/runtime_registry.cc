@@ -83,7 +83,7 @@ void RuntimeRegistry::CloseAll() {
   RuntimeList cached_runtimes;
 
   RuntimeList::iterator it = runtime_list_.begin();
-  for(; it != runtime_list_.end(); ++it) {
+  for (; it != runtime_list_.end(); ++it) {
     cached_runtimes.push_back(*it);
   }
 
@@ -93,7 +93,7 @@ void RuntimeRegistry::CloseAll() {
   // If a Runtime is closed, it will be deleted by itself and also be removed
   // from RuntimeRegistry. The runtime vector should be empty after all
   // Runtime instances are closed.
-  DCHECK(runtime_list_.size() == 0) << runtime_list_.size();
+  DCHECK_EQ(runtime_list_.size(), 0u) << runtime_list_.size();
 }
 
 }  // namespace cameo
