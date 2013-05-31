@@ -9,5 +9,10 @@
     <output filename="cameo_resources.pak" type="data_package" context="default_100_percent" />
     <output filename="cameo_resources.rc" type="rc_all" context="default_100_percent" />
   </outputs>
+  <release seq="1">
+    <includes>
+      <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
+    </includes>
+  </release>
   <translations />
 </grit>
