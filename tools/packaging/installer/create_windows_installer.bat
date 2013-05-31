@@ -32,12 +32,13 @@ if not x%HELP%==x (
     echo                           the current directory.
     echo --app_name=^<name^>       Name of the application. If not specified, the name
     echo                           of the application directory is used.
+    echo --version=^<version^>     The version of the application, defaults to 1.0.0
     echo --app_index=^<path^>      Path of app index file, relative to app_path. If not
     echo                           specified, index.html is used.
-    echo --out=^<pathname^>        File Path of the output installer file, default to the
+    echo --out=^<pathname^>        File Path of the output installer file, defaults to the
     echo                           current directory with %%app_name%%.msi as its name.
-    echo --publisher               The manufacturer of this application, defauts to "Me"
-    echo --help                    Print this message 
+    echo --publisher=^<name^>      The manufacturer of this application, defaults to "Me"
+    echo --help                  Print this message 
     exit /b
 
 )
@@ -56,6 +57,7 @@ if x%WIX_BIN_PATH%==x (
 )
 if x%APP_PATH%==x set APP_PATH=%CD%
 if x%APP_INDEX%==x set APP_INDEX=index.html
+if x%VERSION%==x set VERSION=1.0.0
 if x%CAMEO_PATH%==x (
   FOR /F "tokens=*" %%A IN ('where cameo') DO SET CAMEO_PATH="%%A"
   if x%CAMEO_PATH%==x (
@@ -104,7 +106,16 @@ set WXS_FILES=
 set OBJ_FILES=
 if x%OUT%==x (
     set OUT=%APP_NAME%.msi
-    if exist !OUT! del !OUT!
+    if exist !OUT! (
+        set /p CONFIRM_DEL="The output file !OUT! already exists, replace it(Y/N)?" %=%
+        if /I Y==!CONFIRM_DEL! goto :yes
+        if /I YES==!CONFIRM_DEL! goto :yes
+        echo.
+        echo Installer not created!
+        exit /b
+        :yes
+        del !OUT!
+    )
 )
 for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
     set WXS_FILE=%TEMP%\%%B.wxs
@@ -117,5 +128,3 @@ for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
 
 %WIX_BIN_PATH%\candle -dindexPath="%APP_INDEX%" -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
 %WIX_BIN_PATH%\light -spdb %MAIN_OBJ_FILE% %OBJ_FILES% -o %OUT%
-
-
