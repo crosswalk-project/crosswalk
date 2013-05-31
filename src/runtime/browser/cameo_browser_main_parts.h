@@ -48,7 +48,7 @@ class CameoBrowserMainParts : public content::BrowserMainParts {
   // True if we need to run the default message loop defined in content.
   bool run_default_message_loop_;
 
-  // Remote debugger server
+  // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
   DISALLOW_COPY_AND_ASSIGN(CameoBrowserMainParts);
