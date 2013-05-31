@@ -5,12 +5,17 @@
 #ifndef CAMEO_SRC_RUNTIME_BROWSER_RUNTIME_H_
 #define CAMEO_SRC_RUNTIME_BROWSER_RUNTIME_H_
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "cameo/src/runtime/browser/ui/native_app_window.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
+#include "content/public/browser/web_contents_observer.h"
+#include "content/public/common/favicon_url.h"
 #include "googleurl/src/gurl.h"
 #include "ui/gfx/image/image.h"
 
@@ -29,6 +34,7 @@ class RuntimeContext;
 // for maintaning its owned WebContents and handling any communication between
 // WebContents and native app window.
 class Runtime : public content::WebContentsDelegate,
+                public content::WebContentsObserver,
                 public content::NotificationObserver {
  public:
   // Create a new Runtime instance with the given browsing context.
@@ -42,7 +48,7 @@ class Runtime : public content::WebContentsDelegate,
   content::WebContents* web_contents() const { return web_contents_.get(); }
   NativeAppWindow* window() const;
   RuntimeContext* runtime_context() const { return runtime_context_; }
-  gfx::Image app_icon() const;
+  gfx::Image app_icon() const { return app_icon_; }
 
  protected:
   explicit Runtime(RuntimeContext* runtime_context);
@@ -96,6 +102,16 @@ class Runtime : public content::WebContentsDelegate,
                                   int request_id,
                                   const base::FilePath& path) OVERRIDE;
 
+  // Overridden from content::WebContentsObserver.
+  virtual void DidUpdateFaviconURL(int32 page_id,
+      const std::vector<content::FaviconURL>& candidates) OVERRIDE;
+
+  // Callback method for WebContents::DownloadImage.
+  void DidDownloadFavicon(int id,
+                          const GURL& image_url,
+                          int requested_size,
+                          const std::vector<SkBitmap>& bitmaps);
+
   // NotificationObserver
   virtual void Observe(int type,
                        const content::NotificationSource& source,
@@ -111,6 +127,10 @@ class Runtime : public content::WebContentsDelegate,
   scoped_ptr<content::WebContents> web_contents_;
 
   NativeAppWindow* window_;
+
+  gfx::Image app_icon_;
+
+  base::WeakPtrFactory<Runtime> weak_ptr_factory_;
 
   // Currently open color chooser. Non-NULL after OpenColorChooser is called and
   // before DidEndColorChooser is called.

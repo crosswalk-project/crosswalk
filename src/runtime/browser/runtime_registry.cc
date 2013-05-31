@@ -69,6 +69,15 @@ void RuntimeRegistry::RemoveRuntime(Runtime* runtime) {
                     OnRuntimeRemoved(runtime));
 }
 
+void RuntimeRegistry::RuntimeAppIconChanged(Runtime* runtime) {
+  RuntimeList::iterator it =
+      std::find(runtime_list_.begin(), runtime_list_.end(), runtime);
+  DCHECK(it != runtime_list_.end());
+
+  FOR_EACH_OBSERVER(RuntimeRegistryObserver, observer_list_,
+                    OnRuntimeAppIconChanged(runtime));
+}
+
 Runtime* RuntimeRegistry::GetRuntimeFromRenderViewHost(
     RenderViewHost* render_view_host) const {
   for (RuntimeList::const_iterator it = runtime_list_.begin();
