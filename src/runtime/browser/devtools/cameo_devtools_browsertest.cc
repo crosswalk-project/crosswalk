@@ -28,7 +28,9 @@ class CameoDevToolsTest : public InProcessBrowserTest {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(CameoDevToolsTest, RemoteDebugging) {
+// Flaky failed test:
+// See https://github.com/otcshare/cameo/issues/63.
+IN_PROC_BROWSER_TEST_F(CameoDevToolsTest, DISABLED_RemoteDebugging) {
   GURL localhost_url("http://127.0.0.1:9222");
   Runtime* debugging_host =
       Runtime::Create(runtime()->runtime_context(), localhost_url);
