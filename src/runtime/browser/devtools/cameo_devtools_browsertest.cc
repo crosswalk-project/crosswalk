@@ -33,8 +33,13 @@ IN_PROC_BROWSER_TEST_F(CameoDevToolsTest, RemoteDebugging) {
   Runtime* debugging_host =
       Runtime::Create(runtime()->runtime_context(), localhost_url);
 
+  content::WaitForLoadStop(debugging_host->web_contents());
+  string16 real_title = debugging_host->web_contents()->GetTitle();
+  LOG(INFO) << " The real title is: " << UTF16ToUTF8(real_title);
+
   string16 expected_title = ASCIIToUTF16("Cameo Remote Debugging");
-  content::TitleWatcher title_watcher(debugging_host->web_contents(),
-      expected_title);
-  EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
+  EXPECT_EQ(expected_title, real_title);
+//  content::TitleWatcher title_watcher(debugging_host->web_contents(),
+//      expected_title);
+//  EXPECT_EQ(expected_title, title_watcher.WaitAndGetTitle());
 }
