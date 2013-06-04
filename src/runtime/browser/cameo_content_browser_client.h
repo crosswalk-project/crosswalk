@@ -47,6 +47,7 @@ class CameoContentBrowserClient : public content::ContentBrowserClient {
       content::WebContents* web_contents) OVERRIDE;
   virtual void RenderProcessHostCreated(
       content::RenderProcessHost* host) OVERRIDE;
+  virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
 
  private:
   net::URLRequestContextGetter* url_request_context_getter_;

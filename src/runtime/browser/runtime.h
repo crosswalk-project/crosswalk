@@ -101,6 +101,10 @@ class Runtime : public content::WebContentsDelegate,
   virtual void EnumerateDirectory(content::WebContents* web_contents,
                                   int request_id,
                                   const base::FilePath& path) OVERRIDE;
+  virtual void RequestMediaAccessPermission(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest& request,
+      const content::MediaResponseCallback& callback) OVERRIDE;
 
   // Overridden from content::WebContentsObserver.
   virtual void DidUpdateFaviconURL(int32 page_id,

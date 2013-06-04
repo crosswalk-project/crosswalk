@@ -12,6 +12,7 @@
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
 #include "cameo/src/runtime/browser/image_util.h"
+#include "cameo/src/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "cameo/src/runtime/browser/runtime_file_select_helper.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
@@ -277,6 +278,43 @@ void Runtime::Observe(int type,
       window_->UpdateTitle(text);
     }
   }
+}
+
+void Runtime::RequestMediaAccessPermission(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest& request,
+    const content::MediaResponseCallback& callback) {
+
+  content::MediaStreamDevices devices;
+  // Based on chrome/browser/media/media_stream_devices_controller.cc
+  bool microphone_requested =
+      (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
+  bool webcam_requested =
+      (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
+  if (microphone_requested || webcam_requested) {
+    switch (request.request_type) {
+      case content::MEDIA_OPEN_DEVICE:
+        // For open device request pick the desired device or fall back to the
+        // first available of the given type.
+        CameoMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            request.requested_device_id,
+            microphone_requested,
+            webcam_requested,
+            &devices);
+        break;
+      case content::MEDIA_DEVICE_ACCESS:
+      case content::MEDIA_GENERATE_STREAM:
+      case content::MEDIA_ENUMERATE_DEVICES:
+        // Get the default devices for the request.
+        CameoMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            "",
+            microphone_requested,
+            webcam_requested,
+            &devices);
+        break;
+    }
+  }
+  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
 }
 
 }  // namespace cameo
