@@ -32,6 +32,10 @@ bool OverrideDataPathDir(const base::FilePath& data_path_dir);
 // The returned path is GURL format.
 GURL GetTestURL(const base::FilePath& dir, const base::FilePath& file);
 
+// Get the file path for test file under test_data_directory.
+base::FilePath GetTestFilePath(const base::FilePath& dir,
+                               const base::FilePath& file);
+
 // Navigate a specified URL in the given Runtime. It will block until the
 // navigation completes.
 void NavigateToURL(cameo::Runtime* runtime, const GURL& url);
