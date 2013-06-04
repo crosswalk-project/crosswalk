@@ -21,6 +21,7 @@ class URLRequestContextGetter;
 
 namespace cameo {
 
+class CameoBrowserMainParts;
 class RuntimeContext;
 
 class CameoContentBrowserClient : public content::ContentBrowserClient {
@@ -41,10 +42,13 @@ class CameoContentBrowserClient : public content::ContentBrowserClient {
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+  virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) OVERRIDE;
 
  private:
+  net::URLRequestContextGetter* url_request_context_getter_;
+
   DISALLOW_COPY_AND_ASSIGN(CameoContentBrowserClient);
 };
 

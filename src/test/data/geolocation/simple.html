@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Simple geolocation test</p>
+    <div id="output"></div>
+    <script>
+      // error_code can be:
+      // -1: not initilized
+      // -2: success
+      // other: error.code (see below)
+      function sendResult(error_code) {
+        console.log("error code: " + error_code);
+        window.domAutomationController.send(error_code);
+      }
+
+      window.onload = function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("output").innerHTML =
+                "Position latitude: " + position.coords.latitude +
+                " longitude: " + position.coords.longitude;
+            sendResult(-2);
+          }, function(error) {
+            document.getElementById("output").innerHTML =
+                "Error occurred. Error code: " + error.code;
+            sendResult(error.code);
+            // error.code can be:
+            //   0: unknown error
+            //   1: permission denied
+            //   2: position unavailable (error response from locaton provider)
+            //   3: timed out
+          });
+        } else {
+          console.log("navigator.geolocation is not available.");
+          sendResult(-1);
+        }
+      };
+    </script>
+  </body>
+</html>
