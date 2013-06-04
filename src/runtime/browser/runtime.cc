@@ -12,7 +12,9 @@
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
+#include "cameo/src/runtime/browser/runtime_file_select_helper.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
+#include "content/public/browser/color_chooser.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -180,6 +182,43 @@ void Runtime::ActivateContents(content::WebContents* contents) {
 
 void Runtime::DeactivateContents(content::WebContents* contents) {
   contents->GetRenderViewHost()->Blur();
+}
+
+content::ColorChooser* Runtime::OpenColorChooser(
+    content::WebContents* web_contents,
+    int color_chooser_id,
+    SkColor color) {
+#if defined(OS_WIN)
+  // On Windows, only create a color chooser if one doesn't exist, because we
+  // can't close the old color chooser dialog.
+  if (!color_chooser_.get())
+    color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,
+                                                       web_contents,
+                                                       color));
+#else
+  if (color_chooser_.get())
+    color_chooser_->End();
+  color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,
+                                                     web_contents,
+                                                     color));
+#endif
+  return color_chooser_.get();
+}
+
+void Runtime::DidEndColorChooser() {
+  color_chooser_.reset();
+}
+
+void Runtime::RunFileChooser(
+    content::WebContents* web_contents,
+    const content::FileChooserParams& params) {
+  RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+}
+
+void Runtime::EnumerateDirectory(content::WebContents* web_contents,
+                                 int request_id,
+                                 const base::FilePath& path) {
+  RuntimeFileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
 }
 
 void Runtime::Observe(int type,

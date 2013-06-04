@@ -89,6 +89,7 @@
       'HAS_OUT_OF_PROC_TEST_RUNNER',
     ],
     'sources': [
+      'src/runtime/browser/cameo_form_input_browsertest.cc',
       'src/runtime/browser/cameo_runtime_browsertest.cc',
       'src/runtime/browser/cameo_switches_browsertest.cc',
       'src/runtime/browser/devtools/cameo_devtools_browsertest.cc',

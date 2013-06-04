@@ -15,6 +15,8 @@
 #include "ui/gfx/image/image.h"
 
 namespace content {
+class ColorChooser;
+struct FileChooserParams;
 class WebContents;
 }
 
@@ -82,6 +84,17 @@ class Runtime : public content::WebContentsDelegate,
   virtual void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
+  virtual content::ColorChooser* OpenColorChooser(
+      content::WebContents* web_contents,
+      int color_chooser_id,
+      SkColor color) OVERRIDE;
+  virtual void DidEndColorChooser() OVERRIDE;
+  virtual void RunFileChooser(
+      content::WebContents* web_contents,
+      const content::FileChooserParams& params) OVERRIDE;
+  virtual void EnumerateDirectory(content::WebContents* web_contents,
+                                  int request_id,
+                                  const base::FilePath& path) OVERRIDE;
 
   // NotificationObserver
   virtual void Observe(int type,
@@ -98,6 +111,10 @@ class Runtime : public content::WebContentsDelegate,
   scoped_ptr<content::WebContents> web_contents_;
 
   NativeAppWindow* window_;
+
+  // Currently open color chooser. Non-NULL after OpenColorChooser is called and
+  // before DidEndColorChooser is called.
+  scoped_ptr<content::ColorChooser> color_chooser_;
 };
 
 }  // namespace cameo
