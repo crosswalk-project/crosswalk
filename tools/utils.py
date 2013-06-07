@@ -11,6 +11,12 @@ def TryAddDepotToolsToPythonPath():
   depot_tools = FindDepotToolsInPath()
   if depot_tools:
     sys.path.append(depot_tools)
+    python_path = os.environ.get('PYTHONPATH')
+    if python_path:
+      os.environ['PYTHONPATH'] = os.path.pathsep.join(
+          python_path.split(os.path.pathsep)+[depot_tools])
+    else:
+      os.environ['PYTHONPATH'] = depot_tools
 
 def FindDepotToolsInPath():
   paths = os.getenv('PATH').split(os.path.pathsep)
