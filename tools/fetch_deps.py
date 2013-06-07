@@ -65,8 +65,11 @@ class FolderExistGitWrapper(gclient_scm.GitWrapper):
 
     for _ in range(3):
       try:
+        # git fetch for chromium will take a looooong time for the
+        # first time, so set timeout for 30 minutes
         self._Run(fetch_cmd, options=options, cwd=self.checkout_path,
-                  filter_fn=_GitFilter, print_stdout=False)
+                  filter_fn=_GitFilter, print_stdout=False,
+                  nag_timer=30, nag_max=60)
         break
       except subprocess2.CalledProcessError, e:
         if e.returncode == 128:
@@ -88,7 +91,13 @@ class FolderExistGitWrapper(gclient_scm.GitWrapper):
       if rev_type == 'hash':
         co_args = [revision]
       else:
-        co_args = ['-b', revision[len('origin/'):], revision]
+        branch = revision[len('origin/'):]
+        branches = self._Capture(['branch'])
+        if branch.strip() in [br.strip() for br in branches.split('\n')]:
+          print('branch %s already exist, skip checkout', branch)
+          return
+        else:
+          co_args = ['-b', branch, revision]
     else:
       co_args = ['-b', 'master', 'origin/master']
     self._Run(['checkout'] + co_args, options=options, cwd=self.checkout_path,
