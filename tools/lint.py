@@ -131,8 +131,11 @@ def do_cpp_lint(changeset, repo, args):
 
 def do_py_lint(changeset):
   print '_____ do python lint'
-  pylint_cmd = ['pylint']
-  _has_import_error = False 
+  if sys.platform.startswith('win'):
+    pylint_cmd = ['pylint.bat']
+  else:
+    pylint_cmd = ['pylint']
+  _has_import_error = False
   for pyfile in changeset:
     py_dir, py_name = os.path.split(os.path.abspath(pyfile))
     previous_cwd = os.getcwd()
