@@ -104,6 +104,11 @@
           '../base/allocator/allocator.gyp:allocator',
         ],
       }],
+      ['OS=="win"', {
+        'sources': [
+          'src/runtime/browser/ui/taskbar_util_browsertest.cc',
+        ],
+      }],  # OS=="win"
     ],
   }], # cameo_browser_tests target
 }
