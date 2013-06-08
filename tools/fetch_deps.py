@@ -65,8 +65,11 @@ class FolderExistGitWrapper(gclient_scm.GitWrapper):
 
     for _ in range(3):
       try:
+        # git fetch for chromium will take a looooong time for the
+        # first time, so set timeout for 30 minutes
         self._Run(fetch_cmd, options=options, cwd=self.checkout_path,
-                  filter_fn=_GitFilter, print_stdout=False)
+                  filter_fn=_GitFilter, print_stdout=False,
+                  nag_timer=30, nag_max=60)
         break
       except subprocess2.CalledProcessError, e:
         if e.returncode == 128:
@@ -88,7 +91,13 @@ class FolderExistGitWrapper(gclient_scm.GitWrapper):
       if rev_type == 'hash':
         co_args = [revision]
       else:
-        co_args = ['-b', revision[len('origin/'):], revision]
+        branch = revision[len('origin/'):]
+        branches = self._Capture(['branch'])
+        if branch.strip() in [br.strip() for br in branches.split('\n')]:
+          print('branch %s already exist, skip checkout', branch)
+          return
+        else:
+          co_args = ['-b', branch, revision]
     else:
       co_args = ['-b', 'master', 'origin/master']
     self._Run(['checkout'] + co_args, options=options, cwd=self.checkout_path,
@@ -158,6 +167,30 @@ class DepsFetcher(gclient_utils.WorkItem):
     self.PrepareGclient()
     return 0
 
+  def AddIgnorePathFromEnv(self):
+    """Read paths from environ CAMEO_SYNC_IGNORE.
+       Set the path with None value to ignore it when syncing chromium.
+
+       If environ not set, will ignore the ones upstream wiki recommended
+       by default.
+    """
+    ignores_str = os.environ.get("CAMEO_SYNC_IGNORE")
+    if not ignores_str:
+      ignores = ['src/webkit/data/layout_tests/LayoutTests',
+                 'src/third_party/WebKit/LayoutTests',
+                 'src/content/test/data/layout_tests/LayoutTests',
+                 'src/chrome/tools/test/reference_build/chrome_win',
+                 'src/chrome_frame/tools/test/reference_build/chrome_win',
+                 'src/chrome/tools/test/reference_build/chrome_linux',
+                 'src/chrome/tools/test/reference_build/chrome_mac',
+                 'src/third_party/hunspell_dictionaries']
+    else:
+      ignores_str = ignores_str.replace(':', ';')
+      ignores = ignores_str.split(';')
+    for ignore in ignores:
+      self._deps[ignore] = None
+      
+
   def PrepareGclient(self):
     """It is very important here to know if the based chromium is trunk
        or versioned.
@@ -181,6 +214,7 @@ class DepsFetcher(gclient_utils.WorkItem):
       solution['name'] = self._chromium_version
       solution['url'] = \
           'http://src.chromium.org/svn/releases/%s' % self._chromium_version
+    self.AddIgnorePathFromEnv()
     solution['custom_deps'] = self._deps
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
