@@ -6,8 +6,8 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = 'Trunk'
-chromium_cameo_point = 'c3e6fe7c1fc75d4385f1d1f06d6e211249779692'
+chromium_version = '28.0.1500.36'
+chromium_cameo_point = 'd8d1dc3503653401d5bd7edfa158067799ae7991'
 deps_cameo = {
   'src': 'ssh://git@github.com/otcshare/chromium-cameo.git@%s' % chromium_cameo_point,
 }
