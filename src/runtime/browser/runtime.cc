@@ -23,7 +23,9 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
+#include "ui/gfx/image/image_skia.h"
 
+using content::FaviconURL;
 using content::WebContents;
 
 namespace cameo {
@@ -53,7 +55,10 @@ Runtime* Runtime::CreateFromWebContents(WebContents* web_contents) {
   return new Runtime(web_contents);
 }
 
-Runtime::Runtime(content::WebContents* web_contents) : window_(NULL) {
+Runtime::Runtime(content::WebContents* web_contents)
+    : WebContentsObserver(web_contents),
+      window_(NULL),
+      weak_ptr_factory_(this) {
   web_contents_.reset(web_contents);
   web_contents_->SetDelegate(this);
   runtime_context_ =
@@ -83,12 +88,6 @@ Runtime::~Runtime() {
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
   window_ = NativeAppWindow::Create(params);
   window_->Show();
-}
-
-gfx::Image Runtime::app_icon() const {
-  // TODO(hmin): Get the app icon for native app window either from app manifest
-  // or from html favicon tag.
-  return gfx::Image();
 }
 
 void Runtime::LoadURL(const GURL& url) {
@@ -219,6 +218,38 @@ void Runtime::EnumerateDirectory(content::WebContents* web_contents,
                                  int request_id,
                                  const base::FilePath& path) {
   RuntimeFileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+}
+
+void Runtime::DidUpdateFaviconURL(int32 page_id,
+                                  const std::vector<FaviconURL>& candidates) {
+  DLOG(INFO) << "Candidates: ";
+  for (size_t i = 0; i < candidates.size(); ++i)
+    DLOG(INFO) << candidates[i].icon_url.spec();
+
+  if (candidates.empty())
+    return;
+
+  // Avoid using any previous downloading.
+  weak_ptr_factory_.InvalidateWeakPtrs();
+
+  // We only select the first favicon as the icon of app window.
+  FaviconURL favicon = candidates[0];
+  // Pass 0 to |image_size| parameter means only returning the first bitmap.
+  // See content/public/browser/web_contents.h comments.
+  web_contents()->DownloadImage(favicon.icon_url, true, 0 /* image size */,
+      base::Bind(&Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
+}
+
+void Runtime::DidDownloadFavicon(int id,
+                                 const GURL& image_url,
+                                 int requested_size,
+                                 const std::vector<SkBitmap>& bitmaps) {
+  if (bitmaps.empty())
+    return;
+  app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
+  window_->UpdateIcon();
+
+  RuntimeRegistry::Get()->RuntimeAppIconChanged(this);
 }
 
 void Runtime::Observe(int type,
