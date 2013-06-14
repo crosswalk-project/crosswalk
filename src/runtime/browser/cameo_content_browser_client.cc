@@ -4,10 +4,12 @@
 
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
 
+#include "cameo/src/extensions/browser/cameo_extension_host.h"
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/src/runtime/browser/geolocation/cameo_access_token_store.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view_delegate.h"
 #include "content/public/common/main_function_params.h"
@@ -69,6 +71,20 @@ content::WebContentsViewDelegate*
 CameoContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
   return NULL;
+}
+
+void CameoContentBrowserClient::RenderProcessHostCreated(
+    content::RenderProcessHost* host) {
+
+  extensions::CameoExtensionHost* extension_host =
+      new extensions::CameoExtensionHost;
+
+  // Register the extensions here.
+
+  // FIXME(cmarcelo): CameoExtensionHost shouldn't be a MessageFilter,
+  // we want a clearer lifetime, tied to the browser process or the
+  // render process host.
+  host->GetChannel()->AddFilter(extension_host);
 }
 
 }  // namespace cameo
