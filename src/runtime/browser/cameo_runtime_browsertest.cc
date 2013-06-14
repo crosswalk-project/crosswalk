@@ -3,15 +3,18 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/files/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
 #include "cameo/src/runtime/browser/runtime.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
 #include "cameo/src/runtime/common/cameo_notification_types.h"
 #include "cameo/src/test/base/cameo_test_utils.h"
+#include "cameo/src/test/base/image_util.h"
 #include "cameo/src/test/base/in_process_browser_test.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -46,9 +49,43 @@ class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
 
   MOCK_METHOD1(OnRuntimeAdded, void(Runtime* runtime));
   MOCK_METHOD1(OnRuntimeRemoved, void(Runtime* runtime));
+  MOCK_METHOD1(OnRuntimeAppIconChanged, void(Runtime* runtime));
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MockRuntimeRegistryObserver);
+};
+
+// An observer used to verify app icon change.
+class FaviconChangedObserver : public cameo::RuntimeRegistryObserver {
+ public:
+  explicit FaviconChangedObserver(const base::FilePath& icon_file)
+      : icon_file_(icon_file) {
+  }
+
+  virtual ~FaviconChangedObserver() {}
+
+  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {}
+
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
+
+  virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {
+    const base::FilePath::StringType kPNGFormat(FILE_PATH_LITERAL(".png"));
+    const base::FilePath::StringType kICOFormat(FILE_PATH_LITERAL(".ico"));
+
+    gfx::Image image;
+    image = cameo_test_utils::LoadImageFromFilePath(icon_file_);
+
+    EXPECT_FALSE(image.IsEmpty());
+    gfx::Image icon = runtime->app_icon();
+    EXPECT_FALSE(icon.IsEmpty());
+    EXPECT_EQ(image.Size(), icon.Size());
+
+    // Quit the message loop.
+    MessageLoop::current()->PostTask(FROM_HERE, MessageLoop::QuitClosure());
+  }
+
+ private:
+  const base::FilePath& icon_file_;
 };
 
 class CameoRuntimeTest : public InProcessBrowserTest {
@@ -195,4 +232,38 @@ IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, OpenLinkInNewRuntime) {
   EXPECT_TRUE(NULL != second);
   EXPECT_NE(runtime(), second);
   EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+}
+
+IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, FaviconTest_ICO) {
+  base::FilePath icon_file(cameo_test_utils::GetTestFilePath(
+      base::FilePath(FILE_PATH_LITERAL("favicon")),
+      base::FilePath(FILE_PATH_LITERAL("16x16.ico"))));
+
+  FaviconChangedObserver observer(icon_file);
+  RuntimeRegistry::Get()->AddObserver(&observer);
+
+  GURL url = cameo_test_utils::GetTestURL(
+      base::FilePath(FILE_PATH_LITERAL("favicon")),
+      base::FilePath().AppendASCII("favicon_ico.html"));
+
+  cameo_test_utils::NavigateToURL(runtime(), url);
+  content::RunMessageLoop();
+  RuntimeRegistry::Get()->RemoveObserver(&observer);
+}
+
+IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, FaviconTest_PNG) {
+  base::FilePath icon_file(cameo_test_utils::GetTestFilePath(
+      base::FilePath(FILE_PATH_LITERAL("favicon")),
+      base::FilePath(FILE_PATH_LITERAL("48x48.png"))));
+
+  FaviconChangedObserver observer(icon_file);
+  RuntimeRegistry::Get()->AddObserver(&observer);
+
+  GURL url = cameo_test_utils::GetTestURL(
+      base::FilePath(FILE_PATH_LITERAL("favicon")),
+      base::FilePath().AppendASCII("favicon_png.html"));
+
+  cameo_test_utils::NavigateToURL(runtime(), url);
+  content::RunMessageLoop();
+  RuntimeRegistry::Get()->RemoveObserver(&observer);
 }

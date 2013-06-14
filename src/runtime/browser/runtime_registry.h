@@ -26,6 +26,9 @@ class RuntimeRegistryObserver {
   // Called when a Runtime instance is removed.
   virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
 
+  // Called when Runtime's app icon is changed.
+  virtual void OnRuntimeAppIconChanged(Runtime* runtime) = 0;
+
  protected:
   virtual ~RuntimeRegistryObserver() {}
 };
@@ -45,6 +48,8 @@ class RuntimeRegistry {
   // Add/remove runtime.
   void AddRuntime(Runtime* runtime);
   void RemoveRuntime(Runtime* runtime);
+
+  void RuntimeAppIconChanged(Runtime* runtime);
 
   // Find a runtime from a RenderViewHost
   Runtime* GetRuntimeFromRenderViewHost(

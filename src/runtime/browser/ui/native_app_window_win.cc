@@ -10,12 +10,14 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "third_party/skia/include/core/SkPaint.h"
+#include "ui/gfx/icon_util.h"
 #include "ui/gfx/path.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/box_layout.h"
 #include "ui/views/views_delegate.h"
 #include "ui/views/widget/native_widget_win.h"
 #include "ui/views/widget/widget.h"
+#include "ui/views/win/hwnd_util.h"
 
 namespace cameo {
 
@@ -157,14 +159,12 @@ void NativeAppWindowWin::DeleteDelegate() {
 }
 
 gfx::ImageSkia NativeAppWindowWin::GetWindowAppIcon() {
-  // TODO(hmin): Query the app icon for the window. On Windows, this is the
-  // ICON_BIG used in Alt-Tab list and Win7's taskbar.
   return GetWindowIcon();
 }
 
 gfx::ImageSkia NativeAppWindowWin::GetWindowIcon() {
-  // TODO(hmin): Query the icon to be displayed on the window title bar.
-  return gfx::ImageSkia();
+  gfx::Image app_icon = runtime_->app_icon();
+  return *app_icon.ToImageSkia();
 }
 
 bool NativeAppWindowWin::ShouldShowWindowTitle() const {
