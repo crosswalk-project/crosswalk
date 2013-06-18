@@ -1,0 +1,44 @@
+<html>
+<body>
+<script>
+function doFullscreenClick() {
+  var e = document.createEvent("MouseEvents");
+  e.initMouseEvent("click", true, true, window,
+      0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  var elem = document.getElementById("Launchbutton");
+  elem.dispatchEvent(e);
+}
+
+function doExitFullscreenClick() {
+  var e = document.createEvent("MouseEvents");
+  e.initMouseEvent("click", true, true, window,
+      0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  var elem = document.getElementById("Exitbutton");
+  elem.dispatchEvent(e);
+}
+
+function toggleFullScreen(element) {
+  if (element.requestFullScreen) {
+    element.requestFullScreen();
+  } else if(element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if(element.webkitRequestFullScreen) {
+    element.webkitRequestFullScreen();
+  }
+}
+
+function exitFullScreen(element) {
+  if (element.exitFullScreen) {
+    element.exitFullScreen();
+  } else if(element.mozCancelFullScreen) {
+    element.mozCancelFullScreen();
+  } else if(element.webkitCancelFullScreen) {
+    element.webkitCancelFullScreen();
+  }
+}
+
+</script>
+<button id="Launchbutton" onclick="toggleFullScreen(document.documentElement);">Launch Fullscreen</button>
+<button id="Exitbutton" onclick="exitFullScreen(document);">Exit Fullscreen</button>
+</body>
+</html>

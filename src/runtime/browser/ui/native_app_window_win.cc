@@ -5,6 +5,8 @@
 #include "cameo/src/runtime/browser/ui/native_app_window_win.h"
 
 #include "cameo/src/runtime/browser/runtime.h"
+#include "cameo/src/runtime/common/cameo_notification_types.h"
+#include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
@@ -41,6 +43,9 @@ NativeAppWindowWin::NativeAppWindowWin(
   gfx::Rect window_bounds = create_params.bounds;
   window_->SetBounds(window_bounds);
   window_->CenterWindow(window_bounds.size());
+
+  if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
+    SetFullscreen(true);
 
   // TODO(hmin): Need to configure the maximum and minimum size of this window.
   window_->AddObserver(this);
@@ -99,6 +104,11 @@ void NativeAppWindowWin::SetFullscreen(bool fullscreen) {
     return;
   is_fullscreen_ = fullscreen;
   window_->SetFullscreen(is_fullscreen_);
+
+  content::NotificationService::current()->Notify(
+      cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+      content::Source<NativeAppWindow>(this),
+      content::NotificationService::NoDetails());
 }
 
 void NativeAppWindowWin::Restore() {

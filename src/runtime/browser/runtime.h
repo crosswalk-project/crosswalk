@@ -135,6 +135,17 @@ class Runtime : public content::WebContentsDelegate,
   // Currently open color chooser. Non-NULL after OpenColorChooser is called and
   // before DidEndColorChooser is called.
   scoped_ptr<content::ColorChooser> color_chooser_;
+
+  // Fullscreen options.
+  enum FullscreenOptions {
+    NO_FULLSCREEN = 0,
+    // Fullscreen entered by launch with "--fullscreen".
+    FULLSCREEN_FOR_LAUNCH = 1,
+    // Fullscreen entered by HTML requestFullscreen.
+    FULLSCREEN_FOR_TAB = 1 << 1,
+  };
+
+  unsigned int fullscreen_options_;
 };
 
 }  // namespace cameo

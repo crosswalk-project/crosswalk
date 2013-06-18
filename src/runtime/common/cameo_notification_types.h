@@ -21,6 +21,9 @@ enum NotificationType {
   // containing the affected Runtime. No details is provided.
   NOTIFICATION_RUNTIME_CLOSED,
 
+  // Notify that fullscreen state of a NativeAppWindow is changed.
+  NOTIFICATION_FULLSCREEN_CHANGED,
+
   NOTIFICATION_CAMEO_END,
 };
 
