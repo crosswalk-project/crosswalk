@@ -4,6 +4,8 @@
 
 #include "cameo/src/runtime/renderer/cameo_content_renderer_client.h"
 
+#include "cameo/src/extensions/renderer/cameo_extension_renderer_controller.h"
+
 namespace cameo {
 
 namespace {
@@ -24,6 +26,12 @@ CameoContentRendererClient::~CameoContentRendererClient() {
 }
 
 void CameoContentRendererClient::RenderThreadStarted() {
+  extension_controller_.reset(new extensions::CameoExtensionRendererController);
+}
+
+void CameoContentRendererClient::RenderViewCreated(
+    content::RenderView* render_view) {
+  extension_controller_->RenderViewCreated(render_view);
 }
 
 }  // namespace cameo

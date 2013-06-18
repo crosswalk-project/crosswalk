@@ -12,6 +12,10 @@
 
 namespace cameo {
 
+namespace extensions {
+class CameoExtensionRendererController;
+}
+
 class CameoContentRendererClient : public content::ContentRendererClient {
  public:
   static CameoContentRendererClient* Get();
@@ -21,8 +25,12 @@ class CameoContentRendererClient : public content::ContentRendererClient {
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
+  virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
  private:
+  scoped_ptr<extensions::CameoExtensionRendererController>
+      extension_controller_;
+
   DISALLOW_COPY_AND_ASSIGN(CameoContentRendererClient);
 };
 
