@@ -92,6 +92,19 @@ def do_cpp_lint(changeset, repo, args):
     sys.stderr.write("Can't find cpplint, please add your depot_tools "\
                      "to PATH or PYTHONPATH\n")
     raise
+
+  origin_error = cpplint.Error
+  def MyError(filename, linenum, category, confidence, message):
+    # Skip no header guard  error for ipc messages definition,
+    # because they will be included multiple times for different macros.
+    if (filename.endswith('messages.h') and linenum == 0 and
+        category == 'build/header_guard'):
+      sys.stdout.write('Ignored Error:\n  %s(%s):  %s  [%s] [%d]\n' % (
+          filename, linenum, message, category, confidence))
+    else:
+      origin_error(filename, linenum, category, confidence, message)
+  cpplint.Error = MyError
+
   print '_____ do cpp lint'
   if len(changeset) == 0:
     print 'changeset is empty except python files'
