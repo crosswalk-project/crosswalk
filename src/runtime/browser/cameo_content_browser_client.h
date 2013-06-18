@@ -45,6 +45,8 @@ class CameoContentBrowserClient : public content::ContentBrowserClient {
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) OVERRIDE;
+  virtual void RenderProcessHostCreated(
+      content::RenderProcessHost* host) OVERRIDE;
 
  private:
   net::URLRequestContextGetter* url_request_context_getter_;

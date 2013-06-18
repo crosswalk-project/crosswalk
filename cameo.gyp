@@ -53,6 +53,9 @@
       'include_dirs': [
         '..',
       ],
+      'includes': [
+        'src/extensions/extensions.gypi',
+      ],
       'sources': [
         'src/runtime/app/cameo_main_delegate.cc',
         'src/runtime/app/cameo_main_delegate.h',
