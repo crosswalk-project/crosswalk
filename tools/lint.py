@@ -92,42 +92,63 @@ def do_cpp_lint(changeset, repo, args):
     sys.stderr.write("Can't find cpplint, please add your depot_tools "\
                      "to PATH or PYTHONPATH\n")
     raise
+
+  origin_error = cpplint.Error
+  def MyError(filename, linenum, category, confidence, message):
+    # Skip no header guard  error for ipc messages definition,
+    # because they will be included multiple times for different macros.
+    if (filename.endswith('messages.h') and linenum == 0 and
+        category == 'build/header_guard'):
+      sys.stdout.write('Ignored Error:\n  %s(%s):  %s  [%s] [%d]\n' % (
+          filename, linenum, message, category, confidence))
+    else:
+      origin_error(filename, linenum, category, confidence, message)
+  cpplint.Error = MyError
+
+  origin_FileInfo = cpplint.FileInfo
+  class MyFileInfo(origin_FileInfo):
+    def RepositoryName(self):
+      ''' Origin FileInfo find the first .git and take it as project root,
+          it's not the case for cameo, header in cameo should have guard
+          relevant to root dir of chromium project, which is one level
+          upper of the origin output of RepositoryName.
+      '''
+      repo_name = origin_FileInfo.RepositoryName(self)
+      if repo == "cameo" and not repo_name.startswith('cameo'):
+        return 'cameo/%s' % repo_name
+      else:
+        return repo_name
+  cpplint.FileInfo = MyFileInfo
+
   print '_____ do cpp lint'
   if len(changeset) == 0:
     print 'changeset is empty except python files'
     return
-  # pass the build/header_guard check
-  if repo == 'cameo':
-    os.rename('.git', '.git.rename')
   # Following code is referencing depot_tools/gcl.py: CMDlint
-  try:
-    # Process cpplints arguments if any.
-    filenames = cpplint.ParseArguments(args + changeset)
+  # Process cpplints arguments if any.
+  filenames = cpplint.ParseArguments(args + changeset)
 
-    white_list = gcl.GetCodeReviewSetting("LINT_REGEX")
-    if not white_list:
-      white_list = gcl.DEFAULT_LINT_REGEX
-    white_regex = re.compile(white_list)
-    black_list = gcl.GetCodeReviewSetting("LINT_IGNORE_REGEX")
-    if not black_list:
-      black_list = gcl.DEFAULT_LINT_IGNORE_REGEX
-    black_regex = re.compile(black_list)
-    extra_check_functions = [cpplint_chromium.CheckPointerDeclarationWhitespace]
-    # pylint: disable=W0212
-    cpplint_state = cpplint._cpplint_state
-    for filename in filenames:
-      if white_regex.match(filename):
-        if black_regex.match(filename):
-          print "Ignoring file %s" % filename
-        else:
-          cpplint.ProcessFile(filename, cpplint_state.verbose_level,
-                              extra_check_functions)
+  white_list = gcl.GetCodeReviewSetting("LINT_REGEX")
+  if not white_list:
+    white_list = gcl.DEFAULT_LINT_REGEX
+  white_regex = re.compile(white_list)
+  black_list = gcl.GetCodeReviewSetting("LINT_IGNORE_REGEX")
+  if not black_list:
+    black_list = gcl.DEFAULT_LINT_IGNORE_REGEX
+  black_regex = re.compile(black_list)
+  extra_check_functions = [cpplint_chromium.CheckPointerDeclarationWhitespace]
+  # pylint: disable=W0212
+  cpplint_state = cpplint._cpplint_state
+  for filename in filenames:
+    if white_regex.match(filename):
+      if black_regex.match(filename):
+        print "Ignoring file %s" % filename
       else:
-        print "Skipping file %s" % filename
-    print "Total errors found: %d\n" % cpplint_state.error_count
-  finally:
-    if repo == 'cameo':
-      os.rename('.git.rename', '.git')
+        cpplint.ProcessFile(filename, cpplint_state.verbose_level,
+                            extra_check_functions)
+    else:
+      print "Skipping file %s" % filename
+  print "Total errors found: %d\n" % cpplint_state.error_count
 
 def do_py_lint(changeset):
   print '_____ do python lint'
