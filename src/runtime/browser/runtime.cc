@@ -11,9 +11,11 @@
 #include "base/message_loop.h"
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/src/runtime/browser/image_util.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "cameo/src/runtime/browser/runtime_file_select_helper.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
+#include "cameo/src/runtime/common/cameo_switches.h"
 #include "content/public/browser/color_chooser.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -64,6 +66,14 @@ Runtime::Runtime(content::WebContents* web_contents)
   runtime_context_ =
       static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
 
+  // Set the app icon if it is passed from command line.
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kAppIcon)) {
+    base::FilePath icon_file =
+        command_line->GetSwitchValuePath(switches::kAppIcon);
+    app_icon_ = cameo_utils::LoadImageFromFilePath(icon_file);
+  }
+
   NativeAppWindow::CreateParams params;
   params.runtime = this;
   params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
@@ -87,6 +97,8 @@ Runtime::~Runtime() {
 
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
   window_ = NativeAppWindow::Create(params);
+  if (!app_icon_.IsEmpty())
+    window_->UpdateIcon();
   window_->Show();
 }
 

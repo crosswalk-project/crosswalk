@@ -10,11 +10,11 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/utf_string_conversions.h"
+#include "cameo/src/runtime/browser/image_util.h"
 #include "cameo/src/runtime/browser/runtime.h"
 #include "cameo/src/runtime/browser/runtime_registry.h"
 #include "cameo/src/runtime/common/cameo_notification_types.h"
 #include "cameo/src/test/base/cameo_test_utils.h"
-#include "cameo/src/test/base/image_util.h"
 #include "cameo/src/test/base/in_process_browser_test.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
@@ -73,7 +73,7 @@ class FaviconChangedObserver : public cameo::RuntimeRegistryObserver {
     const base::FilePath::StringType kICOFormat(FILE_PATH_LITERAL(".ico"));
 
     gfx::Image image;
-    image = cameo_test_utils::LoadImageFromFilePath(icon_file_);
+    image = cameo_utils::LoadImageFromFilePath(icon_file_);
 
     EXPECT_FALSE(image.IsEmpty());
     gfx::Image icon = runtime->app_icon();

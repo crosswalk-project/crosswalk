@@ -28,8 +28,6 @@
       'src/test/base/cameo_test_suite.h',
       'src/test/base/cameo_test_utils.cc',
       'src/test/base/cameo_test_utils.h',
-      'src/test/base/image_util.cc',
-      'src/test/base/image_util.h',
     ],
     'conditions': [
       ['toolkit_uses_gtk == 1', {

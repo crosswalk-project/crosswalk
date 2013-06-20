@@ -10,4 +10,7 @@ namespace switches {
 // state, e.g. cache, localStorage etc.
 const char kCameoDataPath[] = "data-path";
 
+// Specifies the icon file for the app window.
+const char kAppIcon[] = "app-icon";
+
 }  // namespace switches
