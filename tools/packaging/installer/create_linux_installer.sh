@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 function absolute_path () {
     echo $(cd $1 && pwd)
 }
@@ -26,7 +26,7 @@ if [ "x$HELP" != "x" ]; then
     echo usage: $THIS_SCRIPT [options] [app_path]
     echo
     echo This script is used to create a standalone installer for cameo applications. It
-    echo depends on Wix toolset and cameo to function properly.
+    echo depends on checkinstall and cameo to function properly.
     echo The following options are supported:
     echo "
      app_path                Path to the cameo application. If not specified, the
