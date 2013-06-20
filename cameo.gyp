@@ -98,6 +98,8 @@
         'src/runtime/browser/ui/native_app_window_win.h',
         'src/runtime/browser/ui/native_app_window_gtk.cc',
         'src/runtime/browser/ui/native_app_window_gtk.h',
+        'src/runtime/browser/ui/taskbar_util_win.cc',
+        'src/runtime/browser/ui/taskbar_util.h',
         'src/runtime/common/cameo_content_client.cc',
         'src/runtime/common/cameo_content_client.h',
         'src/runtime/common/cameo_paths.cc',

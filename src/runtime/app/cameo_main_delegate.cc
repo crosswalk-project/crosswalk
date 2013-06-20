@@ -8,9 +8,11 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "cameo/src/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/src/runtime/browser/ui/taskbar_util.h"
 #include "cameo/src/runtime/common/cameo_paths.h"
 #include "cameo/src/runtime/renderer/cameo_content_renderer_client.h"
 #include "content/public/browser/browser_main_runner.h"
+#include "content/public/common/content_switches.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 
@@ -28,6 +30,14 @@ CameoMainDelegate::~CameoMainDelegate() {
 
 bool CameoMainDelegate::BasicStartupComplete(int* exit_code) {
   SetContentClient(content_client_.get());
+#if defined(OS_WIN)
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  std::string process_type =
+          command_line->GetSwitchValueASCII(switches::kProcessType);
+  // Only set the id for browser process
+  if (process_type.empty())
+    SetTaskbarGroupIdForProcess();
+#endif
   return false;
 }
 
