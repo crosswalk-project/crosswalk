@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/src/test/base/image_util.h"
+#include "cameo/src/runtime/browser/image_util.h"
 
 #if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
@@ -13,12 +13,13 @@
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "ui/gfx/image/image_skia.h"
+#include "ui/gfx/size.h"
 
 #if defined(OS_WIN)
 #include "ui/gfx/icon_util.h"
 #endif
 
-namespace cameo_test_utils {
+namespace cameo_utils {
 
 gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   const base::FilePath::StringType kPNGFormat(FILE_PATH_LITERAL(".png"));
@@ -70,4 +71,4 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   return gfx::Image();
 }
 
-}  // namespace cameo_test_utils
+}  // namespace cameo_utils

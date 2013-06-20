@@ -10,6 +10,8 @@ namespace switches {
 
 extern const char kCameoDataPath[];
 
+extern const char kAppIcon[];
+
 }  // namespace switches
 
 #endif  // CAMEO_SRC_RUNTIME_COMMON_CAMEO_SWITCHES_H_
