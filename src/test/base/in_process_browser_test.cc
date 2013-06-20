@@ -133,8 +133,5 @@ bool InProcessBrowserTest::CreateDataPathDir() {
 }
 
 void InProcessBrowserTest::QuitAllRuntimes() {
-  cameo_test_utils::CameoProcessList processes =
-      cameo_test_utils::GetRunningCameoProcesses(base::GetCurrentProcId());
   RuntimeRegistry::Get()->CloseAll();
-  cameo_test_utils::TerminateAllCameoProcesses(processes);
 }
