@@ -50,6 +50,7 @@ class CameoContentBrowserClient : public content::ContentBrowserClient {
 
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
+  CameoBrowserMainParts* main_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(CameoContentBrowserClient);
 };

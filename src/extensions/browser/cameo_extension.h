@@ -7,36 +7,22 @@
 
 #include <stdint.h>
 #include <string>
+#include "base/callback_forward.h"
+
+#include "base/callback.h"
 
 namespace cameo {
 namespace extensions {
 
-// Message exchanging interface to be implemented by Cameo
-// extensions. Currently the same extension is shared by all the
-// RenderViews of the process, distinguished by an id.
+class CameoExtensionWrapper;
+
+// Message exchanging interface to be implemented by Cameo extensions. This
+// is essentially a factory for Context objects that will handle messages. In
+// Cameo we create a Context per WebContents. Context objects allow us to
+// keep separated state for each execution.
 class CameoExtension {
  public:
-  // Interface used by CameoExtension to post messages, this is
-  // implemented by Cameo itself, extensions should not care about
-  // this.
-  class Poster {
-   public:
-    virtual void PostMessage(const int32_t render_view_id,
-                             const std::string& extension,
-                             const std::string& msg) = 0;
-   protected:
-    virtual ~Poster() {}  // So the client can't delete it.
-  };
-
-  // Defines the possible threads can be used to run the handler function.
-  enum HandlerThread {
-    HANDLER_THREAD_FILE,
-    HANDLER_THREAD_UI
-  };
-
-  CameoExtension(Poster* poster,
-                 const std::string& name,
-                 HandlerThread thread);
+  explicit CameoExtension(const std::string& name);
   virtual ~CameoExtension();
 
   // Returns the JavaScript API code that will be executed in the
@@ -44,32 +30,46 @@ class CameoExtension {
   // object based interface on top of the message passing.
   virtual const char* GetJavaScriptAPI() = 0;
 
-  // Allow the extension to handle messages sent from JavaScript code
-  // running in renderer process, |render_view_id| identifies which
-  // RenderView send the message. Extensions should keep track of it
-  // to post messages back correctly.
-  //
-  // Note this function will be called in the thread the extension was
-  // registered, see CameoExtensionHost::RegisterExtension().
-  virtual void HandleMessage(const int32_t render_view_id,
-                             const std::string& msg) = 0;
+  // Callback type used by Contexts to send messages. Callbacks of this type
+  // will be created by the extension system and handled to Context.
+  typedef base::Callback<void(const std::string& msg)> PostMessageCallback;
 
-  // Function to be used by extensions to post messages back to
-  // JavaScript in the renderer process. |render_view_id| will be used
-  // to route the message to the right RenderView.
-  void PostMessage(const int32_t render_view_id, const std::string& msg);
+  class Context {
+   public:
+    virtual ~Context() {}
+    // Allow to handle messages sent from JavaScript code running in renderer
+    // process.
+    virtual void HandleMessage(const std::string& msg) = 0;
+
+   protected:
+    explicit Context(const PostMessageCallback& post_message)
+        : post_message_(post_message) {}
+
+    // Function to be used by extensions contexts to post messages back to
+    // JavaScript in the renderer process.
+    void PostMessage(const std::string& msg) {
+      post_message_.Run(msg);
+    }
+
+   private:
+    PostMessageCallback post_message_;
+
+    DISALLOW_COPY_AND_ASSIGN(Context);
+  };
+
+  // Create a Context with the given |post_message| callback.
+  virtual Context* CreateContext(const PostMessageCallback& post_message) = 0;
 
   std::string name() const { return name_; }
-  HandlerThread thread() const { return thread_; }
 
  private:
-  Poster* poster_;
+  friend class CameoExtensionWrapper;
+  friend class Context;
 
   // Name of extension, used for dispatching messages.
   std::string name_;
 
-  // Thread that will be used for handling messages of this extension.
-  HandlerThread thread_;
+  DISALLOW_COPY_AND_ASSIGN(CameoExtension);
 };
 
 }  // namespace extensions
