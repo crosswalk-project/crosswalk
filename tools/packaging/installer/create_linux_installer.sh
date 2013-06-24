@@ -1,21 +1,23 @@
-#!/bin/bash
-function absolute_path () {
-    echo $(cd $1 && pwd)
+#!/bin/sh
+absolute_path () {
+    echo `cd $1 && pwd`
 }
 THIS_SCRIPT=$0
-SCRIPT_DIR=$(absolute_path $(dirname $THIS_SCRIPT))
+SCRIPT_DIR=`dirname $THIS_SCRIPT`
+SCRIPT_DIR=`absolute_path $SCRIPT_DIR`
 TEMP_DIR=/tmp/cameo_build
 while [ "$1" != "" ]; do
     DASHED_PARAM=$1
-    PARAM=${DASHED_PARAM/--/}
-    if [ "$PARAM" == "$DASHED_PARAM" ]; then
+    PARAM=`echo ${DASHED_PARAM}|sed 's/--//'`
+    if [ "$PARAM" = "$DASHED_PARAM" ]; then
       APP_PATH=$PARAM
     else
-        if [[ "$PARAM" != *"="* ]]; then
-            eval ${PARAM^^}=true
+        if ! echo  $PARAM |grep  = ;  then
+            PARAM=`echo $PARAM |sed 's/^\(.*\)/\U\1/'`
+            eval $PARAM=true
         else
-            read PARAM_NAME PARAM_VALUE <<<$(IFS="="; echo $PARAM)
-            eval ${PARAM_NAME^^}=$PARAM_VALUE
+            PARAM=`echo $PARAM |sed 's/^\(.*=\)/\U\1/'`
+            eval $PARAM
         fi
     fi
     shift
@@ -46,27 +48,27 @@ if [ "x$HELP" != "x" ]; then
     exit 1
 fi
 
-if [ "x`which checkinstall`" == "x" ]; then
+if [ "x`which checkinstall`" = "x" ]; then
     echo
     echo "checkinstall is required to create an application package. You can install it by:
     sudo apt-get install checkinstall"
     exit 1
 fi
-if [ "x$APP_PATH" == "x" ]; then
+if [ "x$APP_PATH" = "x" ]; then
     APP_PATH=`pwd`
 fi
-if [ "x$APP_INDEX" == "x" ]; then
+if [ "x$APP_INDEX" = "x" ]; then
     APP_INDEX=index.html
 fi
-if [ "x$VERSION" == "x" ]; then
+if [ "x$VERSION" = "x" ]; then
     VERSION=1.0.0
 fi
-if [ "x$CAMEO_PATH" == "x" ]; then
+if [ "x$CAMEO_PATH" = "x" ]; then
     CAMEO_PATH=`which cameo`
     if [ "x$CAMEO_PATH" != "x" ]; then
-        CAMEO_PATH=$(dirname $CAMEO_PATH)
+        CAMEO_PATH=`dirname $CAMEO_PATH`
     fi
-    if [ "x$CAMEO_PATH" == "x" ]; then
+    if [ "x$CAMEO_PATH" = "x" ]; then
         CAMEO_PATH=$APP_PATH
         if ! test -f "$CAMEO_PATH/cameo"; then
             CAMEO_PATH=`pwd`
@@ -79,10 +81,10 @@ if [ "x$CAMEO_PATH" == "x" ]; then
         fi
     fi
 fi
-if [ "x$APP_NAME" == "x" ]; then
-    APP_NAME=$(basename $APP_PATH)
+if [ "x$APP_NAME" = "x" ]; then
+    APP_NAME=`basename $APP_PATH`
 fi
-if [ "x$PUBLISHER" == "x" ]; then
+if [ "x$PUBLISHER" = "x" ]; then
     PUBLISHER=Me
 fi
 
@@ -91,9 +93,9 @@ if [ "x$OUT" != "x" ]; then
 fi
 
 
-CAMEO_PATH=$(absolute_path $CAMEO_PATH)
-APP_PATH=$(absolute_path $APP_PATH)
-BUILD_DIR=$TEMP_DIR/$(basename $APP_PATH)
+CAMEO_PATH=`absolute_path $CAMEO_PATH`
+APP_PATH=`absolute_path $APP_PATH`
+BUILD_DIR=$TEMP_DIR/`basename $APP_PATH`
 #export some variables so that Makefile can use them
 export INSTALL_DIR=/opt/${PUBLISHER}/${APP_NAME}
 
@@ -103,11 +105,8 @@ cp -r $APP_PATH $TEMP_DIR
 if ! test -f $APP_PATH/Makefile; then
     cp $SCRIPT_DIR/Makefile.templ $BUILD_DIR/Makefile
 fi
-if ! ls *.desktop &> /dev/null; then
-    eval echo "\"$(cat <<EOF_$RANDOM
-$(<$SCRIPT_DIR/app.desktop.templ)
-EOF_$RANDOM
-)\"" > $BUILD_DIR/$APP_NAME.desktop
+if ! ls *.desktop > /dev/null 2>&1; then
+    while read line; do eval echo $line; done < $SCRIPT_DIR/app.desktop.templ > $BUILD_DIR/$APP_NAME.desktop
 fi
 cd $CAMEO_PATH && cp cameo cameo.pak libffmpegsumo.so $BUILD_DIR
 
