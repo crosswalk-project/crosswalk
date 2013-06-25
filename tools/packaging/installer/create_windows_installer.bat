@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 setlocal enabledelayedexpansion
 set THIS_SCRIPT=%0
 set WXS_TEMPL_FILE=%~dp0\app.wxs.templ
@@ -33,8 +33,9 @@ if not x%HELP%==x (
     echo --app_name=^<name^>       Name of the application. If not specified, the name
     echo                           of the application directory is used.
     echo --version=^<version^>     The version of the application, defaults to 1.0.0
-    echo --app_index=^<path^>      Path of app index file, relative to app_path. If not
-    echo                           specified, index.html is used.
+    echo --app_arguments=^<args^>  Arguments that will be passed into cameo executable.
+    echo                           If not specified, "index.html" is used. For example,
+    echo                           "--allow-file-access-from-files src/index.html"
     echo --out=^<pathname^>        File Path of the output installer file, defaults to the
     echo                           current directory with %%app_name%%.msi as its name.
     echo --publisher=^<name^>      The manufacturer of this application, defaults to "Me"
@@ -47,7 +48,7 @@ if x%WIX_BIN_PATH%==x (
 )
 if not x%WIX_BIN_PATH%==x set WIX_BIN_PATH=!WIX_BIN_PATH:\candle.exe=!
 if x%WIX_BIN_PATH%==x (
-  set WIX_BIN_PATH="C:\Program Files (x86)\WiX Toolset v3.8\bin"
+  set WIX_BIN_PATH="C:\Program Files (x86)\WiX Toolset v3.7\bin"
   if not exist "!WIX_BIN_PATH!\candle.exe" (
     echo Please make sure you have installed Wix and setup the PATH enviroment variable on
     echo your system properly. Or you can specify the wix path through --wix_bin_path
@@ -56,7 +57,7 @@ if x%WIX_BIN_PATH%==x (
   )
 )
 if x%APP_PATH%==x set APP_PATH=%CD%
-if x%APP_INDEX%==x set APP_INDEX=index.html
+if x%APP_ARGUMENTS%==x set APP_ARGUMENTS=index.html
 if x%VERSION%==x set VERSION=1.0.0
 if x%CAMEO_PATH%==x (
   FOR /F "tokens=*" %%A IN ('where cameo') DO SET CAMEO_PATH="%%A"
@@ -126,5 +127,5 @@ for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
     set "OBJ_FILES=!OBJ_FILES! !OBJ_FILE!"
 )
 
-%WIX_BIN_PATH%\candle -dindexPath="%APP_INDEX%" -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
+%WIX_BIN_PATH%\candle -dappArguments=%APP_ARGUMENTS% -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
 %WIX_BIN_PATH%\light -spdb %MAIN_OBJ_FILE% %OBJ_FILES% -o %OUT%
