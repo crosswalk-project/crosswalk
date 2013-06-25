@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 setlocal enabledelayedexpansion
 set THIS_SCRIPT=%0
 set WXS_TEMPL_FILE=%~dp0\app.wxs.templ
@@ -48,7 +48,7 @@ if x%WIX_BIN_PATH%==x (
 )
 if not x%WIX_BIN_PATH%==x set WIX_BIN_PATH=!WIX_BIN_PATH:\candle.exe=!
 if x%WIX_BIN_PATH%==x (
-  set WIX_BIN_PATH="C:\Program Files (x86)\WiX Toolset v3.8\bin"
+  set WIX_BIN_PATH="C:\Program Files (x86)\WiX Toolset v3.7\bin"
   if not exist "!WIX_BIN_PATH!\candle.exe" (
     echo Please make sure you have installed Wix and setup the PATH enviroment variable on
     echo your system properly. Or you can specify the wix path through --wix_bin_path
