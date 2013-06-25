@@ -98,6 +98,9 @@
       'src/test/base/in_process_browser_test.cc',
       'src/test/base/in_process_browser_test.h',
     ],
+    'includes': [
+      'src/extensions/extensions_browsertests.gypi',
+    ],
     'conditions': [
       ['OS=="win" and win_use_allocator_shim==1', {
         'dependencies': [
