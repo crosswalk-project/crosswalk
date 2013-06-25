@@ -15,6 +15,9 @@
 
       window.onload = function() {
         if (navigator.geolocation) {
+          var options = {
+            timeout: 5000
+          };
           navigator.geolocation.getCurrentPosition(function(position) {
             document.getElementById("output").innerHTML =
                 "Position latitude: " + position.coords.latitude +
@@ -29,7 +32,8 @@
             //   1: permission denied
             //   2: position unavailable (error response from locaton provider)
             //   3: timed out
-          });
+          },
+          options);
         } else {
           console.log("navigator.geolocation is not available.");
           sendResult(-1);
