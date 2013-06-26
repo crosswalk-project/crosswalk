@@ -13,4 +13,6 @@ const char kCameoDataPath[] = "data-path";
 // Specifies the icon file for the app window.
 const char kAppIcon[] = "app-icon";
 
+// Specifies the window whether launched with fullscreen mode.
+const char kFullscreen[] = "fullscreen";
 }  // namespace switches

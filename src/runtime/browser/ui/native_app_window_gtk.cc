@@ -8,6 +8,8 @@
 
 #include "base/utf_string_conversions.h"
 #include "cameo/src/runtime/browser/runtime.h"
+#include "cameo/src/runtime/common/cameo_notification_types.h"
+#include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
@@ -58,6 +60,9 @@ NativeAppWindowGtk::NativeAppWindowGtk(
   SetMaximumSize(window_, maximum_size_);
   SetMinimumSize(window_, minimum_size_);
   SetResizable(window_, resizable_);
+
+  if (params.state == ui::SHOW_STATE_FULLSCREEN)
+    SetFullscreen(true);
 
   // In some (older) versions of compiz, raising top-level windows when they
   // are partially off-screen causes them to get snapped back on screen, not
@@ -221,6 +226,7 @@ gboolean NativeAppWindowGtk::OnWindowDestroyed(GtkWidget* window) {
 // Window state has changed.
 gboolean NativeAppWindowGtk::OnWindowState(GtkWidget* window,
                                            GdkEventWindowState* event) {
+  GdkWindowState old_state = state_;
   state_ = event->new_window_state;
 
   if (is_fullscreen_ && !(state_ & GDK_WINDOW_STATE_FULLSCREEN)) {
@@ -229,6 +235,17 @@ gboolean NativeAppWindowGtk::OnWindowState(GtkWidget* window,
         runtime_->web_contents()->GetRenderViewHost();
     if (rvh)
       rvh->ExitFullscreen();
+  }
+
+  // Because gtk_window_fullscreen() can't take effect on Gtk window's state
+  // immediately, |NOTIFICATION_FULLSCREEN_CHANGED| would be sent until the
+  // real fullscrenn state of Gtk window happen.
+  if ((old_state & GDK_WINDOW_STATE_FULLSCREEN) !=
+      (state_ & GDK_WINDOW_STATE_FULLSCREEN)) {
+    content::NotificationService::current()->Notify(
+        cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+        content::Source<NativeAppWindow>(this),
+        content::NotificationService::NoDetails());
   }
   return FALSE;
 }

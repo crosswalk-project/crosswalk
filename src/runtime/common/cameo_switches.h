@@ -12,6 +12,7 @@ extern const char kCameoDataPath[];
 
 extern const char kAppIcon[];
 
+extern const char kFullscreen[];
 }  // namespace switches
 
 #endif  // CAMEO_SRC_RUNTIME_COMMON_CAMEO_SWITCHES_H_
