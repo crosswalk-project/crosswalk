@@ -14,9 +14,8 @@ namespace extensions {
 
 class CameoExtensionRendererController;
 
-// This helper object is associated with each RenderView and handles
-// the message exchange between browser process and the JavaScript
-// code.
+// This helper object is associated with each RenderView and handles the message
+// exchange between browser process and the JavaScript code.
 class CameoExtensionRenderViewHandler
     : public content::RenderViewObserver,
       public
@@ -37,11 +36,13 @@ class CameoExtensionRenderViewHandler
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
-  // Called when we receive a message from the browser process,
-  // dispatches it to JavaScript environment.
+  // Called when we receive a message from the browser process, dispatches it to
+  // JavaScript environment.
   void OnPostMessage(const std::string& extension, const std::string& msg);
 
   CameoExtensionRendererController* controller_;
+
+  DISALLOW_COPY_AND_ASSIGN(CameoExtensionRenderViewHandler);
 };
 
 }  // namespace extensions

@@ -81,7 +81,12 @@ void CameoExtensionRenderViewHandler::OnPostMessage(
       context->Global()->Get(v8::String::New("cameo"));
   v8::Handle<v8::Value> callback =
       cameo.As<v8::Object>()->Get(v8::String::New("onpostmessage"));
-  callback.As<v8::Function>()->Call(context->Global(), argc, argv);
+
+  // Note: see comment in WebScopedMicrotaskSuppression.h to understand why we
+  // are not using V8 API directly but going through frame.
+  frame->callFunctionEvenIfScriptDisabled(callback.As<v8::Function>(),
+                                          context->Global(),
+                                          argc, argv);
 }
 
 }  // namespace extensions

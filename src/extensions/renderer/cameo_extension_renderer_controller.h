@@ -21,16 +21,16 @@ class WebFrame;
 namespace cameo {
 namespace extensions {
 
-// Renderer controller for Cameo extensions keeps track of the
-// extensions registered into the system. It also watches for new
-// render views to attach the extensions handlers to them.
+// Renderer controller for Cameo extensions keeps track of the extensions
+// registered into the system. It also watches for new render views to attach
+// the extensions handlers to them.
 class CameoExtensionRendererController : public content::RenderProcessObserver {
  public:
   CameoExtensionRendererController();
   virtual ~CameoExtensionRendererController();
 
-  // To be called by client code when a render view is created. Will
-  // attach extension handlers to them.
+  // To be called by client code when a render view is created. Will attach
+  // extension handlers to them.
   void RenderViewCreated(content::RenderView* render_view);
 
   // RenderProcessObserver implementation.
@@ -39,13 +39,12 @@ class CameoExtensionRendererController : public content::RenderProcessObserver {
  private:
   friend class CameoExtensionRenderViewHandler;
 
-  // Called when browser process send a message with a new extension
-  // to be registered, and its corresponding JavaScript API.
+  // Called when browser process send a message with a new extension to be
+  // registered, and its corresponding JavaScript API.
   void OnRegisterExtension(const std::string& extension,
                            const std::string& api);
 
-  // Returns whether the extension was already registered in the
-  // controller.
+  // Returns whether the extension was already registered in the controller.
   bool ContainsExtension(const std::string& extension) const;
 
   // Installs the extensions' JavaScript API code into the given frame.
@@ -53,6 +52,8 @@ class CameoExtensionRendererController : public content::RenderProcessObserver {
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
+
+  DISALLOW_COPY_AND_ASSIGN(CameoExtensionRendererController);
 };
 
 }  // namespace extensions
