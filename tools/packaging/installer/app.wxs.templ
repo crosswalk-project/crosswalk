@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
-  <Product Name='$(env.APP_NAME)' Id='560CA74E-435B-4C29-ACB4-CD2009621C9B' UpgradeCode='5EE7B0CA-BA4D-4E6E-A720-7F8D069B4591'
+  <Product Name='$(env.APP_NAME)' Id='*' UpgradeCode='$(env.UPGRADE_CODE)'
     Language='1033' Version="$(env.VERSION)" Manufacturer="$(env.PUBLISHER)">
+
 
     <Package Id='*' Keywords='Installer' Description="$(env.APP_NAME) $(env.VERSION) Installer"
       Comments='This is a Web-based application backed by Cameo.' Manufacturer="$(env.PUBLISHER)"
@@ -38,5 +39,7 @@
 	<?endif ?>
 	<ComponentRef Id="app_shortcuts" />
     </Feature>
+    <MajorUpgrade AllowSameVersionUpgrades="yes" 
+    	DowngradeErrorMessage="A later version of this product is already installed. Setup will now exit."/> 
   </Product>
 </Wix>
