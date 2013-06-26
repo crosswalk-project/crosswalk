@@ -1,7 +1,7 @@
 rem @echo off
 setlocal enabledelayedexpansion
 set THIS_SCRIPT=%0
-set WXS_TEMPL_FILE=%~dp0\app.wxs.templ
+set WXS_TEMPL_FILE="%~dp0\app.wxs.templ"
 :loop
 set DASHED_PARAM=%1
 set PARAM=!DASHED_PARAM:--=!
