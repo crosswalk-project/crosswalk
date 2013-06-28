@@ -71,6 +71,8 @@
         'src/runtime/browser/geolocation/cameo_access_token_store.h',
         'src/runtime/browser/image_util.cc',
         'src/runtime/browser/image_util.h',
+        'src/runtime/browser/media/media_capture_devices_dispatcher.cc',
+        'src/runtime/browser/media/media_capture_devices_dispatcher.h',
         'src/runtime/browser/runtime.cc',
         'src/runtime/browser/runtime.h',
         'src/runtime/browser/runtime_context.cc',

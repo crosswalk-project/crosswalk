@@ -7,6 +7,7 @@
 #include "cameo/src/extensions/browser/cameo_extension_service.h"
 #include "cameo/src/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/src/runtime/browser/geolocation/cameo_access_token_store.h"
+#include "cameo/src/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "cameo/src/runtime/browser/runtime_context.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
@@ -78,6 +79,10 @@ CameoContentBrowserClient::GetWebContentsViewDelegate(
 void CameoContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
   main_parts_->extension_service()->OnRenderProcessHostCreated(host);
+}
+
+content::MediaObserver* CameoContentBrowserClient::GetMediaObserver() {
+  return CameoMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 }  // namespace cameo

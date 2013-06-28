@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>getUserMedia Test</title>
+</head>
+<body>
+<div id="result">
+</div>
+<script>
+navigator.webkitGetUserMedia({audio:true, video:true}, successCallback, failedCallback); 
+
+function log(msg) {
+    var element = document.getElementById("result");
+    element.innerHTML = msg;
+}
+
+function failedCallback() {
+    log("Failed - Error callback is called.");
+}
+
+function successCallback(stream) {
+    log("Passed - Success callback is called.");
+}
+</script>
+</body>
+</html>
