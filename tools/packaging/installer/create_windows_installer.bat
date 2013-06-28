@@ -1,7 +1,8 @@
-rem @echo off
+@echo off
 setlocal enabledelayedexpansion
 set THIS_SCRIPT=%0
-set WXS_TEMPL_FILE=%~dp0\app.wxs.templ
+set WXS_TEMPL_FILE="%~dp0\app.wxs.templ"
+set GUID_GEN="%~dp0\guid.vbs"
 :loop
 set DASHED_PARAM=%1
 set PARAM=!DASHED_PARAM:--=!
@@ -88,6 +89,7 @@ popd
 pushd %APP_PATH%
 set APP_PATH=%CD%
 popd
+set PACKAGING_INI="%APP_PATH%\_packaging.ini"
 
 if not "x!APP_PATH:%CAMEO_PATH%=!"=="x%APP_PATH%" (
     set __DIRS.1="%APP_PATH%"
@@ -127,5 +129,11 @@ for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
     set "OBJ_FILES=!OBJ_FILES! !OBJ_FILE!"
 )
 
+if exist %PACKAGING_INI% (
+    for /f "delims=" %%x in ( 'type %PACKAGING_INI%') do (set "%%x")
+) else (
+    FOR /F "tokens=*" %%A IN ('cscript //nologo %GUID_GEN%') DO SET UPGRADE_CODE=%%A
+    echo UPGRADE_CODE=!UPGRADE_CODE!>%PACKAGING_INI%
+)
 %WIX_BIN_PATH%\candle -dappArguments=%APP_ARGUMENTS% -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
 %WIX_BIN_PATH%\light -spdb %MAIN_OBJ_FILE% %OBJ_FILES% -o %OUT%
