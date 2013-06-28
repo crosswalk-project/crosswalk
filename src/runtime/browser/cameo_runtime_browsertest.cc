@@ -88,6 +88,17 @@ class FaviconChangedObserver : public cameo::RuntimeRegistryObserver {
   const base::FilePath& icon_file_;
 };
 
+// Observer for NOTIFICATION_FULLSCREEN_CHANGED notifications.
+class FullscreenNotificationObserver
+    : public content::WindowedNotificationObserver {
+ public:
+  FullscreenNotificationObserver() : WindowedNotificationObserver(
+      cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+      content::NotificationService::AllSources()) {}
+ private:
+  DISALLOW_COPY_AND_ASSIGN(FullscreenNotificationObserver);
+};
+
 class CameoRuntimeTest : public InProcessBrowserTest {
  public:
   CameoRuntimeTest() {}
@@ -194,6 +205,66 @@ IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, CloseNativeWindow) {
   content::RunAllPendingInMessageLoop();
   // Closing native window will lead to close Runtime instance.
   EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+}
+
+IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, LaunchWithFullscreenWindow) {
+  MockRuntimeRegistryObserver observer;
+  RuntimeRegistry::Get()->AddObserver(&observer);
+  // At least one Runtime instance is created at startup.
+  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  ASSERT_EQ(1, len);
+  // Original Runtime should has non fullscreen window.
+  EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
+
+  // Add "--fullscreen" launch argument.
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  cmd_line->AppendSwitch("fullscreen");
+
+  // Create a new Runtime instance.
+  FullscreenNotificationObserver fullscreen_observer;
+  GURL url(test_server()->GetURL("test.html"));
+  EXPECT_CALL(observer, OnRuntimeAdded(_)).Times(1);
+  Runtime* new_runtime = Runtime::Create(runtime()->runtime_context(), url);
+  content::RunAllPendingInMessageLoop();
+  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  fullscreen_observer.Wait();
+  EXPECT_TRUE(true == new_runtime->window()->IsFullscreen());
+
+  // Close the newly created Runtime instance.
+  EXPECT_CALL(observer, OnRuntimeRemoved(new_runtime)).Times(1);
+  new_runtime->Close();
+  content::RunAllPendingInMessageLoop();
+  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+
+  RuntimeRegistry::Get()->RemoveObserver(&observer);
+}
+
+IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, HTML5FullscreenAPI) {
+  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  GURL url = cameo_test_utils::GetTestURL(
+      base::FilePath(), base::FilePath().AppendASCII("fullscreen.html"));
+  cameo_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
+
+  FullscreenNotificationObserver enter_observer;
+  runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
+      string16(),
+      ASCIIToUTF16("doFullscreenClick();"));
+  content::RunAllPendingInMessageLoop();
+  enter_observer.Wait();
+  // Calling doFullscreenClick defined in fullscreen.html leads to enter into
+  // fullscreen window state, so it's expected to be fullscreen.
+  EXPECT_TRUE(true == runtime()->window()->IsFullscreen());
+
+  FullscreenNotificationObserver exit_observer;
+  runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
+      string16(),
+      ASCIIToUTF16("doExitFullscreenClick();"));
+  content::RunAllPendingInMessageLoop();
+  exit_observer.Wait();
+  // Calling doExitFullscreenClick defined in fullscreen.html leads to exit
+  // fullscreen window state, so it's expected to be not fullscreen.
+  EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
 }
 
 IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, GetWindowTitle) {

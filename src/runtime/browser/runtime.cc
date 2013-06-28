@@ -60,7 +60,8 @@ Runtime* Runtime::CreateFromWebContents(WebContents* web_contents) {
 Runtime::Runtime(content::WebContents* web_contents)
     : WebContentsObserver(web_contents),
       window_(NULL),
-      weak_ptr_factory_(this) {
+      weak_ptr_factory_(this),
+      fullscreen_options_(NO_FULLSCREEN)  {
   web_contents_.reset(web_contents);
   web_contents_->SetDelegate(this);
   runtime_context_ =
@@ -77,6 +78,12 @@ Runtime::Runtime(content::WebContents* web_contents)
   NativeAppWindow::CreateParams params;
   params.runtime = this;
   params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kFullscreen)) {
+    params.state = ui::SHOW_STATE_FULLSCREEN;
+    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
+  }
+
   InitAppWindow(params);
 
   registrar_.Add(this,
@@ -136,12 +143,21 @@ void Runtime::LoadingStateChanged(content::WebContents* source) {
 
 void Runtime::ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                          bool enter_fullscreen) {
-  // TODO(hmin): add fullscreen mode support for native app window.
+  if (enter_fullscreen)
+    fullscreen_options_ |= FULLSCREEN_FOR_TAB;
+  else
+    fullscreen_options_ &= ~FULLSCREEN_FOR_TAB;
+
+  if (enter_fullscreen) {
+    window_->SetFullscreen(true);
+  } else if (!fullscreen_options_ & FULLSCREEN_FOR_LAUNCH) {
+    window_->SetFullscreen(false);
+  }
 }
 
 bool Runtime::IsFullscreenForTabOrPending(
     const content::WebContents* web_contents) const {
-  return false;
+  return (fullscreen_options_ & FULLSCREEN_FOR_TAB) != 0;
 }
 
 void Runtime::RequestToLockMouse(content::WebContents* web_contents,
@@ -162,6 +178,11 @@ bool Runtime::PreHandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event,
       bool* is_keyboard_shortcut) {
+  // Escape exits tabbed fullscreen mode.
+  if (event.windowsKeyCode == 27 && IsFullscreenForTabOrPending(source)) {
+    ToggleFullscreenModeForTab(source, false);
+    return true;
+  }
   return false;
 }
 
