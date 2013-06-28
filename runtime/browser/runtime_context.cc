@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "cameo/runtime/browser/runtime_download_manager_delegate.h"
 #include "cameo/runtime/browser/runtime_url_request_context_getter.h"
 #include "cameo/runtime/common/cameo_paths.h"
 #include "cameo/runtime/common/cameo_switches.h"
@@ -16,6 +17,7 @@
 #include "content/public/common/content_switches.h"
 
 using content::BrowserThread;
+using content::DownloadManager;
 
 namespace cameo {
 
@@ -77,7 +79,14 @@ bool RuntimeContext::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
-  return NULL;
+  content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
+
+  if (!download_manager_delegate_) {
+    download_manager_delegate_ = new RuntimeDownloadManagerDelegate();
+    download_manager_delegate_->SetDownloadManager(manager);
+  }
+
+  return download_manager_delegate_.get();
 }
 
 net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
