@@ -197,6 +197,7 @@
         {
           'action_name': 'cameo_resources',
           'variables': {
+            'grit_resource_ids': 'src/runtime/resources/resource_ids',
             'grit_grd_file': 'src/runtime/resources/cameo_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
