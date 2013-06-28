@@ -7,8 +7,7 @@
 namespace cameo {
 namespace extensions {
 
-CameoExtension::CameoExtension(const std::string& name)
-    : name_(name) {}
+CameoExtension::CameoExtension() {}
 
 CameoExtension::~CameoExtension() {}
 

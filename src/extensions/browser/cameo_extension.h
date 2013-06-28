@@ -22,7 +22,7 @@ class CameoExtensionWrapper;
 // keep separated state for each execution.
 class CameoExtension {
  public:
-  explicit CameoExtension(const std::string& name);
+  explicit CameoExtension();
   virtual ~CameoExtension();
 
   // Returns the JavaScript API code that will be executed in the
@@ -61,6 +61,9 @@ class CameoExtension {
   virtual Context* CreateContext(const PostMessageCallback& post_message) = 0;
 
   std::string name() const { return name_; }
+
+ protected:
+  void set_name(const std::string& name) { name_ = name; }
 
  private:
   friend class CameoExtensionWrapper;
