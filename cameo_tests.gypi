@@ -24,10 +24,10 @@
       '..',
     ],
     'sources': [
-      'src/test/base/cameo_test_suite.cc',
-      'src/test/base/cameo_test_suite.h',
-      'src/test/base/cameo_test_utils.cc',
-      'src/test/base/cameo_test_utils.h',
+      'test/base/cameo_test_suite.cc',
+      'test/base/cameo_test_suite.h',
+      'test/base/cameo_test_utils.cc',
+      'test/base/cameo_test_utils.h',
     ],
     'conditions': [
       ['toolkit_uses_gtk == 1', {
@@ -60,8 +60,8 @@
       '..',
     ],
     'sources': [
-      'src/runtime/common/cameo_content_client_unittest.cc',
-      'src/test/base/run_all_unittests.cc',
+      'runtime/common/cameo_content_client_unittest.cc',
+      'test/base/run_all_unittests.cc',
     ],
     'conditions': [
       ['OS=="win" and win_use_allocator_shim==1', {
@@ -89,17 +89,17 @@
       'HAS_OUT_OF_PROC_TEST_RUNNER',
     ],
     'sources': [
-      'src/runtime/browser/cameo_form_input_browsertest.cc',
-      'src/runtime/browser/cameo_runtime_browsertest.cc',
-      'src/runtime/browser/cameo_switches_browsertest.cc',
-      'src/runtime/browser/devtools/cameo_devtools_browsertest.cc',
-      'src/runtime/browser/geolocation/cameo_geolocation_browsertest.cc',
-      'src/test/base/cameo_test_launcher.cc',
-      'src/test/base/in_process_browser_test.cc',
-      'src/test/base/in_process_browser_test.h',
+      'runtime/browser/cameo_form_input_browsertest.cc',
+      'runtime/browser/cameo_runtime_browsertest.cc',
+      'runtime/browser/cameo_switches_browsertest.cc',
+      'runtime/browser/devtools/cameo_devtools_browsertest.cc',
+      'runtime/browser/geolocation/cameo_geolocation_browsertest.cc',
+      'test/base/cameo_test_launcher.cc',
+      'test/base/in_process_browser_test.cc',
+      'test/base/in_process_browser_test.h',
     ],
     'includes': [
-      'src/extensions/extensions_browsertests.gypi',
+      'extensions/extensions_browsertests.gypi',
     ],
     'conditions': [
       ['OS=="win" and win_use_allocator_shim==1', {
@@ -109,7 +109,7 @@
       }],
       ['OS=="win"', {
         'sources': [
-          'src/runtime/browser/ui/taskbar_util_browsertest.cc',
+          'runtime/browser/ui/taskbar_util_browsertest.cc',
         ],
       }],  # OS=="win"
     ],
