@@ -26,6 +26,7 @@ namespace cameo {
 NativeAppWindowWin::NativeAppWindowWin(
     const NativeAppWindow::CreateParams& create_params)
   : runtime_(create_params.runtime),
+    web_contents_(create_params.web_contents),
     web_view_(NULL),
     is_fullscreen_(false),
     minimum_size_(create_params.minimum_size),
@@ -224,7 +225,7 @@ void NativeAppWindowWin::ViewHierarchyChanged(
     SetLayoutManager(layout);
 
     web_view_ = new views::WebView(NULL);
-    web_view_->SetWebContents(runtime_->web_contents());
+    web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
   }
 }

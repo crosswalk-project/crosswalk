@@ -78,6 +78,7 @@ Runtime::Runtime(content::WebContents* web_contents)
 
   NativeAppWindow::CreateParams params;
   params.runtime = this;
+  params.web_contents = web_contents_.get();
   params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kFullscreen)) {

@@ -64,6 +64,8 @@ class NativeAppWindowGtk : public NativeAppWindow,
   // Weak reference of the associated Runtime instance.
   Runtime* runtime_;
 
+  content::WebContents* web_contents_;
+
   string16 title_;
 
   gfx::Size minimum_size_;

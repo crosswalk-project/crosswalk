@@ -87,6 +87,8 @@ class NativeAppWindowWin : public NativeAppWindow,
   // Weak reference of the associated Runtime instance.
   Runtime* runtime_;
 
+  content::WebContents* web_contents_;
+
   views::WebView* web_view_;
   views::Widget* window_;
   string16 title_;

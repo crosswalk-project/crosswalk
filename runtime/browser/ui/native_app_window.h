@@ -13,6 +13,10 @@
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"
 
+namespace content {
+class WebContents;
+}
+
 namespace cameo {
 
 class Runtime;
@@ -23,11 +27,14 @@ class NativeAppWindow {
   struct CreateParams {
     CreateParams()
         : runtime(NULL),
+          web_contents(NULL),
           state(ui::SHOW_STATE_NORMAL),
           resizable(true) {
     }
     // The Runtime instance owning the app window.
     Runtime* runtime;
+    // WebContents which the content will be displayed in this window.
+    content::WebContents* web_contents;
     // The initial window bounds, empty means default bound will be used.
     gfx::Rect bounds;
     // The minimum window size. The window can only be resized to smaller if
