@@ -41,6 +41,8 @@ class CameoBrowserMainParts : public content::BrowserMainParts {
   }
 
  private:
+  void RegisterExternalExtensions();
+
   scoped_ptr<RuntimeContext> runtime_context_;
 
   // An application wide instance to manage all Runtime instances.
