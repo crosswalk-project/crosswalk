@@ -1,4 +1,4 @@
-''' This file indicate the dependencies cameo lays on.
+''' This file indicate the dependencies crosswalk lays on.
     DO NOT use this DEPS to checkout code, it's for tools/fetch_deps.py.
 '''
 
@@ -7,7 +7,7 @@
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '28.0.1500.36'
-chromium_cameo_point = '81ee1987425da72de4c8604912c3fe212029e355'
+chromium_crosswalk_point = '81ee1987425da72de4c8604912c3fe212029e355'
 deps_cameo = {
-  'src': 'ssh://git@github.com/otcshare/chromium-cameo.git@%s' % chromium_cameo_point,
+  'src': 'ssh://git@github.com/otcshare/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
 }

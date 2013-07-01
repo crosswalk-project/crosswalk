@@ -196,7 +196,7 @@ class DepsFetcher(gclient_utils.WorkItem):
        or versioned.
 
        If it's trunk, we must use .DEPS.git. Because if we use DEPS, gclient
-       will try to find all repos under the same url we host chromium-cameo.
+       will try to find all repos under the same url we host chromium-crosswalk.
        And we need to remove 'src' from custom deps, because 'src' will be the
        main subject for the gclient sync.
 
@@ -253,7 +253,7 @@ def main():
     print >> sys.stderr, 'Error: %s' % str(e)
     return 1
 
-  pm = Progress('Syncing chromium-cameo', 1)
+  pm = Progress('Syncing chromium-crosswalk', 1)
   work_queue = gclient_utils.ExecutionQueue(1, pm, None)
   deps_fetcher = DepsFetcher('fetching', options)
   work_queue.enqueue(deps_fetcher)
