@@ -90,9 +90,8 @@ NativeAppWindowGtk::~NativeAppWindowGtk() {
   ui::ActiveWindowWatcherX::RemoveObserver(this);
 }
 
-void NativeAppWindowGtk::UpdateIcon() {
-  gfx::Image app_icon = runtime_->app_icon();
-  gtk_window_set_icon(window_, app_icon.ToGdkPixbuf());
+void NativeAppWindowGtk::UpdateIcon(const gfx::Image& icon) {
+  gtk_window_set_icon(window_, icon.ToGdkPixbuf());
 }
 
 void NativeAppWindowGtk::UpdateTitle(const string16& title) {

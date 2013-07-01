@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/string16.h"
 #include "ui/base/ui_base_types.h"
+#include "ui/gfx/image/image.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"
@@ -48,7 +49,7 @@ class NativeAppWindow {
   virtual gfx::NativeWindow GetNativeWindow() const = 0;
   // Returns true if the window has no frame.
   // Called when the icon of the window changes.
-  virtual void UpdateIcon() = 0;
+  virtual void UpdateIcon(const gfx::Image& icon) = 0;
   // Called when the title of the window changes.
   virtual void UpdateTitle(const string16& title) = 0;
   // Returns the nonmaximized bounds of the window (even if the window is

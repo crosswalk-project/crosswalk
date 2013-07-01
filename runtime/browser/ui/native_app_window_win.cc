@@ -58,7 +58,8 @@ gfx::NativeWindow NativeAppWindowWin::GetNativeWindow() const {
   return window_->GetNativeWindow();
 }
 
-void NativeAppWindowWin::UpdateIcon() {
+void NativeAppWindowWin::UpdateIcon(const gfx::Image& icon) {
+  icon_ = icon;
   window_->UpdateWindowIcon();
 }
 
@@ -173,8 +174,7 @@ gfx::ImageSkia NativeAppWindowWin::GetWindowAppIcon() {
 }
 
 gfx::ImageSkia NativeAppWindowWin::GetWindowIcon() {
-  gfx::Image app_icon = runtime_->app_icon();
-  return *app_icon.ToImageSkia();
+  return *icon_.ToImageSkia();
 }
 
 bool NativeAppWindowWin::ShouldShowWindowTitle() const {

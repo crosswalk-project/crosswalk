@@ -106,7 +106,7 @@ Runtime::~Runtime() {
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
   window_ = NativeAppWindow::Create(params);
   if (!app_icon_.IsEmpty())
-    window_->UpdateIcon();
+    window_->UpdateIcon(app_icon_);
   window_->Show();
 }
 
@@ -281,7 +281,7 @@ void Runtime::DidDownloadFavicon(int id,
   if (bitmaps.empty())
     return;
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
-  window_->UpdateIcon();
+  window_->UpdateIcon(app_icon_);
 
   RuntimeRegistry::Get()->RuntimeAppIconChanged(this);
 }

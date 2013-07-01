@@ -24,7 +24,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE { return window_; }
-  virtual void UpdateIcon() OVERRIDE;
+  virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
   virtual void UpdateTitle(const string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
@@ -46,7 +46,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
   // ActiveWindowWatcherXObserver implementation.
   virtual void ActiveWindowChanged(GdkWindow* active_window) OVERRIDE;
 
- protected:
+ private:
   // A set of helper functions.
   // TODO(hmin): Is possible to extract them into a util file?
   static void SetMinimumSize(GtkWindow* window, const gfx::Size& size);
