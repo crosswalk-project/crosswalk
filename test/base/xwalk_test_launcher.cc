@@ -14,7 +14,7 @@
 #include "base/string_util.h"
 #include "base/test/test_file_util.h"
 #include "cameo/runtime/app/cameo_main_delegate.h"
-#include "cameo/test/base/cameo_test_suite.h"
+#include "cameo/test/base/xwalk_test_suite.h"
 #include "content/public/app/content_main.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/test/test_launcher.h"
@@ -30,17 +30,17 @@
 
 const char kEmptyTestName[] = "InProcessBrowserTest.Empty";
 
-class CameoTestLauncherDelegate : public content::TestLauncherDelegate {
+class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  public:
-  CameoTestLauncherDelegate() {}
-  virtual ~CameoTestLauncherDelegate() {}
+  XWalkTestLauncherDelegate() {}
+  virtual ~XWalkTestLauncherDelegate() {}
 
   virtual std::string GetEmptyTestName() OVERRIDE {
     return kEmptyTestName;
   }
 
   virtual int RunTestSuite(int argc, char** argv) OVERRIDE {
-    return CameoTestSuite(argc, argv).Run();
+    return XWalkTestSuite(argc, argv).Run();
   }
 
   virtual bool AdjustChildProcessCommandLine(
@@ -94,10 +94,10 @@ class CameoTestLauncherDelegate : public content::TestLauncherDelegate {
   std::stack<linked_ptr<views::AcceleratorHandler> > handlers_;
 #endif
 
-  DISALLOW_COPY_AND_ASSIGN(CameoTestLauncherDelegate);
+  DISALLOW_COPY_AND_ASSIGN(XWalkTestLauncherDelegate);
 };
 
 int main(int argc, char** argv) {
-  CameoTestLauncherDelegate launcher_delegate;
+  XWalkTestLauncherDelegate launcher_delegate;
   return content::LaunchTests(&launcher_delegate, argc, argv);
 }

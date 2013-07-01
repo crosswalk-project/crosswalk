@@ -1,7 +1,7 @@
 {
   'targets': [
   {
-    'target_name': 'cameo_test_common',
+    'target_name': 'xwalk_test_common',
     'type': 'static_library',
     'dependencies': [
       'cameo_runtime',
@@ -24,10 +24,10 @@
       '..',
     ],
     'sources': [
-      'test/base/cameo_test_suite.cc',
-      'test/base/cameo_test_suite.h',
-      'test/base/cameo_test_utils.cc',
-      'test/base/cameo_test_utils.h',
+      'test/base/xwalk_test_suite.cc',
+      'test/base/xwalk_test_suite.h',
+      'test/base/xwalk_test_utils.cc',
+      'test/base/xwalk_test_utils.h',
     ],
     'conditions': [
       ['toolkit_uses_gtk == 1', {
@@ -47,13 +47,13 @@
         ],
       }],
     ],
-  },  # cameo_test_common target
+  },  # xwalk_test_common target
 
   {
     'target_name': 'cameo_unittest',
     'type': 'executable',
     'dependencies': [
-      'cameo_test_common',
+      'xwalk_test_common',
       '../testing/gtest.gyp:gtest',
     ],
     'include_dirs' : [
@@ -77,7 +77,7 @@
     'type': 'executable',
     'dependencies': [
       'cameo',
-      'cameo_test_common',
+      'xwalk_test_common',
       '../skia/skia.gyp:skia',
       '../testing/gtest.gyp:gtest',
       '../testing/gmock.gyp:gmock',
@@ -95,9 +95,9 @@
       'runtime/browser/cameo_switches_browsertest.cc',
       'runtime/browser/devtools/cameo_devtools_browsertest.cc',
       'runtime/browser/geolocation/cameo_geolocation_browsertest.cc',
-      'test/base/cameo_test_launcher.cc',
       'test/base/in_process_browser_test.cc',
       'test/base/in_process_browser_test.h',
+      'test/base/xwalk_test_launcher.cc',
     ],
     'includes': [
       'extensions/extensions_browsertests.gypi',

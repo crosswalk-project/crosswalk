@@ -10,8 +10,8 @@
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_download_manager_delegate.h"
 #include "cameo/runtime/browser/ui/color_chooser.h"
-#include "cameo/test/base/cameo_test_utils.h"
 #include "cameo/test/base/in_process_browser_test.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/browser/download/download_manager_impl.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/render_view_host.h"
@@ -62,11 +62,11 @@ class CameoDownloadBroswerTest : public InProcessBrowserTest {
 };
 
 IN_PROC_BROWSER_TEST_F(CameoDownloadBroswerTest, FileDownload) {
-  GURL url = cameo_test_utils::GetTestURL(
+  GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath().AppendASCII("download"),
       base::FilePath().AppendASCII("test.lib"));
   scoped_ptr<DownloadTestObserver> observer(CreateWaiter(runtime(), 1));
-  cameo_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
   observer->WaitForFinished();
   EXPECT_EQ(1u, observer->NumDownloadsSeenInState(DownloadItem::COMPLETE));
   std::vector<DownloadItem*> downloads;
@@ -75,7 +75,7 @@ IN_PROC_BROWSER_TEST_F(CameoDownloadBroswerTest, FileDownload) {
   ASSERT_EQ(DownloadItem::COMPLETE, downloads[0]->GetState());
   base::FilePath file(downloads[0]->GetFullPath());
   ASSERT_TRUE(file_util::ContentsEqual(
-      file, cameo_test_utils::GetTestFilePath(
+      file, xwalk_test_utils::GetTestFilePath(
           base::FilePath().AppendASCII("download"),
           base::FilePath().AppendASCII("test.lib"))));
 }

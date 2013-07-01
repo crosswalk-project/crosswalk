@@ -5,8 +5,8 @@
 #include "base/command_line.h"
 #include "base/utf_string_conversions.h"
 #include "cameo/runtime/browser/runtime.h"
-#include "cameo/test/base/cameo_test_utils.h"
 #include "cameo/test/base/in_process_browser_test.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/test/browser_test_utils.h"
@@ -22,7 +22,7 @@ class CameoDevToolsTest : public InProcessBrowserTest {
   CameoDevToolsTest() {}
   virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
     command_line->AppendSwitchASCII(switches::kRemoteDebuggingPort, "9222");
-    GURL url = cameo_test_utils::GetTestURL(
+    GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("test.html"));
     command_line->AppendArg(url.spec());
   }
