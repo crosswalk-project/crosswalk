@@ -19,8 +19,7 @@ static const int32_t kImplementedAPIVersion = 1;
 
 CameoExternalExtension::CameoExternalExtension(
       const base::FilePath& library_path)
-      : CameoExtension::CameoExtension()
-      , library_(library_path)
+      : library_(library_path)
       , wrapped_(0) {
   if (!library_.is_valid())
     return;
