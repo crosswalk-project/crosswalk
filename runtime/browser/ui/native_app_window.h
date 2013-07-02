@@ -19,20 +19,27 @@ class WebContents;
 
 namespace cameo {
 
-class Runtime;
+class NativeAppWindowDelegate {
+ public:
+  // Called when native app window is being destroyed.
+  virtual void OnWindowDestroyed() {}
+
+ protected:
+  virtual ~NativeAppWindowDelegate() {}
+};
 
 // Base window class for native application.
 class NativeAppWindow {
  public:
   struct CreateParams {
     CreateParams()
-        : runtime(NULL),
+        : delegate(NULL),
           web_contents(NULL),
           state(ui::SHOW_STATE_NORMAL),
           resizable(true) {
     }
-    // The Runtime instance owning the app window.
-    Runtime* runtime;
+    // Delegate for this window.
+    NativeAppWindowDelegate* delegate;
     // WebContents which the content will be displayed in this window.
     content::WebContents* web_contents;
     // The initial window bounds, empty means default bound will be used.

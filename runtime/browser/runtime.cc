@@ -77,7 +77,7 @@ Runtime::Runtime(content::WebContents* web_contents)
   }
 
   NativeAppWindow::CreateParams params;
-  params.runtime = this;
+  params.delegate = this;
   params.web_contents = web_contents_.get();
   params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -300,6 +300,10 @@ void Runtime::Observe(int type,
       window_->UpdateTitle(text);
     }
   }
+}
+
+void Runtime::OnWindowDestroyed() {
+  Close();
 }
 
 void Runtime::RequestMediaAccessPermission(

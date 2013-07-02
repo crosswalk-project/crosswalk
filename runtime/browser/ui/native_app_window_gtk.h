@@ -61,9 +61,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
   CHROMEGTK_CALLBACK_1(NativeAppWindowGtk, gboolean, OnWindowDeleteEvent,
                        GdkEvent*);
 
-  // Weak reference of the associated Runtime instance.
-  Runtime* runtime_;
-
+  NativeAppWindowDelegate* delegate_;
   content::WebContents* web_contents_;
 
   gfx::Size minimum_size_;

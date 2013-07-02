@@ -84,9 +84,7 @@ class NativeAppWindowWin : public NativeAppWindow,
   virtual void OnWidgetBoundsChanged(
       views::Widget* widget, const gfx::Rect& new_bounds) OVERRIDE;
 
-  // Weak reference of the associated Runtime instance.
-  Runtime* runtime_;
-
+  NativeAppWindowDelegate* delegate_;
   content::WebContents* web_contents_;
 
   views::WebView* web_view_;

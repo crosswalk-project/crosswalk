@@ -7,7 +7,6 @@
 #include <gdk/gdk.h>
 
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/common/cameo_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
@@ -34,7 +33,7 @@ const double kGtkCursorBlinkCycleFactor = 2000.0;
 
 NativeAppWindowGtk::NativeAppWindowGtk(
     const NativeAppWindow::CreateParams& params)
-    : runtime_(params.runtime),
+    : delegate_(params.delegate),
       web_contents_(params.web_contents),
       minimum_size_(params.minimum_size),
       maximum_size_(params.maximum_size),
@@ -217,7 +216,7 @@ void NativeAppWindowGtk::SetWebKitColorStyle(GtkWindow* window) {
 
 // Callback for when the main window is destroyed.
 gboolean NativeAppWindowGtk::OnWindowDestroyed(GtkWidget* window) {
-  runtime_->Close();
+  delegate_->OnWindowDestroyed();
   delete this;
   return FALSE;
 }
