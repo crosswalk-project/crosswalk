@@ -64,8 +64,9 @@ void CameoBrowserMainParts::RegisterExternalExtensions() {
     return;
   }
 
-  base::FilePath where(startup_url_.path());
-  where.Append("extensions");
+  base::FilePath where(
+      base::FilePath::FromUTF8Unsafe(startup_url_.path()));
+  where = where.Append(FILE_PATH_LITERAL("extensions"));
   // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
   // extension for the current platform.
   const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
