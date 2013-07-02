@@ -66,8 +66,6 @@ class NativeAppWindowGtk : public NativeAppWindow,
 
   content::WebContents* web_contents_;
 
-  string16 title_;
-
   gfx::Size minimum_size_;
   gfx::Size maximum_size_;
   bool is_fullscreen_;
