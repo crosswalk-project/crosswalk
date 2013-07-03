@@ -24,7 +24,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE { return window_; }
-  virtual void UpdateIcon() OVERRIDE;
+  virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
   virtual void UpdateTitle(const string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
@@ -46,7 +46,7 @@ class NativeAppWindowGtk : public NativeAppWindow,
   // ActiveWindowWatcherXObserver implementation.
   virtual void ActiveWindowChanged(GdkWindow* active_window) OVERRIDE;
 
- protected:
+ private:
   // A set of helper functions.
   // TODO(hmin): Is possible to extract them into a util file?
   static void SetMinimumSize(GtkWindow* window, const gfx::Size& size);
@@ -61,10 +61,8 @@ class NativeAppWindowGtk : public NativeAppWindow,
   CHROMEGTK_CALLBACK_1(NativeAppWindowGtk, gboolean, OnWindowDeleteEvent,
                        GdkEvent*);
 
-  // Weak reference of the associated Runtime instance.
-  Runtime* runtime_;
-
-  string16 title_;
+  NativeAppWindowDelegate* delegate_;
+  content::WebContents* web_contents_;
 
   gfx::Size minimum_size_;
   gfx::Size maximum_size_;

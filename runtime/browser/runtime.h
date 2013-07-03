@@ -35,7 +35,8 @@ class RuntimeContext;
 // WebContents and native app window.
 class Runtime : public content::WebContentsDelegate,
                 public content::WebContentsObserver,
-                public content::NotificationObserver {
+                public content::NotificationObserver,
+                public NativeAppWindowDelegate {
  public:
   // Create a new Runtime instance with the given browsing context.
   static Runtime* Create(RuntimeContext* runtime_context, const GURL& url);
@@ -120,6 +121,9 @@ class Runtime : public content::WebContentsDelegate,
   virtual void Observe(int type,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
+
+  // NativeAppWindowDelegate implementation.
+  virtual void OnWindowDestroyed() OVERRIDE;
 
   // The browsing context.
   cameo::RuntimeContext* runtime_context_;

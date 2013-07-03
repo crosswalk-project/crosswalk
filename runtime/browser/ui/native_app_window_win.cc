@@ -4,7 +4,6 @@
 
 #include "cameo/runtime/browser/ui/native_app_window_win.h"
 
-#include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/common/cameo_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
@@ -25,13 +24,13 @@ namespace cameo {
 
 NativeAppWindowWin::NativeAppWindowWin(
     const NativeAppWindow::CreateParams& create_params)
-  : runtime_(create_params.runtime),
+  : delegate_(create_params.delegate),
+    web_contents_(create_params.web_contents),
     web_view_(NULL),
     is_fullscreen_(false),
     minimum_size_(create_params.minimum_size),
     maximum_size_(create_params.maximum_size),
     resizable_(create_params.resizable) {
-  DCHECK(runtime_);
   window_ = new views::Widget;
   views::Widget::InitParams params(views::Widget::InitParams::TYPE_WINDOW);
   params.delegate = this;
@@ -58,7 +57,8 @@ gfx::NativeWindow NativeAppWindowWin::GetNativeWindow() const {
   return window_->GetNativeWindow();
 }
 
-void NativeAppWindowWin::UpdateIcon() {
+void NativeAppWindowWin::UpdateIcon(const gfx::Image& icon) {
+  icon_ = icon;
   window_->UpdateWindowIcon();
 }
 
@@ -164,7 +164,7 @@ string16 NativeAppWindowWin::GetWindowTitle() const {
 
 void NativeAppWindowWin::DeleteDelegate() {
   window_->RemoveObserver(this);
-  runtime_->Close();
+  delegate_->OnWindowDestroyed();
   delete this;
 }
 
@@ -173,8 +173,7 @@ gfx::ImageSkia NativeAppWindowWin::GetWindowAppIcon() {
 }
 
 gfx::ImageSkia NativeAppWindowWin::GetWindowIcon() {
-  gfx::Image app_icon = runtime_->app_icon();
-  return *app_icon.ToImageSkia();
+  return *icon_.ToImageSkia();
 }
 
 bool NativeAppWindowWin::ShouldShowWindowTitle() const {
@@ -224,7 +223,7 @@ void NativeAppWindowWin::ViewHierarchyChanged(
     SetLayoutManager(layout);
 
     web_view_ = new views::WebView(NULL);
-    web_view_->SetWebContents(runtime_->web_contents());
+    web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
   }
 }

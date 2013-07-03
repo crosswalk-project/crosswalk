@@ -77,7 +77,8 @@ Runtime::Runtime(content::WebContents* web_contents)
   }
 
   NativeAppWindow::CreateParams params;
-  params.runtime = this;
+  params.delegate = this;
+  params.web_contents = web_contents_.get();
   params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kFullscreen)) {
@@ -106,7 +107,7 @@ Runtime::~Runtime() {
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
   window_ = NativeAppWindow::Create(params);
   if (!app_icon_.IsEmpty())
-    window_->UpdateIcon();
+    window_->UpdateIcon(app_icon_);
   window_->Show();
 }
 
@@ -281,7 +282,7 @@ void Runtime::DidDownloadFavicon(int id,
   if (bitmaps.empty())
     return;
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
-  window_->UpdateIcon();
+  window_->UpdateIcon(app_icon_);
 
   RuntimeRegistry::Get()->RuntimeAppIconChanged(this);
 }
@@ -299,6 +300,10 @@ void Runtime::Observe(int type,
       window_->UpdateTitle(text);
     }
   }
+}
+
+void Runtime::OnWindowDestroyed() {
+  Close();
 }
 
 void Runtime::RequestMediaAccessPermission(

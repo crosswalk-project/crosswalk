@@ -29,7 +29,7 @@ class NativeAppWindowWin : public NativeAppWindow,
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
-  virtual void UpdateIcon() OVERRIDE;
+  virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
   virtual void UpdateTitle(const string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
@@ -48,7 +48,7 @@ class NativeAppWindowWin : public NativeAppWindow,
   virtual bool IsMinimized() const OVERRIDE;
   virtual bool IsFullscreen() const OVERRIDE;
 
- protected:
+ private:
   // WidgetDelegate implementation.
   virtual views::View* GetInitiallyFocusedView() OVERRIDE;
   virtual views::View* GetContentsView() OVERRIDE;
@@ -84,12 +84,13 @@ class NativeAppWindowWin : public NativeAppWindow,
   virtual void OnWidgetBoundsChanged(
       views::Widget* widget, const gfx::Rect& new_bounds) OVERRIDE;
 
-  // Weak reference of the associated Runtime instance.
-  Runtime* runtime_;
+  NativeAppWindowDelegate* delegate_;
+  content::WebContents* web_contents_;
 
   views::WebView* web_view_;
   views::Widget* window_;
   string16 title_;
+  gfx::Image icon_;
 
   bool is_fullscreen_;
   gfx::Size minimum_size_;
