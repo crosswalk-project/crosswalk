@@ -152,12 +152,12 @@
             '../build/linux/system.gyp:fontconfig',
           ],
         }],  # OS=="linux"
-        ['os_posix==1 and linux_use_tcmalloc==1', {
+        ['os_posix==1 and OS != "mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
             '../base/allocator/allocator.gyp:allocator',
           ],
-        }],  # os_posix==1 and linux_use_tcmalloc==1
+        }],  # os_posix==1 and OS != "mac" and linux_use_tcmalloc==1
         ['use_custom_freetype==1', {
           'dependencies': [
              '../third_party/freetype2/freetype2.gyp:freetype2',
