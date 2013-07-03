@@ -31,10 +31,10 @@ class XWalkExternalExtension : public XWalkExtension {
   explicit XWalkExternalExtension(const base::FilePath& library_path);
   virtual ~XWalkExternalExtension();
 
-  virtual const char* GetJavaScriptAPI();
+  virtual const char* GetJavaScriptAPI() OVERRIDE;
 
   virtual XWalkExtension::Context* CreateContext(
-      const XWalkExtension::PostMessageCallback& post_message);
+      const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
 
   bool is_valid();
 
@@ -51,7 +51,7 @@ class XWalkExternalExtension : public XWalkExtension {
         XWalkExternalExtension* external,
         const XWalkExtension::PostMessageCallback& post_message,
         CXWalkExtensionContext* context);
-    ~ExternalContext();
+    virtual ~ExternalContext();
 
     virtual void HandleMessage(const std::string& msg) OVERRIDE;
   };

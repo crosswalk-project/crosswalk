@@ -100,6 +100,7 @@
         'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
+        'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window_win.cc',
         'runtime/browser/ui/native_app_window_win.h',
         'runtime/browser/ui/native_app_window_gtk.cc',

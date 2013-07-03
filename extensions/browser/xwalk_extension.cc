@@ -11,5 +11,11 @@ XWalkExtension::XWalkExtension() {}
 
 XWalkExtension::~XWalkExtension() {}
 
+XWalkExtension::Context::Context(const PostMessageCallback& post_message)
+    : post_message_(post_message) {
+}
+
+XWalkExtension::Context::~Context() {}
+
 }  // namespace extensions
 }  // namespace xwalk
