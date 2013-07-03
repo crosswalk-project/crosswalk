@@ -82,6 +82,14 @@ def additional_include_files(args=[]):
 if __name__ == '__main__':
   args = sys.argv[1:]
 
+  extmedia = 1 # Default automatically support thirdparty codecs externsion.
+  if extmedia:
+    # Support external Media Types capability such as MP4/MP3. but play such files
+    # need the Third-party Codecs be added by IP owner dynamically.
+    args.append('-Dproprietary_codecs=1')
+  else:
+    print 'Refuse external Media Types. No capability for MP4/MP3 playback even such codecs be added.\n'
+
   # Use the Psyco JIT if available.
   if psyco:
     psyco.profile()
