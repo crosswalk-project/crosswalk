@@ -68,17 +68,9 @@ class CameoExtensionRunner {
 
   void CreateContext() {
     CHECK(CalledOnExtensionThread());
-
-    CameoExtension::Context* context = extension_->CreateContext(base::Bind(
-          &CameoExtensionRunner::PostMessage, base::Unretained(this)));
-    if (!context) {
-      VLOG(0) << "Could not create context for extension \"" <<
-            extension_->name() << "\". Destroying extension thread.";
-      delete this;
-      return;
-    }
-
-    context_.reset(context);
+    context_.reset(extension_->CreateContext(
+        base::Bind(&CameoExtensionRunner::PostMessage,
+                   base::Unretained(this))));
   }
 
   void DestroyContext() {

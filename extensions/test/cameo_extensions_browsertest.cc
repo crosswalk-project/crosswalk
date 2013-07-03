@@ -16,9 +16,7 @@ using cameo::extensions::CameoExtensionService;
 
 class EchoExtension : public CameoExtension {
  public:
-  EchoExtension() : CameoExtension() {
-    set_name("echo");
-  }
+  EchoExtension() : CameoExtension("echo") {}
 
   virtual const char* GetJavaScriptAPI() {
     static const char* kAPI =
