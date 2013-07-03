@@ -7,7 +7,6 @@
 #include <gdk/gdk.h>
 
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/common/cameo_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
@@ -34,7 +33,8 @@ const double kGtkCursorBlinkCycleFactor = 2000.0;
 
 NativeAppWindowGtk::NativeAppWindowGtk(
     const NativeAppWindow::CreateParams& params)
-    : runtime_(params.runtime),
+    : delegate_(params.delegate),
+      web_contents_(params.web_contents),
       minimum_size_(params.minimum_size),
       maximum_size_(params.maximum_size),
       is_fullscreen_(false),
@@ -46,8 +46,7 @@ NativeAppWindowGtk::NativeAppWindowGtk(
   gtk_widget_show(vbox_);
   gtk_container_add(GTK_CONTAINER(window_), vbox_);
 
-  gfx::NativeView native_view =
-     runtime_->web_contents()->GetView()->GetNativeView();
+  gfx::NativeView native_view = web_contents_->GetView()->GetNativeView();
   gtk_widget_show(native_view);
   gtk_container_add(GTK_CONTAINER(vbox_), native_view);
 
@@ -90,9 +89,8 @@ NativeAppWindowGtk::~NativeAppWindowGtk() {
   ui::ActiveWindowWatcherX::RemoveObserver(this);
 }
 
-void NativeAppWindowGtk::UpdateIcon() {
-  gfx::Image app_icon = runtime_->app_icon();
-  gtk_window_set_icon(window_, app_icon.ToGdkPixbuf());
+void NativeAppWindowGtk::UpdateIcon(const gfx::Image& icon) {
+  gtk_window_set_icon(window_, icon.ToGdkPixbuf());
 }
 
 void NativeAppWindowGtk::UpdateTitle(const string16& title) {
@@ -201,7 +199,7 @@ bool NativeAppWindowGtk::IsFullscreen() const {
 void NativeAppWindowGtk::SetWebKitColorStyle(GtkWindow* window) {
   // Set WebKit's styles according to current GTK theme.
   content::RendererPreferences* prefs =
-      runtime_->web_contents()->GetMutableRendererPrefs();
+      web_contents_->GetMutableRendererPrefs();
   GtkStyle* frame_style = gtk_rc_get_style(GTK_WIDGET(window));
   prefs->focus_ring_color =
       gfx::GdkColorToSkColor(frame_style->bg[GTK_STATE_SELECTED]);
@@ -218,7 +216,7 @@ void NativeAppWindowGtk::SetWebKitColorStyle(GtkWindow* window) {
 
 // Callback for when the main window is destroyed.
 gboolean NativeAppWindowGtk::OnWindowDestroyed(GtkWidget* window) {
-  runtime_->Close();
+  delegate_->OnWindowDestroyed();
   delete this;
   return FALSE;
 }
@@ -231,8 +229,7 @@ gboolean NativeAppWindowGtk::OnWindowState(GtkWidget* window,
 
   if (is_fullscreen_ && !(state_ & GDK_WINDOW_STATE_FULLSCREEN)) {
     is_fullscreen_ = false;
-    content::RenderViewHost* rvh =
-        runtime_->web_contents()->GetRenderViewHost();
+    content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
     if (rvh)
       rvh->ExitFullscreen();
   }

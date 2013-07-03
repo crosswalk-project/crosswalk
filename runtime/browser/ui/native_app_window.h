@@ -8,25 +8,40 @@
 #include "base/compiler_specific.h"
 #include "base/string16.h"
 #include "ui/base/ui_base_types.h"
+#include "ui/gfx/image/image.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/size.h"
 
+namespace content {
+class WebContents;
+}
+
 namespace cameo {
 
-class Runtime;
+class NativeAppWindowDelegate {
+ public:
+  // Called when native app window is being destroyed.
+  virtual void OnWindowDestroyed() {}
+
+ protected:
+  virtual ~NativeAppWindowDelegate() {}
+};
 
 // Base window class for native application.
 class NativeAppWindow {
  public:
   struct CreateParams {
     CreateParams()
-        : runtime(NULL),
+        : delegate(NULL),
+          web_contents(NULL),
           state(ui::SHOW_STATE_NORMAL),
           resizable(true) {
     }
-    // The Runtime instance owning the app window.
-    Runtime* runtime;
+    // Delegate for this window.
+    NativeAppWindowDelegate* delegate;
+    // WebContents which the content will be displayed in this window.
+    content::WebContents* web_contents;
     // The initial window bounds, empty means default bound will be used.
     gfx::Rect bounds;
     // The minimum window size. The window can only be resized to smaller if
@@ -48,7 +63,7 @@ class NativeAppWindow {
   virtual gfx::NativeWindow GetNativeWindow() const = 0;
   // Returns true if the window has no frame.
   // Called when the icon of the window changes.
-  virtual void UpdateIcon() = 0;
+  virtual void UpdateIcon(const gfx::Image& icon) = 0;
   // Called when the title of the window changes.
   virtual void UpdateTitle(const string16& title) = 0;
   // Returns the nonmaximized bounds of the window (even if the window is
