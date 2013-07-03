@@ -12,7 +12,6 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view_delegate.h"
 #include "content/public/common/main_function_params.h"
 #include "net/url_request/url_request_context_getter.h"
 
