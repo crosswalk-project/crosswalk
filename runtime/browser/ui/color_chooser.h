@@ -8,7 +8,7 @@
 #include "content/public/browser/color_chooser.h"
 #include "third_party/skia/include/core/SkColor.h"
 
-class CameoFormInputTest;
+class XWalkFormInputTest;
 
 namespace cameo {
 
@@ -20,7 +20,7 @@ class ColorChooser : public content::ColorChooser {
   static SkColor GetColorForBrowserTest();
 
  private:
-  friend class ::CameoFormInputTest;
+  friend class ::XWalkFormInputTest;
   // Set the color will be chosen for test purpose
   static void SetColorForBrowserTest(SkColor color);
 };

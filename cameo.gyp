@@ -323,8 +323,8 @@
       'type': 'none',
       'dependencies': [
         'cameo',
-        'cameo_browsertest',
-        'cameo_unittest',
+        'xwalk_browsertest',
+        'xwalk_unittest',
       ],
     },
   ],
