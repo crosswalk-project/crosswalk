@@ -1,5 +1,5 @@
 ## Introduction
-Cameo is an app runtime based on Chromium.
+Crosswalk is an app runtime based on Chromium.
 
 It's developed by Intel Open Source Technology Center.
 
@@ -9,11 +9,11 @@ Check out our [Wiki](https://github.com/otcshare/cameo/wiki/).
 
 ## Community
 
-How to use Cameo you can ask on the mailing list : http://linux.intel.com/mailman/listinfo/cameo-help
+How to use Crosswalk you can ask on the mailing list : http://linux.intel.com/mailman/listinfo/cameo-help
 
-Development of Cameo : http://linux.intel.com/mailman/listinfo/cameo-dev
+Development of Crosswalk : http://linux.intel.com/mailman/listinfo/cameo-dev
 
-We are also on IRC : #cameo on otcirc.jf.intel.com:6697
+We are also on IRC : #crosswalk on otcirc.jf.intel.com:6697
 
 ## License
 
