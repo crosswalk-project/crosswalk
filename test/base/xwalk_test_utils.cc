@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/test/base/cameo_test_utils.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 
 #include "base/command_line.h"
 #include "base/environment.h"
@@ -29,7 +29,7 @@ using content::NavigationController;
 using content::TestNavigationObserver;
 using content::WebContents;
 
-namespace cameo_test_utils {
+namespace xwalk_test_utils {
 
 void PrepareBrowserCommandLineForTests(CommandLine* command_line) {
   // Enable info level logging by default so that we can see when bad
@@ -78,4 +78,4 @@ void NavigateToURL(cameo::Runtime* runtime, const GURL& url) {
       content::GetQuitTaskForRunLoop(&run_loop));
 }
 
-}  // namespace cameo_test_utils
+}  // namespace xwalk_test_utils

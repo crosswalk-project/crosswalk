@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_TEST_BASE_CAMEO_TEST_UTILS_H_
-#define CAMEO_TEST_BASE_CAMEO_TEST_UTILS_H_
+#ifndef CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_
+#define CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_
 
 #include <string>
 
@@ -18,7 +18,7 @@ class Runtime;
 class CommandLine;
 
 // A set of utilities for test code that launches separate processes.
-namespace cameo_test_utils {
+namespace xwalk_test_utils {
 
 // Appends browser switches to provided |command_line| to be used
 // when running under tests.
@@ -40,6 +40,6 @@ base::FilePath GetTestFilePath(const base::FilePath& dir,
 // navigation completes.
 void NavigateToURL(cameo::Runtime* runtime, const GURL& url);
 
-}  // namespace cameo_test_utils
+}  // namespace xwalk_test_utils
 
-#endif  // CAMEO_TEST_BASE_CAMEO_TEST_UTILS_H_
+#endif  // CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_

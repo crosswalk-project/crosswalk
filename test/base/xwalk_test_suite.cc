@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/test/base/cameo_test_suite.h"
+#include "cameo/test/base/xwalk_test_suite.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
@@ -38,9 +38,9 @@ void RemoveSharedMemoryFile(const std::string& filename) {
 #endif
 }
 
-class CameoTestSuiteInitializer : public testing::EmptyTestEventListener {
+class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
  public:
-  CameoTestSuiteInitializer() {
+  XWalkTestSuiteInitializer() {
   }
 
   virtual void OnTestStart(const testing::TestInfo& test_info) OVERRIDE {
@@ -61,19 +61,19 @@ class CameoTestSuiteInitializer : public testing::EmptyTestEventListener {
   scoped_ptr<cameo::CameoContentClient> content_client_;
   scoped_ptr<cameo::CameoContentBrowserClient> browser_content_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoTestSuiteInitializer);
+  DISALLOW_COPY_AND_ASSIGN(XWalkTestSuiteInitializer);
 };
 
 }  // namespace
 
-CameoTestSuite::CameoTestSuite(int argc, char** argv)
+XWalkTestSuite::XWalkTestSuite(int argc, char** argv)
     : content::ContentTestSuiteBase(argc, argv) {
 }
 
-CameoTestSuite::~CameoTestSuite() {
+XWalkTestSuite::~XWalkTestSuite() {
 }
 
-void CameoTestSuite::Initialize() {
+void XWalkTestSuite::Initialize() {
   cameo::RegisterPathProvider();
 
   // Initialize after overriding paths as some content paths depend on correct
@@ -95,14 +95,14 @@ void CameoTestSuite::Initialize() {
 
   testing::TestEventListeners& listeners =
       testing::UnitTest::GetInstance()->listeners();
-  listeners.Append(new CameoTestSuiteInitializer);
+  listeners.Append(new XWalkTestSuiteInitializer);
 }
 
-content::ContentClient* CameoTestSuite::CreateClientForInitialization() {
+content::ContentClient* XWalkTestSuite::CreateClientForInitialization() {
   return new cameo::CameoContentClient();
 }
 
-void CameoTestSuite::Shutdown() {
+void XWalkTestSuite::Shutdown() {
   ResourceBundle::CleanupSharedInstance();
 
   base::StatsTable::set_current(NULL);

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_TEST_BASE_CAMEO_TEST_SUITE_H_
-#define CAMEO_TEST_BASE_CAMEO_TEST_SUITE_H_
+#ifndef CAMEO_TEST_BASE_XWALK_TEST_SUITE_H_
+#define CAMEO_TEST_BASE_XWALK_TEST_SUITE_H_
 
 #include <string>
 
@@ -15,10 +15,10 @@ namespace base {
 class StatsTable;
 }
 
-class CameoTestSuite : public content::ContentTestSuiteBase {
+class XWalkTestSuite : public content::ContentTestSuiteBase {
  public:
-  CameoTestSuite(int argc, char** argv);
-  virtual ~CameoTestSuite();
+  XWalkTestSuite(int argc, char** argv);
+  virtual ~XWalkTestSuite();
 
  protected:
   virtual void Initialize() OVERRIDE;
@@ -30,4 +30,4 @@ class CameoTestSuite : public content::ContentTestSuiteBase {
   scoped_ptr<base::StatsTable> stats_table_;
 };
 
-#endif  // CAMEO_TEST_BASE_CAMEO_TEST_SUITE_H_
+#endif  // CAMEO_TEST_BASE_XWALK_TEST_SUITE_H_

@@ -18,8 +18,8 @@
 #include "cameo/runtime/common/cameo_paths.h"
 #include "cameo/runtime/common/cameo_switches.h"
 #include "cameo/runtime/renderer/cameo_content_renderer_client.h"
-#include "cameo/test/base/cameo_test_suite.h"
-#include "cameo/test/base/cameo_test_utils.h"
+#include "cameo/test/base/xwalk_test_suite.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/common/content_switches.h"
@@ -81,7 +81,7 @@ void InProcessBrowserTest::SetUp() {
 
 void InProcessBrowserTest::PrepareTestCommandLine(CommandLine* command_line) {
   // Propagate commandline settings from test_launcher_utils.
-  cameo_test_utils::PrepareBrowserCommandLineForTests(command_line);
+  xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
 }
 
 void InProcessBrowserTest::TearDown() {
@@ -129,7 +129,7 @@ bool InProcessBrowserTest::CreateDataPathDir() {
       return false;
     }
   }
-  return cameo_test_utils::OverrideDataPathDir(data_path_dir);
+  return xwalk_test_utils::OverrideDataPathDir(data_path_dir);
 }
 
 void InProcessBrowserTest::QuitAllRuntimes() {
