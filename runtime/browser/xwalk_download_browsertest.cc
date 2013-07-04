@@ -31,18 +31,18 @@ using content::BrowserContext;
 
 namespace {
 
-static DownloadManagerImpl* DownloadManagerForCameo(Runtime* runtime) {
+static DownloadManagerImpl* DownloadManagerForXWalk(Runtime* runtime) {
   return static_cast<DownloadManagerImpl*>(
       BrowserContext::GetDownloadManager(
           runtime->web_contents()->GetBrowserContext()));
 }
 
-class CameoDownloadBroswerTest : public InProcessBrowserTest {
+class XWalkDownloadBroswerTest : public InProcessBrowserTest {
  public:
   virtual void SetUpOnMainThread() OVERRIDE {
     ASSERT_TRUE(downloads_directory_.CreateUniqueTempDir());
 
-    DownloadManagerImpl* manager = DownloadManagerForCameo(runtime());
+    DownloadManagerImpl* manager = DownloadManagerForXWalk(runtime());
     RuntimeDownloadManagerDelegate* delegate =
         static_cast<RuntimeDownloadManagerDelegate*>(manager->GetDelegate());
     delegate->SetDownloadBehaviorForTesting(downloads_directory_.path());
@@ -51,7 +51,7 @@ class CameoDownloadBroswerTest : public InProcessBrowserTest {
   // Create a DownloadTestObserverTerminal that will wait for the
   // specified number of downloads to finish.
   DownloadTestObserver* CreateWaiter(Runtime* runtime, int num_downloads) {
-    DownloadManager* download_manager = DownloadManagerForCameo(runtime);
+    DownloadManager* download_manager = DownloadManagerForXWalk(runtime);
     return new DownloadTestObserverTerminal(download_manager, num_downloads,
         DownloadTestObserver::ON_DANGEROUS_DOWNLOAD_FAIL);
   }
@@ -61,7 +61,7 @@ class CameoDownloadBroswerTest : public InProcessBrowserTest {
   base::ScopedTempDir downloads_directory_;
 };
 
-IN_PROC_BROWSER_TEST_F(CameoDownloadBroswerTest, FileDownload) {
+IN_PROC_BROWSER_TEST_F(XWalkDownloadBroswerTest, FileDownload) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath().AppendASCII("download"),
       base::FilePath().AppendASCII("test.lib"));
@@ -70,7 +70,7 @@ IN_PROC_BROWSER_TEST_F(CameoDownloadBroswerTest, FileDownload) {
   observer->WaitForFinished();
   EXPECT_EQ(1u, observer->NumDownloadsSeenInState(DownloadItem::COMPLETE));
   std::vector<DownloadItem*> downloads;
-  DownloadManagerForCameo(runtime())->GetAllDownloads(&downloads);
+  DownloadManagerForXWalk(runtime())->GetAllDownloads(&downloads);
   ASSERT_EQ(1u, downloads.size());
   ASSERT_EQ(DownloadItem::COMPLETE, downloads[0]->GetState());
   base::FilePath file(downloads[0]->GetFullPath());

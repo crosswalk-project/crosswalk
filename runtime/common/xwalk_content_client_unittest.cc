@@ -58,6 +58,6 @@ void CheckUserAgentStringOrdering(bool mobile_device) {
 
 }  // namespace
 
-TEST(CameoContentClientTest, Basic) {
+TEST(XWalkContentClientTest, Basic) {
   CheckUserAgentStringOrdering(false);
 }
