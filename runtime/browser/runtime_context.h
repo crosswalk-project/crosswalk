@@ -22,6 +22,7 @@ class DownloadManagerDelegate;
 
 namespace cameo {
 
+class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
 
 class RuntimeContext : public content::BrowserContext {
@@ -66,6 +67,7 @@ class RuntimeContext : public content::BrowserContext {
   void InitWhileIOAllowed();
 
   scoped_ptr<RuntimeResourceContext> resource_context_;
+  scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
