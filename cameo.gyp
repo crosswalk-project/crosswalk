@@ -77,6 +77,8 @@
         'runtime/browser/runtime.h',
         'runtime/browser/runtime_context.cc',
         'runtime/browser/runtime_context.h',
+        'runtime/browser/runtime_download_manager_delegate.cc',
+        'runtime/browser/runtime_download_manager_delegate.h',
         'runtime/browser/runtime_file_select_helper.cc',
         'runtime/browser/runtime_file_select_helper.h',
         'runtime/browser/runtime_network_delegate.cc',
