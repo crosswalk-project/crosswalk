@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_SERVICE_H_
-#define CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_SERVICE_H_
+#ifndef CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
+#define CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 
 #include <map>
 #include <string>
@@ -18,34 +18,34 @@ class WebContents;
 namespace cameo {
 namespace extensions {
 
-class CameoExtension;
-class CameoExtensionWebContentsHandler;
+class XWalkExtension;
+class XWalkExtensionWebContentsHandler;
 
-// This is the entry point for Cameo extensions. Its responsible for keeping
+// This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
 // created. It's life time follows the Browser process itself.
-class CameoExtensionService : public RuntimeRegistryObserver {
+class XWalkExtensionService : public RuntimeRegistryObserver {
  public:
-  explicit CameoExtensionService(RuntimeRegistry* runtime_registry);
-  virtual ~CameoExtensionService();
+  explicit XWalkExtensionService(RuntimeRegistry* runtime_registry);
+  virtual ~XWalkExtensionService();
 
   // Takes |extension| ownership. Returns false if it couldn't be registered
   // because another one with the same name exists, otherwise returns true.
-  bool RegisterExtension(CameoExtension* extension);
+  bool RegisterExtension(XWalkExtension* extension);
 
   // To be called when a new RenderProcessHost is created, will plug the
   // extension system to that render process. See
-  // CameoContentBrowserClient::RenderProcessHostCreated().
+  // XWalkContentBrowserClient::RenderProcessHostCreated().
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
-  CameoExtension* GetExtensionForName(const std::string& name);
+  XWalkExtension* GetExtensionForName(const std::string& name);
 
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
-  typedef base::Callback<void(CameoExtensionService* extension_service)>
+  typedef base::Callback<void(XWalkExtensionService* extension_service)>
       RegisterExtensionsCallback;
   static void SetRegisterExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
@@ -55,7 +55,7 @@ class CameoExtensionService : public RuntimeRegistryObserver {
 
   void CreateWebContentsHandler(content::WebContents* web_contents);
 
-  typedef std::map<std::string, CameoExtension*> ExtensionMap;
+  typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
 
   RuntimeRegistry* runtime_registry_;
@@ -63,10 +63,10 @@ class CameoExtensionService : public RuntimeRegistryObserver {
   // FIXME(cmarcelo): For now we support only one render process host.
   content::RenderProcessHost* render_process_host_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoExtensionService);
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
 
 }  // namespace extensions
 }  // namespace cameo
 
-#endif  // CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_SERVICE_H_
+#endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_

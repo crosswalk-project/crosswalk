@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/browser/cameo_extension.h"
+#include "cameo/extensions/browser/xwalk_extension.h"
 
 namespace cameo {
 namespace extensions {
 
-CameoExtension::CameoExtension() {}
+XWalkExtension::XWalkExtension() {}
 
-CameoExtension::~CameoExtension() {}
+XWalkExtension::~XWalkExtension() {}
 
 }  // namespace extensions
 }  // namespace cameo

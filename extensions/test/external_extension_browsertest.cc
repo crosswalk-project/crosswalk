@@ -5,16 +5,16 @@
 #include "base/native_library.h"
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
-#include "cameo/extensions/browser/cameo_extension_external.h"
-#include "cameo/extensions/browser/cameo_extension_service.h"
-#include "cameo/extensions/test/cameo_extensions_test_base.h"
+#include "cameo/extensions/browser/xwalk_extension_external.h"
+#include "cameo/extensions/browser/xwalk_extension_service.h"
+#include "cameo/extensions/test/xwalk_extensions_test_base.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
-using cameo::extensions::CameoExtensionService;
-using cameo::extensions::CameoExternalExtension;
+using cameo::extensions::XWalkExtensionService;
+using cameo::extensions::XWalkExternalExtension;
 
 static base::FilePath GetNativeLibraryFilePath(const char* name) {
   base::string16 library_name = base::GetNativeLibraryName(UTF8ToUTF16(name));
@@ -25,15 +25,15 @@ static base::FilePath GetNativeLibraryFilePath(const char* name) {
 #endif
 }
 
-class ExternalExtensionTest : public CameoExtensionsTestBase {
+class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(CameoExtensionService* extension_service) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
     base::FilePath extension_file;
     PathService::Get(base::DIR_EXE, &extension_file);
     extension_file = extension_file.Append(
         GetNativeLibraryFilePath("external_extension_sample"));
-    CameoExternalExtension* extension =
-        new CameoExternalExtension(extension_file);
+    XWalkExternalExtension* extension =
+        new XWalkExternalExtension(extension_file);
     ASSERT_TRUE(extension->is_valid());
     extension_service->RegisterExtension(extension);
   }

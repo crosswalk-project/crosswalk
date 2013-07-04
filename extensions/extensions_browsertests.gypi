@@ -1,9 +1,9 @@
 {
   'sources': [
-    'test/cameo_extensions_browsertest.cc',
+    'test/xwalk_extensions_browsertest.cc',
     'test/external_extension_browsertest.cc',
-    'test/cameo_extensions_test_base.cc',
-    'test/cameo_extensions_test_base.h',
+    'test/xwalk_extensions_test_base.cc',
+    'test/xwalk_extensions_test_base.h',
   ],
 
   'dependencies': [

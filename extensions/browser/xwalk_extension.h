@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_H_
-#define CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_H_
+#ifndef CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_H_
+#define CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_H_
 
 #include <stdint.h>
 #include <string>
@@ -14,16 +14,16 @@
 namespace cameo {
 namespace extensions {
 
-class CameoExtensionWrapper;
+class XWalkExtensionWrapper;
 
-// Message exchanging interface to be implemented by Cameo extensions. This
+// Message exchanging interface to be implemented by Crosswalk extensions. This
 // is essentially a factory for Context objects that will handle messages. In
-// Cameo we create a Context per WebContents. Context objects allow us to
+// Crosswalk we create a Context per WebContents. Context objects allow us to
 // keep separated state for each execution.
-class CameoExtension {
+class XWalkExtension {
  public:
-  CameoExtension();
-  virtual ~CameoExtension();
+  XWalkExtension();
+  virtual ~XWalkExtension();
 
   // Returns the JavaScript API code that will be executed in the
   // renderer process. It allows the extension provide a function or
@@ -66,16 +66,16 @@ class CameoExtension {
   void set_name(const std::string& name) { name_ = name; }
 
  private:
-  friend class CameoExtensionWrapper;
+  friend class XWalkExtensionWrapper;
   friend class Context;
 
   // Name of extension, used for dispatching messages.
   std::string name_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoExtension);
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };
 
 }  // namespace extensions
 }  // namespace cameo
 
-#endif  // CAMEO_EXTENSIONS_BROWSER_CAMEO_EXTENSION_H_
+#endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_H_
