@@ -7,7 +7,7 @@
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
 #include "cameo/extensions/browser/cameo_extension_service.h"
-#include "cameo/test/base/cameo_test_utils.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"

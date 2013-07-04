@@ -6,8 +6,8 @@
 #include "base/utf_string_conversions.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/ui/color_chooser.h"
-#include "cameo/test/base/cameo_test_utils.h"
 #include "cameo/test/base/in_process_browser_test.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/browser_test_utils.h"
@@ -95,11 +95,11 @@ class CameoFormInputTest : public InProcessBrowserTest {
 };
 
 IN_PROC_BROWSER_TEST_F(CameoFormInputTest, FileSelector) {
-  SetSelectFileDialogReturnPath(cameo_test_utils::GetTestFilePath(
+  SetSelectFileDialogReturnPath(xwalk_test_utils::GetTestFilePath(
       base::FilePath(), base::FilePath().AppendASCII("file_to_select")));
-  GURL url = cameo_test_utils::GetTestURL(
+  GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  cameo_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
   content::WaitForLoadStop(runtime()->web_contents());
   runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
       string16(),
@@ -116,9 +116,9 @@ IN_PROC_BROWSER_TEST_F(CameoFormInputTest, FileSelector) {
 IN_PROC_BROWSER_TEST_F(CameoFormInputTest, ColorChooser) {
   unsigned int r = 23, g = 174, b = 98;
   SetBrowserTestColor(r, g, b);
-  GURL url = cameo_test_utils::GetTestURL(
+  GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
-  cameo_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
   content::WaitForLoadStop(runtime()->web_contents());
   runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
       string16(),

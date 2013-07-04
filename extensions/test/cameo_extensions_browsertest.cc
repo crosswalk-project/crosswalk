@@ -7,7 +7,8 @@
 #include "cameo/extensions/browser/cameo_extension.h"
 #include "cameo/extensions/browser/cameo_extension_service.h"
 #include "cameo/runtime/browser/runtime.h"
-#include "cameo/test/base/cameo_test_utils.h"
+#include "cameo/test/base/in_process_browser_test.h"
+#include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
@@ -64,6 +65,6 @@ IN_PROC_BROWSER_TEST_F(CameoExtensionsTest, EchoExtension) {
                                   base::FilePath().AppendASCII("echo.html"));
   string16 title = ASCIIToUTF16("Pass");
   content::TitleWatcher title_watcher(runtime()->web_contents(), title);
-  cameo_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
 }

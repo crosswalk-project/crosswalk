@@ -12,7 +12,7 @@
     ], # conditions
   },
   'includes' : [
-    'cameo_tests.gypi',
+    'xwalk_tests.gypi',
   ],
   'targets': [
     {
