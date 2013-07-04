@@ -17,6 +17,7 @@
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_context.h"
 #include "cameo/runtime/browser/runtime_registry.h"
+#include "cameo/runtime/common/cameo_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
@@ -58,19 +59,28 @@ void CameoBrowserMainParts::PreEarlyInitialization() {
 }
 
 void CameoBrowserMainParts::RegisterExternalExtensions() {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kXWalkExternalExtensionsPath))
+    return;
+
   if (!startup_url_.SchemeIsFile()) {
     VLOG(0) << "Unsupported scheme for external extensions: " <<
           startup_url_.scheme();
     return;
   }
 
-  base::FilePath where(
-      base::FilePath::FromUTF8Unsafe(startup_url_.path()));
-  where = where.Append(FILE_PATH_LITERAL("extensions"));
+  base::FilePath extensions_dir =
+      cmd_line->GetSwitchValuePath(switches::kXWalkExternalExtensionsPath);
+  if (!file_util::DirectoryExists(extensions_dir)) {
+    LOG(WARNING) << "Ignoring non-existent extension directory: "
+                 << extensions_dir.AsUTF8Unsafe();
+    return;
+  }
+
   // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
   // extension for the current platform.
   const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
-  file_util::FileEnumerator libraries(where, false,
+  file_util::FileEnumerator libraries(extensions_dir, false,
         file_util::FileEnumerator::FILES, pattern);
 
   for (base::FilePath extension_path = libraries.Next();
