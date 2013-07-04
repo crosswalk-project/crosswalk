@@ -50,10 +50,10 @@ class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
   DISALLOW_COPY_AND_ASSIGN(MockRuntimeRegistryObserver);
 };
 
-class CameoRuntimeTest : public InProcessBrowserTest {
+class XWalkRuntimeTest : public InProcessBrowserTest {
  public:
-  CameoRuntimeTest() {}
-  virtual ~CameoRuntimeTest() {
+  XWalkRuntimeTest() {}
+  virtual ~XWalkRuntimeTest() {
     original_runtimes_.clear();
     notification_observer_.reset();
   }
@@ -76,7 +76,7 @@ class CameoRuntimeTest : public InProcessBrowserTest {
   scoped_ptr<content::WindowedNotificationObserver> notification_observer_;
 };
 
-IN_PROC_BROWSER_TEST_F(CameoRuntimeTest, LoadGeolocationPage) {
+IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII(
           "geolocation/simple.html"));

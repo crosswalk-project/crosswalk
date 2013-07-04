@@ -17,9 +17,9 @@
 
 using cameo::Runtime;
 
-class CameoDevToolsTest : public InProcessBrowserTest {
+class XWalkDevToolsTest : public InProcessBrowserTest {
  public:
-  CameoDevToolsTest() {}
+  XWalkDevToolsTest() {}
   virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
     command_line->AppendSwitchASCII(switches::kRemoteDebuggingPort, "9222");
     GURL url = xwalk_test_utils::GetTestURL(
@@ -28,7 +28,7 @@ class CameoDevToolsTest : public InProcessBrowserTest {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(CameoDevToolsTest, RemoteDebugging) {
+IN_PROC_BROWSER_TEST_F(XWalkDevToolsTest, RemoteDebugging) {
   GURL localhost_url("http://127.0.0.1:9222");
   Runtime* debugging_host =
       Runtime::Create(runtime()->runtime_context(), localhost_url);

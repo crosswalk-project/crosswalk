@@ -11,7 +11,7 @@
 #include "cameo/test/base/in_process_browser_test.h"
 #include "content/public/test/test_utils.h"
 
-class CameoSwitchesTest : public InProcessBrowserTest {
+class XWalkSwitchesTest : public InProcessBrowserTest {
  public:
   virtual void SetUp() OVERRIDE {
     base::ScopedTempDir temp_dir;
@@ -48,7 +48,7 @@ class CameoSwitchesTest : public InProcessBrowserTest {
   base::FilePath data_path_;
 };
 
-IN_PROC_BROWSER_TEST_F(CameoSwitchesTest, kCameoDataPath) {
+IN_PROC_BROWSER_TEST_F(XWalkSwitchesTest, kCameoDataPath) {
   content::RunAllPendingInMessageLoop();
   // The data path should be created by Runtime itself.
   base::FilePath data_path = GetDataPath();
