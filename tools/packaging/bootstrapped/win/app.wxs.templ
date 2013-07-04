@@ -6,7 +6,7 @@
 
 
     <Package Id='*' Keywords='Installer' Description="$(env.APP_NAME) $(env.VERSION) Installer"
-      Comments='This is a Web-based application backed by Cameo.' Manufacturer="$(env.PUBLISHER)"
+      Comments='This is a Web-based application backed by Crosswalk.' Manufacturer="$(env.PUBLISHER)"
       InstallerVersion='100' Languages='1033' Compressed='yes'>
     </Package>
     <Media Id="1" Cabinet="installer.cab" EmbedCab="yes"/>
@@ -20,8 +20,8 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ProgramMenuSubfolder" Name="$(env.APP_NAME)">
           <Component Id="app_shortcuts" Guid="7C342EE9-85DD-4F1E-8F09-4AABB6DAB47D">
-            <Shortcut Id="AppShortcut" Name="$(env.APP_NAME)" Description="This is a Web-based application backed by Cameo"
-                      Target="[INSTALLDIR]cameo.exe" WorkingDirectory="INSTALLDIR"
+            <Shortcut Id="AppShortcut" Name="$(env.APP_NAME)" Description="This is a Web-based application backed by Crosswalk"
+                      Target="[INSTALLDIR]xwalk.exe" WorkingDirectory="INSTALLDIR"
                       Arguments="$(var.appArguments)"/>
             <RegistryValue Root="HKCU" Key="Software\$(env.PUBLISHER)\$(env.APP_NAME)"
                       Name="installed" Type="integer" Value="1" KeyPath="yes"/>
@@ -31,11 +31,11 @@
       </Directory>
     </Directory>
     <Feature Id="launch_app" Level="1">
-	<?if not $(env.WXS_FILES) = cameoFiles ?>
+	<?if not $(env.WXS_FILES) = xwalkFiles ?>
 	<ComponentGroupRef Id="appFilesGroup" />
 	<?endif ?>
 	<?if not $(env.WXS_FILES) = " appFiles.wxs" ?>
-	<ComponentGroupRef Id="cameoFilesGroup" />
+	<ComponentGroupRef Id="xwalkFilesGroup" />
 	<?endif ?>
 	<ComponentRef Id="app_shortcuts" />
     </Feature>

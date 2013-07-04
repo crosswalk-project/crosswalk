@@ -20,21 +20,21 @@ if not x%HELP%==x (
     echo.
     echo usage: %THIS_SCRIPT% [options] [app_path]
     echo.
-    echo This script is used to create a standalone installer for cameo applications. It 
-    echo depends on Wix toolset and cameo to function properly.
+    echo This script is used to create a standalone installer for Crosswalk applications. It 
+    echo depends on Wix toolset and Crosswalk to function properly.
     echo The following options are supported:
     echo.
-    echo app_path                Path to the cameo application. If not specified, the
+    echo app_path                Path to the Crosswalk application. If not specified, the
     echo                           current directory is used.
     echo --wix_bin_path=^<path^>   Path to Wix toolset binaries. If not specified, the
     echo                           script will try to find them through PATH
-    echo --cameo_path=^<path^>     Path to Cameo binaries. If not specified, the script
+    echo --xwalk_path=^<path^>     Path to Crosswalk binaries. If not specified, the script
     echo                           will try to find them through PATH, the app path, or
     echo                           the current directory.
     echo --app_name=^<name^>       Name of the application. If not specified, the name
     echo                           of the application directory is used.
     echo --version=^<version^>     The version of the application, defaults to 1.0.0
-    echo --app_arguments=^<args^>  Arguments that will be passed into cameo executable.
+    echo --app_arguments=^<args^>  Arguments that will be passed into xwalk executable.
     echo                           If not specified, "index.html" is used. For example,
     echo                           "--allow-file-access-from-files src/index.html"
     echo --out=^<pathname^>        File Path of the output installer file, defaults to the
@@ -60,15 +60,15 @@ if x%WIX_BIN_PATH%==x (
 if x%APP_PATH%==x set APP_PATH=%CD%
 if x%APP_ARGUMENTS%==x set APP_ARGUMENTS=index.html
 if x%VERSION%==x set VERSION=1.0.0
-if x%CAMEO_PATH%==x (
-  FOR /F "tokens=*" %%A IN ('where cameo') DO SET CAMEO_PATH="%%A"
-  if x%CAMEO_PATH%==x (
-      set CAMEO_PATH=%APP_PATH%
-      if not exist "!CAMEO_PATH!\cameo.exe" (
-          set CAMEO_PATH=%CD%
-          if not exist "!CAMEO_PATH!\cameo.exe" (
-            echo Please make sure you have installed cameo and setup the PATH enviroment variable
-            echo on your system properly. Or you can specify the cameo path through --cameo_path 
+if x%XWALK_PATH%==x (
+  FOR /F "tokens=*" %%A IN ('where xwalk') DO SET XWALK_PATH="%%A"
+  if x%XWALK_PATH%==x (
+      set XWALK_PATH=%APP_PATH%
+      if not exist "!XWALK_PATH!\xwalk.exe" (
+          set XWALK_PATH=%CD%
+          if not exist "!XWALK_PATH!\xwalk.exe" (
+            echo Please make sure you have installed Crosswalk and setup the PATH enviroment variable
+            echo on your system properly. Or you can specify the Crosswalk path through --xwalk_path 
             echo command line parameter.
             
             exit /b
@@ -83,26 +83,26 @@ if x%PUBLISHER%==x set PUBLISHER=Me
 
 set MAIN_OBJ_FILE=%TEMP%\%APP_NAME%.wixobj
 
-pushd %CAMEO_PATH%
-set CAMEO_PATH=%CD%
+pushd %XWALK_PATH%
+set XWALK_PATH=%CD%
 popd
 pushd %APP_PATH%
 set APP_PATH=%CD%
 popd
 set PACKAGING_INI="%APP_PATH%\_packaging.ini"
 
-if not "x!APP_PATH:%CAMEO_PATH%=!"=="x%APP_PATH%" (
+if not "x!APP_PATH:%XWALK_PATH%=!"=="x%APP_PATH%" (
     set __DIRS.1="%APP_PATH%"
     set __HARV_FILES.1=appFiles
 ) else (
-    if not "x!CAMEO_PATH:%APP_PATH%=!"=="x%CAMEO_PATH%" (
-        set __DIRS.1="%CAMEO_PATH%"
-        set __HARV_FILES.1=cameoFiles
+    if not "x!XWALK_PATH:%APP_PATH%=!"=="x%XWALK_PATH%" (
+        set __DIRS.1="%XWALK_PATH%"
+        set __HARV_FILES.1=xwalkFiles
     ) else (
         set __DIRS.1="%APP_PATH%"
         set __HARV_FILES.1=appFiles
-        set __DIRS.2="%CAMEO_PATH%"
-        set __HARV_FILES.2=cameoFiles
+        set __DIRS.2="%XWALK_PATH%"
+        set __HARV_FILES.2=xwalkFiles
     )
 )
 set WXS_FILES=
@@ -124,7 +124,7 @@ for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
     set WXS_FILE=%TEMP%\%%B.wxs
     set OBJ_FILE=%TEMP%\%%B.wixobj
     %WIX_BIN_PATH%\heat dir !__DIRS.%%A! -gg -cg %%BGroup -srd -dr INSTALLDIR -var var.%%BDir -o !WXS_FILE!
-    %WIX_BIN_PATH%\candle -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" !WXS_FILE! -o !OBJ_FILE!
+    %WIX_BIN_PATH%\candle -dappFilesDir="%APP_PATH%" -dxwalkFilesDir="%XWALK_PATH%" !WXS_FILE! -o !OBJ_FILE!
     set "WXS_FILES=!WXS_FILES! !WXS_FILE!"
     set "OBJ_FILES=!OBJ_FILES! !OBJ_FILE!"
 )
@@ -135,5 +135,5 @@ if exist %PACKAGING_INI% (
     FOR /F "tokens=*" %%A IN ('cscript //nologo %GUID_GEN%') DO SET UPGRADE_CODE=%%A
     echo UPGRADE_CODE=!UPGRADE_CODE!>%PACKAGING_INI%
 )
-%WIX_BIN_PATH%\candle -dappArguments=%APP_ARGUMENTS% -dappFilesDir="%APP_PATH%" -dcameoFilesDir="%CAMEO_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
+%WIX_BIN_PATH%\candle -dappArguments=%APP_ARGUMENTS% -dappFilesDir="%APP_PATH%" -dxwalkFilesDir="%XWALK_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
 %WIX_BIN_PATH%\light -spdb %MAIN_OBJ_FILE% %OBJ_FILES% -o %OUT%
