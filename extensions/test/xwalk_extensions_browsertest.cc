@@ -2,64 +2,64 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/test/cameo_extensions_test_base.h"
+#include "cameo/extensions/test/xwalk_extensions_test_base.h"
 
-#include "cameo/extensions/browser/cameo_extension.h"
-#include "cameo/extensions/browser/cameo_extension_service.h"
+#include "cameo/extensions/browser/xwalk_extension.h"
+#include "cameo/extensions/browser/xwalk_extension_service.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/test/base/in_process_browser_test.h"
 #include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
-using cameo::extensions::CameoExtension;
-using cameo::extensions::CameoExtensionService;
+using cameo::extensions::XWalkExtension;
+using cameo::extensions::XWalkExtensionService;
 
-class EchoExtension : public CameoExtension {
+class EchoExtension : public XWalkExtension {
  public:
-  EchoExtension() : CameoExtension() {
+  EchoExtension() : XWalkExtension() {
     set_name("echo");
   }
 
   virtual const char* GetJavaScriptAPI() {
     static const char* kAPI =
-        "var cameo = cameo || {};"
-        "cameo.setMessageListener('echo', function(msg) {"
-        "  if (cameo.echoListener instanceof Function) {"
-        "    cameo.echoListener(msg);"
+        "var xwalk = xwalk || {};"
+        "xwalk.setMessageListener('echo', function(msg) {"
+        "  if (xwalk.echoListener instanceof Function) {"
+        "    xwalk.echoListener(msg);"
         "  };"
         "});"
-        "cameo.echo = function(msg, callback) {"
-        "  cameo.echoListener = callback;"
-        "  cameo.postMessage('echo', msg);"
+        "xwalk.echo = function(msg, callback) {"
+        "  xwalk.echoListener = callback;"
+        "  xwalk.postMessage('echo', msg);"
         "};";
     return kAPI;
   }
 
-  class EchoContext : public CameoExtension::Context {
+  class EchoContext : public XWalkExtension::Context {
    public:
     explicit EchoContext(
-        const CameoExtension::PostMessageCallback& post_message)
-        : CameoExtension::Context(post_message) {}
+        const XWalkExtension::PostMessageCallback& post_message)
+        : XWalkExtension::Context(post_message) {}
     virtual void HandleMessage(const std::string& msg) OVERRIDE {
       PostMessage(msg);
     }
   };
 
   virtual Context* CreateContext(
-      const CameoExtension::PostMessageCallback& post_message) {
+      const XWalkExtension::PostMessageCallback& post_message) {
     return new EchoContext(post_message);
   }
 };
 
-class CameoExtensionsTest : public CameoExtensionsTestBase {
+class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(CameoExtensionService* extension_service) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
     extension_service->RegisterExtension(new EchoExtension);
   }
 };
 
-IN_PROC_BROWSER_TEST_F(CameoExtensionsTest, EchoExtension) {
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));

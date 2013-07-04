@@ -4,7 +4,7 @@
 
 #include "cameo/runtime/browser/cameo_content_browser_client.h"
 
-#include "cameo/extensions/browser/cameo_extension_service.h"
+#include "cameo/extensions/browser/xwalk_extension_service.h"
 #include "cameo/runtime/browser/cameo_browser_main_parts.h"
 #include "cameo/runtime/browser/geolocation/cameo_access_token_store.h"
 #include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"

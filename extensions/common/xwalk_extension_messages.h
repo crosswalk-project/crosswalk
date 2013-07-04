@@ -7,14 +7,14 @@
 
 #define IPC_MESSAGE_START ExtensionMsgStart
 
-IPC_MESSAGE_ROUTED2(CameoViewHostMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
                     std::string /* target extension */,
                     std::string /* contents */)
 
-IPC_MESSAGE_ROUTED2(CameoViewMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED2(XWalkViewMsg_PostMessage,  // NOLINT(*)
                     std::string /* source extension */,
                     std::string /* contents */)
 
-IPC_MESSAGE_CONTROL2(CameoViewMsg_RegisterExtension,  // NOLINT(*)
+IPC_MESSAGE_CONTROL2(XWalkViewMsg_RegisterExtension,  // NOLINT(*)
                     std::string /* extension */,
                     std::string /* JS API code for extension */)

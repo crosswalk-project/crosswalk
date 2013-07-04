@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_PUBLIC_CAMEO_EXTENSION_PUBLIC_H_
-#define CAMEO_EXTENSIONS_PUBLIC_CAMEO_EXTENSION_PUBLIC_H_
+#ifndef CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
+#define CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
 
 #ifndef INTERNAL_IMPLEMENTATION
 #include <assert.h>
@@ -11,25 +11,25 @@
 
 #include <stdint.h>
 
-typedef struct CCameoExtension_           CCameoExtension;
-typedef struct CCameoExtensionContext_    CCameoExtensionContext;
-typedef struct CCameoExtensionContextAPI_ CCameoExtensionContextAPI;
+typedef struct CXWalkExtension_           CXWalkExtension;
+typedef struct CXWalkExtensionContext_    CXWalkExtensionContext;
+typedef struct CXWalkExtensionContextAPI_ CXWalkExtensionContextAPI;
 
-typedef void (*ExtensionShutdownCallback)(CCameoExtension* extension);
+typedef void (*ExtensionShutdownCallback)(CXWalkExtension* extension);
 typedef const char* (*ExtensionGetJavaScriptCallback)(
-      CCameoExtension* extension);
-typedef CCameoExtensionContext* (*ExtensionContextCreateCallback)(
-      CCameoExtension* extension);
+      CXWalkExtension* extension);
+typedef CXWalkExtensionContext* (*ExtensionContextCreateCallback)(
+      CXWalkExtension* extension);
 
 typedef void (*ExtensionContextDestroyCallback)(
-      CCameoExtensionContext* context);
+      CXWalkExtensionContext* context);
 typedef void (*ExtensionContextHandleMessageCallback)(
-      CCameoExtensionContext* context, const char* message);
+      CXWalkExtensionContext* context, const char* message);
 
 typedef void (*ExtensionContextPostMessageCallback)(
-      CCameoExtensionContext* context, const char* message);
+      CXWalkExtensionContext* context, const char* message);
 
-struct CCameoExtension_ {
+struct CXWalkExtension_ {
   int32_t api_version;
 
   // Version 1
@@ -40,14 +40,14 @@ struct CCameoExtension_ {
   ExtensionContextCreateCallback context_create;
 };
 
-struct CCameoExtensionContextAPI_ {
+struct CXWalkExtensionContextAPI_ {
   // Version 1
   ExtensionContextPostMessageCallback post_message;
 };
 
-struct CCameoExtensionContext_ {
+struct CXWalkExtensionContext_ {
   void* internal_data;
-  const CCameoExtensionContextAPI* api;
+  const CXWalkExtensionContextAPI* api;
 
   // Version 1
   ExtensionContextDestroyCallback destroy;
@@ -57,16 +57,16 @@ struct CCameoExtensionContext_ {
 #ifndef INTERNAL_IMPLEMENTATION
 // This function should be implemented and exported in the shared
 // object. The ``api_version'' parameter will contain the maximum
-// version supported by Cameo.
+// version supported by Crosswalk.
 // On a successful invocation, this function should return a pointer
-// to a CCameoExtension structure, with the fields:
+// to a CXWalkExtension structure, with the fields:
 // - api_version, filled with the API version the extension implements.
-// - name, with the extension name (used by cameo.postMessage() and
+// - name, with the extension name (used by xwalk.postMessage() and
 //   friends).
 // - get_javascript, filled with a pointer to a function that returns
 //   the JavaScript shim to be available in all page contexts.
 // - shutdown, filled with a pointer to a function that is called
-//   whenever this extension is shut down (e.g. Cameo terminating). NULL
+//   whenever this extension is shut down (e.g. Crosswalk terminating). NULL
 //   is fine.
 // - context_create, filled with a pointer to a function that creates
 //   an extension context (see comment below).
@@ -83,12 +83,12 @@ struct CCameoExtensionContext_ {
 #define EXTERN_C
 #endif
 
-EXTERN_C PUBLIC_EXPORT CCameoExtension* cameo_extension_init(
+EXTERN_C PUBLIC_EXPORT CXWalkExtension* xwalk_extension_init(
       int32_t api_version);
 
-// A CCameoExtension structure holds the global state for a extension.
-// Due to the multithreaded way Cameo is written, one should not
-// store mutable state there. That's the reason CCameoExtensionContext
+// A CXWalkExtension structure holds the global state for a extension.
+// Due to the multithreaded way Crosswalk is written, one should not
+// store mutable state there. That's the reason CXWalkExtensionContext
 // exists: so each page context has its own state and there's no need
 // to worry about race conditions while keeping state between contexts.
 //
@@ -100,11 +100,11 @@ EXTERN_C PUBLIC_EXPORT CCameoExtension* cameo_extension_init(
 //   whenever a message arrives from the JavaScript side.
 //
 // To post a message to the JavaScript side, one can simply call
-// cameo_extension_context_post_message(), defined below. Cameo will
+// xwalk_extension_context_post_message(), defined below. Crosswalk will
 // handle all the multithreading details so it is safe to call this
 // whenever necessary.
-static void cameo_extension_context_post_message(
-      CCameoExtensionContext* context, const char* message) {
+static void xwalk_extension_context_post_message(
+      CXWalkExtensionContext* context, const char* message) {
   assert(context);
   assert(context->api);
   assert(context->api->post_message);
@@ -118,4 +118,4 @@ static void cameo_extension_context_post_message(
 
 #endif  // INTERNAL_IMPLEMENTATION
 
-#endif  // CAMEO_EXTENSIONS_PUBLIC_CAMEO_EXTENSION_PUBLIC_H_
+#endif  // CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_

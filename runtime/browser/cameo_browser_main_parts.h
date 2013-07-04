@@ -14,7 +14,7 @@
 namespace cameo {
 
 namespace extensions {
-class CameoExtensionService;
+class XWalkExtensionService;
 }
 
 class RuntimeContext;
@@ -36,7 +36,7 @@ class CameoBrowserMainParts : public content::BrowserMainParts {
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
-  extensions::CameoExtensionService* extension_service() {
+  extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();
   }
 
@@ -48,7 +48,7 @@ class CameoBrowserMainParts : public content::BrowserMainParts {
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;
 
-  scoped_ptr<extensions::CameoExtensionService> extension_service_;
+  scoped_ptr<extensions::XWalkExtensionService> extension_service_;
 
   // Should be about:blank If no URL is specified in command line arguments.
   GURL startup_url_;

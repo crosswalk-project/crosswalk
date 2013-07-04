@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_RENDERER_CAMEO_EXTENSION_RENDERER_CONTROLLER_H_
-#define CAMEO_EXTENSIONS_RENDERER_CAMEO_EXTENSION_RENDERER_CONTROLLER_H_
+#ifndef CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDERER_CONTROLLER_H_
+#define CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDERER_CONTROLLER_H_
 
 #include <map>
 #include <string>
@@ -21,13 +21,13 @@ class WebFrame;
 namespace cameo {
 namespace extensions {
 
-// Renderer controller for Cameo extensions keeps track of the extensions
+// Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
 // the extensions handlers to them.
-class CameoExtensionRendererController : public content::RenderProcessObserver {
+class XWalkExtensionRendererController : public content::RenderProcessObserver {
  public:
-  CameoExtensionRendererController();
-  virtual ~CameoExtensionRendererController();
+  XWalkExtensionRendererController();
+  virtual ~XWalkExtensionRendererController();
 
   // To be called by client code when a render view is created. Will attach
   // extension handlers to them.
@@ -37,7 +37,7 @@ class CameoExtensionRendererController : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
-  friend class CameoExtensionRenderViewHandler;
+  friend class XWalkExtensionRenderViewHandler;
 
   // Called when browser process send a message with a new extension to be
   // registered, and its corresponding JavaScript API.
@@ -53,10 +53,10 @@ class CameoExtensionRendererController : public content::RenderProcessObserver {
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoExtensionRendererController);
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };
 
 }  // namespace extensions
 }  // namespace cameo
 
-#endif  // CAMEO_EXTENSIONS_RENDERER_CAMEO_EXTENSION_RENDERER_CONTROLLER_H_
+#endif  // CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDERER_CONTROLLER_H_

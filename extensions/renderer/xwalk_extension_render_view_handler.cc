@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/renderer/cameo_extension_render_view_handler.h"
+#include "cameo/extensions/renderer/xwalk_extension_render_view_handler.h"
 
-#include "cameo/extensions/common/cameo_extension_messages.h"
-#include "cameo/extensions/renderer/cameo_extension_renderer_controller.h"
+#include "cameo/extensions/common/xwalk_extension_messages.h"
+#include "cameo/extensions/renderer/xwalk_extension_renderer_controller.h"
 #include "content/public/renderer/render_view.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
@@ -14,18 +14,18 @@
 namespace cameo {
 namespace extensions {
 
-CameoExtensionRenderViewHandler::CameoExtensionRenderViewHandler(
+XWalkExtensionRenderViewHandler::XWalkExtensionRenderViewHandler(
     content::RenderView* render_view,
-    CameoExtensionRendererController* controller)
+    XWalkExtensionRendererController* controller)
     : content::RenderViewObserver(render_view),
-      content::RenderViewObserverTracker<CameoExtensionRenderViewHandler>(
+      content::RenderViewObserverTracker<XWalkExtensionRenderViewHandler>(
           render_view),
       controller_(controller) {
   CHECK(controller);
 }
 
-CameoExtensionRenderViewHandler*
-CameoExtensionRenderViewHandler::GetForCurrentContext() {
+XWalkExtensionRenderViewHandler*
+XWalkExtensionRenderViewHandler::GetForCurrentContext() {
   WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
   if (!webframe) return NULL;
 
@@ -33,30 +33,30 @@ CameoExtensionRenderViewHandler::GetForCurrentContext() {
   if (!webview) return NULL;  // Can happen during closing.
 
   content::RenderView* render_view = content::RenderView::FromWebView(webview);
-  return CameoExtensionRenderViewHandler::Get(render_view);
+  return XWalkExtensionRenderViewHandler::Get(render_view);
 }
 
-bool CameoExtensionRenderViewHandler::PostMessageToExtension(
+bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
     const std::string& extension, const std::string& msg) {
-  return Send(new CameoViewHostMsg_PostMessage(routing_id(), extension, msg));
+  return Send(new XWalkViewHostMsg_PostMessage(routing_id(), extension, msg));
 }
 
-void CameoExtensionRenderViewHandler::DidClearWindowObject(
+void XWalkExtensionRenderViewHandler::DidClearWindowObject(
     WebKit::WebFrame* frame) {
   controller_->InstallJavaScriptAPIs(frame);
 }
 
-bool CameoExtensionRenderViewHandler::OnMessageReceived(
+bool XWalkExtensionRenderViewHandler::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(CameoExtensionRenderViewHandler, message)
-    IPC_MESSAGE_HANDLER(CameoViewMsg_PostMessage, OnPostMessage)
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRenderViewHandler, message)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_PostMessage, OnPostMessage)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
 }
 
-void CameoExtensionRenderViewHandler::OnPostMessage(
+void XWalkExtensionRenderViewHandler::OnPostMessage(
     const std::string& extension, const std::string& msg) {
   if (!controller_->ContainsExtension(extension))
     return;
@@ -77,10 +77,10 @@ void CameoExtensionRenderViewHandler::OnPostMessage(
   // and could be changed. An alternative design would be to expose those
   // things in a more controlled way during DidClearWindowObject instead of
   // using v8::Extension.
-  v8::Handle<v8::Value> cameo =
-      context->Global()->Get(v8::String::New("cameo"));
+  v8::Handle<v8::Value> xwalk =
+      context->Global()->Get(v8::String::New("xwalk"));
   v8::Handle<v8::Value> callback =
-      cameo.As<v8::Object>()->Get(v8::String::New("onpostmessage"));
+      xwalk.As<v8::Object>()->Get(v8::String::New("onpostmessage"));
 
   // Note: see comment in WebScopedMicrotaskSuppression.h to understand why we
   // are not using V8 API directly but going through frame.

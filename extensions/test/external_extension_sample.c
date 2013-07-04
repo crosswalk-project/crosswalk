@@ -8,19 +8,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cameo/extensions/public/cameo_extension_public.h"
+#include "cameo/extensions/public/xwalk_extension_public.h"
 
-static void context_handle_message(CCameoExtensionContext* context,
+static void context_handle_message(CXWalkExtensionContext* context,
                                     const char *message) {
-  cameo_extension_context_post_message(context, message);
+  xwalk_extension_context_post_message(context, message);
 }
 
-static void context_destroy(CCameoExtensionContext* context) {
+static void context_destroy(CXWalkExtensionContext* context) {
   free(context);
 }
 
-static CCameoExtensionContext* context_create(CCameoExtension* extension) {
-  CCameoExtensionContext* context = calloc(1, sizeof(*context));
+static CXWalkExtensionContext* context_create(CXWalkExtension* extension) {
+  CXWalkExtensionContext* context = calloc(1, sizeof(*context));
   if (!context)
     return NULL;
 
@@ -30,27 +30,27 @@ static CCameoExtensionContext* context_create(CCameoExtension* extension) {
   return context;
 }
 
-static const char* get_javascript(CCameoExtension* extension) {
+static const char* get_javascript(CXWalkExtension* extension) {
   static const char* kAPI =
-      "var cameo = cameo || {};"
-      "cameo.setMessageListener('echo', function(msg) {"
-      "  if (cameo.echoListener instanceof Function) {"
-      "    cameo.echoListener(msg);"
+      "var xwalk = xwalk || {};"
+      "xwalk.setMessageListener('echo', function(msg) {"
+      "  if (xwalk.echoListener instanceof Function) {"
+      "    xwalk.echoListener(msg);"
       "  };"
       "});"
-      "cameo.echo = function(msg, callback) {"
-      "  cameo.echoListener = callback;"
-      "  cameo.postMessage('echo', msg);"
+      "xwalk.echo = function(msg, callback) {"
+      "  xwalk.echoListener = callback;"
+      "  xwalk.postMessage('echo', msg);"
       "};";
   return kAPI;
 }
 
-static void shutdown(CCameoExtension* extension) {
+static void shutdown(CXWalkExtension* extension) {
   free(extension);
 }
 
-CCameoExtension* cameo_extension_init(int32_t api_version) {
-  CCameoExtension* extension = calloc(1, sizeof(*extension));
+CXWalkExtension* xwalk_extension_init(int32_t api_version) {
+  CXWalkExtension* extension = calloc(1, sizeof(*extension));
   extension->name = "echo";
   extension->api_version = 1;
   extension->get_javascript = get_javascript;

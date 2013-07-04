@@ -4,7 +4,7 @@
 
 #include "cameo/runtime/renderer/cameo_content_renderer_client.h"
 
-#include "cameo/extensions/renderer/cameo_extension_renderer_controller.h"
+#include "cameo/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace cameo {
 
@@ -26,7 +26,7 @@ CameoContentRendererClient::~CameoContentRendererClient() {
 }
 
 void CameoContentRendererClient::RenderThreadStarted() {
-  extension_controller_.reset(new extensions::CameoExtensionRendererController);
+  extension_controller_.reset(new extensions::XWalkExtensionRendererController);
 }
 
 void CameoContentRendererClient::RenderViewCreated(
