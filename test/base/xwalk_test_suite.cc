@@ -12,7 +12,7 @@
 #include "base/process_util.h"
 #include "base/stringprintf.h"
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/runtime/browser/xwalk_content_browser_client.h"
 #include "cameo/runtime/common/xwalk_content_client.h"
 #include "cameo/runtime/common/xwalk_paths.h"
 #include "content/public/test/test_launcher.h"
@@ -47,7 +47,7 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
     content_client_.reset(new cameo::XWalkContentClient);
     content::SetContentClient(content_client_.get());
 
-    browser_content_client_.reset(new cameo::CameoContentBrowserClient());
+    browser_content_client_.reset(new cameo::XWalkContentBrowserClient());
     SetBrowserClientForTesting(browser_content_client_.get());
   }
 
@@ -59,7 +59,7 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
 
  private:
   scoped_ptr<cameo::XWalkContentClient> content_client_;
-  scoped_ptr<cameo::CameoContentBrowserClient> browser_content_client_;
+  scoped_ptr<cameo::XWalkContentBrowserClient> browser_content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkTestSuiteInitializer);
 };

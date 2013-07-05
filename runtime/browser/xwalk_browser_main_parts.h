@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_CAMEO_BROWSER_MAIN_PARTS_H_
-#define CAMEO_RUNTIME_BROWSER_CAMEO_BROWSER_MAIN_PARTS_H_
+#ifndef CAMEO_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
+#define CAMEO_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
@@ -21,11 +21,11 @@ class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
 
-class CameoBrowserMainParts : public content::BrowserMainParts {
+class XWalkBrowserMainParts : public content::BrowserMainParts {
  public:
-  explicit CameoBrowserMainParts(
+  explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
-  virtual ~CameoBrowserMainParts();
+  virtual ~XWalkBrowserMainParts();
 
   // BrowserMainParts overrides.
   virtual void PreEarlyInitialization() OVERRIDE;
@@ -62,9 +62,9 @@ class CameoBrowserMainParts : public content::BrowserMainParts {
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoBrowserMainParts);
+  DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_BROWSER_CAMEO_BROWSER_MAIN_PARTS_H_
+#endif  // CAMEO_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_

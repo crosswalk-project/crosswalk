@@ -4,7 +4,7 @@
 
 #include "cameo/runtime/browser/devtools/remote_debugging_server.h"
 
-#include "cameo/runtime/browser/devtools/cameo_devtools_delegate.h"
+#include "cameo/runtime/browser/devtools/xwalk_devtools_delegate.h"
 #include "cameo/runtime/browser/runtime_context.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "net/socket/tcp_listen_socket.h"
@@ -19,7 +19,7 @@ RemoteDebuggingServer::RemoteDebuggingServer(
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       new net::TCPListenSocketFactory(ip, port),
       frontend_url,
-      new CameoDevToolsDelegate(runtime_context));
+      new XWalkDevToolsDelegate(runtime_context));
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {

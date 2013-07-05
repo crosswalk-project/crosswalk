@@ -12,7 +12,7 @@
 #include <shobjidl.h>  // NOLINT(build/include_order)
 #endif
 
-class CameoTaskbarGroupingTest : public InProcessBrowserTest {
+class XWalkTaskbarGroupingTest : public InProcessBrowserTest {
  public:
   bool TestForTaskbarGrouping(const std::string& url,
                               const std::string& expected_id) {
@@ -31,31 +31,31 @@ class CameoTaskbarGroupingTest : public InProcessBrowserTest {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(CameoTaskbarGroupingTest,
+IN_PROC_BROWSER_TEST_F(XWalkTaskbarGroupingTest,
                        UrlWithoutSlashEnd) {
   EXPECT_TRUE(TestForTaskbarGrouping("http://127.0.0.1",
                                      "nffebnloiadhkgeddojeojiaeklddbjj"));
 }
 
-IN_PROC_BROWSER_TEST_F(CameoTaskbarGroupingTest,
+IN_PROC_BROWSER_TEST_F(XWalkTaskbarGroupingTest,
                        UrlWithSlashEnd) {
   EXPECT_TRUE(TestForTaskbarGrouping("http://127.0.0.1/",
                                      "nffebnloiadhkgeddojeojiaeklddbjj"));
 }
 
-IN_PROC_BROWSER_TEST_F(CameoTaskbarGroupingTest,
+IN_PROC_BROWSER_TEST_F(XWalkTaskbarGroupingTest,
                        WindowsFilePathLowerCaseDriver) {
   EXPECT_TRUE(TestForTaskbarGrouping("c:\\fake-path\\index.html",
                                      "dpamcaeplfebmidmjpbghhhohfkpmnig"));
 }
 
-IN_PROC_BROWSER_TEST_F(CameoTaskbarGroupingTest,
+IN_PROC_BROWSER_TEST_F(XWalkTaskbarGroupingTest,
                        WindowsFilePathUpperCaseDriver) {
   EXPECT_TRUE(TestForTaskbarGrouping("C:\\fake-path\\index.html",
                                      "dpamcaeplfebmidmjpbghhhohfkpmnig"));
 }
 
-IN_PROC_BROWSER_TEST_F(CameoTaskbarGroupingTest,
+IN_PROC_BROWSER_TEST_F(XWalkTaskbarGroupingTest,
                        FilePathUrl) {
   EXPECT_TRUE(TestForTaskbarGrouping("file:///C:/fake-path/index.html",
                                      "dpamcaeplfebmidmjpbghhhohfkpmnig"));
