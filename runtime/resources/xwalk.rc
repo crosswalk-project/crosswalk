@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 // Icon
 //
-IDR_MAINFRAME           ICON                    "cameo.ico"
+IDR_MAINFRAME           ICON                    "xwalk.ico"
 
 
 #endif    // English (U.S.) resources

@@ -95,9 +95,13 @@ def do_cpp_lint(changeset, repo, args):
 
   origin_error = cpplint.Error
   def MyError(filename, linenum, category, confidence, message):
+    # Skip no header guard  error for MSVC generated files.
+    if (filename.endswith('resource.h')):
+      sys.stdout.write('Ignored Error:\n  %s(%s):  %s  [%s] [%d]\n' % (
+          filename, linenum, message, category, confidence))
     # Skip no header guard  error for ipc messages definition,
     # because they will be included multiple times for different macros.
-    if (filename.endswith('messages.h') and linenum == 0 and
+    elif (filename.endswith('messages.h') and linenum == 0 and
         category == 'build/header_guard'):
       sys.stdout.write('Ignored Error:\n  %s(%s):  %s  [%s] [%d]\n' % (
           filename, linenum, message, category, confidence))

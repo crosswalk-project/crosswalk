@@ -5,7 +5,7 @@
     'type': 'static_library',
     'dependencies': [
       'cameo_runtime',
-      'cameo_resources',
+      'xwalk_resources',
       '../base/base.gyp:test_support_base',
       '../base/base.gyp:base_prefs_test_support',
       '../content/content.gyp:content_app',

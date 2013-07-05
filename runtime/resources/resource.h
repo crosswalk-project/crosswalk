@@ -4,7 +4,7 @@
 
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by cameo.rc
+// Used by xwalk.rc
 //
 
 #define IDR_MAINFRAME                   102
