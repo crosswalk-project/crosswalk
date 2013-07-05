@@ -46,13 +46,13 @@ void PrepareBrowserCommandLineForTests(CommandLine* command_line) {
 
 bool OverrideDataPathDir(const base::FilePath& data_path_dir) {
   // PathService::Override() is the best way to change the data path directory.
-  return PathService::Override(cameo::DIR_DATA_PATH, data_path_dir);
+  return PathService::Override(xwalk::DIR_DATA_PATH, data_path_dir);
 }
 
 base::FilePath GetTestFilePath(const base::FilePath& dir,
                                const base::FilePath& file) {
   base::FilePath test_base_dir;
-  PathService::Get(cameo::DIR_TEST_DATA, &test_base_dir);
+  PathService::Get(xwalk::DIR_TEST_DATA, &test_base_dir);
 
   return test_base_dir.Append(dir).Append(file);
 }
@@ -63,7 +63,7 @@ GURL GetTestURL(const base::FilePath& dir, const base::FilePath& file) {
 
 // Navigate a specified URL in the given Runtime. It will block until the
 // navigation completes.
-void NavigateToURL(cameo::Runtime* runtime, const GURL& url) {
+void NavigateToURL(xwalk::Runtime* runtime, const GURL& url) {
   if (runtime->web_contents()->IsLoading())
     content::WaitForLoadStop(runtime->web_contents());
 

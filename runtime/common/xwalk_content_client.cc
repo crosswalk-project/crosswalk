@@ -12,7 +12,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "webkit/user_agent/user_agent_util.h"
 
-namespace cameo {
+namespace xwalk {
 
 XWalkContentClient::XWalkContentClient() {
 }
@@ -21,7 +21,7 @@ XWalkContentClient::~XWalkContentClient() {
 }
 
 std::string XWalkContentClient::GetUserAgent() const {
-  // TODO(hmin): Define user agent for cameo.
+  // TODO(hmin): Define user agent for xwalk.
   std::string product = "Chrome/" CAMEO_VERSION;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
@@ -49,4 +49,4 @@ gfx::Image& XWalkContentClient::GetNativeImageNamed(int resource_id) const {
   return ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
 }
 
-}  // namespace cameo
+}  // namespace xwalk

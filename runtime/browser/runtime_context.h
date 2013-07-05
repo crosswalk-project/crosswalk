@@ -20,7 +20,7 @@ namespace content {
 class DownloadManagerDelegate;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
@@ -73,6 +73,6 @@ class RuntimeContext : public content::BrowserContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_

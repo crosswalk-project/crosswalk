@@ -16,7 +16,7 @@
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 
-namespace cameo {
+namespace xwalk {
 
 XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
     : runtime_context_(runtime_context) {
@@ -65,4 +65,4 @@ XWalkDevToolsDelegate::CreateSocketForTethering(
   return NULL;
 }
 
-}  // namespace cameo
+}  // namespace xwalk

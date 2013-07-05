@@ -31,7 +31,7 @@
 using content::FaviconURL;
 using content::WebContents;
 
-namespace cameo {
+namespace xwalk {
 
 namespace {
 
@@ -73,7 +73,7 @@ Runtime::Runtime(content::WebContents* web_contents)
   if (command_line->HasSwitch(switches::kAppIcon)) {
     base::FilePath icon_file =
         command_line->GetSwitchValuePath(switches::kAppIcon);
-    app_icon_ = cameo_utils::LoadImageFromFilePath(icon_file);
+    app_icon_ = xwalk_utils::LoadImageFromFilePath(icon_file);
   }
 
   NativeAppWindow::CreateParams params;
@@ -343,4 +343,4 @@ void Runtime::RequestMediaAccessPermission(
   callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
 }
 
-}  // namespace cameo
+}  // namespace xwalk

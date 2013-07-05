@@ -11,7 +11,7 @@
 #include "content/public/common/main_function_params.h"
 #include "googleurl/src/gurl.h"
 
-namespace cameo {
+namespace xwalk {
 
 namespace extensions {
 class XWalkExtensionService;
@@ -65,6 +65,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_

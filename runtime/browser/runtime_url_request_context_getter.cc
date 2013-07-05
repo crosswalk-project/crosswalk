@@ -35,7 +35,7 @@
 
 using content::BrowserThread;
 
-namespace cameo {
+namespace xwalk {
 
 namespace {
 
@@ -165,4 +165,4 @@ net::HostResolver* RuntimeURLRequestContextGetter::host_resolver() {
   return url_request_context_->host_resolver();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

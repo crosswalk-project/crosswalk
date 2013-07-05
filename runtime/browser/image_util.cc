@@ -19,7 +19,7 @@
 #include "ui/gfx/icon_util.h"
 #endif
 
-namespace cameo_utils {
+namespace xwalk_utils {
 
 gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   const base::FilePath::StringType kPNGFormat(FILE_PATH_LITERAL(".png"));
@@ -71,4 +71,4 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   return gfx::Image();
 }
 
-}  // namespace cameo_utils
+}  // namespace xwalk_utils

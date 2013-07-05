@@ -15,7 +15,7 @@
 #include "net/base/net_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-using cameo::Runtime;
+using xwalk::Runtime;
 
 class XWalkDevToolsTest : public InProcessBrowserTest {
  public:

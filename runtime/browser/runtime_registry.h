@@ -13,7 +13,7 @@ namespace content {
 class RenderViewHost;
 };
 
-namespace cameo {
+namespace xwalk {
 
 class Runtime;
 
@@ -69,6 +69,6 @@ class RuntimeRegistry {
   ObserverList<RuntimeRegistryObserver> observer_list_;
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_REGISTRY_H_

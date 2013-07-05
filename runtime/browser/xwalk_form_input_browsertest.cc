@@ -20,7 +20,7 @@
 #include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
-using cameo::Runtime;
+using xwalk::Runtime;
 
 namespace {
 
@@ -87,7 +87,7 @@ class XWalkFormInputTest : public InProcessBrowserTest {
   }
 
   void SetBrowserTestColor(unsigned int r, unsigned int g, unsigned int b) {
-    cameo::ColorChooser::SetColorForBrowserTest(SkColorSetRGB(r, g, b));
+    xwalk::ColorChooser::SetColorForBrowserTest(SkColorSetRGB(r, g, b));
   }
 
  private:

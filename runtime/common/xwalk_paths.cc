@@ -17,12 +17,12 @@
 #include "base/nix/xdg_util.h"
 #endif
 
-namespace cameo {
+namespace xwalk {
 
 bool PathProvider(int key, base::FilePath* path) {
   base::FilePath cur;
   switch (key) {
-    case cameo::DIR_DATA_PATH: {
+    case xwalk::DIR_DATA_PATH: {
       #if defined(OS_WIN)
         CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &cur));
         cur = cur.Append(std::wstring(L"cameo"));
@@ -39,7 +39,7 @@ bool PathProvider(int key, base::FilePath* path) {
       #endif
       break;
     }
-    case cameo::DIR_TEST_DATA:
+    case xwalk::DIR_TEST_DATA:
       if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
       cur = cur.Append(FILE_PATH_LITERAL("cameo"));
@@ -57,5 +57,5 @@ void RegisterPathProvider() {
   PathService::RegisterProvider(PathProvider, PATH_START, PATH_END);
 }
 
-}  // namespace cameo
+}  // namespace xwalk
 

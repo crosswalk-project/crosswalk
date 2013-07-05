@@ -15,7 +15,7 @@ void CheckUserAgentStringOrdering(bool mobile_device) {
   std::vector<std::string> pieces;
 
   // Check if the pieces of the user agent string come in the correct order.
-  cameo::XWalkContentClient content_client;
+  xwalk::XWalkContentClient content_client;
   std::string buffer = content_client.GetUserAgent();
 
   base::SplitStringUsingSubstr(buffer, "Mozilla/5.0 (", &pieces);

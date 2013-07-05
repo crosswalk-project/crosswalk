@@ -19,7 +19,7 @@
 using content::BrowserThread;
 using content::DownloadManager;
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
  public:
@@ -63,13 +63,13 @@ void RuntimeContext::InitWhileIOAllowed() {
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
         cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
-    PathService::OverrideAndCreateIfNeeded(cameo::DIR_DATA_PATH, path, true);
+    PathService::OverrideAndCreateIfNeeded(xwalk::DIR_DATA_PATH, path, true);
   }
 }
 
 base::FilePath RuntimeContext::GetPath() {
   base::FilePath result;
-  CHECK(PathService::Get(cameo::DIR_DATA_PATH, &result));
+  CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &result));
   return result;
 }
 
@@ -155,4 +155,4 @@ net::URLRequestContextGetter*
   return NULL;
 }
 
-}  // namespace cameo
+}  // namespace xwalk

@@ -13,7 +13,7 @@ namespace content {
 class DevToolsHttpHandler;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeContext;
 
@@ -35,6 +35,6 @@ class RemoteDebuggingServer {
   DISALLOW_COPY_AND_ASSIGN(RemoteDebuggingServer);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_DEVTOOLS_REMOTE_DEBUGGING_SERVER_H_

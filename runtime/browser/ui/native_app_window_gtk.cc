@@ -20,7 +20,7 @@
 #include "ui/gfx/rect.h"
 #include "ui/gfx/skia_utils_gtk.h"
 
-namespace cameo {
+namespace xwalk {
 
 namespace {
 
@@ -240,7 +240,7 @@ gboolean NativeAppWindowGtk::OnWindowState(GtkWidget* window,
   if ((old_state & GDK_WINDOW_STATE_FULLSCREEN) !=
       (state_ & GDK_WINDOW_STATE_FULLSCREEN)) {
     content::NotificationService::current()->Notify(
-        cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+        xwalk::NOTIFICATION_FULLSCREEN_CHANGED,
         content::Source<NativeAppWindow>(this),
         content::NotificationService::NoDetails());
   }
@@ -335,4 +335,4 @@ NativeAppWindow* NativeAppWindow::Create(
   return new NativeAppWindowGtk(params);
 }
 
-}  // namespace cameo
+}  // namespace xwalk

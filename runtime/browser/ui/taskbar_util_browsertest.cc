@@ -17,7 +17,7 @@ class XWalkTaskbarGroupingTest : public InProcessBrowserTest {
   bool TestForTaskbarGrouping(const std::string& url,
                               const std::string& expected_id) {
     CommandLine::ForCurrentProcess()->AppendArg(url);
-    cameo::SetTaskbarGroupIdForProcess();
+    xwalk::SetTaskbarGroupIdForProcess();
 
     bool result = true;
 #if defined(OS_WIN)

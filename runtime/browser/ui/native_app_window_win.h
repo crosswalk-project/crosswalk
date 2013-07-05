@@ -18,7 +18,7 @@ class WebView;
 class Widget;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class NativeAppWindowWin : public NativeAppWindow,
                            public views::WidgetObserver,
@@ -100,6 +100,6 @@ class NativeAppWindowWin : public NativeAppWindow,
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowWin);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_

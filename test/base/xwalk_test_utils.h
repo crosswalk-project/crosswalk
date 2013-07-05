@@ -11,7 +11,7 @@
 #include "base/files/file_path.h"
 #include "googleurl/src/gurl.h"
 
-namespace cameo {
+namespace xwalk {
 class Runtime;
 }
 
@@ -38,7 +38,7 @@ base::FilePath GetTestFilePath(const base::FilePath& dir,
 
 // Navigate a specified URL in the given Runtime. It will block until the
 // navigation completes.
-void NavigateToURL(cameo::Runtime* runtime, const GURL& url);
+void NavigateToURL(xwalk::Runtime* runtime, const GURL& url);
 
 }  // namespace xwalk_test_utils
 

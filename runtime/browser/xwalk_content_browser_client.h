@@ -19,7 +19,7 @@ namespace net {
 class URLRequestContextGetter;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class XWalkBrowserMainParts;
 class RuntimeContext;
@@ -56,6 +56,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_

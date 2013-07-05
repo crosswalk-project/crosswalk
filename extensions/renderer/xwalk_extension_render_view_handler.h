@@ -9,7 +9,7 @@
 #include "content/public/renderer/render_view_observer.h"
 #include "content/public/renderer/render_view_observer_tracker.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionRendererController;
@@ -46,6 +46,6 @@ class XWalkExtensionRenderViewHandler
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_

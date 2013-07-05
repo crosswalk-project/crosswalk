@@ -10,7 +10,7 @@
 #include "base/platform_file.h"
 #include "content/public/renderer/content_renderer_client.h"
 
-namespace cameo {
+namespace xwalk {
 
 namespace extensions {
 class XWalkExtensionRendererController;
@@ -34,6 +34,6 @@ class XWalkContentRendererClient : public content::ContentRendererClient {
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
