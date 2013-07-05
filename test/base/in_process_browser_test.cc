@@ -17,7 +17,7 @@
 #include "cameo/runtime/browser/runtime_registry.h"
 #include "cameo/runtime/common/xwalk_paths.h"
 #include "cameo/runtime/common/xwalk_switches.h"
-#include "cameo/runtime/renderer/cameo_content_renderer_client.h"
+#include "cameo/runtime/renderer/xwalk_content_renderer_client.h"
 #include "cameo/test/base/xwalk_test_suite.h"
 #include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/browser/notification_service.h"
@@ -36,7 +36,7 @@ using cameo::RuntimeRegistry;
 namespace {
 
 // Used when running in single-process mode.
-base::LazyInstance<cameo::CameoContentRendererClient>::Leaky
+base::LazyInstance<cameo::XWalkContentRendererClient>::Leaky
     g_cameo_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace

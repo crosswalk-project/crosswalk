@@ -112,8 +112,8 @@
         'runtime/common/xwalk_paths.h',
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
-        'runtime/renderer/cameo_content_renderer_client.cc',
-        'runtime/renderer/cameo_content_renderer_client.h',
+        'runtime/renderer/xwalk_content_renderer_client.cc',
+        'runtime/renderer/xwalk_content_renderer_client.h',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
