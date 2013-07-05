@@ -10,7 +10,7 @@
 #include "cameo/runtime/browser/xwalk_content_browser_client.h"
 #include "cameo/runtime/browser/ui/taskbar_util.h"
 #include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/renderer/cameo_content_renderer_client.h"
+#include "cameo/runtime/renderer/xwalk_content_renderer_client.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -69,7 +69,7 @@ content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
 
 content::ContentRendererClient*
     XWalkMainDelegate::CreateContentRendererClient() {
-  renderer_client_.reset(new CameoContentRendererClient);
+  renderer_client_.reset(new XWalkContentRendererClient);
   return renderer_client_.get();
 }
 

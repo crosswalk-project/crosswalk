@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_RENDERER_CAMEO_CONTENT_RENDERER_CLIENT_H_
-#define CAMEO_RUNTIME_RENDERER_CAMEO_CONTENT_RENDERER_CLIENT_H_
+#ifndef CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
+#define CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -16,12 +16,12 @@ namespace extensions {
 class XWalkExtensionRendererController;
 }
 
-class CameoContentRendererClient : public content::ContentRendererClient {
+class XWalkContentRendererClient : public content::ContentRendererClient {
  public:
-  static CameoContentRendererClient* Get();
+  static XWalkContentRendererClient* Get();
 
-  CameoContentRendererClient();
-  virtual ~CameoContentRendererClient();
+  XWalkContentRendererClient();
+  virtual ~XWalkContentRendererClient();
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
@@ -31,9 +31,9 @@ class CameoContentRendererClient : public content::ContentRendererClient {
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoContentRendererClient);
+  DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_RENDERER_CAMEO_CONTENT_RENDERER_CLIENT_H_
+#endif  // CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
