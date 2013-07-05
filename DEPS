@@ -6,7 +6,7 @@ deps = {
 
 hooks = [
   {
-    # Fetch Cameo dependencies.
+    # Fetch Crosswalk dependencies.
     "pattern": ".",
     "action": ["python", "src/cameo/tools/fetch_deps.py", "-v"],
   },

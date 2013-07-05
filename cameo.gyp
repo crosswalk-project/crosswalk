@@ -1,8 +1,8 @@
 {
   'variables': {
     'cameo_product_name': 'Cameo',
-    # TODO: define cameo version format.
-    'cameo_version': '0.28.0.1',
+    # TODO: define xwalk version format.
+    'xwalk_version': '0.28.0.1',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -16,10 +16,10 @@
   ],
   'targets': [
     {
-      'target_name': 'cameo_runtime',
+      'target_name': 'xwalk_runtime',
       'type': 'static_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
-      'defines': ['CAMEO_VERSION="<(cameo_version)"'],
+      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
       'variables': {
         'chromium_code': 1,
       },
@@ -254,7 +254,7 @@
       'type': 'executable',
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
-        'cameo_runtime',
+        'xwalk_runtime',
         'xwalk_pak',
       ],
       'include_dirs': [

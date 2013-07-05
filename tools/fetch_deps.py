@@ -126,21 +126,21 @@ class DepsFetcher(gclient_utils.WorkItem):
   def __init__(self, name, options):
     gclient_utils.WorkItem.__init__(self, name)
     self._options = options
-    self._cameo_dir = os.path.dirname(
+    self._xwalk_dir = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))
     if options.deps:
       self._deps_file = options.deps
     else:
-      self._deps_file = os.path.join(self._cameo_dir, 'DEPS.cameo')
+      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.cameo')
     self._deps = None
     self._chromium_version = None
     self._ParseDepsFile()
     if not 'src' in self._deps:
       raise FetchingError("'src' not specified in deps file(%s)" % options.deps)
     self._src_dep = self._deps['src']
-    # self should be at src/cameo/tools/fetch_deps.py
+    # self should be at src/xwalk/tools/fetch_deps.py
     # so src is at self/../../../
-    self._src_dir = os.path.dirname(self._cameo_dir)
+    self._src_dir = os.path.dirname(self._xwalk_dir)
     self._root_dir = os.path.dirname(self._src_dir)
     self._new_gclient_file = os.path.join(self._root_dir,
                                           '.gclient-cameo')
