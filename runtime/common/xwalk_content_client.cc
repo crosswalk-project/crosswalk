@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/common/cameo_content_client.h"
+#include "cameo/runtime/common/xwalk_content_client.h"
 
 #include "base/command_line.h"
 #include "base/string_piece.h"
@@ -14,13 +14,13 @@
 
 namespace cameo {
 
-CameoContentClient::CameoContentClient() {
+XWalkContentClient::XWalkContentClient() {
 }
 
-CameoContentClient::~CameoContentClient() {
+XWalkContentClient::~XWalkContentClient() {
 }
 
-std::string CameoContentClient::GetUserAgent() const {
+std::string XWalkContentClient::GetUserAgent() const {
   // TODO(hmin): Define user agent for cameo.
   std::string product = "Chrome/" CAMEO_VERSION;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
@@ -29,23 +29,23 @@ std::string CameoContentClient::GetUserAgent() const {
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 
-string16 CameoContentClient::GetLocalizedString(int message_id) const {
+string16 XWalkContentClient::GetLocalizedString(int message_id) const {
   return l10n_util::GetStringUTF16(message_id);
 }
 
-base::StringPiece CameoContentClient::GetDataResource(
+base::StringPiece XWalkContentClient::GetDataResource(
     int resource_id,
     ui::ScaleFactor scale_factor) const {
   return ResourceBundle::GetSharedInstance().GetRawDataResourceForScale(
       resource_id, scale_factor);
 }
 
-base::RefCountedStaticMemory* CameoContentClient::GetDataResourceBytes(
+base::RefCountedStaticMemory* XWalkContentClient::GetDataResourceBytes(
     int resource_id) const {
   return ResourceBundle::GetSharedInstance().LoadDataResourceBytes(resource_id);
 }
 
-gfx::Image& CameoContentClient::GetNativeImageNamed(int resource_id) const {
+gfx::Image& XWalkContentClient::GetNativeImageNamed(int resource_id) const {
   return ResourceBundle::GetSharedInstance().GetNativeImageNamed(resource_id);
 }
 

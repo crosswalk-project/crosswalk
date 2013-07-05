@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_COMMON_CAMEO_NOTIFICATION_TYPES_H_
-#define CAMEO_RUNTIME_COMMON_CAMEO_NOTIFICATION_TYPES_H_
+#ifndef CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
+#define CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
 
 #include "build/build_config.h"
 #include "content/public/browser/notification_types.h"
@@ -11,11 +11,11 @@
 namespace cameo {
 
 enum NotificationType {
-  NOTIFICATION_CAMEO_START = content::NOTIFICATION_CONTENT_END,
+  NOTIFICATION_XWALK_START = content::NOTIFICATION_CONTENT_END,
 
   // Notify that a new Runtime instance is created. The source is a
   // Source<Runtime> containing the affected Runtime. No details is provided.
-  NOTIFICATION_RUNTIME_OPENED = NOTIFICATION_CAMEO_START,
+  NOTIFICATION_RUNTIME_OPENED = NOTIFICATION_XWALK_START,
 
   // Notify that a Runtime instance is close. The source is a Source<Runtime>
   // containing the affected Runtime. No details is provided.
@@ -24,9 +24,9 @@ enum NotificationType {
   // Notify that fullscreen state of a NativeAppWindow is changed.
   NOTIFICATION_FULLSCREEN_CHANGED,
 
-  NOTIFICATION_CAMEO_END,
+  NOTIFICATION_XWALK_END,
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_COMMON_CAMEO_NOTIFICATION_TYPES_H_
+#endif  // CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_

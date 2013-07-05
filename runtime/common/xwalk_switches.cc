@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 
 namespace switches {
 
-// Specifies the data path directory, which cameo runtime will look for its
+// Specifies the data path directory, which XWalk runtime will look for its
 // state, e.g. cache, localStorage etc.
-const char kCameoDataPath[] = "data-path";
+const char kXWalkDataPath[] = "data-path";
 
 // Specifies the icon file for the app window.
 const char kAppIcon[] = "app-icon";
