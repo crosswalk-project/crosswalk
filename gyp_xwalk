@@ -119,7 +119,7 @@ if __name__ == '__main__':
       # path separators even on Windows due to the use of shlex.split().
       args.extend(shlex.split(gyp_file))
     else:
-      args.append(os.path.join(xwalk_dir, 'cameo.gyp'))
+      args.append(os.path.join(xwalk_dir, 'xwalk.gyp'))
 
   args.extend(['-I' + i for i in additional_include_files(args)])
 
