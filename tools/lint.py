@@ -109,12 +109,12 @@ def do_cpp_lint(changeset, repo, args):
   class MyFileInfo(origin_FileInfo):
     def RepositoryName(self):
       ''' Origin FileInfo find the first .git and take it as project root,
-          it's not the case for cameo, header in cameo should have guard
+          it's not the case for xwalk, header in xwalk should have guard
           relevant to root dir of chromium project, which is one level
           upper of the origin output of RepositoryName.
       '''
       repo_name = origin_FileInfo.RepositoryName(self)
-      if repo == "cameo" and not repo_name.startswith('cameo'):
+      if repo == "xwalk" and not repo_name.startswith('cameo'):
         return 'cameo/%s' % repo_name
       else:
         return repo_name
@@ -176,21 +176,21 @@ def do_py_lint(changeset):
     print 'You have error for python importing, please check your PYTHONPATH'
  
 def do_lint(repo, base, args):
-  # dir structure should be src/cameo for cameo
+  # dir structure should be src/cameo for xwalk
   #                         src/third_party/WebKit for blink
   #                         src/ for chromium
   # lint.py should be located in src/cameo/tools/lint.py
   _lint_py = os.path.abspath(__file__)
   _dirs = _lint_py.split(os.path.sep)
   src_root = os.path.sep.join(_dirs[:len(_dirs)-3])
-  if repo == 'cameo':
+  if repo == 'xwalk':
     base_repo = os.path.join(src_root, 'cameo')
   elif repo == 'chromium':
     base_repo = src_root
   elif repo == 'blink':
     base_repo = os.path.join(src_root, 'third_party', 'WebKit')
   else:
-    raise NotImplementedError('repo must in cameo, blink and chromium')
+    raise NotImplementedError('repo must in xwalk, blink and chromium')
   previous_cwd = os.getcwd()
   os.chdir(base_repo)
   if base == None:
@@ -218,9 +218,9 @@ class PassThroughOptionParser(OptionParser):
 def main():
   option_parser = PassThroughOptionParser()
 
-  option_parser.add_option('--repo', default='cameo',
-      help='The repo to do lint, should be in [cameo, blink, chromium]\
-            cameo by default')
+  option_parser.add_option('--repo', default='xwalk',
+      help='The repo to do lint, should be in [xwalk, blink, chromium]\
+            xwalk by default')
   option_parser.add_option('--base', default=None,
       help='The base point to get change set. If not specified,' +
            ' it will choose:\r\n' +
