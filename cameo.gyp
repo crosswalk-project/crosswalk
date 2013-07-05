@@ -177,7 +177,7 @@
         'generate_xwalk_resources',
       ],
       'variables': {
-        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cameo',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk',
       },
       'includes': [ '../build/grit_target.gypi' ],
       'copies': [
@@ -193,7 +193,7 @@
       'target_name': 'generate_xwalk_resources',
       'type': 'none',
       'variables': {
-        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cameo',
+        'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk',
       },
       'actions': [
         {
