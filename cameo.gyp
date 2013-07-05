@@ -57,8 +57,8 @@
         'extensions/extensions.gypi',
       ],
       'sources': [
-        'runtime/app/cameo_main_delegate.cc',
-        'runtime/app/cameo_main_delegate.h',
+        'runtime/app/xwalk_main_delegate.cc',
+        'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/cameo_browser_main_parts.cc',
         'runtime/browser/cameo_browser_main_parts.h',
         'runtime/browser/cameo_content_browser_client.cc',
@@ -261,7 +261,7 @@
         '..',
       ],
       'sources': [
-        'runtime/app/cameo_main.cc',
+        'runtime/app/xwalk_main.cc',
       ],
       'msvs_settings': {
         'VCLinkerTool': {

@@ -13,7 +13,7 @@
 #include "base/run_loop.h"
 #include "base/string_util.h"
 #include "base/test/test_file_util.h"
-#include "cameo/runtime/app/cameo_main_delegate.h"
+#include "cameo/runtime/app/xwalk_main_delegate.h"
 #include "cameo/test/base/xwalk_test_suite.h"
 #include "content/public/app/content_main.h"
 #include "content/public/browser/browser_thread.h"
@@ -80,7 +80,7 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  protected:
   virtual content::ContentMainDelegate* CreateContentMainDelegate() OVERRIDE {
 #if defined(OS_WIN) || defined (OS_LINUX)
-    return new cameo::CameoMainDelegate();
+    return new cameo::XWalkMainDelegate();
 #else
     // This delegate is only guaranteed to link on linux and windows, so just
     // bail out if we are on any other platform.
