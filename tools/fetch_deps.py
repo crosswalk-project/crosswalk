@@ -131,7 +131,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     if options.deps:
       self._deps_file = options.deps
     else:
-      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.cameo')
+      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
     self._deps = None
     self._chromium_version = None
     self._ParseDepsFile()
@@ -143,7 +143,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     self._src_dir = os.path.dirname(self._xwalk_dir)
     self._root_dir = os.path.dirname(self._src_dir)
     self._new_gclient_file = os.path.join(self._root_dir,
-                                          '.gclient-cameo')
+                                          '.gclient-xwalk')
     self._src_git = FolderExistGitWrapper(self._src_dep, self._root_dir, 'src')
     
   def _ParseDepsFile(self):
@@ -152,7 +152,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     exec_globals = {}
 
     execfile(self._deps_file, exec_globals)
-    self._deps = exec_globals['deps_cameo']
+    self._deps = exec_globals['deps_xwalk']
     self._chromium_version = exec_globals['chromium_version']
 
   @property
@@ -167,13 +167,13 @@ class DepsFetcher(gclient_utils.WorkItem):
     return 0
 
   def AddIgnorePathFromEnv(self):
-    """Read paths from environ CAMEO_SYNC_IGNORE.
+    """Read paths from environ XWALK_SYNC_IGNORE.
        Set the path with None value to ignore it when syncing chromium.
 
        If environ not set, will ignore the ones upstream wiki recommended
        by default.
     """
-    ignores_str = os.environ.get("CAMEO_SYNC_IGNORE")
+    ignores_str = os.environ.get("XWALK_SYNC_IGNORE")
     if not ignores_str:
       ignores = ['src/webkit/data/layout_tests/LayoutTests',
                  'src/third_party/WebKit/LayoutTests',

@@ -76,7 +76,7 @@
     'target_name': 'xwalk_browsertest',
     'type': 'executable',
     'dependencies': [
-      'cameo',
+      'xwalk',
       'xwalk_test_common',
       '../skia/skia.gyp:skia',
       '../testing/gtest.gyp:gtest',
