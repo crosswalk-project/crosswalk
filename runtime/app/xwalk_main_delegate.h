@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_APP_CAMEO_MAIN_DELEGATE_H_
-#define CAMEO_RUNTIME_APP_CAMEO_MAIN_DELEGATE_H_
+#ifndef CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
+#define CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
 
 #include <string>
 
@@ -20,10 +20,10 @@ class ContentClient;
 
 namespace cameo {
 
-class CameoMainDelegate : public content::ContentMainDelegate {
+class XWalkMainDelegate : public content::ContentMainDelegate {
  public:
-  CameoMainDelegate();
-  virtual ~CameoMainDelegate();
+  XWalkMainDelegate();
+  virtual ~XWalkMainDelegate();
 
   // ContentMainDelegate implementation:
   virtual bool BasicStartupComplete(int* exit_code) OVERRIDE;
@@ -41,9 +41,9 @@ class CameoMainDelegate : public content::ContentMainDelegate {
   scoped_ptr<content::ContentRendererClient> renderer_client_;
   scoped_ptr<content::ContentClient> content_client_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoMainDelegate);
+  DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegate);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_APP_CAMEO_MAIN_DELEGATE_H_
+#endif  // CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
