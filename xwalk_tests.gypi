@@ -4,7 +4,7 @@
     'target_name': 'xwalk_test_common',
     'type': 'static_library',
     'dependencies': [
-      'cameo_runtime',
+      'xwalk_runtime',
       'xwalk_resources',
       '../base/base.gyp:test_support_base',
       '../base/base.gyp:base_prefs_test_support',

@@ -22,7 +22,7 @@ XWalkContentClient::~XWalkContentClient() {
 
 std::string XWalkContentClient::GetUserAgent() const {
   // TODO(hmin): Define user agent for xwalk.
-  std::string product = "Chrome/" CAMEO_VERSION;
+  std::string product = "Chrome/" XWALK_VERSION;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
