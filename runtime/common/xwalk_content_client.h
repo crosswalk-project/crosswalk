@@ -11,7 +11,7 @@
 #include "base/compiler_specific.h"
 #include "content/public/common/content_client.h"
 
-namespace cameo {
+namespace xwalk {
 
 class XWalkContentClient : public content::ContentClient {
  public:
@@ -31,6 +31,6 @@ class XWalkContentClient : public content::ContentClient {
   DISALLOW_COPY_AND_ASSIGN(XWalkContentClient);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_COMMON_XWALK_CONTENT_CLIENT_H_

@@ -11,7 +11,7 @@ bool g_testing = false;
 
 }  // namespace
 
-namespace cameo {
+namespace xwalk {
 
 // static
 bool ColorChooser::IsTesting() {
@@ -29,5 +29,5 @@ void ColorChooser::SetColorForBrowserTest(SkColor color) {
   g_browser_test_color = color;
 }
 
-}  // namespace cameo
+}  // namespace xwalk
 

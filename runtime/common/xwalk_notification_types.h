@@ -8,7 +8,7 @@
 #include "build/build_config.h"
 #include "content/public/browser/notification_types.h"
 
-namespace cameo {
+namespace xwalk {
 
 enum NotificationType {
   NOTIFICATION_XWALK_START = content::NOTIFICATION_CONTENT_END,
@@ -27,6 +27,6 @@ enum NotificationType {
   NOTIFICATION_XWALK_END,
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_

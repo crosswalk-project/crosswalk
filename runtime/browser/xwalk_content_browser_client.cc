@@ -16,7 +16,7 @@
 #include "content/public/common/main_function_params.h"
 #include "net/url_request/url_request_context_getter.h"
 
-namespace cameo {
+namespace xwalk {
 
 namespace {
 
@@ -85,4 +85,4 @@ content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
   return XWalkMediaCaptureDevicesDispatcher::GetInstance();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

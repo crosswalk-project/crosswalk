@@ -25,7 +25,7 @@ class ProxyConfigService;
 class URLRequestContextStorage;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
  public:
@@ -59,6 +59,6 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   DISALLOW_COPY_AND_ASSIGN(RuntimeURLRequestContextGetter);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_URL_REQUEST_CONTEXT_GETTER_H_

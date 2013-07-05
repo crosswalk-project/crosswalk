@@ -13,8 +13,8 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
-using cameo::extensions::XWalkExtensionService;
-using cameo::extensions::XWalkExternalExtension;
+using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExternalExtension;
 
 static base::FilePath GetNativeLibraryFilePath(const char* name) {
   base::string16 library_name = base::GetNativeLibraryName(UTF8ToUTF16(name));

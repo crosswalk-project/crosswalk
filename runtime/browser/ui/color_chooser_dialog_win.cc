@@ -55,9 +55,9 @@ void ColorChooserDialog::ListenerDestroyed() {
 void ColorChooserDialog::ExecuteOpen(const ExecuteOpenParams& params) {
   SkColor selected_color;
   bool success;
-  if (cameo::ColorChooser::IsTesting()) {
+  if (xwalk::ColorChooser::IsTesting()) {
     success = true;
-    selected_color = cameo::ColorChooser::GetColorForBrowserTest();
+    selected_color = xwalk::ColorChooser::GetColorForBrowserTest();
   } else {
     CHOOSECOLOR cc;
     cc.lStructSize = sizeof(CHOOSECOLOR);

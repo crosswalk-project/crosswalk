@@ -15,7 +15,7 @@ class RenderProcessHost;
 class WebContents;
 }
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
@@ -67,6 +67,6 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_

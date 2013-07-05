@@ -58,6 +58,6 @@ IN_PROC_BROWSER_TEST_F(XWalkSwitchesTest, kXWalkDataPath) {
   // kXWalkDataPath option should also override the DIR_DATA_PATH value
   // registered in PathService.
   base::FilePath path;
-  EXPECT_TRUE(PathService::Get(cameo::DIR_DATA_PATH, &path));
+  EXPECT_TRUE(PathService::Get(xwalk::DIR_DATA_PATH, &path));
   EXPECT_EQ(path, data_path);
 }

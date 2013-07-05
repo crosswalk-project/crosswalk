@@ -11,7 +11,7 @@
 
 #include "base/callback.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionWrapper;
@@ -76,6 +76,6 @@ class XWalkExtension {
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_H_

@@ -4,7 +4,7 @@
 
 #include "cameo/extensions/browser/xwalk_extension.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 XWalkExtension::XWalkExtension() {}
@@ -12,4 +12,4 @@ XWalkExtension::XWalkExtension() {}
 XWalkExtension::~XWalkExtension() {}
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk

@@ -30,15 +30,15 @@
 #include "net/base/net_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-using cameo::NativeAppWindow;
-using cameo::Runtime;
-using cameo::RuntimeRegistry;
-using cameo::RuntimeList;
+using xwalk::NativeAppWindow;
+using xwalk::Runtime;
+using xwalk::RuntimeRegistry;
+using xwalk::RuntimeList;
 using content::WebContents;
 using testing::_;
 
 // A mock observer to listen runtime registry changes.
-class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
+class MockRuntimeRegistryObserver : public xwalk::RuntimeRegistryObserver {
  public:
   MockRuntimeRegistryObserver() {}
   virtual ~MockRuntimeRegistryObserver() {}
@@ -63,7 +63,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
   virtual void SetUpOnMainThread() OVERRIDE {
     notification_observer_.reset(
         new content::WindowedNotificationObserver(
-          cameo::NOTIFICATION_RUNTIME_OPENED,
+          xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
     const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
     for (RuntimeList::const_iterator it = runtimes.begin();

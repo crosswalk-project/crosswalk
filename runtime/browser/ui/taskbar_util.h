@@ -5,12 +5,12 @@
 #ifndef CAMEO_RUNTIME_BROWSER_UI_TASKBAR_UTIL_H_
 #define CAMEO_RUNTIME_BROWSER_UI_TASKBAR_UTIL_H_
 
-namespace cameo {
+namespace xwalk {
 
 // Set the ID for current process so that the icons of different apps
 // on status bar will show in different group.
 void SetTaskbarGroupIdForProcess();
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_UI_TASKBAR_UTIL_H_

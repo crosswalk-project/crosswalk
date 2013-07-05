@@ -8,7 +8,7 @@
 #include "base/utf_string_conversions.h"
 #include "cameo/test/base/in_process_browser_test.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 class XWalkExtensionService;
 }
@@ -18,7 +18,7 @@ class XWalkExtensionsTestBase : public InProcessBrowserTest {
  public:
   virtual void SetUp() OVERRIDE;
   virtual void RegisterExtensions(
-      cameo::extensions::XWalkExtensionService* extension_service) {}
+      xwalk::extensions::XWalkExtensionService* extension_service) {}
 };
 
 GURL GetExtensionsTestURL(const base::FilePath& dir,

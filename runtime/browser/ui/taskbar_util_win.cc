@@ -17,7 +17,7 @@
 #include <shobjidl.h>  // NOLINT(build/include_order)
 #endif
 
-namespace cameo {
+namespace xwalk {
 
 const size_t kIdSize = 16;
 
@@ -63,4 +63,4 @@ void SetTaskbarGroupIdForProcess() {
   }
 }
 
-}  // namespace cameo
+}  // namespace xwalk

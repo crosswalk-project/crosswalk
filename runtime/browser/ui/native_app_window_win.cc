@@ -20,7 +20,7 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/win/hwnd_util.h"
 
-namespace cameo {
+namespace xwalk {
 
 NativeAppWindowWin::NativeAppWindowWin(
     const NativeAppWindow::CreateParams& create_params)
@@ -106,7 +106,7 @@ void NativeAppWindowWin::SetFullscreen(bool fullscreen) {
   window_->SetFullscreen(is_fullscreen_);
 
   content::NotificationService::current()->Notify(
-      cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+      xwalk::NOTIFICATION_FULLSCREEN_CHANGED,
       content::Source<NativeAppWindow>(this),
       content::NotificationService::NoDetails());
 }
@@ -253,4 +253,4 @@ NativeAppWindow* NativeAppWindow::Create(
   return new NativeAppWindowWin(create_params);
 }
 
-}  // namespace cameo
+}  // namespace xwalk

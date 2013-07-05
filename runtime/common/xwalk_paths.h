@@ -8,7 +8,7 @@
 #include "build/build_config.h"
 #include "content/public/browser/notification_types.h"
 
-namespace cameo {
+namespace xwalk {
 
 enum {
   PATH_START = 1000,
@@ -20,6 +20,6 @@ enum {
 
 void RegisterPathProvider();
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_COMMON_XWALK_PATHS_H_

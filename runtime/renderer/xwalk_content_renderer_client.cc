@@ -6,7 +6,7 @@
 
 #include "cameo/extensions/renderer/xwalk_extension_renderer_controller.h"
 
-namespace cameo {
+namespace xwalk {
 
 namespace {
 XWalkContentRendererClient* g_renderer_client;
@@ -34,4 +34,4 @@ void XWalkContentRendererClient::RenderViewCreated(
   extension_controller_->RenderViewCreated(render_view);
 }
 
-}  // namespace cameo
+}  // namespace xwalk

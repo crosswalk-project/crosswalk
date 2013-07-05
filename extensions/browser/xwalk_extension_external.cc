@@ -8,7 +8,7 @@
 #include "base/logging.h"
 #include "cameo/extensions/browser/xwalk_extension.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 #define INTERNAL_IMPLEMENTATION
@@ -108,4 +108,4 @@ XWalkExternalExtension::ExternalContext::~ExternalContext() {
 }
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk

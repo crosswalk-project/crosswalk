@@ -16,7 +16,7 @@ namespace content {
 class DevToolsHttpHandler;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeContext;
 
@@ -43,6 +43,6 @@ class XWalkDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsDelegate);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_

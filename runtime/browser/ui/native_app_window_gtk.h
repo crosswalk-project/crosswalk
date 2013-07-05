@@ -14,7 +14,7 @@
 #include "ui/base/gtk/gtk_signal.h"
 #include "ui/base/x/active_window_watcher_x_observer.h"
 
-namespace cameo {
+namespace xwalk {
 
 class NativeAppWindowGtk : public NativeAppWindow,
     public ui::ActiveWindowWatcherXObserver {
@@ -81,6 +81,6 @@ class NativeAppWindowGtk : public NativeAppWindow,
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowGtk);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_GTK_H_

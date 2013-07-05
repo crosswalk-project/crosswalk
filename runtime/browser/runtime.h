@@ -25,7 +25,7 @@ struct FileChooserParams;
 class WebContents;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class NativeAppWindow;
 class RuntimeContext;
@@ -126,7 +126,7 @@ class Runtime : public content::WebContentsDelegate,
   virtual void OnWindowDestroyed() OVERRIDE;
 
   // The browsing context.
-  cameo::RuntimeContext* runtime_context_;
+  xwalk::RuntimeContext* runtime_context_;
 
   // Notification manager.
   content::NotificationRegistrar registrar_;
@@ -156,6 +156,6 @@ class Runtime : public content::WebContentsDelegate,
   unsigned int fullscreen_options_;
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_H_

@@ -11,7 +11,7 @@
 #include "base/compiler_specific.h"
 #include "net/base/network_delegate.h"
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeNetworkDelegate : public net::NetworkDelegate {
  public:
@@ -66,6 +66,6 @@ class RuntimeNetworkDelegate : public net::NetworkDelegate {
   DISALLOW_COPY_AND_ASSIGN(RuntimeNetworkDelegate);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_NETWORK_DELEGATE_H_

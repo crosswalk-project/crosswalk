@@ -44,10 +44,10 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
   }
 
   virtual void OnTestStart(const testing::TestInfo& test_info) OVERRIDE {
-    content_client_.reset(new cameo::XWalkContentClient);
+    content_client_.reset(new xwalk::XWalkContentClient);
     content::SetContentClient(content_client_.get());
 
-    browser_content_client_.reset(new cameo::XWalkContentBrowserClient());
+    browser_content_client_.reset(new xwalk::XWalkContentBrowserClient());
     SetBrowserClientForTesting(browser_content_client_.get());
   }
 
@@ -58,8 +58,8 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
   }
 
  private:
-  scoped_ptr<cameo::XWalkContentClient> content_client_;
-  scoped_ptr<cameo::XWalkContentBrowserClient> browser_content_client_;
+  scoped_ptr<xwalk::XWalkContentClient> content_client_;
+  scoped_ptr<xwalk::XWalkContentBrowserClient> browser_content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkTestSuiteInitializer);
 };
@@ -74,7 +74,7 @@ XWalkTestSuite::~XWalkTestSuite() {
 }
 
 void XWalkTestSuite::Initialize() {
-  cameo::RegisterPathProvider();
+  xwalk::RegisterPathProvider();
 
   // Initialize after overriding paths as some content paths depend on correct
   // values for DIR_EXE and DIR_MODULE.
@@ -99,7 +99,7 @@ void XWalkTestSuite::Initialize() {
 }
 
 content::ContentClient* XWalkTestSuite::CreateClientForInitialization() {
-  return new cameo::XWalkContentClient();
+  return new xwalk::XWalkContentClient();
 }
 
 void XWalkTestSuite::Shutdown() {

@@ -17,7 +17,7 @@ namespace content {
 class WebContents;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class NativeAppWindowDelegate {
  public:
@@ -105,5 +105,5 @@ class NativeAppWindow {
   virtual ~NativeAppWindow() {}
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 #endif  // CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_

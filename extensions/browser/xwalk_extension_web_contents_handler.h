@@ -10,7 +10,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
@@ -45,6 +45,6 @@ class XWalkExtensionWebContentsHandler
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_WEB_CONTENTS_HANDLER_H_

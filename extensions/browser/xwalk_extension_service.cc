@@ -12,7 +12,7 @@
 #include "cameo/extensions/common/xwalk_extension_messages.h"
 #include "content/public/browser/render_process_host.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 namespace {
@@ -109,4 +109,4 @@ void XWalkExtensionService::CreateWebContentsHandler(
 }
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk

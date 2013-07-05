@@ -14,7 +14,7 @@ namespace base {
 class FilePath;
 };
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 typedef struct CXWalkExtension_ CXWalkExtension;
@@ -63,6 +63,6 @@ class XWalkExternalExtension : public XWalkExtension {
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_

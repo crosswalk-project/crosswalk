@@ -12,7 +12,7 @@
 
 using content::RenderViewHost;
 
-namespace cameo {
+namespace xwalk {
 
 // An application-wide runtime registry.
 static RuntimeRegistry* g_runtime_registry = NULL;
@@ -46,7 +46,7 @@ void RuntimeRegistry::AddRuntime(Runtime* runtime) {
   runtime_list_.push_back(runtime);
 
   content::NotificationService::current()->Notify(
-      cameo::NOTIFICATION_RUNTIME_OPENED,
+      xwalk::NOTIFICATION_RUNTIME_OPENED,
       content::Source<Runtime>(runtime),
       content::NotificationService::NoDetails());
 
@@ -61,7 +61,7 @@ void RuntimeRegistry::RemoveRuntime(Runtime* runtime) {
     runtime_list_.erase(it);
 
   content::NotificationService::current()->Notify(
-      cameo::NOTIFICATION_RUNTIME_CLOSED,
+      xwalk::NOTIFICATION_RUNTIME_CLOSED,
       content::Source<Runtime>(runtime),
       content::NotificationService::NoDetails());
 
@@ -105,4 +105,4 @@ void RuntimeRegistry::CloseAll() {
   DCHECK_EQ(runtime_list_.size(), 0u) << runtime_list_.size();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

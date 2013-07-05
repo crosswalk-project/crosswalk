@@ -33,7 +33,7 @@
 
 using content::BrowserThread;
 
-namespace cameo {
+namespace xwalk {
 
 RuntimeDownloadManagerDelegate::RuntimeDownloadManagerDelegate()
     : download_manager_(NULL),
@@ -199,4 +199,4 @@ void RuntimeDownloadManagerDelegate::SetDownloadBehaviorForTesting(
   suppress_prompting_ = true;
 }
 
-}  // namespace cameo
+}  // namespace xwalk
