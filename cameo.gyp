@@ -48,7 +48,7 @@
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/support/webkit_support.gyp:webkit_resources',
         '../webkit/support/webkit_support.gyp:webkit_support',
-        'cameo_resources',
+        'xwalk_resources',
       ],
       'include_dirs': [
         '..',
@@ -171,10 +171,10 @@
       ],
     },
     {
-      'target_name': 'cameo_resources',
+      'target_name': 'xwalk_resources',
       'type': 'none',
       'dependencies': [
-        'generate_cameo_resources',
+        'generate_xwalk_resources',
       ],
       'variables': {
         'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cameo',
@@ -184,48 +184,48 @@
         {
           'destination': '<(PRODUCT_DIR)',
           'files': [
-            '<(SHARED_INTERMEDIATE_DIR)/cameo/cameo_resources.pak'
+            '<(SHARED_INTERMEDIATE_DIR)/cameo/xwalk_resources.pak'
           ],
         },
       ],
     },
     {
-      'target_name': 'generate_cameo_resources',
+      'target_name': 'generate_xwalk_resources',
       'type': 'none',
       'variables': {
         'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/cameo',
       },
       'actions': [
         {
-          'action_name': 'cameo_resources',
+          'action_name': 'xwalk_resources',
           'variables': {
             'grit_resource_ids': 'runtime/resources/resource_ids',
-            'grit_grd_file': 'runtime/resources/cameo_resources.grd',
+            'grit_grd_file': 'runtime/resources/xwalk_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
       ],
     },
     {
-      # Build a minimal set of resources so Blink in cameo has
+      # Build a minimal set of resources so Blink in XWalk has
       # access to necessary resources.
-      'target_name': 'cameo_pak',
+      'target_name': 'xwalk_pak',
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
-        'cameo_resources',
+        'xwalk_resources',
       ],
       'variables': {
         'repack_path': '../tools/grit/grit/format/repack.py',
       },
       'actions': [
         {
-          'action_name': 'repack_cameo_resources',
+          'action_name': 'repack_xwalk_resources',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/cameo/cameo_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/cameo/xwalk_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',
@@ -244,7 +244,7 @@
           'action': ['python', '<(repack_path)', '<@(_outputs)',
                      '<@(pak_inputs)'],
           'outputs':[
-            '<(PRODUCT_DIR)/cameo.pak',
+            '<(PRODUCT_DIR)/xwalk.pak',
           ],
         },
       ],
@@ -255,7 +255,7 @@
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
         'cameo_runtime',
-        'cameo_pak',
+        'xwalk_pak',
       ],
       'include_dirs': [
         '..',
@@ -277,7 +277,7 @@
         ['OS=="win"', {
           'sources': [
             '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
-            'runtime/resources/cameo.rc',
+            'runtime/resources/xwalk.rc',
           ],
           'copies': [
             {
