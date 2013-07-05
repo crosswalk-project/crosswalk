@@ -1,6 +1,6 @@
 {
   'variables': {
-    'cameo_product_name': 'Cameo',
+    'xwalk_product_name': 'XWalk',
     # TODO: define xwalk version format.
     'xwalk_version': '0.28.0.1',
     'conditions': [
@@ -250,7 +250,7 @@
       ],
     },
     {
-      'target_name': 'cameo',
+      'target_name': 'xwalk',
       'type': 'executable',
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
@@ -322,7 +322,7 @@
       'target_name': 'cameo_builder',
       'type': 'none',
       'dependencies': [
-        'cameo',
+        'xwalk',
         'xwalk_browsertest',
         'xwalk_unittest',
       ],
