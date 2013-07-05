@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_GEOLOCATION_CAMEO_ACCESS_TOKEN_STORE_H_
-#define CAMEO_RUNTIME_BROWSER_GEOLOCATION_CAMEO_ACCESS_TOKEN_STORE_H_
+#ifndef CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
+#define CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
 
 #include "content/public/browser/access_token_store.h"
 
-class CameoAccessTokenStore : public content::AccessTokenStore {
+class XWalkAccessTokenStore : public content::AccessTokenStore {
  public:
-  explicit CameoAccessTokenStore(net::URLRequestContextGetter* request_context);
+  explicit XWalkAccessTokenStore(net::URLRequestContextGetter* request_context);
 
  private:
-  virtual ~CameoAccessTokenStore();
+  virtual ~XWalkAccessTokenStore();
 
   // AccessTokenStore
   virtual void LoadAccessTokens(
@@ -27,7 +27,7 @@ class CameoAccessTokenStore : public content::AccessTokenStore {
 
   net::URLRequestContextGetter* request_context_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoAccessTokenStore);
+  DISALLOW_COPY_AND_ASSIGN(XWalkAccessTokenStore);
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_GEOLOCATION_CAMEO_ACCESS_TOKEN_STORE_H_
+#endif  // CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_

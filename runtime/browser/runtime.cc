@@ -9,8 +9,8 @@
 
 #include "base/command_line.h"
 #include "base/message_loop.h"
-#include "cameo/runtime/browser/cameo_browser_main_parts.h"
-#include "cameo/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
+#include "cameo/runtime/browser/xwalk_content_browser_client.h"
 #include "cameo/runtime/browser/image_util.h"
 #include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "cameo/runtime/browser/runtime_context.h"
@@ -322,7 +322,7 @@ void Runtime::RequestMediaAccessPermission(
       case content::MEDIA_OPEN_DEVICE:
         // For open device request pick the desired device or fall back to the
         // first available of the given type.
-        CameoMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+        XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
             request.requested_device_id,
             microphone_requested,
             webcam_requested,
@@ -332,7 +332,7 @@ void Runtime::RequestMediaAccessPermission(
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
         // Get the default devices for the request.
-        CameoMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+        XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
             "",
             microphone_requested,
             webcam_requested,

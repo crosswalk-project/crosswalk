@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_CAMEO_CONTENT_BROWSER_CLIENT_H_
-#define CAMEO_RUNTIME_BROWSER_CAMEO_CONTENT_BROWSER_CLIENT_H_
+#ifndef CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
+#define CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
@@ -21,15 +21,15 @@ class URLRequestContextGetter;
 
 namespace cameo {
 
-class CameoBrowserMainParts;
+class XWalkBrowserMainParts;
 class RuntimeContext;
 
-class CameoContentBrowserClient : public content::ContentBrowserClient {
+class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
-  static CameoContentBrowserClient* Get();
+  static XWalkContentBrowserClient* Get();
 
-  CameoContentBrowserClient();
-  virtual ~CameoContentBrowserClient();
+  XWalkContentBrowserClient();
+  virtual ~XWalkContentBrowserClient();
 
   // ContentBrowserClient overrides.
   virtual content::BrowserMainParts* CreateBrowserMainParts(
@@ -51,11 +51,11 @@ class CameoContentBrowserClient : public content::ContentBrowserClient {
 
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
-  CameoBrowserMainParts* main_parts_;
+  XWalkBrowserMainParts* main_parts_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoContentBrowserClient);
+  DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_BROWSER_CAMEO_CONTENT_BROWSER_CLIENT_H_
+#endif  // CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_

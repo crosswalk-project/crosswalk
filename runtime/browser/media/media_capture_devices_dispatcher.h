@@ -17,7 +17,7 @@
 
 // This singleton is used to receive updates about media events from the content
 // layer. Based on chrome/browser/media/media_capture_devices_dispatcher.[h|cc].
-class CameoMediaCaptureDevicesDispatcher : public content::MediaObserver {
+class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
  public:
   class Observer {
    public:
@@ -41,7 +41,7 @@ class CameoMediaCaptureDevicesDispatcher : public content::MediaObserver {
     virtual ~Observer() {}
   };
 
-  static CameoMediaCaptureDevicesDispatcher* GetInstance();
+  static XWalkMediaCaptureDevicesDispatcher* GetInstance();
 
   // Methods for observers. Called on UI thread.
   // Observers should add themselves on construction and remove themselves
@@ -77,10 +77,10 @@ class CameoMediaCaptureDevicesDispatcher : public content::MediaObserver {
       bool playing) OVERRIDE;
 
  private:
-  friend struct DefaultSingletonTraits<CameoMediaCaptureDevicesDispatcher>;
+  friend struct DefaultSingletonTraits<XWalkMediaCaptureDevicesDispatcher>;
 
-  CameoMediaCaptureDevicesDispatcher();
-  virtual ~CameoMediaCaptureDevicesDispatcher();
+  XWalkMediaCaptureDevicesDispatcher();
+  virtual ~XWalkMediaCaptureDevicesDispatcher();
 
   // Called by the MediaObserver() functions, executed on UI thread.
   void UpdateAudioDevicesOnUIThread(const content::MediaStreamDevices& devices);

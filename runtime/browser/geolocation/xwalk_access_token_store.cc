@@ -2,34 +2,34 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/geolocation/cameo_access_token_store.h"
+#include "cameo/runtime/browser/geolocation/xwalk_access_token_store.h"
 
 #include "base/bind.h"
 #include "base/message_loop.h"
 
-CameoAccessTokenStore::CameoAccessTokenStore(
+XWalkAccessTokenStore::XWalkAccessTokenStore(
     net::URLRequestContextGetter* request_context)
     : request_context_(request_context) {
 }
 
-CameoAccessTokenStore::~CameoAccessTokenStore() {
+XWalkAccessTokenStore::~XWalkAccessTokenStore() {
 }
 
-void CameoAccessTokenStore::LoadAccessTokens(
+void XWalkAccessTokenStore::LoadAccessTokens(
     const LoadAccessTokensCallbackType& callback) {
   MessageLoop::current()->PostTask(
       FROM_HERE,
-      base::Bind(&CameoAccessTokenStore::DidLoadAccessTokens,
+      base::Bind(&XWalkAccessTokenStore::DidLoadAccessTokens,
                  request_context_, callback));
 }
 
-void CameoAccessTokenStore::DidLoadAccessTokens(
+void XWalkAccessTokenStore::DidLoadAccessTokens(
     net::URLRequestContextGetter* request_context,
     const LoadAccessTokensCallbackType& callback) {
   AccessTokenSet access_token_set;
   callback.Run(access_token_set, request_context);
 }
 
-void CameoAccessTokenStore::SaveAccessToken(
+void XWalkAccessTokenStore::SaveAccessToken(
     const GURL& server_url, const string16& access_token) {
 }

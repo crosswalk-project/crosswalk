@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/cameo_browser_main_parts.h"
+#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
 
 #include <string>
 
@@ -27,7 +27,7 @@ namespace cameo {
 
 using extensions::XWalkExternalExtension;
 
-CameoBrowserMainParts::CameoBrowserMainParts(
+XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
       startup_url_(chrome::kAboutBlankURL),
@@ -35,10 +35,10 @@ CameoBrowserMainParts::CameoBrowserMainParts(
       run_default_message_loop_(true) {
 }
 
-CameoBrowserMainParts::~CameoBrowserMainParts() {
+XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
-void CameoBrowserMainParts::PreMainMessageLoopStart() {
+void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   const CommandLine::StringVector& args = command_line->GetArgs();
 
@@ -52,13 +52,13 @@ void CameoBrowserMainParts::PreMainMessageLoopStart() {
     startup_url_ = net::FilePathToFileURL(base::FilePath(args[0]));
 }
 
-void CameoBrowserMainParts::PostMainMessageLoopStart() {
+void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 }
 
-void CameoBrowserMainParts::PreEarlyInitialization() {
+void XWalkBrowserMainParts::PreEarlyInitialization() {
 }
 
-void CameoBrowserMainParts::RegisterExternalExtensions() {
+void XWalkBrowserMainParts::RegisterExternalExtensions() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkExternalExtensionsPath))
     return;
@@ -96,7 +96,7 @@ void CameoBrowserMainParts::RegisterExternalExtensions() {
   }
 }
 
-void CameoBrowserMainParts::PreMainMessageLoopRun() {
+void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(
@@ -131,11 +131,11 @@ void CameoBrowserMainParts::PreMainMessageLoopRun() {
   }
 }
 
-bool CameoBrowserMainParts::MainMessageLoopRun(int* result_code) {
+bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
   return !run_default_message_loop_;
 }
 
-void CameoBrowserMainParts::PostMainMessageLoopRun() {
+void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_context_.reset();
 }
 

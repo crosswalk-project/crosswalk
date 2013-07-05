@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/runtime/browser/xwalk_content_browser_client.h"
 
 #include "cameo/extensions/browser/xwalk_extension_service.h"
-#include "cameo/runtime/browser/cameo_browser_main_parts.h"
-#include "cameo/runtime/browser/geolocation/cameo_access_token_store.h"
+#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
+#include "cameo/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "cameo/runtime/browser/runtime_context.h"
 #include "content/public/browser/browser_main_parts.h"
@@ -21,33 +21,33 @@ namespace cameo {
 namespace {
 
 // The application-wide singleton of ContentBrowserClient impl.
-CameoContentBrowserClient* g_browser_client = NULL;
+XWalkContentBrowserClient* g_browser_client = NULL;
 
 }  // namespace
 
 // static
-CameoContentBrowserClient* CameoContentBrowserClient::Get() {
+XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
   return g_browser_client;
 }
 
-CameoContentBrowserClient::CameoContentBrowserClient()
+XWalkContentBrowserClient::XWalkContentBrowserClient()
     : main_parts_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
 
-CameoContentBrowserClient::~CameoContentBrowserClient() {
+XWalkContentBrowserClient::~XWalkContentBrowserClient() {
   DCHECK(g_browser_client);
   g_browser_client = NULL;
 }
 
-content::BrowserMainParts* CameoContentBrowserClient::CreateBrowserMainParts(
+content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
-  main_parts_ = new CameoBrowserMainParts(parameters);
+  main_parts_ = new XWalkBrowserMainParts(parameters);
   return main_parts_;
 }
 
-net::URLRequestContextGetter* CameoContentBrowserClient::CreateRequestContext(
+net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers) {
   url_request_context_getter_ = static_cast<RuntimeContext*>(browser_context)->
@@ -56,7 +56,7 @@ net::URLRequestContextGetter* CameoContentBrowserClient::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-CameoContentBrowserClient::CreateRequestContextForStoragePartition(
+XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     content::BrowserContext* browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
@@ -66,23 +66,23 @@ CameoContentBrowserClient::CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
 }
 
-content::AccessTokenStore* CameoContentBrowserClient::CreateAccessTokenStore() {
-  return new CameoAccessTokenStore(url_request_context_getter_);
+content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
+  return new XWalkAccessTokenStore(url_request_context_getter_);
 }
 
 content::WebContentsViewDelegate*
-CameoContentBrowserClient::GetWebContentsViewDelegate(
+XWalkContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
   return NULL;
 }
 
-void CameoContentBrowserClient::RenderProcessHostCreated(
+void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
   main_parts_->extension_service()->OnRenderProcessHostCreated(host);
 }
 
-content::MediaObserver* CameoContentBrowserClient::GetMediaObserver() {
-  return CameoMediaCaptureDevicesDispatcher::GetInstance();
+content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
+  return XWalkMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 }  // namespace cameo

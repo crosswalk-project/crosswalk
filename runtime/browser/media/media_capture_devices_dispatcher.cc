@@ -33,29 +33,29 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
 }  // namespace
 
 
-CameoMediaCaptureDevicesDispatcher*
-    CameoMediaCaptureDevicesDispatcher::GetInstance() {
-  return Singleton<CameoMediaCaptureDevicesDispatcher>::get();
+XWalkMediaCaptureDevicesDispatcher*
+    XWalkMediaCaptureDevicesDispatcher::GetInstance() {
+  return Singleton<XWalkMediaCaptureDevicesDispatcher>::get();
 }
 
-CameoMediaCaptureDevicesDispatcher::CameoMediaCaptureDevicesDispatcher()
+XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher()
     : devices_enumerated_(false) {}
 
-CameoMediaCaptureDevicesDispatcher::~CameoMediaCaptureDevicesDispatcher() {}
+XWalkMediaCaptureDevicesDispatcher::~XWalkMediaCaptureDevicesDispatcher() {}
 
-void CameoMediaCaptureDevicesDispatcher::AddObserver(Observer* observer) {
+void XWalkMediaCaptureDevicesDispatcher::AddObserver(Observer* observer) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   if (!observers_.HasObserver(observer))
     observers_.AddObserver(observer);
 }
 
-void CameoMediaCaptureDevicesDispatcher::RemoveObserver(Observer* observer) {
+void XWalkMediaCaptureDevicesDispatcher::RemoveObserver(Observer* observer) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   observers_.RemoveObserver(observer);
 }
 
 const MediaStreamDevices&
-CameoMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
+XWalkMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   if (!devices_enumerated_) {
     BrowserThread::PostTask(
@@ -67,7 +67,7 @@ CameoMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
 }
 
 const MediaStreamDevices&
-CameoMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
+XWalkMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   if (!devices_enumerated_) {
     BrowserThread::PostTask(
@@ -78,7 +78,7 @@ CameoMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
   return video_devices_;
 }
 
-void CameoMediaCaptureDevicesDispatcher::GetRequestedDevice(
+void XWalkMediaCaptureDevicesDispatcher::GetRequestedDevice(
     const std::string& requested_device_id,
     bool audio,
     bool video,
@@ -102,27 +102,27 @@ void CameoMediaCaptureDevicesDispatcher::GetRequestedDevice(
   }
 }
 
-void CameoMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged(
+void XWalkMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged(
     const content::MediaStreamDevices& devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &CameoMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread,
+          &XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread,
           base::Unretained(this), devices));
 }
 
-void CameoMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
+void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
     const content::MediaStreamDevices& devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &CameoMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread,
+          &XWalkMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread,
           base::Unretained(this), devices));
 }
 
-void CameoMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
+void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
     int render_view_id,
     const content::MediaStreamDevice& device,
@@ -131,16 +131,16 @@ void CameoMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &CameoMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread,
+          &XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread,
           base::Unretained(this), render_process_id, render_view_id, device,
           state));
 }
 
-void CameoMediaCaptureDevicesDispatcher::OnAudioStreamPlayingChanged(
+void XWalkMediaCaptureDevicesDispatcher::OnAudioStreamPlayingChanged(
     int render_process_id, int render_view_id, int stream_id, bool playing) {
 }
 
-void CameoMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
+void XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
     const content::MediaStreamDevices& devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   devices_enumerated_ = true;
@@ -149,7 +149,7 @@ void CameoMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
                     OnUpdateAudioDevices(audio_devices_));
 }
 
-void CameoMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
+void XWalkMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
     const content::MediaStreamDevices& devices) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   devices_enumerated_ = true;
@@ -158,7 +158,7 @@ void CameoMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
                     OnUpdateVideoDevices(video_devices_));
 }
 
-void CameoMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
+void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
     int render_process_id,
     int render_view_id,
     const content::MediaStreamDevice& device,
