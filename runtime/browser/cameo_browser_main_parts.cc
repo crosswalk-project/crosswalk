@@ -11,8 +11,8 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
-#include "cameo/extensions/browser/cameo_extension_external.h"
-#include "cameo/extensions/browser/cameo_extension_service.h"
+#include "cameo/extensions/browser/xwalk_extension_external.h"
+#include "cameo/extensions/browser/xwalk_extension_service.h"
 #include "cameo/runtime/browser/devtools/remote_debugging_server.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_context.h"
@@ -25,7 +25,7 @@
 
 namespace cameo {
 
-using extensions::CameoExternalExtension;
+using extensions::XWalkExternalExtension;
 
 CameoBrowserMainParts::CameoBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -85,8 +85,8 @@ void CameoBrowserMainParts::RegisterExternalExtensions() {
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
-    CameoExternalExtension* extension =
-          new CameoExternalExtension(extension_path);
+    XWalkExternalExtension* extension =
+          new XWalkExternalExtension(extension_path);
 
     if (extension->is_valid()) {
       extension_service_->RegisterExtension(extension);
@@ -100,7 +100,7 @@ void CameoBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(
-      new extensions::CameoExtensionService(runtime_registry_.get()));
+      new extensions::XWalkExtensionService(runtime_registry_.get()));
 
   RegisterExternalExtensions();
 

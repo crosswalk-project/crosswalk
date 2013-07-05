@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/browser/cameo_extension_web_contents_handler.h"
+#include "cameo/extensions/browser/xwalk_extension_web_contents_handler.h"
 
 #include "base/bind.h"
 #include "base/threading/thread.h"
-#include "cameo/extensions/browser/cameo_extension.h"
-#include "cameo/extensions/common/cameo_extension_messages.h"
+#include "cameo/extensions/browser/xwalk_extension.h"
+#include "cameo/extensions/common/xwalk_extension_messages.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(
-    cameo::extensions::CameoExtensionWebContentsHandler);
+    cameo::extensions::XWalkExtensionWebContentsHandler);
 
 namespace tracked_objects {
 class Location;
@@ -19,28 +19,28 @@ class Location;
 namespace cameo {
 namespace extensions {
 
-// This class wraps an CameoExtension::Context so it runs in its own Extension
+// This class wraps an XWalkExtension::Context so it runs in its own Extension
 // thread. It also provides |post_message| callback for the Context.
-class CameoExtensionRunner {
+class XWalkExtensionRunner {
  public:
-  CameoExtensionRunner(CameoExtension* extension,
+  XWalkExtensionRunner(XWalkExtension* extension,
                        IPC::Sender* sender,
                        int32_t render_view_id)
       : extension_(extension),
         sender_(sender),
         render_view_id_(render_view_id) {
-    std::string thread_name = "Cameo_ExtensionThread_" + extension_->name();
+    std::string thread_name = "XWalk_ExtensionThread_" + extension_->name();
     thread_.reset(new base::Thread(thread_name.c_str()));
     thread_->Start();
     PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&CameoExtensionRunner::CreateContext,
+        FROM_HERE, base::Bind(&XWalkExtensionRunner::CreateContext,
                               base::Unretained(this)));
   }
 
-  ~CameoExtensionRunner() {
+  ~XWalkExtensionRunner() {
     // All Context related code should run in the thread.
     PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&CameoExtensionRunner::DestroyContext,
+        FROM_HERE, base::Bind(&XWalkExtensionRunner::DestroyContext,
                               base::Unretained(this)));
 
     // Note: this will block until threads message loop process the task above.
@@ -49,14 +49,14 @@ class CameoExtensionRunner {
 
   void HandleMessage(const std::string& msg) {
     PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&CameoExtension::Context::HandleMessage,
+        FROM_HERE, base::Bind(&XWalkExtension::Context::HandleMessage,
                               base::Unretained(context_.get()),
                               msg));
   }
 
   void PostMessage(const std::string& msg) {
     sender_->Send(
-        new CameoViewMsg_PostMessage(render_view_id_, extension_->name(), msg));
+        new XWalkViewMsg_PostMessage(render_view_id_, extension_->name(), msg));
   }
 
  private:
@@ -69,8 +69,8 @@ class CameoExtensionRunner {
   void CreateContext() {
     CHECK(CalledOnExtensionThread());
 
-    CameoExtension::Context* context = extension_->CreateContext(base::Bind(
-          &CameoExtensionRunner::PostMessage, base::Unretained(this)));
+    XWalkExtension::Context* context = extension_->CreateContext(base::Bind(
+          &XWalkExtensionRunner::PostMessage, base::Unretained(this)));
     if (!context) {
       VLOG(0) << "Could not create context for extension \"" <<
             extension_->name() << "\". Destroying extension thread.";
@@ -90,45 +90,45 @@ class CameoExtensionRunner {
     return MessageLoop::current() == thread_->message_loop();
   }
 
-  scoped_ptr<CameoExtension::Context> context_;
+  scoped_ptr<XWalkExtension::Context> context_;
   scoped_ptr<base::Thread> thread_;
-  CameoExtension* extension_;
+  XWalkExtension* extension_;
   IPC::Sender* sender_;
   int32_t render_view_id_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoExtensionRunner);
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRunner);
 };
 
-CameoExtensionWebContentsHandler::CameoExtensionWebContentsHandler(
+XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
     content::WebContents* contents)
     : WebContentsObserver(contents) {
 }
 
-CameoExtensionWebContentsHandler::~CameoExtensionWebContentsHandler() {
+XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {
   RunnerMap::iterator it = runners_.begin();
   for (; it != runners_.end(); ++it)
     delete it->second;
 }
 
-void CameoExtensionWebContentsHandler::AttachExtension(
-    CameoExtension* extension) {
+void XWalkExtensionWebContentsHandler::AttachExtension(
+    XWalkExtension* extension) {
   runners_[extension->name()] =
-      new CameoExtensionRunner(extension,
+      new XWalkExtensionRunner(extension,
                                this,
                                web_contents()->GetRoutingID());
 }
 
-bool CameoExtensionWebContentsHandler::OnMessageReceived(
+bool XWalkExtensionWebContentsHandler::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(CameoExtensionWebContentsHandler, message)
-    IPC_MESSAGE_HANDLER(CameoViewHostMsg_PostMessage, OnPostMessage)
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionWebContentsHandler, message)
+    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessage, OnPostMessage)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
 }
 
-void CameoExtensionWebContentsHandler::OnPostMessage(
+void XWalkExtensionWebContentsHandler::OnPostMessage(
     const std::string& extension_name, const std::string& msg) {
   RunnerMap::iterator it = runners_.find(extension_name);
   if (it != runners_.end())

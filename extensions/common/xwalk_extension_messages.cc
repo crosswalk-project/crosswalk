@@ -3,4 +3,4 @@
 // found in the LICENSE file.
 
 #define IPC_MESSAGE_IMPL
-#include "cameo/extensions/common/cameo_extension_messages.h"
+#include "cameo/extensions/common/xwalk_extension_messages.h"

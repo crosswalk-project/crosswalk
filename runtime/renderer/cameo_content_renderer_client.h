@@ -13,7 +13,7 @@
 namespace cameo {
 
 namespace extensions {
-class CameoExtensionRendererController;
+class XWalkExtensionRendererController;
 }
 
 class CameoContentRendererClient : public content::ContentRendererClient {
@@ -28,7 +28,7 @@ class CameoContentRendererClient : public content::ContentRendererClient {
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
 
  private:
-  scoped_ptr<extensions::CameoExtensionRendererController>
+  scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
   DISALLOW_COPY_AND_ASSIGN(CameoContentRendererClient);
