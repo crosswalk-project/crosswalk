@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This script is wrapper for Cameo that adds some support for how GYP
+# This script is wrapper for CroCrosswalkk that adds some support for how GYP
 # is invoked by Chromium beyond what can be done in the gclient hooks.
 
 import glob
@@ -13,8 +13,8 @@ import shlex
 import subprocess
 import sys
 
-cameo_dir = os.path.dirname(os.path.realpath(__file__))
-chrome_src = os.path.abspath(os.path.join(cameo_dir, os.pardir))
+xwalk_dir = os.path.dirname(os.path.realpath(__file__))
+chrome_src = os.path.abspath(os.path.join(xwalk_dir, os.pardir))
 
 sys.path.insert(0, os.path.join(chrome_src, 'tools', 'gyp', 'pylib'))
 import gyp
@@ -119,7 +119,7 @@ if __name__ == '__main__':
       # path separators even on Windows due to the use of shlex.split().
       args.extend(shlex.split(gyp_file))
     else:
-      args.append(os.path.join(cameo_dir, 'cameo.gyp'))
+      args.append(os.path.join(xwalk_dir, 'cameo.gyp'))
 
   args.extend(['-I' + i for i in additional_include_files(args)])
 
