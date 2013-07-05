@@ -15,8 +15,8 @@
 #include "base/test/test_file_util.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/cameo_paths.h"
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_paths.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 #include "cameo/runtime/renderer/cameo_content_renderer_client.h"
 #include "cameo/test/base/xwalk_test_suite.h"
 #include "cameo/test/base/xwalk_test_utils.h"
@@ -118,7 +118,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 bool InProcessBrowserTest::CreateDataPathDir() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   base::FilePath data_path_dir =
-      command_line->GetSwitchValuePath(switches::kCameoDataPath);
+      command_line->GetSwitchValuePath(switches::kXWalkDataPath);
   if (data_path_dir.empty()) {
     if (temp_data_path_dir_.CreateUniqueTempDir() &&
         temp_data_path_dir_.IsValid()) {

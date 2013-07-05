@@ -9,8 +9,8 @@
 #include "base/path_service.h"
 #include "cameo/runtime/browser/runtime_download_manager_delegate.h"
 #include "cameo/runtime/browser/runtime_url_request_context_getter.h"
-#include "cameo/runtime/common/cameo_paths.h"
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_paths.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -60,9 +60,9 @@ RuntimeContext::~RuntimeContext() {
 
 void RuntimeContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kCameoDataPath)) {
+  if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
-        cmd_line->GetSwitchValuePath(switches::kCameoDataPath);
+        cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
     PathService::OverrideAndCreateIfNeeded(cameo::DIR_DATA_PATH, path, true);
   }
 }

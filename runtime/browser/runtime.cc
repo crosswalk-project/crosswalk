@@ -16,7 +16,7 @@
 #include "cameo/runtime/browser/runtime_context.h"
 #include "cameo/runtime/browser/runtime_file_select_helper.h"
 #include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 #include "content/public/browser/color_chooser.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"

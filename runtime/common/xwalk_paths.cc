@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/common/cameo_paths.h"
+#include "cameo/runtime/common/xwalk_paths.h"
 
 #include "base/file_util.h"
 #include "base/files/file_path.h"

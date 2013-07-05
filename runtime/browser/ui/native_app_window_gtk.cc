@@ -7,7 +7,7 @@
 #include <gdk/gdk.h>
 
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/common/cameo_notification_types.h"
+#include "cameo/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
