@@ -8,11 +8,11 @@
 #include "base/files/file_path.h"
 #include "ui/gfx/image/image.h"
 
-namespace cameo_utils {
+namespace xwalk_utils {
 
 // Load a gfx::Image from a PNG file or ICO file.
 gfx::Image LoadImageFromFilePath(const base::FilePath& filename);
 
-}  // namespace cameo_utils
+}  // namespace xwalk_utils
 
 #endif  // CAMEO_RUNTIME_BROWSER_IMAGE_UTIL_H_

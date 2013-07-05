@@ -30,14 +30,14 @@
 #include "content/public/test/test_utils.h"
 #include "net/test/spawned_test_server.h"
 
-using cameo::RuntimeList;
-using cameo::RuntimeRegistry;
+using xwalk::RuntimeList;
+using xwalk::RuntimeRegistry;
 
 namespace {
 
 // Used when running in single-process mode.
-base::LazyInstance<cameo::XWalkContentRendererClient>::Leaky
-    g_cameo_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+base::LazyInstance<xwalk::XWalkContentRendererClient>::Leaky
+    g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 
 }  // namespace
 
@@ -73,7 +73,7 @@ void InProcessBrowserTest::SetUp() {
   // and set up renderer.
   if (command_line->HasSwitch(switches::kSingleProcess)) {
     content::SetRendererClientForTesting(
-        &g_cameo_content_renderer_client.Get());
+        &g_xwalk_content_renderer_client.Get());
   }
 
   BrowserTestBase::SetUp();

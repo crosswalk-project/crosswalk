@@ -16,7 +16,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 
-namespace cameo {
+namespace xwalk {
 
 XWalkMainDelegate::XWalkMainDelegate()
     : content_client_(new XWalkContentClient) {
@@ -73,4 +73,4 @@ content::ContentRendererClient*
   return renderer_client_.get();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

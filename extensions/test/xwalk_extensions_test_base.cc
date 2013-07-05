@@ -12,7 +12,7 @@
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
 
-using cameo::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionService;
 
 void XWalkExtensionsTestBase::SetUp() {
   XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(

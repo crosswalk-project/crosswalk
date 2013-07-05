@@ -23,7 +23,7 @@
 #include "content/public/common/url_constants.h"
 #include "net/base/net_util.h"
 
-namespace cameo {
+namespace xwalk {
 
 using extensions::XWalkExternalExtension;
 
@@ -139,4 +139,4 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_context_.reset();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

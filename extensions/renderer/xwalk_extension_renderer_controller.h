@@ -18,7 +18,7 @@ namespace WebKit {
 class WebFrame;
 }
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 // Renderer controller for XWalk extensions keeps track of the extensions
@@ -57,6 +57,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 };
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDERER_CONTROLLER_H_

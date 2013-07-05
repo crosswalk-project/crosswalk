@@ -20,8 +20,8 @@
 #include "content/public/test/download_test_observer.h"
 #include "content/public/test/test_utils.h"
 
-using cameo::Runtime;
-using cameo::RuntimeDownloadManagerDelegate;
+using xwalk::Runtime;
+using xwalk::RuntimeDownloadManagerDelegate;
 using content::DownloadItem;
 using content::DownloadManager;
 using content::DownloadManagerImpl;

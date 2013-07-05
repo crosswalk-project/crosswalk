@@ -9,7 +9,7 @@
 #include "content/public/browser/devtools_http_handler.h"
 #include "net/socket/tcp_listen_socket.h"
 
-namespace cameo {
+namespace xwalk {
 
 RemoteDebuggingServer::RemoteDebuggingServer(
     RuntimeContext* runtime_context,
@@ -26,4 +26,4 @@ RemoteDebuggingServer::~RemoteDebuggingServer() {
   devtools_http_handler_->Stop();
 }
 
-}  // namespace cameo
+}  // namespace xwalk

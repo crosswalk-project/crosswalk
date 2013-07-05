@@ -11,7 +11,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 XWalkExtensionRenderViewHandler::XWalkExtensionRenderViewHandler(
@@ -90,4 +90,4 @@ void XWalkExtensionRenderViewHandler::OnPostMessage(
 }
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk

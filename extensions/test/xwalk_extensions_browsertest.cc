@@ -12,8 +12,8 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
-using cameo::extensions::XWalkExtension;
-using cameo::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionService;
 
 class EchoExtension : public XWalkExtension {
  public:

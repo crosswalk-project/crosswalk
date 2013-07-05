@@ -11,7 +11,7 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "v8/include/v8.h"
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionV8Wrapper : public v8::Extension {
@@ -121,4 +121,4 @@ void XWalkExtensionRendererController::InstallJavaScriptAPIs(
 }
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk

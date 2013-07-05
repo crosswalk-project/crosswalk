@@ -34,15 +34,15 @@
 #include <gtk/gtk.h>  // NOLINT(build/include_order)
 #endif
 
-using cameo::NativeAppWindow;
-using cameo::Runtime;
-using cameo::RuntimeRegistry;
-using cameo::RuntimeList;
+using xwalk::NativeAppWindow;
+using xwalk::Runtime;
+using xwalk::RuntimeRegistry;
+using xwalk::RuntimeList;
 using content::WebContents;
 using testing::_;
 
 // A mock observer to listen runtime registry changes.
-class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
+class MockRuntimeRegistryObserver : public xwalk::RuntimeRegistryObserver {
  public:
   MockRuntimeRegistryObserver() {}
   virtual ~MockRuntimeRegistryObserver() {}
@@ -56,7 +56,7 @@ class MockRuntimeRegistryObserver : public cameo::RuntimeRegistryObserver {
 };
 
 // An observer used to verify app icon change.
-class FaviconChangedObserver : public cameo::RuntimeRegistryObserver {
+class FaviconChangedObserver : public xwalk::RuntimeRegistryObserver {
  public:
   explicit FaviconChangedObserver(const base::FilePath& icon_file)
       : icon_file_(icon_file) {
@@ -73,7 +73,7 @@ class FaviconChangedObserver : public cameo::RuntimeRegistryObserver {
     const base::FilePath::StringType kICOFormat(FILE_PATH_LITERAL(".ico"));
 
     gfx::Image image;
-    image = cameo_utils::LoadImageFromFilePath(icon_file_);
+    image = xwalk_utils::LoadImageFromFilePath(icon_file_);
 
     EXPECT_FALSE(image.IsEmpty());
     gfx::Image icon = runtime->app_icon();
@@ -93,7 +93,7 @@ class FullscreenNotificationObserver
     : public content::WindowedNotificationObserver {
  public:
   FullscreenNotificationObserver() : WindowedNotificationObserver(
-      cameo::NOTIFICATION_FULLSCREEN_CHANGED,
+      xwalk::NOTIFICATION_FULLSCREEN_CHANGED,
       content::NotificationService::AllSources()) {}
  private:
   DISALLOW_COPY_AND_ASSIGN(FullscreenNotificationObserver);
@@ -116,7 +116,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
   virtual void SetUpOnMainThread() OVERRIDE {
     notification_observer_.reset(
         new content::WindowedNotificationObserver(
-          cameo::NOTIFICATION_RUNTIME_OPENED,
+          xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
     const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
     for (RuntimeList::const_iterator it = runtimes.begin();

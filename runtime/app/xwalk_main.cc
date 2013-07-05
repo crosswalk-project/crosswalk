@@ -14,12 +14,12 @@
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   sandbox::SandboxInterfaceInfo sandbox_info = {0};
   content::InitializeSandboxInfo(&sandbox_info);
-  cameo::XWalkMainDelegate delegate;
+  xwalk::XWalkMainDelegate delegate;
   return content::ContentMain(instance, &sandbox_info, &delegate);
 }
 #elif defined(OS_LINUX)
 int main(int argc, const char** argv) {
-  cameo::XWalkMainDelegate delegate;
+  xwalk::XWalkMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 }
 #else

@@ -14,7 +14,7 @@
 #include "content/public/test/browser_test_base.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace cameo {
+namespace xwalk {
 class Runtime;
 }
 
@@ -48,7 +48,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
 
  protected:
   // Returns the runtime instance created by CreateRuntime.
-  cameo::Runtime* runtime() const { return runtime_; }
+  xwalk::Runtime* runtime() const { return runtime_; }
 
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.
@@ -74,7 +74,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   void PrepareTestCommandLine(CommandLine* command_line);
 
   // Browser created from CreateBrowser.
-  cameo::Runtime* runtime_;
+  xwalk::Runtime* runtime_;
 
   // Temporary data path directory. Used only when a data path directory is not
   // specified in the command line.

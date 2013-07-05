@@ -10,7 +10,7 @@
 #include "base/memory/ref_counted.h"
 #include "content/public/browser/download_manager_delegate.h"
 
-namespace cameo {
+namespace xwalk {
 
 class RuntimeDownloadManagerDelegate
     : public content::DownloadManagerDelegate,
@@ -57,6 +57,6 @@ class RuntimeDownloadManagerDelegate
   DISALLOW_COPY_AND_ASSIGN(RuntimeDownloadManagerDelegate);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_

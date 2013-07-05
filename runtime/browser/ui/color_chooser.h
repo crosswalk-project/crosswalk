@@ -10,7 +10,7 @@
 
 class XWalkFormInputTest;
 
-namespace cameo {
+namespace xwalk {
 
 class ColorChooser : public content::ColorChooser {
  public:
@@ -25,7 +25,7 @@ class ColorChooser : public content::ColorChooser {
   static void SetColorForBrowserTest(SkColor color);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
 

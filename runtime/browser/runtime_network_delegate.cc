@@ -8,7 +8,7 @@
 #include "net/base/static_cookie_policy.h"
 #include "net/url_request/url_request.h"
 
-namespace cameo {
+namespace xwalk {
 
 RuntimeNetworkDelegate::RuntimeNetworkDelegate() {
 }
@@ -109,4 +109,4 @@ void RuntimeNetworkDelegate::OnRequestWaitStateChange(
     RequestWaitState waiting) {
 }
 
-}  // namespace cameo
+}  // namespace xwalk

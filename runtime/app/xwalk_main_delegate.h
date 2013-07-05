@@ -18,7 +18,7 @@ class ContentRendererClient;
 class ContentClient;
 }
 
-namespace cameo {
+namespace xwalk {
 
 class XWalkMainDelegate : public content::ContentMainDelegate {
  public:
@@ -44,6 +44,6 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegate);
 };
 
-}  // namespace cameo
+}  // namespace xwalk
 
 #endif  // CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_

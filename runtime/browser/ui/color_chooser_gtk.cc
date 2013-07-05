@@ -22,7 +22,7 @@ gboolean ClickButtonForTest(GtkWidget* widget) {
 
 }  // namespace
 
-class ColorChooserGtk : public cameo::ColorChooser,
+class ColorChooserGtk : public xwalk::ColorChooser,
                         public content::WebContentsObserver {
  public:
   ColorChooserGtk(
@@ -47,7 +47,7 @@ content::ColorChooser* content::ColorChooser::Create(
 
 ColorChooserGtk::ColorChooserGtk(
     int identifier, content::WebContents* tab, SkColor initial_color)
-    : cameo::ColorChooser(identifier),
+    : xwalk::ColorChooser(identifier),
       content::WebContentsObserver(tab) {
   color_selection_dialog_ = gtk_color_selection_dialog_new(
       l10n_util::GetStringUTF8(IDS_SELECT_COLOR_DIALOG_TITLE).c_str());

@@ -13,7 +13,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "ui/views/color_chooser/color_chooser_listener.h"
 
-class ColorChooserWin : public cameo::ColorChooser,
+class ColorChooserWin : public xwalk::ColorChooser,
                         public views::ColorChooserListener {
  public:
   ColorChooserWin(int identifier,
@@ -47,7 +47,7 @@ content::ColorChooser* content::ColorChooser::Create(int identifier,
 ColorChooserWin::ColorChooserWin(int identifier,
                                  content::WebContents* tab,
                                  SkColor initial_color)
-    : cameo::ColorChooser(identifier),
+    : xwalk::ColorChooser(identifier),
       tab_(tab) {
   gfx::NativeWindow owning_window = platform_util::GetTopLevel(
       tab_->GetRenderViewHost()->GetView()->GetNativeView());

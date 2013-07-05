@@ -10,13 +10,13 @@
 #include "cameo/extensions/common/xwalk_extension_messages.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(
-    cameo::extensions::XWalkExtensionWebContentsHandler);
+    xwalk::extensions::XWalkExtensionWebContentsHandler);
 
 namespace tracked_objects {
 class Location;
 }
 
-namespace cameo {
+namespace xwalk {
 namespace extensions {
 
 // This class wraps an XWalkExtension::Context so it runs in its own Extension
@@ -139,4 +139,4 @@ void XWalkExtensionWebContentsHandler::OnPostMessage(
 }
 
 }  // namespace extensions
-}  // namespace cameo
+}  // namespace xwalk
