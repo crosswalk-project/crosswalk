@@ -84,7 +84,7 @@ void XWalkTestSuite::Initialize() {
   PathService::Get(base::DIR_MODULE, &pak_dir);
   DCHECK(!pak_dir.empty());
   base::FilePath resources_pack_path;
-  resources_pack_path = pak_dir.Append(FILE_PATH_LITERAL("cameo.pak"));
+  resources_pack_path = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
   ui::ResourceBundle::InitSharedInstanceWithPakPath(resources_pack_path);
 
   stats_filename_ = base::StringPrintf("unit_tests-%d",

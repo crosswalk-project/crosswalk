@@ -58,7 +58,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
   PathService::Get(base::DIR_MODULE, &pak_dir);
   DCHECK(!pak_dir.empty());
 
-  pak_file = pak_dir.Append(FILE_PATH_LITERAL("cameo.pak"));
+  pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
 }
 

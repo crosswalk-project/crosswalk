@@ -108,7 +108,7 @@ fi
 if ! ls *.desktop > /dev/null 2>&1; then
     while read line; do eval echo $line; done < $SCRIPT_DIR/app.desktop.templ > $BUILD_DIR/$APP_NAME.desktop
 fi
-cd $CAMEO_PATH && cp cameo cameo.pak libffmpegsumo.so $BUILD_DIR
+cd $CAMEO_PATH && cp cameo xwalk.pak libffmpegsumo.so $BUILD_DIR
 
 #build the package
 cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION --backup=no --install=no --exclude=Makefile --fstrans=yes $OUT_OPT
