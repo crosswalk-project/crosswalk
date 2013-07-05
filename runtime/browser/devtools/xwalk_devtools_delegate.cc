@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/devtools/cameo_devtools_delegate.h"
+#include "cameo/runtime/browser/devtools/xwalk_devtools_delegate.h"
 
 #include <string>
 
@@ -18,48 +18,48 @@
 
 namespace cameo {
 
-CameoDevToolsDelegate::CameoDevToolsDelegate(RuntimeContext* runtime_context)
+XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
     : runtime_context_(runtime_context) {
 }
 
-CameoDevToolsDelegate::~CameoDevToolsDelegate() {
+XWalkDevToolsDelegate::~XWalkDevToolsDelegate() {
 }
 
-std::string CameoDevToolsDelegate::GetDiscoveryPageHTML() {
+std::string XWalkDevToolsDelegate::GetDiscoveryPageHTML() {
   return ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
 }
 
-bool CameoDevToolsDelegate::BundlesFrontendResources() {
+bool XWalkDevToolsDelegate::BundlesFrontendResources() {
   return true;
 }
 
-base::FilePath CameoDevToolsDelegate::GetDebugFrontendDir() {
+base::FilePath XWalkDevToolsDelegate::GetDebugFrontendDir() {
   return base::FilePath();
 }
 
-std::string CameoDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
+std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
   return std::string();
 }
 
-content::RenderViewHost* CameoDevToolsDelegate::CreateNewTarget() {
+content::RenderViewHost* XWalkDevToolsDelegate::CreateNewTarget() {
   Runtime* runtime = Runtime::Create(runtime_context_,
                                      GURL(chrome::kAboutBlankURL));
   return runtime->web_contents()->GetRenderViewHost();
 }
 
 content::DevToolsHttpHandlerDelegate::TargetType
-CameoDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
+XWalkDevToolsDelegate::GetTargetType(content::RenderViewHost*) {
   return kTargetTypeOther;
 }
 
-std::string CameoDevToolsDelegate::GetViewDescription(
+std::string XWalkDevToolsDelegate::GetViewDescription(
     content::RenderViewHost*) {
   return std::string();
 }
 
 scoped_refptr<net::StreamListenSocket>
-CameoDevToolsDelegate::CreateSocketForTethering(
+XWalkDevToolsDelegate::CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) {
   return NULL;

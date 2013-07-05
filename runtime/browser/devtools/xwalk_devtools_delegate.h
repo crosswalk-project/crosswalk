@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_DEVTOOLS_CAMEO_DEVTOOLS_DELEGATE_H_
-#define CAMEO_RUNTIME_BROWSER_DEVTOOLS_CAMEO_DEVTOOLS_DELEGATE_H_
+#ifndef CAMEO_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_
+#define CAMEO_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_
 
 #include <string>
 #include <vector>
@@ -20,10 +20,10 @@ namespace cameo {
 
 class RuntimeContext;
 
-class CameoDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
+class XWalkDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit CameoDevToolsDelegate(RuntimeContext* runtime_context);
-  virtual ~CameoDevToolsDelegate();
+  explicit XWalkDevToolsDelegate(RuntimeContext* runtime_context);
+  virtual ~XWalkDevToolsDelegate();
 
  private:
   // DevToolsHttpProtocolHandler::Delegate overrides.
@@ -40,9 +40,9 @@ class CameoDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
 
   RuntimeContext* runtime_context_;
 
-  DISALLOW_COPY_AND_ASSIGN(CameoDevToolsDelegate);
+  DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsDelegate);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_BROWSER_DEVTOOLS_CAMEO_DEVTOOLS_DELEGATE_H_
+#endif  // CAMEO_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_

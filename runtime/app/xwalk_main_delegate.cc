@@ -7,7 +7,7 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "cameo/runtime/browser/cameo_content_browser_client.h"
+#include "cameo/runtime/browser/xwalk_content_browser_client.h"
 #include "cameo/runtime/browser/ui/taskbar_util.h"
 #include "cameo/runtime/common/xwalk_paths.h"
 #include "cameo/runtime/renderer/cameo_content_renderer_client.h"
@@ -63,7 +63,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
 }
 
 content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
-  browser_client_.reset(new CameoContentBrowserClient);
+  browser_client_.reset(new XWalkContentBrowserClient);
   return browser_client_.get();
 }
 
