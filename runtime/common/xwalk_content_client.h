@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_COMMON_CAMEO_CONTENT_CLIENT_H_
-#define CAMEO_RUNTIME_COMMON_CAMEO_CONTENT_CLIENT_H_
+#ifndef CAMEO_RUNTIME_COMMON_XWALK_CONTENT_CLIENT_H_
+#define CAMEO_RUNTIME_COMMON_XWALK_CONTENT_CLIENT_H_
 
 #include <string>
 #include <vector>
@@ -13,10 +13,10 @@
 
 namespace cameo {
 
-class CameoContentClient : public content::ContentClient {
+class XWalkContentClient : public content::ContentClient {
  public:
-  CameoContentClient();
-  virtual ~CameoContentClient();
+  XWalkContentClient();
+  virtual ~XWalkContentClient();
 
   virtual std::string GetUserAgent() const OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
@@ -28,9 +28,9 @@ class CameoContentClient : public content::ContentClient {
   virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(CameoContentClient);
+  DISALLOW_COPY_AND_ASSIGN(XWalkContentClient);
 };
 
 }  // namespace cameo
 
-#endif  // CAMEO_RUNTIME_COMMON_CAMEO_CONTENT_CLIENT_H_
+#endif  // CAMEO_RUNTIME_COMMON_XWALK_CONTENT_CLIENT_H_

@@ -6,8 +6,8 @@
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/path_service.h"
-#include "cameo/runtime/common/cameo_paths.h"
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_paths.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 #include "cameo/test/base/in_process_browser_test.h"
 #include "content/public/test/test_utils.h"
 
@@ -25,7 +25,7 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
     InProcessBrowserTest::SetUp();
 
     // The scoped |temp_dir| will be deleted after out of scope. We just want
-    // to make use of the pathname of temporary directory as the cameo data
+    // to make use of the pathname of temporary directory as the Crosswalk data
     // path, and the Runtime instance will create its data path directory if
     // it doesn't exist.
   }
@@ -39,7 +39,7 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
   }
 
   virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
-    command_line->AppendSwitchPath(switches::kCameoDataPath, data_path_);
+    command_line->AppendSwitchPath(switches::kXWalkDataPath, data_path_);
   }
 
   base::FilePath GetDataPath() const { return data_path_; }
@@ -48,14 +48,14 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
   base::FilePath data_path_;
 };
 
-IN_PROC_BROWSER_TEST_F(XWalkSwitchesTest, kCameoDataPath) {
+IN_PROC_BROWSER_TEST_F(XWalkSwitchesTest, kXWalkDataPath) {
   content::RunAllPendingInMessageLoop();
   // The data path should be created by Runtime itself.
   base::FilePath data_path = GetDataPath();
   EXPECT_TRUE(file_util::PathExists(data_path));
   EXPECT_NE(base::FilePath(), data_path);
 
-  // kCameoDataPath option should also override the DIR_DATA_PATH value
+  // kXWalkDataPath option should also override the DIR_DATA_PATH value
   // registered in PathService.
   base::FilePath path;
   EXPECT_TRUE(PathService::Get(cameo::DIR_DATA_PATH, &path));

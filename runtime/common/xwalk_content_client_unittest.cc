@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/common/cameo_content_client.h"
+#include "cameo/runtime/common/xwalk_content_client.h"
 
 #include "base/command_line.h"
 #include "base/strings/string_split.h"
@@ -15,7 +15,7 @@ void CheckUserAgentStringOrdering(bool mobile_device) {
   std::vector<std::string> pieces;
 
   // Check if the pieces of the user agent string come in the correct order.
-  cameo::CameoContentClient content_client;
+  cameo::XWalkContentClient content_client;
   std::string buffer = content_client.GetUserAgent();
 
   base::SplitStringUsingSubstr(buffer, "Mozilla/5.0 (", &pieces);

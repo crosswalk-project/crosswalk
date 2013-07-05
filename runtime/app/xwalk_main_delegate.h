@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "cameo/runtime/common/cameo_content_client.h"
+#include "cameo/runtime/common/xwalk_content_client.h"
 #include "content/public/app/content_main_delegate.h"
 
 namespace content {

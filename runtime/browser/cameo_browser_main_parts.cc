@@ -17,7 +17,7 @@
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_context.h"
 #include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/cameo_switches.h"
+#include "cameo/runtime/common/xwalk_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"

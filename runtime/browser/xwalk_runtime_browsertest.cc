@@ -13,7 +13,7 @@
 #include "cameo/runtime/browser/image_util.h"
 #include "cameo/runtime/browser/runtime.h"
 #include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/cameo_notification_types.h"
+#include "cameo/runtime/common/xwalk_notification_types.h"
 #include "cameo/test/base/in_process_browser_test.h"
 #include "cameo/test/base/xwalk_test_utils.h"
 #include "content/public/browser/navigation_controller.h"

@@ -13,8 +13,8 @@
 #include "base/stringprintf.h"
 #include "base/utf_string_conversions.h"
 #include "cameo/runtime/browser/cameo_content_browser_client.h"
-#include "cameo/runtime/common/cameo_content_client.h"
-#include "cameo/runtime/common/cameo_paths.h"
+#include "cameo/runtime/common/xwalk_content_client.h"
+#include "cameo/runtime/common/xwalk_paths.h"
 #include "content/public/test/test_launcher.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -44,7 +44,7 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
   }
 
   virtual void OnTestStart(const testing::TestInfo& test_info) OVERRIDE {
-    content_client_.reset(new cameo::CameoContentClient);
+    content_client_.reset(new cameo::XWalkContentClient);
     content::SetContentClient(content_client_.get());
 
     browser_content_client_.reset(new cameo::CameoContentBrowserClient());
@@ -58,7 +58,7 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
   }
 
  private:
-  scoped_ptr<cameo::CameoContentClient> content_client_;
+  scoped_ptr<cameo::XWalkContentClient> content_client_;
   scoped_ptr<cameo::CameoContentBrowserClient> browser_content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkTestSuiteInitializer);
@@ -99,7 +99,7 @@ void XWalkTestSuite::Initialize() {
 }
 
 content::ContentClient* XWalkTestSuite::CreateClientForInitialization() {
-  return new cameo::CameoContentClient();
+  return new cameo::XWalkContentClient();
 }
 
 void XWalkTestSuite::Shutdown() {
