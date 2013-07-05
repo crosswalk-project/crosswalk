@@ -5,7 +5,7 @@ absolute_path () {
 THIS_SCRIPT=$0
 SCRIPT_DIR=`dirname $THIS_SCRIPT`
 SCRIPT_DIR=`absolute_path $SCRIPT_DIR`
-TEMP_DIR=/tmp/cameo_build
+TEMP_DIR=/tmp/xwalk_build
 while [ "$1" != "" ]; do
     DASHED_PARAM=$1
     PARAM=`echo ${DASHED_PARAM}|sed 's/--//'`
@@ -27,13 +27,13 @@ if [ "x$HELP" != "x" ]; then
     echo
     echo usage: $THIS_SCRIPT [options] [app_path]
     echo
-    echo This script is used to create a standalone installer for cameo applications. It
-    echo depends on checkinstall and cameo to function properly.
+    echo This script is used to create a standalone installer for Crosswalk applications. It
+    echo depends on checkinstall and Crosswalk to function properly.
     echo The following options are supported:
     echo "
-     app_path                Path to the cameo application. If not specified, the
+     app_path                Path to the Crosswalk application. If not specified, the
                                current directory is used.
-     --cameo_path=<path>     Path to Cameo binaries. If not specified, the script
+     --xwalk_path=<path>     Path to Crosswalk binaries. If not specified, the script
                                will try to find them through PATH, the app path, or
                                the current directory.
      --app_name=<name>       Name of the application. If not specified, the name
@@ -63,18 +63,18 @@ fi
 if [ "x$VERSION" = "x" ]; then
     VERSION=1.0.0
 fi
-if [ "x$CAMEO_PATH" = "x" ]; then
-    CAMEO_PATH=`which cameo`
-    if [ "x$CAMEO_PATH" != "x" ]; then
-        CAMEO_PATH=`dirname $CAMEO_PATH`
+if [ "x$XWALK_PATH" = "x" ]; then
+    XWALK_PATH=`which xwalk`
+    if [ "x$XWALK_PATH" != "x" ]; then
+        XWALK_PATH=`dirname $XWALK_PATH`
     fi
-    if [ "x$CAMEO_PATH" = "x" ]; then
-        CAMEO_PATH=$APP_PATH
-        if ! test -f "$CAMEO_PATH/cameo"; then
-            CAMEO_PATH=`pwd`
-            if ! test -f "$CAMEO_PATH/cameo"; then
-                echo Please make sure you have installed cameo and setup the PATH enviroment variable
-                echo on your system properly. Or you can specify the cameo path through --cameo_path
+    if [ "x$XWALK_PATH" = "x" ]; then
+        XWALK_PATH=$APP_PATH
+        if ! test -f "$XWALK_PATH/xwalk"; then
+            XWALK_PATH=`pwd`
+            if ! test -f "$XWALK_PATH/xwalk"; then
+                echo Please make sure you have installed xwalk and setup the PATH enviroment variable
+                echo on your system properly. Or you can specify the Crosswalk path through --xwalk_path
                 echo command line parameter.
                 exit 1
             fi
@@ -93,7 +93,7 @@ if [ "x$OUT" != "x" ]; then
 fi
 
 
-CAMEO_PATH=`absolute_path $CAMEO_PATH`
+XWALK_PATH=`absolute_path $XWALK_PATH`
 APP_PATH=`absolute_path $APP_PATH`
 BUILD_DIR=$TEMP_DIR/`basename $APP_PATH`
 #export some variables so that Makefile can use them
@@ -108,7 +108,7 @@ fi
 if ! ls *.desktop > /dev/null 2>&1; then
     while read line; do eval echo $line; done < $SCRIPT_DIR/app.desktop.templ > $BUILD_DIR/$APP_NAME.desktop
 fi
-cd $CAMEO_PATH && cp cameo xwalk.pak libffmpegsumo.so $BUILD_DIR
+cd $XWALK_PATH && cp xwalk xwalk.pak libffmpegsumo.so $BUILD_DIR
 
 #build the package
 cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION --backup=no --install=no --exclude=Makefile --fstrans=yes $OUT_OPT
