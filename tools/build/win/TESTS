@@ -1,2 +1,2 @@
-cameo_browsertest.exe
-cameo_unittest.exe
+xwalk_browsertest.exe
+xwalk_unittest.exe

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-''' This script provides utils for python scripts in cameo.
+''' This script provides utils for python scripts in crosswalk.
 '''
 
 import os
