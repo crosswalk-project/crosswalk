@@ -53,6 +53,6 @@ bool IsVisible(gfx::NativeView view);
 // the feature is supported and enabled, and false otherwise.
 bool IsSwipeTrackingFromScrollEventsEnabled();
 #endif
-}  // platform_util
+}  // namespace platform_util
 
 #endif  // XWALK_RUNTIME_BROWSER_RUNTIME_PLATFORM_UTIL_H_
