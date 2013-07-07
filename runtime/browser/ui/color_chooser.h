@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
-#define CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
+#define XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
 
 #include "content/public/browser/color_chooser.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -27,5 +27,5 @@ class ColorChooser : public content::ColorChooser {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
 

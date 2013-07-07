@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_
-#define CAMEO_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_
+#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_
+#define XWALK_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_
 
 #include <map>
 #include <string>
@@ -155,4 +155,4 @@ class RuntimeFileSelectHelper
   DISALLOW_COPY_AND_ASSIGN(RuntimeFileSelectHelper);
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_
+#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_FILE_SELECT_HELPER_H_

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
 
 #include <commdlg.h>
 #include <dwmapi.h>

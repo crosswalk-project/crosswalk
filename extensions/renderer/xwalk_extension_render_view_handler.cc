@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/renderer/xwalk_extension_render_view_handler.h"
+#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 
-#include "cameo/extensions/common/xwalk_extension_messages.h"
-#include "cameo/extensions/renderer/xwalk_extension_renderer_controller.h"
+#include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 #include "content/public/renderer/render_view.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"

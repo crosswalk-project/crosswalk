@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
-#include "cameo/extensions/browser/xwalk_extension_service.h"
-#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
-#include "cameo/runtime/browser/geolocation/xwalk_access_token_store.h"
-#include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"
-#include "cameo/runtime/browser/runtime_context.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
+#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"

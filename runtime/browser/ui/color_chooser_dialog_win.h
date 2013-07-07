@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_
-#define CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_
+#define XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_
 
 #include "base/memory/ref_counted.h"
 #include "third_party/skia/include/core/SkColor.h"
@@ -69,4 +69,4 @@ class ColorChooserDialog
   DISALLOW_COPY_AND_ASSIGN(ColorChooserDialog);
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_DIALOG_WIN_H_

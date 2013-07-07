@@ -184,7 +184,7 @@
         {
           'destination': '<(PRODUCT_DIR)',
           'files': [
-            '<(SHARED_INTERMEDIATE_DIR)/cameo/xwalk_resources.pak'
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_resources.pak'
           ],
         },
       ],
@@ -225,7 +225,7 @@
           'action_name': 'repack_xwalk_resources',
           'variables': {
             'pak_inputs': [
-              '<(SHARED_INTERMEDIATE_DIR)/cameo/xwalk_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',
@@ -319,7 +319,7 @@
       ],
     },
     {
-      'target_name': 'cameo_builder',
+      'target_name': 'xwalk_builder',
       'type': 'none',
       'dependencies': [
         'xwalk',

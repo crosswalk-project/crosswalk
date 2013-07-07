@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_file_select_helper.h"
+#include "xwalk/runtime/browser/runtime_file_select_helper.h"
 
 #include <string>
 
@@ -12,8 +12,8 @@
 #include "base/string_util.h"
 #include "base/strings/string_split.h"
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/runtime_platform_util.h"
-#include "cameo/runtime/browser/runtime_select_file_policy.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/browser/runtime_select_file_policy.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_details.h"
 #include "content/public/browser/notification_source.h"

@@ -5,8 +5,8 @@
 #include <string>
 #include "base/command_line.h"
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/ui/taskbar_util.h"
-#include "cameo/test/base/in_process_browser_test.h"
+#include "xwalk/runtime/browser/ui/taskbar_util.h"
+#include "xwalk/test/base/in_process_browser_test.h"
 
 #if defined(OS_WIN)
 #include <shobjidl.h>  // NOLINT(build/include_order)

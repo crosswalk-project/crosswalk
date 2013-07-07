@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
-#define CAMEO_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
+#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
+#define XWALK_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
 
 #include "base/basictypes.h"
 #include "base/callback_forward.h"
@@ -29,4 +29,4 @@ class RuntimeSelectFilePolicy : public ui::SelectFilePolicy {
   DISALLOW_COPY_AND_ASSIGN(RuntimeSelectFilePolicy);
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_
+#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_SELECT_FILE_POLICY_H_

@@ -4,7 +4,7 @@
 
 #include <gtk/gtk.h>
 
-#include "cameo/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/ui/color_chooser.h"
 
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"

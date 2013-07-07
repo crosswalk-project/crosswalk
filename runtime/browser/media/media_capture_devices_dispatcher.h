@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
-#define CAMEO_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
+#ifndef XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
+#define XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
 
 #include <string>
 
@@ -105,4 +105,4 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   bool devices_enumerated_;
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_
+#endif  // XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_

@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_RUNTIME_H_
-#define CAMEO_RUNTIME_BROWSER_RUNTIME_H_
+#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_H_
+#define XWALK_RUNTIME_BROWSER_RUNTIME_H_
 
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
-#include "cameo/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
@@ -158,4 +158,4 @@ class Runtime : public content::WebContentsDelegate,
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_H_
+#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_H_

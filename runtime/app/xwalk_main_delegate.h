@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
-#define CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
+#ifndef XWALK_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
+#define XWALK_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
 
 #include <string>
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "cameo/runtime/common/xwalk_content_client.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 #include "content/public/app/content_main_delegate.h"
 
 namespace content {
@@ -46,4 +46,4 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_
+#endif  // XWALK_RUNTIME_APP_XWALK_MAIN_DELEGATE_H_

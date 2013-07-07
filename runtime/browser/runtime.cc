@@ -2,21 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime.h"
 
 #include <string>
 #include <utility>
 
 #include "base/command_line.h"
 #include "base/message_loop.h"
-#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
-#include "cameo/runtime/browser/xwalk_content_browser_client.h"
-#include "cameo/runtime/browser/image_util.h"
-#include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"
-#include "cameo/runtime/browser/runtime_context.h"
-#include "cameo/runtime/browser/runtime_file_select_helper.h"
-#include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/image_util.h"
+#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_file_select_helper.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/color_chooser.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"

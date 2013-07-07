@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
 
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/runtime/common/xwalk_notification_types.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"

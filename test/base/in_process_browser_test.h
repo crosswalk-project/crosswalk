@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
-#define CAMEO_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
+#ifndef XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
+#define XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
 
 #include "base/compiler_specific.h"
 #include "base/files/scoped_temp_dir.h"
@@ -81,4 +81,4 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   base::ScopedTempDir temp_data_path_dir_;
 };
 
-#endif  // CAMEO_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
+#endif  // XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_

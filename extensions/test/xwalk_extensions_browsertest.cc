@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/test/xwalk_extensions_test_base.h"
+#include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
-#include "cameo/extensions/browser/xwalk_extension.h"
-#include "cameo/extensions/browser/xwalk_extension_service.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/test/base/in_process_browser_test.h"
-#include "cameo/test/base/xwalk_test_utils.h"
+#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/test/base/in_process_browser_test.h"
+#include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 

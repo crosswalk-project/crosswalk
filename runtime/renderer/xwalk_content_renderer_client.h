@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
-#define CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
+#ifndef XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
+#define XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
@@ -36,4 +36,4 @@ class XWalkContentRendererClient : public content::ContentRendererClient {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
+#endif  // XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_

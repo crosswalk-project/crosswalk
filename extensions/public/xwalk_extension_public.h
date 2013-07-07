@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
-#define CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
+#ifndef XWALK_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
+#define XWALK_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
 
 #ifndef INTERNAL_IMPLEMENTATION
 #include <assert.h>
@@ -118,4 +118,4 @@ static void xwalk_extension_context_post_message(
 
 #endif  // INTERNAL_IMPLEMENTATION
 
-#endif  // CAMEO_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_
+#endif  // XWALK_EXTENSIONS_PUBLIC_XWALK_EXTENSION_PUBLIC_H_

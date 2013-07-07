@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/ui/native_app_window_win.h"
+#include "xwalk/runtime/browser/ui/native_app_window_win.h"
 
-#include "cameo/runtime/common/xwalk_notification_types.h"
+#include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
