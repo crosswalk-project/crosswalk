@@ -17,4 +17,4 @@ We are also on IRC : #crosswalk on otcirc.jf.intel.com:6697
 
 ## License
 
-cameo's code uses the BSD license, see our `LICENSE` file.
+Crosswalk's code uses the BSD license, see our `LICENSE` file.
