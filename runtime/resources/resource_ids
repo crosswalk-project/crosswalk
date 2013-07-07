@@ -9,7 +9,7 @@
 {
   "SRCDIR": "../../..",
 
-  "cameo/runtime/resources/xwalk_resources.grd": {
+  "xwalk/runtime/resources/xwalk_resources.grd": {
     "includes": [31000],
     "structures": [31500],
     "messages": [32000],
