@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
-#define CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
+#ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
+#define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
 
 #include <string>
 #include "base/scoped_native_library.h"
@@ -65,4 +65,4 @@ class XWalkExternalExtension : public XWalkExtension {
 }  // namespace extensions
 }  // namespace xwalk
 
-#endif  // CAMEO_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
+#endif  // XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_

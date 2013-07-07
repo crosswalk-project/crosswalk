@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_IMAGE_UTIL_H_
-#define CAMEO_RUNTIME_BROWSER_IMAGE_UTIL_H_
+#ifndef XWALK_RUNTIME_BROWSER_IMAGE_UTIL_H_
+#define XWALK_RUNTIME_BROWSER_IMAGE_UTIL_H_
 
 #include "base/files/file_path.h"
 #include "ui/gfx/image/image.h"
@@ -15,4 +15,4 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename);
 
 }  // namespace xwalk_utils
 
-#endif  // CAMEO_RUNTIME_BROWSER_IMAGE_UTIL_H_
+#endif  // XWALK_RUNTIME_BROWSER_IMAGE_UTIL_H_

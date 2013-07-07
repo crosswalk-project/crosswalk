@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
-#define CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
+#ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
+#define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
@@ -58,4 +58,4 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
+#endif  // XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_

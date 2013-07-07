@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
-#define CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
+#ifndef XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
+#define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
 
 #include <string>
 #include "content/public/renderer/render_view_observer.h"
@@ -48,4 +48,4 @@ class XWalkExtensionRenderViewHandler
 }  // namespace extensions
 }  // namespace xwalk
 
-#endif  // CAMEO_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
+#endif  // XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_

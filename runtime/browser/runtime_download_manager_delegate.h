@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
-#define CAMEO_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
+#ifndef XWALK_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
+#define XWALK_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
@@ -59,4 +59,4 @@ class RuntimeDownloadManagerDelegate
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_
+#endif  // XWALK_RUNTIME_BROWSER_RUNTIME_DOWNLOAD_MANAGER_DELEGATE_H_

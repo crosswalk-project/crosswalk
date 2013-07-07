@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
-#define CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
+#define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
 
 #include "base/compiler_specific.h"
 #include "base/string16.h"
@@ -106,4 +106,4 @@ class NativeAppWindow {
 };
 
 }  // namespace xwalk
-#endif  // CAMEO_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
-#define CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
+#ifndef XWALK_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
+#define XWALK_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
 
 #include "build/build_config.h"
 #include "content/public/browser/notification_types.h"
@@ -29,4 +29,4 @@ enum NotificationType {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
+#endif  // XWALK_RUNTIME_COMMON_XWALK_NOTIFICATION_TYPES_H_
