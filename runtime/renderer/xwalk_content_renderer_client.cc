@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/renderer/xwalk_content_renderer_client.h"
+#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
-#include "cameo/extensions/renderer/xwalk_extension_renderer_controller.h"
+#include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace xwalk {
 

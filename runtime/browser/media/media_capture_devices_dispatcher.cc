@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/media_devices_monitor.h"

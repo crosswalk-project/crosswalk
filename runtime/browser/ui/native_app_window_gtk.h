@@ -9,7 +9,7 @@
 #include <string>
 
 #include "base/memory/scoped_ptr.h"
-#include "cameo/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "third_party/skia/include/core/SkRegion.h"
 #include "ui/base/gtk/gtk_signal.h"
 #include "ui/base/x/active_window_watcher_x_observer.h"

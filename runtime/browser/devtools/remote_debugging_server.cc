@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/devtools/remote_debugging_server.h"
+#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 
-#include "cameo/runtime/browser/devtools/xwalk_devtools_delegate.h"
-#include "cameo/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "net/socket/tcp_listen_socket.h"
 

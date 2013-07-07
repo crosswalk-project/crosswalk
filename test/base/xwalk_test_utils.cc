@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/test/base/xwalk_test_utils.h"
+#include "xwalk/test/base/xwalk_test_utils.h"
 
 #include "base/command_line.h"
 #include "base/environment.h"
@@ -11,9 +11,9 @@
 #include "base/path_service.h"
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"

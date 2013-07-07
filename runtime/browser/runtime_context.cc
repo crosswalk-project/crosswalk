@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "cameo/runtime/browser/runtime_download_manager_delegate.h"
-#include "cameo/runtime/browser/runtime_url_request_context_getter.h"
-#include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
+#include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_url_request_context_getter.h"
+#include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 
 #include <algorithm>
 
@@ -11,7 +11,7 @@
 #include "base/string_util.h"
 #include "base/strings/string_split.h"
 #include "base/threading/worker_pool.h"
-#include "cameo/runtime/browser/runtime_network_delegate.h"
+#include "xwalk/runtime/browser/runtime_network_delegate.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"

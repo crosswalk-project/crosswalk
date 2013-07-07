@@ -4,9 +4,9 @@
 
 #include <windows.h>
 
-#include "cameo/runtime/browser/runtime_platform_util.h"
-#include "cameo/runtime/browser/ui/color_chooser.h"
-#include "cameo/runtime/browser/ui/color_chooser_dialog_win.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/ui/color_chooser_dialog_win.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"

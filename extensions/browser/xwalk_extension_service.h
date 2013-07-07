@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include "base/callback_forward.h"
-#include "cameo/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
 class RenderProcessHost;

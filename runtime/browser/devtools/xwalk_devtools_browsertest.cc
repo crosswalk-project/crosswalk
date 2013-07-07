@@ -4,9 +4,9 @@
 
 #include "base/command_line.h"
 #include "base/utf_string_conversions.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/test/base/in_process_browser_test.h"
-#include "cameo/test/base/xwalk_test_utils.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/test/base/in_process_browser_test.h"
+#include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/test/browser_test_utils.h"

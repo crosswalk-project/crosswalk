@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_download_manager_delegate.h"
+#include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 
 #if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>

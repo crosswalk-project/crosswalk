@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cameo/extensions/public/xwalk_extension_public.h"
+#include "xwalk/extensions/public/xwalk_extension_public.h"
 
 static void context_handle_message(CXWalkExtensionContext* context,
                                     const char *message) {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_network_delegate.h"
+#include "xwalk/runtime/browser/runtime_network_delegate.h"
 
 #include "net/base/net_errors.h"
 #include "net/base/static_cookie_policy.h"

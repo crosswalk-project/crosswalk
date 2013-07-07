@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/app/xwalk_main_delegate.h"
+#include "xwalk/runtime/app/xwalk_main_delegate.h"
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "cameo/runtime/browser/xwalk_content_browser_client.h"
-#include "cameo/runtime/browser/ui/taskbar_util.h"
-#include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/renderer/xwalk_content_renderer_client.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/ui/taskbar_util.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/common/content_switches.h"
 #include "ui/base/resource/resource_bundle.h"

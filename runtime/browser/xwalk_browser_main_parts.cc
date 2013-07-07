@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
 #include <string>
 
@@ -11,13 +11,13 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
-#include "cameo/extensions/browser/xwalk_extension_external.h"
-#include "cameo/extensions/browser/xwalk_extension_service.h"
-#include "cameo/runtime/browser/devtools/remote_debugging_server.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/runtime/browser/runtime_context.h"
-#include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/xwalk_switches.h"
+#include "xwalk/extensions/browser/xwalk_extension_external.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"

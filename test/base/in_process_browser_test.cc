@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/test/base/in_process_browser_test.h"
+#include "xwalk/test/base/in_process_browser_test.h"
 
 #include "base/auto_reset.h"
 #include "base/bind.h"
@@ -13,13 +13,13 @@
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/test/test_file_util.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/runtime/browser/runtime_registry.h"
-#include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/common/xwalk_switches.h"
-#include "cameo/runtime/renderer/xwalk_content_renderer_client.h"
-#include "cameo/test/base/xwalk_test_suite.h"
-#include "cameo/test/base/xwalk_test_utils.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
+#include "xwalk/test/base/xwalk_test_suite.h"
+#include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/common/content_switches.h"
