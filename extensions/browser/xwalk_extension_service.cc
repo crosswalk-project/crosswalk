@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 #include "base/callback.h"
 #include "base/memory/singleton.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/extensions/browser/xwalk_extension.h"
-#include "cameo/extensions/browser/xwalk_extension_web_contents_handler.h"
-#include "cameo/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
+#include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "content/public/browser/render_process_host.h"
 
 namespace xwalk {

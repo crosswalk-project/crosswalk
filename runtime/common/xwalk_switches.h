@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_COMMON_XWALK_SWITCHES_H_
-#define CAMEO_RUNTIME_COMMON_XWALK_SWITCHES_H_
+#ifndef XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
+#define XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
 
 // Defines all command line switches for XWalk.
 namespace switches {
@@ -18,4 +18,4 @@ extern const char kXWalkExternalExtensionsPath[];
 
 }  // namespace switches
 
-#endif  // CAMEO_RUNTIME_COMMON_XWALK_SWITCHES_H_
+#endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_

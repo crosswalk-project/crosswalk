@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
-#define CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
+#ifndef XWALK_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
+#define XWALK_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
 
 #include "content/public/browser/access_token_store.h"
 
@@ -30,4 +30,4 @@ class XWalkAccessTokenStore : public content::AccessTokenStore {
   DISALLOW_COPY_AND_ASSIGN(XWalkAccessTokenStore);
 };
 
-#endif  // CAMEO_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_
+#endif  // XWALK_RUNTIME_BROWSER_GEOLOCATION_XWALK_ACCESS_TOKEN_STORE_H_

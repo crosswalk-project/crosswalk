@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/devtools/xwalk_devtools_delegate.h"
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
 
 #include <string>
 
 #include "base/bind.h"
-#include "cameo/runtime/browser/runtime.h"
-#include "cameo/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"

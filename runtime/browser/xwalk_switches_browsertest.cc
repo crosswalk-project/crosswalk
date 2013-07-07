@@ -6,9 +6,9 @@
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/path_service.h"
-#include "cameo/runtime/common/xwalk_paths.h"
-#include "cameo/runtime/common/xwalk_switches.h"
-#include "cameo/test/base/in_process_browser_test.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
+#include "xwalk/test/base/in_process_browser_test.h"
 #include "content/public/test/test_utils.h"
 
 class XWalkSwitchesTest : public InProcessBrowserTest {

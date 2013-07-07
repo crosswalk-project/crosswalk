@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_
-#define CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_
+#ifndef XWALK_TEST_BASE_XWALK_TEST_UTILS_H_
+#define XWALK_TEST_BASE_XWALK_TEST_UTILS_H_
 
 #include <string>
 
@@ -42,4 +42,4 @@ void NavigateToURL(xwalk::Runtime* runtime, const GURL& url);
 
 }  // namespace xwalk_test_utils
 
-#endif  // CAMEO_TEST_BASE_XWALK_TEST_UTILS_H_
+#endif  // XWALK_TEST_BASE_XWALK_TEST_UTILS_H_

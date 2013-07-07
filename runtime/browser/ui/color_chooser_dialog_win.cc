@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/ui/color_chooser_dialog_win.h"
+#include "xwalk/runtime/browser/ui/color_chooser_dialog_win.h"
 
 #include <commdlg.h>
 
 #include "base/bind.h"
 #include "base/message_loop.h"
 #include "base/threading/thread.h"
-#include "cameo/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "content/public/browser/browser_thread.h"
 #include "skia/ext/skia_utils_win.h"
 #include "ui/views/color_chooser/color_chooser_listener.h"

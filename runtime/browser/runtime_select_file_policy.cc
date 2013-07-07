@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/runtime_select_file_policy.h"
+#include "xwalk/runtime/browser/runtime_select_file_policy.h"
 
 RuntimeSelectFilePolicy::RuntimeSelectFilePolicy() {}
 RuntimeSelectFilePolicy::~RuntimeSelectFilePolicy() {}

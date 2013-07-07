@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/app/xwalk_main_delegate.h"
+#include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "content/public/app/content_main.h"
 
 #if defined(OS_WIN)

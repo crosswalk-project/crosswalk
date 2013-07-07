@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/browser/geolocation/xwalk_access_token_store.h"
+#include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 
 #include "base/bind.h"
 #include "base/message_loop.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cameo/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace switches {
 
