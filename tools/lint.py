@@ -118,8 +118,8 @@ def do_cpp_lint(changeset, repo, args):
           upper of the origin output of RepositoryName.
       '''
       repo_name = origin_FileInfo.RepositoryName(self)
-      if repo == "xwalk" and not repo_name.startswith('cameo'):
-        return 'cameo/%s' % repo_name
+      if repo == "xwalk" and not repo_name.startswith('xwalk'):
+        return 'xwalk/%s' % repo_name
       else:
         return repo_name
   cpplint.FileInfo = MyFileInfo
@@ -180,15 +180,15 @@ def do_py_lint(changeset):
     print 'You have error for python importing, please check your PYTHONPATH'
  
 def do_lint(repo, base, args):
-  # dir structure should be src/cameo for xwalk
+  # dir structure should be src/xwalk for xwalk
   #                         src/third_party/WebKit for blink
   #                         src/ for chromium
-  # lint.py should be located in src/cameo/tools/lint.py
+  # lint.py should be located in src/xwalk/tools/lint.py
   _lint_py = os.path.abspath(__file__)
   _dirs = _lint_py.split(os.path.sep)
   src_root = os.path.sep.join(_dirs[:len(_dirs)-3])
   if repo == 'xwalk':
-    base_repo = os.path.join(src_root, 'cameo')
+    base_repo = os.path.join(src_root, 'xwalk')
   elif repo == 'chromium':
     base_repo = src_root
   elif repo == 'blink':

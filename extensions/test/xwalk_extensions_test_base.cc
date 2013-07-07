@@ -26,7 +26,7 @@ GURL GetExtensionsTestURL(const base::FilePath& dir,
   base::FilePath test_file;
   PathService::Get(base::DIR_SOURCE_ROOT, &test_file);
   test_file = test_file
-              .Append(FILE_PATH_LITERAL("cameo"))
+              .Append(FILE_PATH_LITERAL("xwalk"))
               .Append(FILE_PATH_LITERAL("extensions"))
               .Append(FILE_PATH_LITERAL("test"))
               .Append(FILE_PATH_LITERAL("data"))

@@ -25,14 +25,14 @@ bool PathProvider(int key, base::FilePath* path) {
     case xwalk::DIR_DATA_PATH: {
       #if defined(OS_WIN)
         CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &cur));
-        cur = cur.Append(std::wstring(L"cameo"));
+        cur = cur.Append(std::wstring(L"xwalk"));
       #elif defined(OS_LINUX)
         scoped_ptr<base::Environment> env(base::Environment::Create());
         base::FilePath config_dir(
             base::nix::GetXDGDirectory(env.get(),
                                        base::nix::kXdgConfigHomeEnvVar,
                                        base::nix::kDotConfigDir));
-        cur = config_dir.Append("cameo");
+        cur = config_dir.Append("xwalk");
       #else
         NOTIMPLEMENTED() << "Unsupported OS platform.";
         return false;
@@ -42,7 +42,7 @@ bool PathProvider(int key, base::FilePath* path) {
     case xwalk::DIR_TEST_DATA:
       if (!PathService::Get(base::DIR_SOURCE_ROOT, &cur))
         return false;
-      cur = cur.Append(FILE_PATH_LITERAL("cameo"));
+      cur = cur.Append(FILE_PATH_LITERAL("xwalk"));
       cur = cur.Append(FILE_PATH_LITERAL("test"));
       cur = cur.Append(FILE_PATH_LITERAL("data"));
       break;

@@ -43,7 +43,7 @@ base::LazyInstance<xwalk::XWalkContentRendererClient>::Leaky
 
 InProcessBrowserTest::InProcessBrowserTest()
     : runtime_(NULL) {
-  CreateTestServer(base::FilePath(FILE_PATH_LITERAL("cameo/test/data")));
+  CreateTestServer(base::FilePath(FILE_PATH_LITERAL("xwalk/test/data")));
 }
 
 InProcessBrowserTest::~InProcessBrowserTest() {
