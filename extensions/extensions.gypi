@@ -15,5 +15,9 @@
     'renderer/xwalk_extension_renderer_controller.h',
     'renderer/xwalk_extension_render_view_handler.cc',
     'renderer/xwalk_extension_render_view_handler.h',
+    'renderer/xwalk_api.js',
+  ],
+  'includes': [
+    'xwalk_js2c.gypi',
   ],
 }
