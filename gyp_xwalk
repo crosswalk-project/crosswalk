@@ -82,6 +82,25 @@ def additional_include_files(args=[]):
 if __name__ == '__main__':
   args = sys.argv[1:]
 
+  # Support external media types capability such as MP4/MP3.
+  args = list(set(args)) 
+  delist = []
+  ip_media_codecs = False # Default: no third-party codecs be build in.
+  for arg in args:
+    if arg.startswith('-Dproprietary_codecs') or arg.startswith('-Dffmpeg_branding'):
+      continue
+    elif arg == '-Dmediacodecs_EULA=1':
+      ip_media_codecs = True  # Exception: mediacodecs_EULA be enabled.
+    else:
+      delist.append(arg)
+
+  args = delist 
+  args.append('-Dproprietary_codecs=1')
+
+  # Triggering media playback dynamically with third-party codecs by owner. 
+  if ip_media_codecs == True:
+      args.append('-Dffmpeg_branding=Chrome')
+
   # Use the Psyco JIT if available.
   if psyco:
     psyco.profile()
