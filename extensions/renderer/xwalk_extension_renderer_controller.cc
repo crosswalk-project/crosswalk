@@ -11,6 +11,9 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "v8/include/v8.h"
 
+// This will be generated from xwalk_api.js.
+extern const char kSource_xwalk_api[];
+
 namespace xwalk {
 namespace extensions {
 
@@ -26,29 +29,8 @@ class XWalkExtensionV8Wrapper : public v8::Extension {
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args);
 };
 
-// FIXME(cmarcelo): Implement this in C++ instead of JS. Tie it to the
-// window object lifetime.
-static const char* const kXWalkExtensionV8WrapperAPI =
-    "var xwalk = xwalk || {};"
-    "xwalk.postMessage = function(extension, msg) {"
-    "  native function PostMessage();"
-    "  PostMessage(extension, msg);"
-    "};"
-    "xwalk._message_listeners = {};"
-    "xwalk.setMessageListener = function(extension, callback) {"
-    "  if (callback === undefined)"
-    "    delete xwalk._message_listeners[extension];"
-    "  else"
-    "    xwalk._message_listeners[extension] = callback;"
-    "};"
-    "xwalk.onpostmessage = function(extension, msg) {"
-    "  var listener = xwalk._message_listeners[extension];"
-    "  if (listener !== undefined)"
-    "    listener(msg);"
-    "};";
-
 XWalkExtensionV8Wrapper::XWalkExtensionV8Wrapper()
-    : v8::Extension("xwalk", kXWalkExtensionV8WrapperAPI) {
+    : v8::Extension("xwalk", kSource_xwalk_api) {
 }
 
 v8::Handle<v8::FunctionTemplate>
