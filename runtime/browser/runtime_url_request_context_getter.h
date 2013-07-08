@@ -35,7 +35,6 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
       content::ProtocolHandlerMap* protocol_handlers);
-  virtual ~RuntimeURLRequestContextGetter();
 
   // net::URLRequestContextGetter implementation.
   virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
@@ -45,6 +44,8 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   net::HostResolver* host_resolver();
 
  private:
+  virtual ~RuntimeURLRequestContextGetter();
+
   bool ignore_certificate_errors_;
   base::FilePath base_path_;
   base::MessageLoop* io_loop_;

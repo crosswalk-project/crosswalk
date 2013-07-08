@@ -229,7 +229,7 @@ content::ColorChooser* Runtime::OpenColorChooser(
     color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,
                                                        web_contents,
                                                        color));
-#else
+#elif defined(OS_LINUX)
   if (color_chooser_.get())
     color_chooser_->End();
   color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,

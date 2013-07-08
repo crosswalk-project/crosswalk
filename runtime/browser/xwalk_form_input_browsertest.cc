@@ -43,6 +43,7 @@ class TestSelectFileDialog : public ui::SelectFileDialog {
   virtual void ListenerDestroyed() {}
 
  protected:
+  virtual ~TestSelectFileDialog() {}
   virtual void SelectFileImpl(
       Type type,
       const string16& title,

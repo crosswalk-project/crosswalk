@@ -32,12 +32,7 @@ class NativeAppWindowDelegate {
 class NativeAppWindow {
  public:
   struct CreateParams {
-    CreateParams()
-        : delegate(NULL),
-          web_contents(NULL),
-          state(ui::SHOW_STATE_NORMAL),
-          resizable(true) {
-    }
+    CreateParams();
     // Delegate for this window.
     NativeAppWindowDelegate* delegate;
     // WebContents which the content will be displayed in this window.

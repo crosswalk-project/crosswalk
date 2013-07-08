@@ -28,7 +28,7 @@ class XWalkExtensionWebContentsHandler
   void AttachExtension(XWalkExtension* extension);
 
   // content::WebContentsObserver implementation.
-  bool OnMessageReceived(const IPC::Message& message);
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
   void OnPostMessage(const std::string& extension_name, const std::string& msg);
