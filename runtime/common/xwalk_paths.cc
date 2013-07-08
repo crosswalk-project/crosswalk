@@ -33,6 +33,9 @@ bool PathProvider(int key, base::FilePath* path) {
                                        base::nix::kXdgConfigHomeEnvVar,
                                        base::nix::kDotConfigDir));
         cur = config_dir.Append("xwalk");
+      #elif defined(OS_MACOSX)
+        CHECK(PathService::Get(base::DIR_APP_DATA, &cur));
+        cur = cur.Append("xwalk");
       #else
         NOTIMPLEMENTED() << "Unsupported OS platform.";
         return false;

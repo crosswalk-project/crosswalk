@@ -87,6 +87,7 @@
         'runtime/browser/runtime_platform_util_common_linux.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_win.cc',
+        'runtime/browser/runtime_platform_util_mac.mm',
         'runtime/browser/runtime_registry.cc',
         'runtime/browser/runtime_registry.h',
         'runtime/browser/runtime_select_file_policy.cc',
@@ -100,10 +101,13 @@
         'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
+        'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window_win.cc',
         'runtime/browser/ui/native_app_window_win.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
         'runtime/browser/ui/native_app_window_gtk.h',
+        'runtime/browser/ui/native_app_window_mac.mm',
+        'runtime/browser/ui/native_app_window_mac.h',
         'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/browser/ui/taskbar_util.h',
         'runtime/common/xwalk_content_client.cc',
@@ -152,12 +156,12 @@
             '../build/linux/system.gyp:fontconfig',
           ],
         }],  # OS=="linux"
-        ['os_posix==1 and linux_use_tcmalloc==1', {
+        ['os_posix==1 and OS != "mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
             '../base/allocator/allocator.gyp:allocator',
           ],
-        }],  # os_posix==1 and linux_use_tcmalloc==1
+        }],  # os_posix==1 and OS != "mac" and linux_use_tcmalloc==1
         ['use_custom_freetype==1', {
           'dependencies': [
              '../third_party/freetype2/freetype2.gyp:freetype2',

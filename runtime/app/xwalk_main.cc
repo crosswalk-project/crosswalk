@@ -17,11 +17,9 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
   xwalk::XWalkMainDelegate delegate;
   return content::ContentMain(instance, &sandbox_info, &delegate);
 }
-#elif defined(OS_LINUX)
+#else
 int main(int argc, const char** argv) {
   xwalk::XWalkMainDelegate delegate;
   return content::ContentMain(argc, argv, &delegate);
 }
-#else
-#error "Unsupported platform."
 #endif

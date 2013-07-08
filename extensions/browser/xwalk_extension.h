@@ -36,14 +36,13 @@ class XWalkExtension {
 
   class Context {
    public:
-    virtual ~Context() {}
+    virtual ~Context();
     // Allow to handle messages sent from JavaScript code running in renderer
     // process.
     virtual void HandleMessage(const std::string& msg) = 0;
 
    protected:
-    explicit Context(const PostMessageCallback& post_message)
-        : post_message_(post_message) {}
+    explicit Context(const PostMessageCallback& post_message);
 
     // Function to be used by extensions contexts to post messages back to
     // JavaScript in the renderer process.
