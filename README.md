@@ -5,7 +5,7 @@ It's developed by Intel Open Source Technology Center.
 
 ## Documents
 
-Check out our [Wiki](https://github.com/otcshare/cameo/wiki/).
+Check out our [Wiki](https://github.com/otcshare/crosswalk/wiki/).
 
 ## Community
 
