@@ -1,0 +1,22 @@
+# Names should be added to this file with this pattern:
+#
+# For individuals:
+#   Name <email address>
+#
+# For organizations:
+#   Organization <fnmatch pattern>
+#
+# See python fnmatch module documentation for more information.
+
+Alexis Menard <alexis.menard@intel.com>
+Caio Marcelo de Oliveira Filho <caio.de.oliveira.filho@intel.com>
+Girish Ramakrishnan <girish.ramakrishnan@intel.com>
+Gao Chun <chun.gao@intel.com>
+Hongbo Min <hongbo.min@intel.com>
+John Chen <zhang.z.chen@intel.com>
+Junmin Zhu <junmin.zhu@intel.com>
+Kenneth Rohde Christiansen <kenneth.r.christiansen@intel.com>
+Leandro Pereira <leandro.pereira@intel.com>
+Li Yin <li.yin@intel.com>
+Ningxin Hu <ningxin.hu@intel.com>
+Shiliu Wang <shiliu.wang@intel.com>
