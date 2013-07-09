@@ -59,8 +59,11 @@
       'sources': [
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/xwalk_application_mac.h',
+        'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
         'runtime/browser/xwalk_browser_main_parts.h',
+        'runtime/browser/xwalk_browser_main_parts_mac.mm',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
         'runtime/browser/devtools/xwalk_devtools_delegate.cc',
@@ -110,6 +113,8 @@
         'runtime/browser/ui/native_app_window_mac.h',
         'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/browser/ui/taskbar_util.h',
+        'runtime/common/paths_mac.h',
+        'runtime/common/paths_mac.mm',
         'runtime/common/xwalk_content_client.cc',
         'runtime/common/xwalk_content_client.h',
         'runtime/common/xwalk_paths.cc',
@@ -256,6 +261,7 @@
     {
       'target_name': 'xwalk',
       'type': 'executable',
+      'mac_bundle': 1,
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
         'xwalk_runtime',
@@ -267,6 +273,19 @@
       'sources': [
         'runtime/app/xwalk_main.cc',
       ],
+      'mac_bundle_resources': [
+        'runtime/app/app.icns',
+        'runtime/app/app-Info.plist',
+      ],
+      # TODO(mark): Come up with a fancier way to do this.  It should only
+      # be necessary to list app-Info.plist once, not the three times it is
+      # listed here.
+      'mac_bundle_resources!': [
+        'runtime/app/app-Info.plist',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': 'runtime/app/app-Info.plist',
+      },
       'msvs_settings': {
         'VCLinkerTool': {
           'SubSystem': '2',  # Set /SUBSYSTEM:WINDOWS
@@ -320,6 +339,75 @@
             }
           ],
         }],
+        ['OS=="mac"', {
+          'product_name': '<(xwalk_product_name)',
+          'dependencies!': [
+            'xwalk_runtime',
+          ],
+          'dependencies': [
+            'xwalk_framework',
+            'xwalk_helper_app',
+          ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/<(xwalk_product_name).app/Contents/Frameworks',
+              'files': [
+                '<(PRODUCT_DIR)/<(xwalk_product_name) Helper.app',
+              ],
+            },
+          ],
+          'postbuilds': [
+            {
+              'postbuild_name': 'Copy <(xwalk_product_name) Framework.framework',
+              'action': [
+                '../build/mac/copy_framework_unversioned.sh',
+                '${BUILT_PRODUCTS_DIR}/<(xwalk_product_name) Framework.framework',
+                '${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Frameworks',
+              ],
+            },
+            {
+              'postbuild_name': 'Fix Framework Link',
+              'action': [
+                'install_name_tool',
+                '-change',
+                '/Library/Frameworks/<(xwalk_product_name) Framework.framework/Versions/A/<(xwalk_product_name) Framework',
+                '@executable_path/../Frameworks/<(xwalk_product_name) Framework.framework/<(xwalk_product_name) Framework',
+                '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
+              ],
+            },
+            {
+              # Modify the Info.plist as needed.
+              'postbuild_name': 'Tweak Info.plist',
+              'action': ['../build/mac/tweak_info_plist.py',
+                         '--scm=1',
+                         '--version=<(xwalk_version)'],
+            },
+            {
+              # This postbuid step is responsible for creating the following
+              # helpers:
+              #
+              # XWalk Helper EH.app and XWalk Helper NP.app are
+              # created from XWalk Helper.app.
+              #
+              # The EH helper is marked for an executable heap. The NP helper
+              # is marked for no PIE (ASLR).
+              'postbuild_name': 'Make More Helpers',
+              'action': [
+                '../build/mac/make_more_helpers.sh',
+                'Frameworks',
+                '<(xwalk_product_name)',
+              ],
+            },
+            {
+              # Make sure there isn't any Objective-C in the xwalk's
+              # executable.
+              'postbuild_name': 'Verify No Objective-C',
+              'action': [
+                '../build/mac/verify_no_objc.sh',
+              ],
+            },
+          ],
+        }],  # OS=="mac"
       ],
     },
     {
@@ -332,4 +420,133 @@
       ],
     },
   ],
+  'conditions': [
+    ['OS=="mac"', {
+      'targets': [
+        {
+          'target_name': 'xwalk_framework',
+          'type': 'shared_library',
+          'product_name': '<(xwalk_product_name) Framework',
+          'mac_bundle': 1,
+          'mac_bundle_resources': [
+            'runtime/app/English.lproj/MainMenu.xib',
+            '<(PRODUCT_DIR)/xwalk.pak'
+          ],
+          'dependencies': [
+            'xwalk_runtime',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'runtime/app/xwalk_content_main.cc',
+            'runtime/app/xwalk_content_main.h',
+          ],
+          'copies': [
+            {
+              # Copy FFmpeg binaries for audio/video support.
+              'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
+              'files': [
+                '<(PRODUCT_DIR)/ffmpegsumo.so',
+              ],
+            },
+          ],
+          'conditions': [
+            ['enable_webrtc==1', {
+              'variables': {
+                'libpeer_target_type%': 'static_library',
+              },
+              'conditions': [
+                ['libpeer_target_type!="static_library"', {
+                  'copies': [{
+                   'destination': '<(PRODUCT_DIR)/$(CONTENTS_FOLDER_PATH)/Libraries',
+                   'files': [
+                      '<(PRODUCT_DIR)/libpeerconnection.so',
+                    ],
+                  }],
+                }],
+              ],
+            }],
+          ],
+        },  # target xwalk_framework
+        {
+          'target_name': 'xwalk_helper_app',
+          'type': 'executable',
+          'variables': { 'enable_wexit_time_destructors': 1, },
+          'product_name': '<(xwalk_product_name) Helper',
+          'mac_bundle': 1,
+          'dependencies': [
+            'xwalk_framework',
+          ],
+          'sources': [
+            'runtime/app/xwalk_main.cc',
+            'runtime/app/helper-Info.plist',
+          ],
+          # TODO(mark): Come up with a fancier way to do this.  It should only
+          # be necessary to list helper-Info.plist once, not the three times it
+          # is listed here.
+          'mac_bundle_resources!': [
+            'runtime/app/helper-Info.plist',
+          ],
+          # TODO(mark): For now, don't put any resources into this app.  Its
+          # resources directory will be a symbolic link to the browser app's
+          # resources directory.
+          'mac_bundle_resources/': [
+            ['exclude', '.*'],
+          ],
+          'xcode_settings': {
+            'INFOPLIST_FILE': 'runtime/app/helper-Info.plist',
+          },
+          'postbuilds': [
+            {
+              # The framework defines its load-time path
+              # (DYLIB_INSTALL_NAME_BASE) relative to the main executable
+              # (chrome).  A different relative path needs to be used in
+              # xwalk_helper_app.
+              'postbuild_name': 'Fix Framework Link',
+              'action': [
+                'install_name_tool',
+                '-change',
+                '/Library/Frameworks/<(xwalk_product_name) Framework.framework/Versions/A/<(xwalk_product_name) Framework',
+                '@executable_path/../../../../Frameworks/<(xwalk_product_name) Framework.framework/<(xwalk_product_name) Framework',
+                '${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}'
+              ],
+            },
+            {
+              # Modify the Info.plist as needed.  The script explains why this
+              # is needed.  This is also done in the chrome and chrome_dll
+              # targets.  In this case, --breakpad=0, --keystone=0, and --scm=0
+              # are used because Breakpad, Keystone, and SCM keys are
+              # never placed into the helper.
+              'postbuild_name': 'Tweak Info.plist',
+              'action': ['../build/mac/tweak_info_plist.py',
+                         '--breakpad=0',
+                         '--keystone=0',
+                         '--scm=0',
+                         '--version=<(xwalk_version)'],
+            },
+            {
+              # Make sure there isn't any Objective-C in the helper app's
+              # executable.
+              'postbuild_name': 'Verify No Objective-C',
+              'action': [
+                '../build/mac/verify_no_objc.sh',
+              ],
+            },
+          ],
+          'conditions': [
+            ['component=="shared_library"', {
+              'xcode_settings': {
+                'LD_RUNPATH_SEARCH_PATHS': [
+                  # Get back from XWalk.app/Contents/Frameworks/
+                  #                                 Helper.app/Contents/MacOS
+                  '@loader_path/../../../../../..',
+                ],
+              },
+            }],
+          ],
+        },  # target xwalk_helper_app
+      ],
+    }],  # OS=="mac"
+  ]
 }
