@@ -9,6 +9,7 @@
 #include "base/path_service.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
+#include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 #include "content/public/browser/browser_main_runner.h"
@@ -42,6 +43,11 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
 }
 
 void XWalkMainDelegate::PreSandboxStartup() {
+#if defined(OS_MACOSX)
+  OverrideFrameworkBundlePath();
+  OverrideChildProcessPath();
+#endif  // OS_MACOSX
+
   RegisterPathProvider();
   InitializeResourceBundle();
 }
@@ -54,11 +60,16 @@ int XWalkMainDelegate::RunProcess(const std::string& process_type,
 
 // static
 void XWalkMainDelegate::InitializeResourceBundle() {
-  base::FilePath pak_file, pak_dir;
+  base::FilePath pak_file;
+#if defined(OS_MACOSX)
+  pak_file = GetResourcesPakFilePath();
+#else
+  base::FilePath pak_dir;
   PathService::Get(base::DIR_MODULE, &pak_dir);
   DCHECK(!pak_dir.empty());
 
   pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
+#endif
   ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
 }
 

@@ -50,6 +50,10 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
     startup_url_ = url;
   else
     startup_url_ = net::FilePathToFileURL(base::FilePath(args[0]));
+
+#if defined(OS_MACOSX)
+    PreMainMessageLoopStartMac();
+#endif
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
