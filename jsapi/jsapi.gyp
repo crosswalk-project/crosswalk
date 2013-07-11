@@ -12,6 +12,7 @@
       ],
       'variables': {
         'schema_files': [
+          'runtime.idl',
         ],
         'cc_dir': 'xwalk/jsapi',
         'root_namespace': 'xwalk::jsapi',

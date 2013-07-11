@@ -24,6 +24,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/extension/runtime_extension.h"
 #include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -256,6 +257,7 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensions() {
+  extension_service_->RegisterExtension(new RuntimeExtension());
   extension_service_->RegisterExtension(
       new DialogExtension(runtime_registry_.get()));  // experimental
 }
