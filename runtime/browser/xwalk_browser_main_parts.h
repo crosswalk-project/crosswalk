@@ -44,6 +44,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void RegisterExternalExtensions();
 #if defined(OS_MACOSX)
   void PreMainMessageLoopStartMac();
+#elif defined(USE_AURA)
+  void PreMainMessageLoopStartAura();
+  void PostMainMessageLoopRunAura();
 #endif
 
   scoped_ptr<RuntimeContext> runtime_context_;

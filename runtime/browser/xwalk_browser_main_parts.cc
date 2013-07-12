@@ -121,6 +121,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     }
   }
 
+  NativeAppWindow::Initialize(); 
+
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::Create(runtime_context_.get(), startup_url_);
 

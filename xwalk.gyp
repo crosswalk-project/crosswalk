@@ -87,6 +87,7 @@
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
+        'runtime/browser/runtime_platform_util_aura.cc',
         'runtime/browser/runtime_platform_util_common_linux.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_win.cc',
@@ -105,6 +106,8 @@
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window.cc',
+        'runtime/browser/ui/native_app_window_aura.cc',
+        'runtime/browser/ui/native_app_window_aura.h',
         'runtime/browser/ui/native_app_window_win.cc',
         'runtime/browser/ui/native_app_window_win.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
@@ -177,6 +180,19 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],  # toolkit_uses_gtk==1
+        ['use_aura==1', {
+          'dependencies': [
+            '../ui/aura/aura.gyp:aura',
+            '../ui/base/strings/ui_strings.gyp:ui_strings',
+            '../ui/views/controls/webview/webview.gyp:webview',
+            '../ui/views/views.gyp:views',
+            '../ui/views/views.gyp:views_test_support',
+            '../ui/ui.gyp:ui_resources',
+          ],
+          'sources/': [
+            ['exclude', 'runtime/browser/runtime_platform_util_common_linux.cc'],
+          ],
+        }],  # use_aura==1
       ],
     },
     {

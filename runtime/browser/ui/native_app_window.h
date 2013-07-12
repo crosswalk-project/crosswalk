@@ -51,6 +51,9 @@ class NativeAppWindow {
     bool resizable;
   };
 
+  // Do one time initialization at application startup.
+  static void Initialize(); 
+
   // Initialize the platform-specific native app window.
   static NativeAppWindow* Create(const CreateParams& params);
 
