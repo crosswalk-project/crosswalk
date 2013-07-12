@@ -41,6 +41,8 @@ if [ "x$HELP" != "x" ]; then
      --version=<version>     The version of the application, defaults to 1.0.0
      --app_index=<path>      Path of app index file, relative to app_path. If not
                                specified, index.html is used.
+     --app_arguments=<path>  Arugments to be passed into Crosswalk executable
+                               Example: --app_arguments=--allow-file-access-from-files
      --out=<path>            Path of the output package file, defaults to
                                $TEMP_DIR/<app_name>
      --publisher=<name>      The manufacturer of this application, defaults to "Me"
