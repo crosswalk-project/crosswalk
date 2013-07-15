@@ -41,8 +41,8 @@ class EchoExtension : public XWalkExtension {
     explicit EchoContext(
         const XWalkExtension::PostMessageCallback& post_message)
         : XWalkExtension::Context(post_message) {}
-    virtual void HandleMessage(const std::string& msg) OVERRIDE {
-      PostMessage(msg);
+    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+      PostMessage(msg.Pass());
     }
   };
 
