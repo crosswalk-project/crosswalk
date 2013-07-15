@@ -6,8 +6,10 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
 
 #include <string>
+#include "base/values.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "content/public/renderer/render_view_observer_tracker.h"
+#include "v8/include/v8.h"
 
 namespace xwalk {
 namespace extensions {
@@ -28,8 +30,10 @@ class XWalkExtensionRenderViewHandler
   // This convenience is one of the reasons to have this helper class.
   static XWalkExtensionRenderViewHandler* GetForCurrentContext();
 
+  v8::Handle<v8::Context> GetV8Context() const;
+
   bool PostMessageToExtension(const std::string& extension,
-                              const std::string& msg);
+                              const base::ListValue& msg);
   std::string SendSyncMessageToExtension(const std::string& extension,
                                          const std::string& msg);
 
@@ -39,7 +43,7 @@ class XWalkExtensionRenderViewHandler
  private:
   // Called when we receive a message from the browser process, dispatches it to
   // JavaScript environment.
-  void OnPostMessage(const std::string& extension, const std::string& msg);
+  void OnPostMessage(const std::string& extension, const base::ListValue& msg);
 
   XWalkExtensionRendererController* controller_;
 

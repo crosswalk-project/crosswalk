@@ -33,7 +33,7 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
 
  private:
   // XWalkExtensionRunner implementation.
-  virtual void HandleMessageFromClient(const std::string& msg) OVERRIDE;
+  virtual void HandleMessageFromClient(scoped_ptr<base::Value> msg) OVERRIDE;
   virtual std::string HandleSyncMessageFromClient(
       const std::string& msg) OVERRIDE;
 
