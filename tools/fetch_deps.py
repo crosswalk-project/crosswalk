@@ -12,6 +12,7 @@
 
 import optparse
 import os
+import pprint
 import re
 import sys
 
@@ -218,7 +219,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
-    gclient_file.write('solutions = %s' % solutions)
+    gclient_file.write('solutions = %s' % pprint.pformat(solutions))
 
   def DoGclientSyncForChromium(self):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
