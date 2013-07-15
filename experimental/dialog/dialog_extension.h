@@ -51,7 +51,7 @@ class DialogContext : public XWalkExtension::Context,
     const XWalkExtension::PostMessageCallback& post_message);
   virtual ~DialogContext();
 
-  virtual void HandleMessage(const std::string& msg) OVERRIDE;
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
   // ui::SelectFileDialog::Listener implementation.
   virtual void FileSelected(const base::FilePath& path,

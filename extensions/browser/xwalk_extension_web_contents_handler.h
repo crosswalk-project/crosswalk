@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include "base/values.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
@@ -31,12 +32,13 @@ class XWalkExtensionWebContentsHandler
  private:
   // XWalkExtensionRunner::Client implementation.
   virtual void HandleMessageFromContext(const XWalkExtensionRunner* runner,
-                                        const std::string& msg) OVERRIDE;
+                                        scoped_ptr<base::Value> msg) OVERRIDE;
 
   // content::WebContentsObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void OnPostMessage(const std::string& extension_name, const std::string& msg);
+  void OnPostMessage(const std::string& extension_name,
+                     const base::ListValue& msg);
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);

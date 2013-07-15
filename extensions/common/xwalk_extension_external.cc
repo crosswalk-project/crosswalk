@@ -93,13 +93,16 @@ void XWalkExternalExtension::ExternalContext::PostMessageWrapper(
   XWalkExternalExtension::ExternalContext* self =
         reinterpret_cast<XWalkExternalExtension::ExternalContext*>(
               context->internal_data);
-  self->PostMessage(msg);
+  self->PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
 }
 
 void XWalkExternalExtension::ExternalContext::HandleMessage(
-      const std::string& msg) {
+      scoped_ptr<base::Value> msg) {
+  std::string string_msg;
+  msg->GetAsString(&string_msg);
+
   if (context_->handle_message)
-    context_->handle_message(context_, msg.c_str());
+    context_->handle_message(context_, string_msg.c_str());
 }
 
 XWalkExternalExtension::ExternalContext::~ExternalContext() {

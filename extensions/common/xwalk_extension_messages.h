@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <string>
+#include "base/values.h"
 #include "ipc/ipc_message_macros.h"
 
 // Note: it is safe to use numbers after LastIPCMsgStart since that limit
@@ -15,11 +16,11 @@ const int XWalkExtensionMsgStart = LastIPCMsgStart + 1;
 
 IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
                     std::string /* target extension */,
-                    std::string /* contents */)
+                    base::ListValue /* contents */)
 
 IPC_MESSAGE_ROUTED2(XWalkViewMsg_PostMessage,  // NOLINT(*)
                     std::string /* source extension */,
-                    std::string /* contents */)
+                    base::ListValue /* contents */)
 
 IPC_MESSAGE_CONTROL2(XWalkViewMsg_RegisterExtension,  // NOLINT(*)
                     std::string /* extension */,

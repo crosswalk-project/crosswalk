@@ -14,12 +14,12 @@ XWalkExtensionRunner::XWalkExtensionRunner(const std::string& extension_name,
 
 XWalkExtensionRunner::~XWalkExtensionRunner() {}
 
-void XWalkExtensionRunner::PostMessageToContext(const std::string& msg) {
-  HandleMessageFromClient(msg);
+void XWalkExtensionRunner::PostMessageToContext(scoped_ptr<base::Value> msg) {
+  HandleMessageFromClient(msg.Pass());
 }
 
-void XWalkExtensionRunner::PostMessageToClient(const std::string& msg) {
-  client_->HandleMessageFromContext(this, msg);
+void XWalkExtensionRunner::PostMessageToClient(scoped_ptr<base::Value> msg) {
+  client_->HandleMessageFromContext(this, msg.Pass());
 }
 
 
