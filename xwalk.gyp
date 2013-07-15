@@ -106,10 +106,8 @@
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window.cc',
-        'runtime/browser/ui/native_app_window_aura.cc',
-        'runtime/browser/ui/native_app_window_aura.h',
-        'runtime/browser/ui/native_app_window_win.cc',
-        'runtime/browser/ui/native_app_window_win.h',
+        'runtime/browser/ui/native_app_window_views.cc',
+        'runtime/browser/ui/native_app_window_views.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
         'runtime/browser/ui/native_app_window_gtk.h',
         'runtime/browser/ui/native_app_window_mac.mm',
@@ -141,11 +139,6 @@
         ['OS=="win"', {
           'resource_include_dirs': [
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
-          ],
-          'dependencies': [
-            '../ui/views/controls/webview/webview.gyp:webview',
-            '../ui/views/views.gyp:views',
-            '../webkit/support/webkit_support.gyp:webkit_strings',
           ],
           'configurations': {
             'Debug_Base': {
@@ -180,9 +173,8 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],  # toolkit_uses_gtk==1
-        ['use_aura==1', {
+        ['toolkit_views==1', {
           'dependencies': [
-            '../ui/aura/aura.gyp:aura',
             '../ui/base/strings/ui_strings.gyp:ui_strings',
             '../ui/views/controls/webview/webview.gyp:webview',
             '../ui/views/views.gyp:views',
@@ -192,7 +184,12 @@
           'sources/': [
             ['exclude', 'runtime/browser/runtime_platform_util_common_linux.cc'],
           ],
-        }],  # use_aura==1
+        }],  # toolkit_views==1
+        ['use_aura==1', {
+          'dependencies': [
+            '../ui/aura/aura.gyp:aura',
+          ],
+        }],
       ],
     },
     {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/native_app_window_aura.h"
+#include "xwalk/runtime/browser/ui/native_app_window_views.h"
 
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
@@ -11,10 +11,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "third_party/skia/include/core/SkPaint.h"
-#include "ui/aura/env.h"
-#include "ui/aura/root_window.h"
-#include "ui/aura/window.h"
-#include "ui/gfx/screen.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/layout/box_layout.h"
 #include "ui/views/test/desktop_test_views_delegate.h"
@@ -23,7 +19,20 @@
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
 
+#if defined(USE_AURA)
+#include "ui/aura/env.h"
+#include "ui/aura/root_window.h"
+#include "ui/aura/window.h"
+#include "ui/gfx/screen.h"
+#endif
+
+#if defined(OS_WIN) && !defined(USE_AURA)
+#include "ui/gfx/icon_util.h"
+#endif
+
+#if defined(USE_AURA)
 namespace {
+
 views::ViewsDelegate* g_views_delegate_ = NULL;
 
 // ViewDelegate implementation for aura content shell
@@ -49,11 +58,14 @@ class XWalkViewsDelegate : public views::DesktopTestViewsDelegate {
 
   DISALLOW_COPY_AND_ASSIGN(XWalkViewsDelegate);
 };
+
 } // namespace
+
+#endif  // defined(USE_AURA)
 
 namespace xwalk {
 
-NativeAppWindowAura::NativeAppWindowAura(
+NativeAppWindowViews::NativeAppWindowViews(
     const NativeAppWindow::CreateParams& create_params)
   : delegate_(create_params.delegate),
     web_contents_(create_params.web_contents),
@@ -80,56 +92,56 @@ NativeAppWindowAura::NativeAppWindowAura(
   window_->AddObserver(this);
 }
 
-NativeAppWindowAura::~NativeAppWindowAura() {
+NativeAppWindowViews::~NativeAppWindowViews() {
 }
 
-gfx::NativeWindow NativeAppWindowAura::GetNativeWindow() const {
+gfx::NativeWindow NativeAppWindowViews::GetNativeWindow() const {
   return window_->GetNativeWindow();
 }
 
-void NativeAppWindowAura::UpdateIcon(const gfx::Image& icon) {
+void NativeAppWindowViews::UpdateIcon(const gfx::Image& icon) {
   icon_ = icon;
   window_->UpdateWindowIcon();
 }
 
-void NativeAppWindowAura::UpdateTitle(const string16& title) {
+void NativeAppWindowViews::UpdateTitle(const string16& title) {
   title_ = title;
   window_->UpdateWindowTitle();
 }
 
-gfx::Rect NativeAppWindowAura::GetRestoredBounds() const {
+gfx::Rect NativeAppWindowViews::GetRestoredBounds() const {
   return window_->GetRestoredBounds();
 }
 
-gfx::Rect NativeAppWindowAura::GetBounds() const {
+gfx::Rect NativeAppWindowViews::GetBounds() const {
   return window_->GetWindowBoundsInScreen();
 }
 
-void NativeAppWindowAura::SetBounds(const gfx::Rect& bounds) {
+void NativeAppWindowViews::SetBounds(const gfx::Rect& bounds) {
   window_->SetBounds(bounds);
 }
 
-void NativeAppWindowAura::Focus() {
+void NativeAppWindowViews::Focus() {
   // window_->Focus();
 }
 
-void NativeAppWindowAura::Show() {
+void NativeAppWindowViews::Show() {
   window_->Show();
 }
 
-void NativeAppWindowAura::Hide() {
+void NativeAppWindowViews::Hide() {
   window_->Hide();
 }
 
-void NativeAppWindowAura::Maximize() {
+void NativeAppWindowViews::Maximize() {
   window_->Maximize();
 }
 
-void NativeAppWindowAura::Minimize() {
+void NativeAppWindowViews::Minimize() {
   window_->Minimize();
 }
 
-void NativeAppWindowAura::SetFullscreen(bool fullscreen) {
+void NativeAppWindowViews::SetFullscreen(bool fullscreen) {
   if (is_fullscreen_ == fullscreen)
     return;
   is_fullscreen_ = fullscreen;
@@ -141,96 +153,96 @@ void NativeAppWindowAura::SetFullscreen(bool fullscreen) {
       content::NotificationService::NoDetails());
 }
 
-void NativeAppWindowAura::Restore() {
+void NativeAppWindowViews::Restore() {
   window_->Restore();
 }
 
-void NativeAppWindowAura::FlashFrame(bool flash) {
+void NativeAppWindowViews::FlashFrame(bool flash) {
   window_->FlashFrame(flash);
 }
 
-void NativeAppWindowAura::Close() {
+void NativeAppWindowViews::Close() {
   window_->Close();
 }
 
-bool NativeAppWindowAura::IsActive() const {
+bool NativeAppWindowViews::IsActive() const {
   return window_->IsActive();
 }
 
-bool NativeAppWindowAura::IsMaximized() const {
+bool NativeAppWindowViews::IsMaximized() const {
   return window_->IsMaximized();
 }
 
-bool NativeAppWindowAura::IsMinimized() const {
+bool NativeAppWindowViews::IsMinimized() const {
   return window_->IsMinimized();
 }
 
-bool NativeAppWindowAura::IsFullscreen() const {
+bool NativeAppWindowViews::IsFullscreen() const {
   return is_fullscreen_;
 }
 
 ////////////////////////////////////////////////////////////
 // WidgetDelegate implementation
 ////////////////////////////////////////////////////////////
-views::View* NativeAppWindowAura::GetInitiallyFocusedView() {
+views::View* NativeAppWindowViews::GetInitiallyFocusedView() {
   return web_view_;
 }
 
-views::View* NativeAppWindowAura::GetContentsView() {
+views::View* NativeAppWindowViews::GetContentsView() {
   return this;
 }
 
-views::Widget* NativeAppWindowAura::GetWidget() {
+views::Widget* NativeAppWindowViews::GetWidget() {
   return window_;
 }
 
-const views::Widget* NativeAppWindowAura::GetWidget() const {
+const views::Widget* NativeAppWindowViews::GetWidget() const {
   return window_;
 }
 
-string16 NativeAppWindowAura::GetWindowTitle() const {
+string16 NativeAppWindowViews::GetWindowTitle() const {
   return title_;
 }
 
-void NativeAppWindowAura::DeleteDelegate() {
+void NativeAppWindowViews::DeleteDelegate() {
   window_->RemoveObserver(this);
   delegate_->OnWindowDestroyed();
   delete this;
 }
 
-gfx::ImageSkia NativeAppWindowAura::GetWindowAppIcon() {
+gfx::ImageSkia NativeAppWindowViews::GetWindowAppIcon() {
   return GetWindowIcon();
 }
 
-gfx::ImageSkia NativeAppWindowAura::GetWindowIcon() {
+gfx::ImageSkia NativeAppWindowViews::GetWindowIcon() {
   return *icon_.ToImageSkia();
 }
 
-bool NativeAppWindowAura::ShouldShowWindowTitle() const {
+bool NativeAppWindowViews::ShouldShowWindowTitle() const {
   return true;
 }
 
-void NativeAppWindowAura::SaveWindowPlacement(const gfx::Rect& bounds,
+void NativeAppWindowViews::SaveWindowPlacement(const gfx::Rect& bounds,
                                           ui::WindowShowState show_state) {
   // TODO(hmin): views::WidgetDelegate::SaveWindowPlacement(bounds, show_state);
 }
 
-bool NativeAppWindowAura::GetSavedWindowPlacement(gfx::Rect* bounds,
+bool NativeAppWindowViews::GetSavedWindowPlacement(gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
   // TODO(hmin): Get the saved window placement.
   return false;
 }
 
-bool NativeAppWindowAura::CanResize() const {
+bool NativeAppWindowViews::CanResize() const {
   return resizable_ &&
       (maximum_size_.IsEmpty() || minimum_size_ != maximum_size_);
 }
 
-bool NativeAppWindowAura::CanMaximize() const {
+bool NativeAppWindowViews::CanMaximize() const {
   return resizable_ && maximum_size_.IsEmpty();
 }
 
-views::NonClientFrameView* NativeAppWindowAura::CreateNonClientFrameView(
+views::NonClientFrameView* NativeAppWindowViews::CreateNonClientFrameView(
     views::Widget* widget) {
   // TODO(hmin): Need to return a non-client frame for frameless window.
   // Here just return NULL means using a default one.
@@ -240,12 +252,12 @@ views::NonClientFrameView* NativeAppWindowAura::CreateNonClientFrameView(
 ////////////////////////////////////////////////////////////
 // views::View implementation
 ////////////////////////////////////////////////////////////
-void NativeAppWindowAura::Layout() {
+void NativeAppWindowViews::Layout() {
   DCHECK(web_view_);
   web_view_->SetBounds(0, 0, width(), height());
 }
 
-void NativeAppWindowAura::ViewHierarchyChanged(
+void NativeAppWindowViews::ViewHierarchyChanged(
     bool is_add, views::View *parent, views::View *child) {
   if (is_add && child == this) {
     views::BoxLayout* layout = new views::BoxLayout(
@@ -258,37 +270,39 @@ void NativeAppWindowAura::ViewHierarchyChanged(
   }
 }
 
-void NativeAppWindowAura::OnFocus() {
+void NativeAppWindowViews::OnFocus() {
   web_view_->RequestFocus();
 }
 
 ////////////////////////////////////////////////////////////
 // views::WidgetObserver implementation
 ////////////////////////////////////////////////////////////
-void NativeAppWindowAura::OnWidgetClosing(views::Widget* widget) {
+void NativeAppWindowViews::OnWidgetClosing(views::Widget* widget) {
 }
-void NativeAppWindowAura::OnWidgetCreated(views::Widget* widget) {
+void NativeAppWindowViews::OnWidgetCreated(views::Widget* widget) {
 }
-void NativeAppWindowAura::OnWidgetDestroying(views::Widget* widget) {
+void NativeAppWindowViews::OnWidgetDestroying(views::Widget* widget) {
 }
-void NativeAppWindowAura::OnWidgetDestroyed(views::Widget* widget) {
+void NativeAppWindowViews::OnWidgetDestroyed(views::Widget* widget) {
 }
-void NativeAppWindowAura::OnWidgetBoundsChanged(views::Widget* widget,
+void NativeAppWindowViews::OnWidgetBoundsChanged(views::Widget* widget,
     const gfx::Rect& new_bounds) {
 }
 
 // static
 NativeAppWindow* NativeAppWindow::Create(
     const NativeAppWindow::CreateParams& create_params) {
-  return new NativeAppWindowAura(create_params);
+  return new NativeAppWindowViews(create_params);
 }
 
 // static
 void NativeAppWindow::Initialize() {
+#if !defined(OS_WIN) && defined(USE_AURA)
   CHECK(!g_views_delegate_);
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
   g_views_delegate_ = new XWalkViewsDelegate();
+#endif
 }
 
 }  // namespace xwalk
