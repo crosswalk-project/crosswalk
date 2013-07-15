@@ -22,7 +22,7 @@
           <Component Id="app_shortcuts" Guid="7C342EE9-85DD-4F1E-8F09-4AABB6DAB47D">
             <Shortcut Id="AppShortcut" Name="$(env.APP_NAME)" Description="This is a Web-based application backed by Crosswalk"
                       Target="[INSTALLDIR]xwalk.exe" WorkingDirectory="INSTALLDIR"
-                      Arguments="$(var.appArguments)"/>
+                      Arguments='$(env.APP_ARGUMENTS) "[INSTALLDIR]$(env.APP_INDEX)"'/>
             <RegistryValue Root="HKCU" Key="Software\$(env.PUBLISHER)\$(env.APP_NAME)"
                       Name="installed" Type="integer" Value="1" KeyPath="yes"/>
             <RemoveFolder Id="ProgramMenuSubfolder" On="uninstall"/>
