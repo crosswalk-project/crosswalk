@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
+#include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_external.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
@@ -106,6 +107,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   extension_service_.reset(
       new extensions::XWalkExtensionService(runtime_registry_.get()));
 
+  RegisterInternalExtensions();
   RegisterExternalExtensions();
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
@@ -141,6 +143,11 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_context_.reset();
+}
+
+void XWalkBrowserMainParts::RegisterInternalExtensions() {
+  extension_service_->RegisterExtension(
+      new DialogExtension(runtime_registry_.get()));  // experimental
 }
 
 }  // namespace xwalk
