@@ -34,9 +34,10 @@ if not x%HELP%==x (
     echo --app_name=^<name^>       Name of the application. If not specified, the name
     echo                           of the application directory is used.
     echo --version=^<version^>     The version of the application, defaults to 1.0.0
-    echo --app_arguments=^<args^>  Arguments that will be passed into xwalk executable.
-    echo                           If not specified, "index.html" is used. For example,
-    echo                           "--allow-file-access-from-files src/index.html"
+    echo --app_index=^<args^>      Path of app index file, relative to app_path. If not
+    echo                           specified, "index.html" is used.
+    echo --app_arguments=^<args^>  Arguments to be passed into Crosswalk executable.
+    echo                           Example: --app_arguments=--allow-file-access-from-files
     echo --out=^<pathname^>        File Path of the output installer file, defaults to the
     echo                           current directory with %%app_name%%.msi as its name.
     echo --publisher=^<name^>      The manufacturer of this application, defaults to "Me"
@@ -58,7 +59,7 @@ if x%WIX_BIN_PATH%==x (
   )
 )
 if x%APP_PATH%==x set APP_PATH=%CD%
-if x%APP_ARGUMENTS%==x set APP_ARGUMENTS=index.html
+if x%APP_INDEX%==x set APP_INDEX=index.html
 if x%VERSION%==x set VERSION=1.0.0
 if x%XWALK_PATH%==x (
   FOR /F "tokens=*" %%A IN ('where xwalk') DO SET XWALK_PATH="%%A"
@@ -135,5 +136,5 @@ if exist %PACKAGING_INI% (
     FOR /F "tokens=*" %%A IN ('cscript //nologo %GUID_GEN%') DO SET UPGRADE_CODE=%%A
     echo UPGRADE_CODE=!UPGRADE_CODE!>%PACKAGING_INI%
 )
-%WIX_BIN_PATH%\candle -dappArguments=%APP_ARGUMENTS% -dappFilesDir="%APP_PATH%" -dxwalkFilesDir="%XWALK_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
+%WIX_BIN_PATH%\candle -dappFilesDir="%APP_PATH%" -dxwalkFilesDir="%XWALK_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
 %WIX_BIN_PATH%\light -spdb %MAIN_OBJ_FILE% %OBJ_FILES% -o %OUT%
