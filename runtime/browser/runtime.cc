@@ -222,7 +222,7 @@ content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
     int color_chooser_id,
     SkColor color) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) && !defined(USE_AURA)
   // On Windows, only create a color chooser if one doesn't exist, because we
   // can't close the old color chooser dialog.
   if (!color_chooser_.get())

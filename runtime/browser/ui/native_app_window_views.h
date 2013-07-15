@@ -20,12 +20,12 @@ class Widget;
 
 namespace xwalk {
 
-class NativeAppWindowAura : public NativeAppWindow,
+class NativeAppWindowViews : public NativeAppWindow,
                            public views::WidgetObserver,
                            public views::WidgetDelegateView {
  public:
-  explicit NativeAppWindowAura(const NativeAppWindow::CreateParams& params);
-  virtual ~NativeAppWindowAura();
+  explicit NativeAppWindowViews(const NativeAppWindow::CreateParams& params);
+  virtual ~NativeAppWindowViews();
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
@@ -97,7 +97,7 @@ class NativeAppWindowAura : public NativeAppWindow,
   gfx::Size maximum_size_;
   bool resizable_;
 
-  DISALLOW_COPY_AND_ASSIGN(NativeAppWindowAura);
+  DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };
 
 }  // namespace xwalk
