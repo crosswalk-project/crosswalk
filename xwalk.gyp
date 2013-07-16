@@ -100,6 +100,7 @@
         'runtime/browser/runtime_url_request_context_getter.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
+        'runtime/browser/ui/color_chooser_aura.cc',
         'runtime/browser/ui/color_chooser_dialog_win.cc',
         'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_gtk.cc',
