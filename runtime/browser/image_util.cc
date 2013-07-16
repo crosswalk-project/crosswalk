@@ -61,6 +61,9 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
       return gfx::Image();
 
     return gfx::Image(pixbuf);
+#elif defined(USE_AURA) && defined(OS_LINUX)
+    NOTIMPLEMENTED();
+    return gfx::Image();
 #else
   NOTREACHED();
   return gfx::Image();
