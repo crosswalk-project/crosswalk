@@ -18,6 +18,7 @@
 #include "ui/views/views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
+#include "ui/views/window/native_frame_view.h"
 
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
@@ -80,11 +81,10 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.remove_standard_frame = false;
   params.use_system_default_icon = true;
   params.top_level = true;
+  params.bounds = create_params.bounds;
   window_->Init(params);
-
-  gfx::Rect window_bounds = create_params.bounds;
-  window_->SetBounds(window_bounds);
-  window_->CenterWindow(window_bounds.size());
+  
+  window_->CenterWindow(create_params.bounds.size());
   if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);
 
@@ -244,9 +244,7 @@ bool NativeAppWindowViews::CanMaximize() const {
 
 views::NonClientFrameView* NativeAppWindowViews::CreateNonClientFrameView(
     views::Widget* widget) {
-  // TODO(hmin): Need to return a non-client frame for frameless window.
-  // Here just return NULL means using a default one.
-  return NULL;
+  return new views::NativeFrameView(widget);
 }
 
 ////////////////////////////////////////////////////////////
