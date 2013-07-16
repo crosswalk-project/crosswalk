@@ -1,3 +1,4 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -31,16 +32,16 @@ class ColorChooserAura : public xwalk::ColorChooser,
 
   void DidEndColorChooser();
 
-  // The actual view of the color chooser.  No ownership because its parent
-  // view will take care of its lifetime.
+  // The actual view of the color chooser.
+  // Ownership handled by parent.
   views::ColorChooserView* view_;
 
-  // The widget for the color chooser.  No ownership because it's released
-  // automatically when closed.
+  // The widget for the color chooser.
+  // Releases automatically when closed.
   views::Widget* widget_;
 
-  // The web contents invoking the color chooser.  No ownership because it will
-  // outlive this class.
+  // The web contents invoking the color chooser.
+  // Outlives this class
   content::WebContents* web_contents_;
 
   DISALLOW_COPY_AND_ASSIGN(ColorChooserAura);
