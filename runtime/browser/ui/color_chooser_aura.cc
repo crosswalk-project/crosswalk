@@ -5,7 +5,10 @@
 
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 
+#include "base/message_loop.h"
+#include "base/threading/thread.h"
 #include "chrome/browser/ui/browser_dialogs.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/color_chooser.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
@@ -62,6 +65,11 @@ ColorChooserAura::ColorChooserAura(int identifier,
       view_, web_contents->GetView()->GetNativeView());
   widget_->SetAlwaysOnTop(true);
   widget_->Show();
+  if (IsTesting()) {
+    SetSelectedColor(GetColorForBrowserTest());
+    content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ColorChooserAura::End, base::Unretained(this)));
+  }
 }
 
 void ColorChooserAura::OnColorChosen(SkColor color) {
