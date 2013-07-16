@@ -51,6 +51,9 @@ DialogContext::DialogContext(DialogExtension* extension,
     dialog_(NULL) {
 }
 
+DialogContext::~DialogContext() {
+}
+
 void DialogContext::HandleShowOpenDialog(const base::DictionaryValue* input) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 

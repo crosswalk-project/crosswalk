@@ -49,14 +49,15 @@ class DialogContext : public XWalkExtension::Context,
  public:
   DialogContext(DialogExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message);
+  virtual ~DialogContext();
 
-  virtual void HandleMessage(const std::string& msg);
+  virtual void HandleMessage(const std::string& msg) OVERRIDE;
 
   // ui::SelectFileDialog::Listener implementation.
   virtual void FileSelected(const base::FilePath& path,
-    int index, void* params);
+    int index, void* params) OVERRIDE;
   virtual void MultiFilesSelected(
-    const std::vector<base::FilePath>& files, void* params);
+    const std::vector<base::FilePath>& files, void* params) OVERRIDE;
 
  private:
   void HandleShowOpenDialog(const base::DictionaryValue* input);
