@@ -179,4 +179,7 @@ NativeAppWindow* NativeAppWindow::Create(
   return new NativeAppWindowMac(create_params);
 }
 
+void NativeAppWindow::Initialize() {
+}
+
 }  // namespace xwalk
