@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This script is wrapper for CroCrosswalkk that adds some support for how GYP
+# This script is wrapper for Crosswalk that adds some support for how GYP
 # is invoked by Chromium beyond what can be done in the gclient hooks.
 
 import glob
