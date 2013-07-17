@@ -160,6 +160,11 @@ if __name__ == '__main__':
   if syntax_check and int(syntax_check):
     args.append('--check')
 
+  # Unless explicitly overriden, ninja is our default
+  gyp_generators = os.environ.get('GYP_GENERATORS')
+  if not gyp_generators:
+    os.environ['GYP_GENERATORS'] = 'ninja'
+
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
 
