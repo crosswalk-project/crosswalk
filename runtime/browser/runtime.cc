@@ -246,13 +246,21 @@ void Runtime::DidEndColorChooser() {
 void Runtime::RunFileChooser(
     content::WebContents* web_contents,
     const content::FileChooserParams& params) {
+#if defined(USE_AURA) && defined(OS_LINUX)
+  NOTIMPLEMENTED();
+#else
   RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+#endif
 }
 
 void Runtime::EnumerateDirectory(content::WebContents* web_contents,
                                  int request_id,
                                  const base::FilePath& path) {
+#if defined(USE_AURA) && defined(OS_LINUX)
+  NOTIMPLEMENTED();
+#else
   RuntimeFileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+#endif
 }
 
 void Runtime::DidUpdateFaviconURL(int32 page_id,
