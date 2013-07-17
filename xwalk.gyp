@@ -58,6 +58,8 @@
         'experimental/dialog/dialog.gypi',
       ],
       'sources': [
+        'runtime/android/xwalk_jni_registrar.cc',
+        'runtime/android/xwalk_jni_registrar.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -560,5 +562,24 @@
         },  # target xwalk_helper_app
       ],
     }],  # OS=="mac"
+    ['OS=="android"', {
+      'targets': [
+        {
+          'target_name': 'libxwalk_runtime_content_view',
+          'type': 'shared_library',
+          'dependencies': [
+            'xwalk_runtime',
+            'xwalk_pak',
+            # Skia is necessary to ensure the dependencies needed by
+            # WebContents are included.
+            '../skia/skia.gyp:skia',
+            '<(DEPTH)/media/media.gyp:player_android',
+          ],
+          'sources': [
+            'runtime/android/xwalk_library_onload.cc',
+          ],
+        },
+      ]
+    }],  # OS=="android"
   ]
 }
