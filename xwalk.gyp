@@ -88,7 +88,8 @@
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
-        'runtime/browser/runtime_platform_util_common_linux.cc',
+        'runtime/browser/runtime_platform_util_aura.cc',
+        'runtime/browser/runtime_platform_util_gtk.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_win.cc',
         'runtime/browser/runtime_platform_util_mac.mm',
@@ -100,14 +101,15 @@
         'runtime/browser/runtime_url_request_context_getter.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
+        'runtime/browser/ui/color_chooser_aura.cc',
         'runtime/browser/ui/color_chooser_dialog_win.cc',
         'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window.cc',
-        'runtime/browser/ui/native_app_window_win.cc',
-        'runtime/browser/ui/native_app_window_win.h',
+        'runtime/browser/ui/native_app_window_views.cc',
+        'runtime/browser/ui/native_app_window_views.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
         'runtime/browser/ui/native_app_window_gtk.h',
         'runtime/browser/ui/native_app_window_mac.mm',
@@ -139,11 +141,6 @@
         ['OS=="win"', {
           'resource_include_dirs': [
             '<(SHARED_INTERMEDIATE_DIR)/webkit',
-          ],
-          'dependencies': [
-            '../ui/views/controls/webview/webview.gyp:webview',
-            '../ui/views/views.gyp:views',
-            '../webkit/support/webkit_support.gyp:webkit_strings',
           ],
           'configurations': {
             'Debug_Base': {
@@ -178,6 +175,20 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],  # toolkit_uses_gtk==1
+        ['toolkit_views==1', {
+          'dependencies': [
+            '../ui/base/strings/ui_strings.gyp:ui_strings',
+            '../ui/views/controls/webview/webview.gyp:webview',
+            '../ui/views/views.gyp:views',
+            '../ui/views/views.gyp:views_test_support',
+            '../ui/ui.gyp:ui_resources',
+          ],
+        }],  # toolkit_views==1
+        ['use_aura==1', {
+          'dependencies': [
+            '../ui/aura/aura.gyp:aura',
+          ],
+        }],
       ],
     },
     {

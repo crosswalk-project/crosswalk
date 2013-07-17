@@ -335,4 +335,7 @@ NativeAppWindow* NativeAppWindow::Create(
   return new NativeAppWindowGtk(params);
 }
 
+void NativeAppWindow::Initialize() {
+}
+
 }  // namespace xwalk

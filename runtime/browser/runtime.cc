@@ -222,7 +222,7 @@ content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
     int color_chooser_id,
     SkColor color) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) && !defined(USE_AURA)
   // On Windows, only create a color chooser if one doesn't exist, because we
   // can't close the old color chooser dialog.
   if (!color_chooser_.get())
@@ -246,13 +246,21 @@ void Runtime::DidEndColorChooser() {
 void Runtime::RunFileChooser(
     content::WebContents* web_contents,
     const content::FileChooserParams& params) {
+#if defined(USE_AURA) && defined(OS_LINUX)
+  NOTIMPLEMENTED();
+#else
   RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+#endif
 }
 
 void Runtime::EnumerateDirectory(content::WebContents* web_contents,
                                  int request_id,
                                  const base::FilePath& path) {
+#if defined(USE_AURA) && defined(OS_LINUX)
+  NOTIMPLEMENTED();
+#else
   RuntimeFileSelectHelper::EnumerateDirectory(web_contents, request_id, path);
+#endif
 }
 
 void Runtime::DidUpdateFaviconURL(int32 page_id,

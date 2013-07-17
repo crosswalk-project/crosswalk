@@ -115,7 +115,7 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, FileSelector) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, ColorChooser) {
-  unsigned int r = 23, g = 174, b = 98;
+  unsigned int r = 255, g = 255, b = 255;
   SetBrowserTestColor(r, g, b);
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
