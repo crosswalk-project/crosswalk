@@ -220,6 +220,11 @@ class DepsFetcher(gclient_utils.WorkItem):
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
     gclient_file.write('solutions = %s' % pprint.pformat(solutions))
+    # Check whether the target OS is Android.
+    if os.environ.get('XWALK_OS_ANDROID'):
+      target_os = ['android']
+      gclient_file.write('\n')
+      gclient_file.write('target_os = %s' % target_os)
 
   def DoGclientSyncForChromium(self):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
