@@ -60,7 +60,7 @@ class XWalkViewsDelegate : public views::DesktopTestViewsDelegate {
   DISALLOW_COPY_AND_ASSIGN(XWalkViewsDelegate);
 };
 
-} // namespace
+}  // namespace
 
 #endif  // defined(USE_AURA)
 
@@ -83,7 +83,7 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.top_level = true;
   params.bounds = create_params.bounds;
   window_->Init(params);
-  
+
   window_->CenterWindow(create_params.bounds.size());
   if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);

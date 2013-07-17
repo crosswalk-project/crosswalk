@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_AURA_H_
-#define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_AURA_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_
+#define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_
 
 #include <string>
 
@@ -102,4 +102,4 @@ class NativeAppWindowViews : public NativeAppWindow,
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_AURA_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_

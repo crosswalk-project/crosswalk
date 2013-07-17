@@ -52,7 +52,7 @@ class NativeAppWindow {
   };
 
   // Do one time initialization at application startup.
-  static void Initialize(); 
+  static void Initialize();
 
   // Initialize the platform-specific native app window.
   static NativeAppWindow* Create(const CreateParams& params);
