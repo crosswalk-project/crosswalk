@@ -108,6 +108,12 @@ if not "x!APP_PATH:%XWALK_PATH%=!"=="x%APP_PATH%" (
 )
 set WXS_FILES=
 set OBJ_FILES=
+if not exist %GUID_GEN% (
+    echo.
+    echo File not found: %GUID_GEN%
+    echo Please make sure all the supporting files are in the script folder!
+    exit /b
+)
 if x%OUT%==x (
     set OUT=%APP_NAME%.msi
     if exist !OUT! (
@@ -132,8 +138,9 @@ for /f "tokens=2* delims=.=" %%A IN ('"SET __HARV_FILES."') do (
 
 if exist %PACKAGING_INI% (
     for /f "delims=" %%x in ( 'type %PACKAGING_INI%') do (set "%%x")
-) else (
-    FOR /F "tokens=*" %%A IN ('cscript //nologo %GUID_GEN%') DO SET UPGRADE_CODE=%%A
+)
+FOR /F "tokens=*" %%A IN ('cscript //nologo %GUID_GEN% %UPGRADE_CODE%') DO (
+    SET UPGRADE_CODE=%%A
     echo UPGRADE_CODE=!UPGRADE_CODE!>%PACKAGING_INI%
 )
 %WIX_BIN_PATH%\candle -dappFilesDir="%APP_PATH%" -dxwalkFilesDir="%XWALK_PATH%" %WXS_TEMPL_FILE% -o %MAIN_OBJ_FILE%
