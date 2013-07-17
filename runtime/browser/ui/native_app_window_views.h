@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_
-#define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_
+#define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_
 
 #include <string>
 
@@ -20,12 +20,12 @@ class Widget;
 
 namespace xwalk {
 
-class NativeAppWindowWin : public NativeAppWindow,
+class NativeAppWindowViews : public NativeAppWindow,
                            public views::WidgetObserver,
                            public views::WidgetDelegateView {
  public:
-  explicit NativeAppWindowWin(const NativeAppWindow::CreateParams& params);
-  virtual ~NativeAppWindowWin();
+  explicit NativeAppWindowViews(const NativeAppWindow::CreateParams& params);
+  virtual ~NativeAppWindowViews();
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
@@ -97,9 +97,9 @@ class NativeAppWindowWin : public NativeAppWindow,
   gfx::Size maximum_size_;
   bool resizable_;
 
-  DISALLOW_COPY_AND_ASSIGN(NativeAppWindowWin);
+  DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_WIN_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_VIEWS_H_
