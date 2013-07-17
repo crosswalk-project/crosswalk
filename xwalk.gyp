@@ -88,7 +88,7 @@
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
         'runtime/browser/runtime_platform_util_aura.cc',
-        'runtime/browser/runtime_platform_util_common_linux.cc',
+        'runtime/browser/runtime_platform_util_gtk.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_win.cc',
         'runtime/browser/runtime_platform_util_mac.mm',
@@ -181,9 +181,6 @@
             '../ui/views/views.gyp:views',
             '../ui/views/views.gyp:views_test_support',
             '../ui/ui.gyp:ui_resources',
-          ],
-          'sources/': [
-            ['exclude', 'runtime/browser/runtime_platform_util_common_linux.cc'],
           ],
         }],  # toolkit_views==1
         ['use_aura==1', {
