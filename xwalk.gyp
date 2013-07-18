@@ -63,6 +63,8 @@
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/android/xw_view_content.cc',
+        'runtime/browser/android/xw_view_content.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
@@ -138,6 +140,12 @@
         },
       },
       'conditions': [
+        ['OS!="android"',{
+          'sources!': [
+            'runtime/browser/android/xw_view_content.cc',
+            'runtime/browser/android/xw_view_content.h',
+          ],
+        }],
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
             '../base/allocator/allocator.gyp:allocator',

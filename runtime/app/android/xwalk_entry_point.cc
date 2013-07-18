@@ -7,6 +7,7 @@
 #include "content/public/app/android_library_loader_hooks.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_delegate.h"
+#include "xwalk/runtime/app/android/xwalk_jni_registrar.h"
 #include "xwalk/runtime/app/android/xwalk_main_delegate_android.h"
 
 // This is called by the VM when the shared library is first loaded.
@@ -14,6 +15,9 @@ JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   base::android::InitVM(vm);
   JNIEnv* env = base::android::AttachCurrentThread();
   if (!content::RegisterLibraryLoaderEntryHook(env))
+    return -1;
+
+  if (!xwalk::RegisterJni(env))
     return -1;
 
   content::SetContentMainDelegate(new xwalk::XWalkMainDelegateAndroid());
