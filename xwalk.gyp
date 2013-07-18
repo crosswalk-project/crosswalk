@@ -60,6 +60,8 @@
       'sources': [
         'runtime/android/xwalk_jni_registrar.cc',
         'runtime/android/xwalk_jni_registrar.h',
+        'runtime/android/xwalk_view.cc',
+        'runtime/android/xwalk_view.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -164,6 +166,11 @@
             '../build/linux/system.gyp:fontconfig',
           ],
         }],  # OS=="linux"
+        ['OS=="android"', {
+          'dependencies': [
+            'xwalk_jni_headers',
+          ],
+        }],
         ['os_posix==1 and OS != "mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
@@ -576,9 +583,26 @@
     ['OS=="android"', {
       'targets': [
         {
+          'target_name': 'xwalk_jni_headers',
+          'type': 'none',
+          'sources': [
+            'runtime/android/java/src/com/intel/xwalk/XWalkView.java'
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/runtime',
+            ],
+          },
+          'variables': {
+            'jni_gen_package': 'xwalk/runtime',
+          },
+          'includes': [ '../build/jni_generator.gypi' ],
+        },
+        {
           'target_name': 'libxwalk_runtime_content_view',
           'type': 'shared_library',
           'dependencies': [
+            'xwalk_jni_headers',
             'xwalk_runtime',
             'xwalk_pak',
             # Skia is necessary to ensure the dependencies needed by

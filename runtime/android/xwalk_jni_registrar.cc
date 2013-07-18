@@ -8,9 +8,12 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_registrar.h"
 
+#include "xwalk/runtime/android/xwalk_view.h"
+
 namespace {
 
 static base::android::RegistrationMethod kXWalkRegistrationMethods[] = {
+    { "XWalkView", xwalk::RegisterXWalkView }
 };
 
 }  // namespace
@@ -19,7 +22,7 @@ namespace xwalk {
 namespace android {
 
 bool RegisterXWalkJni(JNIEnv* env) {
-  return RegisterNativeMethods(env, kXWalkRegistrationMethods, 0 /* arraysize(kXWalkRegistrationMethods) */);
+  return RegisterNativeMethods(env, kXWalkRegistrationMethods, arraysize(kXWalkRegistrationMethods));
 }
 
 }  // namespace android

@@ -6,6 +6,7 @@
 
 #include "content/public/browser/web_contents.h"
 #include "ui/gfx/rect.h"
+#include "xwalk/runtime/android/xwalk_view.h"
 
 namespace xwalk {
 
@@ -13,7 +14,7 @@ NativeAppWindowAndroid::NativeAppWindowAndroid(
     const NativeAppWindow::CreateParams& params)
     : delegate_(params.delegate),
       web_contents_(params.web_contents) {
-
+    InitWithWebContents(web_contents_);
 }
 
 NativeAppWindowAndroid::~NativeAppWindowAndroid() {
