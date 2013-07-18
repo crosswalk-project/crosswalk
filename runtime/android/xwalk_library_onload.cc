@@ -12,6 +12,7 @@
 #include "content/public/app/content_main.h"
 #include "content/public/browser/android/compositor.h"
 
+#include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "xwalk/runtime/android/xwalk_jni_registrar.h"
 
 // This is called by the VM when the shared library is first loaded.
@@ -28,7 +29,10 @@ JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     return -1;
 
   content::Compositor::Initialize();
-  // content::SetContentMainDelegate(new content::XWalkMainDelegate());
+
+  // The delegate to use when the android activity calls ContentMain
+  content::SetContentMainDelegate(new xwalk::XWalkMainDelegate());
+
   return JNI_VERSION_1_4;
 }
 
