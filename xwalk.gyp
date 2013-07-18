@@ -266,8 +266,16 @@
           ],
           'action': ['python', '<(repack_path)', '<@(_outputs)',
                      '<@(pak_inputs)'],
-          'outputs':[
-            '<(PRODUCT_DIR)/xwalk.pak',
+          'conditions': [
+            ['OS!="android"', {
+              'outputs': [
+                '<(PRODUCT_DIR)/xwalk.pak',
+              ],
+            }, {
+              'outputs': [
+                '<(PRODUCT_DIR)/xwalk_assets/xwalk.pak',
+              ],
+            }],
           ],
         },
       ],
