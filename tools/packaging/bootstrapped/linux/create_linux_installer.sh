@@ -46,6 +46,10 @@ if [ "x$HELP" != "x" ]; then
      --out=<path>            Path of the output package file, defaults to
                                $TEMP_DIR/<app_name>
      --publisher=<name>      The manufacturer of this application, defaults to "Me"
+     --fstrans=<yes|no>      Enable/disable  filesystem  translation. Filesystem
+                               translation enabled causes the install to proceed in a
+                               temporary directory, thus not actually touching your system.
+                               Defaults to yes
      --help                  Print this message "
     exit 1
 fi
@@ -94,6 +98,9 @@ if [ "x$OUT" != "x" ]; then
     OUT_OPT="--pakdir=$OUT"
 fi
 
+if [ "x$FSTRANS" = "x" ]; then
+    FSTRANS=yes
+fi
 
 XWALK_PATH=`absolute_path $XWALK_PATH`
 APP_PATH=`absolute_path $APP_PATH`
@@ -113,4 +120,9 @@ fi
 cd $XWALK_PATH && cp xwalk xwalk.pak libffmpegsumo.so $BUILD_DIR
 
 #build the package
-cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION --backup=no --install=no --exclude=Makefile --fstrans=yes $OUT_OPT
+cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION \
+  --backup=no --install=no --exclude=Makefile --fstrans=$FSTRANS $OUT_OPT
+if [ $? != 0 -a -f  $APP_PATH/Makefile ]; then
+    echo "Warning: Packaging failed possibly due to the app's customzied Makefile does some unsupported operations. Please try re-run the script using sudo with --fstrans=no"
+    echo
+fi
