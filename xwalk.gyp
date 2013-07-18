@@ -587,6 +587,28 @@
             'runtime/android/xwalk_library_onload.cc',
           ],
         },
+        {
+          'target_name': 'xwalk_apk',
+          'type': 'none',
+          'dependencies': [
+            '../content/content.gyp:content_java',
+            'libxwalk_runtime_content_view',
+            '../base/base.gyp:base_java',
+            '../media/media.gyp:media_java',
+            '../net/net.gyp:net_java',
+            '../ui/ui.gyp:ui_java',
+          ],
+          'variables': {
+            'apk_name': 'XWalk',
+            'manifest_package_name': 'com.intel.xwalk_apk',
+            'java_in_dir': 'runtime/android/java',
+            'resource_dir': 'runtime/android/java/res',
+            'native_lib_target': 'libxwalk_runtime_content_view',
+            'additional_input_paths': ['<(PRODUCT_DIR)/xwalk_assets/xwalk.pak'],
+            'asset_location': '<(ant_build_out)/xwalk_assets',
+          },
+          'includes': [ '../build/java_apk.gypi' ],
+        },
       ]
     }],  # OS=="android"
   ]
