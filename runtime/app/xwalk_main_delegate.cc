@@ -7,6 +7,7 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "content/public/browser/browser_main_runner.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/paths_mac.h"
@@ -54,8 +55,22 @@ void XWalkMainDelegate::PreSandboxStartup() {
 
 int XWalkMainDelegate::RunProcess(const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
-  // Tell content to use default process main entries by returning -1.
+#if !defined(OS_ANDROID)
   return -1;
+#else
+  if (!process_type.empty())
+    return -1;
+
+  // If no process type is specified, we are creating the main browser process.
+  // On android, the default RunProcess does nothing for the browser process
+  // because the event loop is run by Java
+  browser_runner_.reset(content::BrowserMainRunner::Create());
+  int exit_code = browser_runner_->Initialize(main_function_params);
+  DCHECK(exit_code < 0)
+      << "BrowserRunner::Initialize failed in XWalkMainDelegate";
+
+  return exit_code;
+#endif
 }
 
 // static

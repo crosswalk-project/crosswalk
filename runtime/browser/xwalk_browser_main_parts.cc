@@ -58,6 +58,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
+#if defined(OS_ANDROID)
+  base::MessageLoopForUI::current()->Start();
+#endif
 }
 
 void XWalkBrowserMainParts::PreEarlyInitialization() {
