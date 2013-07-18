@@ -414,10 +414,10 @@ void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
       // TODO(wang16): Load last select directory here
       base::FilePath();
 
+#if defined(OS_ANDROID)
   gfx::NativeWindow owning_window =
       platform_util::GetTopLevel(render_view_host_->GetView()->GetNativeView());
 
-#if defined(OS_ANDROID)
   // Android needs the original MIME types and an additional capture value.
   std::vector<string16> accept_types(params.accept_types);
   accept_types.push_back(params.capture);

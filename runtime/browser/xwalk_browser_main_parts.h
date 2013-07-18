@@ -29,12 +29,16 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 
   // BrowserMainParts overrides.
   virtual void PreEarlyInitialization() OVERRIDE;
+  virtual int PreCreateThreads() OVERRIDE;
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PostMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
+#if defined(OS_ANDROID)
+  void SetRuntimeContext(RuntimeContext* context);
+#endif
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
   extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();

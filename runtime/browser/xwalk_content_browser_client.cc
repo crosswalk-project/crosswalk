@@ -22,6 +22,11 @@ namespace {
 // The application-wide singleton of ContentBrowserClient impl.
 XWalkContentBrowserClient* g_browser_client = NULL;
 
+#if defined(OS_ANDROID)
+// Android creates and holds its browser context by browser client.
+RuntimeContext* g_runtime_context;
+#endif
+
 }  // namespace
 
 // static
@@ -29,20 +34,37 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
   return g_browser_client;
 }
 
+#if defined(OS_ANDROID)
+// static
+RuntimeContext* XWalkContentBrowserClient::GetRuntimeContext() {
+  return g_runtime_context;
+}
+#endif
+
 XWalkContentBrowserClient::XWalkContentBrowserClient()
     : main_parts_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
+#if defined(OS_ANDROID)
+  g_runtime_context = new RuntimeContext();
+#endif
 }
 
 XWalkContentBrowserClient::~XWalkContentBrowserClient() {
   DCHECK(g_browser_client);
   g_browser_client = NULL;
+#if defined(OS_ANDROID)
+  g_runtime_context = NULL;
+#endif
 }
 
 content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
   main_parts_ = new XWalkBrowserMainParts(parameters);
+
+#if defined(OS_ANDROID)
+  main_parts_->SetRuntimeContext(g_runtime_context);
+#endif
   return main_parts_;
 }
 

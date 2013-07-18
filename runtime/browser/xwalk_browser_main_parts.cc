@@ -19,10 +19,39 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
+#include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
+#include "content/public/common/result_codes.h"
+#include "grit/net_resources.h"
 #include "net/base/net_util.h"
+#include "net/base/net_module.h"
+#include "net/base/network_change_notifier.h"
+#include "ui/base/l10n/l10n_util_android.h"
+#include "ui/base/layout.h"
+#include "ui/base/resource/resource_bundle.h"
+#include "ui/base/ui_base_paths.h"
+
+#if defined(OS_ANDROID)
+#include "content/public/browser/android/compositor.h"
+#include "net/android/network_change_notifier_factory_android.h"
+#include "net/base/network_change_notifier.h"
+#endif  // defined(OS_ANDROID)
+
+namespace {
+
+base::StringPiece PlatformResourceProvider(int key) {
+  if (key == IDR_DIR_HEADER_HTML) {
+    base::StringPiece html_data =
+        ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
+            IDR_DIR_HEADER_HTML);
+    return html_data;
+  }
+  return base::StringPiece();
+}
+
+}  // namespace
 
 namespace xwalk {
 
@@ -39,7 +68,15 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
 XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
+#if defined(OS_ANDROID)
+void XWalkBrowserMainParts::SetRuntimeContext(RuntimeContext* context) {
+  // TODO(shouqun): whether it's reasonable to hold the context by scoped ptr?
+  runtime_context_.reset(context);
+}
+#endif
+
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
+#if !defined(OS_ANDROID)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   const CommandLine::StringVector& args = command_line->GetArgs();
 
@@ -51,6 +88,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
     startup_url_ = url;
   else
     startup_url_ = net::FilePathToFileURL(base::FilePath(args[0]));
+#endif
 
 #if defined(OS_MACOSX)
     PreMainMessageLoopStartMac();
@@ -58,9 +96,30 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
+#if defined(OS_ANDROID)
+  MessageLoopForUI::current()->Start();
+#endif
 }
 
 void XWalkBrowserMainParts::PreEarlyInitialization() {
+#if defined(OS_ANDROID)
+  net::NetworkChangeNotifier::SetFactory(
+      new net::NetworkChangeNotifierFactoryAndroid());
+
+  CommandLine::ForCurrentProcess()->AppendSwitch(
+      cc::switches::kCompositeToMailbox);
+
+  // Initialize the Compositor.
+  content::Compositor::Initialize();
+#endif
+}
+
+int XWalkBrowserMainParts::PreCreateThreads() {
+#if defined(OS_ANDROID)
+  DCHECK(runtime_context_.get());
+  runtime_context_->InitializeBeforeThreadCreation();
+#endif
+  return content::RESULT_CODE_NORMAL_EXIT;
 }
 
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
@@ -102,6 +161,17 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
+#if defined(OS_ANDROID)
+  net::NetModule::SetResourceProvider(PlatformResourceProvider);
+  if (parameters_.ui_task) {
+    parameters_.ui_task->Run();
+    delete parameters_.ui_task;
+    run_default_message_loop_ = false;
+  }
+
+  DCHECK(runtime_context_.get());
+  runtime_context_->PreMainMessageLoopRun();
+#else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(
@@ -137,6 +207,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
+#endif
 }
 
 bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
@@ -144,7 +215,11 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
+#if defined(OS_ANDROID)
+  MessageLoopForUI::current()->Start();
+#else
   runtime_context_.reset();
+#endif
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensions() {

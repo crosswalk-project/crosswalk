@@ -27,6 +27,9 @@ class RuntimeContext;
 class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
   static XWalkContentBrowserClient* Get();
+#if defined(OS_ANDROID)
+  static RuntimeContext* GetRuntimeContext();
+#endif
 
   XWalkContentBrowserClient();
   virtual ~XWalkContentBrowserClient();

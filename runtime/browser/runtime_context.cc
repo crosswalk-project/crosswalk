@@ -14,6 +14,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/common/content_switches.h"
 
 using content::BrowserThread;
@@ -58,6 +59,13 @@ RuntimeContext::~RuntimeContext() {
   }
 }
 
+//static
+RuntimeContext* RuntimeContext::FromWebContents(
+    content::WebContents* web_contents) {
+  // This is safe; this is the only implementation of the browser context.
+  return static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+}
+
 void RuntimeContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
@@ -69,8 +77,18 @@ void RuntimeContext::InitWhileIOAllowed() {
 
 base::FilePath RuntimeContext::GetPath() {
   base::FilePath result;
+#if defined(OS_ANDROID)
+  CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &result));
+#else
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &result));
+#endif
   return result;
+}
+
+void RuntimeContext::InitializeBeforeThreadCreation() {
+}
+
+void RuntimeContext::PreMainMessageLoopRun() {
 }
 
 bool RuntimeContext::IsOffTheRecord() const {

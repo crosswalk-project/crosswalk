@@ -12,6 +12,7 @@
     ], # conditions
   },
   'includes' : [
+    'xwalk_android.gypi',
     'xwalk_tests.gypi',
   ],
   'targets': [
@@ -58,6 +59,8 @@
         'experimental/dialog/dialog.gypi',
       ],
       'sources': [
+        'runtime/app/android/xwalk_main_delegate_android.cc',
+        'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -120,6 +123,8 @@
         'runtime/common/paths_mac.mm',
         'runtime/common/xwalk_content_client.cc',
         'runtime/common/xwalk_content_client.h',
+        'runtime/common/xwalk_globals_android.cc',
+        'runtime/common/xwalk_globals_android.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
         'runtime/common/xwalk_switches.cc',
@@ -560,5 +565,10 @@
         },  # target xwalk_helper_app
       ],
     }],  # OS=="mac"
+    ['OS=="android"', {
+      'includes': [
+        '../build/all_android.gyp',
+      ],
+    }], # OS=="android"
   ]
 }
