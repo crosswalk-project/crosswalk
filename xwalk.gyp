@@ -58,6 +58,10 @@
         'experimental/dialog/dialog.gypi',
       ],
       'sources': [
+        'runtime/android/xwalk_jni_registrar.cc',
+        'runtime/android/xwalk_jni_registrar.h',
+        'runtime/android/xwalk_view.cc',
+        'runtime/android/xwalk_view.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -88,6 +92,7 @@
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
+        'runtime/browser/runtime_platform_util_android.cc',
         'runtime/browser/runtime_platform_util_aura.cc',
         'runtime/browser/runtime_platform_util_gtk.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
@@ -108,6 +113,8 @@
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window.cc',
+        'runtime/browser/ui/native_app_window_android.cc',
+        'runtime/browser/ui/native_app_window_android.h',
         'runtime/browser/ui/native_app_window_views.cc',
         'runtime/browser/ui/native_app_window_views.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
@@ -159,6 +166,11 @@
             '../build/linux/system.gyp:fontconfig',
           ],
         }],  # OS=="linux"
+        ['OS=="android"', {
+          'dependencies': [
+            'xwalk_jni_headers',
+          ],
+        }],
         ['os_posix==1 and OS != "mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             # This is needed by content/app/content_main_runner.cc
@@ -264,8 +276,16 @@
           ],
           'action': ['python', '<(repack_path)', '<@(_outputs)',
                      '<@(pak_inputs)'],
-          'outputs':[
-            '<(PRODUCT_DIR)/xwalk.pak',
+          'conditions': [
+            ['OS!="android"', {
+              'outputs': [
+                '<(PRODUCT_DIR)/xwalk.pak',
+              ],
+            }, {
+              'outputs': [
+                '<(PRODUCT_DIR)/xwalk_assets/xwalk.pak',
+              ],
+            }],
           ],
         },
       ],
@@ -560,5 +580,63 @@
         },  # target xwalk_helper_app
       ],
     }],  # OS=="mac"
+    ['OS=="android"', {
+      'targets': [
+        {
+          'target_name': 'xwalk_jni_headers',
+          'type': 'none',
+          'sources': [
+            'runtime/android/java/src/com/intel/xwalk/XWalkView.java'
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/runtime',
+            ],
+          },
+          'variables': {
+            'jni_gen_package': 'xwalk/runtime',
+          },
+          'includes': [ '../build/jni_generator.gypi' ],
+        },
+        {
+          'target_name': 'libxwalk_runtime_content_view',
+          'type': 'shared_library',
+          'dependencies': [
+            'xwalk_jni_headers',
+            'xwalk_runtime',
+            'xwalk_pak',
+            # Skia is necessary to ensure the dependencies needed by
+            # WebContents are included.
+            '../skia/skia.gyp:skia',
+            '<(DEPTH)/media/media.gyp:player_android',
+          ],
+          'sources': [
+            'runtime/android/xwalk_library_onload.cc',
+          ],
+        },
+        {
+          'target_name': 'xwalk_apk',
+          'type': 'none',
+          'dependencies': [
+            '../content/content.gyp:content_java',
+            'libxwalk_runtime_content_view',
+            '../base/base.gyp:base_java',
+            '../media/media.gyp:media_java',
+            '../net/net.gyp:net_java',
+            '../ui/ui.gyp:ui_java',
+          ],
+          'variables': {
+            'apk_name': 'XWalk',
+            'manifest_package_name': 'com.intel.xwalk_apk',
+            'java_in_dir': 'runtime/android/java',
+            'resource_dir': 'runtime/android/java/res',
+            'native_lib_target': 'libxwalk_runtime_content_view',
+            'additional_input_paths': ['<(PRODUCT_DIR)/xwalk_assets/xwalk.pak'],
+            'asset_location': '<(ant_build_out)/xwalk_assets',
+          },
+          'includes': [ '../build/java_apk.gypi' ],
+        },
+      ]
+    }],  # OS=="android"
   ]
 }

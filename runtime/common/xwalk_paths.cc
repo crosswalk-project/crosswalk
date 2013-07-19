@@ -36,6 +36,9 @@ bool PathProvider(int key, base::FilePath* path) {
       #elif defined(OS_MACOSX)
         CHECK(PathService::Get(base::DIR_APP_DATA, &cur));
         cur = cur.Append("xwalk");
+      #elif defined(OS_ANDROID)
+        CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &cur));
+        cur = cur.Append(FILE_PATH_LITERAL("xwalk"));
       #else
         NOTIMPLEMENTED() << "Unsupported OS platform.";
         return false;

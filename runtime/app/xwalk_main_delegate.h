@@ -16,6 +16,10 @@ namespace content {
 class ContentBrowserClient;
 class ContentRendererClient;
 class ContentClient;
+
+#if defined(OS_ANDROID)
+class BrowserMainRunner;
+#endif
 }
 
 namespace xwalk {
@@ -40,6 +44,11 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   scoped_ptr<content::ContentBrowserClient> browser_client_;
   scoped_ptr<content::ContentRendererClient> renderer_client_;
   scoped_ptr<content::ContentClient> content_client_;
+
+
+#if defined(OS_ANDROID)
+  scoped_ptr<content::BrowserMainRunner> browser_runner_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegate);
 };
