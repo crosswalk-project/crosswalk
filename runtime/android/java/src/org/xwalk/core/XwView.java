@@ -8,9 +8,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.view.ViewGroup;
 import android.util.AttributeSet;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
-import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 public class XwView extends FrameLayout {
@@ -93,10 +91,10 @@ public class XwView extends FrameLayout {
     public void setInitialScale(int scaleInPercent) {
     }
 
-    public void setWebChromeClient(WebChromeClient client) {
+    public void setXwWebChromeClient(XwWebChromeClient client) {
     }
 
-    public void setWebViewClient(WebViewClient client) {
+    public void setXwViewClient(XwViewClient client) {
     }
 
     //requestFocusFromTouch, setVerticalScrollBarEnabled are from android.view.View;

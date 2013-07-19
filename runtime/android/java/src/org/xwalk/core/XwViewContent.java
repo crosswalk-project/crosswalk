@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.chromium.base.JNINamespace;
+import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
@@ -66,7 +67,9 @@ class XwViewContent extends FrameLayout {
             mWindow = new WindowAndroid(activity);
         }
 
-        // TODO(yongsheng): Initialize ContentVideoView
+        // Initialize the ContentVideoView for fullscreen video playback.
+        ContentVideoView.registerContentVideoViewContextDelegate(
+                new XwContentVideoViewDelegate(mContentsClientBridge, getContext()));
 
         // Initialize ContentView
         // TODO(yongsheng): Use PERSONALITY_VIEW if we don't need pinch to zoom.

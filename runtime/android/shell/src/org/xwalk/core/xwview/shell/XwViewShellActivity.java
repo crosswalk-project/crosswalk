@@ -17,6 +17,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import org.chromium.content.common.CommandLine;
 import org.xwalk.core.XwView;
+import org.xwalk.core.XwWebChromeClient;
 
 public class XwViewShellActivity extends Activity {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
@@ -36,6 +38,9 @@ public class XwViewShellActivity extends Activity {
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
     private XwView mView;
+    private XwWebChromeClient.CustomViewCallback mCustomViewCallback;
+    private FrameLayout mCustomViewContainer;
+    private View mCustomView;
 
 
     @Override
@@ -56,9 +61,11 @@ public class XwViewShellActivity extends Activity {
 
         mView = (XwView) findViewById(R.id.content_container);
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
+        mCustomViewContainer = (FrameLayout) findViewById(R.id.custom_view_container);
 
         initializeUrlField();
         initializeNavigationButtons();
+        initializeXwViewClients();
     }
 
     private void waitForDebuggerIfNeeded() {
@@ -128,6 +135,38 @@ public class XwViewShellActivity extends Activity {
         });
     }
 
+    private void initializeXwViewClients() {
+        mView.setXwWebChromeClient(new XwWebChromeClient() {
+            public void onProgressChanged(XwView view, int newProgress) {
+                // TODO(yongsheng): Implement progress update.
+            }
+
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (mCustomView != null) callback.onCustomViewHidden();
+
+                mCustomView = view;
+                mView.setVisibility(View.GONE);
+                mCustomViewContainer.setVisibility(View.VISIBLE);
+                mCustomViewContainer.addView(view);
+                mCustomViewCallback = callback;
+            }
+
+            @Override
+            public void onHideCustomView() {
+                super.onHideCustomView();
+                if (mCustomView == null) return;
+
+                mView.setVisibility(View.VISIBLE);
+                mCustomViewContainer.setVisibility(View.GONE);
+                mCustomView.setVisibility(View.GONE);
+                mCustomViewContainer.removeView(mCustomView);
+                mCustomViewCallback.onCustomViewHidden();
+
+                mCustomView = null;
+            }
+        });
+    }
     private void setKeyboardVisibilityForUrl(boolean visible) {
         InputMethodManager imm = (InputMethodManager) getSystemService(
                 Context.INPUT_METHOD_SERVICE);
