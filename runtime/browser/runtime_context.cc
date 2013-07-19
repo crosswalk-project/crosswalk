@@ -47,9 +47,11 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
-RuntimeContext::RuntimeContext() {
 #if !defined(OS_ANDROID)
-  resource_context_(new RuntimeResourceContext)
+RuntimeContext::RuntimeContext()
+  : resource_context_(new RuntimeResourceContext) {
+#else
+RuntimeContext::RuntimeContext() {
 #endif
   InitWhileIOAllowed();
 }
@@ -61,12 +63,14 @@ RuntimeContext::~RuntimeContext() {
   }
 }
 
+#if defined(OS_ANDROID)
 // static
 RuntimeContext* RuntimeContext::FromWebContents(
     content::WebContents* web_contents) {
   // This is safe; this is the only implementation of the browser context.
   return static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
 }
+#endif
 
 void RuntimeContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -87,11 +91,13 @@ base::FilePath RuntimeContext::GetPath() {
   return result;
 }
 
+#if defined(OS_ANDROID)
 void RuntimeContext::InitializeBeforeThreadCreation() {
 }
 
 void RuntimeContext::PreMainMessageLoopRun() {
 }
+#endif
 
 bool RuntimeContext::IsOffTheRecord() const {
   // We don't consider off the record scenario.

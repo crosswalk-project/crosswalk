@@ -20,9 +20,9 @@ import android.os.Handler;
 
 /**
  * Represents a request for HTTP authentication. Instances of this class are
- * created by the WebView and passed to
+ * created by the XwView and passed to
  * {@link XwViewClient#onReceivedHttpAuthRequest}. The host application must
- * call either {@link #proceed} or {@link #cancel} to set the WebView's
+ * call either {@link #proceed} or {@link #cancel} to set the XwView's
  * response to the request.
  */
 public class HttpAuthHandler extends Handler {
@@ -35,27 +35,27 @@ public class HttpAuthHandler extends Handler {
 
     /**
      * Gets whether the credentials stored for the current host (i.e. the host
-     * for which {@link WebViewClient#onReceivedHttpAuthRequest} was called)
+     * for which {@link XwViewClient#onReceivedHttpAuthRequest} was called)
      * are suitable for use. Credentials are not suitable if they have
      * previously been rejected by the server for the current request.
      *
      * @return whether the credentials are suitable for use
-     * @see Webview#getHttpAuthUsernamePassword
+     * @see XwView#getHttpAuthUsernamePassword
      */
     public boolean useHttpAuthUsernamePassword() {
         return false;
     }
 
     /**
-     * Instructs the WebView to cancel the authentication request.
+     * Instructs the XwView to cancel the authentication request.
      */
     public void cancel() {
     }
 
     /**
-     * Instructs the WebView to proceed with the authentication with the given
+     * Instructs the XwView to proceed with the authentication with the given
      * credentials. Credentials for use with this method can be retrieved from
-     * the WebView's store using {@link WebView#getHttpAuthUsernamePassword}.
+     * the XwView's store using {@link XwView#getHttpAuthUsernamePassword}.
      */
     public void proceed(String username, String password) {
     }

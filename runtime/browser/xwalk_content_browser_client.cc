@@ -6,8 +6,6 @@
 
 #include <vector>
 
-#include "base/android/path_utils.h"
-#include "base/base_paths_android.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
@@ -23,6 +21,8 @@
 #include "net/url_request/url_request_context_getter.h"
 
 #if defined(OS_ANDROID)
+#include "base/android/path_utils.h"
+#include "base/base_paths_android.h"
 #include "xwalk/runtime/common/xwalk_globals_android.h"
 #endif
 
@@ -135,7 +135,7 @@ void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
       base::CreatePlatformFile(pak_file, flags, NULL, NULL);
   if (f == base::kInvalidPlatformFileValue) {
     NOTREACHED() << "Failed to open file when creating renderer process: "
-                 << "content_webview.pak";
+                 << "xwalk.pak";
   }
   mappings->push_back(
       content::FileDescriptorInfo(kXWalkPakDescriptor,

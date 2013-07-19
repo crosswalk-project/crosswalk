@@ -27,7 +27,6 @@
 #include "grit/net_resources.h"
 #include "net/base/net_util.h"
 #include "net/base/net_module.h"
-#include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
@@ -36,6 +35,7 @@
 #include "content/public/browser/android/compositor.h"
 #include "net/android/network_change_notifier_factory_android.h"
 #include "net/base/network_change_notifier.h"
+#include "ui/base/l10n/l10n_util_android.h"
 #endif  // defined(OS_ANDROID)
 
 namespace {

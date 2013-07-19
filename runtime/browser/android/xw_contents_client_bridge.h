@@ -21,11 +21,11 @@ class X509Certificate;
 namespace xwalk {
 
 // A class that handles the Java<->Native communication for the
-// WebViewContentsClient. XwContentsClientBridge is created and owned by
-// native WebViewContents class and it only has a weak reference to the
+// XwContentsClient. XwContentsClientBridge is created and owned by
+// native XwViewContents class and it only has a weak reference to the
 // its Java peer. Since the Java XwContentsClientBridge can have
 // indirect refs from the Application (via callbacks) and so can outlive
-// webview, this class notifies it before being destroyed and to nullify
+// XwView, this class notifies it before being destroyed and to nullify
 // any references.
 class XwContentsClientBridge : public XwContentsClientBridgeBase {
  public:

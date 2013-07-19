@@ -36,7 +36,7 @@ public class SslErrorHandler extends Handler {
     public void proceed() {}
 
     /**
-     * Cancel this request and all pending requests for the WebView that had
+     * Cancel this request and all pending requests for the XwView that had
      * the error.
      */
     public void cancel() {}
