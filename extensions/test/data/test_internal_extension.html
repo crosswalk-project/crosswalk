@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title>Fail</title>
+  </head>
+  <body>
+    <script>
+      var Person = test.Person;
+      var error = 0;
+
+      function endTest() {
+        if (!error)
+          document.title = "Pass";
+      }
+
+      test.clearDatabase();
+
+      test.addPerson("Foo0", 0);
+      test.addPerson("Foo1", 10);
+      test.addPerson("Foo2", 20);
+      test.addPerson("Foo3", 30);
+      test.addPerson("Foo4", 40);
+
+      test.addPersonObject(new Person("Bar5", 50));
+      test.addPersonObject(new Person("Bar6", 60));
+      test.addPersonObject(new Person("Bar7", 70));
+      test.addPersonObject(new Person("Bar8", 80));
+      test.addPersonObject(new Person("Bar9", 90));
+
+      // Should not work due to mismatching parameters.
+      test.addPerson("Foo10");
+      test.addPerson(110, "Foo11");
+      test.addPerson(120);
+
+      test.getAllPersons(7, function(persons) {
+        if (persons.length != 7)
+          error++;
+
+        if (persons[4].name != "Foo4")
+          error++;
+
+        if (persons[6].age != 60)
+          error++;
+
+        test.getPersonAge("Bar6", getPersonAgeCb);
+      });
+
+      function getPersonAgeCb(age) {
+        if (age != 60)
+          error++;
+
+        test.clearDatabase();
+        test.getAllPersons(10, getAllPersonsCb);
+      }
+
+      function getAllPersonsCb(persons) {
+        if (persons.length != 0)
+          error++;
+
+        // Omitting the callback, should not crash.
+        test.getAllPersons(10);
+        setTimeout(endTest(), 500);
+      }
+    </script>
+  </body>
+</html>
