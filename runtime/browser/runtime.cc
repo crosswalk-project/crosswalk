@@ -26,6 +26,8 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
+#include "grit/xwalk_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 
 using content::FaviconURL;
@@ -74,6 +76,10 @@ Runtime::Runtime(content::WebContents* web_contents)
     base::FilePath icon_file =
         command_line->GetSwitchValuePath(switches::kAppIcon);
     app_icon_ = xwalk_utils::LoadImageFromFilePath(icon_file);
+  } else {
+    // Otherwise, use the default icon for Crosswalk app.
+    ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
+    app_icon_ = rb.GetNativeImageNamed(IDR_XWALK_ICON_48);
   }
 
   NativeAppWindow::CreateParams params;
