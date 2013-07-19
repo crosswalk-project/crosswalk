@@ -13,6 +13,7 @@
   },
   'includes' : [
     'xwalk_android.gypi',
+    'xwalk_android_tests.gypi',
     'xwalk_tests.gypi',
   ],
   'targets': [

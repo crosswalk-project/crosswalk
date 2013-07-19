@@ -6,6 +6,7 @@
       'android_unmangled_name': 1,
       'dependencies': [
         'xwalk_core_native_jni',
+        'xwalk_pak',
         'xwalk_runtime',
       ],
       'include_dirs': [
