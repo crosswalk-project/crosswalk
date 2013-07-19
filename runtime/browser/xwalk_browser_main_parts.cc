@@ -24,6 +24,11 @@
 #include "content/public/common/url_constants.h"
 #include "net/base/net_util.h"
 
+#if defined(OS_ANDROID)
+#include "net/android/network_change_notifier_factory_android.h"
+#include "net/base/network_change_notifier.h"
+#endif
+
 namespace xwalk {
 
 using extensions::XWalkExternalExtension;
@@ -64,6 +69,10 @@ void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 }
 
 void XWalkBrowserMainParts::PreEarlyInitialization() {
+#if defined(OS_ANDROID)
+  net::NetworkChangeNotifier::SetFactory(
+      new net::NetworkChangeNotifierFactoryAndroid());
+#endif
 }
 
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
