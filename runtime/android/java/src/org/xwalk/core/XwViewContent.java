@@ -4,6 +4,7 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.graphics.Rect;
@@ -18,19 +19,32 @@ import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.ui.WindowAndroid;
 
 @JNINamespace("xwalk")
+/**
+ * This class is the implementation class for XwView by calling internal
+ * various classes.
+ */
 class XwViewContent extends FrameLayout {
-    ContentViewCore mContentViewCore;
-    ContentView mContentView;
-    ContentViewRenderView mContentViewRenderView;
-    WindowAndroid mWindow;
+    private ContentViewCore mContentViewCore;
+    private ContentView mContentView;
+    private ContentViewRenderView mContentViewRenderView;
+    private WindowAndroid mWindow;
+    private XwView mXwView;
+    private XwContentsClient mContentsClient;
+    private XwContentsClientBridge mContentsClientBridge;
+    private XwWebContentsDelegateAdapter mXwContentsDelegateAdapter;
 
     int mXwViewContent;
     int mWebContents;
     boolean mReadyToLoad = false;
 
-    public XwViewContent(Context context, AttributeSet attrs) {
+    public XwViewContent(Context context, AttributeSet attrs, XwView xwView) {
         super(context, attrs);
-        //TODO(yongsheng): initialize ContentVideoView
+
+        // Initialize the WebContensDelegate.
+        mXwView = xwView;
+        mContentsClientBridge = new XwContentsClientBridge(mXwView);
+        mXwContentsDelegateAdapter = new XwWebContentsDelegateAdapter(
+            mContentsClientBridge);
 
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context) {
@@ -51,6 +65,8 @@ class XwViewContent extends FrameLayout {
             Activity activity = (Activity) getContext();
             mWindow = new WindowAndroid(activity);
         }
+
+        // TODO(yongsheng): Initialize ContentVideoView
 
         // Initialize ContentView
         // TODO(yongsheng): Use PERSONALITY_VIEW if we don't need pinch to zoom.

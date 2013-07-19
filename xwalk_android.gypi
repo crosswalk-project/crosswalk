@@ -25,6 +25,7 @@
       'target_name': 'xwalk_core_java',
       'type': 'none',
       'dependencies': [
+        '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
         '../ui/ui.gyp:ui_java',
       ],
@@ -40,6 +41,7 @@
         'jni_gen_package': 'xwalk',
       },
       'sources': [
+        'runtime/android/java/src/org/xwalk/core/XwContentsClientBridge.java',
         'runtime/android/java/src/org/xwalk/core/XwViewContent.java',
       ],
       'includes': ['../build/jni_generator.gypi'],

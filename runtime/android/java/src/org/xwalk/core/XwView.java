@@ -36,7 +36,7 @@ public class XwView extends FrameLayout {
     }
 
     private void initXwViewContent(Context context, AttributeSet attrs) {
-        mContent = new XwViewContent(context, attrs);
+        mContent = new XwViewContent(context, attrs, this);
         addView(mContent,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,

@@ -6,12 +6,14 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_registrar.h"
+#include "xwalk/runtime/browser/android/xw_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xw_view_content.h"
 
 namespace xwalk {
 
 static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   // Register JNI for xwalk classes.
+  { "XwContentsClientBridge", RegisterXwContentsClientBridge },
   { "XwViewContent", RegisterXwViewContent },
 };
 

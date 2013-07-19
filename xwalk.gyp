@@ -64,6 +64,10 @@
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/android/xw_contents_client_bridge.cc',
+        'runtime/browser/android/xw_contents_client_bridge.h',
+        'runtime/browser/android/xw_contents_client_bridge_base.cc',
+        'runtime/browser/android/xw_contents_client_bridge_base.h',
         'runtime/browser/android/xw_view_content.cc',
         'runtime/browser/android/xw_view_content.h',
         'runtime/browser/xwalk_application_mac.h',
@@ -143,6 +147,10 @@
       'conditions': [
         ['OS!="android"',{
           'sources!': [
+            'runtime/browser/android/xw_contents_client_bridge.cc',
+            'runtime/browser/android/xw_contents_client_bridge.h',
+            'runtime/browser/android/xw_contents_client_bridge_base.cc',
+            'runtime/browser/android/xw_contents_client_bridge_base.h',
             'runtime/browser/android/xw_view_content.cc',
             'runtime/browser/android/xw_view_content.h',
           ],
