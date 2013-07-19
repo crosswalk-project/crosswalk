@@ -82,6 +82,12 @@ class XwViewContent extends FrameLayout {
 
         // For addJavascriptInterface
         mContentViewCore = mContentView.getContentViewCore();
+        mContentViewCore.setContentViewClient(mContentsClientBridge);
+        mContentsClientBridge.installWebContentsObserver(mContentViewCore);
+
+        // TODO(yongsheng): Initialize settings, InterceptNavigationDelegateImpl, IoThreadClientImpl,
+        // DIPScale, etc.
+
     }
 
     public void loadUrl(String url) {
