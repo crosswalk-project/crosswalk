@@ -9,6 +9,8 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE:-$0}")"
 
 unset CHROMIUM_GYP_FILE
 
+export PATH=$PATH:${CHROME_SRC}/xwalk/build/android
+
 xwalk_android_gyp() {
   echo "GYP_GENERATORS set to '$GYP_GENERATORS'"
   (
