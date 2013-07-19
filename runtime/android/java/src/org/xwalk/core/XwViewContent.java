@@ -32,7 +32,7 @@ class XwViewContent extends FrameLayout {
         super(context, attrs);
         //TODO(yongsheng): initialize ContentVideoView
 
-        // initialize ContentViewRenderView
+        // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context) {
             protected void onReadyToRender() {
                 mReadyToLoad = true;
@@ -43,12 +43,18 @@ class XwViewContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
-        //TODO(yongsheng): init native such as resource, content main, etc.
-
         mXwViewContent = nativeInit();
         mWebContents = nativeGetWebContents(mXwViewContent);
 
-        // initialize ContentView
+        // Initialize mWindow which is needed by content
+        if (getContext() instanceof Activity) {
+            Activity activity = (Activity) getContext();
+            mWindow = new WindowAndroid(activity);
+        }
+
+        // Initialize ContentView
+        // TODO(yongsheng): Use PERSONALITY_VIEW if we don't need pinch to zoom.
+        // PERSONALITY_VIEW always overrides the user agent set by user.
         mContentView = ContentView.newInstance(
                 getContext(), mWebContents, mWindow, ContentView.PERSONALITY_CHROME);
         addView(mContentView,
