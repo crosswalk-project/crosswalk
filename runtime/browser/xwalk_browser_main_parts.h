@@ -38,8 +38,10 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 
 #if defined(OS_ANDROID)
   void SetRuntimeContext(RuntimeContext* context);
-#endif
+  RuntimeContext* runtime_context() { return runtime_context_; }
+#else
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
+#endif
   extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();
   }
@@ -54,7 +56,11 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopRunAura();
 #endif
 
+#if defined(OS_ANDROID)
+  RuntimeContext* runtime_context_;
+#else
   scoped_ptr<RuntimeContext> runtime_context_;
+#endif
 
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;

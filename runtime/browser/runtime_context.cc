@@ -47,8 +47,10 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
-RuntimeContext::RuntimeContext()
-    : resource_context_(new RuntimeResourceContext) {
+RuntimeContext::RuntimeContext() {
+#if !defined(OS_ANDROID)
+  resource_context_(new RuntimeResourceContext)
+#endif
   InitWhileIOAllowed();
 }
 
@@ -97,6 +99,9 @@ bool RuntimeContext::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
+#if defined(OS_ANDROID)
+  return NULL;
+#else
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
 
   if (!download_manager_delegate_) {
@@ -105,6 +110,7 @@ content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
   }
 
   return download_manager_delegate_.get();
+#endif
 }
 
 net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
@@ -135,6 +141,10 @@ net::URLRequestContextGetter*
 }
 
 content::ResourceContext* RuntimeContext::GetResourceContext()  {
+#if defined(OS_ANDROID)
+  if (!resource_context_.get())
+    resource_context_.reset(new RuntimeResourceContext);
+#endif
   return resource_context_.get();
 }
 

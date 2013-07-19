@@ -70,8 +70,7 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 
 #if defined(OS_ANDROID)
 void XWalkBrowserMainParts::SetRuntimeContext(RuntimeContext* context) {
-  // TODO(shouqun): whether it's reasonable to hold the context by scoped ptr?
-  runtime_context_.reset(context);
+  runtime_context_ = context;
 }
 #endif
 
@@ -116,7 +115,7 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
 
 int XWalkBrowserMainParts::PreCreateThreads() {
 #if defined(OS_ANDROID)
-  DCHECK(runtime_context_.get());
+  DCHECK(runtime_context_);
   runtime_context_->InitializeBeforeThreadCreation();
 #endif
   return content::RESULT_CODE_NORMAL_EXIT;
@@ -169,7 +168,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
   }
 
-  DCHECK(runtime_context_.get());
+  DCHECK(runtime_context_);
   runtime_context_->PreMainMessageLoopRun();
 #else
   runtime_context_.reset(new RuntimeContext);
