@@ -52,6 +52,13 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* host) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
 
+#if defined(OS_ANDROID)
+  virtual void GetAdditionalMappedFilesForChildProcess(
+      const CommandLine& command_line,
+      int child_process_id,
+      std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
+#endif
+
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
   XWalkBrowserMainParts* main_parts_;

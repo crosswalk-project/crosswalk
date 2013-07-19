@@ -50,7 +50,7 @@ class XwViewContent extends FrameLayout {
 
         // initialize ContentView
         mContentView = ContentView.newInstance(
-                getContext(), mWebContents, mWindow, ContentView.PERSONALITY_VIEW);
+                getContext(), mWebContents, mWindow, ContentView.PERSONALITY_CHROME);
         addView(mContentView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
