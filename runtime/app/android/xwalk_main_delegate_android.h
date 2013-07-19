@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_APP_ANDROID_XWALK_MAIN_DELEGATE_ANDROID_H_
 #define XWALK_RUNTIME_APP_ANDROID_XWALK_MAIN_DELEGATE_ANDROID_H_
 
+#include <string>
+
 #include "base/memory/scoped_ptr.h"
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"

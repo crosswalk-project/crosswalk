@@ -4,7 +4,6 @@
 
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_
-#define CAMEO_SRC_BROWSER_WEBVIEW_CONTENTS_CLIENT_BRIDGE_BASE_H_
 
 #include "base/callback_forward.h"
 #include "base/supports_user_data.h"
@@ -22,10 +21,10 @@ class X509Certificate;
 
 namespace xwalk {
 
-// browser/ layer interface for WebViewContensClientBridge, as DEPS prevents this
-// layer from depending on native/ where the implementation lives. The
+// browser/ layer interface for XwContentsClientBridge, as DEPS prevents
+// this layer from depending on native/ where the implementation lives. The
 // implementor of the base class plumbs the request to the Java side and
-// eventually to the webviewclient. This layering hides the details of
+// eventually to the XwViewClient. This layering hides the details of
 // native/ from browser/ layer.
 class XwContentsClientBridgeBase {
  public:
@@ -61,4 +60,4 @@ class XwContentsClientBridgeBase {
 
 }  // namespace xwalk
 
-#endif  // CAMEO_SRC_BROWSER_WEBVIEW_CONTENTS_CLIENT_BRIDGE_BASE_H_
+#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_

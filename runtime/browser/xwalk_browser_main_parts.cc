@@ -27,7 +27,6 @@
 #include "grit/net_resources.h"
 #include "net/base/net_util.h"
 #include "net/base/net_module.h"
-#include "net/base/network_change_notifier.h"
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"

@@ -29,7 +29,6 @@ namespace xwalk {
 // any references.
 class XwContentsClientBridge : public XwContentsClientBridgeBase {
  public:
-
   XwContentsClientBridge(JNIEnv* env, jobject obj);
   virtual ~XwContentsClientBridge();
 
@@ -71,4 +70,4 @@ bool RegisterXwContentsClientBridge(JNIEnv* env);
 
 }  // namespace xwalk
 
-#endif  // xwalk_SRC_BROWSER_WEBVIEW_CONTENTS_CLIENT_BRIDGE_H_
+#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_H_

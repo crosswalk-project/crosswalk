@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
+#include <vector>
+
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
 #include "base/command_line.h"

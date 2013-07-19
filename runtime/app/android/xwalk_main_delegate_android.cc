@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/app/android/xwalk_main_delegate_android.h"
 
+#include <string>
+
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
@@ -42,7 +44,7 @@ int XWalkMainDelegateAndroid::RunProcess(
   if (process_type.empty()) {
     browser_runner_.reset(content::BrowserMainRunner::Create());
     int exit_code = browser_runner_->Initialize(main_function_params);
-    DCHECK(exit_code < 0);
+    DCHECK_LT(exit_code, 0);
 
     return 0;
   }

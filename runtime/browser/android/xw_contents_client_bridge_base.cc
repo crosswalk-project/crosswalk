@@ -38,7 +38,7 @@ class UserData : public base::SupportsUserData::Data {
   DISALLOW_COPY_AND_ASSIGN(UserData);
 };
 
-} // namespace
+}  // namespace
 
 // static
 void XwContentsClientBridgeBase::Associate(

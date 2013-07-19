@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/android/xw_contents_client_bridge.h"
 
+#include <string>
+
 #include "base/android/jni_android.h"
 #include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
@@ -72,7 +74,7 @@ void XwContentsClientBridge::AllowCertificateError(
   // if the request is cancelled, then cancel the stored callback
   if (*cancel_request) {
     pending_cert_error_callbacks_.Remove(request_id);
- }
+  }
 }
 
 void XwContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,

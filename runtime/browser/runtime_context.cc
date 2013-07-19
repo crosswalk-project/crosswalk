@@ -61,7 +61,7 @@ RuntimeContext::~RuntimeContext() {
   }
 }
 
-//static
+// static
 RuntimeContext* RuntimeContext::FromWebContents(
     content::WebContents* web_contents) {
   // This is safe; this is the only implementation of the browser context.

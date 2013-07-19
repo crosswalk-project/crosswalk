@@ -12,8 +12,6 @@
     ], # conditions
   },
   'includes' : [
-    'xwalk_android.gypi',
-    'xwalk_android_tests.gypi',
     'xwalk_tests.gypi',
   ],
   'targets': [
@@ -585,6 +583,8 @@
     ['OS=="android"', {
       'includes': [
         '../build/all_android.gyp',
+        'xwalk_android.gypi',
+        'xwalk_android_tests.gypi',
       ],
     }], # OS=="android"
   ]

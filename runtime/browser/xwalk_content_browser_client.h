@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
+#include <vector>
+
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
