@@ -96,14 +96,44 @@ bool XWalkExtensionRendererController::ContainsExtension(
   return extension_apis_.find(extension) != extension_apis_.end();
 }
 
+static std::string CodeToEnsureNamespace(
+    const std::string& extension_name) {
+  std::string result;
+  size_t pos = 0;
+  while (true) {
+    pos = extension_name.find('.', pos);
+    if (pos == std::string::npos) {
+      result += extension_name + " = {};";
+      break;
+    }
+    std::string ns = extension_name.substr(0, pos);
+    result += ns + " = " + ns + " || {}; ";
+    pos++;
+  }
+  return result;
+}
+
+// FIXME(cmarcelo): Extension name needs to be validated when registering.
+static std::string WrapAPICode(const std::string& api_code,
+                               const std::string& extension_name) {
+  return CodeToEnsureNamespace(extension_name)
+      + "(function(exports) {'use strict';"
+      + api_code
+      + "\n})(" + extension_name +");";
+}
+
 void XWalkExtensionRendererController::InstallJavaScriptAPIs(
     WebKit::WebFrame* frame) {
+  // FIXME(cmarcelo): Load extensions sorted by name so parent comes first, so
+  // that we can safely register all them.
   ExtensionAPIMap::const_iterator it = extension_apis_.begin();
   for (; it != extension_apis_.end(); ++it) {
     const std::string& api_code = it->second;
-    if (!api_code.empty())
+    if (!api_code.empty()) {
+      std::string wrapped_api_code = WrapAPICode(api_code, it->first);
       frame->executeScript(WebKit::WebScriptSource(
-          WebKit::WebString::fromUTF8(api_code)));
+          WebKit::WebString::fromUTF8(wrapped_api_code)));
+    }
   }
 }
 
