@@ -71,6 +71,11 @@ void XWalkExtensionRendererController::RenderViewCreated(
   new XWalkExtensionRenderViewHandler(render_view, this);
 }
 
+void XWalkExtensionRendererController::DidCreateScriptContext(
+    WebKit::WebFrame* frame) {
+  InstallJavaScriptAPIs(frame);
+}
+
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
