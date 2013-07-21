@@ -128,11 +128,13 @@ void XWalkExtensionRendererController::InstallJavaScriptAPIs(
   // that we can safely register all them.
   ExtensionAPIMap::const_iterator it = extension_apis_.begin();
   for (; it != extension_apis_.end(); ++it) {
+    const std::string& extension_name = it->first;
     const std::string& api_code = it->second;
     if (!api_code.empty()) {
-      std::string wrapped_api_code = WrapAPICode(api_code, it->first);
+      std::string wrapped_api_code = WrapAPICode(api_code, extension_name);
       frame->executeScript(WebKit::WebScriptSource(
-          WebKit::WebString::fromUTF8(wrapped_api_code)));
+          WebKit::WebString::fromUTF8(wrapped_api_code),
+          WebKit::WebURL("JS API code for " + extension_name, url_parse::Parsed(), false)));
     }
   }
 }
