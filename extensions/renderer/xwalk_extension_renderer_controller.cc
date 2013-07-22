@@ -123,7 +123,7 @@ static std::string WrapAPICode(const std::string& api_code,
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
-      "%s; (function(exports, extension) {'use strict'; %s\n})"
+      "var %s; (function(exports, extension) {'use strict'; %s\n})"
       "(%s, "
       "{ postMessage: function(msg) { xwalk.postMessage('%s', msg); },"
       "  setMessageListener: function(listener) { "
