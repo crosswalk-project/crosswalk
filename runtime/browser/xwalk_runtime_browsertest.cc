@@ -312,7 +312,11 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
 }
 
+#if !defined(USE_AURA)
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, FaviconTest_ICO) {
+#else
+IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_ICO) {
+#endif
   base::FilePath icon_file(xwalk_test_utils::GetTestFilePath(
       base::FilePath(FILE_PATH_LITERAL("favicon")),
       base::FilePath(FILE_PATH_LITERAL("16x16.ico"))));
@@ -329,7 +333,11 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, FaviconTest_ICO) {
   RuntimeRegistry::Get()->RemoveObserver(&observer);
 }
 
+#if !defined(USE_AURA)
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, FaviconTest_PNG) {
+#else
+IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_PNG) {
+#endif
   base::FilePath icon_file(xwalk_test_utils::GetTestFilePath(
       base::FilePath(FILE_PATH_LITERAL("favicon")),
       base::FilePath(FILE_PATH_LITERAL("48x48.png"))));

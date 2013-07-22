@@ -95,7 +95,11 @@ class XWalkFormInputTest : public InProcessBrowserTest {
   TestSelectFileDialogFactory factory_;
 };
 
+#if !defined(USE_AURA)
 IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, FileSelector) {
+#else
+IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, DISABLED_FileSelector) {
+#endif
   SetSelectFileDialogReturnPath(xwalk_test_utils::GetTestFilePath(
       base::FilePath(), base::FilePath().AppendASCII("file_to_select")));
   GURL url = xwalk_test_utils::GetTestURL(
