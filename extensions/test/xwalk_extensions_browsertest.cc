@@ -52,10 +52,23 @@ class EchoExtension : public XWalkExtension {
   }
 };
 
+class ExtensionWithInvalidName : public XWalkExtension {
+ public:
+  ExtensionWithInvalidName() : XWalkExtension() {
+    set_name("invalid name with spaces");
+  }
+
+  virtual const char* GetJavaScriptAPI() { return ""; }
+  virtual Context* CreateContext(
+      const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
+};
+
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    extension_service->RegisterExtension(new EchoExtension);
+    ASSERT_TRUE(extension_service->RegisterExtension(new EchoExtension));
+    ASSERT_FALSE(
+        extension_service->RegisterExtension(new ExtensionWithInvalidName));
   }
 };
 
