@@ -114,7 +114,6 @@ static std::string CodeToEnsureNamespace(
   return result;
 }
 
-// FIXME(cmarcelo): Extension name needs to be validated when registering.
 static std::string WrapAPICode(const std::string& api_code,
                                const std::string& extension_name) {
   // FIXME(cmarcelo): New extension.postMessage and extension.setMessageListener

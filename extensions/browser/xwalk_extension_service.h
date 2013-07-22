@@ -66,6 +66,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
 
+bool ValidateExtensionNameForTesting(const std::string& extension_name);
+
 }  // namespace extensions
 }  // namespace xwalk
 
