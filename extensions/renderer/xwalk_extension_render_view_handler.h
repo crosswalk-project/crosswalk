@@ -32,7 +32,6 @@ class XWalkExtensionRenderViewHandler
                               const std::string& msg);
 
   // RenderViewObserver implementation.
-  virtual void DidClearWindowObject(WebKit::WebFrame* frame) OVERRIDE;
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:

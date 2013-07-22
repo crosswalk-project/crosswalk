@@ -23,15 +23,15 @@ class EchoExtension : public XWalkExtension {
 
   virtual const char* GetJavaScriptAPI() {
     static const char* kAPI =
-        "var xwalk = xwalk || {};"
-        "xwalk.setMessageListener('echo', function(msg) {"
-        "  if (xwalk.echoListener instanceof Function) {"
-        "    xwalk.echoListener(msg);"
+        "var echoListener = null;"
+        "extension.setMessageListener(function(msg) {"
+        "  if (echoListener instanceof Function) {"
+        "    echoListener(msg);"
         "  };"
         "});"
-        "xwalk.echo = function(msg, callback) {"
-        "  xwalk.echoListener = callback;"
-        "  xwalk.postMessage('echo', msg);"
+        "exports.echo = function(msg, callback) {"
+        "  echoListener = callback;"
+        "  extension.postMessage(msg);"
         "};";
     return kAPI;
   }
@@ -52,10 +52,23 @@ class EchoExtension : public XWalkExtension {
   }
 };
 
+class ExtensionWithInvalidName : public XWalkExtension {
+ public:
+  ExtensionWithInvalidName() : XWalkExtension() {
+    set_name("invalid name with spaces");
+  }
+
+  virtual const char* GetJavaScriptAPI() { return ""; }
+  virtual Context* CreateContext(
+      const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
+};
+
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    extension_service->RegisterExtension(new EchoExtension);
+    ASSERT_TRUE(extension_service->RegisterExtension(new EchoExtension));
+    ASSERT_FALSE(
+        extension_service->RegisterExtension(new ExtensionWithInvalidName));
   }
 };
 

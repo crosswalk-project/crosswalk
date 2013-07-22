@@ -59,6 +59,9 @@
     'include_dirs' : [
       '..',
     ],
+    'includes': [
+      'extensions/extensions_unittests.gypi',
+    ],
     'sources': [
       'runtime/common/xwalk_content_client_unittest.cc',
       'test/base/run_all_unittests.cc',
