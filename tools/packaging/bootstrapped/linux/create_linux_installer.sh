@@ -31,22 +31,24 @@ if [ "x$HELP" != "x" ]; then
     echo depends on checkinstall and Crosswalk to function properly.
     echo The following options are supported:
     echo "
-     app_path                Path to the Crosswalk application. If not specified, the
+     app_path                  Path to the Crosswalk application. If not specified, the
                                current directory is used.
-     --xwalk_path=<path>     Path to Crosswalk binaries. If not specified, the script
+     --xwalk_path=<path>       Path to Crosswalk binaries. If not specified, the script
                                will try to find them through PATH, the app path, or
                                the current directory.
-     --app_name=<name>       Name of the application. If not specified, the name
+     --app_name=<name>         Name of the application. If not specified, the name
                                of the application directory is used.
-     --version=<version>     The version of the application, defaults to 1.0.0
-     --app_index=<path>      Path of app index file, relative to app_path. If not
+     --version=<version>       The version of the application, defaults to 1.0.0
+     --app_index=<path>        Path of app index file, relative to app_path. If not
                                specified, index.html is used.
-     --app_arguments=<path>  Arugments to be passed into Crosswalk executable
+     --app_arguments=<path>    Arugments to be passed into Crosswalk executable
                                Example: --app_arguments=--allow-file-access-from-files
-     --out=<path>            Path of the output package file, defaults to
+     --out=<path>              Path of the output package file, defaults to
                                $TEMP_DIR/<app_name>
-     --publisher=<name>      The manufacturer of this application, defaults to "Me"
-     --help                  Print this message "
+     --publisher=<name>        The manufacturer of this application, defaults to "Me"
+     --shadow_install=<yes|no> Enable/disable installing app to a temporary directory
+                               for testing purposed. Defaults to yes
+     --help                    Print this message "
     exit 1
 fi
 
@@ -94,6 +96,9 @@ if [ "x$OUT" != "x" ]; then
     OUT_OPT="--pakdir=$OUT"
 fi
 
+if [ "x$SHADOW_INSTALL" = "x" ]; then
+    SHADOW_INSTALL=yes
+fi
 
 XWALK_PATH=`absolute_path $XWALK_PATH`
 APP_PATH=`absolute_path $APP_PATH`
@@ -113,4 +118,9 @@ fi
 cd $XWALK_PATH && cp xwalk xwalk.pak libffmpegsumo.so $BUILD_DIR
 
 #build the package
-cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION --backup=no --install=no --exclude=Makefile --fstrans=yes $OUT_OPT
+cd $BUILD_DIR && checkinstall --pkgname=$APP_NAME --pkgversion=$VERSION \
+  --backup=no --install=no --exclude=Makefile --fstrans=$SHADOW_INSTALL $OUT_OPT
+if [ $? != 0 -a -f  $APP_PATH/Makefile ]; then
+    echo "Warning: Packaging failed. Maybe there are some unsupported operations in your app's Makefile? Please try re-run the script with --shadow_install=no using sudo"
+    echo
+fi
