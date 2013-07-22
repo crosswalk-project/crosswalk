@@ -10,10 +10,10 @@ var postMessage = function(msg, callback) {
   _next_reply_id += 1;
   _callbacks[reply_id] = callback;
   msg._reply_id = reply_id.toString();
-  xwalk.postMessage('xwalk.experimental.dialog', JSON.stringify(msg));
+  extension.postMessage(JSON.stringify(msg));
 };
 
-xwalk.setMessageListener('xwalk.experimental.dialog', function(json) {
+extension.setMessageListener(function(json) {
   var msg = JSON.parse(json);
   var reply_id = msg._reply_id;
   var callback = _callbacks[reply_id];

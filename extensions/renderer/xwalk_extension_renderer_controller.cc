@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
+#include "base/stringprintf.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "content/public/renderer/render_thread.h"
@@ -116,10 +117,21 @@ static std::string CodeToEnsureNamespace(
 // FIXME(cmarcelo): Extension name needs to be validated when registering.
 static std::string WrapAPICode(const std::string& api_code,
                                const std::string& extension_name) {
-  return CodeToEnsureNamespace(extension_name)
-      + "(function(exports) {'use strict';"
-      + api_code
-      + "\n})(" + extension_name +");";
+  // FIXME(cmarcelo): New extension.postMessage and extension.setMessageListener
+  // should be implemented in a way that we don't need to expose
+  // xwalk.postMessage and xwalk.setMessageListener.
+
+  // We take care here to make sure that line numbering for api_code after
+  // wrapping doesn't change, so that syntax errors point to the correct line.
+  return base::StringPrintf(
+      "%s; (function(exports, extension) {'use strict'; %s\n})"
+      "(%s, "
+      "{ postMessage: function(msg) { xwalk.postMessage('%s', msg); },"
+      "  setMessageListener: function(listener) { "
+      "                        xwalk.setMessageListener('%s', listener); }});",
+      CodeToEnsureNamespace(extension_name).c_str(),
+      api_code.c_str(),
+      extension_name.c_str(), extension_name.c_str(), extension_name.c_str());
 }
 
 void XWalkExtensionRendererController::InstallJavaScriptAPIs(
@@ -134,7 +146,8 @@ void XWalkExtensionRendererController::InstallJavaScriptAPIs(
       std::string wrapped_api_code = WrapAPICode(api_code, extension_name);
       frame->executeScript(WebKit::WebScriptSource(
           WebKit::WebString::fromUTF8(wrapped_api_code),
-          WebKit::WebURL("JS API code for " + extension_name, url_parse::Parsed(), false)));
+          WebKit::WebURL("JS API code for " + extension_name,
+                         url_parse::Parsed(), false)));
     }
   }
 }

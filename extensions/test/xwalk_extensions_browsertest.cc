@@ -24,14 +24,14 @@ class EchoExtension : public XWalkExtension {
   virtual const char* GetJavaScriptAPI() {
     static const char* kAPI =
         "var echoListener = null;"
-        "xwalk.setMessageListener('echo', function(msg) {"
+        "extension.setMessageListener(function(msg) {"
         "  if (echoListener instanceof Function) {"
         "    echoListener(msg);"
         "  };"
         "});"
         "exports.echo = function(msg, callback) {"
         "  echoListener = callback;"
-        "  xwalk.postMessage('echo', msg);"
+        "  extension.postMessage(msg);"
         "};";
     return kAPI;
   }
