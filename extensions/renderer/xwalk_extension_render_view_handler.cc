@@ -41,11 +41,6 @@ bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
   return Send(new XWalkViewHostMsg_PostMessage(routing_id(), extension, msg));
 }
 
-void XWalkExtensionRenderViewHandler::DidClearWindowObject(
-    WebKit::WebFrame* frame) {
-  controller_->InstallJavaScriptAPIs(frame);
-}
-
 bool XWalkExtensionRenderViewHandler::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;

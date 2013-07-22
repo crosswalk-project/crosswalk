@@ -34,4 +34,10 @@ void XWalkContentRendererClient::RenderViewCreated(
   extension_controller_->RenderViewCreated(render_view);
 }
 
+void XWalkContentRendererClient::DidCreateScriptContext(
+    WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
+    int extension_group, int world_id) {
+  extension_controller_->DidCreateScriptContext(frame);
+}
+
 }  // namespace xwalk

@@ -9,6 +9,7 @@
 #include <string>
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_process_observer.h"
+#include "v8/include/v8.h"
 
 namespace content {
 class RenderView;
@@ -32,6 +33,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // To be called by client code when a render view is created. Will attach
   // extension handlers to them.
   void RenderViewCreated(content::RenderView* render_view);
+
+  // To be called by client code when a script context is created. Will
+  // load the extensions in the context.
+  void DidCreateScriptContext(WebKit::WebFrame* frame);
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;

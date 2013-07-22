@@ -6,6 +6,7 @@
 
 #include "base/callback.h"
 #include "base/memory/singleton.h"
+#include "base/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/extensions/browser/xwalk_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
@@ -41,12 +42,51 @@ XWalkExtensionService::~XWalkExtensionService() {
     delete it->second;
 }
 
+namespace {
+
+bool ValidateExtensionName(const std::string& extension_name) {
+  bool dot_allowed = false;
+  bool digit_or_underscore_allowed = false;
+  for (size_t i = 0; i < extension_name.size(); ++i) {
+    char c = extension_name[i];
+    if (IsAsciiDigit(c)) {
+      if (!digit_or_underscore_allowed)
+        return false;
+    } else if (c == '_') {
+      if (!digit_or_underscore_allowed)
+        return false;
+    } else if (c == '.') {
+      if (!dot_allowed)
+        return false;
+      dot_allowed = false;
+      digit_or_underscore_allowed = false;
+    } else if (IsAsciiAlpha(c)) {
+      dot_allowed = true;
+      digit_or_underscore_allowed = true;
+    } else {
+      return false;
+    }
+  }
+
+  // If after going through the entire name we finish with dot_allowed, it means
+  // the previous character is not a dot, so it's a valid name.
+  return dot_allowed;
+}
+
+}  // namespace
+
 bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   // Note: for now we only support registering new extensions before
   // render process hosts were created.
   CHECK(!render_process_host_);
   if (extensions_.find(extension->name()) != extensions_.end())
     return false;
+
+  if (!ValidateExtensionName(extension->name())) {
+    LOG(WARNING) << "Ignoring extension with invalid name: "
+                 << extension->name();
+    return false;
+  }
 
   std::string name = extension->name();
   extensions_[name] = extension;
@@ -106,6 +146,10 @@ void XWalkExtensionService::CreateWebContentsHandler(
   ExtensionMap::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     handler->AttachExtension(it->second);
+}
+
+bool ValidateExtensionNameForTesting(const std::string& extension_name) {
+  return ValidateExtensionName(extension_name);
 }
 
 }  // namespace extensions

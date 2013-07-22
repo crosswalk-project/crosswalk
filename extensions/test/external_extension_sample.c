@@ -32,15 +32,15 @@ static CXWalkExtensionContext* context_create(CXWalkExtension* extension) {
 
 static const char* get_javascript(CXWalkExtension* extension) {
   static const char* kAPI =
-      "var xwalk = xwalk || {};"
-      "xwalk.setMessageListener('echo', function(msg) {"
-      "  if (xwalk.echoListener instanceof Function) {"
-      "    xwalk.echoListener(msg);"
+      "var echoListener = null;"
+      "extension.setMessageListener(function(msg) {"
+      "  if (echoListener instanceof Function) {"
+      "    echoListener(msg);"
       "  };"
       "});"
-      "xwalk.echo = function(msg, callback) {"
-      "  xwalk.echoListener = callback;"
-      "  xwalk.postMessage('echo', msg);"
+      "exports.echo = function(msg, callback) {"
+      "  echoListener = callback;"
+      "  extension.postMessage(msg);"
       "};";
   return kAPI;
 }
