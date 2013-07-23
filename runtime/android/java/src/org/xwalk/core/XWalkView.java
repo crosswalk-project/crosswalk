@@ -79,6 +79,7 @@ public class XWalkView extends FrameLayout {
         super.setLayoutParams(params);
     }
 
+    // TODO(yongsheng): Will replace WebSettings with our class.
     public WebSettings getSettings() {
         return null;
     }
