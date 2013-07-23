@@ -5,7 +5,13 @@
 #include <string>
 #include "ipc/ipc_message_macros.h"
 
-#define IPC_MESSAGE_START ExtensionMsgStart
+// Note: it is safe to use numbers after LastIPCMsgStart since that limit
+// is not relevant for embedders. It is used only by a tool inside chrome/
+// that we currently don't use.
+// See also https://code.google.com/p/chromium/issues/detail?id=110911.
+const int XWalkExtensionMsgStart = LastIPCMsgStart + 1;
+
+#define IPC_MESSAGE_START XWalkExtensionMsgStart
 
 IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
                     std::string /* target extension */,
