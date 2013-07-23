@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+# Copyright (c) 2012 The Chromium Authors. All rights reserved.
+# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+"""Check the include rules for Crosswalk.
+
+See src/tools/checkdeps/checkdeps.py for documentation on how the DEPS
+files and include_rules work.
+"""
+
+import optparse
+import os
+import subprocess
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..',
+                             'tools', 'checkdeps'))
+
+import checkdeps
+import results
+
+def AddTreeToGitSourceDirectories(deps_checker, root_dir):
+  popen_out = os.popen('cd %s && git ls-files --full-name .' %
+                         subprocess.list2cmdline([root_dir]))
+  for line in popen_out.readlines():
+    dir_name = os.path.join(root_dir, os.path.dirname(line))
+    # Add the directory as well as all the parent directories. Use
+    # forward slashes and lower case to normalize paths.
+    while dir_name != root_dir:
+      deps_checker.git_source_directories.add(checkdeps.NormalizePath(dir_name))
+      dir_name = os.path.dirname(dir_name)
+  deps_checker.git_source_directories.add(checkdeps.NormalizePath(root_dir))
+
+def main():
+  option_parser = optparse.OptionParser()
+  option_parser.add_option(
+      '', '--ignore-temp-rules',
+      action='store_true', dest='ignore_temp_rules', default=False,
+      help='Ignore !-prefixed (temporary) rules.')
+  option_parser.add_option(
+      '', '--generate-temp-rules',
+      action='store_true', dest='generate_temp_rules', default=False,
+      help='Print rules to temporarily allow files that fail '
+           'dependency checking.')
+  option_parser.add_option(
+      '', '--count-violations',
+      action='store_true', dest='count_violations', default=False,
+      help='Count #includes in violation of intended rules.')
+  option_parser.add_option(
+      '-v', '--verbose',
+      action='store_true', default=False,
+      help='Print debug logging')
+  options, args = option_parser.parse_args()
+
+  base_directory = os.path.abspath(os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), '..', '..'))
+  deps_checker = checkdeps.DepsChecker(
+    base_directory, verbose=options.verbose,
+    ignore_temp_rules=options.ignore_temp_rules)
+
+  xwalk_base_directory = os.path.join(base_directory, 'xwalk')
+  AddTreeToGitSourceDirectories(deps_checker, xwalk_base_directory)
+
+  # Figure out which directory we have to check.
+  start_dir = xwalk_base_directory
+  if len(args) == 1:
+    # Directory specified. Start here. It's supposed to be relative to the
+    # src/xwalk directory.
+    start_dir = os.path.abspath(os.path.join(xwalk_base_directory, args[0]))
+  elif len(args) >= 2 or (options.generate_temp_rules and
+                          options.count_violations):
+    # More than one argument, or incompatible flags, we don't handle this.
+    PrintUsage()
+    return 1
+
+  if options.generate_temp_rules:
+    deps_checker.results_formatter = results.TemporaryRulesFormatter()
+  elif options.count_violations:
+    deps_checker.results_formatter = results.CountViolationsFormatter()
+  deps_checker.CheckDirectory(start_dir)
+  return deps_checker.Report()
+
+
+if '__main__' == __name__:
+  sys.exit(main())

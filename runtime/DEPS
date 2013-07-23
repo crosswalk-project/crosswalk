@@ -1,0 +1,14 @@
+include_rules = [
+  # FIXME: Remove dependency on non-public Content module header used by
+  # xwalk_download_browsertest.cc.
+  "!content/browser/download/download_manager_impl.h",
+
+  # FIXME: Remove dependency on Chrome. Used by runtime_platform_util_aura.cc.
+  "!chrome/browser/platform_util.h",
+  "!chrome/browser/ui/browser_dialogs.h",
+
+  # FIXME: Remove dependencies on non-public Content module headers used by
+  # runtime_download_manager_delegate.cc.
+  "!content/shell/shell_switches.h",
+  "!content/shell/webkit_test_controller.h",
+]
