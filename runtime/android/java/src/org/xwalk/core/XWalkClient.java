@@ -22,22 +22,22 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.webkit.WebResourceResponse;
 
-public class XwViewClient {
+public class XWalkClient {
 
     /**
      * Give the host application a chance to take over the control when a new
-     * url is about to be loaded in the current XwView. If XwViewClient is not
-     * provided, by default XwView will ask Activity Manager to choose the
-     * proper handler for the url. If XwViewClient is provided, return true
+     * url is about to be loaded in the current XWalkView. If XWalkClient is not
+     * provided, by default XWalkView will ask Activity Manager to choose the
+     * proper handler for the url. If XWalkClient is provided, return true
      * means the host application handles the url, while return false means the
-     * current XwView handles the url.
+     * current XWalkView handles the url.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param url The url to be loaded.
-     * @return True if the host application wants to leave the current XwView
+     * @return True if the host application wants to leave the current XWalkView
      *         and handle the url itself, otherwise return false.
      */
-    public boolean shouldOverrideUrlLoading(XwView view, String url) {
+    public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
         return false;
     }
 
@@ -48,52 +48,52 @@ public class XwViewClient {
      * means that onPageStarted will not be called when the contents of an
      * embedded frame changes, i.e. clicking a link whose target is an iframe.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param url The url to be loaded.
      * @param favicon The favicon for this page if it already exists in the
      *            database.
      */
-    public void onPageStarted(XwView view, String url, Bitmap favicon) {
+    public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
     }
 
     /**
      * Notify the host application that a page has finished loading. This method
      * is called only for main frame. When onPageFinished() is called, the
      * rendering picture may not be updated yet. To get the notification for the
-     * new Picture, use {@link XwView.PictureListener#onNewPicture}.
+     * new Picture, use {@link XWalkView.PictureListener#onNewPicture}.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param url The url of the page.
      */
-    public void onPageFinished(XwView view, String url) {
+    public void onPageFinished(XWalkView view, String url) {
     }
 
     /**
-     * Notify the host application that the XwView will load the resource
+     * Notify the host application that the XWalkView will load the resource
      * specified by the given url.
      *
-     * @param view The XwView that is initiating the callback.
-     * @param url The url of the resource the XwView will load.
+     * @param view The XWalkView that is initiating the callback.
+     * @param url The url of the resource the XWalkView will load.
      */
-    public void onLoadResource(XwView view, String url) {
+    public void onLoadResource(XWalkView view, String url) {
     }
 
     /**
      * Notify the host application of a resource request and allow the
-     * application to return the data.  If the return value is null, the XwView
+     * application to return the data.  If the return value is null, the XWalkView
      * will continue to load the resource as usual.  Otherwise, the return
      * response and data will be used.  NOTE: This method is called by the
      * network thread so clients should exercise caution when accessing private
      * data.
      *
-     * @param view The {@link android.webkit.XwView} that is requesting the
+     * @param view The {@link android.webkit.XWalkView} that is requesting the
      *             resource.
      * @param url The raw url of the resource.
      * @return A {@link android.webkit.WebResourceResponse} containing the
-     *         response information or null if the XwView should load the
+     *         response information or null if the XWalkView should load the
      *         resource itself.
      */
-    public WebResourceResponse shouldInterceptRequest(XwView view,
+    public WebResourceResponse shouldInterceptRequest(XWalkView view,
             String url) {
         return null;
     }
@@ -104,14 +104,14 @@ public class XwViewClient {
      * trying to load the resource. The default behavior is to send the cancel
      * message.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param cancelMsg The message to send if the host wants to cancel
      * @param continueMsg The message to send if the host wants to continue
-     * @deprecated This method is no longer called. When the XwView encounters
+     * @deprecated This method is no longer called. When the XWalkView encounters
      *             a redirect loop, it will cancel the load.
      */
     @Deprecated
-    public void onTooManyRedirects(XwView view, Message cancelMsg,
+    public void onTooManyRedirects(XWalkView view, Message cancelMsg,
             Message continueMsg) {
         cancelMsg.sendToTarget();
     }
@@ -152,12 +152,12 @@ public class XwViewClient {
      * Report an error to the host application. These errors are unrecoverable
      * (i.e. the main resource is unavailable). The errorCode parameter
      * corresponds to one of the ERROR_* constants.
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param errorCode The error code corresponding to an ERROR_* value.
      * @param description A String describing the error.
      * @param failingUrl The url that failed to load.
      */
-    public void onReceivedError(XwView view, int errorCode,
+    public void onReceivedError(XWalkView view, int errorCode,
             String description, String failingUrl) {
     }
 
@@ -166,11 +166,11 @@ public class XwViewClient {
      * requested page was a result of a POST. The default is to not resend the
      * data.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param dontResend The message to send if the browser should not resend
      * @param resend The message to send if the browser should resend data
      */
-    public void onFormResubmission(XwView view, Message dontResend,
+    public void onFormResubmission(XWalkView view, Message dontResend,
             Message resend) {
         dontResend.sendToTarget();
     }
@@ -178,11 +178,11 @@ public class XwViewClient {
     /**
      * Notify the host application to update its visited links database.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param url The url being visited.
      * @param isReload True if this url is being reloaded.
      */
-    public void doUpdateVisitedHistory(XwView view, String url,
+    public void doUpdateVisitedHistory(XWalkView view, String url,
             boolean isReload) {
     }
 
@@ -193,23 +193,23 @@ public class XwViewClient {
      * response to future SSL errors. The default behavior is to cancel the
      * load.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param handler An SslErrorHandler object that will handle the user's
      *            response.
      * @param error The SSL error object.
      */
-    public void onReceivedSslError(XwView view, SslErrorHandler handler,
+    public void onReceivedSslError(XWalkView view, SslErrorHandler handler,
             SslError error) {
         handler.cancel();
     }
 
     /**
      * Notify the host application that an SSL error occurred while loading a
-     * resource, but the XwView chose to proceed anyway based on a
+     * resource, but the XWalkView chose to proceed anyway based on a
      * decision retained from a previous response to onReceivedSslError().
      * @hide
      */
-    public void onProceededAfterSslError(XwView view, SslError error) {
+    public void onProceededAfterSslError(XWalkView view, SslError error) {
     }
 
     /**
@@ -220,7 +220,7 @@ public class XwViewClient {
      * connection is suspended and waiting for the response. The
      * default behavior is to cancel, returning no client certificate.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param handler A ClientCertRequestHandler object that will
      *            handle the user's response.
      * @param host_and_port The host and port of the requesting server.
@@ -229,7 +229,7 @@ public class XwViewClient {
      */
     // TODO: comment this method temporarily, will implemtent later when all
     //       dependencies are resovled.
-    // public void onReceivedClientCertRequest(XwView view,
+    // public void onReceivedClientCertRequest(XWalkView view,
     //         ClientCertRequestHandler handler, String host_and_port) {
     //     handler.cancel();
     // }
@@ -238,13 +238,13 @@ public class XwViewClient {
      * Notify the host application to handle an authentication request. The
      * default behavior is to cancel the request.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param handler The HttpAuthHandler that will handle the user's response.
      * @param host The host requiring authentication.
      * @param realm A description to help store user credentials for future
      *            visits.
      */
-    public void onReceivedHttpAuthRequest(XwView view,
+    public void onReceivedHttpAuthRequest(XWalkView view,
             HttpAuthHandler handler, String host, String realm) {
         handler.cancel();
     }
@@ -252,30 +252,30 @@ public class XwViewClient {
     /**
      * Give the host application a chance to handle the key event synchronously.
      * e.g. menu shortcut key events need to be filtered this way. If return
-     * true, XwView will not handle the key event. If return false, XwView
+     * true, XWalkView will not handle the key event. If return false, XWalkView
      * will always handle the key event, so none of the super in the view chain
      * will see the key event. The default behavior returns false.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param event The key event.
      * @return True if the host application wants to handle the key event
      *         itself, otherwise return false
      */
-    public boolean shouldOverrideKeyEvent(XwView view, KeyEvent event) {
+    public boolean shouldOverrideKeyEvent(XWalkView view, KeyEvent event) {
         return false;
     }
 
     /**
-     * Notify the host application that a key was not handled by the XwView.
-     * Except system keys, XwView always consumes the keys in the normal flow
+     * Notify the host application that a key was not handled by the XWalkView.
+     * Except system keys, XWalkView always consumes the keys in the normal flow
      * or if shouldOverrideKeyEvent returns true. This is called asynchronously
      * from where the key is dispatched. It gives the host application a chance
      * to handle the unhandled key events.
      *
-     * @param view The XwView that is initiating the callback.
+     * @param view The XWalkView that is initiating the callback.
      * @param event The key event.
      */
-    public void onUnhandledKeyEvent(XwView view, KeyEvent event) {
+    public void onUnhandledKeyEvent(XWalkView view, KeyEvent event) {
         // TODO: Commment the below code for compile
         // ViewRootImpl root = view.getViewRootImpl();
         // if (root != null) {
@@ -284,27 +284,27 @@ public class XwViewClient {
     }
 
     /**
-     * Notify the host application that the scale applied to the XwView has
+     * Notify the host application that the scale applied to the XWalkView has
      * changed.
      *
-     * @param view he XwView that is initiating the callback.
+     * @param view he XWalkView that is initiating the callback.
      * @param oldScale The old scale factor
      * @param newScale The new scale factor
      */
-    public void onScaleChanged(XwView view, float oldScale, float newScale) {
+    public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
     }
 
     /**
      * Notify the host application that a request to automatically log in the
      * user has been processed.
-     * @param view The XwView requesting the login.
+     * @param view The XWalkView requesting the login.
      * @param realm The account realm used to look up accounts.
      * @param account An optional account. If not null, the account should be
      *                checked against accounts on the device. If it is a valid
      *                account, it should be used to log in the user.
      * @param args Authenticator specific arguments used to log in the user.
      */
-    public void onReceivedLoginRequest(XwView view, String realm,
+    public void onReceivedLoginRequest(XWalkView view, String realm,
             String account, String args) {
     }
 }

@@ -9,13 +9,13 @@ import android.content.pm.ActivityInfo;
 import android.view.View;
 
 import org.chromium.content.browser.ContentVideoViewContextDelegate;
-import org.xwalk.core.XwWebChromeClient.CustomViewCallback;
+import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
-public class XwContentVideoViewDelegate implements ContentVideoViewContextDelegate {
+public class XWalkContentVideoViewDelegate implements ContentVideoViewContextDelegate {
     private Context mContext;
-    private XwContentsClient mContentsClient;
+    private XWalkContentsClient mContentsClient;
 
-    public XwContentVideoViewDelegate(XwContentsClient client, Context context) {
+    public XWalkContentVideoViewDelegate(XWalkContentsClient client, Context context) {
         mContext = context;
         mContentsClient = client;
     }

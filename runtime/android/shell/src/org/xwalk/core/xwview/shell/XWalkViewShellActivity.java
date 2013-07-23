@@ -24,12 +24,12 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.chromium.content.common.CommandLine;
-import org.xwalk.core.XwView;
-import org.xwalk.core.XwWebChromeClient;
+import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebChromeClient;
 
-public class XwViewShellActivity extends Activity {
+public class XWalkViewShellActivity extends Activity {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
-    private static final String TAG = XwViewShellActivity.class.getName();
+    private static final String TAG = XWalkViewShellActivity.class.getName();
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
     private static final long COMPLETED_PROGRESS_TIMEOUT_MS = 200;
 
@@ -37,8 +37,8 @@ public class XwViewShellActivity extends Activity {
     private EditText mUrlTextView;
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
-    private XwView mView;
-    private XwWebChromeClient.CustomViewCallback mCustomViewCallback;
+    private XWalkView mView;
+    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private FrameLayout mCustomViewContainer;
     private View mCustomView;
 
@@ -59,13 +59,13 @@ public class XwViewShellActivity extends Activity {
 
         setContentView(R.layout.testshell_activity);
 
-        mView = (XwView) findViewById(R.id.content_container);
+        mView = (XWalkView) findViewById(R.id.content_container);
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
         mCustomViewContainer = (FrameLayout) findViewById(R.id.custom_view_container);
 
         initializeUrlField();
         initializeNavigationButtons();
-        initializeXwViewClients();
+        initializeXWalkViewClients();
     }
 
     private void waitForDebuggerIfNeeded() {
@@ -135,9 +135,9 @@ public class XwViewShellActivity extends Activity {
         });
     }
 
-    private void initializeXwViewClients() {
-        mView.setXwWebChromeClient(new XwWebChromeClient() {
-            public void onProgressChanged(XwView view, int newProgress) {
+    private void initializeXWalkViewClients() {
+        mView.setXWalkWebChromeClient(new XWalkWebChromeClient() {
+            public void onProgressChanged(XWalkView view, int newProgress) {
                 // TODO(yongsheng): Implement progress update.
             }
 

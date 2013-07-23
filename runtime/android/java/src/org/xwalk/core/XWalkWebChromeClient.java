@@ -26,37 +26,37 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 
-public class XwWebChromeClient {
+public class XWalkWebChromeClient {
 
     /**
      * Tell the host application the current progress of loading a page.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param newProgress Current page loading progress, represented by
      *                    an integer between 0 and 100.
      */
-    public void onProgressChanged(XwView view, int newProgress) {}
+    public void onProgressChanged(XWalkView view, int newProgress) {}
 
     /**
      * Notify the host application of a change in the document title.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param title A String containing the new title of the document.
      */
-    public void onReceivedTitle(XwView view, String title) {}
+    public void onReceivedTitle(XWalkView view, String title) {}
 
     /**
      * Notify the host application of a new favicon for the current page.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param icon A Bitmap containing the favicon for the current page.
      */
-    public void onReceivedIcon(XwView view, Bitmap icon) {}
+    public void onReceivedIcon(XWalkView view, Bitmap icon) {}
 
     /**
      * Notify the host application of the url for an apple-touch-icon.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param url The icon url.
      * @param precomposed True if the url is for a precomposed touch icon.
      */
-    public void onReceivedTouchIconUrl(XwView view, String url,
+    public void onReceivedTouchIconUrl(XWalkView view, String url,
             boolean precomposed) {}
 
     /**
@@ -101,91 +101,91 @@ public class XwWebChromeClient {
     /**
      * Request the host application to create a new window. If the host
      * application chooses to honor this request, it should return true from
-     * this method, create a new XwView to host the window, insert it into the
+     * this method, create a new XWalkView to host the window, insert it into the
      * View system and send the supplied resultMsg message to its target with
-     * the new XwView as an argument. If the host application chooses not to
+     * the new XWalkView as an argument. If the host application chooses not to
      * honor the request, it should return false from this method. The default
      * implementation of this method does nothing and hence returns false.
-     * @param view The XwView from which the request for a new window
+     * @param view The XWalkView from which the request for a new window
      *             originated.
      * @param isDialog True if the new window should be a dialog, rather than
      *                 a full-size window.
      * @param isUserGesture True if the request was initiated by a user gesture,
      *                      such as the user clicking a link.
-     * @param resultMsg The message to send when once a new XwView has been
+     * @param resultMsg The message to send when once a new XWalkView has been
      *                  created. resultMsg.obj is a
-     *                  {@link XwView.XwViewTransport} object. This should be
-     *                  used to transport the new XwView, by calling
-     *                  {@link XwView.XwViewTransport#setXwView(XwView)
-     *                  XwView.XwViewTransport.setXwView(XwView)}.
+     *                  {@link XWalkView.XWalkViewTransport} object. This should be
+     *                  used to transport the new XWalkView, by calling
+     *                  {@link XWalkView.XWalkViewTransport#setXWalkView(XWalkView)
+     *                  XWalkView.XWalkViewTransport.setXWalkView(XWalkView)}.
      * @return This method should return true if the host application will
      *         create a new window, in which case resultMsg should be sent to
      *         its target. Otherwise, this method should return false. Returning
      *         false from this method but also sending resultMsg will result in
      *         undefined behavior.
      */
-    public boolean onCreateWindow(XwView view, boolean isDialog,
+    public boolean onCreateWindow(XWalkView view, boolean isDialog,
             boolean isUserGesture, Message resultMsg) {
         return false;
     }
 
     /**
-     * Request display and focus for this XwView. This may happen due to
-     * another XwView opening a link in this XwView and requesting that this
-     * XwView be displayed.
-     * @param view The XwView that needs to be focused.
+     * Request display and focus for this XWalkView. This may happen due to
+     * another XWalkView opening a link in this XWalkView and requesting that this
+     * XWalkView be displayed.
+     * @param view The XWalkView that needs to be focused.
      */
-    public void onRequestFocus(XwView view) {}
+    public void onRequestFocus(XWalkView view) {}
 
     /**
-     * Notify the host application to close the given XwView and remove it
+     * Notify the host application to close the given XWalkView and remove it
      * from the view system if necessary. At this point, WebCore has stopped
      * any loading in this window and has removed any cross-scripting ability
      * in javascript.
-     * @param window The XwView that needs to be closed.
+     * @param window The XWalkView that needs to be closed.
      */
-    public void onCloseWindow(XwView window) {}
+    public void onCloseWindow(XWalkView window) {}
 
     /**
      * Tell the client to display a javascript alert dialog.  If the client
-     * returns true, XwView will assume that the client will handle the
+     * returns true, XWalkView will assume that the client will handle the
      * dialog.  If the client returns false, it will continue execution.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param url The url of the page requesting the dialog.
      * @param message Message to be displayed in the window.
      * @param result A JsResult to confirm that the user hit enter.
      * @return boolean Whether the client will handle the alert dialog.
      */
-    public boolean onJsAlert(XwView view, String url, String message,
+    public boolean onJsAlert(XWalkView view, String url, String message,
             JsResult result) {
         return false;
     }
 
     /**
      * Tell the client to display a confirm dialog to the user. If the client
-     * returns true, XwView will assume that the client will handle the
+     * returns true, XWalkView will assume that the client will handle the
      * confirm dialog and call the appropriate JsResult method. If the
      * client returns false, a default value of false will be returned to
      * javascript. The default behavior is to return false.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param url The url of the page requesting the dialog.
      * @param message Message to be displayed in the window.
      * @param result A JsResult used to send the user's response to
      *               javascript.
      * @return boolean Whether the client will handle the confirm dialog.
      */
-    public boolean onJsConfirm(XwView view, String url, String message,
+    public boolean onJsConfirm(XWalkView view, String url, String message,
             JsResult result) {
         return false;
     }
 
     /**
      * Tell the client to display a prompt dialog to the user. If the client
-     * returns true, XwView will assume that the client will handle the
+     * returns true, XWalkView will assume that the client will handle the
      * prompt dialog and call the appropriate JsPromptResult method. If the
      * client returns false, a default value of false will be returned to to
      * javascript. The default behavior is to return false.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param url The url of the page requesting the dialog.
      * @param message Message to be displayed in the window.
      * @param defaultValue The default value displayed in the prompt dialog.
@@ -193,7 +193,7 @@ public class XwWebChromeClient {
      *               javascript.
      * @return boolean Whether the client will handle the prompt dialog.
      */
-    public boolean onJsPrompt(XwView view, String url, String message,
+    public boolean onJsPrompt(XWalkView view, String url, String message,
             String defaultValue, JsPromptResult result) {
         return false;
     }
@@ -201,20 +201,20 @@ public class XwWebChromeClient {
     /**
      * Tell the client to display a dialog to confirm navigation away from the
      * current page. This is the result of the onbeforeunload javascript event.
-     * If the client returns true, XwView will assume that the client will
+     * If the client returns true, XWalkView will assume that the client will
      * handle the confirm dialog and call the appropriate JsResult method. If
      * the client returns false, a default value of true will be returned to
      * javascript to accept navigation away from the current page. The default
      * behavior is to return false. Setting the JsResult to true will navigate
      * away from the current page, false will cancel the navigation.
-     * @param view The XwView that initiated the callback.
+     * @param view The XWalkView that initiated the callback.
      * @param url The url of the page requesting the dialog.
      * @param message Message to be displayed in the window.
      * @param result A JsResult used to send the user's response to
      *               javascript.
      * @return boolean Whether the client will handle the confirm dialog.
      */
-    public boolean onJsBeforeUnload(XwView view, String url, String message,
+    public boolean onJsBeforeUnload(XWalkView view, String url, String message,
             JsResult result) {
         return false;
     }
@@ -236,7 +236,7 @@ public class XwWebChromeClient {
     *                              database, in bytes
     * @param totalQuota The total quota for all origins, in bytes
     * @param quotaUpdater An instance of {@link WebStorage.QuotaUpdater} which
-    *                     must be used to inform the XwView of the new quota.
+    *                     must be used to inform the XWalkView of the new quota.
     */
     // Note that the callback must always be executed at some point to ensure
     // that the sleeping WebCore thread is woken up.
@@ -261,7 +261,7 @@ public class XwWebChromeClient {
     *                        in bytes.
     * @param quota The quota, in bytes
     * @param quotaUpdater An instance of {@link WebStorage.QuotaUpdater} which
-    *                     must be used to inform the XwView of the new quota.
+    *                     must be used to inform the XWalkView of the new quota.
     */
     // Note that the callback must always be executed at some point to ensure
     // that the sleeping WebCore thread is woken up.

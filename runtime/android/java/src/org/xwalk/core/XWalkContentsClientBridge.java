@@ -21,36 +21,36 @@ import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
 
-// Help bridge callback in XwContentsClient to XwViewClient and
+// Help bridge callback in XWalkContentsClient to XWalkViewClient and
 // WebChromeClient; Also handle the JNI conmmunication logic.
 @JNINamespace("xwalk")
-public class XwContentsClientBridge extends XwContentsClient {
+public class XWalkContentsClientBridge extends XWalkContentsClient {
 
-    private XwView mXwView;
-    private XwViewClient mXwViewClient;
-    private XwWebChromeClient mXwWebChromeClient;
+    private XWalkView mXWalkView;
+    private XWalkClient mXWalkClient;
+    private XWalkWebChromeClient mXWalkWebChromeClient;
     private Bitmap mFavicon;
 
     // The native peer of the object
     private int mNativeContentsClientBridge;
 
-    public XwContentsClientBridge(XwView xwView) {
-        mXwView = xwView;
+    public XWalkContentsClientBridge(XWalkView xwView) {
+        mXWalkView = xwView;
     }
 
-    public void setXwWebChromeClient(XwWebChromeClient client) {
-        mXwWebChromeClient = client;
+    public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
+        mXWalkWebChromeClient = client;
     }
 
-    public void setXwViewClient(XwViewClient client) {
-        mXwViewClient = client;
+    public void setXWalkClient(XWalkClient client) {
+        mXWalkClient = client;
     }
 
     // TODO(Xingnan): All the empty functions need to be implemented.
     @Override
     public boolean shouldOverrideUrlLoading(String url) {
-        if (mXwViewClient != null && mXwView != null)
-            return mXwViewClient.shouldOverrideUrlLoading(mXwView, url);
+        if (mXWalkClient != null && mXWalkView != null)
+            return mXWalkClient.shouldOverrideUrlLoading(mXWalkView, url);
         return false;
     }
 
@@ -68,21 +68,21 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     public void onProgressChanged(int progress) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onProgressChanged(mXwView, progress);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onProgressChanged(mXWalkView, progress);
     }
 
     @Override
     public WebResourceResponse shouldInterceptRequest(String url) {
-        if (mXwViewClient != null && mXwView != null)
-            return mXwViewClient.shouldInterceptRequest(mXwView, url);
+        if (mXWalkClient != null && mXWalkView != null)
+            return mXWalkClient.shouldInterceptRequest(mXWalkView, url);
         return null;
     }
 
     @Override
     public void onLoadResource(String url) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onLoadResource(mXwView, url);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onLoadResource(mXWalkView, url);
     }
 
     @Override
@@ -92,13 +92,13 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     public void onReceivedHttpAuthRequest(HttpAuthHandler handler, String host, String realm) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onReceivedHttpAuthRequest(mXwView, handler, host, realm);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
     }
     @Override
     public void onReceivedSslError(SslErrorHandler handler, SslError error) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onReceivedSslError(mXwView, handler, error);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onReceivedSslError(mXWalkView, handler, error);
     }
 
     @Override
@@ -116,27 +116,27 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     public void handleJsAlert(String url, String message, JsResult result) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onJsAlert(mXwView, url, message, result);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onJsAlert(mXWalkView, url, message, result);
     }
 
     @Override
     public void handleJsBeforeUnload(String url, String message, JsResult result) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onJsBeforeUnload(mXwView, url, message, result);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onJsBeforeUnload(mXWalkView, url, message, result);
     }
 
     @Override
     public void handleJsConfirm(String url, String message, JsResult result) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onJsConfirm(mXwView, url, message, result);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onJsConfirm(mXWalkView, url, message, result);
     }
 
     @Override
     public void handleJsPrompt(
             String url, String message, String defaultValue, JsPromptResult result) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onJsPrompt(mXwView, url, message, defaultValue, result);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onJsPrompt(mXWalkView, url, message, defaultValue, result);
     }
 
     @Override
@@ -150,20 +150,20 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     public void onPageStarted(String url) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onPageStarted(mXwView, url, mFavicon);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onPageStarted(mXWalkView, url, mFavicon);
     }
 
     @Override
     public void onPageFinished(String url) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onPageFinished(mXwView, url);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onPageFinished(mXWalkView, url);
     }
 
     @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
-        if (mXwViewClient != null && mXwView != null)
-            mXwViewClient.onReceivedError(mXwView, errorCode, description, failingUrl);
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onReceivedError(mXWalkView, errorCode, description, failingUrl);
     }
 
     @Override
@@ -194,27 +194,27 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     public void onReceivedTouchIconUrl(String url, boolean precomposed) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onReceivedTouchIconUrl(mXwView, url, precomposed);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onReceivedTouchIconUrl(mXWalkView, url, precomposed);
     }
 
     @Override
     public void onReceivedIcon(Bitmap bitmap) {
-        if (mXwWebChromeClient != null && mXwView != null)
-            mXwWebChromeClient.onReceivedIcon(mXwView, bitmap);
+        if (mXWalkWebChromeClient != null && mXWalkView != null)
+            mXWalkWebChromeClient.onReceivedIcon(mXWalkView, bitmap);
         mFavicon = bitmap;
     }
 
     @Override
-    public void onShowCustomView(View view, XwWebChromeClient.CustomViewCallback callback) {
-        if (mXwWebChromeClient != null)
-            mXwWebChromeClient.onShowCustomView(view, callback);
+    public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
+        if (mXWalkWebChromeClient != null)
+            mXWalkWebChromeClient.onShowCustomView(view, callback);
     }
 
     @Override
     public void onHideCustomView() {
-        if (mXwWebChromeClient != null)
-            mXwWebChromeClient.onHideCustomView();
+        if (mXWalkWebChromeClient != null)
+            mXWalkWebChromeClient.onHideCustomView();
     }
 
     @Override
@@ -223,8 +223,8 @@ public class XwContentsClientBridge extends XwContentsClient {
 
     @Override
     protected View getVideoLoadingProgressView() {
-        if (mXwWebChromeClient != null)
-            return mXwWebChromeClient.getVideoLoadingProgressView();
+        if (mXWalkWebChromeClient != null)
+            return mXWalkWebChromeClient.getVideoLoadingProgressView();
         return null;
     }
 
@@ -294,10 +294,10 @@ public class XwContentsClientBridge extends XwContentsClient {
     //--------------------------------------------------------------------------------------------
     //  Native methods
     //--------------------------------------------------------------------------------------------
-    private native void nativeProceedSslError(int nativeXwContentsClientBridge,
+    private native void nativeProceedSslError(int nativeXWalkContentsClientBridge,
             boolean proceed, int id);
 
-    private native void nativeConfirmJsResult(int nativeXwContentsClientBridge, int id,
+    private native void nativeConfirmJsResult(int nativeXWalkContentsClientBridge, int id,
             String prompt);
-    private native void nativeCancelJsResult(int nativeXwContentsClientBridge, int id);
+    private native void nativeCancelJsResult(int nativeXWalkContentsClientBridge, int id);
 }

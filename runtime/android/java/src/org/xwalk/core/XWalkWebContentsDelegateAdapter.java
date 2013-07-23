@@ -6,18 +6,18 @@ package org.xwalk.core;
 
 import android.util.Log;
 
-public class XwWebContentsDelegateAdapter extends XwWebContentsDelegate {
+public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
-    private XwContentsClient mXwContentsClient;
+    private XWalkContentsClient mXWalkContentsClient;
 
-    public XwWebContentsDelegateAdapter(XwContentsClient client) {
-        mXwContentsClient = client;
+    public XWalkWebContentsDelegateAdapter(XWalkContentsClient client) {
+        mXWalkContentsClient = client;
     }
 
     @Override
     public void onLoadProgressChanged(int progress) {
-        if (mXwContentsClient != null)
-            mXwContentsClient.onProgressChanged(progress);
+        if (mXWalkContentsClient != null)
+            mXWalkContentsClient.onProgressChanged(progress);
     }
 
     @Override

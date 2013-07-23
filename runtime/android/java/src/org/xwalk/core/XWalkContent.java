@@ -21,30 +21,30 @@ import org.chromium.ui.WindowAndroid;
 
 @JNINamespace("xwalk")
 /**
- * This class is the implementation class for XwView by calling internal
+ * This class is the implementation class for XWalkView by calling internal
  * various classes.
  */
-class XwViewContent extends FrameLayout {
+class XWalkContent extends FrameLayout {
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private WindowAndroid mWindow;
-    private XwView mXwView;
-    private XwContentsClient mContentsClient;
-    private XwContentsClientBridge mContentsClientBridge;
-    private XwWebContentsDelegateAdapter mXwContentsDelegateAdapter;
+    private XWalkView mXWalkView;
+    private XWalkContentsClient mContentsClient;
+    private XWalkContentsClientBridge mContentsClientBridge;
+    private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
 
-    int mXwViewContent;
+    int mXWalkContent;
     int mWebContents;
     boolean mReadyToLoad = false;
 
-    public XwViewContent(Context context, AttributeSet attrs, XwView xwView) {
+    public XWalkContent(Context context, AttributeSet attrs, XWalkView xwView) {
         super(context, attrs);
 
         // Initialize the WebContensDelegate.
-        mXwView = xwView;
-        mContentsClientBridge = new XwContentsClientBridge(mXwView);
-        mXwContentsDelegateAdapter = new XwWebContentsDelegateAdapter(
+        mXWalkView = xwView;
+        mContentsClientBridge = new XWalkContentsClientBridge(mXWalkView);
+        mXWalkContentsDelegateAdapter = new XWalkWebContentsDelegateAdapter(
             mContentsClientBridge);
 
         // Initialize ContentViewRenderView
@@ -58,8 +58,8 @@ class XwViewContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
-        mXwViewContent = nativeInit();
-        mWebContents = nativeGetWebContents(mXwViewContent);
+        mXWalkContent = nativeInit();
+        mWebContents = nativeGetWebContents(mXWalkContent);
 
         // Initialize mWindow which is needed by content
         if (getContext() instanceof Activity) {
@@ -69,11 +69,12 @@ class XwViewContent extends FrameLayout {
 
         // Initialize the ContentVideoView for fullscreen video playback.
         ContentVideoView.registerContentVideoViewContextDelegate(
-                new XwContentVideoViewDelegate(mContentsClientBridge, getContext()));
+                new XWalkContentVideoViewDelegate(mContentsClientBridge, getContext()));
 
-        // Initialize ContentView
+        // Initialize ContentView.
         // TODO(yongsheng): Use PERSONALITY_VIEW if we don't need pinch to zoom.
-        // PERSONALITY_VIEW always overrides the user agent set by user.
+        // PERSONALITY_VIEW is designed for Android WebView, it always overrides
+        // the user agent set by user.
         mContentView = ContentView.newInstance(
                 getContext(), mWebContents, mWindow, ContentView.PERSONALITY_CHROME);
         addView(mContentView,
@@ -108,6 +109,6 @@ class XwViewContent extends FrameLayout {
     }
 
     private native int nativeInit();
-    private native int nativeGetWebContents(int nativeXwViewContent);
+    private native int nativeGetWebContents(int nativeXWalkContent);
 
 }

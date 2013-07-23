@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_
-#define XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_
+#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_BASE_H_
+#define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_BASE_H_
 
 #include "base/callback_forward.h"
 #include "base/supports_user_data.h"
@@ -21,22 +21,22 @@ class X509Certificate;
 
 namespace xwalk {
 
-// browser/ layer interface for XwContentsClientBridge, as DEPS prevents
+// browser/ layer interface for XWalkContentsClientBridge, as DEPS prevents
 // this layer from depending on native/ where the implementation lives. The
 // implementor of the base class plumbs the request to the Java side and
-// eventually to the XwViewClient. This layering hides the details of
+// eventually to the XWalkClient. This layering hides the details of
 // native/ from browser/ layer.
-class XwContentsClientBridgeBase {
+class XWalkContentsClientBridgeBase {
  public:
   // Adds the handler to the UserData registry.
   static void Associate(content::WebContents* web_contents,
-                        XwContentsClientBridgeBase* handler);
-  static XwContentsClientBridgeBase* FromWebContents(
+                        XWalkContentsClientBridgeBase* handler);
+  static XWalkContentsClientBridgeBase* FromWebContents(
       content::WebContents* web_contents);
-  static XwContentsClientBridgeBase* FromID(int render_process_id,
+  static XWalkContentsClientBridgeBase* FromID(int render_process_id,
                                             int render_view_id);
 
-  virtual ~XwContentsClientBridgeBase();
+  virtual ~XWalkContentsClientBridgeBase();
 
   virtual void AllowCertificateError(int cert_error,
                                      net::X509Certificate* cert,
@@ -60,4 +60,4 @@ class XwContentsClientBridgeBase {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XW_CONTENTS_CLIENT_BRIDGE_BASE_H_
+#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_BASE_H_

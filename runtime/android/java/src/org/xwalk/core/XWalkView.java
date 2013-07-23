@@ -11,30 +11,28 @@ import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
-public class XwView extends FrameLayout {
+public class XWalkView extends FrameLayout {
 
-    XwViewContent mContent;
+    XWalkContent mContent;
 
-    public XwView(Context context) {
+    public XWalkView(Context context) {
         this(context, null);
     }
 
     /**
      * Constructors for inflating via XML.
      */
-    public XwView(Context context, AttributeSet attrs) {
+    public XWalkView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        // intialize library, paks and others
-        XwViewDelegate.init(context);
+        // Intialize library, paks and others.
+        XWalkViewDelegate.init(context);
 
-        // intialize XwViewContent
-        initXwViewContent(context, attrs);
-
+        initXWalkContent(context, attrs);
     }
 
-    private void initXwViewContent(Context context, AttributeSet attrs) {
-        mContent = new XwViewContent(context, attrs, this);
+    private void initXWalkContent(Context context, AttributeSet attrs) {
+        mContent = new XWalkContent(context, attrs, this);
         addView(mContent,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
@@ -91,11 +89,12 @@ public class XwView extends FrameLayout {
     public void setInitialScale(int scaleInPercent) {
     }
 
-    public void setXwWebChromeClient(XwWebChromeClient client) {
+    public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
     }
 
-    public void setXwViewClient(XwViewClient client) {
+    public void setXWalkClient(XWalkClient client) {
     }
 
-    //requestFocusFromTouch, setVerticalScrollBarEnabled are from android.view.View;
+    // TODO(shouqun): requestFocusFromTouch, setVerticalScrollBarEnabled are
+    // from android.view.View;
 }

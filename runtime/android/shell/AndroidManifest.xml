@@ -12,9 +12,9 @@
     <permission android:name="org.xwalk.core.xwview.shell.permission.SANDBOX"
             android:protectionLevel="signature" />
 
-    <application android:name="org.xwalk.core.xwview.shell.XwViewShellApplication"
+    <application android:name="org.xwalk.core.xwview.shell.XWalkViewShellApplication"
         android:label="XWalkCoreShell" android:hardwareAccelerated="true">
-        <activity android:name="org.xwalk.core.xwview.shell.XwViewShellActivity"
+        <activity android:name="org.xwalk.core.xwview.shell.XWalkViewShellActivity"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
             android:label="XWalkCoreShell">

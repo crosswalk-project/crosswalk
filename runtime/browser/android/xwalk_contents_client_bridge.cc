@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/android/xw_contents_client_bridge.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 
 #include <string>
 
@@ -12,7 +12,7 @@
 #include "base/callback.h"
 #include "content/public/browser/browser_thread.h"
 #include "googleurl/src/gurl.h"
-#include "jni/XwContentsClientBridge_jni.h"
+#include "jni/XWalkContentsClientBridge_jni.h"
 #include "net/cert/x509_certificate.h"
 
 using base::android::AttachCurrentThread;
@@ -25,25 +25,26 @@ using content::BrowserThread;
 
 namespace xwalk {
 
-XwContentsClientBridge::XwContentsClientBridge(JNIEnv* env, jobject obj)
+XWalkContentsClientBridge::XWalkContentsClientBridge(JNIEnv* env, jobject obj)
     : java_ref_(env, obj) {
   DCHECK(obj);
-  Java_XwContentsClientBridge_setNativeContentsClientBridge(
+  Java_XWalkContentsClientBridge_setNativeContentsClientBridge(
       env, obj, reinterpret_cast<jint>(this));
 }
 
-XwContentsClientBridge::~XwContentsClientBridge() {
+XWalkContentsClientBridge::~XWalkContentsClientBridge() {
   JNIEnv* env = AttachCurrentThread();
 
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null())
     return;
   // Clear the weak reference from the java peer to the native object since
-  // it is possible that java object lifetime can exceed the XwViewContents.
-  Java_XwContentsClientBridge_setNativeContentsClientBridge(env, obj.obj(), 0);
+  // it is possible that java object lifetime can exceed the XWalkViewContents.
+  Java_XWalkContentsClientBridge_setNativeContentsClientBridge(
+      env, obj.obj(), 0);
 }
 
-void XwContentsClientBridge::AllowCertificateError(
+void XWalkContentsClientBridge::AllowCertificateError(
     int cert_error,
     net::X509Certificate* cert,
     const GURL& request_url,
@@ -69,7 +70,7 @@ void XwContentsClientBridge::AllowCertificateError(
   // as it may do a synchronous callback prior to returning.
   int request_id = pending_cert_error_callbacks_.Add(
       new CertErrorCallback(callback));
-  *cancel_request = !Java_XwContentsClientBridge_allowCertificateError(
+  *cancel_request = !Java_XWalkContentsClientBridge_allowCertificateError(
       env, obj.obj(), cert_error, jcert.obj(), jurl.obj(), request_id);
   // if the request is cancelled, then cancel the stored callback
   if (*cancel_request) {
@@ -77,8 +78,8 @@ void XwContentsClientBridge::AllowCertificateError(
   }
 }
 
-void XwContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,
-                                             jboolean proceed, jint id) {
+void XWalkContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,
+                                                jboolean proceed, jint id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   CertErrorCallback* callback = pending_cert_error_callbacks_.Lookup(id);
   if (!callback || callback->is_null()) {
@@ -89,7 +90,7 @@ void XwContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,
   pending_cert_error_callbacks_.Remove(id);
 }
 
-void XwContentsClientBridge::RunJavaScriptDialog(
+void XWalkContentsClientBridge::RunJavaScriptDialog(
     content::JavaScriptMessageType message_type,
     const GURL& origin_url,
     const string16& message_text,
@@ -111,22 +112,22 @@ void XwContentsClientBridge::RunJavaScriptDialog(
 
   switch (message_type) {
     case content::JAVASCRIPT_MESSAGE_TYPE_ALERT:
-      Java_XwContentsClientBridge_handleJsAlert(
+      Java_XWalkContentsClientBridge_handleJsAlert(
           env, obj.obj(), jurl.obj(), jmessage.obj(), callback_id);
       break;
     case content::JAVASCRIPT_MESSAGE_TYPE_CONFIRM:
-      Java_XwContentsClientBridge_handleJsConfirm(
+      Java_XWalkContentsClientBridge_handleJsConfirm(
           env, obj.obj(), jurl.obj(), jmessage.obj(), callback_id);
       break;
     case content::JAVASCRIPT_MESSAGE_TYPE_PROMPT: {
       ScopedJavaLocalRef<jstring> jdefault_value(
           ConvertUTF16ToJavaString(env, default_prompt_text));
-      Java_XwContentsClientBridge_handleJsPrompt(env,
-                                                 obj.obj(),
-                                                 jurl.obj(),
-                                                 jmessage.obj(),
-                                                 jdefault_value.obj(),
-                                                 callback_id);
+      Java_XWalkContentsClientBridge_handleJsPrompt(env,
+                                                    obj.obj(),
+                                                    jurl.obj(),
+                                                    jmessage.obj(),
+                                                    jdefault_value.obj(),
+                                                    callback_id);
       break;
     }
     default:
@@ -134,7 +135,7 @@ void XwContentsClientBridge::RunJavaScriptDialog(
   }
 }
 
-void XwContentsClientBridge::RunBeforeUnloadDialog(
+void XWalkContentsClientBridge::RunBeforeUnloadDialog(
     const GURL& origin_url,
     const string16& message_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
@@ -152,14 +153,14 @@ void XwContentsClientBridge::RunBeforeUnloadDialog(
   ScopedJavaLocalRef<jstring> jmessage(
       ConvertUTF16ToJavaString(env, message_text));
 
-  Java_XwContentsClientBridge_handleJsBeforeUnload(
+  Java_XWalkContentsClientBridge_handleJsBeforeUnload(
       env, obj.obj(), jurl.obj(), jmessage.obj(), callback_id);
 }
 
-void XwContentsClientBridge::ConfirmJsResult(JNIEnv* env,
-                                             jobject,
-                                             int id,
-                                             jstring prompt) {
+void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,
+                                                jobject,
+                                                int id,
+                                                jstring prompt) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::JavaScriptDialogManager::DialogClosedCallback* callback =
       pending_js_dialog_callbacks_.Lookup(id);
@@ -172,7 +173,7 @@ void XwContentsClientBridge::ConfirmJsResult(JNIEnv* env,
   pending_js_dialog_callbacks_.Remove(id);
 }
 
-void XwContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
+void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::JavaScriptDialogManager::DialogClosedCallback* callback =
       pending_js_dialog_callbacks_.Lookup(id);
@@ -181,7 +182,7 @@ void XwContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   pending_js_dialog_callbacks_.Remove(id);
 }
 
-bool RegisterXwContentsClientBridge(JNIEnv* env) {
+bool RegisterXWalkContentsClientBridge(JNIEnv* env) {
   return RegisterNativesImpl(env) >= 0;
 }
 

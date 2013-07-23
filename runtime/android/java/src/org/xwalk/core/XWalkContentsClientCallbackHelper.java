@@ -14,13 +14,13 @@ import org.chromium.content.browser.ContentViewCore;
 /**
  * This class is responsible for calling certain client callbacks on the UI thread.
  *
- * Most callbacks do no go through here, but get forwarded to XwContentsClient directly. The
+ * Most callbacks do no go through here, but get forwarded to XWalkContentsClient directly. The
  * messages processed here may originate from the IO or UI thread.
  */
-class XwContentsClientCallbackHelper {
+class XWalkContentsClientCallbackHelper {
 
     // TODO(boliu): Consider removing DownloadInfo and LoginRequestInfo by using native
-    // MessageLoop to post directly to XwViewContent.
+    // MessageLoop to post directly to XWalkContent.
 
     private static class DownloadInfo {
         final String mUrl;
@@ -72,7 +72,7 @@ class XwContentsClientCallbackHelper {
     private final static int MSG_ON_RECEIVED_LOGIN_REQUEST = 4;
     private final static int MSG_ON_RECEIVED_ERROR = 5;
 
-    private final XwContentsClient mContentsClient;
+    private final XWalkContentsClient mContentsClient;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -107,12 +107,12 @@ class XwContentsClientCallbackHelper {
                 }
                 default:
                     throw new IllegalStateException(
-                            "XwContentsClientCallbackHelper: unhandled message " + msg.what);
+                            "XWalkContentsClientCallbackHelper: unhandled message " + msg.what);
             }
         }
     };
 
-    public XwContentsClientCallbackHelper(XwContentsClient contentsClient) {
+    public XWalkContentsClientCallbackHelper(XWalkContentsClient contentsClient) {
         mContentsClient = contentsClient;
     }
 

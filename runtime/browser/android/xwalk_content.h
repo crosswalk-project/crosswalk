@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XW_VIEW_CONTENT_H_
-#define XWALK_RUNTIME_BROWSER_ANDROID_XW_VIEW_CONTENT_H_
+#ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_
+#define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_
 
 #include "base/android/jni_helper.h"
 #include "base/android/scoped_java_ref.h"
@@ -16,10 +16,10 @@ class WebContents;
 
 namespace xwalk {
 
-class XwViewContent {
+class XWalkContent {
  public:
-  XwViewContent(JNIEnv* env, jobject obj);
-  ~XwViewContent();
+  XWalkContent(JNIEnv* env, jobject obj);
+  ~XWalkContent();
 
   jint GetWebContents(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
@@ -31,8 +31,8 @@ class XwViewContent {
   scoped_ptr<content::WebContents> web_contents_;
 };
 
-bool RegisterXwViewContent(JNIEnv* env);
+bool RegisterXWalkContent(JNIEnv* env);
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XW_VIEW_CONTENT_H_
+#endif  // XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_

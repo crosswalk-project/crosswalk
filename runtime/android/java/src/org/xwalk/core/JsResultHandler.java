@@ -7,10 +7,10 @@ package org.xwalk.core;
 import org.chromium.base.ThreadUtils;
 
 class JsResultHandler implements JsResult, JsPromptResult {
-    private XwContentsClientBridge mBridge;
+    private XWalkContentsClientBridge mBridge;
     private final int mId;
 
-    JsResultHandler(XwContentsClientBridge bridge, int id) {
+    JsResultHandler(XWalkContentsClientBridge bridge, int id) {
         mBridge = bridge;
         mId = id;
     }

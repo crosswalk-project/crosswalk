@@ -28,7 +28,7 @@ import org.chromium.content.browser.WebContentsObserverAndroid;
 import org.chromium.net.NetError;
 
 /**
- * Base-class that a XwViewContents embedder derives from to receive callbacks.
+ * Base-class that a XWalkViewContents embedder derives from to receive callbacks.
  * This extends ContentViewClient, as in many cases we want to pass-thru ContentViewCore
  * callbacks right to our embedder, and this setup facilities that.
  * For any other callbacks we need to make transformations of (e.g. adapt parameters
@@ -36,24 +36,24 @@ import org.chromium.net.NetError;
  * new abstract methods that the our own client must implement.
  * i.e.: all methods in this class should either be final, or abstract.
  */
-public abstract class XwContentsClient extends ContentViewClient {
+public abstract class XWalkContentsClient extends ContentViewClient {
 
-    private static final String TAG = "XwContentsClient";
-    private final XwContentsClientCallbackHelper mCallbackHelper =
-        new XwContentsClientCallbackHelper(this);
+    private static final String TAG = "XWalkContentsClient";
+    private final XWalkContentsClientCallbackHelper mCallbackHelper =
+        new XWalkContentsClientCallbackHelper(this);
 
-    private XwWebContentsObserver mWebContentsObserver;
+    private XWalkWebContentsObserver mWebContentsObserver;
 
     private double mDIPScale;
 
-    public class XwWebContentsObserver extends WebContentsObserverAndroid {
-        public XwWebContentsObserver(ContentViewCore contentViewCore) {
+    public class XWalkWebContentsObserver extends WebContentsObserverAndroid {
+        public XWalkWebContentsObserver(ContentViewCore contentViewCore) {
             super(contentViewCore);
         }
 
         @Override
         public void didStopLoading(String url) {
-            XwContentsClient.this.onPageFinished(url);
+            XWalkContentsClient.this.onPageFinished(url);
         }
 
         @Override
@@ -64,13 +64,13 @@ public abstract class XwContentsClient extends ContentViewClient {
 
         @Override
         public void didNavigateAnyFrame(String url, String baseUrl, boolean isReload) {
-            XwContentsClient.this.doUpdateVisitedHistory(url, isReload);
+            XWalkContentsClient.this.doUpdateVisitedHistory(url, isReload);
         }
 
         @Override
         public void didFinishLoad(long frameId, String validatedUrl, boolean isMainFrame) {
             if (isMainFrame) {
-                XwContentsClient.this.onPageFinished(validatedUrl);
+                XWalkContentsClient.this.onPageFinished(validatedUrl);
             }
         }
     }
@@ -79,19 +79,19 @@ public abstract class XwContentsClient extends ContentViewClient {
         if (mWebContentsObserver != null) {
             mWebContentsObserver.detachFromWebContents();
         }
-        mWebContentsObserver = new XwWebContentsObserver(contentViewCore);
+        mWebContentsObserver = new XWalkWebContentsObserver(contentViewCore);
     }
 
     void setDIPScale(double dipScale) {
         mDIPScale = dipScale;
     }
 
-    final XwContentsClientCallbackHelper getCallbackHelper() {
+    final XWalkContentsClientCallbackHelper getCallbackHelper() {
         return mCallbackHelper;
     }
 
     //--------------------------------------------------------------------------------------------
-    //             XwView specific methods that map directly to XwViewClient / XwWebChromeClient
+    //             XWalkView specific methods that map directly to XWalkViewClient / XWalkWebChromeClient
     //--------------------------------------------------------------------------------------------
 
     public abstract void getVisitedHistory(ValueCallback<String[]> callback);
@@ -162,14 +162,14 @@ public abstract class XwContentsClient extends ContentViewClient {
     public abstract void onReceivedError(int errorCode, String description, String failingUrl);
 
     // TODO (michaelbai): Remove this method once the same method remove from
-    // XwContentsClientAdapter.
+    // XWalkContentsClientAdapter.
     public void onShowCustomView(View view,
-           int requestedOrientation, XwWebChromeClient.CustomViewCallback callback) {
+           int requestedOrientation, XWalkWebChromeClient.CustomViewCallback callback) {
     }
 
     // TODO (michaelbai): This method should be abstract, having empty body here
     // makes the merge to the Android easy.
-    public void onShowCustomView(View view, XwWebChromeClient.CustomViewCallback callback) {
+    public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
         onShowCustomView(view, ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED, callback);
     }
 
@@ -178,7 +178,7 @@ public abstract class XwContentsClient extends ContentViewClient {
     public abstract Bitmap getDefaultVideoPoster();
 
     //--------------------------------------------------------------------------------------------
-    //                              Other XwView-specific methods
+    //                              Other XWalkView-specific methods
     //--------------------------------------------------------------------------------------------
     //
     public abstract void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,

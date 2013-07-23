@@ -20,9 +20,9 @@ import android.os.Handler;
 
 /**
  * Represents a request for HTTP authentication. Instances of this class are
- * created by the XwView and passed to
- * {@link XwViewClient#onReceivedHttpAuthRequest}. The host application must
- * call either {@link #proceed} or {@link #cancel} to set the XwView's
+ * created by the XWalkView and passed to
+ * {@link XWalkClient#onReceivedHttpAuthRequest}. The host application must
+ * call either {@link #proceed} or {@link #cancel} to set the XWalkView's
  * response to the request.
  */
 public class HttpAuthHandler extends Handler {
@@ -35,27 +35,27 @@ public class HttpAuthHandler extends Handler {
 
     /**
      * Gets whether the credentials stored for the current host (i.e. the host
-     * for which {@link XwViewClient#onReceivedHttpAuthRequest} was called)
+     * for which {@link XWalkClient#onReceivedHttpAuthRequest} was called)
      * are suitable for use. Credentials are not suitable if they have
      * previously been rejected by the server for the current request.
      *
      * @return whether the credentials are suitable for use
-     * @see XwView#getHttpAuthUsernamePassword
+     * @see XWalkView#getHttpAuthUsernamePassword
      */
     public boolean useHttpAuthUsernamePassword() {
         return false;
     }
 
     /**
-     * Instructs the XwView to cancel the authentication request.
+     * Instructs the XWalkView to cancel the authentication request.
      */
     public void cancel() {
     }
 
     /**
-     * Instructs the XwView to proceed with the authentication with the given
+     * Instructs the XWalkView to proceed with the authentication with the given
      * credentials. Credentials for use with this method can be retrieved from
-     * the XwView's store using {@link XwView#getHttpAuthUsernamePassword}.
+     * the XWalkView's store using {@link XWalkView#getHttpAuthUsernamePassword}.
      */
     public void proceed(String username, String password) {
     }

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/android/xw_contents_client_bridge_base.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_view_host.h"
@@ -16,24 +16,24 @@ namespace xwalk {
 
 namespace {
 
-const void* kXwContentsClientBridgeBase = &kXwContentsClientBridgeBase;
+const void* kXWalkContentsClientBridgeBase = &kXWalkContentsClientBridgeBase;
 
 // This class is invented so that the UserData registry that we inject the
-// XwContentsClientBridgeBase object does not own and destroy it.
+// XWalkContentsClientBridgeBase object does not own and destroy it.
 class UserData : public base::SupportsUserData::Data {
  public:
-  static XwContentsClientBridgeBase* GetContents(
+  static XWalkContentsClientBridgeBase* GetContents(
       content::WebContents* web_contents) {
     if (!web_contents)
       return NULL;
     UserData* data = reinterpret_cast<UserData*>(
-        web_contents->GetUserData(kXwContentsClientBridgeBase));
+        web_contents->GetUserData(kXWalkContentsClientBridgeBase));
     return data ? data->contents_ : NULL;
   }
 
-  explicit UserData(XwContentsClientBridgeBase* ptr) : contents_(ptr) {}
+  explicit UserData(XWalkContentsClientBridgeBase* ptr) : contents_(ptr) {}
  private:
-  XwContentsClientBridgeBase* contents_;
+  XWalkContentsClientBridgeBase* contents_;
 
   DISALLOW_COPY_AND_ASSIGN(UserData);
 };
@@ -41,21 +41,21 @@ class UserData : public base::SupportsUserData::Data {
 }  // namespace
 
 // static
-void XwContentsClientBridgeBase::Associate(
+void XWalkContentsClientBridgeBase::Associate(
     WebContents* web_contents,
-    XwContentsClientBridgeBase* handler) {
-  web_contents->SetUserData(kXwContentsClientBridgeBase,
+    XWalkContentsClientBridgeBase* handler) {
+  web_contents->SetUserData(kXWalkContentsClientBridgeBase,
                             new UserData(handler));
 }
 
 // static
-XwContentsClientBridgeBase* XwContentsClientBridgeBase::FromWebContents(
+XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromWebContents(
     WebContents* web_contents) {
   return UserData::GetContents(web_contents);
 }
 
 // static
-XwContentsClientBridgeBase* XwContentsClientBridgeBase::FromID(
+XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromID(
     int render_process_id,
     int render_view_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -67,7 +67,7 @@ XwContentsClientBridgeBase* XwContentsClientBridgeBase::FromID(
   return UserData::GetContents(web_contents);
 }
 
-XwContentsClientBridgeBase::~XwContentsClientBridgeBase() {
+XWalkContentsClientBridgeBase::~XWalkContentsClientBridgeBase() {
 }
 
 }  // namespace xwalk

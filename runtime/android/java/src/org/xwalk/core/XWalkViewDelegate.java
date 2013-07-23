@@ -14,7 +14,7 @@ import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
 import org.chromium.content.common.ProcessInitException;
 
-class XwViewDelegate {
+class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String[] MANDATORY_PAKS = {

@@ -9,7 +9,7 @@ import org.chromium.base.JNINamespace;
 import org.chromium.components.web_contents_delegate_android.WebContentsDelegateAndroid;
 
 @JNINamespace("xwalk")
-public abstract class XwWebContentsDelegate extends WebContentsDelegateAndroid {
+public abstract class XWalkWebContentsDelegate extends WebContentsDelegateAndroid {
     @CalledByNative
     public abstract boolean addNewContents(boolean isDialog, boolean isUserGesture);
 

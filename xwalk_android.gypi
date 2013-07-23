@@ -41,8 +41,8 @@
         'jni_gen_package': 'xwalk',
       },
       'sources': [
-        'runtime/android/java/src/org/xwalk/core/XwContentsClientBridge.java',
-        'runtime/android/java/src/org/xwalk/core/XwViewContent.java',
+        'runtime/android/java/src/org/xwalk/core/XWalkContentsClientBridge.java',
+        'runtime/android/java/src/org/xwalk/core/XWalkContent.java',
       ],
       'includes': ['../build/jni_generator.gypi'],
     },
