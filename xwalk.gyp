@@ -62,6 +62,8 @@
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/android/net_disk_cache_remover.cc',
+        'runtime/browser/android/net_disk_cache_remover.h',
         'runtime/browser/android/renderer_host/xwalk_render_view_host_ext.cc',
         'runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h',
         'runtime/browser/android/xwalk_content.cc',

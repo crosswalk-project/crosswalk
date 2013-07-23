@@ -56,6 +56,7 @@ public class XWalkView extends FrameLayout {
     }
 
     public void clearCache(boolean includeDiskFiles) {
+        mContent.clearCache(includeDiskFiles);
     }
 
     public void clearHistory() {

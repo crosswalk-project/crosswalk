@@ -149,6 +149,12 @@ class XWalkContent extends FrameLayout {
         mWindow.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void clearCache(boolean includeDiskFiles) {
+        if (mXWalkContent == 0) return;
+        nativeClearCache(mXWalkContent, includeDiskFiles);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);
     private native int nativeGetWebContents(int nativeXWalkContent);
+    private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
 }
