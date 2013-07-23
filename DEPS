@@ -1,3 +1,23 @@
+include_rules = [
+  "+content/public",
+
+  "+crypto",
+  "+net",
+  "+sandbox",
+  "+skia",
+  "+ui",
+  "+v8",
+  "+webkit",
+
+  # Allow inclusion of third-party code.
+  "+third_party/skia",
+  "+third_party/WebKit/Source/Platform/chromium",
+  "+third_party/WebKit/Source/WebKit/chromium",
+
+  # Files generated during Crosswalk build.
+  "+grit/xwalk_resources.h",
+]
+
 vars = {
 }
 
