@@ -278,13 +278,13 @@ void Runtime::DidUpdateFaviconURL(int32 page_id,
   if (candidates.empty())
     return;
 
-  // Avoid using any previous downloading.
+  // Avoid using any previous download.
   weak_ptr_factory_.InvalidateWeakPtrs();
 
-  // We only select the first favicon as the icon of app window.
+  // We only select the first favicon as the window app icon.
   FaviconURL favicon = candidates[0];
-  // Pass 0 to |image_size| parameter means only returning the first bitmap.
-  // See content/public/browser/web_contents.h comments.
+  // Passing 0 as the |image_size| parameter results in only receiving the first bitmap,
+  // according to content/public/browser/web_contents.h
   web_contents()->DownloadImage(favicon.icon_url, true, 0 /* image size */,
       base::Bind(&Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }
