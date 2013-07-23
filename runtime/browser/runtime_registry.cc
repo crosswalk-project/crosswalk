@@ -99,7 +99,7 @@ void RuntimeRegistry::CloseAll() {
   for (it = cached_runtimes.begin(); it != cached_runtimes.end(); ++it)
     (*it)->Close();
 
-  // If a Runtime is closed, it will be deleted by itself and also be removed
+  // If a Runtime is closed, it will be deleted by itself and also removed
   // from RuntimeRegistry. The runtime vector should be empty after all
   // Runtime instances are closed.
   DCHECK_EQ(runtime_list_.size(), 0u) << runtime_list_.size();

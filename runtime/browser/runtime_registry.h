@@ -17,7 +17,6 @@ namespace xwalk {
 
 class Runtime;
 
-// The observer for runtime registry changes.
 class RuntimeRegistryObserver {
  public:
   // Called when a new Runtime instance is added.

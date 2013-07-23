@@ -37,7 +37,7 @@ static DownloadManagerImpl* DownloadManagerForXWalk(Runtime* runtime) {
           runtime->web_contents()->GetBrowserContext()));
 }
 
-class XWalkDownloadBroswerTest : public InProcessBrowserTest {
+class XWalkDownloadBrowserTest : public InProcessBrowserTest {
  public:
   virtual void SetUpOnMainThread() OVERRIDE {
     ASSERT_TRUE(downloads_directory_.CreateUniqueTempDir());
@@ -61,7 +61,7 @@ class XWalkDownloadBroswerTest : public InProcessBrowserTest {
   base::ScopedTempDir downloads_directory_;
 };
 
-IN_PROC_BROWSER_TEST_F(XWalkDownloadBroswerTest, FileDownload) {
+IN_PROC_BROWSER_TEST_F(XWalkDownloadBrowserTest, FileDownload) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath().AppendASCII("download"),
       base::FilePath().AppendASCII("test.lib"));

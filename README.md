@@ -1,7 +1,8 @@
 ## Introduction
 Crosswalk is an app runtime based on Chromium.
 
-It's developed by Intel Open Source Technology Center.
+It is an open source project started by the Intel Open Source Technology Center
+(http://www.01.org)
 
 ## Documents
 
