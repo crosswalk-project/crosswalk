@@ -52,9 +52,8 @@ class XWalkExtensionRunner {
     // to be properly destroyed, and enable the restriction again.
     // FIXME(leandro): Find a way to properly destroy an extension context
     // without blocking the browser thread.
-    bool old_restriction = base::ThreadRestrictions::SetIOAllowed(true);
+    base::ThreadRestrictions::ScopedAllowIO allow_io;
     thread_->Stop();
-    base::ThreadRestrictions::SetIOAllowed(old_restriction);
   }
 
   void HandleMessage(const std::string& msg) {
