@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/threading/thread.h"
+#include "base/threading/thread_restrictions.h"
 #include "xwalk/extensions/browser/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 
@@ -43,8 +44,17 @@ class XWalkExtensionRunner {
         FROM_HERE, base::Bind(&XWalkExtensionRunner::DestroyContext,
                               base::Unretained(this)));
 
-    // Note: this will block until threads message loop process the task above.
+    // Waiting on the browser thread is frowned upon since it might cause
+    // jank (there's no way to know how much time the extension thread might
+    // be blocked for).  However, it's not safe to destroy the extension
+    // context from a thread other than the extension thread.  We
+    // temporarily turn off this restriction, wait for the extension thread
+    // to be properly destroyed, and enable the restriction again.
+    // FIXME(leandro): Find a way to properly destroy an extension context
+    // without blocking the browser thread.
+    bool old_restriction = base::ThreadRestrictions::SetIOAllowed(true);
     thread_->Stop();
+    base::ThreadRestrictions::SetIOAllowed(old_restriction);
   }
 
   void HandleMessage(const std::string& msg) {
