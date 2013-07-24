@@ -123,6 +123,12 @@ class XWalkContent extends FrameLayout {
             mPendingUrl = url;
     }
 
+    public String getUrl() {
+        String url = mContentView.getUrl();
+        if (url == null || url.trim().isEmpty()) return null;
+        return url;
+    }
+
     public void addJavascriptInterface(Object object, String name) {
         mContentViewCore.addJavascriptInterface(object, name);
     }
