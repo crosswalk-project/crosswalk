@@ -12,6 +12,7 @@
       ],
       'variables': {
         'schema_files': [
+          'dialog.idl',
           'runtime.idl',
         ],
         'cc_dir': 'xwalk/jsapi',

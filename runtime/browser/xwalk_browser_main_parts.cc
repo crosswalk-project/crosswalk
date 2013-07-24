@@ -259,7 +259,7 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::RegisterInternalExtensions() {
   extension_service_->RegisterExtension(new RuntimeExtension());
   extension_service_->RegisterExtension(
-      new DialogExtension(runtime_registry_.get()));  // experimental
+      new experimental::DialogExtension(runtime_registry_.get()));
 }
 
 }  // namespace xwalk

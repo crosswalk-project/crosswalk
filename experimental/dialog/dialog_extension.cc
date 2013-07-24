@@ -4,10 +4,10 @@
 
 #include "xwalk/experimental/dialog/dialog_extension.h"
 
-#include "base/json/json_reader.h"
-#include "base/json/json_writer.h"
+#include <utility>
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
+#include "xwalk/jsapi/dialog.h"
 
 using content::BrowserThread;
 
@@ -15,9 +15,12 @@ using content::BrowserThread;
 extern const char kSource_dialog_api[];
 
 namespace xwalk {
+namespace experimental {
+
+using namespace jsapi::dialog; // NOLINT
 
 DialogExtension::DialogExtension(RuntimeRegistry* runtime_registry)
-  : XWalkExtension(),
+  : XWalkInternalExtension(),
     runtime_registry_(runtime_registry),
     owning_window_(NULL) {
   set_name("xwalk.experimental.dialog");
@@ -46,144 +49,126 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
 
 DialogContext::DialogContext(DialogExtension* extension,
   const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkExtension::Context(post_message),
+  : XWalkInternalExtension::InternalContext(post_message),
     extension_(extension),
     dialog_(NULL) {
-}
-
-DialogContext::~DialogContext() {
-}
-
-void DialogContext::HandleShowOpenDialog(const base::DictionaryValue* input) {
-  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-
-  std::string reply_id;
-  input->GetString("_reply_id", &reply_id);
-  std::string* reply_id_ptr = new std::string(reply_id);
-
-  bool is_multiple_selection = false;
-  input->GetBoolean("allow_multiple_selection", &is_multiple_selection);
-
-  bool is_choose_directory = false;
-  input->GetBoolean("choose_directory", &is_choose_directory);
-
-  std::string title;
-  input->GetString("title", &title);
-  string16 title16;
-  UTF8ToUTF16(title.c_str(), title.length(), &title16);
-
-  base::FilePath::StringType initial_path;
-  input->GetString("title", &initial_path);
-
-  base::FilePath::StringType file_extension;
-
-  SelectFileDialog::Type dialog_type = SelectFileDialog::SELECT_OPEN_FILE;
-  if (is_choose_directory)
-    dialog_type = SelectFileDialog::SELECT_FOLDER;
-  else if (is_multiple_selection)
-    dialog_type = SelectFileDialog::SELECT_OPEN_MULTI_FILE;
-
-  if (!dialog_)
-    dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
-
-  // FIXME(jeez): implement file_type and file_extension support.
-  dialog_->SelectFile(dialog_type, title16, base::FilePath(initial_path),
-    NULL /* file_type */, 0 /* type_index */, file_extension,
-    extension_->owning_window_, reply_id_ptr);
-}
-
-void DialogContext::HandleShowSaveDialog(const base::DictionaryValue* input) {
-  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-
-  std::string reply_id;
-  input->GetString("_reply_id", &reply_id);
-  std::string* reply_id_ptr = new std::string(reply_id);
-
-  std::string title;
-  input->GetString("title", &title);
-  string16 title16;
-  UTF8ToUTF16(title.c_str(), title.length(), &title16);
-
-  base::FilePath::StringType initial_path;
-  input->GetString("initial_path", &initial_path);
-
-  base::FilePath::StringType proposed_filename;
-  input->GetString("proposed_name", &proposed_filename);
-
-  base::FilePath::StringType file_extension;
-
-  if (!dialog_)
-    dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
-
-  dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
-    base::FilePath(initial_path).Append(proposed_filename),
-    NULL /* file_type */, 0 /* type_index */, file_extension,
-    extension_->owning_window_, reply_id_ptr);
+  RegisterFunction("showOpenDialog", &DialogContext::OnShowOpenDialog);
+  RegisterFunction("showSaveDialog", &DialogContext::OnShowSaveDialog);
 }
 
 void DialogContext::HandleMessage(scoped_ptr<base::Value> msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&DialogContext::HandleMessage, base::Unretained(this),
+      base::Bind(&InternalContext::HandleMessage, base::Unretained(this),
                  base::Passed(&msg)));
     return;
   }
 
-  // FIXME(tmpsantos): This could be using base::Values directly without the
-  // need of JSON serializers and all these type conversions. This should be
-  // migrated to XWalkExtensionInternal.
-  if (!msg->IsType(base::Value::TYPE_STRING))
+  InternalContext::HandleMessage(msg.Pass());
+}
+
+void DialogContext::OnShowOpenDialog(const std::string& function_name,
+                                     const std::string& callback_id,
+                                     base::ListValue* args) {
+  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+
+  scoped_ptr<ShowOpenDialog::Params>
+      params(ShowOpenDialog::Params::Create(*args));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << function_name;
     return;
+  }
 
-  std::string string_msg;
-  msg->GetAsString(&string_msg);
+  SelectFileDialog::Type dialog_type = SelectFileDialog::SELECT_OPEN_FILE;
+  if (params->choose_directories)
+    dialog_type = SelectFileDialog::SELECT_FOLDER;
+  else if (params->allow_multiple_selection)
+    dialog_type = SelectFileDialog::SELECT_OPEN_MULTI_FILE;
 
-  scoped_ptr<base::Value> v(base::JSONReader().ReadToValue(string_msg));
-  const base::DictionaryValue* input = static_cast<base::DictionaryValue*>(
-    v.get());
+  string16 title16;
+  UTF8ToUTF16(params->title.c_str(), params->title.length(), &title16);
 
-  std::string cmd;
-  input->GetString("cmd", &cmd);
+  // FIXME(jeez): implement file_type and file_extension support.
+  base::FilePath::StringType file_extension;
 
-  if (cmd == "ShowOpenDialog")
-    HandleShowOpenDialog(input);
-  else if (cmd == "ShowSaveDialog")
-    HandleShowSaveDialog(input);
+  std::pair<std::string, std::string>* data =
+      new std::pair<std::string, std::string>(function_name, callback_id);
+
+  if (!dialog_)
+    dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
+
+  dialog_->SelectFile(dialog_type, title16,
+                      base::FilePath::FromUTF8Unsafe(params->initial_path),
+                      NULL /* file_type */, 0 /* type_index */, file_extension,
+                      extension_->owning_window_, data);
 }
 
-void DialogContext::FileSelected(const base::FilePath& path,
-  int index, void* params) {
-  std::string* reply_id = static_cast<std::string*>(params);
-  scoped_ptr<base::DictionaryValue> output(new base::DictionaryValue);
-  output->SetString("_reply_id", *reply_id);
-  output->SetString("file", path.value());
+void DialogContext::OnShowSaveDialog(const std::string& function_name,
+                                     const std::string& callback_id,
+                                     base::ListValue* args) {
+  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
-  std::string result;
-  base::JSONWriter::Write(output.get(), &result);
-  PostMessage(scoped_ptr<base::Value>(new base::StringValue(result)));
+  scoped_ptr<ShowSaveDialog::Params>
+      params(ShowSaveDialog::Params::Create(*args));
 
-  delete reply_id;
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    return;
+  }
+
+  string16 title16;
+  UTF8ToUTF16(params->title.c_str(), params->title.length(), &title16);
+
+  // FIXME(jeez): implement file_type and file_extension support.
+  base::FilePath::StringType file_extension;
+
+  if (!dialog_)
+    dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
+
+  std::pair<std::string, std::string>* data =
+      new std::pair<std::string, std::string>(function_name, callback_id);
+
+  base::FilePath filePath =
+      base::FilePath::FromUTF8Unsafe(params->initial_path);
+  base::FilePath proposedFilePath =
+      base::FilePath::FromUTF8Unsafe(params->proposed_new_filename);
+
+  dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
+    filePath.Append(proposedFilePath), NULL /* file_type */, 0 /* type_index */,
+    file_extension, extension_->owning_window_, data);
 }
 
-void DialogContext::MultiFilesSelected(
-  const std::vector<base::FilePath>& files, void* params) {
-  std::string* reply_id = static_cast<std::string*>(params);
-  scoped_ptr<base::DictionaryValue> output(new base::DictionaryValue);
-  output->SetString("_reply_id", *reply_id);
+void DialogContext::FileSelected(const base::FilePath& path, int,
+                                 void* params) {
+  scoped_ptr<std::pair<std::string, std::string> >
+      data(static_cast<std::pair<std::string, std::string>*>(params));
 
-  base::ListValue* filesList = new base::ListValue;
+  std::string strPath = path.AsUTF8Unsafe();
+  if (data->first == "showOpenDialog") {
+    std::vector<std::string> filesList;
+    filesList.push_back(strPath);
+    PostResult(data->second,
+               ShowOpenDialog::Results::Create(filesList));
+  } else {  // showSaveDialog
+    PostResult(data->second,
+               ShowSaveDialog::Results::Create(strPath));
+  }
+}
+
+void DialogContext::MultiFilesSelected(const std::vector<base::FilePath>& files,
+                                       void* params) {
+  scoped_ptr<std::pair<std::string, std::string> >
+      data(static_cast<std::pair<std::string, std::string>*>(params));
+
+  std::vector<std::string> filesList;
   std::vector<base::FilePath>::const_iterator it;
   for (it = files.begin(); it != files.end(); ++it)
-    filesList->AppendString(it->value());
+    filesList.push_back(it->AsUTF8Unsafe());
 
-  output->Set("file", filesList);
-
-  std::string result;
-  base::JSONWriter::Write(output.get(), &result);
-  PostMessage(scoped_ptr<base::Value>(new base::StringValue(result)));
-
-  delete reply_id;
+  PostResult(data->second, ShowOpenDialog::Results::Create(filesList));
 }
 
+}  // namespace experimental
 }  // namespace xwalk
