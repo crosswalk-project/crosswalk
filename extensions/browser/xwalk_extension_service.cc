@@ -8,8 +8,8 @@
 #include "base/memory/singleton.h"
 #include "base/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/extensions/browser/xwalk_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "content/public/browser/render_process_host.h"
 
