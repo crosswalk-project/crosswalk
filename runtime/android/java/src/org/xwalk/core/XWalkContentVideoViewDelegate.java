@@ -5,7 +5,6 @@
 package org.xwalk.core;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.view.View;
 
 import org.chromium.content.browser.ContentVideoViewContextDelegate;
