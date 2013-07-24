@@ -15,7 +15,8 @@
     <LinearLayout android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@drawable/progress">
         <EditText android:id="@+id/url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

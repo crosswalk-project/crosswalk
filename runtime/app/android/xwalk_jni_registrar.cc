@@ -6,15 +6,22 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_registrar.h"
+#include "components/navigation_interception/component_jni_registrar.h"
+#include "components/web_contents_delegate_android/component_jni_registrar.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
 namespace xwalk {
 
 static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   // Register JNI for xwalk classes.
+  { "NavigationInterception", components::RegisterNavigationInterceptionJni },
+  { "WebContentsDelegateAndroid",
+      components::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContent", RegisterXWalkContent },
+  { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
 };
 
 bool RegisterJni(JNIEnv* env) {
