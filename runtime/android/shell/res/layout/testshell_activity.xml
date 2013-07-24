@@ -43,7 +43,7 @@
     <org.xwalk.core.XWalkView android:id="@+id/content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </org.xwalk.core.XWalkView>>
+    </org.xwalk.core.XWalkView>
 
     <FrameLayout android:id="@+id/custom_view_container"
         android:layout_width="fill_parent"
