@@ -4,7 +4,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
-#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 

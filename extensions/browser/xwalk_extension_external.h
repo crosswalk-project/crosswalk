@@ -8,7 +8,7 @@
 #include <string>
 #include "base/scoped_native_library.h"
 
-#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace base {
 class FilePath;

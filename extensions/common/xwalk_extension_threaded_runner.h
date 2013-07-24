@@ -9,8 +9,8 @@
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
-#include "xwalk/extensions/browser/xwalk_extension.h"
 
 namespace base {
 class Thread;

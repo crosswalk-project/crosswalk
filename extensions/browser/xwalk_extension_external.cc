@@ -6,7 +6,7 @@
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
-#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace xwalk {
 namespace extensions {
