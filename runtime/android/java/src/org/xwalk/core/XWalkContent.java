@@ -58,7 +58,7 @@ class XWalkContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
-        mXWalkContent = nativeInit();
+        mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter);
         mWebContents = nativeGetWebContents(mXWalkContent);
 
         // Initialize mWindow which is needed by content
@@ -108,7 +108,10 @@ class XWalkContent extends FrameLayout {
         mContentViewCore.addJavascriptInterface(object, name);
     }
 
-    private native int nativeInit();
-    private native int nativeGetWebContents(int nativeXWalkContent);
+    public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
+        mContentsClientBridge.setXWalkWebChromeClient(client);
+    }
 
+    private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);
+    private native int nativeGetWebContents(int nativeXWalkContent);
 }
