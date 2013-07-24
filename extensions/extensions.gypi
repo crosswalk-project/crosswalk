@@ -1,13 +1,13 @@
 {
   'sources': [
-    'browser/xwalk_extension_external.cc',
-    'browser/xwalk_extension_external.h',
     'browser/xwalk_extension_service.cc',
     'browser/xwalk_extension_service.h',
     'browser/xwalk_extension_web_contents_handler.cc',
     'browser/xwalk_extension_web_contents_handler.h',
     'common/xwalk_extension.cc',
     'common/xwalk_extension.h',
+    'common/xwalk_extension_external.cc',
+    'common/xwalk_extension_external.h',
     'common/xwalk_extension_messages.cc',
     'common/xwalk_extension_messages.h',
     'common/xwalk_extension_runner.cc',
