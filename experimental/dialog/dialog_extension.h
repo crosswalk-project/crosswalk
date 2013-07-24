@@ -10,7 +10,7 @@
 #include "base/files/file_path.h"
 #include "base/values.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
-#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 

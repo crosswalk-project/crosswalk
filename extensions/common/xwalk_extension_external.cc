@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/extensions/browser/xwalk_extension_external.h"
+#include "xwalk/extensions/common/xwalk_extension_external.h"
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
-#include "xwalk/extensions/browser/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace xwalk {
 namespace extensions {

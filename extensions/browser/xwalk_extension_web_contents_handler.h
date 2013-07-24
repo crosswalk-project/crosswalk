@@ -9,28 +9,33 @@
 #include <string>
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
+#include "xwalk/extensions/common/xwalk_extension_runner.h"
 
 namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
-class XWalkExtensionRunner;
 
 // This manages the threads and contexts for a WebContents. It dispatches
 // messages from the render process to the right thread and from them to the
 // render process.
 class XWalkExtensionWebContentsHandler
     : public content::WebContentsObserver,
-      public content::WebContentsUserData<XWalkExtensionWebContentsHandler> {
+      public content::WebContentsUserData<XWalkExtensionWebContentsHandler>,
+      public XWalkExtensionRunner::Client {
  public:
   virtual ~XWalkExtensionWebContentsHandler();
 
   void AttachExtension(XWalkExtension* extension);
 
+ private:
+  // XWalkExtensionRunner::Client implementation.
+  void HandleMessageFromContext(const XWalkExtensionRunner* runner,
+                                const std::string& msg) OVERRIDE;
+
   // content::WebContentsObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
- private:
   void OnPostMessage(const std::string& extension_name, const std::string& msg);
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
