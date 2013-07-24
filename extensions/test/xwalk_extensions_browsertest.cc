@@ -4,8 +4,8 @@
 
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
-#include "xwalk/extensions/browser/xwalk_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
