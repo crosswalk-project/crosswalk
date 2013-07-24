@@ -4,109 +4,15 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
-#include "base/bind.h"
-#include "base/threading/thread.h"
-#include "base/threading/thread_restrictions.h"
 #include "xwalk/extensions/browser/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(
     xwalk::extensions::XWalkExtensionWebContentsHandler);
 
-namespace tracked_objects {
-class Location;
-}
-
 namespace xwalk {
 namespace extensions {
-
-// This class wraps an XWalkExtension::Context so it runs in its own Extension
-// thread. It also provides |post_message| callback for the Context.
-class XWalkExtensionRunner {
- public:
-  XWalkExtensionRunner(XWalkExtension* extension,
-                       IPC::Sender* sender,
-                       int32_t render_view_id)
-      : extension_(extension),
-        sender_(sender),
-        render_view_id_(render_view_id) {
-    std::string thread_name = "XWalk_ExtensionThread_" + extension_->name();
-    thread_.reset(new base::Thread(thread_name.c_str()));
-    thread_->Start();
-    PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&XWalkExtensionRunner::CreateContext,
-                              base::Unretained(this)));
-  }
-
-  ~XWalkExtensionRunner() {
-    // All Context related code should run in the thread.
-    PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&XWalkExtensionRunner::DestroyContext,
-                              base::Unretained(this)));
-
-    // Waiting on the browser thread is frowned upon since it might cause
-    // jank (there's no way to know how much time the extension thread might
-    // be blocked for).  However, it's not safe to destroy the extension
-    // context from a thread other than the extension thread.  We
-    // temporarily turn off this restriction, wait for the extension thread
-    // to be properly destroyed, and enable the restriction again.
-    // FIXME(leandro): Find a way to properly destroy an extension context
-    // without blocking the browser thread.
-    base::ThreadRestrictions::ScopedAllowIO allow_io;
-    thread_->Stop();
-  }
-
-  void HandleMessage(const std::string& msg) {
-    PostTaskToExtensionThread(
-        FROM_HERE, base::Bind(&XWalkExtension::Context::HandleMessage,
-                              base::Unretained(context_.get()),
-                              msg));
-  }
-
-  void PostMessage(const std::string& msg) {
-    sender_->Send(
-        new XWalkViewMsg_PostMessage(render_view_id_, extension_->name(), msg));
-  }
-
- private:
-  bool PostTaskToExtensionThread(const tracked_objects::Location& from_here,
-                                 const base::Closure& task) {
-    // FIXME(cmarcelo): Can we cache this message_loop_proxy?
-    return thread_->message_loop_proxy()->PostTask(from_here, task);
-  }
-
-  void CreateContext() {
-    CHECK(CalledOnExtensionThread());
-
-    XWalkExtension::Context* context = extension_->CreateContext(base::Bind(
-          &XWalkExtensionRunner::PostMessage, base::Unretained(this)));
-    if (!context) {
-      VLOG(0) << "Could not create context for extension \"" <<
-            extension_->name() << "\". Destroying extension thread.";
-      delete this;
-      return;
-    }
-
-    context_.reset(context);
-  }
-
-  void DestroyContext() {
-    CHECK(CalledOnExtensionThread());
-    context_.reset();
-  }
-
-  bool CalledOnExtensionThread() {
-    return MessageLoop::current() == thread_->message_loop();
-  }
-
-  scoped_ptr<XWalkExtension::Context> context_;
-  scoped_ptr<base::Thread> thread_;
-  XWalkExtension* extension_;
-  IPC::Sender* sender_;
-  int32_t render_view_id_;
-
-  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRunner);
-};
 
 XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
     content::WebContents* contents)
@@ -122,9 +28,13 @@ XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {
 void XWalkExtensionWebContentsHandler::AttachExtension(
     XWalkExtension* extension) {
   runners_[extension->name()] =
-      new XWalkExtensionRunner(extension,
-                               this,
-                               web_contents()->GetRoutingID());
+      new XWalkExtensionThreadedRunner(extension, this);
+}
+
+void XWalkExtensionWebContentsHandler::HandleMessageFromContext(
+    const XWalkExtensionRunner* runner, const std::string& msg) {
+  Send(new XWalkViewMsg_PostMessage(web_contents()->GetRoutingID(),
+                                    runner->extension_name(), msg));
 }
 
 bool XWalkExtensionWebContentsHandler::OnMessageReceived(
@@ -141,7 +51,7 @@ void XWalkExtensionWebContentsHandler::OnPostMessage(
     const std::string& extension_name, const std::string& msg) {
   RunnerMap::iterator it = runners_.find(extension_name);
   if (it != runners_.end())
-    it->second->HandleMessage(msg);
+    it->second->PostMessageToContext(msg);
   else
     LOG(WARNING) << "Couldn't handle message for unregistered extension '"
                  << extension_name << "'";
