@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
+#include <vector>
+
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
@@ -27,6 +29,9 @@ class RuntimeContext;
 class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
   static XWalkContentBrowserClient* Get();
+#if defined(OS_ANDROID)
+  static RuntimeContext* GetRuntimeContext();
+#endif
 
   XWalkContentBrowserClient();
   virtual ~XWalkContentBrowserClient();
@@ -48,6 +53,13 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void RenderProcessHostCreated(
       content::RenderProcessHost* host) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
+
+#if defined(OS_ANDROID)
+  virtual void GetAdditionalMappedFilesForChildProcess(
+      const CommandLine& command_line,
+      int child_process_id,
+      std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
+#endif
 
  private:
   net::URLRequestContextGetter* url_request_context_getter_;

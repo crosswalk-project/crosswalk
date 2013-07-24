@@ -18,6 +18,7 @@ class XWalkContentClient : public content::ContentClient {
   XWalkContentClient();
   virtual ~XWalkContentClient();
 
+  virtual std::string GetProduct() const OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
   virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
   virtual base::StringPiece GetDataResource(

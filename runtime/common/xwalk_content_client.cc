@@ -20,6 +20,10 @@ XWalkContentClient::XWalkContentClient() {
 XWalkContentClient::~XWalkContentClient() {
 }
 
+std::string XWalkContentClient::GetProduct() const {
+  return std::string("Version/4.0");
+}
+
 std::string XWalkContentClient::GetUserAgent() const {
   // TODO(hmin): Define user agent for xwalk.
   std::string product = "Chrome/" XWALK_VERSION;
