@@ -58,8 +58,16 @@
         'experimental/dialog/dialog.gypi',
       ],
       'sources': [
+        'runtime/app/android/xwalk_main_delegate_android.cc',
+        'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/android/xwalk_content.cc',
+        'runtime/browser/android/xwalk_content.h',
+        'runtime/browser/android/xwalk_contents_client_bridge.cc',
+        'runtime/browser/android/xwalk_contents_client_bridge.h',
+        'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
+        'runtime/browser/android/xwalk_contents_client_bridge_base.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
@@ -120,6 +128,8 @@
         'runtime/common/paths_mac.mm',
         'runtime/common/xwalk_content_client.cc',
         'runtime/common/xwalk_content_client.h',
+        'runtime/common/xwalk_globals_android.cc',
+        'runtime/common/xwalk_globals_android.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
         'runtime/common/xwalk_switches.cc',
@@ -133,6 +143,16 @@
         },
       },
       'conditions': [
+        ['OS!="android"',{
+          'sources!': [
+            'runtime/browser/android/xwalk_content.cc',
+            'runtime/browser/android/xwalk_content.h',
+            'runtime/browser/android/xwalk_contents_client_bridge.cc',
+            'runtime/browser/android/xwalk_contents_client_bridge.h',
+            'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
+            'runtime/browser/android/xwalk_contents_client_bridge_base.h',
+          ],
+        }],
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
             '../base/allocator/allocator.gyp:allocator',
@@ -560,5 +580,12 @@
         },  # target xwalk_helper_app
       ],
     }],  # OS=="mac"
+    ['OS=="android"', {
+      'includes': [
+        '../build/all_android.gyp',
+        'xwalk_android.gypi',
+        'xwalk_android_tests.gypi',
+      ],
+    }], # OS=="android"
   ]
 }

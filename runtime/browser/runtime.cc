@@ -111,10 +111,14 @@ Runtime::~Runtime() {
 }
 
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
+#if defined(OS_ANDROID)
+  NOTIMPLEMENTED();
+#else
   window_ = NativeAppWindow::Create(params);
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
   window_->Show();
+#endif
 }
 
 void Runtime::LoadURL(const GURL& url) {

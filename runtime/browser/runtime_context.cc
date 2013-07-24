@@ -14,6 +14,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/common/content_switches.h"
 
 using content::BrowserThread;
@@ -46,8 +47,12 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
+#if !defined(OS_ANDROID)
 RuntimeContext::RuntimeContext()
-    : resource_context_(new RuntimeResourceContext) {
+  : resource_context_(new RuntimeResourceContext) {
+#else
+RuntimeContext::RuntimeContext() {
+#endif
   InitWhileIOAllowed();
 }
 
@@ -57,6 +62,15 @@ RuntimeContext::~RuntimeContext() {
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
 }
+
+#if defined(OS_ANDROID)
+// static
+RuntimeContext* RuntimeContext::FromWebContents(
+    content::WebContents* web_contents) {
+  // This is safe; this is the only implementation of the browser context.
+  return static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+}
+#endif
 
 void RuntimeContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -69,9 +83,21 @@ void RuntimeContext::InitWhileIOAllowed() {
 
 base::FilePath RuntimeContext::GetPath() {
   base::FilePath result;
+#if defined(OS_ANDROID)
+  CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &result));
+#else
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &result));
+#endif
   return result;
 }
+
+#if defined(OS_ANDROID)
+void RuntimeContext::InitializeBeforeThreadCreation() {
+}
+
+void RuntimeContext::PreMainMessageLoopRun() {
+}
+#endif
 
 bool RuntimeContext::IsOffTheRecord() const {
   // We don't consider off the record scenario.
@@ -79,6 +105,9 @@ bool RuntimeContext::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
+#if defined(OS_ANDROID)
+  return NULL;
+#else
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
 
   if (!download_manager_delegate_) {
@@ -87,6 +116,7 @@ content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
   }
 
   return download_manager_delegate_.get();
+#endif
 }
 
 net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
@@ -117,6 +147,10 @@ net::URLRequestContextGetter*
 }
 
 content::ResourceContext* RuntimeContext::GetResourceContext()  {
+#if defined(OS_ANDROID)
+  if (!resource_context_.get())
+    resource_context_.reset(new RuntimeResourceContext);
+#endif
   return resource_context_.get();
 }
 
