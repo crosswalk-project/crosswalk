@@ -449,10 +449,19 @@
     {
       'target_name': 'xwalk_builder',
       'type': 'none',
-      'dependencies': [
-        'xwalk',
-        'xwalk_browsertest',
-        'xwalk_unittest',
+      'conditions': [
+        ['OS!="android"', {
+          'dependencies': [
+            'xwalk',
+            'xwalk_browsertest',
+            'xwalk_unittest',
+          ],
+        },
+        {
+          'dependencies': [
+            'xwalk_core_shell_apk',
+          ],
+        }],
       ],
     },
   ],
