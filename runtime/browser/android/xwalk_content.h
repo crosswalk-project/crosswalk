@@ -16,9 +16,11 @@ class WebContents;
 
 namespace xwalk {
 
+class XWalkWebContentsDelegate;
+
 class XWalkContent {
  public:
-  XWalkContent(JNIEnv* env, jobject obj);
+  XWalkContent(JNIEnv* env, jobject obj, jobject web_contents_delegate);
   ~XWalkContent();
 
   jint GetWebContents(JNIEnv* env, jobject obj);
@@ -29,6 +31,7 @@ class XWalkContent {
 
   JavaObjectWeakGlobalRef java_ref_;
   scoped_ptr<content::WebContents> web_contents_;
+  scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);

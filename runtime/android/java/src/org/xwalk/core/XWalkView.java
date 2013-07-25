@@ -91,6 +91,7 @@ public class XWalkView extends FrameLayout {
     }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
+        mContent.setXWalkWebChromeClient(client);
     }
 
     public void setXWalkClient(XWalkClient client) {

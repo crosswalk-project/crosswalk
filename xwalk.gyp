@@ -68,6 +68,8 @@
         'runtime/browser/android/xwalk_contents_client_bridge.h',
         'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
         'runtime/browser/android/xwalk_contents_client_bridge_base.h',
+        'runtime/browser/android/xwalk_web_contents_delegate.cc',
+        'runtime/browser/android/xwalk_web_contents_delegate.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
@@ -151,6 +153,8 @@
             'runtime/browser/android/xwalk_contents_client_bridge.h',
             'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
             'runtime/browser/android/xwalk_contents_client_bridge_base.h',
+            'runtime/browser/android/xwalk_web_contents_delegate.cc',
+            'runtime/browser/android/xwalk_web_contents_delegate.h',
           ],
         }],
         ['OS=="win" and win_use_allocator_shim==1', {
