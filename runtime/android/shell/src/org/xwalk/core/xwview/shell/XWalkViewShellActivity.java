@@ -76,6 +76,18 @@ public class XWalkViewShellActivity extends Activity {
         initializeXWalkViewClients();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mView.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mView.onResume();
+    }
+
     private void waitForDebuggerIfNeeded() {
         if (CommandLine.getInstance().hasSwitch(CommandLine.WAIT_FOR_JAVA_DEBUGGER)) {
             Log.e(TAG, "Waiting for Java debugger to connect...");
