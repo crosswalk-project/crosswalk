@@ -28,7 +28,7 @@ class XWalkRenderViewExt : public content::RenderViewObserver,
   static void RenderViewCreated(content::RenderView* render_view);
 
  private:
-  XWalkRenderViewExt(content::RenderView* render_view);
+  explicit XWalkRenderViewExt(content::RenderView* render_view);
   virtual ~XWalkRenderViewExt();
 
   // RenderView::Observer:

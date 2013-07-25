@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_ANDROID_RENDER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
-#define XWALK_RUNTIME_BROWSER_ANDROID_RENDER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
+#ifndef XWALK_RUNTIME_BROWSER_ANDROID_RENDERER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
+#define XWALK_RUNTIME_BROWSER_ANDROID_RENDERER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
 
-#include "content/public/browser/web_contents_observer.h"
+#include <map>
 
-#include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
 #include "base/callback_forward.h"
 #include "base/threading/non_thread_safe.h"
+#include "content/public/browser/web_contents_observer.h"
+#include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
 
 class GURL;
 
@@ -27,11 +28,11 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
  public:
   // To send receive messages to a RenderView we take the WebContents instance,
   // as it internally handles RenderViewHost instances changing underneath us.
-  XWalkRenderViewHostExt(content::WebContents* contents);
+  explicit XWalkRenderViewHostExt(content::WebContents* contents);
   virtual ~XWalkRenderViewHostExt();
 
   // |result| will be invoked with the outcome of the request.
-  typedef base::Callback<void(bool)> DocumentHasImagesResult;
+  typedef base::Callback<void(bool)> DocumentHasImagesResult; // NOLINT *
   void DocumentHasImages(DocumentHasImagesResult result);
 
   // Clear all WebCore memory cache (not only for this view).
@@ -88,4 +89,4 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_ANDROID_RENDER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
+#endif  // XWALK_RUNTIME_BROWSER_ANDROID_RENDERER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_

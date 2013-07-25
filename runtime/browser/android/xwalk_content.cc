@@ -32,7 +32,8 @@ jint XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
   if (!web_contents_) {
     web_contents_.reset(CreateWebContents());
 
-    render_view_host_ext_.reset(new XWalkRenderViewHostExt(web_contents_.get()));
+    render_view_host_ext_.reset(
+        new XWalkRenderViewHostExt(web_contents_.get()));
   }
   return reinterpret_cast<jint>(web_contents_.get());
 }

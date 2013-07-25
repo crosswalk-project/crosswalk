@@ -119,7 +119,7 @@ void PopulateHitTestData(const GURL& absolute_link_url,
     data->extra_data_for_type = data->img_src.possibly_invalid_spec();
   } else if (is_editable) {
     data->type = XWalkHitTestData::EDIT_TEXT_TYPE;
-    DCHECK(data->extra_data_for_type.length() == 0);
+    DCHECK_EQ(data->extra_data_for_type.length(), 0u);
   }
 }
 
@@ -141,7 +141,8 @@ void XWalkRenderViewExt::RenderViewCreated(content::RenderView* render_view) {
 bool XWalkRenderViewExt::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderViewExt, message)
-    IPC_MESSAGE_HANDLER(XWalkViewMsg_DocumentHasImages, OnDocumentHasImagesRequest)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_DocumentHasImages,
+                        OnDocumentHasImagesRequest)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_DoHitTest, OnDoHitTest)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_SetTextZoomLevel, OnSetTextZoomLevel)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_ResetScrollAndScaleState,

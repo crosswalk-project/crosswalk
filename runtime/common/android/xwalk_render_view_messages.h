@@ -15,7 +15,7 @@
 
 namespace IPC {
 
-// TODO - add enums and custom IPC traits here when needed.
+// TODO(upstream): - add enums and custom IPC traits here when needed.
 
 }  // namespace IPC
 

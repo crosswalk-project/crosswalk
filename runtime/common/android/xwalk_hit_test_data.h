@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_COMMON_ANDROID_XWALKHIT_TEST_DATA_H_
-#define XWALK_RUNTIME_COMMON_ANDROID_XWALKHIT_TEST_DATA_H_
+#ifndef XWALK_RUNTIME_COMMON_ANDROID_XWALK_HIT_TEST_DATA_H_
+#define XWALK_RUNTIME_COMMON_ANDROID_XWALK_HIT_TEST_DATA_H_
+
+#include <string>
 
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
@@ -13,7 +15,6 @@ namespace xwalk {
 // Holdes all hit test data needed by public Runtime Core APIs.
 // The Java counter part to this is XWalkViewContent.HitTestData.
 struct XWalkHitTestData {
-
   // Matches exactly with constants in WebView.HitTestResult, with deprecated
   // values removed.
   enum Type {
@@ -75,4 +76,4 @@ struct XWalkHitTestData {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_COMMON_ANDROID_XWALKHIT_TEST_DATA_H_
+#endif  // XWALK_RUNTIME_COMMON_ANDROID_XWALK_HIT_TEST_DATA_H_

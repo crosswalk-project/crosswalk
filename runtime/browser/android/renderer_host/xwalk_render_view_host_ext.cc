@@ -64,12 +64,14 @@ const XWalkHitTestData& XWalkRenderViewHostExt::GetLastHitTestData() const {
 
 void XWalkRenderViewHostExt::SetTextZoomLevel(double level) {
   DCHECK(CalledOnValidThread());
-  Send(new XWalkViewMsg_SetTextZoomLevel(web_contents()->GetRoutingID(), level));
+  Send(new XWalkViewMsg_SetTextZoomLevel(
+      web_contents()->GetRoutingID(), level));
 }
 
 void XWalkRenderViewHostExt::ResetScrollAndScaleState() {
   DCHECK(CalledOnValidThread());
-  Send(new XWalkViewMsg_ResetScrollAndScaleState(web_contents()->GetRoutingID()));
+  Send(new XWalkViewMsg_ResetScrollAndScaleState(
+      web_contents()->GetRoutingID()));
 }
 
 void XWalkRenderViewHostExt::SetInitialPageScale(double page_scale_factor) {
@@ -96,7 +98,7 @@ void XWalkRenderViewHostExt::DidNavigateAnyFrame(
   // TODO(Xingnan): Add the AddVisitedURLs method
   // in RuntimeContext.
 
-  //RuntimeContext::FromWebContents(web_contents())
+  // RuntimeContext::FromWebContents(web_contents())
   //    ->AddVisitedURLs(params.redirects);
 }
 
