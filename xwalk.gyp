@@ -98,6 +98,7 @@
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',
+        'runtime/browser/runtime_platform_util_android.cc',
         'runtime/browser/runtime_platform_util_aura.cc',
         'runtime/browser/runtime_platform_util_gtk.cc',
         'runtime/browser/runtime_platform_util_linux.cc',

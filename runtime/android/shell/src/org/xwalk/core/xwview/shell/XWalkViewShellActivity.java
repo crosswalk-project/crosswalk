@@ -88,6 +88,11 @@ public class XWalkViewShellActivity extends Activity {
         mView.onResume();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mView.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void waitForDebuggerIfNeeded() {
         if (CommandLine.getInstance().hasSwitch(CommandLine.WAIT_FOR_JAVA_DEBUGGER)) {
             Log.e(TAG, "Waiting for Java debugger to connect...");

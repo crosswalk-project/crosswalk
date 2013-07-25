@@ -6,6 +6,7 @@ package org.xwalk.core;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.graphics.Rect;
 import android.view.ViewGroup;
@@ -118,6 +119,10 @@ class XWalkContent extends FrameLayout {
 
     public void onResume() {
         mContentViewCore.onActivityResume();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mWindow.onActivityResult(requestCode, resultCode, data);
     }
 
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);

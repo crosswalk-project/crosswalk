@@ -27,6 +27,9 @@ class XWalkWebContentsDelegate
   virtual void ActivateContents(content::WebContents* contents) OVERRIDE;
   virtual void UpdatePreferredSize(content::WebContents* web_contents,
                                    const gfx::Size& pref_size) OVERRIDE;
+  virtual void RunFileChooser(
+      content::WebContents* web_contents,
+      const content::FileChooserParams& params) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);
