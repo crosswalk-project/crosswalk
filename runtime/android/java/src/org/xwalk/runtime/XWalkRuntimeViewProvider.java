@@ -58,8 +58,9 @@ class XWalkRuntimeViewProvider {
     }
 
     // TODO(yongsheng): Enable this once the remote debugging feature is supported.
-    public void enableRemoteDebugging(String frontEndUrl, String socketName) {
-        // mXwalkView.enableRemoteDebugging(socketName);
+    public String enableRemoteDebugging(String frontEndUrl, String socketName) {
+        // return mXwalkView.enableRemoteDebugging(socketName);
+        return "";
     }
 
     public void disableRemoteDebugging() {

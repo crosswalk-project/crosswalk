@@ -120,12 +120,14 @@ public class XWalkRuntimeView extends FrameLayout {
      * @param frontEndUrl the url of debugging url. If it's empty, then a
      *                    default url will be used.
      * @param socketName the unique socket name for setting up socket for
-     *                   remote debugging.
+     *                   remote debugging. If it's empty, then a default
+     *                   name will be used.
+     * @return the url of web socket for remote debugging
      */
-    public void enableRemoteDebugging(String frontEndUrl, String socketName) {
+    public String enableRemoteDebugging(String frontEndUrl, String socketName) {
         // TODO(yongsheng): Figure out which parameters are needed once we
         // have a conclusion.
-        mProvider.enableRemoteDebugging(frontEndUrl,socketName);
+        return mProvider.enableRemoteDebugging(frontEndUrl,socketName);
     }
 
     /**

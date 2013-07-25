@@ -30,7 +30,6 @@ public class XWalkRuntimeShellActivity extends Activity {
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
 
     private EditText mUrlTextView;
-    private FrameLayout mContentContainer;
     private XWalkRuntimeView mRuntimeView;
 
     @Override
@@ -48,13 +47,7 @@ public class XWalkRuntimeShellActivity extends Activity {
         waitForDebuggerIfNeeded();
 
         setContentView(R.layout.testshell_activity);
-
-        mRuntimeView = new XWalkRuntimeView(this, null);
-        mContentContainer = (FrameLayout) findViewById(R.id.content_container);
-        mContentContainer.addView(mRuntimeView,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
+        mRuntimeView = (XWalkRuntimeView) findViewById(R.id.content_container);
 
         initializeUrlField();
     }
