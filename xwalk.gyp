@@ -68,6 +68,8 @@
         'runtime/browser/android/xwalk_contents_client_bridge.h',
         'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
         'runtime/browser/android/xwalk_contents_client_bridge_base.h',
+        'runtime/browser/android/xwalk_dev_tools_server.cc',
+        'runtime/browser/android/xwalk_dev_tools_server.h',
         'runtime/browser/android/xwalk_web_contents_delegate.cc',
         'runtime/browser/android/xwalk_web_contents_delegate.h',
         'runtime/browser/xwalk_application_mac.h',

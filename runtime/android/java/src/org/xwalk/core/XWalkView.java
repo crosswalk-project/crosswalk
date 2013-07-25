@@ -11,9 +11,12 @@ import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
+import org.xwalk.core.XWalkDevToolsServer;
+
 public class XWalkView extends FrameLayout {
 
     XWalkContent mContent;
+    XWalkDevToolsServer mDevToolsServer;
 
     public XWalkView(Context context) {
         this(context, null);
@@ -95,6 +98,26 @@ public class XWalkView extends FrameLayout {
     }
 
     public void setXWalkClient(XWalkClient client) {
+    }
+
+    public void enableRemoteDebugging() {
+        if (mDevToolsServer != null) {
+            disableRemoteDebugging();
+        }
+        // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
+        // to identify a debugging page
+        final String socketName = getContext().getPackageName();
+        mDevToolsServer = new XWalkDevToolsServer(socketName + "_devtools_remote");
+        mDevToolsServer.setRemoteDebuggingEnabled(true);
+    }
+
+    public void disableRemoteDebugging() {
+        if (mDevToolsServer ==  null) {
+            return;
+        }
+        mDevToolsServer.setRemoteDebuggingEnabled(false);
+        mDevToolsServer.destroy();
+        mDevToolsServer = null;
     }
 
     public void onPause() {
