@@ -112,6 +112,14 @@ class XWalkContent extends FrameLayout {
         mContentsClientBridge.setXWalkWebChromeClient(client);
     }
 
+    public void onPause() {
+        mContentViewCore.onActivityPause();
+    }
+
+    public void onResume() {
+        mContentViewCore.onActivityResume();
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);
     private native int nativeGetWebContents(int nativeXWalkContent);
 }
