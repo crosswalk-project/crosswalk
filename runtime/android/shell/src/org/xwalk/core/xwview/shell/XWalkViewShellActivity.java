@@ -37,11 +37,18 @@ public class XWalkViewShellActivity extends Activity {
     private EditText mUrlTextView;
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
+    private ClipDrawable mProgressDrawable;
     private XWalkView mView;
     private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private FrameLayout mCustomViewContainer;
     private View mCustomView;
 
+    private Runnable mClearProgressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mProgressDrawable.setLevel(0);
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +68,7 @@ public class XWalkViewShellActivity extends Activity {
 
         mView = (XWalkView) findViewById(R.id.content_container);
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
+        mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
         mCustomViewContainer = (FrameLayout) findViewById(R.id.custom_view_container);
 
         initializeUrlField();
@@ -138,7 +146,11 @@ public class XWalkViewShellActivity extends Activity {
     private void initializeXWalkViewClients() {
         mView.setXWalkWebChromeClient(new XWalkWebChromeClient() {
             public void onProgressChanged(XWalkView view, int newProgress) {
-                // TODO(yongsheng): Implement progress update.
+                mToolbar.removeCallbacks(mClearProgressRunnable);
+
+                mProgressDrawable.setLevel((int) (100.0 * newProgress));
+                if (newProgress == 100)
+                    mToolbar.postDelayed(mClearProgressRunnable, COMPLETED_PROGRESS_TIMEOUT_MS);
             }
 
             @Override
