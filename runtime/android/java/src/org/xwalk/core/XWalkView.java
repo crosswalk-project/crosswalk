@@ -97,6 +97,14 @@ public class XWalkView extends FrameLayout {
     public void setXWalkClient(XWalkClient client) {
     }
 
+    public void onPause() {
+        mContent.onPause();
+    }
+
+    public void onResume() {
+        mContent.onResume();
+    }
+
     // TODO(shouqun): requestFocusFromTouch, setVerticalScrollBarEnabled are
     // from android.view.View;
 }
