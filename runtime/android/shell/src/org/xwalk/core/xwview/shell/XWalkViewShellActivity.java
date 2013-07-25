@@ -74,6 +74,8 @@ public class XWalkViewShellActivity extends Activity {
         initializeUrlField();
         initializeNavigationButtons();
         initializeXWalkViewClients();
+
+        mView.enableRemoteDebugging();
     }
 
     @Override
