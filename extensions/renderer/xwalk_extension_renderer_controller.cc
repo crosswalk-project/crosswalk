@@ -28,6 +28,7 @@ class XWalkExtensionV8Wrapper : public v8::Extension {
 
  private:
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args);
+  static v8::Handle<v8::Value> SendSyncMessage(const v8::Arguments& args);
 };
 
 XWalkExtensionV8Wrapper::XWalkExtensionV8Wrapper()
@@ -38,6 +39,8 @@ v8::Handle<v8::FunctionTemplate>
 XWalkExtensionV8Wrapper::GetNativeFunction(v8::Handle<v8::String> name) {
   if (name->Equals(v8::String::New("PostMessage")))
     return v8::FunctionTemplate::New(PostMessage);
+  if (name->Equals(v8::String::New("SendSyncMessage")))
+    return v8::FunctionTemplate::New(SendSyncMessage);
   return v8::Handle<v8::FunctionTemplate>();
 }
 
@@ -54,6 +57,20 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
   if (!handler->PostMessageToExtension(extension, msg))
     return v8::False();
   return v8::True();
+}
+
+v8::Handle<v8::Value> XWalkExtensionV8Wrapper::SendSyncMessage(
+    const v8::Arguments& args) {
+  if (args.Length() != 2)
+    return v8::False();
+
+  std::string extension(*v8::String::Utf8Value(args[0]));
+  std::string msg(*v8::String::Utf8Value(args[1]));
+
+  XWalkExtensionRenderViewHandler* handler =
+      XWalkExtensionRenderViewHandler::GetForCurrentContext();
+  std::string reply = handler->SendSyncMessageToExtension(extension, msg);
+  return v8::String::New(reply.c_str(), reply.size());
 }
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
@@ -122,15 +139,34 @@ static std::string WrapAPICode(const std::string& api_code,
 
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
+  const char* name = extension_name.c_str();
+
+  // Note that we are using the Post to indicate an asynchronous call and the
+  // term Send to indicate synchronous call.
+  //
+  // FIXME(cmarcelo): For now it is disabled on Windows because we jump through
+  // the UI process and this is not supported in that platform. See issue
+  // https://github.com/otcshare/crosswalk/issues/268 for details.
   return base::StringPrintf(
       "var %s; (function(exports, extension) {'use strict'; %s\n})"
       "(%s, "
       "{ postMessage: function(msg) { xwalk.postMessage('%s', msg); },"
       "  setMessageListener: function(listener) { "
-      "                        xwalk.setMessageListener('%s', listener); }});",
+      "                        xwalk.setMessageListener('%s', listener); }"
+#if !defined(OS_WIN)
+      "  , internal: {"
+      "    sendSyncMessage: function(msg) {"
+      "      return xwalk.sendSyncMessage('%s', msg); }"
+      "  }"
+#endif
+      "});",
       CodeToEnsureNamespace(extension_name).c_str(),
       api_code.c_str(),
-      extension_name.c_str(), extension_name.c_str(), extension_name.c_str());
+      name, name, name
+#if !defined(OS_WIN)
+      , name
+#endif
+      );
 }
 
 void XWalkExtensionRendererController::InstallJavaScriptAPIs(

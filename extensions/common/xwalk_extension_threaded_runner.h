@@ -9,6 +9,7 @@
 #include "base/callback_forward.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/synchronization/waitable_event.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 
@@ -33,6 +34,8 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
  private:
   // XWalkExtensionRunner implementation.
   virtual void HandleMessageFromClient(const std::string& msg) OVERRIDE;
+  virtual std::string HandleSyncMessageFromClient(
+      const std::string& msg) OVERRIDE;
 
   bool CalledOnExtensionThread() const;
   bool PostTaskToExtensionThread(const tracked_objects::Location& from_here,
@@ -40,9 +43,13 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
   void CreateContext();
   void DestroyContext();
 
+  void CallHandleSyncMessage(const std::string& msg, std::string* reply);
+
   scoped_ptr<XWalkExtension::Context> context_;
   scoped_ptr<base::Thread> thread_;
   XWalkExtension* extension_;
+
+  base::WaitableEvent sync_message_event_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionThreadedRunner);
 };

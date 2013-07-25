@@ -48,3 +48,20 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
   xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
 }
+
+
+// FIXME(cmarcelo): See https://github.com/otcshare/crosswalk/issues/268.
+#if defined(OS_WIN)
+#define ExternalExtensionSync DISABLED_ExternalExtensionSync
+#endif
+
+IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII("sync_echo.html"));
+  string16 title = ASCIIToUTF16("Pass");
+  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+}

@@ -32,6 +32,9 @@ class EchoExtension : public XWalkExtension {
         "exports.echo = function(msg, callback) {"
         "  echoListener = callback;"
         "  extension.postMessage(msg);"
+        "};"
+        "exports.syncEcho = function(msg) {"
+        "  return extension.internal.sendSyncMessage(msg);"
         "};";
     return kAPI;
   }
@@ -43,6 +46,9 @@ class EchoExtension : public XWalkExtension {
         : XWalkExtension::Context(post_message) {}
     virtual void HandleMessage(const std::string& msg) OVERRIDE {
       PostMessage(msg);
+    }
+    virtual std::string HandleSyncMessage(const std::string& msg) OVERRIDE {
+      return msg;
     }
   };
 
@@ -76,6 +82,22 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
+  string16 title = ASCIIToUTF16("Pass");
+  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+}
+
+// FIXME(cmarcelo): See https://github.com/otcshare/crosswalk/issues/268.
+#if defined(OS_WIN)
+#define EchoExtensionSync DISABLED_EchoExtensionSync
+#endif
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+                                  base::FilePath().AppendASCII(
+                                      "sync_echo.html"));
   string16 title = ASCIIToUTF16("Pass");
   content::TitleWatcher title_watcher(runtime()->web_contents(), title);
   xwalk_test_utils::NavigateToURL(runtime(), url);
