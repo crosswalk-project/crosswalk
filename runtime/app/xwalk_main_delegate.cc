@@ -7,6 +7,7 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "xwalk/binding/binding/binding_main.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/paths_mac.h"
@@ -54,6 +55,9 @@ void XWalkMainDelegate::PreSandboxStartup() {
 
 int XWalkMainDelegate::RunProcess(const std::string& process_type,
     const content::MainFunctionParams& main_function_params) {
+  if (process_type == "binding")
+    return BindingMain(main_function_params);
+
   // Tell content to use default process main entries by returning -1.
   return -1;
 }

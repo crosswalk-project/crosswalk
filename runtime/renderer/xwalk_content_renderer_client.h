@@ -15,6 +15,7 @@ namespace xwalk {
 namespace extensions {
 class XWalkExtensionRendererController;
 }
+class RendererBindingHelper;
 
 class XWalkContentRendererClient : public content::ContentRendererClient {
  public:
@@ -33,6 +34,8 @@ class XWalkContentRendererClient : public content::ContentRendererClient {
  private:
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
+
+  scoped_ptr<RendererBindingHelper> binding_helper_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);
 };
