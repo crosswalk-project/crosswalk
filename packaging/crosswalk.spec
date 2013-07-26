@@ -52,15 +52,6 @@ BuildRequires:  pkgconfig(xtst)
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
-%package internal-devel
-Summary:        Tools and development headers used by extension writers
-License:        BSD-3-Clause
-Group:          Development/Libraries
-Requires:       %{name} = %{version}
-
-%description internal-devel
-The crosswalk-internal-devel package contains code generation tools and development headers needed by third parties who wish to write their own Crosswalk extensions.
-
 %prep
 %setup -q
 
@@ -105,11 +96,6 @@ install -m 755 -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -m 644 -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
-# Development files and tools.
-install -m 644 -D src/xwalk/extensions/public/xwalk_extension_public.h %{buildroot}%{_includedir}/xwalk/extensions/public/xwalk_extension_public.h
-# TODO(rakuco): This should not be in %{_includedir}, but rather in %{_libexecdir}.
-install -m 755 -D src/xwalk/extensions/tools/generate_api.py %{buildroot}%{_includedir}/xwalk/extensions/tools/generate_api.py
-
 %files
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
@@ -117,7 +103,3 @@ install -m 755 -D src/xwalk/extensions/tools/generate_api.py %{buildroot}%{_incl
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
-
-%files internal-devel
-%manifest %{name}.manifest
-%{_includedir}/xwalk/*
