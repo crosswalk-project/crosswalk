@@ -23,3 +23,8 @@ xwalk.onpostmessage = function(extension, msg) {
   if (listener !== undefined)
     listener(msg);
 };
+
+xwalk.sendSyncMessage = function(extension, msg) {
+  native function SendSyncMessage();
+  return SendSyncMessage(extension, msg);
+}

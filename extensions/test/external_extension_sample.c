@@ -15,6 +15,11 @@ static void context_handle_message(CXWalkExtensionContext* context,
   xwalk_extension_context_post_message(context, message);
 }
 
+static void context_handle_sync_message(CXWalkExtensionContext* context,
+					const char *message) {
+  xwalk_extension_context_set_sync_reply(context, message);
+}
+
 static void context_destroy(CXWalkExtensionContext* context) {
   free(context);
 }
@@ -26,6 +31,7 @@ static CXWalkExtensionContext* context_create(CXWalkExtension* extension) {
 
   context->destroy = context_destroy;
   context->handle_message = context_handle_message;
+  context->handle_sync_message = context_handle_sync_message;
 
   return context;
 }
@@ -41,6 +47,9 @@ static const char* get_javascript(CXWalkExtension* extension) {
       "exports.echo = function(msg, callback) {"
       "  echoListener = callback;"
       "  extension.postMessage(msg);"
+      "};"
+      "exports.syncEcho = function(msg) {"
+      "  return extension.internal.sendSyncMessage(msg);"
       "};";
   return kAPI;
 }

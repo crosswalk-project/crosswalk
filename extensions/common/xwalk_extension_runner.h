@@ -36,12 +36,14 @@ class XWalkExtensionRunner {
   virtual ~XWalkExtensionRunner();
 
   void PostMessageToContext(const std::string& msg);
+  std::string SendSyncMessageToContext(const std::string& msg);
 
   std::string extension_name() const { return extension_name_; }
 
  protected:
   void PostMessageToClient(const std::string& msg);
   virtual void HandleMessageFromClient(const std::string& msg) = 0;
+  virtual std::string HandleSyncMessageFromClient(const std::string& msg) = 0;
 
   Client* client_;
 

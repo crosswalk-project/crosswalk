@@ -14,7 +14,8 @@ namespace extensions {
 XWalkExtensionThreadedRunner::XWalkExtensionThreadedRunner(
     XWalkExtension* extension, Client* client)
     : XWalkExtensionRunner(extension->name(), client),
-      extension_(extension) {
+      extension_(extension),
+      sync_message_event_(false, false) {
   std::string thread_name = "XWalk_ExtensionThread_" + extension_->name();
   thread_.reset(new base::Thread(thread_name.c_str()));
   thread_->Start();
@@ -52,6 +53,17 @@ void XWalkExtensionThreadedRunner::HandleMessageFromClient(
                             msg));
 }
 
+std::string XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
+    const std::string& msg) {
+  std::string reply;
+  PostTaskToExtensionThread(
+      FROM_HERE,
+      base::Bind(&XWalkExtensionThreadedRunner::CallHandleSyncMessage,
+                 base::Unretained(this), msg, &reply));
+  sync_message_event_.Wait();
+  return reply;
+}
+
 bool XWalkExtensionThreadedRunner::CalledOnExtensionThread() const {
   return MessageLoop::current() == thread_->message_loop();
 }
@@ -82,6 +94,13 @@ void XWalkExtensionThreadedRunner::CreateContext() {
 void XWalkExtensionThreadedRunner::DestroyContext() {
   CHECK(CalledOnExtensionThread());
   context_.reset();
+}
+
+void XWalkExtensionThreadedRunner::CallHandleSyncMessage(
+    const std::string& msg, std::string* reply) {
+  CHECK(CalledOnExtensionThread());
+  *reply = context_->HandleSyncMessage(msg);
+  sync_message_event_.Signal();
 }
 
 }  // namespace extensions

@@ -18,6 +18,11 @@ void XWalkExtensionRunner::PostMessageToContext(const std::string& msg) {
   HandleMessageFromClient(msg);
 }
 
+std::string XWalkExtensionRunner::SendSyncMessageToContext(
+    const std::string& msg) {
+  return HandleSyncMessageFromClient(msg);
+}
+
 void XWalkExtensionRunner::PostMessageToClient(const std::string& msg) {
   client_->HandleMessageFromContext(this, msg);
 }

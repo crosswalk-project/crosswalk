@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
-#define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
+#ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_EXTERNAL_H_
+#define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_EXTERNAL_H_
 
 #include <string>
 #include "base/scoped_native_library.h"
@@ -40,20 +40,27 @@ class XWalkExternalExtension : public XWalkExtension {
 
  private:
   class ExternalContext : public XWalkExtension::Context {
-   private:
-     CXWalkExtensionContext* context_;
-
-     static const CXWalkExtensionContextAPI* GetAPIWrappers();
-     static void PostMessageWrapper(CXWalkExtensionContext* context,
-                                    const char* message);
    public:
-     ExternalContext(
+    ExternalContext(
         XWalkExternalExtension* external,
         const XWalkExtension::PostMessageCallback& post_message,
         CXWalkExtensionContext* context);
     virtual ~ExternalContext();
 
+   private:
     virtual void HandleMessage(const std::string& msg) OVERRIDE;
+    virtual std::string HandleSyncMessage(const std::string& msg) OVERRIDE;
+
+    static const CXWalkExtensionContextAPI* GetAPIWrappers();
+    static void PostMessageWrapper(CXWalkExtensionContext* context,
+                                   const char* message);
+    static void SetSyncReplyWrapper(CXWalkExtensionContext* context,
+                                    const char* reply);
+
+    void SetSyncReply(const char* reply);
+
+    CXWalkExtensionContext* context_;
+    std::string sync_reply_;
   };
 
   base::ScopedNativeLibrary library_;
@@ -65,4 +72,4 @@ class XWalkExternalExtension : public XWalkExtension {
 }  // namespace extensions
 }  // namespace xwalk
 
-#endif  // XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_EXTERNAL_H_
+#endif  // XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_EXTERNAL_H_
