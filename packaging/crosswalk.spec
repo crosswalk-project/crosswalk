@@ -9,7 +9,7 @@ Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}-%{version}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
-Patch1:         crosswalk-0.28.0.1-do-not-look-for-gtk2-when-using-aura.patch
+Patch1:         %{name}-%{version}-do-not-look-for-gtk2-when-using-aura.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
