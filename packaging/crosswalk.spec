@@ -10,6 +10,7 @@ Source:         %{name}-%{version}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
 Patch1:         %{name}-%{version}-do-not-look-for-gtk2-when-using-aura.patch
+Patch2:         %{name}-%{version}-pull-request-40.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -63,6 +64,7 @@ cp -a src/xwalk/AUTHORS AUTHORS.xwalk
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
+%patch2
 
 %build
 

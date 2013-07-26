@@ -1,0 +1,90 @@
+From 749d7c478164d8b53ef07e6fc8181bc194870a2b Mon Sep 17 00:00:00 2001
+From: Shiliu Wang <shiliu.wang@intel.com>
+Date: Tue, 23 Jul 2013 15:53:29 +0800
+Subject: [PATCH] Create GPU process object before creating GPU thread in
+ single process
+
+This commit is partly backport upstream commit 57cf9788
+When creating GPU thread, it need a ChildProcess singleton object
+which is not exist if not creating GPU process object.
+
+In-process mode create ChildProcess object in browser process, it breaks
+the assumption that ChildProcess is singleton. So remove the relevant
+DCHECKs.
+
+BUG=https://github.com/otcshare/crosswalk/issues/229
+---
+ content/browser/gpu/gpu_process_host.cc |   18 +++++-------------
+ content/common/child_process.cc         |    3 ---
+ 2 files changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/content/browser/gpu/gpu_process_host.cc b/content/browser/gpu/gpu_process_host.cc
+index 560fed2..827f7aa 100644
+--- src/content/browser/gpu/gpu_process_host.cc
++++ src/content/browser/gpu/gpu_process_host.cc
+@@ -285,8 +285,7 @@ class GpuMainThread : public base::Thread {
+   explicit GpuMainThread(const std::string& channel_id)
+       : base::Thread("Chrome_InProcGpuThread"),
+         channel_id_(channel_id),
+-        gpu_process_(NULL),
+-        child_thread_(NULL) {
++        gpu_process_(NULL) {
+   }
+ 
+   virtual ~GpuMainThread() {
+@@ -295,27 +294,20 @@ class GpuMainThread : public base::Thread {
+ 
+  protected:
+   virtual void Init() OVERRIDE {
+-    if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess)) {
+-      child_thread_ = new GpuChildThread(channel_id_);
+-    } else {
+-      gpu_process_ = new GpuProcess();
+-      // The process object takes ownership of the thread object, so do not
+-      // save and delete the pointer.
+-      gpu_process_->set_main_thread(new GpuChildThread(channel_id_));
+-    }
++    gpu_process_ = new GpuProcess();
++    // The process object takes ownership of the thread object, so do not
++    // save and delete the pointer.
++    gpu_process_->set_main_thread(new GpuChildThread(channel_id_));
+   }
+ 
+   virtual void CleanUp() OVERRIDE {
+     delete gpu_process_;
+-    if (child_thread_)
+-      delete child_thread_;
+   }
+ 
+  private:
+   std::string channel_id_;
+   // Deleted in CleanUp() on the gpu thread, so don't use smart pointers.
+   GpuProcess* gpu_process_;
+-  GpuChildThread* child_thread_;
+ 
+   DISALLOW_COPY_AND_ASSIGN(GpuMainThread);
+ };
+diff --git a/content/common/child_process.cc b/content/common/child_process.cc
+index 95bc331..c0dff11 100644
+--- src/content/common/child_process.cc
++++ src/content/common/child_process.cc
+@@ -44,7 +44,6 @@ ChildProcess::ChildProcess()
+     : ref_count_(0),
+       shutdown_event_(true, false),
+       io_thread_("Chrome_ChildIOThread") {
+-  DCHECK(!child_process_);
+   child_process_ = this;
+ 
+   base::StatisticsRecorder::Initialize();
+@@ -61,8 +60,6 @@ ChildProcess::ChildProcess()
+ }
+ 
+ ChildProcess::~ChildProcess() {
+-  DCHECK(child_process_ == this);
+-
+   // Signal this event before destroying the child process.  That way all
+   // background threads can cleanup.
+   // For example, in the renderer the RenderThread instances will be able to
+-- 
+1.7.9.5
+
