@@ -1,0 +1,4 @@
+
+#!/bin/sh
+
+exec /usr/lib/xwalk/xwalk "$@"
