@@ -11,6 +11,7 @@ Source1:        xwalk
 Source1001:     crosswalk.manifest
 Patch1:         %{name}-%{version}-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-%{version}-pull-request-40.patch
+Patch3:         %{name}-%{version}-look-for-pvr-libGLESv2.so.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -26,6 +27,7 @@ BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(freetype2)
+BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(icu-i18n)
 BuildRequires:  pkgconfig(libexif)
@@ -65,6 +67,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 %patch2
+%patch3
 
 %build
 
