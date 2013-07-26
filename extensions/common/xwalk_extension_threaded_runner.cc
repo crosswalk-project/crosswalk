@@ -45,11 +45,11 @@ XWalkExtensionThreadedRunner::~XWalkExtensionThreadedRunner() {
 }
 
 void XWalkExtensionThreadedRunner::HandleMessageFromClient(
-    const std::string& msg) {
+    scoped_ptr<base::Value> msg) {
   PostTaskToExtensionThread(
       FROM_HERE, base::Bind(&XWalkExtension::Context::HandleMessage,
                             base::Unretained(context_.get()),
-                            msg));
+                            base::Passed(&msg)));
 }
 
 bool XWalkExtensionThreadedRunner::CalledOnExtensionThread() const {

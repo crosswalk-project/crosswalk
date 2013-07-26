@@ -8,8 +8,8 @@
 #include <stdint.h>
 #include <string>
 #include "base/callback_forward.h"
-
 #include "base/callback.h"
+#include "base/values.h"
 
 namespace xwalk {
 namespace extensions {
@@ -31,23 +31,25 @@ class XWalkExtension {
   virtual const char* GetJavaScriptAPI() = 0;
 
   // Callback type used by Contexts to send messages. Callbacks of this type
-  // will be created by the extension system and handled to Context.
-  typedef base::Callback<void(const std::string& msg)> PostMessageCallback;
+  // will be created by the extension system and handled to Context. The
+  // callback will take the ownership of the message.
+  typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
   class Context {
    public:
     virtual ~Context();
     // Allow to handle messages sent from JavaScript code running in renderer
     // process.
-    virtual void HandleMessage(const std::string& msg) = 0;
+    virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
 
    protected:
     explicit Context(const PostMessageCallback& post_message);
 
     // Function to be used by extensions contexts to post messages back to
-    // JavaScript in the renderer process.
-    void PostMessage(const std::string& msg) {
-      post_message_.Run(msg);
+    // JavaScript in the renderer process. This function will take the ownership
+    // of the message.
+    void PostMessage(scoped_ptr<base::Value> msg) {
+      post_message_.Run(msg.Pass());
     }
 
    private:

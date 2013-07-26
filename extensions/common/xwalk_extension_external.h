@@ -53,7 +53,7 @@ class XWalkExternalExtension : public XWalkExtension {
         CXWalkExtensionContext* context);
     virtual ~ExternalContext();
 
-    virtual void HandleMessage(const std::string& msg) OVERRIDE;
+    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
   };
 
   base::ScopedNativeLibrary library_;
