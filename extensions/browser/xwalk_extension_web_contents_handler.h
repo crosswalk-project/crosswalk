@@ -37,6 +37,8 @@ class XWalkExtensionWebContentsHandler
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   void OnPostMessage(const std::string& extension_name, const std::string& msg);
+  void OnSendSyncMessage(const std::string& extension_name,
+                         const std::string& msg, std::string* result);
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);

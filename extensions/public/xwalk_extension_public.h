@@ -25,8 +25,12 @@ typedef void (*ExtensionContextDestroyCallback)(
       CXWalkExtensionContext* context);
 typedef void (*ExtensionContextHandleMessageCallback)(
       CXWalkExtensionContext* context, const char* message);
+typedef void (*ExtensionContextHandleSyncMessageCallback)(
+      CXWalkExtensionContext* context, const char* message);
 
 typedef void (*ExtensionContextPostMessageCallback)(
+      CXWalkExtensionContext* context, const char* message);
+typedef void (*ExtensionContextSetSyncReplyCallback)(
       CXWalkExtensionContext* context, const char* message);
 
 struct CXWalkExtension_ {
@@ -43,6 +47,7 @@ struct CXWalkExtension_ {
 struct CXWalkExtensionContextAPI_ {
   // Version 1
   ExtensionContextPostMessageCallback post_message;
+  ExtensionContextSetSyncReplyCallback set_sync_reply;
 };
 
 struct CXWalkExtensionContext_ {
@@ -52,6 +57,7 @@ struct CXWalkExtensionContext_ {
   // Version 1
   ExtensionContextDestroyCallback destroy;
   ExtensionContextHandleMessageCallback handle_message;
+  ExtensionContextHandleSyncMessageCallback handle_sync_message;
 };
 
 #ifndef INTERNAL_IMPLEMENTATION
@@ -98,6 +104,10 @@ EXTERN_C PUBLIC_EXPORT CXWalkExtension* xwalk_extension_init(
 //   a particular context is about to be destroyed.
 // - handle_message, with a pointer to a function that will be called
 //   whenever a message arrives from the JavaScript side.
+// - handle_sync_message, with a pointer to a function that will be
+//   called whenever a synchronous message arrives, the reply should
+//   be set before the function returns using
+//   xwalk_extension_context_set_sync_reply().
 //
 // To post a message to the JavaScript side, one can simply call
 // xwalk_extension_context_post_message(), defined below. Crosswalk will
@@ -111,6 +121,17 @@ static void xwalk_extension_context_post_message(
   assert(message);
 
   context->api->post_message(context, message);
+}
+
+// To be used in the function passed as handle_sync_message.
+static void xwalk_extension_context_set_sync_reply(
+    CXWalkExtensionContext* context, const char* reply) {
+  assert(context);
+  assert(context->api);
+  assert(context->api->set_sync_reply);
+  assert(reply);
+
+  context->api->set_sync_reply(context, reply);
 }
 
 #undef PUBLIC_EXPORT

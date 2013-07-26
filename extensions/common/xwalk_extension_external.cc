@@ -82,7 +82,8 @@ XWalkExternalExtension::ExternalContext::ExternalContext(
 const CXWalkExtensionContextAPI*
       XWalkExternalExtension::ExternalContext::GetAPIWrappers() {
   static const CXWalkExtensionContextAPI api = {
-    &PostMessageWrapper
+    &PostMessageWrapper,
+    &SetSyncReplyWrapper
   };
 
   return &api;
@@ -96,10 +97,36 @@ void XWalkExternalExtension::ExternalContext::PostMessageWrapper(
   self->PostMessage(msg);
 }
 
+void XWalkExternalExtension::ExternalContext::SetSyncReplyWrapper(
+      CXWalkExtensionContext* context, const char* reply) {
+  XWalkExternalExtension::ExternalContext* self =
+      reinterpret_cast<XWalkExternalExtension::ExternalContext*>(
+          context->internal_data);
+  self->SetSyncReply(reply);
+}
+
 void XWalkExternalExtension::ExternalContext::HandleMessage(
       const std::string& msg) {
   if (context_->handle_message)
     context_->handle_message(context_, msg.c_str());
+}
+
+std::string XWalkExternalExtension::ExternalContext::HandleSyncMessage(
+    const std::string& msg) {
+  if (!context_->handle_sync_message) {
+    LOG(WARNING) << "Ignoring sync message sent for external extension "
+                 << "which doesn't support it.";
+    return std::string();
+  }
+  CHECK(sync_reply_.empty());
+  context_->handle_sync_message(context_, msg.c_str());
+  std::string reply = sync_reply_;
+  sync_reply_.clear();
+  return reply;
+}
+
+void XWalkExternalExtension::ExternalContext::SetSyncReply(const char* reply) {
+  sync_reply_ = reply;
 }
 
 XWalkExternalExtension::ExternalContext::~ExternalContext() {
