@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Fail</title>
+  </head>
+  <body>
+    <script>
+      var error = 0;
+      var current_test = 0;
+
+      function runNextTest() {
+        test_list[current_test++]();
+      }
+
+      function endTest() {
+        if (!error)
+          document.title = "Pass";
+      }
+
+      function echoStuff(stuff) {
+        return function() {
+          echo.echo(stuff, function(msg) {
+            // Convenient way of comparing arrays.
+            if (JSON.stringify(stuff) !== JSON.stringify(msg))
+              error++;
+
+            runNextTest();
+          });
+        };
+      };
+
+      var test_list = [
+        echoStuff("Foobar"),
+        echoStuff(12345),
+        echoStuff([1, 2, 3, 4, 5]),
+        echoStuff(["1", 2, "3", [4, 5]]),
+        // Dictionary properties should be alpha sorted for testing,
+        // because that's how JSON.stringify() will parse them.
+        echoStuff({bar: "abc", foo: [ "test", 456], xyz: 123}),
+        endTest
+      ];
+
+      runNextTest()
+    </script>
+  </body>
+</html>
