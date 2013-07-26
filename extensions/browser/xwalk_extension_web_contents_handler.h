@@ -30,8 +30,8 @@ class XWalkExtensionWebContentsHandler
 
  private:
   // XWalkExtensionRunner::Client implementation.
-  void HandleMessageFromContext(const XWalkExtensionRunner* runner,
-                                const std::string& msg) OVERRIDE;
+  virtual void HandleMessageFromContext(const XWalkExtensionRunner* runner,
+                                        const std::string& msg) OVERRIDE;
 
   // content::WebContentsObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
