@@ -5,6 +5,7 @@
 package org.xwalk.core;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.view.ViewGroup;
 import android.util.AttributeSet;
@@ -126,6 +127,10 @@ public class XWalkView extends FrameLayout {
 
     public void onResume() {
         mContent.onResume();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mContent.onActivityResult(requestCode, resultCode, data);
     }
 
     // TODO(shouqun): requestFocusFromTouch, setVerticalScrollBarEnabled are

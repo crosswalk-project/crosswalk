@@ -9,6 +9,7 @@
 #include "base/message_loop.h"
 #include "content/public/browser/web_contents.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
+#include "xwalk/runtime/browser/runtime_file_select_helper.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ScopedJavaLocalRef;
@@ -70,6 +71,12 @@ void XWalkWebContentsDelegate::UpdatePreferredSize(
     Java_XWalkWebContentsDelegate_updatePreferredSize(env, java_delegate.obj(),
         pref_size.width(), pref_size.height());
   }
+}
+
+void XWalkWebContentsDelegate::RunFileChooser(
+    content::WebContents* web_contents,
+    const content::FileChooserParams& params) {
+  RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
 }
 
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
