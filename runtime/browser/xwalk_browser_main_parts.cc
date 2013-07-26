@@ -11,6 +11,11 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
+#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_file_util.h"
+#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_external.h"
@@ -192,6 +197,27 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   NativeAppWindow::Initialize();
+
+  if (startup_url_.SchemeIsFile()) {
+    base::FilePath path(startup_url_.path());
+    if (file_util::DirectoryExists(path)) {
+      std::string error;
+      scoped_refptr<xwalk_application::Application> application =
+          xwalk_application_file_util::LoadApplication(
+              path,
+              xwalk_application::Manifest::UNPACKED,
+              0,
+              &error);
+      if (application != NULL) {
+        xwalk_application::ApplicationSystem* system =
+            runtime_context_->GetApplicationSystem();
+        xwalk_application::ApplicationProcessManager* manager =
+            system->process_manager();
+        manager->LaunchApplication(runtime_context_.get(), application);
+        return;
+      }
+    }
+  }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::Create(runtime_context_.get(), startup_url_);

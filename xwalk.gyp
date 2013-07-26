@@ -13,6 +13,7 @@
   },
   'includes' : [
     'xwalk_tests.gypi',
+    'application/xwalk_application.gypi',
   ],
   'targets': [
     {
@@ -301,6 +302,7 @@
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
         'xwalk_runtime',
+        'xwalk_application_lib',
         'xwalk_pak',
       ],
       'include_dirs': [

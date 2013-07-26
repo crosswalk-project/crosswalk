@@ -7,6 +7,8 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -53,6 +55,7 @@ RuntimeContext::RuntimeContext()
 #else
 RuntimeContext::RuntimeContext() {
 #endif
+  application_system_.reset(new xwalk_application::ApplicationSystem(this));
   InitWhileIOAllowed();
 }
 
@@ -166,6 +169,10 @@ content::SpeechRecognitionPreferences*
 
 quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
+}
+
+xwalk_application::ApplicationSystem* RuntimeContext::GetApplicationSystem() {
+  return application_system_.get();
 }
 
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
