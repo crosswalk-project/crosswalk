@@ -44,8 +44,8 @@ class EchoExtension : public XWalkExtension {
     explicit EchoContext(
         const XWalkExtension::PostMessageCallback& post_message)
         : XWalkExtension::Context(post_message) {}
-    virtual void HandleMessage(const std::string& msg) OVERRIDE {
-      PostMessage(msg);
+    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+      PostMessage(msg.Pass());
     }
     virtual std::string HandleSyncMessage(const std::string& msg) OVERRIDE {
       return msg;
@@ -81,7 +81,7 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
-                                  base::FilePath().AppendASCII("echo.html"));
+      base::FilePath().AppendASCII("test_extension.html"));
   string16 title = ASCIIToUTF16("Pass");
   content::TitleWatcher title_watcher(runtime()->web_contents(), title);
   xwalk_test_utils::NavigateToURL(runtime(), url);

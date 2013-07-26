@@ -7,6 +7,8 @@
 
 #include <string>
 #include "base/basictypes.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/values.h"
 
 namespace xwalk {
 namespace extensions {
@@ -27,7 +29,7 @@ class XWalkExtensionRunner {
   class Client {
    public:
     virtual void HandleMessageFromContext(
-        const XWalkExtensionRunner* runner, const std::string& msg) = 0;
+        const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) = 0;
    protected:
     virtual ~Client() {}
   };
@@ -35,14 +37,14 @@ class XWalkExtensionRunner {
   XWalkExtensionRunner(const std::string& extension_name, Client* client);
   virtual ~XWalkExtensionRunner();
 
-  void PostMessageToContext(const std::string& msg);
+  void PostMessageToContext(scoped_ptr<base::Value> msg);
   std::string SendSyncMessageToContext(const std::string& msg);
 
   std::string extension_name() const { return extension_name_; }
 
  protected:
-  void PostMessageToClient(const std::string& msg);
-  virtual void HandleMessageFromClient(const std::string& msg) = 0;
+  void PostMessageToClient(scoped_ptr<base::Value> msg);
+  virtual void HandleMessageFromClient(scoped_ptr<base::Value> msg) = 0;
   virtual std::string HandleSyncMessageFromClient(const std::string& msg) = 0;
 
   Client* client_;

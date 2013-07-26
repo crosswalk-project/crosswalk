@@ -121,15 +121,25 @@ void DialogContext::HandleShowSaveDialog(const base::DictionaryValue* input) {
     extension_->owning_window_, reply_id_ptr);
 }
 
-void DialogContext::HandleMessage(const std::string& msg) {
+void DialogContext::HandleMessage(scoped_ptr<base::Value> msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&DialogContext::HandleMessage, base::Unretained(this), msg));
+      base::Bind(&DialogContext::HandleMessage, base::Unretained(this),
+                 base::Passed(&msg)));
     return;
   }
 
-  scoped_ptr<base::Value> v(base::JSONReader().ReadToValue(msg));
+  // FIXME(tmpsantos): This could be using base::Values directly without the
+  // need of JSON serializers and all these type conversions. This should be
+  // migrated to XWalkExtensionInternal.
+  if (!msg->IsType(base::Value::TYPE_STRING))
+    return;
+
+  std::string string_msg;
+  msg->GetAsString(&string_msg);
+
+  scoped_ptr<base::Value> v(base::JSONReader().ReadToValue(string_msg));
   const base::DictionaryValue* input = static_cast<base::DictionaryValue*>(
     v.get());
 
@@ -151,7 +161,7 @@ void DialogContext::FileSelected(const base::FilePath& path,
 
   std::string result;
   base::JSONWriter::Write(output.get(), &result);
-  PostMessage(result);
+  PostMessage(scoped_ptr<base::Value>(new base::StringValue(result)));
 
   delete reply_id;
 }
@@ -171,7 +181,7 @@ void DialogContext::MultiFilesSelected(
 
   std::string result;
   base::JSONWriter::Write(output.get(), &result);
-  PostMessage(result);
+  PostMessage(scoped_ptr<base::Value>(new base::StringValue(result)));
 
   delete reply_id;
 }

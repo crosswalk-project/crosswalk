@@ -5,9 +5,11 @@
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 #include "base/stringprintf.h"
+#include "base/values.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "content/public/renderer/render_thread.h"
+#include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "v8/include/v8.h"
@@ -49,12 +51,24 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
   if (args.Length() != 2)
     return v8::False();
 
-  std::string extension(*v8::String::Utf8Value(args[0]));
-  std::string msg(*v8::String::Utf8Value(args[1]));
-
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForCurrentContext();
-  if (!handler->PostMessageToExtension(extension, msg))
+
+  scoped_ptr<content::V8ValueConverter> converter(
+      content::V8ValueConverter::create());
+  scoped_ptr<base::Value> value_args(
+      converter->FromV8Value(args[1], handler->GetV8Context()));
+
+  if (!value_args.get())
+    return v8::False();
+
+  // FIXME(tmpsantos): We could serialize base::Value if it had
+  // param traits for it. Instead, we always add it to a list.
+  base::ListValue list_value_args;
+  list_value_args.Append(value_args.release());
+
+  std::string extension(*v8::String::Utf8Value(args[0]));
+  if (!handler->PostMessageToExtension(extension, list_value_args))
     return v8::False();
   return v8::True();
 }
