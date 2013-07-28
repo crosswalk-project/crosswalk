@@ -53,15 +53,16 @@ void XWalkExtensionThreadedRunner::HandleMessageFromClient(
                             base::Passed(&msg)));
 }
 
-std::string XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
-    const std::string& msg) {
-  std::string reply;
+scoped_ptr<base::Value>
+XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
+    scoped_ptr<base::Value> msg) {
+  base::Value* reply;
   PostTaskToExtensionThread(
       FROM_HERE,
       base::Bind(&XWalkExtensionThreadedRunner::CallHandleSyncMessage,
-                 base::Unretained(this), msg, &reply));
+                 base::Unretained(this), base::Passed(&msg), &reply));
   sync_message_event_.Wait();
-  return reply;
+  return scoped_ptr<base::Value>(reply);
 }
 
 bool XWalkExtensionThreadedRunner::CalledOnExtensionThread() const {
@@ -97,9 +98,9 @@ void XWalkExtensionThreadedRunner::DestroyContext() {
 }
 
 void XWalkExtensionThreadedRunner::CallHandleSyncMessage(
-    const std::string& msg, std::string* reply) {
+    scoped_ptr<base::Value> msg, base::Value** reply) {
   CHECK(CalledOnExtensionThread());
-  *reply = context_->HandleSyncMessage(msg);
+  *reply = context_->HandleSyncMessage(msg.Pass()).release();
   sync_message_event_.Signal();
 }
 

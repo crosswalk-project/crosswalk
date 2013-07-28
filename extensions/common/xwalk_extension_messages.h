@@ -28,5 +28,5 @@ IPC_MESSAGE_CONTROL2(XWalkViewMsg_RegisterExtension,  // NOLINT(*)
 
 IPC_SYNC_MESSAGE_ROUTED2_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
                            std::string /* target extension */,
-                           std::string /* input contents */,
-                           std::string /* output contents */)
+                           base::ListValue /* input contents */,
+                           base::ListValue /* output contents */)
