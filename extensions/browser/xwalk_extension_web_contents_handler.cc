@@ -72,14 +72,22 @@ void XWalkExtensionWebContentsHandler::OnPostMessage(
 }
 
 void XWalkExtensionWebContentsHandler::OnSendSyncMessage(
-    const std::string& extension_name, const std::string& msg,
-    std::string* result) {
+    const std::string& extension_name, const base::ListValue& msg,
+    base::ListValue* result) {
   RunnerMap::iterator it = runners_.find(extension_name);
-  if (it != runners_.end())
-    *result = it->second->SendSyncMessageToContext(msg);
-  else
+  if (it == runners_.end()) {
     LOG(WARNING) << "Couldn't handle sync message for unregistered extension '"
                  << extension_name << "'";
+    return;
+  }
+
+  base::Value* value;
+  const_cast<base::ListValue*>(&msg)->Remove(0, &value);
+
+  scoped_ptr<base::Value> resultValue =
+      it->second->SendSyncMessageToContext(scoped_ptr<base::Value>(value));
+
+  result->Append(resultValue.release());
 }
 
 }  // namespace extensions

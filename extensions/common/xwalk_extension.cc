@@ -19,9 +19,10 @@ XWalkExtension::Context::Context(const PostMessageCallback& post_message)
 
 XWalkExtension::Context::~Context() {}
 
-std::string XWalkExtension::Context::HandleSyncMessage(const std::string& msg) {
+scoped_ptr<base::Value> XWalkExtension::Context::HandleSyncMessage(
+    scoped_ptr<base::Value> msg) {
   LOG(FATAL) << "Sending sync message to extension which doesn't support it!";
-  return std::string();
+  return scoped_ptr<base::Value>(base::Value::CreateNullValue());
 }
 
 }  // namespace extensions

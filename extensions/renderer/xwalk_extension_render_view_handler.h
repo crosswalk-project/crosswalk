@@ -34,8 +34,8 @@ class XWalkExtensionRenderViewHandler
 
   bool PostMessageToExtension(const std::string& extension,
                               const base::ListValue& msg);
-  std::string SendSyncMessageToExtension(const std::string& extension,
-                                         const std::string& msg);
+  scoped_ptr<base::ListValue> SendSyncMessageToExtension(
+      const std::string& extension, const base::ListValue& msg);
 
   // RenderViewObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
