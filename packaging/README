@@ -1,0 +1,72 @@
+This directory contains a collection of tools and RPM-related files used to
+build Crosswalk on Tizen 2.1 mobile.
+
+IMPORTANT: Running `gbs build' from the parent directory will NOT produce a
+working crosswalk package.
+
+gbs, the tool used to generate RPM packages for Tizen, expects a single git
+tree with all the necessary sources available so that it can run `git archive',
+produce a tarball, extract it into a chroot and build from there.
+
+Crosswalk, on the other hand, is made of many independent git and Subversion
+repositories put together in a single directory structure, which does not work
+very well with gbs.
+
+In order to build an RPM package, one is currently expected to:
+
+ 1. Have a single .gclient file containing entries for crosswalk,
+    chromium-crosswalk and whatever may be needed. Something like this:
+
+    solutions = [
+      {'custom_deps':
+        {'src': 'ssh://git@github.com/otcshare/chromium-crosswalk.git@9341417b1591282e02a4d3da0ece84496cb6999a',
+         'src/chrome/tools/test/reference_build/chrome_linux': None,
+         'src/chrome/tools/test/reference_build/chrome_mac': None,
+         'src/chrome/tools/test/reference_build/chrome_win': None,
+         'src/chrome_frame/tools/test/reference_build/chrome_win': None,
+         'src/content/test/data/layout_tests/LayoutTests': None,
+         'src/third_party/WebKit': 'ssh://git@github.com/otcshare/blink-crosswalk.git@abfee977cd60a915a094f247ff81f9d17dc85efe',
+         'src/third_party/WebKit/LayoutTests': None,
+         'src/third_party/hunspell_dictionaries': None,
+         'src/webkit/data/layout_tests/LayoutTests': None},
+       'name': '28.0.1500.36',
+       'url': 'http://src.chromium.org/svn/releases/28.0.1500.36'},
+      {"name"        : "src/xwalk",
+       "url"         : "ssh://git@github.com/otcshare/crosswalk.git@origin/master",
+       "deps_file"   : "DEPS",
+       "managed"     : True,
+       "custom_deps" : {},
+       "safesync_url": ""},
+    ]
+
+    The specific values there do not matter, the point is that there should not
+    be more than one .gclient file, so that `gclient recurse' can find all
+    repositories.
+
+ 2. Generate a flat directory tree with the `generate-flat-tree.sh' script.
+
+    $ export XWALK_PREFIX=/root/of/xwalk/tree
+    $ gclient recurse --no-progress -j 1 path-to/generate-flat-tree.sh
+
+    XWALK_PREFIX should point to the top-level directory of the tree (the one
+    which _contains_ the src/ directory).
+
+    Passing -j 1 to `gclient recurse' is very important, otherwise multiple
+    jobs will try to write to the same tar file in parallel.
+
+ 3. Extract the generated tarball (flat-xwalk-tree.tar) somewhere, and put this
+    directory (packaging/) in it.
+
+    $ mkdir my-rpm-tree
+    $ cd my-rpm-tree
+    $ tar -xf /path/to/flat-xwalk-tree.tar
+    $ cp -R /the/path/to/packaging .
+
+ 4. Create a git repository with the newly-extracted flat tree and commit.
+    $ cd my-rpm-tree
+    $ git init
+    $ git add .
+    $ git commit -m 'Initial commit'
+
+ 5. Run gbs as usual.
+    $ gbs build -A i586
