@@ -82,6 +82,7 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.use_system_default_icon = true;
   params.top_level = true;
   params.bounds = create_params.bounds;
+  params.show_state = create_params.state;
   window_->Init(params);
 
   window_->CenterWindow(create_params.bounds.size());
