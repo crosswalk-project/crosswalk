@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include <string>
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/common/application_manifest_constants.h"
