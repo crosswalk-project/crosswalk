@@ -17,7 +17,6 @@ namespace keys = application_manifest_keys;
 
 namespace xwalk_application {
 
-
 Manifest::Manifest(Location location, scoped_ptr<base::DictionaryValue> value)
     : location_(location),
       value_(value.Pass()),

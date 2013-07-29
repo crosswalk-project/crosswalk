@@ -12,8 +12,6 @@ namespace xwalk_application {
 
 struct InstallWarning {
   enum Format {
-    // IMPORTANT: Do not build HTML strings from user or developer-supplied
-    // input.
     FORMAT_TEXT,
     FORMAT_HTML,
   };
