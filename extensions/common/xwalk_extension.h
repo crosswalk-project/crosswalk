@@ -44,7 +44,8 @@ class XWalkExtension {
 
     // Allow to handle synchronous messages sent from JavaScript code. Renderer
     // will block until this function returns.
-    virtual std::string HandleSyncMessage(const std::string& msg);
+    virtual scoped_ptr<base::Value> HandleSyncMessage(
+        scoped_ptr<base::Value> msg);
 
    protected:
     explicit Context(const PostMessageCallback& post_message);

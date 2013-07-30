@@ -49,7 +49,8 @@ class XWalkExternalExtension : public XWalkExtension {
 
    private:
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-    virtual std::string HandleSyncMessage(const std::string& msg) OVERRIDE;
+    virtual scoped_ptr<base::Value> HandleSyncMessage(
+        scoped_ptr<base::Value> msg) OVERRIDE;
 
     static const CXWalkExtensionContextAPI* GetAPIWrappers();
     static void PostMessageWrapper(CXWalkExtensionContext* context,
