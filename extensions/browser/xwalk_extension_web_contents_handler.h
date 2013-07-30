@@ -40,7 +40,7 @@ class XWalkExtensionWebContentsHandler
   void OnPostMessage(const std::string& extension_name,
                      const base::ListValue& msg);
   void OnSendSyncMessage(const std::string& extension_name,
-                         const std::string& msg, std::string* result);
+                         const base::ListValue& msg, base::ListValue* result);
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);

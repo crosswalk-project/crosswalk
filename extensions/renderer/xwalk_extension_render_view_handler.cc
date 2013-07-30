@@ -46,12 +46,13 @@ bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
   return Send(new XWalkViewHostMsg_PostMessage(routing_id(), extension, msg));
 }
 
-std::string XWalkExtensionRenderViewHandler::SendSyncMessageToExtension(
-    const std::string& extension, const std::string& msg) {
-  std::string reply;
+scoped_ptr<base::ListValue>
+XWalkExtensionRenderViewHandler::SendSyncMessageToExtension(
+    const std::string& extension, const base::ListValue& msg) {
+  base::ListValue* reply = new base::ListValue;
   Send(new XWalkViewHostMsg_SendSyncMessage(
-      routing_id(), extension, msg, &reply));
-  return reply;
+      routing_id(), extension, msg, reply));
+  return scoped_ptr<base::ListValue>(reply);
 }
 
 bool XWalkExtensionRenderViewHandler::OnMessageReceived(

@@ -34,8 +34,8 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
  private:
   // XWalkExtensionRunner implementation.
   virtual void HandleMessageFromClient(scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual std::string HandleSyncMessageFromClient(
-      const std::string& msg) OVERRIDE;
+  virtual scoped_ptr<base::Value> HandleSyncMessageFromClient(
+      scoped_ptr<base::Value> msg) OVERRIDE;
 
   bool CalledOnExtensionThread() const;
   bool PostTaskToExtensionThread(const tracked_objects::Location& from_here,
@@ -43,7 +43,7 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
   void CreateContext();
   void DestroyContext();
 
-  void CallHandleSyncMessage(const std::string& msg, std::string* reply);
+  void CallHandleSyncMessage(scoped_ptr<base::Value> msg, base::Value** reply);
 
   scoped_ptr<XWalkExtension::Context> context_;
   scoped_ptr<base::Thread> thread_;

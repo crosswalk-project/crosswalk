@@ -18,9 +18,9 @@ void XWalkExtensionRunner::PostMessageToContext(scoped_ptr<base::Value> msg) {
   HandleMessageFromClient(msg.Pass());
 }
 
-std::string XWalkExtensionRunner::SendSyncMessageToContext(
-    const std::string& msg) {
-  return HandleSyncMessageFromClient(msg);
+scoped_ptr<base::Value> XWalkExtensionRunner::SendSyncMessageToContext(
+    scoped_ptr<base::Value> msg) {
+  return HandleSyncMessageFromClient(msg.Pass());
 }
 
 void XWalkExtensionRunner::PostMessageToClient(scoped_ptr<base::Value> msg) {

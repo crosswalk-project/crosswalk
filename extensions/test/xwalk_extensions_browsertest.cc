@@ -47,8 +47,9 @@ class EchoExtension : public XWalkExtension {
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
       PostMessage(msg.Pass());
     }
-    virtual std::string HandleSyncMessage(const std::string& msg) OVERRIDE {
-      return msg;
+    virtual scoped_ptr<base::Value> HandleSyncMessage(
+        scoped_ptr<base::Value> msg) OVERRIDE {
+      return msg.Pass();
     }
   };
 
