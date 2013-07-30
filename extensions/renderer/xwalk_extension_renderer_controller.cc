@@ -180,7 +180,7 @@ static std::string WrapAPICode(const std::string& api_code,
 #if !defined(OS_WIN)
       , name
 #endif
-      );
+      ); // NOLINT
 }
 
 void XWalkExtensionRendererController::InstallJavaScriptAPIs(
