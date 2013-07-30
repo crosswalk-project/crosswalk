@@ -11,6 +11,7 @@
 #include "googleurl/src/gurl.h"
 
 // Keys used in JSON representation of applications.
+namespace xwalk{
 namespace application_manifest_keys {
   extern const char kApp[];
   extern const char kDescription[];
@@ -21,9 +22,8 @@ namespace application_manifest_keys {
   extern const char kPlatformAppBackground[];
   extern const char kVersion[];
   extern const char kWebURLs[];
-}  // namespace application_manifest_keys
+}  // namespace application_nanifest_keys
 
-// Error messages returned from Application::InitFromValue().
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];
   extern const char kInvalidKey[];
@@ -34,5 +34,6 @@ namespace application_manifest_errors {
   extern const char kManifestUnreadable[];
   extern const char kPlatformAppNeedsManifestVersion2[];
 }  // namespace application_manifest_errors
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_

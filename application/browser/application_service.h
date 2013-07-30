@@ -11,7 +11,8 @@ namespace xwalk {
 class RuntimeContext;
 }
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 // This will manages applications install, uninstall, update and so on. It'll
 // also maintain all installed applications' info.
@@ -26,6 +27,7 @@ class ApplicationService {
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
 };
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_BROWSER_APPLICATION_SERVICE_H_

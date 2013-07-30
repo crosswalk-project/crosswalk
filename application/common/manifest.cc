@@ -12,22 +12,23 @@
 #include "base/utf_string_conversions.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
-namespace errors = application_manifest_errors;
-namespace keys = application_manifest_keys;
+namespace errors = xwalk::application_manifest_errors;
+namespace keys   = xwalk::application_manifest_keys;
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 Manifest::Manifest(Location location, scoped_ptr<base::DictionaryValue> value)
     : location_(location),
-      value_(value.Pass()),
+      data_(value.Pass()),
       type_(TYPE_UNKNOWN) {
-  if (value_->HasKey(keys::kApp)) {
-    if (value_->Get(keys::kWebURLs, NULL) ||
-        value_->Get(keys::kLaunchWebURL, NULL)) {
+  if (data_->HasKey(keys::kApp)) {
+    if (data_->Get(keys::kWebURLs, NULL) ||
+        data_->Get(keys::kLaunchWebURL, NULL)) {
       type_ = TYPE_HOSTED_APP;
-    } else if (value_->Get(keys::kPlatformAppBackground, NULL) ||
-               value_->Get(keys::kLaunchLocalPath, NULL)) {
-      type_ = TYPE_PLATFORM_APP;
+    } else if (data_->Get(keys::kPlatformAppBackground, NULL) ||
+               data_->Get(keys::kLaunchLocalPath, NULL)) {
+      type_ = TYPE_PACKAGED_APP;
     }
   }
 }
@@ -39,7 +40,7 @@ bool Manifest::ValidateManifest(
     std::string* error,
     std::vector<InstallWarning>* warnings) const {
   *error = "";
-  if (type_ == Manifest::TYPE_PLATFORM_APP && GetManifestVersion() < 2) {
+  if (type_ == Manifest::TYPE_PACKAGED_APP && GetManifestVersion() < 2) {
     *error = errors::kPlatformAppNeedsManifestVersion2;
     return false;
   }
@@ -49,63 +50,63 @@ bool Manifest::ValidateManifest(
 }
 
 bool Manifest::HasKey(const std::string& key) const {
-  return CanAccessKey(key) && value_->HasKey(key);
+  return CanAccessKey(key) && data_->HasKey(key);
 }
 
 bool Manifest::HasPath(const std::string& path) const {
   base::Value* ignored = NULL;
-  return CanAccessPath(path) && value_->Get(path, &ignored);
+  return CanAccessPath(path) && data_->Get(path, &ignored);
 }
 
 bool Manifest::Get(
     const std::string& path, const base::Value** out_value) const {
-  return CanAccessPath(path) && value_->Get(path, out_value);
+  return CanAccessPath(path) && data_->Get(path, out_value);
 }
 
 bool Manifest::GetBoolean(
     const std::string& path, bool* out_value) const {
-  return CanAccessPath(path) && value_->GetBoolean(path, out_value);
+  return CanAccessPath(path) && data_->GetBoolean(path, out_value);
 }
 
 bool Manifest::GetInteger(
     const std::string& path, int* out_value) const {
-  return CanAccessPath(path) && value_->GetInteger(path, out_value);
+  return CanAccessPath(path) && data_->GetInteger(path, out_value);
 }
 
 bool Manifest::GetString(
     const std::string& path, std::string* out_value) const {
-  return CanAccessPath(path) && value_->GetString(path, out_value);
+  return CanAccessPath(path) && data_->GetString(path, out_value);
 }
 
 bool Manifest::GetString(
     const std::string& path, string16* out_value) const {
-  return CanAccessPath(path) && value_->GetString(path, out_value);
+  return CanAccessPath(path) && data_->GetString(path, out_value);
 }
 
 bool Manifest::GetDictionary(
     const std::string& path, const base::DictionaryValue** out_value) const {
-  return CanAccessPath(path) && value_->GetDictionary(path, out_value);
+  return CanAccessPath(path) && data_->GetDictionary(path, out_value);
 }
 
 bool Manifest::GetList(
     const std::string& path, const base::ListValue** out_value) const {
-  return CanAccessPath(path) && value_->GetList(path, out_value);
+  return CanAccessPath(path) && data_->GetList(path, out_value);
 }
 
 Manifest* Manifest::DeepCopy() const {
   Manifest* manifest = new Manifest(
-      location_, scoped_ptr<base::DictionaryValue>(value_->DeepCopy()));
-  manifest->set_application_id(application_id_);
+      location_, scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
+  manifest->SetApplicationID(application_id_);
   return manifest;
 }
 
 bool Manifest::Equals(const Manifest* other) const {
-  return other && value_->Equals(other->value());
+  return other && data_->Equals(other->value());
 }
 
 int Manifest::GetManifestVersion() const {
   int manifest_version = 1;
-  value_->GetInteger(keys::kManifestVersion, &manifest_version);
+  data_->GetInteger(keys::kManifestVersion, &manifest_version);
   return manifest_version;
 }
 
@@ -117,4 +118,5 @@ bool Manifest::CanAccessKey(const std::string& key) const {
   return true;
 }
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk

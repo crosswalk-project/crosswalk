@@ -8,7 +8,8 @@
 #include <ostream>
 #include <string>
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 struct InstallWarning {
   enum Format {
@@ -28,6 +29,7 @@ struct InstallWarning {
 // Let gtest print InstallWarnings.
 void PrintTo(const InstallWarning&, ::std::ostream* os);
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_INSTALL_WARNING_H_

@@ -9,7 +9,8 @@
 #include "base/string_util.h"
 #include "crypto/sha2.h"
 
-namespace {
+namespace xwalk{
+namespace application {
 
 // Converts a normal hexadecimal string into the alphabet used by applications.
 // We use the characters 'a'-'p' instead of '0'-'f' to avoid ever having a
@@ -26,11 +27,6 @@ static void ConvertHexadecimalToIDAlphabet(std::string* id) {
     }
   }
 }
-
-}  // namespace
-
-namespace xwalk_application {
-namespace id_util {
 
 // First 16 bytes of SHA256 hashed public key.
 const size_t kIdSize = 16;
@@ -51,5 +47,5 @@ std::string GenerateIdForPath(const base::FilePath& path) {
   return GenerateId(path_bytes);
 }
 
-}  // namespace id_util
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk

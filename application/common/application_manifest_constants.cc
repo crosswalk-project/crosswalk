@@ -4,8 +4,9 @@
 
 #include "xwalk/application/common/application_manifest_constants.h"
 
-namespace application_manifest_keys {
+namespace xwalk{
 
+namespace application_manifest_keys {
 const char kApp[] = "app";
 const char kDescription[] = "description";
 const char kLaunchLocalPath[] = "app.launch.local_path";
@@ -17,10 +18,6 @@ const char kVersion[] = "version";
 const char kWebURLs[] = "app.urls";
 }  // namespace application_manifest_keys
 
-// Application-related error messages. Some of these are simple patterns, where
-// a '*' is replaced at runtime with a specific value. This is used instead of
-// printf because we want to unit test them and scanf is hard to make
-// cross-platform.
 namespace application_manifest_errors {
 const char kInvalidDescription[] =
     "Invalid value for 'description'.";
@@ -41,3 +38,5 @@ const char kManifestUnreadable[] =
 const char kPlatformAppNeedsManifestVersion2[] =
     "Packaged apps need manifest_version set to >= 2";
 }  // namespace application_manifest_errors
+
+}  // namespace xwalk

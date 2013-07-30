@@ -15,35 +15,34 @@
 #include "base/values.h"
 #include "xwalk/application/common/install_warning.h"
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
+
 struct InstallWarning;
 
 // Wraps the DictionaryValue form of application's manifest. Enforces access to
 // properties of the manifest using ManifestFeatureProvider.
 class Manifest {
  public:
-  // What an application was loaded from.
-  // NOTE: These values are stored as integers in the preferences and used
-  // in histograms so don't remove or reorder existing items.  Just append
-  // to the end.
+  // Where an application was loaded from.
   enum Location {
     INVALID_LOCATION,
-    UNPACKED,           // From loading an unpacked application from the
-                        // applications settings page.
+    INTERNAL,           // Load from internal application registry.
+    COMMAND_LINE,       // Load from an unpacked application from command line.
     NUM_LOCATIONS
   };
 
   enum Type {
     TYPE_UNKNOWN = 0,
     TYPE_HOSTED_APP,
-    TYPE_PLATFORM_APP
+    TYPE_PACKAGED_APP
   };
 
   Manifest(Location location, scoped_ptr<DictionaryValue> value);
   virtual ~Manifest();
 
-  const std::string& application_id() const { return application_id_; }
-  void set_application_id(const std::string& id) { application_id_ = id; }
+  const std::string& GetApplicationID() const { return application_id_; }
+  void SetApplicationID(const std::string& id) { application_id_ = id; }
 
   Location location() const { return location_; }
 
@@ -60,10 +59,10 @@ class Manifest {
   int GetManifestVersion() const;
 
   // Returns the manifest type.
-  Type type() const { return type_; }
+  Type GetType() const { return type_; }
 
-  bool is_platform_app() const { return type_ == TYPE_PLATFORM_APP; }
-  bool is_hosted_app() const { return type_ == TYPE_HOSTED_APP; }
+  bool IsPackaged() const { return type_ == TYPE_PACKAGED_APP; }
+  bool IsHosted() const { return type_ == TYPE_HOSTED_APP; }
 
   // These access the wrapped manifest value, returning false when the property
   // does not exist or if the manifest type can't access it.
@@ -88,7 +87,7 @@ class Manifest {
 
   // Gets the underlying DictionaryValue representing the manifest.
   // Note: only use this when you KNOW you don't need the validation.
-  const base::DictionaryValue* value() const { return value_.get(); }
+  const base::DictionaryValue* value() const { return data_.get(); }
 
  private:
   // Returns true if the application can specify the given |path|.
@@ -105,13 +104,14 @@ class Manifest {
   Location location_;
 
   // The underlying dictionary representation of the manifest.
-  scoped_ptr<base::DictionaryValue> value_;
+  scoped_ptr<base::DictionaryValue> data_;
 
   Type type_;
 
   DISALLOW_COPY_AND_ASSIGN(Manifest);
 };
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_MANIFEST_H_

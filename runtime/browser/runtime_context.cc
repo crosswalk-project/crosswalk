@@ -55,7 +55,7 @@ RuntimeContext::RuntimeContext()
 #else
 RuntimeContext::RuntimeContext() {
 #endif
-  application_system_.reset(new xwalk_application::ApplicationSystem(this));
+  application_system_.reset(new xwalk::application::ApplicationSystem(this));
   InitWhileIOAllowed();
 }
 
@@ -171,7 +171,7 @@ quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-xwalk_application::ApplicationSystem* RuntimeContext::GetApplicationSystem() {
+xwalk::application::ApplicationSystem* RuntimeContext::GetApplicationSystem() {
   return application_system_.get();
 }
 

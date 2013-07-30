@@ -29,46 +29,31 @@
 #include "googleurl/src/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
 
-namespace keys = application_manifest_keys;
-namespace errors = application_manifest_errors;
+namespace keys = xwalk::application_manifest_keys;
+namespace errors = xwalk::application_manifest_errors;
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 // static
 scoped_refptr<Application> Application::Create(const base::FilePath& path,
                                            Manifest::Location location,
                                            const DictionaryValue& value,
-                                           int flags,
-                                           std::string* utf8_error) {
-  return Application::Create(path,
-                           location,
-                           value,
-                           flags,
-                           std::string(),  // ID is ignored if empty.
-                           utf8_error);
-}
-
-// TODO(sungguk): Continue removing std::string errors and replacing
-// with string16. See http://crbug.com/71980.
-scoped_refptr<Application> Application::Create(const base::FilePath& path,
-                                           Manifest::Location location,
-                                           const DictionaryValue& value,
-                                           int flags,
                                            const std::string& explicit_id,
-                                           std::string* utf8_error) {
-  DCHECK(utf8_error);
+                                           std::string* errorMsg) {
+  DCHECK(errorMsg);
   string16 error;
-  scoped_ptr<xwalk_application::Manifest> manifest(
-      new xwalk_application::Manifest(location,
+  scoped_ptr<xwalk::application::Manifest> manifest(
+      new xwalk::application::Manifest(location,
                                scoped_ptr<DictionaryValue>(value.DeepCopy())));
 
-  if (!InitApplicationID(manifest.get(), path, explicit_id, flags, &error)) {
-    *utf8_error = UTF16ToUTF8(error);
+  if (!InitApplicationID(manifest.get(), path, explicit_id, &error)) {
+    *errorMsg = UTF16ToUTF8(error);
     return NULL;
   }
 
   std::vector<InstallWarning> install_warnings;
-  if (!manifest->ValidateManifest(utf8_error, &install_warnings)) {
+  if (!manifest->ValidateManifest(errorMsg, &install_warnings)) {
     return NULL;
   }
 
@@ -76,8 +61,8 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
                                                            manifest.Pass());
   application->install_warnings_.swap(install_warnings);
 
-  if (!application->InitFromValue(flags, &error)) {
-    *utf8_error = UTF16ToUTF8(error);
+  if (!application->Init(&error)) {
+    *errorMsg = UTF16ToUTF8(error);
     return NULL;
   }
 
@@ -85,26 +70,25 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
 }
 
 // static
-bool Application::IdIsValid(const std::string& id) {
+bool Application::IsIDValid(const std::string& id) {
   // Verify that the id is legal.
-  if (id.size() != (id_util::kIdSize * 2))
+  if (id.size() != (kIdSize * 2))
     return false;
 
   // We only support lowercase IDs, because IDs can be used as URL components
   // (where GURL will lowercase it).
   std::string temp = StringToLowerASCII(id);
-  for (size_t i = 0; i < temp.size(); i++)
+  for (size_t i = 0; i < temp.size(); ++i)
     if (temp[i] < 'a' || temp[i] > 'p')
       return false;
 
   return true;
 }
 
-
 // static
 GURL Application::GetBaseURLFromApplicationId(
     const std::string& application_id) {
-  return GURL(std::string(xwalk_application::kApplicationScheme) +
+  return GURL(std::string(xwalk::application::kApplicationScheme) +
               content::kStandardSchemeSeparator + application_id + "/");
 }
 
@@ -123,60 +107,50 @@ void Application::SetManifestData(const std::string& key,
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-Manifest::Location Application::location() const {
+Manifest::Location Application::Location() const {
   return manifest_->location();
 }
 
-const std::string& Application::id() const {
-  return manifest_->application_id();
+const std::string& Application::ID() const {
+  return manifest_->GetApplicationID();
 }
 
 const std::string Application::VersionString() const {
-  return version()->GetString();
+  return Version()->GetString();
 }
 
-bool Application::is_platform_app() const {
-  return manifest_->is_platform_app();
+bool Application::IsPlatformApp() const {
+  return manifest_->IsPackaged();
 }
 
-bool Application::is_hosted_app() const {
-  return manifest()->is_hosted_app();
+bool Application::IsHostedApp() const {
+  return GetManifest()->IsHosted();
 }
 
 // static
-bool Application::InitApplicationID(xwalk_application::Manifest* manifest,
+bool Application::InitApplicationID(xwalk::application::Manifest* manifest,
                                 const base::FilePath& path,
                                 const std::string& explicit_id,
-                                int creation_flags,
                                 string16* error) {
   if (!explicit_id.empty()) {
-    manifest->set_application_id(explicit_id);
+    manifest->SetApplicationID(explicit_id);
     return true;
   }
 
-  if (creation_flags & REQUIRE_KEY) {
-    *error = ASCIIToUTF16(errors::kInvalidKey);
+  std::string application_id = GenerateIdForPath(path);
+  if (application_id.empty()) {
+    NOTREACHED() << "Could not create ID from path.";
     return false;
-  } else {
-    // If there is a path, we generate the ID from it. This is useful for
-    // development mode, because it keeps the ID stable across restarts and
-    // reloading the application.
-    std::string application_id = id_util::GenerateIdForPath(path);
-    if (application_id.empty()) {
-      NOTREACHED() << "Could not create ID from path.";
-      return false;
-    }
-    manifest->set_application_id(application_id);
-    return true;
   }
+  manifest->SetApplicationID(application_id);
+  return true;
 }
 
 Application::Application(const base::FilePath& path,
-                     scoped_ptr<xwalk_application::Manifest> manifest)
+                     scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
       manifest_(manifest.release()),
-      finished_parsing_manifest_(false),
-      creation_flags_(0) {
+      finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
 }
@@ -187,7 +161,7 @@ Application::~Application() {
 // static
 GURL Application::GetResourceURL(const GURL& application_url,
                                const std::string& relative_path) {
-  DCHECK(application_url.SchemeIs(xwalk_application::kApplicationScheme));
+  DCHECK(application_url.SchemeIs(xwalk::application::kApplicationScheme));
   DCHECK_EQ("/", application_url.path());
 
   std::string path = relative_path;
@@ -205,30 +179,28 @@ GURL Application::GetResourceURL(const GURL& application_url,
 }
 
 Manifest::Type Application::GetType() const {
-  return manifest_->type();
+  return manifest_->GetType();
 }
 
-bool Application::InitFromValue(int flags, string16* error) {
+bool Application::Init(string16* error) {
   DCHECK(error);
 
-  creation_flags_ = flags;
-
-  // Important to load manifest version first because many other features
-  // depend on its value.
+  if (!LoadName(error))
+    return false;
+  if (!LoadVersion(error))
+      return false;
+  if (!LoadDescription(error))
+      return false;
   if (!LoadManifestVersion(error))
     return false;
 
-  application_url_ = Application::GetBaseURLFromApplicationId(id());
-
-  if (!LoadSharedFeatures(error))
-    return false;
-
+  application_url_ = Application::GetBaseURLFromApplicationId(ID());
   finished_parsing_manifest_ = true;
-
   return true;
 }
 
 bool Application::LoadName(string16* error) {
+  DCHECK(error);
   string16 localized_name;
   if (!manifest_->GetString(keys::kName, &localized_name)) {
     *error = ASCIIToUTF16(errors::kInvalidName);
@@ -241,12 +213,13 @@ bool Application::LoadName(string16* error) {
 }
 
 bool Application::LoadVersion(string16* error) {
+  DCHECK(error);
   std::string version_str;
   if (!manifest_->GetString(keys::kVersion, &version_str)) {
     *error = ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
-  version_.reset(new Version(version_str));
+  version_.reset(new base::Version(version_str));
   if (!version_->IsValid() || version_->components().size() > 4) {
     *error = ASCIIToUTF16(errors::kInvalidVersion);
     return false;
@@ -255,6 +228,7 @@ bool Application::LoadVersion(string16* error) {
 }
 
 bool Application::LoadDescription(string16* error) {
+  DCHECK(error);
   if (manifest_->HasKey(keys::kDescription) &&
       !manifest_->GetString(keys::kDescription, &description_)) {
     *error = ASCIIToUTF16(errors::kInvalidDescription);
@@ -264,6 +238,7 @@ bool Application::LoadDescription(string16* error) {
 }
 
 bool Application::LoadManifestVersion(string16* error) {
+  DCHECK(error);
   // Get the original value out of the dictionary so that we can validate it
   // more strictly.
   if (manifest_->value()->HasKey(keys::kManifestVersion)) {
@@ -276,15 +251,8 @@ bool Application::LoadManifestVersion(string16* error) {
   }
 
   manifest_version_ = manifest_->GetManifestVersion();
-
   return true;
 }
 
-bool Application::LoadSharedFeatures(string16* error) {
-  if (!LoadDescription(error))
-    return false;
-
-  return true;
-}
-
-}   // namespace xwalk_application
+}   // namespace application
+}   // namespace xwalk

@@ -202,16 +202,15 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     base::FilePath path(startup_url_.path());
     if (file_util::DirectoryExists(path)) {
       std::string error;
-      scoped_refptr<xwalk_application::Application> application =
-          xwalk_application_file_util::LoadApplication(
+      scoped_refptr<xwalk::application::Application> application =
+          xwalk::application::LoadApplication(
               path,
-              xwalk_application::Manifest::UNPACKED,
-              0,
+              xwalk::application::Manifest::COMMAND_LINE,
               &error);
       if (application != NULL) {
-        xwalk_application::ApplicationSystem* system =
+        xwalk::application::ApplicationSystem* system =
             runtime_context_->GetApplicationSystem();
-        xwalk_application::ApplicationProcessManager* manager =
+        xwalk::application::ApplicationProcessManager* manager =
             system->process_manager();
         manager->LaunchApplication(runtime_context_.get(), application);
         return;

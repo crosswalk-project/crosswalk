@@ -23,7 +23,8 @@ class Runtime;
 class RuntimeContext;
 }
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 class Application;
 class ApplicationHost;
@@ -33,7 +34,6 @@ class ApplicationHost;
 class ApplicationProcessManager {
  public:
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
-  ~ApplicationProcessManager();
 
   void LaunchApplication(xwalk::RuntimeContext* runtime_context,
                        const Application* application);
@@ -44,6 +44,7 @@ class ApplicationProcessManager {
   DISALLOW_COPY_AND_ASSIGN(ApplicationProcessManager);
 };
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_BROWSER_APPLICATION_PROCESS_MANAGER_H_

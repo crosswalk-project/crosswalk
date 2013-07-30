@@ -11,8 +11,8 @@ namespace base {
 class FilePath;
 }
 
-namespace xwalk_application {
-namespace id_util {
+namespace xwalk{
+namespace application {
 
 // The number of bytes in a legal id.
 extern const size_t kIdSize;
@@ -25,7 +25,7 @@ std::string GenerateId(const std::string& input);
 // Used while developing applications, before they have a key.
 std::string GenerateIdForPath(const base::FilePath& path);
 
-}  // namespace id_util
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_ID_UTIL_H_

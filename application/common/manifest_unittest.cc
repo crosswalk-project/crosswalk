@@ -27,10 +27,10 @@ class ManifestTest : public testing::Test {
 
  protected:
   void AssertType(Manifest* manifest, Manifest::Type type) {
-    EXPECT_EQ(type, manifest->type());
-    EXPECT_EQ(type == Manifest::TYPE_PLATFORM_APP,
-              manifest->is_platform_app());
-    EXPECT_EQ(type == Manifest::TYPE_HOSTED_APP, manifest->is_hosted_app());
+    EXPECT_EQ(type, manifest->GetType());
+    EXPECT_EQ(type == Manifest::TYPE_PACKAGED_APP,
+              manifest->IsPackaged());
+    EXPECT_EQ(type == Manifest::TYPE_HOSTED_APP, manifest->IsHosted());
   }
 
   // Helper function that replaces the Manifest held by |manifest| with a copy
@@ -45,7 +45,7 @@ class ManifestTest : public testing::Test {
       manifest_value->Set(key, value);
     else
       manifest_value->Remove(key, NULL);
-    manifest->reset(new Manifest(Manifest::UNPACKED, manifest_value.Pass()));
+    manifest->reset(new Manifest(Manifest::COMMAND_LINE, manifest_value.Pass()));
   }
 
   std::string default_value_;
@@ -59,7 +59,7 @@ TEST_F(ManifestTest, Application) {
   manifest_value->SetString("unknown_key", "foo");
 
   scoped_ptr<Manifest> manifest(
-      new Manifest(Manifest::UNPACKED, manifest_value.Pass()));
+      new Manifest(Manifest::COMMAND_LINE, manifest_value.Pass()));
   std::string error;
   std::vector<InstallWarning> warnings;
   EXPECT_TRUE(manifest->ValidateManifest(&error, &warnings));
@@ -89,7 +89,7 @@ TEST_F(ManifestTest, ApplicationTypes) {
   value->SetString(keys::kVersion, "1");
 
   scoped_ptr<Manifest> manifest(
-      new Manifest(Manifest::UNPACKED, value.Pass()));
+      new Manifest(Manifest::COMMAND_LINE, value.Pass()));
   std::string error;
   std::vector<InstallWarning> warnings;
   EXPECT_TRUE(manifest->ValidateManifest(&error, &warnings));
@@ -99,7 +99,7 @@ TEST_F(ManifestTest, ApplicationTypes) {
   // Platform app.
   MutateManifest(
       &manifest, keys::kPlatformAppBackground, new base::DictionaryValue());
-  AssertType(manifest.get(), Manifest::TYPE_PLATFORM_APP);
+  AssertType(manifest.get(), Manifest::TYPE_PACKAGED_APP);
   MutateManifest(
       &manifest, keys::kPlatformAppBackground, NULL);
 

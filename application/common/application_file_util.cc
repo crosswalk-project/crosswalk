@@ -26,38 +26,33 @@
 #include "net/base/file_stream.h"
 #include "ui/base/l10n/l10n_util.h"
 
-using xwalk_application::Application;
-using xwalk_application::Manifest;
+namespace errors = xwalk::application_manifest_errors;
 
-namespace errors = application_manifest_errors;
-
-namespace xwalk_application_file_util {
+namespace xwalk{
+namespace application {
 
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_path,
     Manifest::Location location,
-    int flags,
     std::string* error) {
   return LoadApplication(application_path, std::string(),
-                         location, flags, error);
+                         location, error);
 }
 
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
     Manifest::Location location,
-    int flags,
     std::string* error) {
   scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
   if (!manifest.get())
     return NULL;
 
-  scoped_refptr<Application> application(Application::Create(application_path,
+  scoped_refptr<Application> application = Application::Create(application_path,
                                                              location,
                                                              *manifest,
-                                                             flags,
                                                              application_id,
-                                                             error));
+                                                             error);
   if (!application.get())
     return NULL;
 
@@ -67,7 +62,7 @@ scoped_refptr<Application> LoadApplication(
 DictionaryValue* LoadManifest(const base::FilePath& application_path,
                               std::string* error) {
   base::FilePath manifest_path =
-      application_path.Append(xwalk_application::kManifestFilename);
+      application_path.Append(kManifestFilename);
   if (!file_util::PathExists(manifest_path)) {
     *error = base::StringPrintf("%s",
                                 errors::kManifestUnreadable);
@@ -101,4 +96,5 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
   return static_cast<DictionaryValue*>(root.release());
 }
 
-}  // namespace xwalk_application_file_util
+}  // namespace application
+}  // namespace xwalk

@@ -25,7 +25,6 @@ namespace keys = application_manifest_keys;
 class ApplicationFileUtilTest : public testing::Test {
 };
 
-
 TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
   base::FilePath install_dir;
   ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &install_dir));
@@ -40,9 +39,9 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
   std::string error;
   scoped_refptr<Application> application(
       xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::UNPACKED, Application::NO_FLAGS, &error));
+          install_dir, Manifest::COMMAND_LINE, Application::NO_FLAGS, &error));
   ASSERT_TRUE(application != NULL);
-  EXPECT_EQ("The first application that I made.", application->description());
+  EXPECT_EQ("The first application that I made.", application->Description());
 }
 
 TEST_F(ApplicationFileUtilTest,
@@ -60,7 +59,7 @@ TEST_F(ApplicationFileUtilTest,
   std::string error;
   scoped_refptr<Application> application(
       xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::UNPACKED,
+          install_dir, Manifest::COMMAND_LINE,
           Application::NO_FLAGS, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
@@ -82,7 +81,7 @@ TEST_F(ApplicationFileUtilTest,
   std::string error;
   scoped_refptr<Application> application(
       xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::UNPACKED, Application::NO_FLAGS, &error));
+          install_dir, Manifest::COMMAND_LINE, Application::NO_FLAGS, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."
@@ -137,6 +136,6 @@ TEST_F(ApplicationFileUtilTest, ValidateThemeUTF8) {
           "}", non_ascii_file.c_str());
   std::string error;
   scoped_refptr<Application> application = LoadApplicationManifest(
-      kManifest, temp.path(), Manifest::UNPACKED, 0, &error);
+      kManifest, temp.path(), Manifest::COMMAND_LINE, 0, &error);
   ASSERT_TRUE(application.get()) << error;
 }

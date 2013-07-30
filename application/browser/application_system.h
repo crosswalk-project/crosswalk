@@ -16,10 +16,8 @@ namespace xwalk {
 class RuntimeContext;
 }
 
-namespace xwalk_application {
-
-class ApplicationProcessManager;
-class ApplicationService;
+namespace xwalk{
+namespace application {
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -48,6 +46,7 @@ class ApplicationSystem {
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_BROWSER_APPLICATION_SYSTEM_H_

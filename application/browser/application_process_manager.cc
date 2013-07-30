@@ -13,33 +13,27 @@ using content::WebContents;
 using xwalk::Runtime;
 using xwalk::RuntimeContext;
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 ApplicationProcessManager::ApplicationProcessManager(
     RuntimeContext* runtime_context)
     : weak_ptr_factory_(this) {
 }
 
-ApplicationProcessManager::~ApplicationProcessManager() {
-}
-
 void ApplicationProcessManager::LaunchApplication(
         RuntimeContext* runtime_context,
         const Application* application) {
   std::string entry_page;
-  application->manifest()->GetString(
+  application->GetManifest()->GetString(
       application_manifest_keys::kLaunchLocalPath,
       &entry_page);
 
-  if (entry_page.empty()) {
-    // TODO(Xinchao): when there's no start page in manifest.json, please add a
-    // default one.
-  }
-
   GURL startup_url = net::FilePathToFileURL(
-      application->path().Append(entry_page));
+      application->Path().Append(entry_page));
 
   Runtime::Create(runtime_context, startup_url);
 }
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk

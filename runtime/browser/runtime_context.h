@@ -20,8 +20,10 @@ namespace content {
 class DownloadManagerDelegate;
 }
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application{
 class ApplicationSystem;
+}
 }
 
 namespace xwalk {
@@ -68,7 +70,7 @@ class RuntimeContext : public content::BrowserContext {
       GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
 
-  xwalk_application::ApplicationSystem* GetApplicationSystem();
+  xwalk::application::ApplicationSystem* GetApplicationSystem();
 
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers);
@@ -85,7 +87,7 @@ class RuntimeContext : public content::BrowserContext {
   void InitWhileIOAllowed();
 
   scoped_ptr<RuntimeResourceContext> resource_context_;
-  scoped_ptr<xwalk_application::ApplicationSystem> application_system_;
+  scoped_ptr<xwalk::application::ApplicationSystem> application_system_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
 

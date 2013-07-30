@@ -7,7 +7,8 @@
 
 #include "base/files/file_path.h"
 
-namespace xwalk_application {
+namespace xwalk{
+namespace application {
 
 // Scheme we serve application content from.
 extern const char kApplicationScheme[];
@@ -18,6 +19,7 @@ extern const base::FilePath::CharType kManifestFilename[];
   // The name of the messages file inside an application.
 extern const base::FilePath::CharType kMessagesFilename[];
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_CONSTANTS_H_

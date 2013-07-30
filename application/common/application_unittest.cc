@@ -17,19 +17,19 @@ namespace xwalk_application {
 // someone doesn't accidentally change them.
 TEST(ApplicationTest, LocationValuesTest) {
   ASSERT_EQ(0, Manifest::INVALID_LOCATION);
-  ASSERT_EQ(1, Manifest::UNPACKED);
+  ASSERT_EQ(1, Manifest::COMMAND_LINE);
 }
 
-TEST(ApplicationTest, IdIsValid) {
-  EXPECT_TRUE(Application::IdIsValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
-  EXPECT_TRUE(Application::IdIsValid("pppppppppppppppppppppppppppppppp"));
-  EXPECT_TRUE(Application::IdIsValid("abcdefghijklmnopabcdefghijklmnop"));
-  EXPECT_TRUE(Application::IdIsValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
-  EXPECT_FALSE(Application::IdIsValid("abcdefghijklmnopabcdefghijklmno"));
-  EXPECT_FALSE(Application::IdIsValid("abcdefghijklmnopabcdefghijklmnopa"));
-  EXPECT_FALSE(Application::IdIsValid("0123456789abcdef0123456789abcdef"));
-  EXPECT_FALSE(Application::IdIsValid("abcdefghijklmnopabcdefghijklmnoq"));
-  EXPECT_FALSE(Application::IdIsValid("abcdefghijklmnopabcdefghijklmno0"));
+TEST(ApplicationTest, IsIDValid) {
+  EXPECT_TRUE(Application::IsIDValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+  EXPECT_TRUE(Application::IsIDValid("pppppppppppppppppppppppppppppppp"));
+  EXPECT_TRUE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnop"));
+  EXPECT_TRUE(Application::IsIDValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
+  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmno"));
+  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnopa"));
+  EXPECT_FALSE(Application::IsIDValid("0123456789abcdef0123456789abcdef"));
+  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnoq"));
+  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmno0"));
 }
 
 }  // namespace xwalk_application
