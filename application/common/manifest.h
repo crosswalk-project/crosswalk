@@ -26,10 +26,10 @@ class Manifest {
  public:
   // Where an application was loaded from.
   enum SourceType {
-    INVALID_LOCATION,
+    INVALID_TYPE,
     INTERNAL,           // Load from internal application registry.
     COMMAND_LINE,       // Load from an unpacked application from command line.
-    NUM_LOCATIONS
+    NUM_TYPES
   };
 
   enum Type {
@@ -38,13 +38,13 @@ class Manifest {
     TYPE_PACKAGED_APP
   };
 
-  Manifest(SourceType location, scoped_ptr<DictionaryValue> value);
+  Manifest(SourceType source_type, scoped_ptr<DictionaryValue> value);
   virtual ~Manifest();
 
   const std::string& GetApplicationID() const { return application_id_; }
   void SetApplicationID(const std::string& id) { application_id_ = id; }
 
-  SourceType location() const { return location_; }
+  SourceType GetSourceType() const { return source_type_; }
 
   // Returns false and |error| will be non-empty if the manifest is malformed.
   // |warnings| will be populated if there are keys in the manifest that cannot
@@ -100,8 +100,8 @@ class Manifest {
   // key, or as a hash of the path in the case of unpacked applications.
   std::string application_id_;
 
-  // The location the application was loaded from.
-  SourceType location_;
+  // The source the application was loaded from.
+  SourceType source_type_;
 
   // The underlying dictionary representation of the manifest.
   scoped_ptr<base::DictionaryValue> data_;

@@ -18,8 +18,8 @@ namespace keys   = xwalk::application_manifest_keys;
 namespace xwalk {
 namespace application {
 
-Manifest::Manifest(SourceType location, scoped_ptr<base::DictionaryValue> value)
-    : location_(location),
+Manifest::Manifest(SourceType source_type, scoped_ptr<base::DictionaryValue> value)
+    : source_type_(source_type),
       data_(value.Pass()),
       type_(TYPE_UNKNOWN) {
   if (data_->HasKey(keys::kAppKey)) {
@@ -95,7 +95,7 @@ bool Manifest::GetList(
 
 Manifest* Manifest::DeepCopy() const {
   Manifest* manifest = new Manifest(
-      location_, scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
+      source_type_, scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
   manifest->SetApplicationID(application_id_);
   return manifest;
 }

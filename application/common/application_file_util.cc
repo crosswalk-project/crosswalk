@@ -33,10 +33,10 @@ namespace application {
 
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_path,
-    Manifest::SourceType location,
+    Manifest::SourceType source_type,
     std::string* error) {
   return LoadApplication(application_path, std::string(),
-                         location, error);
+                         source_type, error);
 }
 
 scoped_refptr<Application> LoadApplication(

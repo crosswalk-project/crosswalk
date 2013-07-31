@@ -107,8 +107,8 @@ void Application::SetManifestData(const std::string& key,
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-Manifest::SourceType Application::Location() const {
-  return manifest_->location();
+Manifest::SourceType Application::GetSourceType() const {
+  return manifest_->GetSourceType();
 }
 
 const std::string& Application::ID() const {

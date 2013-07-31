@@ -17,7 +17,7 @@ namespace application {
 // We persist location values in the preferences, so this is a sanity test that
 // someone doesn't accidentally change them.
 TEST(ApplicationTest, LocationValuesTest) {
-  ASSERT_EQ(0, Manifest::INVALID_LOCATION);
+  ASSERT_EQ(0, Manifest::INVALID_TYPE);
   ASSERT_EQ(1, Manifest::INTERNAL);
   ASSERT_EQ(2, Manifest::COMMAND_LINE);
 }

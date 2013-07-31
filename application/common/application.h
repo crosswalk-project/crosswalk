@@ -89,7 +89,7 @@ class Application : public base::RefCountedThreadSafe<Application> {
 
   const base::FilePath& Path() const { return path_; }
   const GURL& URL() const { return application_url_; }
-  Manifest::SourceType Location() const;
+  Manifest::SourceType GetSourceType() const;
   const std::string& ID() const;
   const base::Version* Version() const { return version_.get(); }
   const std::string VersionString() const;
