@@ -7,7 +7,7 @@
 
 #include "base/files/file_path.h"
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // Scheme we serve application content from.

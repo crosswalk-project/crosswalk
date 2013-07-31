@@ -10,7 +10,7 @@
 
 using xwalk::RuntimeContext;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context) {

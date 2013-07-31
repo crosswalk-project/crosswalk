@@ -6,8 +6,8 @@
 #include "xwalk/application/common/id_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace xwalk_application {
-namespace id_util {
+namespace xwalk {
+namespace application {
 
 TEST(IDUtilTest, GenerateID) {
   const uint8 public_key_info[] = {
@@ -40,5 +40,5 @@ TEST(IDUtilTest, GenerateID) {
                 "this_string_is_longer_than_a_single_sha256_hash_digest"));
 }
 
-}  // namespace id_util
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk

@@ -17,10 +17,13 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
 
-using xwalk_application::Application;
-using xwalk_application::Manifest;
+using xwalk::application::Application;
+using xwalk::application::Manifest;
 
-namespace keys = application_manifest_keys;
+namespace keys = xwalk::application_manifest_keys;
+
+namespace xwalk {
+namespace application {
 
 class ApplicationFileUtilTest : public testing::Test {
 };
@@ -37,9 +40,8 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
       .AppendASCII("aaa");
 
   std::string error;
-  scoped_refptr<Application> application(
-      xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, Application::NO_FLAGS, &error));
+  scoped_refptr<Application> application(LoadApplication(
+          install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
 }
@@ -57,10 +59,8 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("aaa");
 
   std::string error;
-  scoped_refptr<Application> application(
-      xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::COMMAND_LINE,
-          Application::NO_FLAGS, &error));
+  scoped_refptr<Application> application(LoadApplication(
+          install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest file is missing or unreadable.", error.c_str());
@@ -79,9 +79,8 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("bbb");
 
   std::string error;
-  scoped_refptr<Application> application(
-      xwalk_application_file_util::LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, Application::NO_FLAGS, &error));
+  scoped_refptr<Application> application(LoadApplication(
+          install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."
@@ -92,18 +91,18 @@ TEST_F(ApplicationFileUtilTest,
 static scoped_refptr<Application> LoadApplicationManifest(
     base::DictionaryValue* manifest,
     const base::FilePath& manifest_dir,
-    Manifest::Location location,
+    Manifest::SourceType location,
     int extra_flags,
     std::string* error) {
   scoped_refptr<Application> application = Application::Create(
-      manifest_dir, location, *manifest, extra_flags, error);
+      manifest_dir, location, *manifest, std::string(), error);
   return application;
 }
 
 static scoped_refptr<Application> LoadApplicationManifest(
     const std::string& manifest_value,
     const base::FilePath& manifest_dir,
-    Manifest::Location location,
+    Manifest::SourceType location,
     int extra_flags,
     std::string* error) {
   JSONStringValueSerializer serializer(manifest_value);
@@ -139,3 +138,6 @@ TEST_F(ApplicationFileUtilTest, ValidateThemeUTF8) {
       kManifest, temp.path(), Manifest::COMMAND_LINE, 0, &error);
   ASSERT_TRUE(application.get()) << error;
 }
+
+}  // namespace application
+}  // namespace xwalk

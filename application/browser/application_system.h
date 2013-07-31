@@ -16,7 +16,7 @@ namespace xwalk {
 class RuntimeContext;
 }
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // The ApplicationSystem manages the creation and destruction of services which

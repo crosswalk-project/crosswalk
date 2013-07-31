@@ -30,7 +30,7 @@ class ListValue;
 class Version;
 }
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // Represents a xwalk application.
@@ -52,10 +52,10 @@ class Application : public base::RefCountedThreadSafe<Application> {
   };
 
   static scoped_refptr<Application> Create(const base::FilePath& path,
-      Manifest::Location location,
-      const base::DictionaryValue& manifest,
+      Manifest::SourceType source_type,
+      const base::DictionaryValue& manifest_data,
       const std::string& explicit_id,
-      std::string* errorMsg);
+      std::string* error_message);
 
   // Checks to see if the application has a valid ID.
   static bool IsIDValid(const std::string& id);
@@ -89,7 +89,7 @@ class Application : public base::RefCountedThreadSafe<Application> {
 
   const base::FilePath& Path() const { return path_; }
   const GURL& URL() const { return application_url_; }
-  Manifest::Location Location() const;
+  Manifest::SourceType Location() const;
   const std::string& ID() const;
   const base::Version* Version() const { return version_.get(); }
   const std::string VersionString() const;

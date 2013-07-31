@@ -15,7 +15,7 @@
 #include "base/values.h"
 #include "xwalk/application/common/install_warning.h"
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 struct InstallWarning;
@@ -25,7 +25,7 @@ struct InstallWarning;
 class Manifest {
  public:
   // Where an application was loaded from.
-  enum Location {
+  enum SourceType {
     INVALID_LOCATION,
     INTERNAL,           // Load from internal application registry.
     COMMAND_LINE,       // Load from an unpacked application from command line.
@@ -38,13 +38,13 @@ class Manifest {
     TYPE_PACKAGED_APP
   };
 
-  Manifest(Location location, scoped_ptr<DictionaryValue> value);
+  Manifest(SourceType location, scoped_ptr<DictionaryValue> value);
   virtual ~Manifest();
 
   const std::string& GetApplicationID() const { return application_id_; }
   void SetApplicationID(const std::string& id) { application_id_ = id; }
 
-  Location location() const { return location_; }
+  SourceType location() const { return location_; }
 
   // Returns false and |error| will be non-empty if the manifest is malformed.
   // |warnings| will be populated if there are keys in the manifest that cannot
@@ -101,7 +101,7 @@ class Manifest {
   std::string application_id_;
 
   // The location the application was loaded from.
-  Location location_;
+  SourceType location_;
 
   // The underlying dictionary representation of the manifest.
   scoped_ptr<base::DictionaryValue> data_;

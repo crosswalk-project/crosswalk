@@ -20,7 +20,7 @@ class FilePath;
 }
 
 // Utilities for manipulating the on-disk storage of applications.
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 class Application;
@@ -29,14 +29,14 @@ class Application;
 // on failure, with a description of the error in |error|.
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_root,
-    Manifest::Location location,
+    Manifest::SourceType source_type,
     std::string* error);
 
 // The same as LoadApplication except use the provided |application_id|.
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
-    Manifest::Location location,
+    Manifest::SourceType source_type,
     std::string* error);
 
 // Loads an application manifest from the specified directory. Returns NULL

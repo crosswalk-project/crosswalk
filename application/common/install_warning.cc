@@ -4,7 +4,7 @@
 
 #include "xwalk/application/common/install_warning.h"
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 void PrintTo(const InstallWarning& warning, ::std::ostream* os) {

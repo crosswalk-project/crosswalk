@@ -11,7 +11,7 @@ namespace xwalk {
 class RuntimeContext;
 }
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // This will manages applications install, uninstall, update and so on. It'll

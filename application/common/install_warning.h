@@ -8,7 +8,7 @@
 #include <ostream>
 #include <string>
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 struct InstallWarning {

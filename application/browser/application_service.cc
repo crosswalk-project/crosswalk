@@ -8,7 +8,7 @@
 
 using xwalk::RuntimeContext;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 ApplicationService::ApplicationService(RuntimeContext* runtime_context)

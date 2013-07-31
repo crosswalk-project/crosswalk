@@ -32,28 +32,28 @@
 namespace keys = xwalk::application_manifest_keys;
 namespace errors = xwalk::application_manifest_errors;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // static
 scoped_refptr<Application> Application::Create(const base::FilePath& path,
-                                           Manifest::Location location,
-                                           const DictionaryValue& value,
+                                           Manifest::SourceType source_type,
+                                           const DictionaryValue& manifest_data,
                                            const std::string& explicit_id,
-                                           std::string* errorMsg) {
-  DCHECK(errorMsg);
+                                           std::string* error_message) {
+  DCHECK(error_message);
   string16 error;
   scoped_ptr<xwalk::application::Manifest> manifest(
-      new xwalk::application::Manifest(location,
-                               scoped_ptr<DictionaryValue>(value.DeepCopy())));
+      new xwalk::application::Manifest(source_type,
+                               scoped_ptr<DictionaryValue>(manifest_data.DeepCopy())));
 
   if (!InitApplicationID(manifest.get(), path, explicit_id, &error)) {
-    *errorMsg = UTF16ToUTF8(error);
+    *error_message = UTF16ToUTF8(error);
     return NULL;
   }
 
   std::vector<InstallWarning> install_warnings;
-  if (!manifest->ValidateManifest(errorMsg, &install_warnings)) {
+  if (!manifest->ValidateManifest(error_message, &install_warnings)) {
     return NULL;
   }
 
@@ -62,7 +62,7 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
   application->install_warnings_.swap(install_warnings);
 
   if (!application->Init(&error)) {
-    *errorMsg = UTF16ToUTF8(error);
+    *error_message = UTF16ToUTF8(error);
     return NULL;
   }
 
@@ -107,7 +107,7 @@ void Application::SetManifestData(const std::string& key,
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-Manifest::Location Application::Location() const {
+Manifest::SourceType Application::Location() const {
   return manifest_->location();
 }
 
@@ -202,7 +202,7 @@ bool Application::Init(string16* error) {
 bool Application::LoadName(string16* error) {
   DCHECK(error);
   string16 localized_name;
-  if (!manifest_->GetString(keys::kName, &localized_name)) {
+  if (!manifest_->GetString(keys::kNameKey, &localized_name)) {
     *error = ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
@@ -215,7 +215,7 @@ bool Application::LoadName(string16* error) {
 bool Application::LoadVersion(string16* error) {
   DCHECK(error);
   std::string version_str;
-  if (!manifest_->GetString(keys::kVersion, &version_str)) {
+  if (!manifest_->GetString(keys::kVersionKey, &version_str)) {
     *error = ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
@@ -229,8 +229,8 @@ bool Application::LoadVersion(string16* error) {
 
 bool Application::LoadDescription(string16* error) {
   DCHECK(error);
-  if (manifest_->HasKey(keys::kDescription) &&
-      !manifest_->GetString(keys::kDescription, &description_)) {
+  if (manifest_->HasKey(keys::kDescriptionKey) &&
+      !manifest_->GetString(keys::kDescriptionKey, &description_)) {
     *error = ASCIIToUTF16(errors::kInvalidDescription);
     return false;
   }
@@ -241,9 +241,9 @@ bool Application::LoadManifestVersion(string16* error) {
   DCHECK(error);
   // Get the original value out of the dictionary so that we can validate it
   // more strictly.
-  if (manifest_->value()->HasKey(keys::kManifestVersion)) {
+  if (manifest_->value()->HasKey(keys::kManifestVersionKey)) {
     int manifest_version = 1;
-    if (!manifest_->GetInteger(keys::kManifestVersion, &manifest_version) ||
+    if (!manifest_->GetInteger(keys::kManifestVersionKey, &manifest_version) ||
         manifest_version < 1) {
       *error = ASCIIToUTF16(errors::kInvalidManifestVersion);
       return false;

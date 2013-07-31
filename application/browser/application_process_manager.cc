@@ -13,7 +13,7 @@ using content::WebContents;
 using xwalk::Runtime;
 using xwalk::RuntimeContext;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 ApplicationProcessManager::ApplicationProcessManager(
@@ -21,13 +21,17 @@ ApplicationProcessManager::ApplicationProcessManager(
     : weak_ptr_factory_(this) {
 }
 
-void ApplicationProcessManager::LaunchApplication(
+bool ApplicationProcessManager::LaunchApplication(
         RuntimeContext* runtime_context,
         const Application* application) {
   std::string entry_page;
   application->GetManifest()->GetString(
-      application_manifest_keys::kLaunchLocalPath,
+      application_manifest_keys::kLaunchLocalPathKey,
       &entry_page);
+
+  if (entry_page.empty()) {
+	  return false;
+  }
 
   GURL startup_url = net::FilePathToFileURL(
       application->Path().Append(entry_page));

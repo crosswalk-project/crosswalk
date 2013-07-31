@@ -23,7 +23,7 @@ class Runtime;
 class RuntimeContext;
 }
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 class Application;
@@ -35,7 +35,7 @@ class ApplicationProcessManager {
  public:
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
 
-  void LaunchApplication(xwalk::RuntimeContext* runtime_context,
+  bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
                        const Application* application);
 
  private:

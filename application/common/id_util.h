@@ -11,7 +11,7 @@ namespace base {
 class FilePath;
 }
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // The number of bytes in a legal id.

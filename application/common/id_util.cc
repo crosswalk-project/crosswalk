@@ -9,7 +9,7 @@
 #include "base/string_util.h"
 #include "crypto/sha2.h"
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 // Converts a normal hexadecimal string into the alphabet used by applications.

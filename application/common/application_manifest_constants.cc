@@ -4,18 +4,18 @@
 
 #include "xwalk/application/common/application_manifest_constants.h"
 
-namespace xwalk{
+namespace xwalk {
 
 namespace application_manifest_keys {
-const char kApp[] = "app";
-const char kDescription[] = "description";
-const char kLaunchLocalPath[] = "app.launch.local_path";
-const char kLaunchWebURL[] = "app.launch.web_url";
-const char kManifestVersion[] = "manifest_version";
-const char kName[] = "name";
-const char kPlatformAppBackground[] = "app.background";
-const char kVersion[] = "version";
-const char kWebURLs[] = "app.urls";
+const char kAppKey[] = "app";
+const char kDescriptionKey[] = "description";
+const char kLaunchLocalPathKey[] = "app.launch.local_path";
+const char kLaunchWebURLKey[] = "app.launch.web_url";
+const char kManifestVersionKey[] = "manifest_version";
+const char kNameKey[] = "name";
+const char kPlatformAppBackgroundKey[] = "app.background";
+const char kVersionKey[] = "version";
+const char kWebURLsKey[] = "app.urls";
 }  // namespace application_manifest_keys
 
 namespace application_manifest_errors {

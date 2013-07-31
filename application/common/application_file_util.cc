@@ -28,12 +28,12 @@
 
 namespace errors = xwalk::application_manifest_errors;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_path,
-    Manifest::Location location,
+    Manifest::SourceType location,
     std::string* error) {
   return LoadApplication(application_path, std::string(),
                          location, error);
@@ -42,14 +42,14 @@ scoped_refptr<Application> LoadApplication(
 scoped_refptr<Application> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
-    Manifest::Location location,
+    Manifest::SourceType source_type,
     std::string* error) {
   scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
   if (!manifest.get())
     return NULL;
 
   scoped_refptr<Application> application = Application::Create(application_path,
-                                                             location,
+                                                             source_type,
                                                              *manifest,
                                                              application_id,
                                                              error);

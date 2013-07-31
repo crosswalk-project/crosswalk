@@ -11,13 +11,15 @@
 #include "xwalk/application/common/id_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace xwalk_application {
+namespace xwalk {
+namespace application {
 
 // We persist location values in the preferences, so this is a sanity test that
 // someone doesn't accidentally change them.
 TEST(ApplicationTest, LocationValuesTest) {
   ASSERT_EQ(0, Manifest::INVALID_LOCATION);
-  ASSERT_EQ(1, Manifest::COMMAND_LINE);
+  ASSERT_EQ(1, Manifest::INTERNAL);
+  ASSERT_EQ(2, Manifest::COMMAND_LINE);
 }
 
 TEST(ApplicationTest, IsIDValid) {
@@ -32,4 +34,5 @@ TEST(ApplicationTest, IsIDValid) {
   EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmno0"));
 }
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk

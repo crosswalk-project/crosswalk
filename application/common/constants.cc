@@ -4,7 +4,7 @@
 
 #include "xwalk/application/common/constants.h"
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
 const char kApplicationScheme[] = "crosswalk-application";

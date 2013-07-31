@@ -15,19 +15,19 @@
 namespace errors = xwalk::application_manifest_errors;
 namespace keys   = xwalk::application_manifest_keys;
 
-namespace xwalk{
+namespace xwalk {
 namespace application {
 
-Manifest::Manifest(Location location, scoped_ptr<base::DictionaryValue> value)
+Manifest::Manifest(SourceType location, scoped_ptr<base::DictionaryValue> value)
     : location_(location),
       data_(value.Pass()),
       type_(TYPE_UNKNOWN) {
-  if (data_->HasKey(keys::kApp)) {
-    if (data_->Get(keys::kWebURLs, NULL) ||
-        data_->Get(keys::kLaunchWebURL, NULL)) {
+  if (data_->HasKey(keys::kAppKey)) {
+    if (data_->Get(keys::kWebURLsKey, NULL) ||
+        data_->Get(keys::kLaunchWebURLKey, NULL)) {
       type_ = TYPE_HOSTED_APP;
-    } else if (data_->Get(keys::kPlatformAppBackground, NULL) ||
-               data_->Get(keys::kLaunchLocalPath, NULL)) {
+    } else if (data_->Get(keys::kPlatformAppBackgroundKey, NULL) ||
+               data_->Get(keys::kLaunchLocalPathKey, NULL)) {
       type_ = TYPE_PACKAGED_APP;
     }
   }
@@ -106,7 +106,7 @@ bool Manifest::Equals(const Manifest* other) const {
 
 int Manifest::GetManifestVersion() const {
   int manifest_version = 1;
-  data_->GetInteger(keys::kManifestVersion, &manifest_version);
+  data_->GetInteger(keys::kManifestVersionKey, &manifest_version);
   return manifest_version;
 }
 

@@ -16,10 +16,11 @@
 #include "xwalk/application/common/install_warning.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace errors = application_manifest_errors;
-namespace keys = application_manifest_keys;
+namespace errors = xwalk::application_manifest_errors;
+namespace keys = xwalk::application_manifest_keys;
 
-namespace xwalk_application {
+namespace xwalk {
+namespace application {
 
 class ManifestTest : public testing::Test {
  public:
@@ -54,8 +55,8 @@ class ManifestTest : public testing::Test {
 // Verifies that application can access the correct keys.
 TEST_F(ManifestTest, Application) {
   scoped_ptr<base::DictionaryValue> manifest_value(new base::DictionaryValue());
-  manifest_value->SetString(keys::kName, "extension");
-  manifest_value->SetString(keys::kVersion, "1");
+  manifest_value->SetString(keys::kNameKey, "extension");
+  manifest_value->SetString(keys::kVersionKey, "1");
   manifest_value->SetString("unknown_key", "foo");
 
   scoped_ptr<Manifest> manifest(
@@ -85,8 +86,8 @@ TEST_F(ManifestTest, Application) {
 // Verifies that key restriction based on type works.
 TEST_F(ManifestTest, ApplicationTypes) {
   scoped_ptr<base::DictionaryValue> value(new base::DictionaryValue());
-  value->SetString(keys::kName, "extension");
-  value->SetString(keys::kVersion, "1");
+  value->SetString(keys::kNameKey, "extension");
+  value->SetString(keys::kVersionKey, "1");
 
   scoped_ptr<Manifest> manifest(
       new Manifest(Manifest::COMMAND_LINE, value.Pass()));
@@ -98,24 +99,25 @@ TEST_F(ManifestTest, ApplicationTypes) {
 
   // Platform app.
   MutateManifest(
-      &manifest, keys::kPlatformAppBackground, new base::DictionaryValue());
+      &manifest, keys::kPlatformAppBackgroundKey, new base::DictionaryValue());
   AssertType(manifest.get(), Manifest::TYPE_PACKAGED_APP);
   MutateManifest(
-      &manifest, keys::kPlatformAppBackground, NULL);
+      &manifest, keys::kPlatformAppBackgroundKey, NULL);
 
   // Hosted app.
   MutateManifest(
-      &manifest, keys::kWebURLs, new base::ListValue());
+      &manifest, keys::kWebURLsKey, new base::ListValue());
   AssertType(manifest.get(), Manifest::TYPE_HOSTED_APP);
   MutateManifest(
-      &manifest, keys::kWebURLs, NULL);
+      &manifest, keys::kWebURLsKey, NULL);
   MutateManifest(
-      &manifest, keys::kLaunchWebURL, new base::StringValue("foo"));
+      &manifest, keys::kLaunchWebURLKey, new base::StringValue("foo"));
   AssertType(manifest.get(), Manifest::TYPE_HOSTED_APP);
   MutateManifest(
-      &manifest, keys::kLaunchWebURL, NULL);
+      &manifest, keys::kLaunchWebURLKey, NULL);
 };
 
-}  // namespace xwalk_application
+}  // namespace application
+}  // namespace xwalk
 
 
