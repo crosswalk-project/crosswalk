@@ -27,6 +27,7 @@ class WebContents;
 
 namespace xwalk {
 
+class BrowserBindingHelper;
 class NativeAppWindow;
 class RuntimeContext;
 
@@ -133,6 +134,8 @@ class Runtime : public content::WebContentsDelegate,
 
   // The WebContents owned by this runtime.
   scoped_ptr<content::WebContents> web_contents_;
+
+  scoped_ptr<BrowserBindingHelper> binding_helper_;
 
   NativeAppWindow* window_;
 

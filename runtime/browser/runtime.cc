@@ -9,6 +9,7 @@
 
 #include "base/command_line.h"
 #include "base/message_loop.h"
+#include "xwalk/binding/browser/browser_binding_helper.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/image_util.h"
@@ -69,6 +70,10 @@ Runtime::Runtime(content::WebContents* web_contents)
   web_contents_->SetDelegate(this);
   runtime_context_ =
       static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+#if !defined(OS_WIN)
+  // FIXME(zliang7): Fix windows hang issue
+  binding_helper_.reset(new BrowserBindingHelper(web_contents));
+#endif
 
   // Set the app icon if it is passed from command line.
   CommandLine* command_line = CommandLine::ForCurrentProcess();

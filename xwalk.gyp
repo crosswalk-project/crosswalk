@@ -56,6 +56,7 @@
       'includes': [
         'extensions/extensions.gypi',
         'experimental/dialog/dialog.gypi',
+        'binding/binding.gypi',
       ],
       'sources': [
         'runtime/app/android/xwalk_main_delegate_android.cc',

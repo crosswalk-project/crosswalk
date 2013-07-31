@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#include "xwalk/binding/renderer/renderer_binding_helper.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace xwalk {
@@ -32,6 +33,10 @@ void XWalkContentRendererClient::RenderThreadStarted() {
 void XWalkContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
   extension_controller_->RenderViewCreated(render_view);
+#if !defined(OS_WIN)
+  // FIXME(zliang7): Add windows support
+  binding_helper_.reset(new RendererBindingHelper(render_view));
+#endif
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
