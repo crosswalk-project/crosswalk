@@ -1,0 +1,9 @@
+{
+  "version": ""1.0",
+  "name": "My extension 3",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"]
+    }
+  ]
+}
