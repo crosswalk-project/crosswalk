@@ -121,8 +121,10 @@
         'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_win.cc',
-        'runtime/browser/ui/native_app_window.h',
+        'runtime/browser/ui/desktop_root_window_host_xwalk.cc',
+        'runtime/browser/ui/desktop_root_window_host_xwalk.h',
         'runtime/browser/ui/native_app_window.cc',
+        'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
         'runtime/browser/ui/native_app_window_gtk.h',
         'runtime/browser/ui/native_app_window_mac.h',
@@ -216,6 +218,11 @@
         ['use_aura==1', {
           'dependencies': [
             '../ui/aura/aura.gyp:aura',
+          ],
+        }, {  # use_aura==0
+          'sources/': [
+            ['exclude', '_aura\\.cc$'],
+            ['exclude', 'runtime/browser/ui/desktop_root_window_host_xwalk.cc'],
           ],
         }],
       ],
