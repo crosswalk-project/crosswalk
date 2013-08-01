@@ -4,6 +4,7 @@
     'target_name': 'xwalk_test_common',
     'type': 'static_library',
     'dependencies': [
+      'xwalk_application_lib',
       'xwalk_runtime',
       'xwalk_resources',
       '../base/base.gyp:test_support_base',
@@ -63,6 +64,10 @@
       'extensions/extensions_unittests.gypi',
     ],
     'sources': [
+      'application/common/application_unittest.cc',
+      'application/common/application_file_util_unittest.cc',
+      'application/common/id_util_unittest.cc',
+      'application/common/manifest_unittest.cc',
       'runtime/common/xwalk_content_client_unittest.cc',
       'test/base/run_all_unittests.cc',
     ],
