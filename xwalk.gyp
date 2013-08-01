@@ -49,6 +49,7 @@
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/support/webkit_support.gyp:webkit_resources',
         '../webkit/support/webkit_support.gyp:webkit_support',
+        'xwalk_application_lib',
         'xwalk_resources',
       ],
       'include_dirs': [
@@ -302,7 +303,6 @@
       'defines!': ['CONTENT_IMPLEMENTATION'],
       'dependencies': [
         'xwalk_runtime',
-        'xwalk_application_lib',
         'xwalk_pak',
       ],
       'include_dirs': [

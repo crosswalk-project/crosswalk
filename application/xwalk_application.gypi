@@ -29,7 +29,6 @@
         'common/constants.h',
         'common/id_util.cc',
         'common/id_util.h',
-        'common/install_warning.cc',
         'common/install_warning.h',
         'common/manifest.cc',
         'common/manifest.h',

@@ -20,8 +20,8 @@ namespace content {
 class DownloadManagerDelegate;
 }
 
-namespace xwalk{
-namespace application{
+namespace xwalk {
+namespace application {
 class ApplicationSystem;
 }
 }

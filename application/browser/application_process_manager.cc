@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <string>
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -30,13 +31,18 @@ bool ApplicationProcessManager::LaunchApplication(
       &entry_page);
 
   if (entry_page.empty()) {
-	  return false;
+    return false;
   }
 
+#if defined(OS_WIN)
   GURL startup_url = net::FilePathToFileURL(
-      application->Path().Append(entry_page));
-
+    application->Path().Append(ASCIIToWide(entry_page)));
+#else
+  GURL startup_url = net::FilePathToFileURL(
+    application->Path().Append(entry_page));
+#endif
   Runtime::Create(runtime_context, startup_url);
+  return true;
 }
 
 }  // namespace application

@@ -18,7 +18,8 @@ namespace keys   = xwalk::application_manifest_keys;
 namespace xwalk {
 namespace application {
 
-Manifest::Manifest(SourceType source_type, scoped_ptr<base::DictionaryValue> value)
+Manifest::Manifest(SourceType source_type,
+        scoped_ptr<base::DictionaryValue> value)
     : source_type_(source_type),
       data_(value.Pass()),
       type_(TYPE_UNKNOWN) {

@@ -45,7 +45,7 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
   string16 error;
   scoped_ptr<xwalk::application::Manifest> manifest(
       new xwalk::application::Manifest(source_type,
-                               scoped_ptr<DictionaryValue>(manifest_data.DeepCopy())));
+                 scoped_ptr<DictionaryValue>(manifest_data.DeepCopy())));
 
   if (!InitApplicationID(manifest.get(), path, explicit_id, &error)) {
     *error_message = UTF16ToUTF8(error);

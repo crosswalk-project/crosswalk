@@ -46,7 +46,8 @@ class ManifestTest : public testing::Test {
       manifest_value->Set(key, value);
     else
       manifest_value->Remove(key, NULL);
-    manifest->reset(new Manifest(Manifest::COMMAND_LINE, manifest_value.Pass()));
+    manifest->reset(new Manifest(Manifest::COMMAND_LINE,
+            manifest_value.Pass()));
   }
 
   std::string default_value_;

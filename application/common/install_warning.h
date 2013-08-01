@@ -5,7 +5,6 @@
 #ifndef XWALK_APPLICATION_COMMON_INSTALL_WARNING_H_
 #define XWALK_APPLICATION_COMMON_INSTALL_WARNING_H_
 
-#include <ostream>
 #include <string>
 
 namespace xwalk {
@@ -25,9 +24,6 @@ struct InstallWarning {
   Format format;
   std::string message;
 };
-
-// Let gtest print InstallWarnings.
-void PrintTo(const InstallWarning&, ::std::ostream* os);
 
 }  // namespace application
 }  // namespace xwalk

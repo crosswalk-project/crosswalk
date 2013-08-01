@@ -199,7 +199,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   NativeAppWindow::Initialize();
 
   if (startup_url_.SchemeIsFile()) {
+#if defined(OS_WIN)
+    base::FilePath path(ASCIIToWide(startup_url_.path()));
+#else
     base::FilePath path(startup_url_.path());
+#endif
     if (file_util::DirectoryExists(path)) {
       std::string error;
       scoped_refptr<xwalk::application::Application> application =
