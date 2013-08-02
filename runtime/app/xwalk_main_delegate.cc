@@ -17,6 +17,10 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 
+#if defined(USE_AURA)
+#include "xwalk/runtime/browser/ui/desktop_root_window_host_xwalk.h"
+#endif
+
 namespace xwalk {
 
 XWalkMainDelegate::XWalkMainDelegate()
@@ -38,6 +42,9 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   // Only set the id for browser process
   if (process_type.empty())
     SetTaskbarGroupIdForProcess();
+#elif defined(USE_AURA)
+  views::DesktopRootWindowHost::InitDesktopRootWindowHostFactory(
+      views::DesktopRootWindowHostXWalk::Create);
 #endif
   return false;
 }
