@@ -89,6 +89,7 @@ export GYP_GENERATORS='make'
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Duse_xi2_mt=2 \
+-Dextension_host_os=mobile \
 
 make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
@@ -101,10 +102,17 @@ install -m 755 -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -m 644 -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
+# Tizen extension libraries.
+for i in `ls src/out/Release/tizen-extensions/`
+do
+install -m 644 -D src/out/Release/tizen-extensions/$i %{buildroot}%{_libdir}/xwalk/tizen-extensions/$i
+done
+
 %files
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_libdir}/xwalk/libffmpegsumo.so
+%{_libdir}/xwalk/tizen-extensions/libtizen*.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
