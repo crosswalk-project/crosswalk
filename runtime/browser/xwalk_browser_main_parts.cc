@@ -212,6 +212,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
               path,
               xwalk::application::Manifest::COMMAND_LINE,
               &error);
+      if (!error.empty())
+        LOG(ERROR) << "Failed to load application: " << error;
       if (application != NULL) {
         xwalk::application::ApplicationSystem* system =
             runtime_context_->GetApplicationSystem();
