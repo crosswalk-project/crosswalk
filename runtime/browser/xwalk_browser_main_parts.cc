@@ -88,10 +88,14 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
     return;
 
   GURL url(args[0]);
-  if (url.is_valid() && url.has_scheme())
+  if (url.is_valid() && url.has_scheme()) {
     startup_url_ = url;
-  else
-    startup_url_ = net::FilePathToFileURL(base::FilePath(args[0]));
+  } else {
+    base::FilePath path(args[0]);
+    if (!path.IsAbsolute())
+      path = MakeAbsoluteFilePath(path);
+    startup_url_ = net::FilePathToFileURL(path);
+  }
 #endif
 
 #if defined(OS_MACOSX)
