@@ -474,6 +474,11 @@
             'xwalk_core_shell_apk',
           ],
         }],
+        ['OS=="linux"', {
+          'dependencies': [
+            'tizen-extensions-crosswalk/tizen-wrt.gyp:copy_all_tizen_extensions',
+          ],
+        }],
       ],
     },
   ],

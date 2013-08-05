@@ -22,6 +22,8 @@ vars = {
 }
 
 deps = {
+  "src/xwalk/tizen-extensions-crosswalk":
+    "ssh://git@github.com/otcshare/tizen-extensions-crosswalk.git@origin/master",
 }
 
 hooks = [

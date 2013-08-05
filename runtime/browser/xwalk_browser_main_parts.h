@@ -49,6 +49,8 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
  private:
   void RegisterExternalExtensions();
   void RegisterInternalExtensions();
+  void RegisterBundledExtensions();
+  void RegisterExtensionsInDir(const base::FilePath& dir);
 #if defined(OS_MACOSX)
   void PreMainMessageLoopStartMac();
 #elif defined(USE_AURA)

@@ -10,6 +10,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
@@ -126,6 +127,14 @@ int XWalkBrowserMainParts::PreCreateThreads() {
   return content::RESULT_CODE_NORMAL_EXIT;
 }
 
+void XWalkBrowserMainParts::RegisterBundledExtensions() {
+  base::FilePath bundled_dir;
+  if (!PathService::Get(base::DIR_EXE, &bundled_dir))
+    return;
+  bundled_dir.Append(FILE_PATH_LITERAL("tizen-extensions"));
+  RegisterExtensionsInDir(bundled_dir);
+}
+
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkExternalExtensionsPath))
@@ -136,19 +145,21 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
           startup_url_.scheme();
     return;
   }
+  RegisterExtensionsInDir(
+      cmd_line->GetSwitchValuePath(switches::kXWalkExternalExtensionsPath));
+}
 
-  base::FilePath extensions_dir =
-      cmd_line->GetSwitchValuePath(switches::kXWalkExternalExtensionsPath);
-  if (!file_util::DirectoryExists(extensions_dir)) {
+void XWalkBrowserMainParts::RegisterExtensionsInDir(const base::FilePath& dir) {
+  if (!file_util::DirectoryExists(dir)) {
     LOG(WARNING) << "Ignoring non-existent extension directory: "
-                 << extensions_dir.AsUTF8Unsafe();
+                 << dir.AsUTF8Unsafe();
     return;
   }
 
   // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
   // extension for the current platform.
   const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
-  file_util::FileEnumerator libraries(extensions_dir, false,
+  file_util::FileEnumerator libraries(dir, false,
         file_util::FileEnumerator::FILES, pattern);
 
   for (base::FilePath extension_path = libraries.Next();
@@ -182,6 +193,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       new extensions::XWalkExtensionService(runtime_registry_.get()));
 
   RegisterInternalExtensions();
+  RegisterBundledExtensions();
   RegisterExternalExtensions();
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
