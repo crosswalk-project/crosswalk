@@ -11,7 +11,6 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application.h"
@@ -200,11 +199,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   NativeAppWindow::Initialize();
 
   if (startup_url_.SchemeIsFile()) {
-#if defined(OS_WIN)
-    base::FilePath path(ASCIIToWide(startup_url_.path()));
-#else
-    base::FilePath path(startup_url_.path());
-#endif
+    base::FilePath path;
+    if (!net::FileURLToFilePath(startup_url_, &path))
+      return;
     if (file_util::DirectoryExists(path)) {
       std::string error;
       scoped_refptr<xwalk::application::Application> application =
