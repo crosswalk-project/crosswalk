@@ -1,1 +1,4 @@
+*.pyc
+.*.sw?
+cscope.*
 /tizen-extensions-crosswalk
