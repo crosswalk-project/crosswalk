@@ -4,28 +4,33 @@
 
 #include "xwalk/runtime/app/tizen/runtime_main.h"
 
+#include <Ecore.h>
+#include <Elementary.h>
 #include "base/bind.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/run_loop.h"
 #include "content/public/app/content_main_runner.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/common/main_function_params.h"
+#include "xwalk/runtime/app/tizen/message_pump_efl.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 
 namespace xwalk {
 
 namespace {
 
+base::MessagePump* MessagePumpFactory() {
+  return new base::MessagePumpEFL;
+}
+
 class WebRuntimeContext {
  public:
   WebRuntimeContext();
   ~WebRuntimeContext();
-  void Run();
 
  private:
   scoped_ptr<content::ContentMainRunner> runner_;
   scoped_ptr<content::BrowserMainRunner> main_runner_;
-  scoped_ptr<base::RunLoop> run_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(WebRuntimeContext);
 };
@@ -34,6 +39,12 @@ void DummyRun() {
 }
 
 WebRuntimeContext::WebRuntimeContext() {
+  // MessagePumpGlib uses glib main context,
+  // so we need to integrate glib with ecore main loop.
+  ecore_main_loop_glib_integrate();
+  // Inject MessagePumpFacotry for embedder.
+  base::MessageLoop::InitMessagePumpForUIFactory(MessagePumpFactory);
+
   runner_.reset(content::ContentMainRunner::Create());
   runner_->Initialize(0, 0, new XWalkMainDelegate);
 
@@ -47,9 +58,6 @@ WebRuntimeContext::WebRuntimeContext() {
   int result_code = main_runner_->Initialize(params);
   CHECK_LT(result_code, 0);
   main_runner_->Run();
-
-  // Once the MessageLoop has been created, attach a top-level RunLoop.
-  run_loop_.reset(new base::RunLoop);
 }
 
 WebRuntimeContext::~WebRuntimeContext() {
@@ -57,17 +65,12 @@ WebRuntimeContext::~WebRuntimeContext() {
   runner_->Shutdown();
 }
 
-void WebRuntimeContext::Run() {
-  run_loop_->Run();
-}
-
 }  // namespace
 
 int RuntimeMain(int argc, const char** argv) {
-  {
-    scoped_ptr<WebRuntimeContext> context(new WebRuntimeContext);
-    context->Run();
-  }
+  elm_init(argc, const_cast<char**>(argv));
+  scoped_ptr<WebRuntimeContext> context(new WebRuntimeContext);
+  elm_run();
   return 0;
 }
 

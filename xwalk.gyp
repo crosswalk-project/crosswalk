@@ -396,7 +396,19 @@
           ],
         }],
         ['tizenos==1', {
+          'variables': {
+            'packages': [
+              'ecore',
+              'ecore-x',
+              'elementary',
+            ]
+          },
+          'includes': [
+            'build/pkg-config.gypi',
+          ],
           'sources': [
+            'runtime/app/tizen/message_pump_efl.cc',
+            'runtime/app/tizen/message_pump_efl.h',
             'runtime/app/tizen/runtime_main.cc',
             'runtime/app/tizen/runtime_main.h',
             'runtime/app/tizen/xwalk_main_tizen.cc',
