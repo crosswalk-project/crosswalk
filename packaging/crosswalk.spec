@@ -99,6 +99,7 @@ install -m 755 -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 
 # Supporting libraries and resources.
 install -m 644 -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -m 644 -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
 install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 %files
@@ -106,5 +107,6 @@ install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.p
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_libdir}/xwalk/libffmpegsumo.so
+%{_libdir}/xwalk/libosmesa.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
