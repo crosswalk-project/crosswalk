@@ -18,7 +18,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
-#include "xwalk/extensions/common/xwalk_extension_external.h"
+#include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"

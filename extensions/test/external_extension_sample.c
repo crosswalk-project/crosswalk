@@ -8,35 +8,35 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "xwalk/extensions/public/xwalk_extension_public.h"
+#include "xwalk/extensions/public/XW_Extension.h"
+#include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 
-static void context_handle_message(CXWalkExtensionContext* context,
-                                    const char *message) {
-  xwalk_extension_context_post_message(context, message);
+XW_Extension g_extension = 0;
+const XW_CoreInterface* g_core = NULL;
+const XW_MessagingInterface* g_messaging = NULL;
+const XW_Internal_SyncMessagingInterface* g_sync_messaging = NULL;
+
+void instance_created(XW_Instance instance) {
+  printf("Instance %d created!\n", instance);
 }
 
-static void context_handle_sync_message(CXWalkExtensionContext* context,
-					const char *message) {
-  xwalk_extension_context_set_sync_reply(context, message);
+void instance_destroyed(XW_Instance instance) {
+  printf("Instance %d destroyed!\n", instance);
 }
 
-static void context_destroy(CXWalkExtensionContext* context) {
-  free(context);
+void handle_message(XW_Instance instance, const char* message) {
+  g_messaging->PostMessage(instance, message);
 }
 
-static CXWalkExtensionContext* context_create(CXWalkExtension* extension) {
-  CXWalkExtensionContext* context = calloc(1, sizeof(*context));
-  if (!context)
-    return NULL;
-
-  context->destroy = context_destroy;
-  context->handle_message = context_handle_message;
-  context->handle_sync_message = context_handle_sync_message;
-
-  return context;
+void handle_sync_message(XW_Instance instance, const char* message) {
+  g_sync_messaging->SetSyncReply(instance, message);
 }
 
-static const char* get_javascript(CXWalkExtension* extension) {
+void shutdown(XW_Extension extension) {
+  printf("Shutdown\n");
+}
+
+int32_t XW_Initialize(XW_Extension extension, XW_GetInterface get_interface) {
   static const char* kAPI =
       "var echoListener = null;"
       "extension.setMessageListener(function(msg) {"
@@ -51,19 +51,20 @@ static const char* get_javascript(CXWalkExtension* extension) {
       "exports.syncEcho = function(msg) {"
       "  return extension.internal.sendSyncMessage(msg);"
       "};";
-  return kAPI;
-}
 
-static void shutdown(CXWalkExtension* extension) {
-  free(extension);
-}
+  g_extension = extension;
+  g_core = get_interface(XW_CORE_INTERFACE);
+  g_core->SetExtensionName(extension, "echo");
+  g_core->SetJavaScriptAPI(extension, kAPI);
+  g_core->RegisterInstanceCallbacks(
+      extension, instance_created, instance_destroyed);
+  g_core->RegisterShutdownCallback(extension, shutdown);
 
-CXWalkExtension* xwalk_extension_init(int32_t api_version) {
-  CXWalkExtension* extension = calloc(1, sizeof(*extension));
-  extension->name = "echo";
-  extension->api_version = 1;
-  extension->get_javascript = get_javascript;
-  extension->shutdown = shutdown;
-  extension->context_create = context_create;
-  return extension;
+  g_messaging = get_interface(XW_MESSAGING_INTERFACE);
+  g_messaging->Register(extension, handle_message);
+
+  g_sync_messaging = get_interface(XW_INTERNAL_SYNC_MESSAGING_INTERFACE);
+  g_sync_messaging->Register(extension, handle_sync_message);
+
+  return XW_OK;
 }
