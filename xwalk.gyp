@@ -2,6 +2,10 @@
   'variables': {
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '1.28.2.0',
+    'variables': {
+      'tizenos%': 0,
+    },
+    'tizenos%': '<(tizenos)',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -389,6 +393,16 @@
                 'tools/packaging/bootstrapped/linux/Makefile.templ',
               ],
             }
+          ],
+        }],
+        ['tizenos==1', {
+          'sources': [
+            'runtime/app/tizen/runtime_main.cc',
+            'runtime/app/tizen/runtime_main.h',
+            'runtime/app/tizen/xwalk_main_tizen.cc',
+          ],
+          'sources!': [
+            'runtime/app/xwalk_main.cc',
           ],
         }],
         ['OS=="mac"', {

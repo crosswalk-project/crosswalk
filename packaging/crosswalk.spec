@@ -79,6 +79,7 @@ export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 export GYP_GENERATORS='make'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 -Ddisable_nacl=1 \
+-Dtizenos=1 \
 -Duse_aura=1 \
 -Duse_cups=0 \
 -Duse_gconf=0 \
