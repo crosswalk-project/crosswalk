@@ -1,6 +1,13 @@
 
 #!/bin/sh
 
-# TODO(rakuco): Passing --use-gl=egl by default makes sense on Tizen
-# mobile, but may not be the best option for all platforms.
-exec /usr/lib/xwalk/xwalk --use-gl=egl "$@"
+# If the vm_name parameter is passed to the kernel, we are most likely running in the
+# Tizen emulator, in which case we use the software OpenGL backend.
+cmdline=`cat /proc/cmdline | grep "vm_name"`
+if [ -z "$cmdline" ]; then
+    # TODO(rakuco): Passing --use-gl=egl by default makes sense on Tizen
+    # mobile, but may not be the best option for all platforms.
+    exec /usr/lib/xwalk/xwalk --use-gl=egl "$@"
+else
+    exec /usr/lib/xwalk/xwalk --use-gl=osmesa "$@"
+fi
