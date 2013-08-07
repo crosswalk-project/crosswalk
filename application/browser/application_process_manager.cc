@@ -21,6 +21,9 @@ ApplicationProcessManager::ApplicationProcessManager(
     : weak_ptr_factory_(this) {
 }
 
+ApplicationProcessManager::~ApplicationProcessManager() {
+}
+
 bool ApplicationProcessManager::LaunchApplication(
         RuntimeContext* runtime_context,
         const Application* application) {
