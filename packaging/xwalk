@@ -1,6 +1,3 @@
-
 #!/bin/sh
 
-# TODO(rakuco): Passing --use-gl=egl by default makes sense on Tizen
-# mobile, but may not be the best option for all platforms.
-exec /usr/lib/xwalk/xwalk --use-gl=egl --fullscreen --ignore-gpu-blacklist --allow-file-access-from-files "$@"
+exec /usr/lib/xwalk/xwalk --fullscreen --ignore-gpu-blacklist --allow-file-access-from-files "$@"
