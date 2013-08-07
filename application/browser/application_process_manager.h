@@ -34,6 +34,7 @@ class ApplicationHost;
 class ApplicationProcessManager {
  public:
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
+  ~ApplicationProcessManager();
 
   bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
                        const Application* application);
