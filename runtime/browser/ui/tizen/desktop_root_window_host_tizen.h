@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_DESKTOP_ROOT_WINDOW_HOST_XWALK_H_
-#define XWALK_RUNTIME_BROWSER_UI_DESKTOP_ROOT_WINDOW_HOST_XWALK_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_DESKTOP_ROOT_WINDOW_HOST_TIZEN_H_
+#define XWALK_RUNTIME_BROWSER_UI_TIZEN_DESKTOP_ROOT_WINDOW_HOST_TIZEN_H_
 
 #include <X11/Xlib.h>
 #include <set>
@@ -44,7 +44,7 @@ namespace corewm {
 class CursorManager;
 }
 
-class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
+class VIEWS_EXPORT DesktopRootWindowHostTizen : public DesktopRootWindowHost,
     public aura::RootWindowHost,
     public aura::RootWindowObserver,
     public ui::DesktopSelectionProviderAuraX11,
@@ -55,17 +55,17 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
       DesktopNativeWidgetAura* desktop_native_widget_aura,
       const gfx::Rect& initial_bounds);
 
-  DesktopRootWindowHostXWalk(
+  DesktopRootWindowHostTizen(
       internal::NativeWidgetDelegate* native_widget_delegate,
       DesktopNativeWidgetAura* desktop_native_widget_aura,
       const gfx::Rect& initial_bounds);
-  virtual ~DesktopRootWindowHostXWalk();
+  virtual ~DesktopRootWindowHostTizen();
 
   // A way of converting an X11 |xid| host window into a |content_window_|.
   static aura::Window* GetContentWindowForXID(XID xid);
 
   // A way of converting an X11 |xid| host window into this object.
-  static DesktopRootWindowHostXWalk* GetHostForXID(XID xid);
+  static DesktopRootWindowHostTizen* GetHostForXID(XID xid);
 
   // Called by X11DesktopHandler to notify us that the native windowing system
   // has changed our activation.
@@ -192,7 +192,7 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
   virtual void OnRootWindowHostCloseRequested(
       const aura::RootWindow* root) OVERRIDE;
 
-  base::WeakPtrFactory<DesktopRootWindowHostXWalk> close_widget_factory_;
+  base::WeakPtrFactory<DesktopRootWindowHostTizen> close_widget_factory_;
 
   // X11 things
   // The display and the native X window hosting the root window.
@@ -251,11 +251,11 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
   // there are no notifications when this changes. We need to track this so we
   // can notify widgets when they have lost capture, which controls a bunch of
   // things in views like hiding menus.
-  static DesktopRootWindowHostXWalk* g_current_capture;
+  static DesktopRootWindowHostTizen* g_current_capture;
 
-  DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostXWalk);
+  DISALLOW_COPY_AND_ASSIGN(DesktopRootWindowHostTizen);
 };
 
 }  // namespace views
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_DESKTOP_ROOT_WINDOW_HOST_XWALK_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_DESKTOP_ROOT_WINDOW_HOST_TIZEN_H_
