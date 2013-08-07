@@ -12,6 +12,7 @@ Source1001:     crosswalk.manifest
 Patch1:         %{name}-%{version}-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-%{version}-pull-request-40.patch
 Patch3:         %{name}-%{version}-look-for-pvr-libGLESv2.so.patch
+Patch4:         %{name}-%{version}-reorder-gl-implementation-lookup.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -55,6 +56,16 @@ BuildRequires:  pkgconfig(xtst)
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
+%package emulator-support
+Summary:        Support files necessary for running Crosswalk on the Tizen emulator
+# License:        (BSD-3-Clause and LGPL-2.1+)
+License:        BSD-3-Clause
+Group:          Web Framework/Web Run Time
+Url:            https://github.com/otcshare/crosswalk
+
+%description emulator-support
+This package contains additional support files that are needed for running Crosswalk on the Tizen emulator.
+
 %prep
 %setup -q
 
@@ -68,6 +79,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch1
 %patch2
 %patch3
+%patch4
 
 %build
 
@@ -107,6 +119,8 @@ install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.p
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_libdir}/xwalk/libffmpegsumo.so
-%{_libdir}/xwalk/libosmesa.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
+
+%files emulator-support
+%{_libdir}/xwalk/libosmesa.so
