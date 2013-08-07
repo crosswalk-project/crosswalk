@@ -12,7 +12,23 @@
       }, {
        'use_custom_freetype%': 0,
       }],
+      ['tizenos==1', {
+        # If capi-appfw-application package exists, the host is considered to be Tizen Mobile.
+        # Note, the spec file requires this package: BuildRequires: pkgconfig(capi-appfw-application).
+        'tizenos_desktop%': '<!(pkg-config --exists capi-appfw-application; echo $?)',
+      }],
     ], # conditions
+  },
+  'target_defaults': {
+    'conditions': [
+      ['tizenos==1', {
+        'conditions': [
+          ['tizenos_desktop==1', {
+            'defines': ['OS_TIZEN_DESKTOP=1'],
+          }],
+        ],
+      }],
+    ],
   },
   'includes' : [
     'xwalk_tests.gypi',
@@ -415,6 +431,23 @@
           ],
           'sources!': [
             'runtime/app/xwalk_main.cc',
+          ],
+          'conditions': [
+            ['tizenos_desktop==1', {
+              'sources': [
+                'runtime/app/tizen/app_main_desktop_mock.cc',
+                'runtime/app/tizen/app_main_desktop_mock.h',
+              ],
+            }, {
+              'variables': {
+                'packages': [
+                  'capi-appfw-application',
+                ]
+              },
+              'includes': [
+                'build/pkg-config.gypi',
+              ],
+            }],
           ],
         }],
         ['OS=="mac"', {

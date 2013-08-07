@@ -54,6 +54,8 @@ BuildRequires:  pkgconfig(xtst)
 BuildRequires:  pkgconfig(ecore)
 BuildRequires:  pkgconfig(ecore-x)
 BuildRequires:  pkgconfig(elementary)
+BuildRequires:  pkgconfig(appcore-efl)
+BuildRequires:  pkgconfig(capi-appfw-application)
 
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).

@@ -15,6 +15,12 @@
 #include "xwalk/runtime/app/tizen/message_pump_efl.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 
+#if defined(OS_TIZEN_DESKTOP)
+#include "xwalk/runtime/app/tizen/app_main_desktop_mock.h"
+#else
+#include <app.h>  // NOLINT(build/include_order)
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -65,12 +71,74 @@ WebRuntimeContext::~WebRuntimeContext() {
   runner_->Shutdown();
 }
 
+///////////////////////////////// Implementation for app_efl_main()
+
+struct UserData {
+  scoped_ptr<WebRuntimeContext> context;
+};
+
+bool Create(void* data) {
+  UserData* user_data = static_cast<UserData*>(data);
+
+  if (!user_data)
+    return false;
+
+  user_data->context.reset(new WebRuntimeContext);
+  return true;
+}
+
+void Terminate(void* data) {
+  UserData* user_data = static_cast<UserData*>(data);
+
+  if (!user_data)
+    return;
+
+  user_data->context.reset();
+}
+
+void Pause(void* data) {
+}
+
+void Resume(void* data) {
+}
+
+void Service(service_h service, void* data) {
+}
+
+void LowMemory(void* data) {
+}
+
+void LowBattery(void* data) {
+}
+
+void DevOrientationChanged(app_device_orientation_e orientation,
+                              void* data) {
+}
+
+void LangChanged(void* data) {
+}
+
+void RegionFmtChanged(void* data) {
+}
+
 }  // namespace
 
 int RuntimeMain(int argc, const char** argv) {
-  elm_init(argc, const_cast<char**>(argv));
-  scoped_ptr<WebRuntimeContext> context(new WebRuntimeContext);
-  elm_run();
+  UserData user_data;
+
+  app_event_callback_s callbasks;
+  callbasks.create = Create;
+  callbasks.terminate = Terminate;
+  callbasks.pause = Pause;
+  callbasks.resume = Resume;
+  callbasks.service = Service;
+  callbasks.low_memory = LowMemory;
+  callbasks.low_battery = LowBattery;
+  callbasks.device_orientation = DevOrientationChanged;
+  callbasks.language_changed = LangChanged;
+  callbasks.region_format_changed = RegionFmtChanged;
+
+  app_efl_main(&argc, const_cast<char***>(&argv), &callbasks, &user_data);
   return 0;
 }
 
