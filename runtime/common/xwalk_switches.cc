@@ -19,4 +19,7 @@ const char kFullscreen[] = "fullscreen";
 // Specifies where XWalk will look for external extensions.
 const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 
+const char kXWalkAllowExternalExtensionsForRemoteSources[] =
+    "allow-external-extensions-for-remote-sources";
+
 }  // namespace switches
