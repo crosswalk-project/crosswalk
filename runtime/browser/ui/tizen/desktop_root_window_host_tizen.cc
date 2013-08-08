@@ -45,6 +45,7 @@
 #include "ui/views/widget/desktop_aura/x11_desktop_handler.h"
 #include "ui/views/widget/desktop_aura/x11_desktop_window_move_client.h"
 #include "ui/views/widget/desktop_aura/x11_window_event_filter.h"
+#include "xwalk/runtime/browser/ui/tizen/xwindow_provider_efl.h"
 
 namespace views {
 
@@ -132,37 +133,30 @@ DesktopRootWindowHostTizen::~DesktopRootWindowHostTizen() {
 
 void DesktopRootWindowHostTizen::InitX11Window(
     const Widget::InitParams& params) {
-  unsigned long attribute_mask = CWBackPixmap; // NOLINT(*)
+  xwindow_provider_.reset(new XWindowProvider(this, params.bounds));
+  xwindow_ = xwindow_provider_->GetXWindow();
+
+  base::MessagePumpAuraX11::Current()->AddDispatcherForWindow(this, xwindow_);
+
+  // TODO(erg): Maybe need to set a ViewProp here like in RWHL::RWHL().
+
   XSetWindowAttributes swa;
   memset(&swa, 0, sizeof(swa));
-  swa.background_pixmap = None;
+
+  unsigned long attribute_mask = CWEventMask;  // NOLINT(*)
+  swa.event_mask = ButtonPressMask | ButtonReleaseMask | FocusChangeMask |  // NOLINT(*)
+                    KeyPressMask | KeyReleaseMask |
+                    EnterWindowMask | LeaveWindowMask |
+                    ExposureMask | VisibilityChangeMask |
+                    StructureNotifyMask | PropertyChangeMask |
+                    PointerMotionMask;
 
   if (params.type == Widget::InitParams::TYPE_MENU) {
     swa.override_redirect = True;
     attribute_mask |= CWOverrideRedirect;
   }
 
-  xwindow_ = XCreateWindow(
-      xdisplay_, x_root_window_,
-      params.bounds.x(), params.bounds.y(),
-      params.bounds.width(), params.bounds.height(),
-      0,               // border width
-      CopyFromParent,  // depth
-      InputOutput,
-      CopyFromParent,  // visual
-      attribute_mask,
-      &swa);
-  base::MessagePumpAuraX11::Current()->AddDispatcherForWindow(this, xwindow_);
-
-  // TODO(erg): Maybe need to set a ViewProp here like in RWHL::RWHL().
-
-  long event_mask = ButtonPressMask | ButtonReleaseMask | FocusChangeMask |  // NOLINT(*)
-                    KeyPressMask | KeyReleaseMask |
-                    EnterWindowMask | LeaveWindowMask |
-                    ExposureMask | VisibilityChangeMask |
-                    StructureNotifyMask | PropertyChangeMask |
-                    PointerMotionMask;
-  XSelectInput(xdisplay_, xwindow_, event_mask);
+  XChangeWindowAttributes(xdisplay_, xwindow_, attribute_mask, &swa);
   XFlush(xdisplay_);
 
   if (base::MessagePumpForUI::HasXInput2())
@@ -396,7 +390,7 @@ void DesktopRootWindowHostTizen::CloseNow() {
 
   // Actually free our native resources.
   base::MessagePumpAuraX11::Current()->RemoveDispatcherForWindow(xwindow_);
-  XDestroyWindow(xdisplay_, xwindow_);
+  xwindow_provider_.reset();
   xwindow_ = None;
 
   desktop_native_widget_aura_->OnHostClosed();
@@ -680,6 +674,13 @@ void DesktopRootWindowHostTizen::SetInactiveRenderingDisabled(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// DesktopRootWindowHostTizen, XWindowProviderDelegate implementation:
+
+void DesktopRootWindowHostTizen::CloseWindow() {
+  Close();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostTizen, aura::RootWindowHost implementation:
 
 void DesktopRootWindowHostTizen::SetDelegate(
@@ -697,20 +698,7 @@ gfx::AcceleratedWidget DesktopRootWindowHostTizen::GetAcceleratedWidget() {
 
 void DesktopRootWindowHostTizen::Show() {
   if (!window_mapped_) {
-    // Before we map the window, set size hints. Otherwise, some window managers
-    // will ignore toplevel XMoveWindow commands.
-    XSizeHints size_hints;
-    size_hints.flags = PPosition;
-    size_hints.x = bounds_.x();
-    size_hints.y = bounds_.y();
-    XSetWMNormalHints(xdisplay_, xwindow_, &size_hints);
-
-    XMapWindow(xdisplay_, xwindow_);
-
-    // We now block until our window is mapped. Some X11 APIs will crash and
-    // burn if passed |xwindow_| before the window is mapped, and XMapWindow is
-    // asynchronous.
-    base::MessagePumpAuraX11::Current()->BlockUntilWindowMapped(xwindow_);
+    xwindow_provider_->Show();
     window_mapped_ = true;
 
     // In some window managers, the window state change only takes effect after
@@ -724,7 +712,7 @@ void DesktopRootWindowHostTizen::Show() {
 
 void DesktopRootWindowHostTizen::Hide() {
   if (window_mapped_) {
-    XWithdrawWindow(xdisplay_, xwindow_, 0);
+    xwindow_provider_->Hide();
     window_mapped_ = false;
   }
 }
@@ -740,26 +728,17 @@ gfx::Rect DesktopRootWindowHostTizen::GetBounds() const {
 void DesktopRootWindowHostTizen::SetBounds(const gfx::Rect& bounds) {
   bool origin_changed = bounds_.origin() != bounds.origin();
   bool size_changed = bounds_.size() != bounds.size();
-  XWindowChanges changes = {0};
-  unsigned value_mask = 0;
 
   if (size_changed) {
     // X11 will send an XError at our process if have a 0 sized window.
     DCHECK_GT(bounds.width(), 0);
     DCHECK_GT(bounds.height(), 0);
-
-    changes.width = bounds.width();
-    changes.height = bounds.height();
-    value_mask |= CWHeight | CWWidth;
+    xwindow_provider_->Resize(bounds.width(), bounds.height());
   }
 
   if (origin_changed) {
-    changes.x = bounds.x();
-    changes.y = bounds.y();
-    value_mask |= CWX | CWY;
+    xwindow_provider_->Move(bounds.x(), bounds.y());
   }
-  if (value_mask)
-    XConfigureWindow(xdisplay_, xwindow_, value_mask, &changes);
 
   // Assume that the resize will go through as requested, which should be the
   // case if we're running without a window manager.  If there's a window

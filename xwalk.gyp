@@ -433,6 +433,11 @@
             'runtime/app/tizen/runtime_main.cc',
             'runtime/app/tizen/runtime_main.h',
             'runtime/app/tizen/xwalk_main_tizen.cc',
+            'runtime/browser/ui/tizen/preserve_window_efl.cc',
+            'runtime/browser/ui/tizen/preserve_window_efl.h',
+            'runtime/browser/ui/tizen/xwindow_provider_delegate_efl.h',
+            'runtime/browser/ui/tizen/xwindow_provider_efl.cc',
+            'runtime/browser/ui/tizen/xwindow_provider_efl.h',
           ],
           'sources!': [
             'runtime/app/xwalk_main.cc',

@@ -23,6 +23,7 @@
 #include "ui/gfx/rect.h"
 #include "ui/views/views_export.h"
 #include "ui/views/widget/desktop_aura/desktop_root_window_host.h"
+#include "xwalk/runtime/browser/ui/tizen/xwindow_provider_delegate_efl.h"
 
 namespace aura {
 class RootWindow;
@@ -39,12 +40,14 @@ class DesktopDragDropClientAuraX11;
 class DesktopDispatcherClient;
 class X11DesktopWindowMoveClient;
 class X11WindowEventFilter;
+class XWindowProvider;
 
 namespace corewm {
 class CursorManager;
 }
 
 class VIEWS_EXPORT DesktopRootWindowHostTizen : public DesktopRootWindowHost,
+    public XWindowProviderDelegate,
     public aura::RootWindowHost,
     public aura::RootWindowObserver,
     public ui::DesktopSelectionProviderAuraX11,
@@ -153,6 +156,9 @@ class VIEWS_EXPORT DesktopRootWindowHostTizen : public DesktopRootWindowHost,
   virtual void OnNativeWidgetBlur() OVERRIDE;
   virtual void SetInactiveRenderingDisabled(bool disable_inactive) OVERRIDE;
 
+  // Overridden from XWindowProviderDelegate:
+  virtual void CloseWindow() OVERRIDE;
+
   // Overridden from aura::RootWindowHost:
   virtual void SetDelegate(aura::RootWindowHostDelegate* delegate) OVERRIDE;
   virtual aura::RootWindow* GetRootWindow() OVERRIDE;
@@ -198,6 +204,9 @@ class VIEWS_EXPORT DesktopRootWindowHostTizen : public DesktopRootWindowHost,
   // The display and the native X window hosting the root window.
   Display* xdisplay_;
   ::Window xwindow_;
+
+  // Integration point with toolkit.
+  scoped_ptr<XWindowProvider> xwindow_provider_;
 
   // The native root window.
   ::Window x_root_window_;
