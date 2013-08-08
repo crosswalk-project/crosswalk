@@ -31,6 +31,10 @@
 #include "ui/gfx/icon_util.h"
 #endif
 
+#if defined(OS_TIZEN)
+#include "xwalk/runtime/browser/ui/tizen/xwindow_provider_efl.h"
+#endif
+
 #if defined(USE_AURA)
 namespace {
 
@@ -82,10 +86,16 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.use_system_default_icon = true;
   params.top_level = true;
   params.bounds = create_params.bounds;
+#if defined(OS_TIZEN)
+  params.bounds = views::XWindowProvider::GetWindowGeometry();
+#endif
   params.show_state = create_params.state;
   window_->Init(params);
 
+  // Moving to center is not needed to a mobile runtime.
+#ifndef OS_TIZEN
   window_->CenterWindow(create_params.bounds.size());
+#endif
   if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);
 

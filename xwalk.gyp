@@ -2,13 +2,34 @@
   'variables': {
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '1.28.2.0',
+    'variables': {
+      'tizenos%': 0,
+    },
+    'tizenos%': '<(tizenos)',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
       }, {
        'use_custom_freetype%': 0,
       }],
+      ['tizenos==1', {
+        # If capi-appfw-application package exists, the host is considered to be Tizen Mobile.
+        # Note, the spec file requires this package: BuildRequires: pkgconfig(capi-appfw-application).
+        # TODO(dshwang): app_efl_main() on Tizen 2.1 has some issues. We need to find workaround.
+        'tizenos_desktop%': 1,
+      }],
     ], # conditions
+  },
+  'target_defaults': {
+    'conditions': [
+      ['tizenos==1', {
+        'conditions': [
+          ['tizenos_desktop==1', {
+            'defines': ['OS_TIZEN_DESKTOP=1'],
+          }],
+        ],
+      }],
+    ],
   },
   'includes' : [
     'xwalk_tests.gypi',
@@ -120,8 +141,8 @@
         'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_win.cc',
-        'runtime/browser/ui/desktop_root_window_host_xwalk.cc',
-        'runtime/browser/ui/desktop_root_window_host_xwalk.h',
+        'runtime/browser/ui/tizen/desktop_root_window_host_tizen.cc',
+        'runtime/browser/ui/tizen/desktop_root_window_host_tizen.h',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window_gtk.cc',
@@ -221,7 +242,11 @@
         }, {  # use_aura==0
           'sources/': [
             ['exclude', '_aura\\.cc$'],
-            ['exclude', 'runtime/browser/ui/desktop_root_window_host_xwalk.cc'],
+          ],
+        }],
+        ['tizenos==0', {
+          'sources/': [
+            ['exclude', '_tizen\\.cc$'],
           ],
         }],
       ],
@@ -389,6 +414,50 @@
                 'tools/packaging/bootstrapped/linux/Makefile.templ',
               ],
             }
+          ],
+        }],
+        ['tizenos==1', {
+          'variables': {
+            'packages': [
+              'ecore',
+              'ecore-x',
+              'elementary',
+            ]
+          },
+          'includes': [
+            'build/pkg-config.gypi',
+          ],
+          'sources': [
+            'runtime/app/tizen/message_pump_efl.cc',
+            'runtime/app/tizen/message_pump_efl.h',
+            'runtime/app/tizen/runtime_main.cc',
+            'runtime/app/tizen/runtime_main.h',
+            'runtime/app/tizen/xwalk_main_tizen.cc',
+            'runtime/browser/ui/tizen/preserve_window_efl.cc',
+            'runtime/browser/ui/tizen/preserve_window_efl.h',
+            'runtime/browser/ui/tizen/xwindow_provider_delegate_efl.h',
+            'runtime/browser/ui/tizen/xwindow_provider_efl.cc',
+            'runtime/browser/ui/tizen/xwindow_provider_efl.h',
+          ],
+          'sources!': [
+            'runtime/app/xwalk_main.cc',
+          ],
+          'conditions': [
+            ['tizenos_desktop==1', {
+              'sources': [
+                'runtime/app/tizen/app_main_desktop_mock.cc',
+                'runtime/app/tizen/app_main_desktop_mock.h',
+              ],
+            }, {
+              'variables': {
+                'packages': [
+                  'capi-appfw-application',
+                ]
+              },
+              'includes': [
+                'build/pkg-config.gypi',
+              ],
+            }],
           ],
         }],
         ['OS=="mac"', {

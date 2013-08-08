@@ -17,8 +17,8 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 
-#if defined(USE_AURA)
-#include "xwalk/runtime/browser/ui/desktop_root_window_host_xwalk.h"
+#if defined(OS_TIZEN)
+#include "xwalk/runtime/browser/ui/tizen/desktop_root_window_host_tizen.h"
 #endif
 
 namespace xwalk {
@@ -42,9 +42,9 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   // Only set the id for browser process
   if (process_type.empty())
     SetTaskbarGroupIdForProcess();
-#elif defined(USE_AURA)
+#elif defined(OS_TIZEN)
   views::DesktopRootWindowHost::InitDesktopRootWindowHostFactory(
-      views::DesktopRootWindowHostXWalk::Create);
+      views::DesktopRootWindowHostTizen::Create);
 #endif
   return false;
 }
