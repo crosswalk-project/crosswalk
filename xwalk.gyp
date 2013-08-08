@@ -1,8 +1,7 @@
 {
   'variables': {
     'xwalk_product_name': 'XWalk',
-    # TODO: define xwalk version format.
-    'xwalk_version': '1.28.1.0',
+    'xwalk_version': '1.28.2.0',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,

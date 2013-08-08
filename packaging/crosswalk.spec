@@ -1,5 +1,5 @@
 Name:           crosswalk
-Version:        1.28.1.0
+Version:        1.28.2.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 # License:        (BSD-3-Clause and LGPL-2.1+)
@@ -9,9 +9,9 @@ Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}-%{version}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
-Patch1:         %{name}-%{version}-do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         %{name}-%{version}-pull-request-40.patch
-Patch3:         %{name}-%{version}-look-for-pvr-libGLESv2.so.patch
+Patch1:         %{name}-1.28-do-not-look-for-gtk2-when-using-aura.patch
+Patch2:         %{name}-1.28-pull-request-40.patch
+Patch3:         %{name}-1.28-look-for-pvr-libGLESv2.so.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
