@@ -15,7 +15,8 @@
       ['tizenos==1', {
         # If capi-appfw-application package exists, the host is considered to be Tizen Mobile.
         # Note, the spec file requires this package: BuildRequires: pkgconfig(capi-appfw-application).
-        'tizenos_desktop%': '<!(pkg-config --exists capi-appfw-application; echo $?)',
+        # TODO(dshwang): app_efl_main() on Tizen 2.1 has some issues. We need to find workaround.
+        'tizenos_desktop%': 1,
       }],
     ], # conditions
   },
