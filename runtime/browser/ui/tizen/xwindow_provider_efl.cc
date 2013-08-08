@@ -96,7 +96,9 @@ gfx::Rect XWindowProvider::GetWindowGeometry() {
   int x, y, width, height;
   ecore_x_window_geometry_get(ecore_x_window_root_first_get(),
                               &x, &y, &width, &height);
-  return gfx::Rect(x, y, width, height);
+  // FIXME: don't use magic number.
+  int status_bar_height = 40;
+  return gfx::Rect(x, y + status_bar_height, width, height - status_bar_height);
 }
 
 }  // namespace views
