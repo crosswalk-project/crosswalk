@@ -1,5 +1,6 @@
 {
   'sources': [
+    'test/context_destruction.cc',
     'test/external_extension_browsertest.cc',
     'test/internal_extension_browsertest.cc',
     'test/internal_extension_browsertest.h',
