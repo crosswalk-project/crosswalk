@@ -1,6 +1,29 @@
-
 #!/bin/sh
 
-# TODO(rakuco): Passing --use-gl=egl by default makes sense on Tizen
-# mobile, but may not be the best option for all platforms.
-exec /usr/lib/xwalk/xwalk --use-gl=egl --fullscreen --ignore-gpu-blacklist --allow-file-access-from-files "$@"
+# Determine the most suitable GL implementation by guessing the Tizen profile
+# being used.
+#
+# We could leave it up to Chromium to pick the best GL implementation, but
+# right now it (ie. gl_implementation_x11.cc) will, by default, only try using
+# Desktop GL and optionally fall back to OSMesa, and hardcoding a single one
+# ("egl", for example), causes crashes in some configurations, such as the
+# emulator.
+if [ -f /usr/lib/xwalk/libosmesa.so ]; then
+    # If libosmesa.so is present, the crosswalk-emulator-support package has
+    # been installed and we can assume we're running in the emulator.
+    GL_IMPLEMENTATION="osmesa"
+elif [ -f /usr/lib/libGL.so ]; then
+    # libGL.so is not installed by the EGL packages used by the mobile profile,
+    # so we can assume full-blown Mesa (or something analogous) is present.
+    GL_IMPLEMENTATION="desktop"
+else
+    # Otherwise, assume libGLESv2.so is available and we have an EGL
+    # implementation.
+    GL_IMPLEMENTATION="egl"
+fi
+
+exec /usr/lib/xwalk/xwalk --use-gl="${GL_IMPLEMENTATION}" \
+                          --fullscreen \
+                          --ignore-gpu-blacklist \
+                          --allow-file-access-from-files \
+                          "$@"
