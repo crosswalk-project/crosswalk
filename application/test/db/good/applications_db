@@ -1,0 +1,35 @@
+{
+   "aclnlcnioagjlpbkhhicndjajnneoaci": {
+      "install_time": 1377486566.487286,
+      "manifest": {
+         "app": {
+            "launch": {
+               "local_path": "index.html"
+            }
+         },
+         "name": "Hello, world",
+         "version": "2.0"
+      },
+      "path": "/home/xxx/apps/hello"
+   },
+   "jhnafkobpahgnkbhiijoeijbchlfnjeh": {
+      "install_time": 1377482897.575755,
+      "manifest": {
+         "app": {
+            "launch": {
+               "local_path": "index.html"
+            }
+         },
+         "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'; style-src 'self' 'unsafe-inline'",
+         "default_locale": "en_US",
+         "description": "A Hello, world",
+         "icons": {
+            "128": "icon-128.png"
+         },
+         "manifest_version": 2,
+         "name": "Hello, world",
+         "version": "2.0"
+      },
+      "path": "/home/xxxx/jhnafkobpahgnkbhiijoeijbchlfnjeh"
+   }
+}
