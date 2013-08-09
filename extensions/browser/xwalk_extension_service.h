@@ -40,6 +40,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 
   XWalkExtension* GetExtensionForName(const std::string& name);
 
+  void CreateRunnersForHandler(XWalkExtensionWebContentsHandler* handler);
+
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}

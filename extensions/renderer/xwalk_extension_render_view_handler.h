@@ -30,12 +30,16 @@ class XWalkExtensionRenderViewHandler
   // This convenience is one of the reasons to have this helper class.
   static XWalkExtensionRenderViewHandler* GetForCurrentContext();
 
+  static XWalkExtensionRenderViewHandler* GetForFrame(
+      WebKit::WebFrame* webframe);
+
   v8::Handle<v8::Context> GetV8Context() const;
 
   bool PostMessageToExtension(const std::string& extension,
                               const base::ListValue& msg);
   scoped_ptr<base::ListValue> SendSyncMessageToExtension(
       const std::string& extension, const base::ListValue& msg);
+  void DidCreateScriptContext();
 
   // RenderViewObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

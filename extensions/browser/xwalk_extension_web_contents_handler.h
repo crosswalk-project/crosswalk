@@ -16,6 +16,7 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
+class XWalkExtensionService;
 
 // This manages the threads and contexts for a WebContents. It dispatches
 // messages from the render process to the right thread and from them to the
@@ -27,9 +28,15 @@ class XWalkExtensionWebContentsHandler
  public:
   virtual ~XWalkExtensionWebContentsHandler();
 
-  void AttachExtension(XWalkExtension* extension);
+  void AttachExtensionRunner(XWalkExtensionRunner* runner);
 
  private:
+  friend class XWalkExtensionService;
+
+  void set_extension_service(XWalkExtensionService* extension_service) {
+    extension_service_ = extension_service;
+  }
+
   // XWalkExtensionRunner::Client implementation.
   virtual void HandleMessageFromContext(const XWalkExtensionRunner* runner,
                                         scoped_ptr<base::Value> msg) OVERRIDE;
@@ -37,18 +44,22 @@ class XWalkExtensionWebContentsHandler
   // content::WebContentsObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
+  // IPC message handlers.
   void OnPostMessage(const std::string& extension_name,
                      const base::ListValue& msg);
   void OnSendSyncMessage(const std::string& extension_name,
                          const base::ListValue& msg, base::ListValue* result);
+  void DidCreateScriptContext();
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);
 
-  void Destroy();
+  void DeleteRunners();
 
   typedef std::map<std::string, XWalkExtensionRunner*> RunnerMap;
   RunnerMap runners_;
+
+  XWalkExtensionService* extension_service_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionWebContentsHandler);
 };

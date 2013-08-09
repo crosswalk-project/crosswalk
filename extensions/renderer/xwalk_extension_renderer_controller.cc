@@ -12,6 +12,7 @@
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
+#include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
 
 // This will be generated from xwalk_api.js.
@@ -143,6 +144,12 @@ void XWalkExtensionRendererController::RenderViewCreated(
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame) {
+  // FIXME(cmarcelo): We should support extensions in other frames.
+  if (frame->view()->mainFrame() != frame)
+    return;
+  XWalkExtensionRenderViewHandler* handler =
+      XWalkExtensionRenderViewHandler::GetForFrame(frame);
+  handler->DidCreateScriptContext();
   InstallJavaScriptAPIs(frame);
 }
 

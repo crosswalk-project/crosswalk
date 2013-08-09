@@ -4,9 +4,9 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(
     xwalk::extensions::XWalkExtensionWebContentsHandler);
@@ -20,15 +20,12 @@ XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
 }
 
 XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {
-  RunnerMap::iterator it = runners_.begin();
-  for (; it != runners_.end(); ++it)
-    delete it->second;
+  DeleteRunners();
 }
 
-void XWalkExtensionWebContentsHandler::AttachExtension(
-    XWalkExtension* extension) {
-  runners_[extension->name()] =
-      new XWalkExtensionThreadedRunner(extension, this);
+void XWalkExtensionWebContentsHandler::AttachExtensionRunner(
+    XWalkExtensionRunner* runner) {
+  runners_[runner->extension_name()] = runner;
 }
 
 void XWalkExtensionWebContentsHandler::HandleMessageFromContext(
@@ -46,6 +43,8 @@ bool XWalkExtensionWebContentsHandler::OnMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionWebContentsHandler, message)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessage, OnPostMessage)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_SendSyncMessage, OnSendSyncMessage)
+    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_DidCreateScriptContext,
+                        DidCreateScriptContext)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -88,6 +87,27 @@ void XWalkExtensionWebContentsHandler::OnSendSyncMessage(
       it->second->SendSyncMessageToContext(scoped_ptr<base::Value>(value));
 
   result->Append(resultValue.release());
+}
+
+namespace {
+
+const GURL kAboutBlankURL = GURL("about:blank");
+
+}
+
+void XWalkExtensionWebContentsHandler::DidCreateScriptContext() {
+  DeleteRunners();
+  // TODO(cmarcelo): We will create runners on demand, this will allow us get
+  // rid of this check.
+  if (web_contents()->GetURL() != kAboutBlankURL)
+    extension_service_->CreateRunnersForHandler(this);
+}
+
+void XWalkExtensionWebContentsHandler::DeleteRunners() {
+  RunnerMap::iterator it = runners_.begin();
+  for (; it != runners_.end(); ++it)
+    delete it->second;
+  runners_.clear();
 }
 
 }  // namespace extensions

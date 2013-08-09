@@ -36,6 +36,14 @@ XWalkExtensionRenderViewHandler::GetForCurrentContext() {
   return XWalkExtensionRenderViewHandler::Get(render_view);
 }
 
+XWalkExtensionRenderViewHandler*
+XWalkExtensionRenderViewHandler::GetForFrame(WebKit::WebFrame* webframe) {
+  WebKit::WebView* webview = webframe->view();
+  if (!webview) return NULL;
+  content::RenderView* render_view = content::RenderView::FromWebView(webview);
+  return XWalkExtensionRenderViewHandler::Get(render_view);
+}
+
 v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8Context() const {
   WebKit::WebFrame* frame = render_view()->GetWebView()->mainFrame();
   return frame->mainWorldScriptContext();
@@ -53,6 +61,10 @@ XWalkExtensionRenderViewHandler::SendSyncMessageToExtension(
   Send(new XWalkViewHostMsg_SendSyncMessage(
       routing_id(), extension, msg, reply));
   return scoped_ptr<base::ListValue>(reply);
+}
+
+void XWalkExtensionRenderViewHandler::DidCreateScriptContext() {
+  Send(new XWalkViewHostMsg_DidCreateScriptContext(routing_id()));
 }
 
 bool XWalkExtensionRenderViewHandler::OnMessageReceived(
