@@ -71,11 +71,9 @@ scoped_ptr<base::ListValue> XWalkExtensionV8Wrapper::V8ValueToListValue(
   // this wrapping because base::Value doesn't have param traits and
   // implementing one is not a viable option (would require fork base::Value
   // and create a new empty type).
-  XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForCurrentContext();
-
   scoped_ptr<base::Value> value(
-      converter_->FromV8Value(v8_value, handler->GetV8Context()));
+      converter_->FromV8Value(v8_value,
+                              v8::Isolate::GetCurrent()->GetCurrentContext()));
 
   if (!value)
     return scoped_ptr<base::ListValue>(NULL);
@@ -97,9 +95,11 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
 
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForCurrentContext();
+  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
 
   std::string extension(*v8::String::Utf8Value(args[0]));
-  if (!handler->PostMessageToExtension(extension, *list_value_args))
+  if (!handler->PostMessageToExtension(
+          webframe->identifier(), extension, *list_value_args))
     return v8::False();
   return v8::True();
 }
@@ -115,15 +115,17 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::SendSyncMessage(
 
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForCurrentContext();
+  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
 
   std::string extension(*v8::String::Utf8Value(args[0]));
   scoped_ptr<base::ListValue> reply(handler->SendSyncMessageToExtension(
-          extension, *list_value_args));
+      webframe->identifier(), extension, *list_value_args));
 
   const base::Value* value;
   reply->Get(0, &value);
 
-  return converter_->ToV8Value(value, handler->GetV8Context());
+  return converter_->ToV8Value(value,
+                               v8::Isolate::GetCurrent()->GetCurrentContext());
 }
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
@@ -144,22 +146,17 @@ void XWalkExtensionRendererController::RenderViewCreated(
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame) {
-  // FIXME(cmarcelo): We should support extensions in other frames.
-  if (frame->view()->mainFrame() != frame)
-    return;
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
-  handler->DidCreateScriptContext();
+  handler->DidCreateScriptContext(frame);
   InstallJavaScriptAPIs(frame);
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame) {
-  if (frame->view()->mainFrame() != frame)
-    return;
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
-  handler->WillReleaseScriptContext();
+  handler->WillReleaseScriptContext(frame);
 }
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(

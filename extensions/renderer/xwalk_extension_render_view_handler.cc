@@ -44,31 +44,37 @@ XWalkExtensionRenderViewHandler::GetForFrame(WebKit::WebFrame* webframe) {
   return XWalkExtensionRenderViewHandler::Get(render_view);
 }
 
-v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8Context() const {
-  WebKit::WebFrame* frame = render_view()->GetWebView()->mainFrame();
-  return frame->mainWorldScriptContext();
-}
-
 bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
-    const std::string& extension, const base::ListValue& msg) {
-  return Send(new XWalkViewHostMsg_PostMessage(routing_id(), extension, msg));
+    int64_t frame_id, const std::string& extension,
+    const base::ListValue& msg) {
+  return Send(
+      new XWalkViewHostMsg_PostMessage(routing_id(), frame_id, extension, msg));
 }
 
 scoped_ptr<base::ListValue>
 XWalkExtensionRenderViewHandler::SendSyncMessageToExtension(
-    const std::string& extension, const base::ListValue& msg) {
+    int64_t frame_id, const std::string& extension,
+    const base::ListValue& msg) {
   base::ListValue* reply = new base::ListValue;
   Send(new XWalkViewHostMsg_SendSyncMessage(
-      routing_id(), extension, msg, reply));
+      routing_id(), frame_id, extension, msg, reply));
   return scoped_ptr<base::ListValue>(reply);
 }
 
-void XWalkExtensionRenderViewHandler::DidCreateScriptContext() {
-  Send(new XWalkViewHostMsg_DidCreateScriptContext(routing_id()));
+void XWalkExtensionRenderViewHandler::DidCreateScriptContext(
+    WebKit::WebFrame* frame) {
+  int64_t frame_id = frame->identifier();
+  CHECK(id_to_frame_map_.find(frame_id) == id_to_frame_map_.end());
+  id_to_frame_map_[frame_id] = frame;
+  Send(new XWalkViewHostMsg_DidCreateScriptContext(routing_id(), frame_id));
 }
 
-void XWalkExtensionRenderViewHandler::WillReleaseScriptContext() {
-  Send(new XWalkViewHostMsg_WillReleaseScriptContext(routing_id()));
+void XWalkExtensionRenderViewHandler::WillReleaseScriptContext(
+    WebKit::WebFrame* frame) {
+  int64_t frame_id = frame->identifier();
+  CHECK(id_to_frame_map_.find(frame_id) != id_to_frame_map_.end());
+  id_to_frame_map_.erase(frame_id);
+  Send(new XWalkViewHostMsg_WillReleaseScriptContext(routing_id(), frame_id));
 }
 
 bool XWalkExtensionRenderViewHandler::OnMessageReceived(
@@ -81,13 +87,13 @@ bool XWalkExtensionRenderViewHandler::OnMessageReceived(
   return handled;
 }
 
-void XWalkExtensionRenderViewHandler::OnPostMessage(
+void XWalkExtensionRenderViewHandler::OnPostMessage(int64_t frame_id,
     const std::string& extension, const base::ListValue& msg) {
   if (!controller_->ContainsExtension(extension))
     return;
 
   v8::HandleScope handle_scope;
-  v8::Handle<v8::Context> context = GetV8Context();
+  v8::Handle<v8::Context> context = GetV8ContextForFrame(frame_id);
   v8::Context::Scope context_scope(context);
 
   // We get the message wrapped in a ListValue because Value doesn't have
@@ -121,6 +127,13 @@ void XWalkExtensionRenderViewHandler::OnPostMessage(
   frame->callFunctionEvenIfScriptDisabled(callback.As<v8::Function>(),
                                           context->Global(),
                                           argc, argv);
+}
+
+v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8ContextForFrame(
+    int64_t frame_id) {
+  IdToFrameMap::iterator it = id_to_frame_map_.find(frame_id);
+  CHECK(it != id_to_frame_map_.end());
+  return it->second->mainWorldScriptContext();
 }
 
 }  // namespace extensions

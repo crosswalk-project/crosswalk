@@ -5,6 +5,8 @@
 #ifndef XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_RENDER_VIEW_HANDLER_H_
 
+#include <stdint.h>
+#include <map>
 #include <string>
 #include "base/values.h"
 #include "content/public/renderer/render_view_observer.h"
@@ -17,7 +19,8 @@ namespace extensions {
 class XWalkExtensionRendererController;
 
 // This helper object is associated with each RenderView and handles the message
-// exchange between browser process and the JavaScript code.
+// exchange between browser process and the JavaScript code. One handler takes
+// care of all the WebFrames of the render view.
 class XWalkExtensionRenderViewHandler
     : public content::RenderViewObserver,
       public
@@ -33,14 +36,13 @@ class XWalkExtensionRenderViewHandler
   static XWalkExtensionRenderViewHandler* GetForFrame(
       WebKit::WebFrame* webframe);
 
-  v8::Handle<v8::Context> GetV8Context() const;
-
-  bool PostMessageToExtension(const std::string& extension,
+  bool PostMessageToExtension(int64_t frame_id, const std::string& extension,
                               const base::ListValue& msg);
   scoped_ptr<base::ListValue> SendSyncMessageToExtension(
-      const std::string& extension, const base::ListValue& msg);
-  void DidCreateScriptContext();
-  void WillReleaseScriptContext();
+      int64_t frame_id, const std::string& extension,
+      const base::ListValue& msg);
+  void DidCreateScriptContext(WebKit::WebFrame* frame);
+  void WillReleaseScriptContext(WebKit::WebFrame* frame);
 
   // RenderViewObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -48,9 +50,15 @@ class XWalkExtensionRenderViewHandler
  private:
   // Called when we receive a message from the browser process, dispatches it to
   // JavaScript environment.
-  void OnPostMessage(const std::string& extension, const base::ListValue& msg);
+  void OnPostMessage(int64_t frame_id, const std::string& extension,
+                     const base::ListValue& msg);
+
+  v8::Handle<v8::Context> GetV8ContextForFrame(int64_t frame_id);
 
   XWalkExtensionRendererController* controller_;
+
+  typedef std::map<int64_t, WebKit::WebFrame*> IdToFrameMap;
+  IdToFrameMap id_to_frame_map_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRenderViewHandler);
 };
