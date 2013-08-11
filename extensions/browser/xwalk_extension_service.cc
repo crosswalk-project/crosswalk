@@ -8,6 +8,7 @@
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
+#include "base/scoped_native_library.h"
 #include "base/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
@@ -109,10 +110,26 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
-    scoped_ptr<XWalkExternalExtension> extension(
-        new XWalkExternalExtension(extension_path));
-    if (extension->is_valid())
-      RegisterExtension(extension.release());
+    // FIXME(cmarcelo): Once we get rid of the current C API in favor of the new
+    // one, move this NativeLibrary manipulation back inside
+    // XWalkExternalExtension.
+    base::ScopedNativeLibrary library(extension_path);
+    if (!library.is_valid()) {
+      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
+                   << " as external extension because is not valid library.";
+      continue;
+    }
+
+    if (library.GetFunctionPointer("xwalk_extension_init")) {
+      scoped_ptr<XWalkExternalExtension> extension(
+          new XWalkExternalExtension(library.Release()));
+      if (extension->is_valid())
+        RegisterExtension(extension.release());
+    } else {
+      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
+                   << " as external extension because"
+                   << " doesn't contain valid entry point.";
+    }
   }
 }
 
