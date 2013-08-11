@@ -14,7 +14,7 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
-using xwalk::extensions::XWalkExternalExtension;
+using xwalk::extensions::old::XWalkExternalExtension;
 
 static base::FilePath GetNativeLibraryFilePath(const char* name) {
   base::string16 library_name = base::GetNativeLibraryName(UTF8ToUTF16(name));
@@ -25,7 +25,7 @@ static base::FilePath GetNativeLibraryFilePath(const char* name) {
 #endif
 }
 
-class ExternalExtensionTest : public XWalkExtensionsTestBase {
+class OldExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
     base::FilePath extension_file;
@@ -39,7 +39,7 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
+IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
@@ -55,7 +55,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
 #define ExternalExtensionSync DISABLED_ExternalExtensionSync
 #endif
 
-IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
+IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtensionSync) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),

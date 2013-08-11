@@ -11,6 +11,10 @@
 namespace xwalk {
 namespace extensions {
 
+// TODO(cmarcelo): Remove this entire namespace and its contents when
+// we move to new C API.
+namespace old {
+
 #define INTERNAL_IMPLEMENTATION
 #include "xwalk/extensions/public/xwalk_extension_public.h"
 #undef INTERNAL_IMPLEMENTATION
@@ -152,6 +156,8 @@ XWalkExternalExtension::ExternalContext::~ExternalContext() {
   if (context_->destroy)
     context_->destroy(context_);
 }
+
+}  // namespace old
 
 }  // namespace extensions
 }  // namespace xwalk

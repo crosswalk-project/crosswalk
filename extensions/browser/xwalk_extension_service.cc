@@ -121,8 +121,8 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
     }
 
     if (library.GetFunctionPointer("xwalk_extension_init")) {
-      scoped_ptr<XWalkExternalExtension> extension(
-          new XWalkExternalExtension(library.Release()));
+      scoped_ptr<old::XWalkExternalExtension> extension(
+          new old::XWalkExternalExtension(library.Release()));
       if (extension->is_valid())
         RegisterExtension(extension.release());
     } else {

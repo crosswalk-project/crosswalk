@@ -17,6 +17,10 @@ class FilePath;
 namespace xwalk {
 namespace extensions {
 
+// TODO(cmarcelo): Remove this entire namespace and its contents when
+// we move to new C API.
+namespace old {
+
 typedef struct CXWalkExtension_ CXWalkExtension;
 typedef struct CXWalkExtensionContext_ CXWalkExtensionContext;
 typedef struct CXWalkExtensionContextAPI_ CXWalkExtensionContextAPI;
@@ -76,6 +80,8 @@ class XWalkExternalExtension : public XWalkExtension {
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExternalExtension);
 };
+
+}  // namespace old
 
 }  // namespace extensions
 }  // namespace xwalk
