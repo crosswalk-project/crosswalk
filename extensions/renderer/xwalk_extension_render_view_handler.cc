@@ -67,6 +67,10 @@ void XWalkExtensionRenderViewHandler::DidCreateScriptContext() {
   Send(new XWalkViewHostMsg_DidCreateScriptContext(routing_id()));
 }
 
+void XWalkExtensionRenderViewHandler::WillReleaseScriptContext() {
+  Send(new XWalkViewHostMsg_WillReleaseScriptContext(routing_id()));
+}
+
 bool XWalkExtensionRenderViewHandler::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;

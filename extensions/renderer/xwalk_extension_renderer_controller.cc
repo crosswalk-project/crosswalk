@@ -153,6 +153,15 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   InstallJavaScriptAPIs(frame);
 }
 
+void XWalkExtensionRendererController::WillReleaseScriptContext(
+    WebKit::WebFrame* frame) {
+  if (frame->view()->mainFrame() != frame)
+    return;
+  XWalkExtensionRenderViewHandler* handler =
+      XWalkExtensionRenderViewHandler::GetForFrame(frame);
+  handler->WillReleaseScriptContext();
+}
+
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
   bool handled = true;

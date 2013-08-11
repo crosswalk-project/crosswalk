@@ -40,6 +40,7 @@ class XWalkExtensionRenderViewHandler
   scoped_ptr<base::ListValue> SendSyncMessageToExtension(
       const std::string& extension, const base::ListValue& msg);
   void DidCreateScriptContext();
+  void WillReleaseScriptContext();
 
   // RenderViewObserver implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

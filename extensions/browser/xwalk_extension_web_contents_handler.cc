@@ -45,6 +45,8 @@ bool XWalkExtensionWebContentsHandler::OnMessageReceived(
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_SendSyncMessage, OnSendSyncMessage)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_DidCreateScriptContext,
                         DidCreateScriptContext)
+    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_WillReleaseScriptContext,
+                        WillReleaseScriptContext)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -96,11 +98,14 @@ const GURL kAboutBlankURL = GURL("about:blank");
 }
 
 void XWalkExtensionWebContentsHandler::DidCreateScriptContext() {
-  DeleteRunners();
   // TODO(cmarcelo): We will create runners on demand, this will allow us get
   // rid of this check.
   if (web_contents()->GetURL() != kAboutBlankURL)
     extension_service_->CreateRunnersForHandler(this);
+}
+
+void XWalkExtensionWebContentsHandler::WillReleaseScriptContext() {
+  DeleteRunners();
 }
 
 void XWalkExtensionWebContentsHandler::DeleteRunners() {

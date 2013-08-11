@@ -32,3 +32,5 @@ IPC_SYNC_MESSAGE_ROUTED2_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
                            base::ListValue /* output contents */)
 
 IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_DidCreateScriptContext)  // NOLINT(*)
+
+IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_WillReleaseScriptContext)  // NOLINT(*)

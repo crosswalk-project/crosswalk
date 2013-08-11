@@ -5,6 +5,8 @@
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
 #include "base/stringprintf.h"
+#include "base/synchronization/lock.h"
+#include "base/synchronization/spin_wait.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
@@ -20,15 +22,23 @@ namespace {
 
 int g_contexts_created = 0;
 
+base::Lock g_contexts_destroyed_lock;
+int g_contexts_destroyed = 0;
+
 }
 
 class OnceExtensionContext : public XWalkExtension::Context {
  public:
-  explicit OnceExtensionContext(int sequence,
+  OnceExtensionContext(int sequence,
       const XWalkExtension::PostMessageCallback& post_message)
       : XWalkExtension::Context(post_message),
         sequence_(sequence),
         answered_(false) {}
+
+  ~OnceExtensionContext() {
+    base::AutoLock lock(g_contexts_destroyed_lock);
+    g_contexts_destroyed++;
+  }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     std::string answer;
@@ -73,6 +83,11 @@ class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
     ASSERT_TRUE(extension_service->RegisterExtension(new OnceExtension));
+  }
+
+  virtual void TearDown() OVERRIDE {
+    SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_contexts_destroyed == 2);
+    ASSERT_EQ(g_contexts_destroyed, 2);
   }
 };
 
