@@ -30,7 +30,12 @@ class XWalkExternalContext;
 // library.
 class XWalkExternalExtension : public XWalkExtension {
  public:
-  explicit XWalkExternalExtension(const base::FilePath& path);
+  // TODO(cmarcelo): Remove extra parameter after old::XWalkExternalExtension is
+  // removed. When |library| is passed we take ownership of it and use |path|
+  // only to print error messages.
+  explicit XWalkExternalExtension(const base::FilePath& path,
+                                  base::NativeLibrary = NULL);
+
   virtual ~XWalkExternalExtension();
 
   bool is_valid();

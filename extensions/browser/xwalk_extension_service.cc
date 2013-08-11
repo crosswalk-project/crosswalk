@@ -16,6 +16,7 @@
 #include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
+#include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "content/public/browser/render_process_host.h"
 
 namespace xwalk {
@@ -120,7 +121,12 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
       continue;
     }
 
-    if (library.GetFunctionPointer("xwalk_extension_init")) {
+    if (library.GetFunctionPointer("XW_Initialize")) {
+      scoped_ptr<XWalkExternalExtension> extension(
+          new XWalkExternalExtension(extension_path, library.Release()));
+      if (extension->is_valid())
+        RegisterExtension(extension.release());
+    } else if (library.GetFunctionPointer("xwalk_extension_init")) {
       scoped_ptr<old::XWalkExternalExtension> extension(
           new old::XWalkExternalExtension(library.Release()));
       if (extension->is_valid())
