@@ -29,6 +29,11 @@ typedef struct CXWalkExtensionContextAPI_ CXWalkExtensionContextAPI;
 class XWalkExternalExtension : public XWalkExtension {
  public:
   explicit XWalkExternalExtension(const base::FilePath& library_path);
+
+  // Takes ownership from |library|. This constructor will be used
+  // during the transition to the new XWalkExternalExtension API.
+  explicit XWalkExternalExtension(base::NativeLibrary library);
+
   virtual ~XWalkExternalExtension();
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
@@ -39,6 +44,8 @@ class XWalkExternalExtension : public XWalkExtension {
   bool is_valid();
 
  private:
+  void Initialize();
+
   class ExternalContext : public XWalkExtension::Context {
    public:
     ExternalContext(

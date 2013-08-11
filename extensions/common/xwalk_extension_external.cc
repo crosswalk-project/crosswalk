@@ -21,18 +21,13 @@ XWalkExternalExtension::XWalkExternalExtension(
       const base::FilePath& library_path)
       : library_(library_path)
       , wrapped_(0) {
-  if (!library_.is_valid())
-    return;
+  Initialize();
+}
 
-  typedef CXWalkExtension* (*EntryPoint)(int32_t api_version);
-  EntryPoint initialize = reinterpret_cast<EntryPoint>(
-        library_.GetFunctionPointer("xwalk_extension_init"));
-  if (!initialize)
-    return;
-
-  wrapped_ = initialize(kImplementedAPIVersion);
-  if (wrapped_)
-    set_name(wrapped_->name);
+XWalkExternalExtension::XWalkExternalExtension(base::NativeLibrary library)
+    : library_(library),
+      wrapped_(NULL) {
+  Initialize();
 }
 
 XWalkExternalExtension::~XWalkExternalExtension() {
@@ -67,6 +62,21 @@ XWalkExtension::Context* XWalkExternalExtension::CreateContext(
     return NULL;
 
   return new ExternalContext(this, post_message, context);
+}
+
+void XWalkExternalExtension::Initialize() {
+  if (!library_.is_valid())
+    return;
+
+  typedef CXWalkExtension* (*EntryPoint)(int32_t api_version);
+  EntryPoint initialize = reinterpret_cast<EntryPoint>(
+        library_.GetFunctionPointer("xwalk_extension_init"));
+  if (!initialize)
+    return;
+
+  wrapped_ = initialize(kImplementedAPIVersion);
+  if (wrapped_)
+    set_name(wrapped_->name);
 }
 
 XWalkExternalExtension::ExternalContext::ExternalContext(
