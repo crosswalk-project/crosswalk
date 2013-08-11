@@ -5,11 +5,14 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 #include "base/callback.h"
+#include "base/file_util.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 #include "content/public/browser/render_process_host.h"
@@ -92,6 +95,25 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   std::string name = extension->name();
   extensions_[name] = extension;
   return true;
+}
+
+void XWalkExtensionService::RegisterExternalExtensionsForPath(
+    const base::FilePath& path) {
+  CHECK(file_util::DirectoryExists(path));
+
+  // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
+  // extension for the current platform.
+  const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
+  file_util::FileEnumerator libraries(
+      path, false, file_util::FileEnumerator::FILES, pattern);
+
+  for (base::FilePath extension_path = libraries.Next();
+        !extension_path.empty(); extension_path = libraries.Next()) {
+    scoped_ptr<XWalkExternalExtension> extension(
+        new XWalkExternalExtension(extension_path));
+    if (extension->is_valid())
+      RegisterExtension(extension.release());
+  }
 }
 
 void XWalkExtensionService::OnRenderProcessHostCreated(

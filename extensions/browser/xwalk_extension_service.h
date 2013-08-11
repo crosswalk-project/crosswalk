@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include "base/callback_forward.h"
+#include "base/files/file_path.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
@@ -33,6 +34,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   // Takes |extension| ownership. Returns false if it couldn't be registered
   // because another one with the same name exists, otherwise returns true.
   bool RegisterExtension(XWalkExtension* extension);
+
+  void RegisterExternalExtensionsForPath(const base::FilePath& path);
 
   // To be called when a new RenderProcessHost is created, will plug the
   // extension system to that render process. See
