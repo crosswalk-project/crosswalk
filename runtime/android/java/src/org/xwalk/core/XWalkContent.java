@@ -165,8 +165,14 @@ public class XWalkContent extends FrameLayout {
         contentClient.installWebContentsObserver(mContentViewCore);
     }
 
+    public String devToolsAgentId() {
+        return nativeDevToolsAgentId(mXWalkContent);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
+
     private native int nativeGetWebContents(int nativeXWalkContent);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
+    private native String nativeDevToolsAgentId(int nativeXWalkContent);
 }

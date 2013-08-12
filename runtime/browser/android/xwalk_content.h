@@ -10,6 +10,8 @@
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
+using base::android::ScopedJavaLocalRef;
+
 namespace content {
 class BrowserContext;
 class WebContents;
@@ -28,6 +30,7 @@ class XWalkContent {
 
   jint GetWebContents(JNIEnv* env, jobject obj);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
+  ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
 
  private:
