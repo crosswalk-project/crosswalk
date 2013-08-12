@@ -8,6 +8,8 @@
 #include "base/path_service.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/browser_context.h"
+#include "content/public/browser/browser_thread.h"
+#include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -29,6 +31,9 @@ XWalkContent::~XWalkContent() {
 jint XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
   if (!web_contents_) {
     web_contents_.reset(CreateWebContents());
+
+    render_view_host_ext_.reset(
+        new XWalkRenderViewHostExt(web_contents_.get()));
   }
   return reinterpret_cast<jint>(web_contents_.get());
 }
@@ -41,6 +46,19 @@ content::WebContents* XWalkContent::CreateWebContents() {
 
   web_contents->SetDelegate(web_contents_delegate_.get());
   return web_contents;
+}
+
+void XWalkContent::ClearCache(
+    JNIEnv* env,
+    jobject obj,
+    jboolean include_disk_files) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
+  render_view_host_ext_->ClearCache();
+
+  if (include_disk_files) {
+    RemoveHttpDiskCache(web_contents_->GetBrowserContext(),
+                        web_contents_->GetRoutingID());
+  }
 }
 
 void XWalkContent::Destroy(JNIEnv* env, jobject obj) {

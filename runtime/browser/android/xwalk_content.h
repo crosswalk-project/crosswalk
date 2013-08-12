@@ -8,6 +8,7 @@
 #include "base/android/jni_helper.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 
 namespace content {
 class BrowserContext;
@@ -24,6 +25,7 @@ class XWalkContent {
   ~XWalkContent();
 
   jint GetWebContents(JNIEnv* env, jobject obj);
+  void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   void Destroy(JNIEnv* env, jobject obj);
 
  private:
@@ -32,6 +34,7 @@ class XWalkContent {
   JavaObjectWeakGlobalRef java_ref_;
   scoped_ptr<content::WebContents> web_contents_;
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
+  scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);
