@@ -1,0 +1,23 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+namespace test {
+  dictionary Person {
+    DOMString name;
+    long age;
+  };
+
+  callback GetPersonsCallback = void (Person[] persons, long size);
+  callback GetPersonAgeCallback = void (long age);
+
+  interface Functions {
+    static void clearDatabase();
+
+    static void addPerson(DOMString name, long age);
+    static void addPersonObject(Person person);
+
+    static void getAllPersons(long max_size, GetPersonsCallback callback);
+    static void getPersonAge(DOMString name, GetPersonAgeCallback callback);
+  };
+};
