@@ -27,6 +27,7 @@ XWalkExtensionRenderViewHandler::XWalkExtensionRenderViewHandler(
 XWalkExtensionRenderViewHandler*
 XWalkExtensionRenderViewHandler::GetForCurrentContext() {
   WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
+
   if (!webframe) return NULL;
 
   WebKit::WebView* webview = webframe->view();
@@ -36,7 +37,7 @@ XWalkExtensionRenderViewHandler::GetForCurrentContext() {
   return XWalkExtensionRenderViewHandler::Get(render_view);
 }
 
-v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8Context() const {
+v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetContext() const {
   WebKit::WebFrame* frame = render_view()->GetWebView()->mainFrame();
   return frame->mainWorldScriptContext();
 }
@@ -71,40 +72,10 @@ void XWalkExtensionRenderViewHandler::OnPostMessage(
     return;
 
   v8::HandleScope handle_scope;
-  v8::Handle<v8::Context> context = GetV8Context();
-  v8::Context::Scope context_scope(context);
-
-  // We get the message wrapped in a ListValue because Value doesn't have
-  // param traits.
-  const base::Value* value;
-  msg.Get(0, &value);
-
-  scoped_ptr<content::V8ValueConverter> converter(
-      content::V8ValueConverter::create());
-  v8::Handle<v8::Value> v8_value(
-      converter->ToV8Value(value, context));
-
-  const int argc = 2;
-  v8::Handle<v8::Value> argv[argc] = {
-    v8::String::New(extension.c_str()),
-    v8_value
-  };
-
-  // FIXME(cmarcelo): The way we are doing this, onpostmessage is exposed
-  // and could be changed. An alternative design would be to expose those
-  // things in a more controlled way during DidClearWindowObject instead of
-  // using v8::Extension.
-  v8::Handle<v8::Value> xwalk =
-      context->Global()->Get(v8::String::New("xwalk"));
-  v8::Handle<v8::Value> callback =
-      xwalk.As<v8::Object>()->Get(v8::String::New("onpostmessage"));
-
-  // Note: see comment in WebScopedMicrotaskSuppression.h to understand why we
-  // are not using V8 API directly but going through frame.
-  WebKit::WebFrame* frame = render_view()->GetWebView()->mainFrame();
-  frame->callFunctionEvenIfScriptDisabled(callback.As<v8::Function>(),
-                                          context->Global(),
-                                          argc, argv);
+  v8::Handle<v8::Context> context = GetContext();
+  V8Context* v8_context = controller_->GetV8Context(context);
+  XWalkExtensionMessageCore* message_core = controller_->message_core();
+  message_core->OnPostMessage(v8_context, extension, msg);
 }
 
 }  // namespace extensions

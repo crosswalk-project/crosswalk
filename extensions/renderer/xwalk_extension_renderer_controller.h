@@ -10,6 +10,8 @@
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "v8/include/v8.h"
+#include "xwalk/extensions/renderer/xwalk_extension_message_core.h"
+#include "xwalk/extensions/renderer/xwalk_extension_v8_context.h"
 
 namespace content {
 class RenderView;
@@ -36,7 +38,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   // To be called by client code when a script context is created. Will
   // load the extensions in the context.
-  void DidCreateScriptContext(WebKit::WebFrame* frame);
+  void DidCreateScriptContext(
+      WebKit::WebFrame* frame, v8::Handle<v8::Context> context);
+  void WillReleaseScriptContext(
+      WebKit::WebFrame* frame, v8::Handle<v8::Context> context);
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -55,8 +60,22 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // Installs the extensions' JavaScript API code into the given frame.
   void InstallJavaScriptAPIs(WebKit::WebFrame* frame);
 
+  // Wrap api binding JS code and inject it to the frame
+  void WrapAndInjectAPICode(WebKit::WebFrame* frame,
+                            const std::string& api_code,
+                            const std::string& extension_name);
+
+  V8Context* GetV8Context(v8::Handle<v8::Context> context) const;
+
+  XWalkExtensionMessageCore* message_core() {
+    return message_core_.get();
+  }
+
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
+
+  V8ContextSet v8_context_set_;
+  scoped_ptr<XWalkExtensionMessageCore> message_core_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

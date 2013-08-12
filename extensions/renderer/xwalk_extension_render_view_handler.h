@@ -30,7 +30,7 @@ class XWalkExtensionRenderViewHandler
   // This convenience is one of the reasons to have this helper class.
   static XWalkExtensionRenderViewHandler* GetForCurrentContext();
 
-  v8::Handle<v8::Context> GetV8Context() const;
+  v8::Handle<v8::Context> GetContext() const;
 
   bool PostMessageToExtension(const std::string& extension,
                               const base::ListValue& msg);
