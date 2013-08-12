@@ -69,6 +69,9 @@ def additional_include_files(args=[]):
     if os.path.realpath(path) not in specified_includes:
       result.append(path)
 
+  # Include xwalk common.gypi to effect chromium source tree.
+  AddInclude(os.path.join(xwalk_dir, 'build', 'common.gypi'))
+
   # Always include common.gypi.
   AddInclude(os.path.join(chrome_src, 'build', 'common.gypi'))
 
