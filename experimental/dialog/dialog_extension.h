@@ -10,17 +10,19 @@
 #include "base/files/file_path.h"
 #include "base/values.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
-#include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/browser/xwalk_extension_internal.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 using ui::SelectFileDialog;
 
 namespace xwalk {
+namespace experimental {
 
 using extensions::XWalkExtension;
+using extensions::XWalkInternalExtension;
 
-class DialogExtension : public XWalkExtension,
+class DialogExtension : public XWalkInternalExtension,
                         public RuntimeRegistryObserver {
  public:
   explicit DialogExtension(RuntimeRegistry* runtime_registry);
@@ -31,7 +33,7 @@ class DialogExtension : public XWalkExtension,
   virtual Context* CreateContext(
     const PostMessageCallback& post_message) OVERRIDE;
 
-    // RuntimeRegistryObserver implementation.
+  // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
@@ -44,12 +46,11 @@ class DialogExtension : public XWalkExtension,
 };
 
 
-class DialogContext : public XWalkExtension::Context,
+class DialogContext : public XWalkInternalExtension::InternalContext,
                       public SelectFileDialog::Listener {
  public:
   DialogContext(DialogExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message);
-  virtual ~DialogContext();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
@@ -60,13 +61,16 @@ class DialogContext : public XWalkExtension::Context,
     const std::vector<base::FilePath>& files, void* params) OVERRIDE;
 
  private:
-  void HandleShowOpenDialog(const base::DictionaryValue* input);
-  void HandleShowSaveDialog(const base::DictionaryValue* input);
+  void OnShowOpenDialog(const std::string& function_name,
+                        const std::string& callback_id, base::ListValue* args);
+  void OnShowSaveDialog(const std::string& function_name,
+                        const std::string& callback_id, base::ListValue* args);
 
   DialogExtension* extension_;
   scoped_refptr<SelectFileDialog> dialog_;
 };
 
+}  // namespace experimental
 }  // namespace xwalk
 
 #endif  // XWALK_EXPERIMENTAL_DIALOG_DIALOG_EXTENSION_H_

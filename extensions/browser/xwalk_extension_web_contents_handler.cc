@@ -60,12 +60,12 @@ void XWalkExtensionWebContentsHandler::OnPostMessage(
     return;
   }
 
-  // The const_cast is need because we remove the only Value contained
-  // by the ListValue (which is solely used as wrapper, since Value doesn't
+  // The const_cast is needed to remove the only Value contained by the
+  // ListValue (which is solely used as wrapper, since Value doesn't
   // have param traits for serialization) and we pass the ownership to to
   // HandleMessage. It is safe to do this because the |msg| won't be used
-  // anywhere else when this function returns. This will save a DeepCopy(),
-  // which can be costly depending on the size of Value.
+  // anywhere else when this function returns. Saves a DeepCopy(), which
+  // can be costly depending on the size of Value.
   base::Value* value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
   it->second->PostMessageToContext(scoped_ptr<base::Value>(value));

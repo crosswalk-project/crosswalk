@@ -1,0 +1,22 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+namespace dialog {
+  callback ShowOpenDialogSuccessCallback = void (DOMString[] selected_paths);
+  callback ShowSaveDialogSuccessCallback = void (DOMString new_file_path);
+
+  interface Functions {
+    static void showOpenDialog(boolean allow_multiple_selection,
+                               boolean choose_directories,
+                               DOMString title,
+                               DOMString initial_path,
+                               DOMString[] file_types,
+                               ShowOpenDialogSuccessCallback callback);
+
+    static void showSaveDialog(DOMString title,
+                               DOMString initial_path,
+                               DOMString proposed_new_filename,
+                               ShowSaveDialogSuccessCallback callback);
+  };
+};
