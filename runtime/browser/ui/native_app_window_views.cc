@@ -12,13 +12,13 @@
 #include "content/public/browser/web_contents_view.h"
 #include "third_party/skia/include/core/SkPaint.h"
 #include "ui/views/controls/webview/webview.h"
-#include "ui/views/layout/box_layout.h"
 #include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/view.h"
 #include "ui/views/views_delegate.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
+#include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 
 #if defined(USE_AURA)
 #include "ui/aura/env.h"
@@ -251,21 +251,27 @@ views::NonClientFrameView* NativeAppWindowViews::CreateNonClientFrameView(
 ////////////////////////////////////////////////////////////
 // views::View implementation
 ////////////////////////////////////////////////////////////
-void NativeAppWindowViews::Layout() {
-  DCHECK(web_view_);
-  web_view_->SetBounds(0, 0, width(), height());
+
+void NativeAppWindowViews::ChildPreferredSizeChanged(views::View* child) {
+  // We only re-layout when the top view changes its preferred size (and notify
+  // us by calling its own function PreferredSizeChanged()). We don't react to
+  // changes in preferred size for the content view since we are currently
+  // setting its bounds to the maximum size available.
+  TopViewLayout* layout = static_cast<TopViewLayout*>(GetLayoutManager());
+  if (child == layout->top_view())
+    Layout();
 }
 
 void NativeAppWindowViews::ViewHierarchyChanged(
     bool is_add, views::View *parent, views::View *child) {
   if (is_add && child == this) {
-    views::BoxLayout* layout = new views::BoxLayout(
-        views::BoxLayout::kVertical, 0, 0, 0);
+    TopViewLayout* layout = new TopViewLayout();
     SetLayoutManager(layout);
 
     web_view_ = new views::WebView(NULL);
     web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
+    layout->set_content_view(web_view_);
   }
 }
 

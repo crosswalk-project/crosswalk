@@ -77,6 +77,14 @@
           '../base/allocator/allocator.gyp:allocator',
         ],
       }],
+      ['toolkit_views == 1', {
+        'sources': [
+          'runtime/browser/ui/top_view_layout_views_unittest.cc',
+        ],
+        'dependencies': [
+          '../skia/skia.gyp:skia',
+        ],
+      }],
     ],
   }, # xwalk_unit_tests target
 
