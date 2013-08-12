@@ -111,5 +111,41 @@
       },
       'includes': [ '../build/apk_test.gypi' ],
     },
+    {
+      'target_name': 'xwalk_runtime_shell_apk',
+      'type': 'none',
+      'dependencies': [
+        'libxwalkcore',
+        # Runtime code is also built by this target.
+        'xwalk_core_java',
+        'xwalk_runtime_shell_apk_pak',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeShell',
+        'java_in_dir': 'runtime/android/runtimeshell',
+        'resource_dir': 'runtime/android/runtimeshell/res',
+        'native_lib_target': 'libxwalkcore',
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_runtime/assets/xwalk.pak',
+        ],
+        'asset_location': '<(ant_build_out)/xwalk_runtime/assets',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_shell_apk_pak',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_pak',
+      ],
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_runtime/assets',
+          'files': [
+            '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+        },
+      ],
+    },
   ],
 }
