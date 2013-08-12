@@ -23,7 +23,7 @@
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
-#include "xwalk/runtime/common/xwalk_globals_android.h"
+#include "xwalk/runtime/common/android/xwalk_globals_android.h"
 #endif
 
 namespace xwalk {

@@ -7,8 +7,9 @@ package org.xwalk.core;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.AttributeSet;
 import android.graphics.Rect;
+import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -38,6 +39,7 @@ class XWalkContent extends FrameLayout {
     int mXWalkContent;
     int mWebContents;
     boolean mReadyToLoad = false;
+    String mPendingUrl = null;
 
     public XWalkContent(Context context, AttributeSet attrs, XWalkView xwView) {
         super(context, attrs);
@@ -51,6 +53,9 @@ class XWalkContent extends FrameLayout {
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context) {
             protected void onReadyToRender() {
+                if (mPendingUrl != null)
+                    doLoadUrl(mPendingUrl);
+
                 mReadyToLoad = true;
             }
         };
@@ -95,14 +100,33 @@ class XWalkContent extends FrameLayout {
 
     }
 
-    public void loadUrl(String url) {
-        if (mReadyToLoad) {
-            //TODO(yongsheng): configure appropriate parameters here.
-            LoadUrlParams params = new LoadUrlParams(url);
-            mContentView.loadUrl(params);
-            mContentView.clearFocus();
-            mContentView.requestFocus();
+    void doLoadUrl(String url) {
+        //TODO(Xingnan): Configure appropriate parameters here.
+        // Handle the same url loading by parameters.
+        if (TextUtils.equals(url, mContentView.getUrl())) {
+            mContentView.reload();
+        } else {
+            mContentView.loadUrl(new LoadUrlParams(url));
         }
+
+        mContentView.clearFocus();
+        mContentView.requestFocus();
+    }
+
+    public void loadUrl(String url) {
+        if (url == null)
+            return;
+
+        if (mReadyToLoad)
+            doLoadUrl(url);
+        else
+            mPendingUrl = url;
+    }
+
+    public String getUrl() {
+        String url = mContentView.getUrl();
+        if (url == null || url.trim().isEmpty()) return null;
+        return url;
     }
 
     public void addJavascriptInterface(Object object, String name) {
@@ -125,6 +149,12 @@ class XWalkContent extends FrameLayout {
         mWindow.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void clearCache(boolean includeDiskFiles) {
+        if (mXWalkContent == 0) return;
+        nativeClearCache(mXWalkContent, includeDiskFiles);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);
     private native int nativeGetWebContents(int nativeXWalkContent);
+    private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
 }

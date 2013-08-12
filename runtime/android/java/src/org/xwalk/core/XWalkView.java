@@ -52,10 +52,11 @@ public class XWalkView extends FrameLayout {
     }
 
     public String getUrl() {
-        return "";
+        return mContent.getUrl();
     }
 
     public void clearCache(boolean includeDiskFiles) {
+        mContent.clearCache(includeDiskFiles);
     }
 
     public void clearHistory() {

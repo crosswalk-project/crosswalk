@@ -17,8 +17,8 @@
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/common/android/xwalk_globals_android.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
-#include "xwalk/runtime/common/xwalk_globals_android.h"
 
 namespace xwalk {
 
