@@ -15,9 +15,16 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/index.html',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
+          'files': ['<(java_in_dir)/assets/index.html'],
+        }
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
