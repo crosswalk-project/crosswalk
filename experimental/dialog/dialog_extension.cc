@@ -100,7 +100,7 @@ void DialogContext::OnShowOpenDialog(const std::string& function_name,
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
   dialog_->SelectFile(dialog_type, title16,
-                      base::FilePath(params->initial_path),
+                      base::FilePath::FromUTF8Unsafe(params->initial_path),
                       NULL /* file_type */, 0 /* type_index */, file_extension,
                       extension_->owning_window_, data);
 }
@@ -130,10 +130,12 @@ void DialogContext::OnShowSaveDialog(const std::string& function_name,
   std::pair<std::string, std::string>* data =
       new std::pair<std::string, std::string>(function_name, callback_id);
 
-  dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
-    base::FilePath(params->initial_path).Append(params->proposed_new_filename),
-    NULL /* file_type */, 0 /* type_index */, file_extension,
-    extension_->owning_window_, data);
+  dialog_->SelectFile(
+      SelectFileDialog::SELECT_SAVEAS_FILE, title16,
+      base::FilePath::FromUTF8Unsafe(params->initial_path).Append(
+          base::FilePath::FromUTF8Unsafe(params->proposed_new_filename)),
+      NULL /* file_type */, 0 /* type_index */, file_extension,
+      extension_->owning_window_, data);
 }
 
 void DialogContext::FileSelected(const base::FilePath& path, int,
