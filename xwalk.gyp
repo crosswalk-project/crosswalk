@@ -119,6 +119,8 @@
         'runtime/browser/ui/native_app_window_mac.mm',
         'runtime/browser/ui/native_app_window_views.cc',
         'runtime/browser/ui/native_app_window_views.h',
+        'runtime/browser/ui/top_view_layout_views.cc',
+        'runtime/browser/ui/top_view_layout_views.h',
         'runtime/browser/ui/taskbar_util.h',
         'runtime/browser/ui/taskbar_util_win.cc',
         'runtime/common/paths_mac.h',

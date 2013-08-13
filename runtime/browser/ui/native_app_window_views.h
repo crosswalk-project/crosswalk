@@ -69,7 +69,7 @@ class NativeAppWindowViews : public NativeAppWindow,
       views::Widget* widget) OVERRIDE;
 
   // views::View implementation.
-  virtual void Layout() OVERRIDE;
+  virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
   virtual void ViewHierarchyChanged(
       bool is_add, views::View *parent, views::View *child) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
