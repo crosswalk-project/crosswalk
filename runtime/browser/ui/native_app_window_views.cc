@@ -31,6 +31,10 @@
 #include "ui/gfx/icon_util.h"
 #endif
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/ui/tizen_indicator.h"
+#endif
+
 #if defined(USE_AURA)
 namespace {
 
@@ -272,6 +276,16 @@ void NativeAppWindowViews::ViewHierarchyChanged(
     web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
     layout->set_content_view(web_view_);
+
+#if defined(OS_TIZEN_MOBILE)
+    TizenIndicator* indicator = new TizenIndicator();
+    if (indicator->IsConnected()) {
+      AddChildView(indicator);
+      layout->set_top_view(indicator);
+    } else {
+      delete indicator;
+    }
+#endif
   }
 }
 

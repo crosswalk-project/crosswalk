@@ -2,6 +2,7 @@
   'variables': {
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '1.28.2.0',
+    'tizen_mobile%': 0,
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -145,6 +146,15 @@
         },
       },
       'conditions': [
+        [ 'tizen_mobile == 1', {
+          'defines': [ 'OS_TIZEN_MOBILE=1' ],
+          'sources': [
+            'runtime/browser/ui/tizen_indicator.cc',
+            'runtime/browser/ui/tizen_indicator.h',
+            'runtime/browser/ui/tizen_plug.cc',
+            'runtime/browser/ui/tizen_plug.h',
+          ],
+        }],
         ['OS=="android"',{
           'sources': [
             'runtime/app/android/xwalk_main_delegate_android.cc',
