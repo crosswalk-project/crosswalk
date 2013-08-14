@@ -11,6 +11,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 #include "content/public/browser/render_process_host.h"
 
 namespace xwalk {
@@ -117,6 +118,16 @@ XWalkExtension* XWalkExtensionService::GetExtensionForName(
   return it->second;
 }
 
+void XWalkExtensionService::CreateRunnersForHandler(
+    XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
+  ExtensionMap::const_iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it) {
+    XWalkExtensionRunner* runner =
+        new XWalkExtensionThreadedRunner(it->second, handler);
+    handler->AttachExtensionRunner(frame_id, runner);
+  }
+}
+
 void XWalkExtensionService::OnRuntimeAdded(Runtime* runtime) {
   if (render_process_host_)
     CreateWebContentsHandler(runtime->web_contents());
@@ -143,9 +154,7 @@ void XWalkExtensionService::CreateWebContentsHandler(
   XWalkExtensionWebContentsHandler::CreateForWebContents(web_contents);
   XWalkExtensionWebContentsHandler* handler =
       XWalkExtensionWebContentsHandler::FromWebContents(web_contents);
-  ExtensionMap::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it)
-    handler->AttachExtension(it->second);
+  handler->set_extension_service(this);
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {

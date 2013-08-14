@@ -34,9 +34,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // extension handlers to them.
   void RenderViewCreated(content::RenderView* render_view);
 
-  // To be called by client code when a script context is created. Will
-  // load the extensions in the context.
+  // To be called in XWalkContentRendererClient so we can create and
+  // destroy extensions contexts appropriatedly.
   void DidCreateScriptContext(WebKit::WebFrame* frame);
+  void WillReleaseScriptContext(WebKit::WebFrame* frame);
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;

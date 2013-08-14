@@ -48,9 +48,10 @@ XWalkExtensionThreadedRunner::~XWalkExtensionThreadedRunner() {
 void XWalkExtensionThreadedRunner::HandleMessageFromClient(
     scoped_ptr<base::Value> msg) {
   PostTaskToExtensionThread(
-      FROM_HERE, base::Bind(&XWalkExtension::Context::HandleMessage,
-                            base::Unretained(context_.get()),
-                            base::Passed(&msg)));
+      FROM_HERE,
+      base::Bind(&XWalkExtensionThreadedRunner::CallHandleMessage,
+                 base::Unretained(this),
+                 base::Passed(&msg)));
 }
 
 scoped_ptr<base::Value>
@@ -95,6 +96,13 @@ void XWalkExtensionThreadedRunner::CreateContext() {
 void XWalkExtensionThreadedRunner::DestroyContext() {
   CHECK(CalledOnExtensionThread());
   context_.reset();
+}
+
+void XWalkExtensionThreadedRunner::CallHandleMessage(
+    scoped_ptr<base::Value> msg) {
+  CHECK(CalledOnExtensionThread());
+  CHECK(context_);
+  context_->HandleMessage(msg.Pass());
 }
 
 void XWalkExtensionThreadedRunner::CallHandleSyncMessage(
