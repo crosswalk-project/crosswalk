@@ -43,6 +43,7 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
   void CreateContext();
   void DestroyContext();
 
+  void CallHandleMessage(scoped_ptr<base::Value> msg);
   void CallHandleSyncMessage(scoped_ptr<base::Value> msg, base::Value** reply);
 
   scoped_ptr<XWalkExtension::Context> context_;

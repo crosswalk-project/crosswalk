@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <stdint.h>
 #include <string>
 #include "base/values.h"
 #include "ipc/ipc_message_macros.h"
@@ -14,11 +15,13 @@ const int XWalkExtensionMsgStart = LastIPCMsgStart + 1;
 
 #define IPC_MESSAGE_START XWalkExtensionMsgStart
 
-IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED3(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
+                    int64_t /* frame id */,
                     std::string /* target extension */,
                     base::ListValue /* contents */)
 
-IPC_MESSAGE_ROUTED2(XWalkViewMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED3(XWalkViewMsg_PostMessage,  // NOLINT(*)
+                    int64_t /* frame id */,
                     std::string /* source extension */,
                     base::ListValue /* contents */)
 
@@ -26,7 +29,14 @@ IPC_MESSAGE_CONTROL2(XWalkViewMsg_RegisterExtension,  // NOLINT(*)
                     std::string /* extension */,
                     std::string /* JS API code for extension */)
 
-IPC_SYNC_MESSAGE_ROUTED2_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
+IPC_SYNC_MESSAGE_ROUTED3_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
+                           int64_t /* frame id */,
                            std::string /* target extension */,
                            base::ListValue /* input contents */,
                            base::ListValue /* output contents */)
+
+IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidCreateScriptContext,  // NOLINT(*)
+                    int64_t /* frame id */)
+
+IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_WillReleaseScriptContext,  // NOLINT(*)
+                    int64_t /* frame id */)

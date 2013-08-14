@@ -5,6 +5,7 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 
+#include <stdint.h>
 #include <map>
 #include <string>
 #include "base/callback_forward.h"
@@ -39,6 +40,9 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
   XWalkExtension* GetExtensionForName(const std::string& name);
+
+  void CreateRunnersForHandler(XWalkExtensionWebContentsHandler* handler,
+                               int64_t frame_id);
 
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;

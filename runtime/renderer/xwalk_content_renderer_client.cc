@@ -40,4 +40,9 @@ void XWalkContentRendererClient::DidCreateScriptContext(
   extension_controller_->DidCreateScriptContext(frame);
 }
 
+void XWalkContentRendererClient::WillReleaseScriptContext(
+    WebKit::WebFrame* frame, v8::Handle<v8::Context>, int world_id) {
+  extension_controller_->WillReleaseScriptContext(frame);
+}
+
 }  // namespace xwalk
