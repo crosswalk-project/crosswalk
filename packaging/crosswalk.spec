@@ -103,13 +103,13 @@ make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
 %install
 # Binaries.
-install -p -m 755 -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
-install -p -m 755 -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
+install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 
 # Supporting libraries and resources.
-install -p -m 644 -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -m 644 -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
-install -p -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
+install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 %files
 %manifest %{name}.manifest
