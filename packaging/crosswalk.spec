@@ -97,7 +97,7 @@ export GYP_GENERATORS='make'
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
--Denable_xi21_mt=1 \
+-Denable_xi21_mt=1
 
 make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
