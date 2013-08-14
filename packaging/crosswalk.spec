@@ -10,8 +10,7 @@ Source:         %{name}-%{version}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
 Patch1:         %{name}-1.28-do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         %{name}-1.28-pull-request-40.patch
-Patch3:         %{name}-1.28-look-for-pvr-libGLESv2.so.patch
+Patch2:         %{name}-1.28-look-for-pvr-libGLESv2.so.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
