@@ -501,6 +501,7 @@
             'xwalk_core_shell_apk',
             'xwalk_core_test_apk',
             'xwalk_runtime_shell_apk',
+            'xwalk_runtime_lib_apk',
           ],
         }],
       ],
@@ -639,6 +640,7 @@
         '../build/all_android.gyp',
         'xwalk_android.gypi',
         'xwalk_android_tests.gypi',
+        'xwalk_android_app.gypi',
       ],
     }], # OS=="android"
   ]
