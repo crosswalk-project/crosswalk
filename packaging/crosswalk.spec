@@ -76,7 +76,6 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 %patch2
-%patch3
 
 %build
 
