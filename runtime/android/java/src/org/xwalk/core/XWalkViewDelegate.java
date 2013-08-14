@@ -49,7 +49,7 @@ class XWalkViewDelegate {
                 try {
                     LibraryLoader.ensureInitialized();
                     AndroidBrowserProcess.init(context,
-                            AndroidBrowserProcess.MAX_RENDERERS_AUTOMATIC);
+                            AndroidBrowserProcess.MAX_RENDERERS_SINGLE_PROCESS);
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
