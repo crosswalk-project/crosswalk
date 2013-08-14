@@ -97,19 +97,19 @@ export GYP_GENERATORS='make'
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
--Denable_xi21_mt=1 \
+-Denable_xi21_mt=1
 
 make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
 %install
 # Binaries.
-install -m 755 -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
-install -m 755 -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
+install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 
 # Supporting libraries and resources.
-install -m 644 -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -m 644 -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
-install -m 644 -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
+install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 %files
 %manifest %{name}.manifest
