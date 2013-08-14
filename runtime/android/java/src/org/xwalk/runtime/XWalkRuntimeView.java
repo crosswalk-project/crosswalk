@@ -31,7 +31,12 @@ public class XWalkRuntimeView extends FrameLayout {
      */
     public XWalkRuntimeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mProvider = new XWalkRuntimeViewProvider(context, this);
+
+        mProvider = XWalkRuntimeViewProviderFactory.getProvider(context);
+        this.addView(mProvider.getView(),
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT));
     }
 
     /**
