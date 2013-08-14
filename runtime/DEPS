@@ -11,4 +11,13 @@ include_rules = [
   # runtime_download_manager_delegate.cc.
   "!content/shell/shell_switches.h",
   "!content/shell/webkit_test_controller.h",
+
+  # Generated net resources, used for IDR_DIR_HEADER_HTML.
+  "+grit/net_resources.h",
+
+  # Android.
+  "+jni",
+  "+components/web_contents_delegate_android",
+  "+components/navigation_interception",
+  "+cc/base/switches.h"
 ]
