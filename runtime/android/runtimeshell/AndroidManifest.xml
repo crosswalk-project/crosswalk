@@ -9,9 +9,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.runtime.shell">
 
-    <permission android:name="org.xwalk.runtime.shell.permission.SANDBOX"
-            android:protectionLevel="signature" />
-
     <application android:name="org.xwalk.runtime.shell.XWalkRuntimeShellApplication"
         android:label="XWalkRuntimeShell" android:hardwareAccelerated="true">
         <activity android:name="org.xwalk.runtime.shell.XWalkRuntimeShellActivity"
@@ -23,36 +20,6 @@
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
         </activity>
-        <service android:name="org.chromium.content.app.SandboxedProcessService0"
-                 android:process=":sandboxed_process0"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
-        <service android:name="org.chromium.content.app.SandboxedProcessService1"
-                 android:process=":sandboxed_process1"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
-        <service android:name="org.chromium.content.app.SandboxedProcessService2"
-                 android:process=":sandboxed_process2"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
-        <service android:name="org.chromium.content.app.SandboxedProcessService3"
-                 android:process=":sandboxed_process3"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
-        <service android:name="org.chromium.content.app.SandboxedProcessService4"
-                 android:process=":sandboxed_process4"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
-        <service android:name="org.chromium.content.app.SandboxedProcessService5"
-                 android:process=":sandboxed_process5"
-                 android:permission="org.xwalk.runtime.shell.permission.SANDBOX"
-                 android:isolatedProcess="true"
-                 android:exported="false" />
     </application>
 
   <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
