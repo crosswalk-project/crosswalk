@@ -11,6 +11,7 @@
         '../components/components.gyp:visitedlink_renderer',
         '../components/components.gyp:web_contents_delegate_android',
         '../skia/skia.gyp:skia',
+        'xwalk_core_jar_jni',
         'xwalk_core_native_jni',
         'xwalk_pak',
         'xwalk_runtime',
@@ -42,12 +43,22 @@
       'includes': ['../build/java.gypi'],
     },
     {
+      'target_name': 'xwalk_core_jar_jni',
+      'type': 'none',
+      'variables': {
+        'jni_gen_package': 'xwalk',
+        'input_java_class': 'java/io/InputStream.class',
+      },
+      'includes': [ '../build/jar_file_jni_generator.gypi' ],
+    },
+    {
       'target_name': 'xwalk_core_native_jni',
       'type': 'none',
       'variables': {
         'jni_gen_package': 'xwalk',
       },
       'sources': [
+        'runtime/android/java/src/org/xwalk/core/AndroidProtocolHandler.java',
         'runtime/android/java/src/org/xwalk/core/XWalkContentsClientBridge.java',
         'runtime/android/java/src/org/xwalk/core/XWalkContent.java',
         'runtime/android/java/src/org/xwalk/core/XWalkDevToolsServer.java',

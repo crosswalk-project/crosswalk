@@ -23,6 +23,7 @@ class MappedHostResolver;
 class NetworkDelegate;
 class ProxyConfigService;
 class URLRequestContextStorage;
+class URLRequestJobFactory;
 }
 
 namespace xwalk {
@@ -56,6 +57,10 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   content::ProtocolHandlerMap protocol_handlers_;
+
+#if defined(OS_ANDROID)
+  scoped_ptr<net::URLRequestJobFactory> job_factory_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeURLRequestContextGetter);
 };
