@@ -108,7 +108,7 @@ public class XWalkRuntimeShellActivity extends Activity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ((actionId != EditorInfo.IME_ACTION_GO) && (event == null ||
                         event.getKeyCode() != KeyEvent.KEYCODE_ENTER ||
-                        event.getKeyCode() != KeyEvent.ACTION_DOWN)) {
+                        event.getAction() != KeyEvent.ACTION_DOWN)) {
                     return false;
                 }
 
