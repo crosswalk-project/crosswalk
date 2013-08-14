@@ -36,8 +36,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.
-  void DidCreateScriptContext(WebKit::WebFrame* frame);
-  void WillReleaseScriptContext(WebKit::WebFrame* frame);
+  void DidCreateScriptContext(WebKit::WebFrame* frame,
+                              v8::Handle<v8::Context> context);
+  void WillReleaseScriptContext(WebKit::WebFrame* frame,
+                                v8::Handle<v8::Context> context);
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;

@@ -37,12 +37,12 @@ void XWalkContentRendererClient::RenderViewCreated(
 void XWalkContentRendererClient::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
-  extension_controller_->DidCreateScriptContext(frame);
+  extension_controller_->DidCreateScriptContext(frame, context);
 }
 
 void XWalkContentRendererClient::WillReleaseScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context>, int world_id) {
-  extension_controller_->WillReleaseScriptContext(frame);
+    WebKit::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
+  extension_controller_->WillReleaseScriptContext(frame, context);
 }
 
 }  // namespace xwalk

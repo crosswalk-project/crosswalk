@@ -120,7 +120,7 @@ void XWalkExtensionRendererController::RenderViewCreated(
 }
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
-    WebKit::WebFrame* frame) {
+    WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->DidCreateScriptContext(frame);
@@ -128,7 +128,7 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
-    WebKit::WebFrame* frame) {
+    WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->WillReleaseScriptContext(frame);
