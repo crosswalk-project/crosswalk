@@ -12,6 +12,7 @@ import org.chromium.content.app.LibraryLoader;
 import org.chromium.content.browser.AndroidBrowserProcess;
 import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
+import org.chromium.content.common.CommandLine;
 import org.chromium.content.common.ProcessInitException;
 
 class XWalkViewDelegate {
@@ -24,6 +25,12 @@ class XWalkViewDelegate {
         if (sInitialized) {
             return;
         }
+        // Last place to initialize CommandLine object. If you haven't initialize
+        // the CommandLine object before XWalkViewContent is created, here will create
+        // the object to guarantee the CommandLine object is not null and the
+        // consequent prodedure does not crash.
+        if (!CommandLine.isInitialized())
+            CommandLine.init(null);
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
         ResourceExtractor.setExtractImplicitLocaleForTesting(false);
