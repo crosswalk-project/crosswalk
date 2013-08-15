@@ -10,5 +10,16 @@
       'test/external_extension_sample.c',
     ]
   },
+  {
+    'target_name': 'echo_extension',
+    'type': 'loadable_module',
+    'include_dirs': [
+      '../..',
+    ],
+    'sources': [
+      'test/echo_extension.c',
+    ]
+  },
+
   ],
 }

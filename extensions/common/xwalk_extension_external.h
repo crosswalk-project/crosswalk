@@ -17,6 +17,10 @@ class FilePath;
 namespace xwalk {
 namespace extensions {
 
+// TODO(cmarcelo): Remove this entire namespace and its contents when
+// we move to new C API.
+namespace old {
+
 typedef struct CXWalkExtension_ CXWalkExtension;
 typedef struct CXWalkExtensionContext_ CXWalkExtensionContext;
 typedef struct CXWalkExtensionContextAPI_ CXWalkExtensionContextAPI;
@@ -29,6 +33,11 @@ typedef struct CXWalkExtensionContextAPI_ CXWalkExtensionContextAPI;
 class XWalkExternalExtension : public XWalkExtension {
  public:
   explicit XWalkExternalExtension(const base::FilePath& library_path);
+
+  // Takes ownership from |library|. This constructor will be used
+  // during the transition to the new XWalkExternalExtension API.
+  explicit XWalkExternalExtension(base::NativeLibrary library);
+
   virtual ~XWalkExternalExtension();
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
@@ -39,6 +48,8 @@ class XWalkExternalExtension : public XWalkExtension {
   bool is_valid();
 
  private:
+  void Initialize();
+
   class ExternalContext : public XWalkExtension::Context {
    public:
     ExternalContext(
@@ -69,6 +80,8 @@ class XWalkExternalExtension : public XWalkExtension {
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExternalExtension);
 };
+
+}  // namespace old
 
 }  // namespace extensions
 }  // namespace xwalk
