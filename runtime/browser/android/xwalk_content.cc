@@ -10,6 +10,8 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -19,10 +21,13 @@ namespace xwalk {
 
 XWalkContent::XWalkContent(JNIEnv* env,
                            jobject obj,
-                           jobject web_contents_delegate)
+                           jobject web_contents_delegate,
+                           jobject contents_client_bridge)
     : java_ref_(env, obj),
       web_contents_delegate_(
-          new XWalkWebContentsDelegate(env, web_contents_delegate)) {
+          new XWalkWebContentsDelegate(env, web_contents_delegate)),
+      contents_client_bridge_(
+          new XWalkContentsClientBridge(env, contents_client_bridge)) {
 }
 
 XWalkContent::~XWalkContent() {
@@ -44,6 +49,8 @@ content::WebContents* XWalkContent::CreateWebContents() {
   content::WebContents* web_contents = content::WebContents::Create(
       content::WebContents::CreateParams(runtime_context));
 
+  XWalkContentsClientBridgeBase::Associate(web_contents,
+      contents_client_bridge_.get());
   web_contents->SetDelegate(web_contents_delegate_.get());
   return web_contents;
 }
@@ -65,9 +72,10 @@ void XWalkContent::Destroy(JNIEnv* env, jobject obj) {
   delete this;
 }
 
-static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate) {
+static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
+    jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =
-    new XWalkContent(env, obj, web_contents_delegate);
+    new XWalkContent(env, obj, web_contents_delegate, contents_client_bridge);
   return reinterpret_cast<jint>(xwalk_core_content);
 }
 
