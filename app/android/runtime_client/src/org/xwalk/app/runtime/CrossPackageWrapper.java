@@ -18,7 +18,7 @@ public abstract class CrossPackageWrapper {
     private Constructor<?> mCreator;
     private CrossPackageWrapperExceptionHandler mExceptionHandler;
 
-    public CrossPackageWrapper(Context ctx, String className, 
+    public CrossPackageWrapper(Context ctx, String className,
             CrossPackageWrapperExceptionHandler handler, Class<?>... parameters) {
         mExceptionHandler = handler;
         try {
@@ -36,7 +36,7 @@ public abstract class CrossPackageWrapper {
             handleException(e);
         }
     }
-    
+
     public Object createInstance(Object... parameters) {
         Object ret = null;
         if (mCreator != null) {

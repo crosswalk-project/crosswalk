@@ -5,6 +5,7 @@
 
 package org.xwalk.core.xwview.test;
 
+import android.app.Activity;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -31,11 +32,12 @@ public class XWalkViewTestBase
     protected void setUp() throws Exception {
         super.setUp();
 
-        final Context context = getActivity();
+        // Must call getActivity() here but not in main thread.
+        final Activity activity = getActivity();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView = new XWalkView(getActivity());
+                mXWalkView = new XWalkView(activity, activity);
                 getActivity().addView(mXWalkView);
                 mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestContentsClient);
             }

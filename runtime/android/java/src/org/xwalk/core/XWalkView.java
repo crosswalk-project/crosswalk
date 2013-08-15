@@ -4,6 +4,7 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -17,11 +18,29 @@ import org.xwalk.core.XWalkDevToolsServer;
 
 public class XWalkView extends FrameLayout {
 
-    XWalkContent mContent;
-    XWalkDevToolsServer mDevToolsServer;
+    private XWalkContent mContent;
+    private XWalkDevToolsServer mDevToolsServer;
+    private Activity mActivity;
 
-    public XWalkView(Context context) {
-        this(context, null);
+
+    public XWalkView(Context context, Activity activity) {
+        super(context, null);
+
+        // Make sure mActivity is initialized before calling 'init' method.
+        mActivity = activity;
+        init(context, null);
+    }
+
+    public Activity getActivity() {
+        if (mActivity != null) {
+            return mActivity;
+        } else if (getContext() instanceof Activity) {
+            return (Activity)getContext();
+        }
+
+        // Never achieve here.
+        assert(false);
+        return null;
     }
 
     /**
@@ -30,6 +49,10 @@ public class XWalkView extends FrameLayout {
     public XWalkView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        init(context, attrs);
+    }
+
+    private void init(Context context, AttributeSet attrs) {
         // Intialize library, paks and others.
         XWalkViewDelegate.init(context);
 
