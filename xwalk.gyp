@@ -185,6 +185,10 @@
             'runtime/renderer/android/xwalk_render_view_ext.cc',
             'runtime/renderer/android/xwalk_render_view_ext.h',
           ],
+          'dependencies':[
+            'xwalk_core_jar_jni',
+            'xwalk_core_native_jni',
+          ],
         }],
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
