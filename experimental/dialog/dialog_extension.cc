@@ -56,6 +56,9 @@ DialogContext::DialogContext(DialogExtension* extension,
   RegisterFunction("showSaveDialog", &DialogContext::OnShowSaveDialog);
 }
 
+DialogContext::~DialogContext() {
+}
+
 void DialogContext::HandleMessage(scoped_ptr<base::Value> msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(

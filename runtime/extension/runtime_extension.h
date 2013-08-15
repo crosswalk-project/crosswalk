@@ -17,7 +17,7 @@ class RuntimeExtension : public XWalkInternalExtension {
  public:
   RuntimeExtension();
 
-  virtual const char* GetJavaScriptAPI();
+  virtual const char* GetJavaScriptAPI() OVERRIDE;
 
   virtual XWalkExtension::Context* CreateContext(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
