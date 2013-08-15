@@ -4,6 +4,7 @@
 
 package org.xwalk.runtime;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -25,14 +26,34 @@ public class XWalkRuntimeView extends FrameLayout {
     private XWalkRuntimeViewProvider mProvider;
 
     /**
-     * Contructs a XWalkRuntimeView with a Context object.
+     * Contructs a XWalkRuntimeView with Activity and library Context. Called
+     * from runtime client.
      *
-     * @param context a Context used by runtime from web app APK.
+     * @param activity the activity from runtime client
+     * @param context a context when creating this package
+     * @param attrs the attributes of the XML tag that is inflating the view
+     */
+    public XWalkRuntimeView(Activity activity, Context libContext, AttributeSet attrs) {
+        super(libContext, attrs);
+
+        // MixContext is needed for cross package because the application
+        // context is different.
+        init(new MixContext(libContext, activity), activity);
+    }
+
+    /**
+     * This is for inflating this view from XML. Called from test shell.
+     * @param context a context to construct View
+     * @param attrs the attributes of the XML tag that is inflating the view
      */
     public XWalkRuntimeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mProvider = XWalkRuntimeViewProviderFactory.getProvider(context);
+        init(context, (Activity)context);
+    }
+
+    private void init(Context context, Activity activity) {
+        mProvider = XWalkRuntimeViewProviderFactory.getProvider(context, activity);
         this.addView(mProvider.getView(),
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
