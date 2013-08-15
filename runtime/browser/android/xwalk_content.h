@@ -18,10 +18,12 @@ class WebContents;
 namespace xwalk {
 
 class XWalkWebContentsDelegate;
+class XWalkContentsClientBridge;
 
 class XWalkContent {
  public:
-  XWalkContent(JNIEnv* env, jobject obj, jobject web_contents_delegate);
+  XWalkContent(JNIEnv* env, jobject obj, jobject web_contents_delegate,
+      jobject contents_client_bridge);
   ~XWalkContent();
 
   jint GetWebContents(JNIEnv* env, jobject obj);
@@ -35,6 +37,7 @@ class XWalkContent {
   scoped_ptr<content::WebContents> web_contents_;
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
+  scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);

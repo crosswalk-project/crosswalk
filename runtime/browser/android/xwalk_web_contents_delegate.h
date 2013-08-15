@@ -30,8 +30,11 @@ class XWalkWebContentsDelegate
   virtual void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) OVERRIDE;
+  virtual content::JavaScriptDialogManager*
+      GetJavaScriptDialogManager() OVERRIDE;
 
  private:
+  scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);
 };
 

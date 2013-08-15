@@ -87,6 +87,8 @@
         'runtime/browser/runtime_download_manager_delegate.h',
         'runtime/browser/runtime_file_select_helper.cc',
         'runtime/browser/runtime_file_select_helper.h',
+        'runtime/browser/runtime_javascript_dialog_manager.cc',
+        'runtime/browser/runtime_javascript_dialog_manager.h',
         'runtime/browser/runtime_network_delegate.cc',
         'runtime/browser/runtime_network_delegate.h',
         'runtime/browser/runtime_platform_util.h',

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.chromium.content.common.CommandLine;
+import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
 
@@ -163,7 +164,7 @@ public class XWalkViewShellActivity extends Activity {
     }
 
     private void initializeXWalkViewClients() {
-        mView.setXWalkWebChromeClient(new XWalkWebChromeClient() {
+        mView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this) {
             public void onProgressChanged(XWalkView view, int newProgress) {
                 mToolbar.removeCallbacks(mClearProgressRunnable);
 
