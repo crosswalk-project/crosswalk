@@ -21,6 +21,9 @@ XWalkInternalExtension::InternalContext::InternalContext(
   : XWalkExtension::Context(post_message) {
 }
 
+XWalkInternalExtension::InternalContext::~InternalContext() {
+}
+
 XWalkInternalExtension::InternalContext::FunctionHandler*
     XWalkInternalExtension::InternalContext::GetHandlerForFunction(
     const std::string& function) {

@@ -24,6 +24,9 @@ XWalkExtensionRenderViewHandler::XWalkExtensionRenderViewHandler(
   CHECK(controller);
 }
 
+XWalkExtensionRenderViewHandler::~XWalkExtensionRenderViewHandler() {
+}
+
 XWalkExtensionRenderViewHandler*
 XWalkExtensionRenderViewHandler::GetForCurrentContext() {
   WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();

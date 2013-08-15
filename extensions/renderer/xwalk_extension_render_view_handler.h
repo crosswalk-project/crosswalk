@@ -28,6 +28,7 @@ class XWalkExtensionRenderViewHandler
  public:
   XWalkExtensionRenderViewHandler(content::RenderView* render_view,
                           XWalkExtensionRendererController* controller);
+  virtual ~XWalkExtensionRenderViewHandler();
 
   // Get the handler for the current context. Used in v8::Extension.
   // This convenience is one of the reasons to have this helper class.

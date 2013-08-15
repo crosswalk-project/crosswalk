@@ -51,6 +51,7 @@ class DialogContext : public XWalkInternalExtension::InternalContext,
  public:
   DialogContext(DialogExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message);
+  virtual ~DialogContext();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 

@@ -33,6 +33,7 @@ class XWalkInternalExtension : public XWalkExtension {
    public:
     explicit InternalContext(
         const XWalkExtension::PostMessageCallback& post_message);
+    virtual ~InternalContext();
 
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
