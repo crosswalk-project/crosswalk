@@ -64,7 +64,7 @@ class XWalkContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
-        mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter);
+        mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
         mWebContents = nativeGetWebContents(mXWalkContent);
 
         // Initialize mWindow which is needed by content
@@ -154,7 +154,8 @@ class XWalkContent extends FrameLayout {
         nativeClearCache(mXWalkContent, includeDiskFiles);
     }
 
-    private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate);
+    private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
+            XWalkContentsClientBridge bridge);
     private native int nativeGetWebContents(int nativeXWalkContent);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
 }

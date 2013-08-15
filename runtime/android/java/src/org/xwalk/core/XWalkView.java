@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
+import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkDevToolsServer;
 
 public class XWalkView extends FrameLayout {
@@ -41,6 +42,9 @@ public class XWalkView extends FrameLayout {
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
+
+        // Set default XWalkWebChromeClient.
+        setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context));
     }
 
     public void loadUrl(String url) {

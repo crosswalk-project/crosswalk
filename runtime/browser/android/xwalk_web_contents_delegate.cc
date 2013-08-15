@@ -10,6 +10,7 @@
 #include "content/public/browser/web_contents.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
+#include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ScopedJavaLocalRef;
@@ -77,6 +78,14 @@ void XWalkWebContentsDelegate::RunFileChooser(
     content::WebContents* web_contents,
     const content::FileChooserParams& params) {
   RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+}
+
+content::JavaScriptDialogManager*
+XWalkWebContentsDelegate::GetJavaScriptDialogManager() {
+  if (!javascript_dialog_manager_.get()) {
+    javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
+  }
+  return javascript_dialog_manager_.get();
 }
 
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
