@@ -9,6 +9,7 @@
 #include "base/message_loop.h"
 #include "content/public/browser/web_contents.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
+#include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
 
@@ -86,6 +87,14 @@ XWalkWebContentsDelegate::GetJavaScriptDialogManager() {
     javascript_dialog_manager_.reset(new RuntimeJavaScriptDialogManager);
   }
   return javascript_dialog_manager_.get();
+}
+
+void XWalkWebContentsDelegate::RequestMediaAccessPermission(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest& request,
+    const content::MediaResponseCallback& callback) {
+  XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
+      web_contents, request, callback);
 }
 
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
