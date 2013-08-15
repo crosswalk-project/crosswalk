@@ -58,7 +58,8 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   bool ContainsExtension(const std::string& extension) const;
 
   // Installs the extensions' JavaScript API code into the given frame.
-  void InstallJavaScriptAPIs(WebKit::WebFrame* frame);
+  void InstallJavaScriptAPIs(v8::Handle<v8::Context> context,
+                             XWalkModuleSystem* module_system);
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;

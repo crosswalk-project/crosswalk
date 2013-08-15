@@ -4,6 +4,9 @@
 
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
+#include "base/logging.h"
+#include "xwalk/extensions/renderer/xwalk_extension_module.h"
+
 namespace xwalk {
 namespace extensions {
 
@@ -19,7 +22,12 @@ const int kModuleSystemEmbedderDataIndex = 8;
 
 XWalkModuleSystem::XWalkModuleSystem() {}
 
-XWalkModuleSystem::~XWalkModuleSystem() {}
+XWalkModuleSystem::~XWalkModuleSystem() {
+  ExtensionModuleMap::iterator it = extension_modules_.begin();
+  for (; it != extension_modules_.end(); ++it)
+    delete it->second;
+  extension_modules_.clear();
+}
 
 // static
 XWalkModuleSystem* XWalkModuleSystem::GetModuleSystemFromContext(
@@ -42,6 +50,20 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
     v8::Handle<v8::Context> context) {
   delete GetModuleSystemFromContext(context);
   SetModuleSystemInContext(scoped_ptr<XWalkModuleSystem>(), context);
+}
+
+void XWalkModuleSystem::RegisterExtensionModule(
+    scoped_ptr<XWalkExtensionModule> module) {
+  const std::string& extension_name = module->extension_name();
+  CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
+  extension_modules_[extension_name] = module.release();
+}
+
+XWalkExtensionModule* XWalkModuleSystem::GetExtensionModule(
+    const std::string& extension_name) {
+  ExtensionModuleMap::iterator it = extension_modules_.find(extension_name);
+  CHECK(it != extension_modules_.end());
+  return it->second;
 }
 
 }  // namespace extensions

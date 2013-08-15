@@ -30,6 +30,8 @@
     'renderer/xwalk_extension_render_view_handler.cc',
     'renderer/xwalk_extension_render_view_handler.h',
     'renderer/xwalk_api.js',
+    'renderer/xwalk_extension_module.cc',
+    'renderer/xwalk_extension_module.h',
     'renderer/xwalk_module_system.cc',
     'renderer/xwalk_module_system.h',
   ],
