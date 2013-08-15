@@ -18,7 +18,6 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
-#include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -59,8 +58,6 @@ base::StringPiece PlatformResourceProvider(int key) {
 }  // namespace
 
 namespace xwalk {
-
-using extensions::XWalkExternalExtension;
 
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -151,23 +148,7 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
     return;
   }
 
-  // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
-  // extension for the current platform.
-  const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
-  file_util::FileEnumerator libraries(extensions_dir, false,
-        file_util::FileEnumerator::FILES, pattern);
-
-  for (base::FilePath extension_path = libraries.Next();
-        !extension_path.empty(); extension_path = libraries.Next()) {
-    XWalkExternalExtension* extension =
-          new XWalkExternalExtension(extension_path);
-
-    if (extension->is_valid()) {
-      extension_service_->RegisterExtension(extension);
-    } else {
-      delete extension;
-    }
-  }
+  extension_service_->RegisterExternalExtensionsForPath(extensions_dir);
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {

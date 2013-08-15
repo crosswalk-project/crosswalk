@@ -5,13 +5,18 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 #include "base/callback.h"
+#include "base/file_util.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
+#include "base/scoped_native_library.h"
 #include "base/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
+#include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "content/public/browser/render_process_host.h"
 
 namespace xwalk {
@@ -92,6 +97,46 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   std::string name = extension->name();
   extensions_[name] = extension;
   return true;
+}
+
+void XWalkExtensionService::RegisterExternalExtensionsForPath(
+    const base::FilePath& path) {
+  CHECK(file_util::DirectoryExists(path));
+
+  // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
+  // extension for the current platform.
+  const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
+  file_util::FileEnumerator libraries(
+      path, false, file_util::FileEnumerator::FILES, pattern);
+
+  for (base::FilePath extension_path = libraries.Next();
+        !extension_path.empty(); extension_path = libraries.Next()) {
+    // FIXME(cmarcelo): Once we get rid of the current C API in favor of the new
+    // one, move this NativeLibrary manipulation back inside
+    // XWalkExternalExtension.
+    base::ScopedNativeLibrary library(extension_path);
+    if (!library.is_valid()) {
+      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
+                   << " as external extension because is not valid library.";
+      continue;
+    }
+
+    if (library.GetFunctionPointer("XW_Initialize")) {
+      scoped_ptr<XWalkExternalExtension> extension(
+          new XWalkExternalExtension(extension_path, library.Release()));
+      if (extension->is_valid())
+        RegisterExtension(extension.release());
+    } else if (library.GetFunctionPointer("xwalk_extension_init")) {
+      scoped_ptr<old::XWalkExternalExtension> extension(
+          new old::XWalkExternalExtension(library.Release()));
+      if (extension->is_valid())
+        RegisterExtension(extension.release());
+    } else {
+      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
+                   << " as external extension because"
+                   << " doesn't contain valid entry point.";
+    }
+  }
 }
 
 void XWalkExtensionService::OnRenderProcessHostCreated(

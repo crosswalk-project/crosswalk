@@ -6,7 +6,7 @@
 #include "base/path_service.h"
 #include "base/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
-#include "xwalk/extensions/common/xwalk_extension_external.h"
+#include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -14,7 +14,7 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
-using xwalk::extensions::old::XWalkExternalExtension;
+using xwalk::extensions::XWalkExternalExtension;
 
 static base::FilePath GetNativeLibraryFilePath(const char* name) {
   base::string16 library_name = base::GetNativeLibraryName(UTF8ToUTF16(name));
@@ -25,13 +25,13 @@ static base::FilePath GetNativeLibraryFilePath(const char* name) {
 #endif
 }
 
-class OldExternalExtensionTest : public XWalkExtensionsTestBase {
+class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
     base::FilePath extension_file;
     PathService::Get(base::DIR_EXE, &extension_file);
     extension_file = extension_file.Append(
-        GetNativeLibraryFilePath("external_extension_sample"));
+        GetNativeLibraryFilePath("echo_extension"));
     XWalkExternalExtension* extension =
         new XWalkExternalExtension(extension_file);
     ASSERT_TRUE(extension->is_valid());
@@ -39,7 +39,7 @@ class OldExternalExtensionTest : public XWalkExtensionsTestBase {
   }
 };
 
-IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtension) {
+IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
@@ -55,7 +55,7 @@ IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtension) {
 #define ExternalExtensionSync DISABLED_ExternalExtensionSync
 #endif
 
-IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtensionSync) {
+IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
