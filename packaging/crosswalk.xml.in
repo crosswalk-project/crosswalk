@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="crosswalk" version="@VERSION@" install-location="internal-only">
+	<label>crosswalk</label>
+	<author email="cameo-dev@linux.intel.com" href="www.intel.com">XWalk Dev</author>
+	<description>crosswalk</description>
+	<ui-application appid="crosswalk" exec="/usr/lib/xwalk/xwalk" nodisplay="false" multiple="false" type="capp" taskmanage="true">
+		<label>crosswalk</label>
+		<icon>crosswalk.png</icon>
+	</ui-application>
+</manifest>

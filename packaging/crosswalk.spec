@@ -9,6 +9,8 @@ Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}-%{version}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
+Source1002:     %{name}.xml.in
+Source1003:     %{name}.png
 Patch1:         %{name}-1.28-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-1.28-look-for-pvr-libGLESv2.so.patch
 
@@ -64,10 +66,16 @@ Url:            https://github.com/otcshare/crosswalk
 %description emulator-support
 This package contains additional support files that are needed for running Crosswalk on the Tizen emulator.
 
+%define _manifestdir /usr/share/packages
+%define _desktop_icondir /usr/share/icons/default/small
+
 %prep
 %setup -q
 
 cp %{SOURCE1001} .
+cp %{SOURCE1002} .
+cp %{SOURCE1003} .
+sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
 
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
@@ -111,6 +119,10 @@ install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libf
 install -p -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
+# Register xwalk to the package manager.
+install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
+install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+
 %files
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
@@ -118,6 +130,8 @@ install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
+%{_manifestdir}/%{name}.xml
+%{_desktop_icondir}/%{name}.png
 
 %files emulator-support
 %{_libdir}/xwalk/libosmesa.so
