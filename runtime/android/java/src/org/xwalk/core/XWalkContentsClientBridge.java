@@ -233,6 +233,10 @@ public class XWalkContentsClientBridge extends XWalkContentsClient {
         return null;
     }
 
+    @Override
+    public void didFinishLoad(String url) {
+    }
+
     // Used by the native peer to set/reset a weak ref to the native peer.
     @CalledByNative
     private void setNativeContentsClientBridge(int nativeContentsClientBridge) {

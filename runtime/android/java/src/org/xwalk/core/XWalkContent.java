@@ -26,7 +26,7 @@ import org.chromium.ui.WindowAndroid;
  * This class is the implementation class for XWalkView by calling internal
  * various classes.
  */
-class XWalkContent extends FrameLayout {
+public class XWalkContent extends FrameLayout {
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
@@ -137,6 +137,10 @@ class XWalkContent extends FrameLayout {
         mContentsClientBridge.setXWalkWebChromeClient(client);
     }
 
+    public void setXWalkClient(XWalkClient client) {
+        mContentsClientBridge.setXWalkClient(client);
+    }
+
     public void onPause() {
         mContentViewCore.onActivityPause();
     }
@@ -152,6 +156,16 @@ class XWalkContent extends FrameLayout {
     public void clearCache(boolean includeDiskFiles) {
         if (mXWalkContent == 0) return;
         nativeClearCache(mXWalkContent, includeDiskFiles);
+    }
+
+    // For instrumentation test.
+    public ContentViewCore getContentViewCoreForTest() {
+        return mContentViewCore;
+    }
+
+    // For instrumentation test.
+    public void installWebContentsObserverForTest(XWalkContentsClient contentClient) {
+        contentClient.installWebContentsObserver(mContentViewCore);
     }
 
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
