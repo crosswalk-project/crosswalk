@@ -43,10 +43,10 @@ IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII("echo.html"));
-  string16 title = ASCIIToUTF16("Pass");
-  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);
-  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
 
 
@@ -60,8 +60,8 @@ IN_PROC_BROWSER_TEST_F(OldExternalExtensionTest, ExternalExtensionSync) {
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("sync_echo.html"));
-  string16 title = ASCIIToUTF16("Pass");
-  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);
-  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
