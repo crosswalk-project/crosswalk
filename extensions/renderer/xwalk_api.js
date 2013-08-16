@@ -9,9 +9,7 @@ xwalk.postMessage = function(extension, msg) {
   PostMessage(extension, msg);
 };
 
-xwalk._callback_id = 0;
 xwalk._message_listeners = {};
-xwalk._message_listeners_internal = {};
 
 xwalk.setMessageListener = function(extension, callback) {
   if (callback === undefined)
@@ -31,42 +29,43 @@ xwalk.sendSyncMessage = function(extension, msg) {
   return SendSyncMessage(extension, msg);
 }
 
-xwalk._listener_internal = function() {
-  var args = arguments[0];
-  var id = args.shift();
-  var listener = xwalk._message_listeners_internal[id];
+xwalk._setupExtensionInternal = function(extension_obj) {
+  var internal_listeners = [];
+  var callback_id = 0;
 
-  if (listener !== undefined)
-    listener.apply(null, args);
-};
+  extension_obj.setMessageListener(function(msg) {
+    var args = arguments[0];
+    var id = args.shift();
+    var listener = internal_listeners[id];
 
-xwalk._setupExtensionInternal = function(extension) {
-  xwalk.setMessageListener(extension, xwalk._listener_internal);
-}
+    if (listener !== undefined)
+      listener.apply(null, args);
+  });
 
-xwalk._postMessageInternal = function(extension, function_name, args) {
-  // The function name and the callback ID are prepended before
-  // the arguments. If there is no callback, an empty string is
-  // should be used. This will be sorted out by the InternalContext
-  // message handler.
-  args.unshift("");
-  args.unshift(function_name);
-
-  native function PostMessage();
-  PostMessage(extension, args);
-};
-
-xwalk._setMessageListenerInternal = function(extension, function_name,
-                                             args, callback) {
-  if (callback) {
-    var id = (xwalk._callback_id++).toString();
-    xwalk._message_listeners_internal[id] = callback;
-    args.unshift(id);
-  } else
+  extension_obj._postMessageInternal = function(function_name, args) {
+    // The function name and the callback ID are prepended before
+    // the arguments. If there is no callback, an empty string is
+    // should be used. This will be sorted out by the InternalContext
+    // message handler.
     args.unshift("");
+    args.unshift(function_name);
 
-  args.unshift(function_name);
+    extension_obj.postMessage(args);
+  };
 
-  native function PostMessage();
-  PostMessage(extension, args);
-};
+  // FIXME(cmarcelo): This function have an odd name, it acts more as a
+  // postMessageWithReply or something like that.
+  extension_obj._setMessageListenerInternal = function(function_name,
+						       args, callback) {
+    if (callback) {
+      var id = (callback_id++).toString();
+      internal_listeners[id] = callback;
+      args.unshift(id);
+    } else
+      args.unshift("");
+
+    args.unshift(function_name);
+
+    extension_obj.postMessage(args);
+  };
+}

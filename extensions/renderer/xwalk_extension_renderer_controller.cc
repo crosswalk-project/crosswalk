@@ -213,18 +213,15 @@ static std::string WrapAPICode(const std::string& api_code,
   // the UI process and this is not supported in that platform. See issue
   // https://github.com/otcshare/crosswalk/issues/268 for details.
   return base::StringPrintf(
-      "var %s; (function(exports, extension) {'use strict'; %s\n})"
+      "var %s; (function(exports, extension) {'use strict';"
+      "extension._setupExtensionInternal = function() {"
+      "  xwalk._setupExtensionInternal(extension);"
+      "};"
+      "%s\n})"
       "(%s, "
       "{ postMessage: function(msg) { xwalk.postMessage('%s', msg); },"
       "  setMessageListener: function(listener) {"
-      "      xwalk.setMessageListener('%s', listener); },"
-      "  _setupExtensionInternal: function() {"
-      "      xwalk._setupExtensionInternal('%s'); },"
-      "  _postMessageInternal: function(function_name, args) {"
-      "      xwalk._postMessageInternal('%s', function_name, args); },"
-      "  _setMessageListenerInternal: function(function_name, args, callback) {"
-      "      xwalk._setMessageListenerInternal('%s', function_name, args,"
-      "                                        callback); }"
+      "      xwalk.setMessageListener('%s', listener); }"
 #if !defined(OS_WIN)
       "  , internal: {"
       "    sendSyncMessage: function(msg) {"
@@ -234,7 +231,7 @@ static std::string WrapAPICode(const std::string& api_code,
       "});",
       CodeToEnsureNamespace(extension_name).c_str(),
       api_code.c_str(),
-      name, name, name, name, name, name
+      name, name, name
 #if !defined(OS_WIN)
       , name
 #endif
