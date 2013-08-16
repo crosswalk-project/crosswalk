@@ -77,6 +77,11 @@ void XWalkBrowserMainParts::SetRuntimeContext(RuntimeContext* context) {
 #endif
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
+#if defined(OS_ANDROID)
+  CommandLine::ForCurrentProcess()->AppendSwitch(
+      switches::kEnableWebRTC);
+#endif
+
 #if !defined(OS_ANDROID)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   const CommandLine::StringVector& args = command_line->GetArgs();
