@@ -1,15 +1,19 @@
 <html>
   <head>
-    <title>Fail</title>
+    <title></title>
   </head>
   <body>
     <script>
       var Person = test.Person;
       var error = 0;
 
+      window.onerror = function(e) {
+        error++;
+        endTest();
+      };
+
       function endTest() {
-        if (!error)
-          document.title = "Pass";
+        document.title = error ? "Fail" : "Pass";
       }
 
       test.clearDatabase();
