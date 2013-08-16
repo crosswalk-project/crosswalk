@@ -19,5 +19,19 @@
       },
       'includes': ['../build/java.gypi'],
     },
+    {
+      'target_name': 'xwalk_app_template_apk',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_activity_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkAppTemplate',
+        'java_in_dir': 'app/android/app_template',
+        'resource_dir': 'app/android/app_template/res',
+        'asset_location': 'app/android/app_template/assets',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
   ],
 }
