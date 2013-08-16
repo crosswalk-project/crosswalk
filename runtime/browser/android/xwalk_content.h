@@ -28,10 +28,16 @@ class XWalkContent {
       jobject contents_client_bridge);
   ~XWalkContent();
 
+  static XWalkContent* FromWebContents(content::WebContents* web_contents);
+
   jint GetWebContents(JNIEnv* env, jobject obj);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
+
+  XWalkRenderViewHostExt* render_view_host_ext() {
+    return render_view_host_ext_.get();
+  };
 
  private:
   content::WebContents* CreateWebContents();

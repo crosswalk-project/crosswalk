@@ -35,6 +35,7 @@ public class XWalkContent extends FrameLayout {
     private XWalkContentsClient mContentsClient;
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
+    private XWalkSettings mSettings;
 
     int mXWalkContent;
     int mWebContents;
@@ -92,9 +93,7 @@ public class XWalkContent extends FrameLayout {
         mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
-        // TODO(yongsheng): Initialize settings, InterceptNavigationDelegateImpl, IoThreadClientImpl,
-        // DIPScale, etc.
-
+        mSettings = new XWalkSettings(getContext(), mWebContents, true);
     }
 
     void doLoadUrl(String url) {
