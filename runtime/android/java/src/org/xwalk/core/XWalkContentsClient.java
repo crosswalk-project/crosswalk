@@ -177,6 +177,8 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract Bitmap getDefaultVideoPoster();
 
+    public abstract void didFinishLoad(String url);
+
     //--------------------------------------------------------------------------------------------
     //                              Other XWalkView-specific methods
     //--------------------------------------------------------------------------------------------
