@@ -174,6 +174,8 @@
             'runtime/browser/android/xwalk_contents_client_bridge_base.h',
             'runtime/browser/android/xwalk_dev_tools_server.cc',
             'runtime/browser/android/xwalk_dev_tools_server.h',
+            'runtime/browser/android/xwalk_settings.cc',
+            'runtime/browser/android/xwalk_content.h',
             'runtime/browser/android/xwalk_web_contents_delegate.cc',
             'runtime/browser/android/xwalk_web_contents_delegate.h',
             'runtime/common/android/xwalk_hit_test_data.cc',
