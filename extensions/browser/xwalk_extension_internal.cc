@@ -73,6 +73,15 @@ void XWalkInternalExtension::InternalContext::HandleMessage(
   handler->Run(function_name, callback_id, args);
 }
 
+scoped_ptr<base::Value>
+XWalkInternalExtension::InternalContext::HandleSyncMessage(
+    scoped_ptr<base::Value> msg) {
+  HandleMessage(msg.Pass());
+
+  DCHECK(sync_result_) << "Result not set for synchronous function call.";
+  return sync_result_.Pass();
+}
+
 void XWalkInternalExtension::InternalContext::PostResult(
     const std::string& callback_id, scoped_ptr<base::ListValue> result) {
   DCHECK(result);
@@ -88,6 +97,15 @@ void XWalkInternalExtension::InternalContext::PostResult(
   // on the JavaScript side know which callback should be evoked.
   result->Insert(0, new base::StringValue(callback_id));
   PostMessage(scoped_ptr<base::Value>(result.release()));
+}
+
+void XWalkInternalExtension::InternalContext::PostResultSync(
+    scoped_ptr<base::Value> result) {
+  // Overwriting a previously set result is fatal because it means
+  // we are calling this function twice in the same handler.
+  DCHECK(result && !sync_result_);
+
+  sync_result_ = result.Pass();
 }
 
 }  // namespace extensions
