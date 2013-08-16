@@ -20,6 +20,13 @@
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
         </activity>
+        <activity android:name="org.xwalk.core.xwview.test.XWalkViewTestRunnerActivity"
+            android:label="XWalkViewTestRunnerActivity">
+          <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
+          </intent-filter>
+        </activity>
     </application>
 
   <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />

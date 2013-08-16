@@ -10,8 +10,8 @@
       ],
       'variables': {
         'apk_name': 'XWalkCoreShell',
-        'java_in_dir': 'runtime/android/shell',
-        'resource_dir': 'runtime/android/shell/res',
+        'java_in_dir': 'runtime/android/core_shell',
+        'resource_dir': 'runtime/android/core_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
@@ -61,7 +61,7 @@
       ],
       'variables': {
         'apk_name': 'XWalkCoreTest',
-        'java_in_dir': 'test/android/javatests',
+        'java_in_dir': 'test/android/core/javatests',
         'is_test_apk': 1,
       },
       'includes': [ '../build/java_apk.gypi' ],
@@ -129,8 +129,8 @@
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeShell',
-        'java_in_dir': 'runtime/android/runtimeshell',
-        'resource_dir': 'runtime/android/runtimeshell/res',
+        'java_in_dir': 'runtime/android/runtime_shell',
+        'resource_dir': 'runtime/android/runtime_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime/assets/xwalk.pak',

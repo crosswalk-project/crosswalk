@@ -104,6 +104,7 @@ public class XWalkView extends FrameLayout {
     }
 
     public void setXWalkClient(XWalkClient client) {
+        mContent.setXWalkClient(client);
     }
 
     public void enableRemoteDebugging() {
@@ -140,4 +141,9 @@ public class XWalkView extends FrameLayout {
 
     // TODO(shouqun): requestFocusFromTouch, setVerticalScrollBarEnabled are
     // from android.view.View;
+
+    // For instrumentation test.
+    public XWalkContent getXWalkViewContentForTest() {
+        return mContent;
+    }
 }
