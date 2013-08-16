@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Copyright (c) 2013 Intel Corporation. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+
+<resources>
+    <string name="download_from_url">Direct Download</string>
+    <string name="download_from_store">Install From Store</string>
+    <string name="download_dialog_title">CrossWalk Runtime Not Found</string>
+    <string name="download_dialog_msg">Please install &quot;CrossWalk Runtime Library&quot; first.</string>
+</resources>
