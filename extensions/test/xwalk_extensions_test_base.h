@@ -24,4 +24,7 @@ class XWalkExtensionsTestBase : public InProcessBrowserTest {
 GURL GetExtensionsTestURL(const base::FilePath& dir,
                           const base::FilePath& file);
 
+const string16 kPassString = ASCIIToUTF16("Pass");
+const string16 kFailString = ASCIIToUTF16("Fail");
+
 #endif  // XWALK_EXTENSIONS_TEST_XWALK_EXTENSIONS_TEST_BASE_H_

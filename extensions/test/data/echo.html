@@ -1,12 +1,17 @@
 <html>
 <head>
-<title>Fail</title>
+<title></title>
 </head>
 <body>
 <script>
-echo.echo("Pass", function(msg) {
-        document.title = msg;
-    });
+try {
+    echo.echo("Pass", function(msg) {
+            document.title = msg;
+        });
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
 </script>
 </body>
 </html>

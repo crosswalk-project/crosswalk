@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Fail</title>
+    <title></title>
   </head>
   <body>
     <script>
@@ -11,9 +11,13 @@
         test_list[current_test++]();
       }
 
+      window.onerror = function() {
+        error++;
+        endTest();
+      };
+
       function endTest() {
-        if (!error)
-          document.title = "Pass";
+        document.title = error ? "Fail" : "Pass";
       }
 
       function echoStuff(stuff) {

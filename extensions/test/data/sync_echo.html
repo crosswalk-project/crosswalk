@@ -1,10 +1,15 @@
 <html>
 <head>
-<title>Fail</title>
+<title></title>
 </head>
 <body>
 <script>
-document.title = echo.syncEcho("Pass");
+try {
+  document.title = echo.syncEcho("Pass");
+} catch (e) {
+  console.log(e);
+  document.title = "Fail";
+}
 </script>
 </body>
 </html>

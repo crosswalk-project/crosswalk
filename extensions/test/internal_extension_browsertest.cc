@@ -141,12 +141,12 @@ class InternalExtensionTest : public XWalkExtensionsTestBase {
 IN_PROC_BROWSER_TEST_F(InternalExtensionTest, InternalExtension) {
   content::RunAllPendingInMessageLoop();
 
-  string16 title = ASCIIToUTF16("Pass");
-  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
 
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("test_internal_extension.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
 
-  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
