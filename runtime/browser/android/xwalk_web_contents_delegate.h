@@ -33,6 +33,10 @@ class XWalkWebContentsDelegate
   virtual content::JavaScriptDialogManager*
       GetJavaScriptDialogManager() OVERRIDE;
 
+  virtual void RequestMediaAccessPermission(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest& request,
+      const content::MediaResponseCallback& callback) OVERRIDE;
  private:
   scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);

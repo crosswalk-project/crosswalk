@@ -38,6 +38,43 @@ XWalkMediaCaptureDevicesDispatcher*
   return Singleton<XWalkMediaCaptureDevicesDispatcher>::get();
 }
 
+void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
+    content::WebContents* web_contents,
+    const content::MediaStreamRequest& request,
+    const content::MediaResponseCallback& callback) {
+
+  content::MediaStreamDevices devices;
+  // Based on chrome/browser/media/media_stream_devices_controller.cc.
+  bool microphone_requested =
+      (request.audio_type == content::MEDIA_DEVICE_AUDIO_CAPTURE);
+  bool webcam_requested =
+      (request.video_type == content::MEDIA_DEVICE_VIDEO_CAPTURE);
+  if (microphone_requested || webcam_requested) {
+    switch (request.request_type) {
+      case content::MEDIA_OPEN_DEVICE:
+        // For open device request pick the desired device or fall back to the
+        // first available of the given type.
+        XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            request.requested_device_id,
+            microphone_requested,
+            webcam_requested,
+            &devices);
+        break;
+      case content::MEDIA_DEVICE_ACCESS:
+      case content::MEDIA_GENERATE_STREAM:
+      case content::MEDIA_ENUMERATE_DEVICES:
+        // Get the default devices for the request.
+        XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+            "",
+            microphone_requested,
+            webcam_requested,
+            &devices);
+        break;
+    }
+  }
+  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
+}
+
 XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher()
     : devices_enumerated_(false) {}
 

@@ -13,6 +13,7 @@
 #include "base/memory/singleton.h"
 #include "base/observer_list.h"
 #include "content/public/browser/media_observer.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/common/media_stream_request.h"
 
 // This singleton is used to receive updates about media events from the content
@@ -42,6 +43,11 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   };
 
   static XWalkMediaCaptureDevicesDispatcher* GetInstance();
+
+  static void RunRequestMediaAccessPermission(
+      content::WebContents* web_contents,
+      const content::MediaStreamRequest& request,
+      const content::MediaResponseCallback& callback);
 
   // Methods for observers. Called on UI thread.
   // Observers should add themselves on construction and remove themselves
