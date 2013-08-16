@@ -19,6 +19,28 @@
 
 namespace xwalk {
 
+namespace {
+
+const void* kXWalkContentUserDataKey = &kXWalkContentUserDataKey;
+
+class XWalkContentUserData : public base::SupportsUserData::Data {
+ public:
+  XWalkContentUserData(XWalkContent* ptr) : content_(ptr) {}
+
+  static XWalkContent* GetContents(content::WebContents* web_contents) {
+    if (!web_contents)
+      return NULL;
+    XWalkContentUserData* data = reinterpret_cast<XWalkContentUserData*>(
+        web_contents->GetUserData(kXWalkContentUserDataKey));
+    return data ? data->content_ : NULL;
+  }
+
+ private:
+  XWalkContent* content_;
+};
+
+}  // namespace
+
 XWalkContent::XWalkContent(JNIEnv* env,
                            jobject obj,
                            jobject web_contents_delegate,
@@ -31,6 +53,12 @@ XWalkContent::XWalkContent(JNIEnv* env,
 }
 
 XWalkContent::~XWalkContent() {
+}
+
+// static
+XWalkContent* XWalkContent::FromWebContents(
+    content::WebContents* web_contents) {
+  return XWalkContentUserData::GetContents(web_contents);
 }
 
 jint XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
@@ -48,6 +76,9 @@ content::WebContents* XWalkContent::CreateWebContents() {
       XWalkContentBrowserClient::GetRuntimeContext();
   content::WebContents* web_contents = content::WebContents::Create(
       content::WebContents::CreateParams(runtime_context));
+
+  web_contents->SetUserData(kXWalkContentUserDataKey,
+                            new XWalkContentUserData(this));
 
   XWalkContentsClientBridgeBase::Associate(web_contents,
       contents_client_bridge_.get());
