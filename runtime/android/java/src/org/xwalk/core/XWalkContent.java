@@ -68,10 +68,7 @@ public class XWalkContent extends FrameLayout {
         mWebContents = nativeGetWebContents(mXWalkContent);
 
         // Initialize mWindow which is needed by content
-        if (getContext() instanceof Activity) {
-            Activity activity = (Activity) getContext();
-            mWindow = new WindowAndroid(activity);
-        }
+        mWindow = new WindowAndroid(xwView.getActivity());
 
         // Initialize the ContentVideoView for fullscreen video playback.
         ContentVideoView.registerContentVideoViewContextDelegate(
