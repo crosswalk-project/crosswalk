@@ -30,7 +30,7 @@ xwalk.sendSyncMessage = function(extension, msg) {
 }
 
 xwalk._setupExtensionInternal = function(extension_obj) {
-  var callback_listeners = [];
+  var callback_listeners = {};
   var callback_id = 0;
 
   function wrapCallback(args, callback) {
@@ -52,8 +52,10 @@ xwalk._setupExtensionInternal = function(extension_obj) {
     var id = args.shift();
     var listener = callback_listeners[id];
 
-    if (listener !== undefined)
+    if (listener !== undefined) {
       listener.apply(null, args);
+      delete callback_listeners[id];
+    }
   });
 
   // All Internal Extensions functions should only be exposed by
