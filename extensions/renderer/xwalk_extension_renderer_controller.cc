@@ -31,28 +31,25 @@ class XWalkExtensionV8Wrapper : public v8::Extension {
       v8::Handle<v8::String> name);
 
  private:
-  static scoped_ptr<base::ListValue> V8ValueToListValue(
-      const v8::Handle<v8::Value> value);
-
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args);
   static v8::Handle<v8::Value> SendSyncMessage(const v8::Arguments& args);
 
-  static content::V8ValueConverter* converter_;
+  static content::V8ValueConverter* g_converter;
 };
 
 // Also static because is gonna be used inside the static methods. The
 // lifetime is bound to XWalkExtensionV8Wrapper which will initialize this
 // object. We should have only one instance of this class per process.
-content::V8ValueConverter* XWalkExtensionV8Wrapper::converter_ = NULL;
+content::V8ValueConverter* XWalkExtensionV8Wrapper::g_converter = NULL;
 
 XWalkExtensionV8Wrapper::XWalkExtensionV8Wrapper()
     : v8::Extension("xwalk", kSource_xwalk_api) {
-  DCHECK(!converter_);
-  converter_ = content::V8ValueConverter::create();
+  DCHECK(!g_converter);
+  g_converter = content::V8ValueConverter::create();
 }
 
 XWalkExtensionV8Wrapper::~XWalkExtensionV8Wrapper() {
-  delete converter_;
+  delete g_converter;
 }
 
 v8::Handle<v8::FunctionTemplate>
@@ -64,33 +61,15 @@ XWalkExtensionV8Wrapper::GetNativeFunction(v8::Handle<v8::String> name) {
   return v8::Handle<v8::FunctionTemplate>();
 }
 
-scoped_ptr<base::ListValue> XWalkExtensionV8Wrapper::V8ValueToListValue(
-    const v8::Handle<v8::Value> v8_value) {
-  // We first convert a V8 Value to a base::Value and later we wrap it
-  // into a base::ListValue for dispatching to the browser process. We need
-  // this wrapping because base::Value doesn't have param traits and
-  // implementing one is not a viable option (would require fork base::Value
-  // and create a new empty type).
-  scoped_ptr<base::Value> value(
-      converter_->FromV8Value(v8_value,
-                              v8::Isolate::GetCurrent()->GetCurrentContext()));
-
-  if (!value)
-    return scoped_ptr<base::ListValue>(NULL);
-
-  scoped_ptr<base::ListValue> list_value(new base::ListValue);
-  list_value->Append(value.release());
-
-  return list_value.Pass();
-}
-
 v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
     const v8::Arguments& args) {
   if (args.Length() != 2)
     return v8::False();
 
-  scoped_ptr<base::ListValue> list_value_args(V8ValueToListValue(args[1]));
-  if (!list_value_args)
+  scoped_ptr<base::Value> msg(
+      g_converter->FromV8Value(args[1],
+                               args.GetIsolate()->GetCurrentContext()));
+  if (!msg)
     return v8::False();
 
   XWalkExtensionRenderViewHandler* handler =
@@ -98,8 +77,8 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
   WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
 
   std::string extension(*v8::String::Utf8Value(args[0]));
-  if (!handler->PostMessageToExtension(
-          webframe->identifier(), extension, *list_value_args))
+  if (!handler->PostMessageToExtension(webframe->identifier(), extension,
+                                       msg.Pass()))
     return v8::False();
   return v8::True();
 }
@@ -109,8 +88,10 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::SendSyncMessage(
   if (args.Length() != 2)
     return v8::False();
 
-  scoped_ptr<base::ListValue> list_value_args(V8ValueToListValue(args[1]));
-  if (!list_value_args)
+  scoped_ptr<base::Value> msg(
+      g_converter->FromV8Value(args[1],
+                               args.GetIsolate()->GetCurrentContext()));
+  if (!msg)
     return v8::False();
 
   XWalkExtensionRenderViewHandler* handler =
@@ -118,14 +99,11 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::SendSyncMessage(
   WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
 
   std::string extension(*v8::String::Utf8Value(args[0]));
-  scoped_ptr<base::ListValue> reply(handler->SendSyncMessageToExtension(
-      webframe->identifier(), extension, *list_value_args));
+  scoped_ptr<base::Value> reply(handler->SendSyncMessageToExtension(
+      webframe->identifier(), extension, msg.Pass()));
 
-  const base::Value* value;
-  reply->Get(0, &value);
-
-  return converter_->ToV8Value(value,
-                               v8::Isolate::GetCurrent()->GetCurrentContext());
+  return g_converter->ToV8Value(reply.get(),
+                                args.GetIsolate()->GetCurrentContext());
 }
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {

@@ -37,11 +37,13 @@ class XWalkExtensionRenderViewHandler
   static XWalkExtensionRenderViewHandler* GetForFrame(
       WebKit::WebFrame* webframe);
 
-  bool PostMessageToExtension(int64_t frame_id, const std::string& extension,
-                              const base::ListValue& msg);
-  scoped_ptr<base::ListValue> SendSyncMessageToExtension(
+  bool PostMessageToExtension(
       int64_t frame_id, const std::string& extension,
-      const base::ListValue& msg);
+      scoped_ptr<base::Value> msg);
+  scoped_ptr<base::Value> SendSyncMessageToExtension(
+      int64_t frame_id, const std::string& extension,
+      scoped_ptr<base::Value> msg);
+
   void DidCreateScriptContext(WebKit::WebFrame* frame);
   void WillReleaseScriptContext(WebKit::WebFrame* frame);
 
