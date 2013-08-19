@@ -66,18 +66,17 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::PostMessage(
   if (args.Length() != 2)
     return v8::False();
 
-  scoped_ptr<base::Value> msg(
-      g_converter->FromV8Value(args[1],
-                               args.GetIsolate()->GetCurrentContext()));
+  v8::Handle<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+  scoped_ptr<base::Value> msg(g_converter->FromV8Value(args[1], context));
   if (!msg)
     return v8::False();
 
+  WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
   XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForCurrentContext();
-  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
+      XWalkExtensionRenderViewHandler::GetForFrame(frame);
 
   std::string extension(*v8::String::Utf8Value(args[0]));
-  if (!handler->PostMessageToExtension(webframe->identifier(), extension,
+  if (!handler->PostMessageToExtension(frame->identifier(), extension,
                                        msg.Pass()))
     return v8::False();
   return v8::True();
@@ -88,22 +87,20 @@ v8::Handle<v8::Value> XWalkExtensionV8Wrapper::SendSyncMessage(
   if (args.Length() != 2)
     return v8::False();
 
-  scoped_ptr<base::Value> msg(
-      g_converter->FromV8Value(args[1],
-                               args.GetIsolate()->GetCurrentContext()));
+  v8::Handle<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+  scoped_ptr<base::Value> msg(g_converter->FromV8Value(args[1], context));
   if (!msg)
     return v8::False();
 
+  WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
   XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForCurrentContext();
-  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
+      XWalkExtensionRenderViewHandler::GetForFrame(frame);
 
   std::string extension(*v8::String::Utf8Value(args[0]));
   scoped_ptr<base::Value> reply(handler->SendSyncMessageToExtension(
-      webframe->identifier(), extension, msg.Pass()));
+      frame->identifier(), extension, msg.Pass()));
 
-  return g_converter->ToV8Value(reply.get(),
-                                args.GetIsolate()->GetCurrentContext());
+  return g_converter->ToV8Value(reply.get(), context);
 }
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
