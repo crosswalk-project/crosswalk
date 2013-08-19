@@ -6,14 +6,15 @@
 
 #include "base/stringprintf.h"
 #include "base/values.h"
-#include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebScriptSource.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 #include "v8/include/v8.h"
+#include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
+#include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 // This will be generated from xwalk_api.js.
 extern const char kSource_xwalk_api[];
@@ -121,14 +122,20 @@ void XWalkExtensionRendererController::RenderViewCreated(
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  XWalkModuleSystem* module_system = new XWalkModuleSystem;
+  XWalkModuleSystem::SetModuleSystemInContext(
+      scoped_ptr<XWalkModuleSystem>(module_system), context);
+
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->DidCreateScriptContext(frame);
+
   InstallJavaScriptAPIs(frame);
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  XWalkModuleSystem::ResetModuleSystemFromContext(context);
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->WillReleaseScriptContext(frame);

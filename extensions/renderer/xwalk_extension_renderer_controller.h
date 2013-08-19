@@ -22,6 +22,8 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
+class XWalkModuleSystem;
+
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
 // the extensions handlers to them.
