@@ -156,5 +156,31 @@
         },
       ],
     },
+    {
+      'target_name': 'xwalk_runtime_shell_apk_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_runtime_shell_apk',
+      ],
+      'includes': [ '../build/apk_fake_jar.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_test_apk',
+      'type': 'none',
+      'dependencies': [
+        '../base/base.gyp:base_java_test_support',
+        '../content/content.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        'xwalk_runtime_shell_apk_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeTest',
+        'java_in_dir': 'test/android/runtime/javatests',
+        'is_test_apk': 1,
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
   ],
 }
