@@ -514,10 +514,14 @@
         },
         {
           'dependencies': [
+            # For internal testing.
             'xwalk_core_shell_apk',
             'xwalk_core_test_apk',
             'xwalk_runtime_shell_apk',
+
+            # For external testing.
             'xwalk_runtime_lib_apk',
+            'xwalk_app_template_apk',
           ],
         }],
       ],
