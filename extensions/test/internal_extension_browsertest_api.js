@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 extension._setupExtensionInternal();
+var internal = extension._internal;
 
 exports.Person = function(name, age) {
   this.name = name;
@@ -10,21 +11,21 @@ exports.Person = function(name, age) {
 };
 
 exports.clearDatabase = function() {
-  extension._postMessageInternal('clearDatabase', []);
+  internal.postMessage('clearDatabase', []);
 };
 
 exports.addPerson = function(arg1, arg2) {
-  extension._postMessageInternal('addPerson', [arg1, arg2]);
+  internal.postMessage('addPerson', [arg1, arg2]);
 };
 
 exports.addPersonObject = function(arg1) {
-  extension._postMessageInternal('addPersonObject', [arg1]);
+  internal.postMessage('addPersonObject', [arg1]);
 };
 
 exports.getAllPersons = function(arg1, callback) {
-  extension._setMessageListenerInternal('getAllPersons', [arg1], callback);
+  internal.postMessage('getAllPersons', [arg1], callback);
 };
 
 exports.getPersonAge = function(arg1, callback) {
-  extension._setMessageListenerInternal('getPersonAge', [arg1], callback);
+  internal.postMessage('getPersonAge', [arg1], callback);
 };
