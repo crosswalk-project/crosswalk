@@ -4,6 +4,7 @@
 
 package org.xwalk.runtime;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -19,12 +20,12 @@ class XWalkCoreProvider implements XWalkRuntimeViewProvider {
     private Context mContext;
     private XWalkView mXwalkView;
 
-    public XWalkCoreProvider(Context context) {
+    public XWalkCoreProvider(Context context, Activity activity) {
         mContext = context;
 
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
-        mXwalkView = new XWalkView(context);
+        mXwalkView = new XWalkView(context, activity);
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package org.xwalk.app.runtime;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -34,8 +35,8 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mEnableRemoteDebugging;
     private Method mDisableRemoteDebugging;
 
-    public XWalkRuntimeClient(Context context, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
-        super(context, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Context.class, AttributeSet.class);
+    public XWalkRuntimeClient(Activity activity, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
+        super(activity, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Activity.class, Context.class, AttributeSet.class);
         Context libCtx = getLibraryContext();
         Method getVersion = lookupMethod("getVersion");
         String libVersion = (String) invokeMethod(getVersion, null);
@@ -43,7 +44,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
             handleException("Library apk is not up to date");
             return;
         }
-        mInstance = this.createInstance(new MixContext(libCtx, context), attrs);
+        mInstance = this.createInstance(activity, libCtx, attrs);
         mLoadAppFromUrl = lookupMethod("loadAppFromUrl", String.class);
         mLoadAppFromManifest = lookupMethod("loadAppFromManifest", String.class);
         mOnCreate = lookupMethod("onCreate");
