@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 extension._setupExtensionInternal();
+var internal = extension._internal;
 
 exports.getAPIVersion = function(callback) {
-  extension._setMessageListenerInternal('getAPIVersion', [], callback);
+  internal.postMessage('getAPIVersion', [], callback);
 }

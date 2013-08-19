@@ -30,42 +30,39 @@ xwalk.sendSyncMessage = function(extension, msg) {
 }
 
 xwalk._setupExtensionInternal = function(extension_obj) {
-  var internal_listeners = [];
+  var callback_listeners = [];
   var callback_id = 0;
+
+  function wrapCallback(args, callback) {
+    if (callback) {
+      var id = (callback_id++).toString();
+      callback_listeners[id] = callback;
+      args.unshift(id);
+    } else {
+      // The function name and the callback ID are prepended before
+      // the arguments. If there is no callback, an empty string is
+      // should be used. This will be sorted out by the InternalContext
+      // message handler.
+      args.unshift("");
+    }
+  }
 
   extension_obj.setMessageListener(function(msg) {
     var args = arguments[0];
     var id = args.shift();
-    var listener = internal_listeners[id];
+    var listener = callback_listeners[id];
 
     if (listener !== undefined)
       listener.apply(null, args);
   });
 
-  extension_obj._postMessageInternal = function(function_name, args) {
-    // The function name and the callback ID are prepended before
-    // the arguments. If there is no callback, an empty string is
-    // should be used. This will be sorted out by the InternalContext
-    // message handler.
-    args.unshift("");
+  // All Internal Extensions functions should only be exposed by
+  // this _internal object, acting like a namespace.
+  extension_obj._internal = {};
+
+  extension_obj._internal.postMessage = function(function_name, args, callback) {
+    wrapCallback(args, callback);
     args.unshift(function_name);
-
-    extension_obj.postMessage(args);
-  };
-
-  // FIXME(cmarcelo): This function have an odd name, it acts more as a
-  // postMessageWithReply or something like that.
-  extension_obj._setMessageListenerInternal = function(function_name,
-						       args, callback) {
-    if (callback) {
-      var id = (callback_id++).toString();
-      internal_listeners[id] = callback;
-      args.unshift(id);
-    } else
-      args.unshift("");
-
-    args.unshift(function_name);
-
     extension_obj.postMessage(args);
   };
 }
