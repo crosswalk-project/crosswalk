@@ -49,7 +49,7 @@
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/support/webkit_support.gyp:webkit_resources',
         '../webkit/support/webkit_support.gyp:webkit_support',
-        'jsapi/jsapi.gyp:api',
+        'jsapi/jsapi.gyp:xwalk_jsapi',
         'xwalk_application_lib',
         'xwalk_resources',
       ],

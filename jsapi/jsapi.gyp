@@ -1,7 +1,7 @@
 {
   'targets': [
     {
-      'target_name': 'api',
+      'target_name': 'xwalk_jsapi',
       'type': 'static_library',
       'sources': [
         '<@(schema_files)',
