@@ -35,7 +35,7 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView = new XWalkView(getActivity());
+                mXWalkView = new XWalkView(getActivity(), getActivity());
                 getActivity().addView(mXWalkView);
                 mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestContentsClient);
             }
