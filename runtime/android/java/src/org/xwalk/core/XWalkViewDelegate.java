@@ -5,6 +5,7 @@
 package org.xwalk.core;
 
 import android.content.Context;
+import android.os.Build;
 
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
@@ -39,7 +40,11 @@ class XWalkViewDelegate {
         ResourceExtractor.setExtractImplicitLocaleForTesting(false);
         // If context's applicationContext is not the same package with itself,
         // It's a cross package invoking, load core library from library apk.
-        if (!context.getApplicationContext().getPackageName().equals(context.getPackageName())) {
+        // Only load the native library from /data/data if the Android version is
+        // lower than 4.2. Android enables a system path /data/app-lib to store native
+        // libraries starting from 4.2 and load them automatically.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 &&
+                !context.getApplicationContext().getPackageName().equals(context.getPackageName())) {
             try {
                 for (String library : MANDATORY_LIBRARIES) {
                     System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
