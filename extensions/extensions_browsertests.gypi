@@ -10,6 +10,7 @@
     'test/xwalk_extensions_browsertest.cc',
     'test/xwalk_extensions_test_base.cc',
     'test/xwalk_extensions_test_base.h',
+    'test/v8tools_module.cc',
   ],
 
   'dependencies': [

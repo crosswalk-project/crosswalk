@@ -14,6 +14,7 @@
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
+#include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
 // This will be generated from xwalk_api.js.
 extern const char kSource_xwalk_api[];
@@ -48,6 +49,9 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->DidCreateScriptContext(frame);
+
+  module_system->RegisterNativeModule(
+      "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
 
   InstallJavaScriptAPIs(context, module_system);
 }
