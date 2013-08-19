@@ -4,6 +4,9 @@
 
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "base/android/jni_string.h"
 #include "base/basictypes.h"
 #include "base/bind.h"
@@ -72,6 +75,16 @@ class XWalkDevToolsServerDelegate : public content::DevToolsHttpHandlerDelegate 
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsServerDelegate);
 };
 
+// Allow connection from same uid to devtools server.
+// This supports the XDK usage: debug bridge wrapper connects to the devtools
+// server.
+static bool CanUserConnectToDevTools(uid_t uid, gid_t gid) {
+  if (uid == getuid())
+    return true;
+
+  return content::CanUserConnectToDevTools(uid, gid);
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -92,7 +105,7 @@ void XWalkDevToolsServer::Start() {
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       new net::UnixDomainSocketWithAbstractNamespaceFactory(
           socket_name_,
-          base::Bind(&content::CanUserConnectToDevTools)),
+          base::Bind(&CanUserConnectToDevTools)),
       base::StringPrintf(kFrontEndURL, kChromeVersion),
       new XWalkDevToolsServerDelegate());
 }
