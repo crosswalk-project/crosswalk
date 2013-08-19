@@ -58,6 +58,8 @@
         '../content/content.gyp:content_java_test_support',
         '../net/net.gyp:net_java_test_support',
         'xwalk_core_shell_apk_java',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
       ],
       'variables': {
         'apk_name': 'XWalkCoreTest',
