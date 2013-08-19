@@ -42,6 +42,13 @@ class TestExtension : public xwalk::extensions::XWalkInternalExtension {
     void OnGetPersonAge(const std::string& function_name,
                         const std::string& callback_id, base::ListValue* args);
 
+    void OnGetAllPersonsSync(const std::string& function_name,
+                             const std::string& callback_id,
+                             base::ListValue* args);
+    void OnGetPersonAgeSync(const std::string& function_name,
+                            const std::string& callback_id,
+                            base::ListValue* args);
+
     std::vector<std::pair<std::string, int> > database_;
   };
 };

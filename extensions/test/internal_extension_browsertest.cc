@@ -40,6 +40,11 @@ TestExtension::TestExtensionContext::TestExtensionContext(
   RegisterFunction("addPersonObject", &TestExtensionContext::OnAddPersonObject);
   RegisterFunction("getAllPersons", &TestExtensionContext::OnGetAllPersons);
   RegisterFunction("getPersonAge", &TestExtensionContext::OnGetPersonAge);
+
+  RegisterFunction("getAllPersonsSync",
+                   &TestExtensionContext::OnGetAllPersonsSync);
+  RegisterFunction("getPersonAgeSync",
+                   &TestExtensionContext::OnGetPersonAgeSync);
 }
 
 void TestExtension::TestExtensionContext::OnClearDatabase(const std::string&,
@@ -128,6 +133,64 @@ void TestExtension::TestExtensionContext::OnGetPersonAge(
   }
 
   PostResult(callback_id, GetPersonAge::Results::Create(age));
+}
+
+void TestExtension::TestExtensionContext::OnGetAllPersonsSync(
+    const std::string& function_name, const std::string& callback_id,
+    base::ListValue* args) {
+  if (callback_id.empty())
+    return;
+
+  scoped_ptr<GetAllPersonsSync::Params>
+      params(GetAllPersonsSync::Params::Create(*args));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    PostResultSync(scoped_ptr<base::Value>(base::Value::CreateNullValue()));
+    return;
+  }
+
+  unsigned max_size = std::min<unsigned>(database()->size(), params->max_size);
+  std::vector<linked_ptr<Person> > persons;
+
+  for (unsigned i = 0; i < max_size; ++i) {
+    linked_ptr<Person> person(new Person);
+    person->name = database()->at(i).first;
+    person->age = database()->at(i).second;
+
+    persons.push_back(person);
+  }
+
+  // Posting the sync result, which in this case stands for the function
+  // immediate return value. And next, we dispatch the callback.
+  scoped_ptr<base::Value> ret(
+      new base::FundamentalValue(static_cast<int>(max_size)));
+  PostResultSync(ret.Pass());
+
+  PostResult(callback_id, GetAllPersonsSync::Results::Create(persons));
+}
+
+void TestExtension::TestExtensionContext::OnGetPersonAgeSync(
+    const std::string& function_name, const std::string& callback_id,
+    base::ListValue* args) {
+  scoped_ptr<GetPersonAgeSync::Params>
+      params(GetPersonAgeSync::Params::Create(*args));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    PostResultSync(scoped_ptr<base::Value>(base::Value::CreateNullValue()));
+    return;
+  }
+
+  int age = -1;
+
+  for (unsigned i = 0; i < database()->size(); ++i) {
+    if (database()->at(i).first == params->name)
+      age = database()->at(i).second;
+  }
+
+  scoped_ptr<base::Value> ret(new base::FundamentalValue(age));
+  PostResultSync(ret.Pass());
 }
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {

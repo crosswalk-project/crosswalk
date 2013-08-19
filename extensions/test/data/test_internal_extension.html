@@ -35,35 +35,66 @@
       test.addPerson(110, "Foo11");
       test.addPerson(120);
 
-      test.getAllPersons(7, function(persons) {
+      // FIXME(tmpsantos): Sync messages is not supported
+      // in all platforms (notable Windows).
+      if (test.isSyncMessagesSupported) {
+        if (test.getPersonAgeSync("Foo1") != 10)
+          error++;
+
+        if (test.getPersonAgeSync("Bar6") != 60)
+          error++;
+
+        if (test.getAllPersonsSync(7, getAllPersonsSyncCb) != 7)
+          error++;
+      } else {
+        test.getAllPersons(30, getAllPersonsCb);
+      }
+
+      function getAllPersonsSyncCb(persons) {
         if (persons.length != 7)
           error++;
 
-        if (persons[4].name != "Foo4")
+        if (persons[3].name != "Foo3")
           error++;
 
         if (persons[6].age != 60)
           error++;
 
+        test.getAllPersons(30, getAllPersonsCb);
+      };
+
+      function getAllPersonsCb(persons, size) {
+        if (size != 10)
+          error++;
+
+        if (persons.length != 10)
+          error++;
+
+        if (persons[4].name != "Foo4")
+          error++;
+
+        if (persons[7].age != 70)
+          error++;
+
         test.getPersonAge("Bar6", getPersonAgeCb);
-      });
+      };
 
       function getPersonAgeCb(age) {
         if (age != 60)
           error++;
 
         test.clearDatabase();
-        test.getAllPersons(10, getAllPersonsCb);
-      }
+        test.getAllPersons(10, getAllPersonsAndEndTestCb);
+      };
 
-      function getAllPersonsCb(persons) {
+      function getAllPersonsAndEndTestCb(persons) {
         if (persons.length != 0)
           error++;
 
         // Omitting the callback, should not crash.
         test.getAllPersons(10);
         setTimeout(endTest(), 500);
-      }
+      };
     </script>
   </body>
 </html>
