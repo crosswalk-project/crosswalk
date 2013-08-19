@@ -47,21 +47,45 @@ XWalkExtensionRenderViewHandler::GetForFrame(WebKit::WebFrame* webframe) {
   return XWalkExtensionRenderViewHandler::Get(render_view);
 }
 
-bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
-    int64_t frame_id, const std::string& extension,
-    const base::ListValue& msg) {
-  return Send(
-      new XWalkViewHostMsg_PostMessage(routing_id(), frame_id, extension, msg));
+namespace {
+
+// Regular base::Value doesn't have param traits, so can't be passed as is
+// through IPC. We wrap it in a base::ListValue that have traits before
+// exchanging.
+//
+// Implementing param traits for base::Value is not a viable option at the
+// moment (would require fork base::Value and create a new empty type).
+scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
+  if (!value)
+    return scoped_ptr<base::ListValue>();
+  scoped_ptr<base::ListValue> list_value(new base::ListValue);
+  list_value->Append(value.release());
+  return list_value.Pass();
 }
 
-scoped_ptr<base::ListValue>
+}  // namespace
+
+bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
+    int64_t frame_id, const std::string& extension,
+    scoped_ptr<base::Value> msg) {
+  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  return Send(
+      new XWalkViewHostMsg_PostMessage(routing_id(), frame_id,
+                                       extension, *wrapped_msg));
+}
+
+scoped_ptr<base::Value>
 XWalkExtensionRenderViewHandler::SendSyncMessageToExtension(
     int64_t frame_id, const std::string& extension,
-    const base::ListValue& msg) {
-  base::ListValue* reply = new base::ListValue;
+    scoped_ptr<base::Value> msg) {
+  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  base::ListValue* wrapped_reply = new base::ListValue;
   Send(new XWalkViewHostMsg_SendSyncMessage(
-      routing_id(), frame_id, extension, msg, reply));
-  return scoped_ptr<base::ListValue>(reply);
+      routing_id(), frame_id, extension, *wrapped_msg, wrapped_reply));
+
+  base::Value* reply;
+  wrapped_reply->Remove(0, &reply);
+  return scoped_ptr<base::Value>(reply);
 }
 
 void XWalkExtensionRenderViewHandler::DidCreateScriptContext(
