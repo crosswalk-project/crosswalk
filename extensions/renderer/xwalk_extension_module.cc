@@ -43,8 +43,6 @@ XWalkExtensionModule::XWalkExtensionModule(
   SetFunction("postMessage", PostMessageCallback);
   SetFunction("sendSyncMessage", SendSyncMessageCallback);
   SetFunction("setMessageListener", SetMessageListenerCallback);
-
-  LoadExtensionCode(context);
 }
 
 XWalkExtensionModule::~XWalkExtensionModule() {
@@ -108,7 +106,7 @@ std::string WrapAPICode(const std::string& extension_code,
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
-      "var %s; (function(extension) { "
+      "var %s; (function(extension, requireNative) { "
       "extension._setupExtensionInternal = function() {"
       "  xwalk._setupExtensionInternal(extension);"
       "};"
@@ -148,7 +146,8 @@ v8::Handle<v8::Value> RunString(const std::string& code,
 
 }  // namespace
 
-void XWalkExtensionModule::LoadExtensionCode(v8::Handle<v8::Context> context) {
+void XWalkExtensionModule::LoadExtensionCode(
+    v8::Handle<v8::Context> context, v8::Handle<v8::Function> requireNative) {
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
       RunString(wrapped_api_code, "JS API code for " + extension_name_);
@@ -156,11 +155,16 @@ void XWalkExtensionModule::LoadExtensionCode(v8::Handle<v8::Context> context) {
     return;
   v8::Handle<v8::Function> callable_api_code =
       v8::Handle<v8::Function>::Cast(result);
-  v8::Handle<v8::Value> extension_object = object_template_->NewInstance();
+
+  const int argc = 2;
+  v8::Handle<v8::Value> argv[argc] = {
+    object_template_->NewInstance(),
+    requireNative
+  };
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
-  callable_api_code->Call(context->Global(), 1, &extension_object);
+  callable_api_code->Call(context->Global(), argc, argv);
   if (try_catch.HasCaught())
     LOG(WARNING) << "Exception when running JS API code for "
                  << extension_name_;

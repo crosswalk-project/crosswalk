@@ -15,6 +15,14 @@ namespace extensions {
 
 class XWalkExtensionModule;
 
+// Interface used to expose objects via the requireNative() function in JS API
+// code. Native modules should be registered with the module system.
+class XWalkNativeModule {
+ public:
+  virtual v8::Handle<v8::Object> NewInstance() = 0;
+  virtual ~XWalkNativeModule() {}
+};
+
 // This object is associated with the v8::Context of each WebFrame. It manages
 // the JS modules we expose to the JavaScript environment.
 //
@@ -24,7 +32,7 @@ class XWalkExtensionModule;
 // for details.
 class XWalkModuleSystem {
  public:
-  XWalkModuleSystem();
+  explicit XWalkModuleSystem(v8::Handle<v8::Context> context);
   ~XWalkModuleSystem();
 
   // Functions that manage the relationship between v8::Context and
@@ -36,12 +44,24 @@ class XWalkModuleSystem {
       v8::Handle<v8::Context> context);
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
-  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module);
+  void RegisterExtensionModule(v8::Handle<v8::Context>,
+                               scoped_ptr<XWalkExtensionModule> module);
   XWalkExtensionModule* GetExtensionModule(const std::string& extension_name);
+
+  void RegisterNativeModule(const std::string& name,
+                            scoped_ptr<XWalkNativeModule> module);
+  v8::Handle<v8::Object> RequireNative(const std::string& name);
 
  private:
   typedef std::map<std::string, XWalkExtensionModule*> ExtensionModuleMap;
   ExtensionModuleMap extension_modules_;
+
+  typedef std::map<std::string, XWalkNativeModule*> NativeModuleMap;
+  NativeModuleMap native_modules_;
+
+  v8::Persistent<v8::FunctionTemplate> require_native_template_;
+
+  v8::Persistent<v8::Object> function_data_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkModuleSystem);
 };

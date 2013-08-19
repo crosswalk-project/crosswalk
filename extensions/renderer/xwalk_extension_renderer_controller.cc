@@ -41,7 +41,7 @@ void XWalkExtensionRendererController::RenderViewCreated(
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
-  XWalkModuleSystem* module_system = new XWalkModuleSystem;
+  XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
 
@@ -90,8 +90,9 @@ void XWalkExtensionRendererController::InstallJavaScriptAPIs(
   for (; it != extension_apis_.end(); ++it) {
     if (it->second.empty())
       continue;
-    module_system->RegisterExtensionModule(scoped_ptr<XWalkExtensionModule>(
-        new XWalkExtensionModule(context, it->first, it->second)));
+    scoped_ptr<XWalkExtensionModule> module(
+        new XWalkExtensionModule(context, it->first, it->second));
+    module_system->RegisterExtensionModule(context, module.Pass());
   }
 }
 

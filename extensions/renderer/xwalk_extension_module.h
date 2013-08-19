@@ -36,14 +36,17 @@ class XWalkExtensionModule {
                        const std::string& extension_code);
   virtual ~XWalkExtensionModule();
 
+  // TODO(cmarcelo): Make this return a v8::Handle<v8::Object>, and
+  // let the module system set it to the appropriated object.
+  void LoadExtensionCode(v8::Handle<v8::Context> context,
+                         v8::Handle<v8::Function> requireNative);
+
   void DispatchMessageToListener(v8::Handle<v8::Context> context,
                                  const base::Value& msg);
 
   std::string extension_name() const { return extension_name_; }
 
  private:
-  void LoadExtensionCode(v8::Handle<v8::Context> context);
-
   void SetFunction(const char* name, v8::InvocationCallback callback);
 
   // Callbacks for JS functions available in 'extension' object.
