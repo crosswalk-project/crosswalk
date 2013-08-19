@@ -29,6 +29,7 @@ class XWalkContent {
   jint GetWebContents(JNIEnv* env, jobject obj);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   void Destroy(JNIEnv* env, jobject obj);
+  jboolean HandleBackPressed(JNIEnv* env, jobject obj);
 
  private:
   content::WebContents* CreateWebContents();

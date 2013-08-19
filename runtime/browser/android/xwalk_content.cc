@@ -72,6 +72,16 @@ void XWalkContent::Destroy(JNIEnv* env, jobject obj) {
   delete this;
 }
 
+jboolean XWalkContent::HandleBackPressed(JNIEnv* env, jobject obj) {
+  // When BACK key is pressed, default action is to check whether can navigate
+  // back, if not, then return false means the event is not processed.
+  if (!web_contents_->GetController().CanGoBack())
+    return static_cast<jboolean>(false);
+
+  web_contents_->GetController().GoBack();
+  return static_cast<jboolean>(true);
+}
+
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
     jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =
