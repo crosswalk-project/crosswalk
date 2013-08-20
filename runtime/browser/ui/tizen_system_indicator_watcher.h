@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_H_
-#define XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
+#define XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
 
 #include <string>
 #include "base/memory/scoped_ptr.h"
@@ -75,4 +75,4 @@ class TizenPlug : public base::MessagePumpLibevent::Watcher {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_

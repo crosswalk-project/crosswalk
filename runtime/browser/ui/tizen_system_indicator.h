@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_INDICATOR_H_
-#define XWALK_RUNTIME_BROWSER_UI_TIZEN_INDICATOR_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_H_
+#define XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_H_
 
 #include <string>
 #include "ui/gfx/image/image_skia.h"
@@ -38,4 +38,4 @@ class TizenIndicator : public views::View {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_INDICATOR_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_H_

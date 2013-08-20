@@ -32,7 +32,7 @@
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
-#include "xwalk/runtime/browser/ui/tizen_indicator.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
 
 #if defined(USE_AURA)

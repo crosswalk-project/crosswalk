@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/tizen_plug.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator_watcher.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -13,9 +13,9 @@
 #include "base/files/file_path.h"
 #include "content/public/browser/browser_thread.h"
 #include "ipc/unix_domain_socket_util.h"
-#include "xwalk/runtime/browser/ui/tizen_indicator.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/environment.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 
 using content::BrowserThread;
 

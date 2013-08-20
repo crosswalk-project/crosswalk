@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/tizen_indicator.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 
 #include "ui/gfx/canvas.h"
 #include "content/public/browser/browser_thread.h"
-#include "xwalk/runtime/browser/ui/tizen_plug.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator_watcher.h"
 
 namespace {
 
