@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit current_release="1" latest_public_release="0">
+  <release allow_pseudo="false" seq="1">
+    <messages fallback_to_english="true">
+      <message desc="Title for the Javascript Alert dialog [CHAR-LIMIT=32]" name="IDS_JS_ALERT_TITLE">
+        Javascript Alert
+      </message>
+      <message desc="Title for the Javascript Confirm dialog [CHAR-LIMIT=32]" name="IDS_JS_CONFIRM_TITLE">
+        Javascript Confirm
+      </message>
+      <message desc="Title for the Javascript Prompt dialog [CHAR-LIMIT=32]" name="IDS_JS_PROMPT_TITLE">
+        Javascript Prompt
+      </message>
+    </messages>
+  </release>
+
+  <translations>
+  </translations>
+  <outputs>
+    <output filename="values/android_xwalk_strings.xml" lang="en" type="android" />
+  </outputs>
+</grit>
+

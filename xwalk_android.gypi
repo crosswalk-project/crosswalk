@@ -39,6 +39,10 @@
       ],
       'variables': {
         'java_in_dir': 'runtime/android/java',
+        'has_java_resources': 1,
+        'R_package': 'org.xwalk.core',
+        'R_package_relpath': 'org/xwalk/core',
+        'java_strings_grd': 'android_xwalk_strings.grd',
       },
       'includes': ['../build/java.gypi'],
     },
