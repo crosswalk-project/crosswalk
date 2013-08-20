@@ -208,4 +208,12 @@ public class XWalkViewShellActivity extends Activity {
             imm.hideSoftInputFromWindow(mUrlTextView.getWindowToken(), 0);
         }
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (mView.onKeyUp(keyCode, event)) return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
 }

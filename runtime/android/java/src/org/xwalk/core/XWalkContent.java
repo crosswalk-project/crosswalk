@@ -165,8 +165,13 @@ public class XWalkContent extends FrameLayout {
         contentClient.installWebContentsObserver(mContentViewCore);
     }
 
+    public boolean onBackPressed() {
+        return nativeHandleBackPressed(mXWalkContent);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
     private native int nativeGetWebContents(int nativeXWalkContent);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
+    private native boolean nativeHandleBackPressed(int nativeXWalkContent);
 }

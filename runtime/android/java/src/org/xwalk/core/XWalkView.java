@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.util.AttributeSet;
 import android.webkit.WebSettings;
@@ -160,6 +161,14 @@ public class XWalkView extends FrameLayout {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mContent.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return mContent.onBackPressed();
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     // TODO(shouqun): requestFocusFromTouch, setVerticalScrollBarEnabled are
