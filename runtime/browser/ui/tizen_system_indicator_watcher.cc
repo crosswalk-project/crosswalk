@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/tizen_plug.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator_watcher.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -13,26 +13,26 @@
 #include "base/files/file_path.h"
 #include "content/public/browser/browser_thread.h"
 #include "ipc/unix_domain_socket_util.h"
-#include "xwalk/runtime/browser/ui/tizen_indicator.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/environment.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 
 using content::BrowserThread;
 
 namespace {
 
-const char kServiceName[] = "elm_indicator_portrait";
+const char kServiceName[] = "ello";
 const char kServiceNumber[] = "0";
 
 // Environment variable format is x, y, width, height.
-const char kEnvironmentVar[] = "ILLUME_IND";
+const char kTizenSystemIndicatorGeometryVar[] = "ILLUME_IND";
 
 // Should match the MAJOR version in ecore_evas_extn.c. We are using
 // the same version used by EFL 1.7 available in Tizen Mobile 2.1.
 const int kPlugProtocolVersion = 0x1011;
 
 // Copied from EFL 1.7, in src/lib/ecore_evas/ecore_evas_extn.c.
-enum TizenPlugOperation {
+enum PlugOperation {
   OP_RESIZE,
   OP_SHOW,
   OP_HIDE,
@@ -60,7 +60,8 @@ enum TizenPlugOperation {
 
 namespace xwalk {
 
-TizenPlug::TizenPlug(TizenIndicator* indicator)
+TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
+                                                         indicator)
   : indicator_(indicator),
     width_(-1),
     height_(-1),
@@ -71,14 +72,14 @@ TizenPlug::TizenPlug(TizenIndicator* indicator)
     fd_(-1),
     shm_mem_(MAP_FAILED) {
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
-  SetSizeFromEnvironment();
+  SetSizeFromEnvVar();
 }
 
-TizenPlug::~TizenPlug() {
+TizenSystemIndicatorWatcher::~TizenSystemIndicatorWatcher() {
   ShmUnload();
 }
 
-void TizenPlug::OnFileCanReadWithoutBlocking(int fd) {
+void TizenSystemIndicatorWatcher::OnFileCanReadWithoutBlocking(int fd) {
   if (!GetHeader()) {
     PLOG(ERROR) << "Error while getting header";
     StopWatching();
@@ -91,15 +92,15 @@ void TizenPlug::OnFileCanReadWithoutBlocking(int fd) {
   }
 }
 
-void TizenPlug::OnFileCanWriteWithoutBlocking(int fd) {
+void TizenSystemIndicatorWatcher::OnFileCanWriteWithoutBlocking(int fd) {
 }
 
-void TizenPlug::StartWatching() {
+void TizenSystemIndicatorWatcher::StartWatching() {
   base::MessageLoopForIO::current()->WatchFileDescriptor(
      fd_, true, base::MessageLoopForIO::WATCH_READ, &fd_watcher_, this);
 }
 
-void TizenPlug::StopWatching() {
+void TizenSystemIndicatorWatcher::StopWatching() {
   BrowserThread::PostTask(
       BrowserThread::IO,
       FROM_HERE,
@@ -109,7 +110,7 @@ void TizenPlug::StopWatching() {
                  base::Unretained(&fd_watcher_)));
 }
 
-bool TizenPlug::Connect() {
+bool TizenSystemIndicatorWatcher::Connect() {
   base::FilePath path(file_util::GetHomeDir()
                       .Append(".ecore")
                       .Append(kServiceName)
@@ -117,7 +118,7 @@ bool TizenPlug::Connect() {
   return IPC::CreateClientUnixDomainSocket(path, &fd_);
 }
 
-gfx::Size TizenPlug::GetSize() const {
+gfx::Size TizenSystemIndicatorWatcher::GetSize() const {
   return gfx::Size(width_, height_);
 }
 
@@ -255,7 +256,8 @@ bool ReadSafe(int fd, uint8_t* buffer, size_t len) {
 }  // namespace
 
 
-size_t TizenPlug::GetHeaderSize(unsigned int header_instructions) {
+size_t TizenSystemIndicatorWatcher::GetHeaderSize(unsigned int
+                                                  header_instructions) {
   // Header size will depend on the instructions we read from the header. Each
   // instruction is stored in a nibble.
   int header_size = 0;
@@ -271,7 +273,7 @@ size_t TizenPlug::GetHeaderSize(unsigned int header_instructions) {
   return header_size;
 }
 
-bool TizenPlug::GetHeader() {
+bool TizenSystemIndicatorWatcher::GetHeader() {
   unsigned int header_instructions;
   if (!ReadSafe(fd_, reinterpret_cast<uint8_t*>(&header_instructions),
                 sizeof(header_instructions))) {
@@ -313,7 +315,7 @@ bool TizenPlug::GetHeader() {
   return true;
 }
 
-bool TizenPlug::ShmLoad() {
+bool TizenSystemIndicatorWatcher::ShmLoad() {
   shm_fd_ = shm_open(shm_name_.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
   if (shm_fd_ < 0) {
     PLOG(ERROR) << "Failed to open shm";
@@ -333,7 +335,7 @@ bool TizenPlug::ShmLoad() {
   return true;
 }
 
-void TizenPlug::ShmUnload() {
+void TizenSystemIndicatorWatcher::ShmUnload() {
   if (shm_mem_ != MAP_FAILED) {
     munmap(shm_mem_, shm_size_);
     shm_mem_ = MAP_FAILED;
@@ -346,7 +348,8 @@ void TizenPlug::ShmUnload() {
   }
 }
 
-bool TizenPlug::OpResize(const uint8_t* payload, size_t size) {
+bool TizenSystemIndicatorWatcher::OnResize(const uint8_t* payload,
+                                           size_t size) {
   memcpy(&width_, payload, sizeof(width_));
   memcpy(&height_, payload + sizeof(width_), sizeof(height_));
 
@@ -357,19 +360,20 @@ bool TizenPlug::OpResize(const uint8_t* payload, size_t size) {
 
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&TizenPlug::ResizeTizenIndicator, base::Unretained(this)));
+      base::Bind(&TizenSystemIndicatorWatcher::ResizeIndicator,
+                 base::Unretained(this)));
 
   return true;
 }
 
-bool TizenPlug::OpUpdate() {
+bool TizenSystemIndicatorWatcher::OnUpdate() {
   updated_ = true;
   return true;
 }
 
-bool TizenPlug::OpUpdateDone() {
+bool TizenSystemIndicatorWatcher::OnUpdateDone() {
   if (!updated_) {
-    LOG(WARNING) << "OpUpdateDone received without previous OpUpdate!";
+    LOG(WARNING) << "OnUpdateDone received without previous OnUpdate!";
     return true;
   }
 
@@ -381,13 +385,15 @@ bool TizenPlug::OpUpdateDone() {
 
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&TizenPlug::SetImageInTizenIndicator, base::Unretained(this)));
+      base::Bind(&TizenSystemIndicatorWatcher::UpdateIndicatorImage,
+                 base::Unretained(this)));
 
   updated_ = false;
   return true;
 }
 
-bool TizenPlug::OpShmRef(const uint8_t* payload, size_t size) {
+bool TizenSystemIndicatorWatcher::OnShmRef(const uint8_t* payload,
+                                           size_t size) {
   if (size <= 1)
     return false;
 
@@ -402,8 +408,8 @@ bool TizenPlug::OpShmRef(const uint8_t* payload, size_t size) {
   return true;
 }
 
-bool TizenPlug::ProcessPayload() {
-  TizenPlugOperation op_code = TizenPlugOperation(current_msg_header_.minor);
+bool TizenSystemIndicatorWatcher::ProcessPayload() {
+  PlugOperation op_code = PlugOperation(current_msg_header_.minor);
   size_t payload_size = current_msg_header_.size;
 
   scoped_ptr<unsigned char[]> payload(new unsigned char[1024]);
@@ -417,24 +423,24 @@ bool TizenPlug::ProcessPayload() {
     return false;
   }
 
-  bool ret = false;
+  bool ok = false;
   switch (op_code) {
     case OP_RESIZE:
-      ret = OpResize(payload.get(), payload_size);
+      ok = OnResize(payload.get(), payload_size);
       break;
 
     case OP_UPDATE:
       // We are always updating the entire area, so we ignore the
       // x, y, w, h passed on the payload.
-      ret = OpUpdate();
+      ok = OnUpdate();
       break;
 
     case OP_UPDATE_DONE:
-      ret = OpUpdateDone();
+      ok = OnUpdateDone();
       break;
 
     case OP_SHM_REF:
-      ret = OpShmRef(payload.get(), payload_size);
+      ok = OnShmRef(payload.get(), payload_size);
       break;
 
     case OP_SHOW:
@@ -455,14 +461,14 @@ bool TizenPlug::ProcessPayload() {
     case OP_EV_KEY_DOWN:
     case OP_EV_HOLD:
       // Not implemented yet.
-      ret = true;
+      ok = true;
       break;
   }
 
-  return ret;
+  return ok;
 }
 
-void TizenPlug::SetImageInTizenIndicator() {
+void TizenSystemIndicatorWatcher::UpdateIndicatorImage() {
   SkBitmap bitmap;
 
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width_, height_);
@@ -472,11 +478,11 @@ void TizenPlug::SetImageInTizenIndicator() {
   indicator_->SetImage(img_skia);
 }
 
-void TizenPlug::SetSizeFromEnvironment() {
+void TizenSystemIndicatorWatcher::SetSizeFromEnvVar() {
   std::string preferred_size;
   scoped_ptr<base::Environment> env(base::Environment::Create());
 
-  env->GetVar(kEnvironmentVar, &preferred_size);
+  env->GetVar(kTizenSystemIndicatorGeometryVar, &preferred_size);
 
   if (preferred_size.empty())
     return;
@@ -494,9 +500,9 @@ void TizenPlug::SetSizeFromEnvironment() {
     height_ = std::atoi(t.token().c_str());
 }
 
-void TizenPlug::ResizeTizenIndicator() {
+void TizenSystemIndicatorWatcher::ResizeIndicator() {
   indicator_->PreferredSizeChanged();
-  SetImageInTizenIndicator();
+  UpdateIndicatorImage();
 }
 
 }  // namespace xwalk
