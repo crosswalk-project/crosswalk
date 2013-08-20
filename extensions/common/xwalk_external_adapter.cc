@@ -96,7 +96,7 @@ bool XWalkExternalAdapter::IsValidXWExtension(XW_Extension xw_extension) {
 }
 
 bool XWalkExternalAdapter::IsValidXWInstance(XW_Instance xw_instance) {
-  return xw_instance > 0 && xw_instance < next_xw_extension_;
+  return xw_instance > 0 && xw_instance < next_xw_instance_;
 }
 
 XWalkExternalExtension* XWalkExternalAdapter::GetExtension(

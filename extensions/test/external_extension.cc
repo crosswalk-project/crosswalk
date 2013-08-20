@@ -49,6 +49,18 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtension) {
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
 
+IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+                                  base::FilePath().AppendASCII("echo.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+
+  for (int i = 0; i < 5; i++) {
+    xwalk_test_utils::NavigateToURL(runtime(), url);
+    EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+  }
+}
 
 // FIXME(cmarcelo): See https://github.com/otcshare/crosswalk/issues/268.
 #if defined(OS_WIN)
