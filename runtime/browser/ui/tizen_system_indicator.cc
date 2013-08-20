@@ -10,35 +10,35 @@
 
 namespace {
 
-SkColor kTizenIndicatorColor = SkColorSetARGB(255, 52, 52, 50);
+SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
 
 }  // namespace
 
 namespace xwalk {
 
-TizenIndicator::TizenIndicator()
-    : plug_(new TizenPlug(this)) {
-  if (!plug_->Connect()) {
-    plug_.reset();
+TizenSystemIndicator::TizenSystemIndicator()
+    : watcher_(new TizenSystemIndicatorWatcher(this)) {
+  if (!watcher_->Connect()) {
+    watcher_.reset();
     return;
   }
 
-  set_background(
-      views::Background::CreateSolidBackground(kTizenIndicatorColor));
+  set_background(views::Background::CreateSolidBackground(kBGColor));
 
   content::BrowserThread::PostTask(
       content::BrowserThread::IO, FROM_HERE,
-      base::Bind(&TizenPlug::StartWatching, base::Unretained(plug_.get())));
+      base::Bind(&TizenSystemIndicatorWatcher::StartWatching,
+                 base::Unretained(watcher_.get())));
 }
 
-TizenIndicator::~TizenIndicator() {
+TizenSystemIndicator::~TizenSystemIndicator() {
 }
 
-bool TizenIndicator::IsConnected() const {
-  return plug_;
+bool TizenSystemIndicator::IsConnected() const {
+  return watcher_;
 }
 
-void TizenIndicator::OnPaint(gfx::Canvas* canvas) {
+void TizenSystemIndicator::OnPaint(gfx::Canvas* canvas) {
   View::OnPaint(canvas);
 
   if (image_.isNull())
@@ -46,11 +46,11 @@ void TizenIndicator::OnPaint(gfx::Canvas* canvas) {
   canvas->DrawImageInt(image_, 0, 0);
 }
 
-gfx::Size TizenIndicator::GetPreferredSize() {
-  return plug_->GetSize();
+gfx::Size TizenSystemIndicator::GetPreferredSize() {
+  return watcher_->GetSize();
 }
 
-void TizenIndicator::SetImage(const gfx::ImageSkia& img) {
+void TizenSystemIndicator::SetImage(const gfx::ImageSkia& img) {
   image_ = img;
   SchedulePaint();
 }

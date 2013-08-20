@@ -13,7 +13,7 @@
 
 namespace xwalk {
 
-class TizenIndicator;
+class TizenSystemIndicator;
 
 // Copied from EFL 1.7, in src/lib/ecore_ipc/ecore_ipc.c.
 struct ecore_ipc_msg_header {
@@ -26,12 +26,12 @@ struct ecore_ipc_msg_header {
 };
 
 // Implementation of the socket protocol for sharing memory used by Elementary
-// "plugs" in EFL. This class implements the low level protocol and is used by
-// TizenIndicator to update its image.
-class TizenPlug : public base::MessagePumpLibevent::Watcher {
+// "Plugs" in EFL. This class implements the low level protocol and is used by
+// TizenSystemIndicator to update its image.
+class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
  public:
-  explicit TizenPlug(TizenIndicator* indicator);
-  virtual ~TizenPlug();
+  explicit TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator);
+  virtual ~TizenSystemIndicatorWatcher();
 
   // base::MessagePumpLibevent::Watcher implementation.
   void OnFileCanReadWithoutBlocking(int fd) OVERRIDE;
@@ -50,16 +50,16 @@ class TizenPlug : public base::MessagePumpLibevent::Watcher {
   bool GetHeader();
   bool ShmLoad();
   void ShmUnload();
-  bool OpResize(const uint8_t* payload, size_t size);
-  bool OpUpdate();
-  bool OpUpdateDone();
-  bool OpShmRef(const uint8_t* payload, size_t size);
+  bool OnResize(const uint8_t* payload, size_t size);
+  bool OnUpdate();
+  bool OnUpdateDone();
+  bool OnShmRef(const uint8_t* payload, size_t size);
   bool ProcessPayload();
-  void SetImageInTizenIndicator();
-  void SetSizeFromEnvironment();
-  void ResizeTizenIndicator();
+  void UpdateIndicatorImage();
+  void SetSizeFromEnvVar();
+  void ResizeIndicator();
 
-  TizenIndicator* indicator_;
+  TizenSystemIndicator* indicator_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
   int width_;
   int height_;

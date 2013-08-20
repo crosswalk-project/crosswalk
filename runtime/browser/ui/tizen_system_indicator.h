@@ -11,15 +11,15 @@
 
 namespace xwalk {
 
-class TizenPlug;
+class TizenSystemIndicatorWatcher;
 
-// This view paints the Tizen Mobile indicator provided by the system. We get
-// to it by using the elementary "plug" system from EFL, reading the image from
-// a shared memory area.
-class TizenIndicator : public views::View {
+// This view paints the Tizen Mobile system indicator provided by the system.
+// We get to it by using the Elementary "Plug" system from EFL, reading the
+// image from a shared memory area.
+class TizenSystemIndicator : public views::View {
  public:
-  TizenIndicator();
-  virtual ~TizenIndicator();
+  TizenSystemIndicator();
+  virtual ~TizenSystemIndicator();
 
   bool IsConnected() const;
 
@@ -28,12 +28,12 @@ class TizenIndicator : public views::View {
   gfx::Size GetPreferredSize() OVERRIDE;
 
  private:
-  // Will be called by plug when the image is updated.
+  // Will be called immediately after the image was updated
   void SetImage(const gfx::ImageSkia& img);
 
   gfx::ImageSkia image_;
-  scoped_ptr<TizenPlug> plug_;
-  friend class TizenPlug;
+  scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
+  friend class TizenSystemIndicatorWatcher;
 };
 
 }  // namespace xwalk
