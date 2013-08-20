@@ -4,11 +4,13 @@
 
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
+#include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
 #include "base/path_service.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/devtools_agent_host.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
@@ -16,6 +18,8 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "jni/XWalkContent_jni.h"
+
+using base::android::ScopedJavaLocalRef;
 
 namespace xwalk {
 
@@ -66,6 +70,14 @@ void XWalkContent::ClearCache(
     RemoveHttpDiskCache(web_contents_->GetBrowserContext(),
                         web_contents_->GetRoutingID());
   }
+}
+
+ScopedJavaLocalRef<jstring> XWalkContent::DevToolsAgentId(JNIEnv* env,
+                                                          jobject obj) {
+  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
+  scoped_refptr<content::DevToolsAgentHost> agent_host(
+      content::DevToolsAgentHost::GetOrCreateFor(rvh));
+  return base::android::ConvertUTF8ToJavaString(env, agent_host->GetId());
 }
 
 void XWalkContent::Destroy(JNIEnv* env, jobject obj) {
