@@ -32,7 +32,7 @@
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
-#include "xwalk/runtime/browser/ui/tizen_indicator.h"
+#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
 
 #if defined(USE_AURA)
@@ -278,12 +278,13 @@ void NativeAppWindowViews::ViewHierarchyChanged(
     layout->set_content_view(web_view_);
 
 #if defined(OS_TIZEN_MOBILE)
-    TizenIndicator* indicator = new TizenIndicator();
+    TizenSystemIndicator* indicator = new TizenSystemIndicator();
     if (indicator->IsConnected()) {
       AddChildView(indicator);
       layout->set_top_view(indicator);
     } else {
       delete indicator;
+      LOG(WARNING) << "Failed to load indicator";
     }
 #endif
   }

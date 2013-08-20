@@ -149,10 +149,10 @@
         [ 'tizen_mobile == 1', {
           'defines': [ 'OS_TIZEN_MOBILE=1' ],
           'sources': [
-            'runtime/browser/ui/tizen_indicator.cc',
-            'runtime/browser/ui/tizen_indicator.h',
-            'runtime/browser/ui/tizen_plug.cc',
-            'runtime/browser/ui/tizen_plug.h',
+            'runtime/browser/ui/tizen_system_indicator.cc',
+            'runtime/browser/ui/tizen_system_indicator.h',
+            'runtime/browser/ui/tizen_system_indicator_watcher.cc',
+            'runtime/browser/ui/tizen_system_indicator_watcher.h',
           ],
         }],
         ['OS=="android"',{
