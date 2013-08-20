@@ -129,17 +129,15 @@ v8::Handle<v8::Value> RunString(const std::string& code,
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
+
   v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8_name));
-  if (try_catch.HasCaught()) {
-    LOG(WARNING) << "Exception while parsing " << name;
+  if (try_catch.HasCaught())
     return v8::Undefined();
-  }
 
   v8::Handle<v8::Value> result = script->Run();
-  if (try_catch.HasCaught()) {
-    LOG(WARNING) << "Exception while running " << name;
+  if (try_catch.HasCaught())
     return v8::Undefined();
-  }
 
   return handle_scope.Close(result);
 }
@@ -151,8 +149,10 @@ void XWalkExtensionModule::LoadExtensionCode(
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
       RunString(wrapped_api_code, "JS API code for " + extension_name_);
-  if (!result->IsFunction())
+  if (!result->IsFunction()) {
+    LOG(WARNING) << "Couldn't load JS API code for " << extension_name_;
     return;
+  }
   v8::Handle<v8::Function> callable_api_code =
       v8::Handle<v8::Function>::Cast(result);
 
@@ -164,10 +164,12 @@ void XWalkExtensionModule::LoadExtensionCode(
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
+  try_catch.SetVerbose(true);
   callable_api_code->Call(context->Global(), argc, argv);
-  if (try_catch.HasCaught())
-    LOG(WARNING) << "Exception when running JS API code for "
+  if (try_catch.HasCaught()) {
+    LOG(WARNING) << "Exception while loading JS API code for "
                  << extension_name_;
+  }
 }
 
 // static
