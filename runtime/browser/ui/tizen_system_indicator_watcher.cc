@@ -21,7 +21,7 @@ using content::BrowserThread;
 
 namespace {
 
-const char kServiceName[] = "ello";
+const char kServiceName[] = "elm_indicator_portrait";
 const char kServiceNumber[] = "0";
 
 // Environment variable format is x, y, width, height.
