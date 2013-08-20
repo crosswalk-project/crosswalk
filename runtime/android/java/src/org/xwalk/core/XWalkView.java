@@ -130,15 +130,20 @@ public class XWalkView extends FrameLayout {
         mContent.setXWalkClient(client);
     }
 
-    public void enableRemoteDebugging() {
+    // Enables remote debugging and returns the URL at which the dev tools server is listening
+    // for commands.
+    public String enableRemoteDebugging() {
         if (mDevToolsServer != null) {
             disableRemoteDebugging();
         }
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
-        final String socketName = getContext().getPackageName();
-        mDevToolsServer = new XWalkDevToolsServer(socketName + "_devtools_remote");
+        final String socketName = getContext().getPackageName() + "_devtools_remote";
+        mDevToolsServer = new XWalkDevToolsServer(socketName);
         mDevToolsServer.setRemoteDebuggingEnabled(true);
+
+        // devtools/page is hardcoded in devtools_http_handler_impl.cc (kPageUrlPrefix)
+        return "ws://" + socketName + "/devtools/page/" + mContent.devToolsAgentId();
     }
 
     public void disableRemoteDebugging() {
