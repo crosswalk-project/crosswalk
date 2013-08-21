@@ -80,6 +80,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 #if defined(OS_ANDROID)
   CommandLine::ForCurrentProcess()->AppendSwitch(
       switches::kEnableWebRTC);
+  CommandLine::ForCurrentProcess()->AppendSwitch(
+      switches::kAllowFileAccessFromFiles);
 #endif
 
 #if !defined(OS_ANDROID)
