@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,6 +28,16 @@ def Which(name):
   return result
 
 
+def Find(name, path):
+  result = []
+  for root, _, files in os.walk(path):
+    if name in files:
+      result.append(os.path.join(root, name))
+  if not result:
+    raise Exception()
+  return max(result)
+
+
 def Execution():
   android_path_array = Which("android")
   if not android_path_array:
@@ -34,7 +45,18 @@ def Execution():
     return
 
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
-  sdk_jar_path = '%s/platforms/android-17/android.jar' % sdk_root_path
+
+  try:
+    sdk_jar_path = Find('android.jar', '%s/platforms/' % sdk_root_path)
+  except Exception:
+    print "Your Android SDK may be ruined, please reinstall it."
+    sys.exit()
+
+  api_level = int(re.search(r'\d+', sdk_jar_path.split('/')[-2]).group())
+  if api_level < 14:
+    print "Please install Android API level (>=14) first."
+    sys.exit()
+
   apk_name = 'XWalkAppTemplate'
   key_store = 'scripts/ant/chromium-debug.keystore'
 
@@ -48,6 +70,12 @@ def Execution():
   if not os.path.exists(ant_tasks_jar_path):
     ant_tasks_jar_path = '%s/tools/lib/anttasks.jar' % sdk_root_path
 
+  try:
+    aapt_path = Find('aapt', sdk_root_path)
+  except Exception:
+    print "Your Android SDK may be ruined, please reinstall it."
+    sys.exit()
+
   # Check whether ant is installed.
   try:
     proc = subprocess.Popen(['ant', '-version'],
@@ -57,13 +85,14 @@ def Execution():
     sys.exit()
 
   proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
+                           '-DAAPT_PATH=%s' % aapt_path,
                            '-DADDITIONAL_RES_DIRS=',
                            '-DADDITIONAL_RES_PACKAGES=',
                            '-DADDITIONAL_R_TEXT_FILES=',
                            '-DANDROID_MANIFEST=app_src/AndroidManifest.xml',
                            '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
                            '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
-                           '-DANDROID_SDK_VERSION=17',
+                           '-DANDROID_SDK_VERSION=%d' % api_level,
                            '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
                            '-DLIBRARY_MANIFEST_PATHS=',
                            '-DOUT_DIR=out',
@@ -98,6 +127,7 @@ def Execution():
   print out
 
   proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
+                           '-DAAPT_PATH=%s' % aapt_path,
                            '-DADDITIONAL_RES_DIRS=',
                            '-DADDITIONAL_RES_PACKAGES=',
                            '-DADDITIONAL_R_TEXT_FILES=',
