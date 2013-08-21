@@ -8,6 +8,7 @@
 
 #include <string>
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/shared_memory.h"
 #include "base/message_pump_libevent.h"
 #include "ui/gfx/size.h"
 
@@ -48,8 +49,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   bool UpdateMessageHeader(unsigned int header_instructions,
                            uint8_t* header_payload);
   bool GetHeader();
-  bool ShmLoad();
-  void ShmUnload();
+  bool MapSharedMemory();
   bool OnResize(const uint8_t* payload, size_t size);
   bool OnUpdate();
   bool OnUpdateDone();
@@ -61,16 +61,17 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
 
   TizenSystemIndicator* indicator_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
+  scoped_ptr<base::SharedMemory> shared_memory_;
+
   int width_;
   int height_;
   int alpha_;
   bool updated_;
-  int shm_size_;
-  int shm_fd_;
   int fd_;
   std::string shm_name_;
   struct ecore_ipc_msg_header current_msg_header_;
-  void* shm_mem_;
+
+  DISALLOW_COPY_AND_ASSIGN(TizenSystemIndicatorWatcher);
 };
 
 }  // namespace xwalk
