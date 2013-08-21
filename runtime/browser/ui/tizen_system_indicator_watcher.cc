@@ -67,17 +67,12 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
     height_(-1),
     alpha_(-1),
     updated_(false),
-    shm_size_(-1),
-    shm_fd_(-1),
-    fd_(-1),
-    shm_mem_(MAP_FAILED) {
+    fd_(-1) {
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();
 }
 
-TizenSystemIndicatorWatcher::~TizenSystemIndicatorWatcher() {
-  ShmUnload();
-}
+TizenSystemIndicatorWatcher::~TizenSystemIndicatorWatcher() {}
 
 void TizenSystemIndicatorWatcher::OnFileCanReadWithoutBlocking(int fd) {
   if (!GetHeader()) {
@@ -315,37 +310,31 @@ bool TizenSystemIndicatorWatcher::GetHeader() {
   return true;
 }
 
-bool TizenSystemIndicatorWatcher::ShmLoad() {
-  shm_fd_ = shm_open(shm_name_.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
-  if (shm_fd_ < 0) {
-    PLOG(ERROR) << "Failed to open shm";
+bool TizenSystemIndicatorWatcher::MapSharedMemory() {
+  // We call shm_open() ourselves since the base::SharedMemory prefixes the name
+  // we pass to it, making it not work nicely with a name that doesn't follow
+  // the convention, e.g. shared memory created by other app. See
+  // SharedMemory::FilePathForMemoryName() in shared_memory_posix.cc.
+  int shared_fd = shm_open(shm_name_.c_str(), O_RDONLY, S_IRUSR | S_IWUSR);
+  if (shared_fd < 0) {
+    PLOG(ERROR) << "Failed to open shared memory for System Indicator.";
     return false;
   }
 
-  shm_size_ = width_ * height_ * 4;
+  // SharedMemory will take ownership of the file descriptor.
+  const bool auto_close = true;
+  const bool read_only = true;
+  shared_memory_.reset(new base::SharedMemory(
+      base::FileDescriptor(shared_fd, auto_close), read_only));
 
-  shm_mem_ = mmap(NULL, shm_size_, PROT_READ, MAP_SHARED, shm_fd_, 0);
-  if (shm_mem_ == MAP_FAILED) {
-    PLOG(ERROR) << "Failed to mmap shm";
-    close(shm_fd_);
-    shm_fd_ = -1;
+  int size_in_bytes = width_ * height_ * 4;
+  if (!shared_memory_->Map(size_in_bytes)) {
+    LOG(ERROR) << "Failed to map shared memory for System Indicator.";
+    shared_memory_.reset();
     return false;
   }
 
   return true;
-}
-
-void TizenSystemIndicatorWatcher::ShmUnload() {
-  if (shm_mem_ != MAP_FAILED) {
-    munmap(shm_mem_, shm_size_);
-    shm_mem_ = MAP_FAILED;
-  }
-
-  if (shm_fd_ >= 0) {
-    close(shm_fd_);
-    shm_fd_ = -1;
-    shm_size_ = 0;
-  }
 }
 
 bool TizenSystemIndicatorWatcher::OnResize(const uint8_t* payload,
@@ -353,9 +342,9 @@ bool TizenSystemIndicatorWatcher::OnResize(const uint8_t* payload,
   memcpy(&width_, payload, sizeof(width_));
   memcpy(&height_, payload + sizeof(width_), sizeof(height_));
 
-  if (shm_fd_ < 0) {
-    if (!ShmLoad())
-      return false;
+  if (!shared_memory_ && !MapSharedMemory()) {
+    LOG(WARNING) << "Failed to load shared memory.";
+    return false;
   }
 
   BrowserThread::PostTask(
@@ -377,10 +366,9 @@ bool TizenSystemIndicatorWatcher::OnUpdateDone() {
     return true;
   }
 
-  if (shm_fd_ < 0) {
-    if (!ShmLoad())
-      LOG(WARNING) << "Failed to load shm";
-      return false;
+  if (!shared_memory_ && !MapSharedMemory()) {
+    LOG(WARNING) << "Failed to load shared memory.";
+    return false;
   }
 
   BrowserThread::PostTask(
@@ -396,8 +384,6 @@ bool TizenSystemIndicatorWatcher::OnShmRef(const uint8_t* payload,
                                            size_t size) {
   if (size <= 1)
     return false;
-
-  ShmUnload();
 
   shm_name_ = std::string(reinterpret_cast<const char*>(payload), size);
   // Extra information about the shared memory is passed in the header.
@@ -472,7 +458,7 @@ void TizenSystemIndicatorWatcher::UpdateIndicatorImage() {
   SkBitmap bitmap;
 
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width_, height_);
-  bitmap.setPixels(shm_mem_);
+  bitmap.setPixels(shared_memory_->memory());
 
   const gfx::ImageSkia img_skia = gfx::ImageSkia::CreateFrom1xBitmap(bitmap);
   indicator_->SetImage(img_skia);
