@@ -11,16 +11,18 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import org.xwalk.core.XWalkView;
+import org.xwalk.runtime.extension.XWalkExtension;
 
 /**
- * The implementation class for XWalkCoreProvider. It calls the interfaces provided
- * by runtime core and customizes the behaviors here.
+ * The implementation class for runtime core. It calls the methods provided
+ * by runtime core and customizes the behaviors for runtime.
  */
-class XWalkCoreProvider implements XWalkRuntimeViewProvider {
+class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     private Context mContext;
     private XWalkView mXwalkView;
 
-    public XWalkCoreProvider(Context context, Activity activity) {
+    public XWalkCoreProviderImpl(Context context, Activity activity) {
+        super(context, activity);
         mContext = context;
 
         // TODO(yongsheng): do customizations for XWalkView. There will
@@ -40,37 +42,36 @@ class XWalkCoreProvider implements XWalkRuntimeViewProvider {
 
     @Override
     public void onCreate() {
-        // TODO(yongsheng): Pass it to extensions.
+        super.onCreate();
     }
 
     @Override
     public void onResume() {
-        // TODO(yongsheng): Pass it to extensions.
+        super.onResume();
         mXwalkView.onResume();
     }
 
     @Override
     public void onPause() {
-        // TODO(yongsheng): Pass it to extensions.
+        super.onPause();
         mXwalkView.onPause();
     }
 
     @Override
     public void onDestroy() {
-        // TODO(yongsheng): Pass it to extensions.
+        super.onDestroy();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO(yongsheng): Pass it to extensions.
+        super.onActivityResult(requestCode, resultCode, data);
         mXwalkView.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public String enableRemoteDebugging(String frontEndUrl, String socketName) {
-        // TODO(yongsheng): Enable this once the remote debugging feature is supported.
-        // return mXwalkView.enableRemoteDebugging(socketName);
-        return "";
+        // TODO(yongsheng): Enable two parameters once they're supported in XWalkView.
+        return mXwalkView.enableRemoteDebugging();
     }
 
     @Override
@@ -81,5 +82,24 @@ class XWalkCoreProvider implements XWalkRuntimeViewProvider {
     @Override
     public View getView() {
         return mXwalkView;
+    }
+
+    @Override
+    public Object onExtensionRegistered(XWalkExtension extension) {
+        // TODO(yongsheng): This object is supposed to register itself into native extension system.
+        // If not, we'll need to register it.
+        XWalkCoreExtensionBridge bridge = new XWalkCoreExtensionBridge(extension, this);
+        return bridge;
+    }
+
+    @Override
+    public void onExtensionUnregistered(XWalkExtension extension) {
+        // TODO(yongsheng): Figure out how to do this.
+    }
+
+    @Override
+    public void postMessage(XWalkExtension extension, String message) {
+        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
+        bridge.postMessage(message);
     }
 }

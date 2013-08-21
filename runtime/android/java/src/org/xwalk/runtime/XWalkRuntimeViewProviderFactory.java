@@ -15,6 +15,6 @@ final class XWalkRuntimeViewProviderFactory {
     static public XWalkRuntimeViewProvider getProvider(Context context, Activity activity) {
         // TODO(yongsheng): Do checkings here to decide which provider should
         // be used. The default is to use runtime core provider.
-        return new XWalkCoreProvider(context, activity);
+        return new XWalkCoreProviderImpl(context, activity);
     }
 }
