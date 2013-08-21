@@ -53,7 +53,7 @@ class XWalkExtensionRenderViewHandler
  private:
   // Called when we receive a message from the browser process, dispatches it to
   // JavaScript environment.
-  void OnPostMessage(int64_t frame_id, const std::string& extension,
+  void OnPostMessage(int64_t frame_id, const std::string& extension_name,
                      const base::ListValue& msg);
 
   v8::Handle<v8::Context> GetV8ContextForFrame(int64_t frame_id);
@@ -62,6 +62,7 @@ class XWalkExtensionRenderViewHandler
 
   typedef std::map<int64_t, WebKit::WebFrame*> IdToFrameMap;
   IdToFrameMap id_to_frame_map_;
+
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRenderViewHandler);
 };

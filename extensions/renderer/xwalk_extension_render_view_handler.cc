@@ -11,6 +11,9 @@
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
 #include "third_party/WebKit/Source/WebKit/chromium/public/WebView.h"
 
+#include "xwalk/extensions/renderer/xwalk_extension_module.h"
+#include "xwalk/extensions/renderer/xwalk_module_system.h"
+
 namespace xwalk {
 namespace extensions {
 
@@ -115,45 +118,23 @@ bool XWalkExtensionRenderViewHandler::OnMessageReceived(
 }
 
 void XWalkExtensionRenderViewHandler::OnPostMessage(int64_t frame_id,
-    const std::string& extension, const base::ListValue& msg) {
-  if (!controller_->ContainsExtension(extension))
+    const std::string& extension_name, const base::ListValue& msg) {
+  if (!controller_->ContainsExtension(extension_name))
     return;
 
   v8::HandleScope handle_scope;
   v8::Handle<v8::Context> context = GetV8ContextForFrame(frame_id);
-  v8::Context::Scope context_scope(context);
+  XWalkModuleSystem* module_system =
+      XWalkModuleSystem::GetModuleSystemFromContext(context);
+  CHECK(module_system);
 
-  // We get the message wrapped in a ListValue because Value doesn't have
-  // param traits.
-  const base::Value* value;
+  XWalkExtensionModule* module =
+      module_system->GetExtensionModule(extension_name);
+  CHECK(module);
+
+  const base::Value* value = NULL;
   msg.Get(0, &value);
-
-  scoped_ptr<content::V8ValueConverter> converter(
-      content::V8ValueConverter::create());
-  v8::Handle<v8::Value> v8_value(
-      converter->ToV8Value(value, context));
-
-  const int argc = 2;
-  v8::Handle<v8::Value> argv[argc] = {
-    v8::String::New(extension.c_str()),
-    v8_value
-  };
-
-  // FIXME(cmarcelo): The way we are doing this, onpostmessage is exposed
-  // and could be changed. An alternative design would be to expose those
-  // things in a more controlled way during DidClearWindowObject instead of
-  // using v8::Extension.
-  v8::Handle<v8::Value> xwalk =
-      context->Global()->Get(v8::String::New("xwalk"));
-  v8::Handle<v8::Value> callback =
-      xwalk.As<v8::Object>()->Get(v8::String::New("onpostmessage"));
-
-  // Note: see comment in WebScopedMicrotaskSuppression.h to understand why we
-  // are not using V8 API directly but going through frame.
-  WebKit::WebFrame* frame = render_view()->GetWebView()->mainFrame();
-  frame->callFunctionEvenIfScriptDisabled(callback.As<v8::Function>(),
-                                          context->Global(),
-                                          argc, argv);
+  module->DispatchMessageToListener(context, *value);
 }
 
 v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8ContextForFrame(
