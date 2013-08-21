@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
+#include "xwalk/extensions/browser/xwalk_extension_runner_store.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -14,90 +15,10 @@ DEFINE_WEB_CONTENTS_USER_DATA_KEY(
 namespace xwalk {
 namespace extensions {
 
-// Keeps track of runners for a WebContentsHandler and their associated
-// information (name and frame id), providing queries useful for handler
-// operation. One WebContentsHandler handles runners for all its frames.
-class RunnerStore {
- public:
-  RunnerStore() {}
-  ~RunnerStore() { DeleteAllFrames(); }
-
-  void AddFrame(int64_t frame_id);
-  void AddRunner(int64_t frame_id, XWalkExtensionRunner* runner);
-
-  XWalkExtensionRunner* GetRunnerByFrameAndName(int64_t frame_id,
-                                                const std::string& name);
-  int64_t GetFrameForRunner(const XWalkExtensionRunner* runner) {
-    return frame_for_runner_[runner];
-  }
-
-  void DeleteFrame(int64_t frame_id);
-  void DeleteAllFrames();
-
- private:
-  typedef std::map<std::string, XWalkExtensionRunner*> RunnerMap;
-  typedef std::map<int64_t, RunnerMap*> RunnersForFrameMap;
-  RunnersForFrameMap runners_for_frame_;
-
-  void DeleteRunnerMap(RunnerMap* runners);
-
-  typedef std::map<const XWalkExtensionRunner*, int64_t> FrameForRunnerMap;
-  FrameForRunnerMap frame_for_runner_;
-};
-
-void RunnerStore::AddFrame(int64_t frame_id) {
-  CHECK(runners_for_frame_.find(frame_id) == runners_for_frame_.end());
-  runners_for_frame_[frame_id] = new RunnerMap;
-}
-
-void RunnerStore::AddRunner(int64_t frame_id, XWalkExtensionRunner* runner) {
-  CHECK(runners_for_frame_.find(frame_id) != runners_for_frame_.end());
-  RunnerMap* runners = runners_for_frame_[frame_id];
-  (*runners)[runner->extension_name()] = runner;
-  frame_for_runner_[runner] = frame_id;
-}
-
-XWalkExtensionRunner* RunnerStore::GetRunnerByFrameAndName(
-    int64_t frame_id, const std::string& name) {
-  RunnerMap* runners = runners_for_frame_[frame_id];
-  RunnerMap::iterator it = runners->find(name);
-  if (it == runners->end())
-    return NULL;
-  return it->second;
-}
-
-void RunnerStore::DeleteFrame(int64_t frame_id) {
-  RunnersForFrameMap::iterator it = runners_for_frame_.find(frame_id);
-  if (it == runners_for_frame_.end())
-    return;
-  DeleteRunnerMap(it->second);
-  delete it->second;
-  runners_for_frame_.erase(it);
-}
-
-void RunnerStore::DeleteAllFrames() {
-  RunnersForFrameMap::iterator it = runners_for_frame_.begin();
-  for (; it != runners_for_frame_.end(); ++it) {
-    DeleteRunnerMap(it->second);
-    delete it->second;
-  }
-  runners_for_frame_.clear();
-}
-
-void RunnerStore::DeleteRunnerMap(RunnerMap* runners) {
-  RunnerMap::iterator it = runners->begin();
-  for (; it != runners->end(); ++it) {
-    frame_for_runner_.erase(it->second);
-    delete it->second;
-  }
-  runners->clear();
-}
-
-
 XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
     content::WebContents* contents)
     : WebContentsObserver(contents),
-      runners_(new RunnerStore) {}
+      runners_(new XWalkExtensionRunnerStore) {}
 
 XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {}
 

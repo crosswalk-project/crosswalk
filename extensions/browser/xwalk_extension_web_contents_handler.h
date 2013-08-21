@@ -6,7 +6,6 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_WEB_CONTENTS_HANDLER_H_
 
 #include <stdint.h>
-#include <map>
 #include <string>
 #include "base/values.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -16,8 +15,8 @@
 namespace xwalk {
 namespace extensions {
 
-class RunnerStore;
 class XWalkExtension;
+class XWalkExtensionRunnerStore;
 class XWalkExtensionService;
 
 // This manages extension runners for a WebContents, routing IPC messages
@@ -59,7 +58,7 @@ class XWalkExtensionWebContentsHandler
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);
 
-  scoped_ptr<RunnerStore> runners_;
+  scoped_ptr<XWalkExtensionRunnerStore> runners_;
   XWalkExtensionService* extension_service_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionWebContentsHandler);

@@ -2,6 +2,8 @@
   'sources': [
     'browser/xwalk_extension_internal.cc',
     'browser/xwalk_extension_internal.h',
+    'browser/xwalk_extension_runner_store.cc',
+    'browser/xwalk_extension_runner_store.h',
     'browser/xwalk_extension_service.cc',
     'browser/xwalk_extension_service.h',
     'browser/xwalk_extension_web_contents_handler.cc',
