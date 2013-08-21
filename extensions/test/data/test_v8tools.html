@@ -1,0 +1,19 @@
+<html>
+<head>
+<title></title>
+<script>
+ var obj = {};
+ Object.defineProperty(obj, "prop", {
+   configurable: false,
+   writable: false,
+   value: "Fail"
+ });
+
+ try {
+   test_v8tools.forceSetProperty(obj, "prop", "Pass");
+ } catch(e) {}
+
+ document.title = obj.prop;
+</script>
+</head>
+</html>

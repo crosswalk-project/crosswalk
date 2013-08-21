@@ -22,6 +22,8 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
+class XWalkModuleSystem;
+
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
 // the extensions handlers to them.
@@ -36,8 +38,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.
-  void DidCreateScriptContext(WebKit::WebFrame* frame);
-  void WillReleaseScriptContext(WebKit::WebFrame* frame);
+  void DidCreateScriptContext(WebKit::WebFrame* frame,
+                              v8::Handle<v8::Context> context);
+  void WillReleaseScriptContext(WebKit::WebFrame* frame,
+                                v8::Handle<v8::Context> context);
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -54,7 +58,8 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   bool ContainsExtension(const std::string& extension) const;
 
   // Installs the extensions' JavaScript API code into the given frame.
-  void InstallJavaScriptAPIs(WebKit::WebFrame* frame);
+  void InstallJavaScriptAPIs(v8::Handle<v8::Context> context,
+                             XWalkModuleSystem* module_system);
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;

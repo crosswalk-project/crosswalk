@@ -4,31 +4,6 @@
 
 var xwalk = xwalk || {};
 
-xwalk.postMessage = function(extension, msg) {
-  native function PostMessage();
-  PostMessage(extension, msg);
-};
-
-xwalk._message_listeners = {};
-
-xwalk.setMessageListener = function(extension, callback) {
-  if (callback === undefined)
-    delete xwalk._message_listeners[extension];
-  else
-    xwalk._message_listeners[extension] = callback;
-};
-
-xwalk.onpostmessage = function(extension, msg) {
-  var listener = xwalk._message_listeners[extension];
-  if (listener !== undefined)
-    listener(msg);
-};
-
-xwalk.sendSyncMessage = function(extension, msg) {
-  native function SendSyncMessage();
-  return SendSyncMessage(extension, msg);
-}
-
 xwalk._setupExtensionInternal = function(extension_obj) {
   var callback_listeners = {};
   var callback_id = 0;
@@ -67,4 +42,4 @@ xwalk._setupExtensionInternal = function(extension_obj) {
     args.unshift(function_name);
     extension_obj.postMessage(args);
   };
-}
+};
