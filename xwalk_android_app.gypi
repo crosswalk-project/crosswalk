@@ -81,6 +81,7 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/',
           'files': [
+            'build/android/customize.py',
             'build/android/make_apk.py',
           ],
         },
