@@ -20,27 +20,45 @@ import android.widget.EditText;
 
 import org.xwalk.core.JsPromptResult;
 import org.xwalk.core.JsResult;
+import org.xwalk.core.R;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
 
 public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
+
+    // Strings for displaying Dialog
+    private static String mJSAlertTitle;
+    private static String mJSConfirmTitle;
+    private static String mJSPromptTitle;
+    private static String mOKButton;
+    private static String mCancelButton;
+
     private Context mContext;
     private AlertDialog mDialog;
     private EditText mPromptText;
 
     public XWalkDefaultWebChromeClient(Context context) {
         mContext = context;
+        initResources(context);
+    }
+
+    private static void initResources(Context context) {
+        if (mJSAlertTitle != null) return;
+        mJSAlertTitle = context.getString(R.string.js_alert_title);
+        mJSConfirmTitle = context.getString(R.string.js_confirm_title);
+        mJSPromptTitle = context.getString(R.string.js_prompt_title);
+        mOKButton = context.getString(android.R.string.ok);
+        mCancelButton = context.getString(android.R.string.cancel);
     }
 
     @Override
     public boolean onJsAlert(XWalkView view, String url, String message,
             final JsResult result) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        // TODO(shouqun): the strings need to be localized.
-        dialogBuilder.setTitle("JavaScript Alert")
+        dialogBuilder.setTitle(mJSAlertTitle)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         result.confirm();
@@ -56,17 +74,16 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     public boolean onJsConfirm(XWalkView view, String url, String message,
             final JsResult result) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        // TODO(shouqun): the strings need to be localized.
-        dialogBuilder.setTitle("JavaScript Confirm")
+        dialogBuilder.setTitle(mJSConfirmTitle)
                 .setMessage(message)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         result.confirm();
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         result.cancel();
@@ -82,17 +99,16 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     public boolean onJsPrompt(XWalkView view, String url, String message,
             String defaultValue, final JsPromptResult result) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        // TODO(shouqun): the strings need to be localized.
-        dialogBuilder.setTitle("JavaScript Prompt")
+        dialogBuilder.setTitle(mJSPromptTitle)
                 .setMessage(message)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         result.confirm(mPromptText.getText().toString());
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         result.cancel();
