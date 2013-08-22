@@ -103,7 +103,8 @@ TEST(XWalkExtensionThreadedRunnerTest,
   // We test over the XWalkExtensionRunner interface, which is the
   // interface used elsewhere in the code.
   XWalkExtensionRunner* runner =
-      new XWalkExtensionThreadedRunner(&extension, &client);
+      new XWalkExtensionThreadedRunner(&extension, &client,
+                                       loop.message_loop_proxy());
   g_done.Wait();
 
   runner->PostMessageToContext(scoped_ptr<base::Value>(
@@ -130,7 +131,8 @@ TEST(XWalkExtensionThreadedRunnerTest,
   TestRunnerClient client(run_loop.QuitClosure());
 
   XWalkExtensionRunner* runner =
-      new XWalkExtensionThreadedRunner(&extension, &client);
+      new XWalkExtensionThreadedRunner(&extension, &client,
+                                       loop.message_loop_proxy());
   g_done.Wait();
 
   EXPECT_FALSE(g_done.IsSignaled());
@@ -155,7 +157,8 @@ TEST(XWalkExtensionThreadedRunnerTest,
   TestRunnerClient client;
 
   XWalkExtensionRunner* runner =
-      new XWalkExtensionThreadedRunner(&extension, &client);
+      new XWalkExtensionThreadedRunner(&extension, &client,
+                                       loop.message_loop_proxy());
   g_done.Wait();
 
   runner->PostMessageToContext(scoped_ptr<base::Value>(
