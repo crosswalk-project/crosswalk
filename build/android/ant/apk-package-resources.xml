@@ -48,7 +48,7 @@
   <property name="asset.dir" value="${ASSET_DIR}" />
   <property name="asset.absolute.dir" location="${asset.dir}" />
 
-  <property name="aapt" location="${android.platform.tools.dir}/aapt" />
+  <property name="aapt" location="${AAPT_PATH}" />
 
   <property name="version.code" value="${APP_MANIFEST_VERSION_CODE}"/>
   <property name="version.name" value="${APP_MANIFEST_VERSION_NAME}"/>
