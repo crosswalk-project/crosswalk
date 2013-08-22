@@ -18,10 +18,14 @@ class XWalkExtensionRunner;
 // Keeps track of runners for a WebContentsHandler and their associated
 // information (name and frame id), providing queries useful for handler
 // operation. One WebContentsHandler handles runners for all its frames.
+// It lives in the IO Thread, mainly because it is frenquently accessed by
+// the ExtensionMessageFilter which lives in the same thread. The Add* and
+// Delete* methods can be accessed from any thread and they will make sure
+// that the message gets reposted to the IO Thread.
 class XWalkExtensionRunnerStore {
  public:
   XWalkExtensionRunnerStore() {}
-  ~XWalkExtensionRunnerStore() { DeleteAllFrames(); }
+  ~XWalkExtensionRunnerStore();
 
   void AddFrame(int64_t frame_id);
   void AddRunner(int64_t frame_id, XWalkExtensionRunner* runner);

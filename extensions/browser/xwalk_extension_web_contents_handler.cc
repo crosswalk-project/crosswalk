@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
+#include "content/public/browser/browser_thread.h"
 #include "xwalk/extensions/browser/xwalk_extension_runner_store.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -11,6 +12,8 @@
 
 DEFINE_WEB_CONTENTS_USER_DATA_KEY(
     xwalk::extensions::XWalkExtensionWebContentsHandler);
+
+using content::BrowserThread;
 
 namespace xwalk {
 namespace extensions {
@@ -20,7 +23,11 @@ XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
     : WebContentsObserver(contents),
       runners_(new XWalkExtensionRunnerStore) {}
 
-XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {}
+XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {
+  // The RunnerStore lives in the IO Thread and it can
+  // only be deleted from there.
+  BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE, runners_.release());
+}
 
 void XWalkExtensionWebContentsHandler::AttachExtensionRunner(
     int64_t frame_id, XWalkExtensionRunner* runner) {
