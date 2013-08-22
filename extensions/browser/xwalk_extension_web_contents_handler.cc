@@ -67,6 +67,12 @@ void XWalkExtensionWebContentsHandler::HandleMessageFromContext(
     message_filter_->PostMessage(runner, msg.Pass());
 }
 
+void XWalkExtensionWebContentsHandler::HandleReplyMessageFromContext(
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  if (message_filter_)
+    message_filter_->PostReplyMessage(ipc_reply.Pass(), msg.Pass());
+}
+
 namespace {
 
 const GURL kAboutBlankURL = GURL("about:blank");

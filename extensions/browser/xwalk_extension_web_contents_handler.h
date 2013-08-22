@@ -53,6 +53,8 @@ class XWalkExtensionWebContentsHandler
   // XWalkExtensionRunner::Client implementation.
   virtual void HandleMessageFromContext(const XWalkExtensionRunner* runner,
                                         scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual void HandleReplyMessageFromContext(
+      scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;
   explicit XWalkExtensionWebContentsHandler(content::WebContents* contents);

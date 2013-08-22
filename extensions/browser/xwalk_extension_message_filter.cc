@@ -5,6 +5,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_message_filter.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "ipc/ipc_message_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_runner_store.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -36,6 +37,15 @@ void XWalkExtensionMessageFilter::PostMessage(
                                     list));
 }
 
+void XWalkExtensionMessageFilter::PostReplyMessage(
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  base::ListValue result;
+  result.Append(msg.release());
+
+  IPC::WriteParam(ipc_reply.get(), result);
+  Send(ipc_reply.release());
+}
+
 bool XWalkExtensionMessageFilter::OnMessageReceived(
     const IPC::Message& message, bool* message_was_ok) {
   // The filter gets called for every single message that arrives
@@ -47,7 +57,8 @@ bool XWalkExtensionMessageFilter::OnMessageReceived(
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionMessageFilter, message)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessage, OnPostMessage)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_SendSyncMessage, OnSendSyncMessage)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(XWalkViewHostMsg_SendSyncMessage,
+                                    OnSendSyncMessage)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_DidCreateScriptContext,
                         DidCreateScriptContext)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_WillReleaseScriptContext,
@@ -82,7 +93,7 @@ void XWalkExtensionMessageFilter::OnPostMessage(
 
 void XWalkExtensionMessageFilter::OnSendSyncMessage(
     int64_t frame_id, const std::string& extension_name,
-    const base::ListValue& msg, base::ListValue* result) {
+    const base::ListValue& msg, IPC::Message* ipc_reply) {
   XWalkExtensionRunner* runner =
       runners_->GetRunnerByFrameAndName(frame_id, extension_name);
   if (!runner) {
@@ -94,12 +105,11 @@ void XWalkExtensionMessageFilter::OnSendSyncMessage(
   base::Value* value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
 
-  // FIXME(tmpsantos): This will ultimately call a Wait() and lock the IO Thread
-  // which is pretty bad and not allowed on Debug mode.
-  scoped_ptr<base::Value> resultValue =
-      runner->SendSyncMessageToContext(scoped_ptr<base::Value>(value));
-
-  result->Append(resultValue.release());
+  // We handle a pre-populated |ipc_reply| to the Context, so it is up to the
+  // Context to decide when to reply. It is important to notice that the callee
+  // on the renderer will remain blocked until the reply gets back.
+  runner->SendSyncMessageToContext(scoped_ptr<IPC::Message>(ipc_reply),
+                                   scoped_ptr<base::Value>(value));
 }
 
 void XWalkExtensionMessageFilter::DidCreateScriptContext(int64_t frame_id) {

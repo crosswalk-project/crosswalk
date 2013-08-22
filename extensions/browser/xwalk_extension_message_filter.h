@@ -32,6 +32,8 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
 
   void PostMessage(const XWalkExtensionRunner* runner,
                    scoped_ptr<base::Value> msg);
+  void PostReplyMessage(scoped_ptr<IPC::Message> ipc_reply,
+                        scoped_ptr<base::Value> msg);
 
   // content::BrowserMessageFilter implementation.
   virtual bool OnMessageReceived(const IPC::Message& message,
@@ -42,7 +44,7 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
   void OnPostMessage(int64_t frame_id, const std::string& extension_name,
                      const base::ListValue& msg);
   void OnSendSyncMessage(int64_t frame_id, const std::string& extension_name,
-                         const base::ListValue& msg, base::ListValue* result);
+                         const base::ListValue& msg, IPC::Message* ipc_reply);
   void DidCreateScriptContext(int64_t frame_id);
   void WillReleaseScriptContext(int64_t frame_id);
 
