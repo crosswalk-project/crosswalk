@@ -183,14 +183,20 @@ void XWalkExtensionWebContentsHandler::DidCreateScriptContext(
     int64_t frame_id) {
   // TODO(cmarcelo): We will create runners on demand, this will allow us get
   // rid of this check.
-  if (web_contents()->GetURL() != kAboutBlankURL) {
-    runners_->AddFrame(frame_id);
-    extension_service_->CreateRunnersForHandler(this, frame_id);
-  }
+  if (web_contents()->GetURL() == kAboutBlankURL)
+    return;
+
+  runners_->AddFrame(frame_id);
+  extension_service_->CreateRunnersForHandler(this, frame_id);
 }
 
 void XWalkExtensionWebContentsHandler::WillReleaseScriptContext(
     int64_t frame_id) {
+  // TODO(cmarcelo): We will create runners on demand, this will allow us get
+  // rid of this check.
+  if (web_contents()->GetURL() == kAboutBlankURL)
+    return;
+
   runners_->DeleteFrame(frame_id);
 }
 
