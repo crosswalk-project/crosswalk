@@ -113,10 +113,6 @@ std::string CodeToEnsureNamespace(const std::string& extension_name) {
 // Wrap API code into a callable form that takes extension object as parameter.
 std::string WrapAPICode(const std::string& extension_code,
                         const std::string& extension_name) {
-  // FIXME(cmarcelo): For now sync messaging is disabled on Windows because we
-  // jump through the UI process and this is not supported in that platform. See
-  // issue https://github.com/otcshare/crosswalk/issues/268 for details.
-
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
@@ -124,10 +120,8 @@ std::string WrapAPICode(const std::string& extension_code,
       "extension._setupExtensionInternal = function() {"
       "  xwalk._setupExtensionInternal(extension);"
       "};"
-#if !defined(OS_WIN)
       "extension.internal = {};"
       "extension.internal.sendSyncMessage = extension.sendSyncMessage;"
-#endif
       "delete extension.sendSyncMessage;"
       "return (function(exports) {'use strict'; %s\n})(%s); });",
       CodeToEnsureNamespace(extension_name).c_str(),
