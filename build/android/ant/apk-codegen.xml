@@ -29,7 +29,7 @@
   <property name="target" value="android-${ANDROID_SDK_VERSION}"/>
   <property name="android.tools.dir" location="${sdk.dir}/tools" />
   <property name="android.platform.tools.dir" location="${sdk.dir}/platform-tools" />
-  <property name="aapt" location="${android.platform.tools.dir}/aapt" />
+  <property name="aapt" location="${AAPT_PATH}" />
   <property name="project.target.android.jar" location="${ANDROID_SDK_JAR}" />
 
   <!-- jar file from where the tasks are loaded -->
