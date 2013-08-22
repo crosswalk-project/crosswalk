@@ -49,7 +49,7 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
   typedef base::Callback<void(XWalkExtensionService* extension_service)>
@@ -60,7 +60,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
  private:
   void RegisterExtensionsForNewHost(content::RenderProcessHost* host);
 
-  void CreateWebContentsHandler(content::WebContents* web_contents);
+  void CreateWebContentsHandler(content::RenderProcessHost* host,
+                                content::WebContents* web_contents);
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;

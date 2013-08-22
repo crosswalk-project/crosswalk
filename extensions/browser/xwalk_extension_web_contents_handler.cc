@@ -5,6 +5,8 @@
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
+#include "xwalk/extensions/browser/xwalk_extension_message_filter.h"
 #include "xwalk/extensions/browser/xwalk_extension_runner_store.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -20,7 +22,9 @@ namespace extensions {
 
 XWalkExtensionWebContentsHandler::XWalkExtensionWebContentsHandler(
     content::WebContents* contents)
-    : WebContentsObserver(contents),
+    : web_contents_(contents),
+      render_process_host_(NULL),
+      message_filter_(NULL),
       runners_(new XWalkExtensionRunnerStore) {}
 
 XWalkExtensionWebContentsHandler::~XWalkExtensionWebContentsHandler() {
@@ -34,71 +38,33 @@ void XWalkExtensionWebContentsHandler::AttachExtensionRunner(
   runners_->AddRunner(frame_id, runner);
 }
 
+void XWalkExtensionWebContentsHandler::set_render_process_host(
+    content::RenderProcessHost* host) {
+  DCHECK(!render_process_host_);
+  render_process_host_ = host;
+
+  // The filter is owned by the IPC channel, but a reference is kept for
+  // explicitly removing it from the channel in case the runtime gets
+  // removed but the channel is still used by other runtimes sharing
+  // the same renderer.
+  message_filter_ = new XWalkExtensionMessageFilter(this);
+  render_process_host_->GetChannel()->AddFilter(message_filter_);
+}
+
+void XWalkExtensionWebContentsHandler::ClearMessageFilter(void) {
+  DCHECK(render_process_host_ && message_filter_);
+
+  // RemoveFilter() deletes the filter internally.
+  if (render_process_host_->GetChannel())
+    render_process_host_->GetChannel()->RemoveFilter(message_filter_);
+
+  message_filter_ = NULL;
+}
+
 void XWalkExtensionWebContentsHandler::HandleMessageFromContext(
     const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
-  base::ListValue list;
-  list.Append(msg.release());
-
-  int64_t frame_id = runners_->GetFrameForRunner(runner);
-  Send(new XWalkViewMsg_PostMessage(web_contents()->GetRoutingID(), frame_id,
-                                    runner->extension_name(), list));
-}
-
-bool XWalkExtensionWebContentsHandler::OnMessageReceived(
-    const IPC::Message& message) {
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionWebContentsHandler, message)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessage, OnPostMessage)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_SendSyncMessage, OnSendSyncMessage)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_DidCreateScriptContext,
-                        DidCreateScriptContext)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_WillReleaseScriptContext,
-                        WillReleaseScriptContext)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
-}
-
-void XWalkExtensionWebContentsHandler::OnPostMessage(
-    int64_t frame_id, const std::string& extension_name,
-    const base::ListValue& msg) {
-  XWalkExtensionRunner* runner =
-      runners_->GetRunnerByFrameAndName(frame_id, extension_name);
-  if (!runner) {
-    LOG(WARNING) << "Couldn't handle message for unregistered extension '"
-                 << extension_name << "'";
-    return;
-  }
-
-  // The const_cast is needed to remove the only Value contained by the
-  // ListValue (which is solely used as wrapper, since Value doesn't
-  // have param traits for serialization) and we pass the ownership to to
-  // HandleMessage. It is safe to do this because the |msg| won't be used
-  // anywhere else when this function returns. Saves a DeepCopy(), which
-  // can be costly depending on the size of Value.
-  base::Value* value;
-  const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  runner->PostMessageToContext(scoped_ptr<base::Value>(value));
-}
-
-void XWalkExtensionWebContentsHandler::OnSendSyncMessage(
-    int64_t frame_id, const std::string& extension_name,
-    const base::ListValue& msg, base::ListValue* result) {
-  XWalkExtensionRunner* runner =
-      runners_->GetRunnerByFrameAndName(frame_id, extension_name);
-  if (!runner) {
-    LOG(WARNING) << "Couldn't handle message for unregistered extension '"
-                 << extension_name << "'";
-    return;
-  }
-
-  base::Value* value;
-  const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-
-  scoped_ptr<base::Value> resultValue =
-      runner->SendSyncMessageToContext(scoped_ptr<base::Value>(value));
-
-  result->Append(resultValue.release());
+  if (message_filter_)
+    message_filter_->PostMessage(runner, msg.Pass());
 }
 
 namespace {
@@ -111,15 +77,8 @@ void XWalkExtensionWebContentsHandler::DidCreateScriptContext(
     int64_t frame_id) {
   // TODO(cmarcelo): We will create runners on demand, this will allow us get
   // rid of this check.
-  if (web_contents()->GetURL() != kAboutBlankURL) {
-    runners_->AddFrame(frame_id);
+  if (web_contents_->GetURL() != kAboutBlankURL)
     extension_service_->CreateRunnersForHandler(this, frame_id);
-  }
-}
-
-void XWalkExtensionWebContentsHandler::WillReleaseScriptContext(
-    int64_t frame_id) {
-  runners_->DeleteFrame(frame_id);
 }
 
 }  // namespace extensions

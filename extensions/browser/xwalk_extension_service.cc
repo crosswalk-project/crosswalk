@@ -152,7 +152,7 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   // OnRuntimeAdded.
   const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
   for (size_t i = 0; i < runtimes.size(); i++)
-    CreateWebContentsHandler(runtimes[i]->web_contents());
+    CreateWebContentsHandler(render_process_host_, runtimes[i]->web_contents());
 }
 
 XWalkExtension* XWalkExtensionService::GetExtensionForName(
@@ -175,7 +175,14 @@ void XWalkExtensionService::CreateRunnersForHandler(
 
 void XWalkExtensionService::OnRuntimeAdded(Runtime* runtime) {
   if (render_process_host_)
-    CreateWebContentsHandler(runtime->web_contents());
+    CreateWebContentsHandler(render_process_host_, runtime->web_contents());
+}
+
+void XWalkExtensionService::OnRuntimeRemoved(Runtime* runtime) {
+  XWalkExtensionWebContentsHandler* handler =
+      XWalkExtensionWebContentsHandler::FromWebContents(
+          runtime->web_contents());
+  handler->ClearMessageFilter();
 }
 
 // static
@@ -195,11 +202,12 @@ void XWalkExtensionService::RegisterExtensionsForNewHost(
 }
 
 void XWalkExtensionService::CreateWebContentsHandler(
-    content::WebContents* web_contents) {
+    content::RenderProcessHost* host, content::WebContents* web_contents) {
   XWalkExtensionWebContentsHandler::CreateForWebContents(web_contents);
   XWalkExtensionWebContentsHandler* handler =
       XWalkExtensionWebContentsHandler::FromWebContents(web_contents);
   handler->set_extension_service(this);
+  handler->set_render_process_host(host);
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {
