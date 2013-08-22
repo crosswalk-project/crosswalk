@@ -67,7 +67,7 @@ public class XWalkView extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
         // Set default XWalkWebChromeClient.
-        setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context));
+        setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context, this));
     }
 
     public void loadUrl(String url) {
