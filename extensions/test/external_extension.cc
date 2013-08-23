@@ -58,6 +58,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
 
   for (int i = 0; i < 5; i++) {
     xwalk_test_utils::NavigateToURL(runtime(), url);
+    WaitForLoadStop(runtime()->web_contents());
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 }
