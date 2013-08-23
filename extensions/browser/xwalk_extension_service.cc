@@ -167,8 +167,8 @@ void XWalkExtensionService::CreateRunnersForHandler(
     XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
   ExtensionMap::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
-    XWalkExtensionRunner* runner =
-        new XWalkExtensionThreadedRunner(it->second, handler);
+    XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
+        it->second, handler, base::MessageLoopProxy::current());
     handler->AttachExtensionRunner(frame_id, runner);
   }
 }

@@ -14,6 +14,7 @@
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 
 namespace base {
+class SingleThreadTaskRunner;
 class Thread;
 }
 
@@ -24,11 +25,17 @@ class Location;
 namespace xwalk {
 namespace extensions {
 
-// Creates and runs an extension context in a thread. All operations
-// from the extension context will be called in the separated thread.
+// Creates and runs an extension context in a thread. All operations from the
+// extension context will be called in the separated thread.
+//
+// The given task runner correspond to the thread that will handle the calls
+// to Client. After XWalkExtensionThreadedRunner is deleted, the client will
+// not be called anymore.
 class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
  public:
-  XWalkExtensionThreadedRunner(XWalkExtension* extension, Client* client);
+  XWalkExtensionThreadedRunner(
+      XWalkExtension* extension, Client* client,
+      base::SingleThreadTaskRunner* client_task_runner);
   virtual ~XWalkExtensionThreadedRunner();
 
  private:
@@ -46,11 +53,17 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
   void CallHandleMessage(scoped_ptr<base::Value> msg);
   void CallHandleSyncMessage(scoped_ptr<base::Value> msg, base::Value** reply);
 
+  void PostMessageToClientTaskRunner(scoped_ptr<base::Value> msg);
+
   scoped_ptr<XWalkExtension::Context> context_;
   scoped_ptr<base::Thread> thread_;
   XWalkExtension* extension_;
 
   base::WaitableEvent sync_message_event_;
+  base::SingleThreadTaskRunner* client_task_runner_;
+
+  class PostHelper;
+  scoped_ptr<PostHelper> helper_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionThreadedRunner);
 };
