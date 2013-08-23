@@ -5,17 +5,58 @@
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 
 #include "base/bind.h"
+#include "base/single_thread_task_runner.h"
+#include "base/synchronization/lock.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
 
 namespace xwalk {
 namespace extensions {
 
+// This object is responsible for calling the client on behalf of the extension
+// thread. When the threaded runner is destroyed, it detaches this object so
+// pending tasks posted to client_task_runner are ignored gracefully.
+class XWalkExtensionThreadedRunner::PostHelper {
+ public:
+  explicit PostHelper(XWalkExtensionThreadedRunner* runner)
+      : runner_(runner) {}
+
+  // Threaded runner calls this when is destroyed, so any pending tasks will not
+  // call the client anymore. To be called in the thread controlling the
+  // threaded runner.
+  void Invalidate() {
+    base::AutoLock lock(lock_);
+    runner_ = NULL;
+  }
+
+  void PostMessageToClient(scoped_ptr<base::Value> msg) {
+    base::AutoLock lock(lock_);
+    if (!runner_)
+      return;
+    CHECK(runner_->client_task_runner_ == base::MessageLoopProxy::current());
+    runner_->PostMessageToClient(msg.Pass());
+  }
+
+  // The helper will be destroyed when this function leaves and the scoped_ptr
+  // goes out of scope. We post this function passing the internal helper object
+  // in the client task runner so that is run after all pending post messages
+  // from the context to the client.
+  static void Destroy(scoped_ptr<PostHelper> helper) {}
+
+ private:
+  base::Lock lock_;
+  XWalkExtensionThreadedRunner* runner_;
+};
+
 XWalkExtensionThreadedRunner::XWalkExtensionThreadedRunner(
-    XWalkExtension* extension, Client* client)
+    XWalkExtension* extension, Client* client,
+    base::SingleThreadTaskRunner* client_task_runner)
     : XWalkExtensionRunner(extension->name(), client),
       extension_(extension),
-      sync_message_event_(false, false) {
+      sync_message_event_(false, false),
+      client_task_runner_(client_task_runner),
+      helper_(new PostHelper(this)) {
+  CHECK(client_task_runner_);
   std::string thread_name = "XWalk_ExtensionThread_" + extension_->name();
   thread_.reset(new base::Thread(thread_name.c_str()));
   thread_->Start();
@@ -26,6 +67,10 @@ XWalkExtensionThreadedRunner::XWalkExtensionThreadedRunner(
 }
 
 XWalkExtensionThreadedRunner::~XWalkExtensionThreadedRunner() {
+  // Invalidate our helper poster. From now on calls to post will be ignored
+  // since the client doesn't care about us anymore.
+  helper_->Invalidate();
+
   // All Context related code should run in the thread.
   PostTaskToExtensionThread(
       FROM_HERE,
@@ -81,7 +126,7 @@ void XWalkExtensionThreadedRunner::CreateContext() {
   CHECK(CalledOnExtensionThread());
 
   XWalkExtension::Context* context = extension_->CreateContext(base::Bind(
-      &XWalkExtensionThreadedRunner::PostMessageToClient,
+      &XWalkExtensionThreadedRunner::PostMessageToClientTaskRunner,
       base::Unretained(this)));
   if (!context) {
     VLOG(0) << "Could not create context for extension '"
@@ -96,6 +141,12 @@ void XWalkExtensionThreadedRunner::CreateContext() {
 void XWalkExtensionThreadedRunner::DestroyContext() {
   CHECK(CalledOnExtensionThread());
   context_.reset();
+
+  // Trigger destruction of the helper object. We do at this point so that it
+  // will be after any pending task posted by the extension thread.
+  client_task_runner_->PostTask(
+      FROM_HERE,
+      base::Bind(&PostHelper::Destroy, base::Passed(&helper_)));
 }
 
 void XWalkExtensionThreadedRunner::CallHandleMessage(
@@ -110,6 +161,15 @@ void XWalkExtensionThreadedRunner::CallHandleSyncMessage(
   CHECK(CalledOnExtensionThread());
   *reply = context_->HandleSyncMessage(msg.Pass()).release();
   sync_message_event_.Signal();
+}
+
+void XWalkExtensionThreadedRunner::PostMessageToClientTaskRunner(
+    scoped_ptr<base::Value> msg) {
+  client_task_runner_->PostTask(
+      FROM_HERE,
+      base::Bind(&PostHelper::PostMessageToClient,
+                 base::Unretained(helper_.get()),
+                 base::Passed(&msg)));
 }
 
 }  // namespace extensions
