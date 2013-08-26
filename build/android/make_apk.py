@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import optparse
 import os
 import re
 import shutil
@@ -38,11 +39,41 @@ def Find(name, path):
   return max(result)
 
 
-def Execution():
+def Customize(options):
+  manifest_template = "app_src/AndroidManifest.xml.template"
+  if not os.path.isfile(manifest_template):
+    print ('Please make sure that the template'
+           ' manifest file do exist.')
+    sys.exit(7)
+  shutil.copyfile("app_src/AndroidManifest.xml.template",
+                  "app_src/AndroidManifest.xml")
+  package = '--package=org.xwalk.app.template'
+  if options.package:
+    package = '--package=%s' % options.package
+  name = '--name=AppTemplate'
+  if options.name:
+    name = '--name=%s' % options.name
+  icon = ''
+  if options.icon:
+    icon = '--icon=%s' % options.icon
+  url =  '--url=index.html'
+  if options.url:
+    url = '--url=%s' % options.url
+  fullscreen_flag = ''
+  if options.fullscreen:
+    fullscreen_flag = '-f'
+  proc = subprocess.Popen(['python', 'customize.py', package,
+                           name, icon, url, fullscreen_flag],
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  out, _ = proc.communicate()
+  print out
+
+
+def Execution(apk_name):
   android_path_array = Which("android")
   if not android_path_array:
     print "Please install Android SDK first."
-    return
+    sys.exit(1)
 
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
 
@@ -50,14 +81,13 @@ def Execution():
     sdk_jar_path = Find('android.jar', '%s/platforms/' % sdk_root_path)
   except Exception:
     print "Your Android SDK may be ruined, please reinstall it."
-    sys.exit()
+    sys.exit(2)
 
   api_level = int(re.search(r'\d+', sdk_jar_path.split('/')[-2]).group())
   if api_level < 14:
     print "Please install Android API level (>=14) first."
-    sys.exit()
+    sys.exit(3)
 
-  apk_name = 'XWalkAppTemplate'
   key_store = 'scripts/ant/chromium-debug.keystore'
 
   if not os.path.exists("out/"):
@@ -74,7 +104,7 @@ def Execution():
     aapt_path = Find('aapt', sdk_root_path)
   except Exception:
     print "Your Android SDK may be ruined, please reinstall it."
-    sys.exit()
+    sys.exit(2)
 
   # Check whether ant is installed.
   try:
@@ -82,7 +112,7 @@ def Execution():
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   except EnvironmentError:
     print "Please install ant first."
-    sys.exit()
+    sys.exit(4)
 
   proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
                            '-DAAPT_PATH=%s' % aapt_path,
@@ -111,7 +141,7 @@ def Execution():
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   except EnvironmentError:
     print "Please install Oracle JDK first."
-    sys.exit()
+    sys.exit(5)
 
   classpath = ('--classpath=\"libs/xwalk_app_runtime_activity_java.jar\"'
                ' \"libs/xwalk_app_runtime_client_java.jar\" %s' % sdk_jar_path)
@@ -198,7 +228,28 @@ def Execution():
 
 
 def main():
-  Execution()
+  parser = optparse.OptionParser()
+  info = ('The package name. Such as: '
+          '--package=com.example.YourPackage')
+  parser.add_option('--package', help=info)
+  info = ('The apk name. Such as: --name=YourApplicationName')
+  parser.add_option('--name', help=info)
+  info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
+  parser.add_option('--icon', help=info)
+  info = ('The url of this application. Such as: '
+          '--url=index.html or --url=http://www.intel.com')
+  parser.add_option('--url', help=info)
+  parser.add_option('-f', '--fullscreen', action='store_true',
+                    dest='fullscreen', default=False,
+                    help='Make application fullscreen.')
+  options, _ = parser.parse_args()
+  try:
+    Customize(options)
+    Execution(options.name)
+  except SystemExit, ec:
+    print 'Exiting with error code: %d' % ec.code
+    return ec.code
+  return 0
 
 
 if __name__ == '__main__':
