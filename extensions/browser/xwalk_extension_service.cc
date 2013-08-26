@@ -43,6 +43,8 @@ XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
 
 XWalkExtensionService::~XWalkExtensionService() {
   runtime_registry_->RemoveObserver(this);
+
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     delete it->second;
@@ -85,6 +87,8 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   // Note: for now we only support registering new extensions before
   // render process hosts were created.
   CHECK(!render_process_host_);
+
+  base::AutoLock lock(extensions_lock_);
   if (extensions_.find(extension->name()) != extensions_.end())
     return false;
 
@@ -157,6 +161,7 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
 XWalkExtension* XWalkExtensionService::GetExtensionForName(
     const std::string& name) {
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.find(name);
   if (it == extensions_.end())
     return NULL;
@@ -165,6 +170,12 @@ XWalkExtension* XWalkExtensionService::GetExtensionForName(
 
 void XWalkExtensionService::CreateRunnersForHandler(
     XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
+  // FIXME(tmpsantos) The main reason why we need this lock here is
+  // because this object lives in the UI Thread but this particular
+  // method is called from the IO Thread (the MessageFilter calls
+  // the WebContentsHandler that ultimately calls this method). This
+  // code path should be clarified.
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
     XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
@@ -193,6 +204,7 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
 
 void XWalkExtensionService::RegisterExtensionsForNewHost(
     content::RenderProcessHost* host) {
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
     XWalkExtension* extension = it->second;

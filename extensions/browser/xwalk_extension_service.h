@@ -10,6 +10,7 @@
 #include <string>
 #include "base/callback_forward.h"
 #include "base/files/file_path.h"
+#include "base/synchronization/lock.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
@@ -65,6 +66,7 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
+  base::Lock extensions_lock_;
 
   RuntimeRegistry* runtime_registry_;
 
