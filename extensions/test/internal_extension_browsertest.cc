@@ -9,7 +9,6 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
-#include "xwalk/extensions/test/generated_api.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
