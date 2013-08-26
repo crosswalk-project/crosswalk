@@ -37,48 +37,40 @@ XWalkInternalExtension::InternalContext::FunctionHandler*
 void XWalkInternalExtension::InternalContext::HandleMessage(
     scoped_ptr<base::Value> msg) {
   base::ListValue* args;
-  if (!msg->GetAsList(&args) || args->GetSize() == 0) {
+  if (!msg->GetAsList(&args) || args->GetSize() < 2) {
     // FIXME(tmpsantos): This warning could be better if the Context had a
     // pointer to the Extension. We could tell what extension sent the
     // invalid message.
-    LOG(WARNING) << "The arguments are not in a list or the list is empty.";
+    LOG(WARNING) << "Invalid number of arguments.";
     return;
   }
 
   // The first parameter stands for the function signature.
-  base::Value* function_name;
-  args->Remove(0, &function_name);
-  scoped_ptr<base::Value> function_name_ref(function_name);
-
-  if (!function_name->IsType(base::Value::TYPE_STRING)) {
+  std::string function_name;
+  if (!args->GetString(0, &function_name)) {
     LOG(WARNING) << "The function name is not a string.";
     return;
   }
 
-  std::string function_name_str;
-  function_name->GetAsString(&function_name_str);
-
   // The second parameter stands for callback id, the remaining
   // ones are the function arguments.
-  base::Value* callback_id;
-  args->Remove(0, &callback_id);
-  scoped_ptr<base::Value> callback_id_ref(callback_id);
-
-  if (!callback_id->IsType(base::Value::TYPE_STRING)) {
+  std::string callback_id;
+  if (!args->GetString(1, &callback_id)) {
     LOG(WARNING) << "The callback id is not a string.";
     return;
   }
 
-  std::string callback_id_str;
-  callback_id->GetAsString(&callback_id_str);
-
-  FunctionHandler* handler = GetHandlerForFunction(function_name_str);
+  FunctionHandler* handler = GetHandlerForFunction(function_name);
   if (!handler) {
-    DLOG(WARNING) << "Function not registered: " << function_name_str;
+    DLOG(WARNING) << "Function not registered: " << function_name;
     return;
   }
 
-  handler->Run(function_name_str, callback_id_str, args);
+  // We reuse args to pass the extra arguments to the handler, so remove
+  // function_name and callback_id from it.
+  args->Remove(0, NULL);
+  args->Remove(0, NULL);
+  handler->Run(function_name, callback_id, args);
 }
 
 void XWalkInternalExtension::InternalContext::PostResult(
