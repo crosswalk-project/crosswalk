@@ -13,6 +13,7 @@
 
 namespace content {
 class BrowserContext;
+class QuotaPermissionContext;
 class WebContents;
 class WebContentsViewDelegate;
 }
@@ -47,6 +48,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+  virtual content::QuotaPermissionContext*
+      CreateQuotaPermissionContext() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) OVERRIDE;

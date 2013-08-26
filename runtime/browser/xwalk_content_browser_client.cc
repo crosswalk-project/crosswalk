@@ -14,6 +14,7 @@
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
@@ -96,6 +97,11 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
+}
+
+content::QuotaPermissionContext*
+XWalkContentBrowserClient::CreateQuotaPermissionContext() {
+  return new RuntimeQuotaPermissionContext();
 }
 
 content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
