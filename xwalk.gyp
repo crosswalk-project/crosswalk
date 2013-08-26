@@ -99,6 +99,8 @@
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_mac.mm',
         'runtime/browser/runtime_platform_util_win.cc',
+        'runtime/browser/runtime_quota_permission_context.cc',
+        'runtime/browser/runtime_quota_permission_context.h',
         'runtime/browser/runtime_registry.cc',
         'runtime/browser/runtime_registry.h',
         'runtime/browser/runtime_select_file_policy.cc',
