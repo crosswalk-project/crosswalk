@@ -5,7 +5,7 @@
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
 #include "base/path_service.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
