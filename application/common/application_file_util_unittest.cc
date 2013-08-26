@@ -9,7 +9,7 @@
 #include "base/json/json_string_value_serializer.h"
 #include "base/path_service.h"
 #include "base/stringprintf.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"

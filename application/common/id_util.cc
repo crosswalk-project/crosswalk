@@ -5,8 +5,8 @@
 #include "xwalk/application/common/id_util.h"
 
 #include "base/files/file_path.h"
-#include "base/string_number_conversions.h"
 #include "base/string_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "crypto/sha2.h"
 
 namespace xwalk {

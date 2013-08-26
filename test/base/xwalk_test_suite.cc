@@ -11,7 +11,7 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/stringprintf.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -24,7 +24,7 @@
 #include "ui/base/resource/resource_handle.h"
 
 #if defined(OS_POSIX)
-#include "base/shared_memory.h"
+#include "base/memory/shared_memory.h"
 #endif
 
 namespace {

@@ -5,7 +5,7 @@
 #ifndef XWALK_EXTENSIONS_TEST_XWALK_EXTENSIONS_TEST_BASE_H_
 #define XWALK_EXTENSIONS_TEST_XWALK_EXTENSIONS_TEST_BASE_H_
 
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 
 namespace xwalk {

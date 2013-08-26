@@ -9,7 +9,7 @@
 #include "base/logging.h"
 #include "base/stringprintf.h"
 #include "base/strings/string_split.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
 namespace errors = xwalk::application_manifest_errors;
