@@ -85,7 +85,8 @@ class FaviconChangedObserver : public xwalk::RuntimeRegistryObserver {
     EXPECT_EQ(image.Size(), icon.Size());
 
     // Quit the message loop.
-    MessageLoop::current()->PostTask(FROM_HERE, MessageLoop::QuitClosure());
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
   }
 
  private:

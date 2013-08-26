@@ -112,7 +112,7 @@ XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
 }
 
 bool XWalkExtensionThreadedRunner::CalledOnExtensionThread() const {
-  return MessageLoop::current() == thread_->message_loop();
+  return base::MessageLoop::current() == thread_->message_loop();
 }
 
 bool XWalkExtensionThreadedRunner::PostTaskToExtensionThread(

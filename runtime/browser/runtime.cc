@@ -106,8 +106,10 @@ Runtime::~Runtime() {
   RuntimeRegistry::Get()->RemoveRuntime(this);
 
   // Quit the app once the last Runtime instance is removed.
-  if (RuntimeRegistry::Get()->runtimes().empty())
-    MessageLoop::current()->PostTask(FROM_HERE, MessageLoop::QuitClosure());
+  if (RuntimeRegistry::Get()->runtimes().empty()) {
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
+  }
 }
 
 void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
@@ -287,8 +289,8 @@ void Runtime::DidUpdateFaviconURL(int32 page_id,
 
   // We only select the first favicon as the window app icon.
   FaviconURL favicon = candidates[0];
-  // Passing 0 as the |image_size| parameter results in only receiving the first bitmap,
-  // according to content/public/browser/web_contents.h
+  // Passing 0 as the |image_size| parameter results in only receiving the first
+  // bitmap, according to content/public/browser/web_contents.h
   web_contents()->DownloadImage(favicon.icon_url, true, 0 /* image size */,
       base::Bind(&Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }

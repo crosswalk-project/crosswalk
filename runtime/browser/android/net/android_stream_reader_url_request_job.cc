@@ -136,7 +136,7 @@ void AndroidStreamReaderURLRequestJob::Start() {
       FROM_HERE,
       base::Bind(
           &OpenInputStreamOnWorkerThread,
-          MessageLoop::current()->message_loop_proxy(),
+          base::MessageLoop::current()->message_loop_proxy(),
           // This is intentional - the job could be deleted while the callback
           // is executing on the background thread.
           // The delegate will be "returned" to the job once the InputStream
