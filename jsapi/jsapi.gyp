@@ -7,7 +7,6 @@
         '<@(schema_files)',
       ],
       'includes': [
-        '../../build/json_schema_bundle_compile.gypi',
         '../../build/json_schema_compile.gypi',
       ],
       'variables': {
