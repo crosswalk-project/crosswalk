@@ -23,8 +23,8 @@ const char* kXWalkModuleSystem = "kXWalkModuleSystem";
 
 XWalkModuleSystem* GetModuleSystemFromArgs(const v8::Arguments& args) {
   v8::HandleScope handle_scope(args.GetIsolate());
-  v8::Local<v8::Object> data = args.Data().As<v8::Object>();
-  v8::Local<v8::Value> module_system =
+  v8::Handle<v8::Object> data = args.Data().As<v8::Object>();
+  v8::Handle<v8::Value> module_system =
       data->Get(v8::String::New(kXWalkModuleSystem));
   if (module_system.IsEmpty() || module_system->IsUndefined()) {
     LOG(WARNING) << "Trying to use requireNative from already "
@@ -57,13 +57,15 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
   v8::Isolate* isolate = context->GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
-  function_data_ = v8::Persistent<v8::Object>::New(isolate, v8::Object::New());
-  function_data_->Set(v8::String::New(kXWalkModuleSystem),
-                      v8::External::New(this));
+  v8::Handle<v8::Object> function_data = v8::Object::New();
+  function_data->Set(v8::String::New(kXWalkModuleSystem),
+                     v8::External::New(this));
+  v8::Handle<v8::FunctionTemplate> require_native_template =
+      v8::FunctionTemplate::New(RequireNativeCallback, function_data);
 
-  require_native_template_ = v8::Persistent<v8::FunctionTemplate>(
-      isolate,
-      v8::FunctionTemplate::New(RequireNativeCallback, function_data_));
+  function_data_ = v8::Persistent<v8::Object>::New(isolate, function_data);
+  require_native_template_ = v8::Persistent<v8::FunctionTemplate>::New(
+      isolate, require_native_template);
 }
 
 XWalkModuleSystem::~XWalkModuleSystem() {
@@ -80,12 +82,14 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   }
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
 
   // Deleting the data will disable the functions, they'll return early. We do
   // this because it might be the case that the JS objects we created outlive
   // this object, even if we destroy the references we have.
   // TODO(cmarcelo): Add a test for this case.
-  function_data_->Delete(v8::String::New(kXWalkModuleSystem));
+  v8::Handle<v8::Object> function_data = function_data_;
+  function_data->Delete(v8::String::New(kXWalkModuleSystem));
 
   require_native_template_.Dispose(isolate);
   require_native_template_.Clear();
@@ -122,7 +126,11 @@ void XWalkModuleSystem::RegisterExtensionModule(
   CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
   // TODO(cmarcelo): Setup lazy loader instead of immediatly running
   // JS API code.
-  module->LoadExtensionCode(context, require_native_template_->GetFunction());
+  v8::Isolate* isolate = context->GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Handle<v8::FunctionTemplate> require_native_template =
+      require_native_template_;
+  module->LoadExtensionCode(context, require_native_template->GetFunction());
   extension_modules_[extension_name] = module.release();
 }
 

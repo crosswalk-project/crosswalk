@@ -47,8 +47,6 @@ class XWalkExtensionModule {
   std::string extension_name() const { return extension_name_; }
 
  private:
-  void SetFunction(const char* name, v8::InvocationCallback callback);
-
   // Callbacks for JS functions available in 'extension' object.
   static v8::Handle<v8::Value> PostMessageCallback(const v8::Arguments& args);
   static v8::Handle<v8::Value> SendSyncMessageCallback(
