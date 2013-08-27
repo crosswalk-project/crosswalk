@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// Crosswalk Dialog API
 namespace dialog {
   callback ShowOpenDialogSuccessCallback = void (DOMString[] selected_paths);
   callback ShowSaveDialogSuccessCallback = void (DOMString new_file_path);
