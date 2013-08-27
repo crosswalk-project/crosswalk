@@ -34,25 +34,37 @@ XWalkExtensionModule::XWalkExtensionModule(
 
   v8::Isolate* isolate = context->GetIsolate();
   v8::HandleScope handle_scope(isolate);
-  function_data_ = v8::Persistent<v8::Object>::New(isolate, v8::Object::New());
-  function_data_->Set(v8::String::New(kXWalkExtensionModule),
-                      v8::External::New(this));
+  v8::Handle<v8::Object> function_data = v8::Object::New();
+  function_data->Set(v8::String::New(kXWalkExtensionModule),
+                     v8::External::New(this));
 
-  object_template_ =
-      v8::Persistent<v8::ObjectTemplate>(isolate, v8::ObjectTemplate::New());
-  SetFunction("postMessage", PostMessageCallback);
-  SetFunction("sendSyncMessage", SendSyncMessageCallback);
-  SetFunction("setMessageListener", SetMessageListenerCallback);
+  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  object_template->Set(
+      "postMessage",
+      v8::FunctionTemplate::New(PostMessageCallback, function_data));
+  object_template->Set(
+      "sendSyncMessage",
+      v8::FunctionTemplate::New(SendSyncMessageCallback, function_data));
+  object_template->Set(
+      "setMessageListener",
+      v8::FunctionTemplate::New(SetMessageListenerCallback, function_data));
+
+  function_data_ = v8::Persistent<v8::Object>::New(isolate, function_data);
+  object_template_= v8::Persistent<v8::ObjectTemplate>::New(
+      isolate, object_template);
 }
 
 XWalkExtensionModule::~XWalkExtensionModule() {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+
   // Deleting the data will disable the functions, they'll return early. We do
   // this because it might be the case that the JS objects we created outlive
   // this object, even if we destroy the references we have.
   // TODO(cmarcelo): Add a test for this case.
-  function_data_->Delete(v8::String::New(kXWalkExtensionModule));
+  v8::Handle<v8::Object> function_data = function_data_;
+  function_data->Delete(v8::String::New(kXWalkExtensionModule));
 
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   object_template_.Dispose(isolate);
   object_template_.Clear();
   function_data_.Dispose(isolate);
@@ -66,14 +78,16 @@ void XWalkExtensionModule::DispatchMessageToListener(
   if (message_listener_.IsEmpty())
     return;
 
-  v8::HandleScope handle_scope(context->GetIsolate());
+  v8::Isolate* isolate = context->GetIsolate();
+  v8::HandleScope handle_scope(isolate);
   v8::Context::Scope context_scope(context);
 
   v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));
+  v8::Handle<v8::Function> message_listener = message_listener_;
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
-  message_listener_->Call(context->Global(), 1, &v8_value);
+  message_listener->Call(context->Global(), 1, &v8_value);
   if (try_catch.HasCaught())
     LOG(WARNING) << "Exception when running message listener";
 }
@@ -155,10 +169,11 @@ void XWalkExtensionModule::LoadExtensionCode(
   }
   v8::Handle<v8::Function> callable_api_code =
       v8::Handle<v8::Function>::Cast(result);
+  v8::Handle<v8::ObjectTemplate> object_template = object_template_;
 
   const int argc = 2;
   v8::Handle<v8::Value> argv[argc] = {
-    object_template_->NewInstance(),
+    object_template->NewInstance(),
     requireNative
   };
 
@@ -261,12 +276,6 @@ XWalkExtensionModule* XWalkExtensionModule::GetExtensionModuleFromArgs(
   }
   CHECK(module->IsExternal());
   return static_cast<XWalkExtensionModule*>(module.As<v8::External>()->Value());
-}
-
-void XWalkExtensionModule::SetFunction(const char* name,
-                                  v8::InvocationCallback callback) {
-  object_template_->Set(
-      name, v8::FunctionTemplate::New(callback, function_data_));
 }
 
 }  // namespace extensions
