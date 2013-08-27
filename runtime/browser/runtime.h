@@ -93,9 +93,7 @@ class Runtime : public content::WebContentsDelegate,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
   virtual content::ColorChooser* OpenColorChooser(
       content::WebContents* web_contents,
-      int color_chooser_id,
-      SkColor color) OVERRIDE;
-  virtual void DidEndColorChooser() OVERRIDE;
+      SkColor initial_color) OVERRIDE;
   virtual void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) OVERRIDE;
@@ -113,6 +111,7 @@ class Runtime : public content::WebContentsDelegate,
 
   // Callback method for WebContents::DownloadImage.
   void DidDownloadFavicon(int id,
+                          int http_status_code,
                           const GURL& image_url,
                           int requested_size,
                           const std::vector<SkBitmap>& bitmaps);
@@ -139,10 +138,6 @@ class Runtime : public content::WebContentsDelegate,
   gfx::Image app_icon_;
 
   base::WeakPtrFactory<Runtime> weak_ptr_factory_;
-
-  // Currently open color chooser. Non-NULL after OpenColorChooser is called and
-  // before DidEndColorChooser is called.
-  scoped_ptr<content::ColorChooser> color_chooser_;
 
   // Fullscreen options.
   enum FullscreenOptions {

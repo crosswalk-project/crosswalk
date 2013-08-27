@@ -44,7 +44,7 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 
 content::RenderViewHost* XWalkDevToolsDelegate::CreateNewTarget() {
   Runtime* runtime = Runtime::Create(runtime_context_,
-                                     GURL(chrome::kAboutBlankURL));
+                                     GURL(content::kAboutBlankURL));
   return runtime->web_contents()->GetRenderViewHost();
 }
 

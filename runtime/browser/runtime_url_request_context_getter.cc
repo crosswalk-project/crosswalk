@@ -29,6 +29,8 @@
 #include "net/ssl/default_server_bound_cert_store.h"
 #include "net/ssl/server_bound_cert_service.h"
 #include "net/ssl/ssl_config_service_defaults.h"
+#include "net/url_request/data_protocol_handler.h"
+#include "net/url_request/file_protocol_handler.h"
 #include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
@@ -36,7 +38,6 @@
 #include "net/url_request/url_request_job_factory_impl.h"
 
 #if defined(OS_ANDROID)
-#include "net/url_request/file_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/xwalk_url_request_job_factory.h"
 #endif
@@ -158,6 +159,14 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
         new net::URLRequestJobFactoryImpl());
     InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
+    bool set_protocol = job_factory->SetProtocolHandler(
+        chrome::kDataScheme,
+        new net::DataProtocolHandler);
+    DCHECK(set_protocol);
+    set_protocol = job_factory->SetProtocolHandler(
+        chrome::kFileScheme,
+        new net::FileProtocolHandler);
+    DCHECK(set_protocol);
     storage_->set_job_factory(job_factory.release());
   }
 
