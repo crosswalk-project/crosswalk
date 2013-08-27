@@ -410,11 +410,11 @@
             },
           },
         }],  # OS=="win"
-        ['OS == "win" or (toolkit_uses_gtk == 1 and selinux == 0)', {
+        ['OS == "win" or toolkit_uses_gtk == 1', {
           'dependencies': [
             '../sandbox/sandbox.gyp:sandbox',
           ],
-        }],  # OS=="win" or (toolkit_uses_gtk == 1 and selinux == 0)
+        }],  # OS=="win" or toolkit_uses_gtk == 1
         ['OS == "linux"', {
           'dependencies': [
             # Build osmesa to workaround egl backend issue on Tizen 2.1 emulator
