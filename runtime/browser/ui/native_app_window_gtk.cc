@@ -6,7 +6,7 @@
 
 #include <gdk/gdk.h>
 
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_view_host.h"

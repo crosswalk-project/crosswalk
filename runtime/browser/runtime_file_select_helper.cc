@@ -11,7 +11,7 @@
 #include "base/platform_file.h"
 #include "base/string_util.h"
 #include "base/strings/string_split.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/runtime_select_file_policy.h"
 #include "content/public/browser/browser_thread.h"

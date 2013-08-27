@@ -9,7 +9,7 @@
 #include "base/process_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/utf_string_conversions.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
@@ -85,7 +85,8 @@ class FaviconChangedObserver : public xwalk::RuntimeRegistryObserver {
     EXPECT_EQ(image.Size(), icon.Size());
 
     // Quit the message loop.
-    MessageLoop::current()->PostTask(FROM_HERE, MessageLoop::QuitClosure());
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
   }
 
  private:
