@@ -19,6 +19,7 @@ import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.LoadUrlParams;
+import org.chromium.content.browser.NavigationHistory;
 import org.chromium.ui.WindowAndroid;
 
 @JNINamespace("xwalk")
@@ -143,6 +144,35 @@ public class XWalkContent extends FrameLayout {
     public void clearCache(boolean includeDiskFiles) {
         if (mXWalkContent == 0) return;
         nativeClearCache(mXWalkContent, includeDiskFiles);
+    }
+
+    public boolean canGoBack() {
+        return mContentView.canGoBack();
+    }
+
+    public void goBack() {
+        mContentView.goBack();
+    }
+
+    public boolean canGoForward() {
+        return mContentView.canGoForward();
+    }
+
+    public void goForward() {
+        mContentView.goForward();
+    }
+
+    public void stopLoading() {
+        mContentView.stopLoading();
+    }
+
+    public String getOriginalUrl() {
+        NavigationHistory history = mContentViewCore.getNavigationHistory();
+        int currentIndex = history.getCurrentEntryIndex();
+        if (currentIndex >= 0 && currentIndex < history.getEntryCount()) {
+            return history.getEntryAtIndex(currentIndex).getOriginalUrl();
+        }
+        return null;
     }
 
     // For instrumentation test.
