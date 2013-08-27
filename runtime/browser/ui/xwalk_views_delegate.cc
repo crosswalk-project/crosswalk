@@ -9,6 +9,7 @@
 
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/native_widget_aura.h"
+#include "xwalk/runtime/browser/ui/desktop_root_window_host_xwalk.h"
 
 namespace xwalk {
 
@@ -27,7 +28,13 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
   if (params->parent && params->type != views::Widget::InitParams::TYPE_MENU) {
     params->native_widget = new views::NativeWidgetAura(delegate);
   } else if (!params->parent && !params->context) {
-    params->native_widget = new views::DesktopNativeWidgetAura(delegate);
+    views::DesktopNativeWidgetAura* desktop_native_widget =
+        new views::DesktopNativeWidgetAura(delegate);
+    params->native_widget = desktop_native_widget;
+    // Provide our own desktop_root_window_host instead of using one provided
+    // by views::DesktopNativeWidgetAura.
+    params->desktop_root_window_host = new views::DesktopRootWindowHostXWalk(
+        delegate, desktop_native_widget, params->bounds);
   }
 }
 
