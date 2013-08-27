@@ -35,16 +35,6 @@
 #include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
 
-#if defined(USE_AURA)
-
-namespace {
-
-views::ViewsDelegate* g_views_delegate_ = NULL;
-
-}  // namespace
-
-#endif  // defined(USE_AURA)
-
 namespace xwalk {
 
 NativeAppWindowViews::NativeAppWindowViews(
@@ -295,10 +285,10 @@ NativeAppWindow* NativeAppWindow::Create(
 // static
 void NativeAppWindow::Initialize() {
 #if !defined(OS_WIN) && defined(USE_AURA)
-  CHECK(!g_views_delegate_);
+  CHECK(!views::ViewsDelegate::views_delegate);
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
-  g_views_delegate_ = new XWalkViewsDelegate();
+  views::ViewsDelegate::views_delegate = new XWalkViewsDelegate();
 #endif
 }
 

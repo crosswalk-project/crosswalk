@@ -7,7 +7,7 @@
 
 #if !defined(OS_WIN) && defined(USE_AURA)
 
-#include "ui/views/test/desktop_test_views_delegate.h"
+#include "ui/views/test/test_views_delegate.h"
 
 namespace xwalk {
 
@@ -15,13 +15,15 @@ namespace xwalk {
 
 // Views delegate implementation for Crosswalk. Controls application-wide
 // aspects of Views toolkit system.
-class XWalkViewsDelegate : public views::DesktopTestViewsDelegate {
+class XWalkViewsDelegate : public views::TestViewsDelegate {
  public:
   XWalkViewsDelegate();
   virtual ~XWalkViewsDelegate();
 
   // views::TestViewsDelegate implementation.
-  virtual bool UseTransparentWindows() const OVERRIDE;
+  virtual void OnBeforeWidgetInit(
+      views::Widget::InitParams* params,
+      views::internal::NativeWidgetDelegate* delegate) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkViewsDelegate);
