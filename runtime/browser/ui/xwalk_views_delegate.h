@@ -7,20 +7,43 @@
 
 #if !defined(OS_WIN) && defined(USE_AURA)
 
-#include "ui/views/test/test_views_delegate.h"
+#include <string>
+#include "ui/views/views_delegate.h"
 
 namespace xwalk {
 
-// TODO(cmarcelo): Remove usage of the test views delegate.
-
 // Views delegate implementation for Crosswalk. Controls application-wide
 // aspects of Views toolkit system.
-class XWalkViewsDelegate : public views::TestViewsDelegate {
+class XWalkViewsDelegate : public views::ViewsDelegate {
  public:
   XWalkViewsDelegate();
   virtual ~XWalkViewsDelegate();
 
-  // views::TestViewsDelegate implementation.
+  // views::ViewsDelegate implementation.
+  virtual void SaveWindowPlacement(const views::Widget* widget,
+                                   const std::string& window_name,
+                                   const gfx::Rect& bounds,
+                                   ui::WindowShowState show_state) OVERRIDE {}
+  virtual bool GetSavedWindowPlacement(
+      const std::string& window_name,
+      gfx::Rect* bounds,
+      ui::WindowShowState* show_state) const OVERRIDE { return false; }
+  virtual void NotifyAccessibilityEvent(
+      views::View* view,
+      ui::AccessibilityTypes::Event event_type) OVERRIDE {}
+  virtual void NotifyMenuItemFocused(const string16& menu_name,
+                                     const string16& menu_item_name,
+                                     int item_index,
+                                     int item_count,
+                                     bool has_submenu) OVERRIDE {}
+  virtual views::NonClientFrameView* CreateDefaultNonClientFrameView(
+      views::Widget* widget) OVERRIDE { return NULL; }
+  virtual bool UseTransparentWindows() const OVERRIDE { return false; }
+  virtual void AddRef() OVERRIDE {}
+  virtual void ReleaseRef() OVERRIDE {}
+  virtual content::WebContents* CreateWebContents(
+      content::BrowserContext* browser_context,
+      content::SiteInstance* site_instance) OVERRIDE { return NULL; }
   virtual void OnBeforeWidgetInit(
       views::Widget::InitParams* params,
       views::internal::NativeWidgetDelegate* delegate) OVERRIDE;
