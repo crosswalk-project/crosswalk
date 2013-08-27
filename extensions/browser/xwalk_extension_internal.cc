@@ -21,16 +21,6 @@ XWalkInternalExtensionInstance::XWalkInternalExtensionInstance() {
 XWalkInternalExtensionInstance::~XWalkInternalExtensionInstance() {
 }
 
-XWalkInternalExtensionInstance::FunctionHandler*
-    XWalkInternalExtensionInstance::GetHandlerForFunction(
-    const std::string& function) {
-  FunctionHandlerMap::iterator iter = handlers_.find(function);
-  if (iter == handlers_.end())
-    return NULL;
-
-  return &iter->second;
-}
-
 void XWalkInternalExtensionInstance::HandleMessage(
     scoped_ptr<base::Value> msg) {
   base::ListValue* args;
@@ -57,17 +47,15 @@ void XWalkInternalExtensionInstance::HandleMessage(
     return;
   }
 
-  FunctionHandler* handler = GetHandlerForFunction(function_name);
-  if (!handler) {
-    DLOG(WARNING) << "Function not registered: " << function_name;
-    return;
-  }
-
   // We reuse args to pass the extra arguments to the handler, so remove
   // function_name and callback_id from it.
   args->Remove(0, NULL);
   args->Remove(0, NULL);
-  handler->Run(function_name, callback_id, args);
+
+  if (!handler_.HandleFunction(function_name, callback_id, args)) {
+    DLOG(WARNING) << "Function not registered: " << function_name;
+    return;
+  }
 }
 
 void XWalkInternalExtensionInstance::PostResult(

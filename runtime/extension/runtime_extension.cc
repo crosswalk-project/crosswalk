@@ -25,7 +25,8 @@ XWalkExtensionInstance* RuntimeExtension::CreateInstance() {
 
 RuntimeInstance::RuntimeInstance()
   : XWalkInternalExtensionInstance() {
-  RegisterFunction("getAPIVersion", &RuntimeInstance::OnGetAPIVersion);
+  handler_.Register("getAPIVersion",
+      base::Bind(&RuntimeInstance::OnGetAPIVersion, base::Unretained(this)));
 }
 
 void RuntimeInstance::OnGetAPIVersion(

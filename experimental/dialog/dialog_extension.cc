@@ -50,8 +50,10 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
 DialogInstance::DialogInstance(DialogExtension* extension)
   : extension_(extension),
     dialog_(NULL) {
-  RegisterFunction("showOpenDialog", &DialogInstance::OnShowOpenDialog);
-  RegisterFunction("showSaveDialog", &DialogInstance::OnShowSaveDialog);
+  handler_.Register("showOpenDialog",
+      base::Bind(&DialogInstance::OnShowOpenDialog, base::Unretained(this)));
+  handler_.Register("showSaveDialog",
+      base::Bind(&DialogInstance::OnShowSaveDialog, base::Unretained(this)));
 }
 
 DialogInstance::~DialogInstance() {

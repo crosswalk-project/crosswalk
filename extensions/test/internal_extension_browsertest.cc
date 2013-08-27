@@ -33,12 +33,21 @@ XWalkExtensionInstance* TestExtension::CreateInstance() {
 
 TestExtensionInstance::TestExtensionInstance()
     : XWalkInternalExtensionInstance() {
-  RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
-  RegisterFunction("addPerson", &TestExtensionInstance::OnAddPerson);
-  RegisterFunction("addPersonObject",
-      &TestExtensionInstance::OnAddPersonObject);
-  RegisterFunction("getAllPersons", &TestExtensionInstance::OnGetAllPersons);
-  RegisterFunction("getPersonAge", &TestExtensionInstance::OnGetPersonAge);
+  handler_.Register("clearDatabase",
+      base::Bind(&TestExtensionInstance::OnClearDatabase,
+                 base::Unretained(this)));
+  handler_.Register("addPerson",
+      base::Bind(&TestExtensionInstance::OnAddPerson,
+                 base::Unretained(this)));
+  handler_.Register("addPersonObject",
+      base::Bind(&TestExtensionInstance::OnAddPersonObject,
+                 base::Unretained(this)));
+  handler_.Register("getAllPersons",
+      base::Bind(&TestExtensionInstance::OnGetAllPersons,
+                 base::Unretained(this)));
+  handler_.Register("getPersonAge",
+      base::Bind(&TestExtensionInstance::OnGetPersonAge,
+                 base::Unretained(this)));
 }
 
 void TestExtensionInstance::OnClearDatabase(const std::string&,
