@@ -28,7 +28,6 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
  public:
   explicit XWalkExtensionMessageFilter(
       XWalkExtensionWebContentsHandler* handler);
-  virtual ~XWalkExtensionMessageFilter();
 
   void PostMessage(const XWalkExtensionRunner* runner,
                    scoped_ptr<base::Value> msg);
@@ -40,6 +39,9 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
                                  bool* message_was_ok) OVERRIDE;
 
  private:
+  friend class content::BrowserMessageFilter;
+  virtual ~XWalkExtensionMessageFilter();
+
   // IPC message handlers.
   void OnPostMessage(int64_t frame_id, const std::string& extension_name,
                      const base::ListValue& msg);
