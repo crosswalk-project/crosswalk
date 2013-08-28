@@ -69,7 +69,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   bool updated_;
   int fd_;
   std::string shm_name_;
-  struct ecore_ipc_msg_header current_msg_header_;
+  struct EcoreIPCMsgHeader current_msg_header_;
 
   DISALLOW_COPY_AND_ASSIGN(TizenSystemIndicatorWatcher);
 };

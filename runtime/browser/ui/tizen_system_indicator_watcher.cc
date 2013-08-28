@@ -132,8 +132,8 @@ class HeaderParser {
  public:
   HeaderParser(unsigned int instructions,
                uint8_t* payload,
-               struct ecore_ipc_msg_header* prev_header,
-               struct ecore_ipc_msg_header* next_header)
+               struct EcoreIPCMsgHeader* prev_header,
+               struct EcoreIPCMsgHeader* next_header)
       : instructions_(instructions),
         payload_(payload),
         prev_(prev_header),
@@ -227,8 +227,8 @@ class HeaderParser {
 
   unsigned int instructions_;
   uint8_t* payload_;
-  struct ecore_ipc_msg_header* prev_;
-  struct ecore_ipc_msg_header* next_;
+  struct EcoreIPCMsgHeader* prev_;
+  struct EcoreIPCMsgHeader* next_;
 };
 
 bool ReadSafe(int fd, uint8_t* buffer, size_t len) {
@@ -249,7 +249,6 @@ bool ReadSafe(int fd, uint8_t* buffer, size_t len) {
 }
 
 }  // namespace
-
 
 size_t TizenSystemIndicatorWatcher::GetHeaderSize(unsigned int
                                                   header_instructions) {
@@ -295,7 +294,7 @@ bool TizenSystemIndicatorWatcher::GetHeader() {
     return false;
   }
 
-  struct ecore_ipc_msg_header next_msg_header;
+  struct EcoreIPCMsgHeader next_msg_header;
   HeaderParser parser(header_instructions, header_payload.get(),
                       &current_msg_header_, &next_msg_header);
   parser.Parse();
