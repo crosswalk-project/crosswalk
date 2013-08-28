@@ -40,13 +40,6 @@ def Find(name, path):
 
 
 def Customize(options):
-  manifest_template = "app_src/AndroidManifest.xml.template"
-  if not os.path.isfile(manifest_template):
-    print ('Please make sure that the template'
-           ' manifest file do exist.')
-    sys.exit(7)
-  shutil.copyfile("app_src/AndroidManifest.xml.template",
-                  "app_src/AndroidManifest.xml")
   package = '--package=org.xwalk.app.template'
   if options.package:
     package = '--package=%s' % options.package
@@ -55,15 +48,22 @@ def Customize(options):
     name = '--name=%s' % options.name
   icon = ''
   if options.icon:
-    icon = '--icon=%s' % options.icon
-  url =  '--url=index.html'
-  if options.url:
-    url = '--url=%s' % options.url
+    icon = '--icon=%s' % os.path.expanduser(options.icon)
+  entry_url =  ''
+  if options.entry_url:
+    entry_url = '--entry_url=%s' % options.entry_url
+  entry_root = ''
+  if options.entry_root:
+    entry_root = '--entry_root=%s' % os.path.expanduser(options.entry_root)
+  entry_path = 'index.html'
+  if options.entry_path:
+    entry_path = '--entry_path=%s' % options.entry_path
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
   proc = subprocess.Popen(['python', 'customize.py', package,
-                           name, icon, url, fullscreen_flag],
+                           name, icon, entry_url,
+                           entry_root, entry_path, fullscreen_flag],
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
@@ -114,19 +114,20 @@ def Execution(apk_name):
     print "Please install ant first."
     sys.exit(4)
 
+  manifest_path = '%s/AndroidManifest.xml' % apk_name
   proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
                            '-DAAPT_PATH=%s' % aapt_path,
                            '-DADDITIONAL_RES_DIRS=',
                            '-DADDITIONAL_RES_PACKAGES=',
                            '-DADDITIONAL_R_TEXT_FILES=',
-                           '-DANDROID_MANIFEST=app_src/AndroidManifest.xml',
+                           '-DANDROID_MANIFEST=%s' % manifest_path,
                            '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
                            '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
                            '-DANDROID_SDK_VERSION=%d' % api_level,
                            '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
                            '-DLIBRARY_MANIFEST_PATHS=',
                            '-DOUT_DIR=out',
-                           '-DRESOURCE_DIR=app_src/res',
+                           '-DRESOURCE_DIR=%s/res' % apk_name,
                            '-DSTAMP=codegen.stamp',
                            '-Dbasedir=.',
                            '-buildfile',
@@ -148,7 +149,7 @@ def Execution(apk_name):
   proc = subprocess.Popen(['python', 'scripts/gyp/javac.py',
                            '--output-dir=out/classes',
                            classpath,
-                           '--src-dirs=app_src/src \"out/gen\"',
+                           '--src-dirs=%s/src \"out/gen\"' % apk_name,
                            '--javac-includes=',
                            '--chromium-code=0',
                            '--stamp=compile.stam'],
@@ -167,10 +168,10 @@ def Execution(apk_name):
                            '-DAPK_NAME=%s' % apk_name,
                            '-DAPP_MANIFEST_VERSION_CODE=0',
                            '-DAPP_MANIFEST_VERSION_NAME=Developer Build',
-                           '-DASSET_DIR=app_src/assets',
+                           '-DASSET_DIR=%s/assets' % apk_name,
                            '-DCONFIGURATION_NAME=Release',
                            '-DOUT_DIR=out',
-                           '-DRESOURCE_DIR=app_src/res',
+                           '-DRESOURCE_DIR=%s/res' % apk_name,
                            '-DSTAMP=package_resources.stamp',
                            '-Dbasedir=.',
                            '-buildfile',
@@ -204,7 +205,7 @@ def Execution(apk_name):
                            '-DAPK_NAME=%s' % apk_name,
                            '-DCONFIGURATION_NAME=Release',
                            '-DOUT_DIR=out',
-                           '-DSOURCE_DIR=app_src/src',
+                           '-DSOURCE_DIR=%s/src' % apk_name,
                            '-DUNSIGNED_APK_PATH=out/app-unsigned.apk',
                            '-Dbasedir=.',
                            '-buildfile',
@@ -226,6 +227,9 @@ def Execution(apk_name):
   dst_file = '%s.apk' % apk_name
   shutil.copyfile(src_file, dst_file)
 
+  if os.path.exists('out/'):
+    shutil.rmtree('out/')
+
 
 def main():
   parser = optparse.OptionParser()
@@ -236,9 +240,18 @@ def main():
   parser.add_option('--name', help=info)
   info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
   parser.add_option('--icon', help=info)
-  info = ('The url of this application. Such as: '
-          '--url=index.html or --url=http://www.intel.com')
-  parser.add_option('--url', help=info)
+  info = ('The url of this application. '
+          'This flag allows to package website as apk. Such as: '
+          '--entry_url=http://www.intel.com')
+  parser.add_option('--entry_url', help=info)
+  info = ('The root path of the web app. '
+          'This flag allows to package local web app as apk. Such as: '
+          '--entry_root=/root/path/of/the/web/app')
+  parser.add_option('--entry_root', help=info)
+  info = ('The reletive path of entry file based on |entry_root|. '
+          'This flag should work with "--entry_root" together. '
+          'Such as: --entry_path=/reletive/path/of/entry/file')
+  parser.add_option('--entry_path', help=info)
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
