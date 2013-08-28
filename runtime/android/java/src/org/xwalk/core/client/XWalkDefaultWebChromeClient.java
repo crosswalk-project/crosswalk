@@ -4,6 +4,7 @@
 
 package org.xwalk.core.client;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,12 +12,16 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebStorage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import org.xwalk.core.JsPromptResult;
 import org.xwalk.core.JsResult;
@@ -36,9 +41,14 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     private Context mContext;
     private AlertDialog mDialog;
     private EditText mPromptText;
+    private View mCustomView;
+    private XWalkView mView;
+    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
+    private boolean mOriginalFullscreen;
 
-    public XWalkDefaultWebChromeClient(Context context) {
+    public XWalkDefaultWebChromeClient(Context context, XWalkView view) {
         mContext = context;
+        mView = view;
         initResources(context);
     }
 
@@ -124,5 +134,59 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
         mDialog = dialogBuilder.create();
         mDialog.show();
         return false;
+    }
+
+    @Override
+    public void onShowCustomView(View view, CustomViewCallback callback) {
+        Activity activity = mView.getActivity();
+
+        if (mCustomView != null || activity == null) {
+            callback.onCustomViewHidden();
+            return;
+        }
+
+        mCustomView = view;
+        mCustomViewCallback = callback;
+
+        if ((activity.getWindow().getAttributes().flags &
+                WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
+            mOriginalFullscreen = true;
+        } else {
+            mOriginalFullscreen = false;
+        }
+
+        // Set the activity to be fullscreen first.
+        if (!mOriginalFullscreen) {
+            activity.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+
+        // Add the video view to the activity's ContentView.
+        activity.getWindow().addContentView(view,
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER));
+    }
+
+    @Override
+    public void onHideCustomView() {
+        Activity activity = mView.getActivity();
+
+        if (mCustomView == null || activity == null) return;
+
+        // Clear the activity fullscreen flag.
+        if (!mOriginalFullscreen) {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+
+        // Remove video view from activity's ContentView.
+        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
+        decor.removeView(mCustomView);
+        mCustomViewCallback.onCustomViewHidden();
+
+        mCustomView = null;
+        mCustomViewCallback = null;
     }
 }
