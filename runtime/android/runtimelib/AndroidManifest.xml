@@ -10,7 +10,7 @@
     package="org.xwalk.runtime.lib">
 
     <application android:name="org.xwalk.runtime.lib.RuntimeLibApplication"
-        android:label="XWalkRuntimeLib" android:hardwareAccelerated="true">
+        android:label="XWalkRuntimeLib" android:hardwareAccelerated="true" android:icon="@drawable/xwalk_icon">
     </application>
 
   <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
