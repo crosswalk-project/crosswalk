@@ -134,6 +134,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     else:
       self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
     self._deps = None
+    self._vars = None
     self._chromium_version = None
     self._ParseDepsFile()
     if not 'src' in self._deps:
@@ -154,6 +155,7 @@ class DepsFetcher(gclient_utils.WorkItem):
 
     execfile(self._deps_file, exec_globals)
     self._deps = exec_globals['deps_xwalk']
+    self._vars = exec_globals['vars_xwalk']
     self._chromium_version = exec_globals['chromium_version']
 
   @property
@@ -216,6 +218,8 @@ class DepsFetcher(gclient_utils.WorkItem):
           'http://src.chromium.org/svn/releases/%s' % self._chromium_version
     self.AddIgnorePathFromEnv()
     solution['custom_deps'] = self._deps
+    if self._vars:
+      solution['custom_vars'] = self._vars
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
