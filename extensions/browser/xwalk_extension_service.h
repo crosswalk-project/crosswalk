@@ -43,8 +43,6 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   // XWalkContentBrowserClient::RenderProcessHostCreated().
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
-  XWalkExtension* GetExtensionForName(const std::string& name);
-
   void CreateRunnersForHandler(XWalkExtensionWebContentsHandler* handler,
                                int64_t frame_id);
 

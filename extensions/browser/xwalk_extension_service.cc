@@ -159,15 +159,6 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
     CreateWebContentsHandler(render_process_host_, runtimes[i]->web_contents());
 }
 
-XWalkExtension* XWalkExtensionService::GetExtensionForName(
-    const std::string& name) {
-  base::AutoLock lock(extensions_lock_);
-  ExtensionMap::iterator it = extensions_.find(name);
-  if (it == extensions_.end())
-    return NULL;
-  return it->second;
-}
-
 void XWalkExtensionService::CreateRunnersForHandler(
     XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
   // FIXME(tmpsantos) The main reason why we need this lock here is
