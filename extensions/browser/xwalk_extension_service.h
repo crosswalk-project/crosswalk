@@ -32,9 +32,9 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   explicit XWalkExtensionService(RuntimeRegistry* runtime_registry);
   virtual ~XWalkExtensionService();
 
-  // Takes |extension| ownership. Returns false if it couldn't be registered
-  // because another one with the same name exists, otherwise returns true.
-  bool RegisterExtension(XWalkExtension* extension);
+  // Returns false if it couldn't be registered because another one with the
+  // same name exists, otherwise returns true.
+  bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
 

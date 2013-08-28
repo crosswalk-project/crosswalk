@@ -76,7 +76,8 @@ bool ValidateExtensionName(const std::string& extension_name) {
 
 }  // namespace
 
-bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
+bool XWalkExtensionService::RegisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
   // Note: for now we only support registering new extensions before
   // render process hosts were created.
   CHECK(!render_process_host_);
@@ -88,7 +89,7 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   }
 
   base::AutoLock lock(in_process_extensions_lock_);
-  return in_process_extensions_.RegisterExtension(make_scoped_ptr(extension));
+  return in_process_extensions_.RegisterExtension(extension.Pass());
 }
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
@@ -117,12 +118,12 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
       scoped_ptr<XWalkExternalExtension> extension(
           new XWalkExternalExtension(extension_path, library.Release()));
       if (extension->is_valid())
-        RegisterExtension(extension.release());
+        RegisterExtension(extension.PassAs<XWalkExtension>());
     } else if (library.GetFunctionPointer("xwalk_extension_init")) {
       scoped_ptr<old::XWalkExternalExtension> extension(
           new old::XWalkExternalExtension(library.Release()));
       if (extension->is_valid())
-        RegisterExtension(extension.release());
+        RegisterExtension(extension.PassAs<XWalkExtension>());
     } else {
       LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
                    << " as external extension because"

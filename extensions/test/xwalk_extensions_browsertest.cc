@@ -73,9 +73,13 @@ class ExtensionWithInvalidName : public XWalkExtension {
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    ASSERT_TRUE(extension_service->RegisterExtension(new EchoExtension));
-    ASSERT_FALSE(
-        extension_service->RegisterExtension(new ExtensionWithInvalidName));
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new EchoExtension));
+    ASSERT_TRUE(registered);
+
+    bool invalid_registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new ExtensionWithInvalidName));
+    ASSERT_FALSE(invalid_registered);
   }
 };
 

@@ -13,6 +13,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 
+using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionService;
 using xwalk::extensions::XWalkExternalExtension;
 
@@ -35,7 +36,7 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
     XWalkExternalExtension* extension =
         new XWalkExternalExtension(extension_file);
     ASSERT_TRUE(extension->is_valid());
-    extension_service->RegisterExtension(extension);
+    extension_service->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
   }
 };
 
