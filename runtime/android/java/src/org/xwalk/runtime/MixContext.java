@@ -18,25 +18,30 @@ import android.content.ServiceConnection;
  *
  */
 public class MixContext extends ContextWrapper {
-    private Context mAppCtx;
+    private Context mActivityCtx;
 
-    public MixContext(Context base, Context app) {
+    public MixContext(Context base, Context activity) {
         super(base);
-        mAppCtx = app.getApplicationContext();
+        mActivityCtx = activity;
     }
 
     @Override
     public Context getApplicationContext() {
-        return mAppCtx;
+        return mActivityCtx.getApplicationContext();
     }
 
     @Override
     public boolean bindService(Intent in, ServiceConnection conn, int flags) {
-        return mAppCtx.bindService(in, conn, flags);
+        return getApplicationContext().bindService(in, conn, flags);
     }
 
     @Override
     public void unbindService(ServiceConnection conn) {
-        mAppCtx.unbindService(conn);
+        getApplicationContext().unbindService(conn);
+    }
+
+    @Override
+    public Object getSystemService(String name) {
+        return mActivityCtx.getSystemService(name);
     }
 }
