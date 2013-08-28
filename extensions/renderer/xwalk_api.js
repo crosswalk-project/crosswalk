@@ -20,6 +20,8 @@ xwalk._setupExtensionInternal = function(extension_obj) {
       // message handler.
       args.unshift("");
     }
+
+    return id;
   }
 
   extension_obj.setMessageListener(function(msg) {
@@ -28,8 +30,8 @@ xwalk._setupExtensionInternal = function(extension_obj) {
     var listener = callback_listeners[id];
 
     if (listener !== undefined) {
-      listener.apply(null, args);
-      delete callback_listeners[id];
+      if (!listener.apply(null, args))
+        delete callback_listeners[id];
     }
   });
 
@@ -38,8 +40,17 @@ xwalk._setupExtensionInternal = function(extension_obj) {
   extension_obj._internal = {};
 
   extension_obj._internal.postMessage = function(function_name, args, callback) {
-    wrapCallback(args, callback);
+    var id = wrapCallback(args, callback);
     args.unshift(function_name);
     extension_obj.postMessage(args);
+
+    return id;
+  };
+
+  extension_obj._internal.removeCallback = function(id) {
+    if (!id in callback_listeners)
+      return;
+
+    delete callback_listeners[id];
   };
 };
