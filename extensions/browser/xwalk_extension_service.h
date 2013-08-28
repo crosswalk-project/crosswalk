@@ -6,11 +6,11 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 
 #include <stdint.h>
-#include <map>
 #include <string>
 #include "base/callback_forward.h"
 #include "base/files/file_path.h"
 #include "base/synchronization/lock.h"
+#include "xwalk/extensions/browser/xwalk_in_process_extension_handler.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
@@ -62,9 +62,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
   void CreateWebContentsHandler(content::RenderProcessHost* host,
                                 content::WebContents* web_contents);
 
-  typedef std::map<std::string, XWalkExtension*> ExtensionMap;
-  ExtensionMap extensions_;
-  base::Lock extensions_lock_;
+  base::Lock in_process_extensions_lock_;
+  XWalkInProcessExtensionHandler in_process_extensions_;
 
   RuntimeRegistry* runtime_registry_;
 

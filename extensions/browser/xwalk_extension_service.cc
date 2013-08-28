@@ -14,8 +14,6 @@
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_external.h"
-#include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "content/public/browser/render_process_host.h"
 
@@ -43,11 +41,6 @@ XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
 
 XWalkExtensionService::~XWalkExtensionService() {
   runtime_registry_->RemoveObserver(this);
-
-  base::AutoLock lock(extensions_lock_);
-  ExtensionMap::iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it)
-    delete it->second;
 }
 
 namespace {
@@ -88,19 +81,14 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   // render process hosts were created.
   CHECK(!render_process_host_);
 
-  base::AutoLock lock(extensions_lock_);
-  if (extensions_.find(extension->name()) != extensions_.end())
-    return false;
-
   if (!ValidateExtensionName(extension->name())) {
     LOG(WARNING) << "Ignoring extension with invalid name: "
                  << extension->name();
     return false;
   }
 
-  std::string name = extension->name();
-  extensions_[name] = extension;
-  return true;
+  base::AutoLock lock(in_process_extensions_lock_);
+  return in_process_extensions_.RegisterExtension(make_scoped_ptr(extension));
 }
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
@@ -166,13 +154,8 @@ void XWalkExtensionService::CreateRunnersForHandler(
   // method is called from the IO Thread (the MessageFilter calls
   // the WebContentsHandler that ultimately calls this method). This
   // code path should be clarified.
-  base::AutoLock lock(extensions_lock_);
-  ExtensionMap::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it) {
-    XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
-        it->second, handler, base::MessageLoopProxy::current());
-    handler->AttachExtensionRunner(frame_id, runner);
-  }
+  base::AutoLock lock(in_process_extensions_lock_);
+  in_process_extensions_.CreateRunnersForHandler(handler, frame_id);
 }
 
 void XWalkExtensionService::OnRuntimeAdded(Runtime* runtime) {
@@ -195,13 +178,8 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
 
 void XWalkExtensionService::RegisterExtensionsForNewHost(
     content::RenderProcessHost* host) {
-  base::AutoLock lock(extensions_lock_);
-  ExtensionMap::iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it) {
-    XWalkExtension* extension = it->second;
-    host->Send(new XWalkViewMsg_RegisterExtension(
-        extension->name(), extension->GetJavaScriptAPI()));
-  }
+  base::AutoLock lock(in_process_extensions_lock_);
+  in_process_extensions_.RegisterExtensionsForNewHost(host);
 }
 
 void XWalkExtensionService::CreateWebContentsHandler(

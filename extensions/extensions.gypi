@@ -10,6 +10,8 @@
     'browser/xwalk_extension_service.h',
     'browser/xwalk_extension_web_contents_handler.cc',
     'browser/xwalk_extension_web_contents_handler.h',
+    'browser/xwalk_in_process_extension_handler.cc',
+    'browser/xwalk_in_process_extension_handler.h',
     'common/xwalk_extension.cc',
     'common/xwalk_extension.h',
     'common/xwalk_extension_external.cc',
