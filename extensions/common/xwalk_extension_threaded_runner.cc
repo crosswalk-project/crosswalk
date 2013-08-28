@@ -37,6 +37,15 @@ class XWalkExtensionThreadedRunner::PostHelper {
     runner_->PostMessageToClient(msg.Pass());
   }
 
+  void PostReplyMessageToClient(scoped_ptr<IPC::Message> ipc_reply,
+                                scoped_ptr<base::Value> msg) {
+    base::AutoLock lock(lock_);
+    if (!runner_)
+      return;
+    CHECK(runner_->client_task_runner_ == base::MessageLoopProxy::current());
+    runner_->PostReplyMessageToClient(ipc_reply.Pass(), msg.Pass());
+  }
+
   // The helper will be destroyed when this function leaves and the scoped_ptr
   // goes out of scope. We post this function passing the internal helper object
   // in the client task runner so that is run after all pending post messages
@@ -99,16 +108,14 @@ void XWalkExtensionThreadedRunner::HandleMessageFromClient(
                  base::Passed(&msg)));
 }
 
-scoped_ptr<base::Value>
-XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
-    scoped_ptr<base::Value> msg) {
-  base::Value* reply;
+void XWalkExtensionThreadedRunner::HandleSyncMessageFromClient(
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
   PostTaskToExtensionThread(
       FROM_HERE,
       base::Bind(&XWalkExtensionThreadedRunner::CallHandleSyncMessage,
-                 base::Unretained(this), base::Passed(&msg), &reply));
-  sync_message_event_.Wait();
-  return scoped_ptr<base::Value>(reply);
+                 base::Unretained(this),
+                 base::Passed(&ipc_reply),
+                 base::Passed(&msg)));
 }
 
 bool XWalkExtensionThreadedRunner::CalledOnExtensionThread() const {
@@ -157,10 +164,18 @@ void XWalkExtensionThreadedRunner::CallHandleMessage(
 }
 
 void XWalkExtensionThreadedRunner::CallHandleSyncMessage(
-    scoped_ptr<base::Value> msg, base::Value** reply) {
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
   CHECK(CalledOnExtensionThread());
-  *reply = context_->HandleSyncMessage(msg.Pass()).release();
-  sync_message_event_.Signal();
+
+  scoped_ptr<base::Value> result_msg(
+      context_->HandleSyncMessage(msg.Pass()));
+
+  client_task_runner_->PostTask(
+      FROM_HERE,
+      base::Bind(&PostHelper::PostReplyMessageToClient,
+                 base::Unretained(helper_.get()),
+                 base::Passed(&ipc_reply),
+                 base::Passed(&result_msg)));
 }
 
 void XWalkExtensionThreadedRunner::PostMessageToClientTaskRunner(

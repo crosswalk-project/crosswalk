@@ -9,6 +9,7 @@
 #include "base/message_loop.h"
 #include "base/run_loop.h"
 #include "base/synchronization/waitable_event.h"
+#include "ipc/ipc_message.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::MessageLoop;
@@ -86,6 +87,18 @@ class TestRunnerClient : public XWalkExtensionRunner::Client {
     }
   }
 
+  virtual void HandleReplyMessageFromContext(scoped_ptr<IPC::Message> ipc_reply,
+      scoped_ptr<base::Value> msg) OVERRIDE {
+    EXPECT_EQ(g_main_message_loop, MessageLoop::current());
+
+    // Posting instead of calling directly because if the expectation above
+    // fails, we will be in the wrong thread.
+    if (!handle_message_.is_null()) {
+      g_main_message_loop->message_loop_proxy()->PostTask(
+          FROM_HERE, handle_message_);
+    }
+  }
+
  private:
   base::Closure handle_message_;
 };
@@ -111,8 +124,9 @@ TEST(XWalkExtensionThreadedRunnerTest,
       base::Value::CreateStringValue("HELLO")));
   g_done.Wait();
 
-  runner->SendSyncMessageToContext(scoped_ptr<base::Value>(
-      base::Value::CreateStringValue("HELLO")));
+
+  runner->SendSyncMessageToContext(make_scoped_ptr(new IPC::Message),
+      scoped_ptr<base::Value>(base::Value::CreateStringValue("HELLO")));
   g_done.Wait();
 
   delete runner;

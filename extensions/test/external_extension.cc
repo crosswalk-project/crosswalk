@@ -63,11 +63,6 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, NavigateWithExternalExtension) {
   }
 }
 
-// FIXME(cmarcelo): See https://github.com/otcshare/crosswalk/issues/268.
-#if defined(OS_WIN)
-#define ExternalExtensionSync DISABLED_ExternalExtensionSync
-#endif
-
 IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(
