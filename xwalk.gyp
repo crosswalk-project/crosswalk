@@ -152,6 +152,8 @@
       'conditions': [
         [ 'tizen_mobile == 1', {
           'sources': [
+            'runtime/browser/ui/tizen_plug_message_writer.cc',
+            'runtime/browser/ui/tizen_plug_message_writer.h',
             'runtime/browser/ui/tizen_system_indicator.cc',
             'runtime/browser/ui/tizen_system_indicator.h',
             'runtime/browser/ui/tizen_system_indicator_watcher.cc',
