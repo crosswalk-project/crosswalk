@@ -27,10 +27,6 @@ const char kServiceNumber[] = "0";
 // Environment variable format is x, y, width, height.
 const char kTizenSystemIndicatorGeometryVar[] = "ILLUME_IND";
 
-// Should match the MAJOR version in ecore_evas_extn.c. We are using
-// the same version used by EFL 1.7 available in Tizen Mobile 2.1.
-const int kPlugProtocolVersion = 0x1011;
-
 // Copied from EFL 1.7, in src/lib/ecore_evas/ecore_evas_extn.c.
 enum PlugOperation {
   OP_RESIZE,
@@ -68,6 +64,7 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
     alpha_(-1),
     updated_(false),
     fd_(-1) {
+  writer_ = new TizenPlugMessageWriter(&fd_);
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();
 }
@@ -111,6 +108,24 @@ bool TizenSystemIndicatorWatcher::Connect() {
                       .Append(kServiceName)
                       .Append(kServiceNumber));
   return IPC::CreateClientUnixDomainSocket(path, &fd_);
+}
+
+void TizenSystemIndicatorWatcher::OnMouseDown() {
+  struct IPCDataEvMouseDown ipc;
+  writer_->SendEvent(OP_EV_MOUSE_DOWN, &ipc, sizeof(ipc));
+}
+
+void TizenSystemIndicatorWatcher::OnMouseUp() {
+  struct IPCDataEvMouseUp ipc;
+  writer_->SendEvent(OP_EV_MOUSE_UP, &ipc, sizeof(ipc));
+}
+
+void TizenSystemIndicatorWatcher::OnMouseMove(int x, int y) {
+  struct IPCDataEvMouseMove ipc;
+  ipc.x = x;
+  ipc.y = y;
+
+  writer_->SendEvent(OP_EV_MOUSE_MOVE, &ipc, sizeof(ipc));
 }
 
 gfx::Size TizenSystemIndicatorWatcher::GetSize() const {
