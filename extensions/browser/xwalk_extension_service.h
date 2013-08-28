@@ -10,6 +10,7 @@
 #include <string>
 #include "base/callback_forward.h"
 #include "base/files/file_path.h"
+#include "base/synchronization/lock.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
@@ -49,7 +50,7 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
   typedef base::Callback<void(XWalkExtensionService* extension_service)>
@@ -60,10 +61,12 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
  private:
   void RegisterExtensionsForNewHost(content::RenderProcessHost* host);
 
-  void CreateWebContentsHandler(content::WebContents* web_contents);
+  void CreateWebContentsHandler(content::RenderProcessHost* host,
+                                content::WebContents* web_contents);
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
+  base::Lock extensions_lock_;
 
   RuntimeRegistry* runtime_registry_;
 

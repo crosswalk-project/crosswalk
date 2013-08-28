@@ -89,11 +89,6 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
 
-// FIXME(cmarcelo): See https://github.com/otcshare/crosswalk/issues/268.
-#if defined(OS_WIN)
-#define EchoExtensionSync DISABLED_EchoExtensionSync
-#endif
-
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),

@@ -18,15 +18,19 @@ void XWalkExtensionRunner::PostMessageToContext(scoped_ptr<base::Value> msg) {
   HandleMessageFromClient(msg.Pass());
 }
 
-scoped_ptr<base::Value> XWalkExtensionRunner::SendSyncMessageToContext(
-    scoped_ptr<base::Value> msg) {
-  return HandleSyncMessageFromClient(msg.Pass());
+void XWalkExtensionRunner::SendSyncMessageToContext(
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  return HandleSyncMessageFromClient(ipc_reply.Pass(), msg.Pass());
 }
 
 void XWalkExtensionRunner::PostMessageToClient(scoped_ptr<base::Value> msg) {
   client_->HandleMessageFromContext(this, msg.Pass());
 }
 
+void XWalkExtensionRunner::PostReplyMessageToClient(
+    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  client_->HandleReplyMessageFromContext(ipc_reply.Pass(), msg.Pass());
+}
 
 }  // namespace extensions
 }  // namespace xwalk

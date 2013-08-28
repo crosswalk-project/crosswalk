@@ -9,6 +9,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/values.h"
+#include "ipc/ipc_message.h"
 
 namespace xwalk {
 namespace extensions {
@@ -30,6 +31,8 @@ class XWalkExtensionRunner {
    public:
     virtual void HandleMessageFromContext(
         const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) = 0;
+    virtual void HandleReplyMessageFromContext(
+        scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) = 0;
    protected:
     virtual ~Client() {}
   };
@@ -38,15 +41,19 @@ class XWalkExtensionRunner {
   virtual ~XWalkExtensionRunner();
 
   void PostMessageToContext(scoped_ptr<base::Value> msg);
-  scoped_ptr<base::Value> SendSyncMessageToContext(scoped_ptr<base::Value> msg);
+  void SendSyncMessageToContext(scoped_ptr<IPC::Message> ipc_reply,
+                                scoped_ptr<base::Value> msg);
 
   std::string extension_name() const { return extension_name_; }
 
  protected:
   void PostMessageToClient(scoped_ptr<base::Value> msg);
+  void PostReplyMessageToClient(scoped_ptr<IPC::Message> ipc_reply,
+                                scoped_ptr<base::Value> msg);
+
   virtual void HandleMessageFromClient(scoped_ptr<base::Value> msg) = 0;
-  virtual scoped_ptr<base::Value> HandleSyncMessageFromClient(
-      scoped_ptr<base::Value> msg) = 0;
+  virtual void HandleSyncMessageFromClient(scoped_ptr<IPC::Message> ipc_reply,
+                                           scoped_ptr<base::Value> msg) = 0;
 
   Client* client_;
 

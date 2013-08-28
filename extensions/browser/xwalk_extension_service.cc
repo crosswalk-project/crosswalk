@@ -43,6 +43,8 @@ XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
 
 XWalkExtensionService::~XWalkExtensionService() {
   runtime_registry_->RemoveObserver(this);
+
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     delete it->second;
@@ -85,6 +87,8 @@ bool XWalkExtensionService::RegisterExtension(XWalkExtension* extension) {
   // Note: for now we only support registering new extensions before
   // render process hosts were created.
   CHECK(!render_process_host_);
+
+  base::AutoLock lock(extensions_lock_);
   if (extensions_.find(extension->name()) != extensions_.end())
     return false;
 
@@ -152,11 +156,12 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   // OnRuntimeAdded.
   const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
   for (size_t i = 0; i < runtimes.size(); i++)
-    CreateWebContentsHandler(runtimes[i]->web_contents());
+    CreateWebContentsHandler(render_process_host_, runtimes[i]->web_contents());
 }
 
 XWalkExtension* XWalkExtensionService::GetExtensionForName(
     const std::string& name) {
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.find(name);
   if (it == extensions_.end())
     return NULL;
@@ -165,6 +170,12 @@ XWalkExtension* XWalkExtensionService::GetExtensionForName(
 
 void XWalkExtensionService::CreateRunnersForHandler(
     XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
+  // FIXME(tmpsantos) The main reason why we need this lock here is
+  // because this object lives in the UI Thread but this particular
+  // method is called from the IO Thread (the MessageFilter calls
+  // the WebContentsHandler that ultimately calls this method). This
+  // code path should be clarified.
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
     XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
@@ -175,7 +186,14 @@ void XWalkExtensionService::CreateRunnersForHandler(
 
 void XWalkExtensionService::OnRuntimeAdded(Runtime* runtime) {
   if (render_process_host_)
-    CreateWebContentsHandler(runtime->web_contents());
+    CreateWebContentsHandler(render_process_host_, runtime->web_contents());
+}
+
+void XWalkExtensionService::OnRuntimeRemoved(Runtime* runtime) {
+  XWalkExtensionWebContentsHandler* handler =
+      XWalkExtensionWebContentsHandler::FromWebContents(
+          runtime->web_contents());
+  handler->ClearMessageFilter();
 }
 
 // static
@@ -186,6 +204,7 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
 
 void XWalkExtensionService::RegisterExtensionsForNewHost(
     content::RenderProcessHost* host) {
+  base::AutoLock lock(extensions_lock_);
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
     XWalkExtension* extension = it->second;
@@ -195,11 +214,12 @@ void XWalkExtensionService::RegisterExtensionsForNewHost(
 }
 
 void XWalkExtensionService::CreateWebContentsHandler(
-    content::WebContents* web_contents) {
+    content::RenderProcessHost* host, content::WebContents* web_contents) {
   XWalkExtensionWebContentsHandler::CreateForWebContents(web_contents);
   XWalkExtensionWebContentsHandler* handler =
       XWalkExtensionWebContentsHandler::FromWebContents(web_contents);
   handler->set_extension_service(this);
+  handler->set_render_process_host(host);
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {
