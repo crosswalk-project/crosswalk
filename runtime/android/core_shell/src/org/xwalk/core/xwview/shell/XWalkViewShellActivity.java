@@ -17,7 +17,6 @@ import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,7 +25,6 @@ import android.widget.TextView.OnEditorActionListener;
 import org.chromium.content.common.CommandLine;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
 
 public class XWalkViewShellActivity extends Activity {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
@@ -40,9 +38,6 @@ public class XWalkViewShellActivity extends Activity {
     private ImageButton mNextButton;
     private ClipDrawable mProgressDrawable;
     private XWalkView mView;
-    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
-    private FrameLayout mCustomViewContainer;
-    private View mCustomView;
 
     private Runnable mClearProgressRunnable = new Runnable() {
         @Override
@@ -70,7 +65,6 @@ public class XWalkViewShellActivity extends Activity {
         mView = (XWalkView) findViewById(R.id.content_container);
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
         mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
-        mCustomViewContainer = (FrameLayout) findViewById(R.id.custom_view_container);
 
         initializeUrlField();
         initializeNavigationButtons();
@@ -164,38 +158,13 @@ public class XWalkViewShellActivity extends Activity {
     }
 
     private void initializeXWalkViewClients() {
-        mView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this) {
+        mView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this, mView) {
             public void onProgressChanged(XWalkView view, int newProgress) {
                 mToolbar.removeCallbacks(mClearProgressRunnable);
 
                 mProgressDrawable.setLevel((int) (100.0 * newProgress));
                 if (newProgress == 100)
                     mToolbar.postDelayed(mClearProgressRunnable, COMPLETED_PROGRESS_TIMEOUT_MS);
-            }
-
-            @Override
-            public void onShowCustomView(View view, CustomViewCallback callback) {
-                if (mCustomView != null) callback.onCustomViewHidden();
-
-                mCustomView = view;
-                mView.setVisibility(View.GONE);
-                mCustomViewContainer.setVisibility(View.VISIBLE);
-                mCustomViewContainer.addView(view);
-                mCustomViewCallback = callback;
-            }
-
-            @Override
-            public void onHideCustomView() {
-                super.onHideCustomView();
-                if (mCustomView == null) return;
-
-                mView.setVisibility(View.VISIBLE);
-                mCustomViewContainer.setVisibility(View.GONE);
-                mCustomView.setVisibility(View.GONE);
-                mCustomViewContainer.removeView(mCustomView);
-                mCustomViewCallback.onCustomViewHidden();
-
-                mCustomView = null;
             }
         });
     }
