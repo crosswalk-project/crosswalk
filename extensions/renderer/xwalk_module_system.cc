@@ -88,8 +88,10 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   // this because it might be the case that the JS objects we created outlive
   // this object, even if we destroy the references we have.
   // TODO(cmarcelo): Add a test for this case.
-  v8::Handle<v8::Object> function_data = function_data_;
-  function_data->Delete(v8::String::New(kXWalkModuleSystem));
+  // FIXME(cmarcelo): These calls are causing crashes on shutdown with Chromium
+  //                  29.0.1547.57 and had to be commented out.
+  // v8::Handle<v8::Object> function_data = function_data_;
+  // function_data->Delete(v8::String::New(kXWalkModuleSystem));
 
   require_native_template_.Dispose(isolate);
   require_native_template_.Clear();
