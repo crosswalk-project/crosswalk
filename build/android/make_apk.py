@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import operator
 import optparse
 import os
 import re
@@ -30,13 +31,15 @@ def Which(name):
 
 
 def Find(name, path):
-  result = []
+  result = {}
   for root, _, files in os.walk(path):
     if name in files:
-      result.append(os.path.join(root, name))
+      key = os.path.join(root, name)
+      value = int(re.search(r'\d+', key.split('/')[-2]).group())
+      result[key] = value
   if not result:
     raise Exception()
-  return max(result)
+  return max(result.iteritems(), key=operator.itemgetter(1))[0]
 
 
 def Customize(options):
@@ -49,21 +52,21 @@ def Customize(options):
   icon = ''
   if options.icon:
     icon = '--icon=%s' % os.path.expanduser(options.icon)
-  entry_url =  ''
-  if options.entry_url:
-    entry_url = '--entry_url=%s' % options.entry_url
-  entry_root = ''
-  if options.entry_root:
-    entry_root = '--entry_root=%s' % os.path.expanduser(options.entry_root)
-  entry_path = 'index.html'
-  if options.entry_path:
-    entry_path = '--entry_path=%s' % options.entry_path
+  app_url =  ''
+  if options.app_url:
+    app_url = '--app-url=%s' % options.app_url
+  app_root = ''
+  if options.app_root:
+    app_root = '--app-root=%s' % os.path.expanduser(options.app_root)
+  app_local_path = 'index.html'
+  if options.app_local_path:
+    app_local_path = '--app-local-path=%s' % options.app_local_path
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
   proc = subprocess.Popen(['python', 'customize.py', package,
-                           name, icon, entry_url,
-                           entry_root, entry_path, fullscreen_flag],
+                           name, icon, app_url,
+                           app_root, app_local_path, fullscreen_flag],
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
@@ -240,18 +243,18 @@ def main():
   parser.add_option('--name', help=info)
   info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
   parser.add_option('--icon', help=info)
-  info = ('The url of this application. '
+  info = ('The url of application. '
           'This flag allows to package website as apk. Such as: '
-          '--entry_url=http://www.intel.com')
-  parser.add_option('--entry_url', help=info)
+          '--app-url=http://www.intel.com')
+  parser.add_option('--app-url', help=info)
   info = ('The root path of the web app. '
           'This flag allows to package local web app as apk. Such as: '
-          '--entry_root=/root/path/of/the/web/app')
-  parser.add_option('--entry_root', help=info)
-  info = ('The reletive path of entry file based on |entry_root|. '
-          'This flag should work with "--entry_root" together. '
-          'Such as: --entry_path=/reletive/path/of/entry/file')
-  parser.add_option('--entry_path', help=info)
+          '--app-root=/root/path/of/the/web/app')
+  parser.add_option('--app-root', help=info)
+  info = ('The reletive path of entry file based on |app_root|. '
+          'This flag should work with "--app-root" together. '
+          'Such as: --app-local-path=/reletive/path/of/entry/file')
+  parser.add_option('--app-local-path', help=info)
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
