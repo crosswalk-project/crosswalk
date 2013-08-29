@@ -15,8 +15,8 @@
 #include "content/public/common/content_client.h"
 #include "jni/XWalkSettings_jni.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webpreferences.h"
-#include "webkit/user_agent/user_agent.h"
+#include "webkit/common/webpreferences.h"
+#include "webkit/common/user_agent/user_agent.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
