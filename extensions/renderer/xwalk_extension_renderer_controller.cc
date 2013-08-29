@@ -31,7 +31,9 @@ XWalkExtensionRendererController::XWalkExtensionRendererController() {
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {
-  content::RenderThread::Get()->RemoveObserver(this);
+  // FIXME(cmarcelo): These call is causing crashes on shutdown with Chromium
+  //                  29.0.1547.57 and had to be commented out.
+  // content::RenderThread::Get()->RemoveObserver(this);
 }
 
 void XWalkExtensionRendererController::RenderViewCreated(
