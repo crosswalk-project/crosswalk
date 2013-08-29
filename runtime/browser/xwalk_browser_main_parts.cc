@@ -127,6 +127,13 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
   // Initialize the Compositor.
   content::Compositor::Initialize();
 #endif
+
+#if defined(OS_LINUX)
+  // FIXME: Issue 496. We need to explicitly disable sandboxing on Linux while
+  // we do not support it (ie. ship the appropriate binary), otherwise we will
+  // crash on startup.
+  CommandLine::ForCurrentProcess()->AppendSwitch(switches::kNoSandbox);
+#endif
 }
 
 int XWalkBrowserMainParts::PreCreateThreads() {
