@@ -113,6 +113,7 @@
         'runtime/browser/ui/color_chooser_dialog_win.cc',
         'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_gtk.cc',
+        'runtime/browser/ui/color_chooser_mac.cc',
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/desktop_root_window_host_xwalk.cc',
         'runtime/browser/ui/desktop_root_window_host_xwalk.h',
