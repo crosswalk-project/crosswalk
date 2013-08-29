@@ -66,6 +66,7 @@
         'runtime/android/java/src/org/xwalk/core/XWalkContentsClientBridge.java',
         'runtime/android/java/src/org/xwalk/core/XWalkContent.java',
         'runtime/android/java/src/org/xwalk/core/XWalkDevToolsServer.java',
+        'runtime/android/java/src/org/xwalk/core/XWalkSettings.java',
         'runtime/android/java/src/org/xwalk/core/XWalkWebContentsDelegate.java',
       ],
       'includes': ['../build/jni_generator.gypi'],

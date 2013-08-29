@@ -12,8 +12,9 @@
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
-#include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
+#include "xwalk/runtime/browser/android/xwalk_settings.h"
+#include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
 namespace xwalk {
 
@@ -26,8 +27,9 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
       components::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContent", RegisterXWalkContent },
-  { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
+  { "XWalkSettings", RegisterXWalkSettings},
+  { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
 };
 
 bool RegisterJni(JNIEnv* env) {
