@@ -309,10 +309,16 @@
       'target_name': 'xwalk_pak',
       'type': 'none',
       'dependencies': [
-        '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/ui/ui.gyp:ui_resources',
         'xwalk_resources',
+      ],
+      'conditions': [
+        [ 'OS!="android"', {
+          'dependencies': [
+            '<(DEPTH)/content/browser/devtools/devtools_resources.gyp:devtools_resources',
+          ],
+        }],
       ],
       'variables': {
         'repack_path': '../tools/grit/grit/format/repack.py',
@@ -328,12 +334,20 @@
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_strings/ui_strings_en-US.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/ui_resources_100_percent.pak',
-              '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources_100_percent.pak',
               '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
             ],
           },
+          'conditions': [
+            [ 'OS!="android"', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+                ],
+              },
+            }],
+          ],
           'inputs': [
             '<(repack_path)',
             '<@(pak_inputs)',
