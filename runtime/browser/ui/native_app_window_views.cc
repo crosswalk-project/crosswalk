@@ -12,10 +12,8 @@
 #include "content/public/browser/web_contents_view.h"
 #include "third_party/skia/include/core/SkPaint.h"
 #include "ui/views/controls/webview/webview.h"
-#include "ui/views/test/desktop_test_views_delegate.h"
 #include "ui/views/view.h"
 #include "ui/views/views_delegate.h"
-#include "ui/views/widget/desktop_aura/desktop_screen.h"
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/native_frame_view.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
@@ -25,6 +23,8 @@
 #include "ui/aura/root_window.h"
 #include "ui/aura/window.h"
 #include "ui/gfx/screen.h"
+#include "ui/views/widget/desktop_aura/desktop_screen.h"
+#include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
 #endif
 
 #if defined(OS_WIN) && !defined(USE_AURA)
@@ -34,39 +34,6 @@
 #if defined(OS_TIZEN_MOBILE)
 #include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
-
-#if defined(USE_AURA)
-namespace {
-
-views::ViewsDelegate* g_views_delegate_ = NULL;
-
-// ViewDelegate implementation for aura content shell
-class XWalkViewsDelegate : public views::DesktopTestViewsDelegate {
- public:
-    XWalkViewsDelegate() : use_transparent_windows_(false) {
-  }
-
-  virtual ~XWalkViewsDelegate() {
-  }
-
-  void SetUseTransparentWindows(bool transparent) {
-    use_transparent_windows_ = transparent;
-  }
-
-  // Overridden from views::TestViewsDelegate:
-  virtual bool UseTransparentWindows() const OVERRIDE {
-    return use_transparent_windows_;
-  }
-
- private:
-  bool use_transparent_windows_;
-
-  DISALLOW_COPY_AND_ASSIGN(XWalkViewsDelegate);
-};
-
-}  // namespace
-
-#endif  // defined(USE_AURA)
 
 namespace xwalk {
 
@@ -318,10 +285,10 @@ NativeAppWindow* NativeAppWindow::Create(
 // static
 void NativeAppWindow::Initialize() {
 #if !defined(OS_WIN) && defined(USE_AURA)
-  CHECK(!g_views_delegate_);
+  CHECK(!views::ViewsDelegate::views_delegate);
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
-  g_views_delegate_ = new XWalkViewsDelegate();
+  views::ViewsDelegate::views_delegate = new XWalkViewsDelegate();
 #endif
 }
 

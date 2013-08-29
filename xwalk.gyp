@@ -124,6 +124,8 @@
         'runtime/browser/ui/native_app_window_mac.mm',
         'runtime/browser/ui/native_app_window_views.cc',
         'runtime/browser/ui/native_app_window_views.h',
+        'runtime/browser/ui/xwalk_views_delegate.cc',
+        'runtime/browser/ui/xwalk_views_delegate.h',
         'runtime/browser/ui/top_view_layout_views.cc',
         'runtime/browser/ui/top_view_layout_views.h',
         'runtime/browser/ui/taskbar_util.h',
