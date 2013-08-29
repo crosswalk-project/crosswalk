@@ -22,9 +22,9 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   // Register JNI for xwalk classes.
   { "AndroidProtocolHandler", RegisterAndroidProtocolHandler },
   { "InputStream", RegisterInputStream },
-  { "NavigationInterception", components::RegisterNavigationInterceptionJni },
+  { "NavigationInterception", navigation_interception::RegisterNavigationInterceptionJni },
   { "WebContentsDelegateAndroid",
-      components::RegisterWebContentsDelegateAndroidJni },
+      web_contents_delegate_android::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContent", RegisterXWalkContent },
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },

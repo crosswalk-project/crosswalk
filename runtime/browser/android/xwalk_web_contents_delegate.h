@@ -12,7 +12,7 @@
 namespace xwalk {
 
 class XWalkWebContentsDelegate
-    : public components::WebContentsDelegateAndroid {
+    : public web_contents_delegate_android::WebContentsDelegateAndroid {
  public:
   XWalkWebContentsDelegate(JNIEnv* env, jobject obj);
   virtual ~XWalkWebContentsDelegate();
