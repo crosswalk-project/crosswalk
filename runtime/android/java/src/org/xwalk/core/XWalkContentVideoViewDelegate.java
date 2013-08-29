@@ -35,8 +35,7 @@ public class XWalkContentVideoViewDelegate implements ContentVideoViewClient {
     }
 
     @Override
-    public Context getContext() {
-        return mContext;
+    public void keepScreenOn(boolean screenOn) {
     }
 
     @Override
