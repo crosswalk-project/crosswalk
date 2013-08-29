@@ -13,6 +13,7 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
 class EchoExtension : public XWalkExtension {
@@ -39,11 +40,11 @@ class EchoExtension : public XWalkExtension {
     return kAPI;
   }
 
-  class EchoContext : public XWalkExtension::Context {
+  class EchoContext : public XWalkExtensionInstance {
    public:
     explicit EchoContext(
         const XWalkExtension::PostMessageCallback& post_message)
-        : XWalkExtension::Context(post_message) {}
+        : XWalkExtensionInstance(post_message) {}
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
       PostMessage(msg.Pass());
     }
@@ -53,7 +54,7 @@ class EchoExtension : public XWalkExtension {
     }
   };
 
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
     return new EchoContext(post_message);
   }
@@ -66,7 +67,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
   }
 
   virtual const char* GetJavaScriptAPI() { return ""; }
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
 };
 

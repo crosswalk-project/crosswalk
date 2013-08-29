@@ -16,6 +16,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
 namespace {
@@ -27,15 +28,15 @@ int g_contexts_destroyed = 0;
 
 }
 
-class OnceExtensionContext : public XWalkExtension::Context {
+class OnceExtensionInstance : public XWalkExtensionInstance {
  public:
-  OnceExtensionContext(int sequence,
+  OnceExtensionInstance(int sequence,
       const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtension::Context(post_message),
+      : XWalkExtensionInstance(post_message),
         sequence_(sequence),
         answered_(false) {}
 
-  ~OnceExtensionContext() {
+  ~OnceExtensionInstance() {
     base::AutoLock lock(g_contexts_destroyed_lock);
     g_contexts_destroyed++;
   }
@@ -73,9 +74,9 @@ class OnceExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
-    return new OnceExtensionContext(++g_contexts_created, post_message);
+    return new OnceExtensionInstance(++g_contexts_created, post_message);
   }
 };
 

@@ -15,11 +15,11 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionWrapper;
+class XWalkExtensionInstance;
 
 // Message exchanging interface to be implemented by Crosswalk extensions. This
-// is essentially a factory for Context objects that will handle messages. In
-// Crosswalk we create a Context per WebContents. Context objects allow us to
-// keep separated state for each execution.
+// is essentially a factory for XWalkExtensionInstance objects that will handle
+// messages.
 class XWalkExtension {
  public:
   XWalkExtension();
@@ -30,41 +30,13 @@ class XWalkExtension {
   // object based interface on top of the message passing.
   virtual const char* GetJavaScriptAPI() = 0;
 
-  // Callback type used by Contexts to send messages. Callbacks of this type
-  // will be created by the extension system and handled to Context. The
-  // callback will take the ownership of the message.
+  // Callback type used by Instances to send messages. Callbacks of this type
+  // will be created by the extension system and handled to
+  // XWalkExtensionInstance. The callback will take the ownership of the message.
   typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
-  class Context {
-   public:
-    virtual ~Context();
-    // Allow to handle messages sent from JavaScript code running in renderer
-    // process.
-    virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
-
-    // Allow to handle synchronous messages sent from JavaScript code. Renderer
-    // will block until this function returns.
-    virtual scoped_ptr<base::Value> HandleSyncMessage(
-        scoped_ptr<base::Value> msg);
-
-   protected:
-    explicit Context(const PostMessageCallback& post_message);
-
-    // Function to be used by extensions contexts to post messages back to
-    // JavaScript in the renderer process. This function will take the ownership
-    // of the message.
-    void PostMessage(scoped_ptr<base::Value> msg) {
-      post_message_.Run(msg.Pass());
-    }
-
-   private:
-    PostMessageCallback post_message_;
-
-    DISALLOW_COPY_AND_ASSIGN(Context);
-  };
-
-  // Create a Context with the given |post_message| callback.
-  virtual Context* CreateContext(const PostMessageCallback& post_message) = 0;
+  // Create an XWalkExtensionInstance with the given |post_message| callback.
+  virtual XWalkExtensionInstance* CreateInstance(const PostMessageCallback& post_message) = 0;
 
   std::string name() const { return name_; }
 
@@ -73,12 +45,44 @@ class XWalkExtension {
 
  private:
   friend class XWalkExtensionWrapper;
-  friend class Context;
+  friend class XWalkExtensionInstance;
 
   // Name of extension, used for dispatching messages.
   std::string name_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
+};
+
+// XWalkExtensionInstance represents a C++ instance of a certain extension,
+// which is created per Frame/ScriptContext per WebContents.
+// XWalkExtensionInstance objects allow us to keep separated state for each
+// execution.
+class XWalkExtensionInstance {
+ public:
+  virtual ~XWalkExtensionInstance();
+  // Allow to handle messages sent from JavaScript code running in renderer
+  // process.
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
+
+  // Allow to handle synchronous messages sent from JavaScript code. Renderer
+  // will block until this function returns.
+  virtual scoped_ptr<base::Value> HandleSyncMessage(
+      scoped_ptr<base::Value> msg);
+
+ protected:
+  explicit XWalkExtensionInstance(const XWalkExtension::PostMessageCallback& post_message);
+
+  // Function to be used by extensions Instances to post messages back to
+  // JavaScript in the renderer process. This function will take the ownership
+  // of the message.
+  void PostMessage(scoped_ptr<base::Value> msg) {
+    post_message_.Run(msg.Pass());
+  }
+
+ private:
+  XWalkExtension::PostMessageCallback post_message_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionInstance);
 };
 
 }  // namespace extensions

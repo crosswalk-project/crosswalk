@@ -16,7 +16,7 @@ XWalkExternalContext::XWalkExternalContext(
     XWalkExternalExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message,
     XW_Instance xw_instance)
-    : XWalkExtension::Context(post_message),
+    : XWalkExtensionInstance(post_message),
       xw_instance_(xw_instance),
       extension_(extension),
       instance_data_(NULL),

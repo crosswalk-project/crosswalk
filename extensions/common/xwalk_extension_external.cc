@@ -59,13 +59,13 @@ const char* XWalkExternalExtension::GetJavaScriptAPI() {
   return wrapped_->get_javascript(wrapped_);
 }
 
-XWalkExtension::Context* XWalkExternalExtension::CreateContext(
+XWalkExtensionInstance* XWalkExternalExtension::CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
   CXWalkExtensionContext* context = wrapped_->context_create(wrapped_);
   if (!context)
     return NULL;
 
-  return new ExternalContext(this, post_message, context);
+  return new XWalkExternalExtensionInstance(this, post_message, context);
 }
 
 void XWalkExternalExtension::Initialize() {
@@ -83,18 +83,18 @@ void XWalkExternalExtension::Initialize() {
     set_name(wrapped_->name);
 }
 
-XWalkExternalExtension::ExternalContext::ExternalContext(
+XWalkExternalExtensionInstance::XWalkExternalExtensionInstance(
       XWalkExternalExtension* extension,
       const XWalkExtension::PostMessageCallback& post_message,
       CXWalkExtensionContext* context)
-      : XWalkExtension::Context(post_message)
+      : XWalkExtensionInstance(post_message)
       , context_(context) {
   context->internal_data = this;
   context->api = GetAPIWrappers();
 }
 
 const CXWalkExtensionContextAPI*
-      XWalkExternalExtension::ExternalContext::GetAPIWrappers() {
+      XWalkExternalExtensionInstance::GetAPIWrappers() {
   static const CXWalkExtensionContextAPI api = {
     &PostMessageWrapper,
     &SetSyncReplyWrapper
@@ -103,23 +103,23 @@ const CXWalkExtensionContextAPI*
   return &api;
 }
 
-void XWalkExternalExtension::ExternalContext::PostMessageWrapper(
+void XWalkExternalExtensionInstance::PostMessageWrapper(
       CXWalkExtensionContext* context, const char* msg) {
-  XWalkExternalExtension::ExternalContext* self =
-        reinterpret_cast<XWalkExternalExtension::ExternalContext*>(
+  XWalkExternalExtensionInstance* self =
+        reinterpret_cast<XWalkExternalExtensionInstance*>(
               context->internal_data);
   self->PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
 }
 
-void XWalkExternalExtension::ExternalContext::SetSyncReplyWrapper(
+void XWalkExternalExtensionInstance::SetSyncReplyWrapper(
       CXWalkExtensionContext* context, const char* reply) {
-  XWalkExternalExtension::ExternalContext* self =
-      reinterpret_cast<XWalkExternalExtension::ExternalContext*>(
+  XWalkExternalExtensionInstance* self =
+      reinterpret_cast<XWalkExternalExtensionInstance*>(
           context->internal_data);
   self->SetSyncReply(reply);
 }
 
-void XWalkExternalExtension::ExternalContext::HandleMessage(
+void XWalkExternalExtensionInstance::HandleMessage(
       scoped_ptr<base::Value> msg) {
   std::string string_msg;
   msg->GetAsString(&string_msg);
@@ -129,7 +129,7 @@ void XWalkExternalExtension::ExternalContext::HandleMessage(
 }
 
 scoped_ptr<base::Value>
-XWalkExternalExtension::ExternalContext::HandleSyncMessage(
+XWalkExternalExtensionInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
   if (!context_->handle_sync_message) {
     LOG(WARNING) << "Ignoring sync message sent for external extension "
@@ -148,11 +148,11 @@ XWalkExternalExtension::ExternalContext::HandleSyncMessage(
   return reply.Pass();
 }
 
-void XWalkExternalExtension::ExternalContext::SetSyncReply(const char* reply) {
+void XWalkExternalExtensionInstance::SetSyncReply(const char* reply) {
   sync_reply_ = reply;
 }
 
-XWalkExternalExtension::ExternalContext::~ExternalContext() {
+XWalkExternalExtensionInstance::~XWalkExternalExtensionInstance() {
   if (context_->destroy)
     context_->destroy(context_);
 }

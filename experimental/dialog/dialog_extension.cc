@@ -35,9 +35,9 @@ const char* DialogExtension::GetJavaScriptAPI() {
   return kSource_dialog_api;
 }
 
-XWalkExtension::Context* DialogExtension::CreateContext(
+XWalkExtensionInstance* DialogExtension::CreateInstance(
   const XWalkExtension::PostMessageCallback& post_message) {
-  return new DialogContext(this, post_message);
+  return new DialogInstance(this, post_message);
 }
 
 void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
@@ -47,31 +47,31 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
   owning_window_ = runtime->window()->GetNativeWindow();
 }
 
-DialogContext::DialogContext(DialogExtension* extension,
+DialogInstance::DialogInstance(DialogExtension* extension,
   const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkInternalExtension::InternalContext(post_message),
+  : XWalkInternalExtensionInstance(post_message),
     extension_(extension),
     dialog_(NULL) {
-  RegisterFunction("showOpenDialog", &DialogContext::OnShowOpenDialog);
-  RegisterFunction("showSaveDialog", &DialogContext::OnShowSaveDialog);
+  RegisterFunction("showOpenDialog", &DialogInstance::OnShowOpenDialog);
+  RegisterFunction("showSaveDialog", &DialogInstance::OnShowSaveDialog);
 }
 
-DialogContext::~DialogContext() {
+DialogInstance::~DialogInstance() {
 }
 
-void DialogContext::HandleMessage(scoped_ptr<base::Value> msg) {
+void DialogInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&InternalContext::HandleMessage, base::Unretained(this),
-                 base::Passed(&msg)));
+      base::Bind(&XWalkInternalExtensionInstance::HandleMessage,
+          base::Unretained(this), base::Passed(&msg)));
     return;
   }
 
-  InternalContext::HandleMessage(msg.Pass());
+  XWalkInternalExtensionInstance::HandleMessage(msg.Pass());
 }
 
-void DialogContext::OnShowOpenDialog(const std::string& function_name,
+void DialogInstance::OnShowOpenDialog(const std::string& function_name,
                                      const std::string& callback_id,
                                      base::ListValue* args) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -108,7 +108,7 @@ void DialogContext::OnShowOpenDialog(const std::string& function_name,
                       extension_->owning_window_, data);
 }
 
-void DialogContext::OnShowSaveDialog(const std::string& function_name,
+void DialogInstance::OnShowSaveDialog(const std::string& function_name,
                                      const std::string& callback_id,
                                      base::ListValue* args) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -143,7 +143,7 @@ void DialogContext::OnShowSaveDialog(const std::string& function_name,
     file_extension, extension_->owning_window_, data);
 }
 
-void DialogContext::FileSelected(const base::FilePath& path, int,
+void DialogInstance::FileSelected(const base::FilePath& path, int,
                                  void* params) {
   scoped_ptr<std::pair<std::string, std::string> >
       data(static_cast<std::pair<std::string, std::string>*>(params));
@@ -160,7 +160,7 @@ void DialogContext::FileSelected(const base::FilePath& path, int,
   }
 }
 
-void DialogContext::MultiFilesSelected(const std::vector<base::FilePath>& files,
+void DialogInstance::MultiFilesSelected(const std::vector<base::FilePath>& files,
                                        void* params) {
   scoped_ptr<std::pair<std::string, std::string> >
       data(static_cast<std::pair<std::string, std::string>*>(params));

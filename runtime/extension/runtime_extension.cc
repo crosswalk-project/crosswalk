@@ -19,18 +19,18 @@ const char* RuntimeExtension::GetJavaScriptAPI() {
   return kSource_runtime_api;
 }
 
-XWalkExtension::Context* RuntimeExtension::CreateContext(
+XWalkExtensionInstance* RuntimeExtension::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
-  return new RuntimeContext(post_message);
+  return new RuntimeInstance(post_message);
 }
 
-RuntimeExtension::RuntimeContext::RuntimeContext(
+RuntimeExtension::RuntimeInstance::RuntimeInstance(
     const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkInternalExtension::InternalContext(post_message) {
-  RegisterFunction("getAPIVersion", &RuntimeContext::OnGetAPIVersion);
+  : XWalkInternalExtensionInstance(post_message) {
+  RegisterFunction("getAPIVersion", &RuntimeInstance::OnGetAPIVersion);
 }
 
-void RuntimeExtension::RuntimeContext::OnGetAPIVersion(
+void RuntimeExtension::RuntimeInstance::OnGetAPIVersion(
     const std::string&, const std::string& callback_id,
     base::ListValue* args) {
   PostResult(callback_id, jsapi::runtime::GetAPIVersion::Results::Create(1));

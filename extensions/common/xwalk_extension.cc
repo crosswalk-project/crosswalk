@@ -13,13 +13,14 @@ XWalkExtension::XWalkExtension() {}
 
 XWalkExtension::~XWalkExtension() {}
 
-XWalkExtension::Context::Context(const PostMessageCallback& post_message)
+XWalkExtensionInstance::XWalkExtensionInstance(const
+    XWalkExtension::PostMessageCallback& post_message)
     : post_message_(post_message) {
 }
 
-XWalkExtension::Context::~Context() {}
+XWalkExtensionInstance::~XWalkExtensionInstance() {}
 
-scoped_ptr<base::Value> XWalkExtension::Context::HandleSyncMessage(
+scoped_ptr<base::Value> XWalkExtensionInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
   LOG(FATAL) << "Sending sync message to extension which doesn't support it!";
   return scoped_ptr<base::Value>(base::Value::CreateNullValue());

@@ -11,21 +11,21 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkInternalExtension::Context* XWalkInternalExtension::CreateContext(
+XWalkExtensionInstance* XWalkInternalExtension::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
-  return new InternalContext(post_message);
+  return new XWalkInternalExtensionInstance(post_message);
 }
 
-XWalkInternalExtension::InternalContext::InternalContext(
+XWalkInternalExtensionInstance::XWalkInternalExtensionInstance(
     const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkExtension::Context(post_message) {
+  : XWalkExtensionInstance(post_message) {
 }
 
-XWalkInternalExtension::InternalContext::~InternalContext() {
+XWalkInternalExtensionInstance::~XWalkInternalExtensionInstance() {
 }
 
-XWalkInternalExtension::InternalContext::FunctionHandler*
-    XWalkInternalExtension::InternalContext::GetHandlerForFunction(
+XWalkInternalExtensionInstance::FunctionHandler*
+    XWalkInternalExtensionInstance::GetHandlerForFunction(
     const std::string& function) {
   FunctionHandlerMap::iterator iter = handlers_.find(function);
   if (iter == handlers_.end())
@@ -34,7 +34,7 @@ XWalkInternalExtension::InternalContext::FunctionHandler*
   return &iter->second;
 }
 
-void XWalkInternalExtension::InternalContext::HandleMessage(
+void XWalkInternalExtensionInstance::HandleMessage(
     scoped_ptr<base::Value> msg) {
   base::ListValue* args;
   if (!msg->GetAsList(&args) || args->GetSize() < 2) {
@@ -73,7 +73,7 @@ void XWalkInternalExtension::InternalContext::HandleMessage(
   handler->Run(function_name, callback_id, args);
 }
 
-void XWalkInternalExtension::InternalContext::PostResult(
+void XWalkInternalExtensionInstance::PostResult(
     const std::string& callback_id, scoped_ptr<base::ListValue> result) {
   DCHECK(result);
 

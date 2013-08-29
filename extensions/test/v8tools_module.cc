@@ -13,13 +13,14 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
-class TestV8ToolsExtensionContext : public XWalkExtension::Context {
+class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit TestV8ToolsExtensionContext(
+  explicit TestV8ToolsExtensionInstance(
       const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtension::Context(post_message) {}
+      : XWalkExtensionInstance(post_message) {}
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
 };
@@ -40,9 +41,9 @@ class TestV8ToolsExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
-    return new TestV8ToolsExtensionContext(post_message);
+    return new TestV8ToolsExtensionInstance(post_message);
   }
 };
 

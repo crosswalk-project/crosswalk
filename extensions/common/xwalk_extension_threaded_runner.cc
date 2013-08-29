@@ -132,17 +132,17 @@ bool XWalkExtensionThreadedRunner::PostTaskToExtensionThread(
 void XWalkExtensionThreadedRunner::CreateContext() {
   CHECK(CalledOnExtensionThread());
 
-  XWalkExtension::Context* context = extension_->CreateContext(base::Bind(
+  XWalkExtensionInstance* instance = extension_->CreateInstance(base::Bind(
       &XWalkExtensionThreadedRunner::PostMessageToClientTaskRunner,
       base::Unretained(this)));
-  if (!context) {
-    VLOG(0) << "Could not create context for extension '"
+  if (!instance) {
+    VLOG(0) << "Could not create instance for extension '"
             << extension_->name() << "'. Destroying extension thread.";
     delete this;
     return;
   }
 
-  context_.reset(context);
+  context_.reset(instance);
 }
 
 void XWalkExtensionThreadedRunner::DestroyContext() {

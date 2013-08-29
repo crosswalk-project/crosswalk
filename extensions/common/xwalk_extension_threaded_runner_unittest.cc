@@ -14,6 +14,7 @@
 
 using base::MessageLoop;
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionRunner;
 using xwalk::extensions::XWalkExtensionThreadedRunner;
 
@@ -23,16 +24,16 @@ MessageLoop* g_main_message_loop = NULL;
 MessageLoop* g_extension_message_loop = NULL;
 base::WaitableEvent g_done(false, false);
 
-class TestExtensionContext : public XWalkExtension::Context {
+class TestExtensionInstance : public XWalkExtensionInstance {
  public:
-  TestExtensionContext(
+  TestExtensionInstance(
       const XWalkExtension::PostMessageCallback post_message)
-      : XWalkExtension::Context(post_message),
+      : XWalkExtensionInstance(post_message),
         extension_message_loop_(MessageLoop::current()) {
     EXPECT_NE(g_main_message_loop, extension_message_loop_);
     g_done.Signal();
   }
-  virtual ~TestExtensionContext() {
+  virtual ~TestExtensionInstance() {
     EXPECT_EQ(extension_message_loop_, MessageLoop::current());
     g_done.Signal();
   }
@@ -63,9 +64,9 @@ class TestExtension : public XWalkExtension {
  public:
   TestExtension() {}
   virtual const char* GetJavaScriptAPI() OVERRIDE { return ""; }
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const PostMessageCallback& post_message) OVERRIDE {
-    return new TestExtensionContext(post_message);
+    return new TestExtensionInstance(post_message);
   }
 };
 

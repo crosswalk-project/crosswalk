@@ -72,7 +72,7 @@ const char* XWalkExternalExtension::GetJavaScriptAPI() {
   return js_api_.c_str();
 }
 
-XWalkExtension::Context* XWalkExternalExtension::CreateContext(
+XWalkExtensionInstance* XWalkExternalExtension::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
   XW_Instance xw_instance =
       XWalkExternalAdapter::GetInstance()->GetNextXWInstance();
