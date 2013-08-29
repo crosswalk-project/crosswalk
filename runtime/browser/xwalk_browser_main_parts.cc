@@ -248,9 +248,10 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensions() {
-  extension_service_->RegisterExtension(new RuntimeExtension());
-  extension_service_->RegisterExtension(
-      new experimental::DialogExtension(runtime_registry_.get()));
+  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new RuntimeExtension()));
+  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new experimental::DialogExtension(runtime_registry_.get())));
 }
 
 }  // namespace xwalk

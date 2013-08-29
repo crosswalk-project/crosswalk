@@ -49,7 +49,9 @@ class TestV8ToolsExtension : public XWalkExtension {
 class XWalkExtensionsV8ToolsTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    ASSERT_TRUE(extension_service->RegisterExtension(new TestV8ToolsExtension));
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new TestV8ToolsExtension));
+    ASSERT_TRUE(registered);
   }
 };
 

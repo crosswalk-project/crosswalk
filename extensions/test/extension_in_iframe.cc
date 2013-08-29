@@ -60,7 +60,9 @@ class CounterExtension : public XWalkExtension {
 class XWalkExtensionsIFrameTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    ASSERT_TRUE(extension_service->RegisterExtension(new CounterExtension));
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new CounterExtension));
+    ASSERT_TRUE(registered);
   }
 };
 
