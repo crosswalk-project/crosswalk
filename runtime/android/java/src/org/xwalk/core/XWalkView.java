@@ -8,13 +8,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.view.ViewGroup;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
-import org.xwalk.core.XWalkDevToolsServer;
 
 public class XWalkView extends FrameLayout {
 
@@ -138,7 +137,7 @@ public class XWalkView extends FrameLayout {
         }
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
-        final String socketName = getContext().getPackageName() + "_devtools_remote";
+        final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
         mDevToolsServer = new XWalkDevToolsServer(socketName);
         mDevToolsServer.setRemoteDebuggingEnabled(true);
 
