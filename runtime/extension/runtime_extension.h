@@ -23,16 +23,16 @@ class RuntimeExtension : public XWalkInternalExtension {
 
   virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+};
 
-  class RuntimeInstance : public XWalkInternalExtensionInstance {
-   public:
-    explicit RuntimeInstance(
-        const XWalkExtension::PostMessageCallback& post_message);
+class RuntimeInstance : public XWalkInternalExtensionInstance {
+ public:
+  explicit RuntimeInstance(
+      const XWalkExtension::PostMessageCallback& post_message);
 
-   private:
-    void OnGetAPIVersion(const std::string& function_name,
-                         const std::string& callback_id, base::ListValue* args);
-  };
+ private:
+  void OnGetAPIVersion(const std::string& function_name,
+                       const std::string& callback_id, base::ListValue* args);
 };
 
 }  // namespace xwalk

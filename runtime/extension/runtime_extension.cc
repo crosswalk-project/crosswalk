@@ -24,13 +24,13 @@ XWalkExtensionInstance* RuntimeExtension::CreateInstance(
   return new RuntimeInstance(post_message);
 }
 
-RuntimeExtension::RuntimeInstance::RuntimeInstance(
+RuntimeInstance::RuntimeInstance(
     const XWalkExtension::PostMessageCallback& post_message)
   : XWalkInternalExtensionInstance(post_message) {
   RegisterFunction("getAPIVersion", &RuntimeInstance::OnGetAPIVersion);
 }
 
-void RuntimeExtension::RuntimeInstance::OnGetAPIVersion(
+void RuntimeInstance::OnGetAPIVersion(
     const std::string&, const std::string& callback_id,
     base::ListValue* args) {
   PostResult(callback_id, jsapi::runtime::GetAPIVersion::Results::Create(1));

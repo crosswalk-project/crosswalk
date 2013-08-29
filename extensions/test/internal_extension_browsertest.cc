@@ -32,7 +32,7 @@ XWalkExtensionInstance* TestExtension::CreateInstance(
   return new TestExtensionInstance(post_message);
 }
 
-TestExtension::TestExtensionInstance::TestExtensionInstance(
+TestExtensionInstance::TestExtensionInstance(
     const XWalkExtension::PostMessageCallback& post_message)
     : XWalkInternalExtensionInstance(post_message) {
   RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
@@ -43,13 +43,13 @@ TestExtension::TestExtensionInstance::TestExtensionInstance(
   RegisterFunction("getPersonAge", &TestExtensionInstance::OnGetPersonAge);
 }
 
-void TestExtension::TestExtensionInstance::OnClearDatabase(const std::string&,
+void TestExtensionInstance::OnClearDatabase(const std::string&,
                                                           const std::string&,
                                                           base::ListValue*) {
   database()->clear();
 }
 
-void TestExtension::TestExtensionInstance::OnAddPerson(
+void TestExtensionInstance::OnAddPerson(
     const std::string& function_name, const std::string&,
     base::ListValue* args) {
   scoped_ptr<AddPerson::Params> params(AddPerson::Params::Create(*args));
@@ -63,7 +63,7 @@ void TestExtension::TestExtensionInstance::OnAddPerson(
   database()->push_back(person);
 }
 
-void TestExtension::TestExtensionInstance::OnAddPersonObject(
+void TestExtensionInstance::OnAddPersonObject(
     const std::string& function_name, const std::string&,
     base::ListValue* args) {
   scoped_ptr<AddPersonObject::Params>
@@ -78,7 +78,7 @@ void TestExtension::TestExtensionInstance::OnAddPersonObject(
   database()->push_back(person);
 }
 
-void TestExtension::TestExtensionInstance::OnGetAllPersons(
+void TestExtensionInstance::OnGetAllPersons(
     const std::string& function_name, const std::string& callback_id,
     base::ListValue* args) {
   if (callback_id.empty())
@@ -107,7 +107,7 @@ void TestExtension::TestExtensionInstance::OnGetAllPersons(
              GetAllPersons::Results::Create(persons, max_size));
 }
 
-void TestExtension::TestExtensionInstance::OnGetPersonAge(
+void TestExtensionInstance::OnGetPersonAge(
     const std::string& function_name, const std::string& callback_id,
     base::ListValue* args) {
   if (callback_id.empty())
