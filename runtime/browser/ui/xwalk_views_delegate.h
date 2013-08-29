@@ -47,6 +47,9 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
   virtual void OnBeforeWidgetInit(
       views::Widget::InitParams* params,
       views::internal::NativeWidgetDelegate* delegate) OVERRIDE;
+  virtual base::TimeDelta GetDefaultTextfieldObscuredRevealDuration() OVERRIDE {
+    return base::TimeDelta();
+  }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkViewsDelegate);

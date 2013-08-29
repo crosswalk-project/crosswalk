@@ -9,7 +9,7 @@
 #include <string>
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
-#include "base/message_pump_libevent.h"
+#include "base/message_loop/message_pump_libevent.h"
 #include "ui/gfx/size.h"
 
 namespace xwalk {

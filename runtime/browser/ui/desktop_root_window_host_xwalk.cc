@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "base/message_pump_aurax11.h"
+#include "base/message_loop/message_pump_aurax11.h"
 #include "base/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ui/aura/client/aura_constants.h"
@@ -20,7 +20,6 @@
 #include "ui/aura/focus_manager.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
-#include "ui/base/dragdrop/os_exchange_data_provider_aurax11.h"
 #include "ui/base/events/event_utils.h"
 #include "ui/base/touch/touch_factory_x11.h"
 #include "ui/base/x/x11_util.h"
@@ -36,7 +35,6 @@
 #include "ui/views/widget/desktop_aura/desktop_capture_client.h"
 #include "ui/views/widget/desktop_aura/desktop_cursor_loader_updater_aurax11.h"
 #include "ui/views/widget/desktop_aura/desktop_dispatcher_client.h"
-#include "ui/views/widget/desktop_aura/desktop_drag_drop_client_aurax11.h"
 #include "ui/views/widget/desktop_aura/desktop_focus_rules.h"
 #include "ui/views/widget/desktop_aura/desktop_layout_manager.h"
 #include "ui/views/widget/desktop_aura/desktop_native_cursor_manager.h"
@@ -115,8 +113,7 @@ DesktopRootWindowHostXWalk::DesktopRootWindowHostXWalk(
       focus_when_shown_(false),
       current_cursor_(ui::kCursorNull),
       native_widget_delegate_(native_widget_delegate),
-      desktop_native_widget_aura_(desktop_native_widget_aura),
-      drop_handler_(NULL) {
+      desktop_native_widget_aura_(desktop_native_widget_aura) {
 }
 
 DesktopRootWindowHostXWalk::~DesktopRootWindowHostXWalk() {
@@ -233,7 +230,7 @@ aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
   if (!params.child && params.parent)
     parent->AddTransientChild(content_window_);
 
-  native_widget_delegate_->OnNativeWidgetCreated();
+  native_widget_delegate_->OnNativeWidgetCreated(true);
 
   capture_client_.reset(new views::DesktopCaptureClient(root_window_));
   aura::client::SetCaptureClient(root_window_, capture_client_.get());
@@ -274,10 +271,6 @@ aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
                                         position_client_.get());
 
   desktop_native_widget_aura_->InstallInputMethodEventFilter(root_window_);
-
-  drag_drop_client_.reset(new DesktopDragDropClientAuraX11(
-      this, root_window_, xdisplay_, xwindow_));
-  aura::client::SetDragDropClient(root_window_, drag_drop_client_.get());
 
   // TODO(erg): Unify this code once the other consumer goes away.
   x11_window_event_filter_.reset(
@@ -922,20 +915,6 @@ void DesktopRootWindowHostXWalk::PrepareForShutdown() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ui::DesktopSelectionProviderAuraX11 implementation:
-
-void DesktopRootWindowHostXWalk::SetDropHandler(
-    ui::OSExchangeDataProviderAuraX11* handler) {
-  if (handler) {
-    DCHECK(!drop_handler_);
-    drop_handler_ = handler;
-  } else {
-    DCHECK(drop_handler_);
-    drop_handler_ = NULL;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // DesktopRootWindowHostXWalk, MessageLoop::Dispatcher implementation:
 
 bool DesktopRootWindowHostXWalk::Dispatch(const base::NativeEvent& event) {
@@ -1111,18 +1090,6 @@ bool DesktopRootWindowHostXWalk::Dispatch(const base::NativeEvent& event) {
                      SubstructureRedirectMask | SubstructureNotifyMask,
                      &reply_event);
         }
-      } else if (message_type == atom_cache_.GetAtom("XdndEnter")) {
-        drag_drop_client_->OnXdndEnter(xev->xclient);
-      } else if (message_type == atom_cache_.GetAtom("XdndLeave")) {
-        drag_drop_client_->OnXdndLeave(xev->xclient);
-      } else if (message_type == atom_cache_.GetAtom("XdndPosition")) {
-        drag_drop_client_->OnXdndPosition(xev->xclient);
-      } else if (message_type == atom_cache_.GetAtom("XdndStatus")) {
-        drag_drop_client_->OnXdndStatus(xev->xclient);
-      } else if (message_type == atom_cache_.GetAtom("XdndFinished")) {
-        drag_drop_client_->OnXdndFinished(xev->xclient);
-      } else if (message_type == atom_cache_.GetAtom("XdndDrop")) {
-        drag_drop_client_->OnXdndDrop(xev->xclient);
       }
       break;
     }
@@ -1193,11 +1160,6 @@ bool DesktopRootWindowHostXWalk::Dispatch(const base::NativeEvent& event) {
         }
         widget->GetRootView()->Layout();
       }
-      break;
-    }
-    case SelectionNotify: {
-      if (drop_handler_)
-        drop_handler_->OnSelectionNotify(xev->xselection);
       break;
     }
   }
