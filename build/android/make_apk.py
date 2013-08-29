@@ -72,7 +72,8 @@ def Customize(options):
   print out
 
 
-def Execution(apk_name):
+def Execution(options):
+  apk_name = options.name
   android_path_array = Which("android")
   if not android_path_array:
     print "Please install Android SDK first."
@@ -91,7 +92,24 @@ def Execution(apk_name):
     print "Please install Android API level (>=14) first."
     sys.exit(3)
 
-  key_store = 'scripts/ant/chromium-debug.keystore'
+  if options.keystore_path:
+    key_store = os.path.expanduser(options.keystore_path)
+    if options.keystore_alias:
+      key_alias = options.keystore_alias
+    else:
+      print "Please provide an alias name of the developer key."
+      sys.exit(6)
+    if options.keystore_passcode:
+      key_code = options.keystore_passcode
+    else:
+      print "Please provide the passcode of the developer key."
+      sys.exit(6)
+  else:
+    print ('Use xwalk\'s keystore by default for debugging. '
+           'Please switch to your keystore when distributing it to app market.')
+    key_store = 'scripts/ant/xwalk-debug.keystore'
+    key_alias = 'xwalkdebugkey'
+    key_code = 'xwalkdebug'
 
   if not os.path.exists("out/"):
     os.mkdir("out")
@@ -221,7 +239,9 @@ def Execution(apk_name):
                            '--android-sdk-root=%s' % sdk_root_path,
                            '--unsigned-apk-path=out/app-unsigned.apk',
                            '--final-apk-path=out/%s.apk' % apk_name,
-                           '--keystore-path=%s' % key_store],
+                           '--keystore-path=%s' % key_store,
+                           '--keystore-alias=%s' % key_alias,
+                           '--keystore-passcode=%s' % key_code],
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
@@ -255,13 +275,20 @@ def main():
           'This flag should work with "--app-root" together. '
           'Such as: --app-local-path=/reletive/path/of/entry/file')
   parser.add_option('--app-local-path', help=info)
+  info = ('The path of the developer keystore, Such as: '
+          '--keystore-path=/path/to/your/developer/keystore')
+  parser.add_option('--keystore-path', help=info)
+  info = ('The alias name of keystore, Such as: --keystore-alias=alias_name')
+  parser.add_option('--keystore-alias', help=info)
+  info = ('The passcode of keystore, Such as: --keystore-passcode=code')
+  parser.add_option('--keystore-passcode', help=info)
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
   options, _ = parser.parse_args()
   try:
     Customize(options)
-    Execution(options.name)
+    Execution(options)
   except SystemExit, ec:
     print 'Exiting with error code: %d' % ec.code
     return ec.code
