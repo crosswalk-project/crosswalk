@@ -39,6 +39,10 @@ bool XWalkURLRequestJobFactory::IsHandledURL(const GURL& url) const {
   return true;
 }
 
+bool XWalkURLRequestJobFactory::IsSafeRedirectTarget(const GURL&) const {
+  return true;
+}
+
 URLRequestJob* XWalkURLRequestJobFactory::MaybeCreateJobWithProtocolHandler(
     const std::string& scheme,
     URLRequest* request,
