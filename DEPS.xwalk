@@ -12,8 +12,7 @@ blink_crosswalk_point = 'abfee977cd60a915a094f247ff81f9d17dc85efe'
 deps_xwalk = {
   'src': 'ssh://git@github.com/otcshare/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'ssh://git@github.com/otcshare/blink-crosswalk.git@%s' % blink_crosswalk_point,
-  'src/third_party/jsoncpp/source/src/lib_json':
-      'http://svn.code.sf.net/p/jsoncpp/code/trunk/jsoncpp/src/lib_json@248',
-  'src/third_party/jsoncpp/source/include':
-      'http://svn.code.sf.net/p/jsoncpp/code/trunk/jsoncpp/include@248',
+}
+vars_xwalk = {
+  'jsoncpp': 'http://svn.code.sf.net/p/jsoncpp/code',
 }
