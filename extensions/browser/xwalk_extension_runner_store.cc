@@ -13,6 +13,9 @@ using content::BrowserThread;
 namespace xwalk {
 namespace extensions {
 
+XWalkExtensionRunnerStore::XWalkExtensionRunnerStore() {
+}
+
 XWalkExtensionRunnerStore::~XWalkExtensionRunnerStore() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   DeleteAllFrames();
