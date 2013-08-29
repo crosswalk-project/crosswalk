@@ -7,10 +7,10 @@ package org.xwalk.core;
 import android.content.Context;
 import android.view.View;
 
-import org.chromium.content.browser.ContentVideoViewContextDelegate;
+import org.chromium.content.browser.ContentVideoViewClient;
 import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
-public class XWalkContentVideoViewDelegate implements ContentVideoViewContextDelegate {
+public class XWalkContentVideoViewDelegate implements ContentVideoViewClient {
     private Context mContext;
     private XWalkContentsClient mContentsClient;
 
