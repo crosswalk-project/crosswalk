@@ -13,6 +13,7 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-1.28-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-1.28-look-for-pvr-libGLESv2.so.patch
+Patch3:         %{name}-1.28-revert-chromium-r209481.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -84,6 +85,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 %patch2
+%patch3
 
 %build
 
