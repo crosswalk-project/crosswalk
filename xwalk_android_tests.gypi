@@ -5,6 +5,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_extensions_java',
         'xwalk_core_java',
         'xwalk_core_shell_apk_pak',
       ],
@@ -14,8 +15,8 @@
         'resource_dir': 'runtime/android/core_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview/assets',
       },
@@ -66,6 +67,8 @@
         'java_in_dir': 'test/android/core/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
@@ -73,8 +76,16 @@
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/echo.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/echoSync.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': ['<(java_in_dir)/assets/index.html'],
-        }
+        },
       ],
       'includes': [ '../build/java_apk.gypi' ],
     },
@@ -135,6 +146,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_extensions_java',
         # Runtime code is also built by this target.
         'xwalk_core_java',
         'xwalk_runtime_shell_apk_pak',
