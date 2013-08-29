@@ -72,8 +72,9 @@ public class XWalkContent extends FrameLayout {
         mWindow = new WindowAndroid(xwView.getActivity());
 
         // Initialize the ContentVideoView for fullscreen video playback.
-        ContentVideoView.registerContentVideoViewContextDelegate(
-                new XWalkContentVideoViewDelegate(mContentsClientBridge, getContext()));
+        // FIXME: 56f04e70d9b changed things
+        // ContentVideoView.registerContentVideoViewContextDelegate(
+        //         new XWalkContentVideoViewDelegate(mContentsClientBridge, getContext()));
 
         // Initialize ContentView.
         mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);

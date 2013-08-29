@@ -108,6 +108,7 @@ void XWalkDevToolsServer::Start() {
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       new net::UnixDomainSocketWithAbstractNamespaceFactory(
           socket_name_,
+          "", // fallback socket name
           base::Bind(&CanUserConnectToDevTools)),
       base::StringPrintf(kFrontEndURL, kChromeVersion),
       new XWalkDevToolsServerDelegate());
