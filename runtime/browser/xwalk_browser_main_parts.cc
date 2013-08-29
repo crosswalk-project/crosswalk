@@ -79,8 +79,6 @@ void XWalkBrowserMainParts::SetRuntimeContext(RuntimeContext* context) {
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 #if defined(OS_ANDROID)
   CommandLine::ForCurrentProcess()->AppendSwitch(
-      switches::kEnableWebRTC);
-  CommandLine::ForCurrentProcess()->AppendSwitch(
       switches::kAllowFileAccessFromFiles);
   // WebGL is disabled by default on Android, explicitly enable it in switches.
   CommandLine::ForCurrentProcess()->AppendSwitch(
