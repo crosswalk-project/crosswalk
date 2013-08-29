@@ -37,7 +37,8 @@ TestExtension::TestExtensionInstance::TestExtensionInstance(
     : XWalkInternalExtensionInstance(post_message) {
   RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
   RegisterFunction("addPerson", &TestExtensionInstance::OnAddPerson);
-  RegisterFunction("addPersonObject", &TestExtensionInstance::OnAddPersonObject);
+  RegisterFunction("addPersonObject",
+      &TestExtensionInstance::OnAddPersonObject);
   RegisterFunction("getAllPersons", &TestExtensionInstance::OnGetAllPersons);
   RegisterFunction("getPersonAge", &TestExtensionInstance::OnGetPersonAge);
 }

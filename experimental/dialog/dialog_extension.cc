@@ -160,8 +160,8 @@ void DialogInstance::FileSelected(const base::FilePath& path, int,
   }
 }
 
-void DialogInstance::MultiFilesSelected(const std::vector<base::FilePath>& files,
-                                       void* params) {
+void DialogInstance::MultiFilesSelected(
+    const std::vector<base::FilePath>& files, void* params) {
   scoped_ptr<std::pair<std::string, std::string> >
       data(static_cast<std::pair<std::string, std::string>*>(params));
 

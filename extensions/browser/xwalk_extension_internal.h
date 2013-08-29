@@ -29,7 +29,8 @@ class XWalkInternalExtension : public XWalkExtension {
   DISALLOW_COPY_AND_ASSIGN(XWalkInternalExtension);
 };
 
-// An internal extension should use a context derived from XWalkInternalExtensionInstance.
+// An internal extension should use a context derived from
+// XWalkInternalExtensionInstance.
 // The default message handler will dispatch the messages coming from the
 // renderer to the handlers registered beforehand. The best practice is to
 // register the handlers on the constructor of the context.

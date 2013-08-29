@@ -32,11 +32,12 @@ class XWalkExtension {
 
   // Callback type used by Instances to send messages. Callbacks of this type
   // will be created by the extension system and handled to
-  // XWalkExtensionInstance. The callback will take the ownership of the message.
+  // XWalkExtensionInstance. Callback will take the ownership of the message.
   typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
   // Create an XWalkExtensionInstance with the given |post_message| callback.
-  virtual XWalkExtensionInstance* CreateInstance(const PostMessageCallback& post_message) = 0;
+  virtual XWalkExtensionInstance* CreateInstance(
+      const PostMessageCallback& post_message) = 0;
 
   std::string name() const { return name_; }
 
@@ -69,7 +70,8 @@ class XWalkExtensionInstance {
   virtual scoped_ptr<base::Value> HandleSyncMessage(
       scoped_ptr<base::Value> msg);
 
-  void SetPostMessageCallback(const XWalkExtension::PostMessageCallback& post_message);
+  void SetPostMessageCallback(
+      const XWalkExtension::PostMessageCallback& post_message);
 
  protected:
   explicit XWalkExtensionInstance();
