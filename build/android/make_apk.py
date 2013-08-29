@@ -31,12 +31,17 @@ def Which(name):
 
 
 def Find(name, path):
+  """Find executable file with the given name
+  and maximum API level under specific path."""
   result = {}
   for root, _, files in os.walk(path):
     if name in files:
       key = os.path.join(root, name)
-      value = int(re.search(r'\d+', key.split('/')[-2]).group())
-      result[key] = value
+      str_num = re.search(r'\d+', key.split('/')[-2])
+      if str_num:
+        result[key] = int(str_num.group())
+      else:
+        result[key] = 0
   if not result:
     raise Exception()
   return max(result.iteritems(), key=operator.itemgetter(1))[0]
