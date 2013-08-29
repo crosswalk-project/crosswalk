@@ -17,6 +17,7 @@
 #include "xwalk/test/base/xwalk_test_suite.h"
 #include "content/public/app/content_main.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_switches.h"
 #include "content/public/test/test_launcher.h"
 
 #if defined(OS_WIN)
@@ -46,6 +47,11 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
          iter != switches.end(); ++iter) {
       new_command_line.AppendSwitchNative((*iter).first, (*iter).second);
     }
+
+    // Expose the garbage collector interface, so we can test the object
+    // lifecycle tracker interface.
+    new_command_line.AppendSwitchASCII(
+        switches::kJavaScriptFlags, "--expose-gc");
 
     *command_line = new_command_line;
     return true;
