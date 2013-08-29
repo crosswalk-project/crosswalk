@@ -10,6 +10,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
@@ -110,7 +111,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 #if defined(OS_ANDROID)
-  MessageLoopForUI::current()->Start();
+  base::MessageLoopForUI::current()->Start();
 #endif
 }
 
@@ -246,7 +247,7 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 #if defined(OS_ANDROID)
-  MessageLoopForUI::current()->Start();
+  base::MessageLoopForUI::current()->Start();
 #else
   runtime_context_.reset();
 #endif
