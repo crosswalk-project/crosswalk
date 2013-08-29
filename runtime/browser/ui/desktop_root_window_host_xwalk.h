@@ -18,7 +18,6 @@
 #include "ui/aura/root_window_host.h"
 #include "ui/aura/root_window_observer.h"
 #include "ui/base/cursor/cursor_loader_x11.h"
-#include "ui/base/dragdrop/desktop_selection_provider_aurax11.h"
 #include "ui/base/x/x11_atom_cache.h"
 #include "ui/gfx/rect.h"
 #include "ui/views/views_export.h"
@@ -35,7 +34,6 @@ class ScreenPositionClient;
 namespace views {
 class DesktopActivationClient;
 class DesktopCaptureClient;
-class DesktopDragDropClientAuraX11;
 class DesktopDispatcherClient;
 class X11DesktopWindowMoveClient;
 class X11WindowEventFilter;
@@ -47,7 +45,6 @@ class CursorManager;
 class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
     public aura::RootWindowHost,
     public aura::RootWindowObserver,
-    public ui::DesktopSelectionProviderAuraX11,
     public base::MessageLoop::Dispatcher {
  public:
   static DesktopRootWindowHost* Create(
@@ -181,10 +178,6 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
   virtual void OnDeviceScaleFactorChanged(float device_scale_factor) OVERRIDE;
   virtual void PrepareForShutdown() OVERRIDE;
 
-  // Overridden from DesktopSelectionProviderAuraX11:
-  virtual void SetDropHandler(
-      ui::OSExchangeDataProviderAuraX11* handler) OVERRIDE;
-
   // Overridden from Dispatcher:
   virtual bool Dispatch(const base::NativeEvent& event) OVERRIDE;
 
@@ -226,7 +219,6 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
   scoped_ptr<views::corewm::CursorManager> cursor_client_;
   scoped_ptr<DesktopDispatcherClient> dispatcher_client_;
   scoped_ptr<aura::client::ScreenPositionClient> position_client_;
-  scoped_ptr<DesktopDragDropClientAuraX11> drag_drop_client_;
 
   // Current Aura cursor.
   gfx::NativeCursor current_cursor_;
@@ -242,9 +234,6 @@ class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
 
   aura::RootWindowHostDelegate* root_window_host_delegate_;
   aura::Window* content_window_;
-
-  // We forward drop related messages to this object.
-  ui::OSExchangeDataProviderAuraX11* drop_handler_;
 
   // The current root window host that has capture. While X11 has something
   // like Windows SetCapture()/ReleaseCapture(), it is entirely implicit and
