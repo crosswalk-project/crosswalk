@@ -82,7 +82,9 @@ class OnceExtension : public XWalkExtension {
 class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    ASSERT_TRUE(extension_service->RegisterExtension(new OnceExtension));
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new OnceExtension));
+    ASSERT_TRUE(registered);
   }
 
   virtual void TearDown() OVERRIDE {

@@ -133,7 +133,9 @@ void TestExtension::TestExtensionContext::OnGetPersonAge(
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    extension_service->RegisterExtension(new TestExtension());
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new TestExtension()));
+    ASSERT_TRUE(registered);
   }
 };
 
