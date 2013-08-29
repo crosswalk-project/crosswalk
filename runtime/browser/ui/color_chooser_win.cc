@@ -10,14 +10,15 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_observer.h"
 #include "ui/views/color_chooser/color_chooser_listener.h"
 
 class ColorChooserWin : public xwalk::ColorChooser,
                         public views::ColorChooserListener {
  public:
-  ColorChooserWin(int identifier,
-                  content::WebContents* tab,
+  static ColorChooserWin* Open(content::WebContents* web_contents,
+                               SkColor initial_color);
+
+  ColorChooserWin(content::WebContents* web_contents,
                   SkColor initial_color);
   ~ColorChooserWin();
 
@@ -30,27 +31,30 @@ class ColorChooserWin : public xwalk::ColorChooser,
   virtual void OnColorChooserDialogClosed();
 
  private:
+  static ColorChooserWin* current_color_chooser_;
+
   // The web contents invoking the color chooser.  No ownership. because it will
   // outlive this class.
-  content::WebContents* tab_;
+  content::WebContents* web_contents_;
 
   // The color chooser dialog which maintains the native color chooser UI.
   scoped_refptr<ColorChooserDialog> color_chooser_dialog_;
 };
 
-content::ColorChooser* content::ColorChooser::Create(int identifier,
-                                                     content::WebContents* tab,
-                                                     SkColor initial_color) {
-  return new ColorChooserWin(identifier, tab, initial_color);
+ColorChooserWin* ColorChooserWin::current_color_chooser_ = NULL;
+
+ColorChooserWin* ColorChooserWin::Open(content::WebContents* web_contents,
+                                       SkColor initial_color) {
+  if (current_color_chooser_)
+    return current_color_chooser_;
+  return new ColorChooserWin(web_contents, initial_color);
 }
 
-ColorChooserWin::ColorChooserWin(int identifier,
-                                 content::WebContents* tab,
+ColorChooserWin::ColorChooserWin(content::WebContents* web_contents,
                                  SkColor initial_color)
-    : xwalk::ColorChooser(identifier),
-      tab_(tab) {
+    : web_contents_(web_contents) {
   gfx::NativeWindow owning_window = platform_util::GetTopLevel(
-      tab_->GetRenderViewHost()->GetView()->GetNativeView());
+      web_contents->GetRenderViewHost()->GetView()->GetNativeView());
   color_chooser_dialog_ = new ColorChooserDialog(this,
                                                  initial_color,
                                                  owning_window);
@@ -62,8 +66,8 @@ ColorChooserWin::~ColorChooserWin() {
 }
 
 void ColorChooserWin::OnColorChosen(SkColor color) {
-  if (tab_)
-    tab_->DidChooseColorInColorChooser(identifier(), color);
+  if (web_contents_)
+    web_contents_->DidChooseColorInColorChooser(color);
 }
 
 void ColorChooserWin::OnColorChooserDialogClosed() {
@@ -71,7 +75,17 @@ void ColorChooserWin::OnColorChooserDialogClosed() {
     color_chooser_dialog_->ListenerDestroyed();
     color_chooser_dialog_ = NULL;
   }
-  if (tab_)
-    tab_->DidEndColorChooser(identifier());
+  DCHECK(current_color_chooser_ == this);
+  current_color_chooser_ = NULL;
+  if (web_contents_)
+    web_contents_->DidEndColorChooser();
 }
 
+namespace xwalk {
+
+content::ColorChooser* ShowColorChooser(content::WebContents* web_contents,
+                                        SkColor initial_color) {
+  return ColorChooserWin::Open(web_contents, initial_color);
+}
+
+}  // namespace xwalk

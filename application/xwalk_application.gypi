@@ -5,9 +5,9 @@
       'type': 'static_library',
       'dependencies': [
         '../base/base.gyp:base',
-        '../build/temp_gyp/googleurl.gyp:googleurl',
         '../ipc/ipc.gyp:ipc',
         '../ui/ui.gyp:ui',
+        '../url/url.gyp:url_lib',
         '../webkit/support/webkit_support.gyp:webkit_support',
         '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
       ],

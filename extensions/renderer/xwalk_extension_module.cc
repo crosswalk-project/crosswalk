@@ -9,8 +9,8 @@
 #include "base/stringprintf.h"
 #include "base/values.h"
 #include "content/public/renderer/v8_value_converter.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebFrame.h"
-#include "third_party/WebKit/Source/WebKit/chromium/public/WebScopedMicrotaskSuppression.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 
 namespace xwalk {
@@ -49,9 +49,8 @@ XWalkExtensionModule::XWalkExtensionModule(
       "setMessageListener",
       v8::FunctionTemplate::New(SetMessageListenerCallback, function_data));
 
-  function_data_ = v8::Persistent<v8::Object>::New(isolate, function_data);
-  object_template_= v8::Persistent<v8::ObjectTemplate>::New(
-      isolate, object_template);
+  function_data_.Reset(isolate, function_data);
+  object_template_.Reset(isolate, object_template);
 }
 
 XWalkExtensionModule::~XWalkExtensionModule() {
@@ -64,7 +63,8 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   // TODO(cmarcelo): Add a test for this case.
   // FIXME(cmarcelo): These calls are causing crashes on shutdown with Chromium
   //                  29.0.1547.57 and had to be commented out.
-  // v8::Handle<v8::Object> function_data = function_data_;
+  // v8::Handle<v8::Object> function_data =
+  //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkExtensionModule));
 
   object_template_.Dispose(isolate);
@@ -85,7 +85,8 @@ void XWalkExtensionModule::DispatchMessageToListener(
   v8::Context::Scope context_scope(context);
 
   v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));
-  v8::Handle<v8::Function> message_listener = message_listener_;
+  v8::Handle<v8::Function> message_listener =
+      v8::Handle<v8::Function>::New(isolate, message_listener_);;
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
@@ -118,7 +119,7 @@ std::string WrapAPICode(const std::string& extension_code,
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
-      "var %s; (function(extension, requireNative) { "
+      "console.log('loading'); var %s; (function(extension, requireNative) { "
       "extension._setupExtensionInternal = function() {"
       "  xwalk._setupExtensionInternal(extension);"
       "};"
@@ -165,7 +166,9 @@ void XWalkExtensionModule::LoadExtensionCode(
   }
   v8::Handle<v8::Function> callable_api_code =
       v8::Handle<v8::Function>::Cast(result);
-  v8::Handle<v8::ObjectTemplate> object_template = object_template_;
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::Handle<v8::ObjectTemplate>::New(context->GetIsolate(),
+                                          object_template_);
 
   const int argc = 2;
   v8::Handle<v8::Value> argv[argc] = {
@@ -184,18 +187,18 @@ void XWalkExtensionModule::LoadExtensionCode(
 }
 
 // static
-v8::Handle<v8::Value> XWalkExtensionModule::PostMessageCallback(
-    const v8::Arguments& args) {
-  XWalkExtensionModule* module = GetExtensionModuleFromArgs(args);
-  if (!module)
-    return v8::False();
+void XWalkExtensionModule::PostMessageCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::ReturnValue<v8::Value> result(info.GetReturnValue());
+  XWalkExtensionModule* module = GetExtensionModule(info);
+  if (!module || info.Length() != 1) {
+    result.Set(false);
+    return;
+  }
 
-  if (args.Length() != 1)
-    return v8::False();
-
-  v8::Handle<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+  v8::Handle<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   scoped_ptr<base::Value> value(
-      module->converter_->FromV8Value(args[0], context));
+      module->converter_->FromV8Value(info[0], context));
 
   WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
   XWalkExtensionRenderViewHandler* handler =
@@ -203,23 +206,23 @@ v8::Handle<v8::Value> XWalkExtensionModule::PostMessageCallback(
 
   if (!handler->PostMessageToExtension(
           frame->identifier(), module->extension_name_, value.Pass()))
-    return v8::False();
-  return v8::True();
+    result.Set(false);
+  result.Set(true);
 }
 
 // static
-v8::Handle<v8::Value> XWalkExtensionModule::SendSyncMessageCallback(
-    const v8::Arguments& args) {
-  XWalkExtensionModule* module = GetExtensionModuleFromArgs(args);
-  if (!module)
-    return v8::False();
+void XWalkExtensionModule::SendSyncMessageCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::ReturnValue<v8::Value> result(info.GetReturnValue());
+  XWalkExtensionModule* module = GetExtensionModule(info);
+  if (!module || info.Length() != 1) {
+    result.Set(false);
+    return;
+  }
 
-  if (args.Length() != 1)
-    return v8::False();
-
-  v8::Handle<v8::Context> context = args.GetIsolate()->GetCurrentContext();
+  v8::Handle<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   scoped_ptr<base::Value> value(
-      module->converter_->FromV8Value(args[0], context));
+      module->converter_->FromV8Value(info[0], context));
 
   WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
   XWalkExtensionRenderViewHandler* handler =
@@ -228,42 +231,42 @@ v8::Handle<v8::Value> XWalkExtensionModule::SendSyncMessageCallback(
   scoped_ptr<base::Value> reply(handler->SendSyncMessageToExtension(
       frame->identifier(), module->extension_name_, value.Pass()));
 
-  return module->converter_->ToV8Value(reply.get(), context);
+  result.Set(module->converter_->ToV8Value(reply.get(), context));
 }
 
 // static
-v8::Handle<v8::Value> XWalkExtensionModule::SetMessageListenerCallback(
-    const v8::Arguments& args) {
-  XWalkExtensionModule* module = GetExtensionModuleFromArgs(args);
-  if (!module)
-    return v8::False();
-
-  if (args.Length() != 1)
-    return v8::False();
-
-  if (!args[0]->IsFunction() && !args[0]->IsUndefined()) {
-    LOG(WARNING) << "Trying to set message listener with invalid value.";
-    return v8::False();
+void XWalkExtensionModule::SetMessageListenerCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::ReturnValue<v8::Value> result(info.GetReturnValue());
+  XWalkExtensionModule* module = GetExtensionModule(info);
+  if (!module || info.Length() != 1) {
+    result.Set(false);
+    return;
   }
 
-  v8::Isolate* isolate = args.GetIsolate();
-  if (args[0]->IsUndefined()) {
+  if (!info[0]->IsFunction() && !info[0]->IsUndefined()) {
+    LOG(WARNING) << "Trying to set message listener with invalid value.";
+    result.Set(false);
+    return;
+  }
+
+  v8::Isolate* isolate = info.GetIsolate();
+  if (info[0]->IsUndefined()) {
     module->message_listener_.Dispose(isolate);
     module->message_listener_.Clear();
   } else {
     module->message_listener_.Dispose(isolate);
-    module->message_listener_ =
-        v8::Persistent<v8::Function>::New(isolate, args[0].As<v8::Function>());
+    module->message_listener_.Reset(isolate, info[0].As<v8::Function>());
   }
 
-  return v8::True();
+  result.Set(true);
 }
 
 // static
-XWalkExtensionModule* XWalkExtensionModule::GetExtensionModuleFromArgs(
-    const v8::Arguments& args) {
-  v8::HandleScope handle_scope(args.GetIsolate());
-  v8::Local<v8::Object> data = args.Data().As<v8::Object>();
+XWalkExtensionModule* XWalkExtensionModule::GetExtensionModule(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::HandleScope handle_scope(info.GetIsolate());
+  v8::Local<v8::Object> data = info.Data().As<v8::Object>();
   v8::Local<v8::Value> module =
       data->Get(v8::String::New(kXWalkExtensionModule));
   if (module.IsEmpty() || module->IsUndefined()) {
