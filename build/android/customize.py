@@ -31,9 +31,9 @@ def Prepare(options):
   dest_application =  root_path + options.name + 'Application.java'
   shutil.copyfile(src_activity, dest_activity)
   shutil.copyfile(src_application, dest_application)
-  if options.entry_root:
+  if options.app_root:
     shutil.rmtree(options.name + '/assets')
-    shutil.copytree(options.entry_root, options.name + '/assets')
+    shutil.copytree(options.app_root, options.name + '/assets')
 
 def ReplaceNodeValue(doc, node, name, value):
   item = doc.getElementsByTagName(node)[0]
@@ -111,13 +111,13 @@ def CustomizeJava(options):
   ReplaceString(dest_activity, 'AppTemplate', options.name)
   ReplaceString(dest_application, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_application, 'AppTemplate', options.name)
-  if options.entry_url:
-    if re.search(r'^http(|s)', options.entry_url):
+  if options.app_url:
+    if re.search(r'^http(|s)', options.app_url):
       ReplaceString(dest_activity, 'file:///android_asset/index.html',
-                    options.entry_url)
-  elif options.entry_path:
-    if os.path.isfile(options.name + '/assets/' + options.entry_path):
-      ReplaceString(dest_activity, 'index.html', options.entry_path)
+                    options.app_url)
+  elif options.app_local_path:
+    if os.path.isfile(options.name + '/assets/' + options.app_local_path):
+      ReplaceString(dest_activity, 'index.html', options.app_local_path)
     else:
       print ('Please make sure that the reletive path of entry file'
              ' is correct.')
@@ -132,18 +132,18 @@ def main():
   parser.add_option('--name', help=info)
   info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
   parser.add_option('--icon', help=info)
-  info = ('The url of this application. '
+  info = ('The url of application. '
           'This flag allows to package website as apk. Such as: '
-          '--entry_url=http://www.intel.com')
-  parser.add_option('--entry_url', help=info)
+          '--app-url=http://www.intel.com')
+  parser.add_option('--app-url', help=info)
   info = ('The root path of the web app. '
           'This flag allows to package local web app as apk. Such as: '
-          '--entry_root=/root/path/of/the/web/app')
-  parser.add_option('--entry_root', help=info)
-  info = ('The reletive path of entry file based on |entry_root|. '
-          'This flag should work with "--entry_root" together. '
-          'Such as: --entry_path=/reletive/path/of/entry/file')
-  parser.add_option('--entry_path', help=info)
+          '--app-root=/root/path/of/the/web/app')
+  parser.add_option('--app-root', help=info)
+  info = ('The reletive path of entry file based on |app_root|. '
+          'This flag should work with "--app-root" together. '
+          'Such as: --app-local-path=/reletive/path/of/entry/file')
+  parser.add_option('--app-local-path', help=info)
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
