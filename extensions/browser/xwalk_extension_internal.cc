@@ -17,8 +17,8 @@ XWalkExtensionInstance* XWalkInternalExtension::CreateInstance(
 }
 
 XWalkInternalExtensionInstance::XWalkInternalExtensionInstance(
-    const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkExtensionInstance(post_message) {
+    const XWalkExtension::PostMessageCallback& post_message) {
+  SetPostMessageCallback(post_message);
 }
 
 XWalkInternalExtensionInstance::~XWalkInternalExtensionInstance() {

@@ -32,9 +32,10 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
  public:
   OnceExtensionInstance(int sequence,
       const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtensionInstance(post_message),
-        sequence_(sequence),
-        answered_(false) {}
+      : sequence_(sequence),
+        answered_(false) {
+    SetPostMessageCallback(post_message);
+  }
 
   ~OnceExtensionInstance() {
     base::AutoLock lock(g_contexts_destroyed_lock);

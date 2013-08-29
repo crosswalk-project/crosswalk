@@ -43,8 +43,9 @@ class EchoExtension : public XWalkExtension {
   class EchoContext : public XWalkExtensionInstance {
    public:
     explicit EchoContext(
-        const XWalkExtension::PostMessageCallback& post_message)
-        : XWalkExtensionInstance(post_message) {}
+        const XWalkExtension::PostMessageCallback& post_message) {
+      SetPostMessageCallback(post_message);
+    }
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
       PostMessage(msg.Pass());
     }

@@ -28,8 +28,9 @@ int g_count = 0;
 class CounterExtensionContext : public XWalkExtensionInstance {
  public:
   explicit CounterExtensionContext(
-      const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtensionInstance(post_message) {}
+      const XWalkExtension::PostMessageCallback& post_message) {
+    SetPostMessageCallback(post_message);
+  }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     base::AutoLock lock(g_count_lock);

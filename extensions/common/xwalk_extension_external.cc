@@ -87,8 +87,8 @@ XWalkExternalExtensionInstance::XWalkExternalExtensionInstance(
       XWalkExternalExtension* extension,
       const XWalkExtension::PostMessageCallback& post_message,
       CXWalkExtensionContext* context)
-      : XWalkExtensionInstance(post_message)
-      , context_(context) {
+      : context_(context) {
+  SetPostMessageCallback(post_message);
   context->internal_data = this;
   context->api = GetAPIWrappers();
 }

@@ -16,11 +16,11 @@ XWalkExternalContext::XWalkExternalContext(
     XWalkExternalExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message,
     XW_Instance xw_instance)
-    : XWalkExtensionInstance(post_message),
-      xw_instance_(xw_instance),
+    : xw_instance_(xw_instance),
       extension_(extension),
       instance_data_(NULL),
       is_handling_sync_msg_(false) {
+  SetPostMessageCallback(post_message);
   XWalkExternalAdapter::GetInstance()->RegisterInstance(this);
   XW_CreatedInstanceCallback callback = extension_->created_instance_callback_;
   if (callback)

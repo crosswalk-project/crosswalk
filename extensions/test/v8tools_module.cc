@@ -19,8 +19,9 @@ using xwalk::extensions::XWalkExtensionService;
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
   explicit TestV8ToolsExtensionInstance(
-      const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtensionInstance(post_message) {}
+      const XWalkExtension::PostMessageCallback& post_message) {
+    SetPostMessageCallback(post_message);
+  }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
 };

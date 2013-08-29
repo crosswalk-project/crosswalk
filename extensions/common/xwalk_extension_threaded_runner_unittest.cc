@@ -28,8 +28,8 @@ class TestExtensionInstance : public XWalkExtensionInstance {
  public:
   TestExtensionInstance(
       const XWalkExtension::PostMessageCallback post_message)
-      : XWalkExtensionInstance(post_message),
-        extension_message_loop_(MessageLoop::current()) {
+      : extension_message_loop_(MessageLoop::current()) {
+    SetPostMessageCallback(post_message);
     EXPECT_NE(g_main_message_loop, extension_message_loop_);
     g_done.Signal();
   }

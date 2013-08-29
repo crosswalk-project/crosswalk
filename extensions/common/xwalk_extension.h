@@ -69,8 +69,10 @@ class XWalkExtensionInstance {
   virtual scoped_ptr<base::Value> HandleSyncMessage(
       scoped_ptr<base::Value> msg);
 
+  void SetPostMessageCallback(const XWalkExtension::PostMessageCallback& post_message);
+
  protected:
-  explicit XWalkExtensionInstance(const XWalkExtension::PostMessageCallback& post_message);
+  explicit XWalkExtensionInstance();
 
   // Function to be used by extensions Instances to post messages back to
   // JavaScript in the renderer process. This function will take the ownership

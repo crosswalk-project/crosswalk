@@ -13,9 +13,11 @@ XWalkExtension::XWalkExtension() {}
 
 XWalkExtension::~XWalkExtension() {}
 
-XWalkExtensionInstance::XWalkExtensionInstance(const
-    XWalkExtension::PostMessageCallback& post_message)
-    : post_message_(post_message) {
+XWalkExtensionInstance::XWalkExtensionInstance() {}
+
+void XWalkExtensionInstance::SetPostMessageCallback(const
+    XWalkExtension::PostMessageCallback& post_message) {
+  post_message_ = post_message;
 }
 
 XWalkExtensionInstance::~XWalkExtensionInstance() {}
