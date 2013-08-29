@@ -24,7 +24,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "InputStream", RegisterInputStream },
   { "NavigationInterception", components::RegisterNavigationInterceptionJni },
   { "WebContentsDelegateAndroid",
-      components::RegisterWebContentsDelegateAndroidJni },
+      web_contents_delegate_android::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
   { "XWalkContent", RegisterXWalkContent },
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
