@@ -17,8 +17,10 @@
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
+#include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_socket_posix.h"
+#include "ui/base/resource/resource_bundle.h"
 
 namespace {
 
@@ -38,7 +40,8 @@ class XWalkDevToolsServerDelegate : public content::DevToolsHttpHandlerDelegate 
   }
 
   virtual std::string GetDiscoveryPageHTML() OVERRIDE {
-    return std::string();
+    return ResourceBundle::GetSharedInstance().GetRawDataResource(
+        IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
   }
 
   virtual bool BundlesFrontendResources() OVERRIDE {
