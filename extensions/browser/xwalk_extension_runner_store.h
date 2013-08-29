@@ -24,7 +24,7 @@ class XWalkExtensionRunner;
 // that the message gets reposted to the IO Thread.
 class XWalkExtensionRunnerStore {
  public:
-  XWalkExtensionRunnerStore() {}
+  XWalkExtensionRunnerStore();
   ~XWalkExtensionRunnerStore();
 
   void AddFrame(int64_t frame_id);
