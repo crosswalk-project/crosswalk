@@ -76,11 +76,7 @@ public class XWalkContent extends FrameLayout {
                 new XWalkContentVideoViewDelegate(mContentsClientBridge, getContext()));
 
         // Initialize ContentView.
-        // TODO(yongsheng): Use PERSONALITY_VIEW if we don't need pinch to zoom.
-        // PERSONALITY_VIEW is designed for Android WebView, it always overrides
-        // the user agent set by user.
-        mContentView = ContentView.newInstance(
-                getContext(), mWebContents, mWindow, ContentView.PERSONALITY_CHROME);
+        mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
         addView(mContentView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
