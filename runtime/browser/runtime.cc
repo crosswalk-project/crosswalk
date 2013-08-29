@@ -16,8 +16,8 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
-#include "content/public/browser/color_chooser.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -232,27 +232,8 @@ void Runtime::DeactivateContents(content::WebContents* contents) {
 
 content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
-    int color_chooser_id,
-    SkColor color) {
-#if defined(OS_WIN) && !defined(USE_AURA)
-  // On Windows, only create a color chooser if one doesn't exist, because we
-  // can't close the old color chooser dialog.
-  if (!color_chooser_.get())
-    color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,
-                                                       web_contents,
-                                                       color));
-#elif defined(OS_LINUX)
-  if (color_chooser_.get())
-    color_chooser_->End();
-  color_chooser_.reset(content::ColorChooser::Create(color_chooser_id,
-                                                     web_contents,
-                                                     color));
-#endif
-  return color_chooser_.get();
-}
-
-void Runtime::DidEndColorChooser() {
-  color_chooser_.reset();
+    SkColor initial_color) {
+  return xwalk::ShowColorChooser(web_contents, initial_color);
 }
 
 void Runtime::RunFileChooser(
@@ -291,11 +272,17 @@ void Runtime::DidUpdateFaviconURL(int32 page_id,
   FaviconURL favicon = candidates[0];
   // Passing 0 as the |image_size| parameter results in only receiving the first
   // bitmap, according to content/public/browser/web_contents.h
-  web_contents()->DownloadImage(favicon.icon_url, true, 0 /* image size */,
-      base::Bind(&Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
+  web_contents()->DownloadImage(
+      favicon.icon_url,
+      true,  // Is a favicon
+      0,     // No preferred size
+      0,     // No maximum size
+      base::Bind(
+          &Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
 }
 
 void Runtime::DidDownloadFavicon(int id,
+                                 int http_status_code,
                                  const GURL& image_url,
                                  int requested_size,
                                  const std::vector<SkBitmap>& bitmaps) {

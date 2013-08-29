@@ -11,8 +11,8 @@ include_rules = [
 
   # Allow inclusion of third-party code.
   "+third_party/skia",
-  "+third_party/WebKit/Source/Platform/chromium",
-  "+third_party/WebKit/Source/WebKit/chromium",
+  "+third_party/WebKit/public/platform",
+  "+third_party/WebKit/public/web",
 
   # Files generated during Crosswalk build.
   "+grit/xwalk_resources.h",

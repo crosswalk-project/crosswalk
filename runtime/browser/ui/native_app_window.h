@@ -6,7 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
 
 #include "base/compiler_specific.h"
-#include "base/string16.h"
+#include "base/strings/string16.h"
 #include "ui/base/ui_base_types.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/native_widget_types.h"

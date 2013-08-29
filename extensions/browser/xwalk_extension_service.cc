@@ -6,6 +6,7 @@
 
 #include "base/callback.h"
 #include "base/file_util.h"
+#include "base/files/file_enumerator.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
@@ -99,8 +100,8 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
   // extension for the current platform.
   const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
-  file_util::FileEnumerator libraries(
-      path, false, file_util::FileEnumerator::FILES, pattern);
+  base::FileEnumerator libraries(
+      path, false, base::FileEnumerator::FILES, pattern);
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {

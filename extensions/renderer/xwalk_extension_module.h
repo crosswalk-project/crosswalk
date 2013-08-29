@@ -48,14 +48,15 @@ class XWalkExtensionModule {
 
  private:
   // Callbacks for JS functions available in 'extension' object.
-  static v8::Handle<v8::Value> PostMessageCallback(const v8::Arguments& args);
-  static v8::Handle<v8::Value> SendSyncMessageCallback(
-      const v8::Arguments& args);
-  static v8::Handle<v8::Value> SetMessageListenerCallback(
-      const v8::Arguments& args);
+  static void PostMessageCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& info);
+  static void SendSyncMessageCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& info);
+  static void SetMessageListenerCallback(
+      const v8::FunctionCallbackInfo<v8::Value>& info);
 
-  static XWalkExtensionModule* GetExtensionModuleFromArgs(
-      const v8::Arguments& args);
+  static XWalkExtensionModule* GetExtensionModule(
+      const v8::FunctionCallbackInfo<v8::Value>& info);
 
   // Template for the 'extension' object exposed to the extension JS code.
   v8::Persistent<v8::ObjectTemplate> object_template_;

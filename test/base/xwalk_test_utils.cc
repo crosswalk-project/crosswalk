@@ -25,7 +25,6 @@
 #include "net/base/net_util.h"
 #include "ui/gl/gl_switches.h"
 
-using content::NavigationController;
 using content::TestNavigationObserver;
 using content::WebContents;
 
@@ -67,9 +66,7 @@ void NavigateToURL(xwalk::Runtime* runtime, const GURL& url) {
   if (runtime->web_contents()->IsLoading())
     content::WaitForLoadStop(runtime->web_contents());
 
-  NavigationController& controller = runtime->web_contents()->GetController();
-  TestNavigationObserver navigation_observer(
-      content::Source<NavigationController>(&controller), 1);
+  TestNavigationObserver navigation_observer(runtime->web_contents(), 1);
   runtime->LoadURL(url);
 
   base::RunLoop run_loop;

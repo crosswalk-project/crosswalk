@@ -21,9 +21,10 @@ const int kModuleSystemEmbedderDataIndex = 8;
 // pointer back to XWalkExtensionModule.
 const char* kXWalkModuleSystem = "kXWalkModuleSystem";
 
-XWalkModuleSystem* GetModuleSystemFromArgs(const v8::Arguments& args) {
-  v8::HandleScope handle_scope(args.GetIsolate());
-  v8::Handle<v8::Object> data = args.Data().As<v8::Object>();
+XWalkModuleSystem* GetModuleSystem(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::HandleScope handle_scope(info.GetIsolate());
+  v8::Handle<v8::Object> data = info.Data().As<v8::Object>();
   v8::Handle<v8::Value> module_system =
       data->Get(v8::String::New(kXWalkModuleSystem));
   if (module_system.IsEmpty() || module_system->IsUndefined()) {
@@ -36,19 +37,22 @@ XWalkModuleSystem* GetModuleSystemFromArgs(const v8::Arguments& args) {
       module_system.As<v8::External>()->Value());
 }
 
-v8::Handle<v8::Value> RequireNativeCallback(const v8::Arguments& args) {
-  XWalkModuleSystem* module_system = GetModuleSystemFromArgs(args);
-  if (args.Length() < 1) {
+void RequireNativeCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  v8::ReturnValue<v8::Value> result(info.GetReturnValue());
+  XWalkModuleSystem* module_system = GetModuleSystem(info);
+  if (info.Length() < 1) {
     // TODO(cmarcelo): Throw appropriate exception or warning.
-    return v8::Undefined();
+    result.SetUndefined();
+    return;
   }
   v8::Handle<v8::Object> object =
-      module_system->RequireNative(*v8::String::Utf8Value(args[0]));
+      module_system->RequireNative(*v8::String::Utf8Value(info[0]));
   if (object.IsEmpty()) {
     // TODO(cmarcelo): Throw appropriate exception or warning.
-    return v8::Undefined();
+    result.SetUndefined();
+    return;
   }
-  return object;
+  result.Set(object);
 }
 
 }  // namespace
@@ -63,9 +67,8 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
   v8::Handle<v8::FunctionTemplate> require_native_template =
       v8::FunctionTemplate::New(RequireNativeCallback, function_data);
 
-  function_data_ = v8::Persistent<v8::Object>::New(isolate, function_data);
-  require_native_template_ = v8::Persistent<v8::FunctionTemplate>::New(
-      isolate, require_native_template);
+  function_data_.Reset(isolate, function_data);
+  require_native_template_.Reset(isolate, require_native_template);
 }
 
 XWalkModuleSystem::~XWalkModuleSystem() {
@@ -90,7 +93,8 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   // TODO(cmarcelo): Add a test for this case.
   // FIXME(cmarcelo): These calls are causing crashes on shutdown with Chromium
   //                  29.0.1547.57 and had to be commented out.
-  // v8::Handle<v8::Object> function_data = function_data_;
+  // v8::Handle<v8::Object> function_data =
+  //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkModuleSystem));
 
   require_native_template_.Dispose(isolate);
@@ -131,7 +135,7 @@ void XWalkModuleSystem::RegisterExtensionModule(
   v8::Isolate* isolate = context->GetIsolate();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::FunctionTemplate> require_native_template =
-      require_native_template_;
+      v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
   module->LoadExtensionCode(context, require_native_template->GetFunction());
   extension_modules_[extension_name] = module.release();
 }

@@ -10,11 +10,14 @@ namespace extensions {
 
 namespace {
 
-v8::Handle<v8::Value> ForceSetPropertyCallback(const v8::Arguments& args) {
-  if (args.Length() != 3 || !args[0]->IsObject() || !args[1]->IsString())
-    return v8::Undefined();
-  args[0].As<v8::Object>()->ForceSet(args[1], args[2]);
-  return v8::Undefined();
+void ForceSetPropertyCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  // FIXME(cmarcelo): is this the default?
+  info.GetReturnValue().SetUndefined();
+
+  if (info.Length() != 3 || !info[0]->IsObject() || !info[1]->IsString()) {
+    return;
+  }
+  info[0].As<v8::Object>()->ForceSet(info[1], info[2]);
 }
 
 }  // namespace
@@ -26,8 +29,7 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
   object_template->Set("forceSetProperty",
                         v8::FunctionTemplate::New(ForceSetPropertyCallback));
 
-  object_template_ = v8::Persistent<v8::ObjectTemplate>::New(isolate,
-                                                             object_template);
+  object_template_.Reset(isolate, object_template);
 }
 
 XWalkV8ToolsModule::~XWalkV8ToolsModule() {
@@ -39,7 +41,8 @@ XWalkV8ToolsModule::~XWalkV8ToolsModule() {
 v8::Handle<v8::Object> XWalkV8ToolsModule::NewInstance() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::ObjectTemplate> object_template = object_template_;
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::Handle<v8::ObjectTemplate>::New(isolate, object_template_);
   return handle_scope.Close(object_template->NewInstance());
 }
 
