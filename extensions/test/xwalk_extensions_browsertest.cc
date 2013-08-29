@@ -23,7 +23,7 @@ class EchoContext : public XWalkExtensionInstance {
     SetPostMessageCallback(post_message);
   }
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
-    PostMessage(msg.Pass());
+    PostMessageToJS(msg.Pass());
   }
   virtual scoped_ptr<base::Value> HandleSyncMessage(
       scoped_ptr<base::Value> msg) OVERRIDE {

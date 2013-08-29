@@ -15,12 +15,12 @@ const int XWalkExtensionMsgStart = LastIPCMsgStart + 1;
 
 #define IPC_MESSAGE_START XWalkExtensionMsgStart
 
-IPC_MESSAGE_ROUTED3(XWalkViewHostMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED3(XWalkViewHostMsg_PostMessageToNative,  // NOLINT(*)
                     int64_t /* frame id */,
                     std::string /* target extension */,
                     base::ListValue /* contents */)
 
-IPC_MESSAGE_ROUTED3(XWalkViewMsg_PostMessage,  // NOLINT(*)
+IPC_MESSAGE_ROUTED3(XWalkViewMsg_PostMessageToJS,  // NOLINT(*)
                     int64_t /* frame id */,
                     std::string /* source extension */,
                     base::ListValue /* contents */)

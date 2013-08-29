@@ -79,7 +79,7 @@ class XWalkExtensionInstance {
   // Function to be used by extensions Instances to post messages back to
   // JavaScript in the renderer process. This function will take the ownership
   // of the message.
-  void PostMessage(scoped_ptr<base::Value> msg) {
+  void PostMessageToJS(scoped_ptr<base::Value> msg) {
     post_message_.Run(msg.Pass());
   }
 

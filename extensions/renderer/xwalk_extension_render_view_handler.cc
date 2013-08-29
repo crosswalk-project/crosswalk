@@ -73,7 +73,7 @@ bool XWalkExtensionRenderViewHandler::PostMessageToExtension(
     scoped_ptr<base::Value> msg) {
   scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
   return Send(
-      new XWalkViewHostMsg_PostMessage(routing_id(), frame_id,
+      new XWalkViewHostMsg_PostMessageToNative(routing_id(), frame_id,
                                        extension, *wrapped_msg));
 }
 
@@ -111,7 +111,7 @@ bool XWalkExtensionRenderViewHandler::OnMessageReceived(
     const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRenderViewHandler, message)
-    IPC_MESSAGE_HANDLER(XWalkViewMsg_PostMessage, OnPostMessage)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_PostMessageToJS, OnPostMessage)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;

@@ -50,7 +50,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
       answer = base::StringPrintf("PASS %d", sequence_);
       answered_ = true;
     }
-    PostMessage(scoped_ptr<base::Value>(
+    PostMessageToJS(scoped_ptr<base::Value>(
         base::Value::CreateStringValue(answer)));
   }
 

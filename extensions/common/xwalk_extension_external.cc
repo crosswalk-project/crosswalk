@@ -108,7 +108,7 @@ void XWalkExternalExtensionInstance::PostMessageWrapper(
   XWalkExternalExtensionInstance* self =
         reinterpret_cast<XWalkExternalExtensionInstance*>(
               context->internal_data);
-  self->PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
+  self->PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
 }
 
 void XWalkExternalExtensionInstance::SetSyncReplyWrapper(

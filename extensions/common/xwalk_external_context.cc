@@ -83,7 +83,7 @@ void* XWalkExternalContext::CoreGetInstanceData() {
 }
 
 void XWalkExternalContext::MessagingPostMessage(const char* msg) {
-  PostMessage(scoped_ptr<base::Value>(new base::StringValue(msg)));
+  PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
 }
 
 void XWalkExternalContext::SyncMessagingSetSyncReply(const char* reply) {

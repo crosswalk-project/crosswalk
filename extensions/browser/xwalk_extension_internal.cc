@@ -87,7 +87,7 @@ void XWalkInternalExtensionInstance::PostResult(
   // Prepend the callback id to the list, so the handlers
   // on the JavaScript side know which callback should be evoked.
   result->Insert(0, new base::StringValue(callback_id));
-  PostMessage(scoped_ptr<base::Value>(result.release()));
+  PostMessageToJS(scoped_ptr<base::Value>(result.release()));
 }
 
 }  // namespace extensions

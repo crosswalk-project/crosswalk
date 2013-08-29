@@ -44,7 +44,7 @@ class TestExtensionInstance : public XWalkExtensionInstance {
     std::string msg_str;
     msg->GetAsString(&msg_str);
     if (msg_str == "PING") {
-      PostMessage(scoped_ptr<base::Value>(
+      PostMessageToJS(scoped_ptr<base::Value>(
           base::Value::CreateStringValue("PONG")));
     } else {
       g_done.Signal();
@@ -75,7 +75,7 @@ class TestRunnerClient : public XWalkExtensionRunner::Client {
   TestRunnerClient(const base::Closure& handle_message = base::Closure())
       : handle_message_(handle_message) {}
 
-  virtual void HandleMessageFromContext(
+  virtual void HandleMessageFromNative(
       const XWalkExtensionRunner* runner,
       scoped_ptr<base::Value> msg) OVERRIDE {
     EXPECT_EQ(g_main_message_loop, MessageLoop::current());
@@ -88,7 +88,7 @@ class TestRunnerClient : public XWalkExtensionRunner::Client {
     }
   }
 
-  virtual void HandleReplyMessageFromContext(scoped_ptr<IPC::Message> ipc_reply,
+  virtual void HandleReplyMessageFromNative(scoped_ptr<IPC::Message> ipc_reply,
       scoped_ptr<base::Value> msg) OVERRIDE {
     EXPECT_EQ(g_main_message_loop, MessageLoop::current());
 
@@ -121,12 +121,12 @@ TEST(XWalkExtensionThreadedRunnerTest,
                                        loop.message_loop_proxy());
   g_done.Wait();
 
-  runner->PostMessageToContext(scoped_ptr<base::Value>(
+  runner->PostMessageToNative(scoped_ptr<base::Value>(
       base::Value::CreateStringValue("HELLO")));
   g_done.Wait();
 
 
-  runner->SendSyncMessageToContext(make_scoped_ptr(new IPC::Message),
+  runner->SendSyncMessageToNative(make_scoped_ptr(new IPC::Message),
       scoped_ptr<base::Value>(base::Value::CreateStringValue("HELLO")));
   g_done.Wait();
 
@@ -152,7 +152,7 @@ TEST(XWalkExtensionThreadedRunnerTest,
 
   EXPECT_FALSE(g_done.IsSignaled());
 
-  runner->PostMessageToContext(scoped_ptr<base::Value>(
+  runner->PostMessageToNative(scoped_ptr<base::Value>(
       base::Value::CreateStringValue("PING")));
 
   run_loop.Run();
@@ -176,7 +176,7 @@ TEST(XWalkExtensionThreadedRunnerTest,
                                        loop.message_loop_proxy());
   g_done.Wait();
 
-  runner->PostMessageToContext(scoped_ptr<base::Value>(
+  runner->PostMessageToNative(scoped_ptr<base::Value>(
       base::Value::CreateStringValue("PING")));
   delete runner;
   g_done.Wait();
