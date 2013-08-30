@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "base/message_loop/message_pump_aurax11.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ui/aura/client/aura_constants.h"
 #include "ui/aura/client/screen_position_client.h"

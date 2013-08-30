@@ -13,7 +13,7 @@
 #include "base/callback.h"
 #include "base/compiler_specific.h"
 #include "base/logging.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"

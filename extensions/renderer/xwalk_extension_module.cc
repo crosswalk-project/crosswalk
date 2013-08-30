@@ -6,7 +6,7 @@
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 
 #include "base/logging.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "base/values.h"
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebFrame.h"

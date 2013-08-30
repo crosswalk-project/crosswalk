@@ -4,7 +4,7 @@
 
 #include "xwalk/runtime/browser/android/net/input_stream_reader.h"
 
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_byte_range.h"

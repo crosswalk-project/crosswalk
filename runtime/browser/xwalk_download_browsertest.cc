@@ -5,7 +5,7 @@
 
 #include "base/file_util.h"
 #include "base/files/file_path.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
