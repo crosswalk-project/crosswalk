@@ -71,16 +71,14 @@ void DialogInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   XWalkInternalExtensionInstance::HandleMessage(msg.Pass());
 }
 
-void DialogInstance::OnShowOpenDialog(const std::string& function_name,
-                                     const std::string& callback_id,
-                                     base::ListValue* args) {
+void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
   scoped_ptr<ShowOpenDialog::Params>
-      params(ShowOpenDialog::Params::Create(*args));
+      params(ShowOpenDialog::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -97,7 +95,7 @@ void DialogInstance::OnShowOpenDialog(const std::string& function_name,
   base::FilePath::StringType file_extension;
 
   std::pair<std::string, std::string>* data =
-      new std::pair<std::string, std::string>(function_name, callback_id);
+      new std::pair<std::string, std::string>(info.name, info.callback_id);
 
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
@@ -108,16 +106,14 @@ void DialogInstance::OnShowOpenDialog(const std::string& function_name,
                       extension_->owning_window_, data);
 }
 
-void DialogInstance::OnShowSaveDialog(const std::string& function_name,
-                                     const std::string& callback_id,
-                                     base::ListValue* args) {
+void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
   scoped_ptr<ShowSaveDialog::Params>
-      params(ShowSaveDialog::Params::Create(*args));
+      params(ShowSaveDialog::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -131,7 +127,7 @@ void DialogInstance::OnShowSaveDialog(const std::string& function_name,
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
   std::pair<std::string, std::string>* data =
-      new std::pair<std::string, std::string>(function_name, callback_id);
+      new std::pair<std::string, std::string>(info.name, info.callback_id);
 
   base::FilePath filePath =
       base::FilePath::FromUTF8Unsafe(params->initial_path);

@@ -20,6 +20,8 @@ namespace xwalk {
 namespace experimental {
 
 using extensions::XWalkExtension;
+using extensions::XWalkExtensionFunctionHandler;
+using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 using extensions::XWalkInternalExtension;
 using extensions::XWalkInternalExtensionInstance;
@@ -62,10 +64,8 @@ class DialogInstance : public XWalkInternalExtensionInstance,
     const std::vector<base::FilePath>& files, void* params) OVERRIDE;
 
  private:
-  void OnShowOpenDialog(const std::string& function_name,
-                        const std::string& callback_id, base::ListValue* args);
-  void OnShowSaveDialog(const std::string& function_name,
-                        const std::string& callback_id, base::ListValue* args);
+  void OnShowOpenDialog(const XWalkExtensionFunctionInfo& info);
+  void OnShowSaveDialog(const XWalkExtensionFunctionInfo& info);
 
   DialogExtension* extension_;
   scoped_refptr<SelectFileDialog> dialog_;
