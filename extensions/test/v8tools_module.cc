@@ -35,9 +35,12 @@ class TestV8ToolsExtension : public XWalkExtension {
 
   virtual const char* GetJavaScriptAPI() {
     static const char* kAPI =
+        "var v8tools = requireNative('v8tools');"
         "exports.forceSetProperty = function(obj, key, value) {"
-        "  var v8tools = requireNative('v8tools');"
         "  v8tools.forceSetProperty(obj, key, value);"
+        "};"
+        "exports.lifecycleTracker = function() {"
+        "  return v8tools.lifecycleTracker();"
         "};";
     return kAPI;
   }
