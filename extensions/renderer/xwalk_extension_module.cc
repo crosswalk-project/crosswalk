@@ -119,7 +119,7 @@ std::string WrapAPICode(const std::string& extension_code,
   // We take care here to make sure that line numbering for api_code after
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
-      "console.log('loading'); var %s; (function(extension, requireNative) { "
+      "var %s; (function(extension, requireNative) { "
       "extension._setupExtensionInternal = function() {"
       "  xwalk._setupExtensionInternal(extension);"
       "};"
