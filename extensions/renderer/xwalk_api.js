@@ -16,7 +16,7 @@ xwalk._setupExtensionInternal = function(extension_obj) {
     } else {
       // The function name and the callback ID are prepended before
       // the arguments. If there is no callback, an empty string is
-      // should be used. This will be sorted out by the InternalContext
+      // should be used. This will be sorted out by the InternalInstance
       // message handler.
       args.unshift("");
     }

@@ -61,13 +61,13 @@ void XWalkExtensionWebContentsHandler::ClearMessageFilter(void) {
   message_filter_ = NULL;
 }
 
-void XWalkExtensionWebContentsHandler::HandleMessageFromContext(
+void XWalkExtensionWebContentsHandler::HandleMessageFromNative(
     const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
   if (message_filter_)
     message_filter_->PostMessage(runner, msg.Pass());
 }
 
-void XWalkExtensionWebContentsHandler::HandleReplyMessageFromContext(
+void XWalkExtensionWebContentsHandler::HandleReplyMessageFromNative(
     scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
   if (message_filter_)
     message_filter_->PostReplyMessage(ipc_reply.Pass(), msg.Pass());

@@ -13,7 +13,23 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
+
+class EchoContext : public XWalkExtensionInstance {
+ public:
+  explicit EchoContext(
+      const XWalkExtension::PostMessageCallback& post_message) {
+    SetPostMessageCallback(post_message);
+  }
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    PostMessageToJS(msg.Pass());
+  }
+  virtual scoped_ptr<base::Value> HandleSyncMessage(
+      scoped_ptr<base::Value> msg) OVERRIDE {
+    return msg.Pass();
+  }
+};
 
 class EchoExtension : public XWalkExtension {
  public:
@@ -39,21 +55,7 @@ class EchoExtension : public XWalkExtension {
     return kAPI;
   }
 
-  class EchoContext : public XWalkExtension::Context {
-   public:
-    explicit EchoContext(
-        const XWalkExtension::PostMessageCallback& post_message)
-        : XWalkExtension::Context(post_message) {}
-    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
-      PostMessage(msg.Pass());
-    }
-    virtual scoped_ptr<base::Value> HandleSyncMessage(
-        scoped_ptr<base::Value> msg) OVERRIDE {
-      return msg.Pass();
-    }
-  };
-
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
     return new EchoContext(post_message);
   }
@@ -66,7 +68,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
   }
 
   virtual const char* GetJavaScriptAPI() { return ""; }
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
 };
 

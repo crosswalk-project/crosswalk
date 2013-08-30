@@ -23,15 +23,15 @@ namespace extensions {
 // examples.
 //
 // To use a context runner, the object should implement its Client interface to
-// receive messages from context, and call PostMessageToContext() when
+// receive messages from context, and call PostMessageToNative() when
 // appropriate.
 class XWalkExtensionRunner {
  public:
   class Client {
    public:
-    virtual void HandleMessageFromContext(
+    virtual void HandleMessageFromNative(
         const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) = 0;
-    virtual void HandleReplyMessageFromContext(
+    virtual void HandleReplyMessageFromNative(
         scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) = 0;
    protected:
     virtual ~Client() {}
@@ -40,8 +40,8 @@ class XWalkExtensionRunner {
   XWalkExtensionRunner(const std::string& extension_name, Client* client);
   virtual ~XWalkExtensionRunner();
 
-  void PostMessageToContext(scoped_ptr<base::Value> msg);
-  void SendSyncMessageToContext(scoped_ptr<IPC::Message> ipc_reply,
+  void PostMessageToNative(scoped_ptr<base::Value> msg);
+  void SendSyncMessageToNative(scoped_ptr<IPC::Message> ipc_reply,
                                 scoped_ptr<base::Value> msg);
 
   std::string extension_name() const { return extension_name_; }

@@ -27,28 +27,29 @@ const char* TestExtension::GetJavaScriptAPI() {
   return kSource_internal_extension_browsertest_api;
 }
 
-XWalkExtension::Context* TestExtension::CreateContext(
+XWalkExtensionInstance* TestExtension::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
-  return new TestExtensionContext(post_message);
+  return new TestExtensionInstance(post_message);
 }
 
-TestExtension::TestExtensionContext::TestExtensionContext(
+TestExtensionInstance::TestExtensionInstance(
     const XWalkExtension::PostMessageCallback& post_message)
-    : InternalContext(post_message) {
-  RegisterFunction("clearDatabase", &TestExtensionContext::OnClearDatabase);
-  RegisterFunction("addPerson", &TestExtensionContext::OnAddPerson);
-  RegisterFunction("addPersonObject", &TestExtensionContext::OnAddPersonObject);
-  RegisterFunction("getAllPersons", &TestExtensionContext::OnGetAllPersons);
-  RegisterFunction("getPersonAge", &TestExtensionContext::OnGetPersonAge);
+    : XWalkInternalExtensionInstance(post_message) {
+  RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
+  RegisterFunction("addPerson", &TestExtensionInstance::OnAddPerson);
+  RegisterFunction("addPersonObject",
+      &TestExtensionInstance::OnAddPersonObject);
+  RegisterFunction("getAllPersons", &TestExtensionInstance::OnGetAllPersons);
+  RegisterFunction("getPersonAge", &TestExtensionInstance::OnGetPersonAge);
 }
 
-void TestExtension::TestExtensionContext::OnClearDatabase(const std::string&,
+void TestExtensionInstance::OnClearDatabase(const std::string&,
                                                           const std::string&,
                                                           base::ListValue*) {
   database()->clear();
 }
 
-void TestExtension::TestExtensionContext::OnAddPerson(
+void TestExtensionInstance::OnAddPerson(
     const std::string& function_name, const std::string&,
     base::ListValue* args) {
   scoped_ptr<AddPerson::Params> params(AddPerson::Params::Create(*args));
@@ -62,7 +63,7 @@ void TestExtension::TestExtensionContext::OnAddPerson(
   database()->push_back(person);
 }
 
-void TestExtension::TestExtensionContext::OnAddPersonObject(
+void TestExtensionInstance::OnAddPersonObject(
     const std::string& function_name, const std::string&,
     base::ListValue* args) {
   scoped_ptr<AddPersonObject::Params>
@@ -77,7 +78,7 @@ void TestExtension::TestExtensionContext::OnAddPersonObject(
   database()->push_back(person);
 }
 
-void TestExtension::TestExtensionContext::OnGetAllPersons(
+void TestExtensionInstance::OnGetAllPersons(
     const std::string& function_name, const std::string& callback_id,
     base::ListValue* args) {
   if (callback_id.empty())
@@ -106,7 +107,7 @@ void TestExtension::TestExtensionContext::OnGetAllPersons(
              GetAllPersons::Results::Create(persons, max_size));
 }
 
-void TestExtension::TestExtensionContext::OnGetPersonAge(
+void TestExtensionInstance::OnGetPersonAge(
     const std::string& function_name, const std::string& callback_id,
     base::ListValue* args) {
   if (callback_id.empty())

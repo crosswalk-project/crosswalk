@@ -16,34 +16,35 @@ class TestExtension : public xwalk::extensions::XWalkInternalExtension {
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
 
-  virtual XWalkExtension::Context* CreateContext(
+  virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+};
 
-  class TestExtensionContext
-      : public xwalk::extensions::XWalkInternalExtension::InternalContext {
-   public:
-    typedef std::vector<std::pair<std::string, int> > Database;
+class TestExtensionInstance
+    : public xwalk::extensions::XWalkInternalExtensionInstance {
+ public:
+  typedef std::vector<std::pair<std::string, int> > Database;
 
-    TestExtensionContext(
-        const XWalkExtension::PostMessageCallback& post_message);
+  TestExtensionInstance(
+      const xwalk::extensions::XWalkExtension::PostMessageCallback&
+          post_message);
 
-    Database* database() { return &database_; }
+  Database* database() { return &database_; }
 
-   private:
-    void OnClearDatabase(const std::string& function_name,
-                         const std::string& callback_id, base::ListValue* args);
-    void OnAddPerson(const std::string& function_name,
-                     const std::string& callback_id, base::ListValue* args);
-    void OnAddPersonObject(const std::string& function_name,
-                           const std::string& callback_id,
-                           base::ListValue* args);
-    void OnGetAllPersons(const std::string& function_name,
-                         const std::string& callback_id, base::ListValue* args);
-    void OnGetPersonAge(const std::string& function_name,
-                        const std::string& callback_id, base::ListValue* args);
+ private:
+  void OnClearDatabase(const std::string& function_name,
+                       const std::string& callback_id, base::ListValue* args);
+  void OnAddPerson(const std::string& function_name,
+                   const std::string& callback_id, base::ListValue* args);
+  void OnAddPersonObject(const std::string& function_name,
+                         const std::string& callback_id,
+                         base::ListValue* args);
+  void OnGetAllPersons(const std::string& function_name,
+                       const std::string& callback_id, base::ListValue* args);
+  void OnGetPersonAge(const std::string& function_name,
+                      const std::string& callback_id, base::ListValue* args);
 
-    std::vector<std::pair<std::string, int> > database_;
-  };
+  std::vector<std::pair<std::string, int> > database_;
 };
 
 #endif  // XWALK_EXTENSIONS_TEST_INTERNAL_EXTENSION_BROWSERTEST_H_

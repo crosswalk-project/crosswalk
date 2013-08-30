@@ -42,7 +42,7 @@ class XWalkExternalExtension : public XWalkExtension {
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
 
-  virtual XWalkExtension::Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
 
   bool is_valid();
@@ -50,35 +50,35 @@ class XWalkExternalExtension : public XWalkExtension {
  private:
   void Initialize();
 
-  class ExternalContext : public XWalkExtension::Context {
-   public:
-    ExternalContext(
-        XWalkExternalExtension* external,
-        const XWalkExtension::PostMessageCallback& post_message,
-        CXWalkExtensionContext* context);
-    virtual ~ExternalContext();
-
-   private:
-    virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-    virtual scoped_ptr<base::Value> HandleSyncMessage(
-        scoped_ptr<base::Value> msg) OVERRIDE;
-
-    static const CXWalkExtensionContextAPI* GetAPIWrappers();
-    static void PostMessageWrapper(CXWalkExtensionContext* context,
-                                   const char* message);
-    static void SetSyncReplyWrapper(CXWalkExtensionContext* context,
-                                    const char* reply);
-
-    void SetSyncReply(const char* reply);
-
-    CXWalkExtensionContext* context_;
-    std::string sync_reply_;
-  };
-
   base::ScopedNativeLibrary library_;
   CXWalkExtension* wrapped_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExternalExtension);
+};
+
+class XWalkExternalExtensionInstance : public XWalkExtensionInstance {
+ public:
+  XWalkExternalExtensionInstance(
+      XWalkExternalExtension* external,
+      const XWalkExtension::PostMessageCallback& post_message,
+      CXWalkExtensionContext* context);
+  virtual ~XWalkExternalExtensionInstance();
+
+ private:
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual scoped_ptr<base::Value> HandleSyncMessage(
+      scoped_ptr<base::Value> msg) OVERRIDE;
+
+  static const CXWalkExtensionContextAPI* GetAPIWrappers();
+  static void PostMessageWrapper(CXWalkExtensionContext* context,
+                                 const char* message);
+  static void SetSyncReplyWrapper(CXWalkExtensionContext* context,
+                                  const char* reply);
+
+  void SetSyncReply(const char* reply);
+
+  CXWalkExtensionContext* context_;
+  std::string sync_reply_;
 };
 
 }  // namespace old

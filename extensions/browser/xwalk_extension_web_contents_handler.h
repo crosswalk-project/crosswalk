@@ -51,9 +51,9 @@ class XWalkExtensionWebContentsHandler
   void ClearMessageFilter(void);
 
   // XWalkExtensionRunner::Client implementation.
-  virtual void HandleMessageFromContext(const XWalkExtensionRunner* runner,
+  virtual void HandleMessageFromNative(const XWalkExtensionRunner* runner,
                                         scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual void HandleReplyMessageFromContext(
+  virtual void HandleReplyMessageFromNative(
       scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
 
   friend class content::WebContentsUserData<XWalkExtensionWebContentsHandler>;

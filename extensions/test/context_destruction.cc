@@ -16,6 +16,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
 namespace {
@@ -27,15 +28,16 @@ int g_contexts_destroyed = 0;
 
 }
 
-class OnceExtensionContext : public XWalkExtension::Context {
+class OnceExtensionInstance : public XWalkExtensionInstance {
  public:
-  OnceExtensionContext(int sequence,
+  OnceExtensionInstance(int sequence,
       const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtension::Context(post_message),
-        sequence_(sequence),
-        answered_(false) {}
+      : sequence_(sequence),
+        answered_(false) {
+    SetPostMessageCallback(post_message);
+  }
 
-  ~OnceExtensionContext() {
+  ~OnceExtensionInstance() {
     base::AutoLock lock(g_contexts_destroyed_lock);
     g_contexts_destroyed++;
   }
@@ -48,7 +50,7 @@ class OnceExtensionContext : public XWalkExtension::Context {
       answer = base::StringPrintf("PASS %d", sequence_);
       answered_ = true;
     }
-    PostMessage(scoped_ptr<base::Value>(
+    PostMessageToJS(scoped_ptr<base::Value>(
         base::Value::CreateStringValue(answer)));
   }
 
@@ -73,9 +75,9 @@ class OnceExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
-    return new OnceExtensionContext(++g_contexts_created, post_message);
+    return new OnceExtensionInstance(++g_contexts_created, post_message);
   }
 };
 
