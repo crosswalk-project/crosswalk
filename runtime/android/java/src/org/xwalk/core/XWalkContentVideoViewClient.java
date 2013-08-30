@@ -4,19 +4,21 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
+import android.view.WindowManager;
 
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
-public class XWalkContentVideoViewDelegate implements ContentVideoViewClient {
-    private Context mContext;
+public class XWalkContentVideoViewClient implements ContentVideoViewClient {
     private XWalkContentsClient mContentsClient;
+    private Activity mActivity;
 
-    public XWalkContentVideoViewDelegate(XWalkContentsClient client, Context context) {
-        mContext = context;
+    public XWalkContentVideoViewClient(XWalkContentsClient client, Activity activity) {
         mContentsClient = client;
+        mActivity = activity;
     }
 
     @Override
@@ -36,6 +38,11 @@ public class XWalkContentVideoViewDelegate implements ContentVideoViewClient {
 
     @Override
     public void keepScreenOn(boolean screenOn) {
+        if (screenOn) {
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     @Override
