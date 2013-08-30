@@ -56,7 +56,7 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
 
   void PostMessageToClientTaskRunner(scoped_ptr<base::Value> msg);
 
-  scoped_ptr<XWalkExtension::Context> context_;
+  scoped_ptr<XWalkExtensionInstance> context_;
   scoped_ptr<base::Thread> thread_;
   XWalkExtension* extension_;
 

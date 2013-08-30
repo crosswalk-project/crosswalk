@@ -23,7 +23,7 @@ class XWalkExternalExtension;
 // library, and with XWalkExternalExtension to get the appropriate
 // callbacks. The associated XW_Instance is used to identify this context when
 // calling the shared library.
-class XWalkExternalContext : public XWalkExtension::Context {
+class XWalkExternalContext : public XWalkExtensionInstance {
  public:
   XWalkExternalContext(XWalkExternalExtension* extension,
                        const XWalkExtension::PostMessageCallback& post_message,
@@ -33,7 +33,7 @@ class XWalkExternalContext : public XWalkExtension::Context {
  private:
   friend class XWalkExternalAdapter;
 
-  // XWalkExtension::Context implementation.
+  // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
   virtual scoped_ptr<base::Value>
       HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;

@@ -14,22 +14,22 @@ XWalkExtensionRunner::XWalkExtensionRunner(const std::string& extension_name,
 
 XWalkExtensionRunner::~XWalkExtensionRunner() {}
 
-void XWalkExtensionRunner::PostMessageToContext(scoped_ptr<base::Value> msg) {
+void XWalkExtensionRunner::PostMessageToNative(scoped_ptr<base::Value> msg) {
   HandleMessageFromClient(msg.Pass());
 }
 
-void XWalkExtensionRunner::SendSyncMessageToContext(
+void XWalkExtensionRunner::SendSyncMessageToNative(
     scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
   return HandleSyncMessageFromClient(ipc_reply.Pass(), msg.Pass());
 }
 
 void XWalkExtensionRunner::PostMessageToClient(scoped_ptr<base::Value> msg) {
-  client_->HandleMessageFromContext(this, msg.Pass());
+  client_->HandleMessageFromNative(this, msg.Pass());
 }
 
 void XWalkExtensionRunner::PostReplyMessageToClient(
     scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
-  client_->HandleReplyMessageFromContext(ipc_reply.Pass(), msg.Pass());
+  client_->HandleReplyMessageFromNative(ipc_reply.Pass(), msg.Pass());
 }
 
 }  // namespace extensions

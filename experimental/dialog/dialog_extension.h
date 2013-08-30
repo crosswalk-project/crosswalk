@@ -20,7 +20,9 @@ namespace xwalk {
 namespace experimental {
 
 using extensions::XWalkExtension;
+using extensions::XWalkExtensionInstance;
 using extensions::XWalkInternalExtension;
+using extensions::XWalkInternalExtensionInstance;
 
 class DialogExtension : public XWalkInternalExtension,
                         public RuntimeRegistryObserver {
@@ -30,7 +32,7 @@ class DialogExtension : public XWalkInternalExtension,
 
   // XWalkExtension implementation.
   virtual const char* GetJavaScriptAPI() OVERRIDE;
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
     const PostMessageCallback& post_message) OVERRIDE;
 
   // RuntimeRegistryObserver implementation.
@@ -39,19 +41,19 @@ class DialogExtension : public XWalkInternalExtension,
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
  private:
-  friend class DialogContext;
+  friend class DialogInstance;
 
   RuntimeRegistry* runtime_registry_;
   gfx::NativeWindow owning_window_;
 };
 
 
-class DialogContext : public XWalkInternalExtension::InternalContext,
+class DialogInstance : public XWalkInternalExtensionInstance,
                       public SelectFileDialog::Listener {
  public:
-  DialogContext(DialogExtension* extension,
+  DialogInstance(DialogExtension* extension,
     const XWalkExtension::PostMessageCallback& post_message);
-  virtual ~DialogContext();
+  virtual ~DialogInstance();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 

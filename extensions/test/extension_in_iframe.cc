@@ -15,6 +15,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
+using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
 namespace {
@@ -24,11 +25,12 @@ int g_count = 0;
 
 }
 
-class CounterExtensionContext : public XWalkExtension::Context {
+class CounterExtensionContext : public XWalkExtensionInstance {
  public:
   explicit CounterExtensionContext(
-      const XWalkExtension::PostMessageCallback& post_message)
-      : XWalkExtension::Context(post_message) {}
+      const XWalkExtension::PostMessageCallback& post_message) {
+    SetPostMessageCallback(post_message);
+  }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     base::AutoLock lock(g_count_lock);
@@ -51,7 +53,7 @@ class CounterExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) {
     return new CounterExtensionContext(post_message);
   }

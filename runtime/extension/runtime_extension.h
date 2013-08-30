@@ -11,7 +11,9 @@
 namespace xwalk {
 
 using extensions::XWalkExtension;
+using extensions::XWalkExtensionInstance;
 using extensions::XWalkInternalExtension;
+using extensions::XWalkInternalExtensionInstance;
 
 class RuntimeExtension : public XWalkInternalExtension {
  public:
@@ -19,18 +21,18 @@ class RuntimeExtension : public XWalkInternalExtension {
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
 
-  virtual XWalkExtension::Context* CreateContext(
+  virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+};
 
-  class RuntimeContext : public XWalkInternalExtension::InternalContext {
-   public:
-    explicit RuntimeContext(
-        const XWalkExtension::PostMessageCallback& post_message);
+class RuntimeInstance : public XWalkInternalExtensionInstance {
+ public:
+  explicit RuntimeInstance(
+      const XWalkExtension::PostMessageCallback& post_message);
 
-   private:
-    void OnGetAPIVersion(const std::string& function_name,
-                         const std::string& callback_id, base::ListValue* args);
-  };
+ private:
+  void OnGetAPIVersion(const std::string& function_name,
+                       const std::string& callback_id, base::ListValue* args);
 };
 
 }  // namespace xwalk

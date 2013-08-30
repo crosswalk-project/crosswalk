@@ -31,7 +31,7 @@ void XWalkExtensionMessageFilter::PostMessage(
   list.Append(msg.release());
 
   int64_t frame_id = runners_->GetFrameForRunner(runner);
-  Send(new XWalkViewMsg_PostMessage(routing_id_,
+  Send(new XWalkViewMsg_PostMessageToJS(routing_id_,
                                     frame_id,
                                     runner->extension_name(),
                                     list));
@@ -56,7 +56,7 @@ bool XWalkExtensionMessageFilter::OnMessageReceived(
 
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionMessageFilter, message)
-    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessage, OnPostMessage)
+    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PostMessageToNative, OnPostMessage)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(XWalkViewHostMsg_SendSyncMessage,
                                     OnSendSyncMessage)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_DidCreateScriptContext,
@@ -88,7 +88,7 @@ void XWalkExtensionMessageFilter::OnPostMessage(
   // can be costly depending on the size of Value.
   base::Value* value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  runner->PostMessageToContext(scoped_ptr<base::Value>(value));
+  runner->PostMessageToNative(scoped_ptr<base::Value>(value));
 }
 
 void XWalkExtensionMessageFilter::OnSendSyncMessage(
@@ -108,7 +108,7 @@ void XWalkExtensionMessageFilter::OnSendSyncMessage(
   // We handle a pre-populated |ipc_reply| to the Context, so it is up to the
   // Context to decide when to reply. It is important to notice that the callee
   // on the renderer will remain blocked until the reply gets back.
-  runner->SendSyncMessageToContext(scoped_ptr<IPC::Message>(ipc_reply),
+  runner->SendSyncMessageToNative(scoped_ptr<IPC::Message>(ipc_reply),
                                    scoped_ptr<base::Value>(value));
 }
 
