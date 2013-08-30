@@ -16,7 +16,7 @@ import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
 
 @JNINamespace("xwalk")
-class XWalkSettings {
+public class XWalkSettings {
 
     private static final String TAG = "XWalkSettings";
 

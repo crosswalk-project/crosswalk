@@ -165,6 +165,10 @@ public class XWalkContent extends FrameLayout {
         return nativeDevToolsAgentId(mXWalkContent);
     }
 
+    public XWalkSettings getSettings() {
+        return mSettings;
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
 
