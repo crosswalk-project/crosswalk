@@ -2,18 +2,84 @@
 <head>
 <title></title>
 <script>
- var obj = {};
- Object.defineProperty(obj, "prop", {
-   configurable: false,
-   writable: false,
-   value: "Fail"
- });
+  function forceSetPropertyTest() {
+    var obj = {};
 
- try {
-   test_v8tools.forceSetProperty(obj, "prop", "Pass");
- } catch(e) {}
+    Object.defineProperty(obj, "prop", {
+      configurable: false,
+      writable: false,
+      value: "Fail"
+    });
 
- document.title = obj.prop;
+    try {
+      test_v8tools.forceSetProperty(obj, "prop", "Pass");
+    } catch(e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function lifecycleTrackerTest() {
+    var collected = 0;
+    var test1;
+    var test2 = {};
+    var test3;
+    var test4;
+
+    function inc_collected() {
+      collected++;
+    }
+
+    test1 = test_v8tools.lifecycleTracker();
+    test1.destructor = inc_collected;
+
+    test2.foo = test_v8tools.lifecycleTracker();
+    test2.foo.destructor = inc_collected;
+
+    test3 = test_v8tools.lifecycleTracker();
+    test3.destructor = inc_collected;
+
+    test4 = test3;
+
+    // Should be collected.
+    test1 = 0;
+    gc();
+
+    if (collected != 1)
+      return false;
+
+    // Should be collected.
+    test2 = 0;
+    gc();
+
+    if (collected != 2)
+      return false;
+
+    // Should not, still referenced by test4.
+    test3 = 0;
+    gc();
+
+    if (collected != 2)
+      return false;
+
+    // Should be collected.
+    test4 = 0;
+    gc();
+
+    if (collected != 3)
+      return false;
+
+    return true;
+  }
+
+  if (!forceSetPropertyTest())
+    document.title = "Fail";
+  else if(!lifecycleTrackerTest())
+    document.title = "Fail";
+  else
+    document.title = "Pass";
+
 </script>
 </head>
 </html>
