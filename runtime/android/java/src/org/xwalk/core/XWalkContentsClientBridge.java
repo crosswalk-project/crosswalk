@@ -20,6 +20,7 @@ import android.webkit.WebResourceResponse;
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
+import org.chromium.content.browser.ContentVideoViewClient;
 
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
 // WebChromeClient; Also handle the JNI conmmunication logic.
@@ -235,6 +236,11 @@ public class XWalkContentsClientBridge extends XWalkContentsClient {
 
     @Override
     public void didFinishLoad(String url) {
+    }
+
+    @Override
+    public ContentVideoViewClient getContentVideoViewClient() {
+        return new XWalkContentVideoViewClient(this, mXWalkView.getActivity());
     }
 
     // Used by the native peer to set/reset a weak ref to the native peer.
