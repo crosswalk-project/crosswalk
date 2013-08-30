@@ -234,8 +234,8 @@ void NativeAppWindowViews::ChildPreferredSizeChanged(views::View* child) {
 }
 
 void NativeAppWindowViews::ViewHierarchyChanged(
-    bool is_add, views::View *parent, views::View *child) {
-  if (is_add && child == this) {
+    const ViewHierarchyChangedDetails& details) {
+  if (details.is_add && details.child == this) {
     TopViewLayout* layout = new TopViewLayout();
     SetLayoutManager(layout);
 
