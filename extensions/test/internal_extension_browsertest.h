@@ -10,6 +10,8 @@
 #include <vector>
 #include "xwalk/extensions/browser/xwalk_extension_internal.h"
 
+using xwalk::extensions::XWalkExtensionFunctionHandler;
+
 class TestExtension : public xwalk::extensions::XWalkInternalExtension {
  public:
   TestExtension();
@@ -32,17 +34,11 @@ class TestExtensionInstance
   Database* database() { return &database_; }
 
  private:
-  void OnClearDatabase(const std::string& function_name,
-                       const std::string& callback_id, base::ListValue* args);
-  void OnAddPerson(const std::string& function_name,
-                   const std::string& callback_id, base::ListValue* args);
-  void OnAddPersonObject(const std::string& function_name,
-                         const std::string& callback_id,
-                         base::ListValue* args);
-  void OnGetAllPersons(const std::string& function_name,
-                       const std::string& callback_id, base::ListValue* args);
-  void OnGetPersonAge(const std::string& function_name,
-                      const std::string& callback_id, base::ListValue* args);
+  void OnClearDatabase(const FunctionInfo& info);
+  void OnAddPerson(const FunctionInfo& info);
+  void OnAddPersonObject(const FunctionInfo& info);
+  void OnGetAllPersons(const FunctionInfo& info);
+  void OnGetPersonAge(const FunctionInfo& info);
 
   std::vector<std::pair<std::string, int> > database_;
 };

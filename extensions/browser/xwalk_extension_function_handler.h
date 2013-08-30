@@ -21,9 +21,13 @@ class XWalkExtensionFunctionHandler {
   XWalkExtensionFunctionHandler();
   virtual ~XWalkExtensionFunctionHandler();
 
-  bool HandleFunction(std::string& function_name,
-                      const std::string& callback_id,
-                      base::ListValue* args);
+  struct FunctionInfo {
+    std::string name;
+    std::string callback_id;
+    base::ListValue* arguments;
+  };
+
+  bool HandleFunction(const FunctionInfo& info);
 
  protected:
   // This method will register a function to handle a message tagged as
@@ -37,9 +41,7 @@ class XWalkExtensionFunctionHandler {
   //
   // The signature of a function handler should be like the following:
   //
-  //   void Foo::OnShowBar(const std::string& function_name,
-  //                       const std::string& callback_id,
-  //                       base::ListValue* args)
+  //   void Foo::OnShowBar(const FunctionInfo& info);
   //
   // And register them like this, preferable at the FooInstance constructor:
   //
@@ -48,15 +50,13 @@ class XWalkExtensionFunctionHandler {
   //   ...
   template <class T>
   void RegisterFunction(const std::string& function_name,
-      void (T::*handler)(const std::string& function_name,
-      const std::string& callback_id, base::ListValue* args)) {
+      void (T::*handler)(const FunctionInfo& info)) {
     handlers_[function_name] = base::Bind(handler,
         base::Unretained(static_cast<T*>(this)));
   }
 
  private:
-  typedef base::Callback<void(const std::string&, const std::string&,
-                              base::ListValue*)> FunctionHandler;
+  typedef base::Callback<void(const FunctionInfo& info)> FunctionHandler;
   typedef std::map<std::string, FunctionHandler> FunctionHandlerMap;
 
   FunctionHandlerMap handlers_;

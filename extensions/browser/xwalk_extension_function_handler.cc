@@ -11,13 +11,13 @@ XWalkExtensionFunctionHandler::XWalkExtensionFunctionHandler() {}
 
 XWalkExtensionFunctionHandler::~XWalkExtensionFunctionHandler() {}
 
-bool XWalkExtensionFunctionHandler::HandleFunction(std::string& function_name,
-    const std::string& callback_id, base::ListValue* args) {
-  FunctionHandlerMap::iterator iter = handlers_.find(function_name);
+bool XWalkExtensionFunctionHandler::HandleFunction(
+    const FunctionInfo& info) {
+  FunctionHandlerMap::iterator iter = handlers_.find(info.name);
   if (iter == handlers_.end())
     return false;
 
-  iter->second.Run(function_name, callback_id, args);
+  iter->second.Run(info);
 
   return true;
 }

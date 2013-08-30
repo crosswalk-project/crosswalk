@@ -55,7 +55,12 @@ void XWalkInternalExtensionInstance::HandleMessage(
   args->Remove(0, NULL);
   args->Remove(0, NULL);
 
-  if (!HandleFunction(function_name, callback_id, args)) {
+  FunctionInfo info;
+  info.name = function_name;
+  info.callback_id = callback_id;
+  info.arguments = args;
+
+  if (!HandleFunction(info)) {
     DLOG(WARNING) << "Function not registered: " << function_name;
     return;
   }

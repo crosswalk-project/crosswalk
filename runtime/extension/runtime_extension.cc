@@ -30,10 +30,9 @@ RuntimeInstance::RuntimeInstance(
   RegisterFunction("getAPIVersion", &RuntimeInstance::OnGetAPIVersion);
 }
 
-void RuntimeInstance::OnGetAPIVersion(
-    const std::string&, const std::string& callback_id,
-    base::ListValue* args) {
-  PostResult(callback_id, jsapi::runtime::GetAPIVersion::Results::Create(1));
+void RuntimeInstance::OnGetAPIVersion(const FunctionInfo& info) {
+  PostResult(info.callback_id,
+             jsapi::runtime::GetAPIVersion::Results::Create(1));
 };
 
 }  // namespace xwalk
