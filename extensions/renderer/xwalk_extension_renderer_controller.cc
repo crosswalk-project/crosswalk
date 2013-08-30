@@ -7,6 +7,7 @@
 #include "base/values.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
+#include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
@@ -24,13 +25,29 @@ extern const char kSource_xwalk_api[];
 namespace xwalk {
 namespace extensions {
 
+XWalkExtensionClient::XWalkExtensionClient(IPC::ChannelProxy* channel)
+    : channel_(channel) {
+}
+
+bool XWalkExtensionClient::Send(IPC::Message* msg) {
+  DCHECK(channel_);
+
+  return channel_->Send(msg);
+}
+
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
-  internal_extensions_client_.reset(new XWalkExtensionClient());
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
   // TODO(cmarcelo): Once we have a better solution for the internal
   // extension helpers, remove this v8::Extension.
   thread->RegisterExtension(new v8::Extension("xwalk", kSource_xwalk_api));
+
+  internal_extensions_client_.reset(new XWalkExtensionClient(
+      thread->GetChannel()));
+
+  // FIXME(jeez): remove this!!! Only for testing purpose!!
+  internal_extensions_client_->Send(
+      new XWalkExtensionServerMsg_CreateInstance(1234, "FooBar!!"));
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {

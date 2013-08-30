@@ -16,14 +16,17 @@ namespace extensions {
 // XWalkExtensionServer through an IPC channel.
 class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
  public:
-  XWalkExtensionClient() {}
+  XWalkExtensionClient(IPC::ChannelProxy* channel);
   virtual ~XWalkExtensionClient() {}
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) { return true; }
 
   // IPC::Sender Implementation.
-  virtual bool Send(IPC::Message* msg) { return true; }
+  virtual bool Send(IPC::Message* msg);
+
+ private:
+  IPC::ChannelProxy* channel_;
 };
 
 }  // namespace extensions

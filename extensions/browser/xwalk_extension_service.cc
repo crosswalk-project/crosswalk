@@ -140,9 +140,11 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   if (render_process_host_)
     return;
 
-  in_process_extensions_server_.reset(new XWalkExtensionServer());
-
   render_process_host_ = host;
+
+  in_process_extensions_server_.reset(new XWalkExtensionServer(
+      render_process_host_->GetChannel()));
+
   RegisterExtensionsForNewHost(render_process_host_);
 
   // Attach extensions to already existing runtimes. Related the conditional in

@@ -40,3 +40,11 @@ IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidCreateScriptContext,  // NOLINT(*)
 
 IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_WillReleaseScriptContext,  // NOLINT(*)
                     int64_t /* frame id */)
+
+IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
+                    int64_t /* instance id */,
+                    std::string /* extension name */)
+
+IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_PostMessageToNative,  // NOLINT(*)
+                    int64_t /* instance id */,
+                    base::ListValue /* contents */)

@@ -22,6 +22,8 @@
     'common/xwalk_extension_runner.h',
     'common/xwalk_extension_threaded_runner.cc',
     'common/xwalk_extension_threaded_runner.h',
+    'common/xwalk_extension_server.cc',
+    'common/xwalk_extension_server.h',
     'common/xwalk_external_adapter.cc',
     'common/xwalk_external_adapter.h',
     'common/xwalk_external_context.cc',
@@ -44,6 +46,7 @@
     'renderer/xwalk_v8tools_module.h',
     'renderer/xwalk_remote_extension_runner.cc',
     'renderer/xwalk_remote_extension_runner.h',
+    'renderer/xwalk_extension_client.h',
   ],
   'includes': [
     'xwalk_js2c.gypi',
