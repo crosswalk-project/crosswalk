@@ -108,9 +108,6 @@ bool RuntimeContext::IsOffTheRecord() const {
 }
 
 content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
-#if defined(OS_ANDROID)
-  return NULL;
-#else
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
 
   if (!download_manager_delegate_) {
@@ -119,7 +116,6 @@ content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
   }
 
   return download_manager_delegate_.get();
-#endif
 }
 
 net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
