@@ -28,16 +28,10 @@
 #include "ui/views/focus/accelerator_handler.h"
 #endif
 
-const char kEmptyTestName[] = "InProcessBrowserTest.Empty";
-
 class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  public:
   XWalkTestLauncherDelegate() {}
   virtual ~XWalkTestLauncherDelegate() {}
-
-  virtual std::string GetEmptyTestName() OVERRIDE {
-    return kEmptyTestName;
-  }
 
   virtual int RunTestSuite(int argc, char** argv) OVERRIDE {
     return XWalkTestSuite(argc, argv).Run();
