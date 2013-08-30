@@ -32,7 +32,6 @@ public class XWalkContent extends FrameLayout {
     private ContentViewRenderView mContentViewRenderView;
     private WindowAndroid mWindow;
     private XWalkView mXWalkView;
-    private XWalkContentsClient mContentsClient;
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
     private XWalkSettings mSettings;
@@ -71,23 +70,18 @@ public class XWalkContent extends FrameLayout {
         // Initialize mWindow which is needed by content
         mWindow = new WindowAndroid(xwView.getActivity());
 
-        // Initialize the ContentVideoView for fullscreen video playback.
-        // FIXME: 56f04e70d9b changed things
-        // ContentVideoView.registerContentVideoViewContextDelegate(
-        //         new XWalkContentVideoViewDelegate(mContentsClientBridge, getContext()));
-
         // Initialize ContentView.
         mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
         addView(mContentView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
+        mContentView.setContentViewClient(mContentsClientBridge);
 
         mContentViewRenderView.setCurrentContentView(mContentView);
 
         // For addJavascriptInterface
         mContentViewCore = mContentView.getContentViewCore();
-        mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
         mSettings = new XWalkSettings(getContext(), mWebContents, true);
