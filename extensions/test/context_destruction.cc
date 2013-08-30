@@ -4,7 +4,7 @@
 
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "base/synchronization/lock.h"
 #include "base/synchronization/spin_wait.h"
 #include "content/public/test/browser_test_utils.h"

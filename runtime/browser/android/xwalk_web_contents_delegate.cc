@@ -6,7 +6,7 @@
 
 #include "base/android/scoped_java_ref.h"
 #include "base/lazy_instance.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "content/public/browser/web_contents.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"

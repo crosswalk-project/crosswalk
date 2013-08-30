@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"

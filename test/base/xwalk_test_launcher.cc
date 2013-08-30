@@ -11,7 +11,7 @@
 #include "base/memory/linked_ptr.h"
 #include "base/process_util.h"
 #include "base/run_loop.h"
-#include "base/string_util.h"
+#include "base/strings/string_util.h"
 #include "base/test/test_file_util.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "xwalk/test/base/xwalk_test_suite.h"

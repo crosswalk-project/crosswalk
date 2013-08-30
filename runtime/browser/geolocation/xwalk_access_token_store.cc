@@ -5,7 +5,7 @@
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 
 #include "base/bind.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 
 XWalkAccessTokenStore::XWalkAccessTokenStore(
     net::URLRequestContextGetter* request_context)
