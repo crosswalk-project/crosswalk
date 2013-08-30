@@ -68,7 +68,12 @@ XWalkExtensionThreadedRunner::XWalkExtensionThreadedRunner(
   CHECK(client_task_runner_);
   std::string thread_name = "XWalk_ExtensionThread_" + extension_->name();
   thread_.reset(new base::Thread(thread_name.c_str()));
-  thread_->Start();
+
+  // FIXME(tmpsantos): We should make the MessageLoop type configurable,
+  // but right now IO seems to be the most appropriated.
+  base::Thread::Options options(base::MessageLoop::TYPE_IO, 0);
+
+  thread_->StartWithOptions(options);
   PostTaskToExtensionThread(
       FROM_HERE,
       base::Bind(&XWalkExtensionThreadedRunner::CreateContext,
