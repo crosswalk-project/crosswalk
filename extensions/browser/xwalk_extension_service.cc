@@ -16,6 +16,7 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "content/public/browser/render_process_host.h"
 
 namespace xwalk {
@@ -138,6 +139,8 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   // FIXME(cmarcelo): For now we support only one render process host.
   if (render_process_host_)
     return;
+
+  in_process_extensions_server_.reset(new XWalkExtensionServer());
 
   render_process_host_ = host;
   RegisterExtensionsForNewHost(render_process_host_);

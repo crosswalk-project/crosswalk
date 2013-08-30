@@ -23,6 +23,7 @@ namespace extensions {
 
 class XWalkExtension;
 class XWalkExtensionWebContentsHandler;
+class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
@@ -69,6 +70,8 @@ class XWalkExtensionService : public RuntimeRegistryObserver {
 
   // FIXME(cmarcelo): For now we support only one render process host.
   content::RenderProcessHost* render_process_host_;
+
+  scoped_ptr<XWalkExtensionServer> in_process_extensions_server_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };

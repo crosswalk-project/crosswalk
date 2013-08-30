@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "base/compiler_specific.h"
+#include "base/memory/scoped_ptr.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "v8/include/v8.h"
 
@@ -25,6 +26,7 @@ namespace extensions {
 
 class XWalkExtensionRenderViewHandler;
 class XWalkRemoteExtensionRunner;
+class XWalkExtensionClient;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
@@ -70,6 +72,8 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // FIXME(cmarcelo): Modify to be a map. Move inside XWalkExtensionClient.
   typedef std::vector<XWalkRemoteExtensionRunner*> RunnerVector;
   RunnerVector runners_;
+
+  scoped_ptr<XWalkExtensionClient> internal_extensions_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

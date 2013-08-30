@@ -11,6 +11,7 @@
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
@@ -24,6 +25,7 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
+  internal_extensions_client_.reset(new XWalkExtensionClient());
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
   // TODO(cmarcelo): Once we have a better solution for the internal
