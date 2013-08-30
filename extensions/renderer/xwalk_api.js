@@ -42,4 +42,10 @@ xwalk._setupExtensionInternal = function(extension_obj) {
     args.unshift(function_name);
     extension_obj.postMessage(args);
   };
+
+  extension_obj._internal.postMessageSync = function(function_name, args, callback) {
+    wrapCallback(args, callback);
+    args.unshift(function_name);
+    return extension_obj.internal.sendSyncMessage(args);
+  };
 };

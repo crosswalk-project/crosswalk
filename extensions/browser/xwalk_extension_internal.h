@@ -37,6 +37,9 @@ class XWalkInternalExtension : public XWalkExtension {
 
     virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
+    virtual scoped_ptr<base::Value> HandleSyncMessage(
+        scoped_ptr<base::Value> msg) OVERRIDE;
+
    protected:
     // This method will register a function to handle a message tagged as
     // |function_name|. When invoked, the handler will get as first parameter
@@ -78,6 +81,8 @@ class XWalkInternalExtension : public XWalkExtension {
     void PostResult(const std::string& callback_id,
                     scoped_ptr<base::ListValue> result);
 
+    void PostResultSync(scoped_ptr<base::Value> result);
+
    private:
     typedef base::Callback<void(const std::string&, const std::string&,
                                 base::ListValue*)> FunctionHandler;
@@ -86,6 +91,8 @@ class XWalkInternalExtension : public XWalkExtension {
     FunctionHandler* GetHandlerForFunction(const std::string& function);
 
     FunctionHandlerMap handlers_;
+
+    scoped_ptr<base::Value> sync_result_;
 
     DISALLOW_COPY_AND_ASSIGN(InternalContext);
   };

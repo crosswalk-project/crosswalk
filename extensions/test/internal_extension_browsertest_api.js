@@ -5,6 +5,11 @@
 extension._setupExtensionInternal();
 var internal = extension._internal;
 
+if (extension.internal && extension.internal.sendSyncMessage)
+  exports.isSyncMessagesSupported = true;
+else
+  exports.isSyncMessagesSupported = false;
+
 exports.Person = function(name, age) {
   this.name = name;
   this.age = age;
@@ -28,4 +33,12 @@ exports.getAllPersons = function(arg1, callback) {
 
 exports.getPersonAge = function(arg1, callback) {
   internal.postMessage('getPersonAge', [arg1], callback);
+};
+
+exports.getAllPersonsSync = function(arg1, callback) {
+  return internal.postMessageSync('getAllPersonsSync', [arg1], callback);
+};
+
+exports.getPersonAgeSync = function(arg1) {
+  return internal.postMessageSync('getPersonAgeSync', [arg1]);
 };

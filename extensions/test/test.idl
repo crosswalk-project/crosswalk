@@ -11,6 +11,7 @@ namespace test {
 
   callback GetPersonsCallback = void (Person[] persons, long size);
   callback GetPersonAgeCallback = void (long age);
+  callback GetPersonsSyncCallback = void (Person[] persons);
 
   interface Functions {
     static void clearDatabase();
@@ -20,5 +21,8 @@ namespace test {
 
     static void getAllPersons(long max_size, GetPersonsCallback callback);
     static void getPersonAge(DOMString name, GetPersonAgeCallback callback);
+
+    static long getAllPersonsSync(long max_size, GetPersonsSyncCallback callback);
+    static long getPersonAgeSync(DOMString name);
   };
 };
