@@ -8,7 +8,7 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/json/json_string_value_serializer.h"
 #include "base/path_service.h"
-#include "base/stringprintf.h"
+#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"

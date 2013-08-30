@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "base/command_line.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/image_util.h"
