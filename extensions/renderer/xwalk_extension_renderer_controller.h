@@ -73,7 +73,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   typedef std::vector<XWalkRemoteExtensionRunner*> RunnerVector;
   RunnerVector runners_;
 
-  scoped_ptr<XWalkExtensionClient> internal_extensions_client_;
+  scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

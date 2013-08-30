@@ -16,7 +16,8 @@ class Value;
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtensionRenderViewHandler;
+class XWalkExtensionRenderViewHandler; // FIXME(jeez): Remove this.
+class XWalkExtensionClient;
 
 // This object provides the exact interface for XWalkExtensionModule, the
 // JavaScript binding, to interact with an extension instance. The
@@ -35,9 +36,10 @@ class XWalkRemoteExtensionRunner {
     virtual ~Client() {}
   };
 
-  XWalkRemoteExtensionRunner(
-      XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-      const std::string& extension_name, Client* client);
+  // FIXME(jeez): this should be only (Client*, XWalkExtensionClient*, instance_id)
+  XWalkRemoteExtensionRunner(XWalkExtensionRenderViewHandler* handler,
+      int64_t frame_id, const std::string& extension_name, Client* client,
+      XWalkExtensionClient* extension_client, int64_t instance_id);
   virtual ~XWalkRemoteExtensionRunner();
 
   void PostMessageToNative(scoped_ptr<base::Value> msg);
@@ -54,9 +56,11 @@ class XWalkRemoteExtensionRunner {
 
  private:
   Client* client_;
-  std::string extension_name_;
-  XWalkExtensionRenderViewHandler* handler_;
-  int64_t frame_id_;
+  std::string extension_name_; // FIXME(jeez): Remove this.
+  XWalkExtensionRenderViewHandler* handler_; // FIXME(jeez): Remove this.
+  int64_t frame_id_; // FIXME(jeez): Remove this.
+  int64_t instance_id_;
+  XWalkExtensionClient* extension_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRemoteExtensionRunner);
 };

@@ -26,13 +26,29 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionClient::XWalkExtensionClient(IPC::ChannelProxy* channel)
-    : channel_(channel) {
+    : channel_(channel),
+      next_instance_id_(0) {
 }
 
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
   DCHECK(channel_);
 
   return channel_->Send(msg);
+}
+
+// FIXME(jeez): this should be only (XWalkRemoteExtensionRunner::Client*)
+XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
+    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
+    const std::string& extension_name,
+    XWalkRemoteExtensionRunner::Client* client) {
+  XWalkRemoteExtensionRunner* runner =
+      new XWalkRemoteExtensionRunner(handler, frame_id, extension_name, client,
+          this, next_instance_id_);
+
+  runners_[next_instance_id_] = runner;
+  next_instance_id_++;
+
+  return runner;
 }
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
@@ -42,12 +58,8 @@ XWalkExtensionRendererController::XWalkExtensionRendererController() {
   // extension helpers, remove this v8::Extension.
   thread->RegisterExtension(new v8::Extension("xwalk", kSource_xwalk_api));
 
-  internal_extensions_client_.reset(new XWalkExtensionClient(
+  in_browser_process_extensions_client_.reset(new XWalkExtensionClient(
       thread->GetChannel()));
-
-  // FIXME(jeez): remove this!!! Only for testing purpose!!
-  internal_extensions_client_->Send(
-      new XWalkExtensionServerMsg_CreateInstance(1234, "FooBar!!"));
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {
@@ -64,6 +76,7 @@ void XWalkExtensionRendererController::RenderViewCreated(
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
@@ -85,10 +98,11 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
       continue;
     scoped_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(module_system, it->first, it->second));
-    XWalkRemoteExtensionRunner* runner = new XWalkRemoteExtensionRunner(
+    XWalkRemoteExtensionRunner* runner =
+        in_browser_process_extensions_client_->CreateRunner(
         handler, frame->identifier(), it->first, module.get());
     module->set_runner(runner);
-    runners_.push_back(runner);
+    runners_.push_back(runner); // FIXME(jeez): remove this.
     module_system->RegisterExtensionModule(module.Pass());
   }
 }
@@ -115,6 +129,7 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
+  // FIXME(jeez): pass the RegisterExtension Messages to in_browser_process_extensions_client_.
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_RegisterExtension, OnRegisterExtension)
@@ -143,6 +158,10 @@ XWalkRemoteExtensionRunner* XWalkExtensionRendererController::GetRunner(
 void XWalkExtensionRendererController::OnRegisterExtension(
     const std::string& extension, const std::string& api) {
   extension_apis_[extension] = api;
+
+  // FIXME(jeez): we will pass the OnRegisterExtension directly to this client,
+  // so this has to be removed.
+  in_browser_process_extensions_client_->OnRegisterExtension(extension, api);
 }
 
 bool XWalkExtensionRendererController::ContainsExtension(

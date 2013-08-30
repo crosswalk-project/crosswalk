@@ -11,16 +11,20 @@ namespace extensions {
 
 XWalkRemoteExtensionRunner::XWalkRemoteExtensionRunner(
     XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-    const std::string& extension_name, Client* client)
+    const std::string& extension_name, Client* client,
+    XWalkExtensionClient* extension_client, int64_t instance_id)
     : client_(client),
       extension_name_(extension_name),
       handler_(handler),
-      frame_id_(frame_id) {}
+      frame_id_(frame_id),
+      instance_id_(instance_id),
+      extension_client_(extension_client) {}
 
 XWalkRemoteExtensionRunner::~XWalkRemoteExtensionRunner() {}
 
 void XWalkRemoteExtensionRunner::PostMessageToNative(
     scoped_ptr<base::Value> msg) {
+  // FIXME(jeez): Remove this.
   handler_->PostMessageToExtension(frame_id_, extension_name_, msg.Pass());
 }
 
