@@ -59,8 +59,8 @@ class XWalkExtensionThreadedRunner::PostHelper {
 
 XWalkExtensionThreadedRunner::XWalkExtensionThreadedRunner(
     XWalkExtension* extension, Client* client,
-    base::SingleThreadTaskRunner* client_task_runner)
-    : XWalkExtensionRunner(extension->name(), client),
+    base::SingleThreadTaskRunner* client_task_runner, int64_t instance_id)
+    : XWalkExtensionRunner(extension->name(), client, instance_id),
       extension_(extension),
       sync_message_event_(false, false),
       client_task_runner_(client_task_runner),
