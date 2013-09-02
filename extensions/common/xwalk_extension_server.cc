@@ -57,7 +57,7 @@ void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
   }
 
   XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
-      it->second, this, base::MessageLoopProxy::current());
+      it->second, this, base::MessageLoopProxy::current(), instance_id);
 
   runners_[instance_id] = runner;
 }
@@ -88,7 +88,7 @@ bool XWalkExtensionServer::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-// FIXME(jeez): we should pass a scoped_ptr.
+// FIXME(jeez): we should receive a scoped_ptr.
 bool XWalkExtensionServer::RegisterExtension(XWalkExtension* extension) {
   if (extensions_.find(extension->name()) != extensions_.end()) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
@@ -103,7 +103,11 @@ bool XWalkExtensionServer::RegisterExtension(XWalkExtension* extension) {
 
 void XWalkExtensionServer::HandleMessageFromNative(
     const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
-  LOG(WARNING) << "HandleMessageFromNative!";
+  base::ListValue list;
+  list.Append(msg.release());
+
+  Send(new XWalkExtensionClientMsg_PostMessageToJS(runner->instance_id(),
+      list));
 }
 
 void XWalkExtensionServer::HandleReplyMessageFromNative(

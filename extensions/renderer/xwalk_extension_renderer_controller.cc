@@ -25,37 +25,6 @@ extern const char kSource_xwalk_api[];
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionClient::XWalkExtensionClient(IPC::ChannelProxy* channel)
-    : channel_(channel),
-      next_instance_id_(0) {
-}
-
-bool XWalkExtensionClient::Send(IPC::Message* msg) {
-  DCHECK(channel_);
-
-  return channel_->Send(msg);
-}
-
-// FIXME(jeez): this should be only (XWalkRemoteExtensionRunner::Client*)
-XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
-    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-    const std::string& extension_name,
-    XWalkRemoteExtensionRunner::Client* client) {
-  if (!Send(new XWalkExtensionServerMsg_CreateInstance(next_instance_id_,
-    extension_name))) {
-    return 0;
-  }
-
-  XWalkRemoteExtensionRunner* runner =
-      new XWalkRemoteExtensionRunner(handler, frame_id, extension_name, client,
-          this, next_instance_id_);
-
-  runners_[next_instance_id_] = runner;
-  next_instance_id_++;
-
-  return runner;
-}
-
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
@@ -135,6 +104,9 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
   // FIXME(jeez): pass the RegisterExtension Messages to in_browser_process_extensions_client_.
+  if (in_browser_process_extensions_client_->OnMessageReceived(message))
+    return true;
+
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_RegisterExtension, OnRegisterExtension)

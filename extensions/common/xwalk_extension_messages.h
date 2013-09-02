@@ -48,3 +48,7 @@ IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
 IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_PostMessageToNative,  // NOLINT(*)
                     int64_t /* instance id */,
                     base::ListValue /* contents */)
+
+IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_PostMessageToJS,  // NOLINT(*)
+                    int64_t /* instance id */,
+                    base::ListValue /* contents */)

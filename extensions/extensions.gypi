@@ -46,6 +46,7 @@
     'renderer/xwalk_v8tools_module.h',
     'renderer/xwalk_remote_extension_runner.cc',
     'renderer/xwalk_remote_extension_runner.h',
+    'renderer/xwalk_extension_client.cc',
     'renderer/xwalk_extension_client.h',
   ],
   'includes': [

@@ -6,14 +6,19 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 
 #include <map>
+#include <string>
 
 #include "base/memory/scoped_ptr.h"
 #include "ipc/ipc_listener.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
-namespace IPC {
-  class ChannelProxy;
+namespace base {
+class ListValue;
+}
+
+namespace IPC{
+class ChannelProxy;
 }
 
 namespace xwalk {
@@ -28,7 +33,7 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
   virtual ~XWalkExtensionClient() {}
 
   // IPC::Listener Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) { return true; }
+  virtual bool OnMessageReceived(const IPC::Message& message);
 
   // IPC::Sender Implementation.
   virtual bool Send(IPC::Message* msg);
@@ -44,15 +49,18 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
   }
 
  private:
+  // Message Handlers.
+  void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
+
   IPC::ChannelProxy* channel_;
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
 
-  typedef std::map<int, XWalkRemoteExtensionRunner*> RunnersMap;
-  RunnersMap runners_;
+  typedef std::map<int64_t, XWalkRemoteExtensionRunner*> RunnerMap;
+  RunnerMap runners_;
 
-  int next_instance_id_;
+  int64_t next_instance_id_;
 };
 
 }  // namespace extensions
