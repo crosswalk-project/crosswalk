@@ -6,8 +6,11 @@ package org.xwalk.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -24,8 +27,30 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     private boolean mShownNotFoundDialog = false;
 
+    private BroadcastReceiver mReceiver;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null)
+                    return;
+
+                if (bundle.containsKey("remotedebugging")) {
+                    String extra = bundle.getString("remotedebugging");
+                    if (extra.equals("true")) {
+                        String mPackageName = getApplicationContext().getPackageName();
+                        mRuntimeView.enableRemoteDebugging("", mPackageName);
+                    } else if (extra.equals("false")) {
+                        mRuntimeView.disableRemoteDebugging();
+                    }
+                }
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
         super.onCreate(savedInstanceState);
         tryLoadRuntimeView();
         mRuntimeView.onCreate();
@@ -51,6 +76,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(mReceiver);
         super.onDestroy();
         mRuntimeView.onDestroy();
     }
