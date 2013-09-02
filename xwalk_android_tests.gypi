@@ -165,6 +165,28 @@
       'includes': [ '../build/apk_fake_jar.gypi' ],
     },
     {
+      'target_name': 'xwalk_runtime_client_shell_apk',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_client_java',
+        'xwalk_app_runtime_activity_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeClientShell',
+        'java_in_dir': 'app/android/runtime_client_shell',
+        'resource_dir': 'app/android/runtime_client_shell/res',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_client_shell_apk_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_runtime_client_shell_apk',
+      ],
+      'includes': [ '../build/apk_fake_jar.gypi' ],
+    },
+    {
       'target_name': 'xwalk_runtime_test_apk',
       'type': 'none',
       'dependencies': [
