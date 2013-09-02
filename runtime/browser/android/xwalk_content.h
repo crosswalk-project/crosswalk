@@ -34,6 +34,7 @@ class XWalkContent {
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
+  ScopedJavaLocalRef<jstring> GetVersion(JNIEnv* env, jobject obj);
 
   XWalkRenderViewHostExt* render_view_host_ext() {
     return render_view_host_ext_.get();

@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
  *
  * A web application APK should use this class in its Activity.
  */
-
 public class XWalkRuntimeClient extends CrossPackageWrapper {
     private final static String RUNTIME_VIEW_CLASS_NAME = "org.xwalk.runtime.XWalkRuntimeView";
     private Object mInstance;
@@ -38,13 +37,13 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     public XWalkRuntimeClient(Activity activity, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
         super(activity, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Activity.class, Context.class, AttributeSet.class);
         Context libCtx = getLibraryContext();
+        mInstance = this.createInstance(activity, libCtx, attrs);
         Method getVersion = lookupMethod("getVersion");
-        String libVersion = (String) invokeMethod(getVersion, null);
+        String libVersion = (String) invokeMethod(getVersion, mInstance);
         if (libVersion == null || !compareVersion(libVersion, getVersion())) {
             handleException("Library apk is not up to date");
             return;
         }
-        mInstance = this.createInstance(activity, libCtx, attrs);
         mLoadAppFromUrl = lookupMethod("loadAppFromUrl", String.class);
         mLoadAppFromManifest = lookupMethod("loadAppFromManifest", String.class);
         mOnCreate = lookupMethod("onCreate");
@@ -106,7 +105,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      * @return the string containing the version information.
      */
     public static String getVersion() {
-        return "0.1";
+        return XWalkRuntimeClientVersion.XWALK_RUNTIME_CLIENT_VERSION;
     }
 
     /**

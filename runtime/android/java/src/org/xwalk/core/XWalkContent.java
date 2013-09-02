@@ -195,6 +195,10 @@ public class XWalkContent extends FrameLayout {
         return null;
     }
 
+    public String getVersion() {
+        return nativeGetVersion(mXWalkContent);
+    }
+
     // For instrumentation test.
     public ContentViewCore getContentViewCoreForTest() {
         return mContentViewCore;
@@ -219,4 +223,5 @@ public class XWalkContent extends FrameLayout {
     private native int nativeGetWebContents(int nativeXWalkContent);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(int nativeXWalkContent);
+    private native String nativeGetVersion(int nativeXWalkContent);
 }
