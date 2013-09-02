@@ -29,6 +29,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     private BroadcastReceiver mReceiver;
 
+    private boolean mRemoteDebugging = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
@@ -67,7 +69,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
         super.onPause();
         mRuntimeView.onPause();
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -86,7 +88,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
         super.onActivityResult(requestCode, resultCode, data);
         mRuntimeView.onActivityResult(requestCode, resultCode, data);
     }
-    
+
     private String getLibraryApkDownloadUrl() {
         int resId = getResources().getIdentifier("xwalk_library_apk_download_url", "string", getPackageName());
         if (resId == 0) return DEFAULT_LIBRARY_APK_URL;
@@ -105,10 +107,17 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             if (mRuntimeView.get() != null) {
                 mShownNotFoundDialog = false;
             }
+            if (mRemoteDebugging) {
+                String mPackageName = getApplicationContext().getPackageName();
+                String result = mRuntimeView.enableRemoteDebugging("", mPackageName);
+            } else {
+                mRuntimeView.disableRemoteDebugging();
+            }
+
             didTryLoadRuntimeView(mRuntimeView.get());
         }
     }
-    
+
     public XWalkRuntimeClient getRuntimeView() {
         return mRuntimeView;
     }
@@ -121,7 +130,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     @Override
     public void onException(String msg) {
-        showLibraryNotFoundDialog();        
+        showLibraryNotFoundDialog();
     }
 
     private void showLibraryNotFoundDialog() {
@@ -153,7 +162,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                         }
                     });
             builder.setTitle(getString("download_dialog_title")).setMessage(getString("download_dialog_msg"));
-    
+
             // Create the AlertDialog
             AlertDialog dialog = builder.create();
             dialog.show();
@@ -165,8 +174,13 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
      * Called each time trying to load runtime view from library apk.
      * Descendant should handle both succeeded and failed to load
      * library apk.
-     * 
+     *
      * @param, The RuntimeView loaded, it can be null for failed to load RuntimeView.
      */
     abstract protected void didTryLoadRuntimeView(View runtimeView);
+
+    public void setRemoteDebugging(boolean value) {
+        mRemoteDebugging = value;
+    }
+
 }

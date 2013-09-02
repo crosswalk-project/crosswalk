@@ -103,6 +103,19 @@ def ReplaceString(file_path, src, dest):
   file_handle.close()
 
 
+def SetVariable(file_path, variable, value):
+  function_string = ('%sset%s(%s);\n' %
+                    ('        ', variable, value))
+  temp_file_path = file_path + '.backup'
+  file_handle = open(temp_file_path, 'w+')
+  for line in open(file_path):
+    file_handle.write(line)
+    if (line.find('public void onCreate(Bundle savedInstanceState)') >= 0):
+      file_handle.write(function_string)
+  file_handle.close()
+  shutil.move(temp_file_path, file_path)
+
+
 def CustomizeJava(options):
   root_path =  options.name + '/src/%s/' % options.package.replace('.', '/')
   dest_activity = root_path + options.name + 'Activity.java'
@@ -122,6 +135,9 @@ def CustomizeJava(options):
       print ('Please make sure that the reletive path of entry file'
              ' is correct.')
       sys.exit(8)
+  if options.enable_remote_debugging:
+    SetVariable(dest_activity, 'RemoteDebugging', 'true')
+
 
 def main():
   parser = optparse.OptionParser()
@@ -144,6 +160,9 @@ def main():
           'This flag should work with "--app-root" together. '
           'Such as: --app-local-path=/reletive/path/of/entry/file')
   parser.add_option('--app-local-path', help=info)
+  parser.add_option('--enable-remote-debugging', action='store_true',
+                    dest='enable_remote_debugging', default=False,
+                    help = 'Enable remote debugging.')
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')

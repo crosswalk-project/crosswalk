@@ -5,12 +5,18 @@
 package org.xwalk.app.template;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import org.xwalk.app.XWalkRuntimeActivityBase;
 
 public class AppTemplateActivity extends XWalkRuntimeActivityBase {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @Override
     protected void didTryLoadRuntimeView(View runtimeView) {
         if (runtimeView != null) {

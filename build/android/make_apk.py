@@ -66,11 +66,14 @@ def Customize(options):
   app_local_path = 'index.html'
   if options.app_local_path:
     app_local_path = '--app-local-path=%s' % options.app_local_path
+  remote_debugging = ''
+  if options.enable_remote_debugging:
+    remote_debugging = '--enable-remote-debugging'
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
   proc = subprocess.Popen(['python', 'customize.py', package,
-                           name, icon, app_url,
+                           name, icon, app_url, remote_debugging,
                            app_root, app_local_path, fullscreen_flag],
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
@@ -287,6 +290,9 @@ def main():
   parser.add_option('--keystore-alias', help=info)
   info = ('The passcode of keystore, Such as: --keystore-passcode=code')
   parser.add_option('--keystore-passcode', help=info)
+  parser.add_option('--enable-remote-debugging', action='store_true',
+                    dest='enable_remote_debugging', default=False,
+                    help = 'Enable remote debugging.')
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
