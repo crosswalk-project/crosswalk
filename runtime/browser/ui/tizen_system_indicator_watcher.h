@@ -6,6 +6,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
 #define XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
 
+#include "xwalk/runtime/browser/ui/tizen_plug_message_writer.h"
+
 #include <string>
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
@@ -15,16 +17,6 @@
 namespace xwalk {
 
 class TizenSystemIndicator;
-
-// Copied from EFL 1.7, in src/lib/ecore_ipc/ecore_ipc.c.
-struct ecore_ipc_msg_header {
-  int major;
-  int minor;
-  int ref;
-  int ref_to;
-  int response;
-  int size;
-};
 
 // Implementation of the socket protocol for sharing memory used by Elementary
 // "Plugs" in EFL. This class implements the low level protocol and is used by
@@ -41,6 +33,10 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void StartWatching();
   void StopWatching();
   bool Connect();
+
+  void OnMouseDown();
+  void OnMouseUp();
+  void OnMouseMove(int x, int y);
 
   gfx::Size GetSize() const;
 
@@ -60,6 +56,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void ResizeIndicator();
 
   TizenSystemIndicator* indicator_;
+  TizenPlugMessageWriter* writer_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
   scoped_ptr<base::SharedMemory> shared_memory_;
 
@@ -69,7 +66,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   bool updated_;
   int fd_;
   std::string shm_name_;
-  struct ecore_ipc_msg_header current_msg_header_;
+  struct EcoreIPCMsgHeader current_msg_header_;
 
   DISALLOW_COPY_AND_ASSIGN(TizenSystemIndicatorWatcher);
 };

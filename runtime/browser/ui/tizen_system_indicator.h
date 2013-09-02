@@ -30,6 +30,10 @@ class TizenSystemIndicator : public views::View {
  private:
   // Will be called immediately after the image was updated
   void SetImage(const gfx::ImageSkia& img);
+  virtual bool OnMousePressed(const ui::MouseEvent& event) OVERRIDE;
+  virtual void OnMouseReleased(const ui::MouseEvent& event) OVERRIDE;
+  virtual void OnMouseMoved(const ui::MouseEvent& event) OVERRIDE;
+  virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
 
   gfx::ImageSkia image_;
   scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
