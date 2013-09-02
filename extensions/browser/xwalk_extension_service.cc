@@ -32,6 +32,8 @@ g_register_extensions_callback;
 XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
     : runtime_registry_(runtime_registry),
       render_process_host_(NULL) {
+  in_process_extensions_server_.reset(new XWalkExtensionServer());
+
   // FIXME(cmarcelo): Once we update Chromium code, replace RuntimeRegistry
   // dependency with callbacks to track WebContents, since we currently don't
   // depend on xwalk::Runtime features.
@@ -90,6 +92,9 @@ bool XWalkExtensionService::RegisterExtension(
     return false;
   }
 
+  // FIXME(jeez): we should pass a scoped_ptr.
+  in_process_extensions_server_->RegisterExtension(extension.get());
+
   base::AutoLock lock(in_process_extensions_lock_);
   return in_process_extensions_.RegisterExtension(extension.Pass());
 }
@@ -142,8 +147,8 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
   render_process_host_ = host;
 
-  in_process_extensions_server_.reset(new XWalkExtensionServer(
-      render_process_host_->GetChannel()));
+  in_process_extensions_server_->SetChannelProxy(
+      render_process_host_->GetChannel());
 
   RegisterExtensionsForNewHost(render_process_host_);
 

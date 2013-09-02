@@ -4,13 +4,28 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionServer::XWalkExtensionServer(IPC::ChannelProxy* channel)
-    : channel_(channel) {
+XWalkExtensionServer::XWalkExtensionServer()
+    : channel_(0)
+    , message_filter_(0) {
+}
+
+XWalkExtensionServer::~XWalkExtensionServer() {
+  //FIXME(jeez): clean up ALL OF OUR MAPS!!!!!
+
+  // ExtensionMap::iterator it = extensions_.begin();
+  // for (; it != extensions_.end(); ++it)
+  //   delete it->second;
+}
+
+void XWalkExtensionServer::SetChannelProxy(IPC::ChannelProxy* channel) {
+  channel_ = channel;
   // The filter is owned by the IPC channel, but a reference is kept for
   // explicitly removing it from the channel in case we get deleted but the
   // channel continues to be used.
@@ -33,20 +48,67 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
 
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
     std::string name) {
-  // FIXME(jeez): remove this!!! Only for testing purpose!!
-  LOG(WARNING) << "ExtensionServer CreateInstance id: " << instance_id << " ExtensionName: " << name;
+  ExtensionMap::const_iterator it = extensions_.find(name);
+
+  if (it == extensions_.end()) {
+    LOG(WARNING) << "Can't create instance of extension: " << name
+        << ". Extension is not registered.";
+    return;
+  }
+
+  XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
+      it->second, this, base::MessageLoopProxy::current());
+
+  runners_[instance_id] = runner;
 }
 
 void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
     const base::ListValue& msg) {
-  // FIXME(jeez): remove this!!! Only for testing purpose!!
-  LOG(WARNING) << "ExtensionServer PostMessageToNative! ID:" << instance_id;
+  RunnerMap::const_iterator it = runners_.find(instance_id);
+  if (it == runners_.end()) {
+    LOG(WARNING) << "Can't PostMessage to invalid Extension instance id: "
+        << instance_id;
+    return;
+  }
+
+  // The const_cast is needed to remove the only Value contained by the
+  // ListValue (which is solely used as wrapper, since Value doesn't
+  // have param traits for serialization) and we pass the ownership to to
+  // HandleMessage. It is safe to do this because the |msg| won't be used
+  // anywhere else when this function returns. Saves a DeepCopy(), which
+  // can be costly depending on the size of Value.
+  base::Value* value;
+  const_cast<base::ListValue*>(&msg)->Remove(0, &value);
+  (it->second)->PostMessageToNative(scoped_ptr<base::Value>(value));
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
   DCHECK(channel_);
 
   return channel_->Send(msg);
+}
+
+// FIXME(jeez): we should pass a scoped_ptr.
+bool XWalkExtensionServer::RegisterExtension(XWalkExtension* extension) {
+  if (extensions_.find(extension->name()) != extensions_.end()) {
+    LOG(WARNING) << "Ignoring extension with name already registered: "
+                 << extension->name();
+    return false;
+  }
+
+  std::string name = extension->name();
+  extensions_[name] = extension;
+  return true;
+}
+
+void XWalkExtensionServer::HandleMessageFromNative(
+    const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
+  LOG(WARNING) << "HandleMessageFromNative!";
+}
+
+void XWalkExtensionServer::HandleReplyMessageFromNative(
+      scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  LOG(WARNING) << "HandleReplyMessageFromNative: ";
 }
 
 ExtensionServerMessageFilter::ExtensionServerMessageFilter(
