@@ -45,9 +45,9 @@ ColorChooserWin* ColorChooserWin::current_color_chooser_ = NULL;
 
 ColorChooserWin* ColorChooserWin::Open(content::WebContents* web_contents,
                                        SkColor initial_color) {
-  if (current_color_chooser_)
-    return current_color_chooser_;
-  return new ColorChooserWin(web_contents, initial_color);
+  if (!current_color_chooser_)
+    current_color_chooser_ = new ColorChooserWin(web_contents, initial_color);
+  return current_color_chooser_;
 }
 
 ColorChooserWin::ColorChooserWin(content::WebContents* web_contents,
