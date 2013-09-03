@@ -12,6 +12,7 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
+#include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 namespace xwalk {
 namespace extensions {
@@ -25,14 +26,14 @@ const char* kXWalkExtensionModule = "kXWalkExtensionModule";
 }  // namespace
 
 XWalkExtensionModule::XWalkExtensionModule(
-    v8::Handle<v8::Context> context,
+    XWalkModuleSystem* module_system,
     const std::string& extension_name,
     const std::string& extension_code)
     : extension_name_(extension_name),
       extension_code_(extension_code),
-      converter_(content::V8ValueConverter::create()) {
-
-  v8::Isolate* isolate = context->GetIsolate();
+      converter_(content::V8ValueConverter::create()),
+      module_system_(module_system) {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> function_data = v8::Object::New();
   function_data->Set(v8::String::New(kXWalkExtensionModule),
@@ -75,13 +76,13 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   message_listener_.Clear();
 }
 
-void XWalkExtensionModule::DispatchMessageToListener(
-    v8::Handle<v8::Context> context, const base::Value& msg) {
+void XWalkExtensionModule::DispatchMessageToListener(const base::Value& msg) {
   if (message_listener_.IsEmpty())
     return;
 
-  v8::Isolate* isolate = context->GetIsolate();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
+  v8::Handle<v8::Context> context = module_system_->GetV8Context();
   v8::Context::Scope context_scope(context);
 
   v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));

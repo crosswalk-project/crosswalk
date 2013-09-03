@@ -134,7 +134,7 @@ void XWalkExtensionRenderViewHandler::OnPostMessage(int64_t frame_id,
 
   const base::Value* value = NULL;
   msg.Get(0, &value);
-  module->DispatchMessageToListener(context, *value);
+  module->DispatchMessageToListener(*value);
 }
 
 v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8ContextForFrame(

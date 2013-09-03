@@ -97,7 +97,7 @@ void XWalkExtensionRendererController::InstallJavaScriptAPIs(
     if (it->second.empty())
       continue;
     scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(context, it->first, it->second));
+        new XWalkExtensionModule(module_system, it->first, it->second));
     module_system->RegisterExtensionModule(context, module.Pass());
   }
 }

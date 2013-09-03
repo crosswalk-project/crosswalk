@@ -52,6 +52,8 @@ class XWalkModuleSystem {
                             scoped_ptr<XWalkNativeModule> module);
   v8::Handle<v8::Object> RequireNative(const std::string& name);
 
+  v8::Handle<v8::Context> GetV8Context();
+
  private:
   typedef std::map<std::string, XWalkExtensionModule*> ExtensionModuleMap;
   ExtensionModuleMap extension_modules_;
@@ -62,6 +64,11 @@ class XWalkModuleSystem {
   v8::Persistent<v8::FunctionTemplate> require_native_template_;
 
   v8::Persistent<v8::Object> function_data_;
+
+  // Points back to the current context, used when native wants to callback
+  // JavaScript. When WillReleaseScriptContext() is called, we dispose this
+  // persistent.
+  v8::Persistent<v8::Context> v8_context_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkModuleSystem);
 };

@@ -23,6 +23,8 @@ class V8ValueConverter;
 namespace xwalk {
 namespace extensions {
 
+class XWalkModuleSystem;
+
 // Responsible for running the JS code of a XWalkExtension. This includes
 // creating and exposing an 'extension' object for the execution context of
 // the extension JS code.
@@ -31,7 +33,7 @@ namespace extensions {
 // there'll be a set of different modules per v8::Context.
 class XWalkExtensionModule {
  public:
-  XWalkExtensionModule(v8::Handle<v8::Context> context,
+  XWalkExtensionModule(XWalkModuleSystem* module_system,
                        const std::string& extension_name,
                        const std::string& extension_code);
   virtual ~XWalkExtensionModule();
@@ -41,8 +43,7 @@ class XWalkExtensionModule {
   void LoadExtensionCode(v8::Handle<v8::Context> context,
                          v8::Handle<v8::Function> requireNative);
 
-  void DispatchMessageToListener(v8::Handle<v8::Context> context,
-                                 const base::Value& msg);
+  void DispatchMessageToListener(const base::Value& msg);
 
   std::string extension_name() const { return extension_name_; }
 
@@ -75,6 +76,8 @@ class XWalkExtensionModule {
   // TODO(cmarcelo): Move to a single converter, since we always use same
   // parameters.
   scoped_ptr<content::V8ValueConverter> converter_;
+
+  XWalkModuleSystem* module_system_;
 };
 
 }  // namespace extensions
