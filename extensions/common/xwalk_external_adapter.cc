@@ -103,7 +103,8 @@ XWalkExternalExtension* XWalkExternalAdapter::GetExtension(
     XW_Extension xw_extension) {
   XWalkExternalAdapter* adapter = XWalkExternalAdapter::GetInstance();
   ExtensionMap::iterator it = adapter->extension_map_.find(xw_extension);
-  CHECK(it != adapter->extension_map_.end());
+  if (it == adapter->extension_map_.end())
+    return NULL;
   return it->second;
 }
 
@@ -111,8 +112,17 @@ XWalkExternalContext* XWalkExternalAdapter::GetInstance(
     XW_Instance xw_instance) {
   XWalkExternalAdapter* adapter = XWalkExternalAdapter::GetInstance();
   InstanceMap::iterator it = adapter->instance_map_.find(xw_instance);
-  CHECK(it != adapter->instance_map_.end());
+  if (it == adapter->instance_map_.end())
+    return NULL;
   return it->second;
+}
+
+// static
+void XWalkExternalAdapter::LogInvalidCall(
+    int32_t value, const char* type,
+    const char* interface, const char* function) {
+  LOG(WARNING) << "Ignoring call to " << interface << " function " << function
+               << " as it received wrong XW_" << type << "=" << value << ".";
 }
 
 }  // namespace extensions

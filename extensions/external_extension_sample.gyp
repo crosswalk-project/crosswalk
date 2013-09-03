@@ -20,6 +20,15 @@
       'test/echo_extension.c',
     ]
   },
-
+  {
+    'target_name': 'bad_extension',
+    'type': 'loadable_module',
+    'include_dirs': [
+      '../..',
+    ],
+    'sources': [
+      'test/bad_extension.c',
+    ]
+  },
   ],
 }

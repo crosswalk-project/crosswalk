@@ -1,5 +1,6 @@
 {
   'sources': [
+    'test/bad_extension_test.cc',
     'test/context_destruction.cc',
     'test/extension_in_iframe.cc',
     'test/external_extension.cc',
