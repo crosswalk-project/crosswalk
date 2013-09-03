@@ -16,7 +16,6 @@ class Value;
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtensionRenderViewHandler; // FIXME(jeez): Remove this.
 class XWalkExtensionClient;
 class XWalkExtensionModule;
 
@@ -37,9 +36,7 @@ class XWalkRemoteExtensionRunner {
     virtual ~Client() {}
   };
 
-  // FIXME(jeez): this should be only (Client*, XWalkExtensionClient*, instance_id)
-  XWalkRemoteExtensionRunner(XWalkExtensionRenderViewHandler* handler,
-      int64_t frame_id, const std::string& extension_name, Client* client,
+  XWalkRemoteExtensionRunner(Client* client,
       XWalkExtensionClient* extension_client, int64_t instance_id);
   virtual ~XWalkRemoteExtensionRunner();
 
@@ -49,21 +46,12 @@ class XWalkRemoteExtensionRunner {
 
   void PostMessageToJS(const base::Value& msg);
 
-  std::string extension_name() const { return extension_name_; }
-
-  // FIXME(cmarcelo): Remove once we migrate to using instance ids.
-  int64_t frame_id() const { return frame_id_; }
-  XWalkExtensionRenderViewHandler* handler() const { return handler_; }
-
  private:
   friend class XWalkExtensionModule;
 
   void Destroy();
 
   Client* client_;
-  std::string extension_name_; // FIXME(jeez): Remove this.
-  XWalkExtensionRenderViewHandler* handler_; // FIXME(jeez): Remove this.
-  int64_t frame_id_; // FIXME(jeez): Remove this.
   int64_t instance_id_;
   XWalkExtensionClient* extension_client_;
 

@@ -55,9 +55,6 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
 
-  XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForFrame(frame);
-
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
 
@@ -72,8 +69,8 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
     scoped_ptr<XWalkExtensionModule> module(
         new XWalkExtensionModule(module_system, it->first, it->second));
     XWalkRemoteExtensionRunner* runner =
-        in_browser_process_extensions_client_->CreateRunner(
-        handler, frame->identifier(), it->first, module.get());
+        in_browser_process_extensions_client_->CreateRunner(it->first,
+        module.get());
     module->set_runner(runner);
     module_system->RegisterExtensionModule(module.Pass());
   }

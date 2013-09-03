@@ -6,19 +6,13 @@
 
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
-#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 
 namespace xwalk {
 namespace extensions {
 
-XWalkRemoteExtensionRunner::XWalkRemoteExtensionRunner(
-    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-    const std::string& extension_name, Client* client,
+XWalkRemoteExtensionRunner::XWalkRemoteExtensionRunner(Client* client,
     XWalkExtensionClient* extension_client, int64_t instance_id)
     : client_(client),
-      extension_name_(extension_name),
-      handler_(handler),
-      frame_id_(frame_id),
       instance_id_(instance_id),
       extension_client_(extension_client) {}
 

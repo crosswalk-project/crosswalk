@@ -38,10 +38,8 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
   // IPC::Sender Implementation.
   virtual bool Send(IPC::Message* msg);
 
-  XWalkRemoteExtensionRunner* CreateRunner(
-    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-    const std::string& extension_name,
-    XWalkRemoteExtensionRunner::Client* client);
+  XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,
+      XWalkRemoteExtensionRunner::Client* client);
 
   // FIXME(jeez) make this private
   void OnRegisterExtension(const std::string& name, const std::string& api) {

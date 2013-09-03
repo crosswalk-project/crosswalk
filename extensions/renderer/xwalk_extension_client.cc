@@ -22,9 +22,7 @@ bool XWalkExtensionClient::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-// FIXME(jeez): this should be only (XWalkRemoteExtensionRunner::Client*)
 XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
-    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
     const std::string& extension_name,
     XWalkRemoteExtensionRunner::Client* client) {
   if (!Send(new XWalkExtensionServerMsg_CreateInstance(next_instance_id_,
@@ -32,9 +30,8 @@ XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
     return 0;
   }
 
-  XWalkRemoteExtensionRunner* runner =
-      new XWalkRemoteExtensionRunner(handler, frame_id, extension_name, client,
-          this, next_instance_id_);
+  XWalkRemoteExtensionRunner* runner = new XWalkRemoteExtensionRunner(client,
+      this, next_instance_id_);
 
   runners_[next_instance_id_] = runner;
   next_instance_id_++;
