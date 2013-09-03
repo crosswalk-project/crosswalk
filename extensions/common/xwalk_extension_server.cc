@@ -38,6 +38,8 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionServer, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_CreateInstance,
         OnCreateInstance)
+    IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_DestroyInstance,
+        OnDestroyInstance)
     IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_PostMessageToNative,
         OnPostMessageToNative)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(XWalkExtensionServerMsg_SendSyncMessageToNative,
@@ -138,6 +140,17 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   // on the renderer will remain blocked until the reply gets back.
   (it->second)->SendSyncMessageToNative(scoped_ptr<IPC::Message>(ipc_reply),
                                    scoped_ptr<base::Value>(value));
+}
+
+void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
+  RunnerMap::iterator it = runners_.find(instance_id);
+  if (it == runners_.end()) {
+    LOG(WARNING) << "Can't destroy inexistent instance:" << instance_id;
+    return;
+  }
+
+  delete it->second;
+  runners_.erase(it);
 }
 
 ExtensionServerMessageFilter::ExtensionServerMessageFilter(

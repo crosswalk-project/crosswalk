@@ -67,5 +67,21 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
   (it->second)->PostMessageToJS(*value);
 }
 
+void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
+  RunnerMap::iterator it = runners_.find(instance_id);
+  if (it == runners_.end()) {
+    LOG(WARNING) << "Can't Destroy invalid instance id: " << instance_id;
+    return;
+  }
+
+  Send(new XWalkExtensionServerMsg_DestroyInstance(instance_id));
+
+  // FIXME(jeez): should we wait a reply msg from server before deleting this?
+  delete it->second;
+
+  // Take it out from the valid runners map.
+  runners_.erase(it);
+}
+
 }  // namespace extensions
 }  // namespace xwalk

@@ -66,6 +66,10 @@ void XWalkRemoteExtensionRunner::PostMessageToJS(
   client_->HandleMessageFromNative(msg);
 }
 
+void XWalkRemoteExtensionRunner::Destroy() {
+  extension_client_->DestroyInstance(instance_id_);
+}
+
 }  // namespace extensions
 }  // namespace xwalk
 

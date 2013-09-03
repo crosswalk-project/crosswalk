@@ -73,6 +73,9 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   function_data_.Clear();
   message_listener_.Dispose(isolate);
   message_listener_.Clear();
+
+  CHECK(runner_);
+  runner_->Destroy();
 }
 
 namespace {
@@ -201,7 +204,6 @@ void XWalkExtensionModule::PostMessageCallback(
       module->converter_->FromV8Value(info[0], context));
 
   CHECK(module->runner_);
-
   module->runner_->PostMessageToNative(value.Pass());
   result.Set(true);
 }

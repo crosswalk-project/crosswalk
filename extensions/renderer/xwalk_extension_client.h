@@ -48,6 +48,8 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
     extension_apis_[name] = api;
   }
 
+  void DestroyInstance(int64_t instance_id);
+
  private:
   // Message Handlers.
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);

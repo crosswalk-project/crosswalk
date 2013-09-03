@@ -40,6 +40,7 @@ class XWalkExtensionServer : public IPC::Listener, public IPC::Sender,
  private:
   // Message Handlers
   void OnCreateInstance(int64_t instance_id, std::string name);
+  void OnDestroyInstance(int64_t instance_id);
   void OnPostMessageToNative(int64_t instance_id, const base::ListValue& msg);
   void OnSendSyncMessageToNative(int64_t instance_id, const base::ListValue& msg,
       IPC::Message* ipc_reply);

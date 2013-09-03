@@ -62,3 +62,6 @@ IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionServerMsg_SendSyncMessageToNative,  //
                    int64_t /* instance id */,
                    base::ListValue /* input contents */,
                    base::ListValue /* output contents */)
+
+IPC_MESSAGE_CONTROL1(XWalkExtensionServerMsg_DestroyInstance,  // NOLINT(*)
+                   int64_t /* instance id */)

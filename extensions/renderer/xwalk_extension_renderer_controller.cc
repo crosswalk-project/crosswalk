@@ -84,10 +84,13 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
+
+  // FIXME(jeez): remove this.
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
   handler->WillReleaseScriptContext(frame);
 
+  // // FIXME(jeez): remove this.
   const int64_t frame_id = frame->identifier();
   RunnerVector::iterator it = runners_.begin();
   while (it != runners_.end()) {

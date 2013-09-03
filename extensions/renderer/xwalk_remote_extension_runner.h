@@ -18,6 +18,7 @@ namespace extensions {
 
 class XWalkExtensionRenderViewHandler; // FIXME(jeez): Remove this.
 class XWalkExtensionClient;
+class XWalkExtensionModule;
 
 // This object provides the exact interface for XWalkExtensionModule, the
 // JavaScript binding, to interact with an extension instance. The
@@ -55,6 +56,10 @@ class XWalkRemoteExtensionRunner {
   XWalkExtensionRenderViewHandler* handler() const { return handler_; }
 
  private:
+  friend class XWalkExtensionModule;
+
+  void Destroy();
+
   Client* client_;
   std::string extension_name_; // FIXME(jeez): Remove this.
   XWalkExtensionRenderViewHandler* handler_; // FIXME(jeez): Remove this.
