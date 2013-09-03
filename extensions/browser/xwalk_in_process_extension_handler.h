@@ -18,7 +18,6 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
-class XWalkExtensionWebContentsHandler;
 
 // Manages extensions running in the browser process. Responsible for creating
 // the runners and registering information about the extensions with the Render
@@ -29,9 +28,6 @@ class XWalkInProcessExtensionHandler {
   ~XWalkInProcessExtensionHandler();
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
-
-  void CreateRunnersForHandler(XWalkExtensionWebContentsHandler* handler,
-                               int64_t frame_id);
 
   void RegisterExtensionsForNewHost(content::RenderProcessHost* host);
 

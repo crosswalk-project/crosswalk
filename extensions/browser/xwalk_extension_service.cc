@@ -11,8 +11,6 @@
 #include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
 #include "base/strings/string_util.h"
-#include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
@@ -29,22 +27,15 @@ g_register_extensions_callback;
 
 }
 
-XWalkExtensionService::XWalkExtensionService(RuntimeRegistry* runtime_registry)
-    : runtime_registry_(runtime_registry),
-      render_process_host_(NULL) {
+XWalkExtensionService::XWalkExtensionService()
+    : render_process_host_(NULL) {
   in_process_extensions_server_.reset(new XWalkExtensionServer());
-
-  // FIXME(cmarcelo): Once we update Chromium code, replace RuntimeRegistry
-  // dependency with callbacks to track WebContents, since we currently don't
-  // depend on xwalk::Runtime features.
-  runtime_registry_->AddObserver(this);
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this);
 }
 
 XWalkExtensionService::~XWalkExtensionService() {
-  runtime_registry_->RemoveObserver(this);
 }
 
 namespace {
@@ -151,35 +142,6 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
       render_process_host_->GetChannel());
 
   RegisterExtensionsForNewHost(render_process_host_);
-
-  // Attach extensions to already existing runtimes. Related the conditional in
-  // OnRuntimeAdded.
-  const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
-  for (size_t i = 0; i < runtimes.size(); i++)
-    CreateWebContentsHandler(render_process_host_, runtimes[i]->web_contents());
-}
-
-void XWalkExtensionService::CreateRunnersForHandler(
-    XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
-  // FIXME(tmpsantos) The main reason why we need this lock here is
-  // because this object lives in the UI Thread but this particular
-  // method is called from the IO Thread (the MessageFilter calls
-  // the WebContentsHandler that ultimately calls this method). This
-  // code path should be clarified.
-  base::AutoLock lock(in_process_extensions_lock_);
-  in_process_extensions_.CreateRunnersForHandler(handler, frame_id);
-}
-
-void XWalkExtensionService::OnRuntimeAdded(Runtime* runtime) {
-  if (render_process_host_)
-    CreateWebContentsHandler(render_process_host_, runtime->web_contents());
-}
-
-void XWalkExtensionService::OnRuntimeRemoved(Runtime* runtime) {
-  XWalkExtensionWebContentsHandler* handler =
-      XWalkExtensionWebContentsHandler::FromWebContents(
-          runtime->web_contents());
-  handler->ClearMessageFilter();
 }
 
 // static
@@ -192,15 +154,6 @@ void XWalkExtensionService::RegisterExtensionsForNewHost(
     content::RenderProcessHost* host) {
   base::AutoLock lock(in_process_extensions_lock_);
   in_process_extensions_.RegisterExtensionsForNewHost(host);
-}
-
-void XWalkExtensionService::CreateWebContentsHandler(
-    content::RenderProcessHost* host, content::WebContents* web_contents) {
-  XWalkExtensionWebContentsHandler::CreateForWebContents(web_contents);
-  XWalkExtensionWebContentsHandler* handler =
-      XWalkExtensionWebContentsHandler::FromWebContents(web_contents);
-  handler->set_extension_service(this);
-  handler->set_render_process_host(host);
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {

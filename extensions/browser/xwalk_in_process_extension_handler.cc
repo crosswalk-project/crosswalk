@@ -6,7 +6,6 @@
 
 #include "base/message_loop/message_loop_proxy.h"
 #include "content/public/browser/render_process_host.h"
-#include "xwalk/extensions/browser/xwalk_extension_web_contents_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
@@ -34,16 +33,6 @@ bool XWalkInProcessExtensionHandler::RegisterExtension(
   extensions_[name] = extension.release();
   VLOG(1) << "Extension '" << name << "' registered.";
   return true;
-}
-
-void XWalkInProcessExtensionHandler::CreateRunnersForHandler(
-    XWalkExtensionWebContentsHandler* handler, int64_t frame_id) {
-  ExtensionMap::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it) {
-    XWalkExtensionRunner* runner = new XWalkExtensionThreadedRunner(
-        it->second, handler, base::MessageLoopProxy::current());
-    handler->AttachExtensionRunner(frame_id, runner);
-  }
 }
 
 void XWalkInProcessExtensionHandler::RegisterExtensionsForNewHost(

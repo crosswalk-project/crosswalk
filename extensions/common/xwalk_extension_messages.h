@@ -15,28 +15,10 @@ const int XWalkExtensionMsgStart = LastIPCMsgStart + 1;
 
 #define IPC_MESSAGE_START XWalkExtensionMsgStart
 
-// FIXME(jeez): remove this
-IPC_MESSAGE_ROUTED3(XWalkViewHostMsg_PostMessageToNative,  // NOLINT(*)
-                    int64_t /* frame id */,
-                    std::string /* target extension */,
-                    base::ListValue /* contents */)
-
-// FIXME(jeez): remove this
-IPC_MESSAGE_ROUTED3(XWalkViewMsg_PostMessageToJS,  // NOLINT(*)
-                    int64_t /* frame id */,
-                    std::string /* source extension */,
-                    base::ListValue /* contents */)
-
 IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_RegisterExtension,  // NOLINT(*)
                     std::string /* extension */,
                     std::string /* JS API code for extension */)
 
-// FIXME(jeez): remove this
-IPC_SYNC_MESSAGE_ROUTED3_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
-                           int64_t /* frame id */,
-                           std::string /* target extension */,
-                           base::ListValue /* input contents */,
-                           base::ListValue /* output contents */)
 
 IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
                     int64_t /* instance id */,
