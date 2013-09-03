@@ -18,17 +18,29 @@
 
 #define DEFINE_FUNCTION_1(TYPE, INTERFACE, NAME, ARG1)          \
   static void INTERFACE ## NAME(XW_ ## TYPE xw, ARG1 arg1) {    \
-    Get ## TYPE(xw)->INTERFACE ## NAME(arg1);                   \
+    XWalkExternal ## TYPE * ptr = Get ## TYPE(xw);              \
+    if (!ptr)                                                   \
+      LogInvalidCall(xw, #TYPE, #INTERFACE, #NAME);             \
+    else                                                        \
+      ptr->INTERFACE ## NAME(arg1);                             \
   }
 
 #define DEFINE_FUNCTION_2(TYPE, INTERFACE, NAME, ARG1, ARG2)             \
   static void INTERFACE ## NAME(XW_ ## TYPE xw, ARG1 arg1, ARG2 arg2) {  \
-    Get ## TYPE(xw)->INTERFACE ## NAME(arg1, arg2);                      \
+    XWalkExternal ## TYPE * ptr = Get ## TYPE(xw);                       \
+    if (!ptr)                                                            \
+      LogInvalidCall(xw, #TYPE, #INTERFACE, #NAME);                      \
+    else                                                                 \
+      ptr->INTERFACE ## NAME(arg1, arg2);                                \
   }
 
 #define DEFINE_RET_FUNCTION_0(TYPE, INTERFACE, NAME, RET_ARG)   \
   static RET_ARG INTERFACE ## NAME(XW_ ## TYPE xw) {            \
-    return Get ## TYPE(xw)->INTERFACE ## NAME();                \
+    XWalkExternal ## TYPE * ptr = Get ## TYPE(xw);              \
+    if (ptr)                                                    \
+      return ptr->INTERFACE ## NAME();                          \
+    LogInvalidCall(xw, #TYPE, #INTERFACE, #NAME);               \
+    return NULL;                                                \
   }
 
 template <typename T> struct DefaultSingletonTraits;
@@ -38,6 +50,10 @@ namespace extensions {
 
 class XWalkExternalExtension;
 class XWalkExternalContext;
+
+// TODO(cmarcelo): Rename XWalkExternalContext to XWalkExternalInstance. The
+// typedef is here to ensure macros work even before rename.
+typedef XWalkExternalContext XWalkExternalInstance;
 
 // Provides the "C Interfaces" defined in XW_Extension.h and maps the
 // functions from external extension to their implementations in
@@ -73,8 +89,12 @@ class XWalkExternalAdapter {
   bool IsValidXWExtension(XW_Extension xw_extension);
   bool IsValidXWInstance(XW_Instance xw_instance);
 
+  // Used by the DEFINE_* macros to bridge the calls using C API identifiers
+  // XW_Extension and XW_Instance to the right C++ object.
   static XWalkExternalExtension* GetExtension(XW_Extension xw_extension);
   static XWalkExternalContext* GetInstance(XW_Instance xw_instance);
+  static void LogInvalidCall(int32_t value, const char* type,
+                             const char* interface, const char* function);
 
   // XW_CoreInterface_1 from XW_Extension.h.
   DEFINE_FUNCTION_1(Extension, Core, SetExtensionName, const char*);
