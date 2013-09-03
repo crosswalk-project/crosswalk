@@ -4,6 +4,8 @@
 
 #include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
+#include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 
 namespace xwalk {
@@ -22,10 +24,33 @@ XWalkRemoteExtensionRunner::XWalkRemoteExtensionRunner(
 
 XWalkRemoteExtensionRunner::~XWalkRemoteExtensionRunner() {}
 
+namespace {
+
+// Regular base::Value doesn't have param traits, so can't be passed as is
+// through IPC. We wrap it in a base::ListValue that have traits before
+// exchanging.
+//
+// Implementing param traits for base::Value is not a viable option at the
+// moment (would require fork base::Value and create a new empty type).
+scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
+  if (!value)
+    return scoped_ptr<base::ListValue>();
+  scoped_ptr<base::ListValue> list_value(new base::ListValue);
+  list_value->Append(value.release());
+  return list_value.Pass();
+}
+
+}  // namespace
+
 void XWalkRemoteExtensionRunner::PostMessageToNative(
     scoped_ptr<base::Value> msg) {
   // FIXME(jeez): Remove this.
   handler_->PostMessageToExtension(frame_id_, extension_name_, msg.Pass());
+
+  // Uncomenting this causes a crash since msg is owned by the IPC channel.
+  // scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  // extension_client_->Send(new XWalkExtensionServerMsg_PostMessageToNative(
+  //     instance_id_, *wrapped_msg));
 }
 
 scoped_ptr<base::Value> XWalkRemoteExtensionRunner::SendSyncMessageToNative(

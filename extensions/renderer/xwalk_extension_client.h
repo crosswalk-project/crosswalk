@@ -5,10 +5,16 @@
 #ifndef XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 
+#include <map>
+
 #include "base/memory/scoped_ptr.h"
 #include "ipc/ipc_listener.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
+
+namespace IPC {
+  class ChannelProxy;
+}
 
 namespace xwalk {
 namespace extensions {

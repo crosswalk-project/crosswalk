@@ -40,7 +40,7 @@ void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
 void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
     const base::ListValue& msg) {
   // FIXME(jeez): remove this!!! Only for testing purpose!!
-  LOG(WARNING) << "\n\nExtensionServer PostMessageToNative!";
+  LOG(WARNING) << "ExtensionServer PostMessageToNative! ID:" << instance_id;
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
