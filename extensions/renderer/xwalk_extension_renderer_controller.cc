@@ -41,6 +41,11 @@ XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
     XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
     const std::string& extension_name,
     XWalkRemoteExtensionRunner::Client* client) {
+  if (!Send(new XWalkExtensionServerMsg_CreateInstance(next_instance_id_,
+    extension_name))) {
+    return 0;
+  }
+
   XWalkRemoteExtensionRunner* runner =
       new XWalkRemoteExtensionRunner(handler, frame_id, extension_name, client,
           this, next_instance_id_);

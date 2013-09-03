@@ -34,7 +34,7 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
     std::string name) {
   // FIXME(jeez): remove this!!! Only for testing purpose!!
-  LOG(WARNING) << "\n\nExtensionServer CreateInstance id: " << instance_id << " ExtensionName: " << name;
+  LOG(WARNING) << "ExtensionServer CreateInstance id: " << instance_id << " ExtensionName: " << name;
 }
 
 void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
