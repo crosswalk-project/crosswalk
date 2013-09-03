@@ -44,23 +44,17 @@ def CopyProjectFiles(project_source, out_directory):
   target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
                              'project.properties')
   shutil.copyfile(source_file, target_file)
-  # Copy Eclipse .project file from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             '.project')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, '.project')
-  shutil.copyfile(source_file, target_file)
-  # Copy Eclipse .classpath file from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             '.classpath')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, '.classpath')
-  shutil.copyfile(source_file, target_file)
   # Copy Ant build file.
   source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
                              'xwalkcore_library_template',
                              'build.xml')
   target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'build.xml')
+  shutil.copyfile(source_file, target_file)
+  # Copy Ant properties file.
+  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
+                             'xwalkcore_library_template',
+                             'ant.properties')
+  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'ant.properties')
   shutil.copyfile(source_file, target_file)
 
 
