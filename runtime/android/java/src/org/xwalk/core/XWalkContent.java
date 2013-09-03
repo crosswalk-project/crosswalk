@@ -54,8 +54,10 @@ public class XWalkContent extends FrameLayout {
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context) {
             protected void onReadyToRender() {
-                if (mPendingUrl != null)
+                if (mPendingUrl != null) {
                     doLoadUrl(mPendingUrl);
+                    mPendingUrl = null;
+                }
 
                 mReadyToLoad = true;
             }
