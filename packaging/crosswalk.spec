@@ -13,7 +13,7 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-1.29-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-1.29-look-for-pvr-libGLESv2.so.patch
-Patch3:         %{name}-1.29-revert-nss-commits.patch
+Patch3:         %{name}-1.29-fix_nss_3.15_build_break.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -85,7 +85,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 %patch2
-%patch3 -p1
+%patch3
 
 %build
 

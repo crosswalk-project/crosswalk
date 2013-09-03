@@ -1,0 +1,46 @@
+Author: Alexander Shalamov <alexander.shalamov@intel.com>
+
+This patch fixes build error due to incompatibility between
+nss version that is used in Tizen 2.1 and chromium 29
+
+--- src/net/third_party/nss/ssl/ssl3con.c
++++ src/net/third_party/nss/ssl/ssl3con.c
+@@ -51,6 +51,10 @@
+ 		(x)->pValue=(v); (x)->ulValueLen = (l);
+ #endif
+ 
++#ifndef PR_ARRAY_SIZE
++#define PR_ARRAY_SIZE(a) (sizeof(a)/sizeof((a)[0]))
++#endif
++
+ static void      ssl3_CleanupPeerCerts(sslSocket *ss);
+ static void      ssl3_CopyPeerCertsFromSID(sslSocket *ss, sslSessionID *sid);
+ static PK11SymKey *ssl3_GenerateRSAPMS(sslSocket *ss, ssl3CipherSpec *spec,
+@@ -4093,7 +4097,7 @@ static const struct {
+ } tlsHashOIDMap[] = {
+     { tls_hash_md5, SEC_OID_MD5 },
+     { tls_hash_sha1, SEC_OID_SHA1 },
+-    { tls_hash_sha224, SEC_OID_SHA224 },
++    //    { tls_hash_sha224, SEC_OID_SHA224 },
+     { tls_hash_sha256, SEC_OID_SHA256 },
+     { tls_hash_sha384, SEC_OID_SHA384 },
+     { tls_hash_sha512, SEC_OID_SHA512 }
+
+--- src/net/third_party/nss/ssl/sslplatf.c
++++ src/net/third_party/nss/ssl/sslplatf.c
+@@ -526,10 +526,10 @@ ssl3_GetDigestInfoPrefix(SECOidTag hashAlg,
+         *out = kSHA1;
+         *out_len = sizeof(kSHA1);
+         break;
+-    case SEC_OID_SHA224:
++        /*    case SEC_OID_SHA224:
+         *out = kSHA224;
+         *out_len = sizeof(kSHA224);
+-        break;
++        break;*/
+     case SEC_OID_SHA256:
+         *out = kSHA256;
+         *out_len = sizeof(kSHA256);
+-- 
+1.7.9.5
+
