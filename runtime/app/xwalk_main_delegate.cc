@@ -30,7 +30,9 @@ XWalkMainDelegate::~XWalkMainDelegate() {
 }
 
 bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
-  logging::InitLogging(logging::LoggingSettings());
+  logging::LoggingSettings loggingSettings;
+  loggingSettings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
+  logging::InitLogging(loggingSettings);
   SetContentClient(content_client_.get());
 #if defined(OS_WIN)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
