@@ -116,6 +116,7 @@ void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
     case ui::ET_SCROLL_FLING_START:
     case ui::ET_SCROLL_FLING_CANCEL:
     case ui::ET_CANCEL_MODE:
+    case ui::ET_UMA_DATA:
     case ui::ET_LAST:
       break;
   }
