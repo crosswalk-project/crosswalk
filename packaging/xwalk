@@ -23,7 +23,6 @@ else
 fi
 
 exec /usr/lib/xwalk/xwalk --use-gl="${GL_IMPLEMENTATION}" \
-                          --fullscreen \
                           --ignore-gpu-blacklist \
                           --allow-file-access-from-files \
                           "$@"

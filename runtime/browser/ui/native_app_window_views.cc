@@ -56,7 +56,14 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.show_state = create_params.state;
   window_->Init(params);
 
+#if defined(OS_TIZEN_MOBILE)
+  // Widget::SetBoundsConstrained() in Widget::Init() shrinks 10 pixel
+  // on all edges, so we need to set the bounds again here.
+  window_->SetBounds(
+      gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area());
+#else
   window_->CenterWindow(create_params.bounds.size());
+#endif
   if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);
 
