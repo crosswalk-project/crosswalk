@@ -21,7 +21,6 @@ public class XWalkView extends FrameLayout {
     private XWalkDevToolsServer mDevToolsServer;
     private Activity mActivity;
 
-
     public XWalkView(Context context, Activity activity) {
         super(context, null);
 
@@ -89,17 +88,19 @@ public class XWalkView extends FrameLayout {
     }
 
     public boolean canGoBack() {
-        return false;
+        return mContent.canGoBack();
     }
 
     public void goBack() {
+        mContent.goBack();
     }
 
     public boolean canGoForward() {
-        return false;
+        return mContent.canGoForward();
     }
 
     public void goForward() {
+        mContent.goForward();
     }
 
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
@@ -114,6 +115,10 @@ public class XWalkView extends FrameLayout {
         return mContent.getSettings();
     }
 
+    public String getOriginalUrl() {
+        return mContent.getOriginalUrl();
+    }
+
     public void setNetworkAvailable(boolean networkUp) {
     }
 
@@ -126,6 +131,10 @@ public class XWalkView extends FrameLayout {
 
     public void setXWalkClient(XWalkClient client) {
         mContent.setXWalkClient(client);
+    }
+
+    public void stopLoading() {
+        mContent.stopLoading();
     }
 
     // Enables remote debugging and returns the URL at which the dev tools server is listening
