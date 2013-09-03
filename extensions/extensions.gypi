@@ -35,8 +35,6 @@
     'public/XW_Extension_SyncMessage.h',
     'renderer/xwalk_extension_renderer_controller.cc',
     'renderer/xwalk_extension_renderer_controller.h',
-    'renderer/xwalk_extension_render_view_handler.cc',
-    'renderer/xwalk_extension_render_view_handler.h',
     'renderer/xwalk_api.js',
     'renderer/xwalk_extension_module.cc',
     'renderer/xwalk_extension_module.h',

@@ -29,11 +29,6 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   extension_controller_.reset(new extensions::XWalkExtensionRendererController);
 }
 
-void XWalkContentRendererClient::RenderViewCreated(
-    content::RenderView* render_view) {
-  extension_controller_->RenderViewCreated(render_view);
-}
-
 void XWalkContentRendererClient::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {

@@ -14,7 +14,6 @@
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
-#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
@@ -40,12 +39,6 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
   // FIXME(cmarcelo): These call is causing crashes on shutdown with Chromium
   //                  29.0.1547.57 and had to be commented out.
   // content::RenderThread::Get()->RemoveObserver(this);
-}
-
-void XWalkExtensionRendererController::RenderViewCreated(
-    content::RenderView* render_view) {
-  // RenderView will own this object.
-  new XWalkExtensionRenderViewHandler(render_view, this);
 }
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
@@ -102,11 +95,6 @@ void XWalkExtensionRendererController::OnRegisterExtension(
   // FIXME(jeez): we will pass the OnRegisterExtension directly to this client,
   // so this has to be removed.
   in_browser_process_extensions_client_->OnRegisterExtension(extension, api);
-}
-
-bool XWalkExtensionRendererController::ContainsExtension(
-    const std::string& extension) const {
-  return extension_apis_.find(extension) != extension_apis_.end();
 }
 
 }  // namespace extensions

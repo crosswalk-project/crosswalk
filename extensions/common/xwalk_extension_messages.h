@@ -38,14 +38,6 @@ IPC_SYNC_MESSAGE_ROUTED3_1(XWalkViewHostMsg_SendSyncMessage,  // NOLINT(*)
                            base::ListValue /* input contents */,
                            base::ListValue /* output contents */)
 
-// FIXME(jeez): remove this
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidCreateScriptContext,  // NOLINT(*)
-                    int64_t /* frame id */)
-
-// FIXME(jeez): remove this
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_WillReleaseScriptContext,  // NOLINT(*)
-                    int64_t /* frame id */)
-
 IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
                     int64_t /* instance id */,
                     std::string /* extension name */)

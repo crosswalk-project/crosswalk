@@ -25,7 +25,6 @@ class XWalkContentRendererClient : public content::ContentRendererClient {
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
-  virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
   virtual void DidCreateScriptContext(
       WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
       int extension_group, int world_id) OVERRIDE;

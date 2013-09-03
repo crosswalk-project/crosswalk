@@ -24,7 +24,6 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtensionRenderViewHandler;
 class XWalkExtensionClient;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
@@ -34,10 +33,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
  public:
   XWalkExtensionRendererController();
   virtual ~XWalkExtensionRendererController();
-
-  // To be called by client code when a render view is created. Will attach
-  // extension handlers to them.
-  void RenderViewCreated(content::RenderView* render_view);
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.
@@ -50,15 +45,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
-  friend class XWalkExtensionRenderViewHandler;
-
   // Called when browser process send a message with a new extension to be
   // registered, and its corresponding JavaScript API.
   void OnRegisterExtension(const std::string& extension,
                            const std::string& api);
-
-  // Returns whether the extension was already registered in the controller.
-  bool ContainsExtension(const std::string& extension) const;
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
