@@ -11,7 +11,6 @@
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
-#include "xwalk/extensions/renderer/xwalk_extension_render_view_handler.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 namespace xwalk {
@@ -74,26 +73,6 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   function_data_.Clear();
   message_listener_.Dispose(isolate);
   message_listener_.Clear();
-}
-
-void XWalkExtensionModule::DispatchMessageToListener(const base::Value& msg) {
-  if (message_listener_.IsEmpty())
-    return;
-
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::Context> context = module_system_->GetV8Context();
-  v8::Context::Scope context_scope(context);
-
-  v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));
-  v8::Handle<v8::Function> message_listener =
-      v8::Handle<v8::Function>::New(isolate, message_listener_);;
-
-  WebKit::WebScopedMicrotaskSuppression suppression;
-  v8::TryCatch try_catch;
-  message_listener->Call(context->Global(), 1, &v8_value);
-  if (try_catch.HasCaught())
-    LOG(WARNING) << "Exception when running message listener";
 }
 
 namespace {
@@ -187,6 +166,26 @@ void XWalkExtensionModule::LoadExtensionCode(
   }
 }
 
+void XWalkExtensionModule::HandleMessageFromNative(const base::Value& msg) {
+  if (message_listener_.IsEmpty())
+    return;
+
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+  v8::Handle<v8::Context> context = module_system_->GetV8Context();
+  v8::Context::Scope context_scope(context);
+
+  v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));
+  v8::Handle<v8::Function> message_listener =
+      v8::Handle<v8::Function>::New(isolate, message_listener_);;
+
+  WebKit::WebScopedMicrotaskSuppression suppression;
+  v8::TryCatch try_catch;
+  message_listener->Call(context->Global(), 1, &v8_value);
+  if (try_catch.HasCaught())
+    LOG(WARNING) << "Exception when running message listener";
+}
+
 // static
 void XWalkExtensionModule::PostMessageCallback(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -201,13 +200,9 @@ void XWalkExtensionModule::PostMessageCallback(
   scoped_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
-  WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
-  XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForFrame(frame);
+  CHECK(module->runner_);
 
-  if (!handler->PostMessageToExtension(
-          frame->identifier(), module->extension_name_, value.Pass()))
-    result.Set(false);
+  module->runner_->PostMessageToNative(value.Pass());
   result.Set(true);
 }
 
@@ -225,13 +220,9 @@ void XWalkExtensionModule::SendSyncMessageCallback(
   scoped_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
-  WebKit::WebFrame* frame = WebKit::WebFrame::frameForContext(context);
-  XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForFrame(frame);
-
-  scoped_ptr<base::Value> reply(handler->SendSyncMessageToExtension(
-      frame->identifier(), module->extension_name_, value.Pass()));
-
+  CHECK(module->runner_);
+  scoped_ptr<base::Value> reply(
+      module->runner_->SendSyncMessageToNative(value.Pass()));
   result.Set(module->converter_->ToV8Value(reply.get(), context));
 }
 

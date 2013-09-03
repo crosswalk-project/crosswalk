@@ -130,16 +130,17 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 }
 
 void XWalkModuleSystem::RegisterExtensionModule(
-    v8::Handle<v8::Context> context, scoped_ptr<XWalkExtensionModule> module) {
+    scoped_ptr<XWalkExtensionModule> module) {
   const std::string& extension_name = module->extension_name();
   CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
   // TODO(cmarcelo): Setup lazy loader instead of immediatly running
   // JS API code.
-  v8::Isolate* isolate = context->GetIsolate();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::FunctionTemplate> require_native_template =
       v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
-  module->LoadExtensionCode(context, require_native_template->GetFunction());
+  module->LoadExtensionCode(GetV8Context(),
+                            require_native_template->GetFunction());
   extension_modules_[extension_name] = module.release();
 }
 

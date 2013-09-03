@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "v8/include/v8.h"
@@ -22,7 +23,8 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
-class XWalkModuleSystem;
+class XWalkExtensionRenderViewHandler;
+class XWalkRemoteExtensionRunner;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
@@ -46,6 +48,11 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
+  // FIXME(cmarcelo): Remove me.
+  XWalkRemoteExtensionRunner* GetRunner(
+      XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
+      const std::string& extension_name);
+
  private:
   friend class XWalkExtensionRenderViewHandler;
 
@@ -57,12 +64,12 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // Returns whether the extension was already registered in the controller.
   bool ContainsExtension(const std::string& extension) const;
 
-  // Installs the extensions' JavaScript API code into the given frame.
-  void InstallJavaScriptAPIs(v8::Handle<v8::Context> context,
-                             XWalkModuleSystem* module_system);
-
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
+
+  // FIXME(cmarcelo): Modify to be a map. Move inside XWalkExtensionClient.
+  typedef std::vector<XWalkRemoteExtensionRunner*> RunnerVector;
+  RunnerVector runners_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

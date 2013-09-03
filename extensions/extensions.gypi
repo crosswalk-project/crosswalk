@@ -42,6 +42,8 @@
     'renderer/xwalk_module_system.h',
     'renderer/xwalk_v8tools_module.cc',
     'renderer/xwalk_v8tools_module.h',
+    'renderer/xwalk_remote_extension_runner.cc',
+    'renderer/xwalk_remote_extension_runner.h',
   ],
   'includes': [
     'xwalk_js2c.gypi',
