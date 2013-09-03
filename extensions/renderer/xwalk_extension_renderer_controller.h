@@ -25,7 +25,6 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionRenderViewHandler;
-class XWalkRemoteExtensionRunner;
 class XWalkExtensionClient;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
@@ -50,11 +49,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  // FIXME(cmarcelo): Remove me.
-  XWalkRemoteExtensionRunner* GetRunner(
-      XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-      const std::string& extension_name);
-
  private:
   friend class XWalkExtensionRenderViewHandler;
 
@@ -68,10 +62,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
-
-  // FIXME(cmarcelo): Modify to be a map. Move inside XWalkExtensionClient.
-  typedef std::vector<XWalkRemoteExtensionRunner*> RunnerVector;
-  RunnerVector runners_;
 
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
 

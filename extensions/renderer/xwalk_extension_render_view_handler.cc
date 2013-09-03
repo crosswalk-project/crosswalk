@@ -10,7 +10,6 @@
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
-#include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
 namespace xwalk {
 namespace extensions {
@@ -120,12 +119,8 @@ void XWalkExtensionRenderViewHandler::OnPostMessage(int64_t frame_id,
   if (!controller_->ContainsExtension(extension_name))
     return;
 
-  XWalkRemoteExtensionRunner* runner =
-      controller_->GetRunner(this, frame_id, extension_name);
-
   const base::Value* value = NULL;
   msg.Get(0, &value);
-  runner->PostMessageToJS(*value);
 }
 
 v8::Handle<v8::Context> XWalkExtensionRenderViewHandler::GetV8ContextForFrame(

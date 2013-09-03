@@ -57,7 +57,6 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   XWalkExtensionRenderViewHandler* handler =
       XWalkExtensionRenderViewHandler::GetForFrame(frame);
-  handler->DidCreateScriptContext(frame);
 
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
@@ -76,7 +75,6 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
         in_browser_process_extensions_client_->CreateRunner(
         handler, frame->identifier(), it->first, module.get());
     module->set_runner(runner);
-    runners_.push_back(runner); // FIXME(jeez): remove this.
     module_system->RegisterExtensionModule(module.Pass());
   }
 }
@@ -84,24 +82,6 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
-
-  // FIXME(jeez): remove this.
-  XWalkExtensionRenderViewHandler* handler =
-      XWalkExtensionRenderViewHandler::GetForFrame(frame);
-  handler->WillReleaseScriptContext(frame);
-
-  // // FIXME(jeez): remove this.
-  const int64_t frame_id = frame->identifier();
-  RunnerVector::iterator it = runners_.begin();
-  while (it != runners_.end()) {
-    XWalkRemoteExtensionRunner* runner = *it;
-    if (runner->frame_id() == frame_id) {
-      delete runner;
-      runners_.erase(it);
-    } else {
-      ++it;
-    }
-  }
 }
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
@@ -116,23 +96,6 @@ bool XWalkExtensionRendererController::OnControlMessageReceived(
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
-}
-
-XWalkRemoteExtensionRunner* XWalkExtensionRendererController::GetRunner(
-    XWalkExtensionRenderViewHandler* handler, int64_t frame_id,
-    const std::string& extension_name) {
-  XWalkRemoteExtensionRunner* result = NULL;
-  RunnerVector::iterator it = runners_.begin();
-  for (; it != runners_.end(); ++it) {
-    XWalkRemoteExtensionRunner* runner = *it;
-    if (runner->handler() == handler && runner->frame_id() == frame_id
-        && runner->extension_name() == extension_name) {
-      result = runner;
-      break;
-    }
-  }
-  CHECK(result);
-  return result;
 }
 
 void XWalkExtensionRendererController::OnRegisterExtension(
