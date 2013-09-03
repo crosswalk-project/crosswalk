@@ -51,7 +51,8 @@ void XWalkInProcessExtensionHandler::RegisterExtensionsForNewHost(
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
     XWalkExtension* extension = it->second;
-    host->Send(new XWalkViewMsg_RegisterExtension(
+    // FIXME(jeez): Should XWalkExtensionServer handle this?
+    host->Send(new XWalkExtensionClientMsg_RegisterExtension(
         extension->name(), extension->GetJavaScriptAPI()));
   }
 }

@@ -45,14 +45,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
-  // Called when browser process send a message with a new extension to be
-  // registered, and its corresponding JavaScript API.
-  void OnRegisterExtension(const std::string& extension,
-                           const std::string& api);
-
-  typedef std::map<std::string, std::string> ExtensionAPIMap;
-  ExtensionAPIMap extension_apis_;
-
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);

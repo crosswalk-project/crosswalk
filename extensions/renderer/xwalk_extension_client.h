@@ -24,6 +24,8 @@ class ChannelProxy;
 namespace xwalk {
 namespace extensions {
 
+class XWalkModuleSystem;
+
 // This class holds the JavaScript context of Extensions. It lives in the
 // Render Process and communicates directly with its associated
 // XWalkExtensionServer through an IPC channel.
@@ -38,19 +40,19 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
   // IPC::Sender Implementation.
   virtual bool Send(IPC::Message* msg);
 
-  XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,
-      XWalkRemoteExtensionRunner::Client* client);
-
-  // FIXME(jeez) make this private
-  void OnRegisterExtension(const std::string& name, const std::string& api) {
-    extension_apis_[name] = api;
-  }
+  void CreateRunnersForModuleSystem(XWalkModuleSystem*);
 
   void DestroyInstance(int64_t instance_id);
 
  private:
+  XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,
+      XWalkRemoteExtensionRunner::Client* client);
+
   // Message Handlers.
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
+  void OnRegisterExtension(const std::string& name, const std::string& api) {
+    extension_apis_[name] = api;
+  }
 
   IPC::ChannelProxy* channel_;
 

@@ -27,7 +27,7 @@ IPC_MESSAGE_ROUTED3(XWalkViewMsg_PostMessageToJS,  // NOLINT(*)
                     std::string /* source extension */,
                     base::ListValue /* contents */)
 
-IPC_MESSAGE_CONTROL2(XWalkViewMsg_RegisterExtension,  // NOLINT(*)
+IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_RegisterExtension,  // NOLINT(*)
                     std::string /* extension */,
                     std::string /* JS API code for extension */)
 

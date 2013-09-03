@@ -7,6 +7,8 @@
 #include "base/values.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/renderer/xwalk_extension_module.h"
+#include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 namespace xwalk {
 namespace extensions {
@@ -44,6 +46,8 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionClient, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_PostMessageToJS,
         OnPostMessageToJS)
+    IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
+        OnRegisterExtension)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -78,6 +82,22 @@ void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
 
   // Take it out from the valid runners map.
   runners_.erase(it);
+}
+
+void XWalkExtensionClient::CreateRunnersForModuleSystem(XWalkModuleSystem*
+    module_system) {
+  // FIXME(cmarcelo): Load extensions sorted by name so parent comes first, so
+  // that we can safely register all them.
+  ExtensionAPIMap::const_iterator it = extension_apis_.begin();
+  for (; it != extension_apis_.end(); ++it) {
+    if (it->second.empty())
+      continue;
+    scoped_ptr<XWalkExtensionModule> module(
+        new XWalkExtensionModule(module_system, it->first, it->second));
+    XWalkRemoteExtensionRunner* runner = CreateRunner(it->first, module.get());
+    module->set_runner(runner);
+    module_system->RegisterExtensionModule(module.Pass());
+  }
 }
 
 }  // namespace extensions

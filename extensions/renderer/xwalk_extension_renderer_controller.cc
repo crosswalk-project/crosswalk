@@ -53,20 +53,9 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   v8::HandleScope handle_scope(context->GetIsolate());
   v8::Context::Scope context_scope(context);
-  // FIXME(cmarcelo): Load extensions sorted by name so parent comes first, so
-  // that we can safely register all them.
-  ExtensionAPIMap::const_iterator it = extension_apis_.begin();
-  for (; it != extension_apis_.end(); ++it) {
-    if (it->second.empty())
-      continue;
-    scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(module_system, it->first, it->second));
-    XWalkRemoteExtensionRunner* runner =
-        in_browser_process_extensions_client_->CreateRunner(it->first,
-        module.get());
-    module->set_runner(runner);
-    module_system->RegisterExtensionModule(module.Pass());
-  }
+
+  in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
+      module_system);
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
@@ -76,25 +65,8 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
-  // FIXME(jeez): pass the RegisterExtension Messages to in_browser_process_extensions_client_.
-  if (in_browser_process_extensions_client_->OnMessageReceived(message))
-    return true;
 
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
-    IPC_MESSAGE_HANDLER(XWalkViewMsg_RegisterExtension, OnRegisterExtension)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
-}
-
-void XWalkExtensionRendererController::OnRegisterExtension(
-    const std::string& extension, const std::string& api) {
-  extension_apis_[extension] = api;
-
-  // FIXME(jeez): we will pass the OnRegisterExtension directly to this client,
-  // so this has to be removed.
-  in_browser_process_extensions_client_->OnRegisterExtension(extension, api);
+  return in_browser_process_extensions_client_->OnMessageReceived(message);
 }
 
 }  // namespace extensions
