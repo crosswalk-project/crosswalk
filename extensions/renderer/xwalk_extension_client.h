@@ -17,10 +17,6 @@ namespace base {
 class ListValue;
 }
 
-namespace IPC{
-class ChannelProxy;
-}
-
 namespace xwalk {
 namespace extensions {
 
@@ -31,7 +27,7 @@ class XWalkModuleSystem;
 // XWalkExtensionServer through an IPC channel.
 class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
  public:
-  XWalkExtensionClient(IPC::ChannelProxy* channel);
+  XWalkExtensionClient(IPC::Sender* sender);
   virtual ~XWalkExtensionClient() {}
 
   // IPC::Listener Implementation.
@@ -54,7 +50,7 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
     extension_apis_[name] = api;
   }
 
-  IPC::ChannelProxy* channel_;
+  IPC::Sender* sender_;
 
   typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;

@@ -5,7 +5,6 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 
 #include "base/values.h"
-#include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
@@ -13,15 +12,15 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionClient::XWalkExtensionClient(IPC::ChannelProxy* channel)
-    : channel_(channel),
+XWalkExtensionClient::XWalkExtensionClient(IPC::Sender* sender)
+    : sender_(sender),
       next_instance_id_(0) {
 }
 
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
-  DCHECK(channel_);
+  DCHECK(sender_);
 
-  return channel_->Send(msg);
+  return sender_->Send(msg);
 }
 
 XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
