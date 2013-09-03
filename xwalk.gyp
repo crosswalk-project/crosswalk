@@ -683,6 +683,7 @@
         'xwalk_android.gypi',
         'xwalk_android_tests.gypi',
         'xwalk_android_app.gypi',
+        'xwalk_core_library_android.gypi',
       ],
     }], # OS=="android"
   ]
