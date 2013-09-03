@@ -13,6 +13,7 @@
         'schema_files': [
           'dialog.idl',
           'runtime.idl',
+          'sysapps_common.idl',
         ],
         'cc_dir': 'xwalk/jsapi',
         'root_namespace': 'xwalk::jsapi',
