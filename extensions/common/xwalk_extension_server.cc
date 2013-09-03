@@ -40,6 +40,8 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
         OnCreateInstance)
     IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_PostMessageToNative,
         OnPostMessageToNative)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(XWalkExtensionServerMsg_SendSyncMessageToNative,
+        OnSendSyncMessageToNative)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -112,7 +114,30 @@ void XWalkExtensionServer::HandleMessageFromNative(
 
 void XWalkExtensionServer::HandleReplyMessageFromNative(
       scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
-  LOG(WARNING) << "HandleReplyMessageFromNative: ";
+  base::ListValue result;
+  result.Append(msg.release());
+
+  IPC::WriteParam(ipc_reply.get(), result);
+  Send(ipc_reply.release());
+}
+
+void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
+    const base::ListValue& msg, IPC::Message* ipc_reply) {
+  RunnerMap::const_iterator it = runners_.find(instance_id);
+  if (it == runners_.end()) {
+    LOG(WARNING) << "Can't SendSyncMessage to invalid Extension instance id: "
+        << instance_id;
+    return;
+  }
+
+  base::Value* value;
+  const_cast<base::ListValue*>(&msg)->Remove(0, &value);
+
+  // We handle a pre-populated |ipc_reply| to the Instance, so it is up to the
+  // it to decide when to reply. It is important to notice that the callee
+  // on the renderer will remain blocked until the reply gets back.
+  (it->second)->SendSyncMessageToNative(scoped_ptr<IPC::Message>(ipc_reply),
+                                   scoped_ptr<base::Value>(value));
 }
 
 ExtensionServerMessageFilter::ExtensionServerMessageFilter(

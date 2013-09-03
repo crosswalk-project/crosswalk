@@ -51,9 +51,14 @@ void XWalkRemoteExtensionRunner::PostMessageToNative(
 
 scoped_ptr<base::Value> XWalkRemoteExtensionRunner::SendSyncMessageToNative(
     scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::Value> reply(handler_->SendSyncMessageToExtension(
-      frame_id_, extension_name_, msg.Pass()));
-  return reply.Pass();
+  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  base::ListValue* wrapped_reply = new base::ListValue;
+  extension_client_->Send(new XWalkExtensionServerMsg_SendSyncMessageToNative(
+      instance_id_, *wrapped_msg, wrapped_reply));
+
+  base::Value* reply;
+  wrapped_reply->Remove(0, &reply);
+  return scoped_ptr<base::Value>(reply);
 }
 
 void XWalkRemoteExtensionRunner::PostMessageToJS(
