@@ -44,13 +44,9 @@ scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
 
 void XWalkRemoteExtensionRunner::PostMessageToNative(
     scoped_ptr<base::Value> msg) {
-  // FIXME(jeez): Remove this.
-  handler_->PostMessageToExtension(frame_id_, extension_name_, msg.Pass());
-
-  // Uncomenting this causes a crash since msg is owned by the IPC channel.
-  // scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
-  // extension_client_->Send(new XWalkExtensionServerMsg_PostMessageToNative(
-  //     instance_id_, *wrapped_msg));
+  scoped_ptr<base::ListValue> wrapped_msg = WrapValueInList(msg.Pass());
+  extension_client_->Send(new XWalkExtensionServerMsg_PostMessageToNative(
+      instance_id_, *wrapped_msg));
 }
 
 scoped_ptr<base::Value> XWalkRemoteExtensionRunner::SendSyncMessageToNative(
