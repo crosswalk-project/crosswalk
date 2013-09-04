@@ -79,6 +79,7 @@
         # Runtime code is also built by this target.
         'xwalk_core_java',
         'xwalk_runtime_lib_apk_pak',
+        'xwalk_runtime_lib_apk_extension',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeLib',
@@ -87,6 +88,7 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/js_api',
         ],
         'asset_location': '<(ant_build_out)/xwalk_runtime_lib/assets',
       },
@@ -103,6 +105,18 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'xwalk_runtime_lib_apk_extension',
+      'type': 'none',
+      'copies': [
+         {
+          'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
+          'files': [
+            'runtime/android/runtimelib/assets/js_api',
           ],
         },
       ],
