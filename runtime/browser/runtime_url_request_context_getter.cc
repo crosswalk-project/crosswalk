@@ -177,6 +177,9 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     bool set_protocol = job_factory->SetProtocolHandler(
         chrome::kFileScheme, new net::FileProtocolHandler());
     DCHECK(set_protocol);
+    set_protocol = job_factory->SetProtocolHandler(
+        chrome::kDataScheme, new net::DataProtocolHandler());
+    DCHECK(set_protocol);
 
     typedef std::vector<net::URLRequestJobFactory::ProtocolHandler*>
         ProtocolHandlerVector;

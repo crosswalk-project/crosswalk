@@ -42,4 +42,14 @@ public class LoadUrlTest extends XWalkViewTestBase {
         loadUrlSync(url);
         assertEquals(expected_title, getTitleOnUiThread());
     }
+
+    @SmallTest
+    @Feature({"LoadUrl"})
+    public void testLocalUrl() throws Throwable {
+        final String name = "index.html";
+        final String expected_title = "Android Asset";
+
+        loadAssetFile(name);
+        assertEquals(expected_title, getTitleOnUiThread());
+    }
 }
