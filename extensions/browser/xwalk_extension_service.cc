@@ -27,6 +27,27 @@ g_register_extensions_callback;
 
 }
 
+class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
+ public:
+  ExtensionServerMessageFilter(XWalkExtensionServer* server);
+  virtual ~ExtensionServerMessageFilter() {}
+
+  virtual bool OnMessageReceived(const IPC::Message& message);
+
+ private:
+  XWalkExtensionServer* server_;
+};
+
+ExtensionServerMessageFilter::ExtensionServerMessageFilter(
+    XWalkExtensionServer* server)
+    : server_(server) {
+}
+
+bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
+  return server_->OnMessageReceived(msg);
+}
+
+
 XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL) {
   in_process_extensions_server_.reset(new XWalkExtensionServer());
@@ -138,8 +159,12 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
   render_process_host_ = host;
 
-  in_process_extensions_server_->SetChannelProxy(
-      render_process_host_->GetChannel());
+  IPC::ChannelProxy* channel = render_process_host_->GetChannel();
+
+  // The filter is owned by the IPC channel.
+  channel->AddFilter(new ExtensionServerMessageFilter(
+      in_process_extensions_server_.get()));
+  in_process_extensions_server_->set_ipc_sender(channel);
 
   RegisterExtensionsForNewHost(render_process_host_);
 }

@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
+#include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
@@ -11,9 +12,8 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionServer::XWalkExtensionServer()
-    : channel_(0)
-    , message_filter_(0) {
+XWalkExtensionServer::XWalkExtensionServer(IPC::Sender* sender)
+    : sender_(sender) {
 }
 
 XWalkExtensionServer::~XWalkExtensionServer() {
@@ -22,15 +22,6 @@ XWalkExtensionServer::~XWalkExtensionServer() {
   // ExtensionMap::iterator it = extensions_.begin();
   // for (; it != extensions_.end(); ++it)
   //   delete it->second;
-}
-
-void XWalkExtensionServer::SetChannelProxy(IPC::ChannelProxy* channel) {
-  channel_ = channel;
-  // The filter is owned by the IPC channel, but a reference is kept for
-  // explicitly removing it from the channel in case we get deleted but the
-  // channel continues to be used.
-  message_filter_ = new ExtensionServerMessageFilter(this);
-  channel_->AddFilter(message_filter_);
 }
 
 bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
@@ -87,9 +78,9 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
-  DCHECK(channel_);
+  DCHECK(sender_);
 
-  return channel_->Send(msg);
+  return sender_->Send(msg);
 }
 
 // FIXME(jeez): we should receive a scoped_ptr.
@@ -151,15 +142,6 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
 
   delete it->second;
   runners_.erase(it);
-}
-
-ExtensionServerMessageFilter::ExtensionServerMessageFilter(
-    XWalkExtensionServer* server)
-    : server_(server) {
-}
-
-bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
-  return server_->OnMessageReceived(msg);
 }
 
 }  // namespace extensions

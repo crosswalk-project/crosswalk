@@ -8,31 +8,31 @@
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
-#include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
+
+namespace IPC {
+class Sender;
+}
 
 namespace xwalk {
 namespace extensions {
 
-class ExtensionServerMessageFilter;
 class XWalkExtension;
 
 // This class holds the Native context of Extensions. It can live in the Browser
 // Process (for in-process extensions) or on the Extension Process. It
 // communicates with its associated XWalkExtensionClient through an IPC channel.
-class XWalkExtensionServer : public IPC::Listener, public IPC::Sender,
+class XWalkExtensionServer : public IPC::Listener,
                              public XWalkExtensionRunner::Client {
  public:
-  XWalkExtensionServer();
+  XWalkExtensionServer(IPC::Sender* sender = 0);
   virtual ~XWalkExtensionServer();
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message);
 
-  // IPC::Sender Implementation.
-  virtual bool Send(IPC::Message* msg);
-
-  void SetChannelProxy(IPC::ChannelProxy* channel);
+  void set_ipc_sender(IPC::Sender* sender) { sender_ = sender; }
+  bool Send(IPC::Message* msg);
 
   // FIXME(jeez): we should pass a scoped_ptr.
   bool RegisterExtension(XWalkExtension* extension);
@@ -51,25 +51,13 @@ class XWalkExtensionServer : public IPC::Listener, public IPC::Sender,
   virtual void HandleReplyMessageFromNative(
       scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
 
-  IPC::ChannelProxy* channel_;
-  ExtensionServerMessageFilter* message_filter_;
+  IPC::Sender* sender_;
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
 
   typedef std::map<int64_t, XWalkExtensionRunner*> RunnerMap;
   RunnerMap runners_;
-};
-
-class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
- public:
-  ExtensionServerMessageFilter(XWalkExtensionServer* server);
-  virtual ~ExtensionServerMessageFilter() {}
-
-  virtual bool OnMessageReceived(const IPC::Message& message);
-
- private:
-  XWalkExtensionServer* server_;
 };
 
 }  // namespace extensions
