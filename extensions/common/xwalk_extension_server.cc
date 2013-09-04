@@ -18,11 +18,16 @@ XWalkExtensionServer::XWalkExtensionServer(IPC::Sender* sender)
 }
 
 XWalkExtensionServer::~XWalkExtensionServer() {
-  //FIXME(jeez): clean up ALL OF OUR MAPS!!!!!
+  if (!runners_.empty())
+    LOG(WARNING) << "XWalkExtensionServer DTOR: RunnerMap is not empty!";
 
-  // ExtensionMap::iterator it = extensions_.begin();
-  // for (; it != extensions_.end(); ++it)
-  //   delete it->second;
+  RunnerMap::iterator it_runner = runners_.begin();
+  for (; it_runner != runners_.end(); ++it_runner)
+    delete it_runner->second;
+
+  ExtensionMap::iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it)
+    delete it->second;
 }
 
 bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
