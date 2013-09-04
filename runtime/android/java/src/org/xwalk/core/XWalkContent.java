@@ -177,6 +177,10 @@ public class XWalkContent extends FrameLayout {
         return null;
     }
 
+    public void evaluateJavaScript(String script) throws IllegalStateException {
+        mContentView.evaluateJavaScript(script);
+    }
+
     // For instrumentation test.
     public ContentViewCore getContentViewCoreForTest() {
         return mContentViewCore;
