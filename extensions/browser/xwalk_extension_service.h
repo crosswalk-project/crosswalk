@@ -9,8 +9,7 @@
 #include <string>
 #include "base/callback_forward.h"
 #include "base/files/file_path.h"
-#include "base/synchronization/lock.h"
-#include "xwalk/extensions/browser/xwalk_in_process_extension_handler.h"
+#include "base/memory/scoped_ptr.h"
 
 namespace content {
 class RenderProcessHost;
@@ -48,11 +47,6 @@ class XWalkExtensionService {
       const RegisterExtensionsCallback& callback);
 
  private:
-  void RegisterExtensionsForNewHost(content::RenderProcessHost* host);
-
-  base::Lock in_process_extensions_lock_;
-  XWalkInProcessExtensionHandler in_process_extensions_;
-
   // FIXME(cmarcelo): For now we support only one render process host.
   content::RenderProcessHost* render_process_host_;
 

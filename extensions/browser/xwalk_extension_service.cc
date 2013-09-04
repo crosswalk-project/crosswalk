@@ -104,11 +104,7 @@ bool XWalkExtensionService::RegisterExtension(
     return false;
   }
 
-  // FIXME(jeez): we should pass a scoped_ptr.
-  in_process_extensions_server_->RegisterExtension(extension.get());
-
-  base::AutoLock lock(in_process_extensions_lock_);
-  return in_process_extensions_.RegisterExtension(extension.Pass());
+  return in_process_extensions_server_->RegisterExtension(extension.Pass());
 }
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
@@ -166,19 +162,13 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
       in_process_extensions_server_.get()));
   in_process_extensions_server_->set_ipc_sender(channel);
 
-  RegisterExtensionsForNewHost(render_process_host_);
+  in_process_extensions_server_->RegisterExtensionsInRenderProcess();
 }
 
 // static
 void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
     const RegisterExtensionsCallback& callback) {
   g_register_extensions_callback = callback;
-}
-
-void XWalkExtensionService::RegisterExtensionsForNewHost(
-    content::RenderProcessHost* host) {
-  base::AutoLock lock(in_process_extensions_lock_);
-  in_process_extensions_.RegisterExtensionsForNewHost(host);
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {

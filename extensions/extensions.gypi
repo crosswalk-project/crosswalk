@@ -4,8 +4,6 @@
     'browser/xwalk_extension_internal.h',
     'browser/xwalk_extension_service.cc',
     'browser/xwalk_extension_service.h',
-    'browser/xwalk_in_process_extension_handler.cc',
-    'browser/xwalk_in_process_extension_handler.h',
     'common/xwalk_extension.cc',
     'common/xwalk_extension.h',
     'common/xwalk_extension_external.cc',

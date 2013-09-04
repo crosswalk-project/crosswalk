@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
+#include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -83,8 +84,8 @@ bool XWalkExtensionServer::Send(IPC::Message* msg) {
   return sender_->Send(msg);
 }
 
-// FIXME(jeez): we should receive a scoped_ptr.
-bool XWalkExtensionServer::RegisterExtension(XWalkExtension* extension) {
+bool XWalkExtensionServer::RegisterExtension(scoped_ptr<XWalkExtension>
+    extension) {
   if (extensions_.find(extension->name()) != extensions_.end()) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
                  << extension->name();
@@ -92,7 +93,7 @@ bool XWalkExtensionServer::RegisterExtension(XWalkExtension* extension) {
   }
 
   std::string name = extension->name();
-  extensions_[name] = extension;
+  extensions_[name] = extension.release();
   return true;
 }
 
@@ -142,6 +143,18 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
 
   delete it->second;
   runners_.erase(it);
+}
+
+void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
+  // Having a sender means we have a RenderProcessHost ready.
+  DCHECK(sender_);
+
+  ExtensionMap::iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it) {
+    XWalkExtension* extension = it->second;
+    Send(new XWalkExtensionClientMsg_RegisterExtension(
+        extension->name(), extension->GetJavaScriptAPI()));
+  }
 }
 
 }  // namespace extensions

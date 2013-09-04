@@ -10,6 +10,10 @@
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 
+namespace content {
+class RenderProcessHost;
+}
+
 namespace IPC {
 class Sender;
 }
@@ -34,8 +38,8 @@ class XWalkExtensionServer : public IPC::Listener,
   void set_ipc_sender(IPC::Sender* sender) { sender_ = sender; }
   bool Send(IPC::Message* msg);
 
-  // FIXME(jeez): we should pass a scoped_ptr.
-  bool RegisterExtension(XWalkExtension* extension);
+  bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
+  void RegisterExtensionsInRenderProcess();
 
  private:
   // Message Handlers
