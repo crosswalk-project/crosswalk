@@ -18,7 +18,8 @@ XWalkExtensionMessageFilter::XWalkExtensionMessageFilter(
     XWalkExtensionWebContentsHandler* handler)
     : handler_(handler),
       runners_(handler->runner_store()),
-      routing_id_(handler->routing_id()) {
+      routing_id_(handler->routing_id()),
+      is_valid_(true) {
 }
 
 XWalkExtensionMessageFilter::~XWalkExtensionMessageFilter() {}
@@ -26,6 +27,10 @@ XWalkExtensionMessageFilter::~XWalkExtensionMessageFilter() {}
 void XWalkExtensionMessageFilter::PostMessage(
     const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
+
+  base::AutoLock l(is_valid_lock_);
+  if (!is_valid_)
+    return;
 
   base::ListValue list;
   list.Append(msg.release());
@@ -39,6 +44,10 @@ void XWalkExtensionMessageFilter::PostMessage(
 
 void XWalkExtensionMessageFilter::PostReplyMessage(
     scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
+  base::AutoLock l(is_valid_lock_);
+  if (!is_valid_)
+    return;
+
   base::ListValue result;
   result.Append(msg.release());
 
@@ -52,6 +61,10 @@ bool XWalkExtensionMessageFilter::OnMessageReceived(
   // in the IO Thread, but we are only interest on the ones routed
   // to WebContents associated to this filter via a WebContentsHandler.
   if (message.routing_id() != routing_id_)
+    return false;
+
+  base::AutoLock l(is_valid_lock_);
+  if (!is_valid_)
     return false;
 
   bool handled = true;
@@ -127,6 +140,11 @@ void XWalkExtensionMessageFilter::DidCreateScriptContext(int64_t frame_id) {
 
 void XWalkExtensionMessageFilter::WillReleaseScriptContext(int64_t frame_id) {
   runners_->DeleteFrame(frame_id);
+}
+
+void XWalkExtensionMessageFilter::Invalidate() {
+  base::AutoLock l(is_valid_lock_);
+  is_valid_ = false;
 }
 
 }  // namespace extensions
