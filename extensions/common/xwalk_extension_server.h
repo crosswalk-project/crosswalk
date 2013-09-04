@@ -5,6 +5,9 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 
+#include <map>
+#include <string>
+
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
@@ -29,7 +32,7 @@ class XWalkExtension;
 class XWalkExtensionServer : public IPC::Listener,
                              public XWalkExtensionRunner::Client {
  public:
-  XWalkExtensionServer(IPC::Sender* sender = 0);
+  explicit XWalkExtensionServer(IPC::Sender* sender = 0);
   virtual ~XWalkExtensionServer();
 
   // IPC::Listener Implementation.
@@ -46,8 +49,8 @@ class XWalkExtensionServer : public IPC::Listener,
   void OnCreateInstance(int64_t instance_id, std::string name);
   void OnDestroyInstance(int64_t instance_id);
   void OnPostMessageToNative(int64_t instance_id, const base::ListValue& msg);
-  void OnSendSyncMessageToNative(int64_t instance_id, const base::ListValue& msg,
-      IPC::Message* ipc_reply);
+  void OnSendSyncMessageToNative(int64_t instance_id,
+      const base::ListValue& msg, IPC::Message* ipc_reply);
 
   // XWalkExtensionRunner::Client implementation.
   virtual void HandleMessageFromNative(const XWalkExtensionRunner* runner,

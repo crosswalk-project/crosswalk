@@ -29,7 +29,7 @@ g_register_extensions_callback;
 
 class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
  public:
-  ExtensionServerMessageFilter(XWalkExtensionServer* server);
+  explicit ExtensionServerMessageFilter(XWalkExtensionServer* server);
   virtual ~ExtensionServerMessageFilter() {}
 
   virtual bool OnMessageReceived(const IPC::Message& message);

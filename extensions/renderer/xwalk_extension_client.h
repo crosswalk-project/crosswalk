@@ -30,13 +30,13 @@ class XWalkModuleSystem;
 // XWalkExtensionServer through an IPC channel.
 class XWalkExtensionClient : public IPC::Listener {
  public:
-  XWalkExtensionClient(IPC::Sender* sender);
+  explicit XWalkExtensionClient(IPC::Sender* sender);
   virtual ~XWalkExtensionClient() {}
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message);
 
-  void CreateRunnersForModuleSystem(XWalkModuleSystem*);
+  void CreateRunnersForModuleSystem(XWalkModuleSystem* module_system);
 
   void DestroyInstance(int64_t instance_id);
 

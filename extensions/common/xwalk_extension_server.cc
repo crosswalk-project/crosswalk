@@ -4,6 +4,8 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
+#include <string>
+
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -39,7 +41,8 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
         OnDestroyInstance)
     IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_PostMessageToNative,
         OnPostMessageToNative)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(XWalkExtensionServerMsg_SendSyncMessageToNative,
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(
+        XWalkExtensionServerMsg_SendSyncMessageToNative,
         OnSendSyncMessageToNative)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()

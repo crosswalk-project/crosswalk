@@ -120,7 +120,7 @@ scoped_ptr<base::ListValue> WrapValueInList(scoped_ptr<base::Value> value) {
 void XWalkExtensionClient::PostMessageToNative(int64_t instance_id,
     scoped_ptr<base::Value> msg) {
   scoped_ptr<base::ListValue> list_msg = WrapValueInList(msg.Pass());
-  Send(new XWalkExtensionServerMsg_PostMessageToNative(instance_id,*list_msg));
+  Send(new XWalkExtensionServerMsg_PostMessageToNative(instance_id, *list_msg));
 }
 
 scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
