@@ -48,6 +48,8 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
         OnPostMessageToJS)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
         OnRegisterExtension)
+    IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_InstanceDestroyed,
+        OnInstanceDestroyed)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -57,7 +59,7 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
 void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
     const base::ListValue& msg) {
   RunnerMap::const_iterator it = runners_.find(instance_id);
-  if (it == runners_.end()) {
+  if (it == runners_.end() || !it->second) {
     LOG(WARNING) << "Can't PostMessage to invalid Extension instance id: "
         << instance_id;
     return;
@@ -70,15 +72,27 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
 
 void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
   RunnerMap::iterator it = runners_.find(instance_id);
-  if (it == runners_.end()) {
+  if (it == runners_.end() || !it->second) {
     LOG(WARNING) << "Can't Destroy invalid instance id: " << instance_id;
     return;
   }
 
   Send(new XWalkExtensionServerMsg_DestroyInstance(instance_id));
 
-  // FIXME(jeez): should we wait a reply msg from server before deleting this?
   delete it->second;
+  it->second = 0;
+}
+
+void XWalkExtensionClient::OnInstanceDestroyed(int64_t instance_id) {
+  RunnerMap::iterator it = runners_.find(instance_id);
+  if (it == runners_.end())
+    return;
+
+  // The runner should be invalid (null) at this point since it should have
+  // been destroyed in XWalkExtensionClient::DestroyInstance(). If we ever
+  // find out that the Server can kill the Instance and only after let us know
+  // then we should modify this to if(it->second) { delete it->second; }
+  DCHECK(!it->second);
 
   // Take it out from the valid runners map.
   runners_.erase(it);

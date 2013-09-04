@@ -152,6 +152,8 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
 
   delete it->second;
   runners_.erase(it);
+
+  Send(new XWalkExtensionClientMsg_InstanceDestroyed(instance_id));
 }
 
 void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {

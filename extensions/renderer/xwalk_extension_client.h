@@ -51,6 +51,7 @@ class XWalkExtensionClient : public IPC::Listener {
   bool Send(IPC::Message* msg);
 
   // Message Handlers.
+  void OnInstanceDestroyed(int64_t instance_id);
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
   void OnRegisterExtension(const std::string& name, const std::string& api) {
     extension_apis_[name] = api;
