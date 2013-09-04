@@ -86,6 +86,12 @@ public class XWalkViewShellActivity extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mView.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         mView.onActivityResult(requestCode, resultCode, data);
     }

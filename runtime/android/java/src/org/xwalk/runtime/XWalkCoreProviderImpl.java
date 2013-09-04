@@ -60,6 +60,7 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mXwalkView.onDestroy();
     }
 
     @Override

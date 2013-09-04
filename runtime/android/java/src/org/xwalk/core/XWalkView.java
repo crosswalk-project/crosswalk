@@ -154,10 +154,11 @@ public class XWalkView extends FrameLayout {
     }
 
     public void disableRemoteDebugging() {
-        if (mDevToolsServer ==  null) {
-            return;
+        if (mDevToolsServer ==  null) return;
+
+        if (mDevToolsServer.isRemoteDebuggingEnabled()) {
+            mDevToolsServer.setRemoteDebuggingEnabled(false);
         }
-        mDevToolsServer.setRemoteDebuggingEnabled(false);
         mDevToolsServer.destroy();
         mDevToolsServer = null;
     }
@@ -168,6 +169,10 @@ public class XWalkView extends FrameLayout {
 
     public void onResume() {
         mContent.onResume();
+    }
+
+    public void onDestroy() {
+        disableRemoteDebugging();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
