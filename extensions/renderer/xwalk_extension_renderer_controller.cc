@@ -8,6 +8,7 @@
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
 #include "ipc/ipc_sync_channel.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
@@ -23,6 +24,8 @@ extern const char kSource_xwalk_api[];
 
 namespace xwalk {
 namespace extensions {
+
+const GURL kAboutBlankURL = GURL("about:blank");
 
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
   content::RenderThread* thread = content::RenderThread::Get();
@@ -43,6 +46,8 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  if (frame->document().url() == kAboutBlankURL)
+    return;
 
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
