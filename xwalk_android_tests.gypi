@@ -65,7 +65,17 @@
         'apk_name': 'XWalkCoreTest',
         'java_in_dir': 'test/android/core/javatests',
         'is_test_apk': 1,
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
+        ],
+        'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/index.html'],
+        }
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
