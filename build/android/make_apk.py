@@ -259,7 +259,7 @@ def Execution(options):
     shutil.rmtree('out/')
 
 
-def main():
+def main(argv):
   parser = optparse.OptionParser()
   info = ('The package name. Such as: '
           '--package=com.example.YourPackage')
@@ -291,6 +291,20 @@ def main():
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
   options, _ = parser.parse_args()
+  if len(argv) == 1:
+    parser.print_help()
+    return 0
+
+  if not options.package:
+    parser.error('The package name is required! Please use "--package" option.')
+  if not options.name:
+    parser.error('The APK name is required! Pleaes use "--name" option.')
+  if not options.app_url and not options.app_root:
+    parser.error('The entry is required. If the entry is a remote url, '
+                 'please use "--app-url" option; If the entry is local, '
+                 'please use "--app-root" and '
+                 '"--app-local-path" options together!')
+
   try:
     Customize(options)
     Execution(options)
@@ -301,4 +315,4 @@ def main():
 
 
 if __name__ == '__main__':
-  sys.exit(main())
+  sys.exit(main(sys.argv))
