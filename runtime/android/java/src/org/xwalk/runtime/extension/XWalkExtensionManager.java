@@ -96,7 +96,7 @@ public class XWalkExtensionManager {
     }
 
     private void loadInternalExtensions() {
-        // Create all extension instances directly here. The internal extension will register 
+        // Create all extension instances directly here. The internal extension will register
         // itself and add itself to XWalkExtensionManager.mExtensions automatically.
         String jsApiContent = "";
         try {
@@ -146,12 +146,14 @@ public class XWalkExtensionManager {
             inputStream.read(buffer);
             result = new String(buffer);
         } finally {
-            inputStream.close();
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
         return result;
     }
 
-    private void createExternalExtension(String name, String className, String apiVersion, String jsApi, 
+    private void createExternalExtension(String name, String className, String apiVersion, String jsApi,
             XWalkExtensionContext extensionContext) {
         // TODO(gaochun): Implement external extension with bridge classes.
     }
