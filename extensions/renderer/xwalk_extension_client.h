@@ -10,11 +10,14 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "ipc/ipc_listener.h"
-#include "ipc/ipc_sender.h"
 #include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
 namespace base {
 class ListValue;
+}
+
+namespace IPC {
+class Sender;
 }
 
 namespace xwalk {
@@ -25,7 +28,7 @@ class XWalkModuleSystem;
 // This class holds the JavaScript context of Extensions. It lives in the
 // Render Process and communicates directly with its associated
 // XWalkExtensionServer through an IPC channel.
-class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
+class XWalkExtensionClient : public IPC::Listener {
  public:
   XWalkExtensionClient(IPC::Sender* sender);
   virtual ~XWalkExtensionClient() {}
@@ -33,16 +36,19 @@ class XWalkExtensionClient : public IPC::Listener, public IPC::Sender {
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message);
 
-  // IPC::Sender Implementation.
-  virtual bool Send(IPC::Message* msg);
-
   void CreateRunnersForModuleSystem(XWalkModuleSystem*);
 
   void DestroyInstance(int64_t instance_id);
 
+  void PostMessageToNative(int64_t instance_id, scoped_ptr<base::Value> msg);
+  scoped_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
+      scoped_ptr<base::Value> msg);
+
  private:
   XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,
       XWalkRemoteExtensionRunner::Client* client);
+
+  bool Send(IPC::Message* msg);
 
   // Message Handlers.
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
