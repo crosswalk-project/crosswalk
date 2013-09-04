@@ -9,6 +9,7 @@
 #include <string>
 #include "content/public/browser/browser_message_filter.h"
 #include "base/basictypes.h"
+#include "base/synchronization/lock.h"
 #include "base/values.h"
 
 using content::BrowserThread;
@@ -39,7 +40,7 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
                                  bool* message_was_ok) OVERRIDE;
 
  private:
-  friend class content::BrowserMessageFilter;
+  friend class XWalkExtensionWebContentsHandler;
   virtual ~XWalkExtensionMessageFilter();
 
   // IPC message handlers.
@@ -50,9 +51,17 @@ class XWalkExtensionMessageFilter : public content::BrowserMessageFilter {
   void DidCreateScriptContext(int64_t frame_id);
   void WillReleaseScriptContext(int64_t frame_id);
 
+  // MessageFilter is destroyed by the channel in the IO process, but we
+  // should stop using it once we destroy the WebContentsHandler (which
+  // happens in the UI process).
+  void Invalidate();
+
   XWalkExtensionWebContentsHandler* handler_;
   XWalkExtensionRunnerStore* runners_;
   int routing_id_;
+
+  base::Lock is_valid_lock_;
+  bool is_valid_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionMessageFilter);
 };

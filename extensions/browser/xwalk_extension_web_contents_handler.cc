@@ -54,6 +54,8 @@ void XWalkExtensionWebContentsHandler::set_render_process_host(
 void XWalkExtensionWebContentsHandler::ClearMessageFilter(void) {
   DCHECK(render_process_host_ && message_filter_);
 
+  message_filter_->Invalidate();
+
   // RemoveFilter() deletes the filter internally.
   if (render_process_host_->GetChannel())
     render_process_host_->GetChannel()->RemoveFilter(message_filter_);
