@@ -11,11 +11,16 @@
 #include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
 #include "base/strings/string_util.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/notification_types.h"
+#include "content/public/browser/notification_service.h"
+#include "content/public/browser/render_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
-#include "content/public/browser/render_process_host.h"
+
+using content::BrowserThread;
 
 namespace xwalk {
 namespace extensions {
@@ -32,7 +37,8 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
   explicit ExtensionServerMessageFilter(XWalkExtensionServer* server);
   virtual ~ExtensionServerMessageFilter() {}
 
-  virtual bool OnMessageReceived(const IPC::Message& message);
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void OnChannelClosing() OVERRIDE;
 
  private:
   XWalkExtensionServer* server_;
@@ -47,9 +53,20 @@ bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
   return server_->OnMessageReceived(msg);
 }
 
+void ExtensionServerMessageFilter::OnChannelClosing() {
+  // This is called when the IPC Channel is about to be destroyed, so we
+  // should invalidate our Server's IPC Sender.
+  if (server_)
+    server_->set_ipc_sender(0);
+}
+
 
 XWalkExtensionService::XWalkExtensionService()
-    : render_process_host_(NULL) {
+    : render_process_host_(NULL),
+      in_process_server_message_filter_(NULL) {
+  registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
+                 content::NotificationService::AllBrowserContextsAndSources());
+
   in_process_extensions_server_.reset(new XWalkExtensionServer());
 
   if (!g_register_extensions_callback.is_null())
@@ -157,9 +174,11 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
   IPC::ChannelProxy* channel = render_process_host_->GetChannel();
 
-  // The filter is owned by the IPC channel.
-  channel->AddFilter(new ExtensionServerMessageFilter(
-      in_process_extensions_server_.get()));
+  // The filter is owned by the IPC channel but we keep a reference to remove
+  // it from the Channel later during a RenderProcess shutdown.
+  in_process_server_message_filter_ =
+      new ExtensionServerMessageFilter(in_process_extensions_server_.get());
+  channel->AddFilter(in_process_server_message_filter_);
   in_process_extensions_server_->set_ipc_sender(channel);
 
   in_process_extensions_server_->RegisterExtensionsInRenderProcess();
@@ -173,6 +192,29 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {
   return ValidateExtensionName(extension_name);
+}
+
+void XWalkExtensionService::Observe(int type,
+                              const content::NotificationSource& source,
+                              const content::NotificationDetails& details) {
+  switch (type) {
+    case content::NOTIFICATION_RENDERER_PROCESS_TERMINATED:
+    case content::NOTIFICATION_RENDERER_PROCESS_CLOSED: {
+      content::RenderProcessHost* rph =
+          content::Source<content::RenderProcessHost>(source).ptr();
+      if (rph == render_process_host_) {
+        // FIXME(jeez): Do I need a lock here?
+        in_process_extensions_server_->set_ipc_sender(0);
+        render_process_host_->GetChannel()->RemoveFilter(
+            in_process_server_message_filter_);
+        BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
+            in_process_extensions_server_.release());
+
+        render_process_host_ = NULL;
+        in_process_server_message_filter_ = NULL;
+      }
+    }
+  }
 }
 
 }  // namespace extensions

@@ -10,6 +10,8 @@
 #include "base/callback_forward.h"
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
+#include "content/public/browser/notification_observer.h"
+#include "content/public/browser/notification_registrar.h"
 
 namespace content {
 class RenderProcessHost;
@@ -19,13 +21,14 @@ class WebContents;
 namespace xwalk {
 namespace extensions {
 
+class ExtensionServerMessageFilter;
 class XWalkExtension;
 class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
 // created. It's life time follows the Browser process itself.
-class XWalkExtensionService {
+class XWalkExtensionService : public content::NotificationObserver {
  public:
   explicit XWalkExtensionService();
   virtual ~XWalkExtensionService();
@@ -47,10 +50,17 @@ class XWalkExtensionService {
       const RegisterExtensionsCallback& callback);
 
  private:
+  // NotificationObserver implementation.
+  virtual void Observe(int type, const content::NotificationSource& source,
+                       const content::NotificationDetails& details) OVERRIDE;
+
   // FIXME(cmarcelo): For now we support only one render process host.
   content::RenderProcessHost* render_process_host_;
 
   scoped_ptr<XWalkExtensionServer> in_process_extensions_server_;
+  ExtensionServerMessageFilter* in_process_server_message_filter_;
+
+  content::NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };

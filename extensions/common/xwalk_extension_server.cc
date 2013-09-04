@@ -87,7 +87,8 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
-  DCHECK(sender_);
+  if (!sender_)
+    return false;
 
   return sender_->Send(msg);
 }
