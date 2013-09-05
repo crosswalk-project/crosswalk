@@ -24,7 +24,6 @@ except ImportError:
 
 try:
   import gclient_utils
-  import gclient_scm
   import subprocess2
   from third_party.repo.progress import Progress
 except ImportError:
@@ -33,84 +32,6 @@ except ImportError:
 
 class FetchingError(Exception):
   pass
-
-class FolderExistGitWrapper(gclient_scm.GitWrapper):
-  """Handle the case that we need to initial git environment
-    when the folder is already there.
-    We need to do:
-      1. git init
-      2. git remote add
-      3. git fetch
-      4. git checkout
-    Then we can let gclient sync to handle the rest of its life.
-  """
-  def __init__(self, url=None, root_dir=None, relpath=None):
-    gclient_scm.GitWrapper.__init__(self, url, root_dir, relpath)
-    self._split_url = gclient_utils.SplitUrlRevision(self.url)
-
-  def _Fetch(self, remote, options):
-    fetch_cmd = ['fetch', remote, '--progress']
-    if options.verbose:
-      fetch_cmd.append('--verbose')
-
-    for _ in range(3):
-      try:
-        # git fetch for chromium will take a looooong time for the
-        # first time, so set timeout for 30 minutes
-        self._Run(fetch_cmd, options, cwd=self.checkout_path,
-                  git_filter=True, nag_timer=30, nag_max=60)
-        break
-      except subprocess2.CalledProcessError, e:
-        if e.returncode == 128:
-          print(str(e))
-          print('Retrying...')
-          continue
-        raise e
-
-  def _DoCheckOut(self, options):
-    revision = self._split_url[1]
-    if revision:
-      if revision.startswith('refs/heads/'):
-        revision = revision.replace('refs/heads/', 'origin/')
-        rev_type = "branch"
-      elif revision.startswith('origin/'):
-        rev_type = "branch"
-      else:
-        rev_type = 'hash'
-      if rev_type == 'hash':
-        co_args = [revision]
-      else:
-        branch = revision[len('origin/'):]
-        branches = self._Capture(['branch'])
-        if branch.strip() in [br.strip() for br in branches.split('\n')]:
-          print('branch %s already exist, skip checkout', branch)
-          return
-        else:
-          co_args = ['-b', branch, revision]
-    else:
-      co_args = ['-b', 'master', 'origin/master']
-    self._Run(['checkout'] + co_args, options, cwd=self.checkout_path,
-              git_filter=True)
-
-  def DoInitAndCheckout(self, options):
-    # Do git init if necessary
-    if not os.path.exists(os.path.join(self.checkout_path, '.git')):
-      print('_____ initialize %s to be a git repo' % self.relpath)
-      self._Capture(['init'])
-    # Find out remote origin exists or not
-    remotes = self._Capture(['remote']).strip().splitlines()
-    if 'origin' not in [remote.strip() for remote in remotes]:
-      print('_____ setting remote for  %s' % self.relpath)
-      self._Capture(['remote', 'add', 'origin', self._split_url[0]])
-    else:
-      current_url = self._Capture(['config', 'remote.origin.url'])
-      if current_url != self._split_url[0]:
-        print('_____ switching %s to a new upstream' % self.relpath)
-        # Switch over to the new upstream
-        self._Run(['remote', 'set-url', 'origin', self._split_url[0]], options)
-
-    self._Fetch('origin', options)
-    self._DoCheckOut(options)
 
 class DepsFetcher(gclient_utils.WorkItem):
   def __init__(self, name, options):
@@ -135,8 +56,7 @@ class DepsFetcher(gclient_utils.WorkItem):
     self._root_dir = os.path.dirname(self._src_dir)
     self._new_gclient_file = os.path.join(self._root_dir,
                                           '.gclient-xwalk')
-    self._src_git = FolderExistGitWrapper(self._src_dep, self._root_dir, 'src')
-    
+
   def _ParseDepsFile(self):
     if not os.path.exists(self._deps_file):
       raise FetchingError('Deps file does not exist (%s).' % self._deps_file)
@@ -154,7 +74,6 @@ class DepsFetcher(gclient_utils.WorkItem):
     return set()
 
   def run(self, work_queue):
-    self._src_git.DoInitAndCheckout(self._options)
     self.PrepareGclient()
     return 0
 
@@ -180,7 +99,6 @@ class DepsFetcher(gclient_utils.WorkItem):
       ignores = ignores_str.split(';')
     for ignore in ignores:
       self._deps[ignore] = None
-      
 
   def PrepareGclient(self):
     """It is very important here to know if the based chromium is trunk
