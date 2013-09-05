@@ -23,11 +23,11 @@ class XWalkExtensionModule;
 // This object provides the exact interface for XWalkExtensionModule, the
 // JavaScript binding, to interact with an extension instance. The
 // XWalkExtensionModule implements the runner's Client interface to handle
-// messages from native.
+// messages from native. This interface is similar to XWalkExtensionRunner.
 //
-// This interface is similar to XWalkExtensionRunner.
-//
-// TODO(cmarcelo): Is it worth to make the two interfaces the same?
+// TODO(cmarcelo): The interface of this class is conceptually similar to
+// XWalkExtensionRunner, consider whether it is worth to make it a
+// XWalkExtensionRunner subclass or simply a separated object.
 class XWalkRemoteExtensionRunner {
  public:
   class Client {

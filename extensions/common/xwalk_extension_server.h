@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string>
 
+#include "base/synchronization/cancellation_flag.h"
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
@@ -33,17 +34,19 @@ class XWalkExtension;
 class XWalkExtensionServer : public IPC::Listener,
                              public XWalkExtensionRunner::Client {
  public:
-  explicit XWalkExtensionServer(IPC::Sender* sender = 0);
+  XWalkExtensionServer();
   virtual ~XWalkExtensionServer();
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message);
 
-  void set_ipc_sender(IPC::Sender* sender) { sender_ = sender; }
+  void Initialize(IPC::Sender* sender) { sender_ = sender; }
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
   void RegisterExtensionsInRenderProcess();
+
+  void Invalidate();
 
  private:
   // Message Handlers
@@ -66,6 +69,8 @@ class XWalkExtensionServer : public IPC::Listener,
 
   typedef std::map<int64_t, XWalkExtensionRunner*> RunnerMap;
   RunnerMap runners_;
+
+  base::CancellationFlag sender_cancellation_flag_;
 };
 
 }  // namespace extensions

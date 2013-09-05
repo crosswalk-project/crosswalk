@@ -30,7 +30,7 @@ class XWalkExtensionServer;
 // created. It's life time follows the Browser process itself.
 class XWalkExtensionService : public content::NotificationObserver {
  public:
-  explicit XWalkExtensionService();
+  XWalkExtensionService();
   virtual ~XWalkExtensionService();
 
   // Returns false if it couldn't be registered because another one with the
@@ -57,6 +57,7 @@ class XWalkExtensionService : public content::NotificationObserver {
   // FIXME(cmarcelo): For now we support only one render process host.
   content::RenderProcessHost* render_process_host_;
 
+  // This object lives on the IO-thread.
   scoped_ptr<XWalkExtensionServer> in_process_extensions_server_;
   ExtensionServerMessageFilter* in_process_server_message_filter_;
 

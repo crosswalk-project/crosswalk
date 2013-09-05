@@ -32,13 +32,16 @@ g_register_extensions_callback;
 
 }
 
+// This object will be responsible for filtering messages on the
+// BrowserProcess <-> RenderProcess channel and getting them to the
+// in_process ExtensionServer.
 class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
  public:
   explicit ExtensionServerMessageFilter(XWalkExtensionServer* server);
   virtual ~ExtensionServerMessageFilter() {}
 
+  // IPC::ChannelProxy::MessageFilter Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnChannelClosing() OVERRIDE;
 
  private:
   XWalkExtensionServer* server_;
@@ -53,13 +56,6 @@ bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
   return server_->OnMessageReceived(msg);
 }
 
-void ExtensionServerMessageFilter::OnChannelClosing() {
-  // This is called when the IPC Channel is about to be destroyed, so we
-  // should invalidate our Server's IPC Sender.
-  if (server_)
-    server_->set_ipc_sender(0);
-}
-
 
 XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL),
@@ -67,6 +63,8 @@ XWalkExtensionService::XWalkExtensionService()
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
+  // This object is created on the UI-thread but it will live on the IO-thread.
+  // Its deletion will happen on the IO-thread.
   in_process_extensions_server_.reset(new XWalkExtensionServer());
 
   if (!g_register_extensions_callback.is_null())
@@ -179,7 +177,7 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   in_process_server_message_filter_ =
       new ExtensionServerMessageFilter(in_process_extensions_server_.get());
   channel->AddFilter(in_process_server_message_filter_);
-  in_process_extensions_server_->set_ipc_sender(channel);
+  in_process_extensions_server_->Initialize(channel);
 
   in_process_extensions_server_->RegisterExtensionsInRenderProcess();
 }
@@ -194,6 +192,9 @@ bool ValidateExtensionNameForTesting(const std::string& extension_name) {
   return ValidateExtensionName(extension_name);
 }
 
+// We use this to keep track of the RenderProcess shutdown events.
+// This is _very_ important so we can clean up all we need gracefully,
+// avoiding invalid IPC steps after the IPC channel is gonne.
 void XWalkExtensionService::Observe(int type,
                               const content::NotificationSource& source,
                               const content::NotificationDetails& details) {
@@ -203,14 +204,12 @@ void XWalkExtensionService::Observe(int type,
       content::RenderProcessHost* rph =
           content::Source<content::RenderProcessHost>(source).ptr();
       if (rph == render_process_host_) {
-        // FIXME(jeez): Do I need a lock here?
-        in_process_extensions_server_->set_ipc_sender(0);
+        in_process_extensions_server_->Invalidate();
         render_process_host_->GetChannel()->RemoveFilter(
             in_process_server_message_filter_);
         BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
             in_process_extensions_server_.release());
 
-        render_process_host_ = NULL;
         in_process_server_message_filter_ = NULL;
       }
     }

@@ -13,8 +13,8 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionServer::XWalkExtensionServer(IPC::Sender* sender)
-    : sender_(sender) {
+XWalkExtensionServer::XWalkExtensionServer()
+    : sender_(0) {
 }
 
 XWalkExtensionServer::~XWalkExtensionServer() {
@@ -85,9 +85,10 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
-  if (!sender_)
+  if (sender_cancellation_flag_.IsSet())
     return false;
 
+  DCHECK(sender_);
   return sender_->Send(msg);
 }
 
@@ -138,7 +139,7 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   // it to decide when to reply. It is important to notice that the callee
   // on the renderer will remain blocked until the reply gets back.
   (it->second)->SendSyncMessageToNative(scoped_ptr<IPC::Message>(ipc_reply),
-                                   scoped_ptr<base::Value>(value));
+                                        scoped_ptr<base::Value>(value));
 }
 
 void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
@@ -164,6 +165,11 @@ void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
     Send(new XWalkExtensionClientMsg_RegisterExtension(
         extension->name(), extension->GetJavaScriptAPI()));
   }
+}
+
+void XWalkExtensionServer::Invalidate() {
+  sender_cancellation_flag_.Set();
+  sender_ = 0;
 }
 
 }  // namespace extensions

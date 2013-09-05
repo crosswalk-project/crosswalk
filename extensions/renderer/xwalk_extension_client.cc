@@ -85,10 +85,13 @@ void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
 
 void XWalkExtensionClient::OnInstanceDestroyed(int64_t instance_id) {
   RunnerMap::iterator it = runners_.find(instance_id);
-  if (it == runners_.end())
+  if (it == runners_.end()) {
+    LOG(WARNING) << "Got InstanceDestroyed msg for invalid instance id: "
+        << instance_id;
     return;
+  }
 
-  // The runner should be invalid (null) at this point since it should have
+  // The runner should be invalid (NULL) at this point since it should have
   // been destroyed in XWalkExtensionClient::DestroyInstance(). If we ever
   // find out that the Server can kill the Instance and only after let us know
   // then we should modify this to if(it->second) { delete it->second; }
