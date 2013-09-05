@@ -5,11 +5,13 @@
       'type': 'static_library',
       'dependencies': [
         '../base/base.gyp:base',
+        '../crypto/crypto.gyp:crypto',
         '../ipc/ipc.gyp:ipc',
         '../ui/ui.gyp:ui',
         '../url/url.gyp:url_lib',
         '../webkit/support/webkit_support.gyp:webkit_support',
         '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
+        '../third_party/zlib/zlib.gyp:zip',
       ],
       'sources': [
         'browser/application_store.cc',
@@ -20,6 +22,10 @@
         'browser/application_service.h',
         'browser/application_system.cc',
         'browser/application_system.h',
+        'browser/installer/xpk_extractor.cc',
+        'browser/installer/xpk_extractor.h',
+        'browser/installer/xpk_package.cc',
+        'browser/installer/xpk_package.h',
 
         'common/application.cc',
         'common/application.h',

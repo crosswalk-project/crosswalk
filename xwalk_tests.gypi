@@ -64,6 +64,7 @@
       'extensions/extensions_unittests.gypi',
     ],
     'sources': [
+      'application/browser/installer/xpk_extractor_unittest.cc',
       'application/common/application_unittest.cc',
       'application/common/application_file_util_unittest.cc',
       'application/common/id_util_unittest.cc',

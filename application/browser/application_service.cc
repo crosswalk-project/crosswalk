@@ -9,6 +9,7 @@
 #include "base/file_util.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/installer/xpk_extractor.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
@@ -35,9 +36,47 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   const base::FilePath data_dir =
       runtime_context_->GetPath().Append(kApplicationsDir);
 
+  // Make sure the kApplicationsDir exists under data_path, otherwise,
+  // the installation will always fail because of moving application
+  // resources into an invalid directory.
+  if (!file_util::DirectoryExists(data_dir) &&
+      !file_util::CreateDirectory(data_dir))
+    return false;
+
+  base::FilePath unpacked_dir;
+  std::string app_id;
+  if (!file_util::DirectoryExists(path)) {
+    scoped_refptr<XPKExtractor> extractor = XPKExtractor::Create(path);
+    if (extractor)
+      app_id = extractor->GetPackageID();
+
+    if (app_id.empty()) {
+      LOG(ERROR) << "XPK file is invalid.";
+      return false;
+    }
+
+    if (app_store_->Contains(app_id)) {
+      *id = app_id;
+      LOG(INFO) << "Already installed: " << app_id;
+      return true;
+    }
+
+    base::FilePath temp_dir;
+    extractor->Extract(&temp_dir);
+    unpacked_dir = data_dir.AppendASCII(app_id);
+    if (file_util::DirectoryExists(unpacked_dir) &&
+        !file_util::Delete(unpacked_dir, true))
+      return false;
+    if (!file_util::Move(temp_dir, unpacked_dir))
+      return false;
+  } else {
+    unpacked_dir = path;
+  }
+
   std::string error;
   scoped_refptr<Application> application =
-      LoadApplication(path,
+      LoadApplication(unpacked_dir,
+                      app_id,
                       Manifest::COMMAND_LINE,
                       &error);
   if (!application) {
