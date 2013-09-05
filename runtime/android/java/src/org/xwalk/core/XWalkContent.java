@@ -18,6 +18,7 @@ import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
+import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.ui.WindowAndroid;
@@ -166,6 +167,17 @@ public class XWalkContent extends FrameLayout {
 
     public void stopLoading() {
         mContentView.stopLoading();
+    }
+
+    // TODO(Guangzhen): ContentViewStatics will be removed in upstream,
+    // details in content_view_statics.cc.
+    // We need follow up after upstream updates that.
+    public void pauseTimers() {
+        ContentViewStatics.setWebKitSharedTimersSuspended(true);
+    }
+
+    public void resumeTimers() {
+        ContentViewStatics.setWebKitSharedTimersSuspended(false);
     }
 
     public String getOriginalUrl() {
