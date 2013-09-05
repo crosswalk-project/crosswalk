@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
+#include <stdlib.h>
 #include <string>
 
 #include "base/bind.h"
@@ -36,6 +37,7 @@
 #include "ui/base/layout.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
+#include "ui/gl/gl_switches.h"
 
 #if defined(OS_ANDROID)
 #include "content/public/browser/android/compositor.h"
@@ -88,6 +90,20 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 
 #if !defined(OS_ANDROID)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
+#if defined(OS_TIZEN_MOBILE)
+  command_line->AppendSwitch(switches::kFullscreen);
+  command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
+  command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
+
+  const char* gl_name;
+  if (file_util::PathExists(base::FilePath("/usr/lib/xwalk/libosmesa.so")))
+    gl_name = gfx::kGLImplementationOSMesaName;
+  else if (file_util::PathExists(base::FilePath("/usr/lib/libGL.so")))
+    gl_name = gfx::kGLImplementationDesktopName;
+  else
+    gl_name = gfx::kGLImplementationEGLName;
+  command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
+#endif
   const CommandLine::StringVector& args = command_line->GetArgs();
 
   if (args.empty())
@@ -202,11 +218,20 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   NativeAppWindow::Initialize();
 
-  if (startup_url_.SchemeIsFile()) {
+  std::string command_name =
+      command_line->GetProgram().BaseName().MaybeAsASCII();
+
+  if (startup_url_.SchemeIsFile() || command_name.compare("xwalk") != 0) {
     xwalk::application::ApplicationSystem* system =
         runtime_context_->GetApplicationSystem();
     xwalk::application::ApplicationService* service =
         system->application_service();
+
+    if (xwalk::application::Application::IsIDValid(command_name)) {
+      run_default_message_loop_ = service->Launch(command_name);
+      return;
+    }
+
     const CommandLine::StringVector& args = command_line->GetArgs();
     std::string id = std::string(args[0].begin(), args[0].end());
     if (xwalk::application::Application::IsIDValid(id)) {
@@ -219,10 +244,40 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     if (command_line->HasSwitch(switches::kInstall)) {
       if (file_util::PathExists(path)) {
         std::string id;
-        if (service->Install(path, &id))
+        if (service->Install(path, &id)) {
+#if defined(OS_TIZEN_MOBILE)
+          // FIXME: We temporary invoke a python script until the same
+          // is implemented in C++.
+          base::FilePath tizen_install(
+              FILE_PATH_LITERAL("/usr/bin/install_into_pkginfo_db.py"));
+          if (file_util::PathExists(tizen_install)) {
+            LOG(INFO) << "Register package installation in Tizen.";
+            std::string data_path = runtime_context_->GetPath().MaybeAsASCII();
+            std::string manifest_path = runtime_context_->GetPath()
+                .AppendASCII("applications")
+                .AppendASCII(id)
+                .AppendASCII("manifest.json")
+                .MaybeAsASCII();
+            std::string cmd = "/usr/bin/env python "
+                + tizen_install.MaybeAsASCII()
+                + " -i " + manifest_path
+                + " -p " + id
+                + " -d " + data_path;
+
+            if (std::system(cmd.c_str()) == 0) {
+              LOG(INFO) << "Installed successfully on Tizen.";
+            } else {
+              LOG(ERROR) << "[ERR] An error occurred during"
+                            "installation on Tizen.";
+              run_default_message_loop_ = false;
+              return;
+            }
+          }
+#endif  // OS_TIZEN_MOBILE
           LOG(INFO) << "[OK] Application installed: " << id;
-        else
+        } else {
           LOG(ERROR) << "[ERR] Application install failure: " << path.value();
+        }
       }
       run_default_message_loop_ = false;
       return;
