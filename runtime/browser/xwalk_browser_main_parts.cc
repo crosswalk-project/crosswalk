@@ -203,26 +203,32 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   NativeAppWindow::Initialize();
 
   if (startup_url_.SchemeIsFile()) {
+    xwalk::application::ApplicationSystem* system =
+        runtime_context_->GetApplicationSystem();
+    xwalk::application::ApplicationService* service =
+        system->application_service();
+    const CommandLine::StringVector& args = command_line->GetArgs();
+    std::string id = std::string(args[0].begin(), args[0].end());
+    if (xwalk::application::Application::IsIDValid(id)) {
+      run_default_message_loop_ = service->Launch(id);
+      return;
+    }
     base::FilePath path;
     if (!net::FileURLToFilePath(startup_url_, &path))
       return;
-    if (file_util::DirectoryExists(path)) {
-      std::string error;
-      scoped_refptr<xwalk::application::Application> application =
-          xwalk::application::LoadApplication(
-              path,
-              xwalk::application::Manifest::COMMAND_LINE,
-              &error);
-      if (!error.empty())
-        LOG(ERROR) << "Failed to load application: " << error;
-      if (application != NULL) {
-        xwalk::application::ApplicationSystem* system =
-            runtime_context_->GetApplicationSystem();
-        xwalk::application::ApplicationProcessManager* manager =
-            system->process_manager();
-        manager->LaunchApplication(runtime_context_.get(), application);
-        return;
+    if (command_line->HasSwitch(switches::kInstall)) {
+      if (file_util::PathExists(path)) {
+        std::string id;
+        if (service->Install(path, &id))
+          LOG(INFO) << "[OK] Application installed: " << id;
+        else
+          LOG(ERROR) << "[ERR] Application install failure: " << path.value();
       }
+      run_default_message_loop_ = false;
+      return;
+    } else if (file_util::DirectoryExists(path)) {
+      run_default_message_loop_ = service->Launch(path);
+      return;
     }
   }
 

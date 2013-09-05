@@ -55,8 +55,8 @@ RuntimeContext::RuntimeContext()
 #else
 RuntimeContext::RuntimeContext() {
 #endif
-  application_system_.reset(new xwalk::application::ApplicationSystem(this));
   InitWhileIOAllowed();
+  application_system_.reset(new xwalk::application::ApplicationSystem(this));
 }
 
 RuntimeContext::~RuntimeContext() {
