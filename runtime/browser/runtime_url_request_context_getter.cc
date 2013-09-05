@@ -109,6 +109,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         net::HostResolver::CreateDefaultResolver(NULL));
 
     storage_->set_cert_verifier(net::CertVerifier::CreateDefault());
+    storage_->set_transport_security_state(new net::TransportSecurityState);
     storage_->set_proxy_service(
         net::ProxyService::CreateUsingSystemProxyResolver(
         proxy_config_service_.release(),
@@ -132,6 +133,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     net::HttpNetworkSession::Params network_session_params;
     network_session_params.cert_verifier =
         url_request_context_->cert_verifier();
+    network_session_params.transport_security_state =
+        url_request_context_->transport_security_state();
     network_session_params.server_bound_cert_service =
         url_request_context_->server_bound_cert_service();
     network_session_params.proxy_service =
