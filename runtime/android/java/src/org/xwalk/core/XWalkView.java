@@ -137,6 +137,14 @@ public class XWalkView extends FrameLayout {
         mContent.stopLoading();
     }
 
+    public void pauseTimers() {
+        mContent.pauseTimers();
+    }
+
+    public void resumeTimers() {
+        mContent.resumeTimers();
+    }
+
     // Enables remote debugging and returns the URL at which the dev tools server is listening
     // for commands.
     public String enableRemoteDebugging() {
