@@ -59,8 +59,9 @@ void RequireNativeCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
 XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
   v8::Isolate* isolate = context->GetIsolate();
-  v8::HandleScope handle_scope(isolate);
+  v8_context_.Reset(isolate, context);
 
+  v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> function_data = v8::Object::New();
   function_data->Set(v8::String::New(kXWalkModuleSystem),
                      v8::External::New(this));
@@ -101,6 +102,8 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   require_native_template_.Clear();
   function_data_.Dispose(isolate);
   function_data_.Clear();
+  v8_context_.Dispose(isolate);
+  v8_context_.Clear();
 }
 
 // static
@@ -127,16 +130,17 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 }
 
 void XWalkModuleSystem::RegisterExtensionModule(
-    v8::Handle<v8::Context> context, scoped_ptr<XWalkExtensionModule> module) {
+    scoped_ptr<XWalkExtensionModule> module) {
   const std::string& extension_name = module->extension_name();
   CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
   // TODO(cmarcelo): Setup lazy loader instead of immediatly running
   // JS API code.
-  v8::Isolate* isolate = context->GetIsolate();
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::FunctionTemplate> require_native_template =
       v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
-  module->LoadExtensionCode(context, require_native_template->GetFunction());
+  module->LoadExtensionCode(GetV8Context(),
+                            require_native_template->GetFunction());
   extension_modules_[extension_name] = module.release();
 }
 
@@ -159,6 +163,10 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
   if (it == native_modules_.end())
     return v8::Handle<v8::Object>();
   return it->second->NewInstance();
+}
+
+v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
+  return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
 }
 
 }  // namespace extensions

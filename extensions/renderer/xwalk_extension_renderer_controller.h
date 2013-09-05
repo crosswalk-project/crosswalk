@@ -7,7 +7,9 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "base/compiler_specific.h"
+#include "base/memory/scoped_ptr.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "v8/include/v8.h"
 
@@ -22,7 +24,7 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
-class XWalkModuleSystem;
+class XWalkExtensionClient;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
@@ -31,10 +33,6 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
  public:
   XWalkExtensionRendererController();
   virtual ~XWalkExtensionRendererController();
-
-  // To be called by client code when a render view is created. Will attach
-  // extension handlers to them.
-  void RenderViewCreated(content::RenderView* render_view);
 
   // To be called in XWalkContentRendererClient so we can create and
   // destroy extensions contexts appropriatedly.
@@ -47,22 +45,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
-  friend class XWalkExtensionRenderViewHandler;
-
-  // Called when browser process send a message with a new extension to be
-  // registered, and its corresponding JavaScript API.
-  void OnRegisterExtension(const std::string& extension,
-                           const std::string& api);
-
-  // Returns whether the extension was already registered in the controller.
-  bool ContainsExtension(const std::string& extension) const;
-
-  // Installs the extensions' JavaScript API code into the given frame.
-  void InstallJavaScriptAPIs(v8::Handle<v8::Context> context,
-                             XWalkModuleSystem* module_system);
-
-  typedef std::map<std::string, std::string> ExtensionAPIMap;
-  ExtensionAPIMap extension_apis_;
+  scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

@@ -35,7 +35,8 @@ class XWalkExtensionThreadedRunner : public XWalkExtensionRunner {
  public:
   XWalkExtensionThreadedRunner(
       XWalkExtension* extension, Client* client,
-      base::SingleThreadTaskRunner* client_task_runner);
+      base::SingleThreadTaskRunner* client_task_runner,
+      int64_t instance_id = -1);
   virtual ~XWalkExtensionThreadedRunner();
 
  private:
