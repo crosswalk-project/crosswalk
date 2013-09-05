@@ -18,8 +18,8 @@ namespace extensions {
 XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
                                              jstring name, jstring js_api)
     : XWalkExtension(),
-      instance_(NULL),
-      java_ref_(env, obj) {
+      java_ref_(env, obj),
+      next_instance_id_(1) {
   const char *str = env->GetStringUTFChars(name, 0);
   set_name(str);
   env->ReleaseStringUTFChars(name, str);
@@ -41,18 +41,25 @@ XWalkExtensionAndroid::~XWalkExtensionAndroid() {
 }
 
 bool XWalkExtensionAndroid::is_valid() {
-  if (!instance_) {
+  if (instances_.empty() || js_api_.empty()) {
     return false;
   }
 
   return true;
 }
 
-void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj, jstring msg) {
+void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
+                                       jint instance, jstring msg) {
   DCHECK(is_valid());
 
+  InstanceMap::iterator it = instances_.find(instance);
+  if (it == instances_.end()) {
+    LOG(WARNING) << "Instance(" << instance << ") not found ";
+    return;
+  }
+
   const char* str = env->GetStringUTFChars(msg, 0);
-  instance_->PostMessageWrapper(str);
+  it->second->PostMessageWrapper(str);
   env->ReleaseStringUTFChars(msg, str);
 }
 
@@ -62,20 +69,52 @@ const char* XWalkExtensionAndroid::GetJavaScriptAPI() {
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance(
     const XWalkExtension::PostMessageCallback& post_message) {
-  if (!instance_) {
-    instance_ = new XWalkExtensionAndroidInstance(java_ref_);
-    instance_->SetPostMessageCallback(post_message);
+  JNIEnv* env = base::android::AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null()) {
+    return NULL;
   }
 
-  return instance_;
+  XWalkExtensionAndroidInstance* instance =
+      new XWalkExtensionAndroidInstance(this, java_ref_, next_instance_id_);
+  instance->SetPostMessageCallback(post_message);
+  instances_[next_instance_id_] = instance;
+
+  Java_XWalkExtensionAndroid_onInstanceCreated(env,
+                                               obj.obj(),
+                                               next_instance_id_);
+  next_instance_id_++;
+  return instance;
+}
+
+void XWalkExtensionAndroid::RemoveInstance(int instance) {
+  JNIEnv* env = base::android::AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null()) {
+    return;
+  }
+
+  InstanceMap::iterator it = instances_.find(instance);
+  if (it == instances_.end()) {
+    LOG(WARNING) << "Instance(" << instance << ") not found ";
+    return;
+  }
+
+  instances_.erase(instance);
+  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj());
 }
 
 XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(
-    const JavaObjectWeakGlobalRef& java_ref)
-    : java_ref_(java_ref) {
+    XWalkExtensionAndroid* extension,
+    const JavaObjectWeakGlobalRef& java_ref,
+    int id)
+    : extension_(extension),
+      java_ref_(java_ref),
+      id_(id) {
 }
 
 XWalkExtensionAndroidInstance::~XWalkExtensionAndroidInstance() {
+  extension_->RemoveInstance(id_);
 }
 
 void XWalkExtensionAndroidInstance::HandleMessage(

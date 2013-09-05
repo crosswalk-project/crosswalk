@@ -5,6 +5,7 @@
 #ifndef XWALK_EXTENSIONS_COMMON_ANDROID_XWALK_EXTENSION_ANDROID_H_
 #define XWALK_EXTENSIONS_COMMON_ANDROID_XWALK_EXTENSION_ANDROID_H_
 
+#include <map>
 #include <string>
 
 #include "base/android/jni_helper.h"
@@ -34,18 +35,22 @@ class XWalkExtensionAndroid : public XWalkExtension {
   virtual ~XWalkExtensionAndroid();
 
   // JNI interface to post message from Java to JS
-  void PostMessage(JNIEnv* env, jobject obj, jstring msg);
+  void PostMessage(JNIEnv* env, jobject obj, jint instance, jstring msg);
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtensionInstance* CreateInstance(
       const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
 
+  void RemoveInstance(int instance);
+
  private:
   bool is_valid();
 
-  XWalkExtensionAndroidInstance* instance_;
+  typedef std::map<int, XWalkExtensionAndroidInstance*> InstanceMap;
+  InstanceMap instances_;
   JavaObjectWeakGlobalRef java_ref_;
   std::string js_api_;
+  int next_instance_id_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionAndroid);
 };
@@ -53,7 +58,9 @@ class XWalkExtensionAndroid : public XWalkExtension {
 class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
  public:
   explicit XWalkExtensionAndroidInstance(
-      const JavaObjectWeakGlobalRef& java_ref);
+      XWalkExtensionAndroid* extension,
+      const JavaObjectWeakGlobalRef& java_ref,
+      int id);
   ~XWalkExtensionAndroidInstance();
 
   void PostMessageWrapper(const char* msg) {
@@ -65,7 +72,9 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
   virtual scoped_ptr<base::Value> HandleSyncMessage(
       scoped_ptr<base::Value> msg) OVERRIDE;
 
+  XWalkExtensionAndroid* extension_;
   JavaObjectWeakGlobalRef java_ref_;
+  int id_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionAndroidInstance);
 };
