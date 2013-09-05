@@ -26,6 +26,11 @@ deps = {
 
 hooks = [
   {
+    # Generate .gclient-xwalk for Crosswalk's dependencies.
+    "pattern": ".",
+    "action": ["python", "src/xwalk/tools/generate_gclient-xwalk.py"],
+  },
+  {
     # Fetch Crosswalk dependencies.
     "pattern": ".",
     "action": ["python", "src/xwalk/tools/fetch_deps.py", "-v"],
