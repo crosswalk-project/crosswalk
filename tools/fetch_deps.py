@@ -13,7 +13,6 @@
 import optparse
 import os
 import pprint
-import re
 import sys
 
 from utils import TryAddDepotToolsToPythonPath
@@ -31,16 +30,6 @@ try:
 except ImportError:
   sys.stderr.write("Can't find gclient_utils, please add your depot_tools "\
                    "to PATH or PYTHONPATH\n")
-
-percent_re = re.compile('.* ([0-9]{1,2})% .*')
-def _GitFilter(line):
-  # git uses an escape sequence to clear the line; elide it.
-  esc = line.find(unichr(033))
-  if esc > -1:
-    line = line[:esc]
-  match = percent_re.match(line)
-  if not match or not int(match.group(1)) % 10:
-    print '%s' % line
 
 class FetchingError(Exception):
   pass
