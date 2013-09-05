@@ -27,16 +27,19 @@ deps = {
 hooks = [
   {
     # Generate .gclient-xwalk for Crosswalk's dependencies.
+    "name": "generate-gclient-xwalk",
     "pattern": ".",
     "action": ["python", "src/xwalk/tools/generate_gclient-xwalk.py"],
   },
   {
     # Fetch Crosswalk dependencies.
+    "name": "fetch-deps",
     "pattern": ".",
     "action": ["python", "src/xwalk/tools/fetch_deps.py", "-v"],
   },
   {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
+    "name": "gyp-xwalk",
     "pattern": ".",
     "action": ["python", "src/xwalk/gyp_xwalk"],
   }
