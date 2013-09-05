@@ -5,6 +5,7 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_RUNNER_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_RUNNER_H_
 
+#include <stdint.h>
 #include <string>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"

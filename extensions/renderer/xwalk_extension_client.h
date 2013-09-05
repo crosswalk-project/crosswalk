@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 
 #include <map>
+#include <stdint.h>
 #include <string>
 
 #include "base/memory/scoped_ptr.h"

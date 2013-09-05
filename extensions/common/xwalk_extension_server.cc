@@ -4,8 +4,6 @@
 
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
-#include <string>
-
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"

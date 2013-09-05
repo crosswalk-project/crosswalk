@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 
 #include <map>
+#include <stdint.h>
 #include <string>
 
 #include "base/values.h"
