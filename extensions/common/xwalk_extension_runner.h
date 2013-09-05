@@ -5,6 +5,7 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_RUNNER_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_RUNNER_H_
 
+#include <stdint.h>
 #include <string>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
@@ -37,7 +38,8 @@ class XWalkExtensionRunner {
     virtual ~Client() {}
   };
 
-  XWalkExtensionRunner(const std::string& extension_name, Client* client);
+  XWalkExtensionRunner(const std::string& extension_name, Client* client,
+      int64_t instance_id = -1);
   virtual ~XWalkExtensionRunner();
 
   void PostMessageToNative(scoped_ptr<base::Value> msg);
@@ -45,6 +47,7 @@ class XWalkExtensionRunner {
                                 scoped_ptr<base::Value> msg);
 
   std::string extension_name() const { return extension_name_; }
+  int64_t instance_id() const { return instance_id_; }
 
  protected:
   void PostMessageToClient(scoped_ptr<base::Value> msg);
@@ -59,6 +62,7 @@ class XWalkExtensionRunner {
 
  private:
   std::string extension_name_;
+  int64_t instance_id_;
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRunner);
 };
 

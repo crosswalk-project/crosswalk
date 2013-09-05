@@ -8,9 +8,10 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionRunner::XWalkExtensionRunner(const std::string& extension_name,
-                                           Client* client)
+                                           Client* client, int64_t instance_id)
     : client_(client),
-      extension_name_(extension_name) {}
+      extension_name_(extension_name),
+      instance_id_(instance_id) {}
 
 XWalkExtensionRunner::~XWalkExtensionRunner() {}
 

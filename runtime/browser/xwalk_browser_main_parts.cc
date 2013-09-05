@@ -182,7 +182,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(
-      new extensions::XWalkExtensionService(runtime_registry_.get()));
+      new extensions::XWalkExtensionService());
 
   RegisterInternalExtensions();
   RegisterExternalExtensions();

@@ -7,13 +7,10 @@
 
 #include <string>
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
+#include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
 namespace WebKit {
 class WebFrame;
-}
-
-namespace base {
-class Value;
 }
 
 namespace content {
@@ -23,15 +20,17 @@ class V8ValueConverter;
 namespace xwalk {
 namespace extensions {
 
+class XWalkModuleSystem;
+
 // Responsible for running the JS code of a XWalkExtension. This includes
 // creating and exposing an 'extension' object for the execution context of
 // the extension JS code.
 //
 // We'll create one XWalkExtensionModule per extension/frame pair, so
 // there'll be a set of different modules per v8::Context.
-class XWalkExtensionModule {
+class XWalkExtensionModule : public XWalkRemoteExtensionRunner::Client {
  public:
-  XWalkExtensionModule(v8::Handle<v8::Context> context,
+  XWalkExtensionModule(XWalkModuleSystem* module_system,
                        const std::string& extension_name,
                        const std::string& extension_code);
   virtual ~XWalkExtensionModule();
@@ -41,12 +40,15 @@ class XWalkExtensionModule {
   void LoadExtensionCode(v8::Handle<v8::Context> context,
                          v8::Handle<v8::Function> requireNative);
 
-  void DispatchMessageToListener(v8::Handle<v8::Context> context,
-                                 const base::Value& msg);
-
   std::string extension_name() const { return extension_name_; }
+  void set_runner(XWalkRemoteExtensionRunner* runner) {
+    runner_ = runner;
+  }
 
  private:
+  // XWalkRemoteExtensionRunner::Client implementation.
+  void HandleMessageFromNative(const base::Value& msg) OVERRIDE;
+
   // Callbacks for JS functions available in 'extension' object.
   static void PostMessageCallback(
       const v8::FunctionCallbackInfo<v8::Value>& info);
@@ -75,6 +77,9 @@ class XWalkExtensionModule {
   // TODO(cmarcelo): Move to a single converter, since we always use same
   // parameters.
   scoped_ptr<content::V8ValueConverter> converter_;
+
+  XWalkModuleSystem* module_system_;
+  XWalkRemoteExtensionRunner* runner_;
 };
 
 }  // namespace extensions
