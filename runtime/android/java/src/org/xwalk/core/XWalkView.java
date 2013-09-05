@@ -137,6 +137,10 @@ public class XWalkView extends FrameLayout {
         mContent.stopLoading();
     }
 
+    public void evaluateJavaScript(String script) throws IllegalStateException {
+        mContent.evaluateJavaScript(script);
+    }
+
     // Enables remote debugging and returns the URL at which the dev tools server is listening
     // for commands.
     public String enableRemoteDebugging() {
