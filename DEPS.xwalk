@@ -1,5 +1,5 @@
 ''' This file indicate the dependencies crosswalk lays on.
-    DO NOT use this DEPS to checkout code, it's for tools/fetch_deps.py.
+    DO NOT use this DEPS to checkout code, it's for tools/generate_gclient-xwalk.py.
 '''
 
 # chromium_version is the version of chromium crosswalk based,
