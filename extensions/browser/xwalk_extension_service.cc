@@ -11,6 +11,7 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
+#include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -64,9 +65,10 @@ XWalkExtensionService::XWalkExtensionService()
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
-  // This object is created on the UI-thread but it will live on the IO-thread.
-  // Its deletion will happen on the IO-thread.
+  // These objects are created on the UI-thread but they will live on the
+  // IO-thread. Their deletion will happen on the IO-thread.
   in_process_extensions_server_.reset(new XWalkExtensionServer());
+  extension_process_host_.reset(new XWalkExtensionProcessHost());
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this);
@@ -130,10 +132,11 @@ void XWalkExtensionService::Observe(int type,
         in_process_extensions_server_->Invalidate();
         render_process_host_->GetChannel()->RemoveFilter(
             in_process_server_message_filter_);
+        in_process_server_message_filter_ = NULL;
         BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
             in_process_extensions_server_.release());
-
-        in_process_server_message_filter_ = NULL;
+        BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
+            extension_process_host_.release());
       }
     }
   }
