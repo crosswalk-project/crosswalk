@@ -62,6 +62,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const CommandLine& command_line,
       int child_process_id,
       std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
+  virtual void ResourceDispatcherHostCreated();
 #endif
 
  private:

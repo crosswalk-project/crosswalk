@@ -24,6 +24,7 @@
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
+#include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
 #endif
 
@@ -149,6 +150,10 @@ void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
   mappings->push_back(
       content::FileDescriptorInfo(kXWalkPakDescriptor,
                                   base::FileDescriptor(f, true)));
+}
+
+void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
+  RuntimeResourceDispatcherHostDelegate::ResourceDispatcherHostCreated();
 }
 #endif
 

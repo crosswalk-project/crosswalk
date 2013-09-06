@@ -145,6 +145,10 @@ public class XWalkView extends FrameLayout {
         mContent.resumeTimers();
     }
 
+    public void setDownloadListener(DownloadListener listener) {
+        mContent.setDownloadListener(listener);
+    }
+
     // Enables remote debugging and returns the URL at which the dev tools server is listening
     // for commands.
     public String enableRemoteDebugging() {
