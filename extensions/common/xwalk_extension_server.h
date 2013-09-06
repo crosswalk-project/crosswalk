@@ -38,7 +38,7 @@ class XWalkExtensionServer : public IPC::Listener,
   virtual ~XWalkExtensionServer();
 
   // IPC::Listener Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message);
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   void Initialize(IPC::Sender* sender) { sender_ = sender; }
   bool Send(IPC::Message* msg);
