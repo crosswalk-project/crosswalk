@@ -5,8 +5,8 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 
-#include <map>
 #include <stdint.h>
+#include <map>
 #include <string>
 
 #include "base/synchronization/cancellation_flag.h"

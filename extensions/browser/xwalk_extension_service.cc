@@ -5,8 +5,6 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 #include "base/callback.h"
-#include "base/memory/scoped_ptr.h"
-#include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_types.h"
