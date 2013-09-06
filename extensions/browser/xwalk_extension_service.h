@@ -8,10 +8,13 @@
 #include <stdint.h>
 #include <string>
 #include "base/callback_forward.h"
-#include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+
+namespace base {
+class FilePath;
+}
 
 namespace content {
 class RenderProcessHost;
@@ -65,8 +68,6 @@ class XWalkExtensionService : public content::NotificationObserver {
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
-
-bool ValidateExtensionNameForTesting(const std::string& extension_name);
 
 }  // namespace extensions
 }  // namespace xwalk
