@@ -32,10 +32,10 @@ class XWalkModuleSystem;
 class XWalkExtensionClient : public IPC::Listener {
  public:
   explicit XWalkExtensionClient(IPC::Sender* sender);
-  virtual ~XWalkExtensionClient() {}
+  virtual ~XWalkExtensionClient();
 
   // IPC::Listener Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message);
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   void CreateRunnersForModuleSystem(XWalkModuleSystem* module_system);
 
