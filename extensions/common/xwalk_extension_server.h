@@ -15,6 +15,10 @@
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 
+namespace base {
+class FilePath;
+}
+
 namespace content {
 class RenderProcessHost;
 }
@@ -72,6 +76,9 @@ class XWalkExtensionServer : public IPC::Listener,
 
   base::CancellationFlag sender_cancellation_flag_;
 };
+
+void RegisterExternalExtensionsInDirectory(
+    XWalkExtensionServer* server, const base::FilePath& dir);
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name);
 

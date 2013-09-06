@@ -8,10 +8,13 @@
 #include <stdint.h>
 #include <string>
 #include "base/callback_forward.h"
-#include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+
+namespace base {
+class FilePath;
+}
 
 namespace content {
 class RenderProcessHost;
