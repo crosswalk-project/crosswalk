@@ -18,6 +18,9 @@ XWalkExtensionClient::XWalkExtensionClient(IPC::Sender* sender)
       next_instance_id_(0) {
 }
 
+XWalkExtensionClient::~XWalkExtensionClient() {
+}
+
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
   DCHECK(sender_);
 
