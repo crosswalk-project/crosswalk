@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 
 #include "base/basictypes.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using xwalk::extensions::ValidateExtensionNameForTesting;
 
-TEST(XWalkExtensionServiceTest, ValidateExtensionName) {
+TEST(XWalkExtensionServerTest, ValidateExtensionName) {
   const std::string valid_names[] = {
     "xwalk",
     "xwalk.experimental",

@@ -92,8 +92,47 @@ bool XWalkExtensionServer::Send(IPC::Message* msg) {
   return sender_->Send(msg);
 }
 
-bool XWalkExtensionServer::RegisterExtension(scoped_ptr<XWalkExtension>
-    extension) {
+namespace {
+
+bool ValidateExtensionName(const std::string& extension_name) {
+  bool dot_allowed = false;
+  bool digit_or_underscore_allowed = false;
+  for (size_t i = 0; i < extension_name.size(); ++i) {
+    char c = extension_name[i];
+    if (IsAsciiDigit(c)) {
+      if (!digit_or_underscore_allowed)
+        return false;
+    } else if (c == '_') {
+      if (!digit_or_underscore_allowed)
+        return false;
+    } else if (c == '.') {
+      if (!dot_allowed)
+        return false;
+      dot_allowed = false;
+      digit_or_underscore_allowed = false;
+    } else if (IsAsciiAlpha(c)) {
+      dot_allowed = true;
+      digit_or_underscore_allowed = true;
+    } else {
+      return false;
+    }
+  }
+
+  // If after going through the entire name we finish with dot_allowed, it means
+  // the previous character is not a dot, so it's a valid name.
+  return dot_allowed;
+}
+
+}  // namespace
+
+bool XWalkExtensionServer::RegisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  if (!ValidateExtensionName(extension->name())) {
+    LOG(WARNING) << "Ignoring extension with invalid name: "
+                 << extension->name();
+    return false;
+  }
+
   if (extensions_.find(extension->name()) != extensions_.end()) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
                  << extension->name();
@@ -170,6 +209,10 @@ void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
 void XWalkExtensionServer::Invalidate() {
   sender_cancellation_flag_.Set();
   sender_ = 0;
+}
+
+bool ValidateExtensionNameForTesting(const std::string& extension_name) {
+  return ValidateExtensionName(extension_name);
 }
 
 }  // namespace extensions

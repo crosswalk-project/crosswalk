@@ -73,6 +73,8 @@ class XWalkExtensionServer : public IPC::Listener,
   base::CancellationFlag sender_cancellation_flag_;
 };
 
+bool ValidateExtensionNameForTesting(const std::string& extension_name);
+
 }  // namespace extensions
 }  // namespace xwalk
 

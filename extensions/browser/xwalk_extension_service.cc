@@ -10,7 +10,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
 #include "base/scoped_native_library.h"
-#include "base/strings/string_util.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/notification_service.h"
@@ -75,51 +74,11 @@ XWalkExtensionService::XWalkExtensionService()
 XWalkExtensionService::~XWalkExtensionService() {
 }
 
-namespace {
-
-bool ValidateExtensionName(const std::string& extension_name) {
-  bool dot_allowed = false;
-  bool digit_or_underscore_allowed = false;
-  for (size_t i = 0; i < extension_name.size(); ++i) {
-    char c = extension_name[i];
-    if (IsAsciiDigit(c)) {
-      if (!digit_or_underscore_allowed)
-        return false;
-    } else if (c == '_') {
-      if (!digit_or_underscore_allowed)
-        return false;
-    } else if (c == '.') {
-      if (!dot_allowed)
-        return false;
-      dot_allowed = false;
-      digit_or_underscore_allowed = false;
-    } else if (IsAsciiAlpha(c)) {
-      dot_allowed = true;
-      digit_or_underscore_allowed = true;
-    } else {
-      return false;
-    }
-  }
-
-  // If after going through the entire name we finish with dot_allowed, it means
-  // the previous character is not a dot, so it's a valid name.
-  return dot_allowed;
-}
-
-}  // namespace
-
 bool XWalkExtensionService::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
   // Note: for now we only support registering new extensions before
   // render process hosts were created.
   CHECK(!render_process_host_);
-
-  if (!ValidateExtensionName(extension->name())) {
-    LOG(WARNING) << "Ignoring extension with invalid name: "
-                 << extension->name();
-    return false;
-  }
-
   return in_process_extensions_server_->RegisterExtension(extension.Pass());
 }
 
@@ -187,10 +146,6 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
     const RegisterExtensionsCallback& callback) {
   g_register_extensions_callback = callback;
-}
-
-bool ValidateExtensionNameForTesting(const std::string& extension_name) {
-  return ValidateExtensionName(extension_name);
 }
 
 // We use this to keep track of the RenderProcess shutdown events.
