@@ -88,6 +88,8 @@ public class XWalkContent extends FrameLayout {
         mContentViewCore = mContentView.getContentViewCore();
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
+        mContentView.setDownloadDelegate(mContentsClientBridge);
+
         mSettings = new XWalkSettings(getContext(), mWebContents, true);
     }
 
@@ -130,6 +132,10 @@ public class XWalkContent extends FrameLayout {
 
     public void setXWalkClient(XWalkClient client) {
         mContentsClientBridge.setXWalkClient(client);
+    }
+
+    public void setDownloadListener(DownloadListener listener) {
+        mContentsClientBridge.setDownloadListener(listener);
     }
 
     public void onPause() {
