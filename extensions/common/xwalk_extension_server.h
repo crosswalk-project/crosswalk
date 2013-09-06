@@ -5,8 +5,8 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_SERVER_H_
 
-#include <map>
 #include <stdint.h>
+#include <map>
 #include <string>
 
 #include "base/synchronization/cancellation_flag.h"
@@ -14,6 +14,10 @@
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
+
+namespace base {
+class FilePath;
+}
 
 namespace content {
 class RenderProcessHost;
@@ -72,6 +76,11 @@ class XWalkExtensionServer : public IPC::Listener,
 
   base::CancellationFlag sender_cancellation_flag_;
 };
+
+void RegisterExternalExtensionsInDirectory(
+    XWalkExtensionServer* server, const base::FilePath& dir);
+
+bool ValidateExtensionNameForTesting(const std::string& extension_name);
 
 }  // namespace extensions
 }  // namespace xwalk
