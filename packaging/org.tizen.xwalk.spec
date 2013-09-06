@@ -1,4 +1,4 @@
-Name:           crosswalk
+Name:           org.tizen.xwalk
 Version:        1.29.3.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
@@ -8,7 +8,7 @@ Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}-%{version}.tar
 Source1:        xwalk
-Source1001:     crosswalk.manifest
+Source1001:     %{name}.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-1.29-do-not-look-for-gtk2-when-using-aura.patch
@@ -67,8 +67,10 @@ Url:            https://github.com/otcshare/crosswalk
 %description emulator-support
 This package contains additional support files that are needed for running Crosswalk on the Tizen emulator.
 
-%define _manifestdir /usr/share/packages
-%define _desktop_icondir /usr/share/icons/default/small
+%define _pkgdir /opt/usr/apps/%{name}
+%define _bindir %{_pkgdir}/bin
+%define _manifestdir /opt/share/packages
+%define _desktop_icondir /opt/share/icons/default/small
 
 %prep
 %setup -q
@@ -113,13 +115,13 @@ make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
 %install
 # Binaries.
-install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
-install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D %{SOURCE1} %{buildroot}/usr/bin/xwalk
+install -p -D src/out/Release/xwalk %{buildroot}%{_bindir}/xwalk
 
 # Supporting libraries and resources.
-install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
-install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_bindir}/libffmpegsumo.so
+install -p -D src/out/Release/libosmesa.so %{buildroot}%{_bindir}/libosmesa.so
+install -p -D src/out/Release/xwalk.pak %{buildroot}%{_bindir}/xwalk.pak
 
 # Register xwalk to the package manager.
 install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
@@ -128,12 +130,10 @@ install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %files
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
-%{_bindir}/xwalk
-%{_libdir}/xwalk/libffmpegsumo.so
-%{_libdir}/xwalk/xwalk
-%{_libdir}/xwalk/xwalk.pak
+/usr/bin/xwalk
+%{_bindir}/*
 %{_manifestdir}/%{name}.xml
 %{_desktop_icondir}/%{name}.png
 
 %files emulator-support
-%{_libdir}/xwalk/libosmesa.so
+%{_bindir}/libosmesa.so

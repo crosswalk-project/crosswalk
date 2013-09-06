@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" package="org.tizen.xwalk" version="@VERSION@" install-location="internal-only">
+	<label>xwalk</label>
+	<author email="cameo-dev@linux.intel.com" href="www.intel.com">XWalk Dev</author>
+	<description>xwalk</description>
+	<ui-application appid="org.tizen.xwalk" exec="/opt/usr/apps/org.tizen.xwalk/bin/xwalk" nodisplay="false" multiple="false" type="capp" taskmanage="true">
+		<label>xwalk</label>
+		<icon>org.tizen.xwalk.png</icon>
+	</ui-application>
+</manifest>

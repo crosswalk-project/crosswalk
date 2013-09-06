@@ -8,7 +8,7 @@
 # Desktop GL and optionally fall back to OSMesa, and hardcoding a single one
 # ("egl", for example), causes crashes in some configurations, such as the
 # emulator.
-if [ -f /usr/lib/xwalk/libosmesa.so ]; then
+if [ -f /opt/usr/apps/org.tizen.xwalk/bin/libosmesa.so ]; then
     # If libosmesa.so is present, the crosswalk-emulator-support package has
     # been installed and we can assume we're running in the emulator.
     GL_IMPLEMENTATION="osmesa"
@@ -22,7 +22,7 @@ else
     GL_IMPLEMENTATION="egl"
 fi
 
-exec /usr/lib/xwalk/xwalk --use-gl="${GL_IMPLEMENTATION}" \
+exec /opt/usr/apps/org.tizen.xwalk/bin/xwalk --use-gl="${GL_IMPLEMENTATION}" \
                           --ignore-gpu-blacklist \
                           --allow-file-access-from-files \
                           "$@"
