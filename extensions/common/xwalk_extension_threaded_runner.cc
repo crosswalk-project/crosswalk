@@ -6,7 +6,7 @@
 
 #include "base/bind.h"
 #include "base/single_thread_task_runner.h"
-#include "base/synchronization/lock.h"
+#include "base/synchronization/cancellation_flag.h"
 #include "base/threading/thread.h"
 #include "base/threading/thread_restrictions.h"
 
@@ -25,13 +25,11 @@ class XWalkExtensionThreadedRunner::PostHelper {
   // call the client anymore. To be called in the thread controlling the
   // threaded runner.
   void Invalidate() {
-    base::AutoLock lock(lock_);
-    runner_ = NULL;
+    invalid_.Set();
   }
 
   void PostMessageToClient(scoped_ptr<base::Value> msg) {
-    base::AutoLock lock(lock_);
-    if (!runner_)
+    if (invalid_.IsSet())
       return;
     CHECK(runner_->client_task_runner_ == base::MessageLoopProxy::current());
     runner_->PostMessageToClient(msg.Pass());
@@ -39,8 +37,7 @@ class XWalkExtensionThreadedRunner::PostHelper {
 
   void PostReplyMessageToClient(scoped_ptr<IPC::Message> ipc_reply,
                                 scoped_ptr<base::Value> msg) {
-    base::AutoLock lock(lock_);
-    if (!runner_)
+    if (invalid_.IsSet())
       return;
     CHECK(runner_->client_task_runner_ == base::MessageLoopProxy::current());
     runner_->PostReplyMessageToClient(ipc_reply.Pass(), msg.Pass());
@@ -53,7 +50,7 @@ class XWalkExtensionThreadedRunner::PostHelper {
   static void Destroy(scoped_ptr<PostHelper> helper) {}
 
  private:
-  base::Lock lock_;
+  base::CancellationFlag invalid_;
   XWalkExtensionThreadedRunner* runner_;
 };
 
