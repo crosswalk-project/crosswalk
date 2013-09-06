@@ -11,6 +11,7 @@ Source1:        xwalk
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
+Source1004:     install_into_pkginfo_db.py
 Patch1:         %{name}-1.29-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-1.29-look-for-pvr-libGLESv2.so.patch
 Patch3:         %{name}-1.29-revert-nss-commits.patch
@@ -76,6 +77,7 @@ This package contains additional support files that are needed for running Cross
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
+cp %{SOURCE1004} .
 sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
 
 cp -a src/AUTHORS AUTHORS.chromium
@@ -115,6 +117,7 @@ make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D %{SOURCE1004} %{buildroot}%{_bindir}/install_into_pkginfo_db.py
 
 # Supporting libraries and resources.
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
@@ -129,6 +132,7 @@ install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
+%{_bindir}/install_into_pkginfo_db.py
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
