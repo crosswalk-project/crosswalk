@@ -16,6 +16,8 @@
     'common/xwalk_extension_threaded_runner.h',
     'common/xwalk_extension_server.cc',
     'common/xwalk_extension_server.h',
+    'common/xwalk_extension_switches.cc',
+    'common/xwalk_extension_switches.h',
     'common/xwalk_external_adapter.cc',
     'common/xwalk_external_adapter.h',
     'common/xwalk_external_context.cc',

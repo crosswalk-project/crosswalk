@@ -5,6 +5,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 #include "base/callback.h"
+#include "base/command_line.h"
 #include "base/scoped_native_library.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_types.h"
@@ -12,6 +13,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 
 using content::BrowserThread;
 
@@ -54,6 +56,11 @@ bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
 XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL),
       in_process_server_message_filter_(NULL) {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kXWalkEnableExtensionProcess)) {
+    VLOG(1) << "Extension process enabled.";
+  }
+
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
