@@ -123,7 +123,7 @@ class InstallHelper(object):
         if os.path.exists(icon):
           shutil.copy2(icon, icon_path)
 
-      xwalk_path = "/usr/bin/xwalk"
+      xwalk_path = "/usr/lib/xwalk/xwalk"
       install_dir = "/opt/usr/apps/applications/" + self.package_id_ + "/bin/"
       install_path = install_dir + self.package_id_
       if not os.path.exists(install_dir):
