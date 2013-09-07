@@ -55,7 +55,11 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void PreMainMessageLoopStartAura();
   void PostMainMessageLoopRunAura();
 #endif
-
+/*
+#if defined(OS_TIZEN_MOBILE)
+  std::string& GetGLImplementation();
+#endif
+*/
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context_;
 #else

@@ -16,6 +16,9 @@ const char kAppIcon[] = "app-icon";
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";
 
+// Specifies install an application
+const char kInstall[] = "install";
+
 // Specifies where XWalk will look for external extensions.
 const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 
