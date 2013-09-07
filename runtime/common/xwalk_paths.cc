@@ -26,6 +26,8 @@ bool PathProvider(int key, base::FilePath* path) {
       #if defined(OS_WIN)
         CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &cur));
         cur = cur.Append(std::wstring(L"xwalk"));
+      #elif defined(OS_TIZEN_MOBILE)
+        cur = base::FilePath("/opt/usr/apps");
       #elif defined(OS_LINUX)
         scoped_ptr<base::Environment> env(base::Environment::Create());
         base::FilePath config_dir(
