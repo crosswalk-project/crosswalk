@@ -25,5 +25,5 @@ echo "Adding ${GCLIENT_DEP_PATH}..."
 
 tar --update --file ${XWALK_PREFIX}/flat-xwalk-tree.tar \
     --exclude-vcs --exclude=native_client --exclude=LayoutTests \
-    --verbose \
+    --exclude=src/out --verbose \
     ${GCLIENT_DEP_PATH}
