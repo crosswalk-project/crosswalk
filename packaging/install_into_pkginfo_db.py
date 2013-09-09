@@ -114,12 +114,12 @@ class InstallHelper(object):
     XML path     : /opt/share/packages/|package_id_|.xml
     """
     try:
-      icon_path = "/opt/share/icons/default/small/" + self.package_id_ + ".png"
-      if ('name' in self.data_ and
-          'icons' in self.data_ and
+      if 'name' in self.data_:
+        icon_path = "/opt/share/icons/default/small/" + self.package_id_ +\
+                    "." + self.data_['name'] + ".png"
+      if ('icons' in self.data_ and
           '128' in self.data_['icons']):
-        icon = self.data_path_ + "." + self.data_['name'] +\
-               self.data_['icons']['128']
+        icon = self.data_path_ + "/" + self.data_['icons']['128']
         if os.path.exists(icon):
           shutil.copy2(icon, icon_path)
 
