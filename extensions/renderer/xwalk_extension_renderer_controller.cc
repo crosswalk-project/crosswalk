@@ -56,15 +56,15 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
 
-  v8::HandleScope handle_scope(context->GetIsolate());
-  v8::Context::Scope context_scope(context);
-
   in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
       module_system);
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  if (frame->document().url() == kAboutBlankURL)
+    return;
+
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }
 

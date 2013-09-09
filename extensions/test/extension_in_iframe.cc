@@ -77,3 +77,19 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
   SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_count == 3);
   ASSERT_EQ(g_count, 3);
 }
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
+                       ContextsAreNotCreatedForIFramesWithBlankPages) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("blank_iframes.html"));
+
+  // We are mainly validating the fix for the issue #602. We first create a page
+  // full of blank iframes and afterwards we navigate to another page.
+  // ModuleSystems should not be created and consequentially not deleted for the
+  // blank iframes.
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  content::TitleWatcher title_watcher1(runtime()->web_contents(), kPassString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  content::TitleWatcher title_watcher2(runtime()->web_contents(), kPassString);
+}

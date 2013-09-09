@@ -5,6 +5,7 @@
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 #include "base/logging.h"
+#include "base/stl_util.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 
 namespace xwalk {
@@ -73,17 +74,8 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
 }
 
 XWalkModuleSystem::~XWalkModuleSystem() {
-  ExtensionModuleMap::iterator it = extension_modules_.begin();
-  for (; it != extension_modules_.end(); ++it)
-    delete it->second;
-  extension_modules_.clear();
-
-  {
-    NativeModuleMap::iterator it = native_modules_.begin();
-    for (; it != native_modules_.end(); ++it)
-      delete it->second;
-    native_modules_.clear();
-  }
+  STLDeleteValues(&extension_modules_);
+  STLDeleteValues(&native_modules_);
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
