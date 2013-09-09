@@ -46,7 +46,7 @@ class XWalkExtensionProcess : public IPC::Listener,
       scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
 
   // Handlers for IPC messages from XWalkExtensionProcessHost.
-  void OnRegisterExtension(const base::FilePath& extension_path);
+  void OnRegisterExtensions(const base::FilePath& extension_path);
 
   void CreateChannel();
 

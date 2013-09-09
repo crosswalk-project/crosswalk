@@ -33,13 +33,13 @@ class XWalkExtensionProcessHost
   void StartProcess();
   void StopProcess();
 
-  bool RegisterExternalExtension(const base::FilePath& extension_path);
+  void RegisterExternalExtensions(const base::FilePath& extension_path);
 
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
  private:
   // Thread-safe function to send message to the associated extension process.
-  bool Send(IPC::Message* msg);
+  void Send(IPC::Message* msg);
 
   // content::BrowserChildProcessHostDelegate implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

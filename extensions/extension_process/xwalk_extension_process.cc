@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/command_line.h"
+#include "base/files/file_path.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
@@ -37,15 +38,16 @@ void XWalkExtensionProcess::Run() {
 bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcess, message)
-    IPC_MESSAGE_HANDLER(XWalkExtensionProcessMsg_RegisterExtension,
-                        OnRegisterExtension)
+    IPC_MESSAGE_HANDLER(XWalkExtensionProcessMsg_RegisterExtensions,
+                        OnRegisterExtensions)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
 }
 
-void XWalkExtensionProcess::OnRegisterExtension(
+void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
+  VLOG(0) << "\nExtensions to register from: " << path.value();
 }
 
 void XWalkExtensionProcess::CreateChannel() {

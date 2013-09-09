@@ -79,19 +79,29 @@ void XWalkExtensionProcessHost::StopProcess() {
   process_.reset();
 }
 
-bool XWalkExtensionProcessHost::RegisterExternalExtension(
+void XWalkExtensionProcessHost::RegisterExternalExtensions(
     const base::FilePath& extension_path) {
-  return Send(new XWalkExtensionProcessMsg_RegisterExtension(extension_path));
+  Send(new XWalkExtensionProcessMsg_RegisterExtensions(extension_path));
 }
 
 void XWalkExtensionProcessHost::OnRenderProcessHostCreated(
     content::RenderProcessHost* render_process_host) {}
 
-bool XWalkExtensionProcessHost::Send(IPC::Message* msg) { return false; }
+void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
+  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
+    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+        base::Bind(&XWalkExtensionProcessHost::Send,
+        base::Unretained(this), msg));
+    return;
+  }
+
+  process_->GetHost()->Send(msg);
+}
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcessHost, message)
+    IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
 }
