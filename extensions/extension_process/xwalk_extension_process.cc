@@ -67,7 +67,11 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
-  VLOG(0) << "\nExtensions to register from: " << path.value();
+  RegisterExternalExtensionsInDirectory(extensions_server_.get(), path);
+
+  // FIXME(jeez): This can only be done after someone has connected to our
+  // EP IPC Channel.
+  extensions_server_->RegisterExtensionsInRenderProcess();
 }
 
 void XWalkExtensionProcess::CreateChannel() {
