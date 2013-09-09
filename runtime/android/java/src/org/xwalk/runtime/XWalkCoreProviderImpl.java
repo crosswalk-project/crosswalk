@@ -81,6 +81,11 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     }
 
     @Override
+    public String getVersion() {
+        return mXwalkView.getVersion();
+    }
+
+    @Override
     public View getView() {
         return mXwalkView;
     }
