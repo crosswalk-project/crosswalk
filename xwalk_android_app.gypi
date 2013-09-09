@@ -5,7 +5,31 @@
       'type': 'none',
       'variables': {
         'java_in_dir': 'app/android/runtime_client',
+        'generated_src_dirs': [ '<(intermediate_dir)/version_java' ],
       },
+      'actions': [
+        {
+          # Generate the version for runtime client.
+          'action_name': 'generate_runtime_client_version',
+          'variables': {
+            'template_file': 'app/android/runtime_client/src/templates/XWalkRuntimeClientVersion.template',
+            'output_file': '<(intermediate_dir)/version_java/XWalkRuntimeClientVersion.java',
+          },
+          'inputs': [
+            '<(template_file)',
+            'build/android/generate_runtime_client_version.py',
+          ],
+          'outputs': [
+            '<(output_file)',
+          ],
+          'action': [
+            'python', 'build/android/generate_runtime_client_version.py',
+            '--template=<(template_file)',
+            '--output=<(output_file)',
+            '--xwalk-version=<(xwalk_version)',
+          ],
+        },
+      ],
       'includes': ['../build/java.gypi'],
     },
     {

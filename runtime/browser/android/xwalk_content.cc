@@ -115,6 +115,11 @@ void XWalkContent::Destroy(JNIEnv* env, jobject obj) {
   delete this;
 }
 
+ScopedJavaLocalRef<jstring> XWalkContent::GetVersion(JNIEnv* env,
+                                                     jobject obj) {
+  return base::android::ConvertUTF8ToJavaString(env, XWALK_VERSION);
+}
+
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
     jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =

@@ -57,6 +57,7 @@ public abstract class XWalkRuntimeViewProvider {
         mExtensionManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    public abstract String getVersion();
     public abstract View getView();
     public abstract void loadAppFromUrl(String url);
     public abstract void loadAppFromManifest(String manifestUrl);

@@ -65,11 +65,8 @@ public class XWalkRuntimeView extends FrameLayout {
      *
      * @return the string containing the version information.
      */
-    public static String getVersion() {
-        // TODO(yongsheng): Implement the real version information.
-        // May include our customized information by containing chromium
-        // version info.
-        return "0.1";
+    public String getVersion() {
+        return mProvider.getVersion();
     }
 
     /**
