@@ -221,7 +221,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   std::string command_name =
       command_line->GetProgram().BaseName().MaybeAsASCII();
 
+#if defined(OS_TIZEN_MOBILE)
+  // On Tizen, applications are launched by a symbolic link
+  // named like the application ID.
   if (startup_url_.SchemeIsFile() || command_name.compare("xwalk") != 0) {
+#else
+  if (startup_url_.SchemeIsFile()) {
+#endif  // OS_TIZEN_MOBILE
     xwalk::application::ApplicationSystem* system =
         runtime_context_->GetApplicationSystem();
     xwalk::application::ApplicationService* service =
@@ -233,7 +239,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     }
 
     const CommandLine::StringVector& args = command_line->GetArgs();
-    std::string id = std::string(args[0].begin(), args[0].end());
+    std::string id;
+    if (args.size() > 0)
+      id = std::string(args[0].begin(), args[0].end());
     if (xwalk::application::Application::IsIDValid(id)) {
       run_default_message_loop_ = service->Launch(id);
       return;
