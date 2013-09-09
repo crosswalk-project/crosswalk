@@ -26,6 +26,9 @@ namespace extensions {
 
 class XWalkExtension;
 class XWalkExtensionRunner;
+class XWalkExtensionServer;
+
+class DummySender;
 
 class XWalkExtensionProcess : public IPC::Listener,
                               public XWalkExtensionRunner::Client {
@@ -55,6 +58,10 @@ class XWalkExtensionProcess : public IPC::Listener,
   base::WaitableEvent shutdown_event_;
   base::Thread io_thread_;
   scoped_ptr<IPC::SyncChannel> browser_process_channel_;
+  scoped_ptr<XWalkExtensionServer> extensions_server_;
+
+  // FIXME(jeez): Remove this.
+  scoped_ptr<DummySender> dummy_sender_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionProcess);
 };

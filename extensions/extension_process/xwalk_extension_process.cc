@@ -10,12 +10,23 @@
 #include "base/files/file_path.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
+#include "ipc/ipc_sender.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 
 namespace xwalk {
 namespace extensions {
+
+// FIXME(jeez): Remove this.
+class DummySender : public IPC::Sender {
+ public:
+  virtual bool Send(IPC::Message* msg) OVERRIDE { VLOG(0)
+      << "DummySender::Send()"; return true; }
+
+  virtual ~DummySender() {}
+};
 
 XWalkExtensionProcess::XWalkExtensionProcess()
     : main_loop_(base::MessageLoop::TYPE_UI),
@@ -23,10 +34,19 @@ XWalkExtensionProcess::XWalkExtensionProcess()
       io_thread_("XWalkExtensionProcess_IOThread") {
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
+  extensions_server_.reset(new XWalkExtensionServer());
+
+  // FIXME(jeez): Remove this.
+  dummy_sender_.reset(new DummySender());
+
   CreateChannel();
 }
 
 XWalkExtensionProcess::~XWalkExtensionProcess() {
+  // FIXME(jeez): Move this to OnChannelClosing/Error/Disconnected when we have
+  // our MessageFilter set.
+  extensions_server_->Invalidate();
+
   shutdown_event_.Signal();
   io_thread_.Stop();
 }
@@ -57,6 +77,9 @@ void XWalkExtensionProcess::CreateChannel() {
   browser_process_channel_.reset(new IPC::SyncChannel(channel_id,
       IPC::Channel::MODE_CLIENT, this, io_thread_.message_loop_proxy(),
       true, &shutdown_event_));
+
+  // FIXME(jeez): Change this so we pass our EP IPC Channel.
+  extensions_server_->Initialize(dummy_sender_.get());
 }
 
 void XWalkExtensionProcess::HandleMessageFromNative(
