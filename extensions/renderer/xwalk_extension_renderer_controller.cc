@@ -62,6 +62,9 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  if (frame->document().url() == kAboutBlankURL)
+    return;
+
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }
 
