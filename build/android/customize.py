@@ -17,8 +17,8 @@ def Prepare(options):
   shutil.copytree('app_src', options.name)
   shutil.rmtree(options.name + '/src')
   src_root = 'app_src/src/org/xwalk/app/template'
-  src_activity = '%s/AppTemplateActivity.java.template' % src_root
-  src_application = '%s/AppTemplateApplication.java.template' % src_root
+  src_activity = '%s/AppTemplateActivity.java' % src_root
+  src_application = '%s/AppTemplateApplication.java' % src_root
   if (not os.path.isfile(src_activity) or
       not os.path.isfile(src_application)):
     print ('Please make sure that the template java files'
@@ -59,9 +59,9 @@ def RemoveThemeStyle(doc, node, name, value):
 
 
 def CustomizeXML(options):
-  manifest_path = options.name + '/AndroidManifest.xml.template'
+  manifest_path = options.name + '/AndroidManifest.xml'
   if not os.path.isfile(manifest_path):
-    print ('Please make sure AndroidManifest.xml.template'
+    print ('Please make sure AndroidManifest.xml'
            ' exists under app_src folder.')
     sys.exit(6)
 
@@ -90,7 +90,6 @@ def CustomizeXML(options):
   file_handle = open('%s/AndroidManifest.xml' % options.name, 'wb')
   xmldoc.writexml(file_handle)
   file_handle.close()
-  os.remove(manifest_path)
 
 
 def ReplaceString(file_path, src, dest):
