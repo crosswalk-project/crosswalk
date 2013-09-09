@@ -91,7 +91,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
 #if !defined(OS_ANDROID)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
 #if defined(OS_TIZEN_MOBILE)
-  command_line->AppendSwitch(switches::kFullscreen);
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 
