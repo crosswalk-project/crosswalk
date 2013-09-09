@@ -44,6 +44,9 @@ class XWalkExtensionProcessHost
   // content::BrowserChildProcessHostDelegate implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   virtual void OnProcessCrashed(int exit_code) OVERRIDE;
+  virtual void OnProcessLaunched() OVERRIDE;
+
+  scoped_ptr<content::BrowserChildProcessHost> process_;
 };
 
 }  // namespace extensions
