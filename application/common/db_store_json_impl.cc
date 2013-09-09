@@ -180,6 +180,11 @@ void DBStoreJsonImpl::ReportValueChanged(const std::string& key,
   FOR_EACH_OBSERVER(
       DBStore::Observer, observers_, OnDBValueChanged(key, value));
   writer_->ScheduleWrite(this);
+#if defined(OS_TIZEN_MOBILE)
+  // FIXME: Workaround for Tizen changing database file ownership during app
+  // installation: Write pending commits immediately.
+  CommitPendingWrite();
+#endif  // OS_TIZEN_MOBILE
 }
 
 void DBStoreJsonImpl::CommitPendingWrite() {
