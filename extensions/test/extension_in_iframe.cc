@@ -6,6 +6,7 @@
 
 #include "base/synchronization/lock.h"
 #include "base/synchronization/spin_wait.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
@@ -93,3 +94,26 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
   xwalk_test_utils::NavigateToURL(runtime(), url);
   content::TitleWatcher title_watcher2(runtime()->web_contents(), kPassString);
 }
+
+// This test reproduces the problem found in bug
+// https://github.com/crosswalk-project/crosswalk/issues/602. In summary, we
+// were assuming that if at DidCreateScriptContext() a certain frame have URL
+// "about:blank", that would also be true at WillReleaseScriptContext(), which
+// is false.
+//
+// Using document.write into an empty document will change the URL for the frame
+// we get in WillReleaseScriptContext(). The crash in the original code was due
+// to not creating a module system for "about:blank" pages, and then trying to
+// delete it when releasing the script context.
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
+                       IFrameUsingDocumentWriteShouldNotCrash) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("iframe_using_document_write.html"));
+
+  for (int i = 0; i < 5; i++) {
+    xwalk_test_utils::NavigateToURL(runtime(), url);
+    EXPECT_EQ(kPassString, runtime()->web_contents()->GetTitle());
+  }
+}
+

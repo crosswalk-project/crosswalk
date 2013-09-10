@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>This should not crash!</h1>
+<script>
+var c = document.createElement("iframe");
+document.body.appendChild(c);
+c.contentDocument.write('lala');
+c.src = "counter.html";
+document.title = 'Pass';
+</script>
+</body>
+</html>
