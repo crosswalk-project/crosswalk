@@ -7,33 +7,37 @@ package org.xwalk.runtime;
 import android.content.Context;
 import android.content.Intent;
 
-// TODO(yongsheng): Enable it once it's done.
-// import org.xwalk.core.extensions.XWalkExtensionBridge;
+import org.chromium.base.CalledByNative;
+import org.xwalk.core.extensions.XWalkExtensionAndroid;
 import org.xwalk.runtime.extension.XWalkExtension;
 
 /**
  * This class is to bridge the extension system provided from runtime core
  * to our runtime extension system.
  */
-class XWalkCoreExtensionBridge /* extends XWalkExtensionBridge */ {
+class XWalkCoreExtensionBridge extends XWalkExtensionAndroid {
     private XWalkExtension mExtension;
     private XWalkRuntimeViewProvider mProvider;
 
     public XWalkCoreExtensionBridge(XWalkExtension extension, XWalkRuntimeViewProvider provider) {
-        // super(extension.getApiVersion(), extension.getExtensionName(), extension.getJsApi());
+        super(extension.getExtensionName(), extension.getJsApi());
         mExtension = extension;
         mProvider = provider;
     }
 
+    @Override
     public void handleMessage(String message) {
         mProvider.onMessage(mExtension, message);
     }
 
-    public void handleSyncMessage(String message) {
-        mProvider.onSyncMessage(mExtension, message);
+    @Override
+    public String handleSyncMessage(String message) {
+        return mProvider.onSyncMessage(mExtension, message);
     }
 
-    // TODO(yongsheng): Depends on runtime core impl.
-    public void postMessage(String message) {
+    @Override
+    @CalledByNative
+    public void onDestroy() {
+        mProvider.getExtensionContext().unregisterExtension(mExtension);        
     }
 }

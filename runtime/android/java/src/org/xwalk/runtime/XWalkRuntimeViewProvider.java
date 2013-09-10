@@ -33,6 +33,10 @@ public abstract class XWalkRuntimeViewProvider {
         mExtensionManager = new XWalkExtensionManager(context, activity, this);
     }
 
+    public void init(Context context, Activity activity) {
+        mExtensionManager.loadExtensions();
+    }
+
     public XWalkExtensionContext getExtensionContext() {
         return mExtensionManager.getExtensionContext();
     }
@@ -82,8 +86,8 @@ public abstract class XWalkRuntimeViewProvider {
     /**
      * Pass synchronized messages.
      */
-    public void onSyncMessage(XWalkExtension extension, String message) {
-        extension.onSyncMessage(message);
+    public String onSyncMessage(XWalkExtension extension, String message) {
+        return extension.onSyncMessage(message);
     }
 
     /**

@@ -30,6 +30,11 @@ public class XWalkExtensionContextImpl extends XWalkExtensionContext {
     }
 
     @Override
+    public void unregisterExtension(XWalkExtension extension) {
+        mManager.unregisterExtension(extension);
+    }
+
+    @Override
     public void postMessage(XWalkExtension extension, String message) {
         mManager.postMessage(extension, message);
     }

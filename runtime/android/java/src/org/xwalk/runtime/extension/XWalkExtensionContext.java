@@ -18,6 +18,12 @@ public abstract class XWalkExtensionContext {
      * @return the registered extension ID.
      */
     public abstract Object registerExtension(XWalkExtension extension);
+    
+    /**
+     * Unregister the given extension from extension system.
+     * @param extension the extension which needs to be unregistered.
+     */
+    public abstract void unregisterExtension(XWalkExtension extension);
 
     /**
      * Post message to JavaScript via internal mechanism.
