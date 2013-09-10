@@ -10,7 +10,8 @@
     package="org.xwalk.app.template">
 
     <application android:name="org.xwalk.app.template.AppTemplateApplication"
-        android:label="XWalkAppTemplate" android:hardwareAccelerated="true">
+        android:label="XWalkAppTemplate" android:hardwareAccelerated="true"
+        android:icon="@drawable/crosswalk">
         <activity android:name="org.xwalk.app.template.AppTemplateActivity"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
