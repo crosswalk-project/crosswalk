@@ -28,6 +28,7 @@ class ApplicationService {
   virtual ~ApplicationService();
 
   bool Install(const base::FilePath& path, std::string* id);
+  bool Uninstall(const std::string& id);
   bool Launch(const std::string& id);
   bool Launch(const base::FilePath& path);
 

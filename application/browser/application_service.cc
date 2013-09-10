@@ -96,6 +96,24 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   return false;
 }
 
+bool ApplicationService::Uninstall(const std::string& id) {
+  if (!app_store_->RemoveApplication(id)) {
+    LOG(ERROR) << "Cannot uninstall application with id " << id
+               << "; application is not installed.";
+    return false;
+  }
+
+  const base::FilePath resources =
+      runtime_context_->GetPath().Append(kApplicationsDir).AppendASCII(id);
+  if (file_util::DirectoryExists(resources) &&
+      !file_util::Delete(resources, true)) {
+    LOG(ERROR) << "Error occurred while trying to remove application with id "
+               << id << "; Cannot remove all resources.";
+    return false;
+  }
+  return true;
+}
+
 bool ApplicationService::Launch(const std::string& id) {
   scoped_refptr<const Application> application =
       app_store_->GetApplicationByID(id);

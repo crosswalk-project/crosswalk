@@ -31,6 +31,7 @@ class DBStoreJsonImpl: public DBStore,
   // Implement the DBStore interface.
   virtual bool Insert(const Application* application,
                       const base::Time install_time) OVERRIDE;
+  virtual bool Remove(const std::string& key) OVERRIDE;
 
   virtual bool InitDB() OVERRIDE;
   virtual void SetValue(const std::string& key, base::Value* value) OVERRIDE;

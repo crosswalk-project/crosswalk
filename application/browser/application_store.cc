@@ -42,6 +42,21 @@ bool ApplicationStore::AddApplication(
   return true;
 }
 
+bool ApplicationStore::RemoveApplication(const std::string& id) {
+  if (applications_->erase(id) != 1) {
+    LOG(ERROR) << "Application " << id << " is invalid.";
+    return false;
+  }
+
+  if (!db_store_->Remove(id)) {
+    LOG(ERROR) << "Error occurred while trying to remove application"
+                  "information with id "
+               << id << " from database.";
+    return false;
+  }
+  return true;
+}
+
 bool ApplicationStore::Contains(const std::string& app_id) const {
   return applications_->find(app_id) != applications_->end();
 }

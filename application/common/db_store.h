@@ -33,6 +33,7 @@ class DBStore {
   virtual ~DBStore();
   virtual bool Insert(const Application* application,
                       const base::Time install_time) = 0;
+  virtual bool Remove(const std::string& key) = 0;
   const base::DictionaryValue* GetApplications() const { return db_.get(); }
 
   void AddObserver(DBStore::Observer* observer) {
