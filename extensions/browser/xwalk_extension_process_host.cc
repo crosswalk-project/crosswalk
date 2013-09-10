@@ -14,6 +14,7 @@
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/process_type.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/sandboxed_process_launcher_delegate.h"
 #include "ipc/ipc_message.h"
 #include "ipc/ipc_switches.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -62,7 +63,13 @@ void XWalkExtensionProcessHost::StartProcess() {
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                               switches::kXWalkExtensionProcess);
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);
-  process_->Launch(false, base::EnvironmentVector(), cmd_line.release());
+  process_->Launch(
+#if defined(OS_WIN)
+      new content::SandboxedProcessLauncherDelegate(),
+#elif defined(OS_POSIX)
+    false, base::EnvironmentVector(),
+#endif
+    cmd_line.release());
 }
 
 void XWalkExtensionProcessHost::StopProcess() {
@@ -99,11 +106,7 @@ void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
 }
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
-  bool handled = true;
-  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcessHost, message)
-    IPC_MESSAGE_UNHANDLED(handled = false)
-  IPC_END_MESSAGE_MAP()
-  return handled;
+  return false;
 }
 
 void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
