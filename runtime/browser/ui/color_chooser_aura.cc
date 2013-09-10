@@ -63,15 +63,20 @@ ColorChooserAura::ColorChooserAura(content::WebContents* web_contents,
   widget_->SetAlwaysOnTop(true);
   widget_->Show();
   if (IsTesting()) {
-    SetSelectedColor(GetColorForBrowserTest());
     content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
-        base::Bind(&ColorChooserAura::End, base::Unretained(this)));
+        base::Bind(&ColorChooserAura::SetSelectedColor,
+                   base::Unretained(this),
+                   GetColorForBrowserTest()));
   }
 }
 
 void ColorChooserAura::OnColorChosen(SkColor color) {
   if (web_contents_)
     web_contents_->DidChooseColorInColorChooser(color);
+  if (IsTesting()) {
+    content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
+        base::Bind(&ColorChooserAura::End, base::Unretained(this)));
+  }
 }
 
 void ColorChooserAura::OnColorChooserDialogClosed() {
@@ -98,8 +103,10 @@ void ColorChooserAura::DidEndColorChooser() {
 }
 
 void ColorChooserAura::SetSelectedColor(SkColor color) {
-  if (view_)
+  if (view_) {
     view_->OnColorChanged(color);
+    view_->OnSaturationValueChosen(view_->saturation(), view_->value());
+  }
 }
 
 // static
