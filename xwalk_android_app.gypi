@@ -54,6 +54,11 @@
         'java_in_dir': 'app/android/app_template',
         'resource_dir': 'app/android/app_template/res',
         'asset_location': 'app/android/app_template/assets',
+        'additional_input_paths': [
+          '<(asset_location)/extensions-config.json',
+          '<(asset_location)/index.html',
+          '<(asset_location)/sampapp-icon-helloworld.png',
+        ],
       },
       'includes': [ '../build/java_apk.gypi' ],
     },
