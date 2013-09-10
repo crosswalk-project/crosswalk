@@ -15,6 +15,12 @@ namespace application {
 const base::FilePath::CharType kApplicationFileExtension[] =
     FILE_PATH_LITERAL(".xpk");
 
+XPKExtractor::XPKExtractor() {
+}
+
+XPKExtractor::~XPKExtractor() {
+}
+
 // static
 scoped_refptr<XPKExtractor> XPKExtractor::Create(
     const base::FilePath& source_path) {
