@@ -11,7 +11,6 @@
 #include "base/message_loop.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
-#include "ipc/ipc_sender.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -19,25 +18,11 @@
 namespace xwalk {
 namespace extensions {
 
-// FIXME(jeez): Remove this.
-class DummySender : public IPC::Sender {
- public:
-  virtual bool Send(IPC::Message* msg) OVERRIDE {
-    VLOG(1) << "DummySender::Send()";
-    return true;
-  }
-
-  virtual ~DummySender() {}
-};
-
 XWalkExtensionProcess::XWalkExtensionProcess()
     : shutdown_event_(false, false),
       io_thread_("XWalkExtensionProcess_IOThread") {
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
-
-  // FIXME(jeez): Remove this.
-  dummy_sender_.reset(new DummySender());
 
   CreateChannel();
 }
@@ -64,10 +49,6 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
   RegisterExternalExtensionsInDirectory(&extensions_server_, path);
-
-  // FIXME(jeez): When we have an EP-RP channel, we need to ensure someone
-  // is connected before calling this, otherwise message won't get to RP.
-  extensions_server_.RegisterExtensionsInRenderProcess();
 }
 
 void XWalkExtensionProcess::CreateChannel() {
@@ -84,8 +65,8 @@ void XWalkExtensionProcess::CreateChannel() {
       std::string()));
   rp_channel_handle_ = handle;
   render_process_channel_.reset(new IPC::SyncChannel(rp_channel_handle_,
-      IPC::Channel::MODE_SERVER, this, io_thread_.message_loop_proxy(), true,
-      &shutdown_event_));
+      IPC::Channel::MODE_SERVER, &extensions_server_,
+      io_thread_.message_loop_proxy(), true, &shutdown_event_));
 
 #if defined(OS_POSIX)
     // On POSIX, pass the server-side file descriptor. We use
@@ -96,11 +77,11 @@ void XWalkExtensionProcess::CreateChannel() {
           true);
 #endif
 
-  // FIXME(jeez): Pass our RP IPC Channel.
-  extensions_server_.Initialize(dummy_sender_.get());
+  extensions_server_.Initialize(render_process_channel_.get());
 
   browser_process_channel_->Send(
-      new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(rp_channel_handle_));
+      new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
+          rp_channel_handle_));
 }
 
 void XWalkExtensionProcess::HandleMessageFromNative(

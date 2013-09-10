@@ -27,7 +27,6 @@ namespace extensions {
 class XWalkExtension;
 class XWalkExtensionRunner;
 
-class DummySender;
 
 // This class represents the Extension Process itself.
 // It not only represents the extension side of the browser <->
@@ -62,9 +61,6 @@ class XWalkExtensionProcess : public IPC::Listener,
   XWalkExtensionServer extensions_server_;
   scoped_ptr<IPC::SyncChannel> render_process_channel_;
   IPC::ChannelHandle rp_channel_handle_;
-
-  // FIXME(jeez): Remove this.
-  scoped_ptr<DummySender> dummy_sender_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionProcess);
 };

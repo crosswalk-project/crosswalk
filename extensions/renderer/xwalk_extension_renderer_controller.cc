@@ -33,7 +33,18 @@ const GURL kAboutBlankURL = GURL("about:blank");
 class DummyListener : public IPC::Listener {
  public:
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
-    VLOG(0) << "DummyListener::OnMessageReceived()"; return true;
+    bool handled = true;
+    IPC_BEGIN_MESSAGE_MAP(DummyListener, message)
+      IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
+          OnRegisterExtension)
+      IPC_MESSAGE_UNHANDLED(handled = false)
+    IPC_END_MESSAGE_MAP()
+
+    return handled;
+  }
+
+  void OnRegisterExtension(const std::string& name, const std::string& api) {
+    VLOG(1) << "DummyListener::OnRegisterExtension: " << name;
   }
 
   virtual ~DummyListener() {}
