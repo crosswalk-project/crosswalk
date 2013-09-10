@@ -17,6 +17,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/progress">
+        <ImageButton android:id="@+id/stop"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:scaleType="center" />
         <EditText android:id="@+id/url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -38,6 +43,11 @@
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:src="@android:drawable/ic_media_next"
+            android:scaleType="center" />
+         <ImageButton android:id="@+id/reload"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:src="@android:drawable/ic_menu_rotate"
             android:scaleType="center" />
     </LinearLayout>
 

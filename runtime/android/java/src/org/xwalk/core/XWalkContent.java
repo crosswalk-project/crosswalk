@@ -116,10 +116,22 @@ public class XWalkContent extends FrameLayout {
             mPendingUrl = url;
     }
 
+    public void reload() {
+        if (mReadyToLoad) {
+            mContentView.reload();
+        }
+    }
+
     public String getUrl() {
         String url = mContentView.getUrl();
         if (url == null || url.trim().isEmpty()) return null;
         return url;
+    }
+
+    public String getTitle() {
+        String title = mContentView.getTitle().trim();
+        if (title == null) title = "";
+        return title;
     }
 
     public void addJavascriptInterface(Object object, String name) {
@@ -153,6 +165,10 @@ public class XWalkContent extends FrameLayout {
     public void clearCache(boolean includeDiskFiles) {
         if (mXWalkContent == 0) return;
         nativeClearCache(mXWalkContent, includeDiskFiles);
+    }
+
+    public void clearHistory() {
+        mContentView.clearHistory();
     }
 
     public boolean canGoBack() {

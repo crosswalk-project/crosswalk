@@ -72,6 +72,10 @@ public class XWalkView extends FrameLayout {
         mContent.loadUrl(url);
     }
 
+    public void reload() {
+        mContent.reload();
+    }
+
     public void addJavascriptInterface(Object object, String name) {
         mContent.addJavascriptInterface(object, name);
     }
@@ -80,11 +84,16 @@ public class XWalkView extends FrameLayout {
         return mContent.getUrl();
     }
 
+    public String getTitle() {
+        return mContent.getTitle();
+    }
+
     public void clearCache(boolean includeDiskFiles) {
         mContent.clearCache(includeDiskFiles);
     }
 
     public void clearHistory() {
+        mContent.clearHistory();
     }
 
     public boolean canGoBack() {
