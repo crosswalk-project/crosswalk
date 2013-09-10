@@ -7,7 +7,8 @@
 namespace xwalk {
 namespace application {
 
-const char kApplicationScheme[] = "crosswalk-application";
+// TODO(xiang): might rename this according to the spec.
+const char kApplicationScheme[] = "app";
 const base::FilePath::CharType kManifestFilename[] =
     FILE_PATH_LITERAL("manifest.json");
 const base::FilePath::CharType kMessagesFilename[] =

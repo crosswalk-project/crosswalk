@@ -27,6 +27,9 @@ class XWalkContentClient : public content::ContentClient {
   virtual base::RefCountedStaticMemory* GetDataResourceBytes(
       int resource_id) const OVERRIDE;
   virtual gfx::Image& GetNativeImageNamed(int resource_id) const OVERRIDE;
+  virtual void AddAdditionalSchemes(
+      std::vector<std::string>* standard_schemes,
+      std::vector<std::string>* saveable_shemes) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkContentClient);

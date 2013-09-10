@@ -96,5 +96,36 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
   return static_cast<DictionaryValue*>(root.release());
 }
 
+base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {
+  std::string url_path = url.path();
+  if (url_path.empty() || url_path[0] != '/')
+    return base::FilePath();
+
+  // Drop the leading slashes and convert %-encoded UTF8 to regular UTF8.
+  std::string file_path = net::UnescapeURLComponent(url_path,
+      net::UnescapeRule::SPACES | net::UnescapeRule::URL_SPECIAL_CHARS);
+  size_t skip = file_path.find_first_not_of("/\\");
+  if (skip != file_path.npos)
+    file_path = file_path.substr(skip);
+
+  base::FilePath path =
+#if defined(OS_POSIX)
+    base::FilePath(file_path);
+#elif defined(OS_WIN)
+    base::FilePath(UTF8ToWide(file_path));
+#else
+    base::FilePath();
+    NOTIMPLEMENTED();
+#endif
+
+  // It's still possible for someone to construct an annoying URL whose path
+  // would still wind up not being considered relative at this point.
+  // For example: app://id/c:////foo.html
+  if (path.IsAbsolute())
+    return base::FilePath();
+
+  return path;
+}
+
 }  // namespace application
 }  // namespace xwalk

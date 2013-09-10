@@ -104,6 +104,7 @@ bool ApplicationService::Launch(const std::string& id) {
     return false;
   }
 
+  application_ = application;
   return runtime_context_->GetApplicationSystem()->
       process_manager()->LaunchApplication(runtime_context_,
                                            application.get());
@@ -121,9 +122,15 @@ bool ApplicationService::Launch(const base::FilePath& path) {
     LOG(ERROR) << "Error during launch application: " << error;
     return false;
   }
+
+  application_ = application;
   return runtime_context_->GetApplicationSystem()->
       process_manager()->LaunchApplication(runtime_context_,
                                            application.get());
+}
+
+const Application* ApplicationService::GetRunningApplication() const {
+  return application_.get();
 }
 
 }  // namespace application
