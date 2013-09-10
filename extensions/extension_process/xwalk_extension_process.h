@@ -8,6 +8,7 @@
 #include "base/values.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
@@ -59,6 +60,8 @@ class XWalkExtensionProcess : public IPC::Listener,
   base::Thread io_thread_;
   scoped_ptr<IPC::SyncChannel> browser_process_channel_;
   XWalkExtensionServer extensions_server_;
+  scoped_ptr<IPC::SyncChannel> render_process_channel_;
+  IPC::ChannelHandle rp_channel_handle_;
 
   // FIXME(jeez): Remove this.
   scoped_ptr<DummySender> dummy_sender_;

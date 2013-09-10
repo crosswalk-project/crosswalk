@@ -7,6 +7,7 @@
 #include "base/values.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
+#include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
@@ -62,8 +63,21 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
+  if (in_browser_process_extensions_client_->OnMessageReceived(message))
+    return true;
 
-  return in_browser_process_extensions_client_->OnMessageReceived(message);
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_ExtensionProcessChannelCreated,
+        OnExtensionProcessChannelCreated)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
+
+void XWalkExtensionRendererController::OnExtensionProcessChannelCreated(
+    const IPC::ChannelHandle& handle) {
+  VLOG(0) << "\n\nRendererController::OnExtensionProcessChannelCreated";
 }
 
 }  // namespace extensions

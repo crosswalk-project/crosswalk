@@ -17,6 +17,10 @@ namespace content {
 class RenderView;
 }
 
+namespace IPC {
+class ChannelHandle;
+}
+
 namespace WebKit {
 class WebFrame;
 }
@@ -45,6 +49,9 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
+  // Message Handlers.
+  void OnExtensionProcessChannelCreated(const IPC::ChannelHandle& handle);
+
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);

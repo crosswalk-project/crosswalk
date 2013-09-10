@@ -11,6 +11,7 @@
 #include "base/files/file_path.h"
 #include "content/public/browser/browser_child_process_host.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/process_type.h"
 #include "content/public/common/content_switches.h"
@@ -43,7 +44,9 @@ class ExtensionSandboxedProcessLauncherDelegate
 };
 #endif
 
-XWalkExtensionProcessHost::XWalkExtensionProcessHost() {
+XWalkExtensionProcessHost::XWalkExtensionProcessHost()
+    : ep_rp_channel_handle_(""),
+      render_process_host_(0) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
       base::Unretained(this)));
@@ -95,7 +98,19 @@ void XWalkExtensionProcessHost::RegisterExternalExtensions(
 }
 
 void XWalkExtensionProcessHost::OnRenderProcessHostCreated(
-    content::RenderProcessHost* render_process_host) {}
+    content::RenderProcessHost* render_process_host) {
+  render_process_host_ = render_process_host;
+  CHECK(render_process_host_);
+
+  // It can be that the RenderProcessHost got created before the EP channel
+  // and vice-versa. If the EP Channel is not ready, we early return. Otherwise
+  // we tell the RenderProcess that the channel is ready.
+  if (ep_rp_channel_handle_.name == "")
+    return;
+
+  render_process_host->Send(new XWalkViewMsg_ExtensionProcessChannelCreated(
+      ep_rp_channel_handle_));
+}
 
 void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
@@ -109,7 +124,13 @@ void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
 }
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
-  return false;
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcessHost, message)
+    IPC_MESSAGE_HANDLER(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
+                        OnRenderChannelCreated)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
 }
 
 void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
@@ -118,6 +139,21 @@ void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
 
 void XWalkExtensionProcessHost::OnProcessLaunched() {
   VLOG(1) << "\n\nExtensionProcess was started!";
+}
+
+void XWalkExtensionProcessHost::OnRenderChannelCreated(
+    const IPC::ChannelHandle& handle) {
+  ep_rp_channel_handle_ = handle;
+  CHECK(ep_rp_channel_handle_.name != "");
+
+  // It can be that the EP channel got created before the RenderProcessHost
+  // and vice-versa. If RenderProcessHost is not ready, we early return.
+  // Otherwise we tell the RenderProcess that the channel is ready.
+  if (!render_process_host_)
+    return;
+
+  render_process_host_->Send(new XWalkViewMsg_ExtensionProcessChannelCreated(
+      ep_rp_channel_handle_));
 }
 
 }  // namespace extensions

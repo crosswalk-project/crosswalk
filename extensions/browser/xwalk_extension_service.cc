@@ -110,6 +110,8 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   in_process_extensions_server_->Initialize(channel);
 
   in_process_extensions_server_->RegisterExtensionsInRenderProcess();
+
+  extension_process_host_->OnRenderProcessHostCreated(host);
 }
 
 // static

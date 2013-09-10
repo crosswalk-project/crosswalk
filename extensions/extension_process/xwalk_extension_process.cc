@@ -71,6 +71,7 @@ void XWalkExtensionProcess::OnRegisterExtensions(
 }
 
 void XWalkExtensionProcess::CreateChannel() {
+  // Setup BrowserProcess channel.
   std::string channel_id =
       CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
           switches::kProcessChannelID);
@@ -78,8 +79,28 @@ void XWalkExtensionProcess::CreateChannel() {
       IPC::Channel::MODE_CLIENT, this, io_thread_.message_loop_proxy(),
       true, &shutdown_event_));
 
-  // FIXME(jeez): Change this so we pass our EP IPC Channel.
+  // Setup RenderProcess channel.
+  IPC::ChannelHandle handle(IPC::Channel::GenerateVerifiedChannelID(
+      std::string()));
+  rp_channel_handle_ = handle;
+  render_process_channel_.reset(new IPC::SyncChannel(rp_channel_handle_,
+      IPC::Channel::MODE_SERVER, this, io_thread_.message_loop_proxy(), true,
+      &shutdown_event_));
+
+#if defined(OS_POSIX)
+    // On POSIX, pass the server-side file descriptor. We use
+    // TakeClientFileDescriptor() instead of GetClientFileDescriptor()
+    // since the client-side channel will take ownership of the fd.
+    rp_channel_handle_.socket =
+       base::FileDescriptor(render_process_channel_->TakeClientFileDescriptor(),
+          true);
+#endif
+
+  // FIXME(jeez): Pass our RP IPC Channel.
   extensions_server_.Initialize(dummy_sender_.get());
+
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(rp_channel_handle_));
 }
 
 void XWalkExtensionProcess::HandleMessageFromNative(
