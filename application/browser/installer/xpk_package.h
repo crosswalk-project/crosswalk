@@ -27,6 +27,8 @@ class XPKPackage {
     uint32 key_size;
     uint32 signature_size;
   };
+  XPKPackage();
+  ~XPKPackage();
   static scoped_ptr<XPKPackage> Create(const base::FilePath& path);
   // Validate the xpk file
   bool IsOk() const { return is_ok_; }

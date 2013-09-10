@@ -18,6 +18,12 @@ const uint8 kSignatureAlgorithm[15] = {
 
 const char XPKPackage::kXPKPackageHeaderMagic[] = "CrWk";
 
+XPKPackage::XPKPackage() {
+}
+
+XPKPackage::~XPKPackage() {
+}
+
 // static
 scoped_ptr<XPKPackage> XPKPackage::Create(const base::FilePath& path) {
   if (!file_util::PathExists(path))
