@@ -125,7 +125,10 @@ public class AndroidProtocolHandler {
         assert(uri.getScheme().equals(FILE_SCHEME));
         assert(uri.getPath() != null);
         assert(uri.getPath().startsWith(nativeGetAndroidAssetPath()));
-        String path = uri.getPath().replaceFirst(nativeGetAndroidAssetPath(), "");
+        String path = uri.getPath();
+        // Remove duplicate slashes and normalize the URL.
+        path = (new java.io.File(path)).getAbsolutePath();
+        path = path.replaceFirst(nativeGetAndroidAssetPath(), "");
         try {
             AssetManager assets = context.getAssets();
             return assets.open(path, AssetManager.ACCESS_STREAMING);
