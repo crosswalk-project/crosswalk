@@ -17,6 +17,7 @@ namespace application {
 class XPKExtractor
     : public base::RefCountedThreadSafe<XPKExtractor> {
  public:
+  XPKExtractor();
   static scoped_refptr<XPKExtractor> Create(const base::FilePath& source_path);
   // The function will unzip the XPK file and return the target path where
   // to decompress by the parameter |target_path|.
@@ -25,6 +26,7 @@ class XPKExtractor
 
  private:
   friend class base::RefCountedThreadSafe<XPKExtractor>;
+  ~XPKExtractor();
   explicit XPKExtractor(const base::FilePath& source_path);
   bool CreateTempDirectory();
 

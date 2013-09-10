@@ -34,7 +34,7 @@ class ApplicationStore: public DBStore::Observer {
   static const char kInstallTime[];
 
   explicit ApplicationStore(xwalk::RuntimeContext* runtime_context);
-  ~ApplicationStore();
+  virtual ~ApplicationStore();
 
   bool AddApplication(scoped_refptr<const Application> application);
 

@@ -43,8 +43,6 @@ class FileThreadDeserializer
         origin_loop_proxy_(base::MessageLoopProxy::current()) {
   }
 
-  ~FileThreadDeserializer() {}
-
   void Start(const base::FilePath& path) {
     DCHECK(origin_loop_proxy_->BelongsToCurrentThread());
     sequenced_task_runner_->PostTask(
@@ -83,6 +81,7 @@ class FileThreadDeserializer
 
  private:
   friend class base::RefCountedThreadSafe<FileThreadDeserializer>;
+  ~FileThreadDeserializer() {}
 
   bool no_dir_;
   scoped_ptr<base::Value> value_;

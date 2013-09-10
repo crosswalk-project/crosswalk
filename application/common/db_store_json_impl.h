@@ -21,7 +21,7 @@ class DBStoreJsonImpl: public DBStore,
     public base::ImportantFileWriter::DataSerializer {
  public:
   explicit DBStoreJsonImpl(base::FilePath path);
-  ~DBStoreJsonImpl();
+  virtual ~DBStoreJsonImpl();
   // Returns instance of SequencedTaskRunner which guarantees that file
   // operations on the same file will be executed in sequenced order.
   static scoped_refptr<base::SequencedTaskRunner> GetTaskRunnerForFile(
