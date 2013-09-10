@@ -6,15 +6,15 @@ It is an open source project started by the Intel Open Source Technology Center
 
 ## Documents
 
-Check out our [Wiki](https://github.com/otcshare/crosswalk/wiki/).
+Check out our [Wiki](http://crosswalk-project.org/#wiki).
 
 ## Community
 
-How to use Crosswalk you can ask on the mailing list : http://linux.intel.com/mailman/listinfo/cameo-help
+How to use Crosswalk you can ask on the mailing list : https://lists.crosswalk-project.org/mailman/listinfo/crosswalk-help
 
-Development of Crosswalk : http://linux.intel.com/mailman/listinfo/cameo-dev
+Development of Crosswalk : https://lists.crosswalk-project.org/mailman/listinfo/crosswalk-dev
 
-We are also on IRC : #crosswalk on otcirc.jf.intel.com:6697
+We are also on IRC : #crosswalk on Freenode
 
 ## License
 
