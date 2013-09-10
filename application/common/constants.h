@@ -13,10 +13,10 @@ namespace application {
 // Scheme we serve application content from.
 extern const char kApplicationScheme[];
 
-  // The name of the manifest inside an application.
+// The name of the manifest inside an application.
 extern const base::FilePath::CharType kManifestFilename[];
 
-  // The name of the messages file inside an application.
+// The name of the messages file inside an application.
 extern const base::FilePath::CharType kMessagesFilename[];
 
 }  // namespace application

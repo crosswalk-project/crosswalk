@@ -4,20 +4,24 @@
 
 #include "xwalk/runtime/browser/runtime_context.h"
 
+#include <string>
+#include <utility>
+
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/resource_context.h"
+#include "content/public/browser/storage_partition.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/common/content_switches.h"
+#include "xwalk/application/browser/application_protocols.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
-#include "content/public/browser/browser_thread.h"
-#include "content/public/browser/resource_context.h"
-#include "content/public/browser/storage_partition.h"
-#include "content/public/browser/web_contents.h"
-#include "content/public/common/content_switches.h"
 
 using content::BrowserThread;
 using content::DownloadManager;
@@ -174,6 +178,18 @@ xwalk::application::ApplicationSystem* RuntimeContext::GetApplicationSystem() {
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers) {
   DCHECK(!url_request_getter_);
+
+  xwalk::application::ApplicationService* service =
+    application_system_.get()->application_service();
+  const xwalk::application::Application* running_app =
+    service->GetRunningApplication();
+  if (running_app) {
+    protocol_handlers->insert(std::pair<std::string,
+        linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
+          application::kApplicationScheme,
+          CreateApplicationProtocolHandler(running_app)));
+  }
+
   url_request_getter_ = new RuntimeURLRequestContextGetter(
       false, /* ignore_certificate_error = false */
       GetPath(),

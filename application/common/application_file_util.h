@@ -43,6 +43,10 @@ scoped_refptr<Application> LoadApplication(
 // on failure, with a description of the error in |error|.
 base::DictionaryValue* LoadManifest(const base::FilePath& application_root,
                                     std::string* error);
+
+// Get a relative file path from an app:// URL.
+base::FilePath ApplicationURLToRelativeFilePath(const GURL& url);
+
 }  // namespace application
 }  // namespace xwalk
 
