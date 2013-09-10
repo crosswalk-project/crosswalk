@@ -36,8 +36,7 @@ bool ApplicationProcessManager::LaunchApplication(
     return false;
   }
 
-  GURL startup_url = net::FilePathToFileURL(
-    application->Path().Append(base::FilePath::FromUTF8Unsafe(entry_page)));
+  GURL startup_url = application->GetResourceURL(entry_page);
   Runtime::Create(runtime_context, startup_url);
   return true;
 }

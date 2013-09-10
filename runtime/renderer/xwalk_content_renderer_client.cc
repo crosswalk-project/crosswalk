@@ -4,6 +4,10 @@
 
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#include "base/strings/utf_string_conversions.h"
+#include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/web/WebSecurityPolicy.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace xwalk {
@@ -27,6 +31,11 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 
 void XWalkContentRendererClient::RenderThreadStarted() {
   extension_controller_.reset(new extensions::XWalkExtensionRendererController);
+
+  WebKit::WebString application_scheme(
+      ASCIIToUTF16(application::kApplicationScheme));
+  WebKit::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
+  WebKit::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(

@@ -2,34 +2,37 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "extensions/common/extension_resource.h"
+#include "xwalk/application/common/application_resource.h"
+
+#include <vector>
 
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/threading/thread_restrictions.h"
 
-namespace extensions {
+namespace xwalk {
+namespace application {
 
-ExtensionResource::ExtensionResource() : follow_symlinks_anywhere_(false) {
+ApplicationResource::ApplicationResource() : follow_symlinks_anywhere_(false) {
 }
 
-ExtensionResource::ExtensionResource(const std::string& extension_id,
-                                     const base::FilePath& extension_root,
+ApplicationResource::ApplicationResource(const std::string& application_id,
+                                     const base::FilePath& application_root,
                                      const base::FilePath& relative_path)
-    : extension_id_(extension_id),
-      extension_root_(extension_root),
+    : application_id_(application_id),
+      application_root_(application_root),
       relative_path_(relative_path),
       follow_symlinks_anywhere_(false) {
 }
 
-ExtensionResource::~ExtensionResource() {}
+ApplicationResource::~ApplicationResource() {}
 
-void ExtensionResource::set_follow_symlinks_anywhere() {
+void ApplicationResource::set_follow_symlinks_anywhere() {
   follow_symlinks_anywhere_ = true;
 }
 
-const base::FilePath& ExtensionResource::GetFilePath() const {
-  if (extension_root_.empty() || relative_path_.empty()) {
+const base::FilePath& ApplicationResource::GetFilePath() const {
+  if (application_root_.empty() || relative_path_.empty()) {
     DCHECK(full_resource_path_.empty());
     return full_resource_path_;
   }
@@ -39,25 +42,25 @@ const base::FilePath& ExtensionResource::GetFilePath() const {
     return full_resource_path_;
 
   full_resource_path_ = GetFilePath(
-      extension_root_, relative_path_,
+      application_root_, relative_path_,
       follow_symlinks_anywhere_ ?
           FOLLOW_SYMLINKS_ANYWHERE : SYMLINKS_MUST_RESOLVE_WITHIN_ROOT);
   return full_resource_path_;
 }
 
 // static
-base::FilePath ExtensionResource::GetFilePath(
-    const base::FilePath& extension_root,
+base::FilePath ApplicationResource::GetFilePath(
+    const base::FilePath& application_root,
     const base::FilePath& relative_path,
     SymlinkPolicy symlink_policy) {
-  // We need to resolve the parent references in the extension_root
+  // We need to resolve the parent references in the application_root
   // path on its own because IsParent doesn't like parent references.
-  base::FilePath clean_extension_root(
-      base::MakeAbsoluteFilePath(extension_root));
-  if (clean_extension_root.empty())
+  base::FilePath clean_application_root(
+      base::MakeAbsoluteFilePath(application_root));
+  if (clean_application_root.empty())
     return base::FilePath();
 
-  base::FilePath full_path = clean_extension_root.Append(relative_path);
+  base::FilePath full_path = clean_application_root.Append(relative_path);
 
   // If we are allowing the file to be a symlink outside of the root, then the
   // path before resolving the symlink must still be within it.
@@ -90,7 +93,7 @@ base::FilePath ExtensionResource::GetFilePath(
   full_path = base::MakeAbsoluteFilePath(full_path);
   if (file_util::PathExists(full_path) &&
       (symlink_policy == FOLLOW_SYMLINKS_ANYWHERE ||
-       clean_extension_root.IsParent(full_path))) {
+       clean_application_root.IsParent(full_path))) {
     return full_path;
   }
 
@@ -98,7 +101,7 @@ base::FilePath ExtensionResource::GetFilePath(
 }
 
 // Unit-testing helpers.
-base::FilePath::StringType ExtensionResource::NormalizeSeperators(
+base::FilePath::StringType ApplicationResource::NormalizeSeperators(
     const base::FilePath::StringType& path) const {
 #if defined(FILE_PATH_USES_WIN_SEPARATORS)
   base::FilePath::StringType win_path = path;
@@ -112,7 +115,7 @@ base::FilePath::StringType ExtensionResource::NormalizeSeperators(
 #endif  // FILE_PATH_USES_WIN_SEPARATORS
 }
 
-bool ExtensionResource::ComparePathWithDefault(
+bool ApplicationResource::ComparePathWithDefault(
     const base::FilePath& path) const {
   // Make sure we have a cached value to test against...
   if (full_resource_path_.empty())
@@ -125,4 +128,5 @@ bool ExtensionResource::ComparePathWithDefault(
   }
 }
 
-}  // namespace extensions
+}  // namespace application
+}  // namespace xwalk
