@@ -39,7 +39,6 @@
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
-#include "xwalk/runtime/browser/android/net/xwalk_url_request_job_factory.h"
 #endif
 
 using content::BrowserThread;
@@ -170,36 +169,16 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         chrome::kFileScheme,
         new net::FileProtocolHandler);
     DCHECK(set_protocol);
-    storage_->set_job_factory(job_factory.release());
-  }
-
 #if defined(OS_ANDROID)
-  if (!job_factory_) {
-    scoped_ptr<XWalkURLRequestJobFactory> job_factory(
-        new XWalkURLRequestJobFactory);
-    bool set_protocol = job_factory->SetProtocolHandler(
-        chrome::kFileScheme, new net::FileProtocolHandler());
-    DCHECK(set_protocol);
-    set_protocol = job_factory->SetProtocolHandler(
-        chrome::kDataScheme, new net::DataProtocolHandler());
-    DCHECK(set_protocol);
-
-    typedef std::vector<net::URLRequestJobFactory::ProtocolHandler*>
-        ProtocolHandlerVector;
-    ProtocolHandlerVector protocol_interceptors;
-    protocol_interceptors.push_back(CreateAssetFileProtocolHandler().release());
-
-    job_factory_ = job_factory.PassAs<net::URLRequestJobFactory>();
-    for (ProtocolHandlerVector::reverse_iterator
-            i = protocol_interceptors.rbegin();
-        i != protocol_interceptors.rend();
-        ++i) {
-      job_factory_.reset(new net::ProtocolInterceptJobFactory(
-          job_factory_.Pass(), make_scoped_ptr(*i)));
-    }
-    url_request_context_->set_job_factory(job_factory_.get());
-  }
+    net::ProtocolInterceptJobFactory* intercept_job_factory =
+        new net::ProtocolInterceptJobFactory(
+            job_factory.PassAs<net::URLRequestJobFactory>(),
+            CreateAssetFileProtocolHandler());
+    storage_->set_job_factory(intercept_job_factory);
+#else
+    storage_->set_job_factory(job_factory.release());
 #endif
+  }
 
   return url_request_context_.get();
 }
