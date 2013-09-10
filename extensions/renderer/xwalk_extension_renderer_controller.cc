@@ -25,8 +25,6 @@ extern const char kSource_xwalk_api[];
 namespace xwalk {
 namespace extensions {
 
-const GURL kAboutBlankURL = GURL("about:blank");
-
 XWalkExtensionRendererController::XWalkExtensionRendererController() {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
@@ -46,9 +44,6 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
-  if (frame->document().url() == kAboutBlankURL)
-    return;
-
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
@@ -62,9 +57,6 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
-  if (frame->document().url() == kAboutBlankURL)
-    return;
-
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }
 
