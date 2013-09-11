@@ -175,8 +175,6 @@
             'runtime/browser/android/net/input_stream_reader.h',
             'runtime/browser/android/net/url_constants.cc',
             'runtime/browser/android/net/url_constants.h',
-            'runtime/browser/android/net/xwalk_url_request_job_factory.cc',
-            'runtime/browser/android/net/xwalk_url_request_job_factory.h',
             'runtime/browser/android/net_disk_cache_remover.cc',
             'runtime/browser/android/net_disk_cache_remover.h',
             'runtime/browser/android/renderer_host/xwalk_render_view_host_ext.cc',

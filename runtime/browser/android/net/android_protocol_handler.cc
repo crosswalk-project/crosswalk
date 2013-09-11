@@ -23,7 +23,6 @@
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
-#include "xwalk/runtime/browser/android/net/xwalk_url_request_job_factory.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ClearException;
