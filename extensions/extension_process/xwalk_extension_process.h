@@ -5,13 +5,12 @@
 #ifndef XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 #define XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 
-#include "base/message_loop.h"
-#include "base/run_loop.h"
 #include "base/values.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 
 namespace base {
 class FilePath;
@@ -26,17 +25,20 @@ namespace extensions {
 
 class XWalkExtension;
 class XWalkExtensionRunner;
-class XWalkExtensionServer;
 
 class DummySender;
 
+// This class represents the Extension Process itself.
+// It not only represents the extension side of the browser <->
+// extension process communication channel, but also the extension side
+// of the extension <-> render process channel.
+// It will be responsible for handling the native side (instances) of
+// External extensions through its XWalkExtensionServer.
 class XWalkExtensionProcess : public IPC::Listener,
                               public XWalkExtensionRunner::Client {
  public:
   XWalkExtensionProcess();
   virtual ~XWalkExtensionProcess();
-
-  void Run();
 
  private:
   // IPC::Listener implementation.
@@ -53,12 +55,10 @@ class XWalkExtensionProcess : public IPC::Listener,
 
   void CreateChannel();
 
-  base::MessageLoop main_loop_;
-  base::RunLoop run_loop_;
   base::WaitableEvent shutdown_event_;
   base::Thread io_thread_;
   scoped_ptr<IPC::SyncChannel> browser_process_channel_;
-  scoped_ptr<XWalkExtensionServer> extensions_server_;
+  XWalkExtensionServer extensions_server_;
 
   // FIXME(jeez): Remove this.
   scoped_ptr<DummySender> dummy_sender_;

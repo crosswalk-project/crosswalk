@@ -24,20 +24,23 @@ class Message;
 namespace xwalk {
 namespace extensions {
 
+// This class represents the browser side of the browser <-> extension process
+// communication channel. It has to run some operations in IO thread for
+// creating the extra process.
 class XWalkExtensionProcessHost
     : public content::BrowserChildProcessHostDelegate {
  public:
   XWalkExtensionProcessHost();
   virtual ~XWalkExtensionProcessHost();
 
-  void StartProcess();
-  void StopProcess();
-
   void RegisterExternalExtensions(const base::FilePath& extension_path);
 
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
  private:
+  void StartProcess();
+  void StopProcess();
+
   // Thread-safe function to send message to the associated extension process.
   void Send(IPC::Message* msg);
 

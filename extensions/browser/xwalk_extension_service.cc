@@ -58,9 +58,8 @@ XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL),
       in_process_server_message_filter_(NULL) {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkEnableExtensionProcess)) {
-    VLOG(1) << "Extension process enabled.";
-  }
+  if (cmd_line->HasSwitch(switches::kXWalkEnableExtensionProcess))
+    extension_process_host_.reset(new XWalkExtensionProcessHost());
 
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
@@ -68,7 +67,6 @@ XWalkExtensionService::XWalkExtensionService()
   // These objects are created on the UI-thread but they will live on the
   // IO-thread. Their deletion will happen on the IO-thread.
   in_process_extensions_server_.reset(new XWalkExtensionServer());
-  extension_process_host_.reset(new XWalkExtensionProcessHost());
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this);
@@ -90,7 +88,8 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   RegisterExternalExtensionsInDirectory(
       in_process_extensions_server_.get(), path);
 
-  extension_process_host_->RegisterExternalExtensions(path);
+  if (extension_process_host_)
+    extension_process_host_->RegisterExternalExtensions(path);
 }
 
 void XWalkExtensionService::OnRenderProcessHostCreated(
@@ -137,8 +136,11 @@ void XWalkExtensionService::Observe(int type,
         in_process_server_message_filter_ = NULL;
         BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
             in_process_extensions_server_.release());
-        BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
-            extension_process_host_.release());
+
+        if (extension_process_host_) {
+          BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
+              extension_process_host_.release());
+        }
       }
     }
   }

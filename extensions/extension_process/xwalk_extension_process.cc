@@ -8,13 +8,13 @@
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
+#include "base/message_loop.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sender.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 
 namespace xwalk {
 namespace extensions {
@@ -22,19 +22,19 @@ namespace extensions {
 // FIXME(jeez): Remove this.
 class DummySender : public IPC::Sender {
  public:
-  virtual bool Send(IPC::Message* msg) OVERRIDE { VLOG(0)
-      << "DummySender::Send()"; return true; }
+  virtual bool Send(IPC::Message* msg) OVERRIDE {
+    VLOG(1) << "DummySender::Send()";
+    return true;
+  }
 
   virtual ~DummySender() {}
 };
 
 XWalkExtensionProcess::XWalkExtensionProcess()
-    : main_loop_(base::MessageLoop::TYPE_UI),
-      shutdown_event_(false, false),
+    : shutdown_event_(false, false),
       io_thread_("XWalkExtensionProcess_IOThread") {
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
-  extensions_server_.reset(new XWalkExtensionServer());
 
   // FIXME(jeez): Remove this.
   dummy_sender_.reset(new DummySender());
@@ -45,14 +45,10 @@ XWalkExtensionProcess::XWalkExtensionProcess()
 XWalkExtensionProcess::~XWalkExtensionProcess() {
   // FIXME(jeez): Move this to OnChannelClosing/Error/Disconnected when we have
   // our MessageFilter set.
-  extensions_server_->Invalidate();
+  extensions_server_.Invalidate();
 
   shutdown_event_.Signal();
   io_thread_.Stop();
-}
-
-void XWalkExtensionProcess::Run() {
-  run_loop_.Run();
 }
 
 bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
@@ -67,11 +63,11 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
-  RegisterExternalExtensionsInDirectory(extensions_server_.get(), path);
+  RegisterExternalExtensionsInDirectory(&extensions_server_, path);
 
-  // FIXME(jeez): This can only be done after someone has connected to our
-  // EP IPC Channel.
-  extensions_server_->RegisterExtensionsInRenderProcess();
+  // FIXME(jeez): When we have an EP-RP channel, we need to ensure someone
+  // is connected before calling this, otherwise message won't get to RP.
+  extensions_server_.RegisterExtensionsInRenderProcess();
 }
 
 void XWalkExtensionProcess::CreateChannel() {
@@ -83,7 +79,7 @@ void XWalkExtensionProcess::CreateChannel() {
       true, &shutdown_event_));
 
   // FIXME(jeez): Change this so we pass our EP IPC Channel.
-  extensions_server_->Initialize(dummy_sender_.get());
+  extensions_server_.Initialize(dummy_sender_.get());
 }
 
 void XWalkExtensionProcess::HandleMessageFromNative(

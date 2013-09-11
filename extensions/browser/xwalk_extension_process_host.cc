@@ -14,7 +14,9 @@
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/process_type.h"
 #include "content/public/common/content_switches.h"
+#if defined(OS_WIN)
 #include "content/public/common/sandboxed_process_launcher_delegate.h"
+#endif
 #include "ipc/ipc_message.h"
 #include "ipc/ipc_switches.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -26,7 +28,9 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionProcessHost::XWalkExtensionProcessHost() {
-  StartProcess();
+  BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
+      base::Bind(&XWalkExtensionProcessHost::StartProcess,
+      base::Unretained(this)));
 }
 
 XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
@@ -38,24 +42,14 @@ XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
 }
 
 void XWalkExtensionProcessHost::StartProcess() {
+  CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   CHECK(!process_);
-
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
-      base::Bind(&XWalkExtensionProcessHost::StartProcess,
-                 base::Unretained(this)));
-    return;
-  }
 
   process_.reset(content::BrowserChildProcessHost::Create(
       content::PROCESS_TYPE_CONTENT_END, this));
 
   std::string channel_id = process_->GetHost()->CreateChannel();
-  if (channel_id.empty()) {
-    LOG(ERROR) << "Extension process launch failed: could not create channel";
-    return;
-  }
+  CHECK(!channel_id.empty());
 
   base::FilePath exe_path = content::ChildProcessHost::GetChildPath(
       content::ChildProcessHost::CHILD_NORMAL);
@@ -73,15 +67,8 @@ void XWalkExtensionProcessHost::StartProcess() {
 }
 
 void XWalkExtensionProcessHost::StopProcess() {
+  CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   CHECK(process_);
-
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(
-      BrowserThread::IO, FROM_HERE,
-      base::Bind(&XWalkExtensionProcessHost::StopProcess,
-                 base::Unretained(this)));
-    return;
-  }
 
   process_.reset();
 }
@@ -110,11 +97,11 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
 }
 
 void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
-  VLOG(0) << "Process crashed with exit_code=" << exit_code;
+  VLOG(1) << "Process crashed with exit_code=" << exit_code;
 }
 
 void XWalkExtensionProcessHost::OnProcessLaunched() {
-  VLOG(0) << "\n\nExtensionProcess was started!";
+  VLOG(1) << "\n\nExtensionProcess was started!";
 }
 
 }  // namespace extensions
