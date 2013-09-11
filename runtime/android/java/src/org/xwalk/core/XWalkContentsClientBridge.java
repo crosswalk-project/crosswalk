@@ -20,6 +20,8 @@ import android.webkit.WebResourceResponse;
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
+import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
+import org.chromium.components.navigation_interception.NavigationParams;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.chromium.content.browser.ContentViewDownloadDelegate;
 
@@ -34,12 +36,25 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     private XWalkWebChromeClient mXWalkWebChromeClient;
     private Bitmap mFavicon;
     private DownloadListener mDownloadListener;
+    private InterceptNavigationDelegate mInterceptNavigationDelegate;
+    private XWalkNavigationHandler mNavigationHandler;
 
     // The native peer of the object
     private int mNativeContentsClientBridge;
 
+    private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
+        public boolean shouldIgnoreNavigation(NavigationParams navigationParams) {
+            if (mNavigationHandler != null) {
+                return mNavigationHandler.handleNavigation(navigationParams);
+            }
+            return false;
+        }
+    }
+
     public XWalkContentsClientBridge(XWalkView xwView) {
         mXWalkView = xwView;
+
+        mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl();
     }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
@@ -48,6 +63,14 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     public void setXWalkClient(XWalkClient client) {
         mXWalkClient = client;
+    }
+
+    public void setNavigationHandler(XWalkNavigationHandler handler) {
+        mNavigationHandler = handler;
+    }
+
+    public InterceptNavigationDelegate getInterceptNavigationDelegate() {
+        return mInterceptNavigationDelegate;
     }
 
     // TODO(Xingnan): All the empty functions need to be implemented.

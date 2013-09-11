@@ -11,6 +11,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
+#include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
@@ -20,6 +21,7 @@
 #include "jni/XWalkContent_jni.h"
 
 using base::android::ScopedJavaLocalRef;
+using navigation_interception::InterceptNavigationDelegate;
 
 namespace xwalk {
 
@@ -65,9 +67,10 @@ XWalkContent* XWalkContent::FromWebContents(
   return XWalkContentUserData::GetContents(web_contents);
 }
 
-jint XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
+jint XWalkContent::GetWebContents(
+    JNIEnv* env, jobject obj, jobject intercept_navigation_delegate) {
   if (!web_contents_) {
-    web_contents_.reset(CreateWebContents());
+    web_contents_.reset(CreateWebContents(env, intercept_navigation_delegate));
 
     render_view_host_ext_.reset(
         new XWalkRenderViewHostExt(web_contents_.get()));
@@ -75,7 +78,8 @@ jint XWalkContent::GetWebContents(JNIEnv* env, jobject obj) {
   return reinterpret_cast<jint>(web_contents_.get());
 }
 
-content::WebContents* XWalkContent::CreateWebContents() {
+content::WebContents* XWalkContent::CreateWebContents(
+    JNIEnv* env, jobject intercept_navigation_delegate) {
   RuntimeContext* runtime_context =
       XWalkContentBrowserClient::GetRuntimeContext();
   content::WebContents* web_contents = content::WebContents::Create(
@@ -86,6 +90,9 @@ content::WebContents* XWalkContent::CreateWebContents() {
 
   XWalkContentsClientBridgeBase::Associate(web_contents,
       contents_client_bridge_.get());
+  InterceptNavigationDelegate::Associate(web_contents,
+      make_scoped_ptr(new InterceptNavigationDelegate(
+          env, intercept_navigation_delegate)));
   web_contents->SetDelegate(web_contents_delegate_.get());
   return web_contents;
 }
