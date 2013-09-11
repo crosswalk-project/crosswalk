@@ -27,6 +27,22 @@ using content::BrowserThread;
 namespace xwalk {
 namespace extensions {
 
+#if defined(OS_WIN)
+class ExtensionSandboxedProcessLauncherDelegate
+    : public content::SandboxedProcessLauncherDelegate {
+ public:
+  ExtensionSandboxedProcessLauncherDelegate() {}
+  virtual ~ExtensionSandboxedProcessLauncherDelegate() {}
+
+  virtual void ShouldSandbox(bool* in_sandbox) OVERRIDE {
+    *in_sandbox = false;
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ExtensionSandboxedProcessLauncherDelegate);
+};
+#endif
+
 XWalkExtensionProcessHost::XWalkExtensionProcessHost() {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
@@ -59,7 +75,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);
   process_->Launch(
 #if defined(OS_WIN)
-      new content::SandboxedProcessLauncherDelegate(),
+      new ExtensionSandboxedProcessLauncherDelegate(),
 #elif defined(OS_POSIX)
     false, base::EnvironmentVector(),
 #endif
