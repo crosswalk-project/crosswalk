@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 // Icon
 //
-IDR_MAINFRAME           ICON                    "icons\\xwalk.ico"
+IDR_MAINFRAME           ICON                    "icons\\crosswalk.ico"
 
 
 #endif    // English (U.S.) resources
