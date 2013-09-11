@@ -73,7 +73,7 @@ class InstallHelper(object):
         self.__createTextNode(document, description, self.data_['description'])
 
       ui_application = self.__createNode(document, manifest, "ui-application")
-      self.__setAttribute(ui_application, "appid", self.package_id_)
+      self.__setAttribute(ui_application, "appid", self.package_id_ + "." + self.data_['name'])
       self.__setAttribute(ui_application, "exec", "/opt/usr/apps/applications/"
                           + self.package_id_ + "/bin/" + self.package_id_)
       # Set application type to "c++app" for now,
