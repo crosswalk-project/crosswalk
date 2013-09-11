@@ -65,7 +65,7 @@
            or "<file>" to match only files. Default is to match both.
          - Match is not case-sensitive.
   -->
-  <property name="aapt.ignore.assets" value="" />
+  <property name="aapt.ignore.assets" value="!.svn:!.git:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~" />
 
   <!--
       Include additional resource folders in the apk, e.g. content/.../res.  We
