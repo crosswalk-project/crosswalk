@@ -311,7 +311,10 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     // Implement ContentViewDownloadDelegate methods.
     public void requestHttpGetDownload(String url, String userAgent, String contentDisposition,
         String mimetype, String cookie, String referer, long contentLength) {
-        // TODO(shouqun): Handle the download requests.
+        if (mDownloadListener != null) {
+            mDownloadListener.onDownloadStart(url, userAgent,
+                    contentDisposition, mimetype, contentLength);
+        }
     }
 
     public void onDownloadStarted(String filename, String mimeType) {
