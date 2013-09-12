@@ -11,6 +11,13 @@ import shutil
 import sys
 from xml.dom import minidom
 
+def ReplaceInvalidChars(value):
+  invalid_chars = '\/:*?"<>|- '
+  for c in invalid_chars:
+    value = value.replace(c,'_')
+  return value
+
+
 def Prepare(options):
   if os.path.exists(options.name):
     shutil.rmtree(options.name)
@@ -34,6 +41,7 @@ def Prepare(options):
   if options.app_root:
     shutil.rmtree(options.name + '/assets')
     shutil.copytree(options.app_root, options.name + '/assets')
+
 
 def ReplaceNodeValue(doc, node, name, value):
   item = doc.getElementsByTagName(node)[0]
@@ -82,6 +90,7 @@ def CustomizeXML(options):
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(options.icon)
+    icon_file = ReplaceInvalidChars(icon_file)
     shutil.copyfile(options.icon, drawable_path + icon_file)
     icon_name = os.path.splitext(icon_file)[0]
     AddAttribute(xmldoc, 'application',
