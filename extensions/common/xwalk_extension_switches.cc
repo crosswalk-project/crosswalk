@@ -13,4 +13,7 @@ namespace switches {
 const char kXWalkEnableExtensionProcess[] =
     "enable-extension-process";
 
+// Used internally to launch an extension process.
+const char kXWalkExtensionProcess[] = "xwalk-extension-process";
+
 }  // namespace switches
