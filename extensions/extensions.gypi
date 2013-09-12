@@ -2,6 +2,8 @@
   'sources': [
     'browser/xwalk_extension_internal.cc',
     'browser/xwalk_extension_internal.h',
+    'browser/xwalk_extension_process_host.cc',
+    'browser/xwalk_extension_process_host.h',
     'browser/xwalk_extension_service.cc',
     'browser/xwalk_extension_service.h',
     'common/xwalk_extension.cc',
@@ -24,6 +26,10 @@
     'common/xwalk_external_context.h',
     'common/xwalk_external_extension.cc',
     'common/xwalk_external_extension.h',
+    'extension_process/xwalk_extension_process_main.cc',
+    'extension_process/xwalk_extension_process_main.h',
+    'extension_process/xwalk_extension_process.cc',
+    'extension_process/xwalk_extension_process.h',
     'public/xwalk_extension_public.h',
     'public/XW_Extension.h',
     'public/XW_Extension_SyncMessage.h',
@@ -40,6 +46,14 @@
     'renderer/xwalk_remote_extension_runner.h',
     'renderer/xwalk_extension_client.cc',
     'renderer/xwalk_extension_client.h',
+  ],
+  'conditions': [
+    ['OS=="android"',{
+      'sources': [
+        'common/android/xwalk_extension_android.cc',
+        'common/android/xwalk_extension_android.h',
+      ],
+    }],
   ],
   'includes': [
     'xwalk_js2c.gypi',

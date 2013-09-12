@@ -117,12 +117,7 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
-#if !defined(OS_ANDROID)
   main_parts_->extension_service()->OnRenderProcessHostCreated(host);
-#else
-  // Extension in Android is not supported currently.
-  NOTIMPLEMENTED();
-#endif
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
