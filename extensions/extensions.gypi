@@ -41,6 +41,14 @@
     'renderer/xwalk_extension_client.cc',
     'renderer/xwalk_extension_client.h',
   ],
+  'conditions': [
+    ['OS=="android"',{
+      'sources': [
+        'common/android/xwalk_extension_android.cc',
+        'common/android/xwalk_extension_android.h',
+      ],
+    }],
+  ],
   'includes': [
     'xwalk_js2c.gypi',
   ],

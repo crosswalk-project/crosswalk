@@ -11,6 +11,7 @@
         '../components/components.gyp:visitedlink_renderer',
         '../components/components.gyp:web_contents_delegate_android',
         '../skia/skia.gyp:skia',
+        'xwalk_core_extensions_native_jni',
         'xwalk_core_jar_jni',
         'xwalk_core_native_jni',
         'xwalk_pak',
@@ -72,10 +73,36 @@
       'includes': ['../build/jni_generator.gypi'],
     },
     {
+      'target_name': 'xwalk_core_extensions_java',
+      'type': 'none',
+      'dependencies': [
+        '../content/content.gyp:content_java',
+      ],
+      'variables': {
+        'java_in_dir': 'extensions/android/java',
+        'has_java_resources': 0,
+        'R_package': 'org.xwalk.core.extensions',
+        'R_package_relpath': 'org/xwalk/core/extensions',
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
+      'target_name': 'xwalk_core_extensions_native_jni',
+      'type': 'none',
+      'variables': {
+        'jni_gen_package': 'xwalk',
+      },
+      'sources': [
+        'extensions/android/java/src/org/xwalk/core/extensions/XWalkExtensionAndroid.java',
+      ],
+      'includes': ['../build/jni_generator.gypi'],
+    },
+    {
       'target_name': 'xwalk_runtime_lib_apk',
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_extensions_java',
         # Runtime code is also built by this target.
         'xwalk_core_java',
         'xwalk_runtime_lib_apk_pak',
