@@ -26,6 +26,7 @@ namespace extensions {
 
 class ExtensionServerMessageFilter;
 class XWalkExtension;
+class XWalkExtensionProcessHost;
 class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
@@ -65,6 +66,9 @@ class XWalkExtensionService : public content::NotificationObserver {
   ExtensionServerMessageFilter* in_process_server_message_filter_;
 
   content::NotificationRegistrar registrar_;
+
+  // This object lives on the IO-thread.
+  scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
