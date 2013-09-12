@@ -105,6 +105,11 @@ APP_PATH=`absolute_path $APP_PATH`
 BUILD_DIR=$TEMP_DIR/`basename $APP_PATH`
 #export some variables so that Makefile can use them
 export INSTALL_DIR=/opt/${PUBLISHER}/${APP_NAME}
+if [ ! -d "$INSTALL_DIR" ]; then
+  echo "Creating installation directory."
+  mkdir -p $INSTALL_DIR
+fi
+
 
 #Prepare for the build dir
 mkdir -p $TEMP_DIR
