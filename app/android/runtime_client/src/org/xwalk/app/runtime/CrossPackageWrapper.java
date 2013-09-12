@@ -17,16 +17,27 @@ public abstract class CrossPackageWrapper {
     private Class<?> mTargetClass;
     private Constructor<?> mCreator;
     private CrossPackageWrapperExceptionHandler mExceptionHandler;
+    private boolean mLibraryEmbedded;
 
     public CrossPackageWrapper(Context ctx, String className,
             CrossPackageWrapperExceptionHandler handler, Class<?>... parameters) {
+        try {
+            mTargetClass = ctx.getClassLoader().loadClass(className);
+            mLibraryEmbedded = true;
+        } catch (ClassNotFoundException e) {
+            mLibraryEmbedded = false;
+        }
         mExceptionHandler = handler;
         try {
-            mLibCtx = ctx.createPackageContext(
-                    LIBRARY_APK_PACKAGE_NAME,
-                    Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-            mTargetClass =
-                    mLibCtx.getClassLoader().loadClass(className);
+            if (mLibraryEmbedded) {
+                mLibCtx = ctx;
+            } else {
+                mLibCtx = ctx.createPackageContext(
+                        LIBRARY_APK_PACKAGE_NAME,
+                        Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+                mTargetClass =
+                        mLibCtx.getClassLoader().loadClass(className);
+            }
             mCreator = mTargetClass.getConstructor(parameters);
         } catch (NameNotFoundException e) {
             handleException(e);
@@ -59,10 +70,14 @@ public abstract class CrossPackageWrapper {
     }
     
     public void handleException(Exception e) {
+        // mExceptionHandler is for handling runtime library not found or
+        // not match, if library is embedded, should not invoke it.
+        if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
     }
     
     public void handleException(String e) {
+        if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
     }
 
