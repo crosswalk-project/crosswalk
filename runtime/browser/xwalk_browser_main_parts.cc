@@ -242,7 +242,17 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     if (args.size() > 0)
       id = std::string(args[0].begin(), args[0].end());
     if (xwalk::application::Application::IsIDValid(id)) {
-      run_default_message_loop_ = service->Launch(id);
+      if (command_line->HasSwitch(switches::kUninstall)) {
+        if (!service->Uninstall(id))
+          LOG(ERROR) << "[ERR] An error occurred during"
+                        "uninstalling application "
+                     << id;
+        else
+          LOG(INFO) << "[OK] Application uninstalled successfully: " << id;
+        run_default_message_loop_ = false;
+      } else {
+        run_default_message_loop_ = service->Launch(id);
+      }
       return;
     }
     base::FilePath path;

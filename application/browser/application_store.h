@@ -38,6 +38,8 @@ class ApplicationStore: public DBStore::Observer {
 
   bool AddApplication(scoped_refptr<const Application> application);
 
+  bool RemoveApplication(const std::string& id);
+
   bool Contains(const std::string& app_id) const;
 
   scoped_refptr<const Application> GetApplicationByID(

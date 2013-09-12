@@ -207,6 +207,21 @@ bool DBStoreJsonImpl::Insert(const Application* application,
   return true;
 }
 
+bool DBStoreJsonImpl::Remove(const std::string& key) {
+  if (!db_->HasKey(key)) {
+    LOG(ERROR) << "Database key " << key << " is invalid.";
+    return false;
+  }
+
+  if (!db_->Remove(key, NULL)) {
+    LOG(ERROR) << "Cannot remove the record " << key
+               << " from database.";
+    return false;
+  }
+  ReportValueChanged(key, NULL);
+  return true;
+}
+
 bool DBStoreJsonImpl::SerializeData(std::string* output) {
   JSONStringValueSerializer serializer(output);
   serializer.set_pretty_print(true);
