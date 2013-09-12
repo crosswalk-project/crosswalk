@@ -53,7 +53,8 @@ class XWalkExtensionProcess : public IPC::Listener,
   // Handlers for IPC messages from XWalkExtensionProcessHost.
   void OnRegisterExtensions(const base::FilePath& extension_path);
 
-  void CreateChannel();
+  void CreateBrowserProcessChannel();
+  void CreateRenderProcessChannel();
 
   base::WaitableEvent shutdown_event_;
   base::Thread io_thread_;

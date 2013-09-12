@@ -24,7 +24,8 @@ XWalkExtensionProcess::XWalkExtensionProcess()
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
 
-  CreateChannel();
+  CreateBrowserProcessChannel();
+  CreateRenderProcessChannel();
 }
 
 XWalkExtensionProcess::~XWalkExtensionProcess() {
@@ -51,19 +52,20 @@ void XWalkExtensionProcess::OnRegisterExtensions(
   RegisterExternalExtensionsInDirectory(&extensions_server_, path);
 }
 
-void XWalkExtensionProcess::CreateChannel() {
-  // Setup BrowserProcess channel.
+void XWalkExtensionProcess::CreateBrowserProcessChannel() {
   std::string channel_id =
       CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
           switches::kProcessChannelID);
   browser_process_channel_.reset(new IPC::SyncChannel(channel_id,
       IPC::Channel::MODE_CLIENT, this, io_thread_.message_loop_proxy(),
       true, &shutdown_event_));
+}
 
-  // Setup RenderProcess channel.
+void XWalkExtensionProcess::CreateRenderProcessChannel() {
   IPC::ChannelHandle handle(IPC::Channel::GenerateVerifiedChannelID(
       std::string()));
   rp_channel_handle_ = handle;
+
   render_process_channel_.reset(new IPC::SyncChannel(rp_channel_handle_,
       IPC::Channel::MODE_SERVER, &extensions_server_,
       io_thread_.message_loop_proxy(), true, &shutdown_event_));

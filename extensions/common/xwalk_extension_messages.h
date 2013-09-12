@@ -47,8 +47,8 @@ IPC_MESSAGE_CONTROL1(XWalkExtensionClientMsg_InstanceDestroyed,  // NOLINT(*)
 IPC_MESSAGE_CONTROL1(XWalkExtensionProcessMsg_RegisterExtensions,  // NOLINT(*)
                    base::FilePath /* extensions path */)
 
-IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
+IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated, // NOLINT(*)
                      IPC::ChannelHandle /* channel id */)
 
-IPC_MESSAGE_CONTROL1(XWalkViewMsg_ExtensionProcessChannelCreated,
+IPC_MESSAGE_CONTROL1(XWalkViewMsg_ExtensionProcessChannelCreated, // NOLINT(*)
                      IPC::ChannelHandle /* channel id */)

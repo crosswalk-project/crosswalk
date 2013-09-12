@@ -53,9 +53,13 @@ class XWalkExtensionProcessHost
   // Message Handlers.
   void OnRenderChannelCreated(const IPC::ChannelHandle& channel_id);
 
+  void SendChannelHandleToRenderProcess();
+
   scoped_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;
   content::RenderProcessHost* render_process_host_;
+
+  bool is_extension_process_channel_ready_;
 };
 
 }  // namespace extensions

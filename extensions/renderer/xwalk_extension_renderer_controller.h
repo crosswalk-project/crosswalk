@@ -61,7 +61,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   base::WaitableEvent shutdown_event_;
   scoped_ptr<IPC::SyncChannel> extension_process_channel_;
-  //FIXME(jeez): remove this
+  // FIXME(jeez): remove this
   scoped_ptr<DummyListener> dummy_listener_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
