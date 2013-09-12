@@ -12,6 +12,8 @@ import shutil
 import subprocess
 import sys
 
+from customize import ReplaceInvalidChars
+
 def Which(name):
   """Search PATH for executable files with the given name."""
   result = []
@@ -310,6 +312,9 @@ def main(argv):
                  'please use "--app-url" option; If the entry is local, '
                  'please use "--app-root" and '
                  '"--app-local-path" options together!')
+
+  options.name = ReplaceInvalidChars(options.name)
+  options.package = ReplaceInvalidChars(options.package)
 
   try:
     Customize(options)
