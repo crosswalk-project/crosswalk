@@ -85,11 +85,12 @@ bool XWalkExtensionService::RegisterExtension(
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
     const base::FilePath& path) {
-  RegisterExternalExtensionsInDirectory(
-      in_process_extensions_server_.get(), path);
-
-  if (extension_process_host_)
+  if (extension_process_host_) {
     extension_process_host_->RegisterExternalExtensions(path);
+  } else {
+    RegisterExternalExtensionsInDirectory(in_process_extensions_server_.get(),
+                                          path);
+  }
 }
 
 void XWalkExtensionService::OnRenderProcessHostCreated(
