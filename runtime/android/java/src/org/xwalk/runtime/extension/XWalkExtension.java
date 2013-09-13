@@ -17,9 +17,6 @@ public abstract class XWalkExtension {
     // The unique name for this extension.
     protected String mName;
 
-    // The version of API.
-    protected String mApiVersion;
-
     // The JavaScript code stub. Will be injected to JS engine.
     protected String mJsApi;
 
@@ -36,9 +33,8 @@ public abstract class XWalkExtension {
      * @param jsApi the code stub of JavaScript for this extension.
      * @param context the extension context.
      */
-    public XWalkExtension(String name, String apiVersion, String jsApi, XWalkExtensionContext context) {
+    public XWalkExtension(String name, String jsApi, XWalkExtensionContext context) {
         mName = name;
-        mApiVersion = apiVersion;
         mJsApi = jsApi;
         mExtensionContext = context;
         mRegisteredId = mExtensionContext.registerExtension(this);
@@ -50,14 +46,6 @@ public abstract class XWalkExtension {
      */
     public String getExtensionName() {
         return mName;
-    }
-
-    /**
-     * Get the api name of extension.
-     * @return the api version.
-     */
-    public String getApiVersion() {
-        return mApiVersion;
     }
 
     /**
@@ -82,7 +70,8 @@ public abstract class XWalkExtension {
      * message.
      * @param message the message from JavaScript code.
      */
-    public void onSyncMessage(String message) {
+    public String onSyncMessage(String message) {
+        return null;
     }
 
     /**

@@ -24,10 +24,14 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     public XWalkCoreProviderImpl(Context context, Activity activity) {
         super(context, activity);
         mContext = context;
+        init(context, activity);
+    }
 
+    public void init(Context context, Activity activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
         mXwalkView = new XWalkView(context, activity);
+        super.init(context, activity);
     }
 
     @Override

@@ -37,6 +37,7 @@
         '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
         '../ui/ui.gyp:ui_java',
+        'xwalk_core_extensions_java',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/java',
