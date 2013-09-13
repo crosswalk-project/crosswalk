@@ -29,6 +29,12 @@ class ListValue;
 class Version;
 }
 
+#if defined(OS_TIZEN_MOBILE)
+namespace tizen {
+class AppcoreContext;
+}
+#endif
+
 namespace xwalk {
 namespace application {
 
@@ -175,6 +181,10 @@ class Application : public base::RefCountedThreadSafe<Application> {
   // initialization happens from the same thread (this can happen when certain
   // parts of the initialization process need information from previous parts).
   base::ThreadChecker thread_checker_;
+
+#if defined(OS_TIZEN_MOBILE)
+  scoped_ptr<tizen::AppcoreContext> appcore_context_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };
