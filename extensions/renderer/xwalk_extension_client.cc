@@ -13,8 +13,8 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionClient::XWalkExtensionClient(IPC::Sender* sender)
-    : sender_(sender),
+XWalkExtensionClient::XWalkExtensionClient()
+    : sender_(0),
       next_instance_id_(0) {
 }
 

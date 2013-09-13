@@ -30,8 +30,6 @@ class WebFrame;
 namespace xwalk {
 namespace extensions {
 
-class DummyListener;
-
 class XWalkExtensionClient;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
@@ -58,11 +56,10 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   void OnExtensionProcessChannelCreated(const IPC::ChannelHandle& handle);
 
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
+  scoped_ptr<XWalkExtensionClient> external_extensions_client_;
 
   base::WaitableEvent shutdown_event_;
   scoped_ptr<IPC::SyncChannel> extension_process_channel_;
-  // FIXME(jeez): remove this
-  scoped_ptr<DummyListener> dummy_listener_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

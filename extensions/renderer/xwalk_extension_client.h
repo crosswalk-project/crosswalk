@@ -5,8 +5,8 @@
 #ifndef XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_CLIENT_H_
 
-#include <map>
 #include <stdint.h>
+#include <map>
 #include <string>
 
 #include "base/memory/scoped_ptr.h"
@@ -31,7 +31,7 @@ class XWalkModuleSystem;
 // XWalkExtensionServer through an IPC channel.
 class XWalkExtensionClient : public IPC::Listener {
  public:
-  explicit XWalkExtensionClient(IPC::Sender* sender);
+  explicit XWalkExtensionClient();
   virtual ~XWalkExtensionClient();
 
   // IPC::Listener Implementation.
@@ -44,6 +44,8 @@ class XWalkExtensionClient : public IPC::Listener {
   void PostMessageToNative(int64_t instance_id, scoped_ptr<base::Value> msg);
   scoped_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
       scoped_ptr<base::Value> msg);
+
+  void Initialize(IPC::Sender* sender) { sender_ = sender; }
 
  private:
   XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,

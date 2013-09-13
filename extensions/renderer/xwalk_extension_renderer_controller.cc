@@ -29,27 +29,6 @@ namespace extensions {
 
 const GURL kAboutBlankURL = GURL("about:blank");
 
-// FIXME(jeez): Remove this.
-class DummyListener : public IPC::Listener {
- public:
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
-    bool handled = true;
-    IPC_BEGIN_MESSAGE_MAP(DummyListener, message)
-      IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
-          OnRegisterExtension)
-      IPC_MESSAGE_UNHANDLED(handled = false)
-    IPC_END_MESSAGE_MAP()
-
-    return handled;
-  }
-
-  void OnRegisterExtension(const std::string& name, const std::string& api) {
-    VLOG(1) << "DummyListener::OnRegisterExtension: " << name;
-  }
-
-  virtual ~DummyListener() {}
-};
-
 XWalkExtensionRendererController::XWalkExtensionRendererController()
     : shutdown_event_(false, false) {
   content::RenderThread* thread = content::RenderThread::Get();
@@ -58,11 +37,8 @@ XWalkExtensionRendererController::XWalkExtensionRendererController()
   // extension helpers, remove this v8::Extension.
   thread->RegisterExtension(new v8::Extension("xwalk", kSource_xwalk_api));
 
-  in_browser_process_extensions_client_.reset(new XWalkExtensionClient(
-      thread->GetChannel()));
-
-  // FIXME(jeez): Remove this.
-  dummy_listener_.reset(new DummyListener());
+  in_browser_process_extensions_client_.reset(new XWalkExtensionClient());
+  in_browser_process_extensions_client_->Initialize(thread->GetChannel());
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {
@@ -82,6 +58,9 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
       module_system);
+
+  if (external_extensions_client_)
+    external_extensions_client_->CreateRunnersForModuleSystem(module_system);
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
@@ -105,10 +84,14 @@ bool XWalkExtensionRendererController::OnControlMessageReceived(
 
 void XWalkExtensionRendererController::OnExtensionProcessChannelCreated(
     const IPC::ChannelHandle& handle) {
+  external_extensions_client_.reset(new XWalkExtensionClient());
+
   extension_process_channel_.reset(new IPC::SyncChannel(handle,
-      IPC::Channel::MODE_CLIENT, dummy_listener_.get(),
+      IPC::Channel::MODE_CLIENT, external_extensions_client_.get(),
       content::RenderThread::Get()->GetIOMessageLoopProxy(), true,
       &shutdown_event_));
+
+  external_extensions_client_->Initialize(extension_process_channel_.get());
 }
 
 void XWalkExtensionRendererController::OnRenderProcessShutdown() {
