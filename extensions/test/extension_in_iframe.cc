@@ -112,8 +112,9 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
       base::FilePath().AppendASCII("iframe_using_document_write.html"));
 
   for (int i = 0; i < 5; i++) {
+    content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
     xwalk_test_utils::NavigateToURL(runtime(), url);
-    EXPECT_EQ(kPassString, runtime()->web_contents()->GetTitle());
+    EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 }
 
