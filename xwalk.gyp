@@ -58,6 +58,7 @@
       'includes': [
         'extensions/extensions.gypi',
         'experimental/dialog/dialog.gypi',
+        'sysapps/sysapps.gypi',
       ],
       'sources': [
         'runtime/app/xwalk_main_delegate.cc',
