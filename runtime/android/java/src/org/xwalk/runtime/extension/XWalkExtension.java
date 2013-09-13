@@ -57,15 +57,15 @@ public abstract class XWalkExtension {
     }
 
     /**
-     * JavaScript call into Java code. The message contains
-     * the JavaScript function name and parameters.
-     * The message format should be like below:
+     * JavaScript calls into Java code. The message is handled by
+     * the extension implementation. The inherited classes should
+     * override and add its implementation.
      * @param message the message from JavaScript code.
      */
     public abstract void onMessage(String message);
 
     /**
-     * Synchronized JavaScript call into Java code. Similar to
+     * Synchronized JavaScript calls into Java code. Similar to
      * onMessage. The only difference is it's a synchronized
      * message.
      * @param message the message from JavaScript code.
@@ -76,6 +76,8 @@ public abstract class XWalkExtension {
 
     /**
      * Post messages to JavaScript via extension's context.
+     * It's used by child classes to post message from Java side
+     * to JavaScript side.
      * @param message the message to be passed to Javascript.
      */
     public void postMessage(String message) {
@@ -101,7 +103,7 @@ public abstract class XWalkExtension {
     }
 
     /**
-     * Tell extension that one activity exists so that it can know the result code
+     * Tell extension that one activity exists so that it can know the result
      * of the exit code.
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

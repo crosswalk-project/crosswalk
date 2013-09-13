@@ -12,6 +12,10 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.Class;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -25,6 +29,9 @@ import org.xwalk.runtime.XWalkRuntimeViewProvider;
 public class XWalkExtensionManager {
     private final static String TAG = "XWalkExtensionManager";
     private final static String EXTENSION_CONFIG_FILE = "extensions-config.json";
+    // This class name is from runtime client. Need to keep consistency with it.
+    private final static String EXTENSION_CONTEXT_CLIENT_CLASS_NAME =
+            "org.xwalk.app.runtime.extension.XWalkExtensionContextClient";
 
     private Context mContext;
     private Activity mActivity;
@@ -111,6 +118,11 @@ public class XWalkExtensionManager {
             return;
         }
 
+        // Initialize the context for external extensions.
+        XWalkExtensionContextWrapper contextWrapper =
+                new XWalkExtensionContextWrapper(mExtensionContextImpl);
+        Object contextClient = createExtensionContextClient(contextWrapper);
+
         try {
             JSONArray jsonFeatures = new JSONArray(configFileContent);
             int extensionCount = jsonFeatures.length();
@@ -118,11 +130,19 @@ public class XWalkExtensionManager {
                 JSONObject jsonObject = jsonFeatures.getJSONObject(i);
                 String name = jsonObject.getString("name");
                 String className =  jsonObject.getString("class");
-                String apiVersion = jsonObject.getString("version");
-                String jsApi = jsonObject.getString("js_api");
+                String jsApiFile = jsonObject.getString("js_api");
 
-                if (name != null && className != null && apiVersion != null && jsApi != null) {
-                    createExternalExtension(name, className, apiVersion, jsApi, mExtensionContextImpl);
+                // Load the content of the JavaScript file.
+                String jsApi;
+                try {
+                    jsApi = getAssetsFileContent(mActivity.getAssets(), jsApiFile);
+                } catch (IOException e) {
+                    Log.e(TAG, "Failed to read the file " + jsApiFile);
+                    return;
+                }
+
+                if (name != null && className != null && jsApi != null) {
+                    createExternalExtension(name, className, jsApi, contextClient, contextWrapper);
                 }
             }
         } catch (JSONException e) {
@@ -147,8 +167,49 @@ public class XWalkExtensionManager {
         return result;
     }
 
-    private void createExternalExtension(String name, String className, String apiVersion, String jsApi,
-            XWalkExtensionContext extensionContext) {
-        // TODO(gaochun): Implement external extension with bridge classes.
+    private Object createExtensionContextClient(XWalkExtensionContextWrapper contextWrapper) {
+        Activity activity = contextWrapper.getActivity();
+        try {
+            Class<?> clazz = activity.getClassLoader().loadClass(EXTENSION_CONTEXT_CLIENT_CLASS_NAME);
+            Constructor<?> constructor = clazz.getConstructor(Activity.class, Object.class);
+            return constructor.newInstance(activity, contextWrapper);
+        } catch (ClassNotFoundException e) {
+            handleException(e);
+        } catch (IllegalAccessException e) {
+            handleException(e);
+        } catch (InstantiationException e) {
+            handleException(e);
+        } catch (InvocationTargetException e) {
+            handleException(e);
+        } catch (NoSuchMethodException e) {
+            handleException(e);
+        }
+        return null;
+    }
+
+    private void createExternalExtension(String name, String className, String jsApi,
+            Object contextClient, XWalkExtensionContextWrapper contextWrapper) {
+        Activity activity = contextWrapper.getActivity();
+        try {
+            Class<?> clazz = activity.getClassLoader().loadClass(className);
+            Constructor<?> constructor = clazz.getConstructor(String.class,
+                    String.class, contextClient.getClass());
+            constructor.newInstance(name, jsApi, contextClient);
+        } catch (ClassNotFoundException e) {
+            handleException(e);
+        } catch (IllegalAccessException e) {
+            handleException(e);
+        } catch (InstantiationException e) {
+            handleException(e);
+        } catch (InvocationTargetException e) {
+            handleException(e);
+        } catch (NoSuchMethodException e) {
+            handleException(e);
+        }
+    }
+
+    private static void handleException(Exception e) {
+        // TODO(yongsheng): Handle exceptions here.
+        Log.e(TAG, "Error in calling methods of external extensions. " + e.toString());
     }
 }
