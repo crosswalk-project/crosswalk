@@ -2,6 +2,11 @@
 <head>
 <title>XWalk Remote Debugging</title>
 <style>
+  a div {
+    background: no-repeat 0;
+    background-size: 16px;
+    padding: 2px 0px 0px 20px;
+  }
 </style>
 
 <script>
@@ -33,8 +38,8 @@ function appendItem(itemObject) {
   }
 
   var text = document.createElement("div");
-  if (itemObject.title)
-    text.innerText = itemObject.title;
+  if (frontendRef.title)
+    text.innerText = frontendRef.title;
   else
     text.innerText = "(untitled)";
   text.style.cssText = "background-image:url(" + itemObject.faviconUrl + ")";
