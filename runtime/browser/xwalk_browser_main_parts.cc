@@ -20,6 +20,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -119,6 +120,10 @@ void SetXWalkCommandLineFlags() {
 #if defined(OS_ANDROID)
   // Enable WebGL on all platforms (enabled on non-Android by default).
   command_line->AppendSwitch(switches::kEnableExperimentalWebGL);
+
+  // Disable ExtensionProcess for Android. External extensions will run
+  // in the BrowserProcess (in process mode).
+  command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
 #endif
 
   // FIXME: Add comment why this is needed on Android and Tizen.
