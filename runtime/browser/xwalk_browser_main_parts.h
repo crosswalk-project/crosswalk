@@ -21,6 +21,8 @@ class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
 
+void SetXWalkCommandLineFlags();
+
 class XWalkBrowserMainParts : public content::BrowserMainParts {
  public:
   explicit XWalkBrowserMainParts(
