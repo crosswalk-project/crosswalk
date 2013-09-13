@@ -5,6 +5,7 @@
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
 #include "xwalk/jsapi/sysapps_raw_socket.h"
+#include "xwalk/sysapps/raw_socket/tcp_socket_object.h"
 
 // This will be generated from common_api.js and raw_socket_api.js.
 extern const char kSource_common_api[];
@@ -39,6 +40,23 @@ XWalkExtensionInstance* RawSocketExtension::CreateInstance(
 RawSocketInstance::RawSocketInstance(
     const XWalkExtension::PostMessageCallback& post_message)
     : BindingObjectStore(post_message) {
+  RegisterFunction("TCPSocketConstructor",
+                   &RawSocketInstance::OnTCPSocketConstructor);
+}
+
+void RawSocketInstance::OnTCPSocketConstructor(const FunctionInfo& info) {
+  scoped_ptr<TCPSocketConstructor::Params>
+      params(TCPSocketConstructor::Params::Create(*info.arguments));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
+    return;
+  }
+
+  scoped_ptr<BindingObject> obj(new TCPSocketObject);
+  obj->set_instance(this);
+
+  AddBindingObject(params->object_id, obj.Pass());
 }
 
 }  // namespace sysapps

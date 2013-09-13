@@ -34,6 +34,9 @@ class RawSocketExtension : public XWalkInternalExtension {
 class RawSocketInstance : public BindingObjectStore {
  public:
   RawSocketInstance(const XWalkExtension::PostMessageCallback& post_message);
+
+ private:
+  void OnTCPSocketConstructor(const FunctionInfo& info);
 };
 
 }  // namespace sysapps
