@@ -55,7 +55,9 @@
   </path>
   <script language="javascript">
     var before = project.getProperty("ADDITIONAL_RES_PACKAGES");
-    project.setProperty("project.library.packages", before.replaceAll(" ", ";"));
+    if (before) {
+        project.setProperty("project.library.packages", before.replaceAll(" ", ";"));
+    }
   </script>
 
   <path id="project.library.manifest.file.path">
