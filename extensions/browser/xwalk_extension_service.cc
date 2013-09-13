@@ -58,7 +58,7 @@ XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL),
       in_process_server_message_filter_(NULL) {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkEnableExtensionProcess))
+  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
     extension_process_host_.reset(new XWalkExtensionProcessHost());
 
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
