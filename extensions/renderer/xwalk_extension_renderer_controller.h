@@ -19,7 +19,7 @@ class RenderView;
 }
 
 namespace IPC {
-class ChannelHandle;
+struct ChannelHandle;
 class SyncChannel;
 }
 
