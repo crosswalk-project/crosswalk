@@ -7,6 +7,8 @@
 #include "base/values.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
+#include "ipc/ipc_channel_handle.h"
+#include "ipc/ipc_listener.h"
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
@@ -25,7 +27,31 @@ extern const char kSource_xwalk_api[];
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionRendererController::XWalkExtensionRendererController() {
+const GURL kAboutBlankURL = GURL("about:blank");
+
+// FIXME(jeez): Remove this.
+class DummyListener : public IPC::Listener {
+ public:
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
+    bool handled = true;
+    IPC_BEGIN_MESSAGE_MAP(DummyListener, message)
+      IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
+          OnRegisterExtension)
+      IPC_MESSAGE_UNHANDLED(handled = false)
+    IPC_END_MESSAGE_MAP()
+
+    return handled;
+  }
+
+  void OnRegisterExtension(const std::string& name, const std::string& api) {
+    VLOG(1) << "DummyListener::OnRegisterExtension: " << name;
+  }
+
+  virtual ~DummyListener() {}
+};
+
+XWalkExtensionRendererController::XWalkExtensionRendererController()
+    : shutdown_event_(false, false) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
   // TODO(cmarcelo): Once we have a better solution for the internal
@@ -34,6 +60,9 @@ XWalkExtensionRendererController::XWalkExtensionRendererController() {
 
   in_browser_process_extensions_client_.reset(new XWalkExtensionClient(
       thread->GetChannel()));
+
+  // FIXME(jeez): Remove this.
+  dummy_listener_.reset(new DummyListener());
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {
@@ -62,8 +91,28 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
+  if (in_browser_process_extensions_client_->OnMessageReceived(message))
+    return true;
 
-  return in_browser_process_extensions_client_->OnMessageReceived(message);
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_ExtensionProcessChannelCreated,
+        OnExtensionProcessChannelCreated)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
+}
+
+void XWalkExtensionRendererController::OnExtensionProcessChannelCreated(
+    const IPC::ChannelHandle& handle) {
+  extension_process_channel_.reset(new IPC::SyncChannel(handle,
+      IPC::Channel::MODE_CLIENT, dummy_listener_.get(),
+      content::RenderThread::Get()->GetIOMessageLoopProxy(), true,
+      &shutdown_event_));
+}
+
+void XWalkExtensionRendererController::OnRenderProcessShutdown() {
+  shutdown_event_.Signal();
 }
 
 }  // namespace extensions

@@ -8,6 +8,7 @@
 #include "base/values.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
+#include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
 #include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
@@ -26,7 +27,6 @@ namespace extensions {
 class XWalkExtension;
 class XWalkExtensionRunner;
 
-class DummySender;
 
 // This class represents the Extension Process itself.
 // It not only represents the extension side of the browser <->
@@ -53,15 +53,15 @@ class XWalkExtensionProcess : public IPC::Listener,
   // Handlers for IPC messages from XWalkExtensionProcessHost.
   void OnRegisterExtensions(const base::FilePath& extension_path);
 
-  void CreateChannel();
+  void CreateBrowserProcessChannel();
+  void CreateRenderProcessChannel();
 
   base::WaitableEvent shutdown_event_;
   base::Thread io_thread_;
   scoped_ptr<IPC::SyncChannel> browser_process_channel_;
   XWalkExtensionServer extensions_server_;
-
-  // FIXME(jeez): Remove this.
-  scoped_ptr<DummySender> dummy_sender_;
+  scoped_ptr<IPC::SyncChannel> render_process_channel_;
+  IPC::ChannelHandle rp_channel_handle_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionProcess);
 };

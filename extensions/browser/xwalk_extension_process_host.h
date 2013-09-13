@@ -7,6 +7,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
+#include "ipc/ipc_channel_handle.h"
 
 namespace base {
 class FilePath;
@@ -49,7 +50,16 @@ class XWalkExtensionProcessHost
   virtual void OnProcessCrashed(int exit_code) OVERRIDE;
   virtual void OnProcessLaunched() OVERRIDE;
 
+  // Message Handlers.
+  void OnRenderChannelCreated(const IPC::ChannelHandle& channel_id);
+
+  void SendChannelHandleToRenderProcess();
+
   scoped_ptr<content::BrowserChildProcessHost> process_;
+  IPC::ChannelHandle ep_rp_channel_handle_;
+  content::RenderProcessHost* render_process_host_;
+
+  bool is_extension_process_channel_ready_;
 };
 
 }  // namespace extensions
