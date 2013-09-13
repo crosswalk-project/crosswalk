@@ -28,7 +28,10 @@ BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
 BuildRequires:  which
+BuildRequires:  pkgconfig(appcore-efl)
+BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(cairo)
+BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(freetype2)
