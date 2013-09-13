@@ -206,6 +206,11 @@ def CopyXwalkJavaSource(project_source, out_directory):
   target_path = os.path.join(target_package_directory, 'core')
   shutil.copytree(source_path, target_path)
 
+  source_path = os.path.join(project_source, 'xwalk', 'extensions', 'android',
+                             'java', 'src', 'org', 'xwalk', 'core', 'extensions')
+  target_path = os.path.join(target_package_directory, 'core', 'extensions')
+  shutil.copytree(source_path, target_path)
+
 
 def CopyBinaries(out_directory):
   print 'Copying binaries...'
@@ -237,7 +242,6 @@ def CopyBinaries(out_directory):
   source_dir = os.path.join(out_directory, XWALK_CORE_SHELL_APK, 'libs')
   target_dir = libs_directory
   distutils.dir_util.copy_tree(source_dir, target_dir)
-
 
 
 def CopyResources(out_directory):
