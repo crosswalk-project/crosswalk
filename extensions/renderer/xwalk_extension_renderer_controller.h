@@ -10,11 +10,17 @@
 #include <vector>
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/synchronization/waitable_event.h"
 #include "content/public/renderer/render_process_observer.h"
 #include "v8/include/v8.h"
 
 namespace content {
 class RenderView;
+}
+
+namespace IPC {
+class ChannelHandle;
+class SyncChannel;
 }
 
 namespace WebKit {
@@ -23,6 +29,8 @@ class WebFrame;
 
 namespace xwalk {
 namespace extensions {
+
+class DummyListener;
 
 class XWalkExtensionClient;
 
@@ -43,9 +51,18 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   // RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void OnRenderProcessShutdown() OVERRIDE;
 
  private:
+  // Message Handlers.
+  void OnExtensionProcessChannelCreated(const IPC::ChannelHandle& handle);
+
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
+
+  base::WaitableEvent shutdown_event_;
+  scoped_ptr<IPC::SyncChannel> extension_process_channel_;
+  // FIXME(jeez): remove this
+  scoped_ptr<DummyListener> dummy_listener_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

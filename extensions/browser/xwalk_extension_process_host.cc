@@ -11,6 +11,7 @@
 #include "base/files/file_path.h"
 #include "content/public/browser/browser_child_process_host.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/process_type.h"
 #include "content/public/common/content_switches.h"
@@ -43,7 +44,10 @@ class ExtensionSandboxedProcessLauncherDelegate
 };
 #endif
 
-XWalkExtensionProcessHost::XWalkExtensionProcessHost() {
+XWalkExtensionProcessHost::XWalkExtensionProcessHost()
+    : ep_rp_channel_handle_(""),
+      render_process_host_(0),
+      is_extension_process_channel_ready_(false) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
       base::Unretained(this)));
@@ -95,7 +99,12 @@ void XWalkExtensionProcessHost::RegisterExternalExtensions(
 }
 
 void XWalkExtensionProcessHost::OnRenderProcessHostCreated(
-    content::RenderProcessHost* render_process_host) {}
+    content::RenderProcessHost* render_process_host) {
+  render_process_host_ = render_process_host;
+  CHECK(render_process_host_);
+
+  SendChannelHandleToRenderProcess();
+}
 
 void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
@@ -109,7 +118,14 @@ void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
 }
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
-  return false;
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcessHost, message)
+    IPC_MESSAGE_HANDLER(
+        XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
+        OnRenderChannelCreated)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
 }
 
 void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
@@ -119,6 +135,28 @@ void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
 void XWalkExtensionProcessHost::OnProcessLaunched() {
   VLOG(1) << "\n\nExtensionProcess was started!";
 }
+
+void XWalkExtensionProcessHost::OnRenderChannelCreated(
+    const IPC::ChannelHandle& handle) {
+  ep_rp_channel_handle_ = handle;
+  is_extension_process_channel_ready_ = true;
+
+  SendChannelHandleToRenderProcess();
+}
+
+void XWalkExtensionProcessHost::SendChannelHandleToRenderProcess() {
+  // It can be that the EP channel got created before the RenderProcessHost.
+  if (!render_process_host_)
+    return;
+
+  // It can be that the RenderProcessHost got created before the EP channel.
+  if (!is_extension_process_channel_ready_)
+    return;
+
+  render_process_host_->Send(new XWalkViewMsg_ExtensionProcessChannelCreated(
+      ep_rp_channel_handle_));
+}
+
 
 }  // namespace extensions
 }  // namespace xwalk

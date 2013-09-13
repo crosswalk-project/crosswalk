@@ -216,6 +216,10 @@ void XWalkExtensionServer::Invalidate() {
   sender_ = 0;
 }
 
+void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
+  RegisterExtensionsInRenderProcess();
+}
+
 void RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir) {
   CHECK(server);
