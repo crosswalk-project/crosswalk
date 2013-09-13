@@ -9,11 +9,10 @@
 #include <map>
 #include <string>
 
-#include "base/synchronization/cancellation_flag.h"
+#include "base/synchronization/lock.h"
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
-#include "xwalk/extensions/common/xwalk_extension_runner.h"
 
 namespace base {
 class FilePath;
@@ -31,12 +30,14 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtension;
+class XWalkExtensionInstance;
 
-// This class holds the Native context of Extensions. It can live in the Browser
-// Process (for in-process extensions) or on the Extension Process. It
-// communicates with its associated XWalkExtensionClient through an IPC channel.
-class XWalkExtensionServer : public IPC::Listener,
-                             public XWalkExtensionRunner::Client {
+// Manages the instances for a set of extensions. It communicates with one
+// XWalkExtensionClient by means of IPC channel.
+//
+// This class is used both by in-process extensions running in the Browser
+// Process, and by the external extensions running in the Extension Process.
+class XWalkExtensionServer : public IPC::Listener {
  public:
   XWalkExtensionServer();
   virtual ~XWalkExtensionServer();
@@ -45,7 +46,7 @@ class XWalkExtensionServer : public IPC::Listener,
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
   virtual void OnChannelConnected(int32 peer_pid) OVERRIDE;
 
-  void Initialize(IPC::Sender* sender) { sender_ = sender; }
+  void Initialize(IPC::Sender* sender);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
@@ -61,21 +62,17 @@ class XWalkExtensionServer : public IPC::Listener,
   void OnSendSyncMessageToNative(int64_t instance_id,
       const base::ListValue& msg, IPC::Message* ipc_reply);
 
-  // XWalkExtensionRunner::Client implementation.
-  virtual void HandleMessageFromNative(const XWalkExtensionRunner* runner,
-                                        scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual void HandleReplyMessageFromNative(
-      scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
+  void PostMessageToJSCallback(int64_t instance_id,
+                               scoped_ptr<base::Value> msg);
 
+  base::Lock sender_lock_;
   IPC::Sender* sender_;
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
 
-  typedef std::map<int64_t, XWalkExtensionRunner*> RunnerMap;
-  RunnerMap runners_;
-
-  base::CancellationFlag sender_cancellation_flag_;
+  typedef std::map<int64_t, XWalkExtensionInstance*> InstanceMap;
+  InstanceMap instances_;
 };
 
 void RegisterExternalExtensionsInDirectory(
