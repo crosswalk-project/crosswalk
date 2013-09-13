@@ -18,7 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.XWalkRuntimeViewProvider;
-import org.xwalk.runtime.extension.api.Device;
 
 /**
  * This internal class acts a manager to manage extensions.
@@ -40,10 +39,6 @@ public class XWalkExtensionManager {
         mXwalkProvider = xwalkProvider;
         mExtensionContextImpl = new XWalkExtensionContextImpl(context, activity, this);
         mExtensions = new ArrayList<XWalkExtension>();
-
-        // TODO(gaochun): Load extensions in a callback which is invoked by runtime
-        // when the patch of extension bridge(form C++ to Java) was ready.
-        loadExtensions();
     }
 
     public XWalkExtensionContext getExtensionContext() {
@@ -59,11 +54,9 @@ public class XWalkExtensionManager {
         return mXwalkProvider.onExtensionRegistered(extension);
     }
 
-    public void unregisterExtensions() {
-        for(XWalkExtension extension: mExtensions) {
-            mXwalkProvider.onExtensionUnregistered(extension);
-        }
-        mExtensions.clear();
+    public void unregisterExtension(XWalkExtension extension) {
+        mXwalkProvider.onExtensionUnregistered(extension);
+        mExtensions.remove(extension);
     }
 
     public void onResume() {
@@ -90,7 +83,7 @@ public class XWalkExtensionManager {
         }
     }
 
-    private void loadExtensions() {
+    public void loadExtensions() {
         loadInternalExtensions();
         loadExternalExtensions();
     }
@@ -98,13 +91,14 @@ public class XWalkExtensionManager {
     private void loadInternalExtensions() {
         // Create all extension instances directly here. The internal extension will register
         // itself and add itself to XWalkExtensionManager.mExtensions automatically.
-        String jsApiContent = "";
-        try {
-            jsApiContent = getAssetsFileContent(mContext.getAssets(), Device.JS_API_PATH);
-        } catch(IOException e) {
-            Log.e(TAG, "Failed to read js API file of internal extension: Device");
-        }
-        new Device(jsApiContent, mExtensionContextImpl);
+        // The following sample shows how to create an extension that named Device:
+        //    String jsApiContent = "";
+        //    try {
+        //        jsApiContent = getAssetsFileContent(mContext.getAssets(), Device.JS_API_PATH);
+        //    } catch(IOException e) {
+        //        Log.e(TAG, "Failed to read js API file of internal extension: Device");
+        //    }
+        //    new Device(jsApiContent, mExtensionContextImpl);
     }
 
     private void loadExternalExtensions() {
