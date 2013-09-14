@@ -275,6 +275,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       id = std::string(args[0].begin(), args[0].end());
     if (xwalk::application::Application::IsIDValid(id)) {
       if (command_line->HasSwitch(switches::kUninstall)) {
+#if defined(OS_TIZEN_MOBILE)
+        std::string option(switches::kUninstall);
+        if (!HandlePackageInfo(id, option))
+          return;
+#endif
         if (!service->Uninstall(id))
           LOG(ERROR) << "[ERR] An error occurred during"
                         "uninstalling application "
@@ -295,33 +300,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
         std::string id;
         if (service->Install(path, &id)) {
 #if defined(OS_TIZEN_MOBILE)
-          // FIXME: We temporary invoke a python script until the same
-          // is implemented in C++.
-          base::FilePath tizen_install(
-              FILE_PATH_LITERAL("/usr/bin/install_into_pkginfo_db.py"));
-          if (file_util::PathExists(tizen_install)) {
-            LOG(INFO) << "Register package installation in Tizen.";
-            std::string data_path = runtime_context_->GetPath().MaybeAsASCII();
-            std::string manifest_path = runtime_context_->GetPath()
-                .AppendASCII("applications")
-                .AppendASCII(id)
-                .AppendASCII("manifest.json")
-                .MaybeAsASCII();
-            std::string cmd = "/usr/bin/env python "
-                + tizen_install.MaybeAsASCII()
-                + " -i " + manifest_path
-                + " -p " + id
-                + " -d " + data_path;
-
-            if (std::system(cmd.c_str()) == 0) {
-              LOG(INFO) << "Installed successfully on Tizen.";
-            } else {
-              LOG(ERROR) << "[ERR] An error occurred during"
-                            "installation on Tizen.";
-              run_default_message_loop_ = false;
-              return;
-            }
-          }
+          std::string option(switches::kInstall);
+          if (!HandlePackageInfo(id, option))
+            return;
 #endif  // OS_TIZEN_MOBILE
           LOG(INFO) << "[OK] Application installed: " << id;
         } else {
@@ -370,4 +351,31 @@ void XWalkBrowserMainParts::RegisterInternalExtensions() {
       new experimental::DialogExtension(runtime_registry_.get())));
 }
 
+#if defined(OS_TIZEN_MOBILE)
+bool XWalkBrowserMainParts::HandlePackageInfo(
+    const std::string& id,
+    const std::string& option) {
+  // FIXME: We temporary invoke a python script until the same
+  // is implemented in C++.
+  CommandLine command_line(
+      base::FilePath(
+          FILE_PATH_LITERAL("/usr/bin/install_into_pkginfo_db.py")));
+  command_line.AppendSwitch(option);
+  command_line.AppendSwitchASCII("pkgid", id);
+  command_line.AppendSwitchASCII(
+      "datapath", runtime_context_->GetPath().MaybeAsASCII());
+  if (file_util::PathExists(command_line.GetProgram())) {
+    if (std::system(command_line.GetCommandLineString().c_str()) == 0) {
+      LOG(INFO) << option << " successfully on Tizen.";
+    } else {
+      LOG(ERROR) << "[ERR] An error occurred during "
+                 << option << " on Tizen.";
+      run_default_message_loop_ = false;
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+#endif  // OS_TIZEN_MOBILE
 }  // namespace xwalk
