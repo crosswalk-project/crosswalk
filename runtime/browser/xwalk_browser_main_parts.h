@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_H_
 
+#include <string>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_main_parts.h"
@@ -57,11 +58,11 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void PreMainMessageLoopStartAura();
   void PostMainMessageLoopRunAura();
 #endif
-/*
+
 #if defined(OS_TIZEN_MOBILE)
-  std::string& GetGLImplementation();
+  bool HandlePackageInfo(const std::string& id, const std::string& option);
 #endif
-*/
+
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context_;
 #else
