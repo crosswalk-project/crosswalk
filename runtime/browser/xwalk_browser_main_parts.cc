@@ -172,10 +172,15 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
 #endif
 
 #if defined(OS_LINUX)
-  // FIXME: Issue 496. We need to explicitly disable sandboxing on Linux while
-  // we do not support it (ie. ship the appropriate binary), otherwise we will
-  // crash on startup.
-  CommandLine::ForCurrentProcess()->AppendSwitch(switches::kNoSandbox);
+  // FIXME: We disable the setuid sandbox on Linux because we don't ship
+  // the setuid binary. It is important to remember that the seccomp-bpf
+  // sandbox is still fully operational if supported by the kernel. See
+  // issue #496.
+  //
+  // switches::kDisableSetuidSandbox is not being used here because it
+  // doesn't have the CONTENT_EXPORT macro despite the fact it is exposed by
+  // content_switches.h.
+  CommandLine::ForCurrentProcess()->AppendSwitch("disable-setuid-sandbox");
 #endif
 }
 
