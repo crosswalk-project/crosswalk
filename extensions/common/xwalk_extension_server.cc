@@ -23,7 +23,7 @@ XWalkExtensionServer::XWalkExtensionServer()
     : sender_(NULL) {}
 
 XWalkExtensionServer::~XWalkExtensionServer() {
-  STLDeleteValues(&instances_);
+  DeleteInstanceMap();
   STLDeleteValues(&extensions_);
 }
 
@@ -59,7 +59,16 @@ void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
   instance->SetPostMessageCallback(
       base::Bind(&XWalkExtensionServer::PostMessageToJSCallback,
                  base::Unretained(this), instance_id));
-  instances_[instance_id] = instance;
+
+  instance->SetSendSyncReplyCallback(
+      base::Bind(&XWalkExtensionServer::SendSyncReplyToJSCallback,
+                 base::Unretained(this), instance_id));
+
+  InstanceExecutionData data;
+  data.instance = instance;
+  data.pending_reply = NULL;
+
+  instances_[instance_id] = data;
 }
 
 void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
@@ -71,6 +80,8 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
     return;
   }
 
+  const InstanceExecutionData& data = it->second;
+
   // The const_cast is needed to remove the only Value contained by the
   // ListValue (which is solely used as wrapper, since Value doesn't
   // have param traits for serialization) and we pass the ownership to to
@@ -79,7 +90,7 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   // can be costly depending on the size of Value.
   base::Value* value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  it->second->HandleMessage(scoped_ptr<base::Value>(value));
+  data.instance->HandleMessage(scoped_ptr<base::Value>(value));
 }
 
 void XWalkExtensionServer::Initialize(IPC::Sender* sender) {
@@ -154,14 +165,68 @@ void XWalkExtensionServer::PostMessageToJSCallback(
   Send(new XWalkExtensionClientMsg_PostMessageToJS(instance_id, wrapped_msg));
 }
 
-void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
-    const base::ListValue& msg, IPC::Message* ipc_reply) {
-  InstanceMap::const_iterator it = instances_.find(instance_id);
+void XWalkExtensionServer::SendSyncReplyToJSCallback(
+    int64_t instance_id, scoped_ptr<base::Value> reply) {
+
+  InstanceMap::iterator it = instances_.find(instance_id);
   if (it == instances_.end()) {
     LOG(WARNING) << "Can't SendSyncMessage to invalid Extension instance id: "
                  << instance_id;
     return;
   }
+
+  InstanceExecutionData& data = it->second;
+  if (!data.pending_reply) {
+    LOG(WARNING) << "There's no pending SyncMessage for instance id: "
+                 << instance_id;
+    return;
+  }
+
+  base::ListValue wrapped_reply;
+  wrapped_reply.Append(reply.release());
+  IPC::WriteParam(data.pending_reply, wrapped_reply);
+  Send(data.pending_reply);
+
+  data.pending_reply = NULL;
+}
+
+void XWalkExtensionServer::DeleteInstanceMap() {
+  InstanceMap::iterator it = instances_.begin();
+  int pending_replies_left = 0;
+
+  for (; it != instances_.end(); ++it) {
+    delete it->second.instance;
+    if (it->second.pending_reply) {
+      pending_replies_left++;
+      delete it->second.pending_reply;
+    }
+  }
+
+  instances_.clear();
+
+  if (pending_replies_left > 0) {
+    LOG(WARNING) << pending_replies_left
+                 << " pending replies left when destroying server.";
+  }
+}
+
+void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
+    const base::ListValue& msg, IPC::Message* ipc_reply) {
+  InstanceMap::iterator it = instances_.find(instance_id);
+  if (it == instances_.end()) {
+    LOG(WARNING) << "Can't SendSyncMessage to invalid Extension instance id: "
+                 << instance_id;
+    return;
+  }
+
+  InstanceExecutionData& data = it->second;
+  if (data.pending_reply) {
+    LOG(WARNING) << "There's already a pending Sync Message for Extension instance id: "
+                 << instance_id;
+    return;
+  }
+
+  data.pending_reply = ipc_reply;
 
   // The const_cast is needed to remove the only Value contained by the
   // ListValue (which is solely used as wrapper, since Value doesn't
@@ -171,13 +236,9 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   // can be costly depending on the size of Value.
   base::Value* value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  scoped_ptr<base::Value> reply(
-      it->second->HandleSyncMessage(scoped_ptr<base::Value>(value)));
+  XWalkExtensionInstance* instance = data.instance;
 
-  base::ListValue wrapped_reply;
-  wrapped_reply.Append(reply.release());
-  IPC::WriteParam(ipc_reply, wrapped_reply);
-  Send(ipc_reply);
+  instance->HandleSyncMessage(scoped_ptr<base::Value>(value));
 }
 
 void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
@@ -187,7 +248,9 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
     return;
   }
 
-  delete it->second;
+  InstanceExecutionData& data = it->second;
+
+  delete data.instance;
   instances_.erase(it);
 
   Send(new XWalkExtensionClientMsg_InstanceDestroyed(instance_id));

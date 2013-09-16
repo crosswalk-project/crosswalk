@@ -46,30 +46,19 @@ void XWalkExternalContext::HandleMessage(scoped_ptr<base::Value> msg) {
   callback(xw_instance_, string_msg.c_str());
 }
 
-scoped_ptr<base::Value> XWalkExternalContext::HandleSyncMessage(
+void XWalkExternalContext::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
   XW_HandleSyncMessageCallback callback = extension_->handle_sync_msg_callback_;
   if (!callback) {
     LOG(WARNING) << "Ignoring sync message sent for external extension '"
                  << extension_->name() << "' which doesn't support it.";
-    return scoped_ptr<base::Value>(base::Value::CreateNullValue());
+    return;
   }
-
-  CHECK(sync_reply_.empty());
 
   std::string string_msg;
   msg->GetAsString(&string_msg);
 
-  // This flag is used to ensure that SetSyncReply() will only be calling during
-  // this callback execution.
-  is_handling_sync_msg_ = true;
   callback(xw_instance_, string_msg.c_str());
-  is_handling_sync_msg_ = false;
-
-  scoped_ptr<base::Value> reply(new base::StringValue(sync_reply_));
-  sync_reply_.clear();
-
-  return reply.Pass();
 }
 
 void XWalkExternalContext::CoreSetInstanceData(void* data) {
@@ -85,13 +74,7 @@ void XWalkExternalContext::MessagingPostMessage(const char* msg) {
 }
 
 void XWalkExternalContext::SyncMessagingSetSyncReply(const char* reply) {
-  if (!is_handling_sync_msg_) {
-    LOG(WARNING) << "Error: can't call SetSyncMessage from"
-        " Internal_SyncMessagingInterface"
-        " outside HandleSyncMessageCallback.";
-    return;
-  }
-  sync_reply_ = reply;
+  SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue(reply)));
 }
 
 }  // namespace extensions

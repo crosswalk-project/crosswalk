@@ -23,9 +23,8 @@ class EchoContext : public XWalkExtensionInstance {
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     PostMessageToJS(msg.Pass());
   }
-  virtual scoped_ptr<base::Value> HandleSyncMessage(
-      scoped_ptr<base::Value> msg) OVERRIDE {
-    return msg.Pass();
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    SendSyncReplyToJS(msg.Pass());
   }
 };
 

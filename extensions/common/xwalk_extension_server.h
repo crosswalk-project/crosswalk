@@ -55,6 +55,11 @@ class XWalkExtensionServer : public IPC::Listener {
   void Invalidate();
 
  private:
+  struct InstanceExecutionData {
+    XWalkExtensionInstance* instance;
+    IPC::Message* pending_reply;
+  };
+
   // Message Handlers
   void OnCreateInstance(int64_t instance_id, std::string name);
   void OnDestroyInstance(int64_t instance_id);
@@ -65,13 +70,18 @@ class XWalkExtensionServer : public IPC::Listener {
   void PostMessageToJSCallback(int64_t instance_id,
                                scoped_ptr<base::Value> msg);
 
+  void SendSyncReplyToJSCallback(int64_t instance_id,
+                                 scoped_ptr<base::Value> reply);
+
+  void DeleteInstanceMap();
+
   base::Lock sender_lock_;
   IPC::Sender* sender_;
 
   typedef std::map<std::string, XWalkExtension*> ExtensionMap;
   ExtensionMap extensions_;
 
-  typedef std::map<int64_t, XWalkExtensionInstance*> InstanceMap;
+  typedef std::map<int64_t, InstanceExecutionData> InstanceMap;
   InstanceMap instances_;
 };
 
