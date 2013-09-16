@@ -1,0 +1,7 @@
+The Tizen OS uses Smart Common Input Method (SCIM) and Input System Framework (ISF)
+to manage input method systems. In order to integrate Crosswalk with Tizen ISF,
+it is required to implement InputMethod interface provided by Chromium.
+
+This directory contains InputMethod interface realization as well as 
+"scim bridge" that connects Tizen input method subsystem with Chromium
+InputMethod interface.

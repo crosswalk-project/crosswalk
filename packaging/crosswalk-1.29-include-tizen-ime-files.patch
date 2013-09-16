@@ -1,0 +1,84 @@
+Author: Alexander Shalamov <alexander.shalamov@intel.com>
+This patch includes Tizen specific IME files when into chromium
+IME module when Tizen crosswalk packages are built.
+
+diff --git src/build/linux/system.gyp src/build/linux/system.gyp
+index 867553f..ea9705f 100644
+--- src/build/linux/system.gyp
++++ src/build/linux/system.gyp
+@@ -832,5 +832,26 @@
+         }],
+       ],
+     },
++    {
++      'target_name': 'scim',
++      'type': 'none',
++      'toolsets': ['host', 'target'],
++      'variables': {
++        'scim_libs': 'scim',
++      },
++      'direct_dependent_settings': {
++        'cflags': [
++          '<!@(<(pkg-config) --cflags <(scim_libs))',
++        ],
++      },
++      'link_settings': {
++        'ldflags': [
++          '<!@(<(pkg-config) --libs-only-L --libs-only-other <(scim_libs))',
++        ],
++        'libraries': [
++          '<!@(<(pkg-config) --libs-only-l <(scim_libs))', '-lscim-x11utils-1.0',
++        ],
++      },
++    },
+   ],
+ }
+diff --git src/ui/base/ime/ime.gypi src/ui/base/ime/ime.gypi
+index 5f2adc1..b420fa7 100644
+--- src/ui/base/ime/ime.gypi
++++ src/ui/base/ime/ime.gypi
+@@ -84,5 +84,19 @@
+         'input_method_tsf.h',
+       ],
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim.cc',
++        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim.h',
++        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge.cc',
++        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge.h',
++      ],
++      'dependencies': [
++        '../build/linux/system.gyp:scim',
++      ],
++      'export_dependent_settings': [
++        '../build/linux/system.gyp:scim',
++      ],
++    }],
+   ],
+ }
+diff --git src/ui/base/ime/input_method_factory.cc src/ui/base/ime/input_method_factory.cc
+index 018823f..812c0a5 100644
+--- src/ui/base/ime/input_method_factory.cc
++++ src/ui/base/ime/input_method_factory.cc
+@@ -13,6 +13,8 @@
+ #include "base/win/metro.h"
+ #include "ui/base/ime/input_method_imm32.h"
+ #include "ui/base/ime/input_method_tsf.h"
++#elif defined(OS_TIZEN_MOBILE)
++#include "xwalk/ime/tizen-scim/input_method_scim.h"
+ #else
+ #include "ui/base/ime/fake_input_method.h"
+ #endif
+@@ -45,6 +47,8 @@ InputMethod* CreateInputMethod(internal::InputMethodDelegate* delegate,
+   return new InputMethodIBus(delegate);
+ #elif defined(OS_WIN)
+   return CreateInputMethodWinInternal(delegate, widget);
++#elif defined(OS_TIZEN_MOBILE)
++  return new InputMethodScim(delegate);
+ #else
+   return new FakeInputMethod(delegate);
+ #endif
+-- 
+1.7.9.5
+
