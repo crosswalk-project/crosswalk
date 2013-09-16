@@ -12,7 +12,6 @@
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_external.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_threaded_runner.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
@@ -249,31 +248,10 @@ void RegisterExternalExtensionsInDirectory(
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
-    // FIXME(cmarcelo): Once we get rid of the current C API in favor of the new
-    // one, move this NativeLibrary manipulation back inside
-    // XWalkExternalExtension.
-    base::ScopedNativeLibrary library(extension_path);
-    if (!library.is_valid()) {
-      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
-                   << " as external extension because is not valid library.";
-      continue;
-    }
-
-    if (library.GetFunctionPointer("XW_Initialize")) {
-      scoped_ptr<XWalkExternalExtension> extension(
-          new XWalkExternalExtension(extension_path, library.Release()));
-      if (extension->is_valid())
-        server->RegisterExtension(extension.PassAs<XWalkExtension>());
-    } else if (library.GetFunctionPointer("xwalk_extension_init")) {
-      scoped_ptr<old::XWalkExternalExtension> extension(
-          new old::XWalkExternalExtension(library.Release()));
-      if (extension->is_valid())
-        server->RegisterExtension(extension.PassAs<XWalkExtension>());
-    } else {
-      LOG(WARNING) << "Ignoring " << extension_path.AsUTF8Unsafe()
-                   << " as external extension because"
-                   << " doesn't contain valid entry point.";
-    }
+    scoped_ptr<XWalkExternalExtension> extension(
+        new XWalkExternalExtension(extension_path));
+    if (extension->is_valid())
+      server->RegisterExtension(extension.PassAs<XWalkExtension>());
   }
 }
 
