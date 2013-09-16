@@ -8,7 +8,8 @@
     ],
     'sources': [
       'test/external_extension_sample.c',
-    ]
+    ],
+    'product_dir': '<(PRODUCT_DIR)/tests/extension/external_extension_sample/'
   },
   {
     'target_name': 'echo_extension',
@@ -18,7 +19,8 @@
     ],
     'sources': [
       'test/echo_extension.c',
-    ]
+    ],
+    'product_dir': '<(PRODUCT_DIR)/tests/extension/echo_extension/'
   },
   {
     'target_name': 'bad_extension',
@@ -28,7 +30,8 @@
     ],
     'sources': [
       'test/bad_extension.c',
-    ]
+    ],
+    'product_dir': '<(PRODUCT_DIR)/tests/extension/bad_extension/'
   },
   ],
 }

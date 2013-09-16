@@ -10,8 +10,8 @@ namespace switches {
 // Process patches land, we'll change this to be "disable-extension-process"
 // so that it will be enabled by default. Remember to forcely disable it for
 // Android.
-const char kXWalkEnableExtensionProcess[] =
-    "enable-extension-process";
+const char kXWalkDisableExtensionProcess[] =
+    "disable-extension-process";
 
 // Used internally to launch an extension process.
 const char kXWalkExtensionProcess[] = "xwalk-extension-process";

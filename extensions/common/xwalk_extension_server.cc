@@ -7,6 +7,8 @@
 #include "base/file_util.h"
 #include "base/files/file_enumerator.h"
 #include "base/files/file_path.h"
+#include "base/strings/string16.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -220,6 +222,18 @@ void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
   RegisterExtensionsInRenderProcess();
 }
 
+namespace {
+base::FilePath::StringType GetNativeLibraryPattern() {
+  const base::string16 library_pattern = base::GetNativeLibraryName(
+      UTF8ToUTF16("*"));
+#if defined(OS_WIN)
+  return library_pattern;
+#else
+  return UTF16ToUTF8(library_pattern);
+#endif
+}
+}  // namespace
+
 void RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir) {
   CHECK(server);
@@ -230,11 +244,8 @@ void RegisterExternalExtensionsInDirectory(
     return;
   }
 
-  // FIXME(leandro): Use GetNativeLibraryName() to obtain the proper
-  // extension for the current platform.
-  const base::FilePath::StringType pattern = FILE_PATH_LITERAL("*.so");
   base::FileEnumerator libraries(
-      dir, false, base::FileEnumerator::FILES, pattern);
+      dir, false, base::FileEnumerator::FILES, GetNativeLibraryPattern());
 
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
