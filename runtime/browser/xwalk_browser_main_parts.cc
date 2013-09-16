@@ -26,6 +26,7 @@
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
+#include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 #include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -349,6 +350,8 @@ void XWalkBrowserMainParts::RegisterInternalExtensions() {
       new RuntimeExtension()));
   extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
+  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new sysapps::RawSocketExtension()));
 }
 
 #if defined(OS_TIZEN_MOBILE)

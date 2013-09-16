@@ -11,6 +11,7 @@
 namespace xwalk {
 
 using extensions::XWalkExtension;
+using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionInstance;
 using extensions::XWalkInternalExtension;
 using extensions::XWalkInternalExtensionInstance;
@@ -31,8 +32,7 @@ class RuntimeInstance : public XWalkInternalExtensionInstance {
       const XWalkExtension::PostMessageCallback& post_message);
 
  private:
-  void OnGetAPIVersion(const std::string& function_name,
-                       const std::string& callback_id, base::ListValue* args);
+  void OnGetAPIVersion(const FunctionInfo& info);
 };
 
 }  // namespace xwalk
