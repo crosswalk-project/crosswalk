@@ -56,6 +56,8 @@ class DepsFetcher(object):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
                    '--force', '--with_branch_heads']
     gclient_cmd.append('--gclientfile=%s' % self._new_gclient_file)
+    if os.environ.get('XWALK_NO_CHROMIUM_HOOKS'):
+      gclient_cmd.append('--nohooks')
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
         always=self._options.verbose, cwd=self._root_dir)
     # CheckCallAndFilterAndHeader will raise exception if return
