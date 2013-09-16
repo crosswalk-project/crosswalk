@@ -90,6 +90,9 @@ class GClientFileGenerator(object):
     if os.environ.get('XWALK_OS_ANDROID'):
       target_os = ['android']
       gclient_file.write('target_os = %s\n' % target_os)
+    if self._options.cache_dir:
+      gclient_file.write('cache_dir = %s\n' %
+                         pprint.pformat(self._options.cache_dir))
 
 
 def main():
@@ -98,6 +101,12 @@ def main():
   option_parser.add_option('--deps', default=None,
                            help='The deps file contains the dependencies path '
                                 'and url')
+  option_parser.add_option('--cache-dir',
+                           help='Set "cache_dir" in the .gclient file to this '
+                                'directory, so that all git repositories are '
+                                'cached there and shared across multiple '
+                                'clones.')
+
   # pylint: disable=W0612
   options, args = option_parser.parse_args()
 
