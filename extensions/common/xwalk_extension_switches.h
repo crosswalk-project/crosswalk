@@ -8,7 +8,7 @@
 // This file contains switches that are used inside extensions/ code.
 namespace switches {
 
-extern const char kXWalkEnableExtensionProcess[];
+extern const char kXWalkDisableExtensionProcess[];
 extern const char kXWalkExtensionProcess[];
 
 }  // namespace switches

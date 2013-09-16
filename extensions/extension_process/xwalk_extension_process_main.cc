@@ -4,6 +4,11 @@
 
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
 
+#if defined(OS_POSIX)
+#include <signal.h>
+#include <sys/prctl.h>
+#endif
+
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/run_loop.h"
@@ -15,7 +20,14 @@ int XWalkExtensionProcessMain(const content::MainFunctionParams& parameters) {
 
   VLOG(1) << "Extension process running!";
 
-  // In Linux-based platforms, we want the Glib message pump running so we need
+  // FIXME(jeez): This fixes the zombie-process-on-^C issue that we are facing
+  // on Linux. However, we must find a cleaner way of doing this, perhaps using
+  // something from Chromium and ensuring this process dies when its parent die.
+#if defined(OS_POSIX)
+  prctl(PR_SET_PDEATHSIG, SIGTERM);
+#endif
+
+  // On Linux-based platforms, we want the Glib message pump running so we need
   // a TYPE_UI MessageLoop. For other platforms we will stick with TYPE_DEFAULT
   // for now.
   base::MessageLoop::Type message_loop_type;
