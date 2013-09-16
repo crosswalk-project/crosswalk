@@ -36,8 +36,7 @@ class XWalkExtension {
   typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
   // Create an XWalkExtensionInstance with the given |post_message| callback.
-  virtual XWalkExtensionInstance* CreateInstance(
-      const PostMessageCallback& post_message) = 0;
+  virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
 

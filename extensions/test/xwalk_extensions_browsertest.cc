@@ -18,9 +18,7 @@ using xwalk::extensions::XWalkExtensionService;
 
 class EchoContext : public XWalkExtensionInstance {
  public:
-  explicit EchoContext(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    SetPostMessageCallback(post_message);
+  EchoContext() {
   }
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     PostMessageToJS(msg.Pass());
@@ -55,9 +53,8 @@ class EchoExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    return new EchoContext(post_message);
+  virtual XWalkExtensionInstance* CreateInstance() {
+    return new EchoContext();
   }
 };
 
@@ -68,8 +65,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
   }
 
   virtual const char* GetJavaScriptAPI() { return ""; }
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
+  virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
 };
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {

@@ -26,7 +26,6 @@ class XWalkExternalExtension;
 class XWalkExternalContext : public XWalkExtensionInstance {
  public:
   XWalkExternalContext(XWalkExternalExtension* extension,
-                       const XWalkExtension::PostMessageCallback& post_message,
                        XW_Instance xw_instance);
   virtual ~XWalkExternalContext();
 

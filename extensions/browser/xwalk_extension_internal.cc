@@ -11,14 +11,11 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionInstance* XWalkInternalExtension::CreateInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
-  return new XWalkInternalExtensionInstance(post_message);
+XWalkExtensionInstance* XWalkInternalExtension::CreateInstance() {
+  return new XWalkInternalExtensionInstance();
 }
 
-XWalkInternalExtensionInstance::XWalkInternalExtensionInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
-  SetPostMessageCallback(post_message);
+XWalkInternalExtensionInstance::XWalkInternalExtensionInstance() {
 }
 
 XWalkInternalExtensionInstance::~XWalkInternalExtensionInstance() {

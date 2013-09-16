@@ -42,8 +42,7 @@ class XWalkExternalExtension : public XWalkExtension {
 
   // XWalkExtension implementation.
   virtual const char* GetJavaScriptAPI() OVERRIDE;
-  virtual XWalkExtensionInstance* CreateInstance(
-      const PostMessageCallback& post_message) OVERRIDE;
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetExtensionName(const char* name);

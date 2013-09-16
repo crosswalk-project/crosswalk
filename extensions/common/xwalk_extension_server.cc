@@ -55,7 +55,8 @@ void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
     return;
   }
 
-  XWalkExtensionInstance* instance = it->second->CreateInstance(
+  XWalkExtensionInstance* instance = it->second->CreateInstance();
+  instance->SetPostMessageCallback(
       base::Bind(&XWalkExtensionServer::PostMessageToJSCallback,
                  base::Unretained(this), instance_id));
   instances_[instance_id] = instance;
