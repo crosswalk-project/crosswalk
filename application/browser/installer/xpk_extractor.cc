@@ -30,6 +30,10 @@ XPKExtractor::XPKExtractor(const base::FilePath& source_path)
       xpk_package_(XPKPackage::Create(source_path)) {
 }
 
+XPKExtractor::~XPKExtractor() {
+
+}
+
 std::string XPKExtractor::GetPackageID() const {
   return xpk_package_.get()?xpk_package_->Id():"";
 }

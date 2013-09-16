@@ -29,8 +29,8 @@ class DBStore {
    protected:
     virtual ~Observer() {}
   };
-  explicit DBStore(base::FilePath path) : data_path_(path) {}
-  virtual ~DBStore() {}
+  explicit DBStore(base::FilePath path);
+  virtual ~DBStore();
   virtual bool Insert(const Application* application,
                       const base::Time install_time) = 0;
   const base::DictionaryValue* GetApplications() const { return db_.get(); }

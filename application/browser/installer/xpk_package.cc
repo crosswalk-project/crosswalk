@@ -70,6 +70,9 @@ XPKPackage::XPKPackage(Header header, ScopedStdioHandle* file)
   id_ = GenerateId(public_key);
 }
 
+XPKPackage::~XPKPackage() {
+}
+
 bool XPKPackage::Validate() {
 // Set the file read position to the beginning of compressed resource file,
 // which is behind the magic header, public key and signature key.

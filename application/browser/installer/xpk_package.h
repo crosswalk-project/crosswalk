@@ -28,6 +28,7 @@ class XPKPackage {
     uint32 signature_size;
   };
   static scoped_ptr<XPKPackage> Create(const base::FilePath& path);
+  virtual ~XPKPackage();
   // Validate the xpk file
   bool IsOk() const { return is_ok_; }
   const std::string& Id() const { return id_; }

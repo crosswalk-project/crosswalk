@@ -26,6 +26,7 @@ class XPKExtractor
  private:
   friend class base::RefCountedThreadSafe<XPKExtractor>;
   explicit XPKExtractor(const base::FilePath& source_path);
+  virtual ~XPKExtractor();
   bool CreateTempDirectory();
 
   base::FilePath source_path_;
