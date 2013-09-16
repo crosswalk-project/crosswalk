@@ -180,4 +180,8 @@ public class NullContentsClient extends XWalkContentsClient {
     public boolean shouldOverrideUrlLoading(String url) {
         return false;
     }
+
+    @Override
+    public void onTitleChanged(String title) {
+    }
 }

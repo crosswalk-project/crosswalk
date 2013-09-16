@@ -10,6 +10,7 @@ import android.graphics.Picture;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -239,6 +240,13 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void didFinishLoad(String url) {
+    }
+
+    @Override
+    public void onTitleChanged(String title) {
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
+            mXWalkWebChromeClient.onReceivedTitle(mXWalkView, title);
+        }
     }
 
     @Override
