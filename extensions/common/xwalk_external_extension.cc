@@ -13,8 +13,7 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExternalExtension::XWalkExternalExtension(
-    const base::FilePath& path, base::NativeLibrary native_library)
+XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
     : xw_extension_(0),
       created_instance_callback_(NULL),
       destroyed_instance_callback_(NULL),
@@ -23,10 +22,7 @@ XWalkExternalExtension::XWalkExternalExtension(
       handle_sync_msg_callback_(NULL),
       initialized_(false) {
   std::string error;
-  if (!native_library)
-    native_library = base::LoadNativeLibrary(path, &error);
-
-  base::ScopedNativeLibrary library(native_library);
+  base::ScopedNativeLibrary library(base::LoadNativeLibrary(path, &error));
   if (!library.is_valid()) {
     LOG(WARNING) << "Error loading extension '" << path.AsUTF8Unsafe() << "': "
                  << error;
