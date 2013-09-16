@@ -53,7 +53,7 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
         @Override
         public void didStopLoading(String url) {
-            XWalkContentsClient.this.onPageFinished(url);
+            onPageFinished(url);
         }
 
         @Override
@@ -64,13 +64,13 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
         @Override
         public void didNavigateAnyFrame(String url, String baseUrl, boolean isReload) {
-            XWalkContentsClient.this.doUpdateVisitedHistory(url, isReload);
+            doUpdateVisitedHistory(url, isReload);
         }
 
         @Override
         public void didFinishLoad(long frameId, String validatedUrl, boolean isMainFrame) {
             if (isMainFrame) {
-                XWalkContentsClient.this.onPageFinished(validatedUrl);
+                onPageFinished(validatedUrl);
             }
         }
     }
@@ -160,6 +160,12 @@ public abstract class XWalkContentsClient extends ContentViewClient {
     public abstract void onPageFinished(String url);
 
     public abstract void onReceivedError(int errorCode, String description, String failingUrl);
+
+    final public void onUpdateTitle(String title) {
+        onTitleChanged(title);
+    }
+
+    public abstract void onTitleChanged(String title);
 
     // TODO (michaelbai): Remove this method once the same method remove from
     // XWalkContentsClientAdapter.
