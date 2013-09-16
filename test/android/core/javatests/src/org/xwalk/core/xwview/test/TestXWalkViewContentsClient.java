@@ -16,7 +16,7 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
 class TestXWalkViewContentsClient extends NullContentsClient {
-    private String mUpdatedTitle;
+    private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
@@ -40,12 +40,12 @@ class TestXWalkViewContentsClient extends NullContentsClient {
     }
 
     @Override
-    public void onUpdateTitle(String title) {
-        mUpdatedTitle = title;
+    public void onTitleChanged(String title) {
+        mChangedTitle = title;
     }
 
-    public String getUpdatedTitle() {
-        return mUpdatedTitle;
+    public String getChangedTitle() {
+        return mChangedTitle;
     }
 
     @Override
