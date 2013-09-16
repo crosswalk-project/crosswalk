@@ -120,9 +120,11 @@ void SetXWalkCommandLineFlags() {
 #if defined(OS_ANDROID)
   // Enable WebGL on all platforms (enabled on non-Android by default).
   command_line->AppendSwitch(switches::kEnableExperimentalWebGL);
+#endif
 
-  // Disable ExtensionProcess for Android. External extensions will run
-  // in the BrowserProcess (in process mode).
+#if defined(OS_ANDROID) || defined(OS_WIN)
+  // Disable ExtensionProcess for Android and Windows.
+  // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
 #endif
 
