@@ -19,7 +19,9 @@ extern "C" {
 //
 // XW_INTERNAL_SYNC_MESSAGING_INTERFACE: allow JavaScript code to send a
 // synchronous message to extension code and block until response is
-// available.
+// available. The response is made available by calling the SetSyncReply
+// function, that can be done from outside the context of the SyncMessage
+// handler.
 //
 
 #define XW_INTERNAL_SYNC_MESSAGING_INTERFACE_1 \
