@@ -30,10 +30,8 @@ int g_contexts_destroyed = 0;
 
 class OnceExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit OnceExtensionInstance(
-      const XWalkExtension::PostMessageCallback& post_message)
+  OnceExtensionInstance()
       : answered_(false) {
-    SetPostMessageCallback(post_message);
   }
 
   ~OnceExtensionInstance() {
@@ -73,10 +71,9 @@ class OnceExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
+  virtual XWalkExtensionInstance* CreateInstance() {
     g_contexts_created++;
-    return new OnceExtensionInstance(post_message);
+    return new OnceExtensionInstance();
   }
 };
 

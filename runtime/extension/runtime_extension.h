@@ -21,14 +21,12 @@ class RuntimeExtension : public XWalkInternalExtension {
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
 
 class RuntimeInstance : public XWalkInternalExtensionInstance {
  public:
-  explicit RuntimeInstance(
-      const XWalkExtension::PostMessageCallback& post_message);
+  explicit RuntimeInstance();
 
  private:
   void OnGetAPIVersion(const std::string& function_name,

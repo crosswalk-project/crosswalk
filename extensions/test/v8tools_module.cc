@@ -18,9 +18,7 @@ using xwalk::extensions::XWalkExtensionService;
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit TestV8ToolsExtensionInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    SetPostMessageCallback(post_message);
+  explicit TestV8ToolsExtensionInstance() {
   }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
@@ -45,9 +43,8 @@ class TestV8ToolsExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    return new TestV8ToolsExtensionInstance(post_message);
+  virtual XWalkExtensionInstance* CreateInstance() {
+    return new TestV8ToolsExtensionInstance();
   }
 };
 

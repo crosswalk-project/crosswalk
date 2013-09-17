@@ -67,8 +67,7 @@ const char* XWalkExtensionAndroid::GetJavaScriptAPI() {
   return js_api_.c_str();
 }
 
-XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
+XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
@@ -77,7 +76,6 @@ XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance(
 
   XWalkExtensionAndroidInstance* instance =
       new XWalkExtensionAndroidInstance(this, java_ref_, next_instance_id_);
-  instance->SetPostMessageCallback(post_message);
   instances_[next_instance_id_] = instance;
 
   Java_XWalkExtensionAndroid_onInstanceCreated(env,
@@ -135,20 +133,21 @@ void XWalkExtensionAndroidInstance::HandleMessage(
   Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), buffer);
 }
 
-scoped_ptr<base::Value>
-XWalkExtensionAndroidInstance::HandleSyncMessage(
+void XWalkExtensionAndroidInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
   base::StringValue* ret_val = base::Value::CreateStringValue("");
 
   std::string value;
   if (!msg->GetAsString(&value)) {
-    return scoped_ptr<base::Value>(ret_val);
+    SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
+    return;
   }
 
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
-    return scoped_ptr<base::Value>(ret_val);
+    SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
+    return;
   }
 
   jstring buffer = env->NewStringUTF(value.c_str());
@@ -159,7 +158,7 @@ XWalkExtensionAndroidInstance::HandleSyncMessage(
   ret_val = base::Value::CreateStringValue(str);
   env->ReleaseStringUTFChars(ret.obj(), str);
 
-  return scoped_ptr<base::Value>(ret_val);
+  SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
 }
 
 static jint CreateExtension(JNIEnv* env, jobject obj,

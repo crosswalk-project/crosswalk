@@ -16,8 +16,7 @@ class TestExtension : public xwalk::extensions::XWalkInternalExtension {
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
 
-  virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+  virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
 
 class TestExtensionInstance
@@ -25,9 +24,7 @@ class TestExtensionInstance
  public:
   typedef std::vector<std::pair<std::string, int> > Database;
 
-  TestExtensionInstance(
-      const xwalk::extensions::XWalkExtension::PostMessageCallback&
-          post_message);
+  TestExtensionInstance();
 
   Database* database() { return &database_; }
 

@@ -20,12 +20,16 @@ void XWalkExtensionInstance::SetPostMessageCallback(const
   post_message_ = post_message;
 }
 
+void XWalkExtensionInstance::SetSendSyncReplyCallback(
+    const XWalkExtension::SendSyncReplyCallback& callback) {
+  send_sync_reply_ = callback;
+}
+
 XWalkExtensionInstance::~XWalkExtensionInstance() {}
 
-scoped_ptr<base::Value> XWalkExtensionInstance::HandleSyncMessage(
+void XWalkExtensionInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
   LOG(FATAL) << "Sending sync message to extension which doesn't support it!";
-  return scoped_ptr<base::Value>(base::Value::CreateNullValue());
 }
 
 }  // namespace extensions

@@ -19,14 +19,12 @@ const char* RuntimeExtension::GetJavaScriptAPI() {
   return kSource_runtime_api;
 }
 
-XWalkExtensionInstance* RuntimeExtension::CreateInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
-  return new RuntimeInstance(post_message);
+XWalkExtensionInstance* RuntimeExtension::CreateInstance() {
+  return new RuntimeInstance();
 }
 
-RuntimeInstance::RuntimeInstance(
-    const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkInternalExtensionInstance(post_message) {
+RuntimeInstance::RuntimeInstance()
+  : XWalkInternalExtensionInstance() {
   RegisterFunction("getAPIVersion", &RuntimeInstance::OnGetAPIVersion);
 }
 
