@@ -21,6 +21,7 @@
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/chrome_version.h"
 
 namespace {
 
@@ -29,8 +30,7 @@ namespace {
 // Currently, the chrome version is hardcoded because of this dependancy.
 const char kFrontEndURL[] =
     "http://chrome-devtools-frontend.appspot.com/static/%s/devtools.html";
-// TODO(girish): Get version from build system.
-const char kChromeVersion[] = "28.0.1500.36";
+const char kChromeVersion[] = CHROME_VERSION_STRING;
 
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
