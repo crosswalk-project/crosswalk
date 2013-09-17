@@ -26,8 +26,8 @@ class RuntimeContext;
 namespace xwalk {
 namespace application {
 
-class Application;
 class ApplicationHost;
+class Manifest;
 
 // This manages dynamic state of running applications. By now, it only launches
 // one application, later it will manages all event pages' lifecycle.
@@ -37,9 +37,13 @@ class ApplicationProcessManager {
   ~ApplicationProcessManager();
 
   bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
-                       const Application* application);
+                         const Application* application);
 
  private:
+  bool RunMainDocument(const Application* application);
+  bool RunFromLocalPath(const Application* application);
+
+  xwalk::RuntimeContext* runtime_context_;
   base::WeakPtrFactory<ApplicationProcessManager> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationProcessManager);

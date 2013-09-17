@@ -330,7 +330,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
-  Runtime::Create(runtime_context_.get(), startup_url_);
+  Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);
 
   // If the |ui_task| is specified in main function parameter, it indicates
   // that we will run this UI task instead of running the the default main

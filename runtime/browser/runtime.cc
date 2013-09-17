@@ -47,17 +47,19 @@ const int kDefaultHeight = 600;
 Runtime* Runtime::Create(RuntimeContext* runtime_context, const GURL& url) {
   WebContents::CreateParams params(runtime_context, NULL);
   params.routing_id = MSG_ROUTING_NONE;
-  params.initial_size = gfx::Size(kDefaultWidth, kDefaultHeight);
   WebContents* web_contents = WebContents::Create(params);
 
-  Runtime* runtime = Runtime::CreateFromWebContents(web_contents);
+  Runtime* runtime = new Runtime(web_contents);
   runtime->LoadURL(url);
   return runtime;
 }
 
 // static
-Runtime* Runtime::CreateFromWebContents(WebContents* web_contents) {
-  return new Runtime(web_contents);
+Runtime* Runtime::CreateWithDefaultWindow(
+    RuntimeContext* runtime_context, const GURL& url) {
+  Runtime* runtime = Runtime::Create(runtime_context, url);
+  runtime->AttachDefaultWindow();
+  return runtime;
 }
 
 Runtime::Runtime(content::WebContents* web_contents)
@@ -69,7 +71,37 @@ Runtime::Runtime(content::WebContents* web_contents)
   web_contents_->SetDelegate(this);
   runtime_context_ =
       static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+  RuntimeRegistry::Get()->AddRuntime(this);
+}
 
+Runtime::~Runtime() {
+  RuntimeRegistry::Get()->RemoveRuntime(this);
+
+  // Quit the app once the last Runtime instance is removed.
+  if (RuntimeRegistry::Get()->runtimes().empty()) {
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
+  }
+}
+
+void Runtime::AttachDefaultWindow() {
+  NativeAppWindow::CreateParams params;
+  params.delegate = this;
+  params.web_contents = web_contents_.get();
+  params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kFullscreen)) {
+    params.state = ui::SHOW_STATE_FULLSCREEN;
+    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
+  }
+  AttachWindow(params);
+}
+
+void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
+#if defined(OS_ANDROID)
+  NOTIMPLEMENTED();
+#else
+  CHECK(!window_);
   // Set the app icon if it is passed from command line.
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kAppIcon)) {
@@ -82,40 +114,10 @@ Runtime::Runtime(content::WebContents* web_contents)
     app_icon_ = rb.GetNativeImageNamed(IDR_XWALK_ICON_48);
   }
 
-  NativeAppWindow::CreateParams params;
-  params.delegate = this;
-  params.web_contents = web_contents_.get();
-  params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kFullscreen)) {
-    params.state = ui::SHOW_STATE_FULLSCREEN;
-    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
-  }
-
-  InitAppWindow(params);
-
   registrar_.Add(this,
-      content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-      content::Source<content::WebContents>(web_contents));
+        content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+        content::Source<content::WebContents>(web_contents_.get()));
 
-  RuntimeRegistry::Get()->AddRuntime(this);
-}
-
-
-Runtime::~Runtime() {
-  RuntimeRegistry::Get()->RemoveRuntime(this);
-
-  // Quit the app once the last Runtime instance is removed.
-  if (RuntimeRegistry::Get()->runtimes().empty()) {
-    base::MessageLoop::current()->PostTask(
-        FROM_HERE, base::MessageLoop::QuitClosure());
-  }
-}
-
-void Runtime::InitAppWindow(const NativeAppWindow::CreateParams& params) {
-#if defined(OS_ANDROID)
-  NOTIMPLEMENTED();
-#else
   window_ = NativeAppWindow::Create(params);
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
@@ -211,7 +213,8 @@ void Runtime::WebContentsCreated(
     const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime::CreateFromWebContents(new_contents);
+  Runtime* new_runtime = new Runtime(new_contents);
+  new_runtime->AttachDefaultWindow();
 }
 
 void Runtime::DidNavigateMainFramePostCommit(
