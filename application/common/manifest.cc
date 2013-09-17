@@ -27,7 +27,7 @@ Manifest::Manifest(SourceType source_type,
     if (data_->Get(keys::kWebURLsKey, NULL) ||
         data_->Get(keys::kLaunchWebURLKey, NULL)) {
       type_ = TYPE_HOSTED_APP;
-    } else if (data_->Get(keys::kPlatformAppBackgroundKey, NULL) ||
+    } else if (data_->Get(keys::kAppMainKey, NULL) ||
                data_->Get(keys::kLaunchLocalPathKey, NULL)) {
       type_ = TYPE_PACKAGED_APP;
     }

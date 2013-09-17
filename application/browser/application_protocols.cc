@@ -62,6 +62,57 @@ net::HttpResponseHeaders* BuildHttpHeaders(
   return new net::HttpResponseHeaders(raw_headers);
 }
 
+class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
+ public:
+  GeneratedMainDocumentJob(net::URLRequest* request,
+                           net::NetworkDelegate* network_delegate,
+                           const base::FilePath& relative_path,
+                           const scoped_refptr<const Application> application)
+    : net::URLRequestSimpleJob(request, network_delegate),
+      application_(application),
+      mime_type_("text/html"),
+      relative_path_(relative_path) {
+  }
+
+  // Overridden from URLRequestSimpleJob:
+  virtual int GetData(std::string* mime_type,
+                      std::string* charset,
+                      std::string* data,
+                      const net::CompletionCallback& callback) const OVERRIDE {
+    *mime_type = mime_type_;
+    *charset = "utf-8";
+    *data = "<!DOCTYPE html>\n<body>\n";
+
+    // TODO(xiang): use manifest handler instead of the raw data.
+    const base::ListValue* main_scripts;
+    application_->GetManifest()->GetList(
+        xwalk::application_manifest_keys::kAppMainScriptsKey,
+        &main_scripts);
+    for (size_t i = 0; i < main_scripts->GetSize(); ++i) {
+      std::string script;
+      main_scripts->GetString(i, &script);
+      *data += "<script src=\"";
+      *data += script;
+      *data += "\"></script>\n";
+    }
+    return net::OK;
+  }
+
+  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
+    response_info_.headers = BuildHttpHeaders(mime_type_, "GET", relative_path_,
+        relative_path_, true);
+    *info = response_info_;
+  }
+
+ private:
+  virtual ~GeneratedMainDocumentJob() {}
+
+  scoped_refptr<const Application> application_;
+  const std::string mime_type_;
+  const base::FilePath relative_path_;
+  net::HttpResponseInfo response_info_;
+};
+
 void ReadResourceFilePath(
     const xwalk::application::ApplicationResource& resource,
     base::FilePath* file_path) {
@@ -154,6 +205,14 @@ ApplicationProtocolHandler::MaybeCreateJob(
   base::FilePath directory_path;
   if (is_authority_match)
     directory_path = application_->Path();
+
+  std::string path = request->url().path();
+  if (is_authority_match &&
+      path.size() > 1 &&
+      path.substr(1) == xwalk::application::kGeneratedMainDocumentFilename) {
+    return new GeneratedMainDocumentJob(request, network_delegate,
+        relative_path, application_);
+  }
 
   return new URLRequestApplicationJob(request,
                                       network_delegate,

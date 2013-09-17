@@ -43,8 +43,8 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 }
 
 content::RenderViewHost* XWalkDevToolsDelegate::CreateNewTarget() {
-  Runtime* runtime = Runtime::Create(runtime_context_,
-                                     GURL(content::kAboutBlankURL));
+  Runtime* runtime = Runtime::CreateWithDefaultWindow(
+      runtime_context_, GURL(content::kAboutBlankURL));
   return runtime->web_contents()->GetRenderViewHost();
 }
 

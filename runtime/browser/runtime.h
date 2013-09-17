@@ -39,9 +39,14 @@ class Runtime : public content::WebContentsDelegate,
                 public NativeAppWindowDelegate {
  public:
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext* runtime_context, const GURL& url);
-  // Create a new Runtime instance for the given web contents.
-  static Runtime* CreateFromWebContents(content::WebContents* web_contents);
+  static Runtime* Create(RuntimeContext*, const GURL&);
+  // Create a new Runtime instance which binds to a default app window.
+  static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&);
+
+  // Attach to a default app window.
+  void AttachDefaultWindow();
+  // Attach to a app window created with 'params'.
+  void AttachWindow(const NativeAppWindow::CreateParams& params);
 
   void LoadURL(const GURL& url);
   void Close();
@@ -56,10 +61,7 @@ class Runtime : public content::WebContentsDelegate,
   explicit Runtime(content::WebContents* web_contents);
   virtual ~Runtime();
 
-  // Initialize the app window.
-  void InitAppWindow(const NativeAppWindow::CreateParams& params);
-
-  // Overridden from content::WebContentsDelegate:
+    // Overridden from content::WebContentsDelegate:
   virtual content::WebContents* OpenURLFromTab(
       content::WebContents* source,
       const content::OpenURLParams& params) OVERRIDE;
