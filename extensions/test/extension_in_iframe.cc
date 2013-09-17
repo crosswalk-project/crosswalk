@@ -28,9 +28,7 @@ int g_count = 0;
 
 class CounterExtensionContext : public XWalkExtensionInstance {
  public:
-  explicit CounterExtensionContext(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    SetPostMessageCallback(post_message);
+  CounterExtensionContext() {
   }
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
@@ -54,9 +52,8 @@ class CounterExtension : public XWalkExtension {
     return kAPI;
   }
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    return new CounterExtensionContext(post_message);
+  virtual XWalkExtensionInstance* CreateInstance() {
+    return new CounterExtensionContext();
   }
 };
 

@@ -22,8 +22,7 @@ class XWalkInternalExtension : public XWalkExtension {
  public:
   XWalkInternalExtension() {}
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkInternalExtension);
@@ -36,8 +35,7 @@ class XWalkInternalExtension : public XWalkExtension {
 // register the handlers on the constructor of the context.
 class XWalkInternalExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit XWalkInternalExtensionInstance(
-      const XWalkExtension::PostMessageCallback& post_message);
+  XWalkInternalExtensionInstance();
   virtual ~XWalkInternalExtensionInstance();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
