@@ -208,6 +208,7 @@
           'dependencies':[
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
+            'generate_chrome_version', # for devtools frontend url
           ],
         }],
         ['OS=="win" and win_use_allocator_shim==1', {
@@ -307,6 +308,35 @@
           },
           'includes': [ '../build/grit_action.gypi' ],
         },
+      ],
+    },
+    {
+      'target_name': 'generate_chrome_version',
+      'type': 'none',
+      'variables': {
+        'generator_py_path': '<(DEPTH)/chrome/tools/build/version.py',
+        'chrome_version_file': '<(DEPTH)/chrome/VERSION',
+        'input_version_header_file' : '<(DEPTH)/chrome/version.h.in',
+      },
+      'actions': [
+        {
+          'action_name': 'chrome_version',
+          'inputs': [
+            '<(chrome_version_file)',
+            '<(input_version_header_file)',
+          ],
+          'outputs':[
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/chrome_version.h',
+          ],
+          'action': [
+            'python',
+            '<(generator_py_path)',
+            '-f', '<(chrome_version_file)',
+            '-i', '<(input_version_header_file)',
+            '<@(_outputs)',
+          ],
+          'message': 'Generating chrome version header file: @<(_outputs)',
+        }
       ],
     },
     {
