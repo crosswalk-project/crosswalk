@@ -1,7 +1,7 @@
 {
   'variables': {
     'xwalk_product_name': 'XWalk',
-    'xwalk_version': '1.29.4.0',
+    'xwalk_version': '<!(python ../chrome/tools/build/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,

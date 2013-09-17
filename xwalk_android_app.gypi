@@ -16,6 +16,7 @@
             'output_file': '<(intermediate_dir)/version_java/XWalkRuntimeClientVersion.java',
           },
           'inputs': [
+            'VERSION',
             '<(template_file)',
             'build/android/generate_runtime_client_version.py',
           ],
