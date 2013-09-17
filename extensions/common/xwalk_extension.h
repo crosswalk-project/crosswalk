@@ -35,7 +35,8 @@ class XWalkExtension {
   // XWalkExtensionInstance. Callback will take the ownership of the message.
   typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
-  typedef base::Callback<void(scoped_ptr<base::Value> msg)> SendSyncReplyCallback;
+  typedef base::Callback<void(scoped_ptr<base::Value> msg)>
+      SendSyncReplyCallback;
 
   // Create an XWalkExtensionInstance with the given |post_message| callback.
   virtual XWalkExtensionInstance* CreateInstance() = 0;

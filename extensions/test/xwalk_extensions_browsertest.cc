@@ -19,6 +19,7 @@ using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
 namespace {
+
 const char* kEchoAPI =
     "var echoListener = null;"
     "extension.setMessageListener(function(msg) {"
@@ -33,7 +34,6 @@ const char* kEchoAPI =
     "exports.syncEcho = function(msg) {"
     "  return extension.internal.sendSyncMessage(msg);"
     "};";
-}
 
 class EchoContext : public XWalkExtensionInstance {
  public:
@@ -105,6 +105,8 @@ class ExtensionWithInvalidName : public XWalkExtension {
   virtual const char* GetJavaScriptAPI() { return ""; }
   virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
 };
+
+}  // namespace
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:

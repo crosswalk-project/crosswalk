@@ -221,8 +221,8 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
 
   InstanceExecutionData& data = it->second;
   if (data.pending_reply) {
-    LOG(WARNING) << "There's already a pending Sync Message for Extension instance id: "
-                 << instance_id;
+    LOG(WARNING) << "There's already a pending Sync Message for "
+                 << "Extension instance id: " << instance_id;
     return;
   }
 
