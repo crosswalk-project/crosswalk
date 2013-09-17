@@ -1172,14 +1172,4 @@ void DesktopRootWindowHostXWalk::OnRootWindowHostCloseRequested(
   Close();
 }
 
-// static
-DesktopRootWindowHost* DesktopRootWindowHostXWalk::Create(
-    internal::NativeWidgetDelegate* native_widget_delegate,
-    DesktopNativeWidgetAura* desktop_native_widget_aura,
-    const gfx::Rect& initial_bounds) {
-  return new DesktopRootWindowHostXWalk(native_widget_delegate,
-                                        desktop_native_widget_aura,
-                                        initial_bounds);
-}
-
 }  // namespace views
