@@ -31,6 +31,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     private boolean mRemoteDebugging = false;
 
+    private AlertDialog mLibraryNotFoundDialog = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
@@ -106,6 +108,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             mRuntimeView = new XWalkRuntimeClient(this, null, this);
             if (mRuntimeView.get() != null) {
                 mShownNotFoundDialog = false;
+                if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
             }
             if (mRemoteDebugging) {
                 String mPackageName = getApplicationContext().getPackageName();
@@ -163,9 +166,20 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                     });
             builder.setTitle(getString("download_dialog_title")).setMessage(getString("download_dialog_msg"));
 
-            // Create the AlertDialog
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            mLibraryNotFoundDialog = builder.create();
+            mLibraryNotFoundDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {                
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mLibraryNotFoundDialog = null;
+                }
+            });
+            mLibraryNotFoundDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {                
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mLibraryNotFoundDialog = null;
+                }
+            });
+            mLibraryNotFoundDialog.show();
             mShownNotFoundDialog = true;
         }
     }
