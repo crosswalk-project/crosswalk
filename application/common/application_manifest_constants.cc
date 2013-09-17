@@ -8,12 +8,14 @@ namespace xwalk {
 
 namespace application_manifest_keys {
 const char kAppKey[] = "app";
+const char kAppMainKey[] = "app.main";
+const char kAppMainScriptsKey[] = "app.main.scripts";
+const char kAppMainSourceKey[] = "app.main.source";
 const char kDescriptionKey[] = "description";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchWebURLKey[] = "app.launch.web_url";
 const char kManifestVersionKey[] = "manifest_version";
 const char kNameKey[] = "name";
-const char kPlatformAppBackgroundKey[] = "app.background";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
 }  // namespace application_manifest_keys

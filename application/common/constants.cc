@@ -13,6 +13,8 @@ const base::FilePath::CharType kManifestFilename[] =
     FILE_PATH_LITERAL("manifest.json");
 const base::FilePath::CharType kMessagesFilename[] =
     FILE_PATH_LITERAL("messages.json");
+const char kGeneratedMainDocumentFilename[] =
+    "_generated_main_document.html";
 
 }  // namespace application
 }  // namespace xwalk

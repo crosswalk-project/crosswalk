@@ -19,6 +19,9 @@ extern const base::FilePath::CharType kManifestFilename[];
 // The name of the messages file inside an application.
 extern const base::FilePath::CharType kMessagesFilename[];
 
+// The filename to use for main document generated from app.main.scripts.
+extern const char kGeneratedMainDocumentFilename[];
+
 }  // namespace application
 }  // namespace xwalk
 
