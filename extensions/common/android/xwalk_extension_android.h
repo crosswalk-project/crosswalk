@@ -38,8 +38,7 @@ class XWalkExtensionAndroid : public XWalkExtension {
   void PostMessage(JNIEnv* env, jobject obj, jint instance, jstring msg);
 
   virtual const char* GetJavaScriptAPI() OVERRIDE;
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) OVERRIDE;
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   void RemoveInstance(int instance);
 
@@ -69,8 +68,7 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
 
  private:
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual scoped_ptr<base::Value> HandleSyncMessage(
-      scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
   XWalkExtensionAndroid* extension_;
   JavaObjectWeakGlobalRef java_ref_;
