@@ -26,7 +26,6 @@ class XWalkExternalExtension;
 class XWalkExternalContext : public XWalkExtensionInstance {
  public:
   XWalkExternalContext(XWalkExternalExtension* extension,
-                       const XWalkExtension::PostMessageCallback& post_message,
                        XW_Instance xw_instance);
   virtual ~XWalkExternalContext();
 
@@ -35,8 +34,7 @@ class XWalkExternalContext : public XWalkExtensionInstance {
 
   // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual scoped_ptr<base::Value>
-      HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
   void CoreSetInstanceData(void* data);

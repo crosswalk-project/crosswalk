@@ -32,8 +32,7 @@ class DialogExtension : public XWalkInternalExtension,
 
   // XWalkExtension implementation.
   virtual const char* GetJavaScriptAPI() OVERRIDE;
-  virtual XWalkExtensionInstance* CreateInstance(
-    const PostMessageCallback& post_message) OVERRIDE;
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   // RuntimeRegistryObserver implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
@@ -51,8 +50,7 @@ class DialogExtension : public XWalkInternalExtension,
 class DialogInstance : public XWalkInternalExtensionInstance,
                       public SelectFileDialog::Listener {
  public:
-  DialogInstance(DialogExtension* extension,
-    const XWalkExtension::PostMessageCallback& post_message);
+  explicit DialogInstance(DialogExtension* extension);
   virtual ~DialogInstance();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;

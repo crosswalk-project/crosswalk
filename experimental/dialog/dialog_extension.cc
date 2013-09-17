@@ -35,9 +35,8 @@ const char* DialogExtension::GetJavaScriptAPI() {
   return kSource_dialog_api;
 }
 
-XWalkExtensionInstance* DialogExtension::CreateInstance(
-  const XWalkExtension::PostMessageCallback& post_message) {
-  return new DialogInstance(this, post_message);
+XWalkExtensionInstance* DialogExtension::CreateInstance() {
+  return new DialogInstance(this);
 }
 
 void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
@@ -47,10 +46,8 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
   owning_window_ = runtime->window()->GetNativeWindow();
 }
 
-DialogInstance::DialogInstance(DialogExtension* extension,
-  const XWalkExtension::PostMessageCallback& post_message)
-  : XWalkInternalExtensionInstance(post_message),
-    extension_(extension),
+DialogInstance::DialogInstance(DialogExtension* extension)
+  : extension_(extension),
     dialog_(NULL) {
   RegisterFunction("showOpenDialog", &DialogInstance::OnShowOpenDialog);
   RegisterFunction("showSaveDialog", &DialogInstance::OnShowSaveDialog);

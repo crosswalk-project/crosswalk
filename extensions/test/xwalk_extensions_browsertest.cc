@@ -11,23 +11,58 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
+#include "base/task_runner.h"
+#include "base/time.h"
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
 
+namespace {
+
+const char* kEchoAPI =
+    "var echoListener = null;"
+    "extension.setMessageListener(function(msg) {"
+    "  if (echoListener instanceof Function) {"
+    "    echoListener(msg);"
+    "  };"
+    "});"
+    "exports.echo = function(msg, callback) {"
+    "  echoListener = callback;"
+    "  extension.postMessage(msg);"
+    "};"
+    "exports.syncEcho = function(msg) {"
+    "  return extension.internal.sendSyncMessage(msg);"
+    "};";
+
 class EchoContext : public XWalkExtensionInstance {
  public:
-  explicit EchoContext(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    SetPostMessageCallback(post_message);
+  EchoContext() {
   }
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
     PostMessageToJS(msg.Pass());
   }
-  virtual scoped_ptr<base::Value> HandleSyncMessage(
-      scoped_ptr<base::Value> msg) OVERRIDE {
-    return msg.Pass();
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    SendSyncReplyToJS(msg.Pass());
+  }
+};
+
+class DelayedEchoContext : public XWalkExtensionInstance {
+ public:
+  explicit DelayedEchoContext() {
+  }
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    PostMessageToJS(msg.Pass());
+  }
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    base::MessageLoop::current()->PostDelayedTask(
+        FROM_HERE, base::Bind(&DelayedEchoContext::DelayedReply,
+                              base::Unretained(this), base::Passed(&msg)),
+        base::TimeDelta::FromSeconds(1));
+  }
+
+  void DelayedReply(scoped_ptr<base::Value> reply) {
+    SendSyncReplyToJS(reply.Pass());
   }
 };
 
@@ -38,26 +73,26 @@ class EchoExtension : public XWalkExtension {
   }
 
   virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
-        "var echoListener = null;"
-        "extension.setMessageListener(function(msg) {"
-        "  if (echoListener instanceof Function) {"
-        "    echoListener(msg);"
-        "  };"
-        "});"
-        "exports.echo = function(msg, callback) {"
-        "  echoListener = callback;"
-        "  extension.postMessage(msg);"
-        "};"
-        "exports.syncEcho = function(msg) {"
-        "  return extension.internal.sendSyncMessage(msg);"
-        "};";
-    return kAPI;
+    return kEchoAPI;
   }
 
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) {
-    return new EchoContext(post_message);
+  virtual XWalkExtensionInstance* CreateInstance() {
+    return new EchoContext();
+  }
+};
+
+class DelayedEchoExtension : public XWalkExtension {
+ public:
+  DelayedEchoExtension() : XWalkExtension() {
+    set_name("echo");
+  }
+
+  virtual const char* GetJavaScriptAPI() {
+    return kEchoAPI;
+  }
+
+  virtual XWalkExtensionInstance* CreateInstance() {
+    return new DelayedEchoContext();
   }
 };
 
@@ -68,9 +103,10 @@ class ExtensionWithInvalidName : public XWalkExtension {
   }
 
   virtual const char* GetJavaScriptAPI() { return ""; }
-  virtual XWalkExtensionInstance* CreateInstance(
-      const XWalkExtension::PostMessageCallback& post_message) { return NULL; }
+  virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
 };
+
+}  // namespace
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
@@ -85,6 +121,14 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
   }
 };
 
+class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
+ public:
+  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
+    bool registered = extension_service->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new DelayedEchoExtension));
+  }
+};
+
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
@@ -96,6 +140,17 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+                                  base::FilePath().AppendASCII(
+                                      "sync_echo.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsDelayedTest, EchoExtensionSync) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII(

@@ -68,11 +68,10 @@ const char* XWalkExternalExtension::GetJavaScriptAPI() {
   return js_api_.c_str();
 }
 
-XWalkExtensionInstance* XWalkExternalExtension::CreateInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
+XWalkExtensionInstance* XWalkExternalExtension::CreateInstance() {
   XW_Instance xw_instance =
       XWalkExternalAdapter::GetInstance()->GetNextXWInstance();
-  return new XWalkExternalContext(this, post_message, xw_instance);
+  return new XWalkExternalContext(this, xw_instance);
 }
 
 #define RETURN_IF_INITIALIZED(FUNCTION)                          \

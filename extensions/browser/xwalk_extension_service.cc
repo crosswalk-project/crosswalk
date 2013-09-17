@@ -7,12 +7,15 @@
 #include "base/callback.h"
 #include "base/command_line.h"
 #include "base/scoped_native_library.h"
+#include "base/synchronization/lock.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
+#include "ipc/ipc_message_macros.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 
@@ -28,34 +31,56 @@ g_register_extensions_callback;
 
 }
 
-// This object will be responsible for filtering messages on the
-// BrowserProcess <-> RenderProcess channel and getting them to the
-// in_process ExtensionServer.
+// This object intercepts messages destined to a XWalkExtensionServer and
+// dispatch them to its task runner. A message loop proxy of a thread is a
+// task runner. Like other filters, this filter will run in the IO-thread.
+//
+// In the case of in process extensions, we will pass the task runner of the
+// extension thread.
 class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
  public:
-  explicit ExtensionServerMessageFilter(XWalkExtensionServer* server);
+  ExtensionServerMessageFilter(
+      scoped_refptr<base::SequencedTaskRunner> task_runner,
+      XWalkExtensionServer* server)
+      : task_runner_(task_runner),
+        server_(server) {}
 
-  // IPC::ChannelProxy::MessageFilter Implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  // Tells the filter to stop dispatching messages to the server.
+  void Invalidate() {
+    base::AutoLock l(lock_);
+    task_runner_ = NULL;
+    server_ = NULL;
+  }
 
  private:
-  friend class IPC::ChannelProxy::MessageFilter;
   virtual ~ExtensionServerMessageFilter() {}
+
+  // IPC::ChannelProxy::MessageFilter implementation.
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
+    if (IPC_MESSAGE_CLASS(message) == XWalkExtensionClientServerMsgStart) {
+      base::AutoLock l(lock_);
+      if (!server_)
+        return false;
+      task_runner_->PostTask(
+          FROM_HERE,
+          base::Bind(
+              base::IgnoreResult(&XWalkExtensionServer::OnMessageReceived),
+              base::Unretained(server_), message));
+      return true;
+    }
+    return false;
+  }
+
+  // This lock is used to protect access to filter members.
+  base::Lock lock_;
+
+  scoped_refptr<base::SequencedTaskRunner> task_runner_;
   XWalkExtensionServer* server_;
 };
 
-ExtensionServerMessageFilter::ExtensionServerMessageFilter(
-    XWalkExtensionServer* server)
-    : server_(server) {
-}
-
-bool ExtensionServerMessageFilter::OnMessageReceived(const IPC::Message& msg) {
-  return server_->OnMessageReceived(msg);
-}
-
-
 XWalkExtensionService::XWalkExtensionService()
     : render_process_host_(NULL),
+      extension_thread_("XWalkExtensionThread"),
       in_process_server_message_filter_(NULL) {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
@@ -64,8 +89,9 @@ XWalkExtensionService::XWalkExtensionService()
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
-  // These objects are created on the UI-thread but they will live on the
-  // IO-thread. Their deletion will happen on the IO-thread.
+  extension_thread_.Start();
+
+  // The server is created here but will live on the extension thread.
   in_process_extensions_server_.reset(new XWalkExtensionServer());
 
   if (!g_register_extensions_callback.is_null())
@@ -73,6 +99,9 @@ XWalkExtensionService::XWalkExtensionService()
 }
 
 XWalkExtensionService::~XWalkExtensionService() {
+  // This object should already be released and asked to be deleted in the
+  // extension thread.
+  CHECK(!in_process_extensions_server_);
 }
 
 bool XWalkExtensionService::RegisterExtension(
@@ -106,7 +135,8 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   // The filter is owned by the IPC channel but we keep a reference to remove
   // it from the Channel later during a RenderProcess shutdown.
   in_process_server_message_filter_ =
-      new ExtensionServerMessageFilter(in_process_extensions_server_.get());
+      new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),
+                                       in_process_extensions_server_.get());
   channel->AddFilter(in_process_server_message_filter_);
   in_process_extensions_server_->Initialize(channel);
 
@@ -133,20 +163,32 @@ void XWalkExtensionService::Observe(int type,
     case content::NOTIFICATION_RENDERER_PROCESS_CLOSED: {
       content::RenderProcessHost* rph =
           content::Source<content::RenderProcessHost>(source).ptr();
-      if (rph == render_process_host_) {
-        in_process_extensions_server_->Invalidate();
-        render_process_host_->GetChannel()->RemoveFilter(
-            in_process_server_message_filter_);
-        in_process_server_message_filter_ = NULL;
-        BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
-            in_process_extensions_server_.release());
-
-        if (extension_process_host_) {
-          BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
-              extension_process_host_.release());
-        }
-      }
+      OnRenderProcessHostClosed(rph);
     }
+  }
+}
+
+void XWalkExtensionService::OnRenderProcessHostClosed(
+    content::RenderProcessHost* host) {
+  // FIXME(cmarcelo): For now we support only one render process host.
+  if (host != render_process_host_)
+    return;
+
+  // Invalidate the objects in the different threads so they stop posting
+  // messages to each other. This is important because we'll schedule the
+  // deletion of both objects to their respective threads.
+  in_process_server_message_filter_->Invalidate();
+  in_process_extensions_server_->Invalidate();
+
+  // This will caused the filter to be deleted in the IO-thread.
+  render_process_host_->GetChannel()->RemoveFilter(
+      in_process_server_message_filter_);
+  extension_thread_.message_loop()->DeleteSoon(
+      FROM_HERE, in_process_extensions_server_.release());
+
+  if (extension_process_host_) {
+    BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE,
+                              extension_process_host_.release());
   }
 }
 

@@ -12,7 +12,6 @@
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
-#include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 
 namespace xwalk {
@@ -84,14 +83,6 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
           rp_channel_handle_));
-}
-
-void XWalkExtensionProcess::HandleMessageFromNative(
-    const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) {
-}
-
-void XWalkExtensionProcess::HandleReplyMessageFromNative(
-    scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) {
 }
 
 }  // namespace extensions
