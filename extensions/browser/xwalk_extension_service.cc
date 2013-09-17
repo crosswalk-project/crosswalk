@@ -89,7 +89,9 @@ XWalkExtensionService::XWalkExtensionService()
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
-  extension_thread_.Start();
+  // IO main loop is needed by extensions watching file descriptors events.
+  base::Thread::Options options(base::MessageLoop::TYPE_IO, 0);
+  extension_thread_.StartWithOptions(options);
 
   // The server is created here but will live on the extension thread.
   in_process_extensions_server_.reset(new XWalkExtensionServer());
