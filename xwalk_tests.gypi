@@ -107,6 +107,7 @@
       'HAS_OUT_OF_PROC_TEST_RUNNER',
     ],
     'sources': [
+      'application/test/application_main_document_browsertest.cc',
       'runtime/browser/xwalk_download_browsertest.cc',
       'runtime/browser/xwalk_form_input_browsertest.cc',
       'runtime/browser/xwalk_runtime_browsertest.cc',

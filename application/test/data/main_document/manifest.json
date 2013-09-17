@@ -1,0 +1,10 @@
+{
+  "name": "main_document_test",
+  "manifest_version": 1,
+  "version": "1.0",
+  "app": {
+    "main": {
+      "scripts": ["main.js"]
+    }
+  }
+}

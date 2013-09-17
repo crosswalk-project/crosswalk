@@ -43,7 +43,8 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
   // FIXME(cmarcelo): We only support one runtime! (like MenuExtension)
   if (owning_window_)
     return;
-  owning_window_ = runtime->window()->GetNativeWindow();
+  if (runtime->window())
+    owning_window_ = runtime->window()->GetNativeWindow();
 }
 
 DialogInstance::DialogInstance(DialogExtension* extension)

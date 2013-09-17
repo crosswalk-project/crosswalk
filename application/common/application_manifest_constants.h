@@ -14,12 +14,14 @@
 namespace xwalk {
 namespace application_manifest_keys {
   extern const char kAppKey[];
+  extern const char kAppMainKey[];
+  extern const char kAppMainScriptsKey[];
+  extern const char kAppMainSourceKey[];
   extern const char kDescriptionKey[];
   extern const char kLaunchLocalPathKey[];
   extern const char kLaunchWebURLKey[];
   extern const char kManifestVersionKey[];
   extern const char kNameKey[];
-  extern const char kPlatformAppBackgroundKey[];
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
 }  // namespace application_manifest_keys
