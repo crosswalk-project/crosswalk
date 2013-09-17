@@ -286,6 +286,10 @@ public class XWalkContent extends FrameLayout {
         mXWalkContent = 0;
     }
 
+    public int getRoutingID() {
+        return nativeGetRoutingID(mXWalkContent);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
     private static native void nativeDestroy(int nativeXWalkContent);
@@ -296,4 +300,5 @@ public class XWalkContent extends FrameLayout {
     private native String nativeGetVersion(int nativeXWalkContent);
     private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
     private native boolean nativeSetManifest(int nativeXWalkContent, String path, String manifest);
+    private native int nativeGetRoutingID(int nativeXWalkContent);
 }

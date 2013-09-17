@@ -194,6 +194,11 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   return true;
 }
 
+jint XWalkContent::GetRoutingID(JNIEnv* env, jobject obj) {
+  DCHECK(web_contents_.get());
+  return web_contents_->GetRoutingID();
+}
+
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
     jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =
