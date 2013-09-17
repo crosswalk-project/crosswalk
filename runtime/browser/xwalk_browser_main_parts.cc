@@ -111,8 +111,8 @@ void SetXWalkCommandLineFlags() {
 #endif
 
   // Always use fixed layout and viewport tag.
-  // command_line->AppendSwitch(switches::kEnableFixedLayout);
-  // command_line->AppendSwitch(xswitches::kEnableViewport);
+  command_line->AppendSwitch(switches::kEnableFixedLayout);
+  command_line->AppendSwitch(xswitches::kEnableViewport);
 
   // Show feedback on touch.
   command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
