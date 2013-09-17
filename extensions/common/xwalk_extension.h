@@ -35,9 +35,11 @@ class XWalkExtension {
   // XWalkExtensionInstance. Callback will take the ownership of the message.
   typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
 
+  typedef base::Callback<void(scoped_ptr<base::Value> msg)>
+      SendSyncReplyCallback;
+
   // Create an XWalkExtensionInstance with the given |post_message| callback.
-  virtual XWalkExtensionInstance* CreateInstance(
-      const PostMessageCallback& post_message) = 0;
+  virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
 
@@ -67,11 +69,13 @@ class XWalkExtensionInstance {
 
   // Allow to handle synchronous messages sent from JavaScript code. Renderer
   // will block until this function returns.
-  virtual scoped_ptr<base::Value> HandleSyncMessage(
-      scoped_ptr<base::Value> msg);
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg);
 
   void SetPostMessageCallback(
       const XWalkExtension::PostMessageCallback& post_message);
+
+  void SetSendSyncReplyCallback(
+      const XWalkExtension::SendSyncReplyCallback& callback);
 
  protected:
   explicit XWalkExtensionInstance();
@@ -83,8 +87,13 @@ class XWalkExtensionInstance {
     post_message_.Run(msg.Pass());
   }
 
+  void SendSyncReplyToJS(scoped_ptr<base::Value> reply) {
+    send_sync_reply_.Run(reply.Pass());
+  }
+
  private:
   XWalkExtension::PostMessageCallback post_message_;
+  XWalkExtension::SendSyncReplyCallback send_sync_reply_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionInstance);
 };

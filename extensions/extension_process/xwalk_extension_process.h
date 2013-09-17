@@ -10,7 +10,6 @@
 #include "base/threading/thread.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
-#include "xwalk/extensions/common/xwalk_extension_runner.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
 namespace base {
@@ -34,8 +33,7 @@ class XWalkExtensionRunner;
 // of the extension <-> render process channel.
 // It will be responsible for handling the native side (instances) of
 // External extensions through its XWalkExtensionServer.
-class XWalkExtensionProcess : public IPC::Listener,
-                              public XWalkExtensionRunner::Client {
+class XWalkExtensionProcess : public IPC::Listener {
  public:
   XWalkExtensionProcess();
   virtual ~XWalkExtensionProcess();
@@ -43,12 +41,6 @@ class XWalkExtensionProcess : public IPC::Listener,
  private:
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-
-  // XWalkExtensionRunner::Client implementation.
-  virtual void HandleMessageFromNative(
-      const XWalkExtensionRunner* runner, scoped_ptr<base::Value> msg) OVERRIDE;
-  virtual void HandleReplyMessageFromNative(
-      scoped_ptr<IPC::Message> ipc_reply, scoped_ptr<base::Value> msg) OVERRIDE;
 
   // Handlers for IPC messages from XWalkExtensionProcessHost.
   void OnRegisterExtensions(const base::FilePath& extension_path);

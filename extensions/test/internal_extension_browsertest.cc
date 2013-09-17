@@ -27,14 +27,12 @@ const char* TestExtension::GetJavaScriptAPI() {
   return kSource_internal_extension_browsertest_api;
 }
 
-XWalkExtensionInstance* TestExtension::CreateInstance(
-    const XWalkExtension::PostMessageCallback& post_message) {
-  return new TestExtensionInstance(post_message);
+XWalkExtensionInstance* TestExtension::CreateInstance() {
+  return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance(
-    const XWalkExtension::PostMessageCallback& post_message)
-    : XWalkInternalExtensionInstance(post_message) {
+TestExtensionInstance::TestExtensionInstance()
+    : XWalkInternalExtensionInstance() {
   RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
   RegisterFunction("addPerson", &TestExtensionInstance::OnAddPerson);
   RegisterFunction("addPersonObject",
