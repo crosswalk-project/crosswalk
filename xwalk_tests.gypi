@@ -117,6 +117,7 @@
     ],
     'includes': [
       'extensions/extensions_browsertests.gypi',
+      'experimental/presentation/presentation_apitest.gypi',
       'xwalk_jsapi.gypi',
     ],
     'conditions': [
