@@ -19,7 +19,7 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExternalAdapter;
-class XWalkExternalContext;
+class XWalkExternalInstance;
 
 // XWalkExternalExtension implements an XWalkExtension backed by a shared
 // library implemented using our C ABI (see XW_Extension.h).
@@ -38,7 +38,7 @@ class XWalkExternalExtension : public XWalkExtension {
 
  private:
   friend class XWalkExternalAdapter;
-  friend class XWalkExternalContext;
+  friend class XWalkExternalInstance;
 
   // XWalkExtension implementation.
   virtual const char* GetJavaScriptAPI() OVERRIDE;

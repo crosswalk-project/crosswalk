@@ -15,17 +15,17 @@ XWalkExtension::~XWalkExtension() {}
 
 XWalkExtensionInstance::XWalkExtensionInstance() {}
 
-void XWalkExtensionInstance::SetPostMessageCallback(const
-    XWalkExtension::PostMessageCallback& post_message) {
-  post_message_ = post_message;
+XWalkExtensionInstance::~XWalkExtensionInstance() {}
+
+void XWalkExtensionInstance::SetPostMessageCallback(
+    const PostMessageCallback& callback) {
+  post_message_ = callback;
 }
 
 void XWalkExtensionInstance::SetSendSyncReplyCallback(
-    const XWalkExtension::SendSyncReplyCallback& callback) {
+    const SendSyncReplyCallback& callback) {
   send_sync_reply_ = callback;
 }
-
-XWalkExtensionInstance::~XWalkExtensionInstance() {}
 
 void XWalkExtensionInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
