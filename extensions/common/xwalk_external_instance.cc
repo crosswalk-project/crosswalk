@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/extensions/common/xwalk_external_context.h"
+#include "xwalk/extensions/common/xwalk_external_instance.h"
 
 #include <string>
 #include "base/logging.h"
@@ -12,9 +12,8 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExternalContext::XWalkExternalContext(
-    XWalkExternalExtension* extension,
-    XW_Instance xw_instance)
+XWalkExternalInstance::XWalkExternalInstance(
+    XWalkExternalExtension* extension, XW_Instance xw_instance)
     : xw_instance_(xw_instance),
       extension_(extension),
       instance_data_(NULL),
@@ -25,7 +24,7 @@ XWalkExternalContext::XWalkExternalContext(
     callback(xw_instance_);
 }
 
-XWalkExternalContext::~XWalkExternalContext() {
+XWalkExternalInstance::~XWalkExternalInstance() {
   XW_DestroyedInstanceCallback callback =
       extension_->destroyed_instance_callback_;
   if (callback)
@@ -33,7 +32,7 @@ XWalkExternalContext::~XWalkExternalContext() {
   XWalkExternalAdapter::GetInstance()->UnregisterInstance(this);
 }
 
-void XWalkExternalContext::HandleMessage(scoped_ptr<base::Value> msg) {
+void XWalkExternalInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   XW_HandleMessageCallback callback = extension_->handle_msg_callback_;
   if (!callback) {
     LOG(WARNING) << "Ignoring message sent for external extension '"
@@ -46,8 +45,7 @@ void XWalkExternalContext::HandleMessage(scoped_ptr<base::Value> msg) {
   callback(xw_instance_, string_msg.c_str());
 }
 
-void XWalkExternalContext::HandleSyncMessage(
-    scoped_ptr<base::Value> msg) {
+void XWalkExternalInstance::HandleSyncMessage(scoped_ptr<base::Value> msg) {
   XW_HandleSyncMessageCallback callback = extension_->handle_sync_msg_callback_;
   if (!callback) {
     LOG(WARNING) << "Ignoring sync message sent for external extension '"
@@ -61,19 +59,19 @@ void XWalkExternalContext::HandleSyncMessage(
   callback(xw_instance_, string_msg.c_str());
 }
 
-void XWalkExternalContext::CoreSetInstanceData(void* data) {
+void XWalkExternalInstance::CoreSetInstanceData(void* data) {
   instance_data_ = data;
 }
 
-void* XWalkExternalContext::CoreGetInstanceData() {
+void* XWalkExternalInstance::CoreGetInstanceData() {
   return instance_data_;
 }
 
-void XWalkExternalContext::MessagingPostMessage(const char* msg) {
+void XWalkExternalInstance::MessagingPostMessage(const char* msg) {
   PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
 }
 
-void XWalkExternalContext::SyncMessagingSetSyncReply(const char* reply) {
+void XWalkExternalInstance::SyncMessagingSetSyncReply(const char* reply) {
   SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue(reply)));
 }
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
-#define XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
+#ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_
+#define XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_
 
 #include <string>
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -16,18 +16,18 @@ namespace extensions {
 class XWalkExternalAdapter;
 class XWalkExternalExtension;
 
-// XWalkExternalContext implements the concrete context of execution of an
+// XWalkExternalInstance implements the concrete context of execution of an
 // external extension.
 //
 // It works together with XWalkExternalAdapter to handle calls from shared
 // library, and with XWalkExternalExtension to get the appropriate
 // callbacks. The associated XW_Instance is used to identify this context when
 // calling the shared library.
-class XWalkExternalContext : public XWalkExtensionInstance {
+class XWalkExternalInstance : public XWalkExtensionInstance {
  public:
-  XWalkExternalContext(XWalkExternalExtension* extension,
-                       XW_Instance xw_instance);
-  virtual ~XWalkExternalContext();
+  XWalkExternalInstance(XWalkExternalExtension* extension,
+                        XW_Instance xw_instance);
+  virtual ~XWalkExternalInstance();
 
  private:
   friend class XWalkExternalAdapter;
@@ -53,10 +53,10 @@ class XWalkExternalContext : public XWalkExtensionInstance {
   void* instance_data_;
   bool is_handling_sync_msg_;
 
-  DISALLOW_COPY_AND_ASSIGN(XWalkExternalContext);
+  DISALLOW_COPY_AND_ASSIGN(XWalkExternalInstance);
 };
 
 }  // namespace extensions
 }  // namespace xwalk
 
-#endif  // XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
+#endif  // XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_

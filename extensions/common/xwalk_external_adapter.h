@@ -9,8 +9,8 @@
 #include "base/memory/singleton.h"
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
-#include "xwalk/extensions/common/xwalk_external_context.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
+#include "xwalk/extensions/common/xwalk_external_instance.h"
 
 // NOTE: Those macros define functions that are used in the structs by
 // GetInterface(). They dispatch the function to the appropriate
@@ -49,15 +49,11 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExternalExtension;
-class XWalkExternalContext;
-
-// TODO(cmarcelo): Rename XWalkExternalContext to XWalkExternalInstance. The
-// typedef is here to ensure macros work even before rename.
-typedef XWalkExternalContext XWalkExternalInstance;
+class XWalkExternalInstance;
 
 // Provides the "C Interfaces" defined in XW_Extension.h and maps the
 // functions from external extension to their implementations in
-// XWalkExternalExtension and XWalkExternalContext. We have only one
+// XWalkExternalExtension and XWalkExternalInstance. We have only one
 // adapter per process.
 class XWalkExternalAdapter {
  public:
@@ -73,8 +69,8 @@ class XWalkExternalAdapter {
 
   // This adds the context to the adapter's mapping, so C calls to
   // its corresponding XW_Instance are correctly dispatched.
-  void RegisterInstance(XWalkExternalContext* context);
-  void UnregisterInstance(XWalkExternalContext* context);
+  void RegisterInstance(XWalkExternalInstance* context);
+  void UnregisterInstance(XWalkExternalInstance* context);
 
   // Returns the correct struct according to interface asked. This is
   // passed to external extensions in XW_Initialize() call.
@@ -92,7 +88,7 @@ class XWalkExternalAdapter {
   // Used by the DEFINE_* macros to bridge the calls using C API identifiers
   // XW_Extension and XW_Instance to the right C++ object.
   static XWalkExternalExtension* GetExtension(XW_Extension xw_extension);
-  static XWalkExternalContext* GetInstance(XW_Instance xw_instance);
+  static XWalkExternalInstance* GetInstance(XW_Instance xw_instance);
   static void LogInvalidCall(int32_t value, const char* type,
                              const char* interface, const char* function);
 
@@ -118,7 +114,7 @@ class XWalkExternalAdapter {
   typedef std::map<XW_Extension, XWalkExternalExtension*> ExtensionMap;
   ExtensionMap extension_map_;
 
-  typedef std::map<XW_Instance, XWalkExternalContext*> InstanceMap;
+  typedef std::map<XW_Instance, XWalkExternalInstance*> InstanceMap;
   InstanceMap instance_map_;
 
   XW_Extension next_xw_extension_;
