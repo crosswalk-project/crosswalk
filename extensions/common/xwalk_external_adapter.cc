@@ -43,14 +43,14 @@ void XWalkExternalAdapter::UnregisterExtension(
   extension_map_.erase(xw_extension);
 }
 
-void XWalkExternalAdapter::RegisterInstance(XWalkExternalContext* context) {
+void XWalkExternalAdapter::RegisterInstance(XWalkExternalInstance* context) {
   XW_Instance xw_instance = context->xw_instance_;
   CHECK(IsValidXWInstance(xw_instance));
   CHECK(instance_map_.find(xw_instance) == instance_map_.end());
   instance_map_[xw_instance] = context;
 }
 
-void XWalkExternalAdapter::UnregisterInstance(XWalkExternalContext* context) {
+void XWalkExternalAdapter::UnregisterInstance(XWalkExternalInstance* context) {
   XW_Instance xw_instance = context->xw_instance_;
   CHECK(IsValidXWInstance(xw_instance));
   CHECK(instance_map_.find(xw_instance) != instance_map_.end());
@@ -108,7 +108,7 @@ XWalkExternalExtension* XWalkExternalAdapter::GetExtension(
   return it->second;
 }
 
-XWalkExternalContext* XWalkExternalAdapter::GetInstance(
+XWalkExternalInstance* XWalkExternalAdapter::GetInstance(
     XW_Instance xw_instance) {
   XWalkExternalAdapter* adapter = XWalkExternalAdapter::GetInstance();
   InstanceMap::iterator it = adapter->instance_map_.find(xw_instance);
