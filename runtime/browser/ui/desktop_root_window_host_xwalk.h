@@ -42,16 +42,14 @@ namespace corewm {
 class CursorManager;
 }
 
+// The DesktopRootWindowHost is basically the "desktop environment" per
+// screen, which is comparable to the X11 window manager concept.
+
 class VIEWS_EXPORT DesktopRootWindowHostXWalk : public DesktopRootWindowHost,
     public aura::RootWindowHost,
     public aura::RootWindowObserver,
     public base::MessageLoop::Dispatcher {
  public:
-  static DesktopRootWindowHost* Create(
-      internal::NativeWidgetDelegate* native_widget_delegate,
-      DesktopNativeWidgetAura* desktop_native_widget_aura,
-      const gfx::Rect& initial_bounds);
-
   DesktopRootWindowHostXWalk(
       internal::NativeWidgetDelegate* native_widget_delegate,
       DesktopNativeWidgetAura* desktop_native_widget_aura,
