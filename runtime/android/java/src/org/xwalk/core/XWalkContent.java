@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.chromium.base.JNINamespace;
+import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
@@ -69,7 +70,8 @@ public class XWalkContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
         mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
-        mWebContents = nativeGetWebContents(mXWalkContent);
+        mWebContents = nativeGetWebContents(mXWalkContent,
+                mContentsClientBridge.getInterceptNavigationDelegate());
 
         // Initialize mWindow which is needed by content
         mWindow = new WindowAndroid(xwView.getActivity());
@@ -136,6 +138,10 @@ public class XWalkContent extends FrameLayout {
 
     public void setDownloadListener(DownloadListener listener) {
         mContentsClientBridge.setDownloadListener(listener);
+    }
+
+    public void setNavigationHandler(XWalkNavigationHandler handler) {
+        mContentsClientBridge.setNavigationHandler(handler);
     }
 
     public void onPause() {
@@ -220,7 +226,8 @@ public class XWalkContent extends FrameLayout {
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
 
-    private native int nativeGetWebContents(int nativeXWalkContent);
+    private native int nativeGetWebContents(int nativeXWalkContent,
+            InterceptNavigationDelegate delegate);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(int nativeXWalkContent);
     private native String nativeGetVersion(int nativeXWalkContent);

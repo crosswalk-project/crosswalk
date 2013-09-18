@@ -14,6 +14,7 @@ import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
 import org.xwalk.core.client.XWalkDefaultDownloadListener;
+import org.xwalk.core.client.XWalkDefaultNavigationHandler;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 
 public class XWalkView extends FrameLayout {
@@ -69,6 +70,7 @@ public class XWalkView extends FrameLayout {
         // are provided via the following clients if special actions are not needed.
         setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context, this));
         setDownloadListener(new XWalkDefaultDownloadListener(context));
+        setNavigationHandler(new XWalkDefaultNavigationHandler(context));
     }
 
     public void loadUrl(String url) {
@@ -150,6 +152,10 @@ public class XWalkView extends FrameLayout {
 
     public void setDownloadListener(DownloadListener listener) {
         mContent.setDownloadListener(listener);
+    }
+
+    public void setNavigationHandler(XWalkNavigationHandler handler) {
+        mContent.setNavigationHandler(handler);
     }
 
     // Enables remote debugging and returns the URL at which the dev tools server is listening
