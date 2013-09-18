@@ -5,7 +5,6 @@
 # found in the LICENSE file.
 
 import os
-import shutil
 import sys
 import tarfile
 
@@ -32,7 +31,6 @@ def main(args):
     tar.close()
   finally:
     os.chdir(cur_cwd)
-  shutil.rmtree(dir_to_tar)
 
 
 if __name__ == '__main__':
