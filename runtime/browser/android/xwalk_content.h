@@ -30,7 +30,7 @@ class XWalkContent {
 
   static XWalkContent* FromWebContents(content::WebContents* web_contents);
 
-  jint GetWebContents(JNIEnv* env, jobject obj);
+  jint GetWebContents(JNIEnv* env, jobject obj, jobject delegate);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
@@ -41,7 +41,7 @@ class XWalkContent {
   };
 
  private:
-  content::WebContents* CreateWebContents();
+  content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);
 
   JavaObjectWeakGlobalRef java_ref_;
   scoped_ptr<content::WebContents> web_contents_;
