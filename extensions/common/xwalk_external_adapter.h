@@ -9,8 +9,8 @@
 #include "base/memory/singleton.h"
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
-#include "xwalk/extensions/common/xwalk_external_context.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
+#include "xwalk/extensions/common/xwalk_external_instance.h"
 
 // NOTE: Those macros define functions that are used in the structs by
 // GetInterface(). They dispatch the function to the appropriate

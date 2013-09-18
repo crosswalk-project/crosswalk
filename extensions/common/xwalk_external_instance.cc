@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/extensions/common/xwalk_external_context.h"
+#include "xwalk/extensions/common/xwalk_external_instance.h"
 
 #include <string>
 #include "base/logging.h"

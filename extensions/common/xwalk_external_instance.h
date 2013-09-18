@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
-#define XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
+#ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_
+#define XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_
 
 #include <string>
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -59,4 +59,4 @@ class XWalkExternalInstance : public XWalkExtensionInstance {
 }  // namespace extensions
 }  // namespace xwalk
 
-#endif  // XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_CONTEXT_H_
+#endif  // XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_INSTANCE_H_
