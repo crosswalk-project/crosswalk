@@ -61,7 +61,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   content::RunAllPendingInMessageLoop();
   const xwalk::RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
   // At least the main document's runtime exist after launch.
-  ASSERT_GE(runtimes.size(), 1);
+  ASSERT_GE(runtimes.size(), 1U);
 
   Runtime* main_runtime = runtimes[0];
   xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
