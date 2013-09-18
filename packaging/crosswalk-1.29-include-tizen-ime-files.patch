@@ -58,7 +58,7 @@ index 5f2adc1..b420fa7 100644
    ],
  }
 diff --git src/ui/base/ime/input_method_factory.cc src/ui/base/ime/input_method_factory.cc
-index 018823f..812c0a5 100644
+index 018823f..066784d 100644
 --- src/ui/base/ime/input_method_factory.cc
 +++ src/ui/base/ime/input_method_factory.cc
 @@ -13,6 +13,8 @@
@@ -75,7 +75,7 @@ index 018823f..812c0a5 100644
  #elif defined(OS_WIN)
    return CreateInputMethodWinInternal(delegate, widget);
 +#elif defined(OS_TIZEN_MOBILE)
-+  return new InputMethodScim(delegate);
++  return new InputMethodSCIM(delegate);
  #else
    return new FakeInputMethod(delegate);
  #endif
