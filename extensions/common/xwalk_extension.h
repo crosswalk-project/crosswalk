@@ -68,7 +68,8 @@ class XWalkExtensionInstance {
   virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
 
   // Allow to handle synchronous messages sent from JavaScript code. Renderer
-  // will block until this function returns.
+  // will block until SendSyncReplyToJS is called with the reply. Note that
+  // it may be called from "outside" of the HandleSyncMessage call.
   virtual void HandleSyncMessage(scoped_ptr<base::Value> msg);
 
   void SetPostMessageCallback(
@@ -87,6 +88,7 @@ class XWalkExtensionInstance {
     post_message_.Run(msg.Pass());
   }
 
+  // Unblocks the renderer waiting on a SyncMessage.
   void SendSyncReplyToJS(scoped_ptr<base::Value> reply) {
     send_sync_reply_.Run(reply.Pass());
   }
