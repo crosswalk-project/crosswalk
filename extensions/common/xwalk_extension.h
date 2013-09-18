@@ -5,81 +5,85 @@
 #ifndef XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_H_
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_H_
 
-#include <stdint.h>
 #include <string>
-#include "base/callback_forward.h"
 #include "base/callback.h"
 #include "base/values.h"
 
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtensionWrapper;
+// Crosswalk Extensions are used to provide native code functionality associated
+// with a JS API. The native side and JS side communicate by exchanging
+// messages. The message semantics are up to the extension implementer. The
+// architecture allows us to run the native side of the extension in a separated
+// process.
+//
+// In Crosswalk we provide a C API for external extensions implemented separated
+// out of Crosswalk binary. Those are loaded when application starts. See
+// XWalkExternalExtension for it's implementation and XW_Extension.h for the C
+// API.
+
 class XWalkExtensionInstance;
 
-// Message exchanging interface to be implemented by Crosswalk extensions. This
-// is essentially a factory for XWalkExtensionInstance objects that will handle
-// messages.
+// XWalkExtension is a factory class to be implemented by each extension, and
+// used to create extension instance objects. It also holds information valid
+// for all the instances, like the JavaScript API. See also
+// XWalkExtensionInstance.
 class XWalkExtension {
  public:
-  XWalkExtension();
   virtual ~XWalkExtension();
 
-  // Returns the JavaScript API code that will be executed in the
-  // renderer process. It allows the extension provide a function or
-  // object based interface on top of the message passing.
+  // Returns the JavaScript API code that will be executed in the render
+  // process. It allows the extension provide a function or object based
+  // interface on top of the message passing.
   virtual const char* GetJavaScriptAPI() = 0;
 
-  // Callback type used by Instances to send messages. Callbacks of this type
-  // will be created by the extension system and handled to
-  // XWalkExtensionInstance. Callback will take the ownership of the message.
-  typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
-
-  typedef base::Callback<void(scoped_ptr<base::Value> msg)>
-      SendSyncReplyCallback;
-
-  // Create an XWalkExtensionInstance with the given |post_message| callback.
   virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
 
  protected:
+  XWalkExtension();
   void set_name(const std::string& name) { name_ = name; }
 
  private:
-  friend class XWalkExtensionWrapper;
-  friend class XWalkExtensionInstance;
-
   // Name of extension, used for dispatching messages.
   std::string name_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };
 
-// XWalkExtensionInstance represents a C++ instance of a certain extension,
-// which is created per Frame/ScriptContext per WebContents.
+// XWalkExtensionInstance represents an instance of a certain extension, which
+// is created per ScriptContext created by Crosswalk (which happens for every
+// frame loaded).
+//
 // XWalkExtensionInstance objects allow us to keep separated state for each
 // execution.
 class XWalkExtensionInstance {
  public:
   virtual ~XWalkExtensionInstance();
+
   // Allow to handle messages sent from JavaScript code running in renderer
   // process.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) = 0;
 
   // Allow to handle synchronous messages sent from JavaScript code. Renderer
-  // will block until SendSyncReplyToJS is called with the reply. Note that
-  // it may be called from "outside" of the HandleSyncMessage call.
+  // will block until SendSyncReplyToJS() is called with the reply. The reply
+  // can be sent after HandleSyncMessage() function returns.
   virtual void HandleSyncMessage(scoped_ptr<base::Value> msg);
 
-  void SetPostMessageCallback(
-      const XWalkExtension::PostMessageCallback& post_message);
+  // Callbacks used by extension instance to communicate back to JS. These are
+  // set by the extension system. Callbacks will take the ownership of the
+  // message.
+  typedef base::Callback<void(scoped_ptr<base::Value> msg)> PostMessageCallback;
+  typedef base::Callback<void(scoped_ptr<base::Value> msg)>
+      SendSyncReplyCallback;
 
-  void SetSendSyncReplyCallback(
-      const XWalkExtension::SendSyncReplyCallback& callback);
+  void SetPostMessageCallback(const PostMessageCallback& callback);
+  void SetSendSyncReplyCallback(const SendSyncReplyCallback& callback);
 
  protected:
-  explicit XWalkExtensionInstance();
+  XWalkExtensionInstance();
 
   // Function to be used by extensions Instances to post messages back to
   // JavaScript in the renderer process. This function will take the ownership
@@ -94,8 +98,8 @@ class XWalkExtensionInstance {
   }
 
  private:
-  XWalkExtension::PostMessageCallback post_message_;
-  XWalkExtension::SendSyncReplyCallback send_sync_reply_;
+  PostMessageCallback post_message_;
+  SendSyncReplyCallback send_sync_reply_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionInstance);
 };
