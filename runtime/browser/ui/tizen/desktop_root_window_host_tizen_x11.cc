@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/desktop_root_window_host_xwalk.h"
+#include "xwalk/runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.h"
 
 #include <X11/extensions/XInput2.h>
 #include <X11/Xatom.h>
@@ -46,14 +46,14 @@
 
 namespace views {
 
-DesktopRootWindowHostXWalk* DesktopRootWindowHostXWalk::g_current_capture =
-    NULL;
+DesktopRootWindowHostTizenX11*
+    DesktopRootWindowHostTizenX11::g_current_capture = NULL;
 
 DEFINE_WINDOW_PROPERTY_KEY(
     aura::Window*, kViewsWindowForRootWindow, NULL);
 
 DEFINE_WINDOW_PROPERTY_KEY(
-    DesktopRootWindowHostXWalk*, kHostForRootWindow, NULL);
+    DesktopRootWindowHostTizenX11*, kHostForRootWindow, NULL);
 
 namespace {
 
@@ -98,9 +98,9 @@ const char* kAtomsToCache[] = {
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostXWalk, public:
+// DesktopRootWindowHostTizenX11, public:
 
-DesktopRootWindowHostXWalk::DesktopRootWindowHostXWalk(
+DesktopRootWindowHostTizenX11::DesktopRootWindowHostTizenX11(
     internal::NativeWidgetDelegate* native_widget_delegate,
     DesktopNativeWidgetAura* desktop_native_widget_aura,
     const gfx::Rect& initial_bounds)
@@ -116,7 +116,7 @@ DesktopRootWindowHostXWalk::DesktopRootWindowHostXWalk(
       desktop_native_widget_aura_(desktop_native_widget_aura) {
 }
 
-DesktopRootWindowHostXWalk::~DesktopRootWindowHostXWalk() {
+DesktopRootWindowHostTizenX11::~DesktopRootWindowHostTizenX11() {
   root_window_->ClearProperty(kHostForRootWindow);
   if (corewm::UseFocusControllerOnDesktop()) {
     aura::client::SetFocusClient(root_window_, NULL);
@@ -125,9 +125,9 @@ DesktopRootWindowHostXWalk::~DesktopRootWindowHostXWalk() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostXWalk, private:
+// DesktopRootWindowHostTizenX11, private:
 
-void DesktopRootWindowHostXWalk::InitX11Window(
+void DesktopRootWindowHostTizenX11::InitX11Window(
     const Widget::InitParams& params) {
   unsigned long attribute_mask = CWBackPixmap; // NOLINT(*)
   XSetWindowAttributes swa;
@@ -190,18 +190,19 @@ void DesktopRootWindowHostXWalk::InitX11Window(
 }
 
 // static
-aura::Window* DesktopRootWindowHostXWalk::GetContentWindowForXID(XID xid) {
+aura::Window* DesktopRootWindowHostTizenX11::GetContentWindowForXID(XID xid) {
   aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(xid);
   return root ? root->GetProperty(kViewsWindowForRootWindow) : NULL;
 }
 
 // static
-DesktopRootWindowHostXWalk* DesktopRootWindowHostXWalk::GetHostForXID(XID xid) {
+DesktopRootWindowHostTizenX11*
+    DesktopRootWindowHostTizenX11::GetHostForXID(XID xid) {
   aura::RootWindow* root = aura::RootWindow::GetForAcceleratedWidget(xid);
   return root ? root->GetProperty(kHostForRootWindow) : NULL;
 }
 
-void DesktopRootWindowHostXWalk::HandleNativeWidgetActivationChanged(
+void DesktopRootWindowHostTizenX11::HandleNativeWidgetActivationChanged(
     bool active) {
   native_widget_delegate_->OnNativeWidgetActivationChanged(active);
   native_widget_delegate_->AsWidget()->GetRootView()->SchedulePaint();
@@ -209,7 +210,7 @@ void DesktopRootWindowHostXWalk::HandleNativeWidgetActivationChanged(
 
 // TODO(erg): This method should basically be everything I need form
 // RootWindowHostX11::RootWindowHostX11().
-aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
+aura::RootWindow* DesktopRootWindowHostTizenX11::InitRootWindow(
     const Widget::InitParams& params) {
   bounds_ = params.bounds;
 
@@ -304,14 +305,14 @@ aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
   return root_window_;
 }
 
-bool DesktopRootWindowHostXWalk::IsWindowManagerPresent() {
+bool DesktopRootWindowHostTizenX11::IsWindowManagerPresent() {
   // Per ICCCM 2.8, "Manager Selections", window managers should take ownership
   // of WM_Sn selections (where n is a screen number).
   return XGetSelectionOwner(
       xdisplay_, atom_cache_.GetAtom("WM_S0")) != None;
 }
 
-void DesktopRootWindowHostXWalk::SetWMSpecState(bool enabled,
+void DesktopRootWindowHostTizenX11::SetWMSpecState(bool enabled,
                                                 ::Atom state1,
                                                 ::Atom state2) {
   XEvent xclient;
@@ -332,15 +333,16 @@ void DesktopRootWindowHostXWalk::SetWMSpecState(bool enabled,
              &xclient);
 }
 
-bool DesktopRootWindowHostXWalk::HasWMSpecProperty(const char* property) const {
+bool DesktopRootWindowHostTizenX11::HasWMSpecProperty(
+    const char* property) const {
   return window_properties_.find(atom_cache_.GetAtom(property)) !=
       window_properties_.end();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostXWalk, DesktopRootWindowHost implementation:
+// DesktopRootWindowHostTizenX11, DesktopRootWindowHost implementation:
 
-aura::RootWindow* DesktopRootWindowHostXWalk::Init(
+aura::RootWindow* DesktopRootWindowHostTizenX11::Init(
     aura::Window* content_window,
     const Widget::InitParams& params) {
   content_window_ = content_window;
@@ -360,10 +362,10 @@ aura::RootWindow* DesktopRootWindowHostXWalk::Init(
   return InitRootWindow(sanitized_params);
 }
 
-void DesktopRootWindowHostXWalk::InitFocus(aura::Window* window) {
+void DesktopRootWindowHostTizenX11::InitFocus(aura::Window* window) {
 }
 
-void DesktopRootWindowHostXWalk::Close() {
+void DesktopRootWindowHostTizenX11::Close() {
   // TODO(erg): Might need to do additional hiding tasks here.
 
   if (!close_widget_factory_.HasWeakPtrs()) {
@@ -373,12 +375,12 @@ void DesktopRootWindowHostXWalk::Close() {
     // dereference us when the callback returns).
     base::MessageLoop::current()->PostTask(
         FROM_HERE,
-        base::Bind(&DesktopRootWindowHostXWalk::CloseNow,
+        base::Bind(&DesktopRootWindowHostTizenX11::CloseNow,
                    close_widget_factory_.GetWeakPtr()));
   }
 }
 
-void DesktopRootWindowHostXWalk::CloseNow() {
+void DesktopRootWindowHostTizenX11::CloseNow() {
   if (xwindow_ == None)
     return;
 
@@ -397,11 +399,11 @@ void DesktopRootWindowHostXWalk::CloseNow() {
   desktop_native_widget_aura_->OnHostClosed();
 }
 
-aura::RootWindowHost* DesktopRootWindowHostXWalk::AsRootWindowHost() {
+aura::RootWindowHost* DesktopRootWindowHostTizenX11::AsRootWindowHost() {
   return this;
 }
 
-void DesktopRootWindowHostXWalk::ShowWindowWithState(
+void DesktopRootWindowHostTizenX11::ShowWindowWithState(
     ui::WindowShowState show_state) {
   if (show_state != ui::SHOW_STATE_DEFAULT &&
       show_state != ui::SHOW_STATE_NORMAL) {
@@ -412,7 +414,7 @@ void DesktopRootWindowHostXWalk::ShowWindowWithState(
   Show();
 }
 
-void DesktopRootWindowHostXWalk::ShowMaximizedWithBounds(
+void DesktopRootWindowHostTizenX11::ShowMaximizedWithBounds(
     const gfx::Rect& restored_bounds) {
   // TODO(erg):
   NOTIMPLEMENTED();
@@ -421,16 +423,16 @@ void DesktopRootWindowHostXWalk::ShowMaximizedWithBounds(
   Show();
 }
 
-bool DesktopRootWindowHostXWalk::IsVisible() const {
+bool DesktopRootWindowHostTizenX11::IsVisible() const {
   return window_mapped_;
 }
 
-void DesktopRootWindowHostXWalk::SetSize(const gfx::Size& size) {
+void DesktopRootWindowHostTizenX11::SetSize(const gfx::Size& size) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::CenterWindow(const gfx::Size& size) {
+void DesktopRootWindowHostTizenX11::CenterWindow(const gfx::Size& size) {
   gfx::Rect parent_bounds = GetWorkAreaBoundsInScreen();
 
   // If |window_|'s transient parent bounds are big enough to contain |size|,
@@ -456,7 +458,7 @@ void DesktopRootWindowHostXWalk::CenterWindow(const gfx::Size& size) {
   SetBounds(window_bounds);
 }
 
-void DesktopRootWindowHostXWalk::GetWindowPlacement(
+void DesktopRootWindowHostTizenX11::GetWindowPlacement(
     gfx::Rect* bounds,
     ui::WindowShowState* show_state) const {
   *bounds = bounds_;
@@ -466,11 +468,11 @@ void DesktopRootWindowHostXWalk::GetWindowPlacement(
   *show_state = ui::SHOW_STATE_NORMAL;
 }
 
-gfx::Rect DesktopRootWindowHostXWalk::GetWindowBoundsInScreen() const {
+gfx::Rect DesktopRootWindowHostTizenX11::GetWindowBoundsInScreen() const {
   return bounds_;
 }
 
-gfx::Rect DesktopRootWindowHostXWalk::GetClientAreaBoundsInScreen() const {
+gfx::Rect DesktopRootWindowHostTizenX11::GetClientAreaBoundsInScreen() const {
   // TODO(erg): The NativeWidgetAura version returns |bounds_|, claiming its
   // needed for View::ConvertPointToScreen() to work
   // correctly. DesktopRootWindowHostWin::GetClientAreaBoundsInScreen() just
@@ -482,13 +484,13 @@ gfx::Rect DesktopRootWindowHostXWalk::GetClientAreaBoundsInScreen() const {
   return bounds_;
 }
 
-gfx::Rect DesktopRootWindowHostXWalk::GetRestoredBounds() const {
+gfx::Rect DesktopRootWindowHostTizenX11::GetRestoredBounds() const {
   // TODO(erg):
   NOTIMPLEMENTED();
   return gfx::Rect();
 }
 
-gfx::Rect DesktopRootWindowHostXWalk::GetWorkAreaBoundsInScreen() const {
+gfx::Rect DesktopRootWindowHostTizenX11::GetWorkAreaBoundsInScreen() const {
   std::vector<int> value;
   if (ui::GetIntArrayProperty(x_root_window_, "_NET_WORKAREA", &value) &&
       value.size() >= 4) {
@@ -509,59 +511,59 @@ gfx::Rect DesktopRootWindowHostXWalk::GetWorkAreaBoundsInScreen() const {
   return gfx::Rect(x, y, width, height);
 }
 
-void DesktopRootWindowHostXWalk::SetShape(gfx::NativeRegion native_region) {
+void DesktopRootWindowHostTizenX11::SetShape(gfx::NativeRegion native_region) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::Activate() {
+void DesktopRootWindowHostTizenX11::Activate() {
   X11DesktopHandler::get()->ActivateWindow(xwindow_);
 }
 
-void DesktopRootWindowHostXWalk::Deactivate() {
+void DesktopRootWindowHostTizenX11::Deactivate() {
   // Deactivating a window means activating nothing.
   X11DesktopHandler::get()->ActivateWindow(None);
 }
 
-bool DesktopRootWindowHostXWalk::IsActive() const {
+bool DesktopRootWindowHostTizenX11::IsActive() const {
   return X11DesktopHandler::get()->IsActiveWindow(xwindow_);
 }
 
-void DesktopRootWindowHostXWalk::Maximize() {
+void DesktopRootWindowHostTizenX11::Maximize() {
   SetWMSpecState(true,
                  atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_VERT"),
                  atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_HORZ"));
 }
 
-void DesktopRootWindowHostXWalk::Minimize() {
+void DesktopRootWindowHostTizenX11::Minimize() {
   XIconifyWindow(xdisplay_, xwindow_, 0);
 }
 
-void DesktopRootWindowHostXWalk::Restore() {
+void DesktopRootWindowHostTizenX11::Restore() {
   SetWMSpecState(false,
                  atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_VERT"),
                  atom_cache_.GetAtom("_NET_WM_STATE_MAXIMIZED_HORZ"));
 }
 
-bool DesktopRootWindowHostXWalk::IsMaximized() const {
+bool DesktopRootWindowHostTizenX11::IsMaximized() const {
   return (HasWMSpecProperty("_NET_WM_STATE_MAXIMIZED_VERT") ||
           HasWMSpecProperty("_NET_WM_STATE_MAXIMIZED_HORZ"));
 }
 
-bool DesktopRootWindowHostXWalk::IsMinimized() const {
+bool DesktopRootWindowHostTizenX11::IsMinimized() const {
   return HasWMSpecProperty("_NET_WM_STATE_HIDDEN");
 }
 
-void DesktopRootWindowHostXWalk::OnCaptureReleased() {
+void DesktopRootWindowHostTizenX11::OnCaptureReleased() {
   native_widget_delegate_->OnMouseCaptureLost();
   g_current_capture = NULL;
 }
 
-void DesktopRootWindowHostXWalk::DispatchMouseEvent(ui::MouseEvent* event) {
+void DesktopRootWindowHostTizenX11::DispatchMouseEvent(ui::MouseEvent* event) {
   if (!g_current_capture || g_current_capture == this) {
     root_window_host_delegate_->OnHostMouseEvent(event);
   } else {
-    // Another DesktopRootWindowHostXWalk has installed itself as
+    // Another DesktopRootWindowHostTizenX11 has installed itself as
     // capture. Translate the event's location and dispatch to the other.
     event->ConvertLocationToTarget(root_window_,
                                    g_current_capture->root_window_);
@@ -569,21 +571,21 @@ void DesktopRootWindowHostXWalk::DispatchMouseEvent(ui::MouseEvent* event) {
   }
 }
 
-bool DesktopRootWindowHostXWalk::HasCapture() const {
+bool DesktopRootWindowHostTizenX11::HasCapture() const {
   return g_current_capture == this;
 }
 
-void DesktopRootWindowHostXWalk::SetAlwaysOnTop(bool always_on_top) {
+void DesktopRootWindowHostTizenX11::SetAlwaysOnTop(bool always_on_top) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::SetWindowTitle(const string16& title) {
+void DesktopRootWindowHostTizenX11::SetWindowTitle(const string16& title) {
   XmbSetWMProperties(xdisplay_, xwindow_, UTF16ToUTF8(title).c_str(), NULL,
       NULL, 0, NULL, NULL, NULL);
 }
 
-void DesktopRootWindowHostXWalk::ClearNativeFocus() {
+void DesktopRootWindowHostTizenX11::ClearNativeFocus() {
   // This method is weird and misnamed. Instead of clearing the native focus,
   // it sets the focus to our |content_window_|, which will trigger a cascade
   // of focus changes into views.
@@ -594,7 +596,7 @@ void DesktopRootWindowHostXWalk::ClearNativeFocus() {
   }
 }
 
-Widget::MoveLoopResult DesktopRootWindowHostXWalk::RunMoveLoop(
+Widget::MoveLoopResult DesktopRootWindowHostTizenX11::RunMoveLoop(
     const gfx::Vector2d& drag_offset,
     Widget::MoveLoopSource source) {
   SetCapture();
@@ -610,87 +612,87 @@ Widget::MoveLoopResult DesktopRootWindowHostXWalk::RunMoveLoop(
   return Widget::MOVE_LOOP_CANCELED;
 }
 
-void DesktopRootWindowHostXWalk::EndMoveLoop() {
+void DesktopRootWindowHostTizenX11::EndMoveLoop() {
   x11_window_move_client_->EndMoveLoop();
 }
 
-void DesktopRootWindowHostXWalk::SetVisibilityChangedAnimationsEnabled(
+void DesktopRootWindowHostTizenX11::SetVisibilityChangedAnimationsEnabled(
     bool value) {
   // Much like the previous NativeWidgetGtk, we don't have anything to do here.
 }
 
-bool DesktopRootWindowHostXWalk::ShouldUseNativeFrame() {
+bool DesktopRootWindowHostTizenX11::ShouldUseNativeFrame() {
   return false;
 }
 
-void DesktopRootWindowHostXWalk::FrameTypeChanged() {
+void DesktopRootWindowHostTizenX11::FrameTypeChanged() {
 }
 
-NonClientFrameView* DesktopRootWindowHostXWalk::CreateNonClientFrameView() {
+NonClientFrameView* DesktopRootWindowHostTizenX11::CreateNonClientFrameView() {
   return NULL;
 }
 
-void DesktopRootWindowHostXWalk::SetFullscreen(bool fullscreen) {
+void DesktopRootWindowHostTizenX11::SetFullscreen(bool fullscreen) {
   SetWMSpecState(fullscreen,
                  atom_cache_.GetAtom("_NET_WM_STATE_FULLSCREEN"),
                  None);
 }
 
-bool DesktopRootWindowHostXWalk::IsFullscreen() const {
+bool DesktopRootWindowHostTizenX11::IsFullscreen() const {
   return HasWMSpecProperty("_NET_WM_STATE_FULLSCREEN");
 }
 
-void DesktopRootWindowHostXWalk::SetOpacity(unsigned char opacity) {
+void DesktopRootWindowHostTizenX11::SetOpacity(unsigned char opacity) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::SetWindowIcons(
+void DesktopRootWindowHostTizenX11::SetWindowIcons(
     const gfx::ImageSkia& window_icon, const gfx::ImageSkia& app_icon) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::InitModalType(ui::ModalType modal_type) {
+void DesktopRootWindowHostTizenX11::InitModalType(ui::ModalType modal_type) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::FlashFrame(bool flash_frame) {
+void DesktopRootWindowHostTizenX11::FlashFrame(bool flash_frame) {
   // TODO(erg):
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::OnNativeWidgetFocus() {
+void DesktopRootWindowHostTizenX11::OnNativeWidgetFocus() {
   native_widget_delegate_->AsWidget()->GetInputMethod()->OnFocus();
 }
 
-void DesktopRootWindowHostXWalk::OnNativeWidgetBlur() {
+void DesktopRootWindowHostTizenX11::OnNativeWidgetBlur() {
   if (xwindow_)
     native_widget_delegate_->AsWidget()->GetInputMethod()->OnBlur();
 }
 
-void DesktopRootWindowHostXWalk::SetInactiveRenderingDisabled(
+void DesktopRootWindowHostTizenX11::SetInactiveRenderingDisabled(
     bool disable_inactive) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostXWalk, aura::RootWindowHost implementation:
+// DesktopRootWindowHostTizenX11, aura::RootWindowHost implementation:
 
-void DesktopRootWindowHostXWalk::SetDelegate(
+void DesktopRootWindowHostTizenX11::SetDelegate(
     aura::RootWindowHostDelegate* delegate) {
   root_window_host_delegate_ = delegate;
 }
 
-aura::RootWindow* DesktopRootWindowHostXWalk::GetRootWindow() {
+aura::RootWindow* DesktopRootWindowHostTizenX11::GetRootWindow() {
   return root_window_;
 }
 
-gfx::AcceleratedWidget DesktopRootWindowHostXWalk::GetAcceleratedWidget() {
+gfx::AcceleratedWidget DesktopRootWindowHostTizenX11::GetAcceleratedWidget() {
   return xwindow_;
 }
 
-void DesktopRootWindowHostXWalk::Show() {
+void DesktopRootWindowHostTizenX11::Show() {
   if (!window_mapped_) {
     // Before we map the window, set size hints. Otherwise, some window managers
     // will ignore toplevel XMoveWindow commands.
@@ -717,22 +719,22 @@ void DesktopRootWindowHostXWalk::Show() {
   }
 }
 
-void DesktopRootWindowHostXWalk::Hide() {
+void DesktopRootWindowHostTizenX11::Hide() {
   if (window_mapped_) {
     XWithdrawWindow(xdisplay_, xwindow_, 0);
     window_mapped_ = false;
   }
 }
 
-void DesktopRootWindowHostXWalk::ToggleFullScreen() {
+void DesktopRootWindowHostTizenX11::ToggleFullScreen() {
   NOTIMPLEMENTED();
 }
 
-gfx::Rect DesktopRootWindowHostXWalk::GetBounds() const {
+gfx::Rect DesktopRootWindowHostTizenX11::GetBounds() const {
   return bounds_;
 }
 
-void DesktopRootWindowHostXWalk::SetBounds(const gfx::Rect& bounds) {
+void DesktopRootWindowHostTizenX11::SetBounds(const gfx::Rect& bounds) {
   bool origin_changed = bounds_.origin() != bounds.origin();
   bool size_changed = bounds_.size() != bounds.size();
   XWindowChanges changes = {0};
@@ -771,18 +773,18 @@ void DesktopRootWindowHostXWalk::SetBounds(const gfx::Rect& bounds) {
     root_window_host_delegate_->OnHostPaint(gfx::Rect(bounds.size()));
 }
 
-gfx::Insets DesktopRootWindowHostXWalk::GetInsets() const {
+gfx::Insets DesktopRootWindowHostTizenX11::GetInsets() const {
   return gfx::Insets();
 }
 
-void DesktopRootWindowHostXWalk::SetInsets(const gfx::Insets& insets) {
+void DesktopRootWindowHostTizenX11::SetInsets(const gfx::Insets& insets) {
 }
 
-gfx::Point DesktopRootWindowHostXWalk::GetLocationOnNativeScreen() const {
+gfx::Point DesktopRootWindowHostTizenX11::GetLocationOnNativeScreen() const {
   return bounds_.origin();
 }
 
-void DesktopRootWindowHostXWalk::SetCapture() {
+void DesktopRootWindowHostTizenX11::SetCapture() {
   // This is vaguely based on the old NativeWidgetGtk implementation.
   //
   // X11's XPointerGrab() shouldn't be used for everything; it doesn't map
@@ -804,18 +806,18 @@ void DesktopRootWindowHostXWalk::SetCapture() {
   // to skip this for now.
 }
 
-void DesktopRootWindowHostXWalk::ReleaseCapture() {
+void DesktopRootWindowHostTizenX11::ReleaseCapture() {
   if (g_current_capture)
     g_current_capture->OnCaptureReleased();
 }
 
-void DesktopRootWindowHostXWalk::SetCursor(gfx::NativeCursor cursor) {
+void DesktopRootWindowHostTizenX11::SetCursor(gfx::NativeCursor cursor) {
 #if !defined(OS_TIZEN_MOBILE)
   XDefineCursor(xdisplay_, xwindow_, cursor.platform());
 #endif
 }
 
-bool DesktopRootWindowHostXWalk::QueryMouseLocation(
+bool DesktopRootWindowHostTizenX11::QueryMouseLocation(
     gfx::Point* location_return) {
 #if !defined(OS_TIZEN_MOBILE)
   aura::client::CursorClient* cursor_client =
@@ -843,25 +845,25 @@ bool DesktopRootWindowHostXWalk::QueryMouseLocation(
           win_y_return >= 0 && win_y_return < bounds_.height());
 }
 
-bool DesktopRootWindowHostXWalk::ConfineCursorToRootWindow() {
+bool DesktopRootWindowHostTizenX11::ConfineCursorToRootWindow() {
   NOTIMPLEMENTED();
   return false;
 }
 
-void DesktopRootWindowHostXWalk::UnConfineCursor() {
+void DesktopRootWindowHostTizenX11::UnConfineCursor() {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::OnCursorVisibilityChanged(bool show) {
+void DesktopRootWindowHostTizenX11::OnCursorVisibilityChanged(bool show) {
   // TODO(erg): Conditional on us enabling touch on desktop linux builds, do
   // the same tap-to-click disabling here that chromeos does.
 }
 
-void DesktopRootWindowHostXWalk::MoveCursorTo(const gfx::Point& location) {
+void DesktopRootWindowHostTizenX11::MoveCursorTo(const gfx::Point& location) {
   NOTIMPLEMENTED();
 }
 
-void DesktopRootWindowHostXWalk::SetFocusWhenShown(bool focus_when_shown) {
+void DesktopRootWindowHostTizenX11::SetFocusWhenShown(bool focus_when_shown) {
   static const char* k_NET_WM_USER_TIME = "_NET_WM_USER_TIME";
   focus_when_shown_ = focus_when_shown;
   if (IsWindowManagerPresent() && !focus_when_shown_) {
@@ -872,7 +874,7 @@ void DesktopRootWindowHostXWalk::SetFocusWhenShown(bool focus_when_shown) {
   }
 }
 
-bool DesktopRootWindowHostXWalk::CopyAreaToSkCanvas(
+bool DesktopRootWindowHostTizenX11::CopyAreaToSkCanvas(
     const gfx::Rect& source_bounds,
     const gfx::Point& dest_offset,
     SkCanvas* canvas) {
@@ -880,7 +882,7 @@ bool DesktopRootWindowHostXWalk::CopyAreaToSkCanvas(
   return false;
 }
 
-void DesktopRootWindowHostXWalk::PostNativeEvent(
+void DesktopRootWindowHostTizenX11::PostNativeEvent(
     const base::NativeEvent& native_event) {
   DCHECK(xwindow_);
   DCHECK(xdisplay_);
@@ -913,17 +915,17 @@ void DesktopRootWindowHostXWalk::PostNativeEvent(
   XSendEvent(xdisplay_, xwindow_, False, 0, &xevent);
 }
 
-void DesktopRootWindowHostXWalk::OnDeviceScaleFactorChanged(
+void DesktopRootWindowHostTizenX11::OnDeviceScaleFactorChanged(
     float device_scale_factor) {
 }
 
-void DesktopRootWindowHostXWalk::PrepareForShutdown() {
+void DesktopRootWindowHostTizenX11::PrepareForShutdown() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DesktopRootWindowHostXWalk, MessageLoop::Dispatcher implementation:
+// DesktopRootWindowHostTizenX11, MessageLoop::Dispatcher implementation:
 
-bool DesktopRootWindowHostXWalk::Dispatch(const base::NativeEvent& event) {
+bool DesktopRootWindowHostTizenX11::Dispatch(const base::NativeEvent& event) {
   XEvent* xev = event;
 
   // May want to factor CheckXEventForConsistency(xev); into a common location
@@ -1172,7 +1174,7 @@ bool DesktopRootWindowHostXWalk::Dispatch(const base::NativeEvent& event) {
   return true;
 }
 
-void DesktopRootWindowHostXWalk::OnRootWindowHostCloseRequested(
+void DesktopRootWindowHostTizenX11::OnRootWindowHostCloseRequested(
     const aura::RootWindow* root) {
   DCHECK(root == root_window_);
   Close();
