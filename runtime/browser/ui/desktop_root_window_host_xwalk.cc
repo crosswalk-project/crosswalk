@@ -256,6 +256,7 @@ aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
   aura::client::SetDispatcherClient(root_window_,
                                     dispatcher_client_.get());
 
+#if !defined(OS_TIZEN_MOBILE)
   cursor_client_.reset(
       new views::corewm::CursorManager(
           scoped_ptr<corewm::NativeCursorManager>(
@@ -265,6 +266,7 @@ aura::RootWindow* DesktopRootWindowHostXWalk::InitRootWindow(
                       new DesktopCursorLoaderUpdaterAuraX11)))));
   aura::client::SetCursorClient(root_window_,
                                 cursor_client_.get());
+#endif
 
   position_client_.reset(new DesktopScreenPositionClient);
   aura::client::SetScreenPositionClient(root_window_,
@@ -808,17 +810,21 @@ void DesktopRootWindowHostXWalk::ReleaseCapture() {
 }
 
 void DesktopRootWindowHostXWalk::SetCursor(gfx::NativeCursor cursor) {
+#if !defined(OS_TIZEN_MOBILE)
   XDefineCursor(xdisplay_, xwindow_, cursor.platform());
+#endif
 }
 
 bool DesktopRootWindowHostXWalk::QueryMouseLocation(
     gfx::Point* location_return) {
+#if !defined(OS_TIZEN_MOBILE)
   aura::client::CursorClient* cursor_client =
       aura::client::GetCursorClient(GetRootWindow());
   if (cursor_client && !cursor_client->IsMouseEventsEnabled()) {
     *location_return = gfx::Point(0, 0);
     return false;
   }
+#endif
 
   ::Window root_return, child_return;
   int root_x_return, root_y_return, win_x_return, win_y_return;
