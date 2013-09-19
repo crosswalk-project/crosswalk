@@ -47,23 +47,30 @@ NativeAppWindowViews::NativeAppWindowViews(
     maximum_size_(create_params.maximum_size),
     resizable_(create_params.resizable) {
   window_ = new views::Widget;
-  views::Widget::InitParams params(views::Widget::InitParams::TYPE_WINDOW);
+
+  views::Widget::InitParams params;
   params.delegate = this;
   params.remove_standard_frame = false;
   params.use_system_default_icon = true;
   params.top_level = true;
-  params.bounds = create_params.bounds;
   params.show_state = create_params.state;
+#if defined(OS_TIZEN_MOBILE)
+  params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+#else
+  params.type = views::Widget::InitParams::TYPE_WINDOW;
+  params.bounds = create_params.bounds;
+#endif
+
   window_->Init(params);
 
 #if defined(OS_TIZEN_MOBILE)
-  // Widget::SetBoundsConstrained() in Widget::Init() shrinks 10 pixel
-  // on all edges, so we need to set the bounds again here.
-  window_->SetBounds(
-      gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area());
+  // On Tizen apps are sized to the work area. Set manually to avoid inset.
+  gfx::Rect bounds = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
+  window_->SetBounds(bounds);
 #else
   window_->CenterWindow(create_params.bounds.size());
 #endif
+
   if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);
 
