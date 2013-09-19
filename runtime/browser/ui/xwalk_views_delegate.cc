@@ -9,7 +9,10 @@
 
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/native_widget_aura.h"
-#include "xwalk/runtime/browser/ui/desktop_root_window_host_xwalk.h"
+
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.h"
+#endif
 
 namespace xwalk {
 
@@ -32,14 +35,16 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
         new views::DesktopNativeWidgetAura(delegate);
     params->native_widget = native_widget;
 
+#if defined(OS_TIZEN_MOBILE)
     // In order to avoid not building *_x11.cc file which requires patching
     // Chromium, we do not define DesktopRootWindowHost::Create() in
-    // DesktopRootWindowHostXWalk and instead create it manually here.
+    // DesktopRootWindowHostTizenX11 and instead create it manually here.
     // This way ::InitNativeWidget will adopt it and not call the wrong
     // ::Create returning DesktopRootWindowHostX11.
     params->desktop_root_window_host =
-        new views::DesktopRootWindowHostXWalk(
+        new views::DesktopRootWindowHostTizenX11(
                 delegate, native_widget, params->bounds);
+#endif
 
   } else if (use_non_toplevel_window) {
     params->native_widget = new views::NativeWidgetAura(delegate);
