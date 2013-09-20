@@ -58,14 +58,30 @@ class GClientFileGenerator(object):
     """
     ignores_str = os.environ.get("XWALK_SYNC_IGNORE")
     if not ignores_str:
-      ignores = ['src/webkit/data/layout_tests/LayoutTests',
+      ignores = ['build',
+                 'build/scripts/command_wrapper/bin',
+                 'build/scripts/gsd_generate_index',
+                 'build/scripts/private/data/reliability',
+                 'build/third_party/cbuildbot_chromite',
+                 'build/third_party/gsutil',
+                 'build/third_party/lighttpd',
+                 'build/third_party/swarm_client',
+                 'build/third_party/xvfb',
+                 'build/xvfb',
+                 'build/third_party/cbuildbot_chromite',
+                 'commit-queue',
+                 'depot_tools',
+                 'src/webkit/data/layout_tests/LayoutTests',
                  'src/third_party/WebKit/LayoutTests',
                  'src/content/test/data/layout_tests/LayoutTests',
                  'src/chrome/tools/test/reference_build/chrome_win',
                  'src/chrome_frame/tools/test/reference_build/chrome_win',
                  'src/chrome/tools/test/reference_build/chrome_linux',
                  'src/chrome/tools/test/reference_build/chrome_mac',
-                 'src/third_party/hunspell_dictionaries']
+                 'src/third_party/chromite',
+                 'src/third_party/cros_system_api',
+                 'src/third_party/hunspell_dictionaries',
+                 'src/third_party/pyelftools']
     else:
       ignores_str = ignores_str.replace(':', ';')
       ignores = ignores_str.split(';')
