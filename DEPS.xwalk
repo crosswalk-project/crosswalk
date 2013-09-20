@@ -7,7 +7,7 @@
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '29.0.1547.57'
-chromium_crosswalk_point = 'd845fd7564ae03a3763589a2a7aa0a7ce9939b94'
+chromium_crosswalk_point = '3652d52c45c51f1799330ea5c7cca3a99c909560'
 blink_crosswalk_point = 'bcc7da6145656ada9a0840b3f3b73878ed99b389'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
