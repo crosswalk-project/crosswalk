@@ -573,7 +573,7 @@
 
             # For external testing.
             'xwalk_runtime_lib_apk',
-            'xwalk_app_template_apk',
+            'xwalk_app_hello_world_apk',
             'xwalk_app_template',
           ],
         }],
