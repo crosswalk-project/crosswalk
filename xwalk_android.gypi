@@ -117,6 +117,8 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
         'asset_location': '<(ant_build_out)/xwalk_runtime_lib/assets',
+        'app_manifest_version_name': '<(xwalk_version)',
+        'app_manifest_version_code': '<(xwalk_version_code)',
       },
       'includes': ['../build/java_apk.gypi'],
     },
