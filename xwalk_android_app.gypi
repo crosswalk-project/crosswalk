@@ -1,19 +1,15 @@
 {
   'targets': [
     {
-      'target_name': 'xwalk_app_runtime_client_java',
+      'target_name': 'generate_xwalk_runtime_client_version',
       'type': 'none',
-      'variables': {
-        'java_in_dir': 'app/android/runtime_client',
-        'generated_src_dirs': [ '<(intermediate_dir)/version_java' ],
-      },
       'actions': [
         {
           # Generate the version for runtime client.
           'action_name': 'generate_runtime_client_version',
           'variables': {
             'template_file': 'app/android/runtime_client/src/templates/XWalkRuntimeClientVersion.template',
-            'output_file': '<(intermediate_dir)/version_java/XWalkRuntimeClientVersion.java',
+            'output_file': '<(SHARED_INTERMEDIATE_DIR)/version_java/XWalkRuntimeClientVersion.java',
           },
           'inputs': [
             'VERSION',
@@ -31,6 +27,17 @@
           ],
         },
       ],
+    },
+    {
+      'target_name': 'xwalk_app_runtime_client_java',
+      'type': 'none',
+      'dependencies': [
+        'generate_xwalk_runtime_client_version',
+      ],
+      'variables': {
+        'java_in_dir': 'app/android/runtime_client',
+        'generated_src_dirs': [ '<(SHARED_INTERMEDIATE_DIR)/version_java' ],
+      },
       'includes': ['../build/java.gypi'],
     },
     {
