@@ -98,12 +98,20 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/scripts/gyp/',
           'files': [
+            '../build/android/gyp/ant.py',
+            '../build/android/gyp/util',
             './app/tools/android/gyp/dex.py',
             './app/tools/android/gyp/finalize_apk.py',
-            '../build/android/gyp/ant.py',
-            '../build/android/gyp/jar.py',
-            '../build/android/gyp/javac.py',
-            '../build/android/gyp/util/',
+            './app/tools/android/gyp/jar.py',
+            './app/tools/android/gyp/javac.py',
+          ],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_app_template/scripts/gyp/util/',
+          'files': [
+            '../build/android/gyp/util/__init__.py',
+            '../build/android/gyp/util/md5_check.py',
+            './app/tools/android/gyp/util/build_utils.py',
           ],
         },
         {
