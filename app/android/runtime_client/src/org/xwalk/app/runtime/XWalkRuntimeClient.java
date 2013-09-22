@@ -170,7 +170,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      * @param data the data to contain the result data
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        invokeMethod(mOnActivityResult, requestCode, resultCode, data);
+        invokeMethod(mOnActivityResult, mInstance, requestCode, resultCode, data);
     }
 
     /**
