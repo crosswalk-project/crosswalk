@@ -8,6 +8,7 @@ package org.xwalk.core.xwview.test;
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkClient;
@@ -34,8 +35,11 @@ public class LoadUrlTest extends XWalkViewTestBase {
         getXWalkView().setXWalkClient(new TestXWalkClient());
     }
 
-    @SmallTest
-    @Feature({"LoadUrl"})
+    // @SmallTest
+    // @Feature({"LoadUrl"})
+    // TODO(hengzhi): Since the device issue, it can not access the network,
+    // so disabled this test temporarily. It will be enabled later.
+    @DisabledTest
     public void testNormalUrl() throws Throwable {
         final String url = "http://www.webkit.org/";
         final String expected_title = "The WebKit Open Source Project";
