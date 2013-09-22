@@ -3,6 +3,7 @@
 # Copyright (c) 2013 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+# pylint: disable=F0401
 
 import operator
 import optparse
@@ -12,7 +13,9 @@ import shutil
 import subprocess
 import sys
 
+sys.path.append('scripts/gyp')
 from customize import ReplaceInvalidChars
+from dex import AddExeExtensions
 
 def Which(name):
   """Search PATH for executable files with the given name."""
@@ -39,7 +42,8 @@ def Find(name, path):
   for root, _, files in os.walk(path):
     if name in files:
       key = os.path.join(root, name)
-      str_num = re.search(r'\d+', key.split('/')[-2])
+      sdk_version = os.path.basename(os.path.dirname(key))
+      str_num = re.search(r'\d+', sdk_version)
       if str_num:
         result[key] = int(str_num.group())
       else:
@@ -92,12 +96,13 @@ def Execution(options):
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
 
   try:
-    sdk_jar_path = Find('android.jar', '%s/platforms/' % sdk_root_path)
+    sdk_jar_path = Find('android.jar', os.path.join(sdk_root_path, 'platforms'))
   except Exception:
     print "Your Android SDK may be ruined, please reinstall it."
     sys.exit(2)
 
-  api_level = int(re.search(r'\d+', sdk_jar_path.split('/')[-2]).group())
+  level_string = os.path.basename(os.path.dirname(sdk_jar_path))
+  api_level = int(re.search(r'\d+', level_string).group())
   if api_level < 14:
     print "Please install Android API level (>=14) first."
     sys.exit(3)
@@ -121,48 +126,57 @@ def Execution(options):
     key_alias = 'xwalkdebugkey'
     key_code = 'xwalkdebug'
 
-  if not os.path.exists("out/"):
+  if not os.path.exists("out"):
     os.mkdir("out")
 
   # Make sure to use ant-tasks.jar correctly.
   # Default Android SDK names it as ant-tasks.jar
   # Chrome third party Android SDk names it as anttasks.jar
-  ant_tasks_jar_path = '%s/tools/lib/ant-tasks.jar' % sdk_root_path
+  ant_tasks_jar_path = os.path.join(sdk_root_path,
+                                    'tools', 'lib', 'ant-tasks.jar')
   if not os.path.exists(ant_tasks_jar_path):
-    ant_tasks_jar_path = '%s/tools/lib/anttasks.jar' % sdk_root_path
+    ant_tasks_jar_path = os.path.join(sdk_root_path,
+                                      'tools', 'lib' ,'anttasks.jar')
 
-  try:
-    aapt_path = Find('aapt', sdk_root_path)
-  except Exception:
+  aapt_path = ''
+  for aapt_str in AddExeExtensions('aapt'):
+    try:
+      aapt_path = Find(aapt_str, sdk_root_path)
+      print "Use %s in %s." % (aapt_str, sdk_root_path)
+      break
+    except Exception:
+      print "There doesn't exist %s in %s." % (aapt_str, sdk_root_path)
+  if not aapt_path:
     print "Your Android SDK may be ruined, please reinstall it."
     sys.exit(2)
 
   # Check whether ant is installed.
   try:
     proc = subprocess.Popen(['ant', '-version'],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, shell=True)
   except EnvironmentError:
     print "Please install ant first."
     sys.exit(4)
 
-  manifest_path = '%s/AndroidManifest.xml' % apk_name
-  proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
+  manifest_path = os.path.join(apk_name, 'AndroidManifest.xml')
+  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'ant.py'),
                            '-DAAPT_PATH=%s' % aapt_path,
-                           '-DADDITIONAL_RES_DIRS=',
-                           '-DADDITIONAL_RES_PACKAGES=',
-                           '-DADDITIONAL_R_TEXT_FILES=',
+                           '-DADDITIONAL_RES_DIRS=\'\'',
+                           '-DADDITIONAL_RES_PACKAGES=\'\'',
+                           '-DADDITIONAL_R_TEXT_FILES=\'\'',
                            '-DANDROID_MANIFEST=%s' % manifest_path,
                            '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
                            '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
                            '-DANDROID_SDK_VERSION=%d' % api_level,
                            '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-                           '-DLIBRARY_MANIFEST_PATHS=',
+                           '-DLIBRARY_MANIFEST_PATHS= ',
                            '-DOUT_DIR=out',
-                           '-DRESOURCE_DIR=%s/res' % apk_name,
+                           '-DRESOURCE_DIR=%s' % os.path.join(apk_name, 'res'),
                            '-DSTAMP=codegen.stamp',
                            '-Dbasedir=.',
                            '-buildfile',
-                           'scripts/ant/apk-codegen.xml'],
+                           os.path.join('scripts', 'ant', 'apk-codegen.xml')],
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
@@ -170,17 +184,24 @@ def Execution(options):
   # Check whether java is installed.
   try:
     proc = subprocess.Popen(['java', '-version'],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, shell=True)
   except EnvironmentError:
     print "Please install Oracle JDK first."
     sys.exit(5)
 
-  classpath = ('--classpath=\"libs/xwalk_app_runtime_activity_java.jar\"'
-               ' \"libs/xwalk_app_runtime_client_java.jar\" %s' % sdk_jar_path)
-  proc = subprocess.Popen(['python', 'scripts/gyp/javac.py',
-                           '--output-dir=out/classes',
+  classpath = '--classpath='
+  classpath += os.path.join(os.getcwd(), 'libs',
+                            'xwalk_app_runtime_activity_java.jar')
+  classpath += ' ' + os.path.join(os.getcwd(),
+                                  'libs', 'xwalk_app_runtime_client_java.jar')
+  classpath += ' ' + sdk_jar_path
+  src_dirs = '--src-dirs=%s %s' % (os.path.join(os.getcwd(), apk_name, 'src'),
+                                   os.path.join(os.getcwd(), 'out', 'gen'))
+  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'javac.py'),
+                           '--output-dir=%s' % os.path.join('out', 'classes'),
                            classpath,
-                           '--src-dirs=%s/src \"out/gen\"' % apk_name,
+                           src_dirs,
                            '--javac-includes=',
                            '--chromium-code=0',
                            '--stamp=compile.stam'],
@@ -188,56 +209,64 @@ def Execution(options):
   out, _ = proc.communicate()
   print out
 
-  proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
+  xml_path = os.path.join('scripts', 'ant', 'apk-package-resources.xml')
+  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'ant.py'),
                            '-DAAPT_PATH=%s' % aapt_path,
-                           '-DADDITIONAL_RES_DIRS=',
-                           '-DADDITIONAL_RES_PACKAGES=',
-                           '-DADDITIONAL_R_TEXT_FILES=',
+                           '-DADDITIONAL_RES_DIRS=\'\'',
+                           '-DADDITIONAL_RES_PACKAGES=\'\'',
+                           '-DADDITIONAL_R_TEXT_FILES=\'\'',
                            '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
                            '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
                            '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
                            '-DAPK_NAME=%s' % apk_name,
                            '-DAPP_MANIFEST_VERSION_CODE=0',
                            '-DAPP_MANIFEST_VERSION_NAME=Developer Build',
-                           '-DASSET_DIR=%s/assets' % apk_name,
+                           '-DASSET_DIR=%s' % os.path.join(apk_name, 'assets'),
                            '-DCONFIGURATION_NAME=Release',
                            '-DOUT_DIR=out',
-                           '-DRESOURCE_DIR=%s/res' % apk_name,
+                           '-DRESOURCE_DIR=%s' % os.path.join(apk_name, 'res'),
                            '-DSTAMP=package_resources.stamp',
                            '-Dbasedir=.',
                            '-buildfile',
-                           'scripts/ant/apk-package-resources.xml'],
+                           xml_path],
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
 
-  proc = subprocess.Popen(['python', 'scripts/gyp/jar.py',
-                           '--classes-dir=out/classes',
-                           '--jar-path=libs/app_apk.jar',
+  jar_path = '--jar-path=' + os.path.join('libs', 'app_apk.jar')
+  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'jar.py'),
+                           '--classes-dir=%s' % os.path.join('out', 'classes'),
+                           jar_path,
                            '--excluded-classes=',
                            '--stamp=jar.stamp'],
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
 
-  proc = subprocess.Popen(['python', 'scripts/gyp/dex.py',
-                           '--dex-path=out/classes.dex',
+  dex_path = '--dex-path=' + os.path.join(os.getcwd(), 'out', 'classes.dex')
+  activity_jar = os.path.join(os.getcwd(),
+                              'libs', 'xwalk_app_runtime_activity_java.dex.jar')
+  client_jar = os.path.join(os.getcwd(),
+                            'libs', 'xwalk_app_runtime_client_java.dex.jar')
+  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'dex.py'),
+                           dex_path,
                            '--android-sdk-root=%s' % sdk_root_path,
-                           'libs/xwalk_app_runtime_activity_java.dex.jar',
-                           'libs/xwalk_app_runtime_client_java.dex.jar',
-                           'out/classes'],
-                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                           activity_jar,
+                           client_jar,
+                           os.path.join(os.getcwd(), 'out', 'classes')],
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
 
+  apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
   proc = subprocess.Popen(['python', 'scripts/gyp/ant.py',
                            '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
                            '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
                            '-DAPK_NAME=%s' % apk_name,
                            '-DCONFIGURATION_NAME=Release',
                            '-DOUT_DIR=out',
-                           '-DSOURCE_DIR=%s/src' % apk_name,
-                           '-DUNSIGNED_APK_PATH=out/app-unsigned.apk',
+                           '-DSOURCE_DIR=%s' % os.path.join(apk_name, 'src'),
+                           apk_path,
                            '-Dbasedir=.',
                            '-buildfile',
                            'scripts/ant/apk-package.xml'],
@@ -245,10 +274,12 @@ def Execution(options):
   out, _ = proc.communicate()
   print out
 
+  apk_path = '--unsigned-apk-path=' + os.path.join('out', 'app-unsigned.apk')
+  final_apk_path = '--final-apk-path=' + os.path.join('out', apk_name + '.apk')
   proc = subprocess.Popen(['python', 'scripts/gyp/finalize_apk.py',
                            '--android-sdk-root=%s' % sdk_root_path,
-                           '--unsigned-apk-path=out/app-unsigned.apk',
-                           '--final-apk-path=out/%s.apk' % apk_name,
+                           apk_path,
+                           final_apk_path,
                            '--keystore-path=%s' % key_store,
                            '--keystore-alias=%s' % key_alias,
                            '--keystore-passcode=%s' % key_code],
@@ -256,12 +287,12 @@ def Execution(options):
   out, _ = proc.communicate()
   print out
 
-  src_file = 'out/%s.apk' % apk_name
+  src_file = os.path.join('out', apk_name + '.apk')
   dst_file = '%s.apk' % apk_name
   shutil.copyfile(src_file, dst_file)
 
-  if os.path.exists('out/'):
-    shutil.rmtree('out/')
+  if os.path.exists('out'):
+    shutil.rmtree('out')
 
 
 def main(argv):

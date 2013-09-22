@@ -22,25 +22,27 @@ def Prepare(options):
   if os.path.exists(options.name):
     shutil.rmtree(options.name)
   shutil.copytree('app_src', options.name)
-  shutil.rmtree(options.name + '/src')
-  src_root = 'app_src/src/org/xwalk/app/template'
-  src_activity = '%s/AppTemplateActivity.java' % src_root
-  src_application = '%s/AppTemplateApplication.java' % src_root
+  shutil.rmtree(os.path.join(options.name, 'src'))
+  src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
+  src_activity = os.path.join(src_root, 'AppTemplateActivity.java')
+  src_application = os.path.join(src_root, 'AppTemplateApplication.java')
   if (not os.path.isfile(src_activity) or
       not os.path.isfile(src_application)):
-    print ('Please make sure that the template java files'
+    print ('Please make sure that the java files'
            ' of activity and application do exist.')
     sys.exit(7)
-  root_path =  options.name + '/src/%s/' % options.package.replace('.', '/')
+  root_path =  os.path.join(options.name, 'src',
+                            options.package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
-  dest_activity = root_path + options.name + 'Activity.java'
-  dest_application =  root_path + options.name + 'Application.java'
+  dest_activity = os.path.join(root_path, options.name + 'Activity.java')
+  dest_application =  os.path.join(root_path, options.name + 'Application.java')
   shutil.copyfile(src_activity, dest_activity)
   shutil.copyfile(src_application, dest_application)
   if options.app_root:
-    shutil.rmtree(options.name + '/assets')
-    shutil.copytree(options.app_root, options.name + '/assets')
+    assets_path = os.path.join(options.name, 'assets')
+    shutil.rmtree(assets_path)
+    shutil.copytree(options.app_root, assets_path)
 
 
 def ReplaceNodeValue(doc, node, name, value):
@@ -67,7 +69,7 @@ def RemoveThemeStyle(doc, node, name, value):
 
 
 def CustomizeXML(options):
-  manifest_path = options.name + '/AndroidManifest.xml'
+  manifest_path = os.path.join(options.name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
            ' exists under app_src folder.')
@@ -86,7 +88,7 @@ def CustomizeXML(options):
   else:
     RemoveThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   if options.icon:
-    drawable_path = '%s/res/drawable/' % options.name
+    drawable_path = os.path.join(options.name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(options.icon)
@@ -96,7 +98,7 @@ def CustomizeXML(options):
     AddAttribute(xmldoc, 'application',
                  'android:icon', '@drawable/%s' % icon_name)
 
-  file_handle = open('%s/AndroidManifest.xml' % options.name, 'wb')
+  file_handle = open(os.path.join(options.name, 'AndroidManifest.xml'), 'wb')
   xmldoc.writexml(file_handle)
   file_handle.close()
 
@@ -125,9 +127,10 @@ def SetVariable(file_path, variable, value):
 
 
 def CustomizeJava(options):
-  root_path =  options.name + '/src/%s/' % options.package.replace('.', '/')
-  dest_activity = root_path + options.name + 'Activity.java'
-  dest_application =  root_path + options.name + 'Application.java'
+  root_path =  os.path.join(options.name, 'src',
+                            options.package.replace('.', os.path.sep))
+  dest_activity = os.path.join(root_path, options.name + 'Activity.java')
+  dest_application =  os.path.join(root_path, options.name + 'Application.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_activity, 'AppTemplate', options.name)
   ReplaceString(dest_application, 'org.xwalk.app.template', options.package)
@@ -137,7 +140,8 @@ def CustomizeJava(options):
       ReplaceString(dest_activity, 'file:///android_asset/index.html',
                     options.app_url)
   elif options.app_local_path:
-    if os.path.isfile(options.name + '/assets/' + options.app_local_path):
+    if os.path.isfile(os.path.join(options.name, 'assets',
+                                   options.app_local_path)):
       ReplaceString(dest_activity, 'index.html', options.app_local_path)
     else:
       print ('Please make sure that the reletive path of entry file'

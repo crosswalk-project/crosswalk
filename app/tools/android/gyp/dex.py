@@ -18,8 +18,21 @@ def Find(name, path):
       return os.path.join(root, name)
 
 
+def AddExeExtensions(name):
+  exts = filter(None, os.environ.get('PATHEXT', '').lower().split(os.pathsep))
+  result = []
+  result.append(name)
+  for e in exts:
+    result.append(name + e)
+  return result
+
+
 def DoDex(options, paths):
-  dx_binary = os.path.join(Find('dx', options.android_sdk_root))
+  dx_binary = ''
+  for dx_str in AddExeExtensions('dx'):
+    dx_binary = Find(dx_str, options.android_sdk_root)
+    if dx_binary:
+      break
   dex_cmd = [dx_binary, '--dex', '--output', options.dex_path] + paths
 
   record_path = '%s.md5.stamp' % options.dex_path
