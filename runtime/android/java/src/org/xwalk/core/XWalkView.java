@@ -22,12 +22,14 @@ public class XWalkView extends FrameLayout {
     private XWalkContent mContent;
     private XWalkDevToolsServer mDevToolsServer;
     private Activity mActivity;
+    private Context mContext;
 
     public XWalkView(Context context, Activity activity) {
         super(context, null);
 
         // Make sure mActivity is initialized before calling 'init' method.
         mActivity = activity;
+        mContext = context;
         init(context, null);
     }
 
@@ -43,12 +45,17 @@ public class XWalkView extends FrameLayout {
         return null;
     }
 
+    public Context getViewContext() {
+        return mContext;
+    }
+
     /**
      * Constructors for inflating via XML.
      */
     public XWalkView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        mContext = context;
         init(context, attrs);
     }
 
