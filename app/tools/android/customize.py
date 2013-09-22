@@ -33,20 +33,16 @@ def Prepare(options, sanitized_name):
   shutil.rmtree(os.path.join(sanitized_name, 'src'))
   src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
   src_activity = os.path.join(src_root, 'AppTemplateActivity.java')
-  src_application = os.path.join(src_root, 'AppTemplateApplication.java')
-  if (not os.path.isfile(src_activity) or
-      not os.path.isfile(src_application)):
-    print ('Please make sure that the java files'
-           ' of activity and application do exist.')
+  if not os.path.isfile(src_activity):
+    print ('Please make sure that the java file'
+           ' of activity does exist.')
     sys.exit(7)
   root_path =  os.path.join(sanitized_name, 'src',
                             options.package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
   dest_activity = sanitized_name + 'Activity.java'
-  dest_application = sanitized_name + 'Application.java'
   shutil.copyfile(src_activity, os.path.join(root_path, dest_activity))
-  shutil.copyfile(src_application, os.path.join(root_path, dest_application))
   if options.app_root:
     assets_path = os.path.join(sanitized_name, 'assets')
     shutil.rmtree(assets_path)
@@ -85,8 +81,6 @@ def CustomizeXML(options, sanitized_name):
 
   xmldoc = minidom.parse(manifest_path)
   ReplaceNodeValue(xmldoc, 'manifest', 'package', options.package)
-  app_name = options.package + '.' + sanitized_name + 'Application'
-  ReplaceNodeValue(xmldoc, 'application', 'android:name', app_name)
   ReplaceNodeValue(xmldoc, 'application', 'android:label', options.name)
   activity_name = options.package + '.' + sanitized_name + 'Activity'
   ReplaceNodeValue(xmldoc, 'activity', 'android:name', activity_name)
@@ -138,12 +132,8 @@ def CustomizeJava(options, sanitized_name):
   root_path =  os.path.join(sanitized_name, 'src',
                             options.package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
-  dest_application =  os.path.join(root_path,
-                                   sanitized_name + 'Application.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
-  ReplaceString(dest_application, 'org.xwalk.app.template', options.package)
-  ReplaceString(dest_application, 'AppTemplate', sanitized_name)
   if options.app_url:
     if re.search(r'^http(|s)', options.app_url):
       ReplaceString(dest_activity, 'file:///android_asset/index.html',
