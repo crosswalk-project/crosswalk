@@ -45,6 +45,8 @@
         'common/install_warning.h',
         'common/manifest.cc',
         'common/manifest.h',
+        'common/manifest_handler.cc',
+        'common/manifest_handler.h',
         'common/db_store.cc',
         'common/db_store.h',
         'common/db_store_sqlite_impl.cc',
