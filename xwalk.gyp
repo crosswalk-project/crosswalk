@@ -69,6 +69,8 @@
         'runtime/browser/xwalk_browser_main_parts_mac.mm',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
+        'runtime/browser/xwalk_process_singleton_linux.cc',
+        'runtime/browser/xwalk_process_singleton.h',
         'runtime/browser/devtools/xwalk_devtools_delegate.cc',
         'runtime/browser/devtools/xwalk_devtools_delegate.h',
         'runtime/browser/devtools/remote_debugging_server.cc',

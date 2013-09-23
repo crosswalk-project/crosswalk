@@ -89,6 +89,19 @@ const char kEnableViewport[] = "enable-viewport";
 
 namespace xwalk {
 
+#if defined(OS_LINUX)
+static bool ProcessSingletonNotificationCallback(
+    const CommandLine& command_line,
+    const base::FilePath& current_directory) {
+
+  XWalkBrowserMainParts* parts = XWalkBrowserMainParts::GetInstance();
+  if (parts != NULL) {
+    parts->ProcessCommandLine(&command_line);
+  }
+  return true;
+}
+#endif
+
 void SetXWalkCommandLineFlags() {
   static bool already_initialized = false;
   if (already_initialized)
@@ -130,15 +143,28 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 }
 
+// The currently-running BrowserMainParts. There can be one or zero.
+XWalkBrowserMainParts* g_current_browser_main_parts = NULL;
+
+XWalkBrowserMainParts* XWalkBrowserMainParts::GetInstance() {
+  return g_current_browser_main_parts;
+}
+
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : BrowserMainParts(),
       startup_url_(content::kAboutBlankURL),
       parameters_(parameters),
-      run_default_message_loop_(true) {
+      run_default_message_loop_(true),
+#if defined(OS_LINUX)
+      notify_result_(ProcessSingleton::PROCESS_NONE)
+#endif
+    {
+  g_current_browser_main_parts = this;
 }
 
 XWalkBrowserMainParts::~XWalkBrowserMainParts() {
+  g_current_browser_main_parts = NULL;
 }
 
 #if defined(OS_ANDROID)
@@ -193,7 +219,11 @@ int XWalkBrowserMainParts::PreCreateThreads() {
 #if defined(OS_ANDROID)
   DCHECK(runtime_context_);
   runtime_context_->InitializeBeforeThreadCreation();
+#elif defined(OS_LINUX)
+  process_singleton_.reset(new ProcessSingleton(
+      base::Bind(&ProcessSingletonNotificationCallback)));
 #endif
+
   return content::RESULT_CODE_NORMAL_EXIT;
 }
 
@@ -221,30 +251,14 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
   extension_service_->RegisterExternalExtensionsForPath(extensions_dir);
 }
 
-void XWalkBrowserMainParts::PreMainMessageLoopRun() {
-#if defined(OS_ANDROID)
-  net::NetModule::SetResourceProvider(PlatformResourceProvider);
-  if (parameters_.ui_task) {
-    parameters_.ui_task->Run();
-    delete parameters_.ui_task;
-    run_default_message_loop_ = false;
-  }
-
-  DCHECK(runtime_context_);
-  runtime_context_->PreMainMessageLoopRun();
-  runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
-#else
-  runtime_context_.reset(new RuntimeContext);
-  runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
-
-  RegisterInternalExtensions();
-  RegisterExternalExtensions();
-
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+// Note: The command line may be passed from another process through IPC, so
+// it probably won't be the same as CommandLine::ForCurrentProcess()
+// TODO(Bai): The installer/uninstaller should be aware of the situation that
+// the application being uninstalled is running.
+void XWalkBrowserMainParts::ProcessCommandLine(
+        const CommandLine* command_line) {
+  if (command_line == NULL)
+    return;
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
@@ -256,9 +270,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
               loopback_ip, port, std::string()));
     }
   }
-
-  NativeAppWindow::Initialize();
-
   std::string command_name =
       command_line->GetProgram().BaseName().MaybeAsASCII();
 
@@ -339,10 +350,59 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
+}
+
+void XWalkBrowserMainParts::PreMainMessageLoopRun() {
+#if defined(OS_ANDROID)
+  net::NetModule::SetResourceProvider(PlatformResourceProvider);
+  if (parameters_.ui_task) {
+    parameters_.ui_task->Run();
+    delete parameters_.ui_task;
+    run_default_message_loop_ = false;
+  }
+
+  DCHECK(runtime_context_);
+  runtime_context_->PreMainMessageLoopRun();
+  runtime_registry_.reset(new RuntimeRegistry);
+  extension_service_.reset(
+      new extensions::XWalkExtensionService());
+#else
+  runtime_context_.reset(new RuntimeContext);
+  runtime_registry_.reset(new RuntimeRegistry);
+  extension_service_.reset(
+      new extensions::XWalkExtensionService());
+
+  RegisterInternalExtensions();
+  RegisterExternalExtensions();
+
+  NativeAppWindow::Initialize();
+
+#if defined(OS_LINUX)
+  notify_result_ = process_singleton_->NotifyOtherProcessOrCreate();
+  if (notify_result_ != ProcessSingleton::PROCESS_NONE) {
+    if (notify_result_ == ProcessSingleton::PROCESS_NOTIFIED) {
+      LOG(WARNING) << "Created new window in existing crosswalk session.";
+    } else {
+      LOG(ERROR) <<" Failed to create a ProcessSingleton. Aborting. "
+                  "Error code:"<< notify_result_;
+    }
+    // return when target is notified or any error occured.
+    run_default_message_loop_ = false;
+    return;
+  }
+#endif
+
+  ProcessCommandLine(CommandLine::ForCurrentProcess());
 #endif
 }
 
 bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
+#if defined(OS_LINUX)
+  if (notify_result_ != ProcessSingleton::PROCESS_NONE) {
+    // If notify failed, don't run default message loop and exit.
+    return true;
+  }
+#endif
   return !run_default_message_loop_;
 }
 
@@ -351,6 +411,21 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   base::MessageLoopForUI::current()->Start();
 #else
   runtime_context_.reset();
+#endif
+
+#if defined(OS_LINUX)
+  if (notify_result_ == ProcessSingleton::PROCESS_NONE)
+    process_singleton_->Cleanup();
+#endif
+}
+
+void XWalkBrowserMainParts::PostDestroyThreads() {
+#if defined(OS_ANDROID)
+  // On Android, there is no quit/exit. So the browser's main message loop will
+  // not finish.
+  NOTREACHED();
+#elif defined(OS_LINUX)
+  process_singleton_.reset();
 #endif
 }
 
