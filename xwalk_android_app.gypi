@@ -71,9 +71,23 @@
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
-      'target_name': 'prepare_xwalk_app_template',
+      'target_name': 'prepare_xwalk_app_template_from_chromium',
+      'type': 'none',
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_app_template/scripts/gyp/',
+          'files': [
+            '../build/android/gyp/ant.py',
+            '../build/android/gyp/util/',
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'prepare_xwalk_app_template_from_xwalk',
       'type': 'none',
       'dependencies': [
+        'prepare_xwalk_app_template_from_chromium',
         'xwalk_app_template_apk',
       ],
       'copies': [
@@ -98,8 +112,6 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/scripts/gyp/',
           'files': [
-            '../build/android/gyp/ant.py',
-            '../build/android/gyp/util',
             './app/tools/android/gyp/dex.py',
             './app/tools/android/gyp/finalize_apk.py',
             './app/tools/android/gyp/jar.py',
@@ -109,25 +121,23 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/scripts/gyp/util/',
           'files': [
-            '../build/android/gyp/util/__init__.py',
-            '../build/android/gyp/util/md5_check.py',
             './app/tools/android/gyp/util/build_utils.py',
           ],
         },
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/app_src/',
           'files': [
-            'app/android/app_template/AndroidManifest.xml',
-            'app/android/app_template/assets',
-            'app/android/app_template/res',
-            'app/android/app_template/src',
+            './app/android/app_template/AndroidManifest.xml',
+            './app/android/app_template/assets',
+            './app/android/app_template/res',
+            './app/android/app_template/src',
           ],
         },
         {
           'destination': '<(PRODUCT_DIR)/xwalk_app_template/',
           'files': [
-            'app/tools/android/customize.py',
-            'app/tools/android/make_apk.py',
+            './app/tools/android/customize.py',
+            './app/tools/android/make_apk.py',
           ],
         },
       ],
@@ -136,7 +146,7 @@
       'target_name': 'xwalk_app_template',
       'type': 'none',
       'dependencies': [
-        'prepare_xwalk_app_template',
+        'prepare_xwalk_app_template_from_xwalk',
       ],
       'actions': [
         {
