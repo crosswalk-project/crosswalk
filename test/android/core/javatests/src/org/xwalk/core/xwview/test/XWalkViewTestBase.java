@@ -8,18 +8,15 @@ package org.xwalk.core.xwview.test;
 import android.app.Activity;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.Timer;
 
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 public class XWalkViewTestBase
@@ -91,9 +88,7 @@ public class XWalkViewTestBase
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                XWalkContent xWalkContent = mXWalkView.getXWalkViewContentForTest();
-                String title = xWalkContent.getContentViewCoreForTest().getTitle();
-                return title;
+                return mXWalkView.getTitle();
             }
         });
     }
@@ -129,5 +124,82 @@ public class XWalkViewTestBase
 
     protected XWalkView getXWalkView() {
         return mXWalkView;
+    }
+
+    protected void runTestWaitPageFinished(Runnable runnable) throws Exception{
+        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        runnable.run();
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    protected void reloadSync() throws Exception {
+        runTestWaitPageFinished(new Runnable(){
+            @Override
+            public void run() {
+                getInstrumentation().runOnMainSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        mXWalkView.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    protected void goBackSync() throws Throwable {
+        runTestWaitPageFinished(new Runnable(){
+            @Override
+            public void run() {
+                getInstrumentation().runOnMainSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        mXWalkView.goBack();
+                    }
+                });
+            }
+        });
+    }
+
+    protected void goForwardSync() throws Throwable {
+        runTestWaitPageFinished(new Runnable(){
+            @Override
+            public void run() {
+                getInstrumentation().runOnMainSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        mXWalkView.goForward();
+                    }
+                });
+            }
+        });
+    }
+
+    protected void clearHistoryOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.clearHistory();
+            }
+        });
+    }
+
+    protected boolean canGoBackOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                return mXWalkView.canGoBack();
+            }
+        });
+    }
+
+    protected boolean canGoForwardOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                return mXWalkView.canGoForward();
+            }
+        });
     }
 }

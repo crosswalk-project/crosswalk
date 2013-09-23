@@ -36,6 +36,8 @@ public class XWalkViewShellActivity extends Activity {
     private EditText mUrlTextView;
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
+    private ImageButton mStopButton;
+    private ImageButton mReloadButton;
     private ClipDrawable mProgressDrawable;
     private XWalkView mView;
 
@@ -67,7 +69,7 @@ public class XWalkViewShellActivity extends Activity {
         mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
 
         initializeUrlField();
-        initializeNavigationButtons();
+        initializeButtons();
         initializeXWalkViewClients();
 
         mView.enableRemoteDebugging();
@@ -137,6 +139,8 @@ public class XWalkViewShellActivity extends Activity {
                 setKeyboardVisibilityForUrl(hasFocus);
                 mNextButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 mPrevButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
+                mStopButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
+                mReloadButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 if (!hasFocus) {
                     mUrlTextView.setText(mView.getUrl());
                 }
@@ -145,7 +149,7 @@ public class XWalkViewShellActivity extends Activity {
 
     }
 
-    private void initializeNavigationButtons() {
+    private void initializeButtons() {
         mPrevButton = (ImageButton) findViewById(R.id.prev);
         mPrevButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -161,6 +165,22 @@ public class XWalkViewShellActivity extends Activity {
                 if (mView.canGoForward()) mView.goForward();
             }
         });
+
+        mStopButton = (ImageButton) findViewById(R.id.stop);
+        mStopButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mView.stopLoading();
+            }
+        });
+
+        mReloadButton = (ImageButton) findViewById(R.id.reload);
+        mReloadButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mView.reload();
+            }
+        });
     }
 
     private void initializeXWalkViewClients() {
@@ -171,6 +191,7 @@ public class XWalkViewShellActivity extends Activity {
                 mProgressDrawable.setLevel((int) (100.0 * newProgress));
                 if (newProgress == 100)
                     mToolbar.postDelayed(mClearProgressRunnable, COMPLETED_PROGRESS_TIMEOUT_MS);
+                    mUrlTextView.setText(mView.getUrl());
             }
         });
     }
