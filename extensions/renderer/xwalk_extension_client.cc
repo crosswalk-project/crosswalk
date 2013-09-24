@@ -62,9 +62,15 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
 void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
     const base::ListValue& msg) {
   RunnerMap::const_iterator it = runners_.find(instance_id);
-  if (it == runners_.end() || !it->second) {
+  if (it == runners_.end()) {
     LOG(WARNING) << "Can't PostMessage to invalid Extension instance id: "
         << instance_id;
+    return;
+  }
+
+  if (!it->second) {
+    // See OnInstanceDestroyed(). This message could have arrived before
+    // we notified Server about its destruction, we can simply ignore it.
     return;
   }
 
