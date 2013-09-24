@@ -142,7 +142,7 @@ void XWalkExtensionModule::LoadExtensionCode(
     v8::Handle<v8::Context> context, v8::Handle<v8::Function> requireNative) {
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
-      RunString(wrapped_api_code, "JS API code for " + extension_name_);
+      RunString(wrapped_api_code, "");
   if (!result->IsFunction()) {
     LOG(WARNING) << "Couldn't load JS API code for " << extension_name_;
     return;
