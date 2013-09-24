@@ -147,6 +147,10 @@ bool ApplicationService::Launch(const base::FilePath& path) {
                                            application.get());
 }
 
+const ApplicationStore* ApplicationService::GetApplicationStore() const {
+  return app_store_.get();
+}
+
 const Application* ApplicationService::GetRunningApplication() const {
   return application_.get();
 }

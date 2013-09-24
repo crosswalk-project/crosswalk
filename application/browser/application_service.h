@@ -33,6 +33,7 @@ class ApplicationService {
   bool Launch(const base::FilePath& path);
 
   // Currently there's only one running application at a time.
+  const ApplicationStore* GetApplicationStore() const;
   const Application* GetRunningApplication() const;
 
  private:

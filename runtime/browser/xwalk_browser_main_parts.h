@@ -59,10 +59,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void PostMainMessageLoopRunAura();
 #endif
 
-#if defined(OS_TIZEN_MOBILE)
-  bool HandlePackageInfo(const std::string& id, const std::string& option);
-#endif
-
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context_;
 #else

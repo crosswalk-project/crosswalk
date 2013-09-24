@@ -23,6 +23,7 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libasound-devel
+BuildRequires:  pkgmgr-info-parser-devel
 BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
@@ -41,6 +42,8 @@ BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libxslt)
 BuildRequires:  pkgconfig(pango)
+BuildRequires:  pkgconfig(pkgmgr-info)
+BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(scim)
