@@ -225,7 +225,6 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/xwalk.pak',
-          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/js_api',
         ],
         'asset_location': '<(ant_build_out)/xwalk_runtime_client_embedded_shell/assets',
       },
