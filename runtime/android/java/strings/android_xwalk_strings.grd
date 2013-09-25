@@ -17,6 +17,9 @@
       <message desc="Prompt for Downloading no permission toast [CHAR-LIMIT=32]" name="IDS_DOWNLOAD_NO_PERMISSION_TOAST">
         No permission to write, abort.
       </message>
+      <message desc="Title for the Ssl Alert dialog [CHAR-LIMIT=32]" name="IDS_SSL_ALERT_TITLE">
+        Ssl Alert
+      </message>
     </messages>
   </release>
 
