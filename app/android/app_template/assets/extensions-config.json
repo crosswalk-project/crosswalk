@@ -2,5 +2,5 @@
   name:       "myextension",               // The name of external extension.
   class:      "org.package.MyExtension",   // The name of the class that implements the extension.
   version:    "0.1.0",                     // The version of the extension.
-  js_api:     "myextension.js"             // The path of the JavaScript code stub file.
+  jsapi:     "myextension.js"             // The path of the JavaScript code stub file.
 }]*/
