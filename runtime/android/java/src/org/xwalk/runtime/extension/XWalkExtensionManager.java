@@ -130,7 +130,7 @@ public class XWalkExtensionManager {
                 JSONObject jsonObject = jsonFeatures.getJSONObject(i);
                 String name = jsonObject.getString("name");
                 String className =  jsonObject.getString("class");
-                String jsApiFile = jsonObject.getString("js_api");
+                String jsApiFile = jsonObject.getString("jsapi");
 
                 // Load the content of the JavaScript file.
                 String jsApi;
