@@ -209,6 +209,44 @@
       'includes': [ '../build/apk_fake_jar.gypi' ],
     },
     {
+      'target_name': 'xwalk_runtime_client_embedded_shell_apk',
+      'type': 'none',
+      'dependencies': [
+        'libxwalkcore',
+        'xwalk_app_runtime_client_java',
+        'xwalk_app_runtime_activity_java',
+        'xwalk_core_java',
+        'xwalk_runtime_client_embedded_shell_apk_pak',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeClientEmbeddedShell',
+        'java_in_dir': 'app/android/runtime_client_embedded_shell',
+        'resource_dir': 'app/android/runtime_client_embedded_shell/res',
+        'native_lib_target': 'libxwalkcore',
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/js_api',
+        ],
+        'asset_location': '<(ant_build_out)/xwalk_runtime_client_embedded_shell/assets',
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_client_embedded_shell_apk_pak',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_pak',
+      ],
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
+          'files': [
+            '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+        },
+      ],
+    },
+    {
       'target_name': 'xwalk_runtime_test_apk',
       'type': 'none',
       'dependencies': [

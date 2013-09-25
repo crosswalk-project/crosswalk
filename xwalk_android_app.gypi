@@ -110,6 +110,7 @@
       'dependencies': [
         'prepare_xwalk_app_template_from_chromium',
         'xwalk_app_template_apk',
+        'xwalk_runtime_lib_apk',
       ],
       'copies': [
         {
@@ -119,6 +120,7 @@
             '<(PRODUCT_DIR)/lib.java/xwalk_app_runtime_activity_java.jar',
             '<(PRODUCT_DIR)/lib.java/xwalk_app_runtime_client_java.dex.jar',
             '<(PRODUCT_DIR)/lib.java/xwalk_app_runtime_client_java.jar',
+            '<(PRODUCT_DIR)/lib.java/xwalk_core_java.jar',
           ],
         },
         {
@@ -152,6 +154,12 @@
             './app/android/app_template/assets',
             './app/android/app_template/res',
             './app/android/app_template/src',
+          ],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_app_template/native_libs/',
+          'files': [
+            '<(PRODUCT_DIR)/xwalk_runtime_lib_apk/libs',
           ],
         },
         {
