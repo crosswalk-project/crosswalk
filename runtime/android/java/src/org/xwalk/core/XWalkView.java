@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
+import org.xwalk.core.client.XWalkDefaultClient;
 import org.xwalk.core.client.XWalkDefaultDownloadListener;
 import org.xwalk.core.client.XWalkDefaultNavigationHandler;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
@@ -73,6 +74,9 @@ public class XWalkView extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
+
+        // Set default XWalkDefaultClient.
+        setXWalkClient(new XWalkDefaultClient(context, this));
         // Set default XWalkWebChromeClient and DownloadListener. The default actions
         // are provided via the following clients if special actions are not needed.
         setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context, this));
