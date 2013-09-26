@@ -262,16 +262,6 @@ def Execution(options):
   out, _ = proc.communicate()
   print out
 
-  jar_path = '--jar-path=' + os.path.join('libs', 'app_apk.jar')
-  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'jar.py'),
-                           '--classes-dir=%s' % os.path.join('out', 'classes'),
-                           jar_path,
-                           '--excluded-classes=',
-                           '--stamp=jar.stamp'],
-                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-  out, _ = proc.communicate()
-  print out
-
   dex_path = '--dex-path=' + os.path.join(os.getcwd(), 'out', 'classes.dex')
   activity_jar = os.path.join(os.getcwd(),
                               'libs', 'xwalk_app_runtime_activity_java.dex.jar')
