@@ -116,22 +116,38 @@ std::string WrapAPICode(const std::string& extension_code,
 }
 
 v8::Handle<v8::Value> RunString(const std::string& code,
-                                const std::string& name) {
+                                std::string& exception) {
   v8::HandleScope handle_scope;
   v8::Handle<v8::String> v8_code(v8::String::New(code.c_str()));
-  v8::Handle<v8::String> v8_name(v8::String::New(name.c_str()));
+  v8::Handle<v8::String> v8_name(v8::String::New(""));
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
 
   v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8_name));
-  if (try_catch.HasCaught())
+  if (try_catch.HasCaught()) {
+    v8::Local<v8::Message> message = try_catch.Message();
+    if (!message.IsEmpty()) {
+      v8::String::Utf8Value utf8_message(message->Get());
+      exception.assign(*utf8_message, utf8_message.length());
+    }
+    else
+      exception.assign("Unknown error.");
     return v8::Undefined();
+  }
 
   v8::Handle<v8::Value> result = script->Run();
-  if (try_catch.HasCaught())
+  if (try_catch.HasCaught()) {
+    v8::Local<v8::Message> message = try_catch.Message();
+    if (!message.IsEmpty()) {
+      v8::String::Utf8Value utf8_message(message->Get());
+      exception.assign(*utf8_message, utf8_message.length());
+    }
+    else
+      exception.assign("Unknown error.");
     return v8::Undefined();
+  }
 
   return handle_scope.Close(result);
 }
@@ -140,11 +156,13 @@ v8::Handle<v8::Value> RunString(const std::string& code,
 
 void XWalkExtensionModule::LoadExtensionCode(
     v8::Handle<v8::Context> context, v8::Handle<v8::Function> requireNative) {
+  std::string exception;
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
-      RunString(wrapped_api_code, "");
+      RunString(wrapped_api_code, exception);
   if (!result->IsFunction()) {
-    LOG(WARNING) << "Couldn't load JS API code for " << extension_name_;
+    LOG(WARNING) << "Couldn't load JS API code for " << extension_name_
+                 << " with error: " << exception;
     return;
   }
   v8::Handle<v8::Function> callable_api_code =
@@ -164,8 +182,15 @@ void XWalkExtensionModule::LoadExtensionCode(
   try_catch.SetVerbose(true);
   callable_api_code->Call(context->Global(), argc, argv);
   if (try_catch.HasCaught()) {
+    v8::Local<v8::Message> message = try_catch.Message();
+    if (!message.IsEmpty()) {
+      v8::String::Utf8Value utf8_message(message->Get());
+      exception.assign(*utf8_message, utf8_message.length());
+    }
+    else
+      exception.assign("Unknown error.");
     LOG(WARNING) << "Exception while loading JS API code for "
-                 << extension_name_;
+                 << extension_name_ << " with error: " << exception;
   }
 }
 
