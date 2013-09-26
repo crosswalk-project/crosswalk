@@ -28,7 +28,8 @@ public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void closeContents() {
-        // TODO: implement.
+        if (mXWalkContentsClient != null)
+            mXWalkContentsClient.onCloseWindow();
     }
 
     @Override

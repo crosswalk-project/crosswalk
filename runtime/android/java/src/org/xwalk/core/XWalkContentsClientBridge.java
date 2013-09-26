@@ -214,6 +214,8 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onCloseWindow() {
+        if (mXWalkClient != null)
+            mXWalkClient.onCloseWindow(mXWalkView);
     }
 
     @Override
