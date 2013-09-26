@@ -39,6 +39,8 @@
     'renderer/xwalk_remote_extension_runner.h',
     'renderer/xwalk_extension_client.cc',
     'renderer/xwalk_extension_client.h',
+    'renderer/xwalk_v8_utils.cc',
+    'renderer/xwalk_v8_utils.h',
   ],
   'conditions': [
     ['OS=="android"',{
