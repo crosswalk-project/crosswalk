@@ -16,6 +16,7 @@ import sys
 sys.path.append('scripts/gyp')
 from customize import ReplaceInvalidChars
 from dex import AddExeExtensions
+from manifest_json_parser import ManifestJsonParser
 
 def Which(name):
   """Search PATH for executable files with the given name."""
@@ -51,6 +52,34 @@ def Find(name, path):
   if not result:
     raise Exception()
   return max(result.iteritems(), key=operator.itemgetter(1))[0]
+
+
+def ParseManifest(options):
+  parser = ManifestJsonParser(os.path.expanduser(options.manifest))
+  if not options.package:
+    options.package = 'org.xwalk.' + parser.GetAppName().lower()
+  if not options.name:
+    options.name = parser.GetAppName()
+  if parser.GetAppUrl():
+    options.app_url = parser.GetAppUrl()
+  if parser.GetAppRoot():
+    options.app_root = parser.GetAppRoot()
+    temp_dict = parser.GetIcons()
+    try:
+      icon_dict = dict((int(k), v) for k, v in temp_dict.iteritems())
+    except ValueError:
+      print 'The key of icon in the manifest file should be a number.'
+    # TODO(junmin): add multiple icons support.
+    if icon_dict:
+      icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
+      options.icon = os.path.join(options.app_root, icon_file)
+  if parser.GetAppLocalPath():
+    options.app_local_path = parser.GetAppLocalPath()
+  options.enable_remote_debugging = False
+  if parser.GetFullScreenFlag().lower() == 'true':
+    options.fullscreen = True
+  elif parser.GetFullScreenFlag().lower() == 'false':
+    options.fullscreen = False
 
 
 def Customize(options):
@@ -297,6 +326,9 @@ def Execution(options):
 
 def main(argv):
   parser = optparse.OptionParser()
+  info = ('The manifest file with the detail of the app.'
+          'Such as: --manifest=/path/to/your/manifest/file')
+  parser.add_option('--manifest', help=info)
   info = ('The package name. Such as: '
           '--package=com.example.YourPackage')
   parser.add_option('--package', help=info)
@@ -334,15 +366,23 @@ def main(argv):
     parser.print_help()
     return 0
 
-  if not options.package:
-    parser.error('The package name is required! Please use "--package" option.')
-  if not options.name:
-    parser.error('The APK name is required! Pleaes use "--name" option.')
-  if not options.app_url and not options.app_root:
-    parser.error('The entry is required. If the entry is a remote url, '
-                 'please use "--app-url" option; If the entry is local, '
-                 'please use "--app-root" and '
-                 '"--app-local-path" options together!')
+  if not options.manifest:
+    if not options.package:
+      parser.error('The package name is required! '
+                   'Please use "--package" option.')
+    if not options.name:
+      parser.error('The APK name is required! Pleaes use "--name" option.')
+    if not options.app_url and not options.app_root:
+      parser.error('The entry is required. If the entry is a remote url, '
+                   'please use "--app-url" option; If the entry is local, '
+                   'please use "--app-root" and '
+                   '"--app-local-path" options together!')
+  else:
+    try:
+      ParseManifest(options)
+    except KeyError, ec:
+      print 'The manifest file contains syntax errors.'
+      return ec.code
 
   options.name = ReplaceInvalidChars(options.name)
   options.package = ReplaceInvalidChars(options.package)

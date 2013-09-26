@@ -93,7 +93,7 @@ def CustomizeXML(options):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(options.icon)
     icon_file = ReplaceInvalidChars(icon_file)
-    shutil.copyfile(options.icon, drawable_path + icon_file)
+    shutil.copyfile(options.icon, os.path.join(drawable_path, icon_file))
     icon_name = os.path.splitext(icon_file)[0]
     AddAttribute(xmldoc, 'application',
                  'android:icon', '@drawable/%s' % icon_name)
