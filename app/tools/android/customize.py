@@ -11,18 +11,26 @@ import shutil
 import sys
 from xml.dom import minidom
 
-def ReplaceInvalidChars(value):
-  invalid_chars = '\/:*?"<>|- '
+def ReplaceInvalidChars(value, mode='default'):
+  """ Replace the invalid chars with '_' for input string.
+  Args:
+    value: the original string.
+    mode: the target usage mode of original string.
+  """
+  if mode == 'default':
+    invalid_chars = '\/:*?"<>|- '
+  elif mode == 'apkname':
+    invalid_chars = '\/:*?"<>|-'
   for c in invalid_chars:
     value = value.replace(c,'_')
   return value
 
 
-def Prepare(options):
-  if os.path.exists(options.name):
-    shutil.rmtree(options.name)
-  shutil.copytree('app_src', options.name)
-  shutil.rmtree(os.path.join(options.name, 'src'))
+def Prepare(options, sanitized_name):
+  if os.path.exists(sanitized_name):
+    shutil.rmtree(sanitized_name)
+  shutil.copytree('app_src', sanitized_name)
+  shutil.rmtree(os.path.join(sanitized_name, 'src'))
   src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
   src_activity = os.path.join(src_root, 'AppTemplateActivity.java')
   src_application = os.path.join(src_root, 'AppTemplateApplication.java')
@@ -31,16 +39,16 @@ def Prepare(options):
     print ('Please make sure that the java files'
            ' of activity and application do exist.')
     sys.exit(7)
-  root_path =  os.path.join(options.name, 'src',
+  root_path =  os.path.join(sanitized_name, 'src',
                             options.package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
-  dest_activity = os.path.join(root_path, options.name + 'Activity.java')
-  dest_application =  os.path.join(root_path, options.name + 'Application.java')
-  shutil.copyfile(src_activity, dest_activity)
-  shutil.copyfile(src_application, dest_application)
+  dest_activity = sanitized_name + 'Activity.java'
+  dest_application = sanitized_name + 'Application.java'
+  shutil.copyfile(src_activity, os.path.join(root_path, dest_activity))
+  shutil.copyfile(src_application, os.path.join(root_path, dest_application))
   if options.app_root:
-    assets_path = os.path.join(options.name, 'assets')
+    assets_path = os.path.join(sanitized_name, 'assets')
     shutil.rmtree(assets_path)
     shutil.copytree(options.app_root, assets_path)
 
@@ -68,8 +76,8 @@ def RemoveThemeStyle(doc, node, name, value):
   item.attributes[name].value = dest_str
 
 
-def CustomizeXML(options):
-  manifest_path = os.path.join(options.name, 'AndroidManifest.xml')
+def CustomizeXML(options, sanitized_name):
+  manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
            ' exists under app_src folder.')
@@ -77,10 +85,10 @@ def CustomizeXML(options):
 
   xmldoc = minidom.parse(manifest_path)
   ReplaceNodeValue(xmldoc, 'manifest', 'package', options.package)
-  app_name = options.package + '.' + options.name + 'Application'
+  app_name = options.package + '.' + sanitized_name + 'Application'
   ReplaceNodeValue(xmldoc, 'application', 'android:name', app_name)
   ReplaceNodeValue(xmldoc, 'application', 'android:label', options.name)
-  activity_name = options.package + '.' + options.name + 'Activity'
+  activity_name = options.package + '.' + sanitized_name + 'Activity'
   ReplaceNodeValue(xmldoc, 'activity', 'android:name', activity_name)
   ReplaceNodeValue(xmldoc, 'activity', 'android:label', options.name)
   if options.fullscreen:
@@ -88,7 +96,7 @@ def CustomizeXML(options):
   else:
     RemoveThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   if options.icon:
-    drawable_path = os.path.join(options.name, 'res', 'drawable')
+    drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(options.icon)
@@ -98,7 +106,7 @@ def CustomizeXML(options):
     AddAttribute(xmldoc, 'application',
                  'android:icon', '@drawable/%s' % icon_name)
 
-  file_handle = open(os.path.join(options.name, 'AndroidManifest.xml'), 'wb')
+  file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'wb')
   xmldoc.writexml(file_handle)
   file_handle.close()
 
@@ -126,21 +134,22 @@ def SetVariable(file_path, variable, value):
   shutil.move(temp_file_path, file_path)
 
 
-def CustomizeJava(options):
-  root_path =  os.path.join(options.name, 'src',
+def CustomizeJava(options, sanitized_name):
+  root_path =  os.path.join(sanitized_name, 'src',
                             options.package.replace('.', os.path.sep))
-  dest_activity = os.path.join(root_path, options.name + 'Activity.java')
-  dest_application =  os.path.join(root_path, options.name + 'Application.java')
+  dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
+  dest_application =  os.path.join(root_path,
+                                   sanitized_name + 'Application.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
-  ReplaceString(dest_activity, 'AppTemplate', options.name)
+  ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
   ReplaceString(dest_application, 'org.xwalk.app.template', options.package)
-  ReplaceString(dest_application, 'AppTemplate', options.name)
+  ReplaceString(dest_application, 'AppTemplate', sanitized_name)
   if options.app_url:
     if re.search(r'^http(|s)', options.app_url):
       ReplaceString(dest_activity, 'file:///android_asset/index.html',
                     options.app_url)
   elif options.app_local_path:
-    if os.path.isfile(os.path.join(options.name, 'assets',
+    if os.path.isfile(os.path.join(sanitized_name, 'assets',
                                    options.app_local_path)):
       ReplaceString(dest_activity, 'index.html', options.app_local_path)
     else:
@@ -179,10 +188,11 @@ def main():
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
   options, _ = parser.parse_args()
+  sanitized_name = ReplaceInvalidChars(options.name)
   try:
-    Prepare(options)
-    CustomizeXML(options)
-    CustomizeJava(options)
+    Prepare(options, sanitized_name)
+    CustomizeXML(options, sanitized_name)
+    CustomizeJava(options, sanitized_name)
   except SystemExit, ec:
     print 'Exiting with error code: %d' % ec.code
     return ec.code
