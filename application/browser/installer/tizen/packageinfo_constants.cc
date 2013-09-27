@@ -10,7 +10,9 @@ namespace application_packageinfo_constants {
 const base::FilePath::CharType kAppDir[] =
     FILE_PATH_LITERAL("applications");
 const base::FilePath::CharType kAppDBPath[] =
-    FILE_PATH_LITERAL("applications_db");
+    FILE_PATH_LITERAL("applications.db");
+const base::FilePath::CharType kAppDBJournalPath[] =
+    FILE_PATH_LITERAL("applications.db-journal");
 const base::FilePath::CharType kIconDir[] =
     FILE_PATH_LITERAL("/opt/share/icons/default/small/");
 const base::FilePath::CharType kXmlDir[] =
