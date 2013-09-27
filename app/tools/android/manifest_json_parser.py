@@ -66,7 +66,7 @@ class ManifestJsonParser(object):
     file_path_prefix = os.path.split(self.input_path)[0]
     ret_dict['icons'] = self.data_src['icons']
     app_root = file_path_prefix
-    app_url = self.data_src['launch_path']
+    app_url = self.data_src['app']['launch']['local_path']
     if app_url.lower().startswith(('http', 'https')):
       app_local_path = ''
     else:
