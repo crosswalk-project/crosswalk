@@ -24,10 +24,25 @@ class TestMakeApk(unittest.TestCase):
                               options.target,
                               'xwalk_app_template')
     if os.path.exists(target_dir):
+      # Prepare the test data.
+      test_src_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                  'test_data')
+      test_des_dir = os.path.join(target_dir, 'test_data')
+      if not os.path.exists(test_des_dir):
+        shutil.copytree(test_src_dir, test_des_dir)
       os.chdir(target_dir)
     else:
       unittest.SkipTest('xwalk_app_template folder doesn\'t exist. '
                         'Skipping all tests in make_apk_test.py')
+
+  def tearDown(self):
+    # Clean the test data
+    test_data_dir = os.path.join(options.build_dir,
+                                 options.target,
+                                 'xwalk_app_template',
+                                 'test_data')
+    if os.path.exists(test_data_dir):
+      shutil.rmtree(test_data_dir)
 
   def testName(self):
     proc = subprocess.Popen(['python', 'make_apk.py',
@@ -89,7 +104,7 @@ class TestMakeApk(unittest.TestCase):
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(content.find('crosswalk'))
+    self.assertTrue(content.find('crosswalk') != -1)
     self.assertTrue(os.path.exists('Example/res/drawable'))
     Clean('Example')
 
@@ -103,7 +118,7 @@ class TestMakeApk(unittest.TestCase):
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
-    self.assertTrue(content.find('Fullscreen'))
+    self.assertTrue(content.find('Fullscreen') != -1)
     Clean('Example')
 
   def testEnableRemoteDebugging(self):
@@ -117,9 +132,42 @@ class TestMakeApk(unittest.TestCase):
     with open(activity, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(activity))
-    self.assertTrue(content.find('setRemoteDebugging'))
+    self.assertTrue(content.find('setRemoteDebugging') != -1)
     Clean('Example')
 
+  def testKeystore(self):
+    keystore_path = os.path.join('test_data', 'keystore', 'xwalk-test.keystore')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--keystore-path=%s' % keystore_path,
+                             '--keystore-alias=xwalk-test',
+                             '--keystore-passcode=xwalk-test'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.exists('Example.apk'))
+    proc = subprocess.Popen(['jarsigner', '-verify', '-keystore',
+                             keystore_path, '-verbose', 'Example.apk'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('smk') != -1)
+    Clean('Example')
+
+  def testManifest(self):
+    manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('Fullscreen') != -1)
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.exists('Example.apk'))
+    Clean('Example')
 
 if __name__ == '__main__':
   parser = optparse.OptionParser()
