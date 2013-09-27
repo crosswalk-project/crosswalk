@@ -31,7 +31,7 @@ import org.xwalk.core.XWalkWebChromeClient;
 
 public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
 
-    // Strings for displaying Dialog
+    // Strings for displaying Dialog.
     private static String mJSAlertTitle;
     private static String mJSConfirmTitle;
     private static String mJSPromptTitle;
