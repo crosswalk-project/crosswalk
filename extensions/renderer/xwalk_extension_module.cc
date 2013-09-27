@@ -12,6 +12,7 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
+#include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 namespace xwalk {
 namespace extensions {
@@ -165,7 +166,7 @@ void XWalkExtensionModule::LoadExtensionCode(
   callable_api_code->Call(context->Global(), argc, argv);
   if (try_catch.HasCaught()) {
     LOG(WARNING) << "Exception while loading JS API code for "
-                 << extension_name_;
+        << extension_name_ << ": " << ExceptionToString(try_catch);
   }
 }
 
@@ -186,7 +187,8 @@ void XWalkExtensionModule::HandleMessageFromNative(const base::Value& msg) {
   v8::TryCatch try_catch;
   message_listener->Call(context->Global(), 1, &v8_value);
   if (try_catch.HasCaught())
-    LOG(WARNING) << "Exception when running message listener";
+    LOG(WARNING) << "Exception when running message listener: "
+        << ExceptionToString(try_catch);
 }
 
 // static

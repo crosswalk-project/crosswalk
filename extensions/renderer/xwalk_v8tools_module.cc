@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
+#include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 namespace xwalk {
 namespace extensions {
@@ -44,7 +45,8 @@ void LifecycleTrackerCleanup(v8::Isolate* isolate,
   v8::TryCatch try_catch;
   v8::Handle<v8::Function>::Cast(function)->Call(context->Global(), 0, NULL);
   if (try_catch.HasCaught())
-    LOG(WARNING) << "Exception when running LifecycleTracker destructor.";
+    LOG(WARNING) << "Exception when running LifecycleTracker destructor: "
+        << ExceptionToString(try_catch);
 
   tracker->Dispose();
 }
