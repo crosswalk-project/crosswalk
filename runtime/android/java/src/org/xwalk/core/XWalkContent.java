@@ -92,7 +92,14 @@ public class XWalkContent extends FrameLayout {
 
         mContentView.setDownloadDelegate(mContentsClientBridge);
 
-        mSettings = new XWalkSettings(getContext(), mWebContents, true);
+        // Set the third argument isAccessFromFileURLsGrantedByDefault to false, so that
+        // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
+        // won't be changed from false to true at the same time in the constructor of
+        // XWalkSettings class.
+        mSettings = new XWalkSettings(getContext(), mWebContents, false);
+        // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
+        // loaded by XMLHttpRequest.
+        mSettings.setAllowFileAccessFromFileURLs(true);
     }
 
     void doLoadUrl(String url) {
