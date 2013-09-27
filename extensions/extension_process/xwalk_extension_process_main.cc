@@ -9,6 +9,7 @@
 #include <sys/prctl.h>
 #endif
 
+#include "base/debug/stack_trace.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/run_loop.h"
@@ -39,6 +40,12 @@ int XWalkExtensionProcessMain(const content::MainFunctionParams& parameters) {
 
   base::MessageLoop main_message_loop(message_loop_type);
   xwalk::extensions::XWalkExtensionProcess extension_process;
+
+#ifndef NDEBUG
+  // In debug mode, enable to stack dumping in a similar fashion than Renderer
+  // Process. This is helpful to understand crashes in Extension Process.
+  base::debug::EnableInProcessStackDumping();
+#endif
 
   base::RunLoop run_loop;
   run_loop.Run();
