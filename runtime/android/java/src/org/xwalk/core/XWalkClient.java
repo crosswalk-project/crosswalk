@@ -69,6 +69,13 @@ public class XWalkClient {
     }
 
     /**
+     * Notify the host application that a web page is closed by calling
+     * window.close().
+     */
+    public void onCloseWindow(XWalkView view) {
+    }
+
+    /**
      * Notify the host application that the XWalkView will load the resource
      * specified by the given url.
      *
