@@ -60,11 +60,8 @@ public abstract class CrossPackageWrapper {
             } catch (IllegalAccessException e) {
                 handleException(e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
                 handleException(e);
             }
-        } else {
-            handleException("No matched constructor found");
         }
         return ret;
     }
@@ -96,7 +93,6 @@ public abstract class CrossPackageWrapper {
         } catch (NoSuchMethodException e) {
             handleException(e);
         }
-        handleException("No match method found");
         return null;
     }
     

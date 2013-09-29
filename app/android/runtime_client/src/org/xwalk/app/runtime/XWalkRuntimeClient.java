@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
  */
 public class XWalkRuntimeClient extends CrossPackageWrapper {
     private final static String RUNTIME_VIEW_CLASS_NAME = "org.xwalk.runtime.XWalkRuntimeView";
+    private boolean mRuntimeLoaded = false;
     private Object mInstance;
     private Method mLoadAppFromUrl;
     private Method mLoadAppFromManifest;
@@ -41,9 +42,11 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         Method getVersion = lookupMethod("getVersion");
         String libVersion = (String) invokeMethod(getVersion, mInstance);
         if (libVersion == null || !compareVersion(libVersion, getVersion())) {
-            handleException("Library apk is not up to date");
+            handleException(new XWalkRuntimeLibraryException(
+                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL));
             return;
         }
+        mRuntimeLoaded = true;
         mLoadAppFromUrl = lookupMethod("loadAppFromUrl", String.class);
         mLoadAppFromManifest = lookupMethod("loadAppFromManifest", String.class);
         mOnCreate = lookupMethod("onCreate");
@@ -93,6 +96,17 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
             }
         }
         return false;
+    }
+    
+    @Override
+    public void handleException(Exception e) {
+        if (mRuntimeLoaded) {
+            super.handleException(new XWalkRuntimeLibraryException(
+                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED, e));
+        } else {
+            super.handleException(new XWalkRuntimeLibraryException(
+                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_LOAD_FAILED, e));
+        }
     }
 
     public FrameLayout get() {
