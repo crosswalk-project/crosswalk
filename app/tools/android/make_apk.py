@@ -222,13 +222,45 @@ def Execution(options, sanitized_name):
     print 'Please install ant first.'
     sys.exit(4)
 
+  res_dirs = '-DADDITIONAL_RES_DIRS=\'\''
+  res_packages = '-DADDITIONAL_RES_PACKAGES=\'\''
+  res_r_text_files = '-DADDITIONAL_R_TEXT_FILES=\'\''
+  if options.mode == 'embedded':
+    # Prepare the .pak file for embedded mode.
+    pak_src_path = os.path.join('native_libs_res', 'xwalk.pak')
+    pak_des_path = os.path.join(sanitized_name, 'assets', 'xwalk.pak')
+    shutil.copy(pak_src_path, pak_des_path)
+
+    res_ui_java = os.path.join('gen', 'ui_java')
+    res_content_java = os.path.join('gen', 'content_java')
+    res_xwalk_java = os.path.join('gen', 'xwalk_core_java')
+    res_dirs = ('-DADDITIONAL_RES_DIRS='
+                + os.path.join(res_ui_java, 'res_crunched') + ' '
+                + os.path.join(res_ui_java, 'res_v14_compatibility') + ' '
+                + os.path.join(res_ui_java, 'res_grit') + ' '
+                + os.path.join('libs_res', 'ui') + ' '
+                + os.path.join(res_content_java, 'res_crunched') + ' '
+                + os.path.join(res_content_java, 'res_v14_compatibility') + ' '
+                + os.path.join('libs_res', 'content') + ' '
+                + os.path.join(res_content_java, 'res_grit') + ' '
+                + os.path.join(res_xwalk_java, 'res_crunched') + ' '
+                + os.path.join(res_xwalk_java, 'res_v14_compatibility') + ' '
+                + os.path.join('libs_res', 'runtime') + ' '
+                + os.path.join(res_xwalk_java, 'res_grit'))
+    res_packages = ('-DADDITIONAL_RES_PACKAGES=org.chromium.ui '
+                    'org.xwalk.core org.chromium.content')
+    res_r_text_files = ('-DADDITIONAL_R_TEXT_FILES='
+                        + os.path.join(res_ui_java, 'java_R', 'R.txt') + ' '
+                        + os.path.join(res_xwalk_java, 'java_R', 'R.txt') + ' '
+                        + os.path.join(res_content_java, 'java_R', 'R.txt'))
+
   resource_dir = '-DRESOURCE_DIR=' + os.path.join(sanitized_name, 'res')
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
          '-DAAPT_PATH=%s' % aapt_path,
-         '-DADDITIONAL_RES_DIRS=\'\'',
-         '-DADDITIONAL_RES_PACKAGES=\'\'',
-         '-DADDITIONAL_R_TEXT_FILES=\'\'',
+         res_dirs,
+         res_packages,
+         res_r_text_files,
          '-DANDROID_MANIFEST=%s' % manifest_path,
          '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
@@ -259,6 +291,8 @@ def Execution(options, sanitized_name):
   classpath += ' ' + sdk_jar_path
   src_dirs = '--src-dirs=' + os.path.join(os.getcwd(), sanitized_name, 'src') +\
              ' ' + os.path.join(os.getcwd(), 'out', 'gen')
+  if options.mode == 'embedded':
+    src_dirs += ' ' + os.path.join(os.getcwd(), 'native_libs_java')
   cmd = ['python', os.path.join('scripts', 'gyp', 'javac.py'),
          '--output-dir=%s' % os.path.join('out', 'classes'),
          classpath,
@@ -272,9 +306,9 @@ def Execution(options, sanitized_name):
   xml_path = os.path.join('scripts', 'ant', 'apk-package-resources.xml')
   cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
          '-DAAPT_PATH=%s' % aapt_path,
-         '-DADDITIONAL_RES_DIRS=\'\'',
-         '-DADDITIONAL_RES_PACKAGES=\'\'',
-         '-DADDITIONAL_R_TEXT_FILES=\'\'',
+         res_dirs,
+         res_packages,
+         res_r_text_files,
          '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
          '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
@@ -301,6 +335,10 @@ def Execution(options, sanitized_name):
   extensions_string = 'xwalk-extensions'
   extensions_dir = os.path.join(os.getcwd(), sanitized_name, extensions_string)
   external_extension_jars = FindExtensionJars(extensions_dir)
+  input_jars = []
+  if options.mode == 'embedded':
+    input_jars.append(os.path.join(os.getcwd(), 'libs',
+                                   'xwalk_core_embedded.dex.jar'))
   dex_command_list = ['python', os.path.join('scripts', 'gyp', 'dex.py'),
                       dex_path,
                       '--android-sdk-root=%s' % sdk_root_path,
@@ -308,15 +346,20 @@ def Execution(options, sanitized_name):
                       client_jar,
                       os.path.join(os.getcwd(), 'out', 'classes')]
   dex_command_list.extend(external_extension_jars)
+  dex_command_list.extend(input_jars)
   RunCommand(dex_command_list)
 
   src_dir = '-DSOURCE_DIR=' + os.path.join(sanitized_name, 'src')
   apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
+  native_lib_path = '-DNATIVE_LIBS_DIR='
+  if options.mode == 'embedded':
+    native_lib_path += os.path.join('native_libs', 'libs')
   cmd = ['python', 'scripts/gyp/ant.py',
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
          '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
          '-DAPK_NAME=%s' % sanitized_name,
          '-DCONFIGURATION_NAME=Release',
+         native_lib_path,
          '-DOUT_DIR=out',
          src_dir,
          apk_path,
@@ -341,7 +384,8 @@ def Execution(options, sanitized_name):
   dst_file = '%s.apk' % options.name
   shutil.copyfile(src_file, dst_file)
   CleanDir('out')
-
+  if options.mode == 'embedded':
+    os.remove(pak_des_path)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -384,6 +428,12 @@ def main(argv):
           'On Linux and Mac, the separator is ":". On Windows, it is ";".'
           'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
   parser.add_option('--extensions', help=info)
+  info = ('The packaging mode of the application. "shared" means '
+          'the application shares the Xwalk with other applications; '
+          '"embedded" means the application owns XWalk Runtime itself. '
+          'Set the default mode as "shared".'
+          'Such as: --mode=shared')
+  parser.add_option('--mode', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()

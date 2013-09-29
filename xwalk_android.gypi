@@ -49,6 +49,35 @@
       'includes': ['../build/java.gypi'],
     },
     {
+      'target_name': 'xwalk_core_embedded',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_core_java',
+      ],
+      'actions': [
+        {
+          'action_name': 'xwalk_core_embedded',
+          'variables': {
+            'dex_input_paths': [
+              '<(PRODUCT_DIR)/lib.java/base_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/content_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/eyesfree_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/guava_javalib.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/jsr_305_javalib.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/media_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/navigation_interception_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/net_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/ui_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/web_contents_delegate_android_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/xwalk_core_extensions_java.dex.jar',
+              '<(PRODUCT_DIR)/lib.java/xwalk_core_java.dex.jar' ],
+            'output_path': '<(PRODUCT_DIR)/lib.java/xwalk_core_embedded.dex.jar',
+          },
+          'includes': [ '../build/android/dex_action.gypi' ],
+        },
+      ],
+    },
+    {
       'target_name': 'xwalk_core_jar_jni',
       'type': 'none',
       'variables': {
