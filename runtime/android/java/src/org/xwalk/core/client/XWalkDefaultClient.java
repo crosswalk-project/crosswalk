@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import org.xwalk.core.HttpAuthDatabase;
 import org.xwalk.core.R;
 import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkClient;
@@ -32,10 +33,25 @@ public class XWalkDefaultClient extends XWalkClient {
     private Context mContext;
     private AlertDialog mDialog;
     private XWalkView mView;
+    private HttpAuthDatabase mDatabase;
 
     public XWalkDefaultClient(Context context, XWalkView view) {
+        mDatabase = HttpAuthDatabase.getInstance(context);
         mContext = context;
         mView = view;
+    }
+
+    /***
+     * Retrieve the HTTP authentication username and password for a given
+     * host & realm pair.
+     *
+     * @param host The host for which the credentials apply.
+     * @param realm The realm for which the credentials apply.
+     * @return String[] if found, String[0] is username, which can be null and
+     *         String[1] is password. Return null if it can't find anything.
+     */
+    public String[] getHttpAuthUsernamePassword(String host, String realm) {
+        return mDatabase.getHttpAuthUsernamePassword(host, realm);
     }
 
     @Override
@@ -77,5 +93,19 @@ public class XWalkDefaultClient extends XWalkClient {
                 });
         mDialog = dialogBuilder.create();
         mDialog.show();
+    }
+
+    /***
+     * Set the HTTP authentication credentials for a given host and realm.
+     *
+     * @param host The host for the credentials.
+     * @param realm The realm for the credentials.
+     * @param username The username for the password. If it is null, it means
+     *                 password can't be saved.
+     * @param password The password
+     */
+    public void setHttpAuthUsernamePassword(String host, String realm,
+            String username, String password) {
+        mDatabase.setHttpAuthUsernamePassword(host, realm, username, password);
     }
 }
