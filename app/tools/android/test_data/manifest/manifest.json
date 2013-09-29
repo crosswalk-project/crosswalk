@@ -1,0 +1,17 @@
+{
+  "name": "Example",
+  "app": {
+    "launch": {
+      "local_path": "http://www.intel.com"
+    }
+  },
+  "version": "1.0.0",
+  "description": "a sample description",
+  "icons": {
+  },
+  "default_locale": "en",
+  "permissions": [],
+  "required_version": "1.28.1.0",
+  "plugin": [],
+  "fullscreen":"true"
+}
