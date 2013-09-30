@@ -5,6 +5,30 @@
 {
   'targets': [
     {
+      'target_name': 'pack_xwalk_core_library',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_core_library'
+      ],
+      'actions': [
+        {
+          'action_name': 'pack_xwalk_core_library',
+          'message': 'Packaging XwalkCore Library Project.',
+          'inputs': [
+            '<(DEPTH)/xwalk/tools/tar.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/xwalk_core_library.tar.gz',
+            '<(PRODUCT_DIR)/pack_xwalk_core_library_intermediate/always_run',
+          ],
+          'action': [
+            'python', 'tools/tar.py',
+            '<(PRODUCT_DIR)/xwalk_core_library'
+          ],
+        },
+      ],
+    },
+    {
       'target_name': 'xwalk_core_library',
       'type': 'none',
       'dependencies': [
