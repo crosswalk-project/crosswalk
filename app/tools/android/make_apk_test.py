@@ -205,6 +205,43 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(os.path.exists('Example.apk'))
     Clean('Example')
 
+  def testExtensionsWithOneExtension(self):
+    # Test with an existed extension.
+    extension_path = 'test_data/extensions/myextension'
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--extensions=%s' % extension_path],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.exists('Example.apk'))
+    extensions_config_json = 'Example/assets/extensions-config.json'
+    self.assertTrue(os.path.exists(extensions_config_json))
+    with open(extensions_config_json, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(content.find('xwalk-extensions/myextension/myextension.js'))
+    self.assertTrue(content.find('com.example.extension.MyExtension'))
+    extension_js = 'Example/assets/xwalk-extensions/myextension/myextension.js'
+    self.assertTrue(os.path.exists(extension_js))
+    extension_jar = 'Example/xwalk-extensions/myextension/myextension.jar'
+    self.assertTrue(os.path.exists(extension_jar))
+    Clean('Example')
+
+  def testExtensionsWithNonExtension(self):
+    # Test with a non-existed extension.
+    extension_path = 'test_data/extensions/myextension'
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--extensions=%s1' % extension_path],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    error_msg = 'Error: can\'t find the extension directory'
+    self.assertTrue(out.find(error_msg) != -1)
+    self.assertTrue(out.find('Exiting with error code: 9') != -1)
+    Clean('Example')
+
 if __name__ == '__main__':
   parser = optparse.OptionParser()
   info = ('The build directory for xwalk.'

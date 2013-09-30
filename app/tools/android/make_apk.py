@@ -82,6 +82,21 @@ def ParseManifest(options):
     options.fullscreen = False
 
 
+def FindExtensionJars(root_path):
+  ''' Find all .jar files for external extensions. '''
+  extension_jars = []
+  if not os.path.exists(root_path):
+    return extension_jars
+
+  for afile in os.listdir(root_path):
+    if os.path.isdir(os.path.join(root_path, afile)):
+      base_name = os.path.basename(afile)
+      extension_jar = os.path.join(root_path, afile, base_name + '.jar')
+      if os.path.isfile(extension_jar):
+        extension_jars.append(extension_jar)
+  return extension_jars
+
+
 def Customize(options):
   package = '--package=org.xwalk.app.template'
   if options.package:
@@ -107,9 +122,13 @@ def Customize(options):
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
+  extensions_list = ''
+  if options.extensions:
+    extensions_list = '--extensions=%s' % options.extensions
   proc = subprocess.Popen(['python', 'customize.py', package,
                            name, icon, app_url, remote_debugging,
-                           app_root, app_local_path, fullscreen_flag],
+                           app_root, app_local_path, fullscreen_flag,
+                           extensions_list],
                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
@@ -269,13 +288,21 @@ def Execution(options):
                               'libs', 'xwalk_app_runtime_activity_java.dex.jar')
   client_jar = os.path.join(os.getcwd(),
                             'libs', 'xwalk_app_runtime_client_java.dex.jar')
-  proc = subprocess.Popen(['python', os.path.join('scripts', 'gyp', 'dex.py'),
-                           dex_path,
-                           '--android-sdk-root=%s' % sdk_root_path,
-                           activity_jar,
-                           client_jar,
-                           os.path.join(os.getcwd(), 'out', 'classes')],
-                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+  # Check whether external extensions are included.
+  extensions_string = 'xwalk-extensions'
+  extensions_dir = os.path.join(os.getcwd(), sanitized_name, extensions_string)
+  external_extension_jars = FindExtensionJars(extensions_dir)
+  dex_command_list = ['python', os.path.join('scripts', 'gyp', 'dex.py'),
+                      dex_path,
+                      '--android-sdk-root=%s' % sdk_root_path,
+                      activity_jar,
+                      client_jar,
+                      os.path.join(os.getcwd(), 'out', 'classes')]
+  dex_command_list.extend(external_extension_jars)
+
+  proc = subprocess.Popen(dex_command_list,
+                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
   out, _ = proc.communicate()
   print out
 
@@ -338,9 +365,9 @@ def main(argv):
           'This flag allows to package local web app as apk. Such as: '
           '--app-root=/root/path/of/the/web/app')
   parser.add_option('--app-root', help=info)
-  info = ('The reletive path of entry file based on |app_root|. '
+  info = ('The relative path of entry file based on |app_root|. '
           'This flag should work with "--app-root" together. '
-          'Such as: --app-local-path=/reletive/path/of/entry/file')
+          'Such as: --app-local-path=/relative/path/of/entry/file')
   parser.add_option('--app-local-path', help=info)
   info = ('The path of the developer keystore, Such as: '
           '--keystore-path=/path/to/your/developer/keystore')
@@ -355,6 +382,10 @@ def main(argv):
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
+  info = ('The path list for external extensions separated by os separator.'
+          'On Linux and Mac, the separator is ":". On Windows, it is ";".'
+          'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
+  parser.add_option('--extensions', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
