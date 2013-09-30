@@ -24,6 +24,7 @@
         'chromium_code': 1,
       },
       'dependencies': [
+        'xwalk_extensions_auto_gen',
         '../base/base.gyp:base',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../content/content.gyp:content_app',
@@ -271,6 +272,21 @@
             ['exclude', '_aura\\.cc$'],
           ],
         }],
+      ],
+    },
+    {
+      'target_name': 'xwalk_extensions_auto_gen',
+      'type': 'none',
+      'actions': [
+        {
+          'action_name': 'xwalk_extension_auto_gen_dialog',
+          'variables': {
+            'out_filename': 'dialog_api.js',
+            'input_json_file': 'experimental/dialog/dialog.json',
+            'input_root': 'experimental/dialog/',
+          },
+          'includes': [ 'experimental/xwalk_json_schema_compile.gypi' ],
+        },
       ],
     },
     {

@@ -1,0 +1,59 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.  
+
+[
+  {
+    "namespace": "dialog",
+    "description": "none",
+    "functions": [
+      {
+        "name": "OnShowOpenDialog",
+        "type": "function",
+        "description": "Call native to show OpenDialog",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "arg1"
+          },
+          {
+            "type": "integer",
+            "name": "arg2"
+          },
+          {
+            "type": "integer",
+            "name": "arg3"
+          },
+          {
+            "type": "integer",
+            "name": "arg4"
+          },
+          {
+            "type": "integer",
+            "name": "arg5"
+          }
+        ]
+      },
+      {
+        "name": "OnShowSaveDialog",
+        "type": "function",
+        "description": "Call native to show SaveDialog",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "arg1"
+          },
+          {
+            "type": "integer",
+            "name": "arg2"
+          },
+          {
+            "type": "integer",
+            "name": "arg3"
+          }
+        ]
+      }
+    ]
+  }
+]
+
