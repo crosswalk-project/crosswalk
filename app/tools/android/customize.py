@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import json
 import optparse
 import os
 import re
@@ -150,6 +151,103 @@ def CustomizeJava(options, sanitized_name):
     SetVariable(dest_activity, 'RemoteDebugging', 'true')
 
 
+def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
+  # Copy the file from src_path into dest_path.
+  dest_extension_path = os.path.join(dest_path, extension_name)
+  if os.path.exists(dest_extension_path):
+    # TODO: Refine it by renaming it internally.
+    print ('Error: duplicated extension names "%s" are found. Please rename it.'
+           % extension_name)
+    sys.exit(9)
+  else:
+    os.mkdir(dest_extension_path)
+
+  file_name = extension_name + suffix
+  src_file = os.path.join(src_path, file_name)
+  dest_file = os.path.join(dest_extension_path, file_name)
+  if not os.path.isfile(src_file):
+    sys.exit(9)
+    print 'Error: %s is not found in %s.' % (file_name, src_path)
+  else:
+    shutil.copyfile(src_file, dest_file)
+
+
+def CustomizeExtensions(options):
+  """Copy the files from external extensions and merge them into APK.
+
+  The directory of one external extension should be like:
+    myextension/
+      myextension.jar
+      myextension.js
+      myextension.json
+  That means the name of the internal files should be the same as the
+  directory name.
+  For .jar files, they'll be copied to xwalk-extensions/ and then
+  built into classes.dex in make_apk.py.
+  For .js files, they'll be copied into assets/xwalk-extensions/.
+  For .json files, the'll be merged into one file called
+  extensions-config.json and copied into assets/.
+  """
+  if not options.extensions:
+    return
+  apk_path = options.name
+  apk_assets_path = os.path.join(apk_path, 'assets')
+  extensions_string = 'xwalk-extensions'
+
+  # Set up the target directories and files.
+  dest_jar_path = os.path.join(apk_path, extensions_string)
+  os.mkdir(dest_jar_path)
+  dest_js_path = os.path.join(apk_assets_path, extensions_string)
+  os.mkdir(dest_js_path)
+  apk_extensions_json_path = os.path.join(apk_assets_path,
+                                          'extensions-config.json')
+
+  # Split the paths into a list.
+  extension_paths = options.extensions.split(os.pathsep)
+  extension_json_list = []
+  for source_path in extension_paths:
+    if not os.path.exists(source_path):
+      print 'Error: can\'t find the extension directory \'%s\'.' % source_path
+      sys.exit(9)
+    extension_name = os.path.basename(source_path)
+
+    # Copy .jar file into xwalk-extensions.
+    CopyExtensionFile(extension_name, '.jar', source_path, dest_jar_path)
+
+    # Copy .js file into assets/xwalk-extensions.
+    CopyExtensionFile(extension_name, '.js', source_path, dest_js_path)
+
+    # Merge .json file into assets/xwalk-extensions.
+    file_name = extension_name + '.json'
+    src_file = os.path.join(source_path, file_name)
+    if not os.path.isfile(src_file):
+      print 'Error: %s is not found in %s.' % (file_name, source_path)
+      sys.exit(9)
+    else:
+      src_file_handle = file(src_file)
+      src_file_content = src_file_handle.read()
+      json_output = json.JSONDecoder().decode(src_file_content)
+      # Below 3 properties are used by runtime. See extension manager.
+      # And 'permissions' will be merged.
+      if ((not 'name' in json_output) or (not 'class' in json_output)
+          or (not 'jsapi' in json_output)):
+        print ('Error: properties \'name\', \'class\' and \'jsapi\' in a json '
+               'file are mandatory.')
+        sys.exit(9)
+      # Reset the path for JavaScript.
+      js_path_prefix = extensions_string + '/' + extension_name + '/'
+      json_output['jsapi'] = js_path_prefix + json_output['jsapi']
+      extension_json_list.append(json_output)
+      # TODO: Merge the permissions of extensions into AndroidManifest.xml.
+
+  # Write configuration of extensions into the target extensions-config.json.
+  if extension_json_list:
+    extensions_string = json.JSONEncoder().encode(extension_json_list)
+    extension_json_file = open(apk_extensions_json_path, 'w')
+    extension_json_file.write(extensions_string)
+    extension_json_file.close()
+
+
 def main():
   parser = optparse.OptionParser()
   info = ('The package name. Such as: '
@@ -177,12 +275,17 @@ def main():
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
+  info = ('The path list for external extensions separated by os separator.'
+          'On Linux and Mac, the separator is ":". On Windows, it is ";".'
+          'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
+  parser.add_option('--extensions', help=info)
   options, _ = parser.parse_args()
   sanitized_name = ReplaceInvalidChars(options.name)
   try:
     Prepare(options, sanitized_name)
     CustomizeXML(options, sanitized_name)
     CustomizeJava(options, sanitized_name)
+    CustomizeExtensions(options)
   except SystemExit, ec:
     print 'Exiting with error code: %d' % ec.code
     return ec.code
