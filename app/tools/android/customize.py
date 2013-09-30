@@ -90,7 +90,7 @@ def CustomizeXML(options, sanitized_name):
     AddThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   else:
     RemoveThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
-  if options.icon:
+  if options.icon and os.path.isfile(options.icon):
     drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
@@ -100,6 +100,9 @@ def CustomizeXML(options, sanitized_name):
     icon_name = os.path.splitext(icon_file)[0]
     AddAttribute(xmldoc, 'application',
                  'android:icon', '@drawable/%s' % icon_name)
+  elif options.icon and (not os.path.isfile(options.icon)):
+    print ('Please make sure the icon file does exist!')
+    sys.exit(6)
 
   file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'wb')
   xmldoc.writexml(file_handle)
@@ -144,7 +147,7 @@ def CustomizeJava(options, sanitized_name):
                                    options.app_local_path)):
       ReplaceString(dest_activity, 'index.html', options.app_local_path)
     else:
-      print ('Please make sure that the reletive path of entry file'
+      print ('Please make sure that the relative path of entry file'
              ' is correct.')
       sys.exit(8)
   if options.enable_remote_debugging:
