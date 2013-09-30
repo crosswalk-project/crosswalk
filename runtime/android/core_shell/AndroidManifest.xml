@@ -9,7 +9,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.core.xwview.shell">
 
-    <application android:name="org.xwalk.core.xwview.shell.XWalkViewShellApplication"
+    <application android:name="android.app.Application"
         android:label="XWalkCoreShell" android:hardwareAccelerated="true">
         <activity android:name="org.xwalk.core.xwview.shell.XWalkViewShellActivity"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"
