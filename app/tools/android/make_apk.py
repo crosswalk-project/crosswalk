@@ -366,7 +366,9 @@ def main(argv):
                    'Please use "--package" option.')
     if not options.name:
       parser.error('The APK name is required! Pleaes use "--name" option.')
-    if not options.app_url and not options.app_root:
+    if not ((options.app_url and not options.app_root
+        and not options.app_local_path) or ((not options.app_url)
+            and options.app_root and options.app_local_path)):
       parser.error('The entry is required. If the entry is a remote url, '
                    'please use "--app-url" option; If the entry is local, '
                    'please use "--app-root" and '

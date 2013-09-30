@@ -74,23 +74,59 @@ class TestMakeApk(unittest.TestCase):
 
   def testEntry(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example'],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
-    self.assertTrue(out.find('The entry is required.') != -1)
-    Clean('Example')
-    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com'],
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') == -1)
+    self.assertTrue(os.path.exists('Example.apk'))
     Clean('Example')
+
+    test_entry_root = 'test_data/entry'
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-root=%s' % test_entry_root,
+                             '--app-local-path=index.html'],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('The entry is required.') == -1)
+    self.assertTrue(os.path.exists('Example.apk'))
+    Clean('Example')
+
+  def testEntryWithErrors(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertFalse(os.path.exists('Example.apk'))
+    Clean('Example')
+
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--app-root=.'],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertFalse(os.path.exists('Example.apk'))
+    Clean('Example')
+
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
                              '--package=org.xwalk.example', '--app-root=./'],
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
-    self.assertTrue(out.find('The entry is required.') == -1)
+    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertFalse(os.path.exists('Example.apk'))
+    Clean('Example')
+
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-local-path=index.html'],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example')
 
   def testIcon(self):
