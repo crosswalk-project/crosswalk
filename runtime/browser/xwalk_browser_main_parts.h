@@ -11,7 +11,9 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
 #include "googleurl/src/gurl.h"
+#if defined(OS_LINUX) && !defined(OS_ANDROID)
 #include "xwalk/runtime/browser/xwalk_process_singleton.h"
+#endif
 
 namespace xwalk {
 
@@ -27,8 +29,6 @@ void SetXWalkCommandLineFlags();
 
 class XWalkBrowserMainParts : public content::BrowserMainParts {
  public:
-  static XWalkBrowserMainParts* GetInstance();
-
   explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
   virtual ~XWalkBrowserMainParts();
@@ -81,9 +81,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
 
-  // Should be about:blank If no URL is specified in command line arguments.
-  GURL startup_url_;
-
   // The main function parameters passed to BrowserMain.
   const content::MainFunctionParams& parameters_;
 
@@ -93,7 +90,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && !defined(OS_ANDROID)
   // Allows different browser processes to communicate with each other.
   ProcessSingleton::NotifyResult notify_result_;
   scoped_ptr<ProcessSingleton> process_singleton_;
