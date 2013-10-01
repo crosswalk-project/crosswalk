@@ -31,8 +31,7 @@ XWalkExtensionInstance* TestExtension::CreateInstance() {
   return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance()
-    : XWalkInternalExtensionInstance() {
+TestExtensionInstance::TestExtensionInstance() {
   handler_.Register("clearDatabase",
       base::Bind(&TestExtensionInstance::OnClearDatabase,
                  base::Unretained(this)));
@@ -48,6 +47,10 @@ TestExtensionInstance::TestExtensionInstance()
   handler_.Register("getPersonAge",
       base::Bind(&TestExtensionInstance::OnGetPersonAge,
                  base::Unretained(this)));
+}
+
+void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+  handler_.HandleMessage(msg.Pass(), this);
 }
 
 void TestExtensionInstance::OnClearDatabase(
@@ -85,9 +88,6 @@ void TestExtensionInstance::OnAddPersonObject(
 
 void TestExtensionInstance::OnGetAllPersons(
     const XWalkExtensionFunctionInfo& info) {
-  if (info.callback_id.empty())
-    return;
-
   scoped_ptr<GetAllPersons::Params>
       params(GetAllPersons::Params::Create(*info.arguments));
 
@@ -107,15 +107,11 @@ void TestExtensionInstance::OnGetAllPersons(
     persons.push_back(person);
   }
 
-  PostResult(info.callback_id,
-             GetAllPersons::Results::Create(persons, max_size));
+  info.PostResult(GetAllPersons::Results::Create(persons, max_size));
 }
 
 void TestExtensionInstance::OnGetPersonAge(
     const XWalkExtensionFunctionInfo& info) {
-  if (info.callback_id.empty())
-    return;
-
   scoped_ptr<GetPersonAge::Params>
       params(GetPersonAge::Params::Create(*info.arguments));
 
@@ -131,7 +127,7 @@ void TestExtensionInstance::OnGetPersonAge(
       age = database()->at(i).second;
   }
 
-  PostResult(info.callback_id, GetPersonAge::Results::Create(age));
+  info.PostResult(GetPersonAge::Results::Create(age));
 }
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {

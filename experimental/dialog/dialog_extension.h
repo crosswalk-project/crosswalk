@@ -10,7 +10,8 @@
 #include "base/files/file_path.h"
 #include "base/values.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
-#include "xwalk/extensions/browser/xwalk_extension_internal.h"
+#include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
@@ -23,10 +24,8 @@ using extensions::XWalkExtension;
 using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
-using extensions::XWalkInternalExtension;
-using extensions::XWalkInternalExtensionInstance;
 
-class DialogExtension : public XWalkInternalExtension,
+class DialogExtension : public XWalkExtension,
                         public RuntimeRegistryObserver {
  public:
   explicit DialogExtension(RuntimeRegistry* runtime_registry);
@@ -49,7 +48,7 @@ class DialogExtension : public XWalkInternalExtension,
 };
 
 
-class DialogInstance : public XWalkInternalExtensionInstance,
+class DialogInstance : public XWalkExtensionInstance,
                       public SelectFileDialog::Listener {
  public:
   explicit DialogInstance(DialogExtension* extension);
@@ -69,6 +68,8 @@ class DialogInstance : public XWalkInternalExtensionInstance,
 
   DialogExtension* extension_;
   scoped_refptr<SelectFileDialog> dialog_;
+
+  XWalkExtensionFunctionHandler handler_;
 };
 
 }  // namespace experimental

@@ -23,15 +23,17 @@ XWalkExtensionInstance* RuntimeExtension::CreateInstance() {
   return new RuntimeInstance();
 }
 
-RuntimeInstance::RuntimeInstance()
-  : XWalkInternalExtensionInstance() {
+RuntimeInstance::RuntimeInstance() {
   handler_.Register("getAPIVersion",
       base::Bind(&RuntimeInstance::OnGetAPIVersion, base::Unretained(this)));
 }
 
+void RuntimeInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+  handler_.HandleMessage(msg.Pass(), this);
+}
+
 void RuntimeInstance::OnGetAPIVersion(const XWalkExtensionFunctionInfo& info) {
-  PostResult(info.callback_id,
-             jsapi::runtime::GetAPIVersion::Results::Create(1));
+  info.PostResult(jsapi::runtime::GetAPIVersion::Results::Create(1));
 };
 
 }  // namespace xwalk

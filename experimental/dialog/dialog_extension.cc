@@ -20,8 +20,7 @@ namespace experimental {
 using namespace jsapi::dialog; // NOLINT
 
 DialogExtension::DialogExtension(RuntimeRegistry* runtime_registry)
-  : XWalkInternalExtension(),
-    runtime_registry_(runtime_registry),
+  : runtime_registry_(runtime_registry),
     owning_window_(NULL) {
   set_name("xwalk.experimental.dialog");
   runtime_registry_->AddObserver(this);
@@ -63,12 +62,12 @@ void DialogInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   if (!BrowserThread::CurrentlyOn(BrowserThread::UI)) {
     BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
-      base::Bind(&XWalkInternalExtensionInstance::HandleMessage,
+      base::Bind(&DialogInstance::HandleMessage,
           base::Unretained(this), base::Passed(&msg)));
     return;
   }
 
-  XWalkInternalExtensionInstance::HandleMessage(msg.Pass());
+  handler_.HandleMessage(msg.Pass(), this);
 }
 
 void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
@@ -94,8 +93,8 @@ void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
   // FIXME(jeez): implement file_type and file_extension support.
   base::FilePath::StringType file_extension;
 
-  std::pair<std::string, std::string>* data =
-      new std::pair<std::string, std::string>(info.name, info.callback_id);
+  scoped_ptr<XWalkExtensionFunctionInfo> data(
+      new XWalkExtensionFunctionInfo(info));
 
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
@@ -103,7 +102,7 @@ void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
   dialog_->SelectFile(dialog_type, title16,
                       base::FilePath::FromUTF8Unsafe(params->initial_path),
                       NULL /* file_type */, 0 /* type_index */, file_extension,
-                      extension_->owning_window_, data);
+                      extension_->owning_window_, data.release());
 }
 
 void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
@@ -126,8 +125,8 @@ void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
-  std::pair<std::string, std::string>* data =
-      new std::pair<std::string, std::string>(info.name, info.callback_id);
+  scoped_ptr<XWalkExtensionFunctionInfo> data(
+      new XWalkExtensionFunctionInfo(info));
 
   base::FilePath filePath =
       base::FilePath::FromUTF8Unsafe(params->initial_path);
@@ -136,37 +135,35 @@ void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
 
   dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
     filePath.Append(proposedFilePath), NULL /* file_type */, 0 /* type_index */,
-    file_extension, extension_->owning_window_, data);
+    file_extension, extension_->owning_window_, data.release());
 }
 
 void DialogInstance::FileSelected(const base::FilePath& path, int,
                                  void* params) {
-  scoped_ptr<std::pair<std::string, std::string> >
-      data(static_cast<std::pair<std::string, std::string>*>(params));
+  scoped_ptr<XWalkExtensionFunctionInfo> info(
+      static_cast<XWalkExtensionFunctionInfo*>(params));
 
   std::string strPath = path.AsUTF8Unsafe();
-  if (data->first == "showOpenDialog") {
+  if (info->name == "showOpenDialog") {
     std::vector<std::string> filesList;
     filesList.push_back(strPath);
-    PostResult(data->second,
-               ShowOpenDialog::Results::Create(filesList));
+    info->PostResult(ShowOpenDialog::Results::Create(filesList));
   } else {  // showSaveDialog
-    PostResult(data->second,
-               ShowSaveDialog::Results::Create(strPath));
+    info->PostResult(ShowSaveDialog::Results::Create(strPath));
   }
 }
 
 void DialogInstance::MultiFilesSelected(
     const std::vector<base::FilePath>& files, void* params) {
-  scoped_ptr<std::pair<std::string, std::string> >
-      data(static_cast<std::pair<std::string, std::string>*>(params));
+  scoped_ptr<XWalkExtensionFunctionInfo> info(
+      static_cast<XWalkExtensionFunctionInfo*>(params));
 
   std::vector<std::string> filesList;
   std::vector<base::FilePath>::const_iterator it;
   for (it = files.begin(); it != files.end(); ++it)
     filesList.push_back(it->AsUTF8Unsafe());
 
-  PostResult(data->second, ShowOpenDialog::Results::Create(filesList));
+  info->PostResult(ShowOpenDialog::Results::Create(filesList));
 }
 
 }  // namespace experimental

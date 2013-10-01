@@ -6,7 +6,8 @@
 #define XWALK_RUNTIME_EXTENSION_RUNTIME_EXTENSION_H_
 
 #include <string>
-#include "xwalk/extensions/browser/xwalk_extension_internal.h"
+#include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace xwalk {
 
@@ -14,10 +15,8 @@ using extensions::XWalkExtension;
 using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
-using extensions::XWalkInternalExtension;
-using extensions::XWalkInternalExtensionInstance;
 
-class RuntimeExtension : public XWalkInternalExtension {
+class RuntimeExtension : public XWalkExtension {
  public:
   RuntimeExtension();
 
@@ -26,12 +25,16 @@ class RuntimeExtension : public XWalkInternalExtension {
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
 
-class RuntimeInstance : public XWalkInternalExtensionInstance {
+class RuntimeInstance : public XWalkExtensionInstance {
  public:
   explicit RuntimeInstance();
 
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+
  private:
   void OnGetAPIVersion(const XWalkExtensionFunctionInfo& info);
+
+  XWalkExtensionFunctionHandler handler_;
 };
 
 }  // namespace xwalk

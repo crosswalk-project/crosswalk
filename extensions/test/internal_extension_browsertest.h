@@ -8,12 +8,13 @@
 #include <utility>
 #include <string>
 #include <vector>
-#include "xwalk/extensions/browser/xwalk_extension_internal.h"
+#include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 using xwalk::extensions::XWalkExtensionFunctionHandler;
 using xwalk::extensions::XWalkExtensionFunctionInfo;
 
-class TestExtension : public xwalk::extensions::XWalkInternalExtension {
+class TestExtension : public xwalk::extensions::XWalkExtension {
  public:
   TestExtension();
 
@@ -23,11 +24,13 @@ class TestExtension : public xwalk::extensions::XWalkInternalExtension {
 };
 
 class TestExtensionInstance
-    : public xwalk::extensions::XWalkInternalExtensionInstance {
+    : public xwalk::extensions::XWalkExtensionInstance {
  public:
   typedef std::vector<std::pair<std::string, int> > Database;
 
   TestExtensionInstance();
+
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
   Database* database() { return &database_; }
 
@@ -39,6 +42,8 @@ class TestExtensionInstance
   void OnGetPersonAge(const XWalkExtensionFunctionInfo& info);
 
   std::vector<std::pair<std::string, int> > database_;
+
+  XWalkExtensionFunctionHandler handler_;
 };
 
 #endif  // XWALK_EXTENSIONS_TEST_INTERNAL_EXTENSION_BROWSERTEST_H_

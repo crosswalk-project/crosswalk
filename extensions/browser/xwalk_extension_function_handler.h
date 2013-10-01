@@ -13,10 +13,25 @@
 namespace xwalk {
 namespace extensions {
 
+class XWalkExtensionInstance;
+
+// This struct is passed to the function handler, usually assigned to the
+// signature of a method in JavaScript. The struct can be safely copied but
+// should not outlive the ExtensionInstance.
 struct XWalkExtensionFunctionInfo {
+  typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
+      PostResultCallback;
+
+  // Convenience method for posting the results back to the renderer process.
+  // The object identifier is already wrapped at the |post_result_cb|.
+  void PostResult(scoped_ptr<base::ListValue> result) const {
+    post_result_cb.Run(result.Pass());
+  };
+
   std::string name;
-  std::string callback_id;
   base::ListValue* arguments;
+
+  PostResultCallback post_result_cb;
 };
 
 // Helper for handling JavaScript method calls in the native side. Allows you to
@@ -29,6 +44,14 @@ class XWalkExtensionFunctionHandler {
   XWalkExtensionFunctionHandler();
   ~XWalkExtensionFunctionHandler();
 
+  // Converts a raw message from the renderer to a XWalkExtensionFunctionInfo
+  // data structure and invokes HandleFunction(). A reference to |instance| is
+  // kept so the handler can issue a reply.
+  void HandleMessage(scoped_ptr<base::Value> msg,
+                     XWalkExtensionInstance* instance);
+
+  // Executes the handler associated to the |name| tag of the |info| argument
+  // passed as parameter.
   bool HandleFunction(const XWalkExtensionFunctionInfo& info);
 
   // This method will register a callback to handle a message tagged as
