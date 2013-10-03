@@ -31,29 +31,40 @@ XWalkExtensionInstance* TestExtension::CreateInstance() {
   return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance()
-    : XWalkInternalExtensionInstance() {
-  RegisterFunction("clearDatabase", &TestExtensionInstance::OnClearDatabase);
-  RegisterFunction("addPerson", &TestExtensionInstance::OnAddPerson);
-  RegisterFunction("addPersonObject",
-      &TestExtensionInstance::OnAddPersonObject);
-  RegisterFunction("getAllPersons", &TestExtensionInstance::OnGetAllPersons);
-  RegisterFunction("getPersonAge", &TestExtensionInstance::OnGetPersonAge);
+TestExtensionInstance::TestExtensionInstance() {
+  handler_.Register("clearDatabase",
+      base::Bind(&TestExtensionInstance::OnClearDatabase,
+                 base::Unretained(this)));
+  handler_.Register("addPerson",
+      base::Bind(&TestExtensionInstance::OnAddPerson,
+                 base::Unretained(this)));
+  handler_.Register("addPersonObject",
+      base::Bind(&TestExtensionInstance::OnAddPersonObject,
+                 base::Unretained(this)));
+  handler_.Register("getAllPersons",
+      base::Bind(&TestExtensionInstance::OnGetAllPersons,
+                 base::Unretained(this)));
+  handler_.Register("getPersonAge",
+      base::Bind(&TestExtensionInstance::OnGetPersonAge,
+                 base::Unretained(this)));
 }
 
-void TestExtensionInstance::OnClearDatabase(const std::string&,
-                                                          const std::string&,
-                                                          base::ListValue*) {
+void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+  handler_.HandleMessage(msg.Pass(), this);
+}
+
+void TestExtensionInstance::OnClearDatabase(
+    const XWalkExtensionFunctionInfo& info) {
   database()->clear();
 }
 
 void TestExtensionInstance::OnAddPerson(
-    const std::string& function_name, const std::string&,
-    base::ListValue* args) {
-  scoped_ptr<AddPerson::Params> params(AddPerson::Params::Create(*args));
+    const XWalkExtensionFunctionInfo& info) {
+  scoped_ptr<AddPerson::Params>
+      params(AddPerson::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -62,13 +73,12 @@ void TestExtensionInstance::OnAddPerson(
 }
 
 void TestExtensionInstance::OnAddPersonObject(
-    const std::string& function_name, const std::string&,
-    base::ListValue* args) {
+    const XWalkExtensionFunctionInfo& info) {
   scoped_ptr<AddPersonObject::Params>
-      params(AddPersonObject::Params::Create(*args));
+      params(AddPersonObject::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -77,16 +87,12 @@ void TestExtensionInstance::OnAddPersonObject(
 }
 
 void TestExtensionInstance::OnGetAllPersons(
-    const std::string& function_name, const std::string& callback_id,
-    base::ListValue* args) {
-  if (callback_id.empty())
-    return;
-
+    const XWalkExtensionFunctionInfo& info) {
   scoped_ptr<GetAllPersons::Params>
-      params(GetAllPersons::Params::Create(*args));
+      params(GetAllPersons::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -101,21 +107,16 @@ void TestExtensionInstance::OnGetAllPersons(
     persons.push_back(person);
   }
 
-  PostResult(callback_id,
-             GetAllPersons::Results::Create(persons, max_size));
+  info.PostResult(GetAllPersons::Results::Create(persons, max_size));
 }
 
 void TestExtensionInstance::OnGetPersonAge(
-    const std::string& function_name, const std::string& callback_id,
-    base::ListValue* args) {
-  if (callback_id.empty())
-    return;
-
+    const XWalkExtensionFunctionInfo& info) {
   scoped_ptr<GetPersonAge::Params>
-      params(GetPersonAge::Params::Create(*args));
+      params(GetPersonAge::Params::Create(*info.arguments));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << function_name;
+    LOG(WARNING) << "Malformed parameters passed to " << info.name;
     return;
   }
 
@@ -126,7 +127,7 @@ void TestExtensionInstance::OnGetPersonAge(
       age = database()->at(i).second;
   }
 
-  PostResult(callback_id, GetPersonAge::Results::Create(age));
+  info.PostResult(GetPersonAge::Results::Create(age));
 }
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {

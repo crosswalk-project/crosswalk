@@ -82,15 +82,15 @@ class XWalkExtensionInstance {
   void SetPostMessageCallback(const PostMessageCallback& callback);
   void SetSendSyncReplyCallback(const SendSyncReplyCallback& callback);
 
- protected:
-  XWalkExtensionInstance();
-
   // Function to be used by extensions Instances to post messages back to
   // JavaScript in the renderer process. This function will take the ownership
   // of the message.
   void PostMessageToJS(scoped_ptr<base::Value> msg) {
     post_message_.Run(msg.Pass());
   }
+
+ protected:
+  XWalkExtensionInstance();
 
   // Unblocks the renderer waiting on a SyncMessage.
   void SendSyncReplyToJS(scoped_ptr<base::Value> reply) {
