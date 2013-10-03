@@ -1,0 +1,397 @@
+Author: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+
+This patch includes Chromium side changes needed for integrating
+WebMediaPlayer with the Tizen Audio Session Manager.
+
+diff --git src/build/linux/system.gyp src/build/linux/system.gyp
+index 867553f..d2516ad 100644
+--- src/build/linux/system.gyp
++++ src/build/linux/system.gyp
+@@ -832,5 +832,27 @@
+         }],
+       ],
+     },
++    {
++      'target_name': 'resource_manager',
++      'type': 'none',
++      'toolsets': ['host', 'target'],
++      'conditions': [
++        ['tizen_mobile == 1', {
++          'direct_dependent_settings': {
++            'cflags': [
++              '<!@(<(pkg-config) --cflags audio-session-mgr)',
++            ],
++          },
++          'link_settings': {
++            'ldflags': [
++              '<!@(<(pkg-config) --libs-only-L --libs-only-other audio-session-mgr)',
++            ],
++            'libraries': [
++              '<!@(<(pkg-config) --libs-only-l audio-session-mgr)',
++            ],
++          },
++        }],
++      ],
++    },
+   ],
+ }
+diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/content/browser/renderer_host/render_view_host_impl.cc
+index 7e8f63c..01c0c75 100644
+--- src/content/browser/renderer_host/render_view_host_impl.cc
++++ src/content/browser/renderer_host/render_view_host_impl.cc
+@@ -74,6 +74,8 @@
+ #include "content/browser/renderer_host/popup_menu_helper_mac.h"
+ #elif defined(OS_ANDROID)
+ #include "media/base/android/media_player_manager.h"
++#elif defined(OS_TIZEN_MOBILE)
++#include "xwalk/runtime/browser/media/tizen_media_player_manager_impl.h"
+ #endif
+ 
+ using base::TimeDelta;
+@@ -197,6 +199,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+ 
+ #if defined(OS_ANDROID)
+   media_player_manager_ = media::MediaPlayerManager::Create(this);
++#elif defined(OS_TIZEN_MOBILE)
++  tizen_media_player_manager_ = new TizenMediaPlayerManagerImpl(this);
+ #endif
+ }
+ 
+diff --git src/content/browser/renderer_host/render_view_host_impl.h src/content/browser/renderer_host/render_view_host_impl.h
+index 2e76a71..16b6fd1 100644
+--- src/content/browser/renderer_host/render_view_host_impl.h
++++ src/content/browser/renderer_host/render_view_host_impl.h
+@@ -75,6 +75,10 @@ struct FileChooserParams;
+ struct Referrer;
+ struct ShowDesktopNotificationHostMsgParams;
+ 
++#if defined(OS_TIZEN_MOBILE)
++class TizenMediaPlayerManagerImpl;
++#endif
++
+ #if defined(COMPILER_MSVC)
+ // RenderViewHostImpl is the bottom of a diamond-shaped hierarchy,
+ // with RenderWidgetHost at the root. VS warns when methods from the
+@@ -716,6 +720,8 @@ class CONTENT_EXPORT RenderViewHostImpl
+   // Manages all the android mediaplayer objects and handling IPCs for video.
+   // This class inherits from RenderViewHostObserver.
+   media::MediaPlayerManager* media_player_manager_;
++#elif defined(OS_TIZEN_MOBILE)
++  TizenMediaPlayerManagerImpl* tizen_media_player_manager_;
+ #endif
+ 
+   DISALLOW_COPY_AND_ASSIGN(RenderViewHostImpl);
+diff --git src/content/common/content_message_generator.h src/content/common/content_message_generator.h
+index 35927dd..d2e4e02 100644
+--- src/content/common/content_message_generator.h
++++ src/content/common/content_message_generator.h
+@@ -52,3 +52,6 @@
+ #include "content/common/view_messages.h"
+ #include "content/common/websocket_messages.h"
+ #include "content/common/worker_messages.h"
++#if defined(OS_TIZEN_MOBILE)
++#include "xwalk/runtime/common/media/tizen_media_player_messages.h"
++#endif
+diff --git src/content/content_browser.gypi src/content/content_browser.gypi
+index 0f38afc..9be74a6 100644
+--- src/content/content_browser.gypi
++++ src/content/content_browser.gypi
+@@ -1451,5 +1451,19 @@
+         '../build/linux/system.gyp:libgps',
+       ],
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/runtime/browser/media/tizen_audio_session_manager.cc',
++        '<(DEPTH)/xwalk/runtime/browser/media/tizen_audio_session_manager.h',
++        '<(DEPTH)/xwalk/runtime/browser/media/tizen_media_player_manager_impl.cc',
++        '<(DEPTH)/xwalk/runtime/browser/media/tizen_media_player_manager_impl.h',
++      ],
++      'dependencies': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++      'export_dependent_settings': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++    }],
+   ],
+ }
+diff --git src/content/content_common.gypi src/content/content_common.gypi
+index f62a204..2221e4e 100644
+--- src/content/content_common.gypi
++++ src/content/content_common.gypi
+@@ -548,5 +548,10 @@
+       },
+      ]
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/runtime/common/media/tizen_media_player_messages.h',
++      ],
++    }],
+   ],
+ }
+diff --git src/content/renderer/render_view_impl.cc src/content/renderer/render_view_impl.cc
+index caf1eba..c52dc8b 100644
+--- src/content/renderer/render_view_impl.cc
++++ src/content/renderer/render_view_impl.cc
+@@ -249,6 +249,11 @@
+ #include "skia/ext/skia_utils_mac.h"
+ #endif
+ 
++#if defined(OS_TIZEN_MOBILE)
++#include "xwalk/runtime/renderer/media/tizen_webmediaplayer_manager.h"
++#include "xwalk/runtime/renderer/media/tizen_webmediaplayer_proxy.h"
++#endif
++
+ using WebKit::WebAccessibilityNotification;
+ using WebKit::WebAccessibilityObject;
+ using WebKit::WebApplicationCacheHost;
+@@ -792,6 +797,8 @@ RenderViewImpl::RenderViewImpl(RenderViewImplParams* params)
+       body_background_color_(SK_ColorWHITE),
+       expected_content_intent_id_(0),
+       media_player_proxy_(NULL),
++#elif defined(OS_TIZEN_MOBILE)
++      tizen_media_player_proxy_(NULL),
+ #endif
+ #if defined(OS_WIN)
+       focused_plugin_id_(-1),
+@@ -911,6 +918,8 @@ void RenderViewImpl::Initialize(RenderViewImplParams* params) {
+ 
+ #if defined(OS_ANDROID)
+   media_player_manager_.reset(new WebMediaPlayerManagerAndroid());
++#elif defined(OS_TIZEN_MOBILE)
++  tizen_media_player_manager_.reset(new webkit_media::TizenWebMediaPlayerManager());
+ #endif
+ 
+   // The next group of objects all implement RenderViewObserver, so are deleted
+@@ -2928,6 +2937,20 @@ WebMediaPlayer* RenderViewImpl::createMediaPlayer(
+   webkit_media::WebMediaPlayerParams params(
+       RenderThreadImpl::current()->GetMediaThreadMessageLoopProxy(),
+       sink, gpu_factories, new RenderMediaLog());
++#if defined(OS_TIZEN_MOBILE)
++  if (!tizen_media_player_proxy_) {
++    tizen_media_player_proxy_ = new webkit_media::TizenWebMediaPlayerProxy(
++        this, tizen_media_player_manager_.get());
++  }
++
++  webkit_media::WebMediaPlayerImpl* player =
++      new webkit_media::WebMediaPlayerImpl(frame, client, AsWeakPtr(), params);
++
++  player->SetMediaPlayerManagerAndProxy(tizen_media_player_manager_.get(),
++      tizen_media_player_proxy_);
++  return player;
++#endif
++
+   WebMediaPlayer* media_player =
+       GetContentClient()->renderer()->OverrideCreateWebMediaPlayer(
+           this, frame, client, AsWeakPtr(), params);
+diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h
+index ea98760..4135b98 100644
+--- src/content/renderer/render_view_impl.h
++++ src/content/renderer/render_view_impl.h
+@@ -134,6 +134,13 @@ class WebHitTestResult;
+ #endif
+ }
+ 
++#if defined(OS_TIZEN_MOBILE)
++namespace webkit_media {
++class TizenWebMediaPlayerManager;
++class TizenWebMediaPlayerProxy;
++}
++#endif
++
+ namespace content {
+ class BrowserPluginManager;
+ class DeviceOrientationDispatcher;
+@@ -1462,6 +1469,13 @@ class CONTENT_EXPORT RenderViewImpl
+ 
+   // A date/time picker object for date and time related input elements.
+   scoped_ptr<RendererDateTimePicker> date_time_picker_client_;
++#elif defined(OS_TIZEN_MOBILE)
++  // Proxy class for WebMediaPlayer to communicate with the
++  // audio session manager in the browser process.
++  webkit_media::TizenWebMediaPlayerProxy* tizen_media_player_proxy_;
++
++  // The media player manager for managing all the media players on this view.
++  scoped_ptr<webkit_media::TizenWebMediaPlayerManager> tizen_media_player_manager_;
+ #endif
+ 
+   // Plugins -------------------------------------------------------------------
+diff --git src/webkit/renderer/media/webkit_media.gypi src/webkit/renderer/media/webkit_media.gypi
+index ecd0bf3..b9d9c66 100644
+--- src/webkit/renderer/media/webkit_media.gypi
++++ src/webkit/renderer/media/webkit_media.gypi
+@@ -115,6 +115,14 @@
+             'crypto/ppapi_decryptor.h',
+           ],
+         }],
++        ['tizen_mobile == 1', {
++          'sources': [
++            '<(DEPTH)/xwalk/runtime/renderer/media/tizen_webmediaplayer_manager.cc',
++            '<(DEPTH)/xwalk/runtime/renderer/media/tizen_webmediaplayer_manager.h',
++            '<(DEPTH)/xwalk/runtime/renderer/media/tizen_webmediaplayer_proxy.cc',
++            '<(DEPTH)/xwalk/runtime/renderer/media/tizen_webmediaplayer_proxy.h',
++          ],
++        }],
+       ],
+       # TODO(jschuh): crbug.com/167187 fix size_t to int truncations.
+       'msvs_disabled_warnings': [ 4267, ],
+diff --git src/webkit/renderer/media/webmediaplayer_impl.cc src/webkit/renderer/media/webmediaplayer_impl.cc
+index b411726..922237b 100644
+--- src/webkit/renderer/media/webmediaplayer_impl.cc
++++ src/webkit/renderer/media/webmediaplayer_impl.cc
+@@ -55,6 +55,11 @@
+ #include "webkit/renderer/media/webmediaplayer_util.h"
+ #include "webkit/renderer/media/webmediasourceclient_impl.h"
+ 
++#if defined(OS_TIZEN_MOBILE)
++#include "xwalk/runtime/renderer/media/tizen_webmediaplayer_manager.h"
++#include "xwalk/runtime/renderer/media/tizen_webmediaplayer_proxy.h"
++#endif
++
+ using WebKit::WebCanvas;
+ using WebKit::WebMediaPlayer;
+ using WebKit::WebRect;
+@@ -150,6 +155,10 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(
+       pending_repaint_(false),
+       pending_size_change_(false),
+       video_frame_provider_client_(NULL),
++#if defined(OS_TIZEN_MOBILE)
++      manager_(NULL),
++      proxy_(NULL),
++#endif
+       text_track_index_(0) {
+   media_log_->AddEvent(
+       media_log_->CreateEvent(media::MediaLogEvent::WEBMEDIAPLAYER_CREATED));
+@@ -192,6 +201,13 @@ WebMediaPlayerImpl::~WebMediaPlayerImpl() {
+   SetVideoFrameProviderClient(NULL);
+   GetClient()->setWebLayer(NULL);
+ 
++#if defined(OS_TIZEN_MOBILE)
++  if (proxy_)
++    proxy_->DestroyPlayer(player_id_);
++  if (manager_)
++    manager_->UnregisterMediaPlayer(player_id_);
++#endif
++
+   DCHECK(main_loop_->BelongsToCurrentThread());
+   media_log_->AddEvent(
+       media_log_->CreateEvent(media::MediaLogEvent::WEBMEDIAPLAYER_DESTROYED));
+@@ -279,6 +295,10 @@ void WebMediaPlayerImpl::LoadSetup(const WebKit::WebURL& url) {
+   // Set subresource URL for crash reporting.
+   base::debug::SetCrashKeyValue("subresource_url", gurl.spec());
+ 
++#if defined(OS_TIZEN_MOBILE)
++  proxy_->Initialize(player_id_, getpid(), url);
++#endif
++
+   // Handle any volume/preload changes that occurred before load().
+   setVolume(GetClient()->volume());
+   setPreload(GetClient()->preload());
+@@ -294,6 +314,10 @@ void WebMediaPlayerImpl::play() {
+   paused_ = false;
+   pipeline_->SetPlaybackRate(playback_rate_);
+ 
++#if defined(OS_TIZEN_MOBILE)
++  proxy_->Start(player_id_);
++#endif
++
+   media_log_->AddEvent(media_log_->CreateEvent(media::MediaLogEvent::PLAY));
+ 
+   if (delegate_.get())
+@@ -307,6 +331,10 @@ void WebMediaPlayerImpl::pause() {
+   pipeline_->SetPlaybackRate(0.0f);
+   paused_time_ = pipeline_->GetMediaTime();
+ 
++#if defined(OS_TIZEN_MOBILE)
++  proxy_->Pause(player_id_);
++#endif
++
+   media_log_->AddEvent(media_log_->CreateEvent(media::MediaLogEvent::PAUSE));
+ 
+   if (delegate_.get())
+@@ -783,9 +811,30 @@ WebMediaPlayerImpl::CancelKeyRequestInternal(
+ }
+ 
+ void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
++#if defined(OS_TIZEN_MOBILE)
++  manager_->UnregisterMediaPlayer(player_id_);
++  Detach();
++#endif
+   Destroy();
+ }
+ 
++#if defined(OS_TIZEN_MOBILE)
++void WebMediaPlayerImpl::SetMediaPlayerManagerAndProxy(
++    TizenWebMediaPlayerManager* manager,
++    TizenWebMediaPlayerProxy* proxy) {
++  manager_ = manager;
++  proxy_ = proxy;
++
++  player_id_ = manager_->RegisterMediaPlayer(this);
++
++}
++
++void WebMediaPlayerImpl::Detach() {
++  manager_ = NULL;
++  proxy_ = NULL;
++}
++#endif
++
+ void WebMediaPlayerImpl::Repaint() {
+   DCHECK(main_loop_->BelongsToCurrentThread());
+ 
+diff --git src/webkit/renderer/media/webmediaplayer_impl.h src/webkit/renderer/media/webmediaplayer_impl.h
+index b2ec010..3692451 100644
+--- src/webkit/renderer/media/webmediaplayer_impl.h
++++ src/webkit/renderer/media/webmediaplayer_impl.h
+@@ -66,6 +66,10 @@ namespace webkit_media {
+ 
+ class BufferedDataSource;
+ class MediaStreamClient;
++#if defined(OS_TIZEN_MOBILE)
++class TizenWebMediaPlayerManager;
++class TizenWebMediaPlayerProxy;
++#endif
+ class WebAudioSourceProviderImpl;
+ class WebMediaPlayerDelegate;
+ class WebMediaPlayerParams;
+@@ -204,6 +208,17 @@ class WebMediaPlayerImpl
+                                            const std::string& language);
+   void SetOpaque(bool);
+ 
++#if defined(OS_TIZEN_MOBILE)
++  // Set MediaPlayer manager and proxy to communicate with the audio session
++  // manager in the browser process.
++  void SetMediaPlayerManagerAndProxy(
++      TizenWebMediaPlayerManager* manager,
++      TizenWebMediaPlayerProxy* proxy);
++
++  // Detach the player from its manager.
++  void Detach();
++#endif
++
+  private:
+   // Contains common logic used across the different types loading.
+   void LoadSetup(const WebKit::WebURL& url);
+@@ -362,6 +377,19 @@ class WebMediaPlayerImpl
+   // not NULL while the compositor is actively using this webmediaplayer.
+   cc::VideoFrameProvider::Client* video_frame_provider_client_;
+ 
++#if defined(OS_TIZEN_MOBILE)
++  // Manager for managing this object.
++  TizenWebMediaPlayerManager* manager_;
++
++  // Proxy object that delegates method calls on Render Thread.
++  // This object is created on the Render Thread and is only called in the
++  // destructor.
++  TizenWebMediaPlayerProxy* proxy_;
++
++  // Player ID assigned by the |manager_|.
++  int player_id_;
++#endif
++
+   // Text track objects get a unique index value when they're created.
+   int text_track_index_;
+ 
