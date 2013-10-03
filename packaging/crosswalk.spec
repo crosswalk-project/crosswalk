@@ -27,6 +27,7 @@ BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
 BuildRequires:  which
+BuildRequires:  pkgconfig(audio-session-mgr)
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
