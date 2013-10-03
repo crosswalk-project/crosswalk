@@ -3,10 +3,10 @@ This patch includes Tizen specific IME files when into chromium
 IME module when Tizen crosswalk packages are built.
 
 diff --git src/build/linux/system.gyp src/build/linux/system.gyp
-index 867553f..ea9705f 100644
+index 68e4d36..f2b006a 100644
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
-@@ -832,5 +832,26 @@
+@@ -902,5 +902,26 @@
          }],
        ],
      },
@@ -34,19 +34,19 @@ index 867553f..ea9705f 100644
    ],
  }
 diff --git src/ui/base/ime/ime.gypi src/ui/base/ime/ime.gypi
-index 5f2adc1..b420fa7 100644
+index 70c5cd0..cc72d1e 100644
 --- src/ui/base/ime/ime.gypi
 +++ src/ui/base/ime/ime.gypi
-@@ -84,5 +84,19 @@
+@@ -89,5 +89,19 @@
          'input_method_tsf.h',
        ],
      }],
 +    ['tizen_mobile == 1', {
 +      'sources': [
-+        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim.cc',
-+        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim.h',
-+        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge.cc',
-+        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge.h',
++        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim_x11.cc',
++        '<(DEPTH)/xwalk/ime/tizen-scim/input_method_scim_x11.h',
++        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge_x11.cc',
++        '<(DEPTH)/xwalk/ime/tizen-scim/scim_bridge_x11.h',
 +      ],
 +      'dependencies': [
 +        '../build/linux/system.gyp:scim',
@@ -58,15 +58,15 @@ index 5f2adc1..b420fa7 100644
    ],
  }
 diff --git src/ui/base/ime/input_method_factory.cc src/ui/base/ime/input_method_factory.cc
-index 018823f..066784d 100644
+index 018823f..382e71a 100644
 --- src/ui/base/ime/input_method_factory.cc
 +++ src/ui/base/ime/input_method_factory.cc
 @@ -13,6 +13,8 @@
  #include "base/win/metro.h"
  #include "ui/base/ime/input_method_imm32.h"
  #include "ui/base/ime/input_method_tsf.h"
-+#elif defined(OS_TIZEN_MOBILE)
-+#include "xwalk/ime/tizen-scim/input_method_scim.h"
++#elif defined(OS_TIZEN_MOBILE) && defined(USE_X11)
++#include "xwalk/ime/tizen-scim/input_method_scim_x11.h"
  #else
  #include "ui/base/ime/fake_input_method.h"
  #endif
@@ -74,7 +74,7 @@ index 018823f..066784d 100644
    return new InputMethodIBus(delegate);
  #elif defined(OS_WIN)
    return CreateInputMethodWinInternal(delegate, widget);
-+#elif defined(OS_TIZEN_MOBILE)
++#elif defined(OS_TIZEN_MOBILE) && defined(USE_X11)
 +  return new InputMethodSCIM(delegate);
  #else
    return new FakeInputMethod(delegate);
