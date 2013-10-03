@@ -34,6 +34,7 @@ BuildRequires:  perl
 BuildRequires:  which
 BuildRequires:  pkgconfig(appcore-efl)
 BuildRequires:  pkgconfig(aul)
+BuildRequires:  pkgconfig(audio-session-mgr)
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-system-device)
