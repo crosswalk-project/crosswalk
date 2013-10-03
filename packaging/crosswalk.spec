@@ -18,6 +18,7 @@ Patch3:         %{name}-include-tizen-ime-files.patch
 Patch4:         %{name}-disable-ffmpeg-pragmas.patch
 Patch5:         Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
 Patch6:         Blink-Fix-gcc-4.5.3-uninitialized-warnings.patch
+Patch7:         %{name}-tizen-audio-session-manager.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -107,6 +108,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch4
 %patch5 -p1
 %patch6 -p1
+%patch7
 
 %build
 
