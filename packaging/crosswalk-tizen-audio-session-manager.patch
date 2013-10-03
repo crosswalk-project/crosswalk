@@ -1,0 +1,230 @@
+Author: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+
+This patch includes Chromium side changes needed for integrating
+WebMediaPlayer with the Tizen Audio Session Manager.
+
+diff --git src/build/linux/system.gyp src/build/linux/system.gyp
+index 68e4d36..3ae6ab3 100644
+--- src/build/linux/system.gyp
++++ src/build/linux/system.gyp
+@@ -892,5 +892,27 @@
+         }],
+       ],
+     },
++    {
++      'target_name': 'resource_manager',
++      'type': 'none',
++      'toolsets': ['host', 'target'],
++      'conditions': [
++        ['tizen_mobile == 1', {
++          'direct_dependent_settings': {
++            'cflags': [
++              '<!@(<(pkg-config) --cflags audio-session-mgr)',
++            ],
++          },
++          'link_settings': {
++            'ldflags': [
++              '<!@(<(pkg-config) --libs-only-L --libs-only-other audio-session-mgr)',
++            ],
++            'libraries': [
++              '<!@(<(pkg-config) --libs-only-l audio-session-mgr)',
++            ],
++          },
++        }],
++      ],
++    },
+   ],
+ }
+diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/content/browser/renderer_host/render_view_host_impl.cc
+index 68204fb..a3e654b 100644
+--- src/content/browser/renderer_host/render_view_host_impl.cc
++++ src/content/browser/renderer_host/render_view_host_impl.cc
+@@ -83,6 +83,8 @@
+ #include "content/browser/renderer_host/popup_menu_helper_mac.h"
+ #elif defined(OS_ANDROID)
+ #include "content/browser/media/android/browser_media_player_manager.h"
++#elif defined(OS_TIZEN_MOBILE)
++#include "xwalk/tizen/browser/browser_mediaplayer_manager.h"
+ #endif
+
+ using base::TimeDelta;
+@@ -208,6 +210,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+
+ #if defined(OS_ANDROID)
+   media_player_manager_.reset(BrowserMediaPlayerManager::Create(this));
++#elif defined(OS_TIZEN_MOBILE)
++  media_player_manager_.reset(tizen::BrowserMediaPlayerManager::Create(this));
+ #endif
+ }
+ 
+diff --git src/content/browser/renderer_host/render_view_host_impl.h src/content/browser/renderer_host/render_view_host_impl.h
+index c4bfb78..cc060bb 100644
+--- src/content/browser/renderer_host/render_view_host_impl.h
++++ src/content/browser/renderer_host/render_view_host_impl.h
+@@ -43,6 +43,12 @@ struct ViewMsg_Navigate_Params;
+ struct ViewMsg_PostMessage_Params;
+ struct ViewMsg_StopFinding_Params;
+
++#if defined(OS_TIZEN_MOBILE)
++namespace tizen {
++class BrowserMediaPlayerManager;
++}
++#endif
++
+ namespace base {
+ class ListValue;
+ }
+@@ -715,6 +721,8 @@ class CONTENT_EXPORT RenderViewHostImpl
+ #if defined(OS_ANDROID)
+   // Manages all the android mediaplayer objects and handling IPCs for video.
+   scoped_ptr<BrowserMediaPlayerManager> media_player_manager_;
++#elif defined(OS_TIZEN_MOBILE)
++  scoped_ptr<tizen::BrowserMediaPlayerManager> media_player_manager_;
+ #endif
+
+   DISALLOW_COPY_AND_ASSIGN(RenderViewHostImpl);
+diff --git src/content/common/content_message_generator.h src/content/common/content_message_generator.h
+index b0af11d..54106a2 100644
+--- src/content/common/content_message_generator.h
++++ src/content/common/content_message_generator.h
+@@ -56,3 +56,6 @@
+ #include "content/common/view_messages.h"
+ #include "content/common/websocket_messages.h"
+ #include "content/common/worker_messages.h"
++#if defined(OS_TIZEN_MOBILE)
++#include "xwalk/tizen/common/media_player_messages.h"
++#endif
+diff --git src/content/content_browser.gypi src/content/content_browser.gypi
+index 1e3485c..6336e49 100644
+--- src/content/content_browser.gypi
++++ src/content/content_browser.gypi
+@@ -1558,5 +1558,19 @@
+         '../third_party/speex/speex.gyp:libspeex',
+       ],
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager.cc',
++        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager.h',
++        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.cc',
++        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.h',
++      ],
++      'dependencies': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++      'export_dependent_settings': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++    }],
+   ],
+ }
+diff --git src/content/content_common.gypi src/content/content_common.gypi
+index 8c45574..10b0e2b 100644
+--- src/content/content_common.gypi
++++ src/content/content_common.gypi
+@@ -590,5 +590,10 @@
+       },
+      ]
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/common/media_player_messages.h',
++      ],
++    }],
+   ],
+ }
+diff --git src/content/content_renderer.gypi src/content/content_renderer.gypi
+index 46b7468..4cab17f 100644
+--- /src/content/content_renderer.gypi
++++ src/content/content_renderer.gypi
+@@ -722,6 +722,14 @@
+         }],
+       ],
+     }],
++    ['tizen_mobile == 1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/renderer/mediaplayer_impl.cc',
++        '<(DEPTH)/xwalk/tizen/renderer/mediaplayer_impl.h',
++        '<(DEPTH)/xwalk/tizen/renderer/renderer_mediaplayer_manager.cc',
++        '<(DEPTH)/xwalk/tizen/renderer/renderer_mediaplayer_manager.h',
++      ],
++    }],
+   ],
+   'target_conditions': [
+     ['OS=="android"', {
+diff --git src/content/renderer/render_view_impl.cc src/content/renderer/render_view_impl.cc
+index 6827468..549c8fb 100644
+--- src/content/renderer/render_view_impl.cc
++++ src/content/renderer/render_view_impl.cc
+@@ -255,6 +255,11 @@
+ #include "content/renderer/media/rtc_peer_connection_handler.h"
+ #endif
+
++#if defined(OS_TIZEN_MOBILE)
++#include "xwalk/tizen/renderer/mediaplayer_impl.h"
++#include "xwalk/tizen/renderer/renderer_mediaplayer_manager.h"
++#endif
++
+ using WebKit::WebAXObject;
+ using WebKit::WebApplicationCacheHost;
+ using WebKit::WebApplicationCacheHostClient;
+@@ -865,6 +870,8 @@ RenderViewImpl::RenderViewImpl(RenderViewImplParams* params)
+       body_background_color_(SK_ColorWHITE),
+       expected_content_intent_id_(0),
+       media_player_manager_(NULL),
++#elif defined(OS_TIZEN_MOBILE)
++      media_player_manager_(NULL),
+ #endif
+ #if defined(OS_WIN)
+       focused_plugin_id_(-1),
+@@ -986,6 +993,8 @@ void RenderViewImpl::Initialize(RenderViewImplParams* params) {
+ #if defined(OS_ANDROID)
+   media_player_manager_ = new RendererMediaPlayerManager(this);
+   new JavaBridgeDispatcher(this);
++#elif defined(OS_TIZEN_MOBILE)
++  media_player_manager_ = new tizen::RendererMediaPlayerManager(this);
+ #endif
+
+   // The next group of objects all implement RenderViewObserver, so are deleted
+@@ -3163,6 +3172,13 @@ WebMediaPlayer* RenderViewImpl::createMediaPlayer(
+       sink,
+       RenderThreadImpl::current()->GetGpuFactories(),
+       new RenderMediaLog());
++
++#if defined(OS_TIZEN_MOBILE)
++  tizen::MediaPlayerImpl* media_player = new tizen::MediaPlayerImpl(
++      frame, client, AsWeakPtr(), media_player_manager_, params);
++  return media_player;
++#endif
++
+   return new WebMediaPlayerImpl(frame, client, AsWeakPtr(), params);
+ }
+
+diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h
+index 2b18b3c..314a1c0 100644
+--- src/content/renderer/render_view_impl.h
++++ src/content/renderer/render_view_impl.h
+@@ -129,6 +129,12 @@ namespace webkit_glue {
+ class WebURLResponseExtraDataImpl;
+ }
+
++#if defined(OS_TIZEN_MOBILE)
++namespace tizen {
++class RendererMediaPlayerManager;
++}
++#endif
++
+ namespace content {
+ class BrowserPluginManager;
+ class DeviceOrientationDispatcher;
+@@ -1431,6 +1437,10 @@ class CONTENT_EXPORT RenderViewImpl
+
+   // A date/time picker object for date and time related input elements.
+   scoped_ptr<RendererDateTimePicker> date_time_picker_client_;
++#elif defined(OS_TIZEN_MOBILE)
++  // The media player manager for managing all the media players on this view
++  // and for communicating with the audio session manager in browser process.
++  tizen::RendererMediaPlayerManager* media_player_manager_;
+ #endif
+
+   // Plugins -------------------------------------------------------------------
