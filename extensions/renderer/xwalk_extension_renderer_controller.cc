@@ -65,6 +65,8 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   if (external_extensions_client_)
     external_extensions_client_->CreateRunnersForModuleSystem(module_system);
+
+  module_system->Initialize();
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(

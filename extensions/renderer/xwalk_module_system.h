@@ -51,6 +51,8 @@ class XWalkModuleSystem {
                             scoped_ptr<XWalkNativeModule> module);
   v8::Handle<v8::Object> RequireNative(const std::string& name);
 
+  void Initialize();
+
   v8::Handle<v8::Context> GetV8Context();
 
  private:
