@@ -24,7 +24,7 @@ XPKExtractor::~XPKExtractor() {
 // static
 scoped_refptr<XPKExtractor> XPKExtractor::Create(
     const base::FilePath& source_path) {
-  if (file_util::PathExists(source_path) &&
+  if (base::PathExists(source_path) &&
       source_path.MatchesExtension(kApplicationFileExtension)) {
     return scoped_refptr<XPKExtractor>(new XPKExtractor(source_path));
   }

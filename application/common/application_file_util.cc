@@ -63,7 +63,7 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
                               std::string* error) {
   base::FilePath manifest_path =
       application_path.Append(kManifestFilename);
-  if (!file_util::PathExists(manifest_path)) {
+  if (!base::PathExists(manifest_path)) {
     *error = base::StringPrintf("%s",
                                 errors::kManifestUnreadable);
     return NULL;

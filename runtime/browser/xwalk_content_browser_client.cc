@@ -102,7 +102,7 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
 
 content::QuotaPermissionContext*
 XWalkContentBrowserClient::CreateQuotaPermissionContext() {
-  return new RuntimeQuotaPermissionContext();
+  return NULL; //new RuntimeQuotaPermissionContext();
 }
 
 content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
@@ -121,7 +121,7 @@ void XWalkContentBrowserClient::RenderProcessHostCreated(
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
-  return XWalkMediaCaptureDevicesDispatcher::GetInstance();
+  return NULL; // XWalkMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 #if defined(OS_ANDROID)

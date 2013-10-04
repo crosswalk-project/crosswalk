@@ -12,7 +12,7 @@ namespace extensions {
 
 std::string ExceptionToString(const v8::TryCatch& try_catch) {
   std::string str;
-  v8::HandleScope handle_scope;
+  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::String::Utf8Value exception(try_catch.Exception());
   v8::Local<v8::Message> message(try_catch.Message());
   if (message.IsEmpty()) {

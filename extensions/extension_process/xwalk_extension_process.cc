@@ -8,7 +8,7 @@
 
 #include "base/command_line.h"
 #include "base/files/file_path.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "ipc/ipc_switches.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"

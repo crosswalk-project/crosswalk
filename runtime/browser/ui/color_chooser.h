@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
 #define XWALK_RUNTIME_BROWSER_UI_COLOR_CHOOSER_H_
 
+#include "base/compiler_specific.h"
 #include "content/public/browser/color_chooser.h"
 #include "third_party/skia/include/core/SkColor.h"
 
@@ -18,6 +19,12 @@ namespace xwalk {
 
 class ColorChooser : public content::ColorChooser {
  public:
+  ColorChooser() : content::ColorChooser() {}
+
+  // content::ColorChooser implementation.
+  virtual void End() OVERRIDE {}
+  virtual void SetSelectedColor(SkColor color) OVERRIDE {}
+
   static bool IsTesting();
   static SkColor GetColorForBrowserTest();
 

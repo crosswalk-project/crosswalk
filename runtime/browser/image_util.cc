@@ -27,7 +27,7 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
 
   if (EndsWith(filename.value(), kPNGFormat, false)) {
     std::string contents;
-    file_util::ReadFileToString(filename, &contents);
+    base::ReadFileToString(filename, &contents);
     return gfx::Image::CreateFrom1xPNGBytes(
         reinterpret_cast<const unsigned char*>(contents.data()),
             contents.size());

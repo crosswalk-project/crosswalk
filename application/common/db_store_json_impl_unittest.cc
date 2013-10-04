@@ -33,7 +33,7 @@ class DBStoreJsonImplTest : public testing::Test {
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &tmp));
     ASSERT_TRUE(temp_dir_.CreateUniqueTempDirUnderPath(tmp));
     db_path_ = temp_dir_.path().AppendASCII(db_dir);
-    ASSERT_TRUE(file_util::CopyDirectory(db_path, db_path_, true));
+    ASSERT_TRUE(base::CopyDirectory(db_path, db_path_, true));
     db_store_.reset(new DBStoreJsonImpl(db_path_));
   }
 

@@ -88,9 +88,9 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   // HandleMessage. It is safe to do this because the |msg| won't be used
   // anywhere else when this function returns. Saves a DeepCopy(), which
   // can be costly depending on the size of Value.
-  base::Value* value;
+  scoped_ptr<base::Value> value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
-  data.instance->HandleMessage(scoped_ptr<base::Value>(value));
+  data.instance->HandleMessage(value.Pass());
 }
 
 void XWalkExtensionServer::Initialize(IPC::Sender* sender) {
@@ -234,11 +234,11 @@ void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
   // HandleMessage. It is safe to do this because the |msg| won't be used
   // anywhere else when this function returns. Saves a DeepCopy(), which
   // can be costly depending on the size of Value.
-  base::Value* value;
+  scoped_ptr<base::Value> value;
   const_cast<base::ListValue*>(&msg)->Remove(0, &value);
   XWalkExtensionInstance* instance = data.instance;
 
-  instance->HandleSyncMessage(scoped_ptr<base::Value>(value));
+  instance->HandleSyncMessage(value.Pass());
 }
 
 void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
@@ -293,7 +293,7 @@ void RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir) {
   CHECK(server);
 
-  if (!file_util::DirectoryExists(dir)) {
+  if (!base::DirectoryExists(dir)) {
     LOG(WARNING) << "Couldn't load external extensions from non-existent"
                  << " directory " << dir.AsUTF8Unsafe();
     return;

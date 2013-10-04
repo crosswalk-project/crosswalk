@@ -75,7 +75,7 @@ class FileThreadDeserializer
     JSONFileValueSerializer serializer(path);
     base::Value* value = serializer.Deserialize(&error_code, error_msg);
 
-    *no_dir = !file_util::PathExists(path.DirName());
+    *no_dir = !base::PathExists(path.DirName());
     return value;
   }
 

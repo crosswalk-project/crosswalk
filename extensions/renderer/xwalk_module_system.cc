@@ -90,11 +90,11 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkModuleSystem));
 
-  require_native_template_.Dispose(isolate);
+  require_native_template_.Dispose();
   require_native_template_.Clear();
-  function_data_.Dispose(isolate);
+  function_data_.Dispose();
   function_data_.Clear();
-  v8_context_.Dispose(isolate);
+  v8_context_.Dispose();
   v8_context_.Clear();
 }
 

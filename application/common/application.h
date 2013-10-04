@@ -21,7 +21,7 @@
 #include "base/threading/thread_checker.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/install_warning.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 namespace base {
 class DictionaryValue;

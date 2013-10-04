@@ -26,7 +26,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "content/public/common/url_constants.h"
-#include "googleurl/src/url_util.h"
+#include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
 
 namespace keys = xwalk::application_manifest_keys;

@@ -32,7 +32,6 @@ class ScreenPositionClient;
 }
 
 namespace views {
-class DesktopActivationClient;
 class DesktopCaptureClient;
 class DesktopDispatcherClient;
 class X11DesktopWindowMoveClient;
@@ -211,9 +210,7 @@ class VIEWS_EXPORT DesktopRootWindowHostTizenX11 : public DesktopRootWindowHost,
   aura::RootWindow* root_window_;
 
   // aura:: objects that we own.
-  scoped_ptr<DesktopCaptureClient> capture_client_;
   scoped_ptr<aura::client::FocusClient> focus_client_;
-  scoped_ptr<DesktopActivationClient> activation_client_;
   scoped_ptr<views::corewm::CursorManager> cursor_client_;
   scoped_ptr<DesktopDispatcherClient> dispatcher_client_;
   scoped_ptr<aura::client::ScreenPositionClient> position_client_;

@@ -156,9 +156,9 @@ scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
   Send(new XWalkExtensionServerMsg_SendSyncMessageToNative(instance_id,
       *wrapped_msg, wrapped_reply));
 
-  base::Value* reply;
+  scoped_ptr<base::Value> reply;
   wrapped_reply->Remove(0, &reply);
-  return scoped_ptr<base::Value>(reply);
+  return reply.Pass();
 }
 
 }  // namespace extensions
