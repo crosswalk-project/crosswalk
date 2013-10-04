@@ -19,7 +19,7 @@ import re
 import sys
 
 
-def path_from_root(path):
+def PathFromRoot(path):
   """
   Returns the absolute path to |path|, which is supposed to be relative to the
   repository's root directory.
@@ -27,7 +27,7 @@ def path_from_root(path):
   return os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', path)
 
 
-def increment_versions(replacements):
+def IncrementVersions(replacements):
   """
   |replacements| is a dictionary whose keys are files (relative to the root of
   the repository) and values are regular expresions that match a section in the
@@ -41,17 +41,17 @@ def increment_versions(replacements):
   """
   for path, regexp in replacements.iteritems():
     # The paths are always relative to the repository's root directory.
-    path = path_from_root(path)
+    path = PathFromRoot(path)
 
-    def _replacement_func(match_obj):
+    def _ReplacementFunction(match_obj):
       version_number = int(match_obj.group(2))
       return '%s%s' % (match_obj.group(1), version_number + 1)
 
-    contents = re.sub(regexp, _replacement_func, open(path).read())
+    contents = re.sub(regexp, _ReplacementFunction, open(path).read())
     open(path, 'w').write(contents)
 
 
-def main():
+def Main():
   option_parser = optparse.OptionParser()
   option_parser.add_option(
     '', '--type', choices=('beta', 'canary'), dest='release_type',
@@ -65,13 +65,13 @@ def main():
       'VERSION': r'(PATCH=)(\d+)',
       'packaging/crosswalk.spec': r'(Version:\s+\d+\.\d+\.\d+\.)(\d+)',
     }
-    increment_versions(replacements)
+    IncrementVersions(replacements)
   elif options.release_type == 'canary':
     replacements = {
       'VERSION': r'(BUILD=)(\d+)',
       'packaging/crosswalk.spec': r'(Version:\s+\d+\.\d+\.)(\d+)',
     }
-    increment_versions(replacements)
+    IncrementVersions(replacements)
   else:
     print '--type is a required argument and has not been specified. Exiting.'
     return 1
@@ -80,4 +80,4 @@ def main():
 
 
 if __name__ == '__main__':
-  sys.exit(main())
+  sys.exit(Main())
