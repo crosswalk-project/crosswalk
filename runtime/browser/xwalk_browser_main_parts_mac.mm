@@ -23,7 +23,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/mac/bundle_locations.h"
-#include "base/memory/scoped_nsobject.h"
+#include "base/mac/scoped_nsobject.h"
 #include "xwalk/runtime/browser/xwalk_application_mac.h"
 
 namespace xwalk {
@@ -32,7 +32,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopStartMac() {
   // Force the NSApplication subclass to be used.
   [XWalkCrApplication sharedApplication];
 
-  scoped_nsobject<NSNib> nib(
+  base::scoped_nsobject<NSNib> nib(
       [[NSNib alloc] initWithNibNamed:@"MainMenu"
                                bundle:base::mac::FrameworkBundle()]);
   [nib instantiateNibWithOwner:NSApp topLevelObjects:nil];

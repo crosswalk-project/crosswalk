@@ -59,8 +59,4 @@ void RuntimeJavaScriptDialogManager::RunBeforeUnloadDialog(
 #endif
 }
 
-void RuntimeJavaScriptDialogManager::ResetJavaScriptState(
-    content::WebContents* web_contents) {
-}
-
 }  // namespace xwalk

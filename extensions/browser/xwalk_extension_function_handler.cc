@@ -33,6 +33,10 @@ void DispatchResult(XWalkExtensionInstance* instance,
 namespace xwalk {
 namespace extensions {
 
+XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo() {}
+
+XWalkExtensionFunctionInfo::~XWalkExtensionFunctionInfo() {}
+
 XWalkExtensionFunctionHandler::XWalkExtensionFunctionHandler() {}
 
 XWalkExtensionFunctionHandler::~XWalkExtensionFunctionHandler() {}
