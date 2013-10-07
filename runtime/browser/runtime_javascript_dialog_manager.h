@@ -31,8 +31,6 @@ class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
                                      bool is_reload,
                                      const DialogClosedCallback& callback) OVERRIDE;
 
-  virtual void ResetJavaScriptState(content::WebContents* web_contents) OVERRIDE;
-
  private:
   DISALLOW_COPY_AND_ASSIGN(RuntimeJavaScriptDialogManager);
 };
