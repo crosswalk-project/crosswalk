@@ -58,11 +58,11 @@ std::string XWalkDevToolsDelegate::GetViewDescription(
   return std::string();
 }
 
-scoped_refptr<net::StreamListenSocket>
+scoped_ptr<net::StreamListenSocket>
 XWalkDevToolsDelegate::CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) {
-  return NULL;
+  return scoped_ptr<net::StreamListenSocket>();
 }
 
 }  // namespace xwalk

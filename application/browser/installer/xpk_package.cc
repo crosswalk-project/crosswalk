@@ -26,7 +26,7 @@ XPKPackage::~XPKPackage() {
 
 // static
 scoped_ptr<XPKPackage> XPKPackage::Create(const base::FilePath& path) {
-  if (!file_util::PathExists(path))
+  if (!base::PathExists(path))
     scoped_ptr<XPKPackage>();
   scoped_ptr<ScopedStdioHandle> file(
       new ScopedStdioHandle(file_util::OpenFile(path, "rb")));

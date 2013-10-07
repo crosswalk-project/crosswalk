@@ -6,10 +6,11 @@
 
 #include "base/bind.h"
 #include "base/file_util.h"
-#include "base/process_util.h"
+#include "base/process/kill.h"
+#include "base/process/launch.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 using content::BrowserThread;
 
@@ -19,13 +20,13 @@ void XDGUtil(const std::string& util, const std::string& arg) {
   std::vector<std::string> argv;
   argv.push_back(util);
   argv.push_back(arg);
+  base::LaunchOptions options;
 
-  base::EnvironmentVector env;
   // xdg-open can fall back on mailcap which eventually might plumb through
   // to a command that needs a terminal.  Set the environment variable telling
   // it that we definitely don't have a terminal available and that it should
   // bring up a new terminal if necessary.  See "man mailcap".
-  env.push_back(std::make_pair("MM_NOTTTY", "1"));
+  options.environ["MM_NOTTTY"] = "1";
 
   // In Google Chrome, we do not let GNOME's bug-buddy intercept our crashes.
   // However, we do not want this environment variable to propagate to external
@@ -33,12 +34,10 @@ void XDGUtil(const std::string& util, const std::string& arg) {
   char* disable_gnome_bug_buddy = getenv("GNOME_DISABLE_CRASH_DIALOG");
   if (disable_gnome_bug_buddy &&
       disable_gnome_bug_buddy == std::string("SET_BY_GOOGLE_CHROME")) {
-    env.push_back(std::make_pair("GNOME_DISABLE_CRASH_DIALOG", ""));
+    options.environ["GNOME_DISABLE_CRASH_DIALOG"] = "";
   }
 
   base::ProcessHandle handle;
-  base::LaunchOptions options;
-  options.environ = &env;
   if (base::LaunchProcess(argv, options, &handle))
     base::EnsureProcessGetsReaped(handle);
 }
@@ -56,7 +55,7 @@ void XDGEmail(const std::string& email) {
 // show the folder.
 void ShowItemInFolderOnFileThread(const base::FilePath& full_path) {
   base::FilePath dir = full_path.DirName();
-  if (!file_util::DirectoryExists(dir))
+  if (!base::DirectoryExists(dir))
     return;
 
   XDGOpen(dir.value());

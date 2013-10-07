@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 namespace xwalk {
 

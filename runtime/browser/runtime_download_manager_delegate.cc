@@ -28,7 +28,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/shell/common/shell_switches.h"
-#include "content/shell/webkit_test_controller.h"
+#include "content/shell/browser/webkit_test_controller.h"
 #include "net/base/net_util.h"
 
 using content::BrowserThread;
@@ -102,7 +102,7 @@ void RuntimeDownloadManagerDelegate::GenerateFilename(
     const base::FilePath& generated_name,
     const base::FilePath& suggested_directory) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::FILE));
-  if (!file_util::PathExists(suggested_directory))
+  if (!base::PathExists(suggested_directory))
     file_util::CreateDirectory(suggested_directory);
 
   base::FilePath suggested_path(suggested_directory.Append(generated_name));

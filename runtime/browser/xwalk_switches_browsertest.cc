@@ -34,8 +34,8 @@ class XWalkSwitchesTest : public InProcessBrowserTest {
     InProcessBrowserTest::TearDown();
     // Since Runtime instance creates its own data path directory
     // for testing, we need to clean up it finally.
-    if (file_util::PathExists(data_path_))
-      file_util::Delete(data_path_, true);
+    if (base::PathExists(data_path_))
+      base::DeleteFile(data_path_, true);
   }
 
   virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
@@ -52,7 +52,7 @@ IN_PROC_BROWSER_TEST_F(XWalkSwitchesTest, kXWalkDataPath) {
   content::RunAllPendingInMessageLoop();
   // The data path should be created by Runtime itself.
   base::FilePath data_path = GetDataPath();
-  EXPECT_TRUE(file_util::PathExists(data_path));
+  EXPECT_TRUE(base::PathExists(data_path));
   EXPECT_NE(base::FilePath(), data_path);
 
   // kXWalkDataPath option should also override the DIR_DATA_PATH value

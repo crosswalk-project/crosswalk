@@ -11,7 +11,7 @@
 
 #include "base/debug/stack_trace.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
+#include "base/message_loop/message_loop.h"
 #include "base/run_loop.h"
 #include "base/threading/platform_thread.h"
 #include "xwalk/extensions/extension_process/xwalk_extension_process.h"

@@ -5,11 +5,6 @@
 #ifndef XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
 #define XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
 
-#include <string>
-
-#include "base/basictypes.h"
-#include "googleurl/src/gurl.h"
-
 // Keys used in JSON representation of applications.
 namespace xwalk {
 namespace application_manifest_keys {

@@ -16,7 +16,7 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/common/favicon_url.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 #include "ui/gfx/image/image.h"
 
 namespace content {
@@ -115,8 +115,8 @@ class Runtime : public content::WebContentsDelegate,
   void DidDownloadFavicon(int id,
                           int http_status_code,
                           const GURL& image_url,
-                          int requested_size,
-                          const std::vector<SkBitmap>& bitmaps);
+                          const std::vector<SkBitmap>& bitmaps,
+                          const std::vector<gfx::Size>& sizes);
 
   // NotificationObserver
   virtual void Observe(int type,

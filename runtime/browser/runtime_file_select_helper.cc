@@ -42,27 +42,8 @@ const int kFileSelectEnumerationId = -1;
 
 void NotifyRenderViewHost(RenderViewHost* render_view_host,
                           const std::vector<ui::SelectedFileInfo>& files,
-                          ui::SelectFileDialog::Type dialog_type) {
-  const int kReadFilePermissions =
-      base::PLATFORM_FILE_OPEN |
-      base::PLATFORM_FILE_READ |
-      base::PLATFORM_FILE_EXCLUSIVE_READ |
-      base::PLATFORM_FILE_ASYNC;
-
-  const int kWriteFilePermissions =
-      base::PLATFORM_FILE_CREATE |
-      base::PLATFORM_FILE_CREATE_ALWAYS |
-      base::PLATFORM_FILE_OPEN |
-      base::PLATFORM_FILE_OPEN_ALWAYS |
-      base::PLATFORM_FILE_OPEN_TRUNCATED |
-      base::PLATFORM_FILE_WRITE |
-      base::PLATFORM_FILE_WRITE_ATTRIBUTES |
-      base::PLATFORM_FILE_ASYNC;
-
-  int permissions = kReadFilePermissions;
-  if (dialog_type == ui::SelectFileDialog::SELECT_SAVEAS_FILE)
-    permissions = kWriteFilePermissions;
-  render_view_host->FilesSelectedInChooser(files, permissions);
+                          FileChooserParams::Mode dialog_mode) {
+  render_view_host->FilesSelectedInChooser(files, dialog_mode);
 }
 
 // Converts a list of FilePaths to a list of ui::SelectedFileInfo.
@@ -92,7 +73,8 @@ RuntimeFileSelectHelper::RuntimeFileSelectHelper()
       web_contents_(NULL),
       select_file_dialog_(),
       select_file_types_(),
-      dialog_type_(ui::SelectFileDialog::SELECT_OPEN_FILE) {
+      dialog_type_(ui::SelectFileDialog::SELECT_OPEN_FILE),
+      dialog_mode_(FileChooserParams::Open) {
 }
 
 RuntimeFileSelectHelper::~RuntimeFileSelectHelper() {
@@ -144,7 +126,7 @@ void RuntimeFileSelectHelper::FileSelectedWithExtraInfo(
 
   std::vector<ui::SelectedFileInfo> files;
   files.push_back(file);
-  NotifyRenderViewHost(render_view_host_, files, dialog_type_);
+  NotifyRenderViewHost(render_view_host_, files, dialog_mode_);
 
   // No members should be accessed from here on.
   RunFileChooserEnd();
@@ -168,7 +150,7 @@ void RuntimeFileSelectHelper::MultiFilesSelectedWithExtraInfo(
   if (!render_view_host_)
     return;
 
-  NotifyRenderViewHost(render_view_host_, files, dialog_type_);
+  NotifyRenderViewHost(render_view_host_, files, dialog_mode_);
 
   // No members should be accessed from here on.
   RunFileChooserEnd();
@@ -182,7 +164,7 @@ void RuntimeFileSelectHelper::FileSelectionCanceled(void* params) {
   // empty vector.
   NotifyRenderViewHost(
       render_view_host_, std::vector<ui::SelectedFileInfo>(),
-      dialog_type_);
+      dialog_mode_);
 
   // No members should be accessed from here on.
   RunFileChooserEnd();
@@ -240,7 +222,7 @@ void RuntimeFileSelectHelper::OnListDone(int id, int error) {
 
   if (id == kFileSelectEnumerationId)
     NotifyRenderViewHost(
-        entry->render_view_host_, selected_files, dialog_type_);
+        entry->render_view_host_, selected_files, dialog_mode_);
   else
     entry->render_view_host_->DirectoryEnumerationFinished(id, entry->results_);
 
@@ -380,6 +362,7 @@ void RuntimeFileSelectHelper::RunFileChooserOnFileThread(
 
 void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
     const FileChooserParams& params) {
+  dialog_mode_ = params.mode;
   if (!render_view_host_ || !web_contents_) {
     // If the renderer was destroyed before we started, just cancel the
     // operation.
@@ -397,8 +380,8 @@ void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
     case FileChooserParams::OpenMultiple:
       dialog_type_ = ui::SelectFileDialog::SELECT_OPEN_MULTI_FILE;
       break;
-    case FileChooserParams::OpenFolder:
-      dialog_type_ = ui::SelectFileDialog::SELECT_FOLDER;
+    case FileChooserParams::UploadFolder:
+      dialog_type_ = ui::SelectFileDialog::SELECT_UPLOAD_FOLDER;
       break;
     case FileChooserParams::Save:
       dialog_type_ = ui::SelectFileDialog::SELECT_SAVEAS_FILE;

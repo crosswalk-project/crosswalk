@@ -49,7 +49,7 @@ class RuntimeContext : public content::BrowserContext {
 #endif
 
   // BrowserContext implementation.
-  virtual base::FilePath GetPath() OVERRIDE;
+  virtual base::FilePath GetPath() const OVERRIDE;
   virtual bool IsOffTheRecord() const OVERRIDE;
   virtual content::DownloadManagerDelegate*
       GetDownloadManagerDelegate() OVERRIDE;
@@ -66,9 +66,12 @@ class RuntimeContext : public content::BrowserContext {
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
-  virtual content::SpeechRecognitionPreferences*
-      GetSpeechRecognitionPreferences() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
+  virtual void RequestMIDISysExPermission(
+      int render_process_id,
+      int render_view_id,
+      const GURL& requesting_frame,
+      const MIDISysExPermissionCallback& callback) OVERRIDE { }
 
   xwalk::application::ApplicationSystem* GetApplicationSystem();
 

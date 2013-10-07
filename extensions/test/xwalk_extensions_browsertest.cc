@@ -12,7 +12,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "base/task_runner.h"
-#include "base/time.h"
+#include "base/time/time.h"
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;

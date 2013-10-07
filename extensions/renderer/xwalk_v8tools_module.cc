@@ -76,8 +76,7 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
 }
 
 XWalkV8ToolsModule::~XWalkV8ToolsModule() {
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  object_template_.Dispose(isolate);
+  object_template_.Dispose();
   object_template_.Clear();
 }
 

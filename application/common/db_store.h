@@ -9,7 +9,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
-#include "base/time.h"
+#include "base/time/time.h"
 #include "xwalk/application/common/application.h"
 
 namespace xwalk {

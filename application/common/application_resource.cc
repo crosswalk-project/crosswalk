@@ -91,7 +91,7 @@ base::FilePath ApplicationResource::GetFilePath(
   // unfortunately.
   // TODO(mad): Fix this once MakeAbsoluteFilePath is unified.
   full_path = base::MakeAbsoluteFilePath(full_path);
-  if (file_util::PathExists(full_path) &&
+  if (base::PathExists(full_path) &&
       (symlink_policy == FOLLOW_SYMLINKS_ANYWHERE ||
        clean_application_root.IsParent(full_path))) {
     return full_path;

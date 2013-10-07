@@ -30,7 +30,7 @@ ApplicationService::~ApplicationService() {
 }
 
 bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
-  if (!file_util::PathExists(path))
+  if (!base::PathExists(path))
     return false;
 
   const base::FilePath data_dir =
@@ -39,13 +39,13 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // Make sure the kApplicationsDir exists under data_path, otherwise,
   // the installation will always fail because of moving application
   // resources into an invalid directory.
-  if (!file_util::DirectoryExists(data_dir) &&
+  if (!base::DirectoryExists(data_dir) &&
       !file_util::CreateDirectory(data_dir))
     return false;
 
   base::FilePath unpacked_dir;
   std::string app_id;
-  if (!file_util::DirectoryExists(path)) {
+  if (!base::DirectoryExists(path)) {
     scoped_refptr<XPKExtractor> extractor = XPKExtractor::Create(path);
     if (extractor)
       app_id = extractor->GetPackageID();
@@ -64,10 +64,10 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     base::FilePath temp_dir;
     extractor->Extract(&temp_dir);
     unpacked_dir = data_dir.AppendASCII(app_id);
-    if (file_util::DirectoryExists(unpacked_dir) &&
-        !file_util::Delete(unpacked_dir, true))
+    if (base::DirectoryExists(unpacked_dir) &&
+        !base::DeleteFile(unpacked_dir, true))
       return false;
-    if (!file_util::Move(temp_dir, unpacked_dir))
+    if (!base::Move(temp_dir, unpacked_dir))
       return false;
   } else {
     unpacked_dir = path;
@@ -105,8 +105,8 @@ bool ApplicationService::Uninstall(const std::string& id) {
 
   const base::FilePath resources =
       runtime_context_->GetPath().Append(kApplicationsDir).AppendASCII(id);
-  if (file_util::DirectoryExists(resources) &&
-      !file_util::Delete(resources, true)) {
+  if (base::DirectoryExists(resources) &&
+      !base::DeleteFile(resources, true)) {
     LOG(ERROR) << "Error occurred while trying to remove application with id "
                << id << "; Cannot remove all resources.";
     return false;
@@ -129,7 +129,7 @@ bool ApplicationService::Launch(const std::string& id) {
 }
 
 bool ApplicationService::Launch(const base::FilePath& path) {
-  if (!file_util::DirectoryExists(path))
+  if (!base::DirectoryExists(path))
     return false;
 
   std::string error;

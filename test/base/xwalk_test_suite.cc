@@ -9,7 +9,6 @@
 #include "base/memory/ref_counted.h"
 #include "base/metrics/stats_table.h"
 #include "base/path_service.h"
-#include "base/process_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"

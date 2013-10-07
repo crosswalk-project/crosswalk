@@ -6,14 +6,12 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '29.0.1547.57'
-chromium_crosswalk_point = 'fd8359749ed6058563e047fed121fc07966d8f0d'
-blink_crosswalk_point = 'bcc7da6145656ada9a0840b3f3b73878ed99b389'
+chromium_version = '31.0.1650.12'
+chromium_crosswalk_point = '74c1d87e16d4bda3c04bf27243daf325530b2cc4'
+blink_crosswalk_point = '293e75f05d1753b2c33e42e9414aff1e8e2d6165'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
-  # Please delete this dependency when based chromium was rebased to more than M30.
-  'src/third_party/webrtc': 'http://webrtc.googlecode.com/svn/stable/webrtc@4297',
 }
 vars_xwalk = {
   'jsoncpp': 'http://svn.code.sf.net/p/jsoncpp/code',
