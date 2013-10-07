@@ -22,6 +22,9 @@ struct XWalkExtensionFunctionInfo {
   typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
       PostResultCallback;
 
+  XWalkExtensionFunctionInfo();
+  ~XWalkExtensionFunctionInfo();
+  
   // Convenience method for posting the results back to the renderer process.
   // The object identifier is already wrapped at the |post_result_cb|.
   void PostResult(scoped_ptr<base::ListValue> result) const {
