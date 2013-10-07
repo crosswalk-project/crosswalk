@@ -34,7 +34,7 @@ class XWalkDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
   virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
   virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
-  virtual scoped_refptr<net::StreamListenSocket> CreateSocketForTethering(
+  virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;
 

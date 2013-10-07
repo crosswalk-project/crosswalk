@@ -278,7 +278,6 @@ void Runtime::DidUpdateFaviconURL(int32 page_id,
   web_contents()->DownloadImage(
       favicon.icon_url,
       true,  // Is a favicon
-      0,     // No preferred size
       0,     // No maximum size
       base::Bind(
           &Runtime::DidDownloadFavicon, weak_ptr_factory_.GetWeakPtr()));
@@ -287,8 +286,8 @@ void Runtime::DidUpdateFaviconURL(int32 page_id,
 void Runtime::DidDownloadFavicon(int id,
                                  int http_status_code,
                                  const GURL& image_url,
-                                 int requested_size,
-                                 const std::vector<SkBitmap>& bitmaps) {
+                                 const std::vector<SkBitmap>& bitmaps,
+                                 const std::vector<gfx::Size>& sizes) {
   if (bitmaps.empty())
     return;
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
@@ -320,8 +319,8 @@ void Runtime::RequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
-  XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
-      web_contents, request, callback);
+  // XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
+  //     web_contents, request, callback);
 }
 
 }  // namespace xwalk

@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 namespace xwalk {
 class Runtime;

@@ -52,14 +52,15 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
       case content::MEDIA_OPEN_DEVICE:
-        // For open device request pick the desired device or fall back to the
-        // first available of the given type.
-        XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            request.requested_device_id,
-            microphone_requested,
-            webcam_requested,
-            &devices);
-        break;
+        // FIXME.
+        // // For open device request pick the desired device or fall back to the
+        // // first available of the given type.
+        // XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
+        //     request.requested_device_id,
+        //     microphone_requested,
+        //     webcam_requested,
+        //     &devices);
+        // break;
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
@@ -162,6 +163,7 @@ void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
 void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
     int render_view_id,
+    int page_request_id,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
@@ -171,10 +173,6 @@ void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
           &XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread,
           base::Unretained(this), render_process_id, render_view_id, device,
           state));
-}
-
-void XWalkMediaCaptureDevicesDispatcher::OnAudioStreamPlayingChanged(
-    int render_process_id, int render_view_id, int stream_id, bool playing) {
 }
 
 void XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(

@@ -9,9 +9,8 @@
         '../ipc/ipc.gyp:ipc',
         '../ui/ui.gyp:ui',
         '../url/url.gyp:url_lib',
-        '../webkit/support/webkit_support.gyp:webkit_support',
-        '../third_party/WebKit/Source/WebKit/chromium/WebKit.gyp:webkit',
-        '../third_party/zlib/zlib.gyp:zip',
+        '../third_party/WebKit/public/blink.gyp:blink',
+        '../third_party/zlib/google/zip.gyp:zip',
       ],
       'sources': [
         'browser/application_store.cc',

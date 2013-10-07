@@ -74,7 +74,7 @@ IN_PROC_BROWSER_TEST_F(XWalkDownloadBrowserTest, FileDownload) {
   ASSERT_EQ(1u, downloads.size());
   ASSERT_EQ(DownloadItem::COMPLETE, downloads[0]->GetState());
   base::FilePath file(downloads[0]->GetFullPath());
-  ASSERT_TRUE(file_util::ContentsEqual(
+  ASSERT_TRUE(base::ContentsEqual(
       file, xwalk_test_utils::GetTestFilePath(
           base::FilePath().AppendASCII("download"),
           base::FilePath().AppendASCII("test.lib"))));

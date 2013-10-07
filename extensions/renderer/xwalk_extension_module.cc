@@ -68,11 +68,11 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkExtensionModule));
 
-  object_template_.Dispose(isolate);
+  object_template_.Dispose();
   object_template_.Clear();
-  function_data_.Dispose(isolate);
+  function_data_.Dispose();
   function_data_.Clear();
-  message_listener_.Dispose(isolate);
+  message_listener_.Dispose();
   message_listener_.Clear();
 
   CHECK(runner_);
@@ -118,7 +118,7 @@ std::string WrapAPICode(const std::string& extension_code,
 
 v8::Handle<v8::Value> RunString(const std::string& code,
                                 const std::string& name) {
-  v8::HandleScope handle_scope;
+  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Handle<v8::String> v8_code(v8::String::New(code.c_str()));
   v8::Handle<v8::String> v8_name(v8::String::New(name.c_str()));
 
@@ -248,10 +248,10 @@ void XWalkExtensionModule::SetMessageListenerCallback(
 
   v8::Isolate* isolate = info.GetIsolate();
   if (info[0]->IsUndefined()) {
-    module->message_listener_.Dispose(isolate);
+    module->message_listener_.Dispose();
     module->message_listener_.Clear();
   } else {
-    module->message_listener_.Dispose(isolate);
+    module->message_listener_.Dispose();
     module->message_listener_.Reset(isolate, info[0].As<v8::Function>());
   }
 

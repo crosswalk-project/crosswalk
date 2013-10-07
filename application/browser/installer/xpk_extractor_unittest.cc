@@ -26,7 +26,7 @@ class XPKExtractorTest : public testing::Test {
         .AppendASCII("test")
         .AppendASCII("unpacker")
         .AppendASCII(xpk_name);
-    ASSERT_TRUE(file_util::PathExists(xpk_path)) << xpk_path.value();
+    ASSERT_TRUE(base::PathExists(xpk_path)) << xpk_path.value();
 
     extractor_ = XPKExtractor::Create(xpk_path);
   }
@@ -41,7 +41,7 @@ TEST_F(XPKExtractorTest, Good) {
   EXPECT_FALSE(extractor_->GetPackageID().empty());
   base::FilePath path;
   EXPECT_TRUE(extractor_->Extract(&path));
-  EXPECT_TRUE(file_util::DirectoryExists(path));
+  EXPECT_TRUE(base::DirectoryExists(path));
   EXPECT_TRUE(temp_dir_.Set(path));
 }
 

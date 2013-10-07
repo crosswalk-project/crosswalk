@@ -12,8 +12,9 @@
 #include "base/memory/weak_ptr.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_request_info.h"
-#include "googleurl/src/url_util.h"
+#include "url/url_util.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
@@ -121,13 +122,15 @@ void ReadResourceFilePath(
 
 class URLRequestApplicationJob : public net::URLRequestFileJob {
  public:
-  URLRequestApplicationJob(net::URLRequest* request,
-                           net::NetworkDelegate* network_delegate,
-                           const std::string& application_id,
-                           const base::FilePath& directory_path,
-                           const base::FilePath& relative_path,
-                           bool is_authority_match)
-    : net::URLRequestFileJob(request, network_delegate, base::FilePath()),
+  URLRequestApplicationJob(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate,
+      const scoped_refptr<base::TaskRunner>& file_task_runner,
+      const std::string& application_id,
+      const base::FilePath& directory_path,
+      const base::FilePath& relative_path,
+      bool is_authority_match)
+      : net::URLRequestFileJob(request, network_delegate, base::FilePath(), file_task_runner),
       resource_(application_id, directory_path, relative_path),
       relative_path_(relative_path),
       is_authority_match_(is_authority_match),
@@ -214,12 +217,16 @@ ApplicationProtocolHandler::MaybeCreateJob(
         relative_path, application_);
   }
 
-  return new URLRequestApplicationJob(request,
-                                      network_delegate,
-                                      application_id,
-                                      directory_path,
-                                      relative_path,
-                                      is_authority_match);
+  return new URLRequestApplicationJob(
+      request,
+      network_delegate,
+      content::BrowserThread::GetBlockingPool()->
+      GetTaskRunnerWithShutdownBehavior(
+          base::SequencedWorkerPool::SKIP_ON_SHUTDOWN),
+      application_id,
+      directory_path,
+      relative_path,
+      is_authority_match);
 }
 
 }  // namespace

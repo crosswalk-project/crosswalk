@@ -12,6 +12,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "base/threading/worker_pool.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
 #include "content/public/browser/browser_thread.h"
@@ -117,7 +118,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     storage_->set_ssl_config_service(new net::SSLConfigServiceDefaults);
     storage_->set_http_auth_handler_factory(
         net::HttpAuthHandlerFactory::CreateDefault(host_resolver.get()));
-    storage_->set_http_server_properties(new net::HttpServerPropertiesImpl);
+    storage_->set_http_server_properties(scoped_ptr<net::HttpServerProperties>(
+        new net::HttpServerPropertiesImpl));
 
     base::FilePath cache_path = base_path_.Append(FILE_PATH_LITERAL("Cache"));
     net::HttpCache::DefaultBackend* main_backend =
@@ -167,7 +169,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     DCHECK(set_protocol);
     set_protocol = job_factory->SetProtocolHandler(
         chrome::kFileScheme,
-        new net::FileProtocolHandler);
+        new net::FileProtocolHandler(
+            content::BrowserThread::GetBlockingPool()->
+            GetTaskRunnerWithShutdownBehavior(
+                base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
 #if defined(OS_ANDROID)
     net::ProtocolInterceptJobFactory* intercept_job_factory =

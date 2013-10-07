@@ -212,7 +212,7 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 
   base::FilePath extensions_dir =
       cmd_line->GetSwitchValuePath(switches::kXWalkExternalExtensionsPath);
-  if (!file_util::DirectoryExists(extensions_dir)) {
+  if (!base::DirectoryExists(extensions_dir)) {
     LOG(WARNING) << "Ignoring non-existent extension directory: "
                  << extensions_dir.AsUTF8Unsafe();
     return;
@@ -306,7 +306,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     if (!net::FileURLToFilePath(startup_url_, &path))
       return;
     if (command_line->HasSwitch(switches::kInstall)) {
-      if (file_util::PathExists(path)) {
+      if (base::PathExists(path)) {
         std::string id;
         if (service->Install(path, &id)) {
 #if defined(OS_TIZEN_MOBILE)
@@ -321,7 +321,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       }
       run_default_message_loop_ = false;
       return;
-    } else if (file_util::DirectoryExists(path)) {
+    } else if (base::DirectoryExists(path)) {
       run_default_message_loop_ = service->Launch(path);
       return;
     }

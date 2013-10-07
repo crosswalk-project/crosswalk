@@ -43,6 +43,9 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
     return getter_->GetURLRequestContext();
   }
 
+  virtual bool AllowMicAccess(const GURL& origin) OVERRIDE { return false; }
+  virtual bool AllowCameraAccess(const GURL& origin) OVERRIDE { return false; }
+
   void set_url_request_context_getter(RuntimeURLRequestContextGetter* getter) {
     getter_ = getter;
   }
@@ -88,7 +91,7 @@ void RuntimeContext::InitWhileIOAllowed() {
   }
 }
 
-base::FilePath RuntimeContext::GetPath() {
+base::FilePath RuntimeContext::GetPath() const {
   base::FilePath result;
 #if defined(OS_ANDROID)
   CHECK(PathService::Get(base::DIR_ANDROID_APP_DATA, &result));
@@ -159,11 +162,6 @@ content::ResourceContext* RuntimeContext::GetResourceContext()  {
 
 content::GeolocationPermissionContext*
     RuntimeContext::GetGeolocationPermissionContext()  {
-  return NULL;
-}
-
-content::SpeechRecognitionPreferences*
-    RuntimeContext::GetSpeechRecognitionPreferences() {
   return NULL;
 }
 
