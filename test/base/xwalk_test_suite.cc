@@ -87,7 +87,7 @@ void XWalkTestSuite::Initialize() {
   ui::ResourceBundle::InitSharedInstanceWithPakPath(resources_pack_path);
 
   stats_filename_ = base::StringPrintf("unit_tests-%d",
-                                       base::GetCurrentProcId());
+                                       ::base::GetCurrentProcId());
   RemoveSharedMemoryFile(stats_filename_);
   stats_table_.reset(new base::StatsTable(stats_filename_, 20, 200));
   base::StatsTable::set_current(stats_table_.get());
