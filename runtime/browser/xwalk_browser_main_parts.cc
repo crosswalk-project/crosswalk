@@ -47,6 +47,10 @@
 #include "ui/base/l10n/l10n_util_android.h"
 #endif  // defined(OS_ANDROID)
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/application/browser/installer/tizen/package_installer.h"
+#endif  // defined(OS_TIZEN_MOBILE)
+
 namespace {
 
 base::StringPiece PlatformResourceProvider(int key) {
@@ -286,9 +290,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     if (xwalk::application::Application::IsIDValid(id)) {
       if (command_line->HasSwitch(switches::kUninstall)) {
 #if defined(OS_TIZEN_MOBILE)
-        std::string option(switches::kUninstall);
-        if (!HandlePackageInfo(id, option))
+        scoped_refptr<xwalk::application::PackageInstaller> installer =
+            xwalk::application::PackageInstaller::Create(service, id,
+                runtime_context_->GetPath());
+        if (!installer->Uninstall()) {
+          LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
           return;
+        }
 #endif
         if (!service->Uninstall(id))
           LOG(ERROR) << "[ERR] An error occurred during"
@@ -310,9 +318,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
         std::string id;
         if (service->Install(path, &id)) {
 #if defined(OS_TIZEN_MOBILE)
-          std::string option(switches::kInstall);
-          if (!HandlePackageInfo(id, option))
+          scoped_refptr<xwalk::application::PackageInstaller> installer =
+              xwalk::application::PackageInstaller::Create(service, id,
+                  runtime_context_->GetPath());
+          if (!installer->Install()) {
+            LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
             return;
+          }
 #endif  // OS_TIZEN_MOBILE
           LOG(INFO) << "[OK] Application installed: " << id;
         } else {
@@ -361,31 +373,4 @@ void XWalkBrowserMainParts::RegisterInternalExtensions() {
       new experimental::DialogExtension(runtime_registry_.get())));
 }
 
-#if defined(OS_TIZEN_MOBILE)
-bool XWalkBrowserMainParts::HandlePackageInfo(
-    const std::string& id,
-    const std::string& option) {
-  // FIXME: We temporary invoke a python script until the same
-  // is implemented in C++.
-  CommandLine command_line(
-      base::FilePath(
-          FILE_PATH_LITERAL("/usr/bin/install_into_pkginfo_db.py")));
-  command_line.AppendSwitch(option);
-  command_line.AppendSwitchASCII("pkgid", id);
-  command_line.AppendSwitchASCII(
-      "datapath", runtime_context_->GetPath().MaybeAsASCII());
-  if (file_util::PathExists(command_line.GetProgram())) {
-    if (std::system(command_line.GetCommandLineString().c_str()) == 0) {
-      LOG(INFO) << option << " successfully on Tizen.";
-    } else {
-      LOG(ERROR) << "[ERR] An error occurred during "
-                 << option << " on Tizen.";
-      run_default_message_loop_ = false;
-      return false;
-    }
-    return true;
-  }
-  return false;
-}
-#endif  // OS_TIZEN_MOBILE
 }  // namespace xwalk
