@@ -26,10 +26,15 @@ class RuntimeJavaScriptDialogManager : public content::JavaScriptDialogManager {
       const DialogClosedCallback& callback,
       bool* did_suppress_message) OVERRIDE;
 
-  virtual void RunBeforeUnloadDialog(content::WebContents* web_contents,
-                                     const string16& message_text,
-                                     bool is_reload,
-                                     const DialogClosedCallback& callback) OVERRIDE;
+  virtual void RunBeforeUnloadDialog(
+      content::WebContents* web_contents,
+      const string16& message_text,
+      bool is_reload,
+      const DialogClosedCallback& callback) OVERRIDE;
+  virtual void CancelActiveAndPendingDialogs(
+      content::WebContents* web_contents) OVERRIDE;
+  virtual void WebContentsDestroyed(
+      content::WebContents* web_contents) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RuntimeJavaScriptDialogManager);
