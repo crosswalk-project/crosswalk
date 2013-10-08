@@ -105,7 +105,7 @@ void PopulateHitTestData(const GURL& absolute_link_url,
     data->img_src = absolute_image_url;
 
   const bool is_javascript_scheme =
-      absolute_link_url.SchemeIs(chrome::kJavaScriptScheme);
+      absolute_link_url.SchemeIs(content::kJavaScriptScheme);
   const bool has_link_url = !absolute_link_url.is_empty();
   const bool has_image_url = !absolute_image_url.is_empty();
 
@@ -177,8 +177,8 @@ bool XWalkRenderViewExt::allowImage(WebKit::WebFrame* frame,
 
   // For compatibility, only blacklist network schemes instead of whitelisting.
   const GURL url(image_url);
-  return !(url.SchemeIs(chrome::kHttpScheme) ||
-           url.SchemeIs(chrome::kHttpsScheme) ||
+  return !(url.SchemeIs(content::kHttpScheme) ||
+           url.SchemeIs(content::kHttpsScheme) ||
            url.SchemeIs(chrome::kFtpScheme));
 }
 

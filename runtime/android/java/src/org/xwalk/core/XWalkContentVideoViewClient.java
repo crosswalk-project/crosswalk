@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import org.chromium.content.browser.ContentVideoViewClient;
+import org.chromium.content.browser.ContentVideoViewControls;
 import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
 public class XWalkContentVideoViewClient implements ContentVideoViewClient {
@@ -37,16 +38,12 @@ public class XWalkContentVideoViewClient implements ContentVideoViewClient {
     }
 
     @Override
-    public void keepScreenOn(boolean screenOn) {
-        if (screenOn) {
-            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
+    public View getVideoLoadingProgressView() {
+        return mContentsClient.getVideoLoadingProgressView();
     }
 
     @Override
-    public View getVideoLoadingProgressView() {
-        return mContentsClient.getVideoLoadingProgressView();
+    public ContentVideoViewControls createControls() {
+        return null;
     }
 }

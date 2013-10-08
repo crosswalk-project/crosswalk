@@ -34,7 +34,8 @@ const char kChromeVersion[] = CHROME_VERSION_STRING;
 
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
-class XWalkDevToolsServerDelegate : public content::DevToolsHttpHandlerDelegate {
+class XWalkDevToolsServerDelegate
+  : public content::DevToolsHttpHandlerDelegate {
  public:
   explicit XWalkDevToolsServerDelegate() {
   }
@@ -68,10 +69,10 @@ class XWalkDevToolsServerDelegate : public content::DevToolsHttpHandlerDelegate 
     return std::string();
   }
 
-  virtual scoped_refptr<net::StreamListenSocket> CreateSocketForTethering(
+  virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE {
-    return NULL;
+    return scoped_ptr<net::StreamListenSocket>();
   }
 
  private:
@@ -108,7 +109,7 @@ void XWalkDevToolsServer::Start() {
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       new net::UnixDomainSocketWithAbstractNamespaceFactory(
           socket_name_,
-          "", // fallback socket name
+          "",  // fallback socket name
           base::Bind(&CanUserConnectToDevTools)),
       base::StringPrintf(kFrontEndURL, kChromeVersion),
       new XWalkDevToolsServerDelegate());
@@ -153,7 +154,8 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
                                       jobject obj,
                                       jint server,
                                       jboolean enabled) {
-  XWalkDevToolsServer* devtools_server = reinterpret_cast<XWalkDevToolsServer*>(server);
+  XWalkDevToolsServer* devtools_server =
+      reinterpret_cast<XWalkDevToolsServer*>(server);
   if (enabled) {
     devtools_server->Start();
   } else {

@@ -74,7 +74,7 @@ public class XWalkContent extends FrameLayout {
                 mContentsClientBridge.getInterceptNavigationDelegate());
 
         // Initialize mWindow which is needed by content
-        mWindow = new WindowAndroid(xwView.getActivity(), xwView.getViewContext());
+        mWindow = new WindowAndroid(xwView.getActivity());
 
         // Initialize ContentView.
         mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
