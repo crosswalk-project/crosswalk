@@ -48,6 +48,20 @@
         'common/db_store_json_impl.cc',
         'common/db_store_json_impl.h',
       ],
+      'conditions': [
+        [ 'tizen_mobile == 1', {
+          'dependencies': [
+            '../third_party/libxml/libxml.gyp:libxml',
+            'build/system.gyp:tizen',
+          ],
+          'sources': [
+            'browser/installer/tizen/packageinfo_constants.cc',
+            'browser/installer/tizen/packageinfo_constants.h',
+            'browser/installer/tizen/package_installer.cc',
+            'browser/installer/tizen/package_installer.h',
+          ],
+        }],
+      ],
       'include_dirs': [
         '../..',
       ],
