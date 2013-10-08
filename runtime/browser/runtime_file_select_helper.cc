@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 
 #include <string>
+#include <utility>
 
 #include "base/bind.h"
 #include "base/file_util.h"
@@ -402,8 +403,8 @@ void RuntimeFileSelectHelper::RunFileChooserOnUIThread(
 
 #if defined(OS_ANDROID)
   // Android needs the original MIME types and an additional capture value.
-  std::vector<string16> accept_types(params.accept_types);
-  accept_types.push_back(params.capture);
+  std::pair<std::vector<string16>, bool> accept_types =
+      std::make_pair(params.accept_types, params.capture);
 #endif
 
   select_file_dialog_->SelectFile(
