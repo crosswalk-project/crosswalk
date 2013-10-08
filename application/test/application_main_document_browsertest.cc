@@ -75,11 +75,9 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   ASSERT_TRUE(!main_runtime->window());
 
   // There should exist 2 runtimes(one for generated main document, one for the
-  // window created by main document). As WindowedNotificationObserver::Wait()
-  // will call the callback function once when inovke, so add one more for the
-  // Wait() to consume.
-  int count = 2 - runtimes.size() + 1;
-  if (count > 1) {
+  // window created by main document).
+  int count = 2 - runtimes.size();
+  if (count) {
     content::WindowedNotificationObserver(
         xwalk::NOTIFICATION_RUNTIME_OPENED,
         base::Bind(&WaitForRuntimeCountCallback, &count)).Wait();
