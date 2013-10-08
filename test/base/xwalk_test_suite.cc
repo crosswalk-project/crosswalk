@@ -9,6 +9,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/metrics/stats_table.h"
 #include "base/path_service.h"
+#include "base/process/process_handle.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -87,7 +88,7 @@ void XWalkTestSuite::Initialize() {
   ui::ResourceBundle::InitSharedInstanceWithPakPath(resources_pack_path);
 
   stats_filename_ = base::StringPrintf("unit_tests-%d",
-                                       ::base::GetCurrentProcId());
+                                       base::GetCurrentProcId());
   RemoveSharedMemoryFile(stats_filename_);
   stats_table_.reset(new base::StatsTable(stats_filename_, 20, 200));
   base::StatsTable::set_current(stats_table_.get());
