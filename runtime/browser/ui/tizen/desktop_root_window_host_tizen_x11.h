@@ -182,6 +182,8 @@ class VIEWS_EXPORT DesktopRootWindowHostTizenX11 : public DesktopRootWindowHost,
   virtual void OnRootWindowHostCloseRequested(
       const aura::RootWindow* root) OVERRIDE;
 
+  virtual void OnRootViewLayout() const OVERRIDE;
+
   base::WeakPtrFactory<DesktopRootWindowHostTizenX11> close_widget_factory_;
 
   // X11 things
