@@ -105,9 +105,9 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 
   const char* gl_name;
-  if (file_util::PathExists(base::FilePath("/usr/lib/xwalk/libosmesa.so")))
+  if (base::PathExists(base::FilePath("/usr/lib/xwalk/libosmesa.so")))
     gl_name = gfx::kGLImplementationOSMesaName;
-  else if (file_util::PathExists(base::FilePath("/usr/lib/libGL.so")))
+  else if (base::PathExists(base::FilePath("/usr/lib/libGL.so")))
     gl_name = gfx::kGLImplementationDesktopName;
   else
     gl_name = gfx::kGLImplementationEGLName;
