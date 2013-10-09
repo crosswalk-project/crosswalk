@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "base/message_loop/message_pump_aurax11.h"
+#include "base/message_loop/message_pump_x11.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "ui/aura/client/aura_constants.h"
@@ -20,11 +20,11 @@
 #include "ui/aura/focus_manager.h"
 #include "ui/aura/root_window.h"
 #include "ui/aura/window_property.h"
-#include "ui/base/events/event_utils.h"
+#include "ui/events/event_utils.h"
 #include "ui/base/touch/touch_factory_x11.h"
 #include "ui/base/x/x11_util.h"
 #include "ui/gfx/insets.h"
-#include "ui/linux_ui/linux_ui.h"
+#include "ui/views/linux_ui/linux_ui.h"
 #include "ui/native_theme/native_theme.h"
 #include "ui/views/corewm/compound_event_filter.h"
 #include "ui/views/corewm/corewm_switches.h"
@@ -103,7 +103,7 @@ DesktopRootWindowHostTizenX11::DesktopRootWindowHostTizenX11(
     DesktopNativeWidgetAura* desktop_native_widget_aura,
     const gfx::Rect& initial_bounds)
     : close_widget_factory_(this),
-      xdisplay_(base::MessagePumpAuraX11::GetDefaultXDisplay()),
+      xdisplay_(base::MessagePumpX11::GetDefaultXDisplay()),
       xwindow_(0),
       x_root_window_(DefaultRootWindow(xdisplay_)),
       atom_cache_(xdisplay_, kAtomsToCache),
@@ -145,7 +145,7 @@ void DesktopRootWindowHostTizenX11::InitX11Window(
       CopyFromParent,  // visual
       attribute_mask,
       &swa);
-  base::MessagePumpAuraX11::Current()->AddDispatcherForWindow(this, xwindow_);
+  base::MessagePumpX11::Current()->AddDispatcherForWindow(this, xwindow_);
 
   // TODO(erg): Maybe need to set a ViewProp here like in RWHL::RWHL().
 
@@ -236,7 +236,7 @@ aura::RootWindow* DesktopRootWindowHostTizenX11::InitRootWindow(
   X11DesktopHandler::get();
 
   corewm::FocusController* focus_controller =
-      new corewm::FocusController(new DesktopFocusRules);
+    new corewm::FocusController(new DesktopFocusRules(root_window_));
   focus_client_.reset(focus_controller);
   aura::client::SetFocusClient(root_window_, focus_controller);
   aura::client::SetActivationClient(root_window_, focus_controller);
@@ -381,7 +381,7 @@ void DesktopRootWindowHostTizenX11::CloseNow() {
       x11_window_event_filter_.get());
 
   // Actually free our native resources.
-  base::MessagePumpAuraX11::Current()->RemoveDispatcherForWindow(xwindow_);
+  base::MessagePumpX11::Current()->RemoveDispatcherForWindow(xwindow_);
   XDestroyWindow(xdisplay_, xwindow_);
   xwindow_ = None;
 
@@ -696,7 +696,7 @@ void DesktopRootWindowHostTizenX11::Show() {
     // We now block until our window is mapped. Some X11 APIs will crash and
     // burn if passed |xwindow_| before the window is mapped, and XMapWindow is
     // asynchronous.
-    base::MessagePumpAuraX11::Current()->BlockUntilWindowMapped(xwindow_);
+    base::MessagePumpX11::Current()->BlockUntilWindowMapped(xwindow_);
     window_mapped_ = true;
 
     // In some window managers, the window state change only takes effect after
@@ -1167,6 +1167,10 @@ void DesktopRootWindowHostTizenX11::OnRootWindowHostCloseRequested(
     const aura::RootWindow* root) {
   DCHECK(root == root_window_);
   Close();
+}
+
+void DesktopRootWindowHostTizenX11::OnRootViewLayout() const {
+  // TODO(shalamov): Not implemented.
 }
 
 }  // namespace views
