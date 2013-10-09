@@ -35,7 +35,7 @@ scoped_refptr<PackageInstaller> PackageInstaller::Create(
     ApplicationService* service,
     const std::string& package_id,
     const base::FilePath& data_dir) {
-  if (!file_util::PathExists(data_dir))
+  if (!base::PathExists(data_dir))
     return NULL;
   scoped_refptr<PackageInstaller> handler =
     new PackageInstaller(service, package_id, data_dir);
@@ -85,7 +85,7 @@ bool PackageInstaller::Init() {
 
 bool PackageInstaller::GeneratePkgInfoXml() {
   base::FilePath dir_xml(xml_path_.DirName());
-  if (!file_util::PathExists(dir_xml) &&
+  if (!base::PathExists(dir_xml) &&
       !file_util::CreateDirectory(dir_xml))
     return false;
 
@@ -126,13 +126,13 @@ bool PackageInstaller::GeneratePkgInfoXml() {
 
 bool PackageInstaller::CopyOrLinkResources() {
   base::FilePath icon = app_dir_.AppendASCII(icon_name_);
-  if (!file_util::PathExists(icon) ||
-      !file_util::CopyFile(icon, icon_path_))
+  if (!base::PathExists(icon) ||
+      !base::CopyFile(icon, icon_path_))
     return false;
 
   base::FilePath xwalk_path(info::kXwalkPath);
   base::FilePath dir_exec(execute_path_.DirName());
-  if (!file_util::PathExists(dir_exec))
+  if (!base::PathExists(dir_exec))
     file_util::CreateDirectory(dir_exec);
 
   file_util::CreateSymbolicLink(xwalk_path, execute_path_);
@@ -185,9 +185,9 @@ bool PackageInstaller::Uninstall() {
     return false;
   }
 
-  success &= file_util::Delete(icon_path_, false);
-  success &= file_util::Delete(execute_path_, false);
-  success &= file_util::Delete(xml_path_, false);
+  success &= base::DeleteFile(icon_path_, false);
+  success &= base::DeleteFile(execute_path_, false);
+  success &= base::DeleteFile(xml_path_, false);
   if (!success)
     return false;
 
