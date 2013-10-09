@@ -98,11 +98,7 @@ XWalkExtensionService::XWalkExtensionService()
     g_register_extensions_callback.Run(this);
 }
 
-XWalkExtensionService::~XWalkExtensionService() {
-  // This object should already be released and asked to be deleted in the
-  // extension thread.
-  CHECK(!in_process_extensions_server_);
-}
+XWalkExtensionService::~XWalkExtensionService() {}
 
 bool XWalkExtensionService::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
