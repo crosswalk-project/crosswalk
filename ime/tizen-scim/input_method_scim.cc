@@ -6,15 +6,15 @@
 #include "input_method_scim.h"
 
 #include "base/logging.h"
-#include "ui/base/events/event_utils.h"
+#include "ui/events/event_utils.h"
 #include "ui/base/ime/input_method_delegate.h"
 #include "ui/base/ime/text_input_client.h"
-#include "ui/base/keycodes/keyboard_code_conversion.h"
+#include "ui/events/keycodes/keyboard_code_conversion.h"
 #include "ui/aura/root_window.h"
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
-#include "ui/base/keycodes/keyboard_code_conversion_x.h"
+#include "ui/events/keycodes/keyboard_code_conversion_x.h"
 
 #include "scim_bridge.h"
 
@@ -152,6 +152,18 @@ void InputMethodSCIM::AddObserver(InputMethodObserver* observer) {
 
 void InputMethodSCIM::RemoveObserver(InputMethodObserver* observer) {
   observers_.RemoveObserver(observer);
+}
+
+void InputMethodSCIM::SetStickyFocusedTextInputClient(ui::TextInputClient*) {
+  // TODO(shalamov): Not implemented.
+}
+
+void InputMethodSCIM::DetachTextInputClient(ui::TextInputClient*) {
+  // TODO(shalamov): Not implemented.
+}
+
+ui::TextInputMode InputMethodSCIM::GetTextInputMode() const {
+  return ui::TEXT_INPUT_MODE_DEFAULT;
 }
 
 }  // namespace ui

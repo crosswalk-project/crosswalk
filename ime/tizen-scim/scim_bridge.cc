@@ -9,6 +9,7 @@
 #include "base/message_loop/message_pump_libevent.h"
 #include "content/public/browser/browser_thread.h"
 #include "ui/base/x/x11_util.h"
+#include "ui/gfx/x/x11_types.h"
 
 #define Uses_SCIM_BACKEND
 #define Uses_SCIM_IMENGINE_MODULE
@@ -164,7 +165,7 @@ SCIMBridgeImpl::SCIMBridgeImpl()
     panel_client_fd_(-1),
     im_context_id_(getpid() % 50000),
     im_engine_instance_count_(0),
-    display_(ui::GetXDisplay()),
+    display_(gfx::GetXDisplay()),
     root_window_(GetX11RootWindow())
 {
   // Create input system engine context data that would be sent to the daemon.

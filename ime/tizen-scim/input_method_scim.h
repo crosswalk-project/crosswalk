@@ -53,6 +53,11 @@ class UI_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
   virtual void AddObserver(InputMethodObserver* observer) OVERRIDE;
   virtual void RemoveObserver(InputMethodObserver* observer) OVERRIDE;
 
+  virtual void SetStickyFocusedTextInputClient(ui::TextInputClient*) OVERRIDE;
+  virtual void DetachTextInputClient(ui::TextInputClient*) OVERRIDE;
+  virtual ui::TextInputMode GetTextInputMode() const OVERRIDE;
+
+
  private:
   internal::InputMethodDelegate* delegate_;
   TextInputClient* text_input_client_;
