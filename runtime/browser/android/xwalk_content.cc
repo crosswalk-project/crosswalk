@@ -11,6 +11,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
+#include "content/public/common/renderer_preferences.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
@@ -87,6 +88,12 @@ content::WebContents* XWalkContent::CreateWebContents(
 
   web_contents->SetUserData(kXWalkContentUserDataKey,
                             new XWalkContentUserData(this));
+
+  // XWalk does not use disambiguation popup for multiple targets.
+  content::RendererPreferences* prefs =
+      web_contents->GetMutableRendererPrefs();
+  prefs->tap_multiple_targets_strategy =
+      content::TAP_MULTIPLE_TARGETS_STRATEGY_NONE;
 
   XWalkContentsClientBridgeBase::Associate(web_contents,
       contents_client_bridge_.get());
