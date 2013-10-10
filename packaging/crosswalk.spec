@@ -14,8 +14,8 @@ Source1003:     %{name}.png
 Source1004:     install_into_pkginfo_db.py
 Patch1:         %{name}-1.29-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-1.29-look-for-pvr-libGLESv2.so.patch
-Patch3:         %{name}-1.29-revert-nss-commits.patch
-Patch4:         %{name}-1.29-include-tizen-ime-files.patch
+Patch3:         %{name}-1.29-include-tizen-ime-files.patch
+Patch4:         %{name}-2.31-disable-ffmpeg-pragmas.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -92,7 +92,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 %patch2
-%patch3 -p1
+%patch3
 %patch4
 
 %build
