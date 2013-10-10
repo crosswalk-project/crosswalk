@@ -11,9 +11,9 @@
 #include "base/android/jni_string.h"
 #include "base/callback.h"
 #include "content/public/browser/browser_thread.h"
-#include "googleurl/src/gurl.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "net/cert/x509_certificate.h"
+#include "url/gurl.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertJavaStringToUTF16;
