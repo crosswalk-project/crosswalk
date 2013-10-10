@@ -11,7 +11,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
 #include "crypto/sha2.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 #if defined(OS_WIN)
 #include <shobjidl.h>  // NOLINT(build/include_order)

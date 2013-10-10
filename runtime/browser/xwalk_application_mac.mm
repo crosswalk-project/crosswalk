@@ -5,7 +5,7 @@
 #include "xwalk/runtime/browser/xwalk_application_mac.h"
 
 #include "base/auto_reset.h"
-#include "googleurl/src/gurl.h"
+#include "url/gurl.h"
 
 @implementation XWalkCrApplication
 
