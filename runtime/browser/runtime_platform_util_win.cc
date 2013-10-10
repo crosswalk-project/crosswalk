@@ -21,9 +21,9 @@
 #include "base/win/scoped_comptr.h"
 #include "base/win/windows_version.h"
 #include "content/public/browser/browser_thread.h"
-#include "googleurl/src/gurl.h"
 #include "ui/base/win/shell.h"
 #include "ui/gfx/native_widget_types.h"
+#include "url/gurl.h"
 
 using content::BrowserThread;
 
