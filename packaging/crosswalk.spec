@@ -45,7 +45,7 @@ BuildRequires:  pkgconfig(pango)
 BuildRequires:  pkgconfig(pkgmgr-info)
 BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(nspr)
-BuildRequires:  pkgconfig(nss)
+BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(scim)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
@@ -102,6 +102,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
+# Use openssl instead of nss, until Tizen gets nss >= 3.14.3
 export GYP_GENERATORS='make'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 -Ddisable_nacl=1 \
@@ -116,7 +117,8 @@ export GYP_GENERATORS='make'
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Denable_xi21_mt=1 \
--Dtizen_mobile=1
+-Dtizen_mobile=1 \
+-Duse_openssl=1
 
 make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
