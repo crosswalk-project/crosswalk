@@ -194,6 +194,12 @@ def CopyGeneratedSources(out_directory):
                              'chromium', 'base', 'MemoryPressureLevelList.java')
   shutil.copyfile(source_file, target_file)
 
+  source_file = os.path.join(out_directory, 'gen', 'templates',
+                             'org', 'chromium', 'media', 'ImageFormat.java')
+  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
+                             'chromium', 'media', 'ImageFormat.java')
+  shutil.copyfile(source_file, target_file)
+
 
 def CopyXwalkJavaSource(project_source, out_directory):
   print 'Copying XWalk Java sources...'
