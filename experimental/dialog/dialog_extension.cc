@@ -48,7 +48,8 @@ void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
 
 DialogInstance::DialogInstance(DialogExtension* extension)
   : extension_(extension),
-    dialog_(NULL) {
+    dialog_(NULL),
+    handler_(this) {
   handler_.Register("showOpenDialog",
       base::Bind(&DialogInstance::OnShowOpenDialog, base::Unretained(this)));
   handler_.Register("showSaveDialog",
@@ -67,7 +68,7 @@ void DialogInstance::HandleMessage(scoped_ptr<base::Value> msg) {
     return;
   }
 
-  handler_.HandleMessage(msg.Pass(), this);
+  handler_.HandleMessage(msg.Pass());
 }
 
 void DialogInstance::OnShowOpenDialog(

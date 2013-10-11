@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include "base/bind.h"
+#include "base/memory/weak_ptr.h"
 #include "base/values.h"
 
 namespace xwalk {
@@ -16,8 +17,8 @@ namespace extensions {
 class XWalkExtensionInstance;
 
 // This struct is passed to the function handler, usually assigned to the
-// signature of a method in JavaScript. The struct can be safely copied but
-// should not outlive the ExtensionInstance.
+// signature of a method in JavaScript. The struct can be safely passed around
+// within the same thread.
 class XWalkExtensionFunctionInfo {
  public:
   typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
@@ -30,7 +31,9 @@ class XWalkExtensionFunctionInfo {
   ~XWalkExtensionFunctionInfo();
 
   // Convenience method for posting the results back to the renderer process.
-  // The object identifier is already wrapped at the |post_result_cb|.
+  // The object identifier is already wrapped at the |post_result_cb|. This
+  // will ultimately dispatch the result to the appropriated instance or
+  // do nothing in case the instance doesn't exist anymore.
   void PostResult(scoped_ptr<base::ListValue> result) const {
     post_result_cb_.Run(result.Pass());
   };
@@ -57,20 +60,20 @@ class XWalkExtensionFunctionInfo {
 };
 
 // Helper for handling JavaScript method calls in the native side. Allows you to
-// register a handler for a function with a given signature.
+// register a handler for a function with a given signature. This class takes an
+// XWalkExtensionInstance in the constructor and should never outlive this
+// instance.
 class XWalkExtensionFunctionHandler {
  public:
   typedef base::Callback<void(
       scoped_ptr<XWalkExtensionFunctionInfo> info)> FunctionHandler;
 
-  XWalkExtensionFunctionHandler();
+  explicit XWalkExtensionFunctionHandler(XWalkExtensionInstance* instance);
   ~XWalkExtensionFunctionHandler();
 
   // Converts a raw message from the renderer to a XWalkExtensionFunctionInfo
-  // data structure and invokes HandleFunction(). A reference to |instance| is
-  // kept so the handler can issue a reply.
-  void HandleMessage(scoped_ptr<base::Value> msg,
-                     XWalkExtensionInstance* instance);
+  // data structure and invokes HandleFunction().
+  void HandleMessage(scoped_ptr<base::Value> msg);
 
   // Executes the handler associated to the |name| tag of the |info| argument
   // passed as parameter.
@@ -99,8 +102,18 @@ class XWalkExtensionFunctionHandler {
   }
 
  private:
+  static void DispatchResult(
+      const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
+      const std::string& callback_id,
+      scoped_ptr<base::ListValue> result);
+
+  void PostMessageToInstance(scoped_ptr<base::Value> msg);
+
   typedef std::map<std::string, FunctionHandler> FunctionHandlerMap;
   FunctionHandlerMap handlers_;
+
+  XWalkExtensionInstance* instance_;
+  base::WeakPtrFactory<XWalkExtensionFunctionHandler> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionFunctionHandler);
 };

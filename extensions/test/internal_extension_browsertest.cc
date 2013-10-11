@@ -31,7 +31,7 @@ XWalkExtensionInstance* TestExtension::CreateInstance() {
   return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance() {
+TestExtensionInstance::TestExtensionInstance() : handler_(this) {
   handler_.Register("clearDatabase",
       base::Bind(&TestExtensionInstance::OnClearDatabase,
                  base::Unretained(this)));
@@ -50,7 +50,7 @@ TestExtensionInstance::TestExtensionInstance() {
 }
 
 void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
-  handler_.HandleMessage(msg.Pass(), this);
+  handler_.HandleMessage(msg.Pass());
 }
 
 void TestExtensionInstance::OnClearDatabase(

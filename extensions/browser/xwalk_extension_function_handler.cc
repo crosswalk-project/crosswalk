@@ -6,30 +6,6 @@
 
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
-namespace {
-
-using xwalk::extensions::XWalkExtensionInstance;
-
-void DispatchResult(XWalkExtensionInstance* instance,
-    const std::string& callback_id, scoped_ptr<base::ListValue> result) {
-  DCHECK(result);
-  DCHECK(instance);
-
-  if (callback_id.empty()) {
-    DLOG(WARNING) << "Sending a reply with an empty callback id has no"
-        "practical effect. This code can be optimized by not creating "
-        "and not posting the result.";
-    return;
-  }
-
-  // Prepend the callback id to the list, so the handlers
-  // on the JavaScript side know which callback should be evoked.
-  result->Insert(0, new base::StringValue(callback_id));
-  instance->PostMessageToJS(result.PassAs<base::Value>());
-}
-
-}  // namespace
-
 namespace xwalk {
 namespace extensions {
 
@@ -43,12 +19,14 @@ XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo(
 
 XWalkExtensionFunctionInfo::~XWalkExtensionFunctionInfo() {}
 
-XWalkExtensionFunctionHandler::XWalkExtensionFunctionHandler() {}
+XWalkExtensionFunctionHandler::XWalkExtensionFunctionHandler(
+    XWalkExtensionInstance* instance)
+  : instance_(instance),
+    weak_factory_(this) {}
 
 XWalkExtensionFunctionHandler::~XWalkExtensionFunctionHandler() {}
 
-void XWalkExtensionFunctionHandler::HandleMessage(
-    scoped_ptr<base::Value> msg, XWalkExtensionInstance* instance) {
+void XWalkExtensionFunctionHandler::HandleMessage(scoped_ptr<base::Value> msg) {
   base::ListValue* args;
   if (!msg->GetAsList(&args) || args->GetSize() < 2) {
     // FIXME(tmpsantos): This warning could be better if the Context had a
@@ -82,7 +60,9 @@ void XWalkExtensionFunctionHandler::HandleMessage(
       new XWalkExtensionFunctionInfo(
           function_name,
           make_scoped_ptr(static_cast<base::ListValue*>(msg.release())),
-          base::Bind(&DispatchResult, instance, callback_id)));
+          base::Bind(&XWalkExtensionFunctionHandler::DispatchResult,
+                     weak_factory_.GetWeakPtr(),
+                     callback_id)));
 
   if (!HandleFunction(info.Pass())) {
     DLOG(WARNING) << "Function not registered: " << function_name;
@@ -99,6 +79,33 @@ bool XWalkExtensionFunctionHandler::HandleFunction(
   iter->second.Run(info.Pass());
 
   return true;
+}
+
+// static
+void XWalkExtensionFunctionHandler::DispatchResult(
+    const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
+    const std::string& callback_id,
+    scoped_ptr<base::ListValue> result) {
+  DCHECK(result);
+
+  if (callback_id.empty()) {
+    DLOG(WARNING) << "Sending a reply with an empty callback id has no"
+        "practical effect. This code can be optimized by not creating "
+        "and not posting the result.";
+    return;
+  }
+
+  // Prepend the callback id to the list, so the handlers
+  // on the JavaScript side know which callback should be evoked.
+  result->Insert(0, new base::StringValue(callback_id));
+
+  if (handler)
+    handler->PostMessageToInstance(result.PassAs<base::Value>());
+}
+
+void XWalkExtensionFunctionHandler::PostMessageToInstance(
+    scoped_ptr<base::Value> msg) {
+  instance_->PostMessageToJS(msg.Pass());
 }
 
 }  // namespace extensions

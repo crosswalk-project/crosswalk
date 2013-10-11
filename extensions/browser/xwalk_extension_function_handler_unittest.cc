@@ -52,7 +52,7 @@ TEST(XWalkExtensionFunctionHandlerTest, PostResult) {
 }
 
 TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
-  XWalkExtensionFunctionHandler handler;
+  XWalkExtensionFunctionHandler handler(NULL);
 
   int counter = 0;
   handler.Register("echoData", base::Bind(&EchoData, &counter));
