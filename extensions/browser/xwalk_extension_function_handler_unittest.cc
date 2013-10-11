@@ -17,6 +17,11 @@ void DispatchResult(std::string* str, scoped_ptr<base::ListValue> result) {
   result->GetString(0, str);
 }
 
+void StoreFunctionInfo(XWalkExtensionFunctionInfo** info_ptr,
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  *info_ptr = info.release();
+}
+
 void EchoData(int* counter, scoped_ptr<XWalkExtensionFunctionInfo> info) {
   std::string str;
   info->arguments()->GetString(0, &str);
@@ -96,4 +101,25 @@ TEST(XWalkExtensionFunctionHandlerTest, RegisterAndHandleFunction) {
       base::Bind(&DispatchResult, &str3)));
 
   handler.HandleFunction(info3.Pass());
+}
+
+TEST(XWalkExtensionFunctionHandlerTest, PostingResultAfterDeletingTheHandler) {
+  scoped_ptr<XWalkExtensionFunctionHandler> handler(
+      new XWalkExtensionFunctionHandler(NULL));
+
+  XWalkExtensionFunctionInfo* info;
+  handler->Register("storeFunctionInfo", base::Bind(&StoreFunctionInfo, &info));
+
+  scoped_ptr<base::ListValue> msg(new base::ListValue);
+  msg->AppendString("storeFunctionInfo");  // Function name.
+  msg->AppendString("id");  // Callback ID.
+
+  handler->HandleMessage(msg.PassAs<base::Value>());
+  handler.reset();
+
+  // Posting a result after deleting the handler should not
+  // crash because internally, the reference to the handler
+  // is weak.
+  info->PostResult(make_scoped_ptr(new base::ListValue));
+  delete info;
 }
