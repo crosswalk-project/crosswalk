@@ -35,11 +35,11 @@ class TestExtensionInstance
   Database* database() { return &database_; }
 
  private:
-  void OnClearDatabase(const XWalkExtensionFunctionInfo& info);
-  void OnAddPerson(const XWalkExtensionFunctionInfo& info);
-  void OnAddPersonObject(const XWalkExtensionFunctionInfo& info);
-  void OnGetAllPersons(const XWalkExtensionFunctionInfo& info);
-  void OnGetPersonAge(const XWalkExtensionFunctionInfo& info);
+  void OnClearDatabase(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnAddPerson(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnAddPersonObject(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetAllPersons(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetPersonAge(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   std::vector<std::pair<std::string, int> > database_;
 

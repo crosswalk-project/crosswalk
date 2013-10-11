@@ -33,7 +33,13 @@ void DispatchResult(XWalkExtensionInstance* instance,
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo() {}
+XWalkExtensionFunctionInfo::XWalkExtensionFunctionInfo(
+    const std::string& name,
+    scoped_ptr<base::ListValue> arguments,
+    const PostResultCallback& post_result_cb)
+  : name_(name),
+    arguments_(arguments.Pass()),
+    post_result_cb_(post_result_cb) {}
 
 XWalkExtensionFunctionInfo::~XWalkExtensionFunctionInfo() {}
 
@@ -72,24 +78,25 @@ void XWalkExtensionFunctionHandler::HandleMessage(
   args->Remove(0, NULL);
   args->Remove(0, NULL);
 
-  XWalkExtensionFunctionInfo info;
-  info.name = function_name;
-  info.arguments = args;
-  info.post_result_cb = base::Bind(&DispatchResult, instance, callback_id);
+  scoped_ptr<XWalkExtensionFunctionInfo> info(
+      new XWalkExtensionFunctionInfo(
+          function_name,
+          make_scoped_ptr(static_cast<base::ListValue*>(msg.release())),
+          base::Bind(&DispatchResult, instance, callback_id)));
 
-  if (!HandleFunction(info)) {
+  if (!HandleFunction(info.Pass())) {
     DLOG(WARNING) << "Function not registered: " << function_name;
     return;
   }
 }
 
 bool XWalkExtensionFunctionHandler::HandleFunction(
-    const XWalkExtensionFunctionInfo& info) {
-  FunctionHandlerMap::iterator iter = handlers_.find(info.name);
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  FunctionHandlerMap::iterator iter = handlers_.find(info->name());
   if (iter == handlers_.end())
     return false;
 
-  iter->second.Run(info);
+  iter->second.Run(info.Pass());
 
   return true;
 }

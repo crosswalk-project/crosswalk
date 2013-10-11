@@ -18,23 +18,42 @@ class XWalkExtensionInstance;
 // This struct is passed to the function handler, usually assigned to the
 // signature of a method in JavaScript. The struct can be safely copied but
 // should not outlive the ExtensionInstance.
-struct XWalkExtensionFunctionInfo {
+class XWalkExtensionFunctionInfo {
+ public:
   typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
       PostResultCallback;
 
-  XWalkExtensionFunctionInfo();
+  XWalkExtensionFunctionInfo(const std::string& name,
+                             scoped_ptr<base::ListValue> arguments,
+                             const PostResultCallback& post_result_cb);
+
   ~XWalkExtensionFunctionInfo();
-  
+
   // Convenience method for posting the results back to the renderer process.
   // The object identifier is already wrapped at the |post_result_cb|.
   void PostResult(scoped_ptr<base::ListValue> result) const {
-    post_result_cb.Run(result.Pass());
+    post_result_cb_.Run(result.Pass());
   };
 
-  std::string name;
-  base::ListValue* arguments;
+  std::string name() const {
+    return name_;
+  }
 
-  PostResultCallback post_result_cb;
+  base::ListValue* arguments() const {
+    return arguments_.get();
+  }
+
+  PostResultCallback post_result_cb() const {
+    return post_result_cb_;
+  }
+
+ private:
+  std::string name_;
+  scoped_ptr<base::ListValue> arguments_;
+
+  PostResultCallback post_result_cb_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionFunctionInfo);
 };
 
 // Helper for handling JavaScript method calls in the native side. Allows you to
@@ -42,7 +61,7 @@ struct XWalkExtensionFunctionInfo {
 class XWalkExtensionFunctionHandler {
  public:
   typedef base::Callback<void(
-      const XWalkExtensionFunctionInfo& info)> FunctionHandler;
+      scoped_ptr<XWalkExtensionFunctionInfo> info)> FunctionHandler;
 
   XWalkExtensionFunctionHandler();
   ~XWalkExtensionFunctionHandler();
@@ -55,7 +74,7 @@ class XWalkExtensionFunctionHandler {
 
   // Executes the handler associated to the |name| tag of the |info| argument
   // passed as parameter.
-  bool HandleFunction(const XWalkExtensionFunctionInfo& info);
+  bool HandleFunction(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   // This method will register a callback to handle a message tagged as
   // |function_name|. When invoked, the handler will get a
@@ -68,7 +87,7 @@ class XWalkExtensionFunctionHandler {
   //
   // The signature of a function handler should be like the following:
   //
-  //   void Foobar::OnShow(const XWalkExtensionFunctionInfo& info);
+  //   void Foobar::OnShow(scoped_ptr<XWalkExtensionFunctionInfo> info);
   //
   // And register them like this, preferable at the Foobar constructor:
   //

@@ -32,8 +32,9 @@ void RuntimeInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass(), this);
 }
 
-void RuntimeInstance::OnGetAPIVersion(const XWalkExtensionFunctionInfo& info) {
-  info.PostResult(jsapi::runtime::GetAPIVersion::Results::Create(1));
+void RuntimeInstance::OnGetAPIVersion(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  info->PostResult(jsapi::runtime::GetAPIVersion::Results::Create(1));
 };
 
 }  // namespace xwalk

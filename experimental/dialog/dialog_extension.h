@@ -63,8 +63,8 @@ class DialogInstance : public XWalkExtensionInstance,
     const std::vector<base::FilePath>& files, void* params) OVERRIDE;
 
  private:
-  void OnShowOpenDialog(const XWalkExtensionFunctionInfo& info);
-  void OnShowSaveDialog(const XWalkExtensionFunctionInfo& info);
+  void OnShowOpenDialog(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnShowSaveDialog(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   DialogExtension* extension_;
   scoped_refptr<SelectFileDialog> dialog_;

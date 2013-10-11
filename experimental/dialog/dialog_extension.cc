@@ -70,14 +70,15 @@ void DialogInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass(), this);
 }
 
-void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
+void DialogInstance::OnShowOpenDialog(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
   scoped_ptr<ShowOpenDialog::Params>
-      params(ShowOpenDialog::Params::Create(*info.arguments));
+      params(ShowOpenDialog::Params::Create(*info->arguments()));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << info.name;
+    LOG(WARNING) << "Malformed parameters passed to " << info->name();
     return;
   }
 
@@ -93,26 +94,24 @@ void DialogInstance::OnShowOpenDialog(const XWalkExtensionFunctionInfo& info) {
   // FIXME(jeez): implement file_type and file_extension support.
   base::FilePath::StringType file_extension;
 
-  scoped_ptr<XWalkExtensionFunctionInfo> data(
-      new XWalkExtensionFunctionInfo(info));
-
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
   dialog_->SelectFile(dialog_type, title16,
                       base::FilePath::FromUTF8Unsafe(params->initial_path),
                       NULL /* file_type */, 0 /* type_index */, file_extension,
-                      extension_->owning_window_, data.release());
+                      extension_->owning_window_, info.release());
 }
 
-void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
+void DialogInstance::OnShowSaveDialog(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
   scoped_ptr<ShowSaveDialog::Params>
-      params(ShowSaveDialog::Params::Create(*info.arguments));
+      params(ShowSaveDialog::Params::Create(*info->arguments()));
 
   if (!params) {
-    LOG(WARNING) << "Malformed parameters passed to " << info.name;
+    LOG(WARNING) << "Malformed parameters passed to " << info->name();
     return;
   }
 
@@ -125,9 +124,6 @@ void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
-  scoped_ptr<XWalkExtensionFunctionInfo> data(
-      new XWalkExtensionFunctionInfo(info));
-
   base::FilePath filePath =
       base::FilePath::FromUTF8Unsafe(params->initial_path);
   base::FilePath proposedFilePath =
@@ -135,7 +131,7 @@ void DialogInstance::OnShowSaveDialog(const XWalkExtensionFunctionInfo& info) {
 
   dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
     filePath.Append(proposedFilePath), NULL /* file_type */, 0 /* type_index */,
-    file_extension, extension_->owning_window_, data.release());
+    file_extension, extension_->owning_window_, info.release());
 }
 
 void DialogInstance::FileSelected(const base::FilePath& path, int,
@@ -144,7 +140,7 @@ void DialogInstance::FileSelected(const base::FilePath& path, int,
       static_cast<XWalkExtensionFunctionInfo*>(params));
 
   std::string strPath = path.AsUTF8Unsafe();
-  if (info->name == "showOpenDialog") {
+  if (info->name() == "showOpenDialog") {
     std::vector<std::string> filesList;
     filesList.push_back(strPath);
     info->PostResult(ShowOpenDialog::Results::Create(filesList));
