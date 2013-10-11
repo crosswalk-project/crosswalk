@@ -9,6 +9,7 @@
 #include <string>
 #include "base/bind.h"
 #include "base/memory/weak_ptr.h"
+#include "base/message_loop/message_loop_proxy.h"
 #include "base/values.h"
 
 namespace xwalk {
@@ -17,8 +18,7 @@ namespace extensions {
 class XWalkExtensionInstance;
 
 // This struct is passed to the function handler, usually assigned to the
-// signature of a method in JavaScript. The struct can be safely passed around
-// within the same thread.
+// signature of a method in JavaScript. The struct can be safely passed around.
 class XWalkExtensionFunctionInfo {
  public:
   typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
@@ -33,7 +33,8 @@ class XWalkExtensionFunctionInfo {
   // Convenience method for posting the results back to the renderer process.
   // The object identifier is already wrapped at the |post_result_cb|. This
   // will ultimately dispatch the result to the appropriated instance or
-  // do nothing in case the instance doesn't exist anymore.
+  // do nothing in case the instance doesn't exist anymore. PostResult can
+  // be called from any thread.
   void PostResult(scoped_ptr<base::ListValue> result) const {
     post_result_cb_.Run(result.Pass());
   };
@@ -104,6 +105,7 @@ class XWalkExtensionFunctionHandler {
  private:
   static void DispatchResult(
       const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
+      scoped_refptr<base::MessageLoopProxy> client_task_runner,
       const std::string& callback_id,
       scoped_ptr<base::ListValue> result);
 
