@@ -69,7 +69,6 @@
       'application/common/application_file_util_unittest.cc',
       'application/common/id_util_unittest.cc',
       'application/common/manifest_unittest.cc',
-      'application/common/db_store_json_impl_unittest.cc',
       'application/common/db_store_sqlite_impl_unittest.cc',
       'runtime/common/xwalk_content_client_unittest.cc',
       'test/base/run_all_unittests.cc',

@@ -46,8 +46,6 @@
         'common/manifest.h',
         'common/db_store.cc',
         'common/db_store.h',
-        'common/db_store_json_impl.cc',
-        'common/db_store_json_impl.h',
         'common/db_store_sqlite_impl.cc',
         'common/db_store_sqlite_impl.h',
       ],
