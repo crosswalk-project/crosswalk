@@ -44,18 +44,33 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     private int mNativeContentsClientBridge;
 
     private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
+        private XWalkContentsClient mContentsClient;
+
+        public InterceptNavigationDelegateImpl(XWalkContentsClient client) {
+            mContentsClient = client;
+        }
+
         public boolean shouldIgnoreNavigation(NavigationParams navigationParams) {
+            final String url = navigationParams.url;
+            boolean ignoreNavigation = false;
+
             if (mNavigationHandler != null) {
-                return mNavigationHandler.handleNavigation(navigationParams);
+                ignoreNavigation = mNavigationHandler.handleNavigation(navigationParams);
             }
-            return false;
+
+            if (!ignoreNavigation) {
+                // Post a message to UI thread to notify the page is starting to load.
+                mContentsClient.getCallbackHelper().postOnPageStarted(url);
+            }
+
+            return ignoreNavigation;
         }
     }
 
     public XWalkContentsClientBridge(XWalkView xwView) {
         mXWalkView = xwView;
 
-        mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl();
+        mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl(this);
     }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
