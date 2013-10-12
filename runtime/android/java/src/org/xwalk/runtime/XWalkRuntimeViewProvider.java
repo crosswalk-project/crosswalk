@@ -94,4 +94,8 @@ public abstract class XWalkRuntimeViewProvider {
      * Pass message from runtime extension system to native and then to JavaScript.
      */
     public abstract void postMessage(XWalkExtension extension, String message);
+
+    // For instrumentation test.
+    public abstract String getTitleForTest();
+    public abstract void setCallbackForTest(Object callback);
 }

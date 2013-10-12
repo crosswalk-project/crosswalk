@@ -160,4 +160,13 @@ public class XWalkRuntimeView extends FrameLayout {
     public void disableRemoteDebugging() {
         mProvider.disableRemoteDebugging();
     }
+
+    // For instrumentation test.
+    public String getTitleForTest() {
+        return mProvider.getTitleForTest();
+    }
+
+    public void setCallbackForTest(Object callback) {
+        mProvider.setCallbackForTest(callback);
+    }
 }

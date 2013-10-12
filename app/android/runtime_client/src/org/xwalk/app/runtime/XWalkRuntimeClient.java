@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import java.lang.reflect.Method;
@@ -35,6 +36,10 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mEnableRemoteDebugging;
     private Method mDisableRemoteDebugging;
 
+    // For instrumentation test.
+    private Method mGetTitleForTest;
+    private Method mSetCallbackForTest;
+
     public XWalkRuntimeClient(Activity activity, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
         super(activity, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Activity.class, Context.class, AttributeSet.class);
         Context libCtx = getLibraryContext();
@@ -56,6 +61,10 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
+
+        // For instrumentation test.
+        mGetTitleForTest = lookupMethod("getTitleForTest");
+        mSetCallbackForTest = lookupMethod("setCallbackForTest", Object.class);
     }
 
     /**
@@ -97,7 +106,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         }
         return false;
     }
-    
+
     @Override
     public void handleException(Exception e) {
         if (mRuntimeLoaded) {
@@ -209,5 +218,18 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      */
     public void disableRemoteDebugging() {
         invokeMethod(mDisableRemoteDebugging, mInstance);
+    }
+
+    // The following functions just for instrumentation test.
+    public View getViewForTest() {
+        return (View)mInstance;
+    }
+
+    public String getTitleForTest() {
+        return (String) invokeMethod(mGetTitleForTest, mInstance);
+    }
+
+    public void setCallbackForTest(Object callback) {
+        invokeMethod(mSetCallbackForTest, mInstance, callback);
     }
 }

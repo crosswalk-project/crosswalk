@@ -65,14 +65,14 @@ public abstract class CrossPackageWrapper {
         }
         return ret;
     }
-    
+
     public void handleException(Exception e) {
         // mExceptionHandler is for handling runtime library not found or
         // not match, if library is embedded, should not invoke it.
         if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
     }
-    
+
     public void handleException(String e) {
         if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
@@ -85,7 +85,7 @@ public abstract class CrossPackageWrapper {
     public Context getLibraryContext() {
         return mLibCtx;
     }
-    
+
     public Method lookupMethod(String method, Class<?>... parameters) {
         if (mTargetClass == null) return null;
         try {
@@ -95,7 +95,7 @@ public abstract class CrossPackageWrapper {
         }
         return null;
     }
-    
+
     public Object invokeMethod(Method m, Object instance, Object... parameters) {
         Object ret = null;
         if (m != null) {
