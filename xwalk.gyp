@@ -710,6 +710,23 @@
       ],
     }],  # OS=="mac"
     ['OS=="android"', {
+      'variables': {
+        'variables': {
+          'conditions': [
+            ['android_app_abi=="x86"', {
+              'version_code_shift%': 1,
+            }],
+            ['android_app_abi=="armeabi-v7a"', {
+              'version_code_shift%': 2,
+            }],
+            ['android_app_abi=="armeabi"', {
+              'version_code_shift%': 3,
+            }],
+          ], # conditions
+        },
+        'version_code_shift%': '<(version_code_shift)',
+        'xwalk_version_code': '<!(python tools/build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
+      },
       'includes': [
         '../build/all_android.gyp',
         'xwalk_android.gypi',
