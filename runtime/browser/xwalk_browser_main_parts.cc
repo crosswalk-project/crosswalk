@@ -125,6 +125,9 @@ void SetXWalkCommandLineFlags() {
   // Disable ExtensionProcess for Android.
   // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
+
+  // Enable WebGL for Android.
+  command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
 
   // FIXME: Add comment why this is needed on Android and Tizen.
