@@ -18,7 +18,6 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
-#include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
 // This will be generated from xwalk_api.js.
@@ -51,8 +50,8 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
 
 namespace {
 
-void CreateRunnersForModuleSystem(XWalkExtensionClient* client,
-                                  XWalkModuleSystem* module_system) {
+void CreateExtensionModules(XWalkExtensionClient* client,
+                            XWalkModuleSystem* module_system) {
   const XWalkExtensionClient::ExtensionAPIMap& extensions =
       client->extension_apis();
   XWalkExtensionClient::ExtensionAPIMap::const_iterator it = extensions.begin();
@@ -60,10 +59,7 @@ void CreateRunnersForModuleSystem(XWalkExtensionClient* client,
     if (it->second.empty())
       continue;
     scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(module_system, it->first, it->second));
-    XWalkRemoteExtensionRunner* runner =
-        client->CreateRunner(it->first, module.get());
-    module->set_runner(runner);
+        new XWalkExtensionModule(client, module_system, it->first, it->second));
     module_system->RegisterExtensionModule(module.Pass());
   }
 }
@@ -81,12 +77,12 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   delegate_->DidCreateModuleSystem(module_system);
 
-  CreateRunnersForModuleSystem(in_browser_process_extensions_client_.get(),
-                               module_system);
+  CreateExtensionModules(in_browser_process_extensions_client_.get(),
+                         module_system);
 
   if (external_extensions_client_) {
-    CreateRunnersForModuleSystem(external_extensions_client_.get(),
-                                 module_system);
+    CreateExtensionModules(external_extensions_client_.get(),
+                           module_system);
   }
 
   module_system->Initialize();

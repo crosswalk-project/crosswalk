@@ -25,14 +25,16 @@ const char* kXWalkExtensionModule = "kXWalkExtensionModule";
 
 }  // namespace
 
-XWalkExtensionModule::XWalkExtensionModule(
-    XWalkModuleSystem* module_system,
-    const std::string& extension_name,
-    const std::string& extension_code)
+XWalkExtensionModule::XWalkExtensionModule(XWalkExtensionClient* client,
+                                           XWalkModuleSystem* module_system,
+                                           const std::string& extension_name,
+                                           const std::string& extension_code)
     : extension_name_(extension_name),
       extension_code_(extension_code),
       converter_(content::V8ValueConverter::create()),
-      module_system_(module_system) {
+      client_(client),
+      module_system_(module_system),
+      instance_id_(0) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> function_data = v8::Object::New();
@@ -75,8 +77,8 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   message_listener_.Dispose();
   message_listener_.Clear();
 
-  CHECK(runner_);
-  runner_->Destroy();
+  if (instance_id_)
+    client_->DestroyInstance(instance_id_);
 }
 
 namespace {
@@ -144,6 +146,9 @@ v8::Handle<v8::Value> RunString(const std::string& code,
 
 void XWalkExtensionModule::LoadExtensionCode(
     v8::Handle<v8::Context> context, v8::Handle<v8::Function> requireNative) {
+  CHECK(!instance_id_);
+  instance_id_ = client_->CreateInstance(extension_name_, this);
+
   std::string exception;
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
@@ -210,8 +215,8 @@ void XWalkExtensionModule::PostMessageCallback(
   scoped_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
-  CHECK(module->runner_);
-  module->runner_->PostMessageToNative(value.Pass());
+  CHECK(module->instance_id_);
+  module->client_->PostMessageToNative(module->instance_id_, value.Pass());
   result.Set(true);
 }
 
@@ -229,9 +234,10 @@ void XWalkExtensionModule::SendSyncMessageCallback(
   scoped_ptr<base::Value> value(
       module->converter_->FromV8Value(info[0], context));
 
-  CHECK(module->runner_);
+  CHECK(module->instance_id_);
   scoped_ptr<base::Value> reply(
-      module->runner_->SendSyncMessageToNative(value.Pass()));
+      module->client_->SendSyncMessageToNative(module->instance_id_,
+                                               value.Pass()));
   result.Set(module->converter_->ToV8Value(reply.get(), context));
 }
 
