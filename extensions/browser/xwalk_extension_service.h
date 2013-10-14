@@ -6,8 +6,10 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 
 #include <stdint.h>
+#include <map>
 #include <string>
 #include "base/callback_forward.h"
+#include "base/containers/scoped_ptr_hash_map.h"
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/thread.h"
@@ -63,25 +65,34 @@ class XWalkExtensionService : public content::NotificationObserver {
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
-  // FIXME(cmarcelo): For now we support only one render process host.
-  content::RenderProcessHost* render_process_host_;
+  scoped_ptr<XWalkExtensionServer> CreateInProcessExtensionServer(
+      content::RenderProcessHost* host);
+  void CreateExtensionProcessHost(content::RenderProcessHost* host);
 
   // The server that handles in process extensions will live in the
   // extension_thread_.
   base::Thread extension_thread_;
-  scoped_ptr<XWalkExtensionServer> in_process_extensions_server_;
 
   // This object lives on the IO-thread.
-  ExtensionServerMessageFilter* in_process_server_message_filter_;
-
-  // This object lives on the IO-thread.
-  scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
+  typedef std::map<int, ExtensionServerMessageFilter*>
+      RenderProcessToServerMessageFilterMap;
+  RenderProcessToServerMessageFilterMap in_process_server_message_filters_map_;
 
   content::NotificationRegistrar registrar_;
 
   Delegate* delegate_;
 
   base::FilePath external_extensions_path_;
+
+  // This object lives on the IO-thread.
+  typedef base::ScopedPtrHashMap<int, XWalkExtensionProcessHost>
+      RenderProcessToExtensionProcessHostMap;
+  RenderProcessToExtensionProcessHostMap extension_process_hosts_map_;
+
+  // The servers will live on the extension thread.
+  typedef base::ScopedPtrHashMap<int, XWalkExtensionServer>
+      RenderProcessToInProcessExtensionServerMap;
+  RenderProcessToInProcessExtensionServerMap in_process_extension_server_map_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
