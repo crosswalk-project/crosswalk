@@ -6,6 +6,13 @@
 
 namespace switches {
 
+// TODO(cmarcelo): We are developing this feature behind a flag. The
+// plan is to switch the flag meaning when the full feature is
+// implemented. One release later, after stabilization, we completely
+// remove this flag since we expect this feature not to be optional.
+const char kXWalkEnableLoadingExtensionsOnDemand[] =
+    "enable-loading-extensions-on-demand";
+
 // TODO(cmarcelo): Currently we are disabling it by default, once Extension
 // Process patches land, we'll change this to be "disable-extension-process"
 // so that it will be enabled by default. Remember to forcely disable it for
