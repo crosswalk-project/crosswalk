@@ -29,6 +29,10 @@
 #include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/tizen/appcore_context.h"
+#endif
+
 namespace keys = xwalk::application_manifest_keys;
 namespace errors = xwalk::application_manifest_errors;
 
@@ -196,6 +200,9 @@ bool Application::Init(string16* error) {
 
   application_url_ = Application::GetBaseURLFromApplicationId(ID());
   finished_parsing_manifest_ = true;
+#if defined(OS_TIZEN_MOBILE)
+  appcore_context_ = tizen::AppcoreContext::Create();
+#endif
   return true;
 }
 
