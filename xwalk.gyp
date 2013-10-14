@@ -50,6 +50,7 @@
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
+        '../webkit/support/webkit_support.gyp:glue_child',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'jsapi/jsapi.gyp:xwalk_jsapi',
         'xwalk_application_lib',
