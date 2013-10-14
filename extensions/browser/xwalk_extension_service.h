@@ -8,14 +8,11 @@
 #include <stdint.h>
 #include <string>
 #include "base/callback_forward.h"
+#include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
-
-namespace base {
-class FilePath;
-}
 
 namespace content {
 class RenderProcessHost;
@@ -83,6 +80,8 @@ class XWalkExtensionService : public content::NotificationObserver {
   content::NotificationRegistrar registrar_;
 
   Delegate* delegate_;
+
+  base::FilePath external_extensions_path_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };

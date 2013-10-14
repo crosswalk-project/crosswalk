@@ -84,10 +84,6 @@ XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
       extension_thread_("XWalkExtensionThread"),
       in_process_server_message_filter_(NULL),
       delegate_(delegate) {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
-    extension_process_host_.reset(new XWalkExtensionProcessHost());
-
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
@@ -107,11 +103,13 @@ XWalkExtensionService::~XWalkExtensionService() {}
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
     const base::FilePath& path) {
-  if (extension_process_host_) {
-    extension_process_host_->RegisterExternalExtensions(path);
-  } else {
+  external_extensions_path_ = path;
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kXWalkDisableExtensionProcess)) {
     RegisterExternalExtensionsInDirectory(in_process_extensions_server_.get(),
-                                          path);
+                                          external_extensions_path_);
+    return;
   }
 }
 
@@ -120,6 +118,11 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   // FIXME(cmarcelo): For now we support only one render process host.
   if (render_process_host_)
     return;
+
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kXWalkDisableExtensionProcess)) {
+    extension_process_host_.reset(new XWalkExtensionProcessHost());
+  }
 
   render_process_host_ = host;
 
@@ -138,8 +141,14 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
   in_process_extensions_server_->RegisterExtensionsInRenderProcess();
 
-  if (extension_process_host_)
+  if (extension_process_host_) {
+    if (!external_extensions_path_.empty()) {
+      extension_process_host_->RegisterExternalExtensions(
+          external_extensions_path_);
+    }
+
     extension_process_host_->OnRenderProcessHostCreated(host);
+  }
 }
 
 // static
