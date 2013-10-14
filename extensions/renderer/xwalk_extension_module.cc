@@ -117,22 +117,25 @@ std::string WrapAPICode(const std::string& extension_code,
 }
 
 v8::Handle<v8::Value> RunString(const std::string& code,
-                                const std::string& name) {
+                                std::string* exception) {
   v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
   v8::Handle<v8::String> v8_code(v8::String::New(code.c_str()));
-  v8::Handle<v8::String> v8_name(v8::String::New(name.c_str()));
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
 
-  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8_name));
-  if (try_catch.HasCaught())
+  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty()));
+  if (try_catch.HasCaught()) {
+    *exception = ExceptionToString(try_catch);
     return v8::Undefined();
+  }
 
   v8::Handle<v8::Value> result = script->Run();
-  if (try_catch.HasCaught())
+  if (try_catch.HasCaught()) {
+    *exception = ExceptionToString(try_catch);
     return v8::Undefined();
+  }
 
   return handle_scope.Close(result);
 }
@@ -141,11 +144,13 @@ v8::Handle<v8::Value> RunString(const std::string& code,
 
 void XWalkExtensionModule::LoadExtensionCode(
     v8::Handle<v8::Context> context, v8::Handle<v8::Function> requireNative) {
+  std::string exception;
   std::string wrapped_api_code = WrapAPICode(extension_code_, extension_name_);
   v8::Handle<v8::Value> result =
-      RunString(wrapped_api_code, "JS API code for " + extension_name_);
+      RunString(wrapped_api_code, &exception);
   if (!result->IsFunction()) {
-    LOG(WARNING) << "Couldn't load JS API code for " << extension_name_;
+    LOG(WARNING) << "Couldn't load JS API code for " << extension_name_
+      << ": " << exception;
     return;
   }
   v8::Handle<v8::Function> callable_api_code =
