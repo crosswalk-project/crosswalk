@@ -108,9 +108,9 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     }
 
     @Override
-    public void postMessage(XWalkExtension extension, String message) {
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
         XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
-        bridge.postMessage(message);
+        bridge.postMessage(instanceID, message);
     }
 
     // For instrumentation test.

@@ -28,9 +28,10 @@ public abstract class XWalkExtensionContext {
     /**
      * Post message to JavaScript via internal mechanism.
      * @param extension the extension which needs to post message to JavaScript.
+     * @param instanceID the ID of target extension instance.
      * @param message the message to be passed.
      */
-    public abstract void postMessage(XWalkExtension extension, String message);
+    public abstract void postMessage(XWalkExtension extension, int instanceID, String message);
 
     /**
      * Get current Android Context.

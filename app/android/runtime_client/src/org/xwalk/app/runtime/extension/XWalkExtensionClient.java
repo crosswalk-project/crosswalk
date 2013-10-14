@@ -87,18 +87,20 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
      * JavaScript calls into Java code. The message is handled by
      * the extension implementation. The inherited classes should
      * override and add its implementation.
+     * @param extensionInstanceID the ID of extension instance where the message came from.
      * @param message the message from JavaScript code.
      */
-    public void onMessage(String message) {
+    public void onMessage(int extensionInstanceID, String message) {
     }
 
     /**
      * Synchronized JavaScript calls into Java code. Similar to
      * onMessage. The only difference is it's a synchronized
      * message.
+     * @param extensionInstanceID the ID of extension instance where the message came from.
      * @param message the message from JavaScript code.
      */
-    public String onSyncMessage(String message) {
+    public String onSyncMessage(int extensionInstanceID, String message) {
         return "";
     }
 
@@ -106,9 +108,10 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
      * Post messages to JavaScript via extension's context.
      * It's used by child classes to post message from Java side
      * to JavaScript side.
+     * @param extensionInstanceID the ID of extension instance where the message came from.
      * @param message the message to be passed to Javascript.
      */
-    public final void postMessage(String message) {
-        invokeMethod(mPostMessage, mInstance, message);
+    public final void postMessage(int extensionInstanceID, String message) {
+        invokeMethod(mPostMessage, mInstance, extensionInstanceID, message);
     }
 }
