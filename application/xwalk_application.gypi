@@ -53,6 +53,7 @@
           'dependencies': [
             '../third_party/libxml/libxml.gyp:libxml',
             'build/system.gyp:tizen',
+            'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
           ],
           'sources': [
             'browser/installer/tizen/packageinfo_constants.cc',
