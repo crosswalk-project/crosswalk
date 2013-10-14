@@ -49,6 +49,27 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
   // content::RenderThread::Get()->RemoveObserver(this);
 }
 
+namespace {
+
+void CreateRunnersForModuleSystem(XWalkExtensionClient* client,
+                                  XWalkModuleSystem* module_system) {
+  const XWalkExtensionClient::ExtensionAPIMap& extensions =
+      client->extension_apis();
+  XWalkExtensionClient::ExtensionAPIMap::const_iterator it = extensions.begin();
+  for (; it != extensions.end(); ++it) {
+    if (it->second.empty())
+      continue;
+    scoped_ptr<XWalkExtensionModule> module(
+        new XWalkExtensionModule(module_system, it->first, it->second));
+    XWalkRemoteExtensionRunner* runner =
+        client->CreateRunner(it->first, module.get());
+    module->set_runner(runner);
+    module_system->RegisterExtensionModule(module.Pass());
+  }
+}
+
+}  // namespace
+
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
@@ -60,11 +81,13 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   delegate_->DidCreateModuleSystem(module_system);
 
-  in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
-      module_system);
+  CreateRunnersForModuleSystem(in_browser_process_extensions_client_.get(),
+                               module_system);
 
-  if (external_extensions_client_)
-    external_extensions_client_->CreateRunnersForModuleSystem(module_system);
+  if (external_extensions_client_) {
+    CreateRunnersForModuleSystem(external_extensions_client_.get(),
+                                 module_system);
+  }
 
   module_system->Initialize();
 }

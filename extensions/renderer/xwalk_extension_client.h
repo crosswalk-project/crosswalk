@@ -24,8 +24,6 @@ class Sender;
 namespace xwalk {
 namespace extensions {
 
-class XWalkModuleSystem;
-
 // This class holds the JavaScript context of Extensions. It lives in the
 // Render Process and communicates directly with its associated
 // XWalkExtensionServer through an IPC channel.
@@ -37,8 +35,6 @@ class XWalkExtensionClient : public IPC::Listener {
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void CreateRunnersForModuleSystem(XWalkModuleSystem* module_system);
-
   void DestroyInstance(int64_t instance_id);
 
   void PostMessageToNative(int64_t instance_id, scoped_ptr<base::Value> msg);
@@ -47,10 +43,14 @@ class XWalkExtensionClient : public IPC::Listener {
 
   void Initialize(IPC::Sender* sender) { sender_ = sender; }
 
- private:
+  typedef std::map<std::string, std::string> ExtensionAPIMap;
+
+  const ExtensionAPIMap& extension_apis() const { return extension_apis_; }
+
   XWalkRemoteExtensionRunner* CreateRunner(const std::string& extension_name,
       XWalkRemoteExtensionRunner::Client* client);
 
+ private:
   bool Send(IPC::Message* msg);
 
   // Message Handlers.
@@ -61,8 +61,6 @@ class XWalkExtensionClient : public IPC::Listener {
   }
 
   IPC::Sender* sender_;
-
-  typedef std::map<std::string, std::string> ExtensionAPIMap;
   ExtensionAPIMap extension_apis_;
 
   typedef std::map<int64_t, XWalkRemoteExtensionRunner*> RunnerMap;
