@@ -7,6 +7,7 @@
         '../base/base.gyp:base',
         '../crypto/crypto.gyp:crypto',
         '../ipc/ipc.gyp:ipc',
+        '../sql/sql.gyp:sql',
         '../ui/ui.gyp:ui',
         '../url/url.gyp:url_lib',
         '../third_party/WebKit/public/blink.gyp:blink',
@@ -45,8 +46,8 @@
         'common/manifest.h',
         'common/db_store.cc',
         'common/db_store.h',
-        'common/db_store_json_impl.cc',
-        'common/db_store_json_impl.h',
+        'common/db_store_sqlite_impl.cc',
+        'common/db_store_sqlite_impl.h',
       ],
       'conditions': [
         [ 'tizen_mobile == 1', {

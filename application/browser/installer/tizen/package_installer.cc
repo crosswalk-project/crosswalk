@@ -155,7 +155,9 @@ bool PackageInstaller::WriteToPackageInfoDB() {
   uid = pwd.pw_uid;
   gid = pwd.pw_gid;
   if (!ChangeOwnerRecursive(data_dir_.Append(info::kAppDir), uid, gid) ||
-      !ChangeOwnerRecursive(data_dir_.Append(info::kAppDBPath), uid, gid))
+      !ChangeOwnerRecursive(data_dir_.Append(info::kAppDBPath), uid, gid) ||
+      !ChangeOwnerRecursive(
+          data_dir_.Append(info::kAppDBJournalPath), uid, gid))
     return false;
 
   if (access(xml_path_.MaybeAsASCII().c_str(), F_OK) != 0)
