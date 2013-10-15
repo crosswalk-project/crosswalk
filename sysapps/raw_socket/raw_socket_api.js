@@ -44,11 +44,12 @@ ReadyStateObserver.prototype = new common.EventTargetPrototype();
 //
 // TODO(tmpsantos): TCPOptions argument is being ignored by now.
 //
-var TCPSocket = function(remoteAddress, remotePort, options) {
-  common.BindingObject.call(this, common.getUniqueId());
+var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
+  common.BindingObject.call(this, object_id ? object_id : common.getUniqueId());
   common.EventTarget.call(this);
 
-  internal.postMessage("TCPSocketConstructor", [this._id]);
+  if (object_id == undefined)
+    internal.postMessage("TCPSocketConstructor", [this._id]);
 
   options = options || {};
 
@@ -97,7 +98,8 @@ var TCPSocket = function(remoteAddress, remotePort, options) {
 
   Object.defineProperties(this, {
     "_readyStateObserver": {
-      value: new ReadyStateObserver(this._id, "connecting"),
+      value: new ReadyStateObserver(
+          this._id, object_id ? "open" : "connecting"),
     },
     "_readyStateObserverDeleter": {
       value: v8tools.lifecycleTracker(),

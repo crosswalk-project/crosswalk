@@ -17,9 +17,11 @@ namespace sysapps {
 class TCPSocketObject : public RawSocketObject {
  public:
   TCPSocketObject();
+  explicit TCPSocketObject(scoped_ptr<net::StreamSocket> socket);
   virtual ~TCPSocketObject();
 
  private:
+  void RegisterHandlers();
   void DoRead();
 
   // JavaScript function handlers.
