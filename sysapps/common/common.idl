@@ -1,0 +1,21 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// This IDL is used to generate data serializer for the Sysapps
+// helper classes.
+namespace common {
+  callback DispatchEventCallback = void (object data);
+
+  interface Functions {
+    // EventTarget Interface
+    static void addEventListener(DOMString type, DispatchEventCallback callback);
+    static void removeEventListener(DOMString type);
+
+    // ObjectBindingStore Interface
+    static void destroyObject(DOMString object_id);
+    static void postMessageToObject(DOMString object_id,
+                                    DOMString name,
+                                    any arguments);
+  };
+};
