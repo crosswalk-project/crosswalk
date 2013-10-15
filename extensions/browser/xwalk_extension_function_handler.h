@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 #include "base/bind.h"
+#include "base/memory/weak_ptr.h"
+#include "base/message_loop/message_loop_proxy.h"
 #include "base/values.h"
 
 namespace xwalk {
@@ -16,46 +18,67 @@ namespace extensions {
 class XWalkExtensionInstance;
 
 // This struct is passed to the function handler, usually assigned to the
-// signature of a method in JavaScript. The struct can be safely copied but
-// should not outlive the ExtensionInstance.
-struct XWalkExtensionFunctionInfo {
+// signature of a method in JavaScript. The struct can be safely passed around.
+class XWalkExtensionFunctionInfo {
+ public:
   typedef base::Callback<void(scoped_ptr<base::ListValue> result)>
       PostResultCallback;
 
-  XWalkExtensionFunctionInfo();
+  XWalkExtensionFunctionInfo(const std::string& name,
+                             scoped_ptr<base::ListValue> arguments,
+                             const PostResultCallback& post_result_cb);
+
   ~XWalkExtensionFunctionInfo();
-  
+
   // Convenience method for posting the results back to the renderer process.
-  // The object identifier is already wrapped at the |post_result_cb|.
+  // The object identifier is already wrapped at the |post_result_cb|. This
+  // will ultimately dispatch the result to the appropriated instance or
+  // do nothing in case the instance doesn't exist anymore. PostResult can
+  // be called from any thread.
   void PostResult(scoped_ptr<base::ListValue> result) const {
-    post_result_cb.Run(result.Pass());
+    post_result_cb_.Run(result.Pass());
   };
 
-  std::string name;
-  base::ListValue* arguments;
+  std::string name() const {
+    return name_;
+  }
 
-  PostResultCallback post_result_cb;
+  base::ListValue* arguments() const {
+    return arguments_.get();
+  }
+
+  PostResultCallback post_result_cb() const {
+    return post_result_cb_;
+  }
+
+ private:
+  std::string name_;
+  scoped_ptr<base::ListValue> arguments_;
+
+  PostResultCallback post_result_cb_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkExtensionFunctionInfo);
 };
 
 // Helper for handling JavaScript method calls in the native side. Allows you to
-// register a handler for a function with a given signature.
+// register a handler for a function with a given signature. This class takes an
+// XWalkExtensionInstance in the constructor and should never outlive this
+// instance.
 class XWalkExtensionFunctionHandler {
  public:
   typedef base::Callback<void(
-      const XWalkExtensionFunctionInfo& info)> FunctionHandler;
+      scoped_ptr<XWalkExtensionFunctionInfo> info)> FunctionHandler;
 
-  XWalkExtensionFunctionHandler();
+  explicit XWalkExtensionFunctionHandler(XWalkExtensionInstance* instance);
   ~XWalkExtensionFunctionHandler();
 
   // Converts a raw message from the renderer to a XWalkExtensionFunctionInfo
-  // data structure and invokes HandleFunction(). A reference to |instance| is
-  // kept so the handler can issue a reply.
-  void HandleMessage(scoped_ptr<base::Value> msg,
-                     XWalkExtensionInstance* instance);
+  // data structure and invokes HandleFunction().
+  void HandleMessage(scoped_ptr<base::Value> msg);
 
   // Executes the handler associated to the |name| tag of the |info| argument
   // passed as parameter.
-  bool HandleFunction(const XWalkExtensionFunctionInfo& info);
+  bool HandleFunction(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   // This method will register a callback to handle a message tagged as
   // |function_name|. When invoked, the handler will get a
@@ -68,7 +91,7 @@ class XWalkExtensionFunctionHandler {
   //
   // The signature of a function handler should be like the following:
   //
-  //   void Foobar::OnShow(const XWalkExtensionFunctionInfo& info);
+  //   void Foobar::OnShow(scoped_ptr<XWalkExtensionFunctionInfo> info);
   //
   // And register them like this, preferable at the Foobar constructor:
   //
@@ -80,8 +103,19 @@ class XWalkExtensionFunctionHandler {
   }
 
  private:
+  static void DispatchResult(
+      const base::WeakPtr<XWalkExtensionFunctionHandler>& handler,
+      scoped_refptr<base::MessageLoopProxy> client_task_runner,
+      const std::string& callback_id,
+      scoped_ptr<base::ListValue> result);
+
+  void PostMessageToInstance(scoped_ptr<base::Value> msg);
+
   typedef std::map<std::string, FunctionHandler> FunctionHandlerMap;
   FunctionHandlerMap handlers_;
+
+  XWalkExtensionInstance* instance_;
+  base::WeakPtrFactory<XWalkExtensionFunctionHandler> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionFunctionHandler);
 };
