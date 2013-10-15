@@ -32,7 +32,7 @@ class RuntimeInstance : public XWalkExtensionInstance {
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
  private:
-  void OnGetAPIVersion(const XWalkExtensionFunctionInfo& info);
+  void OnGetAPIVersion(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
 };
