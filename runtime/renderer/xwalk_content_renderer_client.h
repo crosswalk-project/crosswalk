@@ -9,14 +9,13 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/platform_file.h"
 #include "content/public/renderer/content_renderer_client.h"
+#include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace xwalk {
 
-namespace extensions {
-class XWalkExtensionRendererController;
-}
-
-class XWalkContentRendererClient : public content::ContentRendererClient {
+class XWalkContentRendererClient
+    : public content::ContentRendererClient,
+      public extensions::XWalkExtensionRendererController::Delegate {
  public:
   static XWalkContentRendererClient* Get();
 
@@ -33,6 +32,10 @@ class XWalkContentRendererClient : public content::ContentRendererClient {
                                         int world_id) OVERRIDE;
 
  private:
+  // XWalkExtensionRendererController::Delegate implementation.
+  virtual void DidCreateModuleSystem(
+      extensions::XWalkModuleSystem* module_system) OVERRIDE;
+
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
