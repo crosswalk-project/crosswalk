@@ -7,6 +7,7 @@
 #include "grit/xwalk_sysapps_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/sysapps/raw_socket/raw_socket.h"
+#include "xwalk/sysapps/raw_socket/tcp_server_socket_object.h"
 #include "xwalk/sysapps/raw_socket/tcp_socket_object.h"
 
 using namespace xwalk::jsapi::raw_socket; // NOLINT
@@ -29,6 +30,9 @@ XWalkExtensionInstance* RawSocketExtension::CreateInstance() {
 RawSocketInstance::RawSocketInstance()
   : handler_(this),
     store_(&handler_) {
+  handler_.Register("TCPServerSocketConstructor",
+      base::Bind(&RawSocketInstance::OnTCPServerSocketConstructor,
+                 base::Unretained(this)));
   handler_.Register("TCPSocketConstructor",
       base::Bind(&RawSocketInstance::OnTCPSocketConstructor,
                  base::Unretained(this)));
@@ -36,6 +40,25 @@ RawSocketInstance::RawSocketInstance()
 
 void RawSocketInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass());
+}
+
+void RawSocketInstance::AddBindingObject(const std::string& object_id,
+                                         scoped_ptr<BindingObject> obj) {
+  store_.AddBindingObject(object_id, obj.Pass());
+}
+
+void RawSocketInstance::OnTCPServerSocketConstructor(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<TCPServerSocketConstructor::Params>
+      params(TCPServerSocketConstructor::Params::Create(*info->arguments()));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << info->name();
+    return;
+  }
+
+  scoped_ptr<BindingObject> obj(new TCPServerSocketObject(this));
+  store_.AddBindingObject(params->object_id, obj.Pass());
 }
 
 void RawSocketInstance::OnTCPSocketConstructor(

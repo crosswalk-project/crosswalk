@@ -33,7 +33,12 @@ class RawSocketInstance : public XWalkExtensionInstance {
   // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
+  void AddBindingObject(const std::string& object_id,
+                        scoped_ptr<BindingObject> obj);
+
  private:
+  void OnTCPServerSocketConstructor(
+      scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnTCPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
