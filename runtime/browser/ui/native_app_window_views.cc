@@ -58,8 +58,8 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
 #else
   params.type = views::Widget::InitParams::TYPE_WINDOW;
-  params.bounds = create_params.bounds;
 #endif
+  params.bounds = create_params.bounds;
 
   window_->Init(params);
 
