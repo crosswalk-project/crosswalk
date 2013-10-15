@@ -7,7 +7,7 @@
 #include <utility>
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
-#include "xwalk/jsapi/dialog.h"
+#include "xwalk/experimental/dialog/dialog.h"
 
 using content::BrowserThread;
 

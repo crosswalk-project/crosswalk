@@ -52,16 +52,11 @@
         '../webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
         '../webkit/support/webkit_support.gyp:glue_child',
         '../webkit/webkit_resources.gyp:webkit_resources',
-        'jsapi/jsapi.gyp:xwalk_jsapi',
         'xwalk_application_lib',
         'xwalk_resources',
       ],
       'include_dirs': [
         '..',
-      ],
-      'includes': [
-        'extensions/extensions.gypi',
-        'experimental/dialog/dialog.gypi',
       ],
       'sources': [
         'runtime/app/xwalk_main_delegate.cc',
@@ -142,11 +137,17 @@
         'runtime/common/xwalk_paths.h',
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
+        'runtime/extension/runtime.idl',
         'runtime/extension/runtime_api.js',
         'runtime/extension/runtime_extension.cc',
         'runtime/extension/runtime_extension.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
         'runtime/renderer/xwalk_content_renderer_client.h',
+      ],
+      'includes': [
+        'extensions/extensions.gypi',
+        'experimental/dialog/dialog.gypi',
+        'xwalk_jsapi.gypi',
       ],
       'msvs_settings': {
         'VCLinkerTool': {

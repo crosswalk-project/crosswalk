@@ -5,7 +5,7 @@
 #include "xwalk/runtime/extension/runtime_extension.h"
 
 #include "base/bind.h"
-#include "xwalk/jsapi/runtime.h"
+#include "xwalk/runtime/extension/runtime.h"
 
 extern const char kSource_runtime_api[];
 
