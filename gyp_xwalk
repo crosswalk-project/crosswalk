@@ -104,8 +104,6 @@ if __name__ == '__main__':
   args = delist 
   args.append('-Dproprietary_codecs=1')
 
-  args.append('-Duse_aura=1')
-
   # Triggering media playback dynamically with third-party codecs by owner. 
   if ip_media_codecs == True:
       args.append('-Dffmpeg_branding=Chrome')
