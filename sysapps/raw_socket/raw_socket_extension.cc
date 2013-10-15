@@ -7,6 +7,7 @@
 #include "grit/xwalk_sysapps_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/sysapps/raw_socket/raw_socket.h"
+#include "xwalk/sysapps/raw_socket/tcp_socket_object.h"
 
 using namespace xwalk::jsapi::raw_socket; // NOLINT
 
@@ -25,7 +26,30 @@ XWalkExtensionInstance* RawSocketExtension::CreateInstance() {
   return new RawSocketInstance();
 }
 
-RawSocketInstance::RawSocketInstance() {
+RawSocketInstance::RawSocketInstance()
+  : handler_(this),
+    store_(&handler_) {
+  handler_.Register("TCPSocketConstructor",
+      base::Bind(&RawSocketInstance::OnTCPSocketConstructor,
+                 base::Unretained(this)));
+}
+
+void RawSocketInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+  handler_.HandleMessage(msg.Pass());
+}
+
+void RawSocketInstance::OnTCPSocketConstructor(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<TCPSocketConstructor::Params>
+      params(TCPSocketConstructor::Params::Create(*info->arguments()));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << info->name();
+    return;
+  }
+
+  scoped_ptr<BindingObject> obj(new TCPSocketObject);
+  store_.AddBindingObject(params->object_id, obj.Pass());
 }
 
 }  // namespace sysapps

@@ -10,6 +10,11 @@
     'raw_socket/raw_socket_api.js',
     'raw_socket/raw_socket_extension.cc',
     'raw_socket/raw_socket_extension.h',
+    'raw_socket/raw_socket_object.cc',
+    'raw_socket/raw_socket_object.h',
+    'raw_socket/tcp_socket.idl',
+    'raw_socket/tcp_socket_object.cc',
+    'raw_socket/tcp_socket_object.h',
   ],
   'dependencies': [
     'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
