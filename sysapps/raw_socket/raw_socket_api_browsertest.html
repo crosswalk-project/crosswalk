@@ -1,0 +1,170 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var v8tools = sysapps_raw_socket_test.v8tools;
+      var api = xwalk.sysapps.raw_socket;
+
+      var current_test = 0;
+      var test_list = [
+        memoryManagement,
+        pingPong,
+        serverPortBusy,
+        endTest
+      ];
+
+      function runNextTest() {
+        test_list[current_test++]();
+      };
+
+      function reportFail(message) {
+        console.log(message);
+        document.title = "Fail";
+      };
+
+      function endTest() {
+        document.title = "Pass";
+      };
+
+      function memoryManagement() {
+        var eventCount = 0;
+        var garbageCollectionCount = 0;
+
+        // We cannot run the GC inside a callback, because the callee of the
+        // callback holds a reference (that is why runGCandCheck is called from
+        // a setTimeout. Another important thing to notice is nullifying the
+        // server or client object right away won't work because they use
+        // delayed initialization, which is fine, because as soon as the
+        // initialization is completed, the object will be collected if no
+        // variable is keeping a reference to it.
+        function runGCandCheck() {
+          gc();
+          if (garbageCollectionCount != 2)
+            reportFail("TCPSocket or TCPServerSocket is leaking.");
+          else
+            runNextTest();
+        };
+
+        var server = new api.TCPServerSocket(
+            {"localAddress": "127.0.0.1", "localPort": 54321});
+        server.onerror = server.onopen = nullifyServer;
+        server.tracker = v8tools.lifecycleTracker();
+        server.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyServer() {
+          server.onerror = null;
+          server.onopen = null;
+          server = null;
+
+          if (++eventCount == 2)
+            setTimeout(runGCandCheck, 0);
+        };
+
+        var client = new api.TCPSocket("127.0.0.1", 54321);
+        client.onerror = client.onopen = nullifyClient;
+        client.tracker = v8tools.lifecycleTracker();
+        client.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyClient() {
+          client.onerror = null;
+          client.onopen = null;
+          client = null;
+
+          if (++eventCount == 2)
+            setTimeout(runGCandCheck, 0);
+        };
+      };
+
+      // This test is designed like a data ping pong. First we open a server
+      // listening for incoming connections. Secondly we connect a client socket
+      // into this server, that immediately sends a greetings message that is
+      // readily verified. The client then sends back some data to the server,
+      // which also gets checked.
+      //
+      // This is not an API conformance test, it just verifies if the basic
+      // functionality works. W3C should provide the former.
+      function pingPong(serverPort) {
+        serverPort = serverPort || 5000;
+        var serverPortMax = 5020;
+        var testData = "Hello World!";
+
+        var server = new api.TCPServerSocket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          // The default port might be busy, so we try different ports
+          // before reporting failure.
+          if (serverPort < serverPortMax)
+            pingPong(++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var client = new api.TCPSocket("127.0.0.1", serverPort);
+
+          client.onerror = function() {
+            reportFail("Not able to connect to port " + serverPort + ".");
+          };
+
+          client.ondata = function(event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by the client socket.");
+            else
+              client.send(testData);
+          };
+        };
+
+        server.onconnect = function(event) {
+          event.connectedSocket.send(testData);
+          event.connectedSocket.ondata = function (event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by server socket.");
+            else
+              runNextTest();
+          };
+        };
+      };
+
+      function serverPortBusy(serverPort) {
+        serverPort = serverPort || 7000;
+        var serverPortMax = 7020;
+
+        var server = new api.TCPServerSocket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          if (serverPort < serverPortMax)
+            serverPortBusy(++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var serverShouldFail = new api.TCPServerSocket(
+              {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+          // Should fail, port already in use by another server.
+          serverShouldFail.onerror = runNextTest();
+          serverShouldFail.onopen = function() {
+            reportFail("Port " + serverPort + " should be busy.");
+          };
+        };
+      };
+
+      runNextTest();
+    </script>
+  </body>
+</html>
