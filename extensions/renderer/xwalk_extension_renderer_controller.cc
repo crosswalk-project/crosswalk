@@ -29,8 +29,10 @@ namespace extensions {
 
 const GURL kAboutBlankURL = GURL("about:blank");
 
-XWalkExtensionRendererController::XWalkExtensionRendererController()
-    : shutdown_event_(false, false) {
+XWalkExtensionRendererController::XWalkExtensionRendererController(
+    Delegate* delegate)
+    : shutdown_event_(false, false),
+      delegate_(delegate) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
   // TODO(cmarcelo): Once we have a better solution for the internal
@@ -55,6 +57,8 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+
+  delegate_->DidCreateModuleSystem(module_system);
 
   in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
       module_system);

@@ -31,13 +31,22 @@ namespace xwalk {
 namespace extensions {
 
 class XWalkExtensionClient;
+class XWalkModuleSystem;
 
 // Renderer controller for XWalk extensions keeps track of the extensions
 // registered into the system. It also watches for new render views to attach
 // the extensions handlers to them.
 class XWalkExtensionRendererController : public content::RenderProcessObserver {
  public:
-  XWalkExtensionRendererController();
+  struct Delegate {
+    // Allows external code to register extra modules to the module
+    // system. It will be called for every module system created.
+    virtual void DidCreateModuleSystem(XWalkModuleSystem* module_system) = 0;
+   protected:
+    ~Delegate() {}
+  };
+
+  explicit XWalkExtensionRendererController(Delegate* delegate);
   virtual ~XWalkExtensionRendererController();
 
   // To be called in XWalkContentRendererClient so we can create and
@@ -60,6 +69,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
 
   base::WaitableEvent shutdown_event_;
   scoped_ptr<IPC::SyncChannel> extension_process_channel_;
+  Delegate* delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionRendererController);
 };

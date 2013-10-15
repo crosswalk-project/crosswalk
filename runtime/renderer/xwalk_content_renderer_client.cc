@@ -8,7 +8,6 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
 namespace xwalk {
 
@@ -30,7 +29,8 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
-  extension_controller_.reset(new extensions::XWalkExtensionRendererController);
+  extension_controller_.reset(
+      new extensions::XWalkExtensionRendererController(this));
 
   WebKit::WebString application_scheme(
       ASCIIToUTF16(application::kApplicationScheme));
@@ -48,5 +48,8 @@ void XWalkContentRendererClient::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
   extension_controller_->WillReleaseScriptContext(frame, context);
 }
+
+void XWalkContentRendererClient::DidCreateModuleSystem(
+    extensions::XWalkModuleSystem* module_system) {}
 
 }  // namespace xwalk
