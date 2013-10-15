@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.chromium.content.browser.test.util.CallbackHelper;
+import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageFinishedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
@@ -20,11 +21,13 @@ class TestXWalkViewContentsClient extends NullContentsClient {
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
+    private final OnEvaluateJavaScriptResultHelper mOnEvaluateJavaScriptResultHelper;
 
     public TestXWalkViewContentsClient() {
         mOnPageStartedHelper = new OnPageStartedHelper();
         mOnPageFinishedHelper = new OnPageFinishedHelper();
         mOnReceivedErrorHelper = new OnReceivedErrorHelper();
+        mOnEvaluateJavaScriptResultHelper = new OnEvaluateJavaScriptResultHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -37,6 +40,10 @@ class TestXWalkViewContentsClient extends NullContentsClient {
 
     public OnReceivedErrorHelper getOnReceivedErrorHelper() {
         return mOnReceivedErrorHelper;
+    }
+
+    public OnEvaluateJavaScriptResultHelper getOnEvaluateJavaScriptResultHelper() {
+        return mOnEvaluateJavaScriptResultHelper;
     }
 
     @Override

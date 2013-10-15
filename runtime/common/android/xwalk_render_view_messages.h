@@ -74,6 +74,9 @@ IPC_MESSAGE_ROUTED0(XWalkViewMsg_ResetScrollAndScaleState)
 IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetInitialPageScale,
                     double /* page_scale_factor */)
 
+// Set the Javascript online property for network availability change.
+IPC_MESSAGE_CONTROL1(XWalkViewMsg_SetJsOnlineProperty, bool /* network_up */)
+
 //-----------------------------------------------------------------------------
 // RenderView messages
 // These are messages sent from the renderer to the browser process.

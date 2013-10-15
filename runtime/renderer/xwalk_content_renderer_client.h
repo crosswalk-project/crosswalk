@@ -13,6 +13,8 @@
 
 namespace xwalk {
 
+class XWalkRenderProcessObserver;
+
 class XWalkContentRendererClient
     : public content::ContentRendererClient,
       public extensions::XWalkExtensionRendererController::Delegate {
@@ -38,6 +40,10 @@ class XWalkContentRendererClient
 
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
+
+#if defined(OS_ANDROID)
+  scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);
 };

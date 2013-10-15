@@ -213,6 +213,8 @@
             'runtime/common/android/xwalk_render_view_messages.h',
             'runtime/renderer/android/xwalk_render_view_ext.cc',
             'runtime/renderer/android/xwalk_render_view_ext.h',
+            'runtime/renderer/xwalk_render_process_observer.cc',
+            'runtime/renderer/xwalk_render_process_observer.h',
           ],
           'dependencies':[
             'xwalk_core_jar_jni',
