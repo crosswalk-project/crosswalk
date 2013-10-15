@@ -56,6 +56,10 @@ public class XWalkExtensionManager {
         mXwalkProvider.postMessage(extension, instanceID, message);
     }
 
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        mXwalkProvider.broadcastMessage(extension, message);
+    }
+
     public Object registerExtension(XWalkExtension extension) {
         mExtensions.add(extension);
         return mXwalkProvider.onExtensionRegistered(extension);

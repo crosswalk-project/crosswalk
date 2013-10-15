@@ -30,6 +30,7 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
     private Method mGetExtensionName;
     private Method mGetJsApi;
     private Method mPostMessage;
+    private Method mBroadcastMessage;
 
     protected XWalkExtensionContextClient mContext;
 
@@ -42,6 +43,7 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
         mGetExtensionName = lookupMethod("getExtensionName");
         mGetJsApi = lookupMethod("getJsApi");
         mPostMessage = lookupMethod("postMessage", String.class);
+        mBroadcastMessage = lookupMethod("broadcastMessage", String.class);
     }
 
     /**
@@ -113,5 +115,15 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
      */
     public final void postMessage(int extensionInstanceID, String message) {
         invokeMethod(mPostMessage, mInstance, extensionInstanceID, message);
+    }
+
+    /**
+     * Broadcast messages to JavaScript via extension's context.
+     * It's used by child classes to broadcast message from Java side
+     * to all JavaScript side instances of the extension.
+     * @param message the message to be passed to Javascript.
+     */
+    public final void broadcastMessage(String message) {
+        invokeMethod(mBroadcastMessage, mInstance, message);
     }
 }

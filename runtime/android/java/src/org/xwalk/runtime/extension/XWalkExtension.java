@@ -88,6 +88,16 @@ public abstract class XWalkExtension {
     }
 
     /**
+     * Broadcast messages to JavaScript via extension's context.
+     * It's used by child classes to broad message from Java side
+     * to all JavaScript side instances of the extension.
+     * @param message the message to be passed to Javascript.
+     */
+    public void broadcastMessage(String message) {
+        mExtensionContext.broadcastMessage(this, message);
+    }
+
+    /**
      * Called when this app is onResume.
      */
     public void onResume() {

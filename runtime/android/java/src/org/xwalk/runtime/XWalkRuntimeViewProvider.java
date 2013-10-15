@@ -95,6 +95,12 @@ public abstract class XWalkRuntimeViewProvider {
      */
     public abstract void postMessage(XWalkExtension extension, int instanceID, String message);
 
+    /**
+     * Broadcast message from runtime extension system to native and then to JavaScript.
+     * It means Java side will post the message to all instances of the extension.
+     */
+    public abstract void broadcastMessage(XWalkExtension extension, String message);
+
     // For instrumentation test.
     public abstract String getTitleForTest();
     public abstract void setCallbackForTest(Object callback);
