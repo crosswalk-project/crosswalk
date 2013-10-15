@@ -128,13 +128,6 @@ void XWalkModuleSystem::RegisterExtensionModule(
   extension_modules_[extension_name] = module.release();
 }
 
-XWalkExtensionModule* XWalkModuleSystem::GetExtensionModule(
-    const std::string& extension_name) {
-  ExtensionModuleMap::iterator it = extension_modules_.find(extension_name);
-  CHECK(it != extension_modules_.end());
-  return it->second;
-}
-
 void XWalkModuleSystem::RegisterNativeModule(
     const std::string& name, scoped_ptr<XWalkNativeModule> module) {
   CHECK(native_modules_.find(name) == native_modules_.end());
