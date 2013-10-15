@@ -1,0 +1,23 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  if (outer.value !== true) {
+    console.log("outer.value is not true!");
+    document.title = "Fail";
+  } else if (outer.inner.value !== true) {
+    console.log("outer.inner.value is not true!");
+    document.title = "Fail";
+  } else {
+    document.title = "Pass";
+  }
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>
