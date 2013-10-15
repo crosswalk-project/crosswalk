@@ -118,6 +118,7 @@
     ],
     'includes': [
       'extensions/extensions_browsertests.gypi',
+      'sysapps/sysapps_browsertests.gypi',
       'xwalk_jsapi.gypi',
     ],
     'conditions': [
