@@ -121,7 +121,7 @@ void XWalkContentBrowserClient::RenderProcessHostCreated(
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
-  return NULL; // XWalkMediaCaptureDevicesDispatcher::GetInstance();
+  return XWalkMediaCaptureDevicesDispatcher::GetInstance();
 }
 
 #if defined(OS_ANDROID)
