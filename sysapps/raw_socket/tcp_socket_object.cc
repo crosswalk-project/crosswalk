@@ -29,6 +29,22 @@ TCPSocketObject::TCPSocketObject()
       write_buffer_(new net::IOBuffer(kBufferSize)),
       resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
       single_resolver_(new net::SingleRequestHostResolver(resolver_.get())) {
+  RegisterHandlers();
+}
+
+TCPSocketObject::TCPSocketObject(scoped_ptr<net::StreamSocket> socket)
+    : has_write_pending_(false),
+      is_suspended_(false),
+      is_half_closed_(false),
+      read_buffer_(new net::IOBuffer(kBufferSize)),
+      write_buffer_(new net::IOBuffer(kBufferSize)),
+      socket_(socket.release()) {
+  RegisterHandlers();
+}
+
+TCPSocketObject::~TCPSocketObject() {}
+
+void TCPSocketObject::RegisterHandlers() {
   handler_.Register("init",
       base::Bind(&TCPSocketObject::OnInit, base::Unretained(this)));
   handler_.Register("_close",
@@ -42,8 +58,6 @@ TCPSocketObject::TCPSocketObject()
   handler_.Register("_sendString",
       base::Bind(&TCPSocketObject::OnSendString, base::Unretained(this)));
 }
-
-TCPSocketObject::~TCPSocketObject() {}
 
 void TCPSocketObject::DoRead() {
   if (!socket_->IsConnected())
@@ -59,6 +73,11 @@ void TCPSocketObject::DoRead() {
 }
 
 void TCPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  if (socket_) {
+    DoRead();
+    return;
+  }
+
   scoped_ptr<Init::Params> params(Init::Params::Create(*info->arguments()));
   if (!params) {
     LOG(WARNING) << "Malformed parameters passed to " << info->name();
