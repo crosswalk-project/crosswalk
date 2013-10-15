@@ -37,4 +37,8 @@ namespace raw_socket {
     long bufferedAmount;
     ReadyState readyState;
   };
+
+  interface Functions {
+    [nodoc] static TCPSocket TCPSocketConstructor(DOMString objectId);
+  };
 };

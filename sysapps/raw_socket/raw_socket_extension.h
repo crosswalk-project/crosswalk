@@ -13,6 +13,8 @@ namespace xwalk {
 namespace sysapps {
 
 using extensions::XWalkExtension;
+using extensions::XWalkExtensionFunctionHandler;
+using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 
 class RawSocketExtension : public XWalkExtension {
@@ -29,7 +31,13 @@ class RawSocketInstance : public XWalkExtensionInstance {
   RawSocketInstance();
 
   // XWalkExtensionInstance implementation.
-  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+
+ private:
+  void OnTCPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
+
+  XWalkExtensionFunctionHandler handler_;
+  BindingObjectStore store_;
 };
 
 }  // namespace sysapps

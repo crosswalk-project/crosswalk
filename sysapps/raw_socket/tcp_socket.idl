@@ -1,0 +1,46 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// RawSocket API - TCPSocket
+namespace tcp_socket {
+  dictionary TCPOptions {
+    DOMString localAddress;
+    long localPort;
+    boolean addressReuse;
+    boolean noDelay;
+    boolean useSecureTransport;
+  };
+
+  interface Events {
+    static void ondrain();
+    static void onopen();
+    static void onclose();
+    static void onhalfclose();
+    static void onerror();
+    static void ondata();
+  };
+
+  interface Functions {
+    static void close();
+    static void halfclose();
+    static void suspend();
+    static void resume();
+
+    [nocompile] static boolean send(object data);
+
+    // send() can take up to four different types of arguments. We try to
+    // detect what kind of argument we have and route to a more specialized
+    // handler.
+
+    [nodoc] static boolean sendDOMString(DOMString data);
+    [nodoc] static boolean sendBlob([instanceOf=Blob] object data);
+    [nodoc] static boolean sendArrayBuffer(ArrayBuffer data);
+    [nodoc] static boolean sendArrayBufferView([instanceOf=ArrayBufferView] object data);
+
+    [nodoc] static void init(DOMString remoteAddress,
+                             long remotePort,
+                             optional TCPOptions options);
+    [nodoc] static void destroy();
+  };
+};
