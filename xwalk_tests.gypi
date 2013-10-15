@@ -56,6 +56,7 @@
     ],
     'includes': [
       'extensions/extensions_unittests.gypi',
+      'sysapps/sysapps_unittests.gypi',
     ],
     'sources': [
       'application/browser/installer/xpk_extractor_unittest.cc',
