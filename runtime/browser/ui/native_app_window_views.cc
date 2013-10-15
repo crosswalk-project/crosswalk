@@ -56,16 +56,18 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.show_state = create_params.state;
 #if defined(OS_TIZEN_MOBILE)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
+  // On Tizen apps are sized to the work area.
+  gfx::Rect bounds = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
+  params.bounds = bounds;
 #else
   params.type = views::Widget::InitParams::TYPE_WINDOW;
-#endif
   params.bounds = create_params.bounds;
+#endif
 
   window_->Init(params);
 
 #if defined(OS_TIZEN_MOBILE)
-  // On Tizen apps are sized to the work area. Set manually to avoid inset.
-  gfx::Rect bounds = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
+  // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
 #else
   window_->CenterWindow(create_params.bounds.size());
