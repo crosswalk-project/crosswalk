@@ -17,7 +17,7 @@
 extern const char kSource_internal_extension_browsertest_api[];
 
 using namespace xwalk::extensions; // NOLINT
-using namespace xwalk::jsapi_test::test; // NOLINT
+using namespace xwalk::jsapi::test; // NOLINT
 
 TestExtension::TestExtension() {
   set_name("test");
