@@ -1,0 +1,256 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var v8tools = sysapps_common_test.v8tools;
+      var api = sysapps_common_test;
+
+      var globalTestObject = new api.TestObject();
+      globalTestObject.eventCount = 0;
+
+      var current_test = 0;
+      var test_list = [
+        propertyVisibility,
+        memoryManagement,
+        addEventListener,
+        removeEventListener,
+        endTest
+      ];
+
+      function runNextTest() {
+        setTimeout(test_list[current_test++](), 0);
+      };
+
+      function reportFail(message) {
+        console.log(message);
+        document.title = "Fail";
+      };
+
+      function endTest() {
+        document.title = "Pass";
+      };
+
+      function checkEvent(event) {
+        if (event.type != "test")
+          reportFail("Mismatched parameter type.");
+
+        if (event.data != "Lorem ipsum")
+          reportFail("Mismatched parameter data.");
+      };
+
+      function foo(event) {
+        checkEvent(event);
+        globalTestObject.eventCount++;
+      };
+
+      function bar(event) {
+        checkEvent(event);
+        globalTestObject.eventCount++;
+      };
+
+      function propertyVisibility() {
+        var exposedProperties = [
+          "isTestEventActive",
+          "fireTestEvent",
+          "dispatchEvent",
+          "addEventListener",
+          "removeEventListener",
+          "ontest",
+        ];
+
+        var testObject = new api.TestObject();
+        for (k in testObject) {
+          if (exposedProperties.indexOf(k) == -1) {
+            reportFail("Property " + k + " should not be visible.");
+            return;
+          }
+        }
+
+        runNextTest();
+      };
+
+      function memoryManagement() {
+        var garbageCollectionCount = 0;
+
+        var testObject = new api.TestObject();
+        testObject.tracker = v8tools.lifecycleTracker();
+        testObject.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        testObject = null;
+        gc();
+
+        if (garbageCollectionCount != 1) {
+          reportFail("EventTarget is leaking.");
+          return;
+        }
+
+        testObject = new api.TestObject();
+        testObject.tracker = v8tools.lifecycleTracker();
+        testObject.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        // This essentially causes a leak.
+        testObject.addEventListener("test", foo);
+        testObject = null;
+        gc();
+
+        if (garbageCollectionCount != 1) {
+          reportFail("Object should not be gc'ed when listening for events.");
+          return;
+        }
+
+        testObject = new api.TestObject();
+        testObject.tracker = v8tools.lifecycleTracker();
+        testObject.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        // Another expected way of leaking an object.
+        testObject.ontest = function() {};
+        testObject = null;
+        gc();
+
+        if (garbageCollectionCount != 1) {
+          reportFail("Object should not be gc'ed when listening for events.");
+          return;
+        }
+
+        testObject = new api.TestObject();
+        testObject.tracker = v8tools.lifecycleTracker();
+        testObject.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        testObject.addEventListener("test", bar);
+        testObject.removeEventListener("test", bar);
+        testObject = null;
+        gc();
+
+        if (garbageCollectionCount != 2) {
+          reportFail("Object should be collected when listeners are removed.");
+          return;
+        }
+
+        testObject = new api.TestObject();
+        testObject.tracker = v8tools.lifecycleTracker();
+        testObject.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        // Save a reference to the id so we can verify
+        // later if it was really deleted in the backend.
+        var object_id = testObject._id;
+
+        testObject.ontest = function() {};
+        testObject.ontest = null;
+        testObject = null;
+        gc();
+
+        if (garbageCollectionCount != 3) {
+          reportFail("Object should be collected when listeners are removed.");
+          return;
+        }
+
+        api.hasObject(object_id, function(result) {
+          if (result == true) {
+            reportFail("Object not removed from the backend.");
+            return;
+          };
+
+          runNextTest();
+        });
+      };
+
+      function addEventListener() {
+        var testObject = globalTestObject;
+
+        // Should do nothing, event doesn't exist.
+        testObject.addEventListener("test1", foo);
+        testObject.addEventListener("test2", foo);
+        testObject.addEventListener("test3", foo);
+
+        testObject.addEventListener("test", foo);
+        // Should not be added again.
+        testObject.addEventListener("test", foo);
+        testObject.addEventListener("test", bar);
+        testObject.ontest = function(event) {
+          checkEvent(event);
+          testObject.eventCount++
+        };
+
+        testObject.dispatchEvent({ type: "test", data: "Lorem ipsum"});
+
+        if (testObject.eventCount != 3) {
+          reportFail("Error dispatching events from JavaScript side.");
+          return;
+        }
+
+        testObject.fireTestEvent(function() {
+          if (testObject.eventCount != 6) {
+            reportFail("Error dispatching events from native side.");
+            return;
+          }
+
+          testObject.isTestEventActive(checkTestEventActive);
+        });
+
+        function checkTestEventActive(is_active) {
+          if (!is_active) {
+            reportFail("Error activating event in the backend.");
+            return;
+          }
+
+          runNextTest();
+        };
+      };
+
+      function removeEventListener() {
+        var testObject = globalTestObject;
+
+        // Should do nothing, event doesn't exist.
+        testObject.removeEventListener("test1", foo);
+        testObject.removeEventListener("test2", foo);
+        testObject.removeEventListener("test3", foo);
+
+        testObject.removeEventListener("test", foo);
+        testObject.removeEventListener("test", bar);
+        // Second unregistering should have no effect.
+        testObject.removeEventListener("test", bar);
+        testObject.ontest = null;
+
+        testObject.dispatchEvent({ type: "test", data: "Lorem ipsum"});
+        if (testObject.eventCount != 6) {
+          reportFail("Error unregistering events.");
+          return;
+        }
+
+        // Should not crash neither fire events.
+        testObject.fireTestEvent(function() {
+          if (testObject.eventCount != 6) {
+            reportFail("Error unregistering events.");
+            return;
+          }
+
+          testObject.isTestEventActive(checkTestEventActive);
+        });
+
+        function checkTestEventActive(is_active) {
+          if (is_active) {
+            reportFail("Error deactivating event in the backend.");
+            return;
+          }
+
+          runNextTest();
+        };
+      };
+
+      // Tests entry point.
+      runNextTest();
+    </script>
+  </body>
+</html>
