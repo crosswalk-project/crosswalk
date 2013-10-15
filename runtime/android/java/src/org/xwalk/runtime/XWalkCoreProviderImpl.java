@@ -112,4 +112,17 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
         XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
         bridge.postMessage(message);
     }
+
+    // For instrumentation test.
+    @Override
+    public String getTitleForTest() {
+        return mXwalkView.getTitle();
+    }
+
+    @Override
+    public void setCallbackForTest(Object callback) {
+        XWalkClientForTest clientForTest = new XWalkClientForTest(mContext, mXwalkView);
+        clientForTest.setCallbackForTest(callback);
+        mXwalkView.setXWalkClient(clientForTest);
+    }
 }

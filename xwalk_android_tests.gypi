@@ -197,6 +197,11 @@
         'apk_name': 'XWalkRuntimeClientShell',
         'java_in_dir': 'app/android/runtime_client_shell',
         'resource_dir': 'app/android/runtime_client_shell/res',
+        'additional_input_paths': [
+          '<(asset_location)/index.html',
+          '<(asset_location)/sampapp-icon-helloworld.png',
+        ],
+        'asset_location': 'app/android/runtime_client_shell/assets',
       },
       'includes': [ '../build/java_apk.gypi' ],
     },
@@ -224,10 +229,22 @@
         'resource_dir': 'app/android/runtime_client_embedded_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/xwalk.pak',
         ],
         'asset_location': '<(ant_build_out)/xwalk_runtime_client_embedded_shell/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
+          'files': ['<(java_in_dir)/assets/sampapp-icon-helloworld.png'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
+          'files': ['<(java_in_dir)/assets/index.html'],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
@@ -259,6 +276,51 @@
       'variables': {
         'apk_name': 'XWalkRuntimeTest',
         'java_in_dir': 'test/android/runtime/javatests',
+        'is_test_apk': 1,
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_client_test_apk',
+      'type': 'none',
+      'dependencies': [
+        '../base/base.gyp:base_java_test_support',
+        '../content/content.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        'xwalk_core_shell_apk_java',
+        'xwalk_runtime_client_shell_apk_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeClientTest',
+        'java_in_dir': 'test/android/runtime_client/javatests',
+        'is_test_apk': 1,
+      },
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_client_embedded_shell_apk_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_runtime_client_embedded_shell_apk',
+      ],
+      'includes': [ '../build/apk_fake_jar.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_runtime_client_embedded_test_apk',
+      'type': 'none',
+      'dependencies': [
+        '../base/base.gyp:base_java_test_support',
+        '../content/content.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        'xwalk_runtime_client_embedded_shell_apk_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkRuntimeClientEmbeddedTest',
+        'java_in_dir': 'test/android/runtime_client_embedded/javatests',
         'is_test_apk': 1,
       },
       'includes': [ '../build/java_apk.gypi' ],

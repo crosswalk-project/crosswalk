@@ -20,8 +20,8 @@
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
         </activity>
-        <activity android:name="org.xwalk.runtime.test.XWalkRuntimeTestRunnerActivity"
-            android:label="XWalkRuntimeTestRunnerActivity">
+        <activity android:name="org.xwalk.runtime.client.embedded.test.XWalkRuntimeClientTestRunnerActivity"
+            android:label="XWalkRuntimeClientTestRunnerActivity">
           <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
