@@ -10,7 +10,7 @@
 
 #include "base/memory/ref_counted.h"
 #include "xwalk/application/common/application.h"
-#include "xwalk/application/common/db_store_json_impl.h"
+#include "xwalk/application/common/db_store_sqlite_impl.h"
 
 namespace xwalk {
 class Runtime;
@@ -22,7 +22,7 @@ namespace application {
 
 class ApplicationStore: public DBStore::Observer {
  public:
-  typedef DBStoreJsonImpl DBStoreImpl;
+  typedef DBStoreSqliteImpl DBStoreImpl;
   typedef std::map<std::string, scoped_refptr<const Application> >
       ApplicationMap;
   typedef std::map<std::string, scoped_refptr<const Application> >::iterator

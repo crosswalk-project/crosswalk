@@ -12,6 +12,7 @@ namespace xwalk {
 namespace application_packageinfo_constants {
   extern const base::FilePath::CharType kAppDir[];
   extern const base::FilePath::CharType kAppDBPath[];
+  extern const base::FilePath::CharType kAppDBJournalPath[];
   extern const base::FilePath::CharType kIconDir[];
   extern const base::FilePath::CharType kXmlDir[];
   extern const base::FilePath::CharType kXwalkPath[];

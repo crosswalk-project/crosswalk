@@ -12,6 +12,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_request_info.h"
 #include "url/url_util.h"
@@ -130,7 +131,8 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       const base::FilePath& directory_path,
       const base::FilePath& relative_path,
       bool is_authority_match)
-      : net::URLRequestFileJob(request, network_delegate, base::FilePath(), file_task_runner),
+      : net::URLRequestFileJob(
+          request, network_delegate, base::FilePath(), file_task_runner),
       resource_(application_id, directory_path, relative_path),
       relative_path_(relative_path),
       is_authority_match_(is_authority_match),
