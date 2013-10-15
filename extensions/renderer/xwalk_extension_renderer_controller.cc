@@ -18,7 +18,6 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
-#include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
 // This will be generated from xwalk_api.js.
@@ -49,6 +48,24 @@ XWalkExtensionRendererController::~XWalkExtensionRendererController() {
   // content::RenderThread::Get()->RemoveObserver(this);
 }
 
+namespace {
+
+void CreateExtensionModules(XWalkExtensionClient* client,
+                            XWalkModuleSystem* module_system) {
+  const XWalkExtensionClient::ExtensionAPIMap& extensions =
+      client->extension_apis();
+  XWalkExtensionClient::ExtensionAPIMap::const_iterator it = extensions.begin();
+  for (; it != extensions.end(); ++it) {
+    if (it->second.empty())
+      continue;
+    scoped_ptr<XWalkExtensionModule> module(
+        new XWalkExtensionModule(client, module_system, it->first, it->second));
+    module_system->RegisterExtensionModule(module.Pass());
+  }
+}
+
+}  // namespace
+
 void XWalkExtensionRendererController::DidCreateScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
@@ -60,11 +77,15 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   delegate_->DidCreateModuleSystem(module_system);
 
-  in_browser_process_extensions_client_->CreateRunnersForModuleSystem(
-      module_system);
+  CreateExtensionModules(in_browser_process_extensions_client_.get(),
+                         module_system);
 
-  if (external_extensions_client_)
-    external_extensions_client_->CreateRunnersForModuleSystem(module_system);
+  if (external_extensions_client_) {
+    CreateExtensionModules(external_extensions_client_.get(),
+                           module_system);
+  }
+
+  module_system->Initialize();
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(

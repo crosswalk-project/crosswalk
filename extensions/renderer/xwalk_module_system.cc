@@ -125,14 +125,6 @@ void XWalkModuleSystem::RegisterExtensionModule(
     scoped_ptr<XWalkExtensionModule> module) {
   const std::string& extension_name = module->extension_name();
   CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
-  // TODO(cmarcelo): Setup lazy loader instead of immediatly running
-  // JS API code.
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::FunctionTemplate> require_native_template =
-      v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
-  module->LoadExtensionCode(GetV8Context(),
-                            require_native_template->GetFunction());
   extension_modules_[extension_name] = module.release();
 }
 
@@ -155,6 +147,22 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
   if (it == native_modules_.end())
     return v8::Handle<v8::Object>();
   return it->second->NewInstance();
+}
+
+void XWalkModuleSystem::Initialize() {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+
+  v8::Handle<v8::Context> context = GetV8Context();
+  v8::Handle<v8::FunctionTemplate> require_native_template =
+      v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
+  v8::Handle<v8::Function> require_native =
+      require_native_template->GetFunction();
+
+  // TODO(cmarcelo): Setup lazy loader instead of always running JS API code.
+  ExtensionModuleMap::iterator it = extension_modules_.begin();
+  for (; it != extension_modules_.end(); ++it)
+    it->second->LoadExtensionCode(context, require_native);
 }
 
 v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {

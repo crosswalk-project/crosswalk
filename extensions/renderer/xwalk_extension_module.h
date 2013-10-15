@@ -6,8 +6,8 @@
 #define XWALK_EXTENSIONS_RENDERER_XWALK_EXTENSION_MODULE_H_
 
 #include <string>
+#include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
-#include "xwalk/extensions/renderer/xwalk_remote_extension_runner.h"
 
 namespace WebKit {
 class WebFrame;
@@ -20,6 +20,7 @@ class V8ValueConverter;
 namespace xwalk {
 namespace extensions {
 
+class XWalkExtensionClient;
 class XWalkModuleSystem;
 
 // Responsible for running the JS code of a XWalkExtension. This includes
@@ -28,9 +29,10 @@ class XWalkModuleSystem;
 //
 // We'll create one XWalkExtensionModule per extension/frame pair, so
 // there'll be a set of different modules per v8::Context.
-class XWalkExtensionModule : public XWalkRemoteExtensionRunner::Client {
+class XWalkExtensionModule : public XWalkExtensionClient::InstanceHandler {
  public:
-  XWalkExtensionModule(XWalkModuleSystem* module_system,
+  XWalkExtensionModule(XWalkExtensionClient* client,
+                       XWalkModuleSystem* module_system,
                        const std::string& extension_name,
                        const std::string& extension_code);
   virtual ~XWalkExtensionModule();
@@ -41,12 +43,9 @@ class XWalkExtensionModule : public XWalkRemoteExtensionRunner::Client {
                          v8::Handle<v8::Function> requireNative);
 
   std::string extension_name() const { return extension_name_; }
-  void set_runner(XWalkRemoteExtensionRunner* runner) {
-    runner_ = runner;
-  }
 
  private:
-  // XWalkRemoteExtensionRunner::Client implementation.
+  // XWalkExtensionClient::InstanceHandler implementation.
   virtual void HandleMessageFromNative(const base::Value& msg) OVERRIDE;
 
   // Callbacks for JS functions available in 'extension' object.
@@ -78,8 +77,9 @@ class XWalkExtensionModule : public XWalkRemoteExtensionRunner::Client {
   // parameters.
   scoped_ptr<content::V8ValueConverter> converter_;
 
+  XWalkExtensionClient* client_;
   XWalkModuleSystem* module_system_;
-  XWalkRemoteExtensionRunner* runner_;
+  int64_t instance_id_;
 };
 
 }  // namespace extensions
