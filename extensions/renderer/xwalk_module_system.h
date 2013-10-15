@@ -5,8 +5,9 @@
 #ifndef XWALK_EXTENSIONS_RENDERER_XWALK_MODULE_SYSTEM_H_
 #define XWALK_EXTENSIONS_RENDERER_XWALK_MODULE_SYSTEM_H_
 
-#include <string>
 #include <map>
+#include <vector>
+#include <string>
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
 
@@ -55,8 +56,21 @@ class XWalkModuleSystem {
   v8::Handle<v8::Context> GetV8Context();
 
  private:
-  typedef std::map<std::string, XWalkExtensionModule*> ExtensionModuleMap;
-  ExtensionModuleMap extension_modules_;
+  bool ContainsExtensionModule(const std::string& name);
+  void DeleteExtensionModules();
+
+  struct ExtensionModuleEntry {
+    ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module)
+        : name(name), module(module) {}
+    std::string name;
+    XWalkExtensionModule* module;
+    bool operator<(const ExtensionModuleEntry& other) const {
+      return name < other.name;
+    }
+  };
+
+  typedef std::vector<ExtensionModuleEntry> ExtensionModules;
+  ExtensionModules extension_modules_;
 
   typedef std::map<std::string, XWalkNativeModule*> NativeModuleMap;
   NativeModuleMap native_modules_;
