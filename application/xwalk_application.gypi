@@ -49,6 +49,13 @@
         'common/db_store_json_impl.cc',
         'common/db_store_json_impl.h',
       ],
+      'conditions': [
+        [ 'tizen_mobile == 1', {
+          'dependencies': [
+            'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
+          ],
+        }],
+      ],
       'include_dirs': [
         '../..',
       ],
