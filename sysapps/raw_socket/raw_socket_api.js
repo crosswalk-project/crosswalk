@@ -153,4 +153,101 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
 TCPSocket.prototype = new common.EventTargetPrototype();
 TCPSocket.prototype.constructor = TCPSocket;
 
+// TCPServerSocket interface.
+//
+// TODO(tmpsantos): We are currently not throwing any exceptions
+// neither validating the input parameters.
+//
+var TCPServerSocket = function(options) {
+  common.BindingObject.call(this, common.getUniqueId());
+  common.EventTarget.call(this);
+
+  internal.postMessage("TCPServerSocketConstructor", [this._id]);
+
+  options = options || {};
+
+  if (!options.localAddress)
+    options.localAddress = "127.0.0.1";
+  if (!options.localPort)
+    options.localPort = 1234;
+  if (!options.addressReuse)
+    options.addressReuse = true;
+  if (!options.useSecureTransport)
+    options.useSecureTransport = false;
+
+  this._addMethod("_close");
+  this._addMethod("suspend");
+  this._addMethod("resume");
+
+  // FIXME(tmpsantos): Get the real remote IP and port
+  // from the native backend.
+  function ConnectEvent(type, data) {
+    var object_id = data[0];
+    var options = data[1];
+
+    this.type = type;
+    this.connectedSocket = new TCPSocket(
+        options.localAddress, options.localPort, {}, object_id);
+  }
+
+  this._addEvent("open");
+  this._addEvent("connect", ConnectEvent);
+  this._addEvent("error");
+  this._addEvent("connecterror");
+
+  function closeWrapper(data) {
+    if (this._readyStateObserver.readyState = "closed")
+      return;
+
+    this._readyStateObserver.readyState = "closing";
+    this._close();
+  };
+
+  Object.defineProperties(this, {
+    "_readyStateObserver": {
+      value: new ReadyStateObserver(this._id, "opening"),
+    },
+    "_readyStateObserverDeleter": {
+      value: v8tools.lifecycleTracker(),
+    },
+    "close": {
+      value: closeWrapper,
+      enumerable: true,
+    },
+    "localAddress": {
+      value: options.localAddress,
+      enumerable: true,
+    },
+    "localPort": {
+      value: options.localPort,
+      enumerable: true,
+    },
+    "addressReuse": {
+      value: options.addressReuse,
+      enumerable: true,
+    },
+    "readyState": {
+      get: function() { return this._readyStateObserver.readyState; },
+      enumerable: true,
+    },
+  });
+
+  var watcher = this._readyStateObserver;
+  this._readyStateObserverDeleter.destructor = function() {
+    watcher.destructor();
+  };
+
+  function delayedInitialization(obj) {
+    obj._postMessage("init", [options]);
+  };
+
+  this._registerLifecycleTracker();
+  setTimeout(delayedInitialization, 0, this);
+};
+
+TCPServerSocket.prototype = new common.EventTargetPrototype();
+TCPServerSocket.prototype.constructor = TCPServerSocket;
+
+// Exported API.
 exports.TCPSocket = TCPSocket;
+exports.TCPServerSocket = TCPServerSocket;
