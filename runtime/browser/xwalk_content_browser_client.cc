@@ -102,7 +102,7 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
 
 content::QuotaPermissionContext*
 XWalkContentBrowserClient::CreateQuotaPermissionContext() {
-  return NULL; //new RuntimeQuotaPermissionContext();
+  return new RuntimeQuotaPermissionContext();
 }
 
 content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
