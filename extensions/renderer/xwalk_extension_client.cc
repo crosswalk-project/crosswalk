@@ -7,15 +7,13 @@
 #include "base/values.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/renderer/xwalk_extension_module.h"
-#include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 namespace xwalk {
 namespace extensions {
 
 XWalkExtensionClient::XWalkExtensionClient()
     : sender_(0),
-      next_instance_id_(0) {
+      next_instance_id_(1) {  // Zero is never used for a valid instance.
 }
 
 XWalkExtensionClient::~XWalkExtensionClient() {
@@ -27,21 +25,16 @@ bool XWalkExtensionClient::Send(IPC::Message* msg) {
   return sender_->Send(msg);
 }
 
-XWalkRemoteExtensionRunner* XWalkExtensionClient::CreateRunner(
+int64_t XWalkExtensionClient::CreateInstance(
     const std::string& extension_name,
-    XWalkRemoteExtensionRunner::Client* client) {
+    InstanceHandler* handler) {
+  CHECK(handler);
   if (!Send(new XWalkExtensionServerMsg_CreateInstance(next_instance_id_,
-    extension_name))) {
+                                                       extension_name))) {
     return 0;
   }
-
-  XWalkRemoteExtensionRunner* runner = new XWalkRemoteExtensionRunner(client,
-      this, next_instance_id_);
-
-  runners_[next_instance_id_] = runner;
-  next_instance_id_++;
-
-  return runner;
+  handlers_[next_instance_id_] = handler;
+  return next_instance_id_++;
 }
 
 bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
@@ -60,73 +53,55 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
 }
 
 void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
-    const base::ListValue& msg) {
-  RunnerMap::const_iterator it = runners_.find(instance_id);
-  if (it == runners_.end()) {
+                                             const base::ListValue& msg) {
+  HandlerMap::const_iterator it = handlers_.find(instance_id);
+  if (it == handlers_.end()) {
     LOG(WARNING) << "Can't PostMessage to invalid Extension instance id: "
-        << instance_id;
+                 << instance_id;
     return;
   }
 
-  if (!it->second) {
-    // See OnInstanceDestroyed(). This message could have arrived before
-    // we notified Server about its destruction, we can simply ignore it.
+  // See comment in DestroyInstance() about two step destruction.
+  if (!it->second)
     return;
-  }
 
   const base::Value* value;
   msg.Get(0, &value);
-  (it->second)->PostMessageToJS(*value);
+  it->second->HandleMessageFromNative(*value);
 }
 
 void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
-  RunnerMap::iterator it = runners_.find(instance_id);
-  if (it == runners_.end() || !it->second) {
+  HandlerMap::iterator it = handlers_.find(instance_id);
+  if (it == handlers_.end() || !it->second) {
     LOG(WARNING) << "Can't Destroy invalid instance id: " << instance_id;
     return;
   }
-
   Send(new XWalkExtensionServerMsg_DestroyInstance(instance_id));
 
-  delete it->second;
-  it->second = 0;
+  // Destruction happens in two steps, first we nullify the handler in our map,
+  // to indicate that destruction message was sent. If we get a new message from
+  // this instance, we can silently ignore. Later, we get a confirmation message
+  // from the server, only then we remove the entry from the map.
+  it->second = NULL;
 }
 
 void XWalkExtensionClient::OnInstanceDestroyed(int64_t instance_id) {
-  RunnerMap::iterator it = runners_.find(instance_id);
-  if (it == runners_.end()) {
+  HandlerMap::iterator it = handlers_.find(instance_id);
+  if (it == handlers_.end()) {
     LOG(WARNING) << "Got InstanceDestroyed msg for invalid instance id: "
-        << instance_id;
+                 << instance_id;
     return;
   }
 
-  // The runner should be invalid (NULL) at this point since it should have
-  // been destroyed in XWalkExtensionClient::DestroyInstance(). If we ever
-  // find out that the Server can kill the Instance and only after let us know
-  // then we should modify this to if(it->second) { delete it->second; }
+  // Second part of the two step destruction. See DestroyInstance() for details.
+  // The system currently assumes that we always control the destruction of
+  // instances.
   DCHECK(!it->second);
-
-  // Take it out from the valid runners map.
-  runners_.erase(it);
-}
-
-void XWalkExtensionClient::CreateRunnersForModuleSystem(XWalkModuleSystem*
-    module_system) {
-  // FIXME(cmarcelo): Load extensions sorted by name so parent comes first, so
-  // that we can safely register all them.
-  ExtensionAPIMap::const_iterator it = extension_apis_.begin();
-  for (; it != extension_apis_.end(); ++it) {
-    if (it->second.empty())
-      continue;
-    scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(module_system, it->first, it->second));
-    XWalkRemoteExtensionRunner* runner = CreateRunner(it->first, module.get());
-    module->set_runner(runner);
-    module_system->RegisterExtensionModule(module.Pass());
-  }
+  handlers_.erase(it);
 }
 
 namespace {
+
 // Regular base::Value doesn't have param traits, so can't be passed as is
 // through IPC. We wrap it in a base::ListValue that have traits before
 // exchanging.
