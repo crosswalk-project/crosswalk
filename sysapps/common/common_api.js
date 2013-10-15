@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-extension._setupExtensionInternal();
+// These variables are set by setupSysAppsCommon(). See comments on the function
+// for more details.
+var internal;
+var v8tools;
 
-var internal = extension._internal;
-var v8tools = requireNative("v8tools");
 var unique_id = 0;
 
 function getUniqueId() {
@@ -260,4 +261,30 @@ var EventTarget = function(object_id) {
   });
 };
 
-EventTargetPrototype.prototype = new BindingObjectPrototype();
+// This need to be called by every extension using the SysApps common
+// objects. The reason being we cannot call requireNative() inside a
+// module. A sample usage would be:
+//
+// var v8tools = requireNative('v8tools');
+// var internal = requireNative('internal');
+// internal.setupInternalExtension(extension);
+// var common = requireNative('sysapps_common');
+// common.setupSysAppsCommon(internal, v8tools);
+//
+exports.setupSysAppsCommon = function(internalObj, v8toolsObj) {
+  if (internal != null) {
+    return;
+  }
+
+  internal = internalObj;
+  v8tools = v8toolsObj;
+
+  EventTargetPrototype.prototype = new BindingObjectPrototype();
+
+  exports.getUniqueId = getUniqueId;
+
+  exports.BindingObject = BindingObject;
+  exports.BindingObjectPrototype = BindingObjectPrototype;
+  exports.EventTarget = EventTarget;
+  exports.EventTargetPrototype = EventTargetPrototype;
+};
