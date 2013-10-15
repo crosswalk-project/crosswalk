@@ -68,6 +68,7 @@
         '<(java_in_dir)/assets/echoSync.html',
         '<(java_in_dir)/assets/framesEcho.html',
         '<(java_in_dir)/assets/index.html',
+        '<(java_in_dir)/assets/navigator.online.html',
       ],
       'variables': {
         'apk_name': 'XWalkCoreTest',

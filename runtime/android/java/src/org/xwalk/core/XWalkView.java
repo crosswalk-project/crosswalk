@@ -145,6 +145,7 @@ public class XWalkView extends FrameLayout {
     }
 
     public void setNetworkAvailable(boolean networkUp) {
+        mContent.setNetworkAvailable(networkUp);
     }
 
     public void setInitialScale(int scaleInPercent) {

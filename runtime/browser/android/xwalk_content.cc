@@ -134,6 +134,12 @@ ScopedJavaLocalRef<jstring> XWalkContent::GetVersion(JNIEnv* env,
   return base::android::ConvertUTF8ToJavaString(env, XWALK_VERSION);
 }
 
+void XWalkContent::SetJsOnlineProperty(JNIEnv* env,
+                                       jobject obj,
+                                       jboolean network_up) {
+  render_view_host_ext_->SetJsOnlineProperty(network_up);
+}
+
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
     jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =

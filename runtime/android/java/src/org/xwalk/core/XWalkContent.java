@@ -227,6 +227,10 @@ public class XWalkContent extends FrameLayout {
         return nativeGetVersion(mXWalkContent);
     }
 
+    public void setNetworkAvailable(boolean networkUp) {
+        nativeSetJsOnlineProperty(mXWalkContent, networkUp);
+    }
+
     // For instrumentation test.
     public ContentViewCore getContentViewCoreForTest() {
         return mContentViewCore;
@@ -253,4 +257,5 @@ public class XWalkContent extends FrameLayout {
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(int nativeXWalkContent);
     private native String nativeGetVersion(int nativeXWalkContent);
+    private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
 }

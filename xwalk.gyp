@@ -204,6 +204,8 @@
             'runtime/common/android/xwalk_message_generator.h',
             'runtime/common/android/xwalk_render_view_messages.cc',
             'runtime/common/android/xwalk_render_view_messages.h',
+            'runtime/renderer/android/xwalk_render_process_observer.cc',
+            'runtime/renderer/android/xwalk_render_process_observer.h',
             'runtime/renderer/android/xwalk_render_view_ext.cc',
             'runtime/renderer/android/xwalk_render_view_ext.h',
           ],
