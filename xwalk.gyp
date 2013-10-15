@@ -140,6 +140,7 @@
       'includes': [
         'extensions/extensions.gypi',
         'experimental/dialog/dialog.gypi',
+        'sysapps/sysapps.gypi',
         'xwalk_jsapi.gypi',
       ],
       'msvs_settings': {
