@@ -97,6 +97,7 @@
       'dependencies': [
         'xwalk_app_template_apk',
         'xwalk_runtime_lib_apk',
+        'xwalk_core_embedded',
       ],
       'actions': [
         {
@@ -109,7 +110,7 @@
             '<(PRODUCT_DIR)/xwalk_app_template_1'
           ],
           'action': [
-          'python', 'tools/prepare.py',
+            'python', 'tools/prepare.py',
             '<(PRODUCT_DIR)/xwalk_app_template'
           ],
         },
