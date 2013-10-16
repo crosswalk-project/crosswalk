@@ -11,11 +11,12 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
 #include "url/gurl.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 
 namespace xwalk {
 
 namespace extensions {
-class XWalkExtensionService;
+class XWalkExtensionServer;
 }
 
 class RuntimeContext;
@@ -24,7 +25,8 @@ class RemoteDebuggingServer;
 
 void SetXWalkCommandLineFlags();
 
-class XWalkBrowserMainParts : public content::BrowserMainParts {
+class XWalkBrowserMainParts : public content::BrowserMainParts,
+    public extensions::XWalkExtensionService::Delegate {
  public:
   explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
@@ -38,6 +40,10 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
+
+  // XWalkExtensionService::Delegate overrides.
+  virtual void RegisterInternalExtensionsInServer(
+      extensions::XWalkExtensionServer* server) OVERRIDE;
 
 #if defined(OS_ANDROID)
   void SetRuntimeContext(RuntimeContext* context);
