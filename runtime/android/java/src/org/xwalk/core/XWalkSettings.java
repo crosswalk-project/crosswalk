@@ -32,8 +32,8 @@ public class XWalkSettings {
     private boolean mLoadsImagesAutomatically = true;
     private boolean mImagesEnabled = true;
     private boolean mJavaScriptEnabled = true;
-    private boolean mAllowUniversalAccessFromFileURLs = true;
-    private boolean mAllowFileAccessFromFileURLs = true;
+    private boolean mAllowUniversalAccessFromFileURLs = false;
+    private boolean mAllowFileAccessFromFileURLs = false;
     private boolean mJavaScriptCanOpenWindowsAutomatically = true;
     private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
