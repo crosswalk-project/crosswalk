@@ -1,0 +1,395 @@
+From f0482119e5cc8bd3b43dd581b2c26455218c8526 Mon Sep 17 00:00:00 2001
+From: "qing.zhang" <qing.zhang@intel.com>
+Date: Tue, 15 Oct 2013 23:30:23 -0400
+Subject: [PATCH] [Tizen] Enabling Hardware Acceleration with Libva and EGL in
+ VDA for Tizen Mobile within chromium v31.
+
+This patch need be applied manually before run GBS.
+---
+ .../gpu/media/gpu_video_decode_accelerator.cc      |   11 ++-
+ .../gpu/media/vaapi_video_decode_accelerator.cc    |   89 ++++++++++++++++++--
+ .../gpu/media/vaapi_video_decode_accelerator.h     |   15 +++-
+ content/content_common.gypi                        |   26 ++++++
+ content/gpu/gpu_main.cc                            |    6 +-
+ 5 files changed, 134 insertions(+), 13 deletions(-)
+
+diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
+index c5de2df..bfc48e1 100644
+--- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
++++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
+@@ -26,8 +26,10 @@
+ #include "content/common/gpu/media/dxva_video_decode_accelerator.h"
+ #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_ARMEL) && defined(USE_X11)
+ #include "content/common/gpu/media/exynos_video_decode_accelerator.h"
+-#elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
++#elif defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
++#if defined(OS_CHROMEOS)
+ #include "ui/gl/gl_context_glx.h"
++#endif
+ #include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
+ #elif defined(OS_ANDROID)
+ #include "content/common/gpu/media/android_video_decode_accelerator.h"
+@@ -242,6 +244,13 @@ void GpuVideoDecodeAccelerator::Initialize(
+   video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
+       glx_context->display(), glx_context_handle, this,
+       make_context_current_));
++#elif defined(OS_TIZEN_MOBILE) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
++    DLOG(INFO) << "Initializing VAAPI HW decoder for Tizen mobile.";
++    video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
++        gfx::GLSurfaceEGL::GetHardwareDisplay(),
++        stub_->decoder()->GetGLContext()->GetHandle(),
++        this,
++        make_context_current_));
+ #elif defined(OS_ANDROID)
+   video_decode_accelerator_.reset(new AndroidVideoDecodeAccelerator(
+       this,
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.cc b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+index cd18574..a3d8392 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.cc
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.cc
+@@ -74,7 +74,11 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+ 
+   static linked_ptr<TFPPicture> Create(
+       const base::Callback<bool(void)>& make_context_current,
++#if defined(OS_CHROMEOS)
+       const GLXFBConfig& fb_config,
++#elif defined(OS_TIZEN_MOBILE)
++      EGLDisplay egl_display,
++#endif
+       Display* x_display,
+       int32 picture_buffer_id,
+       uint32 texture_id,
+@@ -105,8 +109,11 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+              int32 picture_buffer_id,
+              uint32 texture_id,
+              gfx::Size size);
+-
++#if defined(OS_CHROMEOS)
+   bool Initialize(const GLXFBConfig& fb_config);
++#elif defined(OS_TIZEN_MOBILE)
++  bool Initialize(EGLDisplay egl_display);
++#endif
+ 
+   base::Callback<bool(void)> make_context_current_;
+ 
+@@ -120,8 +127,12 @@ class VaapiVideoDecodeAccelerator::TFPPicture {
+ 
+   // Pixmaps bound to this texture.
+   Pixmap x_pixmap_;
++#if defined(OS_CHROMEOS)
+   GLXPixmap glx_pixmap_;
+-
++#elif defined(OS_TIZEN_MOBILE)
++  EGLDisplay egl_display_;
++  EGLImageKHR egl_image_;
++#endif
+   DISALLOW_COPY_AND_ASSIGN(TFPPicture);
+ };
+ 
+@@ -137,14 +148,24 @@ VaapiVideoDecodeAccelerator::TFPPicture::TFPPicture(
+       texture_id_(texture_id),
+       size_(size),
+       x_pixmap_(0),
+-      glx_pixmap_(0) {
++#if defined(OS_CHROMEOS)
++      glx_pixmap_(0)
++#elif defined(OS_TIZEN_MOBILE)
++      egl_display_(0),
++      egl_image_(0)
++#endif
++    {
+   DCHECK(!make_context_current_.is_null());
+ };
+ 
+ linked_ptr<VaapiVideoDecodeAccelerator::TFPPicture>
+ VaapiVideoDecodeAccelerator::TFPPicture::Create(
+     const base::Callback<bool(void)>& make_context_current,
++#if defined(OS_CHROMEOS)
+     const GLXFBConfig& fb_config,
++#elif defined(OS_TIZEN_MOBILE)
++    EGLDisplay egl_display,
++#endif
+     Display* x_display,
+     int32 picture_buffer_id,
+     uint32 texture_id,
+@@ -154,14 +175,22 @@ VaapiVideoDecodeAccelerator::TFPPicture::Create(
+       new TFPPicture(make_context_current, x_display, picture_buffer_id,
+                      texture_id, size));
+ 
++#if defined(OS_CHROMEOS)
+   if (!tfp_picture->Initialize(fb_config))
++#elif defined(OS_TIZEN_MOBILE)
++  if (!tfp_picture->Initialize(egl_display))
++#endif
+     tfp_picture.reset();
+ 
+   return tfp_picture;
+ }
+ 
+ bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
++#if defined(OS_CHROMEOS)
+     const GLXFBConfig& fb_config) {
++#elif defined(OS_TIZEN_MOBILE)
++    EGLDisplay egl_display) {
++#endif
+   // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
+   DCHECK(ChildThread::current() == NULL ||
+       ChildThread::current()->message_loop() == base::MessageLoop::current());
+@@ -179,7 +208,7 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
+     DVLOG(1) << "Failed creating an X Pixmap for TFP";
+     return false;
+   }
+-
++#if defined(OS_CHROMEOS)
+   static const int pixmap_attr[] = {
+     GLX_TEXTURE_TARGET_EXT, GLX_TEXTURE_2D_EXT,
+     GLX_TEXTURE_FORMAT_EXT, GLX_TEXTURE_FORMAT_RGB_EXT,
+@@ -192,6 +221,20 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Initialize(
+     DVLOG(1) << "Failed creating a GLX Pixmap for TFP";
+     return false;
+   }
++#elif defined(OS_TIZEN_MOBILE)
++  egl_display_ = egl_display;
++  EGLint image_attrs[] = { EGL_IMAGE_PRESERVED_KHR, 1 , EGL_NONE };
++
++  egl_image_ = eglCreateImageKHR(egl_display_,
++                                EGL_NO_CONTEXT,
++                                EGL_NATIVE_PIXMAP_KHR,
++                                (EGLClientBuffer)x_pixmap_,
++                                image_attrs);
++  if (!egl_image_) {
++    DVLOG(1) << "Failed creating a EGLImage from Pixmap for KHR";
++    return false;
++  }
++#endif
+ 
+   return true;
+ }
+@@ -202,19 +245,30 @@ VaapiVideoDecodeAccelerator::TFPPicture::~TFPPicture() {
+       ChildThread::current()->message_loop() == base::MessageLoop::current());
+ 
+   // Unbind surface from texture and deallocate resources.
++#if defined(OS_CHROMEOS)
+   if (glx_pixmap_ && make_context_current_.Run()) {
+     glXReleaseTexImageEXT(x_display_, glx_pixmap_, GLX_FRONT_LEFT_EXT);
+     glXDestroyPixmap(x_display_, glx_pixmap_);
+   }
++#elif defined(OS_TIZEN_MOBILE)
++  if (egl_image_ && make_context_current_.Run()) {
++      eglDestroyImageKHR(egl_display_, egl_image_);
++  }
++#endif
+ 
+   if (x_pixmap_)
+     XFreePixmap(x_display_, x_pixmap_);
++  x_pixmap_ = 0;
+   XSync(x_display_, False);  // Needed to work around buggy vdpau-driver.
+ }
+ 
+ bool VaapiVideoDecodeAccelerator::TFPPicture::Bind() {
+   DCHECK(x_pixmap_);
++#if defined(OS_CHROMEOS)
+   DCHECK(glx_pixmap_);
++#elif defined(OS_TIZEN_MOBILE)
++  DCHECK(egl_image_);
++#endif
+   // Check for NULL prevents unittests from crashing on nonexistent ChildThread.
+   DCHECK(ChildThread::current() == NULL ||
+       ChildThread::current()->message_loop() == base::MessageLoop::current());
+@@ -223,8 +277,11 @@ bool VaapiVideoDecodeAccelerator::TFPPicture::Bind() {
+     return false;
+ 
+   gfx::ScopedTextureBinder texture_binder(GL_TEXTURE_2D, texture_id_);
++#if defined(OS_CHROMEOS)
+   glXBindTexImageEXT(x_display_, glx_pixmap_, GLX_FRONT_LEFT_EXT, NULL);
+-
++#elif defined(OS_TIZEN_MOBILE)
++  glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, egl_image_);
++#endif
+   return true;
+ }
+ 
+@@ -240,11 +297,21 @@ VaapiVideoDecodeAccelerator::TFPPicture*
+ }
+ 
+ VaapiVideoDecodeAccelerator::VaapiVideoDecodeAccelerator(
++#if defined(OS_CHROMEOS)
+     Display* x_display, GLXContext glx_context,
++#elif defined(OS_TIZEN_MOBILE)
++    EGLDisplay egl_display, EGLContext egl_context,
++#endif
+     Client* client,
+     const base::Callback<bool(void)>& make_context_current)
++#if defined(OS_CHROMEOS)
+     : x_display_(x_display),
+       glx_context_(glx_context),
++#elif defined(OS_TIZEN_MOBILE)
++    : x_display_(0),
++      egl_display_(egl_display),
++      egl_context_(egl_context),
++#endif
+       make_context_current_(make_context_current),
+       state_(kUninitialized),
+       input_ready_(&lock_),
+@@ -272,7 +339,7 @@ class ScopedPtrXFree {
+     ::XFree(x);
+   }
+ };
+-
++#if defined(OS_CHROMEOS)
+ bool VaapiVideoDecodeAccelerator::InitializeFBConfig() {
+   const int fbconfig_attr[] = {
+     GLX_DRAWABLE_TYPE, GLX_PIXMAP_BIT,
+@@ -294,7 +361,7 @@ bool VaapiVideoDecodeAccelerator::InitializeFBConfig() {
+   fb_config_ = glx_fb_configs.get()[0];
+   return true;
+ }
+-
++#endif
+ bool VaapiVideoDecodeAccelerator::Initialize(
+     media::VideoCodecProfile profile) {
+   DCHECK_EQ(message_loop_, base::MessageLoop::current());
+@@ -306,10 +373,14 @@ bool VaapiVideoDecodeAccelerator::Initialize(
+   if (!make_context_current_.Run())
+     return false;
+ 
++#if defined(OS_CHROMEOS)
+   if (!InitializeFBConfig()) {
+     DVLOG(1) << "Could not get a usable FBConfig";
+     return false;
+   }
++#elif defined(OS_TIZEN_MOBILE)
++  x_display_ = base::MessagePumpForUI::GetDefaultXDisplay();
++#endif
+ 
+   vaapi_wrapper_ = VaapiWrapper::Create(
+       profile, x_display_,
+@@ -718,7 +789,11 @@ void VaapiVideoDecodeAccelerator::AssignPictureBuffers(
+              << " VASurfaceID: " << va_surface_ids[i];
+ 
+     linked_ptr<TFPPicture> tfp_picture(
++#if defined(OS_CHROMEOS)
+         TFPPicture::Create(make_context_current_, fb_config_, x_display_,
++#elif defined(OS_TIZEN_MOBILE)
++        TFPPicture::Create(make_context_current_, egl_display_, x_display_,
++#endif
+                            buffers[i].id(), buffers[i].texture_id(),
+                            requested_pic_size_));
+ 
+diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator.h b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+index 1755b98..5b15a3a 100644
+--- a/content/common/gpu/media/vaapi_video_decode_accelerator.h
++++ b/content/common/gpu/media/vaapi_video_decode_accelerator.h
+@@ -45,7 +45,11 @@ class CONTENT_EXPORT VaapiVideoDecodeAccelerator
+     : public VideoDecodeAcceleratorImpl {
+  public:
+   VaapiVideoDecodeAccelerator(
++#if defined(OS_CHROMEOS)
+       Display* x_display, GLXContext glx_context,
++#elif defined(OS_TIZEN_MOBILE)
++      EGLDisplay egl_display, EGLContext egl_context,
++#endif
+       Client* client,
+       const base::Callback<bool(void)>& make_context_current);
+   virtual ~VaapiVideoDecodeAccelerator();
+@@ -118,10 +122,11 @@ private:
+   // Helper for Destroy(), doing all the actual work except for deleting self.
+   void Cleanup();
+ 
++#if defined(OS_CHROMEOS)
+   // Get a usable framebuffer configuration for use in binding textures
+   // or return false on failure.
+   bool InitializeFBConfig();
+-
++#endif
+   // Callback for the decoder to execute when it wants us to output given
+   // |va_surface|.
+   void SurfaceReady(int32 input_id, const scoped_refptr<VASurface>& va_surface);
+@@ -153,9 +158,15 @@ private:
+ 
+   // Client-provided X/GLX state.
+   Display* x_display_;
++#if defined(OS_CHROMEOS)
+   GLXContext glx_context_;
+-  base::Callback<bool(void)> make_context_current_;
+   GLXFBConfig fb_config_;
++#elif defined(OS_TIZEN_MOBILE)
++  EGLDisplay egl_display_;
++  EGLContext egl_context_;
++#endif
++
++  base::Callback<bool(void)> make_context_current_;
+ 
+   // VAVDA state.
+   enum State {
+diff --git a/content/content_common.gypi b/content/content_common.gypi
+index 8c45574..47f7861 100644
+--- a/content/content_common.gypi
++++ b/content/content_common.gypi
+@@ -537,6 +537,32 @@
+         '<(DEPTH)/third_party/libva',
+       ],
+     }],
++    ['target_arch != "arm" and tizen_mobile == 1 and use_x11 == 1', {
++      'dependencies': [
++        '../media/media.gyp:media',
++      ],
++      'sources': [
++        'common/gpu/media/h264_dpb.cc',
++        'common/gpu/media/h264_dpb.h',
++        'common/gpu/media/va_surface.h',
++        'common/gpu/media/vaapi_h264_decoder.cc',
++        'common/gpu/media/vaapi_h264_decoder.h',
++        'common/gpu/media/vaapi_video_decode_accelerator.cc',
++        'common/gpu/media/vaapi_video_decode_accelerator.h',
++        'common/gpu/media/vaapi_wrapper.cc',
++        'common/gpu/media/vaapi_wrapper.h',
++      ],
++      'include_dirs': [
++        '<(DEPTH)/third_party/khronos',
++        '<(DEPTH)/third_party/libva',
++      ],
++      'link_settings': {
++        'libraries': [
++          '-lEGL',
++          '-lGLESv2',
++        ],
++      },
++    }],
+     ['OS=="win"', {
+       'dependencies': [
+         '../media/media.gyp:media',
+diff --git a/content/gpu/gpu_main.cc b/content/gpu/gpu_main.cc
+index 9e29e03..c207b62 100644
+--- a/content/gpu/gpu_main.cc
++++ b/content/gpu/gpu_main.cc
+@@ -42,7 +42,7 @@
+ #include "sandbox/win/src/sandbox.h"
+ #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_ARMEL) && defined(USE_X11)
+ #include "content/common/gpu/media/exynos_video_decode_accelerator.h"
+-#elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
++#elif (defined(OS_CHROMEOS) || defined(OS_TIZEN_MOBILE)) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
+ #include "content/common/gpu/media/vaapi_wrapper.h"
+ #endif
+ 
+@@ -170,7 +170,7 @@ int GpuMain(const MainFunctionParams& parameters) {
+ 
+   bool delayed_watchdog_enable = false;
+ 
+-#if defined(OS_CHROMEOS)
++#if defined(OS_CHROMEOS) || defined(OS_TIZEN_MOBILE)
+   // Don't start watchdog immediately, to allow developers to switch to VT2 on
+   // startup.
+   delayed_watchdog_enable = true;
+@@ -360,7 +360,7 @@ bool WarmUpSandbox(const CommandLine& command_line) {
+ 
+ #if defined(OS_CHROMEOS) && defined(ARCH_CPU_ARMEL) && defined(USE_X11)
+   ExynosVideoDecodeAccelerator::PreSandboxInitialization();
+-#elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
++#elif (defined(OS_CHROMEOS) || defined(OS_TIZEN_MOBILE)) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
+   VaapiWrapper::PreSandboxInitialization();
+ #endif
+ 
+-- 
+1.7.9.5
+
