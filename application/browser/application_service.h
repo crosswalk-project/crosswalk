@@ -32,8 +32,10 @@ class ApplicationService {
   bool Launch(const std::string& id);
   bool Launch(const base::FilePath& path);
 
+  scoped_refptr<const Application> GetApplicationByID(
+       const std::string& id) const;
+
   // Currently there's only one running application at a time.
-  const ApplicationStore* GetApplicationStore() const;
   const Application* GetRunningApplication() const;
 
  private:
