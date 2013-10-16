@@ -8,6 +8,7 @@
 #include "base/compiler_specific.h"
 #include "base/strings/string16.h"
 #include "ui/base/ui_base_types.h"
+#include "ui/gfx/display.h"
 #include "ui/gfx/image/image.h"
 #include "ui/gfx/native_widget_types.h"
 #include "ui/gfx/rect.h"
@@ -86,6 +87,8 @@ class NativeAppWindow {
   virtual void SetFullscreen(bool fullscreen) = 0;
   // Restore the window.
   virtual void Restore() = 0;
+  // Rotate the window.
+  virtual void Rotate(gfx::Display::Rotation rotation) = 0;
   // Flash the taskbar item associated with this window.
   // Set |flash| to true to initiate flashing, false to stop flashing.
   virtual void FlashFrame(bool flash) = 0;

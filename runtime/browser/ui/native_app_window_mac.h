@@ -32,6 +32,7 @@ class NativeAppWindowMac : public NativeAppWindow {
   virtual void Minimize() OVERRIDE;
   virtual void SetFullscreen(bool fullscreen) OVERRIDE;
   virtual void Restore() OVERRIDE;
+  virtual void Rotate(gfx::Display::Rotation rotation) OVERRIDE;
   virtual void FlashFrame(bool flash) OVERRIDE;
   virtual void Close() OVERRIDE;
   virtual bool IsActive() const OVERRIDE;

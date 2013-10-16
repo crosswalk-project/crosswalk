@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "xwalk/runtime/browser/sensor_provider.h"
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
@@ -36,7 +37,8 @@ class RuntimeContext;
 class Runtime : public content::WebContentsDelegate,
                 public content::WebContentsObserver,
                 public content::NotificationObserver,
-                public NativeAppWindowDelegate {
+                public NativeAppWindowDelegate,
+                public SensorProvider::Observer {
  public:
   // Create a new Runtime instance with the given browsing context.
   static Runtime* Create(RuntimeContext*, const GURL&);
@@ -125,6 +127,9 @@ class Runtime : public content::WebContentsDelegate,
 
   // NativeAppWindowDelegate implementation.
   virtual void OnWindowDestroyed() OVERRIDE;
+
+  // SensorProvider::Observer implementation.
+  virtual void OnRotationChanged(gfx::Display::Rotation rotation) OVERRIDE;
 
   // The browsing context.
   xwalk::RuntimeContext* runtime_context_;

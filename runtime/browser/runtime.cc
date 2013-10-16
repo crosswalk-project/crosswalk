@@ -75,6 +75,9 @@ Runtime::Runtime(content::WebContents* web_contents)
 }
 
 Runtime::~Runtime() {
+  if (SensorProvider* sensor = SensorProvider::GetInstance())
+    sensor->RemoveObserver(this);
+
   RuntimeRegistry::Get()->RemoveRuntime(this);
 
   // Quit the app once the last Runtime instance is removed.
@@ -123,6 +126,9 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
     window_->UpdateIcon(app_icon_);
   window_->Show();
 #endif
+
+  if (SensorProvider* sensor = SensorProvider::GetInstance())
+    sensor->AddObserver(this);
 }
 
 void Runtime::LoadURL(const GURL& url) {
@@ -321,6 +327,12 @@ void Runtime::RequestMediaAccessPermission(
     const content::MediaResponseCallback& callback) {
   XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
       web_contents, request, callback);
+}
+
+void Runtime::OnRotationChanged(gfx::Display::Rotation rotation) {
+#if !defined(OS_ANDROID)
+  window_->Rotate(rotation);
+#endif
 }
 
 }  // namespace xwalk

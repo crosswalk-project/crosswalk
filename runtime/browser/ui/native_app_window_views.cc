@@ -145,6 +145,51 @@ void NativeAppWindowViews::Restore() {
   window_->Restore();
 }
 
+void NativeAppWindowViews::Rotate(gfx::Display::Rotation rotation) {
+  gfx::Size host_size = GetBounds().size();
+  gfx::Transform transform;
+  switch (rotation) {
+    case gfx::Display::ROTATE_0:
+      break;
+    case gfx::Display::ROTATE_90:
+      transform.Translate(host_size.width() - 1, 0);
+      transform.Rotate(90);
+      break;
+    case gfx::Display::ROTATE_180:
+      transform.Translate(host_size.width() - 1, host_size.height() - 1);
+      transform.Rotate(180);
+      break;
+    case gfx::Display::ROTATE_270:
+      transform.Translate(0, host_size.height() - 1);
+      transform.Rotate(270);
+      break;
+  }
+
+#if defined(USE_AURA)
+  if (aura::RootWindow* root = GetNativeWindow()->GetRootWindow())
+    root->SetTransform(transform);
+  else
+    return;
+#endif
+
+  // Change content size
+  gfx::Size topbar_size;
+  TopViewLayout* layout = static_cast<TopViewLayout*>(GetLayoutManager());
+  if (layout->top_view())
+    topbar_size = layout->top_view()->size();
+  gfx::Size content_size;
+  if (rotation == gfx::Display::ROTATE_90 ||
+      rotation == gfx::Display::ROTATE_270) {
+    content_size = gfx::Size(host_size.height(),
+                             host_size.width() - topbar_size.height());
+  } else {
+    content_size = gfx::Size(host_size.width(),
+                             host_size.height() - topbar_size.height());
+  }
+  content::WebContentsView* view = web_contents_->GetView();
+  view->SizeContents(content_size);
+}
+
 void NativeAppWindowViews::FlashFrame(bool flash) {
   window_->FlashFrame(flash);
 }

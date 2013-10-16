@@ -142,6 +142,9 @@ void NativeAppWindowMac::Restore() {
   [window_ deminiaturize:nil];
 }
 
+void NativeAppWindowMac::Rotate(gfx::Display::Rotation rotation) {
+}
+
 void NativeAppWindowMac::FlashFrame(bool flash) {
   if (flash) {
     attention_request_id_ = [NSApp requestUserAttention:NSInformationalRequest];
