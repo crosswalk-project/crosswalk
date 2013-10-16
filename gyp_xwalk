@@ -21,6 +21,7 @@ import gyp
 
 sys.path.insert(0, os.path.join(chrome_src, 'build'))
 import gyp_helper
+import landmine_utils
 
 # Add paths so that pymod_do_main(...) can import files.
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'generate_shim_headers'))
@@ -107,6 +108,10 @@ if __name__ == '__main__':
   # Triggering media playback dynamically with third-party codecs by owner. 
   if ip_media_codecs == True:
       args.append('-Dffmpeg_branding=Chrome')
+
+  # Enable Aura by default on all platforms except Android
+  if landmine_utils.platform() != 'android':
+    args.append('-Duse_aura=1')
 
   # Use the Psyco JIT if available.
   if psyco:
