@@ -96,8 +96,14 @@ bool RuntimeDownloadManagerDelegate::ShouldOpenDownload(
   return true;
 }
 
+void RuntimeDownloadManagerDelegate::GetNextId(
+    const content::DownloadIdCallback& callback) {
+  static uint32 next_id = content::DownloadItem::kInvalidId + 1;
+  callback.Run(next_id++);
+}
+
 void RuntimeDownloadManagerDelegate::GenerateFilename(
-    int32 download_id,
+    uint32 download_id,
     const content::DownloadTargetCallback& callback,
     const base::FilePath& generated_name,
     const base::FilePath& suggested_directory) {
@@ -115,7 +121,7 @@ void RuntimeDownloadManagerDelegate::GenerateFilename(
 }
 
 void RuntimeDownloadManagerDelegate::OnDownloadPathGenerated(
-    int32 download_id,
+    uint32 download_id,
     const content::DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -132,7 +138,7 @@ void RuntimeDownloadManagerDelegate::OnDownloadPathGenerated(
 }
 
 void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
-    int32 download_id,
+    uint32 download_id,
     const content::DownloadTargetCallback& callback,
     const base::FilePath& suggested_path) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
