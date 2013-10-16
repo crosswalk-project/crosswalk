@@ -34,10 +34,10 @@ IPC_MESSAGE_CONTROL1(XWalkViewMsg_ExtensionProcessChannelCreated, // NOLINT(*)
 #undef IPC_MESSAGE_START
 #define IPC_MESSAGE_START XWalkExtensionClientServerMsgStart
 
-IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_RegisterExtension,  // NOLINT(*)
+IPC_MESSAGE_CONTROL3(XWalkExtensionClientMsg_RegisterExtension,  // NOLINT(*)
                      std::string /* extension */,
-                     std::string /* JS API code for extension */)
-
+                     std::string /* JS API code for extension */,
+                     base::ListValue /* extension entry points */)
 
 IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
                      int64_t /* instance id */,

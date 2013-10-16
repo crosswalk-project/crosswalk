@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_H_
 
 #include <string>
+#include <vector>
 #include "base/callback.h"
 #include "base/values.h"
 
@@ -42,13 +43,23 @@ class XWalkExtension {
 
   std::string name() const { return name_; }
 
+  // Returns a list of entry points for which the extension should be loaded
+  // when accessed. Entry points are used when the extension needs to have
+  // objects outside the namespace that is implicitly created using its name.
+  virtual const base::ListValue& entry_points() const { return entry_points_; }
+
  protected:
   XWalkExtension();
   void set_name(const std::string& name) { name_ = name; }
+  void set_entry_points(const std::vector<std::string>& entry_points) {
+    entry_points_.AppendStrings(entry_points);
+  }
 
  private:
   // Name of extension, used for dispatching messages.
   std::string name_;
+
+  base::ListValue entry_points_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };

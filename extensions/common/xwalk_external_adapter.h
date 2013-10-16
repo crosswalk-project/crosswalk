@@ -9,6 +9,7 @@
 #include "base/memory/singleton.h"
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
+#include "xwalk/extensions/public/XW_Extension_EntryPoints.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
@@ -101,6 +102,8 @@ class XWalkExternalAdapter {
                     XW_ShutdownCallback);
   DEFINE_FUNCTION_1(Instance, Core, SetInstanceData, void*);
   DEFINE_RET_FUNCTION_0(Instance, Core, GetInstanceData, void*);
+  DEFINE_FUNCTION_1(Extension, EntryPoints,
+                    SetExtraJSEntryPoints, const char**);
 
   // XW_MessagingInterface_1 from XW_Extension.h.
   DEFINE_FUNCTION_1(Extension, Messaging, Register, XW_HandleMessageCallback);

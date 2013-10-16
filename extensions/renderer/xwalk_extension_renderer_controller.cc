@@ -61,10 +61,12 @@ void CreateExtensionModules(XWalkExtensionClient* client,
       client->extension_apis();
   XWalkExtensionClient::ExtensionAPIMap::const_iterator it = extensions.begin();
   for (; it != extensions.end(); ++it) {
-    if (it->second.empty())
+    XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
+    if (codepoint->api.empty())
       continue;
     scoped_ptr<XWalkExtensionModule> module(
-        new XWalkExtensionModule(client, module_system, it->first, it->second));
+        new XWalkExtensionModule(client, module_system,
+                                 it->first, codepoint->api));
     module_system->RegisterExtensionModule(module.Pass());
   }
 }
