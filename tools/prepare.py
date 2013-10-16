@@ -30,8 +30,7 @@ def PrepareFromXwalk(target_dir):
                    'xwalk_app_runtime_activity_java.jar',
                    'xwalk_app_runtime_client_java.dex.jar',
                    'xwalk_app_runtime_client_java.jar',
-                   'xwalk_core_java.dex.jar',
-                   'xwalk_core_java.jar']
+                   'xwalk_core_embedded.dex.jar']
   for jar_file in jar_file_list:
     shutil.copy(os.path.join(src_dir, jar_file), libs_dir)
 
@@ -39,6 +38,12 @@ def PrepareFromXwalk(target_dir):
   native_libs_src_dir = os.path.join(os.path.dirname(target_dir),
                                      'xwalk_runtime_lib_apk', 'libs')
   shutil.copytree(native_libs_src_dir, native_libs_target_dir)
+
+  native_libs_java_des_dir = os.path.join(target_dir, 'native_libs_java')
+  native_libs_java_src_dir = os.path.join(os.path.dirname(target_dir),
+                                          'xwalk_runtime_lib_apk',
+                                          'native_libraries_java')
+  shutil.copytree(native_libs_java_src_dir, native_libs_java_des_dir)
 
   ant_dir =  os.path.join(target_dir, 'scripts', 'ant')
   if not os.path.exists(ant_dir):
@@ -75,12 +80,32 @@ def PrepareFromXwalk(target_dir):
   for folder in app_src_folder_list:
     shutil.copytree(folder, os.path.join(app_src_dir, os.path.basename(folder)))
 
+  pak_file_src_path = os.path.join(os.path.dirname(target_dir),
+                                   'xwalk_runtime_lib', 'assets', 'xwalk.pak')
+  pak_file_des_dir = os.path.join(target_dir, 'native_libs_res')
+  if not os.path.exists(pak_file_des_dir):
+    os.makedirs(pak_file_des_dir)
+  shutil.copy(pak_file_src_path, os.path.join(pak_file_des_dir, 'xwalk.pak'))
+
   packaging_tool_list = ['./app/tools/android/customize.py',
                          './app/tools/android/make_apk.py',
                          './app/tools/android/manifest_json_parser.py']
   for packaging_tool in packaging_tool_list:
     shutil.copy(packaging_tool, target_dir)
 
+  resources_for_embeded = ['ui_java', 'xwalk_core_java', 'content_java']
+  res_src_dir = os.path.join(os.path.dirname(target_dir), 'gen')
+  res_target_dir = os.path.join(target_dir, 'gen')
+  for resource in resources_for_embeded:
+    shutil.copytree(os.path.join(res_src_dir, resource),
+                    os.path.join(res_target_dir, resource))
+  java_res_for_embeded = {'../ui/android/java/res': 'ui',
+                          'runtime/android/java/res': 'runtime',
+                          '../content/public/android/java/res': 'content'}
+  java_res_des_dir = os.path.join(target_dir, 'libs_res')
+  for key in java_res_for_embeded:
+    shutil.copytree(os.path.join(os.getcwd(), key),
+                    os.path.join(java_res_des_dir, java_res_for_embeded[key]))
 
 def main(args):
   if len(args) != 1:

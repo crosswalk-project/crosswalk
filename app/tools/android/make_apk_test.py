@@ -240,6 +240,25 @@ class TestMakeApk(unittest.TestCase):
     error_msg = 'Error: can\'t find the extension directory'
     self.assertTrue(out.find(error_msg) != -1)
     self.assertTrue(out.find('Exiting with error code: 9') != -1)
+
+  def testMode(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example.apk'))
+    shared_mode_size = os.path.getsize('Example.apk')
+    Clean('Example')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--mode=embedded'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example.apk'))
+    embeded_mode_size = os.path.getsize('Example.apk')
+    self.assertTrue(shared_mode_size < embeded_mode_size)
     Clean('Example')
 
 if __name__ == '__main__':
