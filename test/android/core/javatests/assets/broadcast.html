@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <iframe id="subFrame"></iframe>
+    <script>
+      var iframe = document.getElementById("subFrame");
+
+      /* Write the iframe content. Might be better to put it into a separate html file. */
+      iframe.contentDocument.write("<html>\n"
+        + " <head>\n"
+        + " <script>\n"
+        + "   var messageReceivedInIframe = null;\n"
+        + "    function messageHandler (msg) {\n"
+        + "      messageReceivedInIframe = msg;\n"
+        + "      if (messageReceivedInIframe != null)\n"
+        + "      top.window.verifyResult();\n"
+        + "    }\n"
+        + "  <\/script>\n"
+        + "  <\/head>\n"
+        + "</html>\n");
+
+      var msg = "from top frame";
+      broadcast.trigger(msg);
+
+      /**
+       * Verify the message received in both top window and iframe window.
+       * Called only when both top window and iframe receive the message from native side.
+       */
+      var expectedMessage = "From java broadcast:" + msg;
+      function verifyResult() {
+        if (iframe.contentWindow.messageReceivedInIframe === expectedMessage &&
+        window.messageReceivedInTop === expectedMessage) {
+          document.title = "Pass";
+        } else {
+          document.title = "Fail";
+        }
+      }
+
+      var messageReceivedInTop = null;
+      function messageHandler(msg) {
+        messageReceivedInTop = msg;
+        /* If the iframe also receives the message, let's check the result. */
+        if (iframe.contentWindow.messageReceivedInIframe != null)
+          verifyResult();
+      }
+    </script>
+  </body>
+</html>

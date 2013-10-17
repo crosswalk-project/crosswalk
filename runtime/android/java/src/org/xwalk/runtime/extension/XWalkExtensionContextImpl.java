@@ -35,8 +35,13 @@ public class XWalkExtensionContextImpl extends XWalkExtensionContext {
     }
 
     @Override
-    public void postMessage(XWalkExtension extension, String message) {
-        mManager.postMessage(extension, message);
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
+        mManager.postMessage(extension, instanceID, message);
+    }
+
+    @Override
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        mManager.broadcastMessage(extension, message);
     }
 
     @Override

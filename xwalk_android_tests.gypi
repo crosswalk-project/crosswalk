@@ -63,8 +63,10 @@
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
       ],
       'sources': [
+        '<(java_in_dir)/assets/broadcast.html',
         '<(java_in_dir)/assets/echo.html',
         '<(java_in_dir)/assets/echoSync.html',
+        '<(java_in_dir)/assets/framesEcho.html',
         '<(java_in_dir)/assets/index.html',
       ],
       'variables': {

@@ -4,6 +4,7 @@
 
 package org.xwalk.core.extensions;
 
+import java.util.ArrayList;
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 
@@ -14,41 +15,41 @@ import org.chromium.base.JNINamespace;
 @JNINamespace("xwalk::extensions")
 public abstract class XWalkExtensionAndroid {
     private int mXWalkExtension;
-    private int mXWalkExtensionInstanceID = 0;
+    private ArrayList<Integer> mInstances;
 
     public XWalkExtensionAndroid(String name, String jsApi) {
         mXWalkExtension = nativeCreateExtension(name, jsApi);
+        mInstances = new ArrayList<Integer>();
     }
 
-    public void postMessage(String message) {
-        if (mXWalkExtensionInstanceID != 0) {
-            nativePostMessage(mXWalkExtension, mXWalkExtensionInstanceID, message);
+    public void postMessage(int instanceID, String message) {
+        nativePostMessage(mXWalkExtension, instanceID, message);
+    }
+
+    public void broadcastMessage(String message) {
+        for(Integer i : mInstances) {
+            postMessage(i, message);
         }
     }
 
     @CalledByNative
-    public abstract void handleMessage(String message);
+    public abstract void handleMessage(int instanceID, String message);
 
     @CalledByNative
-    public abstract String handleSyncMessage(String message);
+    public abstract String handleSyncMessage(int instanceID, String message);
 
     @CalledByNative
     public abstract void onDestroy();
 
-    /* FIXME(halton): Internal WebFrame is not exposed in Java side. With that
-     * fact, if multiple instances alive(iframe), there is no way to identify
-     * which instance to send message. We only keep the most recent instance id
-     * in Java. Thus all instances will be able to send messages to Java, but
-     * Java only sned to the most recent.
-     */
     @CalledByNative
     private void onInstanceCreated(int instanceID) {
-        mXWalkExtensionInstanceID = instanceID;
+        if(!mInstances.contains(new Integer(instanceID)))
+            mInstances.add(new Integer(instanceID));
     }
 
     @CalledByNative
-    private void onInstanceRemoved() {
-        mXWalkExtensionInstanceID = 0;
+    private void onInstanceRemoved(int instanceID) {
+        mInstances.remove(new Integer(instanceID));
     }
 
     private native int nativeCreateExtension(String name, String jsApi);
