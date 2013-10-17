@@ -250,20 +250,68 @@ def CopyBinaries(out_directory):
   distutils.dir_util.copy_tree(source_dir, target_dir)
 
 
-def CopyResources(out_directory):
+def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix):
+  """ Copy the files into the output directory. If one file in input_dir folder
+  doesn't exist, copy it directly. If a file exists, copy it and rename the
+  file so that the resources won't be overrided. So all of them could be
+  packaged into the xwalk core library.
+  """
+  for root, _, files in os.walk(input_dir):
+    for f in files:
+      src_file = os.path.join(root, f)
+      relative_path = os.path.relpath(src_file, input_dir)
+      target_file = os.path.join(output_dir, relative_path)
+      target_dir_name = os.path.dirname(target_file)
+      if not os.path.exists(target_dir_name):
+        os.makedirs(target_dir_name)
+      # If the file exists, copy it and rename it with another name to
+      # avoid overwriting the existing one.
+      if os.path.exists(target_file):
+        target_base_name = os.path.basename(target_file)
+        target_base_name = prefix + '_' + target_base_name
+        target_file = os.path.join(target_dir_name, target_base_name)
+      shutil.copyfile(src_file, target_file)
+
+
+def CopyResources(project_source, out_directory):
   print 'Copying resources...'
   res_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'res')
   if os.path.exists(res_directory):
     shutil.rmtree(res_directory)
-  source_path = os.path.join(out_directory, 'gen', 'content_java', 'res_grit')
-  distutils.dir_util.copy_tree(source_path, res_directory)
 
+  # All resources should be in specific folders in res_directory.
+  # Since there might be some resource files with same names from
+  # different folders like ui_java, content_java and others,
+  # it's necessary to rename some files to avoid overridding.
+  source_path = os.path.join(project_source, 'ui', 'android', 'java', 'res')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
+  source_path = os.path.join(out_directory, 'gen', 'ui_java',
+                             'res_grit')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
+
+  source_path = os.path.join(out_directory, 'gen', 'ui_java',
+                             'res_v14_compatibility')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
+
+  source_path = os.path.join(project_source, 'content', 'public', 'android',
+                             'java', 'res')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
+  source_path = os.path.join(out_directory, 'gen', 'content_java',
+                             'res_grit')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
+  source_path = os.path.join(out_directory, 'gen', 'content_java',
+                             'res_v14_compatibility')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
+
+  source_path = os.path.join(project_source, 'xwalk', 'runtime', 'android',
+                             'java', 'res')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
   source_path = os.path.join(out_directory, 'gen', 'xwalk_core_java',
                              'res_grit')
-  distutils.dir_util.copy_tree(source_path, res_directory)
-
-  source_path = os.path.join(out_directory, 'gen', 'ui_java', 'res_grit')
-  distutils.dir_util.copy_tree(source_path, res_directory)
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
+  source_path = os.path.join(out_directory, 'gen', 'xwalk_core_java',
+                             'res_v14_compatibility')
+  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
 
 
 def PostCopyLibraryProject(out_directory):
@@ -301,7 +349,7 @@ def main(argv):
   CopyGeneratedSources(out_directory)
   # Copy binaries and resuorces.
   CopyBinaries(out_directory)
-  CopyResources(out_directory)
+  CopyResources(options.source, out_directory)
   # Post copy library project.
   PostCopyLibraryProject(out_directory)
   print 'Your Android library project has been created at %s' % (
