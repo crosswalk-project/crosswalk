@@ -7,7 +7,9 @@ package org.xwalk.core.xwview.test;
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+
 import org.chromium.base.test.util.Feature;
+
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
@@ -59,6 +61,15 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
         ExtensionEcho echo = new ExtensionEcho();
 
         loadAssetFile("echoSync.html");
+        assertEquals("Pass", getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"ExtensionEcho"})
+    public void testExtensionEchoMultiFrames() throws Throwable {
+        ExtensionEcho echo = new ExtensionEcho();
+
+        loadAssetFile("framesEcho.html");
         assertEquals("Pass", getTitleOnUiThread());
     }
 }
