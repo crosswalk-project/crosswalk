@@ -319,8 +319,8 @@ void Runtime::RequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
-  // XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
-  //     web_contents, request, callback);
+  XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
+      web_contents, request, callback);
 }
 
 }  // namespace xwalk
