@@ -99,7 +99,7 @@ void XWalkExtensionAndroid::RemoveInstance(int instance) {
   }
 
   instances_.erase(instance);
-  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj());
+  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj(), instance);
 }
 
 XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(
@@ -130,7 +130,7 @@ void XWalkExtensionAndroidInstance::HandleMessage(
     return;
   }
 
-  Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), buffer);
+  Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), getID(), buffer);
 }
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
@@ -152,7 +152,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
   jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jstring> ret =
-      Java_XWalkExtensionAndroid_handleSyncMessage(env, obj.obj(), buffer);
+      Java_XWalkExtensionAndroid_handleSyncMessage(env, obj.obj(), getID(), buffer);
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
   ret_val = base::Value::CreateStringValue(str);

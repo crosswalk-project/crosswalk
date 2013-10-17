@@ -65,6 +65,9 @@ class XWalkExtensionAndroidInstance : public XWalkExtensionInstance {
   void PostMessageWrapper(const char* msg) {
     PostMessageToJS(scoped_ptr<base::Value>(new base::StringValue(msg)));
   }
+  int getID() {
+      return id_;
+  }
 
  private:
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;

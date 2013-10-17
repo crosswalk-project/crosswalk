@@ -16,6 +16,7 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/iframeEcho.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview/assets',
@@ -24,6 +25,10 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
           'files': ['<(java_in_dir)/assets/index.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
+          'files': ['<(java_in_dir)/assets/iframeEcho.html'],
         }
       ],
       'includes': [ '../build/java_apk.gypi' ],
@@ -69,6 +74,8 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/framesEcho.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/broadcast.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
@@ -81,6 +88,14 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': ['<(java_in_dir)/assets/echoSync.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/framesEcho.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/broadcast.html'],
         },
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',

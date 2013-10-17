@@ -26,13 +26,13 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid {
     }
 
     @Override
-    public void handleMessage(String message) {
-        mProvider.onMessage(mExtension, message);
+    public void handleMessage(int instanceID, String message) {
+        mProvider.onMessage(mExtension, instanceID, message);
     }
 
     @Override
-    public String handleSyncMessage(String message) {
-        return mProvider.onSyncMessage(mExtension, message);
+    public String handleSyncMessage(int instanceID, String message) {
+        return mProvider.onSyncMessage(mExtension, instanceID, message);
     }
 
     @Override

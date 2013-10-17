@@ -77,9 +77,11 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
+                LoadUrlParams params = LoadUrlParams.createLoadDataParams(
+                        data, mimeType, isBase64Encoded);
+                params.setBaseUrlForDataUrl("file:///android_asset/");
                 mXWalkView.getXWalkViewContentForTest().getContentViewCoreForTest(
-                        ).loadUrl(LoadUrlParams.createLoadDataParams(
-                        data, mimeType, isBase64Encoded));
+                        ).loadUrl(params);
             }
         });
     }
