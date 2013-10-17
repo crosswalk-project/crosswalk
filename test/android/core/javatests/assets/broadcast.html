@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <iframe id="subFrame"></iframe>
+        <script>
+            function setTitle(result) {
+                if (result === true) {
+                    document.title = "Pass";
+                } else {
+                    document.title = "Fail";
+                }
+            }
+            var topMsg = "from top-frame";
+            try {
+                broadcast.trigger(topMsg);
+            } catch(e) {
+                console.log(e);
+                setTitle(false);
+            }
+            setTimeout(function () {
+                var expected = "From java broadcast:" + topMsg;
+                var topReceivedMsg = document.getElementById("showBroadcast").innerHTML;
+                var iframeDocument = document.getElementById('subFrame').contentDocument;
+                var iframeReceivedMsg = iframeDocument.getElementById("showBroadcast").innerHTML;
+                setTitle(iframeReceivedMsg === expected && topReceivedMsg === expected);
+            }, 1000);
+        </script>
+    </body>
+</html>
