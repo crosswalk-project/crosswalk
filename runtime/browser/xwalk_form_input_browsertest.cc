@@ -16,10 +16,6 @@
 #include "ui/shell_dialogs/select_file_dialog.h"
 #include "ui/shell_dialogs/select_file_dialog_factory.h"
 
-#if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>  // NOLINT(build/include_order)
-#endif
-
 using xwalk::Runtime;
 
 namespace {

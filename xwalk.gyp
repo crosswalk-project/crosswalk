@@ -93,7 +93,6 @@
         'runtime/browser/runtime_platform_util.h',
         'runtime/browser/runtime_platform_util_android.cc',
         'runtime/browser/runtime_platform_util_aura.cc',
-        'runtime/browser/runtime_platform_util_gtk.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_mac.mm',
         'runtime/browser/runtime_platform_util_win.cc',
@@ -112,13 +111,10 @@
         'runtime/browser/ui/color_chooser_aura.cc',
         'runtime/browser/ui/color_chooser_dialog_win.cc',
         'runtime/browser/ui/color_chooser_dialog_win.h',
-        'runtime/browser/ui/color_chooser_gtk.cc',
         'runtime/browser/ui/color_chooser_mac.cc',
         'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
-        'runtime/browser/ui/native_app_window_gtk.cc',
-        'runtime/browser/ui/native_app_window_gtk.h',
         'runtime/browser/ui/native_app_window_mac.h',
         'runtime/browser/ui/native_app_window_mac.mm',
         'runtime/browser/ui/native_app_window_views.cc',
@@ -257,11 +253,6 @@
              '../third_party/freetype2/freetype2.gyp:freetype2',
           ],
         }],  # use_custom_freetype==1
-        ['toolkit_uses_gtk==1', {
-          'dependencies': [
-            '../build/linux/system.gyp:gtk',
-          ],
-        }],  # toolkit_uses_gtk==1
         ['toolkit_views==1', {
           'dependencies': [
             '../ui/base/strings/ui_strings.gyp:ui_strings',
@@ -468,11 +459,11 @@
             },
           },
         }],  # OS=="win"
-        ['OS == "win" or toolkit_uses_gtk == 1', {
+        ['OS == "win"', {
           'dependencies': [
             '../sandbox/sandbox.gyp:sandbox',
           ],
-        }],  # OS=="win" or toolkit_uses_gtk == 1
+        }],  # OS=="win"
         ['OS == "linux"', {
           'dependencies': [
             # Build osmesa to workaround egl backend issue on Tizen 2.1 emulator

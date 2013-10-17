@@ -4,10 +4,6 @@
 
 #include "xwalk/runtime/browser/image_util.h"
 
-#if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>
-#endif
-
 #include <string>
 
 #include "base/file_util.h"
@@ -53,14 +49,6 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
     DestroyIcon(icon);
 
     return image;
-#elif defined(TOOLKIT_GTK)
-    GdkPixbuf* pixbuf =
-        gdk_pixbuf_new_from_file(filename.value().c_str(), NULL);
-
-    if (pixbuf == NULL)
-      return gfx::Image();
-
-    return gfx::Image(pixbuf);
 #elif defined(USE_AURA) && defined(OS_LINUX)
     NOTIMPLEMENTED();
     return gfx::Image();
