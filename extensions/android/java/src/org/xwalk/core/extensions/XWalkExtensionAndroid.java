@@ -37,13 +37,15 @@ public abstract class XWalkExtensionAndroid {
 
     /* FIXME(halton): Internal WebFrame is not exposed in Java side. With that
      * fact, if multiple instances alive(iframe), there is no way to identify
-     * which instance to send message. We only keep the most recent instance id
-     * in Java. Thus all instances will be able to send messages to Java, but
-     * Java only sned to the most recent.
+     * which instance to send message. We only keep the first instance id
+     * in Java. Thus all extension instances created on native side can send
+     * messages to Java side, but Java side can only send messages to the first
+     * instance.
      */
     @CalledByNative
     private void onInstanceCreated(int instanceID) {
-        mXWalkExtensionInstanceID = instanceID;
+        if (mXWalkExtensionInstanceID != 0)
+            mXWalkExtensionInstanceID = instanceID;
     }
 
     @CalledByNative
