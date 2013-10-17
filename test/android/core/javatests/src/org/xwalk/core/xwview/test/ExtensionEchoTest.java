@@ -61,4 +61,15 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
         loadAssetFile("echoSync.html");
         assertEquals("Pass", getTitleOnUiThread());
     }
+
+    @SmallTest
+    @Feature({"ExtensionEcho"})
+    public void testExtensionEchoMultiFrames() throws Throwable {
+        ExtensionEcho echo = new ExtensionEcho();
+
+        loadAssetFile("framesEcho.html");
+
+        Thread.sleep(1000);
+        assertEquals("Pass", getTitleOnUiThread());
+    }
 }

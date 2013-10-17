@@ -26,8 +26,12 @@ public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
         mOriginContext.unregisterExtension(extension);
     }
 
-    public void postMessage(XWalkExtension extension, String message) {
-        mOriginContext.postMessage(extension, message);
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
+        mOriginContext.postMessage(extension, instanceID, message);
+    }
+
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        mOriginContext.broadcastMessage(extension, message);
     }
 
     public Context getContext() {
