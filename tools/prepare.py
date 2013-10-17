@@ -89,7 +89,8 @@ def PrepareFromXwalk(target_dir):
 
   packaging_tool_list = ['./app/tools/android/customize.py',
                          './app/tools/android/make_apk.py',
-                         './app/tools/android/manifest_json_parser.py']
+                         './app/tools/android/manifest_json_parser.py',
+                         './app/tools/android/parse_xpk.py']
   for packaging_tool in packaging_tool_list:
     shutil.copy(packaging_tool, target_dir)
 

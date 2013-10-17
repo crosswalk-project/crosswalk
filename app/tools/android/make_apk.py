@@ -101,6 +101,19 @@ def ParseManifest(options):
     options.fullscreen = False
 
 
+def ParseXPK(options, out_dir):
+  cmd = ['python', 'parse_xpk.py',
+         '--file=%s' % os.path.expanduser(options.xpk),
+         '--out=%s' % out_dir]
+  RunCommand(cmd)
+  if not options.manifest:
+    if os.path.isfile(os.path.join(out_dir, 'manifest.json')):
+      options.manifest = os.path.join(out_dir, 'manifest.json')
+    else:
+      print 'XPK doesn\'t contain manifest file.'
+      sys.exit(7)
+
+
 def FindExtensionJars(root_path):
   ''' Find all .jar files for external extensions. '''
   extension_jars = []
@@ -411,12 +424,12 @@ def main(argv):
           'This flag should work with "--app-root" together. '
           'Such as: --app-local-path=/relative/path/of/entry/file')
   parser.add_option('--app-local-path', help=info)
-  info = ('The path of the developer keystore, Such as: '
+  info = ('The path of the developer keystore. Such as: '
           '--keystore-path=/path/to/your/developer/keystore')
   parser.add_option('--keystore-path', help=info)
-  info = ('The alias name of keystore, Such as: --keystore-alias=alias_name')
+  info = ('The alias name of keystore. Such as: --keystore-alias=alias_name')
   parser.add_option('--keystore-alias', help=info)
-  info = ('The passcode of keystore, Such as: --keystore-passcode=code')
+  info = ('The passcode of keystore. Such as: --keystore-passcode=code')
   parser.add_option('--keystore-passcode', help=info)
   parser.add_option('--enable-remote-debugging', action='store_true',
                     dest='enable_remote_debugging', default=False,
@@ -434,10 +447,17 @@ def main(argv):
           'Set the default mode as "shared".'
           'Such as: --mode=shared')
   parser.add_option('--mode', help=info)
+  info = ('The path of the XPK file. Such as: --xpk=/path/to/xpk/file')
+  parser.add_option('--xpk', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
     return 0
+
+  if options.xpk:
+    xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
+    xpk_temp_dir = xpk_name + '_xpk'
+    ParseXPK(options, xpk_temp_dir)
 
   if not options.manifest:
     if not options.package:
@@ -469,6 +489,8 @@ def main(argv):
   except SystemExit, ec:
     CleanDir(sanitized_name)
     CleanDir('out')
+    if os.path.exists(xpk_temp_dir):
+      CleanDir(xpk_temp_dir)
     return ec.code
   return 0
 
