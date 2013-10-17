@@ -30,10 +30,6 @@
 #include "net/base/net_util.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if defined(TOOLKIT_GTK)
-#include <gtk/gtk.h>  // NOLINT(build/include_order)
-#endif
-
 #if defined(USE_AURA)
 #include "ui/aura/window.h"
 #endif
@@ -284,10 +280,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
 
   NativeAppWindow* window = runtime()->window();
-#if defined(TOOLKIT_GTK)
-  const char* window_title = gtk_window_get_title(window->GetNativeWindow());
-  EXPECT_EQ(title, ASCIIToUTF16(window_title));
-#elif defined(TOOLKIT_VIEWS) && defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS) && defined(OS_WIN)
   const int len = title.length() + 1;  // NULL-terminated string.
   string16 window_title;
   ::GetWindowText(window->GetNativeWindow(),
@@ -296,7 +289,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
 #elif defined(USE_AURA)
   string16 window_title = window->GetNativeWindow()->title();
   EXPECT_EQ(title, window_title);
-#endif  // defined(TOOLKIT_GTK)
+#endif
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {

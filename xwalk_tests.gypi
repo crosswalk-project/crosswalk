@@ -31,12 +31,6 @@
       'test/base/xwalk_test_utils.h',
     ],
     'conditions': [
-      ['toolkit_uses_gtk == 1', {
-        'dependencies' : [
-          '../build/linux/system.gyp:gtk',
-          '../build/linux/system.gyp:ssl',
-        ],
-      }],
       ['OS=="win"', {
         'include_dirs': [
           '<DEPTH>/third_party/wtl/include',
