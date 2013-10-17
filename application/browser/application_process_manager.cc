@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <string>
 #include "xwalk/application/browser/application_process_manager.h"
+
+#include <string>
+
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -20,6 +22,7 @@ namespace application {
 ApplicationProcessManager::ApplicationProcessManager(
     RuntimeContext* runtime_context)
     : runtime_context_(runtime_context),
+      main_runtime_(NULL),
       weak_ptr_factory_(this) {
 }
 
@@ -65,7 +68,7 @@ bool ApplicationProcessManager::RunMainDocument(
     return false;
   }
 
-  Runtime::Create(runtime_context_, url);
+  main_runtime_ = Runtime::Create(runtime_context_, url);
   return true;
 }
 

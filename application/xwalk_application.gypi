@@ -48,6 +48,13 @@
         'common/db_store.h',
         'common/db_store_sqlite_impl.cc',
         'common/db_store_sqlite_impl.h',
+
+        'extension/application_api.js',
+        'extension/application_extension.cc',
+        'extension/application_extension.h',
+
+        'renderer/application_native_module.cc',
+        'renderer/application_native_module.h',
       ],
       'conditions': [
         [ 'tizen_mobile == 1', {
@@ -66,6 +73,9 @@
       ],
       'include_dirs': [
         '../..',
+      ],
+      'includes': [
+        '../extensions/xwalk_js2c.gypi',
       ],
     }],
 }

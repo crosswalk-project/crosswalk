@@ -8,6 +8,7 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/renderer/application_native_module.h"
 
 namespace xwalk {
 
@@ -50,6 +51,10 @@ void XWalkContentRendererClient::WillReleaseScriptContext(
 }
 
 void XWalkContentRendererClient::DidCreateModuleSystem(
-    extensions::XWalkModuleSystem* module_system) {}
+    extensions::XWalkModuleSystem* module_system) {
+  scoped_ptr<extensions::XWalkNativeModule> app_module(
+      new application::ApplicationNativeModule());
+  module_system->RegisterNativeModule("application", app_module.Pass());
+}
 
 }  // namespace xwalk
