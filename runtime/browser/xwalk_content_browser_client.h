@@ -48,6 +48,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+  virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
+                                              int child_process_id) OVERRIDE;
   virtual content::QuotaPermissionContext*
       CreateQuotaPermissionContext() OVERRIDE;
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;

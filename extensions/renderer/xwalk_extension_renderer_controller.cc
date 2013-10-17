@@ -4,6 +4,7 @@
 
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
+#include "base/command_line.h"
 #include "base/values.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
@@ -15,6 +16,7 @@
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
@@ -40,6 +42,11 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
 
   in_browser_process_extensions_client_.reset(new XWalkExtensionClient());
   in_browser_process_extensions_client_->Initialize(thread->GetChannel());
+
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand)) {
+    LOG(INFO) << "LOADING EXTENSIONS ON DEMAND.";
+  }
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {

@@ -10,6 +10,7 @@
 #include "base/path_service.h"
 #include "base/platform_file.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
@@ -98,6 +99,15 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
+}
+
+void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
+    CommandLine* command_line, int child_process_id) {
+  CommandLine* browser_process_cmd_line = CommandLine::ForCurrentProcess();
+  if (browser_process_cmd_line->HasSwitch(
+          switches::kXWalkEnableLoadingExtensionsOnDemand)) {
+    command_line->AppendSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand);
+  }
 }
 
 content::QuotaPermissionContext*
