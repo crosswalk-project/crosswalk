@@ -16,6 +16,9 @@ const char kAppIcon[] = "app-icon";
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";
 
+// Specifies list all installed applications.
+const char kListApplications[] = "list-apps";
+
 // Specifies install an application.
 const char kInstall[] = "install";
 

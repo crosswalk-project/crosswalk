@@ -16,6 +16,8 @@ extern const char kFullscreen[];
 
 extern const char kInstall[];
 
+extern const char kListApplications[];
+
 extern const char kUninstall[];
 
 extern const char kXWalkExternalExtensionsPath[];

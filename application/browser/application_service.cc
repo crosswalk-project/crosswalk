@@ -146,6 +146,11 @@ bool ApplicationService::Launch(const base::FilePath& path) {
                                            application.get());
 }
 
+ApplicationStore::ApplicationMap*
+ApplicationService::GetInstalledApplications() const {
+  return app_store_->GetInstalledApplications();
+}
+
 scoped_refptr<const Application> ApplicationService::GetApplicationByID(
     const std::string& id) const {
   return app_store_->GetApplicationByID(id);

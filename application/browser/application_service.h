@@ -34,7 +34,7 @@ class ApplicationService {
 
   scoped_refptr<const Application> GetApplicationByID(
        const std::string& id) const;
-
+  ApplicationStore::ApplicationMap* GetInstalledApplications() const;
   // Currently there's only one running application at a time.
   const Application* GetRunningApplication() const;
 
