@@ -1,0 +1,21 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  if (window.should_exist !== true) {
+    document.title = "Fail";
+  } else if (xwalk.sample.also_should_exist !== true) {
+    document.title = "Fail";
+  } else {
+    document.title = "Pass";
+  }
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>
