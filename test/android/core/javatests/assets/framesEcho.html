@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <div id="result">show test result...</div>
+    <iframe id="subFrame"></iframe>
+    <script>
+      var iframe = document.getElementById("subFrame");
+
+      iframe.contentDocument.write("<html>\n"
+        + " <head>\n"
+        + " <script>\n"
+        + "   try {\n"
+        + "     var d = new Date().toString();\n"
+        + "     echo.echo(d, function(msg) {\n"
+        + "       document.write(msg + '<br>');\n"
+        + "       var expected = 'From java:' + d;\n"
+        + "       if (msg === expected) {\n"
+        + "         document.write('Async echo <font color=green>passed</font>.');\n"
+        + "         top.onIframeFinish();\n"
+        + "       } else {\n"
+        + "         document.write('Async echo <font color=red>failed</font>.');\n"
+        + "         top.setTestResult(false);\n"
+        + "       }\n"
+        + "     });\n"
+        + "   } catch(e) {\n"
+        + "     console.log(e);\n"
+        + "     top.setTestResult(false);\n"
+        + "   }\n"
+        + "  <\/script>\n"
+        + "  <\/head>\n"
+        + "</html>");
+
+      function setTestResult(result) {
+        var resultDiv = document.getElementById('result');
+        if (result === true) {
+          document.title = "Pass";
+          resultDiv.innerHTML = "Multi-frame test <font color=green>passed</font>.";
+        } else {
+          document.title = "Fail";
+          resultDiv.innerHTML = "Multi-frame test <font color=green>failed</font>.";
+        }
+      }
+
+      function onIframeFinish() {
+        /**
+        * With unchanged implementation, the "top-frame msg" will be
+        * post to iframe(recent one), the top frame will not get the
+        * echo back message, and set test fail.
+        */
+        var topMsg = "top-frame msg";
+        try {
+          echo.echo(topMsg, function(msg) {
+            var expected = "From java:" + topMsg;
+            setTestResult(msg === expected);
+          });
+        } catch(e) {
+          console.log(e);
+          setTestResult(false);
+        }
+      }
+    </script>
+  </body>
+</html>
