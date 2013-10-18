@@ -184,4 +184,12 @@ public class NullContentsClient extends XWalkContentsClient {
     @Override
     public void onTitleChanged(String title) {
     }
+
+    @Override
+    public void onRendererResponsive() {
+    }
+
+    @Override
+    public void onRendererUnresponsive() {
+    }
 }

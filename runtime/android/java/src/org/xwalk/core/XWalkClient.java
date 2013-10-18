@@ -86,6 +86,22 @@ public class XWalkClient {
     }
 
     /**
+     * Notify the host application that the renderer of XWalkView is hung.
+     *
+     * @param view The XWalkView on which the render is hung.
+     */
+    public void onRendererUnresponsive(XWalkView view) {
+    }
+
+    /**
+     * Notify the host application that the renderer of XWalkView is no longer hung.
+     *
+     * @param view The XWalkView which becomes responsive now.
+     */
+    public void onRendererResponsive(XWalkView view) {
+    }
+
+    /**
      * Notify the host application of a resource request and allow the
      * application to return the data.  If the return value is null, the XWalkView
      * will continue to load the resource as usual.  Otherwise, the return

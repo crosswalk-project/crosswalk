@@ -161,6 +161,10 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onReceivedError(int errorCode, String description, String failingUrl);
 
+    public abstract void onRendererUnresponsive();
+
+    public abstract void onRendererResponsive();
+
     final public void onUpdateTitle(String title) {
         onTitleChanged(title);
     }

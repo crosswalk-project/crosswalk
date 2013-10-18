@@ -37,6 +37,10 @@ class XWalkWebContentsDelegate
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) OVERRIDE;
+
+  virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
+  virtual void RendererResponsive(content::WebContents* source) OVERRIDE;
+
  private:
   scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;
   DISALLOW_COPY_AND_ASSIGN(XWalkWebContentsDelegate);

@@ -70,6 +70,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/renderHung.html',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
       },
@@ -85,6 +86,10 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': ['<(java_in_dir)/assets/index.html'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
+          'files': ['<(java_in_dir)/assets/renderHung.html'],
         },
       ],
       'includes': [ '../build/java_apk.gypi' ],
