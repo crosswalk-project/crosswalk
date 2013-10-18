@@ -210,6 +210,18 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onRendererUnresponsive() {
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onRendererUnresponsive(mXWalkView);
+    }
+
+    @Override
+    public void onRendererResponsive() {
+        if (mXWalkClient != null && mXWalkView != null)
+            mXWalkClient.onRendererResponsive(mXWalkView);
+    }
+
+    @Override
     public void onFormResubmission(Message dontResend, Message resend) {
         dontResend.sendToTarget();
     }
