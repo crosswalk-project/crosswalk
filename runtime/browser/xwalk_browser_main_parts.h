@@ -54,8 +54,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
 #else
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
 #endif
-  extensions::XWalkExtensionService* extension_service() {
-    return extension_service_.get();
+
+  void OnRenderProcessHostCreated(content::RenderProcessHost* host) {
+    extension_service_->OnRenderProcessHostCreated(host);
   }
 
  private:
