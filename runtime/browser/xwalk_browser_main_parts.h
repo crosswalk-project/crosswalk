@@ -8,6 +8,7 @@
 #include <string>
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/scoped_vector.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
 #include "url/gurl.h"
@@ -16,6 +17,7 @@
 namespace xwalk {
 
 namespace extensions {
+class XWalkExtension;
 class XWalkExtensionServer;
 }
 
@@ -48,6 +50,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
 #if defined(OS_ANDROID)
   void SetRuntimeContext(RuntimeContext* context);
   RuntimeContext* runtime_context() { return runtime_context_; }
+  void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
 #else
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
 #endif
@@ -67,6 +70,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
 
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context_;
+  ScopedVector<extensions::XWalkExtension> extensions_;
 #else
   scoped_ptr<RuntimeContext> runtime_context_;
 #endif
