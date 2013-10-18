@@ -115,8 +115,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
 }
 
 bool ApplicationService::Launch(const std::string& id) {
-  scoped_refptr<const Application> application =
-      app_store_->GetApplicationByID(id);
+  scoped_refptr<const Application> application = GetApplicationByID(id);
   if (!application) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
     return false;
@@ -147,8 +146,14 @@ bool ApplicationService::Launch(const base::FilePath& path) {
                                            application.get());
 }
 
-const ApplicationStore* ApplicationService::GetApplicationStore() const {
-  return app_store_.get();
+ApplicationStore::ApplicationMap*
+ApplicationService::GetInstalledApplications() const {
+  return app_store_->GetInstalledApplications();
+}
+
+scoped_refptr<const Application> ApplicationService::GetApplicationByID(
+    const std::string& id) const {
+  return app_store_->GetApplicationByID(id);
 }
 
 const Application* ApplicationService::GetRunningApplication() const {

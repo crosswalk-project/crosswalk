@@ -45,6 +45,8 @@ class ApplicationStore: public DBStore::Observer {
   scoped_refptr<const Application> GetApplicationByID(
       const std::string& application_id) const;
 
+  ApplicationMap* GetInstalledApplications() const;
+
   // Implement the DBStore::Observer.
   virtual void OnDBValueChanged(const std::string& key,
                                 const base::Value* value) OVERRIDE;

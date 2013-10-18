@@ -248,6 +248,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   RegisterInternalExtensions();
   RegisterExternalExtensions();
 
+  xwalk::application::ApplicationSystem* system =
+      runtime_context_->GetApplicationSystem();
+  xwalk::application::ApplicationService* service =
+      system->application_service();
+
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
@@ -259,6 +264,17 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
           new RemoteDebuggingServer(runtime_context_.get(),
               loopback_ip, port, std::string()));
     }
+  } else if (command_line->HasSwitch(switches::kListApplications)) {
+    xwalk::application::ApplicationStore::ApplicationMap* apps =
+        service->GetInstalledApplications();
+    LOG(INFO) << "Application ID                       Application Name";
+    LOG(INFO) << "-----------------------------------------------------";
+    xwalk::application::ApplicationStore::ApplicationMapIterator it;
+    for (it = apps->begin(); it != apps->end(); ++it)
+      LOG(INFO) << it->first << "     " << it->second->Name();
+    LOG(INFO) << "-----------------------------------------------------";
+    run_default_message_loop_ = false;
+    return;
   }
 
   NativeAppWindow::Initialize();
@@ -273,10 +289,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 #else
   if (startup_url_.SchemeIsFile()) {
 #endif  // OS_TIZEN_MOBILE
-    xwalk::application::ApplicationSystem* system =
-        runtime_context_->GetApplicationSystem();
-    xwalk::application::ApplicationService* service =
-        system->application_service();
 
     if (xwalk::application::Application::IsIDValid(command_name)) {
       run_default_message_loop_ = service->Launch(command_name);

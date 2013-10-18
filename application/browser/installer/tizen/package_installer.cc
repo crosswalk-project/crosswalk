@@ -60,8 +60,7 @@ bool PackageInstaller::Init() {
       .AppendASCII(package_id_ + std::string(info::kXmlExtension));
   execute_path_ = app_dir_.Append(info::kExecDir).AppendASCII(package_id_);
 
-  application_ = service_->GetApplicationStore()
-                 ->GetApplicationByID(package_id_);
+  application_ = service_->GetApplicationByID(package_id_);
   if (!application_) {
     LOG(ERROR) << "Application " << package_id_
                << " haven't been installed in Xwalk database.";

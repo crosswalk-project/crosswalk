@@ -71,6 +71,11 @@ scoped_refptr<const Application> ApplicationStore::GetApplicationByID(
   return NULL;
 }
 
+ApplicationStore::ApplicationMap*
+ApplicationStore::GetInstalledApplications() const {
+  return applications_.get();
+}
+
 void ApplicationStore::InitApplications(const base::DictionaryValue* db) {
   CHECK(db);
 
