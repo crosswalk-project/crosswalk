@@ -12,10 +12,10 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Source1004:     install_into_pkginfo_db.py
-Patch1:         %{name}-1.29-do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         %{name}-1.29-look-for-pvr-libGLESv2.so.patch
-Patch3:         %{name}-1.29-include-tizen-ime-files.patch
-Patch4:         %{name}-2.31-disable-ffmpeg-pragmas.patch
+Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
+Patch2:         %{name}-look-for-pvr-libGLESv2.so.patch
+Patch3:         %{name}-include-tizen-ime-files.patch
+Patch4:         %{name}-disable-ffmpeg-pragmas.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
