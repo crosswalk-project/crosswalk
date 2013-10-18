@@ -165,9 +165,10 @@ static jint CreateExtension(JNIEnv* env, jobject obj,
                             jstring name, jstring js_api) {
   XWalkExtensionAndroid* extension =
       new XWalkExtensionAndroid(env, obj, name, js_api);
-  XWalkExtensionService* service =
-      XWalkContentBrowserClient::Get()->main_parts()->extension_service();
-  service->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+
+  XWalkContentBrowserClient::Get()->main_parts()->RegisterExtension(
+      scoped_ptr<XWalkExtension>(extension));
+
   return reinterpret_cast<jint>(extension);
 }
 

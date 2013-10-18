@@ -379,11 +379,24 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
+#if defined(OS_ANDROID)
+  ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it)
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
+#else
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationExtension(runtime_context()->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
+#endif
 }
+
+#if defined(OS_ANDROID)
+void XWalkBrowserMainParts::RegisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  extensions_.push_back(extension.release());
+}
+#endif
 
 }  // namespace xwalk
