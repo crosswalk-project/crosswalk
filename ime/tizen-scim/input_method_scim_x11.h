@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef UI_BASE_IME_INPUT_METHOD_SCIM_H_
-#define UI_BASE_IME_INPUT_METHOD_SCIM_H_
+#ifndef XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_X11_H_
+#define XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_X11_H_
 
 #include <string>
 
@@ -69,4 +69,4 @@ class UI_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
 
 }  // namespace ui
 
-#endif  // UI_BASE_IME_INPUT_METHOD_SCIM_H_
+#endif  // XWALK_IME_TIZEN_SCIM_INPUT_METHOD_SCIM_X11_H_

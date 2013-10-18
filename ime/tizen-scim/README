@@ -4,4 +4,5 @@ it is required to implement InputMethod interface provided by Chromium.
 
 This directory contains InputMethod interface realization as well as 
 "scim bridge" that connects Tizen input method subsystem with Chromium
-InputMethod interface.
+InputMethod interface. At the moment Tizen 2.1 requires X server to work,
+therefore, this implementation is only suitable for Tizen 2.1 mobile profile.
