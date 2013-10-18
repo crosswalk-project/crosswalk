@@ -30,32 +30,26 @@ def CleanLibraryProject(out_directory):
 
 def CopyProjectFiles(project_source, out_directory):
   print 'Copying library project files...'
-  # Copy AndroidManifest.xml from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'AndroidManifest.xml')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                             'AndroidManifest.xml')
-  shutil.copyfile(source_file, target_file)
-  # Copy Eclipse project properties from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'project.properties')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                             'project.properties')
-  shutil.copyfile(source_file, target_file)
-  # Copy Ant build file.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'build.xml')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'build.xml')
-  shutil.copyfile(source_file, target_file)
-  # Copy Ant properties file.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'ant.properties')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'ant.properties')
-  shutil.copyfile(source_file, target_file)
+  template_folder = os.path.join(project_source, 'xwalk', 'build', 'android',
+                                 'xwalkcore_library_template')
+  files_to_copy = [
+      # AndroidManifest.xml from template.
+      'AndroidManifest.xml',
+      # Eclipse project properties from template.
+      'project.properties',
+      # Ant build file.
+      'build.xml',
+      # Customized Ant build file.
+      'precompile.xml',
+      # Python script to copy R.java.
+      'prepare_r_java.py',
+      # Ant properties file.
+      'ant.properties',
+  ]
+  for f in files_to_copy:
+    source_file = os.path.join(template_folder, f)
+    target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, f)
+    shutil.copyfile(source_file, target_file)
 
 
 def CopyChromiumJavaSources(project_source, out_directory):
@@ -105,19 +99,6 @@ def CopyChromiumJavaSources(project_source, out_directory):
   target_path = os.path.join(target_package_directory, 'components',
                              'web_contents_delegate_android')
   shutil.copytree(source_path, target_path)
-
-  source_file = os.path.join(project_source, 'content', 'public', 'android',
-                             'java', 'resource_map', 'org', 'chromium',
-                             'content', 'R.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content', 'R.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(project_source, 'ui', 'android', 'java',
-                             'resource_map', 'org', 'chromium', 'ui', 'R.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'ui', 'R.java')
-  shutil.copyfile(source_file, target_file)
 
 
 def CopyGeneratedSources(out_directory):
