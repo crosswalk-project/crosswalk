@@ -79,21 +79,27 @@ public abstract class XWalkRuntimeViewProvider {
      * Pass messages from native extension system to runtime extension system.
      * Might be overrided to do customizations here.
      */
-    public void onMessage(XWalkExtension extension, String message) {
-        extension.onMessage(message);
+    public void onMessage(XWalkExtension extension, int instanceID, String message) {
+        extension.onMessage(instanceID, message);
     }
 
     /**
      * Pass synchronized messages.
      */
-    public String onSyncMessage(XWalkExtension extension, String message) {
-        return extension.onSyncMessage(message);
+    public String onSyncMessage(XWalkExtension extension, int instanceID, String message) {
+        return extension.onSyncMessage(instanceID, message);
     }
 
     /**
      * Pass message from runtime extension system to native and then to JavaScript.
      */
-    public abstract void postMessage(XWalkExtension extension, String message);
+    public abstract void postMessage(XWalkExtension extension, int instanceID, String message);
+
+    /**
+     * Broadcast message from runtime extension system to native and then to JavaScript.
+     * It means Java side will post the message to all instances of the extension.
+     */
+    public abstract void broadcastMessage(XWalkExtension extension, String message);
 
     // For instrumentation test.
     public abstract String getTitleForTest();
