@@ -280,16 +280,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
 
   NativeAppWindow* window = runtime()->window();
-#if defined(TOOLKIT_VIEWS) && defined(OS_WIN)
-  const int len = title.length() + 1;  // NULL-terminated string.
-  string16 window_title;
-  ::GetWindowText(window->GetNativeWindow(),
-                  WriteInto(&window_title, len), len);
-  EXPECT_EQ(title, window_title);
-#elif defined(USE_AURA)
   string16 window_title = window->GetNativeWindow()->title();
   EXPECT_EQ(title, window_title);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
