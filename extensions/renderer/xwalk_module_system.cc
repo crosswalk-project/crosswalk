@@ -74,7 +74,7 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
 }
 
 XWalkModuleSystem::~XWalkModuleSystem() {
-  STLDeleteValues(&extension_modules_);
+  DeleteExtensionModules();
   STLDeleteValues(&native_modules_);
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -124,8 +124,14 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 void XWalkModuleSystem::RegisterExtensionModule(
     scoped_ptr<XWalkExtensionModule> module) {
   const std::string& extension_name = module->extension_name();
-  CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
-  extension_modules_[extension_name] = module.release();
+  if (ContainsExtensionModule(extension_name)) {
+    LOG(WARNING) << "Can't register Extension Module named for extension '"
+                 << extension_name << "' in the Module System because name was "
+                 << "already registered.";
+    return;
+  }
+  extension_modules_.push_back(
+      ExtensionModuleEntry(extension_name, module.release()));
 }
 
 void XWalkModuleSystem::RegisterNativeModule(
@@ -153,13 +159,30 @@ void XWalkModuleSystem::Initialize() {
       require_native_template->GetFunction();
 
   // TODO(cmarcelo): Setup lazy loader instead of always running JS API code.
-  ExtensionModuleMap::iterator it = extension_modules_.begin();
+  ExtensionModules::iterator it = extension_modules_.begin();
   for (; it != extension_modules_.end(); ++it)
-    it->second->LoadExtensionCode(context, require_native);
+    it->module->LoadExtensionCode(context, require_native);
 }
 
 v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
   return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
+}
+
+bool XWalkModuleSystem::ContainsExtensionModule(const std::string& name) {
+  ExtensionModules::iterator it = extension_modules_.begin();
+  for (; it != extension_modules_.end(); ++it) {
+    if (it->name == name)
+      return true;
+  }
+  return false;
+}
+
+void XWalkModuleSystem::DeleteExtensionModules() {
+  for (ExtensionModules::iterator it = extension_modules_.begin();
+       it != extension_modules_.end(); ++it) {
+    delete it->module;
+  }
+  extension_modules_.clear();
 }
 
 }  // namespace extensions
