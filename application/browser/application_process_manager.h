@@ -39,11 +39,14 @@ class ApplicationProcessManager {
   bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
                          const Application* application);
 
+  Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
+
  private:
   bool RunMainDocument(const Application* application);
   bool RunFromLocalPath(const Application* application);
 
   xwalk::RuntimeContext* runtime_context_;
+  xwalk::Runtime* main_runtime_;
   base::WeakPtrFactory<ApplicationProcessManager> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationProcessManager);
