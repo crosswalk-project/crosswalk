@@ -45,7 +45,6 @@ class XWalkModuleSystem {
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
   void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module);
-  XWalkExtensionModule* GetExtensionModule(const std::string& extension_name);
 
   void RegisterNativeModule(const std::string& name,
                             scoped_ptr<XWalkNativeModule> module);
