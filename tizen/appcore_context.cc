@@ -66,6 +66,7 @@ class AppcoreContextImpl
 
   char* package_;
   char* application_name_;
+  bool initialized_;
   struct ui_ops appcore_operations_;
 
   DISALLOW_COPY_AND_ASSIGN(AppcoreContextImpl);
@@ -80,19 +81,25 @@ scoped_ptr<AppcoreContext> AppcoreContext::Create() {
 
 AppcoreContextImpl::AppcoreContextImpl()
     : package_(NULL),
-      application_name_(NULL) {
+      application_name_(NULL),
+      initialized_(false) {
   appcore_operations_.data = this;
   appcore_operations_.cb_app = HandleAppcoreEvents;
 }
 
 AppcoreContextImpl::~AppcoreContextImpl() {
-  app_finalizer_execute();
-  aul_status_update(STATUS_DYING);
-  appcore_exit();
+  if (initialized_) {
+    app_finalizer_execute();
+    aul_status_update(STATUS_DYING);
+    appcore_exit();
+    DCHECK(package_ && application_name_);
+  }
 
   // app_get_id() and app_get_package_app_name() allocated them using malloc.
-  free(package_);
-  free(application_name_);
+  if (package_)
+    free(package_);
+  if (application_name_)
+    free(application_name_);
 }
 
 bool AppcoreContextImpl::Initialize() {
@@ -117,6 +124,7 @@ bool AppcoreContextImpl::Initialize() {
     return false;
   }
 
+  initialized_ = true;
   return true;
 }
 
@@ -130,6 +138,7 @@ void AppcoreContextImpl::HandleAppcoreEvents(enum app_event event,
 
 void AppcoreContextImpl::HandleAppcoreEventsInternal(enum app_event event,
                                                           bundle* b) {
+  DCHECK(initialized_);
   if (event >= AE_MAX)
     return;
 
