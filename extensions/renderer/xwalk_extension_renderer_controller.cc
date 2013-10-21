@@ -19,11 +19,12 @@
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
+#include "xwalk/extensions/renderer/xwalk_js_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
-// This will be generated from xwalk_api.js.
-extern const char kSource_xwalk_api[];
+// This will be generated from xwalk_internal_api.js.
+extern const char kSource_xwalk_internal_api[];
 
 namespace xwalk {
 namespace extensions {
@@ -36,9 +37,6 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
       delegate_(delegate) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
-  // TODO(cmarcelo): Once we have a better solution for the internal
-  // extension helpers, remove this v8::Extension.
-  thread->RegisterExtension(new v8::Extension("xwalk", kSource_xwalk_api));
 
   in_browser_process_extensions_client_.reset(new XWalkExtensionClient());
   in_browser_process_extensions_client_->Initialize(thread->GetChannel());
@@ -81,6 +79,9 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+  module_system->RegisterNativeModule(
+      "internal", scoped_ptr<XWalkNativeModule>(
+          new XWalkJSModule(kSource_xwalk_internal_api)));
 
   delegate_->DidCreateModuleSystem(module_system);
 

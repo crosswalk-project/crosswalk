@@ -106,9 +106,6 @@ std::string WrapAPICode(const std::string& extension_code,
   // wrapping doesn't change, so that syntax errors point to the correct line.
   return base::StringPrintf(
       "var %s; (function(extension, requireNative) { "
-      "extension._setupExtensionInternal = function() {"
-      "  xwalk._setupExtensionInternal(extension);"
-      "};"
       "extension.internal = {};"
       "extension.internal.sendSyncMessage = extension.sendSyncMessage;"
       "delete extension.sendSyncMessage;"

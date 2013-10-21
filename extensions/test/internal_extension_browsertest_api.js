@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-extension._setupExtensionInternal();
-var internal = extension._internal;
+var internal = requireNative("internal");
+internal.setupInternalExtension(extension);
 
 exports.Person = function(name, age) {
   this.name = name;
