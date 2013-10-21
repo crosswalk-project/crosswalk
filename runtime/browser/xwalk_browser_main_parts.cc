@@ -20,7 +20,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/extension/application_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -242,15 +242,12 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   DCHECK(runtime_context_);
   runtime_context_->PreMainMessageLoopRun();
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
+  extension_service_.reset(new extensions::XWalkExtensionService(this));
 #else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
+  extension_service_.reset(new extensions::XWalkExtensionService(this));
 
-  RegisterInternalExtensions();
   RegisterExternalExtensions();
 
   xwalk::application::ApplicationSystem* system =
@@ -383,13 +380,27 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 #endif
 }
 
-void XWalkBrowserMainParts::RegisterInternalExtensions() {
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new RuntimeExtension()));
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
+    extensions::XWalkExtensionServer* server) {
+  CHECK(server);
+#if defined(OS_ANDROID)
+  ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it)
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
+#else
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationExtension(runtime_context()->GetApplicationSystem())));
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
+#endif
 }
+
+#if defined(OS_ANDROID)
+void XWalkBrowserMainParts::RegisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  extensions_.push_back(extension.release());
+}
+#endif
 
 }  // namespace xwalk

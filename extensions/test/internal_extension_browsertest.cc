@@ -9,6 +9,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -132,8 +133,9 @@ void TestExtensionInstance::OnGetPersonAge(
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new TestExtension()));
     ASSERT_TRUE(registered);
   }

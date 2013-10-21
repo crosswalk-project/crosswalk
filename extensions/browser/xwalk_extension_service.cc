@@ -78,10 +78,12 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
   XWalkExtensionServer* server_;
 };
 
-XWalkExtensionService::XWalkExtensionService()
+XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
+    delegate)
     : render_process_host_(NULL),
       extension_thread_("XWalkExtensionThread"),
-      in_process_server_message_filter_(NULL) {
+      in_process_server_message_filter_(NULL),
+      delegate_(delegate) {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
     extension_process_host_.reset(new XWalkExtensionProcessHost());
@@ -97,18 +99,11 @@ XWalkExtensionService::XWalkExtensionService()
   in_process_extensions_server_.reset(new XWalkExtensionServer());
 
   if (!g_register_extensions_callback.is_null())
-    g_register_extensions_callback.Run(this);
+    g_register_extensions_callback.Run(this,
+        in_process_extensions_server_.get());
 }
 
 XWalkExtensionService::~XWalkExtensionService() {}
-
-bool XWalkExtensionService::RegisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
-  // Note: for now we only support registering new extensions before
-  // render process hosts were created.
-  CHECK(!render_process_host_);
-  return in_process_extensions_server_->RegisterExtension(extension.Pass());
-}
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
     const base::FilePath& path) {
@@ -137,6 +132,9 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
                                        in_process_extensions_server_.get());
   channel->AddFilter(in_process_server_message_filter_);
   in_process_extensions_server_->Initialize(channel);
+
+  delegate_->RegisterInternalExtensionsInServer(
+      in_process_extensions_server_.get());
 
   in_process_extensions_server_->RegisterExtensionsInRenderProcess();
 

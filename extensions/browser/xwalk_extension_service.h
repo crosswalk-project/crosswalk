@@ -35,12 +35,17 @@ class XWalkExtensionServer;
 // created. It's life time follows the Browser process itself.
 class XWalkExtensionService : public content::NotificationObserver {
  public:
-  XWalkExtensionService();
-  virtual ~XWalkExtensionService();
+  class Delegate {
+   public:
+    virtual void RegisterInternalExtensionsInServer(
+        XWalkExtensionServer* server) {}
 
-  // Returns false if it couldn't be registered because another one with the
-  // same name exists, otherwise returns true.
-  bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
+   protected:
+    ~Delegate() {}
+  };
+
+  explicit XWalkExtensionService(Delegate* delegate);
+  virtual ~XWalkExtensionService();
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
 
@@ -49,8 +54,8 @@ class XWalkExtensionService : public content::NotificationObserver {
   // XWalkContentBrowserClient::RenderProcessHostCreated().
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
-  typedef base::Callback<void(XWalkExtensionService* extension_service)>
-      RegisterExtensionsCallback;
+  typedef base::Callback<void(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server)> RegisterExtensionsCallback;
   static void SetRegisterExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
 
@@ -76,6 +81,8 @@ class XWalkExtensionService : public content::NotificationObserver {
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
 
   content::NotificationRegistrar registrar_;
+
+  Delegate* delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
