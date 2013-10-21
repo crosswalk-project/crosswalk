@@ -24,6 +24,10 @@ extern const char kXWalkExternalExtensionsPath[];
 
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 
+extern const char kMainDocumentIdleTime[];
+
+extern const char kMainDocumentSuspendingTime[];
+
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_

@@ -31,4 +31,12 @@ const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 const char kXWalkAllowExternalExtensionsForRemoteSources[] =
     "allow-external-extensions-for-remote-sources";
 
+// The time in seconds that the main document can be idle before it
+// is shut down.
+const char kMainDocumentIdleTime[] = "main-document-idle-time";
+
+// The time in seconds that the main document  has between being notified
+// of its impending unload and that unload happening.
+const char kMainDocumentSuspendingTime[] = "main-document-suspending-time";
+
 }  // namespace switches

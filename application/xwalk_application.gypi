@@ -28,6 +28,8 @@
         'browser/installer/xpk_extractor.h',
         'browser/installer/xpk_package.cc',
         'browser/installer/xpk_package.h',
+        'browser/render_host/application_render_message_filter.cc',
+        'browser/render_host/application_render_message_filter.h',
 
         'common/application.cc',
         'common/application.h',
@@ -37,6 +39,8 @@
         'common/application_manifest_constants.h',
         'common/application_resource.cc',
         'common/application_resource.h',
+        'common/application_messages.cc',
+        'common/application_messages.h',
         'common/constants.cc',
         'common/constants.h',
         'common/id_util.cc',
@@ -48,6 +52,9 @@
         'common/db_store.h',
         'common/db_store_sqlite_impl.cc',
         'common/db_store_sqlite_impl.h',
+
+        'renderer/application_dispatcher.cc',
+        'renderer/application_dispatcher.h',
       ],
       'conditions': [
         [ 'tizen_mobile == 1', {

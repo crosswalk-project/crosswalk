@@ -24,6 +24,11 @@ class URLRequestContextGetter;
 
 namespace xwalk {
 
+namespace application {
+class ApplicationSystem;
+class ApplicationRenderMessageController;
+}
+
 class XWalkBrowserMainParts;
 class RuntimeContext;
 

@@ -9,6 +9,8 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/render_host/application_render_message_filter.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
@@ -128,6 +130,11 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
   main_parts_->extension_service()->OnRenderProcessHostCreated(host);
+  int id = host->GetID();
+  host->GetChannel()->AddFilter(
+      new xwalk::application::ApplicationRenderMessageFilter(
+          id,
+          main_parts_->runtime_context()->GetApplicationSystem()));
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
