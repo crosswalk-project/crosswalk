@@ -119,6 +119,10 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
+  // Enable multithreaded GPU compositing of web content.
+  // This also enables pinch on Tizen.
+  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+
   // Show feedback on touch.
   command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
 
