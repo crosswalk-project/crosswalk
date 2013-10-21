@@ -8,6 +8,7 @@
     'test/internal_extension_browsertest.h',
     'test/internal_extension_browsertest_api.js',
     'test/nested_namespace.cc',
+    'test/conflicting_entry_points.cc',
     'test/test.idl',
     'test/xwalk_extensions_browsertest.cc',
     'test/xwalk_extensions_test_base.cc',
