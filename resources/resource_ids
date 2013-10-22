@@ -7,7 +7,7 @@
 # our case.
 
 {
-  "SRCDIR": "../../..",
+  "SRCDIR": "../..",
 
   "xwalk/runtime/resources/xwalk_resources.grd": {
     "includes": [31000],

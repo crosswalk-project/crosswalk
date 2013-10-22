@@ -301,7 +301,7 @@
         {
           'action_name': 'xwalk_resources',
           'variables': {
-            'grit_resource_ids': 'runtime/resources/resource_ids',
+            'grit_resource_ids': 'resources/resource_ids',
             'grit_grd_file': 'runtime/resources/xwalk_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
