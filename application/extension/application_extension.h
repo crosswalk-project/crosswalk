@@ -28,7 +28,6 @@ class ApplicationExtension : public XWalkExtension {
       application::ApplicationSystem* application_system);
 
   // XWalkExtension implementation.
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:

@@ -62,15 +62,11 @@ class OnceExtension : public XWalkExtension {
   OnceExtension()
       : XWalkExtension() {
     set_name("once");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
+    set_javascript_api(
         "exports.read = function(callback) {"
         "  extension.setMessageListener(callback);"
         "  extension.postMessage('PING');"
-        "};";
-    return kAPI;
+        "};");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {

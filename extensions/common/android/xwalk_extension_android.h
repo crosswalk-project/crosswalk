@@ -37,7 +37,6 @@ class XWalkExtensionAndroid : public XWalkExtension {
   // JNI interface to post message from Java to JS
   void PostMessage(JNIEnv* env, jobject obj, jint instance, jstring msg);
 
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   void RemoveInstance(int instance);
@@ -48,7 +47,6 @@ class XWalkExtensionAndroid : public XWalkExtension {
   typedef std::map<int, XWalkExtensionAndroidInstance*> InstanceMap;
   InstanceMap instances_;
   JavaObjectWeakGlobalRef java_ref_;
-  std::string js_api_;
   int next_instance_id_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionAndroid);

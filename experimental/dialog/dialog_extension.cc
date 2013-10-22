@@ -23,15 +23,12 @@ DialogExtension::DialogExtension(RuntimeRegistry* runtime_registry)
   : runtime_registry_(runtime_registry),
     owning_window_(NULL) {
   set_name("xwalk.experimental.dialog");
+  set_javascript_api(kSource_dialog_api);
   runtime_registry_->AddObserver(this);
 }
 
 DialogExtension::~DialogExtension() {
   runtime_registry_->RemoveObserver(this);
-}
-
-const char* DialogExtension::GetJavaScriptAPI() {
-  return kSource_dialog_api;
 }
 
 XWalkExtensionInstance* DialogExtension::CreateInstance() {

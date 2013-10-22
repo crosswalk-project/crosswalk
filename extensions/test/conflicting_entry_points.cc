@@ -53,12 +53,8 @@ class CleanExtension : public XWalkExtension {
   CleanExtension() : XWalkExtension() {
     set_name("clean");
     set_entry_points(std::vector<std::string>(1, std::string("FromClean")));
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI = "exports.clean_loaded = true;"
-                              "window.FromClean = true;";
-    return kAPI;
+    set_javascript_api("exports.clean_loaded = true;"
+                       "window.FromClean = true;");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
@@ -71,11 +67,7 @@ class ConflictsWithNameExtension : public XWalkExtension {
   ConflictsWithNameExtension() : XWalkExtension() {
     set_name("conflicts_with_name");
     set_entry_points(std::vector<std::string>(1, std::string("clean")));
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI = "window.clean = 'fail';";
-    return kAPI;
+    set_javascript_api("window.clean = 'fail';");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
@@ -90,11 +82,7 @@ class ConflictsWithEntryPointExtension
   ConflictsWithEntryPointExtension() : XWalkExtension() {
     set_name("conflicts_with_entry_point");
     set_entry_points(std::vector<std::string>(1, std::string("FromClean")));
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI = "window.FromClean = 'fail';";
-    return kAPI;
+    set_javascript_api("window.FromClean = 'fail';");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {

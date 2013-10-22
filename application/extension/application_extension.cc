@@ -24,10 +24,7 @@ ApplicationExtension::ApplicationExtension(
     application::ApplicationSystem* application_system)
   : application_system_(application_system) {
   set_name("xwalk.app");
-}
-
-const char* ApplicationExtension::GetJavaScriptAPI() {
-  return kSource_application_api;
+  set_javascript_api(kSource_application_api);
 }
 
 XWalkExtensionInstance* ApplicationExtension::CreateInstance() {

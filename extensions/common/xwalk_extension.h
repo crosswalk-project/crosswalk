@@ -34,14 +34,10 @@ class XWalkExtension {
  public:
   virtual ~XWalkExtension();
 
-  // Returns the JavaScript API code that will be executed in the render
-  // process. It allows the extension provide a function or object based
-  // interface on top of the message passing.
-  virtual const char* GetJavaScriptAPI() = 0;
-
   virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
+  std::string javascript_api() const { return javascript_api_; }
 
   // Returns a list of entry points for which the extension should be loaded
   // when accessed. Entry points are used when the extension needs to have
@@ -51,6 +47,9 @@ class XWalkExtension {
  protected:
   XWalkExtension();
   void set_name(const std::string& name) { name_ = name; }
+  void set_javascript_api(const std::string& javascript_api) {
+    javascript_api_ = javascript_api;
+  }
   void set_entry_points(const std::vector<std::string>& entry_points) {
     entry_points_.AppendStrings(entry_points);
   }
@@ -58,6 +57,11 @@ class XWalkExtension {
  private:
   // Name of extension, used for dispatching messages.
   std::string name_;
+
+  // JavaScript API code that will be executed in the render process. It allows
+  // the extension provide a function or object based interface on top of the
+  // message passing.
+  std::string javascript_api_;
 
   base::ListValue entry_points_;
 

@@ -22,10 +22,7 @@ using namespace xwalk::jsapi::test; // NOLINT
 
 TestExtension::TestExtension() {
   set_name("test");
-}
-
-const char* TestExtension::GetJavaScriptAPI() {
-  return kSource_internal_extension_browsertest_api;
+  set_javascript_api(kSource_internal_extension_browsertest_api);
 }
 
 XWalkExtensionInstance* TestExtension::CreateInstance() {

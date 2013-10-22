@@ -25,7 +25,7 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
   env->ReleaseStringUTFChars(name, str);
 
   str = env->GetStringUTFChars(js_api, 0);
-  js_api_ = str;
+  set_javascript_api(str);
   env->ReleaseStringUTFChars(js_api, str);
 }
 
@@ -41,7 +41,7 @@ XWalkExtensionAndroid::~XWalkExtensionAndroid() {
 }
 
 bool XWalkExtensionAndroid::is_valid() {
-  if (instances_.empty() || js_api_.empty()) {
+  if (instances_.empty() || javascript_api().empty()) {
     return false;
   }
 
@@ -61,10 +61,6 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
   const char* str = env->GetStringUTFChars(msg, 0);
   it->second->PostMessageWrapper(str);
   env->ReleaseStringUTFChars(msg, str);
-}
-
-const char* XWalkExtensionAndroid::GetJavaScriptAPI() {
-  return js_api_.c_str();
 }
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
