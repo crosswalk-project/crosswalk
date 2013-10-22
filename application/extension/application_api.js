@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-extension._setupExtensionInternal();
-var internal = extension._internal;
 var application = requireNative('application');
+
+var internal = requireNative("internal");
+internal.setupInternalExtension(extension);
 
 exports.getManifest = function(callback) {
   internal.postMessage('getManifest', [], callback);
