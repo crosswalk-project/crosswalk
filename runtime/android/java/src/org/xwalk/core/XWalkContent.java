@@ -111,7 +111,6 @@ public class XWalkContent extends FrameLayout {
             mContentView.loadUrl(new LoadUrlParams(url));
         }
 
-        mContentView.clearFocus();
         mContentView.requestFocus();
     }
 
