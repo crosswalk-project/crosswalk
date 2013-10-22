@@ -284,7 +284,6 @@
         '../net/net.gyp:net_java_test_support',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
-        'xwalk_core_shell_apk_java',
         'xwalk_runtime_client_shell_apk_java',
       ],
       'variables': {
