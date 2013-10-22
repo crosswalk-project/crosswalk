@@ -39,6 +39,8 @@ public class XWalkExtensionManager {
     private XWalkExtensionContextImpl mExtensionContextImpl;
 
     private ArrayList<XWalkExtension> mExtensions;
+    // This variable is to set whether to load external extensions. The default is true.
+    private boolean mLoadExternalExtensions;
 
     public XWalkExtensionManager(Context context, Activity activity, XWalkRuntimeViewProvider xwalkProvider) {
         mContext = context;
@@ -46,6 +48,7 @@ public class XWalkExtensionManager {
         mXwalkProvider = xwalkProvider;
         mExtensionContextImpl = new XWalkExtensionContextImpl(context, activity, this);
         mExtensions = new ArrayList<XWalkExtension>();
+        mLoadExternalExtensions = true;
     }
 
     public XWalkExtensionContext getExtensionContext() {
@@ -95,6 +98,10 @@ public class XWalkExtensionManager {
         loadExternalExtensions();
     }
 
+    public void setAllowExternalExtensions(boolean load) {
+        mLoadExternalExtensions = load;
+    }
+
     private void loadInternalExtensions() {
         // Create all extension instances directly here. The internal extension will register
         // itself and add itself to XWalkExtensionManager.mExtensions automatically.
@@ -109,6 +116,8 @@ public class XWalkExtensionManager {
     }
 
     private void loadExternalExtensions() {
+        if (!mLoadExternalExtensions) return;
+
         // Read extensions-config.json and create external extensions.
         String configFileContent;
         try {
