@@ -8,6 +8,8 @@
 #include "base/logging.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
+#include "xwalk/grit/xwalk_extensions_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/test/test.h"
@@ -15,14 +17,14 @@
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-extern const char kSource_internal_extension_browsertest_api[];
-
 using namespace xwalk::extensions; // NOLINT
 using namespace xwalk::jsapi::test; // NOLINT
 
 TestExtension::TestExtension() {
   set_name("test");
-  set_javascript_api(kSource_internal_extension_browsertest_api);
+  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_EXTENSIONS_TESTS_INTERNAL_EXTENSION_BROWSERTEST_API)
+                     .as_string());
 }
 
 XWalkExtensionInstance* TestExtension::CreateInstance() {

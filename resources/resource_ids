@@ -18,4 +18,8 @@
   "xwalk/experimental/experimental_resources.grd": {
     "includes": [32100],
   },
+
+  "xwalk/extensions/extensions_resources.grd": {
+    "includes": [32150],
+  },
 }

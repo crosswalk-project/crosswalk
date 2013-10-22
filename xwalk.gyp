@@ -365,6 +365,7 @@
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_experimental_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_extensions_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',

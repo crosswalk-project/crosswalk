@@ -8,12 +8,14 @@
 #include "base/values.h"
 #include "content/public/renderer/render_thread.h"
 #include "content/public/renderer/v8_value_converter.h"
+#include "grit/xwalk_extensions_resources.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
 #include "ipc/ipc_sync_channel.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -22,9 +24,6 @@
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
-
-// This will be generated from xwalk_internal_api.js.
-extern const char kSource_xwalk_internal_api[];
 
 namespace xwalk {
 namespace extensions {
@@ -71,6 +70,14 @@ void CreateExtensionModules(XWalkExtensionClient* client,
   }
 }
 
+scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
+  std::string js_api(
+      ResourceBundle::GetSharedInstance().GetRawDataResource(
+          resource_id).as_string());
+  scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
+  return module.Pass();
+}
+
 }  // namespace
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
@@ -82,8 +89,8 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   module_system->RegisterNativeModule(
       "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
   module_system->RegisterNativeModule(
-      "internal", scoped_ptr<XWalkNativeModule>(
-          new XWalkJSModule(kSource_xwalk_internal_api)));
+      "internal", CreateJSModuleFromResource(
+          IDR_XWALK_EXTENSIONS_INTERNAL_API));
 
   delegate_->DidCreateModuleSystem(module_system);
 
