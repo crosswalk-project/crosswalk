@@ -20,6 +20,10 @@
   },
 
   "xwalk/extensions/extensions_resources.grd": {
+    "includes": [32125],
+  },
+
+  "xwalk/application/application_resources.grd": {
     "includes": [32150],
   },
 }
