@@ -62,29 +62,24 @@
         '../tools/android/md5sum/md5sum.gyp:md5sum',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
       ],
+      'sources': [
+        '<(java_in_dir)/assets/echo.html',
+        '<(java_in_dir)/assets/echoSync.html',
+        '<(java_in_dir)/assets/index.html',
+      ],
       'variables': {
         'apk_name': 'XWalkCoreTest',
         'java_in_dir': 'test/android/core/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
         ],
         'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
       },
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
-          'files': ['<(java_in_dir)/assets/echo.html'],
-        },
-        {
-          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
-          'files': ['<(java_in_dir)/assets/echoSync.html'],
-        },
-        {
-          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
-          'files': ['<(java_in_dir)/assets/index.html'],
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview_test',
+          'files': ['<(java_in_dir)/assets'],
         },
       ],
       'includes': [ '../build/java_apk.gypi' ],
