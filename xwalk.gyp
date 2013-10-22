@@ -132,7 +132,6 @@
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
         'runtime/extension/runtime.idl',
-        'runtime/extension/runtime_api.js',
         'runtime/extension/runtime_extension.cc',
         'runtime/extension/runtime_extension.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
