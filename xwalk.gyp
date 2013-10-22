@@ -54,6 +54,7 @@
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
+        'experimental/experimental_resources.gyp:xwalk_experimental_resources',
       ],
       'include_dirs': [
         '..',
@@ -363,6 +364,7 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_experimental_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',

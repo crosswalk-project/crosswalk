@@ -14,4 +14,8 @@
     "structures": [31500],
     "messages": [32000],
   },
+
+  "xwalk/experimental/experimental_resources.grd": {
+    "includes": [32100],
+  },
 }

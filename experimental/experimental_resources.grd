@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/xwalk_experimental_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="xwalk_experimental_resources.pak" type="data_package" />
+    <output filename="xwalk_experimental_resources.rc" type="rc_all" />
+  </outputs>
+  <translations />
+  <release seq="1">
+    <includes>
+      <include name="IDR_XWALK_EXPERIMENTAL_DIALOG_API" file="dialog/dialog_api.js" type="BINDATA" />
+    </includes>
+  </release>
+</grit>
