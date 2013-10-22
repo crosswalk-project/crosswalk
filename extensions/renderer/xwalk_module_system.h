@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "base/values.h"
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
 
@@ -45,7 +46,8 @@ class XWalkModuleSystem {
       v8::Handle<v8::Context> context);
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
-  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module);
+  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module,
+                               base::ListValue* entry_points);
 
   void RegisterNativeModule(const std::string& name,
                             scoped_ptr<XWalkNativeModule> module);
@@ -60,10 +62,12 @@ class XWalkModuleSystem {
   void DeleteExtensionModules();
 
   struct ExtensionModuleEntry {
-    ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module)
-        : name(name), module(module) {}
+   ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
+                        base::ListValue* entry_points)
+       : name(name), module(module), entry_points(entry_points) {}
     std::string name;
     XWalkExtensionModule* module;
+    base::ListValue* entry_points;
     bool operator<(const ExtensionModuleEntry& other) const {
       return name < other.name;
     }

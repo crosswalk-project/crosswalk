@@ -122,7 +122,8 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 }
 
 void XWalkModuleSystem::RegisterExtensionModule(
-    scoped_ptr<XWalkExtensionModule> module) {
+    scoped_ptr<XWalkExtensionModule> module,
+    base::ListValue* entry_points) {
   const std::string& extension_name = module->extension_name();
   if (ContainsExtensionModule(extension_name)) {
     LOG(WARNING) << "Can't register Extension Module named for extension '"
@@ -131,7 +132,7 @@ void XWalkModuleSystem::RegisterExtensionModule(
     return;
   }
   extension_modules_.push_back(
-      ExtensionModuleEntry(extension_name, module.release()));
+      ExtensionModuleEntry(extension_name, module.release(), entry_points));
 }
 
 void XWalkModuleSystem::RegisterNativeModule(
