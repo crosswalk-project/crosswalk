@@ -127,10 +127,6 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
 
 #if defined(OS_ANDROID)
-  // Disable ExtensionProcess for Android.
-  // External extensions will run in the BrowserProcess (in process mode).
-  command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
-
   // Enable WebGL for Android.
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
