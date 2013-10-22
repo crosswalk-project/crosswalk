@@ -9,6 +9,10 @@
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -36,6 +40,13 @@ void XWalkContentRendererClient::RenderThreadStarted() {
       ASCIIToUTF16(application::kApplicationScheme));
   WebKit::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   WebKit::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
+}
+
+void XWalkContentRendererClient::RenderViewCreated(
+    content::RenderView* render_view) {
+#if defined(OS_ANDROID)
+  XWalkRenderViewExt::RenderViewCreated(render_view);
+#endif
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
