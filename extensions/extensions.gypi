@@ -50,9 +50,6 @@
       ],
     }],
   ],
-  'includes': [
-    'xwalk_js2c.gypi',
-  ],
   'dependencies': [
     'extensions/extensions_resources.gyp:xwalk_extensions_resources',
   ],
