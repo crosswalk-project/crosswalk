@@ -26,11 +26,11 @@ public class ExtensionEcho extends XWalkExtensionAndroid {
              );
     }
 
-    public void handleMessage(String message) {
-        postMessage("From java:" + message);
+    public void handleMessage(int instanceID, String message) {
+        postMessage(instanceID, "From java:" + message);
     }
 
-    public String handleSyncMessage(String message) {
+    public String handleSyncMessage(int instanceID, String message) {
         return "From java:" + message;
     }
 
