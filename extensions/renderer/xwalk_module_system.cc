@@ -159,7 +159,8 @@ void XWalkModuleSystem::Initialize() {
   v8::Handle<v8::Function> require_native =
       require_native_template->GetFunction();
 
-  // TODO(cmarcelo): Setup lazy loader instead of always running JS API code.
+  MarkModulesWithTrampoline();
+
   ExtensionModules::iterator it = extension_modules_.begin();
   for (; it != extension_modules_.end(); ++it)
     it->module->LoadExtensionCode(context, require_native);
@@ -184,6 +185,40 @@ void XWalkModuleSystem::DeleteExtensionModules() {
     delete it->module;
   }
   extension_modules_.clear();
+}
+
+// Returns whether the name of first is prefix of the second, considering "."
+// character as a separator. So "a" is prefix of "a.b" but not of "ab".
+bool XWalkModuleSystem::ExtensionModuleEntry::IsPrefix(
+    const ExtensionModuleEntry& first,
+    const ExtensionModuleEntry& second) {
+  const std::string& p = first.name;
+  const std::string& s = second.name;
+  return s.size() > p.size() && s[p.size()] == '.'
+      && std::mismatch(p.begin(), p.end(), s.begin()).first == p.end();
+}
+
+// Mark the extension modules that we want to setup "trampolines"
+// instead of loading the code directly. The current algorithm is very
+// simple: we only create trampolines for extensions that are leaves
+// in the namespace tree.
+//
+// For example, if there are two extensions "tizen" and "tizen.time",
+// the first one won't be marked with trampoline, but the second one
+// will. So we'll only load code for "tizen" extension.
+void XWalkModuleSystem::MarkModulesWithTrampoline() {
+  std::sort(extension_modules_.begin(), extension_modules_.end());
+
+  ExtensionModules::iterator it = extension_modules_.begin();
+  while (it != extension_modules_.end()) {
+    it = std::adjacent_find(it, extension_modules_.end(),
+                            &ExtensionModuleEntry::IsPrefix);
+    if (it == extension_modules_.end())
+      break;
+    VLOG(0) << it->name << " should not use trampoline.";
+    it->use_trampoline = false;
+    ++it;
+  }
 }
 
 }  // namespace extensions

@@ -58,20 +58,26 @@ class XWalkModuleSystem {
   v8::Handle<v8::Context> GetV8Context();
 
  private:
-  bool ContainsExtensionModule(const std::string& name);
-  void DeleteExtensionModules();
-
   struct ExtensionModuleEntry {
-   ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
-                        base::ListValue* entry_points)
-       : name(name), module(module), entry_points(entry_points) {}
+    ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
+                         base::ListValue* entry_points)
+    : name(name), module(module), use_trampoline(true),
+      entry_points(entry_points) {}
     std::string name;
     XWalkExtensionModule* module;
+    bool use_trampoline;
     base::ListValue* entry_points;
     bool operator<(const ExtensionModuleEntry& other) const {
       return name < other.name;
     }
+
+    static bool IsPrefix(const ExtensionModuleEntry& first,
+                         const ExtensionModuleEntry& second);
   };
+
+  bool ContainsExtensionModule(const std::string& name);
+  void MarkModulesWithTrampoline();
+  void DeleteExtensionModules();
 
   typedef std::vector<ExtensionModuleEntry> ExtensionModules;
   ExtensionModules extension_modules_;
