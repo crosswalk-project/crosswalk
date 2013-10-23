@@ -20,8 +20,6 @@ class RuntimeExtension : public XWalkExtension {
  public:
   RuntimeExtension();
 
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
-
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
 

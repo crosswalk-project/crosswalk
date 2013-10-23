@@ -32,7 +32,6 @@ class DialogExtension : public XWalkExtension,
   virtual ~DialogExtension();
 
   // XWalkExtension implementation.
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   // RuntimeRegistryObserver implementation.

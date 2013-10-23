@@ -44,14 +44,10 @@ class CounterExtension : public XWalkExtension {
   CounterExtension()
       : XWalkExtension() {
     set_name("counter");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
+    set_javascript_api(
         "exports.count = function() {"
         "  extension.postMessage('PING');"
-        "};";
-    return kAPI;
+        "};");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {

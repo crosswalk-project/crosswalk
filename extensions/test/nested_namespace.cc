@@ -36,12 +36,7 @@ class OuterExtension : public XWalkExtension {
  public:
   OuterExtension() : XWalkExtension() {
     set_name("outer");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
-        "exports.value = true";
-    return kAPI;
+    set_javascript_api("exports.value = true");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
@@ -61,12 +56,7 @@ class InnerExtension : public XWalkExtension {
  public:
   InnerExtension() : XWalkExtension() {
     set_name("outer.inner");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
-        "exports.value = true";
-    return kAPI;
+    set_javascript_api("exports.value = true");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {

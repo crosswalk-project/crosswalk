@@ -31,18 +31,14 @@ class TestV8ToolsExtension : public XWalkExtension {
   TestV8ToolsExtension()
       : XWalkExtension() {
     set_name("test_v8tools");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
+    set_javascript_api(
         "var v8tools = requireNative('v8tools');"
         "exports.forceSetProperty = function(obj, key, value) {"
         "  v8tools.forceSetProperty(obj, key, value);"
         "};"
         "exports.lifecycleTracker = function() {"
         "  return v8tools.lifecycleTracker();"
-        "};";
-    return kAPI;
+        "};");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {

@@ -13,10 +13,7 @@ namespace xwalk {
 
 RuntimeExtension::RuntimeExtension() {
   set_name("xwalk.runtime");
-}
-
-const char* RuntimeExtension::GetJavaScriptAPI() {
-  return kSource_runtime_api;
+  set_javascript_api(kSource_runtime_api);
 }
 
 XWalkExtensionInstance* RuntimeExtension::CreateInstance() {

@@ -18,8 +18,6 @@ class TestExtension : public xwalk::extensions::XWalkExtension {
  public:
   TestExtension();
 
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
-
   virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
 

@@ -303,7 +303,7 @@ void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
   for (; it != extensions_.end(); ++it) {
     XWalkExtension* extension = it->second;
     Send(new XWalkExtensionClientMsg_RegisterExtension(
-        extension->name(), extension->GetJavaScriptAPI(),
+        extension->name(), extension->javascript_api(),
         extension->entry_points()));
   }
 }

@@ -65,10 +65,6 @@ bool XWalkExternalExtension::is_valid() {
   return initialized_;
 }
 
-const char* XWalkExternalExtension::GetJavaScriptAPI() {
-  return js_api_.c_str();
-}
-
 XWalkExtensionInstance* XWalkExternalExtension::CreateInstance() {
   XW_Instance xw_instance =
       XWalkExternalAdapter::GetInstance()->GetNextXWInstance();
@@ -90,7 +86,7 @@ void XWalkExternalExtension::CoreSetExtensionName(const char* name) {
 
 void XWalkExternalExtension::CoreSetJavaScriptAPI(const char* js_api) {
   RETURN_IF_INITIALIZED("SetJavaScriptAPI from CoreInterface");
-  js_api_ = std::string(js_api);
+  set_javascript_api(std::string(js_api));
 }
 
 void XWalkExternalExtension::CoreRegisterInstanceCallbacks(

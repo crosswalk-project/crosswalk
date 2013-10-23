@@ -72,10 +72,7 @@ class EchoExtension : public XWalkExtension {
  public:
   EchoExtension() : XWalkExtension() {
     set_name("echo");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    return kEchoAPI;
+    set_javascript_api(kEchoAPI);
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -87,10 +84,7 @@ class DelayedEchoExtension : public XWalkExtension {
  public:
   DelayedEchoExtension() : XWalkExtension() {
     set_name("echo");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    return kEchoAPI;
+    set_javascript_api(kEchoAPI);
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -104,7 +98,6 @@ class ExtensionWithInvalidName : public XWalkExtension {
     set_name("invalid name with spaces");
   }
 
-  virtual const char* GetJavaScriptAPI() { return ""; }
   virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
 };
 
