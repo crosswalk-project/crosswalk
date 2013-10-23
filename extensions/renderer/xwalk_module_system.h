@@ -75,6 +75,21 @@ class XWalkModuleSystem {
                          const ExtensionModuleEntry& second);
   };
 
+  bool SetTrampolineAccessorForEntryPoint(
+      v8::Handle<v8::Context> context,
+      const std::string& entry_point,
+      v8::Local<v8::External> user_data);
+
+  static bool DeleteAccessorForEntryPoint(v8::Handle<v8::Context> context,
+                                          const std::string& entry_point);
+
+  bool InstallTrampoline(v8::Handle<v8::Context> context,
+                         ExtensionModuleEntry* entry);
+
+  static void TrampolineCallback(
+      v8::Local<v8::String> property,
+      const v8::PropertyCallbackInfo<v8::Value>& info);
+
   bool ContainsExtensionModule(const std::string& name);
   void MarkModulesWithTrampoline();
   void DeleteExtensionModules();

@@ -4,8 +4,14 @@
 
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
+#include <algorithm>
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
+#include "base/strings/string_split.h"
+#include "v8/include/v8.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 
 namespace xwalk {
@@ -141,6 +147,132 @@ void XWalkModuleSystem::RegisterNativeModule(
   native_modules_[name] = module.release();
 }
 
+namespace {
+
+v8::Handle<v8::Value> EnsureTargetObjectForTrampoline(
+    v8::Handle<v8::Context> context, const std::vector<std::string>& path,
+    std::string* error) {
+  v8::Handle<v8::Object> object = context->Global();
+
+  std::vector<std::string>::const_iterator it = path.begin();
+  for (; it != path.end(); ++it) {
+    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::Value> value = object->Get(part);
+
+    if (value->IsUndefined()) {
+      v8::Handle<v8::Object> next_object = v8::Object::New();
+      object->Set(part, next_object);
+      object = next_object;
+      continue;
+    }
+
+    if (!value->IsObject()) {
+      *error = "the property '" + *it + "' in the path is undefined";
+      return v8::Undefined();
+    }
+
+    object = value.As<v8::Object>();
+  }
+  return object;
+}
+
+v8::Handle<v8::Value> GetObjectForPath(v8::Handle<v8::Context> context,
+                                       const std::vector<std::string>& path,
+                                       std::string* error) {
+  v8::Handle<v8::Object> object = context->Global();
+
+  std::vector<std::string>::const_iterator it = path.begin();
+  for (; it != path.end(); ++it) {
+    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::Value> value = object->Get(part);
+
+    if (!value->IsObject()) {
+      *error = "the property '" + *it + "' in the path is undefined";
+      return v8::Undefined();
+    }
+
+    object = value.As<v8::Object>();
+  }
+
+  return object;
+}
+
+}  // namespace
+
+bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
+    v8::Handle<v8::Context> context,
+    const std::string& entry_point,
+    v8::Local<v8::External> user_data) {
+  std::vector<std::string> path;
+  base::SplitString(entry_point, '.', &path);
+  std::string basename = path.back();
+  path.pop_back();
+
+  std::string error;
+  v8::Handle<v8::Value> value =
+      EnsureTargetObjectForTrampoline(context, path, &error);
+  if (value->IsUndefined()) {
+    LOG(WARNING) << "Error installing trampoline for " << entry_point
+                 << ": " << error << ".";
+    return false;
+  }
+
+  // FIXME(cmarcelo): ensure that trampoline is readonly.
+  value.As<v8::Object>()->SetAccessor(v8::String::New(basename.c_str()),
+                                      TrampolineCallback, 0, user_data);
+  return true;
+}
+
+// static
+bool XWalkModuleSystem::DeleteAccessorForEntryPoint(
+    v8::Handle<v8::Context> context,
+    const std::string& entry_point) {
+  std::vector<std::string> path;
+  base::SplitString(entry_point, '.', &path);
+  std::string basename = path.back();
+  path.pop_back();
+
+  std::string error;
+  v8::Handle<v8::Value> value = GetObjectForPath(context, path, &error);
+  if (value->IsUndefined()) {
+    LOG(WARNING) << "Error retrieving object for " << entry_point
+                 << ": " << error << ".";
+    return false;
+  }
+
+  value.As<v8::Object>()->ForceDelete(v8::String::New(basename.c_str()));
+  return true;
+}
+
+bool XWalkModuleSystem::InstallTrampoline(v8::Handle<v8::Context> context,
+                                          ExtensionModuleEntry* entry) {
+  v8::Local<v8::External> entry_ptr = v8::External::New(entry);
+  bool ret;
+
+  ret = SetTrampolineAccessorForEntryPoint(context, entry->name, entry_ptr);
+  if (!ret) {
+    LOG(WARNING) << "Error installing trampoline for '"
+                 << entry->name << "'.";
+    return false;
+  }
+
+  base::ListValue::const_iterator it = entry->entry_points->begin();
+  for (; it != entry->entry_points->end(); ++it) {
+    std::string entry_point;
+    (*it)->GetAsString(&entry_point);
+
+    ret = SetTrampolineAccessorForEntryPoint(context, entry_point, entry_ptr);
+    if (!ret) {
+      // TODO(vcgomes): Remove already added trampolines when it fails.
+      LOG(WARNING) << "Error installing trampoline for '"
+                   << entry->name << "'.";
+      return false;
+    }
+  }
+
+  return true;
+}
+
 v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
     const std::string& name) {
   NativeModuleMap::iterator it = native_modules_.find(name);
@@ -150,6 +282,10 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
 }
 
 void XWalkModuleSystem::Initialize() {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  const bool on_demand_enabled =
+      cmd_line->HasSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand);
+
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
 
@@ -162,8 +298,14 @@ void XWalkModuleSystem::Initialize() {
   MarkModulesWithTrampoline();
 
   ExtensionModules::iterator it = extension_modules_.begin();
-  for (; it != extension_modules_.end(); ++it)
+  for (; it != extension_modules_.end(); ++it) {
+    if (on_demand_enabled && it->use_trampoline) {
+      if (InstallTrampoline(context, &*it))
+        continue;
+      LOG(WARNING) << "Falling back to immediately loading " << it->name;
+    }
     it->module->LoadExtensionCode(context, require_native);
+  }
 }
 
 v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
@@ -185,6 +327,45 @@ void XWalkModuleSystem::DeleteExtensionModules() {
     delete it->module;
   }
   extension_modules_.clear();
+}
+
+// static
+void XWalkModuleSystem::TrampolineCallback(
+    v8::Local<v8::String> property,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
+  void* ptr = info.Data().As<v8::External>()->Value();
+  ExtensionModuleEntry* entry = static_cast<ExtensionModuleEntry*>(ptr);
+
+  if (!entry)
+    return;
+
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::Handle<v8::Context> context = isolate->GetCurrentContext();
+
+  DeleteAccessorForEntryPoint(context, entry->name);
+
+  base::ListValue::const_iterator it = entry->entry_points->begin();
+  for (; it != entry->entry_points->end(); ++it) {
+    std::string entry_point;
+    std::vector<std::string> path;
+
+    (*it)->GetAsString(&entry_point);
+
+    DeleteAccessorForEntryPoint(context, entry_point);
+  }
+
+  XWalkModuleSystem* module_system = GetModuleSystemFromContext(context);
+  v8::Handle<v8::FunctionTemplate> require_native_template =
+        v8::Handle<v8::FunctionTemplate>::New(
+            isolate,
+            module_system->require_native_template_);
+
+  XWalkExtensionModule* module = entry->module;
+  module->LoadExtensionCode(module_system->GetV8Context(),
+                            require_native_template->GetFunction());
+
+  v8::Handle<v8::Object> holder = info.Holder();
+  info.GetReturnValue().Set(holder->Get(property));
 }
 
 // Returns whether the name of first is prefix of the second, considering "."
