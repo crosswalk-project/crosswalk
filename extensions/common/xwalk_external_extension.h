@@ -51,6 +51,7 @@ class XWalkExternalExtension : public XWalkExtension {
       XW_CreatedInstanceCallback created_callback,
       XW_DestroyedInstanceCallback destroyed_callback);
   void CoreRegisterShutdownCallback(XW_ShutdownCallback callback);
+  void EntryPointsSetExtraJSEntryPoints(const char** entry_points);
 
   // XW_MessagingInterface_1 (from XW_Extension.h) implementation.
   void MessagingRegister(XW_HandleMessageCallback callback);

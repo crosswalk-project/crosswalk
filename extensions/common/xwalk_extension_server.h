@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <map>
+#include <set>
 #include <string>
 
 #include "base/synchronization/lock.h"
@@ -75,6 +76,8 @@ class XWalkExtensionServer : public IPC::Listener {
 
   void DeleteInstanceMap();
 
+  bool ValidateExtensionEntryPoints(const base::ListValue& entry_points);
+
   base::Lock sender_lock_;
   IPC::Sender* sender_;
 
@@ -83,6 +86,10 @@ class XWalkExtensionServer : public IPC::Listener {
 
   typedef std::map<int64_t, InstanceExecutionData> InstanceMap;
   InstanceMap instances_;
+
+  // The exported symbols for extensions already registered.
+  typedef std::set<std::string> ExtensionSymbolsSet;
+  ExtensionSymbolsSet extension_symbols_;
 };
 
 void RegisterExternalExtensionsInDirectory(

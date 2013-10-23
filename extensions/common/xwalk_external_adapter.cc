@@ -87,6 +87,13 @@ const void* XWalkExternalAdapter::GetInterface(const char* name) {
     return &syncMessagingInterface1;
   }
 
+  if (!strcmp(name, XW_INTERNAL_ENTRY_POINTS_1)) {
+    static const XW_Internal_EntryPoints_1 entryPoints1 = {
+      EntryPointsSetExtraJSEntryPoints
+    };
+    return &entryPoints1;
+  }
+
   LOG(WARNING) << "Interface '" << name << "' is not supported.";
   return NULL;
 }

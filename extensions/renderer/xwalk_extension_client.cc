@@ -5,6 +5,7 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 
 #include "base/values.h"
+#include "base/stl_util.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 
@@ -17,6 +18,7 @@ XWalkExtensionClient::XWalkExtensionClient()
 }
 
 XWalkExtensionClient::~XWalkExtensionClient() {
+  STLDeleteValues(&extension_apis_);
 }
 
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
@@ -68,6 +70,16 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
   const base::Value* value;
   msg.Get(0, &value);
   it->second->HandleMessageFromNative(*value);
+}
+
+void XWalkExtensionClient::OnRegisterExtension(
+    const std::string& name,
+    const std::string& api,
+    const base::ListValue& entry_points) {
+  ExtensionCodePoints* codepoint = new ExtensionCodePoints;
+  codepoint->api = api;
+  codepoint->entry_points = entry_points.DeepCopy();
+  extension_apis_[name] = codepoint;
 }
 
 void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {

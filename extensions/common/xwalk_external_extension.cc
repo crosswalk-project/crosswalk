@@ -5,6 +5,7 @@
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 
 #include <string>
+#include <vector>
 #include "base/logging.h"
 #include "base/files/file_path.h"
 #include "base/lazy_instance.h"
@@ -116,6 +117,19 @@ void XWalkExternalExtension::SyncMessagingRegister(
     XW_HandleSyncMessageCallback callback) {
   RETURN_IF_INITIALIZED("Register from Internal_SyncMessagingInterface");
   handle_sync_msg_callback_ = callback;
+}
+
+void XWalkExternalExtension::EntryPointsSetExtraJSEntryPoints(
+    const char** entry_points) {
+  RETURN_IF_INITIALIZED("SetExtraJSEntryPoints from EntryPoints");
+  if (!entry_points)
+    return;
+
+  std::vector<std::string> entries;
+  for (int i = 0; entry_points[i]; ++i)
+    entries.push_back(std::string(entry_points[i]));
+
+  set_entry_points(entries);
 }
 
 }  // namespace extensions

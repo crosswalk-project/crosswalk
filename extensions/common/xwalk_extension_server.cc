@@ -108,11 +108,11 @@ bool XWalkExtensionServer::Send(IPC::Message* msg) {
 
 namespace {
 
-bool ValidateExtensionName(const std::string& extension_name) {
+bool ValidateExtensionIdentifier(const std::string& name) {
   bool dot_allowed = false;
   bool digit_or_underscore_allowed = false;
-  for (size_t i = 0; i < extension_name.size(); ++i) {
-    char c = extension_name[i];
+  for (size_t i = 0; i < name.size(); ++i) {
+    char c = name[i];
     if (IsAsciiDigit(c)) {
       if (!digit_or_underscore_allowed)
         return false;
@@ -141,19 +141,36 @@ bool ValidateExtensionName(const std::string& extension_name) {
 
 bool XWalkExtensionServer::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
-  if (!ValidateExtensionName(extension->name())) {
+  if (!ValidateExtensionIdentifier(extension->name())) {
     LOG(WARNING) << "Ignoring extension with invalid name: "
                  << extension->name();
     return false;
   }
 
-  if (extensions_.find(extension->name()) != extensions_.end()) {
+  if (extension_symbols_.find(extension->name()) != extension_symbols_.end()) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
                  << extension->name();
     return false;
   }
 
+  if (!ValidateExtensionEntryPoints(extension->entry_points())) {
+    LOG(WARNING) << "Ignoring extension '" << extension->name()
+                 << "' with invalid entry point.";
+    return false;
+  }
+
+  const base::ListValue& entry_points = extension->entry_points();
+  base::ListValue::const_iterator it = entry_points.begin();
+
+  for (; it != entry_points.end(); ++it) {
+    std::string entry_point;
+    (*it)->GetAsString(&entry_point);
+    extension_symbols_.insert(entry_point);
+  }
+
   std::string name = extension->name();
+
+  extension_symbols_.insert(name);
   extensions_[name] = extension.release();
   return true;
 }
@@ -210,6 +227,28 @@ void XWalkExtensionServer::DeleteInstanceMap() {
   }
 }
 
+bool XWalkExtensionServer::ValidateExtensionEntryPoints(
+    const base::ListValue& entry_points) {
+  base::ListValue::const_iterator it = entry_points.begin();
+
+  for (; it != entry_points.end(); ++it) {
+    std::string entry_point;
+
+    (*it)->GetAsString(&entry_point);
+
+    if (!ValidateExtensionIdentifier(entry_point))
+      return false;
+
+    if (extension_symbols_.find(entry_point) != extension_symbols_.end()) {
+      LOG(WARNING) << "Entry point '" << entry_point
+                   << "' clashes with another extension entry point.";
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void XWalkExtensionServer::OnSendSyncMessageToNative(int64_t instance_id,
     const base::ListValue& msg, IPC::Message* ipc_reply) {
   InstanceMap::iterator it = instances_.find(instance_id);
@@ -264,7 +303,8 @@ void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
   for (; it != extensions_.end(); ++it) {
     XWalkExtension* extension = it->second;
     Send(new XWalkExtensionClientMsg_RegisterExtension(
-        extension->name(), extension->GetJavaScriptAPI()));
+        extension->name(), extension->GetJavaScriptAPI(),
+        extension->entry_points()));
   }
 }
 
@@ -312,7 +352,7 @@ void RegisterExternalExtensionsInDirectory(
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {
-  return ValidateExtensionName(extension_name);
+  return ValidateExtensionIdentifier(extension_name);
 }
 
 }  // namespace extensions
