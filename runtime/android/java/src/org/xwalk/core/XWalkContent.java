@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentVideoView;
@@ -249,6 +250,23 @@ public class XWalkContent extends FrameLayout {
         return mSettings;
     }
 
+    public void loadAppFromManifest(String path, String manifest) {
+        if (path == null || manifest == null) {
+            return;
+        }
+
+        if (!nativeSetManifest(mXWalkContent, path, manifest)) {
+            throw new RuntimeException("Failed to parse the manifest file.");
+        }
+    }
+
+    @CalledByNative
+    public void onGetUrlFromManifest(String url) {
+        if (url != null && !url.isEmpty()) {
+            loadUrl(url);
+        }
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
 
@@ -258,4 +276,5 @@ public class XWalkContent extends FrameLayout {
     private native String nativeDevToolsAgentId(int nativeXWalkContent);
     private native String nativeGetVersion(int nativeXWalkContent);
     private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
+    private native boolean nativeSetManifest(int nativeXWalkContent, String path, String manifest);
 }

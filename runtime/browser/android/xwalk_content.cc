@@ -4,8 +4,11 @@
 
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
+#include <string>
+
 #include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
+#include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/browser_context.h"
@@ -13,6 +16,8 @@
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/common/renderer_preferences.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
@@ -138,6 +143,43 @@ void XWalkContent::SetJsOnlineProperty(JNIEnv* env,
                                        jobject obj,
                                        jboolean network_up) {
   render_view_host_ext_->SetJsOnlineProperty(network_up);
+}
+
+jboolean XWalkContent::SetManifest(JNIEnv* env,
+                                   jobject obj,
+                                   jstring path,
+                                   jstring manifest_string) {
+  std::string path_str = base::android::ConvertJavaStringToUTF8(env, path);
+  std::string json_input =
+      base::android::ConvertJavaStringToUTF8(env, manifest_string);
+
+  base::Value* manifest_value = base::JSONReader::Read(json_input);
+  if (!manifest_value) return false;
+
+  base::DictionaryValue* manifest_dictionary;
+  manifest_value->GetAsDictionary(&manifest_dictionary);
+  if (!manifest_dictionary) return false;
+
+  scoped_ptr<base::DictionaryValue>
+      manifest_dictionary_ptr(manifest_dictionary);
+
+  xwalk::application::Manifest manifest(
+      xwalk::application::Manifest::INVALID_TYPE,
+      manifest_dictionary_ptr.Pass());
+
+  std::string url;
+  if (manifest.GetString(
+          xwalk::application_manifest_keys::kLaunchLocalPathKey, &url)) {
+    url = path_str + url;
+  } else {
+    manifest.GetString(
+        xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
+  }
+
+  ScopedJavaLocalRef<jstring> buffer =
+      base::android::ConvertUTF8ToJavaString(env, url);
+  Java_XWalkContent_onGetUrlFromManifest(env, obj, buffer.obj());
+  return true;
 }
 
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
