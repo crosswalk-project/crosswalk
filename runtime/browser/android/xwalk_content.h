@@ -40,6 +40,8 @@ class XWalkContent {
     return render_view_host_ext_.get();
   };
 
+  void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
+
  private:
   content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);
 

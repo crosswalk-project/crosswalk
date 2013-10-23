@@ -60,6 +60,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   // Sets the initial page scale. This overrides initial scale set by
   // the meta viewport tag.
   void SetInitialPageScale(double page_scale_factor);
+  void SetJsOnlineProperty(bool network_up);
 
  private:
   // content::WebContentsObserver implementation.
