@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/xwalk_extensions_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="xwalk_extensions_resources.pak" type="data_package" />
+    <output filename="xwalk_extensions_resources.rc" type="rc_all" />
+  </outputs>
+  <translations />
+  <release seq="1">
+    <includes>
+      <include name="IDR_XWALK_EXTENSIONS_INTERNAL_API" file="renderer/xwalk_internal_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_EXTENSIONS_TESTS_INTERNAL_EXTENSION_BROWSERTEST_API" file="test/internal_extension_browsertest_api.js" type="BINDATA" />
+    </includes>
+  </release>
+</grit>

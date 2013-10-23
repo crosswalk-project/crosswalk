@@ -7,11 +7,23 @@
 # our case.
 
 {
-  "SRCDIR": "../../..",
+  "SRCDIR": "../..",
 
   "xwalk/runtime/resources/xwalk_resources.grd": {
     "includes": [31000],
     "structures": [31500],
     "messages": [32000],
+  },
+
+  "xwalk/experimental/experimental_resources.grd": {
+    "includes": [32100],
+  },
+
+  "xwalk/extensions/extensions_resources.grd": {
+    "includes": [32125],
+  },
+
+  "xwalk/application/application_resources.grd": {
+    "includes": [32150],
   },
 }

@@ -6,7 +6,6 @@
     'test/external_extension.cc',
     'test/internal_extension_browsertest.cc',
     'test/internal_extension_browsertest.h',
-    'test/internal_extension_browsertest_api.js',
     'test/nested_namespace.cc',
     'test/conflicting_entry_points.cc',
     'test/test.idl',
@@ -18,8 +17,5 @@
 
   'dependencies': [
     'extensions/external_extension_sample.gyp:*',
-  ],
-  'includes': [
-    'xwalk_js2c.gypi',
   ],
 }

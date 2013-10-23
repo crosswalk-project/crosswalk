@@ -8,6 +8,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 #include "ipc/ipc_message.h"
+#include "grit/xwalk_application_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application.h"
@@ -15,16 +17,14 @@
 
 using content::BrowserThread;
 
-// This will be generated from application_api.js.
-extern const char kSource_application_api[];
-
 namespace xwalk {
 
 ApplicationExtension::ApplicationExtension(
     application::ApplicationSystem* application_system)
   : application_system_(application_system) {
   set_name("xwalk.app");
-  set_javascript_api(kSource_application_api);
+  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_APPLICATION_API).as_string());
 }
 
 XWalkExtensionInstance* ApplicationExtension::CreateInstance() {
