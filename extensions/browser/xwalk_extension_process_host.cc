@@ -54,10 +54,6 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost()
 }
 
 XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
-  // FIXME(jeez): We have to find a way to handle a ^C on Linux,
-  // in order to avoid leaving zombies behind. I couldn't find any
-  // content/public/ way of handling this, but Chrome does some trickery
-  // at chrome/browser/chrome_browser_main_posix.cc .
   StopProcess();
 }
 

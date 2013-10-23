@@ -6,16 +6,15 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_SERVICE_H_
 
 #include <stdint.h>
+#include <map>
 #include <string>
 #include "base/callback_forward.h"
+#include "base/containers/scoped_ptr_hash_map.h"
+#include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/thread.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
-
-namespace base {
-class FilePath;
-}
 
 namespace content {
 class RenderProcessHost;
@@ -60,29 +59,41 @@ class XWalkExtensionService : public content::NotificationObserver {
       const RegisterExtensionsCallback& callback);
 
  private:
+  // We create one instance of this struct per RenderProcess.
+  struct ExtensionData {
+    // The servers will live on the extension thread.
+    scoped_ptr<XWalkExtensionServer> in_process_server_;
+
+    // This object lives on the IO-thread.
+    ExtensionServerMessageFilter* in_process_message_filter_;
+
+    // This object lives on the IO-thread.
+    scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
+  };
+
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
-  // FIXME(cmarcelo): For now we support only one render process host.
-  content::RenderProcessHost* render_process_host_;
+  void CreateInProcessExtensionServer(content::RenderProcessHost* host,
+      ExtensionData* data);
+  void CreateExtensionProcessHost(content::RenderProcessHost* host,
+      ExtensionData* data);
 
   // The server that handles in process extensions will live in the
   // extension_thread_.
   base::Thread extension_thread_;
-  scoped_ptr<XWalkExtensionServer> in_process_extensions_server_;
-
-  // This object lives on the IO-thread.
-  ExtensionServerMessageFilter* in_process_server_message_filter_;
-
-  // This object lives on the IO-thread.
-  scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
 
   content::NotificationRegistrar registrar_;
 
   Delegate* delegate_;
+
+  base::FilePath external_extensions_path_;
+
+  typedef std::map<int, ExtensionData*> RenderProcessToExtensionDataMap;
+  RenderProcessToExtensionDataMap extension_data_map_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };
