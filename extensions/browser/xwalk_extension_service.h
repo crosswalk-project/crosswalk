@@ -59,24 +59,32 @@ class XWalkExtensionService : public content::NotificationObserver {
       const RegisterExtensionsCallback& callback);
 
  private:
+  // We create one instance of this struct per RenderProcess.
+  struct ExtensionData {
+    // The servers will live on the extension thread.
+    scoped_ptr<XWalkExtensionServer> in_process_server_;
+
+    // This object lives on the IO-thread.
+    ExtensionServerMessageFilter* in_process_message_filter_;
+
+    // This object lives on the IO-thread.
+    scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
+  };
+
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
-  scoped_ptr<XWalkExtensionServer> CreateInProcessExtensionServer(
-      content::RenderProcessHost* host);
-  void CreateExtensionProcessHost(content::RenderProcessHost* host);
+  void CreateInProcessExtensionServer(content::RenderProcessHost* host,
+      ExtensionData* data);
+  void CreateExtensionProcessHost(content::RenderProcessHost* host,
+      ExtensionData* data);
 
   // The server that handles in process extensions will live in the
   // extension_thread_.
   base::Thread extension_thread_;
-
-  // This object lives on the IO-thread.
-  typedef std::map<int, ExtensionServerMessageFilter*>
-      RenderProcessToServerMessageFilterMap;
-  RenderProcessToServerMessageFilterMap in_process_server_message_filters_map_;
 
   content::NotificationRegistrar registrar_;
 
@@ -84,15 +92,8 @@ class XWalkExtensionService : public content::NotificationObserver {
 
   base::FilePath external_extensions_path_;
 
-  // This object lives on the IO-thread.
-  typedef base::ScopedPtrHashMap<int, XWalkExtensionProcessHost>
-      RenderProcessToExtensionProcessHostMap;
-  RenderProcessToExtensionProcessHostMap extension_process_hosts_map_;
-
-  // The servers will live on the extension thread.
-  typedef base::ScopedPtrHashMap<int, XWalkExtensionServer>
-      RenderProcessToInProcessExtensionServerMap;
-  RenderProcessToInProcessExtensionServerMap in_process_extension_server_map_;
+  typedef std::map<int, ExtensionData*> RenderProcessToExtensionDataMap;
+  RenderProcessToExtensionDataMap extension_data_map_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
 };

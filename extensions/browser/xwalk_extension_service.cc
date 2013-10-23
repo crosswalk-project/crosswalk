@@ -93,8 +93,8 @@ XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
 XWalkExtensionService::~XWalkExtensionService() {
   // This object should have been released and asked to be deleted in the
   // extension thread.
-  if (!in_process_extension_server_map_.empty())
-    VLOG(1) << "In_process Extension's Server map is not empty";
+  if (!extension_data_map_.empty())
+    VLOG(1) << "The ExtensionData map is not empty!";
 }
 
 void XWalkExtensionService::RegisterExternalExtensionsForPath(
@@ -106,18 +106,18 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
     content::RenderProcessHost* host) {
   CHECK(host);
 
-  scoped_ptr<XWalkExtensionServer> in_process_server =
-      CreateInProcessExtensionServer(host);
+  ExtensionData* data = new ExtensionData;
+  CreateInProcessExtensionServer(host, data);
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
-    CreateExtensionProcessHost(host);
+    CreateExtensionProcessHost(host, data);
   else if (!external_extensions_path_.empty()) {
-    RegisterExternalExtensionsInDirectory(in_process_server.get(),
+    RegisterExternalExtensionsInDirectory(data->in_process_server_.get(),
         external_extensions_path_);
   }
 
-  in_process_extension_server_map_.set(host->GetID(), in_process_server.Pass());
+  extension_data_map_[host->GetID()] = data;
 }
 
 // static
@@ -144,17 +144,19 @@ void XWalkExtensionService::Observe(int type,
 
 void XWalkExtensionService::OnRenderProcessHostClosed(
     content::RenderProcessHost* host) {
+  ExtensionData* data = extension_data_map_[host->GetID()];
   // Invalidate the objects in the different threads so they stop posting
   // messages to each other. This is important because we'll schedule the
   // deletion of both objects to their respective threads.
   ExtensionServerMessageFilter* message_filter =
-      in_process_server_message_filters_map_[host->GetID()];
+      data->in_process_message_filter_;
   CHECK(message_filter);
 
   message_filter->Invalidate();
 
   scoped_ptr<XWalkExtensionServer> in_process_server =
-      in_process_extension_server_map_.take_and_erase(host->GetID());
+      data->in_process_server_.Pass();
+
   CHECK(in_process_server);
 
   in_process_server->Invalidate();
@@ -166,15 +168,16 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
       FROM_HERE, in_process_server.release());
 
   scoped_ptr<XWalkExtensionProcessHost> eph =
-      extension_process_hosts_map_.take_and_erase(host->GetID());
+      data->extension_process_host_.Pass();
 
   if (eph)
     BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE, eph.release());
+
+  extension_data_map_.erase(host->GetID());
 }
 
-scoped_ptr<XWalkExtensionServer>
-XWalkExtensionService::CreateInProcessExtensionServer(
-    content::RenderProcessHost* host) {
+void XWalkExtensionService::CreateInProcessExtensionServer(
+    content::RenderProcessHost* host, ExtensionData* data) {
   scoped_ptr<XWalkExtensionServer> in_process_server(new XWalkExtensionServer);
 
   IPC::ChannelProxy* channel = host->GetChannel();
@@ -187,7 +190,7 @@ XWalkExtensionService::CreateInProcessExtensionServer(
 
   // The filter is owned by the IPC channel but we keep a reference to remove
   // it from the Channel later during a RenderProcess shutdown.
-  in_process_server_message_filters_map_[host->GetID()] = message_filter;
+  data->in_process_message_filter_ = message_filter;
 
   delegate_->RegisterInternalExtensionsInServer(in_process_server.get());
 
@@ -196,18 +199,19 @@ XWalkExtensionService::CreateInProcessExtensionServer(
 
   in_process_server->RegisterExtensionsInRenderProcess();
 
-  return in_process_server.Pass();
+  data->in_process_server_ = in_process_server.Pass();
 }
 
 void XWalkExtensionService::CreateExtensionProcessHost(
-    content::RenderProcessHost* host) {
+    content::RenderProcessHost* host, ExtensionData* data) {
   scoped_ptr<XWalkExtensionProcessHost> eph(new XWalkExtensionProcessHost());
 
   if (!external_extensions_path_.empty())
     eph->RegisterExternalExtensions(external_extensions_path_);
 
   eph->OnRenderProcessHostCreated(host);
-  extension_process_hosts_map_.set(host->GetID(), eph.Pass());
+
+  data->extension_process_host_ = eph.Pass();
 }
 
 }  // namespace extensions
