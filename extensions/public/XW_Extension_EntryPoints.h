@@ -16,19 +16,19 @@
 extern "C" {
 #endif
 
-#define XW_INTERNAL_ENTRY_POINTS_1 \
-  "XW_Internal_EntryPoints_1"
-#define XW_INTERNAL_ENTRY_POINTS \
-  XW_INTERNAL_ENTRY_POINTS_1
+#define XW_INTERNAL_ENTRY_POINTS_INTERFACE_1 \
+  "XW_Internal_EntryPointsInterface_1"
+#define XW_INTERNAL_ENTRY_POINTS_INTERFACE \
+  XW_INTERNAL_ENTRY_POINTS_INTERFACE_1
 
 //
-// XW_INTERNAL_ENTRY_POINTS: provides a way for extensions to add
+// XW_INTERNAL_ENTRY_POINTS_INTERFACE: provides a way for extensions to add
 // more information about its implementation. For now, allow extensions to
 // specify more objects that the access should cause the extension to be
 // loaded.
 //
 
-struct XW_Internal_EntryPoints_1 {
+struct XW_Internal_EntryPointsInterface_1 {
   // Register extra entry points for this extension. An "extra" entry points
   // are objects outside the implicit namespace for which the extension should
   // be loaded when they are touched.
@@ -38,8 +38,8 @@ struct XW_Internal_EntryPoints_1 {
                                 const char** entry_points);
 };
 
-typedef struct XW_Internal_EntryPoints_1
-    XW_Internal_EntryPoints;
+typedef struct XW_Internal_EntryPointsInterface_1
+    XW_Internal_EntryPointsInterface;
 
 #ifdef __cplusplus
 }  // extern "C"
