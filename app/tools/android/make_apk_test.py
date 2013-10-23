@@ -261,6 +261,26 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(shared_mode_size < embeded_mode_size)
     Clean('Example')
 
+  def testXPK(self):
+    xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--xpk=%s' % xpk_file],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.isfile('Example.apk'))
+    Clean('Example')
+
+  def testXPKWithError(self):
+    xpk_file = os.path.join('test_data', 'xpk', 'error.xpk')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--xpk=%s' % xpk_file],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    error_msg = 'XPK doesn\'t contain manifest file'
+    self.assertTrue(out.find(error_msg) != -1)
+    self.assertFalse(os.path.exists('Example'))
+    self.assertFalse(os.path.isfile('Example.apk'))
+
+
 if __name__ == '__main__':
   parser = optparse.OptionParser()
   info = ('The build directory for xwalk.'
