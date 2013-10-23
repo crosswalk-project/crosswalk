@@ -47,7 +47,8 @@ class ExtensionSandboxedProcessLauncherDelegate
 XWalkExtensionProcessHost::XWalkExtensionProcessHost()
     : ep_rp_channel_handle_(""),
       render_process_host_(0),
-      is_extension_process_channel_ready_(false) {
+      is_extension_process_channel_ready_(false),
+      waitable_register_extensions_(false, false) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
       base::Unretained(this)));
@@ -64,6 +65,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   process_.reset(content::BrowserChildProcessHost::Create(
       content::PROCESS_TYPE_CONTENT_END, this));
 
+  // FIXME(jeez): Create a SyncChannel ourselves so we can use sync messages.
   std::string channel_id = process_->GetHost()->CreateChannel();
   CHECK(!channel_id.empty());
 
@@ -91,7 +93,18 @@ void XWalkExtensionProcessHost::StopProcess() {
 
 void XWalkExtensionProcessHost::RegisterExternalExtensions(
     const base::FilePath& extension_path) {
+  // FIXME(jeez): Use a real sync message instead of 2 async messages and a
+  // WaitableEvent.
   Send(new XWalkExtensionProcessMsg_RegisterExtensions(extension_path));
+  // NOTE(jeez): We block here because we want to prevent returning to the
+  // caller before having the ExtensionProcess with all extensions loaded.
+  // This has lead us to severe race conditions, so blocking the BrowserProcess
+  // at this point is low-cost.
+  waitable_register_extensions_.Wait();
+}
+
+void XWalkExtensionProcessHost::OnExtensionsRegistered() {
+  waitable_register_extensions_.Signal();
 }
 
 void XWalkExtensionProcessHost::OnRenderProcessHostCreated(
@@ -119,6 +132,9 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(
         XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
         OnRenderChannelCreated)
+    IPC_MESSAGE_HANDLER(
+        XWalkExtensionProcessHostMsg_ExtensionsRegistered,
+        OnExtensionsRegistered)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;

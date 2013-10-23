@@ -49,6 +49,8 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
   RegisterExternalExtensionsInDirectory(&extensions_server_, path);
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_ExtensionsRegistered());
 }
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel() {

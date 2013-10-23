@@ -39,6 +39,8 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(
         XWalkExtensionServerMsg_SendSyncMessageToNative,
         OnSendSyncMessageToNative)
+    IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_GetExtensionsToRegister,
+        OnGetExtensionsToRegister)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -169,9 +171,9 @@ bool XWalkExtensionServer::RegisterExtension(
   }
 
   std::string name = extension->name();
-
   extension_symbols_.insert(name);
   extensions_[name] = extension.release();
+
   return true;
 }
 
@@ -295,26 +297,24 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
   Send(new XWalkExtensionClientMsg_InstanceDestroyed(instance_id));
 }
 
-void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
-  // Having a sender means we have a RenderProcessHost ready.
-  DCHECK(sender_);
-
+void XWalkExtensionServer::OnGetExtensionsToRegister(
+    base::ListValue* extensions) {
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
+    base::ListValue* extension_values = new base::ListValue;
     XWalkExtension* extension = it->second;
-    Send(new XWalkExtensionClientMsg_RegisterExtension(
-        extension->name(), extension->javascript_api(),
-        extension->entry_points()));
+
+    extension_values->AppendString(extension->name());
+    extension_values->AppendString(extension->javascript_api());
+    extension_values->Append(extension->entry_points().DeepCopy());
+
+    extensions->Append(extension_values);
   }
 }
 
 void XWalkExtensionServer::Invalidate() {
   base::AutoLock l(sender_lock_);
   sender_ = NULL;
-}
-
-void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
-  RegisterExtensionsInRenderProcess();
 }
 
 namespace {
@@ -332,7 +332,6 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 void RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir) {
   CHECK(server);
-
   if (!base::DirectoryExists(dir)) {
     LOG(WARNING) << "Couldn't load external extensions from non-existent"
                  << " directory " << dir.AsUTF8Unsafe();
