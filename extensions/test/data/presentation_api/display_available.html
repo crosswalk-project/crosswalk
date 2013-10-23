@@ -1,0 +1,15 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+var presentation = navigator.experimental.presentation;
+if (!presentation.displayAvailable &&
+	  typeof(presentation.displayAvailable) == "boolean")
+	document.title = "Pass"
+else
+	document.title = "Fail"
+</script>
+</body>
+</html>

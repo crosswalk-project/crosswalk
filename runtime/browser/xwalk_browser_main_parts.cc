@@ -21,6 +21,7 @@
 #include "xwalk/application/extension/application_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/experimental/presentation/presentation_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -393,6 +394,8 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
       new ApplicationExtension(runtime_context()->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new experimental::PresentationExtension));
 #endif
 }
 
