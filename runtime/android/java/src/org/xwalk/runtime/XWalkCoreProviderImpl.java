@@ -17,7 +17,7 @@ import org.xwalk.runtime.extension.XWalkExtension;
  * The implementation class for runtime core. It calls the methods provided
  * by runtime core and customizes the behaviors for runtime.
  */
-class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
+class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     private Context mContext;
     private XWalkView mXwalkView;
 
@@ -27,6 +27,7 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
         init(context, activity);
     }
 
+    @Override
     public void init(Context context, Activity activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
