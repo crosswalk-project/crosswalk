@@ -284,7 +284,7 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
 void XWalkModuleSystem::Initialize() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   const bool on_demand_enabled =
-      cmd_line->HasSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand);
+      !cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand);
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
