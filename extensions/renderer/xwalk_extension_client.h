@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/memory/scoped_ptr.h"
 #include "base/values.h"
@@ -57,9 +58,7 @@ class XWalkExtensionClient : public IPC::Listener {
 
   struct ExtensionCodePoints {
     std::string api;
-    base::ListValue* entry_points;
-
-    ~ExtensionCodePoints() { delete entry_points; }
+    std::vector<std::string> entry_points;
   };
 
   typedef std::map<std::string, ExtensionCodePoints*> ExtensionAPIMap;

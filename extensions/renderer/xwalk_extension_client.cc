@@ -78,7 +78,14 @@ void XWalkExtensionClient::OnRegisterExtension(
     const base::ListValue& entry_points) {
   ExtensionCodePoints* codepoint = new ExtensionCodePoints;
   codepoint->api = api;
-  codepoint->entry_points = entry_points.DeepCopy();
+
+  base::ListValue::const_iterator it = entry_points.begin();
+  for (; it != entry_points.end(); ++it) {
+    std::string entry_point;
+    (*it)->GetAsString(&entry_point);
+    codepoint->entry_points.push_back(entry_point);
+  }
+
   extension_apis_[name] = codepoint;
 }
 
