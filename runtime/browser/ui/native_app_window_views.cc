@@ -32,6 +32,7 @@
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/tizen/tizen_sensor_observer.h"
 #include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
 
@@ -57,7 +58,8 @@ NativeAppWindowViews::NativeAppWindowViews(
 #if defined(OS_TIZEN_MOBILE)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   // On Tizen apps are sized to the work area.
-  gfx::Rect bounds = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
+  gfx::Rect bounds =
+      gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
   params.bounds = bounds;
 #else
   params.type = views::Widget::InitParams::TYPE_WINDOW;
@@ -69,6 +71,7 @@ NativeAppWindowViews::NativeAppWindowViews(
 #if defined(OS_TIZEN_MOBILE)
   // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
+  sensor_observer_.reset(new TizenSensorObserver(this));
 #else
   window_->CenterWindow(create_params.bounds.size());
 #endif
