@@ -15,6 +15,8 @@
         'xwalk_application_resources',
       ],
       'sources': [
+        'browser/application_daemon.cc',
+        'browser/application_daemon.h',
         'browser/application_store.cc',
         'browser/application_store.h',
         'browser/application_process_manager.cc',
@@ -68,6 +70,17 @@
             'browser/installer/tizen/packageinfo_constants.h',
             'browser/installer/tizen/package_installer.cc',
             'browser/installer/tizen/package_installer.h',
+          ],
+        }],
+        [ 'OS=="linux"', {
+          'dependencies': [
+            'build/system.gyp:dbus_daemon',
+          ],
+          'sources': [
+            'browser/application_daemon_linux.cc',
+          ],
+          'sources!': [
+            'browser/application_daemon.cc',
           ],
         }],
       ],
