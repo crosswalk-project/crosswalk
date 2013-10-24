@@ -147,6 +147,12 @@
       },
       'conditions': [
         [ 'tizen_mobile == 1', {
+          'dependencies': [
+            'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
+          ],
+          'includes': [
+            'sysapps/device_capabilities/device_capabilities.gypi',
+          ],
           'sources': [
             'runtime/browser/tizen/sensor_provider.cc',
             'runtime/browser/tizen/sensor_provider.h',
@@ -383,6 +389,13 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+                ],
+              },
+            }],
+            [ 'tizen_mobile == 1', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_sysapps_resources.pak',
                 ],
               },
             }],
