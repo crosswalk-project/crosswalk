@@ -105,8 +105,9 @@ void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line, int child_process_id) {
   CommandLine* browser_process_cmd_line = CommandLine::ForCurrentProcess();
   if (browser_process_cmd_line->HasSwitch(
-          switches::kXWalkEnableLoadingExtensionsOnDemand)) {
-    command_line->AppendSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand);
+          switches::kXWalkDisableLoadingExtensionsOnDemand)) {
+    command_line->AppendSwitch(
+        switches::kXWalkDisableLoadingExtensionsOnDemand);
   }
 }
 
