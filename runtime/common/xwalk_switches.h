@@ -12,6 +12,8 @@ extern const char kXWalkDataPath[];
 
 extern const char kAppIcon[];
 
+extern const char kDaemon[];
+
 extern const char kFullscreen[];
 
 extern const char kInstall[];
