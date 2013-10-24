@@ -20,6 +20,12 @@ public abstract class XWalkWebContentsDelegate extends WebContentsDelegateAndroi
     public abstract void activateContents();
 
     @CalledByNative
+    public abstract void rendererUnresponsive();
+
+    @CalledByNative
+    public abstract void rendererResponsive();
+
+    @CalledByNative
     public void updatePreferredSize(int widthCss, int heightCss) {
     }
 }
