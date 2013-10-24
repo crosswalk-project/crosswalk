@@ -42,7 +42,7 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
 
         mGetExtensionName = lookupMethod("getExtensionName");
         mGetJsApi = lookupMethod("getJsApi");
-        mPostMessage = lookupMethod("postMessage", String.class);
+        mPostMessage = lookupMethod("postMessage", int.class, String.class);
         mBroadcastMessage = lookupMethod("broadcastMessage", String.class);
     }
 

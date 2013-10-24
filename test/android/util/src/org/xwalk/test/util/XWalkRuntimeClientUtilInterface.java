@@ -21,7 +21,7 @@ public class XWalkRuntimeClientUtilInterface {
     Instrumentation mInstrumentation;
     final TestXWalkRuntimeClientContentsClient mTestContentsClient =
             new TestXWalkRuntimeClientContentsClient();
-    protected final static int WAIT_TIMEOUT_SECONDS = 15;
+    public final static int WAIT_TIMEOUT_SECONDS = 15;
 
     public class PageStatusCallback {
         public void onPageStarted(String url) {

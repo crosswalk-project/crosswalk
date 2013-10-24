@@ -1,6 +1,18 @@
 {
   'targets': [
     {
+      # Java utils for runtime client related tests.
+      'target_name': 'xwalk_runtime_client_test_utils_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_client_java',
+      ],
+      'variables': {
+        'java_in_dir': 'test/android/util/runtime_client',
+      },
+      'includes': [ '../build/java.gypi' ],
+    },
+    {
       'target_name': 'xwalk_core_shell_apk',
       'type': 'none',
       'dependencies': [
@@ -191,17 +203,34 @@
       'dependencies': [
         'xwalk_app_runtime_client_java',
         'xwalk_app_runtime_activity_java',
+        'xwalk_runtime_client_test_utils_java',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientShell',
         'java_in_dir': 'app/android/runtime_client_shell',
         'resource_dir': 'app/android/runtime_client_shell/res',
         'additional_input_paths': [
-          '<(asset_location)/index.html',
-          '<(asset_location)/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/extensions-config.json',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/index.html',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/sampapp-icon-helloworld.png',
         ],
-        'asset_location': 'app/android/runtime_client_shell/assets',
+        'asset_location': '<(ant_build_out)/runtime_client_shell/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets',
+          'files': [
+            '<(java_in_dir)/assets/sampapp-icon-helloworld.png',
+            'test/android/data/extensions-config.json',
+            'test/android/data/index.html',
+          ],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets/myextension',
+          'files': ['test/android/data/myextension/myextension.js'],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
@@ -221,6 +250,7 @@
         'xwalk_app_runtime_activity_java',
         'xwalk_core_java',
         'xwalk_runtime_client_embedded_shell_apk_pak',
+        'xwalk_runtime_client_test_utils_java',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientEmbeddedShell',
@@ -228,20 +258,26 @@
         'resource_dir': 'app/android/runtime_client_embedded_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/index.html',
-          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
-          '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension/myextension.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk.pak',
         ],
-        'asset_location': '<(ant_build_out)/xwalk_runtime_client_embedded_shell/assets',
+        'asset_location': '<(ant_build_out)/runtime_client_embedded_shell/assets',
       },
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
-          'files': ['<(java_in_dir)/assets/sampapp-icon-helloworld.png'],
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
+          'files': [
+            '<(java_in_dir)/assets/sampapp-icon-helloworld.png',
+            'test/android/data/extensions-config.json',
+            'test/android/data/index.html',
+          ],
         },
         {
-          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
-          'files': ['<(java_in_dir)/assets/index.html'],
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension',
+          'files': ['test/android/data/myextension/myextension.js'],
         },
       ],
       'includes': [ '../build/java_apk.gypi' ],
@@ -254,7 +290,7 @@
       ],
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/xwalk_runtime_client_embedded_shell/assets',
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
@@ -295,7 +331,21 @@
         'apk_name': 'XWalkRuntimeClientTest',
         'java_in_dir': 'test/android/runtime_client/javatests',
         'is_test_apk': 1,
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/runtime_client_test/assets/echo.html',
+          '<(PRODUCT_DIR)/runtime_client_test/assets/echoSync.html',
+        ],
+        'asset_location': '<(ant_build_out)/runtime_client_test/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/runtime_client_test/assets',
+          'files': [
+            'test/android/data/echo.html',
+            'test/android/data/echoSync.html',
+          ],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
@@ -322,7 +372,21 @@
         'apk_name': 'XWalkRuntimeClientEmbeddedTest',
         'java_in_dir': 'test/android/runtime_client_embedded/javatests',
         'is_test_apk': 1,
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echo.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/echoSync.html',
+        ],
+        'asset_location': '<(ant_build_out)/runtime_client_embedded_test/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_test/assets',
+          'files': [
+            'test/android/data/echo.html',
+            'test/android/data/echoSync.html',
+          ],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
