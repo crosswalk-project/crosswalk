@@ -41,8 +41,8 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
   in_browser_process_extensions_client_->Initialize(thread->GetChannel());
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand)) {
-    LOG(INFO) << "LOADING EXTENSIONS ON DEMAND.";
+  if (cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand)) {
+    LOG(INFO) << "DISABLING LOADING EXTENSIONS ON DEMAND.";
   }
 }
 
