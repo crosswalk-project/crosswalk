@@ -133,6 +133,13 @@ void SetXWalkCommandLineFlags() {
 
   // Enable WebGL for Android.
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
+
+  // Disable HW encoding/decoding acceleration for WebRTC on Android.
+  // FIXME: Remove these switches for Android when Android OS is removed from
+  // GPU accelerated_video_decode blacklist or we stop ignoring the GPU
+  // blacklist.
+  command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
+  command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 #endif
 
   // FIXME: Add comment why this is needed on Android and Tizen.
