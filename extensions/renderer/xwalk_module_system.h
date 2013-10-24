@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "base/values.h"
 #include "base/memory/scoped_ptr.h"
 #include "v8/include/v8.h"
 
@@ -45,7 +46,8 @@ class XWalkModuleSystem {
       v8::Handle<v8::Context> context);
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
-  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module);
+  void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module,
+                               base::ListValue* entry_points);
 
   void RegisterNativeModule(const std::string& name,
                             scoped_ptr<XWalkNativeModule> module);
@@ -56,18 +58,41 @@ class XWalkModuleSystem {
   v8::Handle<v8::Context> GetV8Context();
 
  private:
-  bool ContainsExtensionModule(const std::string& name);
-  void DeleteExtensionModules();
-
   struct ExtensionModuleEntry {
-    ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module)
-        : name(name), module(module) {}
+    ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
+                         base::ListValue* entry_points)
+    : name(name), module(module), use_trampoline(true),
+      entry_points(entry_points) {}
     std::string name;
     XWalkExtensionModule* module;
+    bool use_trampoline;
+    base::ListValue* entry_points;
     bool operator<(const ExtensionModuleEntry& other) const {
       return name < other.name;
     }
+
+    static bool IsPrefix(const ExtensionModuleEntry& first,
+                         const ExtensionModuleEntry& second);
   };
+
+  bool SetTrampolineAccessorForEntryPoint(
+      v8::Handle<v8::Context> context,
+      const std::string& entry_point,
+      v8::Local<v8::External> user_data);
+
+  static bool DeleteAccessorForEntryPoint(v8::Handle<v8::Context> context,
+                                          const std::string& entry_point);
+
+  bool InstallTrampoline(v8::Handle<v8::Context> context,
+                         ExtensionModuleEntry* entry);
+
+  static void TrampolineCallback(
+      v8::Local<v8::String> property,
+      const v8::PropertyCallbackInfo<v8::Value>& info);
+
+  bool ContainsExtensionModule(const std::string& name);
+  void MarkModulesWithTrampoline();
+  void DeleteExtensionModules();
 
   typedef std::vector<ExtensionModuleEntry> ExtensionModules;
   ExtensionModules extension_modules_;
