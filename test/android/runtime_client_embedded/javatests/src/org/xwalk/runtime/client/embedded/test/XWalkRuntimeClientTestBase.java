@@ -6,34 +6,16 @@
 package org.xwalk.runtime.client.embedded.test;
 
 import android.app.Activity;
-import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 
-import java.util.concurrent.TimeUnit;
-
-import org.chromium.content.browser.test.util.CallbackHelper;
 import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.test.util.XWalkRuntimeClientUtilInterface;
+import org.xwalk.test.util.XWalkRuntimeClientUtilInterface.PageStatusCallback;
 
 public class XWalkRuntimeClientTestBase
         extends ActivityInstrumentationTestCase2<XWalkRuntimeClientTestRunnerActivity> {
-    protected final static int WAIT_TIMEOUT_SECONDS = 15;
     private XWalkRuntimeClient mRuntimeView;
-    final static TestXWalkRuntimeClientContentsClient mTestContentsClient =
-        new TestXWalkRuntimeClientContentsClient();
-
-    class PageStatusCallback {
-        public void onPageStarted(String url) {
-            mTestContentsClient.onPageStarted(url);
-        }
-
-        public void onPageFinished(String url) {
-            mTestContentsClient.didFinishLoad(url);
-        }
-
-        public void onReceivedError(int errorCode, String description, String failingUrl) {
-            mTestContentsClient.onReceivedError(errorCode, description, failingUrl);
-        }
-    }
+    XWalkRuntimeClientUtilInterface mUtilInterface;
 
     @Override
     protected void setUp() throws Exception {
@@ -47,7 +29,8 @@ public class XWalkRuntimeClientTestBase
                     mRuntimeView = new XWalkRuntimeClient(activity, null, null);
                 }
                 mRuntimeView.onCreate();
-                PageStatusCallback callback = new PageStatusCallback();
+                mUtilInterface = new XWalkRuntimeClientUtilInterface(mRuntimeView, getInstrumentation());
+                PageStatusCallback callback = mUtilInterface.new PageStatusCallback();
                 mRuntimeView.setCallbackForTest((Object)callback);
                 getActivity().addView(mRuntimeView.getViewForTest());
             }
@@ -58,25 +41,7 @@ public class XWalkRuntimeClientTestBase
         super(XWalkRuntimeClientTestRunnerActivity.class);
     }
 
-    protected void loadUrlSync(String url) throws Exception {
-        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
-        int currentCallCount = pageFinishedHelper.getCallCount();
-        loadUrlAsync(url);
-
-        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
-                TimeUnit.SECONDS);
-    }
-
-    protected void loadUrlAsync(final String url) throws Exception {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mRuntimeView.loadAppFromUrl(url);
-            }
-        });
-    }
-
-    protected XWalkRuntimeClient getRuntimeView() {
-        return mRuntimeView;
+    public XWalkRuntimeClientUtilInterface getUtilInterface() {
+        return mUtilInterface;
     }
 }

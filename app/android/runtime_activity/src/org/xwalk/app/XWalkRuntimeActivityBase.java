@@ -35,7 +35,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     private boolean mRemoteDebugging = false;
 
     private AlertDialog mLibraryNotFoundDialog = null;
-    
+
     private XWalkMixedResources mMixedResources = null;
 
     @Override
@@ -208,13 +208,13 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             builder.setTitle(title).setMessage(message);
 
             mLibraryNotFoundDialog = builder.create();
-            mLibraryNotFoundDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {                
+            mLibraryNotFoundDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
                     mLibraryNotFoundDialog = null;
                 }
             });
-            mLibraryNotFoundDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {                
+            mLibraryNotFoundDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
                     mLibraryNotFoundDialog = null;

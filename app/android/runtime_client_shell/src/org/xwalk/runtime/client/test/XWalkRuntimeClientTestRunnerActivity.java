@@ -5,7 +5,6 @@
 package org.xwalk.runtime.client.test;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -50,4 +49,3 @@ public class XWalkRuntimeClientTestRunnerActivity extends Activity {
         super.onDestroy();
     }
 }
-

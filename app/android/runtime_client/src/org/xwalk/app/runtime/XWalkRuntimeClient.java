@@ -39,6 +39,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     // For instrumentation test.
     private Method mGetTitleForTest;
     private Method mSetCallbackForTest;
+    private Method mLoadDataForTest;
 
     public XWalkRuntimeClient(Activity activity, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
         super(activity, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Activity.class, Context.class, AttributeSet.class);
@@ -61,10 +62,6 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
-
-        // For instrumentation test.
-        mGetTitleForTest = lookupMethod("getTitleForTest");
-        mSetCallbackForTest = lookupMethod("setCallbackForTest", Object.class);
     }
 
     /**
@@ -226,10 +223,26 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     }
 
     public String getTitleForTest() {
+        if (mGetTitleForTest == null) {
+            mGetTitleForTest = lookupMethod("getTitleForTest");
+        }
+
         return (String) invokeMethod(mGetTitleForTest, mInstance);
     }
 
     public void setCallbackForTest(Object callback) {
+        if (mSetCallbackForTest == null) {
+            mSetCallbackForTest = lookupMethod("setCallbackForTest", Object.class);
+        }
+
         invokeMethod(mSetCallbackForTest, mInstance, callback);
+    }
+
+    public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
+        if (mLoadDataForTest == null) {
+            mLoadDataForTest = lookupMethod("loadDataForTest", String.class, String.class, boolean.class);
+        }
+
+        invokeMethod(mLoadDataForTest, mInstance, data, mimeType, isBase64Encoded);
     }
 }

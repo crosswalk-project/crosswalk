@@ -73,4 +73,5 @@ public interface XWalkRuntimeViewProvider {
     // For instrumentation test.
     public String getTitleForTest();
     public void setCallbackForTest(Object callback);
+    public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded);
 }

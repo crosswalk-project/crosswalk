@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
-import org.xwalk.app.runtime.XWalkRuntimeClient;
-
 /*
  * This is a lightweight activity for tests that only require XWalk functionality.
  */
