@@ -18,9 +18,9 @@ public class LoadAppFromUrlTest extends XWalkRuntimeClientTestBase {
     public void testLoadAppFromUrl() throws Throwable {
         String expectedTitle = "Crosswalk Sample Application";
 
-        loadUrlSync("file:///android_asset/index.html");
+        getUtilInterface().loadUrlSync("file:///android_asset/index.html");
 
-        String title = getRuntimeView().getTitleForTest();
+        String title = getUtilInterface().getRuntimeView().getTitleForTest();
         assertEquals(expectedTitle, title);
     }
 }

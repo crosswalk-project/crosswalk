@@ -288,6 +288,7 @@
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
         'xwalk_runtime_client_shell_apk_java',
+        'xwalk_test_util_java',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientTest',
@@ -314,6 +315,7 @@
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
         'xwalk_runtime_client_embedded_shell_apk_java',
+        'xwalk_test_util_java',
       ],
       'variables': {
         'apk_name': 'XWalkRuntimeClientEmbeddedTest',
@@ -321,6 +323,18 @@
         'is_test_apk': 1,
       },
       'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_test_util_java',
+      'type': 'none',
+      'dependencies': [
+        '../content/content.gyp:content_java_test_support',
+        'xwalk_app_runtime_client_java',
+      ],
+      'variables': {
+        'java_in_dir': 'test/android/util',
+      },
+      'includes': ['../build/java.gypi'],
     },
   ],
 }

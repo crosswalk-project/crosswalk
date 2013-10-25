@@ -2,21 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.runtime.client.embedded.test;
+package org.xwalk.test.util;
 
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageFinishedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
-class TestXWalkRuntimeClientContentsClient {
+public class TestXWalkRuntimeClientContentsClient {
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
+    private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
 
     public TestXWalkRuntimeClientContentsClient() {
         mOnPageStartedHelper = new OnPageStartedHelper();
         mOnPageFinishedHelper = new OnPageFinishedHelper();
         mOnReceivedErrorHelper = new OnReceivedErrorHelper();
+        mOnTitleUpdatedHelper = new OnTitleUpdatedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -31,6 +33,10 @@ class TestXWalkRuntimeClientContentsClient {
         return mOnReceivedErrorHelper;
     }
 
+    public OnTitleUpdatedHelper getOnTitleUpdatedHelper() {
+        return mOnTitleUpdatedHelper;
+    }
+
     public void onPageStarted(String url) {
         mOnPageStartedHelper.notifyCalled(url);
     }
@@ -41,5 +47,9 @@ class TestXWalkRuntimeClientContentsClient {
 
     public void didFinishLoad(String url) {
         mOnPageFinishedHelper.notifyCalled(url);
+    }
+
+    public void onTitleUpdated(String title) {
+        mOnTitleUpdatedHelper.notifyCalled(title);
     }
 }

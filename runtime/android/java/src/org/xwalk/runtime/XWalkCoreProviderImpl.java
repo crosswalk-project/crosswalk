@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.chromium.content.browser.LoadUrlParams;
 import org.xwalk.core.XWalkView;
 import org.xwalk.runtime.extension.XWalkExtension;
 
@@ -131,5 +132,17 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
         XWalkClientForTest clientForTest = new XWalkClientForTest(mContext, mXwalkView);
         clientForTest.setCallbackForTest(callback);
         mXwalkView.setXWalkClient(clientForTest);
+
+        XWalkWebChromeClientForTest webChromeClient =
+                new XWalkWebChromeClientForTest(mContext, mXwalkView);
+        webChromeClient.setCallbackForTest(callback);
+        mXwalkView.setXWalkWebChromeClient(webChromeClient);
+    }
+
+    @Override
+    public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
+        mXwalkView.getXWalkViewContentForTest().getContentViewCoreForTest(
+                ).loadUrl(LoadUrlParams.createLoadDataParams(
+                        data, mimeType, isBase64Encoded));
     }
 }
