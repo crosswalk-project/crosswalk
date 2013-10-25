@@ -572,7 +572,9 @@
             'xwalk_core_test_apk',
             'xwalk_runtime_shell_apk',
             'xwalk_runtime_client_embedded_shell_apk',
+            'xwalk_runtime_client_embedded_test_apk',
             'xwalk_runtime_client_shell_apk',
+            'xwalk_runtime_client_test_apk',
 
             # For external testing.
             'pack_xwalk_core_library',
