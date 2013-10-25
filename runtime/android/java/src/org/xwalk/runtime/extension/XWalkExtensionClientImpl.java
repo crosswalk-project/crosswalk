@@ -32,8 +32,8 @@ public class XWalkExtensionClientImpl extends XWalkExtension {
         super(name, jsApi, context);
 
         mExtensionClient = extensionClient;
-        mOnMessage = lookupMethod("onMessage", String.class);
-        mOnSyncMessage = lookupMethod("onSyncMessage", String.class);
+        mOnMessage = lookupMethod("onMessage", int.class, String.class);
+        mOnSyncMessage = lookupMethod("onSyncMessage", int.class, String.class);
         mOnResume = lookupMethod("onResume");
         mOnPause = lookupMethod("onPause");
         mOnDestroy = lookupMethod("onDestroy");
