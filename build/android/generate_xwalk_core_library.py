@@ -49,7 +49,8 @@ def CopyProjectFiles(project_source, out_directory):
   for f in files_to_copy:
     source_file = os.path.join(template_folder, f)
     target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, f)
-    shutil.copyfile(source_file, target_file)
+
+    shutil.copy2(source_file, target_file)
 
 
 def CopyChromiumJavaSources(project_source, out_directory):
