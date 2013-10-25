@@ -302,7 +302,7 @@ NativeAppWindow* NativeAppWindow::Create(
 
 // static
 void NativeAppWindow::Initialize() {
-#if !defined(OS_WIN) && defined(USE_AURA)
+#if defined(USE_AURA)
   CHECK(!views::ViewsDelegate::views_delegate);
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());

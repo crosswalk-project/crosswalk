@@ -3,10 +3,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#if !defined(OS_WIN) && defined(USE_AURA)
+#if defined(USE_AURA)
+
+#include "grit/xwalk_resources.h"
 
 #include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
-
 #include "ui/views/widget/desktop_aura/desktop_native_widget_aura.h"
 #include "ui/views/widget/native_widget_aura.h"
 
@@ -51,7 +52,13 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
   }
 }
 
+#if defined(OS_WIN)
+HICON XWalkViewsDelegate::GetDefaultWindowIcon() const {
+  return LoadIcon(NULL, MAKEINTRESOURCE(IDR_XWALK_ICON_48));
+}
+#endif
+
 }  // namespace xwalk
 
-#endif  // !defined(OS_WIN) && defined(USE_AURA)
+#endif  // defined(USE_AURA)
 
