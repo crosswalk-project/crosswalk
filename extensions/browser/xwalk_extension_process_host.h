@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
 #include "base/memory/scoped_ptr.h"
+#include "base/synchronization/waitable_event.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
 
@@ -52,6 +53,7 @@ class XWalkExtensionProcessHost
 
   // Message Handlers.
   void OnRenderChannelCreated(const IPC::ChannelHandle& channel_id);
+  void OnExtensionsRegistered();
 
   void SendChannelHandleToRenderProcess();
 
@@ -60,6 +62,7 @@ class XWalkExtensionProcessHost
   content::RenderProcessHost* render_process_host_;
 
   bool is_extension_process_channel_ready_;
+  base::WaitableEvent waitable_register_extensions_;
 };
 
 }  // namespace extensions

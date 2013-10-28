@@ -45,13 +45,11 @@ class XWalkExtensionServer : public IPC::Listener {
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnChannelConnected(int32 peer_pid) OVERRIDE;
 
   void Initialize(IPC::Sender* sender);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
-  void RegisterExtensionsInRenderProcess();
 
   void Invalidate();
 
@@ -67,6 +65,7 @@ class XWalkExtensionServer : public IPC::Listener {
   void OnPostMessageToNative(int64_t instance_id, const base::ListValue& msg);
   void OnSendSyncMessageToNative(int64_t instance_id,
       const base::ListValue& msg, IPC::Message* ipc_reply);
+  void OnGetExtensionsToRegister(base::ListValue* extensions);
 
   void PostMessageToJSCallback(int64_t instance_id,
                                scoped_ptr<base::Value> msg);

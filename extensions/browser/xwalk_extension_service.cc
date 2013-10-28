@@ -197,8 +197,6 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this, in_process_server.get());
 
-  in_process_server->RegisterExtensionsInRenderProcess();
-
   data->in_process_server_ = in_process_server.Pass();
 }
 
@@ -206,6 +204,9 @@ void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, ExtensionData* data) {
   scoped_ptr<XWalkExtensionProcessHost> eph(new XWalkExtensionProcessHost());
 
+  // NOTE(jeez): This will block until the ExtensionProcess has finished
+  // loading all extensions. We do that to avoid race conditions.
+  // (i.e.: Navigating _before_ having the extensions loaded)
   if (!external_extensions_path_.empty())
     eph->RegisterExternalExtensions(external_extensions_path_);
 
