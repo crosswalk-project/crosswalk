@@ -47,7 +47,7 @@ class XWalkModuleSystem {
   static void ResetModuleSystemFromContext(v8::Handle<v8::Context> context);
 
   void RegisterExtensionModule(scoped_ptr<XWalkExtensionModule> module,
-                               base::ListValue* entry_points);
+                               const std::vector<std::string>& entry_points);
 
   void RegisterNativeModule(const std::string& name,
                             scoped_ptr<XWalkNativeModule> module);
@@ -60,13 +60,13 @@ class XWalkModuleSystem {
  private:
   struct ExtensionModuleEntry {
     ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
-                         base::ListValue* entry_points)
+                         const std::vector<std::string>& entry_points)
     : name(name), module(module), use_trampoline(true),
       entry_points(entry_points) {}
     std::string name;
     XWalkExtensionModule* module;
     bool use_trampoline;
-    base::ListValue* entry_points;
+    std::vector<std::string> entry_points;
     bool operator<(const ExtensionModuleEntry& other) const {
       return name < other.name;
     }

@@ -129,7 +129,7 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 
 void XWalkModuleSystem::RegisterExtensionModule(
     scoped_ptr<XWalkExtensionModule> module,
-    base::ListValue* entry_points) {
+    const std::vector<std::string>& entry_points) {
   const std::string& extension_name = module->extension_name();
   if (ContainsExtensionModule(extension_name)) {
     LOG(WARNING) << "Can't register Extension Module named for extension '"
@@ -256,12 +256,9 @@ bool XWalkModuleSystem::InstallTrampoline(v8::Handle<v8::Context> context,
     return false;
   }
 
-  base::ListValue::const_iterator it = entry->entry_points->begin();
-  for (; it != entry->entry_points->end(); ++it) {
-    std::string entry_point;
-    (*it)->GetAsString(&entry_point);
-
-    ret = SetTrampolineAccessorForEntryPoint(context, entry_point, entry_ptr);
+  std::vector<std::string>::const_iterator it = entry->entry_points.begin();
+  for (; it != entry->entry_points.end(); ++it) {
+    ret = SetTrampolineAccessorForEntryPoint(context, *it, entry_ptr);
     if (!ret) {
       // TODO(vcgomes): Remove already added trampolines when it fails.
       LOG(WARNING) << "Error installing trampoline for '"
@@ -344,14 +341,9 @@ void XWalkModuleSystem::TrampolineCallback(
 
   DeleteAccessorForEntryPoint(context, entry->name);
 
-  base::ListValue::const_iterator it = entry->entry_points->begin();
-  for (; it != entry->entry_points->end(); ++it) {
-    std::string entry_point;
-    std::vector<std::string> path;
-
-    (*it)->GetAsString(&entry_point);
-
-    DeleteAccessorForEntryPoint(context, entry_point);
+  std::vector<std::string>::const_iterator it = entry->entry_points.begin();
+  for (; it != entry->entry_points.end(); ++it) {
+    DeleteAccessorForEntryPoint(context, *it);
   }
 
   XWalkModuleSystem* module_system = GetModuleSystemFromContext(context);
