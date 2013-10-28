@@ -204,14 +204,8 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
 
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, ExtensionData* data) {
-  scoped_ptr<XWalkExtensionProcessHost> eph(new XWalkExtensionProcessHost());
-
-  if (!external_extensions_path_.empty())
-    eph->RegisterExternalExtensions(external_extensions_path_);
-
-  eph->OnRenderProcessHostCreated(host);
-
-  data->extension_process_host_ = eph.Pass();
+  data->extension_process_host_ = make_scoped_ptr(
+      new XWalkExtensionProcessHost(host, external_extensions_path_));
 }
 
 }  // namespace extensions
