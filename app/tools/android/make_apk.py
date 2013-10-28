@@ -459,6 +459,7 @@ def main(argv):
     parser.print_help()
     return 0
 
+  xpk_temp_dir = ''
   if options.xpk:
     xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
     xpk_temp_dir = xpk_name + '_xpk'
