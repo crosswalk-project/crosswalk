@@ -117,10 +117,6 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
         external_extensions_path_);
   }
 
-  // Ensures that we register all extensions, including the external ones when
-  // the extension process is disabled.
-  data->in_process_server_->RegisterExtensionsInRenderProcess();
-
   extension_data_map_[host->GetID()] = data;
 }
 

@@ -63,6 +63,8 @@ class XWalkExtension {
   // message passing.
   std::string javascript_api_;
 
+  // FIXME(jeez): convert this to std::vector<std::string> to avoid
+  // extra conversions later on.
   base::ListValue entry_points_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);

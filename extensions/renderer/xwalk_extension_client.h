@@ -51,7 +51,7 @@ class XWalkExtensionClient : public IPC::Listener {
   scoped_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
       scoped_ptr<base::Value> msg);
 
-  void Initialize(IPC::Sender* sender) { sender_ = sender; }
+  void Initialize(IPC::Sender* sender);
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
@@ -73,8 +73,6 @@ class XWalkExtensionClient : public IPC::Listener {
   // Message Handlers.
   void OnInstanceDestroyed(int64_t instance_id);
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
-  void OnRegisterExtension(const std::string& name, const std::string& api,
-                           const base::ListValue& entry_points);
 
   IPC::Sender* sender_;
   ExtensionAPIMap extension_apis_;
