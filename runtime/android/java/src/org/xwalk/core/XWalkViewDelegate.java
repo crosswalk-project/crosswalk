@@ -36,8 +36,6 @@ class XWalkViewDelegate {
         if (!CommandLine.isInitialized())
             CommandLine.init(null);
 
-        ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
-        ResourceExtractor.setExtractImplicitLocaleForTesting(false);
         // If context's applicationContext is not the same package with itself,
         // It's a cross package invoking, load core library from library apk.
         // Only load the native library from /data/data if the Android version is
@@ -55,6 +53,13 @@ class XWalkViewDelegate {
         }
         loadLibrary();
         DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
+
+        ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
+        ResourceExtractor.setExtractImplicitLocaleForTesting(false);
+        // Use MixContext to initialize the ResourceExtractor, as the pak file
+        // is in the library apk if in shared apk mode.
+        ResourceExtractor.get(context);
+
         startBrowserProcess(context);
         sInitialized = true;
     }
