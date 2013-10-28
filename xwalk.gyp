@@ -28,7 +28,7 @@
         '../base/base.gyp:base_i18n',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../content/content.gyp:content',
-        '../content/content.gyp:content_app_browser',
+        '../content/content.gyp:content_app_both',
         '../content/content.gyp:content_browser',
         '../content/content.gyp:content_common',
         '../content/content.gyp:content_gpu',
