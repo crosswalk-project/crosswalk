@@ -44,9 +44,12 @@ class ExtensionSandboxedProcessLauncherDelegate
 };
 #endif
 
-XWalkExtensionProcessHost::XWalkExtensionProcessHost()
+XWalkExtensionProcessHost::XWalkExtensionProcessHost(
+    content::RenderProcessHost* render_process_host,
+    const base::FilePath& external_extensions_path)
     : ep_rp_channel_handle_(""),
-      render_process_host_(0),
+      render_process_host_(render_process_host),
+      external_extensions_path_(external_extensions_path),
       is_extension_process_channel_ready_(false) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
@@ -80,6 +83,9 @@ void XWalkExtensionProcessHost::StartProcess() {
     false, base::EnvironmentMap(),
 #endif
     cmd_line.release());
+
+  process_->GetHost()->Send(new XWalkExtensionProcessMsg_RegisterExtensions(
+      external_extensions_path_));
 }
 
 void XWalkExtensionProcessHost::StopProcess() {
@@ -87,30 +93,6 @@ void XWalkExtensionProcessHost::StopProcess() {
   CHECK(process_);
 
   process_.reset();
-}
-
-void XWalkExtensionProcessHost::RegisterExternalExtensions(
-    const base::FilePath& extension_path) {
-  Send(new XWalkExtensionProcessMsg_RegisterExtensions(extension_path));
-}
-
-void XWalkExtensionProcessHost::OnRenderProcessHostCreated(
-    content::RenderProcessHost* render_process_host) {
-  render_process_host_ = render_process_host;
-  CHECK(render_process_host_);
-
-  SendChannelHandleToRenderProcess();
-}
-
-void XWalkExtensionProcessHost::Send(IPC::Message* msg) {
-  if (!BrowserThread::CurrentlyOn(BrowserThread::IO)) {
-    BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
-        base::Bind(&XWalkExtensionProcessHost::Send,
-        base::Unretained(this), msg));
-    return;
-  }
-
-  process_->GetHost()->Send(msg);
 }
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
@@ -141,10 +123,6 @@ void XWalkExtensionProcessHost::OnRenderChannelCreated(
 }
 
 void XWalkExtensionProcessHost::SendChannelHandleToRenderProcess() {
-  // It can be that the EP channel got created before the RenderProcessHost.
-  if (!render_process_host_)
-    return;
-
   // It can be that the RenderProcessHost got created before the EP channel.
   if (!is_extension_process_channel_ready_)
     return;
