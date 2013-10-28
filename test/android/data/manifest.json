@@ -1,0 +1,9 @@
+{
+  "name": "loadAppFromManifest Test",
+  "app": {
+    "launch": {
+      "local_path": "index.html"
+    }
+  }
+}
+

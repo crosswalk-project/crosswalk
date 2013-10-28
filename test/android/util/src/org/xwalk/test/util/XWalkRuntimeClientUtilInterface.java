@@ -64,6 +64,24 @@ public class XWalkRuntimeClientUtilInterface {
         });
     }
 
+    public void loadManifestSync(String url) throws Exception {
+        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        loadManifestAsync(url);
+
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    public void loadManifestAsync(final String url) throws Exception {
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRuntimeView.loadAppFromManifest(url);
+            }
+        });
+    }
+
     public void loadDataSync(final String data, final String mimeType,
             final boolean isBase64Encoded) throws Exception {
         CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
