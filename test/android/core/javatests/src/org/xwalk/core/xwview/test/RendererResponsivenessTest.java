@@ -40,8 +40,9 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
         super.setUp();
     }
 
-    @Feature({"RendererResponsivenessTest"})
-    @MediumTest
+    //@Feature({"RendererResponsivenessTest"})
+    //@MediumTest
+    @DisabledTest
     public void testRendererUnresponsive() throws Throwable {
         getXWalkView().setXWalkClient(new ResponsivenessTestClient() {
             @Override
@@ -73,8 +74,9 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
         assertEquals(getXWalkView(), unresponsiveHelper.getXWalkView());
     }
 
-    @Feature({"RendererResponsivenessTest"})
-    @MediumTest
+    //@Feature({"RendererResponsivenessTest"})
+    //@MediumTest
+    @DisabledTest
     public void testRendererResponsiveAgain() throws Throwable {
         getXWalkView().setXWalkClient(new ResponsivenessTestClient() {
             /**
