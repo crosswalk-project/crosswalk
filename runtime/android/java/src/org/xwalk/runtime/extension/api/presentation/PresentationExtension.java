@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.runtime.extension.api;
+package org.xwalk.runtime.extension.api.presentation;
 
 import android.content.Context;
 import android.hardware.display.DisplayManager;
