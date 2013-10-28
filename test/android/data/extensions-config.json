@@ -1,0 +1,7 @@
+[
+  {
+    "name":  "echo",
+    "class": "com.example.extension.MyExtension",
+    "jsapi": "myextension/myextension.js"
+  }
+]

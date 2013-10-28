@@ -1,0 +1,26 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  var d = new Date().toString();
+  echo.echo(d, function(msg) {
+    document.write(msg + "<br>");
+    var expected = "From java:" + d;
+    if (msg === expected) {
+      document.write("Async echo <font color=green>passed</font>.");
+      document.title = "Pass";
+    } else {
+      document.write("Async echo <font color=red>failed</font>.");
+      document.title = "Fail";
+    }
+  });
+} catch(e) {
+  console.log(e);
+  document.title = "Fail";
+}
+</script>
+</body>
+</html>
