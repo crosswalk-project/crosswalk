@@ -10,9 +10,9 @@ public class ExtensionBroadcast extends XWalkExtensionAndroid {
 
     public ExtensionBroadcast() {
         super("broadcast",
-              "extension.setMessageListener(function(msg) {"
-              + "    messageHandler(msg);"
-              + "});"
+              "exports.setHandler = function(handler) {"
+              + "  extension.setMessageListener(handler);"
+              + "};"
               + "exports.trigger = function(msg) {"
               + "  extension.postMessage(msg);"
               + "};"
