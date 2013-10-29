@@ -22,16 +22,11 @@ enum {
 IPC_MESSAGE_CONTROL1(XWalkExtensionProcessMsg_RegisterExtensions,  // NOLINT(*)
                      base::FilePath /* extensions path */)
 
-// This implies that extensions are all loaded and Extension Process
-// is ready to be used.
 IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated, // NOLINT(*)
                      IPC::ChannelHandle /* channel id */)
 
-// Message from Render Process to Browser Process. This message needs
-// to be synchronous because Render Process cannot load anything without having
-// collected the extensions loaded in Extension Process.
-IPC_SYNC_MESSAGE_CONTROL0_1(XWalkExtensionProcessHostMsg_GetExtensionProcessChannel,  // NOLINT(*)
-                            IPC::ChannelHandle /* channel id */)
+IPC_MESSAGE_CONTROL1(XWalkViewMsg_ExtensionProcessChannelCreated, // NOLINT(*)
+                     IPC::ChannelHandle /* channel id */)
 
 
 // We use a separated message class for Client<->Server communication
