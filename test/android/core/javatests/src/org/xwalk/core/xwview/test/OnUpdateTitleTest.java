@@ -47,7 +47,7 @@ public class OnUpdateTitleTest extends XWalkViewTestBase {
     @Feature({"OnUpdateTitle"})
     public void testOnUpdateTitle() throws Throwable {
         final String name = "index.html";
-        final String expected_title = "Android Asset";
+        final String expected_title = "Crosswalk Sample Application";
 
         loadAssetFile(name);
         assertEquals(expected_title, getTitleOnUiThread());

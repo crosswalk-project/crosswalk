@@ -61,15 +61,23 @@
         'apk_name': 'XWalkAppHelloWorld',
         'java_in_dir': 'app/android/app_hello_world',
         'resource_dir': 'app/android/app_hello_world/res',
-        'asset_location': 'app/android/app_hello_world/assets',
         'additional_input_paths': [
-          '<(asset_location)/extensions-config.json',
-          '<(asset_location)/index.html',
-          '<(asset_location)/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/app_hello_world/assets/index.html',
+          '<(PRODUCT_DIR)/app_hello_world/assets/sampapp-icon-helloworld.png',
         ],
+        'asset_location': '<(ant_build_out)/app_hello_world/assets',
         'app_manifest_version_code': '<(xwalk_version_code)',
         'app_manifest_version_name': '<(xwalk_version)',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/app_hello_world/assets',
+          'files': [
+            'test/android/data/index.html',
+            'test/android/data/sampapp-icon-helloworld.png',
+          ],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
@@ -82,13 +90,21 @@
         'apk_name': 'XWalkAppTemplate',
         'java_in_dir': 'app/android/app_template',
         'resource_dir': 'app/android/app_template/res',
-        'asset_location': 'app/android/app_template/assets',
         'additional_input_paths': [
-          '<(asset_location)/extensions-config.json',
-          '<(asset_location)/index.html',
-          '<(asset_location)/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/app_template/assets/index.html',
+          '<(PRODUCT_DIR)/app_template/assets/sampapp-icon-helloworld.png',
         ],
+        'asset_location': '<(ant_build_out)/app_template/assets',
       },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/app_template/assets',
+          'files': [
+            'test/android/data/index.html',
+            'test/android/data/sampapp-icon-helloworld.png',
+          ],
+        },
+      ],
       'includes': [ '../build/java_apk.gypi' ],
     },
     {

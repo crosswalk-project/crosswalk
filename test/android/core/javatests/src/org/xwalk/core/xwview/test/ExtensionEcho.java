@@ -31,7 +31,7 @@ public class ExtensionEcho extends XWalkExtensionAndroid {
     }
 
     public String handleSyncMessage(int instanceID, String message) {
-        return "From java:" + message;
+        return "From java sync:" + message;
     }
 
     public void onDestroy() {
