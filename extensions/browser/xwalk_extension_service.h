@@ -61,6 +61,8 @@ class XWalkExtensionService : public content::NotificationObserver {
  private:
   // We create one instance of this struct per RenderProcess.
   struct ExtensionData {
+    ExtensionData();
+    ~ExtensionData();
     // The servers will live on the extension thread.
     scoped_ptr<XWalkExtensionServer> in_process_server_;
 
