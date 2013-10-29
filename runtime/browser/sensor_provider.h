@@ -25,12 +25,8 @@ class SensorProvider {
 
   static SensorProvider* GetInstance();
 
-  virtual void AddObserver(Observer* observer) {
-    observers_.insert(observer);
-  }
-  virtual void RemoveObserver(Observer* observer) {
-    observers_.erase(observer);
-  }
+  virtual void AddObserver(Observer* observer);
+  virtual void RemoveObserver(Observer* observer);
 
  protected:
   SensorProvider();
@@ -39,21 +35,9 @@ class SensorProvider {
   virtual bool Initialize() = 0;
   virtual void Finish() {}
 
-  virtual void OnRotationChanged(gfx::Display::Rotation rotation) {
-    std::set<Observer*>::iterator it;
-    for (it = observers_.begin(); it != observers_.end(); ++it)
-      (*it)->OnRotationChanged(rotation);
-  }
-  virtual void OnOrientationChanged(float alpha, float beta, float gamma) {
-    std::set<Observer*>::iterator it;
-    for (it = observers_.begin(); it != observers_.end(); ++it)
-      (*it)->OnOrientationChanged(alpha, beta, gamma);
-  }
-  virtual void OnAccelerationChanged(float x, float y, float z) {
-    std::set<Observer*>::iterator it;
-    for (it = observers_.begin(); it != observers_.end(); ++it)
-      (*it)->OnOrientationChanged(x, y, z);
-  }
+  virtual void OnRotationChanged(gfx::Display::Rotation rotation);
+  virtual void OnOrientationChanged(float alpha, float beta, float gamma);
+  virtual void OnAccelerationChanged(float x, float y, float z);
 
   std::set<Observer*> observers_;
 

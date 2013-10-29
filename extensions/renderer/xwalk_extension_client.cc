@@ -54,6 +54,12 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
+XWalkExtensionClient::ExtensionCodePoints::ExtensionCodePoints() {
+}
+
+XWalkExtensionClient::ExtensionCodePoints::~ExtensionCodePoints() {
+}
+
 void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
                                              const base::ListValue& msg) {
   HandlerMap::const_iterator it = handlers_.find(instance_id);

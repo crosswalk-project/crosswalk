@@ -360,6 +360,17 @@ void XWalkModuleSystem::TrampolineCallback(
   info.GetReturnValue().Set(holder->Get(property));
 }
 
+XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
+  const std::string& name,
+  XWalkExtensionModule* module,
+  const std::vector<std::string>& entry_points) :
+    name(name), module(module), use_trampoline(true),
+    entry_points(entry_points) {
+}
+
+XWalkModuleSystem::ExtensionModuleEntry::~ExtensionModuleEntry() {
+}
+
 // Returns whether the name of first is prefix of the second, considering "."
 // character as a separator. So "a" is prefix of "a.b" but not of "ab".
 bool XWalkModuleSystem::ExtensionModuleEntry::IsPrefix(

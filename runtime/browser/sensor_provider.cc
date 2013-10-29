@@ -34,6 +34,34 @@ SensorProvider::~SensorProvider() {
   instance_ = NULL;
 }
 
+void SensorProvider::AddObserver(Observer* observer) {
+  observers_.insert(observer);
+}
+
+void SensorProvider::RemoveObserver(Observer* observer) {
+    observers_.erase(observer);
+}
+
+void SensorProvider::OnRotationChanged(gfx::Display::Rotation rotation) {
+  std::set<Observer*>::iterator it;
+  for (it = observers_.begin(); it != observers_.end(); ++it)
+    (*it)->OnRotationChanged(rotation);
+}
+
+void SensorProvider::OnOrientationChanged(float alpha,
+                                          float beta,
+                                          float gamma) {
+  std::set<Observer*>::iterator it;
+  for (it = observers_.begin(); it != observers_.end(); ++it)
+    (*it)->OnOrientationChanged(alpha, beta, gamma);
+}
+
+void SensorProvider::OnAccelerationChanged(float x, float y, float z) {
+  std::set<Observer*>::iterator it;
+  for (it = observers_.begin(); it != observers_.end(); ++it)
+    (*it)->OnOrientationChanged(x, y, z);
+}
+
 SensorProvider* SensorProvider::instance_ = NULL;
 
 }  // namespace xwalk

@@ -60,9 +60,8 @@ class XWalkModuleSystem {
  private:
   struct ExtensionModuleEntry {
     ExtensionModuleEntry(const std::string& name, XWalkExtensionModule* module,
-                         const std::vector<std::string>& entry_points)
-    : name(name), module(module), use_trampoline(true),
-      entry_points(entry_points) {}
+                         const std::vector<std::string>& entry_points);
+    ~ExtensionModuleEntry();
     std::string name;
     XWalkExtensionModule* module;
     bool use_trampoline;

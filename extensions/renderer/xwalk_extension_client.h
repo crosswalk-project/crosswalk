@@ -57,6 +57,8 @@ class XWalkExtensionClient : public IPC::Listener {
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   struct ExtensionCodePoints {
+    ExtensionCodePoints();
+    ~ExtensionCodePoints();
     std::string api;
     std::vector<std::string> entry_points;
   };

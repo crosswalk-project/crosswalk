@@ -42,7 +42,7 @@ class XWalkExtension {
   // Returns a list of entry points for which the extension should be loaded
   // when accessed. Entry points are used when the extension needs to have
   // objects outside the namespace that is implicitly created using its name.
-  virtual const base::ListValue& entry_points() const { return entry_points_; }
+  virtual const base::ListValue& entry_points() const;
 
  protected:
   XWalkExtension();

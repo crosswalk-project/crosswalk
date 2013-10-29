@@ -130,6 +130,12 @@ void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
   g_register_extensions_callback = callback;
 }
 
+XWalkExtensionService::ExtensionData::ExtensionData() {
+}
+
+XWalkExtensionService::ExtensionData::~ExtensionData() {
+}
+
 // We use this to keep track of the RenderProcess shutdown events.
 // This is _very_ important so we can clean up all we need gracefully,
 // avoiding invalid IPC steps after the IPC channel is gonne.
