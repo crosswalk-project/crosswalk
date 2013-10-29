@@ -36,7 +36,7 @@ public class XWalkDefaultClient extends XWalkClient {
     private HttpAuthDatabase mDatabase;
 
     public XWalkDefaultClient(Context context, XWalkView view) {
-        mDatabase = HttpAuthDatabase.getInstance(context);
+        mDatabase = HttpAuthDatabase.getInstance(context.getApplicationContext());
         mContext = context;
         mView = view;
     }
