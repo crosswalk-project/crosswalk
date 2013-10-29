@@ -110,7 +110,7 @@ if __name__ == '__main__':
       args.append('-Dffmpeg_branding=Chrome')
 
   # Enable Aura by default on all platforms except Android
-  if landmine_utils.platform() != 'android':
+  if landmine_utils.platform() != 'android' and landmine_utils.platform() != 'mac':
     args.append('-Duse_aura=1')
 
   # Use the Psyco JIT if available.
