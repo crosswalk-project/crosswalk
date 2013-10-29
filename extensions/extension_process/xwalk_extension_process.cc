@@ -24,6 +24,7 @@ XWalkExtensionProcess::XWalkExtensionProcess()
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
 
   CreateBrowserProcessChannel();
+  CreateRenderProcessChannel();
 }
 
 XWalkExtensionProcess::~XWalkExtensionProcess() {
@@ -47,9 +48,7 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
-  if (!path.empty())
-    RegisterExternalExtensionsInDirectory(&extensions_server_, path);
-  CreateRenderProcessChannel();
+  RegisterExternalExtensionsInDirectory(&extensions_server_, path);
 }
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel() {

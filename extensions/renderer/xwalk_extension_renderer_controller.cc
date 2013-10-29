@@ -37,9 +37,8 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
 
-  IPC::SyncChannel* browser_channel = thread->GetChannel();
-  SetupBrowserProcessClient(browser_channel);
-  SetupExtensionProcessClient(browser_channel);
+  in_browser_process_extensions_client_.reset(new XWalkExtensionClient());
+  in_browser_process_extensions_client_->Initialize(thread->GetChannel());
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand)) {
@@ -114,27 +113,22 @@ void XWalkExtensionRendererController::WillReleaseScriptContext(
 
 bool XWalkExtensionRendererController::OnControlMessageReceived(
     const IPC::Message& message) {
-  return in_browser_process_extensions_client_->OnMessageReceived(message);
+  if (in_browser_process_extensions_client_->OnMessageReceived(message))
+    return true;
+
+  bool handled = true;
+  IPC_BEGIN_MESSAGE_MAP(XWalkExtensionRendererController, message)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_ExtensionProcessChannelCreated,
+        OnExtensionProcessChannelCreated)
+    IPC_MESSAGE_UNHANDLED(handled = false)
+  IPC_END_MESSAGE_MAP()
+  return handled;
 }
 
-void XWalkExtensionRendererController::OnRenderProcessShutdown() {
-  shutdown_event_.Signal();
-}
+void XWalkExtensionRendererController::OnExtensionProcessChannelCreated(
+    const IPC::ChannelHandle& handle) {
+  external_extensions_client_.reset(new XWalkExtensionClient());
 
-void XWalkExtensionRendererController::SetupBrowserProcessClient(
-    IPC::SyncChannel* browser_channel) {
-  in_browser_process_extensions_client_.reset(new XWalkExtensionClient);
-  in_browser_process_extensions_client_->Initialize(browser_channel);
-}
-
-void XWalkExtensionRendererController::SetupExtensionProcessClient(
-    IPC::SyncChannel* browser_channel) {
-  IPC::ChannelHandle handle;
-  browser_channel->Send(
-      new XWalkExtensionProcessHostMsg_GetExtensionProcessChannel(&handle));
-  // FIXME(cmarcelo): Need to account for failure in creating the channel.
-
-  external_extensions_client_.reset(new XWalkExtensionClient);
   extension_process_channel_.reset(new IPC::SyncChannel(handle,
       IPC::Channel::MODE_CLIENT, external_extensions_client_.get(),
       content::RenderThread::Get()->GetIOMessageLoopProxy(), true,
@@ -143,6 +137,9 @@ void XWalkExtensionRendererController::SetupExtensionProcessClient(
   external_extensions_client_->Initialize(extension_process_channel_.get());
 }
 
+void XWalkExtensionRendererController::OnRenderProcessShutdown() {
+  shutdown_event_.Signal();
+}
 
 }  // namespace extensions
 }  // namespace xwalk

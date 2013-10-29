@@ -28,47 +28,6 @@ using content::BrowserThread;
 namespace xwalk {
 namespace extensions {
 
-// This filter is used by ExtensionProcessHost to intercept when Render Process
-// ask for the Extension Channel handle (that is created by extension process).
-class XWalkExtensionProcessHost::RenderProcessMessageFilter
-    : public IPC::ChannelProxy::MessageFilter {
- public:
-  explicit RenderProcessMessageFilter(XWalkExtensionProcessHost* eph)
-      : eph_(eph) {}
-
-  // This exists to fulfill the requirement for delayed reply handling, since it
-  // needs to send a message back if the parameters couldn't be correctly read
-  // from the original message received. See DispatchDealyReplyWithSendParams().
-  bool Send(IPC::Message* message) {
-    return eph_->render_process_host_->Send(message);
-  }
-
- private:
-  // IPC::ChannelProxy::MessageFilter implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
-    bool handled = true;
-    IPC_BEGIN_MESSAGE_MAP(RenderProcessMessageFilter, message)
-      IPC_MESSAGE_HANDLER_DELAY_REPLY(
-          XWalkExtensionProcessHostMsg_GetExtensionProcessChannel,
-          OnGetExtensionProcessChannel)
-      IPC_MESSAGE_UNHANDLED(handled = false)
-    IPC_END_MESSAGE_MAP()
-    return handled;
-  }
-
-  void OnGetExtensionProcessChannel(IPC::Message* reply) {
-    scoped_ptr<IPC::Message> scoped_reply(reply);
-    BrowserThread::PostTask(
-        BrowserThread::UI, FROM_HERE,
-        base::Bind(&XWalkExtensionProcessHost::OnGetExtensionProcessChannel,
-                   base::Unretained(eph_),
-                   base::Passed(&scoped_reply)));
-  }
-
-  virtual ~RenderProcessMessageFilter() {}
-  XWalkExtensionProcessHost* eph_;
-};
-
 #if defined(OS_WIN)
 class ExtensionSandboxedProcessLauncherDelegate
     : public content::SandboxedProcessLauncherDelegate {
@@ -90,10 +49,8 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     const base::FilePath& external_extensions_path)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
-      render_process_message_filter_(new RenderProcessMessageFilter(this)),
       external_extensions_path_(external_extensions_path),
       is_extension_process_channel_ready_(false) {
-  render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
       base::Unretained(this)));
@@ -138,18 +95,6 @@ void XWalkExtensionProcessHost::StopProcess() {
   process_.reset();
 }
 
-void XWalkExtensionProcessHost::OnGetExtensionProcessChannel(
-    scoped_ptr<IPC::Message> reply) {
-  pending_reply_for_render_process_ = reply.Pass();
-  ReplyChannelHandleToRenderProcess();
-
-  // We just need to send the channel information once, so the filter is no
-  // longer necessary.
-  render_process_host_->GetChannel()->RemoveFilter(
-      render_process_message_filter_);
-  render_process_message_filter_ = NULL;
-}
-
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionProcessHost, message)
@@ -171,25 +116,19 @@ void XWalkExtensionProcessHost::OnProcessLaunched() {
 
 void XWalkExtensionProcessHost::OnRenderChannelCreated(
     const IPC::ChannelHandle& handle) {
-  is_extension_process_channel_ready_ = true;
   ep_rp_channel_handle_ = handle;
-  ReplyChannelHandleToRenderProcess();
+  is_extension_process_channel_ready_ = true;
+
+  SendChannelHandleToRenderProcess();
 }
 
-void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
-  // Replying the channel handle to RP depends on two events:
-  // - EP already notified EPH that new channel was created (for RP<->EP).
-  // - RP already asked for the channel handle.
-  //
-  // The order for this events is not determined, so we call this function from
-  // both, and the second execution will send the reply.
-  if (!is_extension_process_channel_ready_
-      || !pending_reply_for_render_process_)
+void XWalkExtensionProcessHost::SendChannelHandleToRenderProcess() {
+  // It can be that the RenderProcessHost got created before the EP channel.
+  if (!is_extension_process_channel_ready_)
     return;
 
-  IPC::WriteParam(pending_reply_for_render_process_.get(),
-                  ep_rp_channel_handle_);
-  render_process_host_->Send(pending_reply_for_render_process_.release());
+  render_process_host_->Send(new XWalkViewMsg_ExtensionProcessChannelCreated(
+      ep_rp_channel_handle_));
 }
 
 
