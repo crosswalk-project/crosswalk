@@ -15,7 +15,6 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
-#include "ui/base/resource/resource_bundle.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -69,14 +68,6 @@ void CreateExtensionModules(XWalkExtensionClient* client,
     module_system->RegisterExtensionModule(module.Pass(),
                                            codepoint->entry_points);
   }
-}
-
-scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
-  std::string js_api(
-      ResourceBundle::GetSharedInstance().GetRawDataResource(
-          resource_id).as_string());
-  scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
-  return module.Pass();
 }
 
 }  // namespace
