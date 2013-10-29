@@ -117,6 +117,10 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
         external_extensions_path_);
   }
 
+  // Ensures that we register all extensions, including the external ones when
+  // the extension process is disabled.
+  data->in_process_server_->RegisterExtensionsInRenderProcess();
+
   extension_data_map_[host->GetID()] = data;
 }
 
@@ -196,8 +200,6 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(this, in_process_server.get());
-
-  in_process_server->RegisterExtensionsInRenderProcess();
 
   data->in_process_server_ = in_process_server.Pass();
 }
