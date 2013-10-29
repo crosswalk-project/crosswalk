@@ -70,6 +70,11 @@ public interface XWalkRuntimeViewProvider {
      */
     public abstract void broadcastMessage(XWalkExtension extension, String message);
 
+    /**
+     * Destroy the extension, including the native resources allocated for it.
+     */
+    public abstract void destroyExtension(XWalkExtension extension);
+
     // For instrumentation test.
     public String getTitleForTest();
     public void setCallbackForTest(Object callback);

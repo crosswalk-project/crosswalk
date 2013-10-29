@@ -83,7 +83,7 @@ public abstract class XWalkExtension {
      * @param instanceID the ID of target extension instance.
      * @param message the message to be passed to Javascript.
      */
-    public void postMessage(int instanceID, String message) {
+    public final void postMessage(int instanceID, String message) {
         mExtensionContext.postMessage(this, instanceID, message);
     }
 
@@ -93,8 +93,16 @@ public abstract class XWalkExtension {
      * to all JavaScript side instances of the extension.
      * @param message the message to be passed to Javascript.
      */
-    public void broadcastMessage(String message) {
+    public final void broadcastMessage(String message) {
         mExtensionContext.broadcastMessage(this, message);
+    }
+
+    /**
+     * Destroy the extension to free its resources occupied.
+     */
+    public final void destroy() {
+        onDestroy();
+        mExtensionContext.destroyExtension(this);
     }
 
     /**
@@ -126,7 +134,7 @@ public abstract class XWalkExtension {
      * Get the registered ID.
      * @return the registered ID object.
      */
-    public Object getRegisteredId() {
+    public final Object getRegisteredId() {
         return mRegisteredId;
     }
 }

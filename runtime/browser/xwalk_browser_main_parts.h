@@ -55,6 +55,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
   // XWalkBrowserMainParts so they get correctly registered on-demand
   // by XWalkExtensionService each time a in_process Server is created.
   void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
+  void UnregisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
 #else
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
 #endif
