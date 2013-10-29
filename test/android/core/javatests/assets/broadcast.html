@@ -17,6 +17,7 @@
         + "      if (messageReceivedInIframe != null)\n"
         + "      top.window.verifyResult();\n"
         + "    }\n"
+        + "   broadcast.setHandler(messageHandler);\n"
         + "  <\/script>\n"
         + "  <\/head>\n"
         + "</html>\n");
@@ -45,6 +46,7 @@
         if (iframe.contentWindow.messageReceivedInIframe != null)
           verifyResult();
       }
+      broadcast.setHandler(messageHandler);
     </script>
   </body>
 </html>

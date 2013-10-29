@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
-import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 import org.xwalk.core.XWalkClient;
@@ -39,11 +38,8 @@ public class ExtensionBroadcastTest extends XWalkViewTestBase {
         getXWalkView().setXWalkClient(new TestXWalkClient());
     }
 
-    // @SmallTest
-    // @Feature({"ExtensionBroadcast"})
-    // This test case failed on buildbot, so disabled it temporally.
-    // It will be enabled later.
-    @DisabledTest
+    @SmallTest
+    @Feature({"ExtensionBroadcast"})
     public void testExtensionBroadcast() throws Throwable {
         ExtensionBroadcast broadcast = new ExtensionBroadcast();
 
