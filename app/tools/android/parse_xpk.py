@@ -32,13 +32,6 @@ EXIT_CODE_XPK_FILE_IO_ERROR = 6
 
 XPK_MAGIC_HEAD = 'CrWk'
 
-try:
-  from Crypto.PublicKey import RSA
-  from Crypto.Signature import PKCS1_v1_5
-  from Crypto.Hash import SHA
-except ImportError:
-  HandleError(EXIT_CODE_CRYPTO_NOT_FOUND)
-
 errorMessageMap = {
   EXIT_CODE_CRYPTO_NOT_FOUND: 'Python module Crypto('\
       'https://www.dlitz.net/software/pycrypto/) is needed',
@@ -54,6 +47,14 @@ errorMessageMap = {
 def HandleError(err_code):
   print 'Error: %s' % errorMessageMap[err_code]
   sys.exit(err_code)
+
+
+try:
+  from Crypto.PublicKey import RSA
+  from Crypto.Signature import PKCS1_v1_5
+  from Crypto.Hash import SHA
+except ImportError:
+  HandleError(EXIT_CODE_CRYPTO_NOT_FOUND)
 
 
 def CheckMagic(input_file):
