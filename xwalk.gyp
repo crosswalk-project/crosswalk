@@ -160,8 +160,6 @@
             'runtime/browser/ui/tizen_system_indicator.h',
             'runtime/browser/ui/tizen_system_indicator_watcher.cc',
             'runtime/browser/ui/tizen_system_indicator_watcher.h',
-            'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.cc',
-            'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.h',
           ],
         }],
         ['OS=="android"',{
