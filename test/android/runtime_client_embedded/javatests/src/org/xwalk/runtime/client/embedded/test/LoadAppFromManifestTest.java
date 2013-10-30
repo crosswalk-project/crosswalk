@@ -7,6 +7,7 @@ package org.xwalk.runtime.client.embedded.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
  * Test suite for loadAppFromManifest().
@@ -16,11 +17,9 @@ public class LoadAppFromManifestTest extends XWalkRuntimeClientTestBase {
     @SmallTest
     @Feature({"LoadAppFromManifest"})
     public void testLoadAppFromManifest() throws Throwable {
-        String expectedTitle = "Crosswalk Sample Application";
-
-        getUtilInterface().loadManifestSync("file:///android_asset/manifest.json");
-
-        String title = getUtilInterface().getRuntimeView().getTitleForTest();
-        assertEquals(expectedTitle, title);
+        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+                        getTestUtil(), this);
+        helper.testLoadAppFromManifest();
     }
 }

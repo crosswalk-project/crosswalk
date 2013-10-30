@@ -6,11 +6,8 @@
 package org.xwalk.runtime.client.embedded.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
-import java.util.concurrent.TimeUnit;
 import org.chromium.base.test.util.Feature;
-import org.xwalk.test.util.OnTitleUpdatedHelper;
-import org.xwalk.test.util.TestXWalkRuntimeClientContentsClient;
-import org.xwalk.test.util.XWalkRuntimeClientUtilInterface;
+import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
  * Test suite for testing external extensions.
@@ -20,23 +17,18 @@ public class ExternalExtensionTest extends XWalkRuntimeClientTestBase {
     @SmallTest
     @Feature({"ExternalExtensionAsync"})
     public void testExternalExtensionAsync() throws Throwable {
-        OnTitleUpdatedHelper helper = getUtilInterface().getContentsClient().getOnTitleUpdatedHelper();
-        int currentCallCount = helper.getCallCount();
-
-        getUtilInterface().loadAssetFile("echo.html");
-
-        helper.waitForCallback(currentCallCount, 1, XWalkRuntimeClientUtilInterface.WAIT_TIMEOUT_SECONDS,
-                TimeUnit.SECONDS);
-        String title = helper.getTitle();
-        assertEquals("Pass", title);
+        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+                        getTestUtil(), this);
+        helper.testExternalExtensionAsync();
     }
 
     @SmallTest
     @Feature({"ExternalExtensionSync"})
     public void testExternalExtensionSync() throws Throwable {
-        getUtilInterface().loadAssetFile("echoSync.html");
-
-        String title = getUtilInterface().getRuntimeView().getTitleForTest();
-        assertEquals("Pass", title);
+        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+                        getTestUtil(), this);
+        helper.testExternalExtensionSync();
     }
 }
