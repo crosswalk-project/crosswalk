@@ -16,6 +16,11 @@ public class DisplayManagerNull extends XWalkDisplayManager {
     }
 
     @Override
+    public Display getDisplay(int displayId) {
+        return null;
+    }
+
+    @Override
     public Display[] getDisplays() {
         return NO_DISPLAYS;
     }
