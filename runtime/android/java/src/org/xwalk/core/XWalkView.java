@@ -17,6 +17,7 @@ import org.xwalk.core.client.XWalkDefaultClient;
 import org.xwalk.core.client.XWalkDefaultDownloadListener;
 import org.xwalk.core.client.XWalkDefaultNavigationHandler;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
+import org.xwalk.runtime.XWalkManifestReader;
 
 public class XWalkView extends FrameLayout {
 
@@ -86,6 +87,18 @@ public class XWalkView extends FrameLayout {
 
     public void loadUrl(String url) {
         mContent.loadUrl(url);
+    }
+
+    public void loadAppFromManifest(String manifestUrl) {
+        XWalkManifestReader manifestReader = new XWalkManifestReader(mActivity);
+        String manifest = manifestReader.read(manifestUrl);
+        int position = manifestUrl.lastIndexOf("/");
+        if (position == -1) {
+            throw new RuntimeException("The URL of manifest file is invalid.");
+        }
+
+        String path = manifestUrl.substring(0, position + 1);
+        mContent.loadAppFromManifest(path, manifest);
     }
 
     public void reload() {

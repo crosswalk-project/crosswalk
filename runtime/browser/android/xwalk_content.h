@@ -41,6 +41,10 @@ class XWalkContent {
   };
 
   void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
+  jboolean SetManifest(JNIEnv* env,
+                       jobject obj,
+                       jstring path,
+                       jstring manifest);
 
  private:
   content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);
