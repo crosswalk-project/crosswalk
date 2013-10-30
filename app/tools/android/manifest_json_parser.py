@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#nH!/usr/bin/env python
 
 # Copyright (c) 2013 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -17,6 +17,26 @@ import json
 import optparse
 import os
 import sys
+
+def HandlePermissionList(permission_list):
+  """This function is used to handle the permission list and return the string
+  of permissions.
+
+  Args:
+    permission_list: the permission list, e.g.["permission1", "permission2"].
+
+  Returns:
+    The string of permissions with ':' as separator.
+    e.g. "permission1:permission2".
+  """
+  permissions = permission_list
+  if len(permission_list) > 1:
+    permissions = permission_list[0]
+    index = 1
+    while index < len(permission_list):
+      permissions = permissions + ":" + permission_list[index]
+      index += 1
+  return permissions
 
 
 class ManifestJsonParser(object):
@@ -49,34 +69,55 @@ class ManifestJsonParser(object):
       described as follows, the value is set to "" if the value of the
       key is not set.
     app_name:         The application name.
-    app_version:      The application version.
+    version:          The version number.
     icons:            An array of icons.
     app_url:          The url of application, e.g. hosted app.
+    description:      The description of application.
     app_root:         The root path of the web, this flag allows to package
                       local web application as apk.
     app_local_path:   The relative path of entry file based on app_root,
                       this flag should work with "--app-root" together.
+    permissions:      The permission list.
     required_version: The required crosswalk runtime version.
     plugin:           The plug-in information.
     fullscreen:       The fullscreen flag of the application.
     """
     ret_dict = {}
     ret_dict['app_name'] = self.data_src['name']
-    ret_dict['app_version'] = self.data_src['version']
-    file_path_prefix = os.path.split(self.input_path)[0]
-    ret_dict['icons'] = self.data_src['icons']
-    app_root = file_path_prefix
-    app_url = self.data_src['app']['launch']['local_path']
+    ret_dict['version'] = self.data_src['version']
+    if self.data_src.has_key('launch_path'):
+      app_url = self.data_src['launch_path']
+    elif self.data_src.has_key('local_path'):
+      app_url = self.data_src['app']['launch']['local_path']
+    else:
+      app_url = ''
     if app_url.lower().startswith(('http', 'https')):
       app_local_path = ''
     else:
       app_local_path = app_url
       app_url = ''
+    file_path_prefix = os.path.split(self.input_path)[0]
+    if self.data_src.has_key('icons'):
+      ret_dict['icons'] = self.data_src['icons']
+    else:
+      ret_dict['icons'] = ''
+    app_root = file_path_prefix
+    ret_dict['description'] = ''
+    if self.data_src.has_key('description'):
+      ret_dict['description'] = self.data_src['description']
     ret_dict['app_url'] = app_url
     ret_dict['app_root'] = app_root
     ret_dict['app_local_path'] = app_local_path
-    ret_dict['required_version'] = self.data_src['required_version']
-    ret_dict['plugin'] = self.data_src['plugin']
+    ret_dict['permissions'] = ''
+    if self.data_src.has_key('permissions'):
+      permission_list = self.data_src['permissions']
+      ret_dict['permissions'] = HandlePermissionList(permission_list)
+    ret_dict['required_version'] = ''
+    if self.data_src.has_key('required_version'):
+      ret_dict['required_version'] = self.data_src['required_version']
+    ret_dict['plugin'] = ''
+    if self.data_src.has_key('plugin'):
+      ret_dict['plugin'] = self.data_src['plugin']
     if self.data_src.has_key('fullscreen'):
       ret_dict['fullscreen'] = self.data_src['fullscreen']
     else:
@@ -87,11 +128,13 @@ class ManifestJsonParser(object):
     """Show the processed results, it is used for command-line
     internal debugging."""
     print "app_name: %s" % self.GetAppName()
-    print "app_version: %s" % self.GetAppVersion()
+    print "version: %s" % self.GetVersion()
+    print "description: %s" % self.GetDescription()
     print "icons: %s" % self.GetIcons()
     print "app_url: %s" % self.GetAppUrl()
     print "app_root: %s" % self.GetAppRoot()
     print "app_local_path: %s" % self.GetAppLocalPath()
+    print "permissions: %s" % self.GetPermissions()
     print "required_version: %s" % self.GetRequiredVersion()
     print "plugins: %s" % self.GetPlugins()
     print "fullscreen: %s" % self.GetFullScreenFlag()
@@ -100,9 +143,9 @@ class ManifestJsonParser(object):
     """Return the application name."""
     return self.ret_dict['app_name']
 
-  def GetAppVersion(self):
-    """Return the application version."""
-    return self.ret_dict['app_version']
+  def GetVersion(self):
+    """Return the version number."""
+    return self.ret_dict['version']
 
   def GetIcons(self):
     """Return the icons."""
@@ -112,6 +155,10 @@ class ManifestJsonParser(object):
     """Return the URL of the application."""
     return self.ret_dict['app_url']
 
+  def GetDescription(self):
+    """Return the description of the application."""
+    return self.ret_dict['description']
+
   def GetAppRoot(self):
     """Return the root path of the local web application."""
     return self.ret_dict['app_root']
@@ -119,6 +166,10 @@ class ManifestJsonParser(object):
   def GetAppLocalPath(self):
     """Return the local relative path of the local web application."""
     return self.ret_dict['app_local_path']
+
+  def GetPermissions(self):
+    """Return the permissions."""
+    return self.ret_dict['permissions']
 
   def GetRequiredVersion(self):
     """Return the required crosswalk runtime version."""
