@@ -6,10 +6,19 @@
 
 #include "base/logging.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 namespace xwalk {
 namespace extensions {
+
+scoped_ptr<XWalkNativeModule> CreateJSModuleFromResource(int resource_id) {
+  std::string js_api(
+      ResourceBundle::GetSharedInstance().GetRawDataResource(
+          resource_id).as_string());
+  scoped_ptr<XWalkNativeModule> module(new XWalkJSModule(js_api));
+  return module.Pass();
+}
 
 XWalkJSModule::XWalkJSModule(const std::string& js_code)
     : js_code_(js_code) {
