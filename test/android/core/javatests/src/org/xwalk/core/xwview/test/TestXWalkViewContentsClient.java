@@ -22,12 +22,14 @@ class TestXWalkViewContentsClient extends NullContentsClient {
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
     private final OnEvaluateJavaScriptResultHelper mOnEvaluateJavaScriptResultHelper;
+    private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
 
     public TestXWalkViewContentsClient() {
         mOnPageStartedHelper = new OnPageStartedHelper();
         mOnPageFinishedHelper = new OnPageFinishedHelper();
         mOnReceivedErrorHelper = new OnReceivedErrorHelper();
         mOnEvaluateJavaScriptResultHelper = new OnEvaluateJavaScriptResultHelper();
+        mOnTitleUpdatedHelper = new OnTitleUpdatedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -46,9 +48,14 @@ class TestXWalkViewContentsClient extends NullContentsClient {
         return mOnEvaluateJavaScriptResultHelper;
     }
 
+    public OnTitleUpdatedHelper getOnTitleUpdatedHelper() {
+        return mOnTitleUpdatedHelper;
+    }
+
     @Override
     public void onTitleChanged(String title) {
         mChangedTitle = title;
+        mOnTitleUpdatedHelper.notifyCalled(title);
     }
 
     public String getChangedTitle() {
