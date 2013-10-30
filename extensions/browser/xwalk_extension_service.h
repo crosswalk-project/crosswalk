@@ -40,7 +40,7 @@ class XWalkExtensionService : public content::NotificationObserver {
         XWalkExtensionServer* server) {}
 
    protected:
-    ~Delegate() {}
+    virtual ~Delegate() {}
   };
 
   explicit XWalkExtensionService(Delegate* delegate);
