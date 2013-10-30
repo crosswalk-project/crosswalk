@@ -187,8 +187,9 @@ void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
       || !pending_reply_for_render_process_)
     return;
 
-  IPC::WriteParam(pending_reply_for_render_process_.get(),
-                  ep_rp_channel_handle_);
+  XWalkExtensionProcessHostMsg_GetExtensionProcessChannel::WriteReplyParams(
+      pending_reply_for_render_process_.get(), ep_rp_channel_handle_);
+
   render_process_host_->Send(pending_reply_for_render_process_.release());
 }
 
