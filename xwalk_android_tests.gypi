@@ -35,7 +35,7 @@
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
-          'files': ['<(java_in_dir)/assets/index.html'],
+          'files': ['test/android/data/index.html'],
         }
       ],
       'includes': [ '../build/java_apk.gypi' ],
@@ -93,13 +93,13 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': [
-            '<(java_in_dir)/assets/broadcast.html',
-            '<(java_in_dir)/assets/echo.html',
-            '<(java_in_dir)/assets/echoSync.html',
-            '<(java_in_dir)/assets/framesEcho.html',
-            '<(java_in_dir)/assets/index.html',
-            '<(java_in_dir)/assets/navigator.online.html',
-            '<(java_in_dir)/assets/renderHung.html',
+            'test/android/data/broadcast.html',
+            'test/android/data/echo.html',
+            'test/android/data/echoSync.html',
+            'test/android/data/framesEcho.html',
+            'test/android/data/index.html',
+            'test/android/data/navigator.online.html',
+            'test/android/data/renderHung.html',
           ],
         },
       ],
@@ -226,9 +226,9 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_shell/assets',
           'files': [
-            '<(java_in_dir)/assets/sampapp-icon-helloworld.png',
             'test/android/data/extensions-config.json',
             'test/android/data/index.html',
+            'test/android/data/sampapp-icon-helloworld.png',
           ],
         },
         {
@@ -275,9 +275,9 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
-            '<(java_in_dir)/assets/sampapp-icon-helloworld.png',
             'test/android/data/extensions-config.json',
             'test/android/data/index.html',
+            'test/android/data/sampapp-icon-helloworld.png',
           ],
         },
         {
