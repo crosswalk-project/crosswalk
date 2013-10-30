@@ -225,10 +225,12 @@ public class XWalkContent extends FrameLayout {
     }
 
     public String getVersion() {
+        if (mXWalkContent == 0) return "";
         return nativeGetVersion(mXWalkContent);
     }
 
     public void setNetworkAvailable(boolean networkUp) {
+        if (mXWalkContent == 0) return;
         nativeSetJsOnlineProperty(mXWalkContent, networkUp);
     }
 
@@ -243,6 +245,7 @@ public class XWalkContent extends FrameLayout {
     }
 
     public String devToolsAgentId() {
+        if (mXWalkContent == 0) return "";
         return nativeDevToolsAgentId(mXWalkContent);
     }
 
@@ -251,7 +254,7 @@ public class XWalkContent extends FrameLayout {
     }
 
     public void loadAppFromManifest(String path, String manifest) {
-        if (path == null || manifest == null) {
+        if (path == null || manifest == null || mXWalkContent == 0) {
             return;
         }
 
@@ -267,9 +270,25 @@ public class XWalkContent extends FrameLayout {
         }
     }
 
+    public void destroy() {
+        if (mXWalkContent == 0) return;
+
+        // Remove its children used for page rendering from view hierarchy.
+        removeView(mContentView);
+        removeView(mContentViewRenderView);
+        mContentViewRenderView.setCurrentContentView(null);
+
+        // Destroy the native resources.
+        mContentViewRenderView.destroy();
+        mContentView.destroy();
+
+        nativeDestroy(mXWalkContent);
+        mXWalkContent = 0;
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
-
+    private static native void nativeDestroy(int nativeXWalkContent);
     private native int nativeGetWebContents(int nativeXWalkContent,
             InterceptNavigationDelegate delegate);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
