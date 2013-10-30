@@ -39,6 +39,8 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(
         XWalkExtensionServerMsg_SendSyncMessageToNative,
         OnSendSyncMessageToNative)
+    IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_GetExtensions,
+        OnGetExtensions)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -169,7 +171,6 @@ bool XWalkExtensionServer::RegisterExtension(
   }
 
   std::string name = extension->name();
-
   extension_symbols_.insert(name);
   extensions_[name] = extension.release();
   return true;
@@ -301,26 +302,31 @@ void XWalkExtensionServer::OnDestroyInstance(int64_t instance_id) {
   Send(new XWalkExtensionClientMsg_InstanceDestroyed(instance_id));
 }
 
-void XWalkExtensionServer::RegisterExtensionsInRenderProcess() {
-  // Having a sender means we have a RenderProcessHost ready.
-  DCHECK(sender_);
-
+void XWalkExtensionServer::OnGetExtensions(
+    std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>* reply) {
   ExtensionMap::iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
+    XWalkExtensionServerMsg_ExtensionRegisterParams extension_parameters;
     XWalkExtension* extension = it->second;
-    Send(new XWalkExtensionClientMsg_RegisterExtension(
-        extension->name(), extension->javascript_api(),
-        extension->entry_points()));
+
+    extension_parameters.name = extension->name();
+    extension_parameters.js_api = extension->javascript_api();
+
+    const base::ListValue& entry_points = extension->entry_points();
+    base::ListValue::const_iterator entry_it = entry_points.begin();
+    for (; entry_it != entry_points.end(); ++entry_it) {
+      std::string entry_point;
+      (*entry_it)->GetAsString(&entry_point);
+      extension_parameters.entry_points.push_back(entry_point);
+    }
+
+    reply->push_back(extension_parameters);
   }
 }
 
 void XWalkExtensionServer::Invalidate() {
   base::AutoLock l(sender_lock_);
   sender_ = NULL;
-}
-
-void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
-  RegisterExtensionsInRenderProcess();
 }
 
 namespace {

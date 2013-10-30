@@ -44,8 +44,6 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionClient, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_PostMessageToJS,
         OnPostMessageToJS)
-    IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
-        OnRegisterExtension)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_InstanceDestroyed,
         OnInstanceDestroyed)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -76,23 +74,6 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
   const base::Value* value;
   msg.Get(0, &value);
   it->second->HandleMessageFromNative(*value);
-}
-
-void XWalkExtensionClient::OnRegisterExtension(
-    const std::string& name,
-    const std::string& api,
-    const base::ListValue& entry_points) {
-  ExtensionCodePoints* codepoint = new ExtensionCodePoints;
-  codepoint->api = api;
-
-  base::ListValue::const_iterator it = entry_points.begin();
-  for (; it != entry_points.end(); ++it) {
-    std::string entry_point;
-    (*it)->GetAsString(&entry_point);
-    codepoint->entry_points.push_back(entry_point);
-  }
-
-  extension_apis_[name] = codepoint;
 }
 
 void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {
@@ -159,6 +140,28 @@ scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
   scoped_ptr<base::Value> reply;
   wrapped_reply->Remove(0, &reply);
   return reply.Pass();
+}
+
+void XWalkExtensionClient::Initialize(IPC::Sender* sender) {
+  sender_ = sender;
+
+  std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams> extensions;
+  Send(new XWalkExtensionServerMsg_GetExtensions(&extensions));
+
+  if (extensions.empty())
+    return;
+
+  std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>::iterator it =
+      extensions.begin();
+  for (; it != extensions.end(); ++it) {
+    ExtensionCodePoints* codepoint = new ExtensionCodePoints;
+    codepoint->api = (*it).js_api;
+
+    codepoint->entry_points = (*it).entry_points;
+
+    std::string name = (*it).name;
+    extension_apis_[name] = codepoint;
+  }
 }
 
 }  // namespace extensions
