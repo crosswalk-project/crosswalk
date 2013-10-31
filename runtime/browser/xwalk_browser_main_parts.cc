@@ -408,6 +408,17 @@ void XWalkBrowserMainParts::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
   extensions_.push_back(extension.release());
 }
+
+void XWalkBrowserMainParts::UnregisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  ScopedVector<XWalkExtension>::iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it) {
+    if (*it == extension.release()) break;
+  }
+
+  if (it != extensions_.end())
+    extensions_.erase(it);
+}
 #endif
 
 }  // namespace xwalk

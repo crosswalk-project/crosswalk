@@ -65,6 +65,10 @@ public class XWalkExtensionManager {
         mXwalkProvider.broadcastMessage(extension, message);
     }
 
+    public void destroyExtension(XWalkExtension extension) {
+        mXwalkProvider.destroyExtension(extension);
+    }
+
     public Object registerExtension(XWalkExtension extension) {
         mExtensions.add(extension);
         return mXwalkProvider.onExtensionRegistered(extension);
@@ -89,8 +93,9 @@ public class XWalkExtensionManager {
 
     public void onDestroy() {
         for(XWalkExtension extension: mExtensions) {
-            extension.onDestroy();
+            extension.destroy();
         }
+        mExtensions.clear();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

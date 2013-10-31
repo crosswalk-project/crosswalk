@@ -34,6 +34,10 @@ public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
         mOriginContext.broadcastMessage(extension, message);
     }
 
+    public void destroyExtension(XWalkExtension extension) {
+        mOriginContext.destroyExtension(extension);
+    }
+
     public Context getContext() {
         // This is very tricky because for external extensions, we should
         // use Activity which contains the context for runtime client side.

@@ -38,6 +38,6 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid {
     @Override
     @CalledByNative
     public void onDestroy() {
-        mProvider.getExtensionContext().unregisterExtension(mExtension);        
+        mProvider.getExtensionContext().unregisterExtension(mExtension);
     }
 }

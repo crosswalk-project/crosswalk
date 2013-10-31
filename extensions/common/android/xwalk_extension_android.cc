@@ -38,6 +38,17 @@ XWalkExtensionAndroid::~XWalkExtensionAndroid() {
   }
 
   Java_XWalkExtensionAndroid_onDestroy(env, obj.obj());
+
+  // Unregister the extension and clear its all instances.
+  XWalkContentBrowserClient::Get()->main_parts()->UnregisterExtension(
+      scoped_ptr<XWalkExtension>(this));
+
+  for (InstanceMap::iterator it = instances_.begin();
+       it != instances_.end(); ++it) {
+    XWalkExtensionInstance* instance = it->second;
+    delete instance;
+  }
+  instances_.clear();
 }
 
 bool XWalkExtensionAndroid::is_valid() {
@@ -61,6 +72,10 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
   const char* str = env->GetStringUTFChars(msg, 0);
   it->second->PostMessageWrapper(str);
   env->ReleaseStringUTFChars(msg, str);
+}
+
+void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
+  delete this;
 }
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {

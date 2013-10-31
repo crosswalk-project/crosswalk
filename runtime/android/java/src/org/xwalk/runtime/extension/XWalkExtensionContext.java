@@ -41,6 +41,13 @@ public abstract class XWalkExtensionContext {
     public abstract void broadcastMessage(XWalkExtension extension, String message);
 
     /**
+     * Destroy the extension.
+     *
+     * @param extension the extension to be destroyed.
+     */
+    public abstract void destroyExtension(XWalkExtension extension);
+
+    /**
      * Get current Android Context.
      * @return the current Android Context.
      */

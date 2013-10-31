@@ -45,6 +45,11 @@ public class XWalkExtensionContextImpl extends XWalkExtensionContext {
     }
 
     @Override
+    public void destroyExtension(XWalkExtension extension) {
+        mManager.destroyExtension(extension);
+    }
+
+    @Override
     public Context getContext() {
         return mContext;
     }

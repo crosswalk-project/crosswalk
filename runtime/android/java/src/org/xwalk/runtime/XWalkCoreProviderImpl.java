@@ -121,6 +121,12 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
         bridge.broadcastMessage(message);
     }
 
+    @Override
+    public void destroyExtension(XWalkExtension extension) {
+        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
+        bridge.destroy();
+    }
+
     // For instrumentation test.
     @Override
     public String getTitleForTest() {
