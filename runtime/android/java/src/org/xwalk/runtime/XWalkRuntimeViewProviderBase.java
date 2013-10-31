@@ -9,9 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-import org.xwalk.runtime.extension.XWalkExtension;
-import org.xwalk.runtime.extension.XWalkExtensionContext;
-import org.xwalk.runtime.extension.XWalkExtensionContextImpl;
 import org.xwalk.runtime.extension.XWalkExtensionManager;
 
 /**
@@ -21,23 +18,11 @@ import org.xwalk.runtime.extension.XWalkExtensionManager;
 public abstract class XWalkRuntimeViewProviderBase implements XWalkRuntimeViewProvider {
     private Context mContext;
     private Activity mActivity;
-    private XWalkExtensionManager mExtensionManager;
-    private XWalkExtensionContextImpl mExtensionContext;
+    protected XWalkExtensionManager mExtensionManager;
 
     XWalkRuntimeViewProviderBase(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
-        mExtensionManager = new XWalkExtensionManager(context, activity, this);
-    }
-
-    @Override
-    public void init(Context context, Activity activity) {
-        mExtensionManager.loadExtensions();
-    }
-
-    @Override
-    public XWalkExtensionContext getExtensionContext() {
-        return mExtensionManager.getExtensionContext();
     }
 
     @Override
@@ -62,15 +47,5 @@ public abstract class XWalkRuntimeViewProviderBase implements XWalkRuntimeViewPr
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mExtensionManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onMessage(XWalkExtension extension, int instanceID, String message) {
-        extension.onMessage(instanceID, message);
-    }
-
-    @Override
-    public String onSyncMessage(XWalkExtension extension, int instanceID, String message) {
-        return extension.onSyncMessage(instanceID, message);
     }
 }

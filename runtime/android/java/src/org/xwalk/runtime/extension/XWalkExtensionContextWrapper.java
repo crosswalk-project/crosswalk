@@ -11,19 +11,19 @@ import android.content.Context;
  * This is a public class to provide context for extensions.
  * It'll be shared by all external extensions.
  */
-public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
+public class XWalkExtensionContextWrapper implements XWalkExtensionContext {
     private XWalkExtensionContext mOriginContext;
 
     public XWalkExtensionContextWrapper(XWalkExtensionContext context) {
         mOriginContext = context;
     }
 
-    public Object registerExtension(XWalkExtension extension) {
-        return mOriginContext.registerExtension(extension);
+    public void registerExtension(XWalkExtension extension) {
+        mOriginContext.registerExtension(extension);
     }
 
-    public void unregisterExtension(XWalkExtension extension) {
-        mOriginContext.unregisterExtension(extension);
+    public void unregisterExtension(String name) {
+        mOriginContext.unregisterExtension(name);
     }
 
     public void postMessage(XWalkExtension extension, int instanceID, String message) {
@@ -32,10 +32,6 @@ public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
 
     public void broadcastMessage(XWalkExtension extension, String message) {
         mOriginContext.broadcastMessage(extension, message);
-    }
-
-    public void destroyExtension(XWalkExtension extension) {
-        mOriginContext.destroyExtension(extension);
     }
 
     public Context getContext() {

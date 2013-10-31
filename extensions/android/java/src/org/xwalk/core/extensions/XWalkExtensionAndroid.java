@@ -19,14 +19,12 @@ import org.chromium.base.JNINamespace;
 public abstract class XWalkExtensionAndroid {
     private final static String TAG = "XWalkExtensionAndroid";
     private int mXWalkExtension;
-    private ArrayList<Integer> mInstances;
 
     public XWalkExtensionAndroid(String name, String jsApi) {
         mXWalkExtension = nativeCreateExtension(name, jsApi);
-        mInstances = new ArrayList<Integer>();
     }
 
-    public void destroy() {
+    protected void destroyExtension() {
         if (mXWalkExtension == 0) {
             Log.e(TAG, "The extension to be destroyed is invalid!");
             return;
@@ -46,9 +44,12 @@ public abstract class XWalkExtensionAndroid {
     }
 
     public void broadcastMessage(String message) {
-        for(Integer i : mInstances) {
-            postMessage(i, message);
+        if (mXWalkExtension == 0) {
+            Log.e(TAG, "Can not broadcast message to an invalid extension!");
+            return;
         }
+
+        nativeBroadcastMessage(mXWalkExtension, message);
     }
 
     @CalledByNative
@@ -57,21 +58,8 @@ public abstract class XWalkExtensionAndroid {
     @CalledByNative
     public abstract String handleSyncMessage(int instanceID, String message);
 
-    @CalledByNative
-    public abstract void onDestroy();
-
-    @CalledByNative
-    private void onInstanceCreated(int instanceID) {
-        if(!mInstances.contains(new Integer(instanceID)))
-            mInstances.add(new Integer(instanceID));
-    }
-
-    @CalledByNative
-    private void onInstanceRemoved(int instanceID) {
-        mInstances.remove(new Integer(instanceID));
-    }
-
     private native int nativeCreateExtension(String name, String jsApi);
     private native void nativePostMessage(int nativeXWalkExtensionAndroid, int instanceID, String message);
+    private native void nativeBroadcastMessage(int nativeXWalkExtensionAndroid, String message);
     private native void nativeDestroyExtension(int nativeXWalkExtensionAndroid);
 }

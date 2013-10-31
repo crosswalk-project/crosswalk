@@ -8,54 +8,49 @@ import android.app.Activity;
 import android.content.Context;
 
 /**
- * This is a public class to provide context for extensions.
- * It'll be shared by all extensions.
+ * Interface for extension context
+ *
+ * It is responsible for maintaining all xwalk extensions and providing a way to
+ * post message to JavaScript side for each xwalk extension.
  */
-public abstract class XWalkExtensionContext {
+public interface XWalkExtensionContext {
     /**
-     * Register the current extension into system and return the unique ID
-     * from extension system.
-     * @return the registered extension ID.
+     * Register an xwalk extension into context.
      */
-    public abstract Object registerExtension(XWalkExtension extension);
-    
-    /**
-     * Unregister the given extension from extension system.
-     * @param extension the extension which needs to be unregistered.
-     */
-    public abstract void unregisterExtension(XWalkExtension extension);
+    public void registerExtension(XWalkExtension extension);
 
     /**
-     * Post message to JavaScript via internal mechanism.
-     * @param extension the extension which needs to post message to JavaScript.
-     * @param instanceID the ID of target extension instance.
-     * @param message the message to be passed.
+     * Unregister an xwalk extension with the given unique name from context.
      */
-    public abstract void postMessage(XWalkExtension extension, int instanceID, String message);
+    public void unregisterExtension(String name);
 
     /**
-     * Broadcast message to all JavaScript instances via internal mechanism.
-     * @param extension the extension which needs to post message to JavaScript.
-     * @param message the message to be passed.
-     */
-    public abstract void broadcastMessage(XWalkExtension extension, String message);
-
-    /**
-     * Destroy the extension.
+     * Post a message to the given extension instance.
      *
-     * @param extension the extension to be destroyed.
+     * @param extension The xwalk extension
+     * @param instanceId The unique id to identify the extension instance as the
+     *                   message destination.
+     * @param message The message content to be posted.
      */
-    public abstract void destroyExtension(XWalkExtension extension);
+    public void postMessage(XWalkExtension extension, int instanceId, String message);
+
+    /**
+     * Broadcast a message to all extension instances.
+     *
+     * @param extension The xwalk extension
+     * @param message The message content to be broadcasted.
+     */
+    public void broadcastMessage(XWalkExtension extension, String message);
 
     /**
      * Get current Android Context.
      * @return the current Android Context.
      */
-    public abstract Context getContext();
+    public Context getContext();
 
     /**
      * Get the current Android Activity.
      * @return the current Android Activity.
      */
-    public abstract Activity getActivity();
+    public Activity getActivity();
 }

@@ -16,90 +16,99 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.Class;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
-import org.xwalk.runtime.XWalkRuntimeViewProvider;
 
 /**
  * This internal class acts a manager to manage extensions.
  */
-public class XWalkExtensionManager {
+public class XWalkExtensionManager implements XWalkExtensionContext {
     private final static String TAG = "XWalkExtensionManager";
     private final static String EXTENSION_CONFIG_FILE = "extensions-config.json";
     // This class name is from runtime client. Need to keep consistency with it.
     private final static String EXTENSION_CONTEXT_CLIENT_CLASS_NAME =
             "org.xwalk.app.runtime.extension.XWalkExtensionContextClient";
 
-    private Context mContext;
-    private Activity mActivity;
-    private XWalkRuntimeViewProvider mXwalkProvider;
-    private XWalkExtensionContextImpl mExtensionContextImpl;
+    private final Context mContext;
+    private final Activity mActivity;
 
-    private ArrayList<XWalkExtension> mExtensions;
+    private final HashMap<String, XWalkExtensionBridge> mExtensions = new HashMap<String, XWalkExtensionBridge>();
     // This variable is to set whether to load external extensions. The default is true.
     private boolean mLoadExternalExtensions;
 
-    public XWalkExtensionManager(Context context, Activity activity, XWalkRuntimeViewProvider xwalkProvider) {
+    public XWalkExtensionManager(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
-        mXwalkProvider = xwalkProvider;
-        mExtensionContextImpl = new XWalkExtensionContextImpl(context, activity, this);
-        mExtensions = new ArrayList<XWalkExtension>();
         mLoadExternalExtensions = true;
     }
 
-    public XWalkExtensionContext getExtensionContext() {
-        return mExtensionContextImpl;
+    @Override
+    public void registerExtension(XWalkExtension extension) {
+        if (mExtensions.get(extension.getExtensionName()) != null) {
+            Log.e(TAG, extension.getExtensionName() + "is already registered!");
+            return;
+        }
+
+        XWalkExtensionBridge bridge = XWalkExtensionBridgeFactory.createInstance(extension);
+        mExtensions.put(extension.getExtensionName(), bridge);
     }
 
+    @Override
+    public void unregisterExtension(String name) {
+        XWalkExtensionBridge bridge = mExtensions.get(name);
+        if (bridge != null) {
+            mExtensions.remove(name);
+            bridge.onDestroy();
+        }
+    }
+
+    @Override
+    public Context getContext() {
+        return mContext;
+    }
+
+    @Override
+    public Activity getActivity() {
+        return mActivity;
+    }
+
+    @Override
     public void postMessage(XWalkExtension extension, int instanceID, String message) {
-        mXwalkProvider.postMessage(extension, instanceID, message);
+        XWalkExtensionBridge bridge = mExtensions.get(extension.getExtensionName());
+        if (bridge != null) bridge.postMessage(instanceID, message);
     }
 
     public void broadcastMessage(XWalkExtension extension, String message) {
-        mXwalkProvider.broadcastMessage(extension, message);
-    }
-
-    public void destroyExtension(XWalkExtension extension) {
-        mXwalkProvider.destroyExtension(extension);
-    }
-
-    public Object registerExtension(XWalkExtension extension) {
-        mExtensions.add(extension);
-        return mXwalkProvider.onExtensionRegistered(extension);
-    }
-
-    public void unregisterExtension(XWalkExtension extension) {
-        mXwalkProvider.onExtensionUnregistered(extension);
-        mExtensions.remove(extension);
+        XWalkExtensionBridge bridge = mExtensions.get(extension.getExtensionName());
+        if (bridge != null) bridge.broadcastMessage(message);
     }
 
     public void onResume() {
-        for(XWalkExtension extension: mExtensions) {
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
             extension.onResume();
         }
     }
 
     public void onPause() {
-        for(XWalkExtension extension: mExtensions) {
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
             extension.onPause();
         }
     }
 
     public void onDestroy() {
-        for(XWalkExtension extension: mExtensions) {
-            extension.destroy();
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
+            extension.onDestroy();
         }
         mExtensions.clear();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        for(XWalkExtension extension: mExtensions) {
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
             extension.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -130,7 +139,7 @@ public class XWalkExtensionManager {
                 jsApiContent = getAssetsFileContent(mContext.getAssets(),
                                                     PresentationExtension.JS_API_PATH);
                 // Load PresentationExtension as an internal extension.
-                new PresentationExtension(PresentationExtension.NAME, jsApiContent, mExtensionContextImpl);
+                new PresentationExtension(PresentationExtension.NAME, jsApiContent, this);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
             }
@@ -140,7 +149,7 @@ public class XWalkExtensionManager {
             try {
                 jsApiContent = getAssetsFileContent(mContext.getAssets(),
                                                     DeviceCapabilities.JS_API_PATH);
-                new DeviceCapabilities(jsApiContent, mExtensionContextImpl);
+                new DeviceCapabilities(jsApiContent, this);
             } catch(IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
             }
@@ -161,7 +170,7 @@ public class XWalkExtensionManager {
 
         // Initialize the context for external extensions.
         XWalkExtensionContextWrapper contextWrapper =
-                new XWalkExtensionContextWrapper(mExtensionContextImpl);
+                new XWalkExtensionContextWrapper(this);
         Object contextClient = createExtensionContextClient(contextWrapper);
 
         try {
