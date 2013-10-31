@@ -9,6 +9,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.concurrent.TimeUnit;
 
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.test.util.OnTitleUpdatedHelper;
 import org.xwalk.test.util.XWalkRuntimeClientUtilInterface;
@@ -18,8 +19,9 @@ import org.xwalk.test.util.XWalkRuntimeClientUtilInterface;
  */
 public class DeviceCapabilitiesTest extends XWalkRuntimeClientTestBase {
 
-    @SmallTest
-    @Feature({"DeviceCapabilities"})
+    // @SmallTest
+    // @Feature({"DeviceCapabilities"})
+    @DisabledTest
     public void testDeviceCapabilities() throws Throwable {
         OnTitleUpdatedHelper helper = getUtilInterface().getContentsClient().getOnTitleUpdatedHelper();
         int currentCallCount = helper.getCallCount();
