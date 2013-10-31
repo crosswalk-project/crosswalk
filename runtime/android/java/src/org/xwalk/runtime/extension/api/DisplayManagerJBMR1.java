@@ -19,6 +19,11 @@ public class DisplayManagerJBMR1 extends XWalkDisplayManager implements DisplayM
     }
 
     @Override
+    public Display getDisplay(int displayId) {
+        return mDisplayManager.getDisplay(displayId);
+    }
+
+    @Override
     public Display[] getDisplays() {
         return mDisplayManager.getDisplays();
     }

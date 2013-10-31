@@ -43,6 +43,11 @@ public abstract class XWalkDisplayManager {
     }
 
     /**
+     * Get information about a logical display.
+     */
+    public abstract Display getDisplay(int displayId);
+
+    /**
      * Get all currently valid logical displays, including the built-in display.
      */
     public abstract Display[] getDisplays();

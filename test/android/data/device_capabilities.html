@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <style type="text/css">
+    body { margin: auto; width: 100%; }
+    div { margin: 15; padding: 10; width: 100%; }
+    textarea { margin: 10; padding: 10; width: 95%; height: 15%; font-size: 12; resize: none;}
+    .title { margin: 20; padding: 20; font-size: 32; font-weight: bold; }
+    .subtitle { margin: 10; padding: 10; font-size: 25; }
+    .text { font-size: 18; }
+    .center { text-align: center; }
+    .cpu { background-color: #FFFACD; }
+    .display { background-color: #CAE1FF; }
+    .memory { background-color: #FFF0F5; }
+    .storage { background-color: #F0FFF0; }
+    .event { background-color: #D1D1D1; }
+  </style>
+  <body>
+  <script>
+    var Error = function(error) {
+      document.title = "Fail";
+      console.log(error);
+    }
+
+    function enumerateAllProps(obj) {
+      var msg = '';
+      var props = Object.getOwnPropertyNames(obj);
+      for (var j = 0; j < props.length; ++j) {
+        msg += props[j] + ': ' + obj[props[j]] + '\n';
+      }
+      return msg;
+    }
+
+    var successCount = 0;
+    function onSuccess() {
+      // Only count the success get operation, the event part need manual interaction.
+      ++successCount;
+      if(successCount >= 5) {
+        document.title = "Pass";
+      }
+    }
+
+    window.onload = function() {
+      try {
+        navigator.system.getCPUInfo()
+            .then(function(cpu) {
+              document.getElementById('cpu').innerHTML = 'First level promise:<br>' +
+                                                         '-> numOfProcessors: ' + cpu.numOfProcessors + '<br>' +
+                                                         '-> archName: ' + cpu.archName + '<br>' +
+                                                         '-> cpu load: ' + cpu.load;
+              onSuccess();
+            }, Error)
+            .then(function(cpu) {
+              document.getElementById('cpu_chain').innerHTML = 'Second level promise:<br>' +
+                                                               '-> numOfProcessors: ' + cpu.numOfProcessors + '<br>' +
+                                                               '-> archName: ' + cpu.archName + '<br>' +
+                                                               '-> cpu load: ' + cpu.load;
+              onSuccess();
+            }, Error);
+
+        navigator.system.getMemoryInfo()
+            .then(function(memory) {
+              document.getElementById('memory').innerHTML = 'Total capacity: ' + memory.capacity / 1024 + '(MB)<br>' +
+                                                            'Avail capacity: ' + memory.availCapacity / 1024 + '(MB)';
+              onSuccess();
+            }, Error);
+
+        navigator.system.getDisplayInfo()
+            .then(function(display) {
+              var msg = ''; 
+              for (var i = 0; i < display.displays.length; ++i) {
+                msg += enumerateAllProps(display.displays[i]);
+                msg += '---------\n';
+              }
+              var output = document.getElementById('display');
+              output.value += msg;
+              output.scrollTop = output.scrollHeight;
+              onSuccess();
+            }, Error);
+
+        navigator.system.getStorageInfo()
+            .then(function(storage) {
+              var msg = '';
+              for (var i = 0; i < storage.storages.length; ++i) {
+                msg += enumerateAllProps(storage.storages[i]);
+                msg += '---------\n';
+              }
+              var output = document.getElementById('storage');
+              output.value += msg;
+              output.scrollTop = output.scrollHeight;
+              onSuccess();
+            }, Error);
+
+        navigator.system.addEventListener('onattach', function(storage) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(storage);
+            output.value += 'Storage attached with below properties:\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          });
+
+        navigator.system.addEventListener('ondetach', function(storage) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(storage);
+            output.value += 'Storage detached with below properties:\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          });
+
+        navigator.system.addEventListener('onconnect', function(display) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(display);
+            output.value += 'Display connected with below properties:\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          });
+
+        navigator.system.addEventListener('ondisconnect', function(display) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(display);
+            output.value += 'Display disconnected with below properties:\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          });
+
+      } catch(e) {
+        console.log(e);
+      }
+    };
+  </script>
+  <div class="title center">SysApp EXAMPLE</div>
+  <div class="cpu">
+    <p class="subtitle center">CPUInfo</p>
+    <p class="text" id="cpu"></p>
+    <p class="text" id="cpu_chain"></p>
+  </div>
+  <div class="memory">
+    <p class="subtitle center">MemoryInfo</p>
+    <p class="text" id="memory"></p>
+  </div>
+  <div class="display">
+    <p class="subtitle center">DisplayInfo</p>
+    <textarea id="display" readonly=true></textarea>
+  </div>
+  <div class="storage">
+    <p class="subtitle center">Storage</p>
+    <textarea id="storage" readonly=true></textarea>
+  </div>
+  <div class="event">
+    <p class="subtitle center">Event</p>
+    <textarea id="event" readonly=true></textarea>
+  </div>
+  </body>
+</html>

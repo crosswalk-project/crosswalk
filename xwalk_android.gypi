@@ -144,6 +144,7 @@
         'resource_dir': 'runtime/android/runtimelib/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
@@ -176,6 +177,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
             'experimental/presentation/presentation_api.js',
+            'sysapps/device_capabilities/device_capabilities_api.js',
           ],
         },
       ],
