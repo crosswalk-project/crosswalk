@@ -20,6 +20,15 @@
       <message desc="Title for the Ssl Alert dialog [CHAR-LIMIT=32]" name="IDS_SSL_ALERT_TITLE">
         Ssl Alert
       </message>
+      <message desc="Title for the http authentication dialog [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_TITLE">
+        Sign in
+      </message>
+      <message desc="Prompt for the http authentication user name [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_USER_NAME">
+        Username
+      </message>
+      <message desc="Prompt for the http authentication pasword [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_PASSWORD">
+        Password
+      </message>
     </messages>
   </release>
 

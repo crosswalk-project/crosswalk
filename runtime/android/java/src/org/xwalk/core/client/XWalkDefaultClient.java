@@ -14,9 +14,13 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.xwalk.core.HttpAuthDatabase;
+import org.xwalk.core.HttpAuthHandler;
 import org.xwalk.core.R;
 import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkClient;
@@ -34,9 +38,10 @@ public class XWalkDefaultClient extends XWalkClient {
     private AlertDialog mDialog;
     private XWalkView mView;
     private HttpAuthDatabase mDatabase;
+    private static final String HTTP_AUTH_DATABASE_FILE = "http_auth.db";
 
     public XWalkDefaultClient(Context context, XWalkView view) {
-        mDatabase = HttpAuthDatabase.getInstance(context.getApplicationContext());
+        mDatabase = new HttpAuthDatabase(context.getApplicationContext(), HTTP_AUTH_DATABASE_FILE);
         mContext = context;
         mView = view;
     }
@@ -107,5 +112,61 @@ public class XWalkDefaultClient extends XWalkClient {
     public void setHttpAuthUsernamePassword(String host, String realm,
             String username, String password) {
         mDatabase.setHttpAuthUsernamePassword(host, realm, username, password);
+    }
+
+    private void showHttpAuthDialog( final HttpAuthHandler handler,
+            final String host, final String realm) {
+        LinearLayout layout = new LinearLayout((Activity)mContext);
+        final TextView userNameView = new TextView((Activity)mContext);
+        final EditText userNameEditText = new EditText((Activity)mContext);
+        final TextView passwordView = new TextView((Activity)mContext);
+        final EditText passwordEditText = new EditText((Activity)mContext);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        userNameView.setText(R.string.http_auth_user_name);
+        passwordView.setText(R.string.http_auth_password);
+        layout.addView(userNameView);
+        layout.addView(userNameEditText);
+        layout.addView(passwordView);
+        layout.addView(passwordEditText);
+
+        AlertDialog.Builder mHttpAuthDialog = new AlertDialog.Builder((Activity)mContext);
+        mHttpAuthDialog.setTitle(R.string.http_auth_title)
+                .setView(layout)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String userName = userNameEditText.getText().toString();
+                        String password = passwordEditText.getText().toString();
+                        setHttpAuthUsernamePassword(host, realm, userName, password);
+                        handler.proceed(userName, password);
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        handler.cancel();
+                        dialog.dismiss();
+                    }
+                })
+                .create().show();
+    }
+
+    @Override
+    public void onReceivedHttpAuthRequest(XWalkView view,
+            HttpAuthHandler handler, String host, String realm) {
+        String userName = null;
+        String password = null;
+        if (handler.useHttpAuthUsernamePassword() && view != null) {
+            String[] credentials = getHttpAuthUsernamePassword(host, realm);
+            if (credentials != null && credentials.length == 2) {
+                userName = credentials[0];
+                password = credentials[1];
+            }
+        }
+        if (userName != null && password != null) {
+            handler.proceed(userName, password);
+        } else {
+            showHttpAuthDialog(handler, host, realm);
+        }
     }
 }
