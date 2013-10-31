@@ -201,22 +201,29 @@ def CopyXwalkJavaSource(project_source, out_directory):
   if not os.path.exists(os.path.join(target_package_directory, 'runtime')):
     os.mkdir(os.path.join(target_package_directory, 'runtime'))
   source_path = os.path.join(project_source, 'xwalk', 'runtime', 'android',
-                             'java', 'src', 'org', 'xwalk', 'runtime', 
+                             'java', 'src', 'org', 'xwalk', 'runtime',
                              'extension')
   target_path = os.path.join(target_package_directory, 'runtime', 'extension')
   shutil.copytree(source_path, target_path)
 
   source_file = os.path.join(project_source, 'xwalk', 'runtime', 'android',
-                             'java', 'src', 'org', 'xwalk', 'runtime', 
+                             'java', 'src', 'org', 'xwalk', 'runtime',
                              'XWalkCoreExtensionBridge.java')
-  target_file = os.path.join(target_package_directory, 'runtime', 
+  target_file = os.path.join(target_package_directory, 'runtime',
                              'XWalkCoreExtensionBridge.java')
   shutil.copyfile(source_file, target_file)
 
   source_file = os.path.join(project_source, 'xwalk', 'runtime', 'android',
-                             'java', 'src', 'org', 'xwalk', 'runtime', 
+                             'java', 'src', 'org', 'xwalk', 'runtime',
+                             'XWalkManifestReader.java')
+  target_file = os.path.join(target_package_directory, 'runtime',
+                             'XWalkManifestReader.java')
+  shutil.copyfile(source_file, target_file)
+
+  source_file = os.path.join(project_source, 'xwalk', 'runtime', 'android',
+                             'java', 'src', 'org', 'xwalk', 'runtime',
                              'XWalkRuntimeViewProvider.java')
-  target_file = os.path.join(target_package_directory, 'runtime', 
+  target_file = os.path.join(target_package_directory, 'runtime',
                              'XWalkRuntimeViewProvider.java')
   shutil.copyfile(source_file, target_file)
 
