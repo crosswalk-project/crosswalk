@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
+#include <algorithm>
+#include <cctype>
 #include <string>
 
 #include "base/android/jni_string.h"
@@ -15,6 +17,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/common/renderer_preferences.h"
+#include "content/public/common/url_constants.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
@@ -170,7 +173,16 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string url;
   if (manifest.GetString(
           xwalk::application_manifest_keys::kLaunchLocalPathKey, &url)) {
-    url = path_str + url;
+    // According to original proposal for "app:launch:local_path", the "http"
+    // and "https" schemes are supported. So |url| should do nothing when it
+    // already has "http" or "https" scheme.
+    std::string lower_url = url;
+    std::transform(lower_url.begin(), lower_url.end(),
+                   lower_url.begin(), std::tolower);
+    if (lower_url.find(content::kHttpScheme) == std::string::npos &&
+        lower_url.find(content::kHttpsScheme) == std::string::npos) {
+      url = path_str + url;
+    }
   } else {
     manifest.GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);

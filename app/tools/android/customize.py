@@ -181,18 +181,25 @@ def CustomizeJava(options, sanitized_name):
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
-  if options.app_url:
-    if re.search(r'^http(|s)', options.app_url):
-      ReplaceString(dest_activity, 'file:///android_asset/index.html',
-                    options.app_url)
-  elif options.app_local_path:
-    if os.path.isfile(os.path.join(sanitized_name, 'assets',
-                                   options.app_local_path)):
-      ReplaceString(dest_activity, 'index.html', options.app_local_path)
-    else:
-      print ('Please make sure that the relative path of entry file'
-             ' is correct.')
-      sys.exit(8)
+  manifest_file = os.path.join(sanitized_name, 'assets', 'manifest.json')
+  if os.path.isfile(manifest_file):
+    ReplaceString(dest_activity,
+                  'loadAppFromUrl("file:///android_asset/index.html")',
+                  'loadAppFromManifest("file:///android_asset/manifest.json")')
+  else:
+    if options.app_url:
+      if re.search(r'^http(|s)', options.app_url):
+        ReplaceString(dest_activity, 'file:///android_asset/index.html',
+                      options.app_url)
+    elif options.app_local_path:
+      if os.path.isfile(os.path.join(sanitized_name, 'assets',
+                                     options.app_local_path)):
+        ReplaceString(dest_activity, 'index.html', options.app_local_path)
+      else:
+        print ('Please make sure that the relative path of entry file'
+               ' is correct.')
+        sys.exit(8)
+
   if options.enable_remote_debugging:
     SetVariable(dest_activity, 'RemoteDebugging', 'true')
 
