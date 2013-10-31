@@ -602,7 +602,27 @@
         }],
       ],
     },
-  ],
+    {
+      'target_name': 'xwalk_extension_shell',
+      'type': 'executable',
+      'product_name': 'xesh',
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            'xwalk_runtime',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'extensions/xesh/xesh_main.cc',
+            'extensions/xesh/xesh_v8_runner.h',
+            'extensions/xesh/xesh_v8_runner.cc',
+          ],
+        }],
+      ],
+    },
+  ], # targets
   'conditions': [
     ['OS=="mac"', {
       'targets': [
