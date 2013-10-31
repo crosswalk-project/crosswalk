@@ -6,6 +6,7 @@
     <script>
       var Person = test.Person;
       var error = 0;
+      var heartbeatCounter = 0;
 
       window.onerror = function(e) {
         error++;
@@ -62,8 +63,22 @@
 
         // Omitting the callback, should not crash.
         test.getAllPersons(10);
-        setTimeout(endTest(), 500);
-      }
+
+        test.startHeartbeat(heartbeatCallback);
+      };
+
+      function heartbeatCallback(currentCounter) {
+        if (heartbeatCounter++ != currentCounter)
+          error++;
+
+        if (currentCounter == 10) {
+          test.stopHeartbeat();
+          endTest();
+        }
+
+        // Returning true makes the callback persistent.
+        return true;
+      };
     </script>
-  </body>
-</html>
+    </body>
+  </html>

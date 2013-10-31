@@ -31,7 +31,7 @@ XWalkExtensionInstance* TestExtension::CreateInstance() {
   return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance() : handler_(this) {
+TestExtensionInstance::TestExtensionInstance() : counter_(0), handler_(this) {
   handler_.Register("clearDatabase",
       base::Bind(&TestExtensionInstance::OnClearDatabase,
                  base::Unretained(this)));
@@ -46,6 +46,12 @@ TestExtensionInstance::TestExtensionInstance() : handler_(this) {
                  base::Unretained(this)));
   handler_.Register("getPersonAge",
       base::Bind(&TestExtensionInstance::OnGetPersonAge,
+                 base::Unretained(this)));
+  handler_.Register("startHeartbeat",
+      base::Bind(&TestExtensionInstance::OnStartHeartbeat,
+                 base::Unretained(this)));
+  handler_.Register("stopHeartbeat",
+      base::Bind(&TestExtensionInstance::OnStopHeartbeat,
                  base::Unretained(this)));
 }
 
@@ -128,6 +134,23 @@ void TestExtensionInstance::OnGetPersonAge(
   }
 
   info->PostResult(GetPersonAge::Results::Create(age));
+}
+
+void TestExtensionInstance::OnStartHeartbeat(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  heartbeat_info_.reset(info.release());
+  timer_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(50),
+               this,
+               &TestExtensionInstance::DispatchHeartbeat);
+}
+
+void TestExtensionInstance::OnStopHeartbeat(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  timer_.Stop();
+}
+
+void TestExtensionInstance::DispatchHeartbeat() {
+  heartbeat_info_->PostResult(StartHeartbeat::Results::Create(counter_++));
 }
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {

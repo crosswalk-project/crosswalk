@@ -18,6 +18,8 @@ function wrapCallback(args, callback) {
     // message handler.
     args.unshift("");
   }
+
+  return id;
 }
 
 exports.setupInternalExtension = function(extension_obj) {
@@ -32,14 +34,23 @@ exports.setupInternalExtension = function(extension_obj) {
     var listener = callback_listeners[id];
 
     if (listener !== undefined) {
-      listener.apply(null, args);
-      delete callback_listeners[id];
+      if (!listener.apply(null, args))
+        delete callback_listeners[id];
     }
   });
 };
 
 exports.postMessage = function(function_name, args, callback) {
-  wrapCallback(args, callback);
+  var id = wrapCallback(args, callback);
   args.unshift(function_name);
   extension_object.postMessage(args);
+
+  return id;
+};
+
+exports.removeCallback = function(id) {
+  if (!id in callback_listeners)
+    return;
+
+  delete callback_listeners[id];
 };
