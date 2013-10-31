@@ -299,7 +299,6 @@ void XWalkModuleSystem::Initialize() {
     if (on_demand_enabled && it->use_trampoline) {
       if (InstallTrampoline(context, &*it))
         continue;
-      LOG(WARNING) << "Falling back to immediately loading " << it->name;
     }
     it->module->LoadExtensionCode(context, require_native);
   }
@@ -399,7 +398,6 @@ void XWalkModuleSystem::MarkModulesWithTrampoline() {
                             &ExtensionModuleEntry::IsPrefix);
     if (it == extension_modules_.end())
       break;
-    VLOG(0) << it->name << " should not use trampoline.";
     it->use_trampoline = false;
     ++it;
   }
