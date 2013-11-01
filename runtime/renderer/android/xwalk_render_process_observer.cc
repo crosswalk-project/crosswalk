@@ -23,6 +23,7 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_SetJsOnlineProperty, OnSetJsOnlineProperty)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_ClearCache, OnClearCache);
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -35,6 +36,11 @@ void XWalkRenderProcessObserver::WebKitInitialized() {
 void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
   if (webkit_initialized_)
     WebKit::WebNetworkStateNotifier::setOnLine(network_up);
+}
+
+void XWalkRenderProcessObserver::OnClearCache() {
+  if (webkit_initialized_)
+    WebKit::WebCache::clear();
 }
 
 }  // namespace xwalk
