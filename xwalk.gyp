@@ -105,8 +105,6 @@
         'runtime/browser/runtime_select_file_policy.h',
         'runtime/browser/runtime_url_request_context_getter.cc',
         'runtime/browser/runtime_url_request_context_getter.h',
-        'runtime/browser/sensor_provider.cc',
-        'runtime/browser/sensor_provider.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
         'runtime/browser/ui/color_chooser_aura.cc',
@@ -150,6 +148,12 @@
       'conditions': [
         [ 'tizen_mobile == 1', {
           'sources': [
+            'runtime/browser/tizen/sensor_provider.cc',
+            'runtime/browser/tizen/sensor_provider.h',
+            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.cc',
+            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.h',
+            'runtime/browser/tizen/tizen_platform_sensor.cc',
+            'runtime/browser/tizen/tizen_platform_sensor.h',
             'runtime/browser/ui/tizen_plug_message_writer.cc',
             'runtime/browser/ui/tizen_plug_message_writer.h',
             'runtime/browser/ui/tizen_system_indicator.cc',
@@ -158,8 +162,6 @@
             'runtime/browser/ui/tizen_system_indicator_watcher.h',
             'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.cc',
             'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.h',
-            'runtime/browser/tizen_platform_sensor.cc',
-            'runtime/browser/tizen_platform_sensor.h',
           ],
         }],
         ['OS=="android"',{

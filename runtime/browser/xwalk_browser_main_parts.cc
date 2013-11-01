@@ -49,7 +49,9 @@
 #endif  // defined(OS_ANDROID)
 
 #if defined(OS_TIZEN_MOBILE)
+#include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
+#include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
 #endif  // defined(OS_TIZEN_MOBILE)
 
 namespace {
@@ -359,6 +361,18 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       return;
     }
   }
+
+#if defined(OS_TIZEN_MOBILE)
+  if (content::DeviceInertialSensorService* sensor_service =
+          content::DeviceInertialSensorService::GetInstance()) {
+    TizenDataFetcherSharedMemory* data_fetcher =
+        new TizenDataFetcherSharedMemory();
+    // As the data fetcher of sensors is implemented outside of Chromium, we
+    // need to make it available to Chromium by "abusing" the test framework.
+    // TODO(zliang7): Find a decent way to inject our sensor fetcher for Tizen.
+    sensor_service->SetDataFetcherForTests(data_fetcher);
+  }
+#endif  // OS_TIZEN_MOBILE
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);
