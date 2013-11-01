@@ -126,6 +126,17 @@ public class XWalkViewTestBase
         loadDataSync(fileContent, "text/html", false);
     }
 
+    public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
+        CallbackHelper getTitleHelper = mTestContentsClient.getOnTitleUpdatedHelper();
+        int currentCallCount = getTitleHelper.getCallCount();
+        String fileContent = getFileContent(fileName);
+
+        loadDataSync(fileContent, "text/html", false);
+
+        getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
     protected XWalkView getXWalkView() {
         return mXWalkView;
     }

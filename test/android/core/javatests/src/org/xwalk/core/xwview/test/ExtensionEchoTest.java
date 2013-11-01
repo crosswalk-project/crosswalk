@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
-import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 import org.xwalk.core.XWalkClient;
@@ -40,7 +39,6 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
             @Override
             public void onReceivedTitle(XWalkView view, String title) {
                 mTestContentsClient.onTitleChanged(title);
-                assertEquals("Pass", title);
             }
         }
 
@@ -53,7 +51,8 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     public void testExtensionEcho() throws Throwable {
         ExtensionEcho echo = new ExtensionEcho();
 
-        loadAssetFile("echo.html");
+        loadAssetFileAndWaitForTitle("echo.html");
+        assertEquals("Pass", getTitleOnUiThread());
     }
 
     @SmallTest
@@ -65,15 +64,12 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
         assertEquals("Pass", getTitleOnUiThread());
     }
 
-    // @SmallTest
-    // @Feature({"ExtensionEcho"})
-    // This test case failed on buildbot, so disabled it temporally.
-    // It will be enabled later.
-    @DisabledTest
+    @SmallTest
+    @Feature({"ExtensionEcho"})
     public void testExtensionEchoMultiFrames() throws Throwable {
         ExtensionEcho echo = new ExtensionEcho();
 
-        loadAssetFile("framesEcho.html");
+        loadAssetFileAndWaitForTitle("framesEcho.html");
         assertEquals("Pass", getTitleOnUiThread());
     }
 }
