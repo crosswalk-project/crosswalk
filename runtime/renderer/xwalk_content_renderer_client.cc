@@ -6,10 +6,12 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_thread.h"
+#include "grit/xwalk_sysapps_resources.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
+#include "xwalk/extensions/renderer/xwalk_js_module.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
@@ -74,6 +76,8 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   scoped_ptr<extensions::XWalkNativeModule> app_module(
       new application::ApplicationNativeModule());
   module_system->RegisterNativeModule("application", app_module.Pass());
+  module_system->RegisterNativeModule("sysapps_common",
+      extensions::CreateJSModuleFromResource(IDR_XWALK_SYSAPPS_COMMON_API));
 }
 
 }  // namespace xwalk

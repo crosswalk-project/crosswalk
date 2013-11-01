@@ -1,0 +1,54 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// RawSocket API
+namespace raw_socket {
+  enum SocketErrorType {
+    no_network_contact,
+    udp_error,
+    tcp_error,
+    tcp_peer_does_not_respond,
+    tcp_connection_not_accepted,
+    tcp_connection_lost,
+    received_data_error,
+    local_address_port_already_in_use,
+    send_buffer_full,
+    tcp_server_max_connections,
+    tcp_server_connection_not_accepted
+  };
+
+  enum ReadyState {
+    opening,
+    open,
+    closing,
+    closed,
+    halfclosed
+  };
+
+  // Events and functions are defined at
+  // tcp_socket.idl
+  dictionary TCPSocket {
+    DOMString remoteAddress;
+    long remotePort;
+    DOMString localAddress;
+    long localPort;
+    boolean addressReuse;
+    long bufferedAmount;
+    ReadyState readyState;
+  };
+
+  // Events and functions are defined at
+  // tcp_server_socket.idl
+  dictionary TCPServerSocket {
+    DOMString localAddress;
+    long localPort;
+    boolean addressReuse;
+    ReadyState readyState;
+  };
+
+  interface Functions {
+    [nodoc] static TCPSocket TCPSocketConstructor(DOMString objectId);
+    [nodoc] static TCPServerSocket TCPServerSocketConstructor(DOMString objectId);
+  };
+};
