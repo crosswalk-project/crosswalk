@@ -53,6 +53,7 @@
 #include "ui/gfx/switches.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
+#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 #endif  // defined(OS_TIZEN_MOBILE)
 
 namespace {
@@ -412,6 +413,9 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
   ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
+#elif defined(OS_TIZEN_MOBILE)
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
 #else
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(

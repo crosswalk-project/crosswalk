@@ -26,4 +26,8 @@
   "xwalk/application/application_resources.grd": {
     "includes": [32150],
   },
+
+  "xwalk/sysapps/sysapps_resources.grd": {
+    "includes": [32175],
+  },
 }
