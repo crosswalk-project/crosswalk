@@ -35,7 +35,15 @@ public class ExtensionBroadcastTest extends XWalkViewTestBase {
             }
         }
 
+        class TestXWalkChromeClient extends XWalkWebChromeClient {
+            @Override
+            public void onReceivedTitle(XWalkView view, String title) {
+                mTestContentsClient.onTitleChanged(title);
+            }
+        }
+
         getXWalkView().setXWalkClient(new TestXWalkClient());
+        getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
     }
 
     @SmallTest
@@ -43,7 +51,7 @@ public class ExtensionBroadcastTest extends XWalkViewTestBase {
     public void testExtensionBroadcast() throws Throwable {
         ExtensionBroadcast broadcast = new ExtensionBroadcast();
 
-        loadAssetFile("broadcast.html");
+        loadAssetFileAndWaitForTitle("broadcast.html");
         assertEquals("Pass", getTitleOnUiThread());
     }
 }
