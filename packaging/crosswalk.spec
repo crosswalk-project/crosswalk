@@ -122,6 +122,7 @@ export GYP_GENERATORS='make'
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Denable_xi21_mt=1 \
+-Duse_xi2_mt=0 \
 -Dtizen_mobile=1 \
 -Duse_openssl=1
 
