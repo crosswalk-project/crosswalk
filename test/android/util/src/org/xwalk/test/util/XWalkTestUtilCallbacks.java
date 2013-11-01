@@ -8,13 +8,13 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
-public class TestXWalkRuntimeClientContentsClient {
-    private final OnPageStartedHelper mOnPageStartedHelper;
-    private final OnPageFinishedHelper mOnPageFinishedHelper;
-    private final OnReceivedErrorHelper mOnReceivedErrorHelper;
-    private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
+public class XWalkTestUtilCallbacks {
+    final OnPageStartedHelper mOnPageStartedHelper;
+    final OnPageFinishedHelper mOnPageFinishedHelper;
+    final OnReceivedErrorHelper mOnReceivedErrorHelper;
+    final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
 
-    public TestXWalkRuntimeClientContentsClient() {
+    public XWalkTestUtilCallbacks() {
         mOnPageStartedHelper = new OnPageStartedHelper();
         mOnPageFinishedHelper = new OnPageFinishedHelper();
         mOnReceivedErrorHelper = new OnReceivedErrorHelper();

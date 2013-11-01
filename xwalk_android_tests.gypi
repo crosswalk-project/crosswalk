@@ -1,10 +1,22 @@
 {
   'targets': [
     {
+      'target_name': 'xwalk_test_util_java',
+      'type': 'none',
+      'dependencies': [
+        '../content/content.gyp:content_java_test_support',
+      ],
+      'variables': {
+        'java_in_dir': 'test/android/util',
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
       # Java utils for runtime client related tests.
       'target_name': 'xwalk_runtime_client_test_utils_java',
       'type': 'none',
       'dependencies': [
+        'xwalk_test_util_java',
         'xwalk_app_runtime_client_java',
       ],
       'variables': {
@@ -401,18 +413,6 @@
         },
       ],
       'includes': [ '../build/java_apk.gypi' ],
-    },
-    {
-      'target_name': 'xwalk_test_util_java',
-      'type': 'none',
-      'dependencies': [
-        '../content/content.gyp:content_java_test_support',
-        'xwalk_app_runtime_client_java',
-      ],
-      'variables': {
-        'java_in_dir': 'test/android/util',
-      },
-      'includes': ['../build/java.gypi'],
     },
   ],
 }
