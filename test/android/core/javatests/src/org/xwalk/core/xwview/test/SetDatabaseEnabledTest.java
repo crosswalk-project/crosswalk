@@ -47,13 +47,23 @@ public class SetDatabaseEnabledTest extends XWalkViewTestBase {
                 mTestContentsClient.onLoadResource(url);
             }
         }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+            }
+        });
     }
 
     abstract class XWalkViewSettingsTestHelper<T> {
         XWalkViewSettingsTestHelper(boolean requiresJsEnabled) throws Throwable {
             if (requiresJsEnabled) {
-                getXWalkView().getSettings().setJavaScriptEnabled(true);
+                getInstrumentation().runOnMainSync(new Runnable() {
+                    @Override
+                    public void run() {
+                        getXWalkView().getSettings().setJavaScriptEnabled(true);
+                    }
+                });
             }
         }
 
@@ -92,6 +102,7 @@ public class SetDatabaseEnabledTest extends XWalkViewTestBase {
     class XWalkViewSettingsDatabaseTestHelper extends XWalkViewSettingsTestHelper<Boolean> {
         private static final String NO_DATABASE = "No database";
         private static final String HAS_DATABASE = "Has database";
+        private Boolean enabled;
 
         XWalkViewSettingsDatabaseTestHelper() throws Throwable {
             super(true);
@@ -109,13 +120,24 @@ public class SetDatabaseEnabledTest extends XWalkViewTestBase {
 
         @Override
         protected Boolean getCurrentValue() {
-            Boolean enabled = getXWalkView().getSettings().getDatabaseEnabled();
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    enabled = getXWalkView().getSettings().getDatabaseEnabled();
+                }
+            });
             return enabled;
         }
 
         @Override
         protected void setCurrentValue(Boolean value) {
-            getXWalkView().getSettings().setDatabaseEnabled(value);
+            final Boolean enabled = value;
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    getXWalkView().getSettings().setDatabaseEnabled(enabled);
+                }
+            });
         }
 
         @Override

@@ -41,9 +41,13 @@ public class ExtensionBroadcastTest extends XWalkViewTestBase {
                 mTestContentsClient.onTitleChanged(title);
             }
         }
-
-        getXWalkView().setXWalkClient(new TestXWalkClient());
-        getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+                getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+            }
+        });
     }
 
     @SmallTest
