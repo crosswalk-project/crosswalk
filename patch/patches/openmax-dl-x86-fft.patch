@@ -1,0 +1,2892 @@
+Index: dl/dl.gyp
+===================================================================
+--- dl/dl.gyp	(revision 4148)
++++ dl/dl.gyp	(working copy)
+@@ -18,79 +18,10 @@
+       'include_dirs': [
+         '../',
+       ],
+-      'cflags!': [
+-        '-mfpu=vfpv3-d16',
+-      ],
+-      'cflags': [
+-        # We enable Neon instructions even with arm_neon==0, to support
+-        # runtime detection.
+-        '-mfpu=neon',
+-      ],
+       'sources': [
+-        'api/armCOMM_s.h',
+-        'api/armOMX.h',
+         'api/omxtypes.h',
+-        'api/omxtypes_s.h',
+-        'sp/api/armSP.h',
+         'sp/api/omxSP.h',
+-        # Complex 32-bit fixed-point FFT.
+-        'sp/src/armSP_FFT_S32TwiddleTable.c',
+-        'sp/src/omxSP_FFTGetBufSize_C_SC32.c',
+-        'sp/src/omxSP_FFTInit_C_SC32.c',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix2_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix2_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix2_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix4_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix4_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix2_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix4_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC32_Radix8_fs_unsafe_s.S',
+-        'sp/src/omxSP_FFTInv_CToC_SC32_Sfs_s.S',
+-        'sp/src/omxSP_FFTFwd_CToC_SC32_Sfs_s.S',
+-        # Real 32-bit fixed-point FFT
+-        'sp/src/armSP_FFTInv_CCSToR_S32_preTwiddleRadix2_unsafe_s.S',
+-        'sp/src/omxSP_FFTFwd_RToCCS_S32_Sfs_s.S',
+-        'sp/src/omxSP_FFTGetBufSize_R_S32.c',
+-        'sp/src/omxSP_FFTInit_R_S32.c',
+-        'sp/src/omxSP_FFTInv_CCSToR_S32_Sfs_s.S',
+-        # Complex 16-bit fixed-point FFT
+-        'sp/src/omxSP_FFTInit_C_SC16.c',
+-        'sp/src/omxSP_FFTGetBufSize_C_SC16.c',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix2_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix2_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix2_ps_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix2_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix4_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix4_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix4_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_SC16_Radix8_fs_unsafe_s.S',
+-        'sp/src/omxSP_FFTFwd_CToC_SC16_Sfs_s.S',
+-        'sp/src/omxSP_FFTInv_CToC_SC16_Sfs_s.S',
+-        # Real 16-bit fixed-point FFT
+-        'sp/src/omxSP_FFTFwd_RToCCS_S16S32_Sfs_s.S',
+-        'sp/src/omxSP_FFTGetBufSize_R_S16S32.c',
+-        'sp/src/omxSP_FFTInit_R_S16S32.c',
+-        'sp/src/omxSP_FFTInv_CCSToR_S32S16_Sfs_s.S',
+-        # Complex floating-point FFT
+-        'sp/src/armSP_FFT_CToC_FC32_Radix2_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix2_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix2_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix4_fs_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix4_ls_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix2_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix4_unsafe_s.S',
+-        'sp/src/armSP_FFT_CToC_FC32_Radix8_fs_unsafe_s.S',
+         'sp/src/armSP_FFT_F32TwiddleTable.c',
+-        'sp/src/omxSP_FFTGetBufSize_C_FC32.c',
+-        'sp/src/omxSP_FFTInit_C_FC32.c',
+-        'sp/src/omxSP_FFTInv_CToC_FC32_Sfs_s.S',
+-        'sp/src/omxSP_FFTFwd_CToC_FC32_Sfs_s.S',
+-        # Real floating-point FFT
+-        'sp/src/armSP_FFTInv_CCSToR_F32_preTwiddleRadix2_unsafe_s.S',
+-        'sp/src/omxSP_FFTFwd_RToCCS_F32_Sfs_s.S',
+-        'sp/src/omxSP_FFTGetBufSize_R_F32.c',
+-        'sp/src/omxSP_FFTInit_R_F32.c',
+-        'sp/src/omxSP_FFTInv_CCSToR_F32_Sfs_s.S',
+       ],
+       'conditions' : [
+         ['big_float_fft == 1', {
+@@ -98,6 +29,110 @@
+             'BIG_FFT_TABLE',
+           ],
+         }],
++        ['target_arch=="arm"', {
++          'cflags!': [
++            '-mfpu=vfpv3-d16',
++          ],
++          'cflags': [
++            # We enable Neon instructions even with arm_neon==0, to support
++            # runtime detection.
++            '-mfpu=neon',
++          ],
++          'sources': [
++            'api/armCOMM_s.h',
++            'api/armOMX.h',
++            'api/omxtypes_s.h',
++            'sp/api/armSP.h',
++            # Complex 32-bit fixed-point FFT.
++            'sp/src/armSP_FFT_S32TwiddleTable.c',
++            'sp/src/omxSP_FFTGetBufSize_C_SC32.c',
++            'sp/src/omxSP_FFTInit_C_SC32.c',
++            'sp/src/armSP_FFT_CToC_SC32_Radix2_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix2_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix2_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix4_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix4_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix2_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix4_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC32_Radix8_fs_unsafe_s.S',
++            'sp/src/omxSP_FFTInv_CToC_SC32_Sfs_s.S',
++            'sp/src/omxSP_FFTFwd_CToC_SC32_Sfs_s.S',
++            # Real 32-bit fixed-point FFT
++            'sp/src/armSP_FFTInv_CCSToR_S32_preTwiddleRadix2_unsafe_s.S',
++            'sp/src/omxSP_FFTFwd_RToCCS_S32_Sfs_s.S',
++            'sp/src/omxSP_FFTGetBufSize_R_S32.c',
++            'sp/src/omxSP_FFTInit_R_S32.c',
++            'sp/src/omxSP_FFTInv_CCSToR_S32_Sfs_s.S',
++            # Complex 16-bit fixed-point FFT
++            'sp/src/omxSP_FFTInit_C_SC16.c',
++            'sp/src/omxSP_FFTGetBufSize_C_SC16.c',
++            'sp/src/armSP_FFT_CToC_SC16_Radix2_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix2_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix2_ps_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix2_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix4_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix4_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix4_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_SC16_Radix8_fs_unsafe_s.S',
++            'sp/src/omxSP_FFTFwd_CToC_SC16_Sfs_s.S',
++            'sp/src/omxSP_FFTInv_CToC_SC16_Sfs_s.S',
++            # Real 16-bit fixed-point FFT
++            'sp/src/omxSP_FFTFwd_RToCCS_S16S32_Sfs_s.S',
++            'sp/src/omxSP_FFTGetBufSize_R_S16S32.c',
++            'sp/src/omxSP_FFTInit_R_S16S32.c',
++            'sp/src/omxSP_FFTInv_CCSToR_S32S16_Sfs_s.S',
++            # Complex floating-point FFT
++            'sp/src/armSP_FFT_CToC_FC32_Radix2_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix2_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix2_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix4_fs_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix4_ls_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix2_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix4_unsafe_s.S',
++            'sp/src/armSP_FFT_CToC_FC32_Radix8_fs_unsafe_s.S',
++            'sp/src/omxSP_FFTGetBufSize_C_FC32.c',
++            'sp/src/omxSP_FFTInit_C_FC32.c',
++            'sp/src/omxSP_FFTInv_CToC_FC32_Sfs_s.S',
++            'sp/src/omxSP_FFTFwd_CToC_FC32_Sfs_s.S',
++            # Real floating-point FFT
++            'sp/src/armSP_FFTInv_CCSToR_F32_preTwiddleRadix2_unsafe_s.S',
++            'sp/src/omxSP_FFTFwd_RToCCS_F32_Sfs_s.S',
++            'sp/src/omxSP_FFTGetBufSize_R_F32.c',
++            'sp/src/omxSP_FFTInit_R_F32.c',
++            'sp/src/omxSP_FFTInv_CCSToR_F32_Sfs_s.S',
++          ],
++        }],
++        ['target_arch=="ia32"', {
++          'sources': [
++            # Real 32-bit floating-point FFT.
++            'sp/src/x86/omxSP_FFTFwd_RToCCS_F32_Sfs.c',
++            'sp/src/x86/omxSP_FFTGetBufSize_R_F32.c',
++            'sp/src/x86/omxSP_FFTInit_R_F32.c',
++            'sp/src/x86/omxSP_FFTInv_CCSToR_F32_Sfs.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_fs.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ms.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_fs.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ms.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms.c',
++            'sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse.c',
++            'sp/src/x86/x86SP_FFT_RToCSS_F32_radix2_kernel.c',
++            'sp/src/x86/x86SP_FFT_RToCSS_F32_radix4_kernel.c',
++          ],
++        }],
+       ],
+   }]
+ }
+Index: dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix2_kernel.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix2_kernel.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix2_kernel.c	(revision 0)
+@@ -0,0 +1,59 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++OMX_F32* x86SP_FFT_RToCSS_F32_radix2_kernel_OutOfPlace(
++                OMX_F32 *pSrc,
++                // Two Ping Pong buffers for out of place kernel.
++                OMX_F32 *pBuf1,
++                OMX_F32 *pBuf2,
++                OMX_F32 *pTwiddle,
++                OMX_INT N,
++                // 1 for forward, -1 for inverse.
++                OMX_INT flag)
++{
++  OMX_INT subSize, subNum, NBy2 = N >> 1;
++  OMX_F32 *pIn, *pOut;
++
++  pIn = pBuf1;
++  pOut = pBuf2;
++
++  if (flag > 0)
++    x86SP_FFT_CToC_FC32_Fwd_Radix2_fs(pSrc, pIn, N);
++  else
++    x86SP_FFT_CToC_FC32_Inv_Radix2_fs(pSrc, pIn, N);
++
++  for (subSize = 2, subNum = NBy2;
++       subSize < NBy2;
++       subSize = subSize << 1, subNum = subNum >> 1) {
++
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix2_ms(pIn, pOut, pTwiddle, N, subSize, subNum);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix2_ms(pIn, pOut, pTwiddle, N, subSize, subNum);
++
++    OMX_F32 *temp = pOut;
++    pOut = pIn;
++    pIn = temp;
++  }
++
++  // If N == 2, no need to do the last stage.
++  if (subNum <=1)
++    return pIn;
++
++  if (flag > 0)
++    x86SP_FFT_CToC_FC32_Fwd_Radix2_ls(pIn, pOut, pTwiddle, N);
++  else
++    x86SP_FFT_CToC_FC32_Inv_Radix2_ls(pIn, pOut, pTwiddle, N);
++
++  return pOut;
++}
+Index: dl/sp/src/x86/omxSP_FFTFwd_RToCCS_F32_Sfs.c
+===================================================================
+--- dl/sp/src/x86/omxSP_FFTFwd_RToCCS_F32_Sfs.c	(revision 0)
++++ dl/sp/src/x86/omxSP_FFTFwd_RToCCS_F32_Sfs.c	(revision 0)
+@@ -0,0 +1,127 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/api/omxSP.h"
++#include "dl/sp/api/x86SP.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++// Sse version of revbinPermuteFwd function.
++void revbinPermuteFwdSse(OMX_F32 *pIn, OMX_F32 *pOut, OMX_F32 *pTwiddle, OMX_INT N)
++{
++  OMX_INT i, j, NBy2 = N >> 1, NBy4 = N >> 2;
++  OMX_F32 *pTw, *pI, *pJ;
++
++  VC vI, vJ, t0, t1, z0, z1, z2, Tw;
++
++  __m128 factor = _mm_set1_ps(0.5f);
++
++  for (i = 0, j = NBy2 - 3; i < NBy4; i += 4, j -= 4) {
++    pI = pIn + i;
++    pJ = pIn + j;
++
++    VC_LOAD_SPLIT(&vI, pI, NBy2);
++
++    VC_LOADU_SPLIT(&vJ, pJ, NBy2);
++    VC_INVERSE(&vJ);
++
++    VC_ADD_SUB(&t0, &vJ, &vI);
++
++    VC_SUB_ADD(&t1, &vJ, &vI);
++
++    pTw = pTwiddle + i;
++    VC_LOAD_SPLIT(&Tw, pTw, N);
++
++    VC_MUL_I(&z0, &t1, &Tw);
++
++    VC_SUB_X(&z1, &t0, &z0);
++    VC_ADD_X(&z2, &t0, &z0);
++
++    VC_MUL_F(&z1, &z1, factor);
++    VC_MUL_F(&z2, &z2, factor);
++
++    VC_STORE_INTERLEAVE((pOut + (i << 1)), &z1);
++
++    VC_INVERSE(&z2);
++    VC_STOREU_INTERLEAVE((pOut + (j << 1)), &z2);
++  }
++}
++
++// For real fft, we treat the real input of size N as the complex input of N/2
++// to do the CToC fft, and it requires a permutation after the forward calculation.
++void revbinPermuteFwd(OMX_F32 *pIn, OMX_F32 *pOut, OMX_F32 *pTwiddle, OMX_INT N)
++{
++  OMX_INT i, j, NBy2 = N >> 1, NBy4 = N >> 2;
++
++  OMX_F32 t1r, t1i, t2r, t2i, z1r, z1i, z2r, z2i;
++  OMX_F32 *pTw;
++
++  for (i = 0, j = NBy2; i < NBy4; i ++, j--)
++  {
++    t1r = pIn[i] + pIn[j];
++    t1i = pIn[j + NBy2] - pIn[i + NBy2];
++
++    t2r = pIn[j] - pIn[i];
++    t2i = pIn[j + NBy2] + pIn[i + NBy2];
++
++    pTw = pTwiddle + i;
++
++    z1r =  t2r * pTw[0] + t2i * pTw[N];
++    z1i =  t2r * pTw[N] - t2i * pTw[0];
++
++    // Convert split format to interleaved format.
++    pOut[i << 1] = 0.5f * (t1r - z1i);
++    pOut[i << 1 + 1] = 0.5f * (z1r - t1i);
++    pOut[j << 1] = 0.5f * (t1r + z1i);
++    pOut[j << 1 + 1] = 0.5f * (z1r + t1i);
++  }
++
++}
++
++OMXResult omxSP_FFTFwd_RToCCS_F32_Sfs(const OMX_F32 *pSrc, OMX_F32 *pDst,
++				      const OMXFFTSpec_R_F32 *pFFTSpec)
++{
++  // Input must be 32 byte aligned
++  if (!pSrc || !pDst || (OMX_INT)pSrc & 31 || (OMX_INT)pDst & 31)
++    return OMX_Sts_BadArgErr;
++
++  OMX_INT N, NBy2, NBy4;
++  OMX_F32 *pTwiddle, *pBuf;
++
++  X86FFTSpec_R_FC32 *pFFTStruct = (X86FFTSpec_R_FC32*) pFFTSpec;
++
++  N = pFFTStruct->N;
++  NBy2 = N >> 1;
++  NBy4 = N >> 2;
++  pBuf = pFFTStruct->pBuf;
++  pTwiddle = pFFTStruct->pTwiddle;
++
++  if(NBy2 >= 16)
++    pBuf = (OMX_F32*)x86SP_FFT_RToCSS_F32_radix4_kernel_OutOfPlace_sse(pSrc, pBuf + N, pBuf, pTwiddle, NBy2, 1);
++  else
++    pBuf = (OMX_F32*)x86SP_FFT_RToCSS_F32_radix2_kernel_OutOfPlace(pSrc, pBuf + N, pBuf, pTwiddle, NBy2, 1);
++
++  if(N >= 8)
++    revbinPermuteFwdSse(pBuf, pDst, pTwiddle, N);
++  else
++    revbinPermuteFwd(pBuf, pDst, pTwiddle, N);
++
++  pDst[NBy2] = pBuf[NBy4];
++  pDst[NBy2 + 1] = -pBuf[NBy4 + NBy2];
++
++  pDst[0] = pBuf[0] + pBuf[NBy2];
++  pDst[1] = 0;
++  pDst[N] = pBuf[0] - pBuf[NBy2];
++  pDst[N+1] = 0;
++
++  return OMX_Sts_NoErr;
++}
++
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse.c	(revision 0)
+@@ -0,0 +1,53 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NMul2 = N >> 1;
++  OMX_F32 *pTw, *pT;
++  OMX_F32  *pOut0, *pOut1;
++  OMX_INT i;
++  VC Tw, T0, T1, temp;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < N; i += 8) {
++    // Load twiddle
++    pTw = pTwiddle + i;
++    Tw.Re = _mm_set_ps(pTw[6], pTw[4], pTw[2], pTw[0]);
++    OMX_F32 * pTwi = pTw + NMul2;
++    Tw.Im = _mm_set_ps(pTwi[6], pTwi[4], pTwi[2], pTwi[0]);
++
++    // Load real part
++    pT = pIn + i;
++    VC_LOAD_SHUFFLE(T0.Re, T1.Re, pT);
++
++    // Load imag part
++    pT = pT + N;
++    VC_LOAD_SHUFFLE(T0.Im, T1.Im, pT);
++
++    pOut1 = pOut0 + NBy2;
++    VC_MUL_I(&temp, &Tw, &T1);
++
++    VC_SUB_STORE_SPLIT(pOut1, &T0, &temp, N);
++
++    VC_ADD_STORE_SPLIT(pOut0, &T0, &temp, N);
++
++    pOut0 += 4;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix4_kernel.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix4_kernel.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_RToCSS_F32_radix4_kernel.c	(revision 0)
+@@ -0,0 +1,112 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++OMX_F32* x86SP_FFT_RToCSS_F32_radix4_kernel_OutOfPlace(
++                OMX_F32 *pSrc,
++                OMX_F32 *pBuf1,
++                OMX_F32 *pBuf2,
++                OMX_F32 *pTwiddle,
++                OMX_INT N,
++                // 1 for forward, -1 for inverse.
++                OMX_INT flag)
++{
++  OMX_INT subSize, subNum, NBy4 = N >> 2;
++  OMX_F32 *pIn, *pOut;
++
++  pIn = pBuf1;
++  pOut = pBuf2;
++
++  if (flag > 0)
++    x86SP_FFT_CToC_FC32_Fwd_Radix4_fs(pSrc, pIn, N);
++  else
++    x86SP_FFT_CToC_FC32_Inv_Radix4_fs(pSrc, pIn, N);
++
++  for (subSize = 4, subNum = NBy4;
++       subSize < NBy4;
++       subSize = subSize << 2, subNum = subNum >> 2) {
++
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix4_ms(pIn, pOut, pTwiddle, N, subSize, subNum);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix4_ms(pIn, pOut, pTwiddle, N, subSize, subNum);
++
++    OMX_F32 *temp = pOut;
++    pOut = pIn;
++    pIn = temp;
++  }
++
++  // If N is not power of 4, subNum == 2.
++  if (subNum == 2) {
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix2_ls(pIn, pOut, pTwiddle, N);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix2_ls(pIn, pOut, pTwiddle, N);
++  } else {
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix4_ls(pIn, pOut, pTwiddle, N);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix4_ls(pIn, pOut, pTwiddle, N);
++  }
++
++  return pOut;
++}
++
++OMX_F32* x86SP_FFT_RToCSS_F32_radix4_kernel_OutOfPlace_sse(
++                OMX_F32 *pSrc,
++                OMX_F32 *pBuf1,
++                OMX_F32 *pBuf2,
++                OMX_F32 *pTwiddle,
++                OMX_INT N,
++                // 1 for forward, -1 for inverse.
++                OMX_INT flag)
++{
++  OMX_INT subSize, subNum;
++  OMX_INT NBy4 = N >> 2;
++  OMX_F32 *pIn, *pOut;
++  pIn = pBuf1;
++  pOut = pBuf2;
++
++  if (flag > 0)
++    x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse(pSrc, pIn, N);
++  else
++    x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse(pSrc, pIn, N);
++
++  for (subSize = 4, subNum = NBy4;
++       subSize < NBy4;
++       subSize = subSize << 2, subNum = subNum >> 2) {
++
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse(pIn, pOut, pTwiddle, N, subSize, subNum);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse(pIn, pOut, pTwiddle, N, subSize, subNum);
++
++    OMX_F32 *temp = pOut;
++    pOut = pIn;
++    pIn = temp;
++  }
++
++  // If N is not power of 4, subNum == 2.
++  if (subNum == 2) {
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse(pIn, pOut, pTwiddle, N);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix2_ls_sse(pIn, pOut, pTwiddle, N);
++  } else {
++    if (flag > 0)
++      x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse(pIn, pOut, pTwiddle, N);
++    else
++      x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse(pIn, pOut, pTwiddle, N);
++  }
++
++  return pOut;
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse.c	(revision 0)
+@@ -0,0 +1,60 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_ls_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 8) {
++    pTw1 = pTwiddle + i;
++    Tw1.Re = _mm_set_ps(pTw1[6], pTw1[4], pTw1[2], pTw1[0]);
++    Tw1.Im = _mm_set_ps(pTw1[6 + NMul2], pTw1[4 + NMul2], pTw1[2 + NMul2], pTw1[NMul2]);
++    pTw2 = pTw1 + i;
++    Tw2.Re = _mm_set_ps(pTw2[12], pTw2[8], pTw2[4], pTw2[0]);
++    Tw2.Im = _mm_set_ps(pTw2[12 + NMul2], pTw2[8 + NMul2], pTw2[4 + NMul2], pTw2[NMul2]);
++    pTw3 = pTw2 + i;
++    Tw3.Re = _mm_set_ps(pTw3[18], pTw3[12], pTw3[6], pTw3[0]);
++    Tw3.Im = _mm_set_ps(pTw3[18 + NMul2], pTw3[12 + NMul2], pTw3[6 + NMul2], pTw3[NMul2]);
++
++    pT0 = pIn + (i << 1);
++    pT1 = pT0 + 4;
++    pT2 = pT1 + 4;
++    pT3 = pT2 + 4;
++
++    VC_LOAD_MATRIX_TRANSPOSE(T0, T1, T2, T3, pT0, pT1, pT2, pT3, N);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_INV_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++    RADIX4_INV_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse.c	(revision 0)
+@@ -0,0 +1,167 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++// This function handles the case when setCount = 2, in which we cannot
++// unroll the set loop by 4 to meet the SSE requirement (4 elements).
++inline void internalUnroll2Inv(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32 *pTw1e, *pTw2e, *pTw3e;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++
++  __m128 xmm0, xmm1, xmm2, xmm3;
++  __m128 xmm4, xmm5, xmm6, xmm7;
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 8) {
++    pTw1  = pTwiddle + i;
++    pTw2  = pTw1 + i;
++    pTw3  = pTw2 + i;
++    pTw1e = pTw1 + 4;
++    pTw2e = pTw2 + 8;
++    pTw3e = pTw3 + 12;
++
++    Tw1.Re = _mm_shuffle_ps(_mm_load_ss(pTw1), _mm_load_ss(pTw1e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw1.Im = _mm_shuffle_ps(_mm_load_ss(pTw1 + NMul2), _mm_load_ss(pTw1e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw2.Re = _mm_shuffle_ps(_mm_load_ss(pTw2), _mm_load_ss(pTw2e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw2.Im = _mm_shuffle_ps(_mm_load_ss(pTw2 + NMul2), _mm_load_ss(pTw2e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw3.Re = _mm_shuffle_ps(_mm_load_ss(pTw3), _mm_load_ss(pTw3e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw3.Im = _mm_shuffle_ps(_mm_load_ss(pTw3 + NMul2), _mm_load_ss(pTw3e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++
++    pT0 = pIn + (i << 1);
++    xmm0 = _mm_load_ps(pT0);
++    xmm1 = _mm_load_ps(pT0 + 4);
++    xmm2 = _mm_load_ps(pT0 + 8);
++    xmm3 = _mm_load_ps(pT0 + 12);
++    T0.Re = _mm_shuffle_ps(xmm0, xmm2, _MM_SHUFFLE(1, 0, 1, 0));
++    T1.Re = _mm_shuffle_ps(xmm0, xmm2, _MM_SHUFFLE(3, 2, 3, 2));
++    T2.Re = _mm_shuffle_ps(xmm1, xmm3, _MM_SHUFFLE(1, 0, 1, 0));
++    T3.Re = _mm_shuffle_ps(xmm1, xmm3, _MM_SHUFFLE(3, 2, 3, 2));
++
++    xmm4 = _mm_load_ps(pT0 + N);
++    xmm5 = _mm_load_ps(pT0 + N + 4);
++    xmm6 = _mm_load_ps(pT0 + N + 8);
++    xmm7 = _mm_load_ps(pT0 + N + 12);
++    T0.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(1, 0, 1, 0));
++    T1.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(3, 2, 3, 2));
++    T2.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(1, 0, 1, 0));
++    T3.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(3, 2, 3, 2));
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_INV_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++    RADIX4_INV_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++}
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_ms_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, step, setCount;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  __m128 xmm0, xmm1, xmm2, xmm3;
++  __m128 xmm4, xmm5, xmm6, xmm7;
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  step = subNum >> 1;
++  setCount = subNum >> 2;
++
++  pOut0 = pOut;
++
++  if (setCount == 2) {
++    internalUnroll2Inv(pIn, pOut, pTwiddle, N);
++    return;
++  }
++
++  // grp == 0
++  for (set = 0; set < setCount; set += 4) {
++    pT0 = pIn + set;
++    pT1 = pT0 + setCount;
++    pT2 = pT1 + setCount;
++    pT3 = pT2 + setCount;
++    VC_LOAD_SPLIT(&T0, pT0, N);
++    VC_LOAD_SPLIT(&T1, pT1, N);
++    VC_LOAD_SPLIT(&T2, pT2, N);
++    VC_LOAD_SPLIT(&T3, pT3, N);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_CORE_CALC_F(t0, t1, t2, t3, T0, T1, T2, T3);
++
++    RADIX4_INV_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++
++  for (grp = 1; grp < subSize; ++grp) {
++    pTw1 = pTwiddle + grp * step;
++    pTw2 = pTw1 + grp * step;
++    pTw3 = pTw2 + grp * step;
++    Tw1.Re = _mm_load1_ps(pTw1);
++    Tw1.Im = _mm_load1_ps(pTw1 + NMul2);
++    Tw2.Re = _mm_load1_ps(pTw2);
++    Tw2.Im = _mm_load1_ps(pTw2 + NMul2);
++    Tw3.Re = _mm_load1_ps(pTw3);
++    Tw3.Im = _mm_load1_ps(pTw3 + NMul2);
++
++    for (set = 0; set < setCount; set += 4) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pT2 = pT1 + setCount;
++      pT3 = pT2 + setCount;
++      VC_LOAD_SPLIT(&T0, pT0, N);
++      VC_LOAD_SPLIT(&T1, pT1, N);
++      VC_LOAD_SPLIT(&T2, pT2, N);
++      VC_LOAD_SPLIT(&T3, pT3, N);
++
++      pOut1 = pOut0 + NBy4;
++      pOut2 = pOut1 + NBy4;
++      pOut3 = pOut2 + NBy4;
++
++      RADIX4_INV_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++      RADIX4_INV_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++      pOut0 += 4;
++    }
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_fs.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_fs.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_fs.c	(revision 0)
+@@ -0,0 +1,39 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix2_fs(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i, NBy2 = N >> 1;
++  OMX_F32 *pT0, *pT1, *pOut0, *pOut1;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < N; i += 2) {
++    pT0 = pIn + i;
++    pT1 = pT0 + N;
++    pOut1 = pOut0 + NBy2;
++
++    // CADD pOut0, pT0, pT1
++    pOut0[0] = pT0[0] + pT1[0];
++    pOut0[N] = pT0[1] + pT1[1];
++
++    // CSUB pOut1, pT0, pT1
++    pOut1[0] = pT0[0] - pT1[0];
++    pOut1[N] = pT0[1] - pT1[1];
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs.c	(revision 0)
+@@ -0,0 +1,69 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_fs(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy4 = N >> 2;
++  OMX_F32 *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t0, t1, t2, t3;
++  OMX_F32 *pOut0, *pOut1, *pOut2, *pOut3;
++
++  // Transform from interleaved format to split format.
++  for (i = 0; i < N; i++) {
++    pOut[i] = pIn[i << 1];
++    pOut[i + N] = pIn[(i << 1) + 1];
++  }
++
++  for (i = 0; i < NBy4; i++) {
++    pT0 = pOut0 = pOut + i;
++    pT1 = pOut1 = pOut0 + NBy4;
++    pT2 = pOut2 = pOut1 + NBy4;
++    pT3 = pOut3 = pOut2 + NBy4;
++
++    // CADD t0, pT0, pT2
++    t0.Re = pT0[0] + pT2[0];
++    t0.Im = pT0[N] + pT2[N];
++
++    // CSUB t1, pT0, pT2
++    t1.Re = pT0[0] - pT2[0];
++    t1.Im = pT0[N] - pT2[N];
++
++    // CADD t2, pT1, pT3
++    t2.Re = pT1[0] + pT3[0];
++    t2.Im = pT1[N] + pT3[N];
++
++    // CSUB t3, pT1, pT3
++    t3.Re = pT1[0] - pT3[0];
++    t3.Im = pT1[N] - pT3[N];
++
++    // CADD out0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB out2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CADD_SUB_X out1, t1, t3
++    pOut1[0] = t1.Re + t3.Im;
++    pOut1[N] = t1.Im - t3.Re;
++
++    // CSUB_ADD_X out3, t1, t3
++    pOut3[0] = t1.Re - t3.Im;
++    pOut3[N] = t1.Im + t3.Re;
++  }
++}
+Index: dl/sp/src/x86/x86SP_SSE_Math.h
+===================================================================
+--- dl/sp/src/x86/x86SP_SSE_Math.h	(revision 0)
++++ dl/sp/src/x86/x86SP_SSE_Math.h	(revision 0)
+@@ -0,0 +1,363 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include <emmintrin.h>
++#include <assert.h>
++
++typedef struct VComplex {
++  __m128 Re;
++  __m128 Im;
++} VC;
++
++// Vector Complex Multiply (4 float elements)
++static inline void VC_MUL(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_sub_ps(_mm_mul_ps(a->Re, b->Re), _mm_mul_ps(a->Im, b->Im)));
++  (out->Im) = (_mm_add_ps(_mm_mul_ps(a->Re, b->Im), _mm_mul_ps(a->Im, b->Re)));
++}
++
++// Vector Complex Inverse Multiply (4 float elements)
++static inline void VC_MUL_I(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_add_ps(_mm_mul_ps(a->Re, b->Re), _mm_mul_ps(a->Im, b->Im)));
++  (out->Im) = (_mm_sub_ps(_mm_mul_ps(a->Re, b->Im), _mm_mul_ps(a->Im, b->Re)));
++}
++
++// Vector Complex Multiply by factor (4 float elements)
++static inline void VC_MUL_F(VC *out, VC *a, __m128 factor)
++{
++  (out->Re) = (_mm_mul_ps(factor, a->Re));
++  (out->Im) = (_mm_mul_ps(factor, a->Im));
++}
++
++// Vector Complex ADD (4 float elements)
++static inline void VC_ADD(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_add_ps(a->Re, b->Re));
++  (out->Im) = (_mm_add_ps(a->Im, b->Im));
++}
++
++// Vector Complex Cross ADD (4 float elements)
++static inline void VC_ADD_X(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_add_ps(a->Re, b->Im));
++  (out->Im) = (_mm_add_ps(b->Re, a->Im));
++}
++
++// Vector Complex ADD (4 float elements)
++// Store the result with Split format.
++static inline void VC_ADD_STORE_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  _mm_store_ps(out, _mm_add_ps(a->Re, b->Re));
++  _mm_store_ps(out + offset, _mm_add_ps(a->Im, b->Im));
++}
++
++// Vector Complex SUB (4 float elements)
++static inline void VC_SUB(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_sub_ps(a->Re, b->Re));
++  (out->Im) = (_mm_sub_ps(a->Im, b->Im));
++}
++
++// Vector Complex Cross SUB (4 float elements)
++static inline void VC_SUB_X(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_sub_ps(a->Re, b->Im));
++  (out->Im) = (_mm_sub_ps(b->Re, a->Im));
++}
++
++// Vector Complex SUB (4 float elements)
++// Store the result with Split format.
++static inline void VC_SUB_STORE_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  _mm_store_ps(out, _mm_sub_ps(a->Re, b->Re));
++  _mm_store_ps(out + offset, _mm_sub_ps(a->Im, b->Im));
++}
++
++// Vector Complex ADD_SUB (4 float elements)
++// Real part ADD, imag part SUB.
++static inline void VC_ADD_SUB(VC *out, VC *a, VC *b)
++{
++    (out->Re) = (_mm_add_ps(a->Re, b->Re));
++    (out->Im) = (_mm_sub_ps(a->Im, b->Im));
++}
++
++// Vector Complex cross ADD_SUB (4 float elements)
++static inline void VC_ADD_SUB_X(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_add_ps(a->Re, b->Im));
++  (out->Im) = (_mm_sub_ps(a->Im, b->Re));
++}
++
++// Vector Complex cross SUB (4 float elements)
++// Store the result with Split format.
++static inline void VC_ADD_SUB_X_STORE_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  _mm_store_ps(out, _mm_add_ps(a->Re, b->Im));
++  _mm_store_ps(out + offset, _mm_sub_ps(a->Im, b->Re));
++}
++
++// Vector Complex SUB_ADD (4 float elements)
++// Real part SUB, imag part ADD.
++static inline void VC_SUB_ADD(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_sub_ps(a->Re, b->Re));
++  (out->Im) = (_mm_add_ps(a->Im, b->Im));
++}
++
++// Vector Complex cross SUB_ADD (4 float elements)
++static inline void VC_SUB_ADD_X(VC *out, VC *a, VC *b)
++{
++  (out->Re) = (_mm_sub_ps(a->Re, b->Im));
++  (out->Im) = (_mm_add_ps(a->Im, b->Re));
++}
++
++// Vector Complex cross SUB (4 float elements)
++// Store the result with Split format.
++static inline void VC_SUB_ADD_X_STORE_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  _mm_store_ps(out, _mm_sub_ps(a->Re, b->Im));
++  _mm_store_ps(out + offset, _mm_add_ps(a->Im, b->Re));
++}
++
++// Vector Complex Store with Split format (4 float elements)
++static inline void VC_STORE_SPLIT(OMX_F32 *out, VC *in, OMX_INT offset)
++{
++  _mm_store_ps(out, in->Re);
++  _mm_store_ps(out + offset, in->Im);
++}
++
++// Vector Complex Load with Split format (4 float elements)
++static inline void VC_LOAD_SPLIT(VC *out, OMX_F32 *in, OMX_INT offset)
++{
++  (out->Re) = (_mm_load_ps(in));
++  (out->Im) = (_mm_load_ps(in + offset));
++}
++
++// Vector Complex Unpack from Split format to Interleaved format (4 float elements)
++static inline void VC_UNPACK(VC *out, VC *in)
++{
++    (out->Re) = (_mm_unpacklo_ps(in->Re, in->Im));
++    (out->Im) = (_mm_unpackhi_ps(in->Re, in->Im));
++}
++
++// Vector Complex Load from Interleaved format to Split format (4 float elements)
++static inline void VC_LOAD_INTERLEAVE(VC *out, OMX_F32 *in)
++{
++    __m128 temp0, temp1;
++    temp0 = (_mm_load_ps(in));
++    temp1 = (_mm_load_ps(in + 4));
++    (out->Re) = _mm_shuffle_ps(temp0, temp1, _MM_SHUFFLE(2, 0, 2, 0));
++    (out->Im) = _mm_shuffle_ps(temp0, temp1, _MM_SHUFFLE(3, 1, 3, 1));
++}
++
++// Vector Complex Load with Split format (4 float elements)
++// The input address is not 16 byte aligned.
++static inline void VC_LOADU_SPLIT(VC *out, OMX_F32 *in, OMX_INT offset)
++{
++  (out->Re) = (_mm_loadu_ps(in));
++  (out->Im) = (_mm_loadu_ps(in + offset));
++}
++
++// Vector Complex inverse (4 float elements)
++static inline void VC_INVERSE(VC *v)
++{
++  v->Re = _mm_shuffle_ps(v->Re, v->Re, _MM_SHUFFLE(0, 1, 2, 3));
++  v->Im = _mm_shuffle_ps(v->Im, v->Im, _MM_SHUFFLE(0, 1, 2, 3));
++}
++
++// Vector Complex Store with Interleaved format (4 float elements)
++static inline void VC_STORE_INTERLEAVE(OMX_F32 *out, VC *in)
++{
++  _mm_store_ps(out, _mm_unpacklo_ps(in->Re, in->Im));
++  _mm_store_ps(out + 4, _mm_unpackhi_ps(in->Re, in->Im));
++}
++
++// Vector Complex Store with Interleaved format (4 float elements)
++// Address is not 16 byte aligned
++static inline void VC_STOREU_INTERLEAVE(OMX_F32 *out, VC *in)
++{
++  _mm_storeu_ps(out, _mm_unpacklo_ps(in->Re, in->Im));
++  _mm_storeu_ps(out + 4, _mm_unpackhi_ps(in->Re, in->Im));
++}
++
++// Vector Complex cross ADD (4 float elements)
++// Store the result with Split format.
++static inline void VC_ADD_X_STORE_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  _mm_store_ps(out, _mm_add_ps(a->Re, b->Im));
++  _mm_store_ps(out + offset, _mm_add_ps(b->Re, a->Im));
++}
++
++// Vector Complex cross SUB (4 float elements)
++// Store the result with inverse order.
++// Address is not 16 byte aligned.
++static inline void VC_SUB_X_INVERSE_STOREU_SPLIT(OMX_F32 *out, VC *a, VC *b, OMX_INT offset)
++{
++  __m128 t;
++  t = _mm_sub_ps(a->Re, b->Im);
++  _mm_storeu_ps(out, _mm_shuffle_ps(t, t, _MM_SHUFFLE(0, 1, 2, 3)));
++  t = _mm_sub_ps(b->Re, a->Im);
++  _mm_storeu_ps(out + offset, _mm_shuffle_ps(t, t, _MM_SHUFFLE(0, 1, 2, 3)));
++}
++
++// Vector Complex Load from Interleaved format to Split format (4 float elements)
++// Store into two __m128 registers.
++#define VC_LOAD_SHUFFLE(out0, out1, in)                                         \
++{                                                                               \
++    VC temp;                                                                    \
++    VC_LOAD_INTERLEAVE(&temp, in);                                              \
++    (out0) = temp.Re;                                                           \
++    (out1) = temp.Im;                                                           \
++}
++
++// Core calculation of forward radix4, store the outputs.
++#define RADIX4_FWD_CORE_STORE(out0, out1, out2, out3, t0, t1, t2, t3, N)        \
++{                                                                               \
++    /* CADD out0, t0, t2 */                                                     \
++    VC_ADD_STORE_SPLIT(out0, &t0, &t2, N);                                      \
++                                                                                \
++    /* CSUB out2, t0, t2 */                                                     \
++    VC_SUB_STORE_SPLIT(out2, &t0, &t2, N);                                      \
++                                                                                \
++    /* CADD_SUB_X out1, t1, t3 */                                               \
++    VC_ADD_SUB_X_STORE_SPLIT(out1, &t1, &t3, N);                                \
++                                                                                \
++    /* CSUB_ADD_X out3, t1, t3 */                                               \
++    VC_SUB_ADD_X_STORE_SPLIT(out3, &t1, &t3, N);                                \
++}                                                                               \
++
++// Core calculation of inverse radix4, store the outputs.
++#define RADIX4_INV_CORE_STORE(out0, out1, out2, out3, t0, t1, t2, t3, N)        \
++{                                                                               \
++    /* CADD out0, t0, t2 */                                                     \
++    VC_ADD_STORE_SPLIT(out0, &t0, &t2, N);                                      \
++                                                                                \
++    /* CSUB out2, t0, t2 */                                                     \
++    VC_SUB_STORE_SPLIT(out2, &t0, &t2, N);                                      \
++                                                                                \
++    /* CSUB_ADD_X out1, t1, t3 */                                               \
++    VC_SUB_ADD_X_STORE_SPLIT(out1, &t1, &t3, N);                                \
++                                                                                \
++    /* CADD_SUB_X out3, t1, t3 */                                               \
++    VC_ADD_SUB_X_STORE_SPLIT(out3, &t1, &t3, N);                                \
++}                                                                               \
++
++// Core calculation of forward radix4.
++#define RADIX4_FWD_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3)     \
++{                                                                               \
++    VC tt1, tt2, tt3;                                                           \
++                                                                                \
++    /* CMUL tt1, Tw1, T1 */                                                     \
++    VC_MUL(&tt1, &Tw1, &T1);                                                    \
++                                                                                \
++    /* CMUL tt2, Tw2, T2 */                                                     \
++    VC_MUL(&tt2, &Tw2, &T2);                                                    \
++                                                                                \
++    /* CMUL tt3, Tw3, T3 */                                                     \
++    VC_MUL(&tt3, &Tw3, &T3);                                                    \
++                                                                                \
++    /* CADD t0, T0, tt2 */                                                      \
++    VC_ADD(&t0, &T0, &tt2);                                                     \
++                                                                                \
++    /* CSUB t1, T0, tt2 */                                                      \
++    VC_SUB(&t1, &T0, &tt2);                                                     \
++                                                                                \
++    /* CADD t2, tt1, tt3 */                                                     \
++    VC_ADD(&t2, &tt1, &tt3);                                                    \
++                                                                                \
++    /* CSUB t3, tt1, tt3 */                                                     \
++    VC_SUB(&t3, &tt1, &tt3);                                                    \
++}
++
++// Core calculation of inverse radix4.
++#define RADIX4_INV_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3)     \
++{                                                                               \
++    VC tt1, tt2, tt3;                                                           \
++                                                                                \
++    /* CMUL tt1, Tw1, T1 */                                                     \
++    VC_MUL_I(&tt1, &Tw1, &T1);                                                  \
++                                                                                \
++    /* CMUL tt2, Tw2, T2 */                                                     \
++    VC_MUL_I(&tt2, &Tw2, &T2);                                                  \
++                                                                                \
++    /* CMUL tt3, Tw3, T3 */                                                     \
++    VC_MUL_I(&tt3, &Tw3, &T3);                                                  \
++                                                                                \
++    /* CADD t0, T0, tt2 */                                                      \
++    VC_ADD(&t0, &T0, &tt2);                                                     \
++                                                                                \
++    /* CSUB t1, T0, tt2 */                                                      \
++    VC_SUB(&t1, &T0, &tt2);                                                     \
++                                                                                \
++    /* CADD t2, tt1, tt3 */                                                     \
++    VC_ADD(&t2, &tt1, &tt3);                                                    \
++                                                                                \
++    /* CSUB t3, tt1, tt3 */                                                     \
++    VC_SUB(&t3, &tt1, &tt3);                                                    \
++}                                                                               \
++
++// Core calculation of radix4 in first stage.
++#define RADIX4_CORE_CALC_F(t0, t1, t2, t3, T0, T1, T2, T3)                      \
++{                                                                               \
++    /* CADD t0, T0, T2 */                                                       \
++    VC_ADD(&t0, &T0, &T2);                                                      \
++                                                                                \
++    /* CSUB t1, T0, T2 */                                                       \
++    VC_SUB(&t1, &T0, &T2);                                                      \
++                                                                                \
++    /* CADD t2, T1, T3 */                                                       \
++    VC_ADD(&t2, &T1, &T3);                                                      \
++                                                                                \
++    /* CSUB t3, T1, T3 */                                                       \
++    VC_SUB(&t3, &T1, &T3);                                                      \
++}                                                                               \
++
++// Load 16 float elements (4 sse registers) which is a 4 * 4 matrix.
++// Then Do transpose on the matrix.
++// 3,  2,  1,  0                  12, 8,  4,  0
++// 7,  6,  5,  4        =====>    13, 9,  5,  1
++// 11, 10, 9,  8                  14, 10, 6,  2
++// 15, 14, 13, 12                 15, 11, 7,  3
++#define VC_LOAD_MATRIX_TRANSPOSE(T0, T1, T2, T3, pT0, pT1, pT2, pT3, N)         \
++{                                                                               \
++    __m128 xmm0, xmm1, xmm2, xmm3;                                              \
++    __m128 xmm4, xmm5, xmm6, xmm7;                                              \
++                                                                                \
++    xmm0 = _mm_load_ps(pT0);                                                    \
++    xmm1 = _mm_load_ps(pT1);                                                    \
++    xmm2 = _mm_load_ps(pT2);                                                    \
++    xmm3 = _mm_load_ps(pT3);                                                    \
++    /* Matrix transpose */                                                      \
++    xmm4 = _mm_unpacklo_ps(xmm0, xmm1);                                         \
++    xmm5 = _mm_unpackhi_ps(xmm0, xmm1);                                         \
++    xmm6 = _mm_unpacklo_ps(xmm2, xmm3);                                         \
++    xmm7 = _mm_unpackhi_ps(xmm2, xmm3);                                         \
++    T0.Re = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(1, 0, 1, 0));                \
++    T1.Re = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(3, 2, 3, 2));                \
++    T2.Re = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(1, 0, 1, 0));                \
++    T3.Re = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(3, 2, 3, 2));                \
++                                                                                \
++    xmm0 = _mm_load_ps(pT0 + N);                                                \
++    xmm1 = _mm_load_ps(pT1 + N);                                                \
++    xmm2 = _mm_load_ps(pT2 + N);                                                \
++    xmm3 = _mm_load_ps(pT3 + N);                                                \
++    /* Matrix transpose */                                                      \
++    xmm4 = _mm_unpacklo_ps(xmm0, xmm1);                                         \
++    xmm5 = _mm_unpackhi_ps(xmm0, xmm1);                                         \
++    xmm6 = _mm_unpacklo_ps(xmm2, xmm3);                                         \
++    xmm7 = _mm_unpackhi_ps(xmm2, xmm3);                                         \
++    T0.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(1, 0, 1, 0));                \
++    T1.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(3, 2, 3, 2));                \
++    T2.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(1, 0, 1, 0));                \
++    T3.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(3, 2, 3, 2));                \
++}                                                                               \
++
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls.c	(revision 0)
+@@ -0,0 +1,48 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix2_ls(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1;
++  OMX_F32 *pTw, *pT0, *pT1;
++  OMX_FC32 t;
++  OMX_F32  *pOut0, *pOut1;
++  OMX_INT i;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < N; i += 2) {
++    pTw = pTwiddle + i;
++    pT0 = pIn + i;
++    pT1 = pT0 + 1;
++    pOut1 = pOut0 + NBy2;
++
++    // CMUL t, pTw, pT1
++    t.Re = pTw[0] * pT1[0] - pTw[N << 1] * pT1[N];
++    t.Im = pTw[0] * pT1[N] + pTw[N << 1] * pT1[0];
++
++    // CADD out0, pT0, pT
++    pOut0[0] = pT0[0] + t.Re;
++    pOut0[N] = pT0[N] + t.Im;
++
++    // CSUB out1, pT0, pT
++    pOut1[0] = pT0[0] - t.Re;
++    pOut1[N] = pT0[N] - t.Im;
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ms.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ms.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ms.c	(revision 0)
+@@ -0,0 +1,53 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix2_ms(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, setCount, NBy2 = N >> 1;
++  OMX_F32 *pTw;
++  OMX_F32 *pT0, *pT1, *pOut0, *pOut1;
++  OMX_FC32 t;
++
++  setCount = subNum >> 1;
++  pOut0 =pOut;
++
++  for (grp = 0; grp < subSize; ++grp) {
++    pTw = pTwiddle + grp * subNum;
++
++    for (set = 0; set < setCount; ++set) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pOut1 = pOut0 + NBy2;
++
++      // CMUL t, pTw, pT1
++      t.Re = pTw[0] * pT1[0] - pTw[N << 1] * pT1[N];
++      t.Im = pTw[0] * pT1[N] + pTw[N << 1] * pT1[0];
++
++      // CADD pOut0, pT0, pT
++      pOut0[0] = pT0[0] + t.Re;
++      pOut0[N] = pT0[N] + t.Im;
++
++      // CSUB pOut1, pT0, pT
++      pOut1[0] = pT0[0] - t.Re;
++      pOut1[N] = pT0[N] - t.Im;
++
++      pOut0 += 1;
++    }
++  }
++}
+Index: dl/sp/src/x86/omxSP_FFTInv_CCSToR_F32_Sfs.c
+===================================================================
+--- dl/sp/src/x86/omxSP_FFTInv_CCSToR_F32_Sfs.c	(revision 0)
++++ dl/sp/src/x86/omxSP_FFTInv_CCSToR_F32_Sfs.c	(revision 0)
+@@ -0,0 +1,140 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/api/omxSP.h"
++#include "dl/sp/api/x86SP.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++// Sse version of revbinPermuteInv function.
++void revbinPermuteInvSse(const OMX_F32 *pIn, OMX_F32 *pOut, OMX_F32 *pTwiddle, OMX_INT N)
++{
++  OMX_INT i, j, NBy2 = N >> 1, NBy4 = N >> 2;
++  const OMX_F32 *pTw, *pI, *pJ;
++
++  VC vI, vJ, t0, t1, z0, z1, z2, Tw;
++
++  for (i = 0, j = NBy2 - 3; i < NBy4; i += 4, j -= 4) {
++    pI = pIn + (i << 1);
++    pJ = pIn + (j << 1);
++    VC_LOAD_INTERLEAVE(&vI, pI);
++
++    vJ.Re = _mm_set_ps(pJ[0], pJ[2], pJ[4], pJ[6]);
++    vJ.Im = _mm_set_ps(pJ[1], pJ[3], pJ[5], pJ[7]);
++
++    VC_ADD_SUB(&t0, &vI, &vJ);
++
++    VC_SUB_ADD(&t1, &vI, &vJ);
++
++    pTw = pTwiddle + i;
++    VC_LOAD_SPLIT(&Tw, pTw, N);
++
++    VC_MUL_I(&z0, &t1, &Tw);
++
++    VC_ADD_X_STORE_SPLIT((pOut + i), &t0, &z0, NBy2);
++
++    VC_SUB_X_INVERSE_STOREU_SPLIT((pOut + j), &t0, &z0, NBy2);
++  }
++}
++
++// For real fft, we treat the real input of size N as the complex input of N/2
++// to do the CToC fft, and it requires a permutation before the inverse calculation.
++void revbinPermuteInv(const OMX_F32 *pIn, OMX_F32 *pOut, OMX_F32 *pTwiddle, OMX_INT N)
++{
++  OMX_INT i, j, iBy2, jBy2, NBy2 = N >> 1, NBy4 = N >> 2;
++
++  OMX_F32 t1r, t1i, t2r, t2i, z1r, z1i, z2r, z2i;
++  OMX_F32 *pTw;
++
++  for (i = 0, j = N; i < NBy2; i += 2, j -= 2)
++  {
++    t1r = pIn[i] + pIn[j];
++    t1i = pIn[i + 1] - pIn[j + 1];
++
++    t2r = pIn[i] - pIn[j];
++    t2i = pIn[i + 1] + pIn[j + 1];
++
++    iBy2 = i >> 1;
++    jBy2 = j >> 1;
++    pTw = pTwiddle + iBy2;
++
++    z1r =  t2r * pTw[0] + t2i * pTw[N];
++    z1i =  t2r * pTw[N] - t2i * pTw[0];
++
++    // Convert split format to interleaved format.
++    pOut[iBy2] = t1r + z1i;
++    pOut[iBy2 + NBy2] = z1r + t1i;
++    pOut[jBy2] = t1r - z1i;
++    pOut[jBy2 + NBy2] = z1r - t1i;
++  }
++}
++
++OMXResult omxSP_FFTInv_CCSToR_F32_Sfs(const OMX_F32 *pSrc, OMX_F32 *pDst,
++				      const OMXFFTSpec_R_F32 *pFFTSpec)//, OMX_INT scaleFactor)
++{
++  // Input must be 32 byte aligned
++  if (!pSrc || !pDst || (OMX_INT)pSrc & 31 || (OMX_INT)pDst & 31)
++    return OMX_Sts_BadArgErr;
++
++  OMX_INT N, NBy2, NBy4, i;
++  OMX_F32 *pTw;
++  OMX_F32 *pBuf;
++
++  X86FFTSpec_R_FC32 *pFFTStruct = (X86FFTSpec_R_FC32*) pFFTSpec;
++
++  N = pFFTStruct->N;
++  NBy2 = N >> 1;
++  NBy4 = N >> 2;
++  pBuf = pFFTStruct->pBuf;
++
++  pTw = pFFTStruct->pTwiddle;
++
++  if (N < 8)
++    revbinPermuteInv(pSrc, pBuf, pTw, N);
++  else
++    revbinPermuteInvSse(pSrc, pBuf, pTw, N);
++
++  // The NBy2 complex point
++  pBuf[NBy4] = 2.0f * pSrc[NBy2];
++  pBuf[NBy4 + NBy2] = -2.0f * pSrc[NBy2 + 1];
++
++  // The first complex point
++  pBuf[0] = pSrc[0] + pSrc[N];
++  pBuf[NBy2] = pSrc[0] - pSrc[N];
++
++
++  if (NBy2 < 16)
++    pBuf = (OMX_F32*)x86SP_FFT_RToCSS_F32_radix2_kernel_OutOfPlace(pBuf, pBuf + N, pBuf, pTw, NBy2, -1);
++  else
++    pBuf = (OMX_F32*)x86SP_FFT_RToCSS_F32_radix4_kernel_OutOfPlace_sse(pBuf, pBuf + N, pBuf, pTw, NBy2, -1);
++
++  OMX_F32 factor = 1.0f / N;
++  __m128 mFactor = _mm_load1_ps(&factor);
++
++  if (N < 8) {
++    for (i = 0; i < NBy2; i++) {
++      pDst[i << 1] = pBuf[i] * factor;
++      pDst[(i << 1) + 1] = pBuf[i + NBy2] * factor;
++    }
++  } else {
++    OMX_F32 *base, *dst;
++    VC temp0, temp1;
++    for (i = 0; i < NBy2; i += 4) {
++      base = pBuf + i;
++      dst = pDst + (i << 1);
++      VC_LOAD_SPLIT(&temp0, base, NBy2);
++      VC_MUL_F(&temp1, &temp0, mFactor);
++      VC_STORE_INTERLEAVE(dst, &temp1);
++    }
++  }
++
++  return OMX_Sts_NoErr;
++}
+Index: dl/sp/src/x86/omxSP_FFTInit_R_F32.c
+===================================================================
+--- dl/sp/src/x86/omxSP_FFTInit_R_F32.c	(revision 0)
++++ dl/sp/src/x86/omxSP_FFTInit_R_F32.c	(revision 0)
+@@ -0,0 +1,118 @@
++/*
++ *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ *  This is a modification of omxSP_FFTInit_R_S32.c to support float
++ *  instead of S32.
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/api/omxSP.h"
++#include "dl/sp/api/x86SP.h"
++
++/**
++ * Function: omxSP_FFTInit_R_F32
++ *
++ * Description:
++ * Initialize the real forward-FFT specification information struct.
++ *
++ * Remarks:
++ * This function is used to initialize the specification structures
++ * for functions <ippsFFTFwd_RToCCS_F32_Sfs> and
++ * <ippsFFTInv_CCSToR_F32_Sfs>. Memory for *pFFTSpec must be
++ * allocated prior to calling this function. The number of bytes
++ * required for *pFFTSpec can be determined using
++ * <FFTGetBufSize_R_F32>.
++ *
++ * Parameters:
++ * [in]  order       base-2 logarithm of the desired block length;
++ *                         valid in the range [1,12].  ([1,15] if
++ *                         BIG_FFT_TABLE is defined.)
++ * [out] pFFTFwdSpec pointer to the initialized specification structure.
++ *
++ * Return Value:
++ * Standard omxError result. See enumeration for possible result codes.
++ *
++ */
++
++OMXResult omxSP_FFTInit_R_F32(OMXFFTSpec_R_F32 *pFFTSpec, OMX_INT order)
++{
++  OMX_F32 *pTwiddle, *pBuf;
++  OMX_INT i, j, N, NBy2, NBy4, diff;
++  OMX_U32 pTmp;
++  X86FFTSpec_R_FC32  *pFFTStruct = (X86FFTSpec_R_FC32 *) pFFTSpec;
++  OMX_F32 real, imag;
++
++  if (!pFFTSpec || (order < 1) || (order > TWIDDLE_TABLE_ORDER))
++    return OMX_Sts_BadArgErr;
++
++  N = 1 << order;
++  NBy2 = N >> 1;
++
++  pTwiddle = (OMX_F32*) (sizeof(X86FFTSpec_R_FC32) + (OMX_S8*) pFFTSpec);
++
++  // Align to 32 byte boundary.
++  pTmp = ((OMX_U32)pTwiddle) & 31;
++  if (pTmp)
++    pTwiddle = (OMX_F32*) ((OMX_S8*)pTwiddle + (32 - pTmp));
++
++  pBuf = (OMX_F32*) (sizeof(OMX_F32) * (N << 1) + (OMX_S8*) pTwiddle);
++
++  // Align to 32 byte boundary.
++  pTmp = ((OMX_U32)pBuf) & 31;
++  if (pTmp)
++    pBuf = (OMX_F32*) ((OMX_S8*)pBuf + (32 - pTmp));
++
++  // Calculating Twiddle Factors.
++  diff = 1 << (TWIDDLE_TABLE_ORDER - order + 1);
++
++  // For SSE optimization, using twiddle with split format by which the real and
++  // imag data are stored into first and last halves of the buffer separately
++  if (order > 1) {
++    NBy4 = N >> 2;
++    for (i = 0, j = 0; i <= NBy4 >> 1; ++i, j += diff) {
++      real = armSP_FFT_F32TwiddleTable[j];
++      imag = armSP_FFT_F32TwiddleTable[j + 1];
++
++      pTwiddle[i] = -real;
++      pTwiddle[i + N] = -imag;
++
++      pTwiddle[NBy4 - i] = imag;
++      pTwiddle[NBy4 - i + N] = real;
++
++      pTwiddle[NBy4 + i] = -imag;
++      pTwiddle[NBy4 + i + N] = real;
++
++      pTwiddle[NBy2 - i] = real;
++      pTwiddle[NBy2 - i + N] = -imag;
++
++      pTwiddle[NBy2 + i] = real;
++      pTwiddle[NBy2 + i + N] = imag;
++
++      pTwiddle[NBy4 * 3 - i] = -imag;
++      pTwiddle[NBy4 * 3 - i + N] = -real;
++
++      pTwiddle[NBy4 * 3 + i] = imag;
++      pTwiddle[NBy4 * 3 + i + N] = -real;
++
++      pTwiddle[N - i - 1] = -real;
++      pTwiddle[(N << 1) - i - 1] = imag;
++    }
++  } else {
++    pTwiddle[0] = armSP_FFT_F32TwiddleTable[0];
++    pTwiddle[2] = armSP_FFT_F32TwiddleTable[1];
++    pTwiddle[1] = -pTwiddle[0];
++    pTwiddle[3] = pTwiddle[2];
++  }
++  pFFTStruct->N = N;
++  pFFTStruct->pTwiddle = pTwiddle;
++  pFFTStruct->pBuf = pBuf;
++
++  return OMX_Sts_NoErr;
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls.c	(revision 0)
+@@ -0,0 +1,86 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_ls(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t, t0, t1, t2, t3, tt1, tt2, tt3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 2) {
++    pTw1 = pTwiddle + i;
++    pTw2 = pTw1 + i;
++    pTw3 = pTw2 + i;
++    pT0 = pIn + (i << 1);
++    pT1 = pT0 + 1;
++    pT2 = pT1 + 1;
++    pT3 = pT2 + 1;
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    // CMUL tt1, Tw1, pT1
++    tt1.Re = pTw1[0] * pT1[0] - pTw1[NMul2] * pT1[N];
++    tt1.Im = pTw1[0] * pT1[N] + pTw1[NMul2] * pT1[0];
++
++    // CMUL tt2, Tw2, pT2
++    tt2.Re = pTw2[0] * pT2[0] - pTw2[NMul2] * pT2[N];
++    tt2.Im = pTw2[0] * pT2[N] + pTw2[NMul2] * pT2[0];
++
++    // CMUL tt3, Tw3, pT3
++    tt3.Re = pTw3[0] * pT3[0] - pTw3[NMul2] * pT3[N];
++    tt3.Im = pTw3[0] * pT3[N] + pTw3[NMul2] * pT3[0];
++
++    // CADD t0, pT0, tt2
++    t0.Re = pT0[0] + tt2.Re;
++    t0.Im = pT0[N] + tt2.Im;
++
++    // CSUB t1, pT0, tt2
++    t1.Re = pT0[0] - tt2.Re;
++    t1.Im = pT0[N] - tt2.Im;
++
++    // CADD t2, tt1, tt3
++    t2.Re = tt1.Re + tt3.Re;
++    t2.Im = tt1.Im + tt3.Im;
++
++    // CSUB t3, tt1, tt3
++    t3.Re = tt1.Re - tt3.Re;
++    t3.Im = tt1.Im - tt3.Im;
++
++    // CADD out0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB out2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CADD_SUB_X out1, t1, t3
++    pOut1[0] = t1.Re + t3.Im;
++    pOut1[N] = t1.Im - t3.Re;
++
++    // CSUB_ADD_X out3, t1, t3
++    pOut3[0] = t1.Re - t3.Im;
++    pOut3[N] = t1.Im + t3.Re;
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms.c	(revision 0)
+@@ -0,0 +1,140 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_ms(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, step, setCount;
++  OMX_INT NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw, *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t0, t1, t2, t3, t4, tt1, tt2, tt3, tt4;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  step = subNum >> 1;
++  setCount = subNum >> 2;
++
++  pOut0 = pOut;
++  // grp == 0
++  for (set = 0; set < setCount; ++set) {
++    pT0 = pIn + set;
++    pT1 = pT0 + setCount;
++    pT2 = pT1 + setCount;
++    pT3 = pT2 + setCount;
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    // CADD t0, pT0, pT2
++    t0.Re = pT0[0] + pT2[0];
++    t0.Im = pT0[N] + pT2[N];
++
++    // CSUB t1, pT0, pT2
++    t1.Re = pT0[0] - pT2[0];
++    t1.Im = pT0[N] - pT2[N];
++
++    // CADD t2, pT1, pT3
++    t2.Re = pT1[0] + pT3[0];
++    t2.Im = pT1[N] + pT3[N];
++
++    // CSUB t3, pT1, pT3
++    t3.Re = pT1[0] - pT3[0];
++    t3.Im = pT1[N] - pT3[N];
++
++    // CADD pOut0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB pOut2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CSUB_ADD_X pOut3, t1, t3
++    pOut3[0] = t1.Re - t3.Im;
++    pOut3[N] = t1.Im + t3.Re;
++
++    // CADD_SUB_X pOut1, t1, t3
++    pOut1[0] = t1.Re + t3.Im;
++    pOut1[N] = t1.Im - t3.Re;
++
++    pOut0 += 1;
++  }
++
++  // grp > 0
++  for (grp = 1; grp < subSize; ++grp) {
++    pTw1 = pTwiddle + grp * step;
++    pTw2 = pTw1 + grp * step;
++    pTw3 = pTw2 + grp * step;
++
++    for (set = 0; set < setCount; ++set) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pT2 = pT1 + setCount;
++      pT3 = pT2 + setCount;
++      pOut1 = pOut0 + NBy4;
++      pOut2 = pOut1 + NBy4;
++      pOut3 = pOut2 + NBy4;
++
++      // CMUL tt1, Tw1, pT1
++      tt1.Re = pTw1[0] * pT1[0] - pTw1[NMul2] * pT1[N];
++      tt1.Im = pTw1[0] * pT1[N] + pTw1[NMul2] * pT1[0];
++
++      // CMUL tt2, Tw2, pT2
++      tt2.Re = pTw2[0] * pT2[0] - pTw2[NMul2] * pT2[N];
++      tt2.Im = pTw2[0] * pT2[N] + pTw2[NMul2] * pT2[0];
++
++      // CMUL tt3, Tw3, pT3
++      tt3.Re = pTw3[0] * pT3[0] - pTw3[NMul2] * pT3[N];
++      tt3.Im = pTw3[0] * pT3[N] + pTw3[NMul2] * pT3[0];
++
++      // CADD t0, pT0, tt2
++      t0.Re = pT0[0] + tt2.Re;
++      t0.Im = pT0[N] + tt2.Im;
++
++      // CSUB t1, pT0, tt2
++      t1.Re = pT0[0] - tt2.Re;
++      t1.Im = pT0[N] - tt2.Im;
++
++      // CADD t2, tt1, tt3
++      t2.Re = tt1.Re + tt3.Re;
++      t2.Im = tt1.Im + tt3.Im;
++
++      // CSUB t3, tt1, tt3
++      t3.Re = tt1.Re - tt3.Re;
++      t3.Im = tt1.Im - tt3.Im;
++
++      // CADD pOut0, t0, t2
++      pOut0[0] = t0.Re + t2.Re;
++      pOut0[N] = t0.Im + t2.Im;
++
++      // CSUB pOut2, t0, t2
++      pOut2[0] = t0.Re - t2.Re;
++      pOut2[N] = t0.Im - t2.Im;
++
++      // CADD_SUB_X pOut1, t1, t3
++      pOut1[0] = t1.Re + t3.Im;
++      pOut1[N] = t1.Im - t3.Re;
++
++      // CSUB_ADD_X pOut3, t1, t3
++      pOut3[0] = t1.Re - t3.Im;
++      pOut3[N] = t1.Im + t3.Re;
++
++      pOut0 += 1;
++    }
++  }
++}
+Index: dl/sp/src/x86/omxSP_FFTGetBufSize_R_F32.c
+===================================================================
+--- dl/sp/src/x86/omxSP_FFTGetBufSize_R_F32.c	(revision 0)
++++ dl/sp/src/x86/omxSP_FFTGetBufSize_R_F32.c	(revision 0)
+@@ -0,0 +1,62 @@
++/*
++ *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
++ *  Copyright (c) 2013 Intel Coporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/api/x86SP.h"
++#include "dl/sp/api/omxSP.h"
++
++/**
++ * Function: omxSP_FFTGetBufSize_R_F32
++ *
++ * Description:
++ * Computes the size of the specification structure required for the length
++ * 2^order real FFT and IFFT functions.
++ *
++ * Remarks:
++ * This function is used in conjunction with the 32-bit functions
++ * <FFTFwd_RToCCS_F32_Sfs> and <FFTInv_CCSToR_F32_Sfs>.
++ *
++ * Parameters:
++ * [in]  order       base-2 logarithm of the length; valid in the range
++ *                    [1,12]. ([1,15] if BIG_FFT_TABLE is defined.)
++ * [out] pSize	   pointer to the number of bytes required for the
++ *			   specification structure.
++ *
++ * Return Value:
++ * Standard omxError result. See enumeration for possible result codes.
++ *
++ */
++
++OMXResult omxSP_FFTGetBufSize_R_F32(OMX_INT order, OMX_INT *pSize) {
++  if (!pSize || (order < 1) || (order > TWIDDLE_TABLE_ORDER))
++    return OMX_Sts_BadArgErr;
++
++    OMX_INT NBy2, N, twiddleSize;
++
++    if (order == 0) {
++      *pSize = sizeof(X86FFTSpec_R_FC32) + (sizeof(OMX_F32) << 1);
++      return OMX_Sts_NoErr;
++    }
++
++    NBy2 = 1 << (order - 1);
++    N = NBy2 << 1;
++
++    *pSize = sizeof(X86FFTSpec_R_FC32) +
++             // Twiddle factors.
++             sizeof(OMX_F32) * (N << 1) +
++             // Ping Pong buffer for doing the N/2 point complex FFT.
++             sizeof(OMX_F32) * (N << 1) +
++             // Extra bytes to get 32 byte alignment of ptwiddle, pBuf
++             62;
++
++    return OMX_Sts_NoErr;
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse.c	(revision 0)
+@@ -0,0 +1,52 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_fs_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2;
++  OMX_F32 *pT0, *pT1, *pT2, *pT3;
++  OMX_F32 *pOut0, *pOut1, *pOut2, *pOut3;
++  VC T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 8) {
++    pT0 = pIn + i;
++    VC_LOAD_SHUFFLE(T0.Re, T0.Im, pT0);
++
++    pT1 = pT0 + NBy2;
++    VC_LOAD_SHUFFLE(T1.Re, T1.Im, pT1);
++
++    pT2 = pT1 + NBy2;
++    VC_LOAD_SHUFFLE(T2.Re, T2.Im, pT2);
++
++    pT3 = pT2 + NBy2;
++    VC_LOAD_SHUFFLE(T3.Re, T3.Im, pT3);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_CORE_CALC_F(t0, t1, t2, t3, T0, T1, T2, T3);
++
++    RADIX4_FWD_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++} 
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_fs.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_fs.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_fs.c	(revision 0)
+@@ -0,0 +1,39 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix2_fs(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i, NBy2 = N >> 1;
++  OMX_F32 *pT0, *pT1, *pOut0, *pOut1;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < NBy2; i++) {
++    pT0 = pIn + i;
++    pT1 = pT0 + NBy2;
++    pOut1 = pOut0 + NBy2;
++
++    // CADD pOut0, pT0, pT1
++    pOut0[0] = pT0[0] + pT1[0];
++    pOut0[N] = pT0[N] + pT1[N];
++
++    // CSUB pOut1, pT0, pT1
++    pOut1[0] = pT0[0] - pT1[0];
++    pOut1[N] = pT0[N] - pT1[N];
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs.c	(revision 0)
+@@ -0,0 +1,70 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_fs(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t0, t1, t2, t3;
++  OMX_F32 *pOut0, *pOut1, *pOut2, *pOut3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy4; i++) {
++    pT0 = pIn + i;
++    pT1 = pT0 + NBy4;
++    pT2 = pT1 + NBy4;
++    pT3 = pT2 + NBy4;
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    // CADD t0, pT0, pT2
++    t0.Re = pT0[0] + pT2[0];
++    t0.Im = pT0[N] + pT2[N];
++
++    // CSUB t1, pT0, pT2
++    t1.Re = pT0[0] - pT2[0];
++    t1.Im = pT0[N] - pT2[N];
++
++    // CADD t2, pT1, pT3
++    t2.Re = pT1[0] + pT3[0];
++    t2.Im = pT1[N] + pT3[N];
++
++    // CSUB t3, pT1, pT3
++    t3.Re = pT1[0] - pT3[0];
++    t3.Im = pT1[N] - pT3[N];
++
++    // CADD pOut0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB pOut2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CSUB_ADD_X pOut1, t1, t3
++    pOut1[0] = t1.Re - t3.Im;
++    pOut1[N] = t1.Im + t3.Re;
++
++    // CADD_SUB_X pOut3, t1, t3
++    pOut3[0] = t1.Re + t3.Im;
++    pOut3[N] = t1.Im - t3.Re;
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse.c	(revision 0)
+@@ -0,0 +1,57 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix2_ls_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NMul2 = N << 1;
++  OMX_F32 *pTw, *pT;
++  OMX_F32  *pOut0, *pOut1;
++  OMX_INT i;
++  VC Tw, T0, T1, temp;
++
++  // This function is used when N>=8
++  assert(N >= 8);
++  if (N < 8) return;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < N; i += 8) {
++    // Load twiddle
++    pTw = pTwiddle + i;
++    Tw.Re = _mm_set_ps(pTw[6], pTw[4], pTw[2], pTw[0]);
++    OMX_F32 * pTwi = pTw + NMul2;
++    Tw.Im = _mm_set_ps(pTwi[6], pTwi[4], pTwi[2], pTwi[0]);
++
++    // Load real part
++    pT = pIn + i;
++    VC_LOAD_SHUFFLE(T0.Re, T1.Re, pT);
++
++    // Load imag part
++    pT = pT + N;
++    VC_LOAD_SHUFFLE(T0.Im, T1.Im, pT);
++
++    pOut1 = pOut0 + NBy2;
++    VC_MUL(&temp, &Tw, &T1);
++
++    VC_SUB_STORE_SPLIT(pOut1, &T0, &temp, N);
++
++    VC_ADD_STORE_SPLIT(pOut0, &T0, &temp, N);
++
++    pOut0 += 4;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse.c	(revision 0)
+@@ -0,0 +1,59 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_ls_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 8) {
++    pTw1 = pTwiddle + i;
++    Tw1.Re = _mm_set_ps(pTw1[6], pTw1[4], pTw1[2], pTw1[0]);
++    Tw1.Im = _mm_set_ps(pTw1[6 + NMul2], pTw1[4 + NMul2], pTw1[2 + NMul2], pTw1[NMul2]);
++    pTw2 = pTw1 + i;
++    Tw2.Re = _mm_set_ps(pTw2[12], pTw2[8], pTw2[4], pTw2[0]);
++    Tw2.Im = _mm_set_ps(pTw2[12 + NMul2], pTw2[8 + NMul2], pTw2[4 + NMul2], pTw2[NMul2]);
++    pTw3 = pTw2 + i;
++    Tw3.Re = _mm_set_ps(pTw3[18], pTw3[12], pTw3[6], pTw3[0]);
++    Tw3.Im = _mm_set_ps(pTw3[18 + NMul2], pTw3[12 + NMul2], pTw3[6 + NMul2], pTw3[NMul2]);
++
++    pT0 = pIn + (i << 1);
++    pT1 = pT0 + 4;
++    pT2 = pT1 + 4;
++    pT3 = pT2 + 4;
++
++    VC_LOAD_MATRIX_TRANSPOSE(T0, T1, T2, T3, pT0, pT1, pT2, pT3, N);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_FWD_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++    RADIX4_FWD_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ls.c	(revision 0)
+@@ -0,0 +1,48 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix2_ls(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1;
++  OMX_F32 *pTw, *pT0, *pT1;
++  OMX_FC32 t;
++  OMX_F32  *pOut0, *pOut1;
++  OMX_INT i;
++
++  pOut0 =pOut;
++
++  for (i = 0; i < N; i += 2) {
++    pTw = pTwiddle + i;
++    pT0 = pIn + i;
++    pT1 = pT0 + 1;
++    pOut1 = pOut0 + NBy2;
++
++    // CMUL t, pTw, pT1
++    t.Re = pTw[0] * pT1[0] + pTw[N << 1] * pT1[N];
++    t.Im = pTw[0] * pT1[N] - pTw[N << 1] * pT1[0];
++
++    // CADD pOut0, pT0, t
++    pOut0[0] = pT0[0] + t.Re;
++    pOut0[N] = pT0[N] + t.Im;
++
++    // CSUB pOut1, pT0, t
++    pOut1[0] = pT0[0] - t.Re;
++    pOut1[N] = pT0[N] - t.Im;
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse.c	(revision 0)
+@@ -0,0 +1,165 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++inline void internalUnroll2Fwd(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32 *pTw1e, *pTw2e, *pTw3e;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++
++  __m128 xmm0, xmm1, xmm2, xmm3;
++  __m128 xmm4, xmm5, xmm6, xmm7;
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 8) {
++    pTw1  = pTwiddle + i;
++    pTw2  = pTw1 + i;
++    pTw3  = pTw2 + i;
++    pTw1e = pTw1 + 4;
++    pTw2e = pTw2 + 8;
++    pTw3e = pTw3 + 12;
++
++    Tw1.Re = _mm_shuffle_ps(_mm_load_ss(pTw1), _mm_load_ss(pTw1e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw1.Im = _mm_shuffle_ps(_mm_load_ss(pTw1 + NMul2), _mm_load_ss(pTw1e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw2.Re = _mm_shuffle_ps(_mm_load_ss(pTw2), _mm_load_ss(pTw2e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw2.Im = _mm_shuffle_ps(_mm_load_ss(pTw2 + NMul2), _mm_load_ss(pTw2e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw3.Re = _mm_shuffle_ps(_mm_load_ss(pTw3), _mm_load_ss(pTw3e), _MM_SHUFFLE(0, 0, 0, 0));
++    Tw3.Im = _mm_shuffle_ps(_mm_load_ss(pTw3 + NMul2), _mm_load_ss(pTw3e + NMul2), _MM_SHUFFLE(0, 0, 0, 0));
++
++    pT0 = pIn + (i << 1);
++    xmm0 = _mm_load_ps(pT0);
++    xmm1 = _mm_load_ps(pT0 + 4);
++    xmm2 = _mm_load_ps(pT0 + 8);
++    xmm3 = _mm_load_ps(pT0 + 12);
++    T0.Re = _mm_shuffle_ps(xmm0, xmm2, _MM_SHUFFLE(1, 0, 1, 0));
++    T1.Re = _mm_shuffle_ps(xmm0, xmm2, _MM_SHUFFLE(3, 2, 3, 2));
++    T2.Re = _mm_shuffle_ps(xmm1, xmm3, _MM_SHUFFLE(1, 0, 1, 0));
++    T3.Re = _mm_shuffle_ps(xmm1, xmm3, _MM_SHUFFLE(3, 2, 3, 2));
++
++    xmm4 = _mm_load_ps(pT0 + N);
++    xmm5 = _mm_load_ps(pT0 + N + 4);
++    xmm6 = _mm_load_ps(pT0 + N + 8);
++    xmm7 = _mm_load_ps(pT0 + N + 12);
++    T0.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(1, 0, 1, 0));
++    T1.Im = _mm_shuffle_ps(xmm4, xmm6, _MM_SHUFFLE(3, 2, 3, 2));
++    T2.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(1, 0, 1, 0));
++    T3.Im = _mm_shuffle_ps(xmm5, xmm7, _MM_SHUFFLE(3, 2, 3, 2));
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_FWD_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++    RADIX4_FWD_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++}
++
++void x86SP_FFT_CToC_FC32_Fwd_Radix4_ms_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, step, setCount;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  __m128 xmm0, xmm1, xmm2, xmm3;
++  __m128 xmm4, xmm5, xmm6, xmm7;
++
++  VC Tw1, Tw2, Tw3, T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  step = subNum >> 1;
++  setCount = subNum >> 2;
++
++  pOut0 = pOut;
++
++  if (setCount == 2) {
++    internalUnroll2Fwd(pIn, pOut, pTwiddle, N);
++    return;
++  }
++
++  // grp == 0
++  for (set = 0; set < setCount; set += 4) {
++    pT0 = pIn + set;
++    pT1 = pT0 + setCount;
++    pT2 = pT1 + setCount;
++    pT3 = pT2 + setCount;
++    VC_LOAD_SPLIT(&T0, pT0, N);
++    VC_LOAD_SPLIT(&T1, pT1, N);
++    VC_LOAD_SPLIT(&T2, pT2, N);
++    VC_LOAD_SPLIT(&T3, pT3, N);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_CORE_CALC_F(t0, t1, t2, t3, T0, T1, T2, T3);
++
++    RADIX4_FWD_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++
++  for (grp = 1; grp < subSize; ++grp) {
++    pTw1 = pTwiddle + grp * step;
++    pTw2 = pTw1 + grp * step;
++    pTw3 = pTw2 + grp * step;
++    Tw1.Re = _mm_load1_ps(pTw1);
++    Tw1.Im = _mm_load1_ps(pTw1 + NMul2);
++    Tw2.Re = _mm_load1_ps(pTw2);
++    Tw2.Im = _mm_load1_ps(pTw2 + NMul2);
++    Tw3.Re = _mm_load1_ps(pTw3);
++    Tw3.Im = _mm_load1_ps(pTw3 + NMul2);
++
++    for (set = 0; set < setCount; set += 4) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pT2 = pT1 + setCount;
++      pT3 = pT2 + setCount;
++      VC_LOAD_SPLIT(&T0, pT0, N);
++      VC_LOAD_SPLIT(&T1, pT1, N);
++      VC_LOAD_SPLIT(&T2, pT2, N);
++      VC_LOAD_SPLIT(&T3, pT3, N);
++
++      pOut1 = pOut0 + NBy4;
++      pOut2 = pOut1 + NBy4;
++      pOut3 = pOut2 + NBy4;
++
++      RADIX4_FWD_CORE_CALC(t0, t1, t2, t3, Tw1, Tw2, Tw3, T0, T1, T2, T3);
++
++      RADIX4_FWD_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++      pOut0 += 4;
++    }
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ms.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ms.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix2_ms.c	(revision 0)
+@@ -0,0 +1,53 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix2_ms(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, setCount, NBy2 = N >> 1;
++  OMX_F32 *pTw;
++  OMX_F32 *pT0, *pT1, *pOut0, *pOut1;
++  OMX_FC32 t;
++
++  setCount = subNum >> 1;
++  pOut0 =pOut;
++
++  for (grp = 0; grp < subSize; ++grp) {
++    pTw = pTwiddle + grp * subNum;
++
++    for (set = 0; set < setCount; ++set) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pOut1 = pOut0 + NBy2;
++
++      // CMUL t, pTw, pT1
++      t.Re = pTw[0] * pT1[0] + pTw[N << 1] * pT1[N];
++      t.Im = pTw[0] * pT1[N] - pTw[N << 1] * pT1[0];
++
++      // CADD pOut0, pT0, t
++      pOut0[0] = pT0[0] + t.Re;
++      pOut0[N] = pT0[N] + t.Im;
++
++      // CSUB pOut1, pT0, t
++      pOut1[0] = pT0[0] - t.Re;
++      pOut1[N] = pT0[N] - t.Im;
++
++      pOut0 += 1;
++    }
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ls.c	(revision 0)
+@@ -0,0 +1,86 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_ls(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N)
++{
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t, t0, t1, t2, t3, tt1, tt2, tt3;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy2; i += 2) {
++    pTw1 = pTwiddle + i;
++    pTw2 = pTw1 + i;
++    pTw3 = pTw2 + i;
++    pT0 = pIn + (i << 1);
++    pT1 = pT0 + 1;
++    pT2 = pT1 + 1;
++    pT3 = pT2 + 1;
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    // CMUL tt1, Tw1, pT1
++    tt1.Re = pTw1[0] * pT1[0] + pTw1[NMul2] * pT1[N];
++    tt1.Im = pTw1[0] * pT1[N] - pTw1[NMul2] * pT1[0];
++
++    // CMUL tt2, Tw2, pT2
++    tt2.Re = pTw2[0] * pT2[0] + pTw2[NMul2] * pT2[N];
++    tt2.Im = pTw2[0] * pT2[N] - pTw2[NMul2] * pT2[0];
++
++    // CMUL tt3, Tw3, pT3
++    tt3.Re = pTw3[0] * pT3[0] + pTw3[NMul2] * pT3[N];
++    tt3.Im = pTw3[0] * pT3[N] - pTw3[NMul2] * pT3[0];
++
++    // CADD t0, pT0, tt2
++    t0.Re = pT0[0] + tt2.Re;
++    t0.Im = pT0[N] + tt2.Im;
++
++    // CSUB t1, pT0, tt2
++    t1.Re = pT0[0] - tt2.Re;
++    t1.Im = pT0[N] - tt2.Im;
++
++    // CADD t2, tt1, tt3
++    t2.Re = tt1.Re + tt3.Re;
++    t2.Im = tt1.Im + tt3.Im;
++
++    // CSUB t3, tt1, tt3
++    t3.Re = tt1.Re - tt3.Re;
++    t3.Im = tt1.Im - tt3.Im;
++
++    // CADD pOut0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB pOut2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CSUB_ADD_X pOut1, t1, t3
++    pOut1[0] = t1.Re - t3.Im;
++    pOut1[N] = t1.Im + t3.Re;
++
++    // CADD_SUB_X pOut3, t1, t3
++    pOut3[0] = t1.Re + t3.Im;
++    pOut3[N] = t1.Im - t3.Re;
++
++    pOut0 += 1;
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_ms.c	(revision 0)
+@@ -0,0 +1,141 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_ms(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_F32 *pTwiddle,
++            OMX_INT N,
++            OMX_INT subSize,
++            OMX_INT subNum)
++{
++  OMX_INT set, grp, step, setCount;
++  OMX_INT NBy2 = N >> 1, NBy4 = N >> 2, NMul2 = N << 1;
++  OMX_F32 *pTw, *pTw1, *pTw2, *pTw3, *pT0, *pT1, *pT2, *pT3;
++  OMX_FC32 t, t0, t1, t2, t3, t4, tt1, tt2, tt3, tt4;
++  OMX_F32  *pOut0, *pOut1, *pOut2, *pOut3;
++  OMX_INT i;
++
++  step = subNum >> 1;
++  setCount = subNum >> 2;
++
++  pOut0 = pOut;
++
++  // grp == 0
++  for (set = 0; set < setCount; ++set) {
++    pT0 = pIn + set;
++    pT1 = pT0 + setCount;
++    pT2 = pT1 + setCount;
++    pT3 = pT2 + setCount;
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    // CADD t0, pT0, pT2
++    t0.Re = pT0[0] + pT2[0];
++    t0.Im = pT0[N] + pT2[N];
++
++    // CSUB t1, pT0, pT2
++    t1.Re = pT0[0] - pT2[0];
++    t1.Im = pT0[N] - pT2[N];
++
++    // CADD t2, pT1, pT3
++    t2.Re = pT1[0] + pT3[0];
++    t2.Im = pT1[N] + pT3[N];
++
++    // CSUB t3, pT1, pT3
++    t3.Re = pT1[0] - pT3[0];
++    t3.Im = pT1[N] - pT3[N];
++
++    // CADD pOut0, t0, t2
++    pOut0[0] = t0.Re + t2.Re;
++    pOut0[N] = t0.Im + t2.Im;
++
++    // CSUB pOut2, t0, t2
++    pOut2[0] = t0.Re - t2.Re;
++    pOut2[N] = t0.Im - t2.Im;
++
++    // CSUB_ADD_X pOut1, t1, t3
++    pOut1[0] = t1.Re - t3.Im;
++    pOut1[N] = t1.Im + t3.Re;
++
++    // CADD_SUB_X pOut3, t1, t3
++    pOut3[0] = t1.Re + t3.Im;
++    pOut3[N] = t1.Im - t3.Re;
++
++    pOut0 += 1;
++  }
++
++  // grp > 0
++  for (grp = 1; grp < subSize; ++grp) {
++    pTw1 = pTwiddle + grp * step;
++    pTw2 = pTw1 + grp * step;
++    pTw3 = pTw2 + grp * step;
++
++    for (set = 0; set < setCount; ++set) {
++      pT0 = pIn + set + grp * subNum;
++      pT1 = pT0 + setCount;
++      pT2 = pT1 + setCount;
++      pT3 = pT2 + setCount;
++      pOut1 = pOut0 + NBy4;
++      pOut2 = pOut1 + NBy4;
++      pOut3 = pOut2 + NBy4;
++
++      // CMUL tt1, Tw1, pT1
++      tt1.Re = pTw1[0] * pT1[0] + pTw1[NMul2] * pT1[N];
++      tt1.Im = pTw1[0] * pT1[N] - pTw1[NMul2] * pT1[0];
++
++      // CMUL tt2, Tw2, pT2
++      tt2.Re = pTw2[0] * pT2[0] + pTw2[NMul2] * pT2[N];
++      tt2.Im = pTw2[0] * pT2[N] - pTw2[NMul2] * pT2[0];
++
++      // CMUL tt3, Tw3, pT3
++      tt3.Re = pTw3[0] * pT3[0] + pTw3[NMul2] * pT3[N];
++      tt3.Im = pTw3[0] * pT3[N] - pTw3[NMul2] * pT3[0];
++
++      // CADD t0, pT0, tt2
++      t0.Re = pT0[0] + tt2.Re;
++      t0.Im = pT0[N] + tt2.Im;
++
++      // CSUB t1, pT0, tt2
++      t1.Re = pT0[0] - tt2.Re;
++      t1.Im = pT0[N] - tt2.Im;
++
++      // CADD t2, tt1, tt3
++      t2.Re = tt1.Re + tt3.Re;
++      t2.Im = tt1.Im + tt3.Im;
++
++      // CSUB t3, tt1, tt3
++      t3.Re = tt1.Re - tt3.Re;
++      t3.Im = tt1.Im - tt3.Im;
++
++      // CADD pOut0, t0, t2
++      pOut0[0] = t0.Re + t2.Re;
++      pOut0[N] = t0.Im + t2.Im;
++
++      // CSUB pOut2, t0, t2
++      pOut2[0] = t0.Re - t2.Re;
++      pOut2[N] = t0.Im - t2.Im;
++
++      // CSUB_ADD_X pOut1, t1, t3
++      pOut1[0] = t1.Re - t3.Im;
++      pOut1[N] = t1.Im + t3.Re;
++
++      // CADD_SUB_X pOut3, t1, t3
++      pOut3[0] = t1.Re + t3.Im;
++      pOut3[N] = t1.Im - t3.Re;
++
++      pOut0 += 1;
++    }
++  }
++}
+Index: dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse.c
+===================================================================
+--- dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse.c	(revision 0)
++++ dl/sp/src/x86/x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse.c	(revision 0)
+@@ -0,0 +1,52 @@
++/*
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ */
++
++#include "dl/api/omxtypes.h"
++#include "dl/sp/src/x86/x86SP_SSE_Math.h"
++
++void x86SP_FFT_CToC_FC32_Inv_Radix4_fs_sse(
++            OMX_F32 *pIn,
++            OMX_F32 *pOut,
++            OMX_INT N)
++{
++  OMX_INT i;
++  OMX_INT NBy4 = N >> 2;
++  OMX_F32 *pT0, *pT1, *pT2, *pT3;
++  OMX_F32 *pOut0, *pOut1, *pOut2, *pOut3;
++  VC T0, T1, T2, T3;
++  VC t0, t1, t2, t3;
++
++  pOut0 = pOut;
++
++  for (i = 0; i < NBy4; i += 4) {
++    pT0 = pIn + i;
++    VC_LOAD_SPLIT(&T0, pT0, N);
++
++    pT1 = pT0 + NBy4;
++    VC_LOAD_SPLIT(&T1, pT1, N);
++
++    pT2 = pT1 + NBy4;
++    VC_LOAD_SPLIT(&T2, pT2, N);
++
++    pT3 = pT2 + NBy4;
++    VC_LOAD_SPLIT(&T3, pT3, N);
++
++    pOut1 = pOut0 + NBy4;
++    pOut2 = pOut1 + NBy4;
++    pOut3 = pOut2 + NBy4;
++
++    RADIX4_CORE_CALC_F(t0, t1, t2, t3, T0, T1, T2, T3);
++
++    RADIX4_INV_CORE_STORE(pOut0, pOut1, pOut2, pOut3, t0, t1, t2, t3, N);
++
++    pOut0 += 4;
++  }
++} 
+Index: dl/sp/api/x86SP.h
+===================================================================
+--- dl/sp/api/x86SP.h	(revision 0)
++++ dl/sp/api/x86SP.h	(revision 0)
+@@ -0,0 +1,39 @@
++/*
++ *  Copyright (c) 2007-2008 ARM Limited. All Rights Reserved.
++ *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
++ *  Copyright (c) 2013 Intel Corporation. All Rights Reserved.
++ *
++ *  Use of this source code is governed by a BSD-style license
++ *  that can be found in the LICENSE file in the root of the source
++ *  tree. An additional intellectual property rights grant can be found
++ *  in the file PATENTS.  All contributing project authors may
++ *  be found in the AUTHORS file in the root of the source tree.
++ *
++ *  This file was originally licensed as follows. It has been
++ *  relicensed with permission from the copyright holders.
++ */
++
++#ifndef _x86SP_H_
++#define _x86SP_H_
++
++#include "dl/api/omxtypes.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++extern OMX_F32 armSP_FFT_F32TwiddleTable[];
++
++typedef struct X86FFTSpec_R_FC32_Tag
++{
++    OMX_U32 N;
++    OMX_F32* pTwiddle;
++    // Ping Pong buffer for doing the N/2 point complex FFT.
++    OMX_F32* pBuf;
++} X86FFTSpec_R_FC32;
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
