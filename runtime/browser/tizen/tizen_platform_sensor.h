@@ -13,11 +13,11 @@
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 
-#ifndef XWALK_RUNTIME_BROWSER_TIZEN_PLATFORM_SENSOR_H_
-#define XWALK_RUNTIME_BROWSER_TIZEN_PLATFORM_SENSOR_H_
+#ifndef XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_PLATFORM_SENSOR_H_
+#define XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_PLATFORM_SENSOR_H_
 
 #include "base/native_library.h"
-#include "xwalk/runtime/browser/sensor_provider.h"
+#include "xwalk/runtime/browser/tizen/sensor_provider.h"
 
 namespace xwalk {
 
@@ -34,7 +34,8 @@ class TizenPlatformSensor : public SensorProvider {
   void UnloadLibrary();
   gfx::Display::Rotation ToDisplayRotation(int rotation) const;
 
-  int handle_;
+  int accel_handle_;
+  int gyro_handle_;
   base::NativeLibrary dso_;
 
   // Start of codes copied from libslp-sensor
@@ -55,6 +56,10 @@ class TizenPlatformSensor : public SensorProvider {
         (ACCELEROMETER_SENSOR << 16) | 0x0001,
     ACCELEROMETER_ORIENTATION_DATA_SET =
         (ACCELEROMETER_SENSOR << 16) | 0x0002,
+    ACCELEROMETER_LINEAR_ACCELERATION_DATA_SET =
+        (ACCELEROMETER_SENSOR << 16) | 0x0004,
+    ACCELEROMETER_GRAVITY_DATA_SET =
+        (ACCELEROMETER_SENSOR << 16) | 0x0008,
   };
 
   enum accelerometer_event_type {
@@ -69,7 +74,11 @@ class TizenPlatformSensor : public SensorProvider {
     ACCELEROMETER_EVENT_SET_WAKEUP =
         (ACCELEROMETER_SENSOR << 16) | 0x0010,
     ACCELEROMETER_EVENT_ORIENTATION_DATA_REPORT_ON_TIME =
-        (ACCELEROMETER_SENSOR << 16) | 0x0011,
+        (ACCELEROMETER_SENSOR << 16) | 0x0020,
+    ACCELEROMETER_EVENT_LINEAR_ACCELERATION_DATA_REPORT_ON_TIME =
+        (ACCELEROMETER_SENSOR << 16) | 0x0040,
+    ACCELEROMETER_EVENT_GRAVITY_DATA_REPORT_ON_TIME =
+        (ACCELEROMETER_SENSOR << 16) | 0x0080,
   };
 
   enum accelerometer_rotate_state {
@@ -82,6 +91,14 @@ class TizenPlatformSensor : public SensorProvider {
     ROTATION_EVENT_90        = 1,
     ROTATION_EVENT_180       = 3,
     ROTATION_EVENT_270       = 4,
+  };
+
+  enum gyro_data_id {
+    GYRO_BASE_DATA_SET = (GYROSCOPE_SENSOR << 16) | 0x0001,
+  };
+
+  enum gyro_event_type {
+    GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME = (GYROSCOPE_SENSOR << 16) | 0x0001,
   };
 
   typedef enum {
@@ -147,4 +164,4 @@ class TizenPlatformSensor : public SensorProvider {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_TIZEN_PLATFORM_SENSOR_H_
+#endif  // XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_PLATFORM_SENSOR_H_

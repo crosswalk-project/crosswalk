@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/tizen_platform_sensor.h"
+#include "xwalk/runtime/browser/tizen/tizen_platform_sensor.h"
 
+#include <math.h>
 #include <string>
 
 #include "base/files/file_path.h"
@@ -12,7 +13,8 @@
 namespace xwalk {
 
 TizenPlatformSensor::TizenPlatformSensor()
-    : handle_(-1),
+    : accel_handle_(-1),
+      gyro_handle_(-1),
       dso_(NULL),
       connect_(NULL),
       disconnect_(NULL),
@@ -31,36 +33,57 @@ bool TizenPlatformSensor::Initialize() {
   if (!LoadLibrary())
     return false;
 
-  handle_ = connect_(ACCELEROMETER_SENSOR);
-  if (handle_ < 0) {
+  accel_handle_ = connect_(ACCELEROMETER_SENSOR);
+  if (accel_handle_ >= 0) {
+    if (register_event_(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK,
+                        NULL, OnEventReceived, this) < 0 ||
+        register_event_(accel_handle_,
+                        ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME,
+                        NULL, OnEventReceived, this) < 0 ||
+        start_(accel_handle_, 0) < 0) {
+      LOG(ERROR) << "Register accelerometer sensor event failed";
+      unregister_event_(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
+      unregister_event_(accel_handle_,
+                        ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
+      disconnect_(accel_handle_);
+      accel_handle_ = -1;
+    }
+  } else {
     LOG(ERROR) << "Connection to accelerometer sensor failed";
-    return false;
   }
 
-  if (register_event_(handle_, ACCELEROMETER_EVENT_ROTATION_CHECK,
-                      NULL, OnEventReceived, this) >= 0 &&
-      register_event_(handle_, ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME,
-                      NULL, OnEventReceived, this) >= 0) {
-    if (start_(handle_, 0) >= 0)
-      return true;
-    unregister_event_(handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
-    unregister_event_(handle_, ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
+  gyro_handle_ = connect_(GYROSCOPE_SENSOR);
+  if (gyro_handle_ >= 0) {
+    if (register_event_(gyro_handle_, GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME,
+                      NULL, OnEventReceived, this) < 0 ||
+        start_(gyro_handle_, 0) < 0) {
+      LOG(ERROR) << "Register gyroscope sensor event failed";
+      unregister_event_(gyro_handle_, GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME);
+      disconnect_(gyro_handle_);
+      gyro_handle_ = -1;
+    }
+  } else {
+    LOG(ERROR) << "Connection to gyroscope sensor failed";
   }
-  LOG(ERROR) << "Register sensor handler failed";
-  disconnect_(handle_);
-  handle_ = -1;
-  return false;
+
+  return (accel_handle_ >= 0 || gyro_handle_ >= 0);
 }
 
 void TizenPlatformSensor::Finish() {
-  if (handle_ < 0)
-    return;
+  if (accel_handle_ >= 0) {
+    stop_(accel_handle_);
+    unregister_event_(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
+    unregister_event_(accel_handle_,
+                      ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
+    disconnect_(accel_handle_);
+    accel_handle_ = -1;
+  }
 
-  stop_(handle_);
-  unregister_event_(handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
-  unregister_event_(handle_, ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
-  disconnect_(handle_);
-  handle_ = -1;
+  if (gyro_handle_ >=0) {
+    unregister_event_(gyro_handle_, GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME);
+    disconnect_(gyro_handle_);
+    gyro_handle_ = -1;
+  }
 
   UnloadLibrary();
 }
@@ -142,33 +165,44 @@ void TizenPlatformSensor::OnEventReceived(unsigned int event_type,
                                         sensor_event_data_t* event_data,
                                         void* udata) {
   TizenPlatformSensor* sensor = reinterpret_cast<TizenPlatformSensor*>(udata);
+  sensor_data_t* data =
+      reinterpret_cast<sensor_data_t*>(event_data->event_data);
+  size_t last = event_data->event_data_size / sizeof(sensor_data_t) - 1;
 
   switch (event_type) {
     case ACCELEROMETER_EVENT_ROTATION_CHECK: {
-      int* data = reinterpret_cast<int*>(event_data->event_data);
-      gfx::Display::Rotation r = sensor->ToDisplayRotation(*data);
+      gfx::Display::Rotation r = sensor->ToDisplayRotation(
+          *reinterpret_cast<int*>(event_data->event_data));
       sensor->OnRotationChanged(r);
       break;
     }
     case ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME: {
-      sensor_data_t* accel =
-          reinterpret_cast<sensor_data_t*>(event_data->event_data);
-      size_t cnt = event_data->event_data_size / sizeof(sensor_data_t);
-      for (size_t i = 0; i < cnt; i++) {
-        sensor->OnAccelerationChanged(accel[i].values[0],
-                                      accel[i].values[1],
-                                      accel[i].values[2]);
-      }
+      sensor_data_t linear;
+      linear.values[0] = linear.values[1] = linear.values[2] = FP_NAN;
+      sensor->get_data_(sensor->accel_handle_,
+                        ACCELEROMETER_LINEAR_ACCELERATION_DATA_SET,
+                        &linear);
+      sensor->OnAccelerationChanged(data[last].values[0],
+                                    data[last].values[1],
+                                    data[last].values[2],
+                                    linear.values[0],
+                                    linear.values[1],
+                                    linear.values[2]);
 
-      sensor_data_t data;
-      if (sensor->get_data_(sensor->handle_,
+      sensor_data_t orient;
+      if (sensor->get_data_(sensor->accel_handle_,
                             ACCELEROMETER_ORIENTATION_DATA_SET,
-                            &data) >= 0) {
-        sensor->OnOrientationChanged(data.values[0],
-                                     data.values[1],
-                                     data.values[2]);
+                            &orient) >= 0) {
+        sensor->OnOrientationChanged(orient.values[0],
+                                     orient.values[1],
+                                     orient.values[2]);
       }
       break;
+    }
+    case GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME: {
+      sensor->OnRotationRateChanged(data[last].values[0],
+                                    data[last].values[1],
+                                    data[last].values[2]);
     }
   }
 }
