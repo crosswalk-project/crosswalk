@@ -160,6 +160,8 @@
             'runtime/browser/tizen/tizen_data_fetcher_shared_memory.h',
             'runtime/browser/tizen/tizen_platform_sensor.cc',
             'runtime/browser/tizen/tizen_platform_sensor.h',
+            'runtime/browser/tizen/tizen_sensor_observer.cc',
+            'runtime/browser/tizen/tizen_sensor_observer.h',
             'runtime/browser/ui/tizen_plug_message_writer.cc',
             'runtime/browser/ui/tizen_plug_message_writer.h',
             'runtime/browser/ui/tizen_system_indicator.cc',
