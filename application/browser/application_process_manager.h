@@ -15,6 +15,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/time/time.h"
 #include "xwalk/application/common/application.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
 
 class GURL;
 
@@ -31,7 +32,7 @@ class Manifest;
 
 // This manages dynamic state of running applications. By now, it only launches
 // one application, later it will manages all event pages' lifecycle.
-class ApplicationProcessManager {
+class ApplicationProcessManager : public RuntimeRegistryObserver {
  public:
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
   ~ApplicationProcessManager();
@@ -41,13 +42,20 @@ class ApplicationProcessManager {
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
 
+  // RuntimeRegistryObserver implementation.
+  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
+
  private:
   bool RunMainDocument(const Application* application);
   bool RunFromLocalPath(const Application* application);
+  void CloseMainDocument();
 
   xwalk::RuntimeContext* runtime_context_;
   xwalk::Runtime* main_runtime_;
   base::WeakPtrFactory<ApplicationProcessManager> weak_ptr_factory_;
+  std::set<Runtime*> runtimes_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationProcessManager);
 };
