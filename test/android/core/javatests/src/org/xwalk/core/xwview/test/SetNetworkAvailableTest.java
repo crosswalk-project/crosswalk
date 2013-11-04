@@ -38,7 +38,12 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
                 mTestContentsClient.didFinishLoad(url);
             }
         }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+            }
+        });
     }
 
     @Feature({"SetNetworkAvailableTest"})
@@ -48,11 +53,16 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
         loadAssetFile("navigator.online.html");
         String title = getTitleOnUiThread();
 
-        XWalkView xwView = getXWalkView();
+        final XWalkView xwView = getXWalkView();
 
         if ("true".equals(title)) {
-            // Forcing to trigger 'offline' event.
-            xwView.setNetworkAvailable(false);
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    // Forcing to trigger 'offline' event.
+                    xwView.setNetworkAvailable(false);
+                }
+            });
 
             /**
              * Expectations:
@@ -62,8 +72,13 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
             assertEquals("false", executeJavaScriptAndWaitForResult(code));
             assertEquals("offline:false", getTitleOnUiThread());
 
-            // Forcing to trigger 'online' event.
-            xwView.setNetworkAvailable(true);
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    // Forcing to trigger 'online' event.
+                    xwView.setNetworkAvailable(true);
+                }
+            });
 
             /**
              * Expectations:
@@ -75,8 +90,13 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
         }
 
         if ("false".equals(title)) {
-            // Forcing to trigger 'online' event.
-            xwView.setNetworkAvailable(true);
+             getInstrumentation().runOnMainSync(new Runnable() {
+                 @Override
+                 public void run() {
+                     // Forcing to trigger 'online' event.
+                     xwView.setNetworkAvailable(true);
+                 }
+             });
 
             /**
              * Expectations:
@@ -86,8 +106,13 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
             assertEquals("true", executeJavaScriptAndWaitForResult(code));
             assertEquals("online:true", getTitleOnUiThread());
 
-            // Forcing to trigger 'offline' event.
-            xwView.setNetworkAvailable(false);
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    // Forcing to trigger 'offline' event.
+                    xwView.setNetworkAvailable(false);
+                }
+            });
 
             /**
              * Expectations:

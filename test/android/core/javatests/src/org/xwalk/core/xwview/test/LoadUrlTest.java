@@ -32,7 +32,12 @@ public class LoadUrlTest extends XWalkViewTestBase {
                 mTestContentsClient.didFinishLoad(url);
             }
         }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+            }
+        });
     }
 
     // @SmallTest

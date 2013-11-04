@@ -23,22 +23,31 @@ public class RuntimeClientApiTestBase<T extends Activity> {
 
     // For loadAppFromUrl.
     public void testLoadAppFromUrl() throws Throwable {
-        String expectedTitle = "Crosswalk Sample Application";
+        final String expectedTitle = "Crosswalk Sample Application";
 
         mTestUtil.loadUrlSync("file:///android_asset/index.html");
-
-        String title = mTestUtil.getTestedView().getTitleForTest();
-        mTestCase.assertEquals(expectedTitle, title);
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(expectedTitle, title);
+            }
+        });
     }
 
     // For loadAppFromManifest.
     public void testLoadAppFromManifest() throws Throwable {
-        String expectedTitle = "Crosswalk Sample Application";
+        final String expectedTitle = "Crosswalk Sample Application";
 
         mTestUtil.loadManifestSync("file:///android_asset/manifest.json");
 
-        String title = mTestUtil.getTestedView().getTitleForTest();
-        mTestCase.assertEquals(expectedTitle, title);
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(expectedTitle, title);
+            }
+        });
     }
 
     // For internal extension implemention of DeviceCapabilities.
@@ -56,7 +65,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     // For external extension mechanism: sync mode.
     public void testExternalExtensionSync() throws Throwable {
         mTestUtil.loadAssetFile("echoSync.html");
-        String title = mTestUtil.getTestedView().getTitleForTest();
-        mTestCase.assertEquals("Pass", title);
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals("Pass", title);
+            }
+        });
     }
 }
