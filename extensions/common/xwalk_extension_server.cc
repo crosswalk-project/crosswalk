@@ -149,7 +149,7 @@ bool XWalkExtensionServer::RegisterExtension(
     return false;
   }
 
-  if (extension_symbols_.find(extension->name()) != extension_symbols_.end()) {
+  if (ContainsKey(extension_symbols_, extension->name())) {
     LOG(WARNING) << "Ignoring extension with name already registered: "
                  << extension->name();
     return false;
@@ -246,7 +246,7 @@ bool XWalkExtensionServer::ValidateExtensionEntryPoints(
     if (!ValidateExtensionIdentifier(entry_point))
       return false;
 
-    if (extension_symbols_.find(entry_point) != extension_symbols_.end()) {
+    if (ContainsKey(extension_symbols_, entry_point)) {
       LOG(WARNING) << "Entry point '" << entry_point
                    << "' clashes with another extension entry point.";
       return false;
