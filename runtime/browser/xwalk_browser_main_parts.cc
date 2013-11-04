@@ -321,7 +321,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
         scoped_refptr<xwalk::application::PackageInstaller> installer =
             xwalk::application::PackageInstaller::Create(service, id,
                 runtime_context_->GetPath());
-        if (!installer->Uninstall()) {
+        if (!installer || !installer->Uninstall()) {
           LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
           return;
         }
@@ -349,7 +349,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
           scoped_refptr<xwalk::application::PackageInstaller> installer =
               xwalk::application::PackageInstaller::Create(service, id,
                   runtime_context_->GetPath());
-          if (!installer->Install()) {
+          if (!installer || !installer->Install()) {
             LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
             return;
           }
