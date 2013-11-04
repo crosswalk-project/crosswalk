@@ -49,11 +49,21 @@ def CopyProjectFiles(project_source, out_directory):
       'prepare_r_java.py',
       # Ant properties file.
       'ant.properties',
+      # Eclipse project file and builders.
+      '.project',
+      '.classpath',
+      '.externalToolBuilders/prepare_r_java.launch'
   ]
   for f in files_to_copy:
     source_file = os.path.join(template_folder, f)
     target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, f)
-    shutil.copyfile(source_file, target_file)
+
+    target_dir = os.path.dirname(target_file)
+
+    if not os.path.isdir(target_dir):
+      os.makedirs(target_dir)
+
+    shutil.copy2(source_file, target_file)
 
 
 def CopyJavaSources(project_source, out_directory):
