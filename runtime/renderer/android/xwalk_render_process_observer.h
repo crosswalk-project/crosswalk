@@ -24,6 +24,7 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 
  private:
   void OnSetJsOnlineProperty(bool network_up);
+  void OnClearCache();
 
   bool webkit_initialized_;
 };
