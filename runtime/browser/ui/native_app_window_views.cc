@@ -19,21 +19,30 @@
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
-#include "xwalk/runtime/browser/tizen/tizen_sensor_observer.h"
-#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
+#include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 #endif
 
 namespace xwalk {
 
 NativeAppWindowViews::NativeAppWindowViews(
     const NativeAppWindow::CreateParams& create_params)
-  : delegate_(create_params.delegate),
+  : create_params_(create_params),
+    delegate_(create_params.delegate),
     web_contents_(create_params.web_contents),
     web_view_(NULL),
+    window_(NULL),
     is_fullscreen_(false),
     minimum_size_(create_params.minimum_size),
     maximum_size_(create_params.maximum_size),
-    resizable_(create_params.resizable) {
+    resizable_(create_params.resizable) {}
+
+NativeAppWindowViews::~NativeAppWindowViews() {}
+
+// Two-step initialization is needed here so that calls done by views::Widget to
+// its delegate during views::Widget::Init() reach the correct implementation --
+// e.g. ViewHierarchyChanged().
+void NativeAppWindowViews::Initialize() {
+  CHECK(!window_);
   window_ = new views::Widget;
 
   views::Widget::InitParams params;
@@ -41,7 +50,7 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.remove_standard_frame = false;
   params.use_system_default_icon = true;
   params.top_level = true;
-  params.show_state = create_params.state;
+  params.show_state = create_params_.state;
 #if defined(OS_TIZEN_MOBILE)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   // On Tizen apps are sized to the work area.
@@ -50,7 +59,7 @@ NativeAppWindowViews::NativeAppWindowViews(
   params.bounds = bounds;
 #else
   params.type = views::Widget::InitParams::TYPE_WINDOW;
-  params.bounds = create_params.bounds;
+  params.bounds = create_params_.bounds;
 #endif
 
   window_->Init(params);
@@ -58,19 +67,15 @@ NativeAppWindowViews::NativeAppWindowViews(
 #if defined(OS_TIZEN_MOBILE)
   // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
-  sensor_observer_.reset(new TizenSensorObserver(this));
 #else
-  window_->CenterWindow(create_params.bounds.size());
+  window_->CenterWindow(create_params_.bounds.size());
 #endif
 
-  if (create_params.state == ui::SHOW_STATE_FULLSCREEN)
+  if (create_params_.state == ui::SHOW_STATE_FULLSCREEN)
     SetFullscreen(true);
 
   // TODO(hmin): Need to configure the maximum and minimum size of this window.
   window_->AddObserver(this);
-}
-
-NativeAppWindowViews::~NativeAppWindowViews() {
 }
 
 gfx::NativeWindow NativeAppWindowViews::GetNativeWindow() const {
@@ -159,6 +164,10 @@ bool NativeAppWindowViews::IsFullscreen() const {
   return is_fullscreen_;
 }
 
+TopViewLayout* NativeAppWindowViews::top_view_layout() {
+  return static_cast<TopViewLayout*>(GetLayoutManager());
+}
+
 ////////////////////////////////////////////////////////////
 // WidgetDelegate implementation
 ////////////////////////////////////////////////////////////
@@ -235,8 +244,7 @@ void NativeAppWindowViews::ChildPreferredSizeChanged(views::View* child) {
   // us by calling its own function PreferredSizeChanged()). We don't react to
   // changes in preferred size for the content view since we are currently
   // setting its bounds to the maximum size available.
-  TopViewLayout* layout = static_cast<TopViewLayout*>(GetLayoutManager());
-  if (child == layout->top_view())
+  if (child == top_view_layout()->top_view())
     Layout();
 }
 
@@ -250,17 +258,6 @@ void NativeAppWindowViews::ViewHierarchyChanged(
     web_view_->SetWebContents(web_contents_);
     AddChildView(web_view_);
     layout->set_content_view(web_view_);
-
-#if defined(OS_TIZEN_MOBILE)
-    TizenSystemIndicator* indicator = new TizenSystemIndicator();
-    if (indicator->IsConnected()) {
-      AddChildView(indicator);
-      layout->set_top_view(indicator);
-    } else {
-      delete indicator;
-      LOG(WARNING) << "Failed to load indicator";
-    }
-#endif
   }
 }
 
@@ -286,7 +283,14 @@ void NativeAppWindowViews::OnWidgetBoundsChanged(views::Widget* widget,
 // static
 NativeAppWindow* NativeAppWindow::Create(
     const NativeAppWindow::CreateParams& create_params) {
-  return new NativeAppWindowViews(create_params);
+  NativeAppWindowViews* window;
+#if defined(OS_TIZEN_MOBILE)
+  window = new NativeAppWindowTizen(create_params);
+#else
+  window = new NativeAppWindowViews(create_params);
+#endif
+  window->Initialize();
+  return window;
 }
 
 // static
