@@ -232,7 +232,7 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
     CreateExtensionProcessHost(host, data);
   else if (!external_extensions_path_.empty()) {
     RegisterExternalExtensionsInDirectory(
-        data->in_process_extension_thread_server_.get(),
+        data->in_process_ui_thread_server_.get(),
         external_extensions_path_);
   }
 
