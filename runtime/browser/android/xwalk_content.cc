@@ -16,6 +16,7 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
+#include "content/public/browser/render_view_host.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
@@ -29,7 +30,10 @@
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "jni/XWalkContent_jni.h"
 
+using base::android::AttachCurrentThread;
+using base::android::ConvertUTF8ToJavaString;
 using base::android::ScopedJavaLocalRef;
+using content::BrowserThread;
 using navigation_interception::InterceptNavigationDelegate;
 
 namespace xwalk {
@@ -68,6 +72,19 @@ XWalkContent::XWalkContent(JNIEnv* env,
 }
 
 XWalkContent::~XWalkContent() {
+}
+
+// static
+XWalkContent* XWalkContent::FromID(int render_process_id,
+                                   int render_view_id) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  const content::RenderViewHost* rvh =
+      content::RenderViewHost::FromID(render_process_id, render_view_id);
+  if (!rvh) return NULL;
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderViewHost(rvh);
+  if (!web_contents) return NULL;
+  return FromWebContents(web_contents);
 }
 
 // static
@@ -205,4 +222,88 @@ bool RegisterXWalkContent(JNIEnv* env) {
   return RegisterNativesImpl(env) >= 0;
 }
 
+namespace {
+
+void ShowGeolocationPromptHelperTask(
+    const JavaObjectWeakGlobalRef& java_ref,
+    const GURL& origin) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> j_ref = java_ref.get(env);
+  if (j_ref.obj()) {
+    ScopedJavaLocalRef<jstring> j_origin(
+        ConvertUTF8ToJavaString(env, origin.spec()));
+    Java_XWalkContent_onGeolocationPermissionsShowPrompt(env,
+                                                         j_ref.obj(),
+                                                         j_origin.obj());
+  }
+}
+
+void ShowGeolocationPromptHelper(const JavaObjectWeakGlobalRef& java_ref,
+                                 const GURL& origin) {
+  JNIEnv* env = AttachCurrentThread();
+  if (java_ref.get(env).obj()) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::UI,
+        FROM_HERE,
+        base::Bind(&ShowGeolocationPromptHelperTask,
+                   java_ref,
+                   origin));
+  }
+}
+}  // anonymous namespace
+
+void XWalkContent::ShowGeolocationPrompt(
+    const GURL& requesting_frame,
+    const base::Callback<void(bool)>& callback) {
+  GURL origin = requesting_frame.GetOrigin();
+  bool show_prompt = pending_geolocation_prompts_.empty();
+  pending_geolocation_prompts_.push_back(OriginCallback(origin, callback));
+  if (show_prompt) {
+    ShowGeolocationPromptHelper(java_ref_, origin);
+  }
+}
+
+// Invoked from Java
+void XWalkContent::InvokeGeolocationCallback(JNIEnv* env,
+                                             jobject obj,
+                                             jboolean value,
+                                             jstring origin) {
+  GURL callback_origin(base::android::ConvertJavaStringToUTF16(env, origin));
+  if (callback_origin.GetOrigin() ==
+      pending_geolocation_prompts_.front().first) {
+    pending_geolocation_prompts_.front().second.Run(value);
+    pending_geolocation_prompts_.pop_front();
+    if (!pending_geolocation_prompts_.empty()) {
+      ShowGeolocationPromptHelper(java_ref_,
+                                  pending_geolocation_prompts_.front().first);
+    }
+  }
+}
+
+void XWalkContent::HideGeolocationPrompt(const GURL& origin) {
+  bool removed_current_outstanding_callback = false;
+  std::list<OriginCallback>::iterator it = pending_geolocation_prompts_.begin();
+  while (it != pending_geolocation_prompts_.end()) {
+    if ((*it).first == origin.GetOrigin()) {
+      if (it == pending_geolocation_prompts_.begin()) {
+        removed_current_outstanding_callback = true;
+      }
+      it = pending_geolocation_prompts_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  if (removed_current_outstanding_callback) {
+    JNIEnv* env = AttachCurrentThread();
+    ScopedJavaLocalRef<jobject> j_ref = java_ref_.get(env);
+    if (j_ref.obj()) {
+      Java_XWalkContent_onGeolocationPermissionsHidePrompt(env, j_ref.obj());
+    }
+    if (!pending_geolocation_prompts_.empty()) {
+      ShowGeolocationPromptHelper(java_ref_,
+                            pending_geolocation_prompts_.front().first);
+    }
+  }
+}
 }  // namespace xwalk

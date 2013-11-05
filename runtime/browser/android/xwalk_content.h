@@ -1,9 +1,13 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENT_H_
+
+#include <list>
+#include <utility>
 
 #include "base/android/jni_helper.h"
 #include "base/android/scoped_java_ref.h"
@@ -28,6 +32,7 @@ class XWalkContent {
       jobject contents_client_bridge);
   ~XWalkContent();
 
+  static XWalkContent* FromID(int render_process_id, int render_view_id);
   static XWalkContent* FromWebContents(content::WebContents* web_contents);
 
   jint GetWebContents(JNIEnv* env, jobject obj, jobject delegate);
@@ -46,6 +51,15 @@ class XWalkContent {
                        jstring path,
                        jstring manifest);
 
+  // Geolocation API support
+  void ShowGeolocationPrompt(const GURL& origin,
+                             const base::Callback<void(bool)>& callback);
+  void HideGeolocationPrompt(const GURL& origin);
+  void InvokeGeolocationCallback(JNIEnv* env,
+                                 jobject obj,
+                                 jboolean value,
+                                 jstring origin);
+
  private:
   content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);
 
@@ -54,6 +68,14 @@ class XWalkContent {
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
   scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
+
+  // GURL is supplied by the content layer as requesting frame.
+  // Callback is supplied by the content layer, and is invoked with the result
+  // from the permission prompt.
+  typedef std::pair<const GURL, const base::Callback<void(bool)> > \
+          OriginCallback;
+  // The first element in the list is always the currently pending request.
+  std::list<OriginCallback> pending_geolocation_prompts_;
 };
 
 bool RegisterXWalkContent(JNIEnv* env);

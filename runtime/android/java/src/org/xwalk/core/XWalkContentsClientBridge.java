@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -150,11 +149,15 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback) {
+            XWalkGeolocationPermissions.Callback callback) {
+        if (mXWalkWebChromeClient != null)
+            mXWalkWebChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
     }
 
     @Override
     public void onGeolocationPermissionsHidePrompt() {
+        if (mXWalkWebChromeClient != null)
+            mXWalkWebChromeClient.onGeolocationPermissionsHidePrompt();
     }
 
     @Override
