@@ -143,7 +143,7 @@ void XWalkModuleSystem::RegisterExtensionModule(
 
 void XWalkModuleSystem::RegisterNativeModule(
     const std::string& name, scoped_ptr<XWalkNativeModule> module) {
-  CHECK(native_modules_.find(name) == native_modules_.end());
+  CHECK(!ContainsKey(native_modules_, name));
   native_modules_[name] = module.release();
 }
 
