@@ -78,4 +78,22 @@ public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRunti
             }
         });
     }
+
+    public void onPause() throws Exception {
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getTestedView().onPause();
+            }
+        });
+    }
+
+    public void onResume() throws Exception {
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getTestedView().onResume();
+            }
+        });
+    }
 }

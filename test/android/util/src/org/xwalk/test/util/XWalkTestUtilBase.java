@@ -89,6 +89,12 @@ public class XWalkTestUtilBase<T> {
         return helper.getTitle();
     }
 
+    public void waitForTitleUpdated(int seconds) throws Exception {
+        CallbackHelper helper = mCallbackHelpers.getOnTitleUpdatedHelper();
+        int currentCallCount = helper.getCallCount();
+        helper.waitForCallback(currentCallCount, 1, seconds, TimeUnit.SECONDS);
+    }
+
     public XWalkTestUtilCallbacks getCallbackHelpers() {
         return mCallbackHelpers;
     }
