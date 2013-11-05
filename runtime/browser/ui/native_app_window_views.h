@@ -19,7 +19,6 @@
 
 namespace views {
 class WebView;
-class Widget;
 }
 
 namespace xwalk {
