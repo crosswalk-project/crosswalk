@@ -53,6 +53,7 @@ class XWalkExtensionServer : public IPC::Listener {
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
+  bool ContainsExtension(const std::string& extension_name) const;
 
   void Invalidate();
 
