@@ -50,7 +50,6 @@
 
 #if defined(OS_TIZEN_MOBILE)
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
-#include "ui/gfx/switches.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
@@ -117,9 +116,6 @@ void SetXWalkCommandLineFlags() {
   else
     gl_name = gfx::kGLImplementationEGLName;
   command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
-  // Workaround to provide viewport meta tag proper behavior on Tizen.
-  // FIXME: Must be removed when https://codereview.chromium.org/27156003/ is landed.
-  command_line->AppendSwitchASCII(switches::kForceDeviceScaleFactor, "2.0");
 #endif
 
   // Always use fixed layout and viewport tag.
