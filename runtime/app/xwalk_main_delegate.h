@@ -9,8 +9,8 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "xwalk/runtime/common/xwalk_content_client.h"
 #include "content/public/app/content_main_delegate.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 namespace content {
 class ContentBrowserClient;

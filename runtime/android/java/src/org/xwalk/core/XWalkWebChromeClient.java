@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Message;
 import android.view.View;
 import android.webkit.WebStorage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 
@@ -282,7 +281,7 @@ public class XWalkWebChromeClient {
      *                 origin.
      */
     public void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback) {}
+            XWalkGeolocationPermissions.Callback callback) {}
 
     /**
      * Notify the host application that a request for Geolocation permissions,

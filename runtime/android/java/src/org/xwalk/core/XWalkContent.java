@@ -1,3 +1,4 @@
+// Copyright 2013 The Chromium Authors. All rights reserved.
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -7,6 +8,7 @@ package org.xwalk.core;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -15,6 +17,7 @@ import android.widget.FrameLayout;
 
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
+import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentView;
@@ -39,6 +42,7 @@ public class XWalkContent extends FrameLayout {
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
     private XWalkSettings mSettings;
+    private XWalkGeolocationPermissions mGeolocationPermissions;
 
     int mXWalkContent;
     int mWebContents;
@@ -101,6 +105,9 @@ public class XWalkContent extends FrameLayout {
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
+
+        SharedPreferences sharedPreferences = new InMemorySharedPreferences();
+        mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
     }
 
     void doLoadUrl(String url) {
@@ -286,6 +293,48 @@ public class XWalkContent extends FrameLayout {
         mXWalkContent = 0;
     }
 
+    private class XWalkGeolocationCallback implements XWalkGeolocationPermissions.Callback {
+        @Override
+        public void invoke(final String origin, final boolean allow, final boolean retain) {
+            ThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (retain) {
+                        if (allow) {
+                            mGeolocationPermissions.allow(origin);
+                        } else {
+                            mGeolocationPermissions.deny(origin);
+                        }
+                    }
+                    nativeInvokeGeolocationCallback(mXWalkContent, allow, origin);
+                }
+            });
+        }
+    }
+
+    @CalledByNative
+    private void onGeolocationPermissionsShowPrompt(String origin) {
+        // Reject if geoloaction is disabled, or the origin has a retained deny
+        if (!mSettings.getGeolocationEnabled()) {
+            nativeInvokeGeolocationCallback(mXWalkContent, false, origin);
+            return;
+        }
+        // Allow if the origin has a retained allow
+        if (mGeolocationPermissions.hasOrigin(origin)) {
+            nativeInvokeGeolocationCallback(mXWalkContent,
+                    mGeolocationPermissions.isOriginAllowed(origin),
+                    origin);
+            return;
+        }
+        mContentsClientBridge.onGeolocationPermissionsShowPrompt(
+                origin, new XWalkGeolocationCallback());
+    }
+
+    @CalledByNative
+    public void onGeolocationPermissionsHidePrompt() {
+        mContentsClientBridge.onGeolocationPermissionsHidePrompt();
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
     private static native void nativeDestroy(int nativeXWalkContent);
@@ -296,4 +345,6 @@ public class XWalkContent extends FrameLayout {
     private native String nativeGetVersion(int nativeXWalkContent);
     private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
     private native boolean nativeSetManifest(int nativeXWalkContent, String path, String manifest);
+    private native void nativeInvokeGeolocationCallback(
+            int nativeXWalkContent, boolean value, String requestingFrame);
 }

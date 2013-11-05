@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -123,7 +122,7 @@ public abstract class XWalkContentsClient extends ContentViewClient {
             String mimeType, long contentLength);
 
     public abstract void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback);
+            XWalkGeolocationPermissions.Callback callback);
 
     public abstract void onGeolocationPermissionsHidePrompt();
 

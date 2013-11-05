@@ -11,7 +11,6 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -20,6 +19,7 @@ import org.xwalk.core.JsPromptResult;
 import org.xwalk.core.JsResult;
 import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkContentsClient;
+import org.xwalk.core.XWalkGeolocationPermissions;
 import org.xwalk.core.XWalkWebChromeClient;
 
 /**
@@ -67,7 +67,7 @@ public class NullContentsClient extends XWalkContentsClient {
 
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback) {
+            XWalkGeolocationPermissions.Callback callback) {
     }
 
     @Override
