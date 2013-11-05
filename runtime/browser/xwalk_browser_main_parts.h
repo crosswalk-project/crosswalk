@@ -43,7 +43,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
   // XWalkExtensionService::Delegate overrides.
-  virtual void RegisterInternalExtensionsInServer(
+  virtual void RegisterInternalExtensionsInExtensionThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
 
 #if defined(OS_ANDROID)

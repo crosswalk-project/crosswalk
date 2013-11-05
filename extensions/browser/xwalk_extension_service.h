@@ -37,7 +37,9 @@ class XWalkExtensionService : public content::NotificationObserver,
  public:
   class Delegate {
    public:
-    virtual void RegisterInternalExtensionsInServer(
+    virtual void RegisterInternalExtensionsInExtensionThreadServer(
+        XWalkExtensionServer* server) {}
+    virtual void RegisterInternalExtensionsInUIThreadServer(
         XWalkExtensionServer* server) {}
 
    protected:
@@ -66,8 +68,10 @@ class XWalkExtensionService : public content::NotificationObserver,
   struct ExtensionData {
     ExtensionData();
     ~ExtensionData();
-    // The servers will live on the extension thread.
-    scoped_ptr<XWalkExtensionServer> in_process_server_;
+
+    // Extension servers living on their respective threads.
+    scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
+    scoped_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
 
     // This object lives on the IO-thread.
     ExtensionServerMessageFilter* in_process_message_filter_;
@@ -86,7 +90,7 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
-  void CreateInProcessExtensionServer(content::RenderProcessHost* host,
+  void CreateInProcessExtensionServers(content::RenderProcessHost* host,
       ExtensionData* data);
   void CreateExtensionProcessHost(content::RenderProcessHost* host,
       ExtensionData* data);
