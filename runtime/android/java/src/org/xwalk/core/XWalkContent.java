@@ -274,6 +274,10 @@ public class XWalkContent extends FrameLayout {
         }
     }
 
+    public WebBackForwardList copyBackForwardList() {
+        return new WebBackForwardList(mContentViewCore.getNavigationHistory());
+    }
+
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {

@@ -287,6 +287,10 @@ public class XWalkView extends FrameLayout {
         return mContent.getXWalkWebChromeClient();
     }
 
+    public WebBackForwardList copyBackForwardList() {
+        return mContent.copyBackForwardList();
+    }
+
     private static void checkThreadSafety() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             Throwable throwable = new Throwable(
