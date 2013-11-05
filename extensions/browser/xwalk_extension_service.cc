@@ -4,8 +4,11 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
+#include <set>
+#include <vector>
 #include "base/callback.h"
 #include "base/command_line.h"
+#include "base/pickle.h"
 #include "base/scoped_native_library.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/browser_thread.h"
@@ -38,49 +41,157 @@ base::FilePath g_external_extensions_path_for_testing_;
 //
 // In the case of in process extensions, we will pass the task runner of the
 // extension thread.
-class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter {
+class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
+                                     public IPC::Sender {
  public:
   ExtensionServerMessageFilter(
       scoped_refptr<base::SequencedTaskRunner> task_runner,
       XWalkExtensionServer* extension_thread_server,
       XWalkExtensionServer* ui_thread_server)
-      : task_runner_(task_runner),
+      : sender_(NULL),
+        task_runner_(task_runner),
         extension_thread_server_(extension_thread_server),
         ui_thread_server_(ui_thread_server) {}
 
   // Tells the filter to stop dispatching messages to the server.
   void Invalidate() {
     base::AutoLock l(lock_);
+    sender_ = NULL;
     task_runner_ = NULL;
     extension_thread_server_ = NULL;
     ui_thread_server_ = NULL;
   }
 
+  bool Send(IPC::Message* msg_ptr) {
+    scoped_ptr<IPC::Message> msg(msg_ptr);
+
+    if (!sender_)
+      return false;
+
+    return sender_->Send(msg.release());
+  }
+
  private:
   virtual ~ExtensionServerMessageFilter() {}
 
-  // IPC::ChannelProxy::MessageFilter implementation.
-  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
-    if (IPC_MESSAGE_CLASS(message) == XWalkExtensionClientServerMsgStart) {
-      base::AutoLock l(lock_);
-      if (!extension_thread_server_)
-        return false;
-      task_runner_->PostTask(
-          FROM_HERE,
-          base::Bind(
-              base::IgnoreResult(&XWalkExtensionServer::OnMessageReceived),
-              base::Unretained(extension_thread_server_), message));
-      return true;
+  int64_t GetInstanceIDFromMessage(const IPC::Message& message) {
+    PickleIterator iter;
+
+    if (message.is_sync())
+      iter = IPC::SyncMessage::GetDataIterator(&message);
+    else
+      iter = PickleIterator(message);
+
+    int64_t instance_id;
+    if (!iter.ReadInt64(&instance_id))
+      return -1;
+
+    return instance_id;
+  }
+
+  void RouteMessageToServer(const IPC::Message& message) {
+    int64_t id = GetInstanceIDFromMessage(message);
+    DCHECK_NE(id, -1);
+
+    XWalkExtensionServer* server;
+    base::TaskRunner* task_runner;
+    scoped_refptr<base::TaskRunner> task_runner_ref;
+
+    if (ContainsKey(extension_thread_instances_ids_, id)) {
+      server = extension_thread_server_;
+      task_runner = task_runner_;
+    } else {
+      server = ui_thread_server_;
+      task_runner_ref =
+          BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI);
+      task_runner = task_runner_ref.get();
     }
-    return false;
+
+    base::Closure closure = base::Bind(
+        base::IgnoreResult(&XWalkExtensionServer::OnMessageReceived),
+        base::Unretained(server), message);
+
+    task_runner->PostTask(FROM_HERE, closure);
+  }
+
+  void OnCreateInstance(int64_t instance_id, std::string name) {
+    XWalkExtensionServer* server;
+    base::TaskRunner* task_runner;
+    scoped_refptr<base::TaskRunner> task_runner_ref;
+
+    if (extension_thread_server_->ContainsExtension(name)) {
+      extension_thread_instances_ids_.insert(instance_id);
+      server = extension_thread_server_;
+      task_runner = task_runner_;
+    } else {
+      server = ui_thread_server_;
+      task_runner_ref =
+          BrowserThread::GetMessageLoopProxyForThread(BrowserThread::UI);
+      task_runner = task_runner_ref.get();
+    }
+
+    base::Closure closure = base::Bind(
+        base::IgnoreResult(&XWalkExtensionServer::OnCreateInstance),
+        base::Unretained(server), instance_id, name);
+
+    task_runner->PostTask(FROM_HERE, closure);
+  }
+
+  void OnGetExtensions(
+      std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>* reply) {
+    extension_thread_server_->OnGetExtensions(reply);
+    ui_thread_server_->OnGetExtensions(reply);
+  }
+
+  // IPC::ChannelProxy::MessageFilter implementation.
+  virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE {
+    sender_ = channel;
+  }
+
+  virtual void OnFilterRemoved() OVERRIDE {
+    sender_ = NULL;
+  }
+
+  virtual void OnChannelClosing() OVERRIDE {
+    sender_ = NULL;
+  }
+
+  virtual void OnChannelError() OVERRIDE {
+    sender_ = NULL;
+  }
+
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE {
+    if (IPC_MESSAGE_CLASS(message) != XWalkExtensionClientServerMsgStart)
+      return false;
+
+    base::AutoLock l(lock_);
+
+    if (!extension_thread_server_ || !ui_thread_server_)
+      return false;
+
+    bool handled = true;
+    IPC_BEGIN_MESSAGE_MAP(ExtensionServerMessageFilter, message)
+      IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_CreateInstance,
+                          OnCreateInstance)
+      IPC_MESSAGE_HANDLER(XWalkExtensionServerMsg_GetExtensions,
+                          OnGetExtensions)
+      IPC_MESSAGE_UNHANDLED(handled = false)
+    IPC_END_MESSAGE_MAP()
+
+    if (!handled)
+      RouteMessageToServer(message);
+
+    return true;
   }
 
   // This lock is used to protect access to filter members.
   base::Lock lock_;
 
+  IPC::Sender* sender_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
   XWalkExtensionServer* extension_thread_server_;
   XWalkExtensionServer* ui_thread_server_;
+  std::set<int64_t> extension_thread_instances_ids_;
 };
 
 XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
@@ -209,18 +320,8 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
   IPC::ChannelProxy* channel = host->GetChannel();
 
-  ExtensionServerMessageFilter* message_filter =
-      new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),
-                                       extension_thread_server.get(),
-                                       ui_thread_server.get());
-  channel->AddFilter(message_filter);
-
   extension_thread_server->Initialize(channel);
   ui_thread_server->Initialize(channel);
-
-  // The filter is owned by the IPC channel but we keep a reference to remove
-  // it from the Channel later during a RenderProcess shutdown.
-  data->in_process_message_filter_ = message_filter;
 
   delegate_->RegisterInternalExtensionsInExtensionThreadServer(
       extension_thread_server.get());
@@ -229,6 +330,16 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
   if (!g_register_extensions_callback.is_null())
     g_register_extensions_callback.Run(extension_thread_server.get());
+
+  ExtensionServerMessageFilter* message_filter =
+      new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),
+                                       extension_thread_server.get(),
+                                       ui_thread_server.get());
+
+  // The filter is owned by the IPC channel but we keep a reference to remove
+  // it from the Channel later during a RenderProcess shutdown.
+  data->in_process_message_filter_ = message_filter;
+  channel->AddFilter(message_filter);
 
   data->in_process_extension_thread_server_ = extension_thread_server.Pass();
   data->in_process_ui_thread_server_ = ui_thread_server.Pass();
