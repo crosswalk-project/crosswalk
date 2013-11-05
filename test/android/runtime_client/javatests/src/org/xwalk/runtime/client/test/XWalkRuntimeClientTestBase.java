@@ -23,5 +23,6 @@ public class XWalkRuntimeClientTestBase
     @Override
     public void postSetUp() {
         getActivity().addView(getTestUtil().getTestedView().getViewForTest());
+        getActivity().registerBroadcastReceiver(getTestUtil().getTestedView());
     }
 }
