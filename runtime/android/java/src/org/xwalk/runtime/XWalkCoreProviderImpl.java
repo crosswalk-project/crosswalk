@@ -20,11 +20,13 @@ import org.xwalk.runtime.extension.XWalkExtensionManager;
  */
 class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     private Context mContext;
+    private Activity mActivity;
     private XWalkView mXwalkView;
 
     public XWalkCoreProviderImpl(Context context, Activity activity) {
         super(context, activity);
         mContext = context;
+        mActivity = activity;
         mExtensionManager = new XWalkExtensionManager(context, activity);
         init(context, activity);
     }
@@ -43,7 +45,15 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
 
     @Override
     public void loadAppFromManifest(String manifestUrl) {
-        mXwalkView.loadAppFromManifest(manifestUrl);
+        XWalkManifestReader manifestReader = new XWalkManifestReader(mActivity);
+        String manifest = manifestReader.read(manifestUrl);
+        int position = manifestUrl.lastIndexOf("/");
+        if (position == -1) {
+            throw new RuntimeException("The URL of manifest file is invalid.");
+        }
+
+        String path = manifestUrl.substring(0, position + 1);
+        mXwalkView.loadAppFromManifest(path, manifest);
     }
 
     @Override
