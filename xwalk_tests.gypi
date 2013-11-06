@@ -108,6 +108,7 @@
       'application/test/application_main_document_browsertest.cc',
       'application/test/application_testapi.cc',
       'application/test/application_testapi.h',
+      'application/test/application_testapi_test.cc',
       'runtime/browser/xwalk_download_browsertest.cc',
       'runtime/browser/xwalk_form_input_browsertest.cc',
       'runtime/browser/xwalk_runtime_browsertest.cc',
