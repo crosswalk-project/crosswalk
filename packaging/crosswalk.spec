@@ -84,6 +84,10 @@ This package contains additional support files that are needed for running Cross
 %prep
 %setup -q
 
+%if 0%{?INCREMENTAL:1}
+cp %{SOURCE1001} .
+cd %{INCREMENTAL}
+%endif
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
@@ -95,12 +99,25 @@ cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/AUTHORS AUTHORS.xwalk
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
+# Guard against re-patching the patches that WILL be reverted by 'gclient sync'
+if patch -p0  -N --dry-run --silent <%{PATCH1}
+then
 %patch1
 %patch2
 %patch3
+fi
+
+# Guard against re-patching the patches that WON'T be reverted by 'gclient sync'
+if patch -p0  -N --dry-run --silent <%{PATCH4}
+then
 %patch4
+fi
 
 %build
+
+%if 0%{?INCREMENTAL:1}
+cd %{INCREMENTAL}
+%endif
 
 # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
 # src/third_party/ffmpeg already pass -O2 -fomit-frame-pointer, but Tizen's
@@ -129,6 +146,10 @@ export GYP_GENERATORS='make'
 make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
 
 %install
+%if 0%{?INCREMENTAL:1}
+cd %{INCREMENTAL}
+%endif
+
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
