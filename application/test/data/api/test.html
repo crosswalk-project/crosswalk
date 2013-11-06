@@ -15,14 +15,14 @@
       } catch(e) {
         console.log(e);
         console.log(new Error().stack);
-        document.title = "Fail";
+        xwalk.app.test.notifyFail(function(){});
       }
     }
 
     function runNextTest() {
       currIdx++;
       if (currIdx == tests.length) {
-        document.title = "Pass";
+        xwalk.app.test.notifyPass(function(){});
         return;
       }
       tests[currIdx].call();
