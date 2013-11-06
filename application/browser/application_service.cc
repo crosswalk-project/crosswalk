@@ -58,7 +58,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     if (app_store_->Contains(app_id)) {
       *id = app_id;
       LOG(INFO) << "Already installed: " << app_id;
-      return true;
+      return false;
     }
 
     base::FilePath temp_dir;
