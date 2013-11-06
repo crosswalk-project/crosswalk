@@ -89,7 +89,7 @@ class XWalkModuleSystem {
       v8::Local<v8::String> property,
       const v8::PropertyCallbackInfo<v8::Value>& info);
 
-  bool ContainsExtensionModule(const std::string& name);
+  bool ContainsEntryPoint(const std::string& entry_point);
   void MarkModulesWithTrampoline();
   void DeleteExtensionModules();
 

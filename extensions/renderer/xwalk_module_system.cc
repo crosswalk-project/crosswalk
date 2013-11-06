@@ -131,12 +131,24 @@ void XWalkModuleSystem::RegisterExtensionModule(
     scoped_ptr<XWalkExtensionModule> module,
     const std::vector<std::string>& entry_points) {
   const std::string& extension_name = module->extension_name();
-  if (ContainsExtensionModule(extension_name)) {
+  if (ContainsEntryPoint(extension_name)) {
     LOG(WARNING) << "Can't register Extension Module named for extension '"
                  << extension_name << "' in the Module System because name was "
                  << "already registered.";
     return;
   }
+
+  std::vector<std::string>::const_iterator it = entry_points.begin();
+  for (; it != entry_points.end(); ++it) {
+    if (ContainsEntryPoint(*it)) {
+      LOG(WARNING) << "Can't register Extension Module for extension '"
+                   << extension_name << "' in the Module System because "
+                   << "another extension has the entry point '"
+                   << *it << "'.";
+      return;
+    }
+  }
+
   extension_modules_.push_back(
       ExtensionModuleEntry(extension_name, module.release(), entry_points));
 }
@@ -308,11 +320,18 @@ v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
   return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
 }
 
-bool XWalkModuleSystem::ContainsExtensionModule(const std::string& name) {
+bool XWalkModuleSystem::ContainsEntryPoint(
+    const std::string& entry) {
   ExtensionModules::iterator it = extension_modules_.begin();
   for (; it != extension_modules_.end(); ++it) {
-    if (it->name == name)
+    if (it->name == entry)
       return true;
+
+    std::vector<std::string>::iterator entry_it = std::find(
+        it->entry_points.begin(), it->entry_points.end(), entry);
+    if (entry_it != it->entry_points.end()) {
+      return true;
+    }
   }
   return false;
 }
