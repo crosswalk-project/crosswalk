@@ -78,5 +78,23 @@
         },
       ],  # targets
     }],
+    [ 'OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'dbus_daemon',
+          'type': 'none',
+          'variables': {
+            'packages': [
+              'dbus-1',
+            ],
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <@(packages))',
+            ],
+          },
+        },
+      ],
+    }],
   ],  # conditions
 }

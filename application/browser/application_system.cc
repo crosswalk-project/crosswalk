@@ -17,6 +17,7 @@ ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context) {
   runtime_context_ = runtime_context;
   process_manager_.reset(new ApplicationProcessManager(runtime_context));
   application_service_.reset(new ApplicationService(runtime_context));
+  application_daemon_.reset(new ApplicationDaemon(runtime_context));
 }
 
 ApplicationSystem::~ApplicationSystem() {
