@@ -258,12 +258,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 #else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(new extensions::XWalkExtensionService(this));
 
   runtime_registry_->AddObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
-
-  RegisterExternalExtensions();
 
   xwalk::application::ApplicationSystem* system =
       runtime_context_->GetApplicationSystem();
@@ -271,6 +268,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       system->application_service();
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (!command_line->HasSwitch(switches::kInstall) &&
+      !command_line->HasSwitch(switches::kUninstall)) {
+    extension_service_.reset(new extensions::XWalkExtensionService(this));
+
+    RegisterExternalExtensions();
+  }
+
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
