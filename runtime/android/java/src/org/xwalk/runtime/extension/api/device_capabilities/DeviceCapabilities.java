@@ -80,8 +80,10 @@ public class DeviceCapabilities extends XWalkExtension {
 
     protected JSONObject setErrorMessage(String error) {
         JSONObject out = new JSONObject();
+        JSONObject errorMessage = new JSONObject();
         try {
-            out.put("error", error);
+            errorMessage.put("message", error);
+            out.put("error", errorMessage);
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
         }
