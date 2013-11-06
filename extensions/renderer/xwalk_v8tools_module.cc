@@ -5,8 +5,16 @@
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 
 #include "base/logging.h"
+#include "content/public/renderer/render_view.h"
+#include "ipc/ipc_message.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
+#include "third_party/WebKit/public/web/WebView.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
+
+using content::RenderView;
+using WebKit::WebFrame;
+using WebKit::WebView;
 
 namespace xwalk {
 namespace extensions {
@@ -61,6 +69,49 @@ void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
   info.GetReturnValue().Set(tracker);
 }
 
+RenderView* GetCurrentRenderView() {
+  WebFrame* frame = WebFrame::frameForCurrentContext();
+  DCHECK(frame) << "There should be an active frame here";
+
+  if (!frame)
+    return NULL;
+
+  WebView* view = frame->view();
+  if (!view)
+    return NULL;
+
+  return RenderView::FromWebView(view);
+}
+
+// Get the 'window' object according to the given view id, and meanwhile
+// set its opener to the current render view.
+void GetWindowObject(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  if (args.Length() != 1)
+    return;
+
+  if (!args[0]->IsInt32())
+    return;
+
+  int new_view_id = args[0]->Int32Value();
+  if (new_view_id == MSG_ROUTING_NONE)
+    return;
+
+  RenderView* cur_view = GetCurrentRenderView();
+  if (!cur_view)
+    return;
+
+  RenderView* new_view = RenderView::FromRoutingID(new_view_id);
+  if (!new_view)
+    return;
+
+  WebFrame* opener = cur_view->GetWebView()->mainFrame();
+  WebFrame* frame = new_view->GetWebView()->mainFrame();
+  frame->setOpener(opener);
+
+  v8::Local<v8::Value> window = frame->mainWorldScriptContext()->Global();
+  args.GetReturnValue().Set(window);
+}
+
 }  // namespace
 
 XWalkV8ToolsModule::XWalkV8ToolsModule() {
@@ -71,6 +122,9 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
                         v8::FunctionTemplate::New(ForceSetPropertyCallback));
   object_template->Set("lifecycleTracker",
                        v8::FunctionTemplate::New(LifecycleTracker));
+
+  object_template->Set("getWindowObject",
+                       v8::FunctionTemplate::New(GetWindowObject));
 
   object_template_.Reset(isolate, object_template);
 }

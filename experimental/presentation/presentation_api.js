@@ -4,9 +4,44 @@
  * found in the LICENSE file.
  */
 
+var v8toolsNative = requireNative("v8tools");
+
 var DISPLAY_AVAILABLE_CHANGE_EVENT = "displayavailablechange";
 var _listeners = {};
 var _displayAvailable = false;
+var _nextRequestId = 0;
+var _showRequests = {};
+
+function DOMError(msg) {
+  this.name = msg;
+}
+
+function ShowRequest(id, successCallback, errorCallback) {
+	this._requestId = id;
+	this._successCallback = successCallback;
+	this._errorCallback = errorCallback;
+}
+
+/* TODO(hmin): Add Promise support instead of callback approach. */
+function requestShowPresentation(url, successCallback, errorCallback) {
+  if (typeof url !== "string" || typeof successCallback !== "function") {
+    console.error("Invalid parameter for presentation.requestShow!");
+    return;
+  }
+
+  // errorCallback is optional.
+  if (errorCallback && typeof errorCallback != "function") {
+    console.error("Invalid parameter for presentation.requestShow!");
+    return;
+  }
+
+	var requestId = ++_nextRequestId;
+	var request = new ShowRequest(requestId, successCallback, errorCallback);
+	_showRequests[requestId] = request;
+
+  var message = { "cmd": "RequestShow", "requestId": requestId, "url": url };
+  extension.postMessage(JSON.stringify(message));
+}
 
 function addEventListener(name, callback, useCapture /* ignored */) {
   if (typeof name !== "string" || typeof callback !== "function") {
@@ -46,6 +81,25 @@ function handleDisplayAvailableChange(isAvailable) {
   }
 }
 
+function handleShowSucceeded(requestId, viewId) {
+	var request = _showRequests[requestId];
+	if (request) {
+    var view = v8toolsNative.getWindowObject(viewId);
+    request._successCallback.apply(null, [view]);
+    delete _showRequests[requestId];
+	}
+}
+
+function handleShowFailed(requestId, errorMessage) {
+  var request = _showRequests[requestId];
+  if (request) {
+    var error = new DOMError(errorMessage);
+    if (request._errorCallback)
+      request._errorCallback.apply(null, [error]);
+    delete _showRequests[requestId];
+  }
+}
+
 extension.setMessageListener(function(json) {
   var msg = JSON.parse(json);
   if (msg.cmd == "DisplayAvailableChange") {
@@ -54,11 +108,20 @@ extension.setMessageListener(function(json) {
     setTimeout(function() {
       handleDisplayAvailableChange(msg.data);
     }, 0);
+  } else if (msg.cmd == "ShowSucceeded") {
+    setTimeout(function() {
+      handleShowSucceeded(msg.requestId, parseInt(msg.data) /* view id */);
+    }, 0);
+  } else if (msg.cmd == "ShowFailed") {
+    setTimeout(function() {
+      handleShowFailed(msg.requestId, msg.data /* error message */);
+    }, 0);
   } else {
     console.error("Invalid message : " + msg.cmd);
   }
 })
 
+exports.requestShow = requestShowPresentation;
 exports.addEventListener = addEventListener;
 exports.removeEventListener = removeEventListener;
 exports.__defineSetter__("on" + DISPLAY_AVAILABLE_CHANGE_EVENT,
@@ -72,12 +135,7 @@ exports.__defineSetter__("on" + DISPLAY_AVAILABLE_CHANGE_EVENT,
 );
 
 exports.__defineGetter__("displayAvailable", function() {
-  /* If there is at least one event listener installed, we can safely use the
-     _displayAvailable flag. Otherwise, we need to send a message to query it */
-  if (!_listeners[DISPLAY_AVAILABLE_CHANGE_EVENT] ||
-      _listeners[DISPLAY_AVAILABLE_CHANGE_EVENT].length == 0) {
-    var res = extension.internal.sendSyncMessage("QueryDisplayAvailability");
-    _displayAvailable = (res == "true" ? true : false);
-  }
+  var res = extension.internal.sendSyncMessage("QueryDisplayAvailability");
+  _displayAvailable = (res == "true" ? true : false);
   return _displayAvailable;
 });
