@@ -77,4 +77,19 @@ void RuntimeResourceDispatcherHostDelegate::DownloadStarting(
 #endif
 }
 
+bool RuntimeResourceDispatcherHostDelegate::HandleExternalProtocol(
+    const GURL& url,
+    int child_id,
+    int route_id) {
+#if defined(OS_ANDROID)
+  // On Android, there are many Uris need to be handled differently.
+  // e.g: sms:, tel:, mailto: and etc.
+  // So here return false to let embedders to decide which protocol
+  // to be handled.
+  return false;
+#else
+  return true;
+#endif
+}
+
 }  // namespace xwalk

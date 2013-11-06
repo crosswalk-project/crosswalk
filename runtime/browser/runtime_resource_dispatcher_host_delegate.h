@@ -35,6 +35,10 @@ class RuntimeResourceDispatcherHostDelegate
       bool is_content_initiated,
       bool must_download,
       ScopedVector<content::ResourceThrottle>* throttles) OVERRIDE;
+  virtual bool HandleExternalProtocol(
+      const GURL& url,
+      int child_id,
+      int route_id) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceDispatcherHostDelegate);
