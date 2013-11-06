@@ -25,6 +25,7 @@
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
+#include "xwalk/application/common/manifest_handler.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -199,6 +200,10 @@ bool Application::Init(string16* error) {
     return false;
 
   application_url_ = Application::GetBaseURLFromApplicationId(ID());
+
+  if (!ManifestHandlerRegistry::GetInstance()->ParseAppManifest(this, error))
+    return false;
+
   finished_parsing_manifest_ = true;
 #if defined(OS_TIZEN_MOBILE)
   appcore_context_ = tizen::AppcoreContext::Create();

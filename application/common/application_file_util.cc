@@ -22,6 +22,7 @@
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/install_warning.h"
+#include "xwalk/application/common/manifest_handler.h"
 #include "net/base/escape.h"
 #include "net/base/file_stream.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -55,6 +56,15 @@ scoped_refptr<Application> LoadApplication(
                                                              error);
   if (!application.get())
     return NULL;
+
+  std::vector<InstallWarning> warnings;
+  if (!ManifestHandlerRegistry::GetInstance()->ValidateAppManifest(
+          application, error, &warnings))
+    return NULL;
+  if (!warnings.empty()) {
+    LOG(WARNING) << "There are some warnings when validating the application "
+                 << application->ID();
+  }
 
   return application;
 }
