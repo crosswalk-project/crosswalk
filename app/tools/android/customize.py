@@ -225,7 +225,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
     shutil.copyfile(src_file, dest_file)
 
 
-def CustomizeExtensions(options):
+def CustomizeExtensions(options, sanitized_name):
   """Copy the files from external extensions and merge them into APK.
 
   The directory of one external extension should be like:
@@ -262,6 +262,8 @@ def CustomizeExtensions(options):
     if not os.path.exists(source_path):
       print 'Error: can\'t find the extension directory \'%s\'.' % source_path
       sys.exit(9)
+    # Remove redundant separators to avoid empty basename.
+    source_path = os.path.normpath(source_path)
     extension_name = os.path.basename(source_path)
 
     # Copy .jar file into xwalk-extensions.
@@ -291,7 +293,28 @@ def CustomizeExtensions(options):
       js_path_prefix = extensions_string + '/' + extension_name + '/'
       json_output['jsapi'] = js_path_prefix + json_output['jsapi']
       extension_json_list.append(json_output)
-      # TODO: Merge the permissions of extensions into AndroidManifest.xml.
+      # Merge the permissions of extensions into AndroidManifest.xml.
+      manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
+      xmldoc = minidom.parse(manifest_path)
+      if ('permissions' in json_output):
+        # Get used permission list to avoid repetition as "--permissions"
+        # option can also be used to declare used permissions.
+        existingList = []
+        usedPermissions = xmldoc.getElementsByTagName("uses-permission")
+        for used in usedPermissions:
+          existingList.append(used.getAttribute("android:name"))
+
+        # Add the permissions to manifest file if not used yet.
+        for p in json_output['permissions']:
+          if p in existingList:
+            continue
+          AddElementAttribute(xmldoc, 'uses-permission', 'android:name', p)
+          existingList.append(p)
+
+        # Write to the manifest file to save the update.
+        file_handle = open(manifest_path, 'wb')
+        xmldoc.writexml(file_handle)
+        file_handle.close()
 
   # Write configuration of extensions into the target extensions-config.json.
   if extension_json_list:
@@ -347,7 +370,7 @@ def main():
     Prepare(options, sanitized_name)
     CustomizeXML(options, sanitized_name)
     CustomizeJava(options, sanitized_name)
-    CustomizeExtensions(options)
+    CustomizeExtensions(options, sanitized_name)
   except SystemExit, ec:
     print 'Exiting with error code: %d' % ec.code
     return ec.code
