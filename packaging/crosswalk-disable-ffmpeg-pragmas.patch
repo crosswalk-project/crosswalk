@@ -9,7 +9,7 @@ diff --git src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
 index b5fc20a..1d46271 100644
 --- src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
 +++ src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.asm
-@@ -223,7 +223,7 @@
+@@ -225,7 +225,7 @@
  %define HAVE_POD2MAN 1
  %define HAVE_POLL_H 1
  %define HAVE_POSIX_MEMALIGN 1
@@ -22,7 +22,7 @@ diff --git src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h s
 index b8ee823..1e35b3b 100644
 --- src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h
 +++ src/third_party/ffmpeg/chromium/config/Chromium/linux/ia32/config.h
-@@ -236,7 +236,7 @@
+@@ -238,7 +238,7 @@
  #define HAVE_POD2MAN 1
  #define HAVE_POLL_H 1
  #define HAVE_POSIX_MEMALIGN 1

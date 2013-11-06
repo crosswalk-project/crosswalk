@@ -8,6 +8,7 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
+#include "content/browser/renderer_host/java/jni_helper.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
@@ -25,9 +26,8 @@ using base::android::ConvertJavaStringToUTF16;
 using base::android::ConvertUTF16ToJavaString;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::GetClass;
-using base::android::GetFieldID;
-using base::android::GetMethodIDFromClassName;
 using base::android::ScopedJavaLocalRef;
+using content::GetFieldID;
 
 namespace xwalk {
 

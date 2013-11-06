@@ -1,0 +1,27 @@
+From a6a6f17f53802010e326fe91d9125061f9677d0a Mon Sep 17 00:00:00 2001
+From: Halton Huo <halton.huo@intel.com>
+Date: Tue, 19 Nov 2013 02:01:02 +0800
+Subject: [PATCH 4/6] Chromium: Fix gcc 4.5.3 uninitialized warnings
+
+Upstream does not have that issue.
+Author: Halton Huo <halton.huo@intel.com>
+---
+ src/content/renderer/pepper/resource_converter.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/content/renderer/pepper/resource_converter.cc b/src/content/renderer/pepper/resource_converter.cc
+index e9a0c77..b6698a5 100644
+--- a/src/content/renderer/pepper/resource_converter.cc
++++ b/src/content/renderer/pepper/resource_converter.cc
+@@ -115,7 +115,7 @@ bool ResourceConverterImpl::FromV8Value(v8::Handle<v8::Object> val,
+   WebKit::WebDOMFileSystem dom_file_system =
+       WebKit::WebDOMFileSystem::fromV8Value(val);
+   if (!dom_file_system.isNull()) {
+-    int pending_renderer_id;
++    int pending_renderer_id = 0;
+     scoped_ptr<IPC::Message> create_message;
+     scoped_ptr<IPC::Message> browser_host_create_message;
+     if (!DOMFileSystemToResource(instance_, host_, dom_file_system,
+-- 
+1.8.1.2
+

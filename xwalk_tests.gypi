@@ -10,7 +10,7 @@
       '../base/base.gyp:test_support_base',
       '../base/base.gyp:base_prefs_test_support',
       '../content/content.gyp:content',
-      '../content/content.gyp:test_support_content',
+      '../content/content_shell_and_tests.gyp:test_support_content',
       '../net/net.gyp:net',
       '../net/net.gyp:net_test_support',
       '../skia/skia.gyp:skia',

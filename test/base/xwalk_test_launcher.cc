@@ -12,13 +12,14 @@
 #include "base/process/launch.h"
 #include "base/run_loop.h"
 #include "base/strings/string_util.h"
+#include "base/sys_info.h"
 #include "base/test/test_file_util.h"
-#include "xwalk/runtime/app/xwalk_main_delegate.h"
-#include "xwalk/test/base/xwalk_test_suite.h"
 #include "content/public/app/content_main.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/test/test_launcher.h"
+#include "xwalk/runtime/app/xwalk_main_delegate.h"
+#include "xwalk/test/base/xwalk_test_suite.h"
 
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"
@@ -98,6 +99,7 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
 };
 
 int main(int argc, char** argv) {
+  int default_jobs = std::max(1, base::SysInfo::NumberOfProcessors() / 2);
   XWalkTestLauncherDelegate launcher_delegate;
-  return content::LaunchTests(&launcher_delegate, argc, argv);
+  return content::LaunchTests(&launcher_delegate, default_jobs, argc, argv);
 }

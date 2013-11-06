@@ -70,9 +70,7 @@ void NavigateToURL(xwalk::Runtime* runtime, const GURL& url) {
   runtime->LoadURL(url);
 
   base::RunLoop run_loop;
-  navigation_observer.WaitForObservation(
-      base::Bind(&content::RunThisRunLoop, base::Unretained(&run_loop)),
-      content::GetQuitTaskForRunLoop(&run_loop));
+  navigation_observer.Wait();
 }
 
 }  // namespace xwalk_test_utils

@@ -11,7 +11,7 @@ Upstream patch: https://codereview.chromium.org/19531008
 Depends on:     https://code.google.com/p/chromium/issues/detail?id=247213
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
-@@ -28,7 +28,7 @@
+@@ -29,7 +29,7 @@
          'use_system_ssl%': 1,
        },
      }],

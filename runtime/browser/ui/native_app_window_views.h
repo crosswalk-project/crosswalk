@@ -24,8 +24,8 @@ class WebView;
 namespace xwalk {
 
 class NativeAppWindowViews : public NativeAppWindow,
-                           public views::WidgetObserver,
-                           public views::WidgetDelegateView {
+                             public views::WidgetObserver,
+                             public views::WidgetDelegateView {
  public:
   explicit NativeAppWindowViews(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowViews();
@@ -65,7 +65,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual bool ShouldShowWindowTitle() const OVERRIDE;
   virtual void SaveWindowPlacement(
       const gfx::Rect& bounds, ui::WindowShowState show_state);
-  virtual bool GetSavedWindowPlacement(
+  virtual bool GetSavedWindowPlacement(const views::Widget* widget,
       gfx::Rect* bounds, ui::WindowShowState* show_state) const OVERRIDE;
   virtual bool CanResize() const OVERRIDE;
   virtual bool CanMaximize() const OVERRIDE;

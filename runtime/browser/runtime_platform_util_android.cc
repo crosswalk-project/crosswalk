@@ -4,7 +4,7 @@
 
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 
-#include "ui/android/view_android.h"
+#include "ui/base/android/view_android.h"
 
 namespace platform_util {
 

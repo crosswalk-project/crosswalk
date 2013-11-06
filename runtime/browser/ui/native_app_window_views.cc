@@ -187,7 +187,6 @@ void NativeAppWindowViews::DeleteDelegate() {
   delegate_->OnWindowDestroyed();
   delete this;
 }
-
 gfx::ImageSkia NativeAppWindowViews::GetWindowAppIcon() {
   return GetWindowIcon();
 }
@@ -201,12 +200,12 @@ bool NativeAppWindowViews::ShouldShowWindowTitle() const {
 }
 
 void NativeAppWindowViews::SaveWindowPlacement(const gfx::Rect& bounds,
-                                          ui::WindowShowState show_state) {
+                                               ui::WindowShowState show_state) {
   // TODO(hmin): views::WidgetDelegate::SaveWindowPlacement(bounds, show_state);
 }
 
-bool NativeAppWindowViews::GetSavedWindowPlacement(gfx::Rect* bounds,
-    ui::WindowShowState* show_state) const {
+bool NativeAppWindowViews::GetSavedWindowPlacement(const views::Widget* widget,
+    gfx::Rect* bounds, ui::WindowShowState* show_state) const {
   // TODO(hmin): Get the saved window placement.
   return false;
 }
