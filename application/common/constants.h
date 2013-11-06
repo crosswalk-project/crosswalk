@@ -22,6 +22,18 @@ extern const base::FilePath::CharType kMessagesFilename[];
 // The filename to use for main document generated from app.main.scripts.
 extern const char kGeneratedMainDocumentFilename[];
 
+// Launcher switches.
+extern const char kSwitchLaunch[];
+extern const char kSwitchInstall[];
+extern const char kSwitchUninstall[];
+extern const char kSwitchListApps[];
+extern const char kSwitchVerbose[];
+
+// D-Bus constants
+extern const char kDbusServiceName[];
+extern const char kDbusObjectPath[];
+extern const char kDbusAppInterfaceName[];
+
 }  // namespace application
 }  // namespace xwalk
 

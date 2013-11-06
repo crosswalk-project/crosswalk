@@ -10,6 +10,10 @@
 namespace xwalk {
 namespace application {
 
+// ApplicationDaemon is used to handle IPC messages for application-related
+// requests like install/uninstall/launch etc.
+// It works together with the application management system and act as an
+// interface for outside requests.
 class ApplicationDaemon {
   public:
     explicit ApplicationDaemon(xwalk::RuntimeContext* runtime_context);
@@ -17,9 +21,10 @@ class ApplicationDaemon {
 
     // Go into daemon mode, return false if any error occured, for example if
     // another daemon is already running in the background.
-    bool Daemonize();
+    bool Start();
 
   private:
+    xwalk::RuntimeContext* runtime_context_;
     DISALLOW_COPY_AND_ASSIGN(ApplicationDaemon);
 };
 

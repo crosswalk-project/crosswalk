@@ -74,13 +74,14 @@
         }],
         [ 'OS=="linux"', {
           'dependencies': [
-            'build/system.gyp:dbus_daemon',
-          ],
-          'sources': [
-            'browser/application_daemon_linux.cc',
+            'build/system.gyp:dbus',
+            'xwalk_launcher',
           ],
           'sources!': [
             'browser/application_daemon.cc',
+          ],
+          'sources': [
+            'browser/application_daemon_linux.cc',
           ],
         }],
       ],
@@ -88,7 +89,6 @@
         '../..',
       ],
     },
-
     {
       'target_name': 'xwalk_application_resources',
       'type': 'none',
@@ -108,7 +108,6 @@
         },
       ],
     },
-
     {
       'target_name': 'generate_xwalk_application_resources',
       'type': 'none',
@@ -124,6 +123,23 @@
           },
           'includes': [ '../../build/grit_action.gypi' ],
         },
+      ],
+    },
+    {
+      'target_name': 'xwalk_launcher',
+      'type': 'executable',
+      'conditions': [
+        [ 'OS=="linux"', {
+          'dependencies': [
+            '../base/base.gyp:base',
+            'build/system.gyp:dbus',
+          ],
+          'sources': [
+            'common/constants.cc',
+            'common/constants.h',
+            'launcher/xwalk_launcher.cc',
+          ],
+        }],
       ],
     },
   ],

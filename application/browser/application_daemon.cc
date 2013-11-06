@@ -17,7 +17,7 @@ ApplicationDaemon::ApplicationDaemon(xwalk::RuntimeContext* runtime_context) {
 ApplicationDaemon::~ApplicationDaemon() {
 }
 
-bool ApplicationDaemon::Daemonize() {
+bool ApplicationDaemon::Start() {
   LOG(ERROR) << "Daemon mode is currently not supported.";
   return false;
 }

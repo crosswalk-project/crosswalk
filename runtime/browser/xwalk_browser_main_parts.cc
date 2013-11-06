@@ -290,12 +290,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
     return;
   }
-  if (command_line->HasSwitch(switches::kDaemon)) {
-    run_default_message_loop_ = system->application_daemon()->Daemonize();
-    return;
-  }
 
   NativeAppWindow::Initialize();
+
+  if (command_line->HasSwitch(switches::kDaemon)) {
+    run_default_message_loop_ = system->application_daemon()->Start();
+    return;
+  }
 
   std::string command_name =
       command_line->GetProgram().BaseName().MaybeAsASCII();

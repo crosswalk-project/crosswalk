@@ -19,6 +19,7 @@ const char kDaemon[] = "daemon";
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";
 
+// TODO(Bai): These switches should be removed after daemon mode is done.
 // Specifies list all installed applications.
 const char kListApplications[] = "list-apps";
 

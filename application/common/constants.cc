@@ -16,5 +16,25 @@ const base::FilePath::CharType kMessagesFilename[] =
 const char kGeneratedMainDocumentFilename[] =
     "_generated_main_document.html";
 
+// Launcher switches.
+const char kSwitchLaunch[] =
+    "launch";
+const char kSwitchInstall[] =
+    "install";
+const char kSwitchUninstall[] =
+    "uninstall";
+const char kSwitchListApps[] =
+    "list-apps";
+const char kSwitchVerbose[] =
+    "verbose";
+
+// D-Bus constants used by both daemon and launcher.
+const char kDbusServiceName[] =
+    "org.crosswalkproject.service";
+const char kDbusObjectPath[] =
+    "/org/crosswalkproject/service";
+const char kDbusAppInterfaceName[] =
+    "org.crosswalkproject.application";
+
 }  // namespace application
 }  // namespace xwalk

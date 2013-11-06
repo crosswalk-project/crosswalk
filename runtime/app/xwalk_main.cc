@@ -25,8 +25,6 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 #else
 
 int main(int argc, const char** argv) {
-  // TODO(Bai): Call daemon() here if xwalk is loaded as a service daemon.
-
 #if defined(OS_MACOSX)
   // Do the delegate work in xwalk_content_main to avoid having to export the
   // delegate types.
