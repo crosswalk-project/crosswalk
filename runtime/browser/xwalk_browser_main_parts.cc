@@ -93,6 +93,7 @@ static GURL GetURLFromCommandLine(const CommandLine& command_line) {
 namespace xswitches {
 // Redefine settings not exposed by content module.
 const char kEnableViewport[] = "enable-viewport";
+const char kEnableOverlayScrollbars[] = "enable-overlay-scrollbars";
 }
 
 namespace xwalk {
@@ -122,7 +123,7 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
-  command_line->AppendSwitch(switches::kEnableOverlayScrollbars);
+  command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
 
   // Enable multithreaded GPU compositing of web content.
   // This also enables pinch on Tizen.
