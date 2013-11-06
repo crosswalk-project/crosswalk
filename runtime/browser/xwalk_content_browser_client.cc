@@ -117,7 +117,10 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
-  main_parts_->extension_service()->OnRenderProcessHostCreated(host);
+  xwalk::extensions::XWalkExtensionService* extension_service =
+      main_parts_->extension_service();
+  if (extension_service)
+    extension_service->OnRenderProcessHostCreated(host);
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
