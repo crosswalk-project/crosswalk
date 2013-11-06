@@ -122,6 +122,8 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
+  command_line->AppendSwitch(switches::kEnableOverlayScrollbars);
+
   // Enable multithreaded GPU compositing of web content.
   // This also enables pinch on Tizen.
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
