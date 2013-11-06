@@ -258,6 +258,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
 
+  runtime_registry_->AddObserver(
+      runtime_context_->GetApplicationSystem()->process_manager());
+
   RegisterExternalExtensions();
 
   xwalk::application::ApplicationSystem* system =
@@ -395,6 +398,8 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
+  runtime_registry_->RemoveObserver(
+      runtime_context_->GetApplicationSystem()->process_manager());
 #if defined(OS_ANDROID)
   base::MessageLoopForUI::current()->Start();
 #else

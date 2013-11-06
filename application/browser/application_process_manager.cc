@@ -6,13 +6,13 @@
 
 #include <string>
 
+#include "base/stl_util.h"
+#include "net/base/net_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "net/base/net_util.h"
 
-using content::WebContents;
 using xwalk::Runtime;
 using xwalk::RuntimeContext;
 
@@ -37,6 +37,21 @@ bool ApplicationProcessManager::LaunchApplication(
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
   return RunFromLocalPath(application);
+}
+
+void ApplicationProcessManager::OnRuntimeAdded(Runtime* runtime) {
+  DCHECK(runtime);
+  runtimes_.insert(runtime);
+}
+
+void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
+  DCHECK(runtime);
+  runtimes_.erase(runtime);
+  // FIXME: main_runtime_ should always be the last one to close
+  // in RuntimeRegistry. Need to fix the issue from browser tests.
+  if (runtimes_.size() == 1 &&
+      ContainsKey(runtimes_, main_runtime_))
+    CloseMainDocument();
 }
 
 bool ApplicationProcessManager::RunMainDocument(
@@ -70,6 +85,12 @@ bool ApplicationProcessManager::RunMainDocument(
 
   main_runtime_ = Runtime::Create(runtime_context_, url);
   return true;
+}
+
+void ApplicationProcessManager::CloseMainDocument() {
+  DCHECK(main_runtime_);
+  main_runtime_->Close();
+  main_runtime_ = NULL;
 }
 
 bool ApplicationProcessManager::RunFromLocalPath(
