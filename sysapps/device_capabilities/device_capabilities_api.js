@@ -48,6 +48,13 @@ exports.getStorageInfo = function() {
   return postMessage(msg);
 };
 
+exports.getAVCodecs = function() {
+  var msg = {
+    'cmd': 'getAVCodecs'
+  };
+  return postMessage(msg);
+};
+
 function _addConstProperty(obj, propertyKey, propertyValue) {
   Object.defineProperty(obj, propertyKey, {
     configurable: false,
