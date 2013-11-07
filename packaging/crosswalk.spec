@@ -1,5 +1,5 @@
 Name:           crosswalk
-Version:        1.29.4.6
+Version:        1.29.4.7
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 # License:        (BSD-3-Clause and LGPL-2.1+)
