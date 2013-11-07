@@ -166,6 +166,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
+    // For internal extension implementation of Contacts.
+    public void testContacts() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("contacts.html");
+        mTestCase.assertEquals("Pass", title);
+    }
+
     // For internal extension implementation of DeviceCapabilities.
     public void testDeviceCapabilities() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("device_capabilities.html");

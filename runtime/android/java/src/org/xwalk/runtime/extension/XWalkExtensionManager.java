@@ -21,6 +21,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xwalk.runtime.extension.api.contacts.Contacts;
 import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
 
@@ -144,6 +145,18 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 Log.e(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
             }
         }
+
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    Contacts.JS_API_PATH);
+                new Contacts(jsApiContent, this);
+            } catch(IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + Contacts.JS_API_PATH);
+            }
+        }
+
         {
             String jsApiContent = "";
             try {
