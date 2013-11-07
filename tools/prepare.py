@@ -22,6 +22,11 @@ def PrepareFromChromium(target_dir):
 
 
 def PrepareFromXwalk(target_dir):
+  src_folder = os.path.dirname(os.path.dirname(os.path.dirname(target_dir)))
+  version_src = os.path.join(src_folder, 'xwalk', 'VERSION')
+  version_dest = os.path.join(target_dir, 'VERSION')
+  shutil.copy(version_src, version_dest)
+
   libs_dir = os.path.join(target_dir, 'libs')
   if not os.path.exists(libs_dir):
     os.makedirs(libs_dir)
@@ -55,7 +60,7 @@ def PrepareFromXwalk(target_dir):
   for ant_file in ant_file_list:
     shutil.copy(ant_file, ant_dir)
 
-  gyp_dir =  os.path.join(target_dir, 'scripts', 'gyp')
+  gyp_dir = os.path.join(target_dir, 'scripts', 'gyp')
   if not os.path.exists(gyp_dir):
     os.makedirs(gyp_dir)
   gyp_file_list = ['./app/tools/android/gyp/dex.py',
