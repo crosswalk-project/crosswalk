@@ -95,7 +95,7 @@ class XWalkExtensionServer : public IPC::Listener {
   ExtensionSymbolsSet extension_symbols_;
 };
 
-void RegisterExternalExtensionsInDirectory(
+std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir);
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name);

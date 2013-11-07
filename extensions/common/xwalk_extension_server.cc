@@ -341,14 +341,16 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 }
 }  // namespace
 
-void RegisterExternalExtensionsInDirectory(
+std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir) {
   CHECK(server);
+
+  std::vector<std::string> registered_extensions;
 
   if (!base::DirectoryExists(dir)) {
     LOG(WARNING) << "Couldn't load external extensions from non-existent"
                  << " directory " << dir.AsUTF8Unsafe();
-    return;
+    return registered_extensions;
   }
 
   base::FileEnumerator libraries(
@@ -358,9 +360,13 @@ void RegisterExternalExtensionsInDirectory(
         !extension_path.empty(); extension_path = libraries.Next()) {
     scoped_ptr<XWalkExternalExtension> extension(
         new XWalkExternalExtension(extension_path));
-    if (extension->is_valid())
+    if (extension->is_valid()) {
+      registered_extensions.push_back(extension->name());
       server->RegisterExtension(extension.PassAs<XWalkExtension>());
+    }
   }
+
+  return registered_extensions;
 }
 
 bool ValidateExtensionNameForTesting(const std::string& extension_name) {
