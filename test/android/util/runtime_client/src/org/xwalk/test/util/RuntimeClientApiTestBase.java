@@ -5,9 +5,11 @@
 
 package org.xwalk.test.util;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
 
 import java.io.IOException;
@@ -133,10 +135,20 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
-    // For internal extension implemention of DeviceCapabilities.
+    // For internal extension implementation of DeviceCapabilities.
     public void testDeviceCapabilities() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("device_capabilities.html");
         mTestCase.assertEquals("Pass", title);
+    }
+
+    // For internal extension implementation of Presentation.
+    public void testPresentationDisplayAvailable() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("displayAvailableTest.html");
+        if (isSecondaryDisplayAvailable()) {
+            mTestCase.assertEquals("Available", title);
+        } else {
+            mTestCase.assertEquals("Unavailable", title);
+        }
     }
 
     // For external extension mechanism: async mode.
@@ -193,5 +205,22 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         mTestUtil.loadUrlSync(mUrl);
         int index = getSocketNameIndex();
         mTestCase.assertTrue (index < 0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    private boolean isSecondaryDisplayAvailable() {
+        String value;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            value =  android.provider.Settings.Global.getString(
+                             mTestCase.getActivity().getContentResolver(),
+                             "overlay_display_devices");
+        } else {
+            value = null;
+        }
+
+        if (value != null && value.length() > 0) {
+            return true;
+        }
+        return false;
     }
 }

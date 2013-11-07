@@ -1,0 +1,22 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+  try {
+    if (navigator.presentation.displayAvailable) {
+      document.write("Secondary display <font color=green>Available</font>.");
+      document.title = "Available";
+    } else {
+      document.write("Secondary display <font color=green>Unavailable</font>.");
+      document.title = "Unavailable";
+    }
+  } catch(e) {
+      document.title = "Fail";
+  }
+</script>
+Presentation API: displayAvailable test
+</body>
+</html>
+
