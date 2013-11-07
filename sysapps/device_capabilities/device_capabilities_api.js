@@ -147,7 +147,7 @@ var _hasListener = function(eventName) {
   return (0 !== count);
 };
 
-exports.addEventListener = function(eventName, callback) {
+function addEventListener(eventName, callback) {
   if (typeof eventName !== 'string') {
     console.log("Invalid parameters (*, -)!");
     return -1;
@@ -161,13 +161,13 @@ exports.addEventListener = function(eventName, callback) {
   if (!_hasListener(eventName)) {
     var msg = {
       'cmd': 'addEventListener',
-      'eventName': eventName
+      'eventName': 'on' + eventName
     };
     extension.postMessage(JSON.stringify(msg));
   }
 
   var listener = {
-    'eventName': eventName,
+    'eventName': 'on' + eventName,
     'callback': callback
   };
 
@@ -177,6 +177,32 @@ exports.addEventListener = function(eventName, callback) {
 
   return listener_id;
 };
+
+exports.addEventListener = addEventListener;
+
+Object.defineProperty(exports, 'onattach', {
+  set: function(callback) {
+    addEventListener('attach', callback);
+  }
+});
+
+Object.defineProperty(exports, 'ondetach', {
+  set: function(callback) {
+    addEventListener('detach', callback);
+  }
+});
+
+Object.defineProperty(exports, 'onconnect', {
+  set: function(callback) {
+    addEventListener('connect', callback);
+  }
+});
+
+Object.defineProperty(exports, 'ondisconnect', {
+  set: function(callback) {
+    addEventListener('disconnect', callback);
+  }
+});
 
 var _sendSyncMessage = function(msg) {
   return extension.internal.sendSyncMessage(JSON.stringify(msg));
