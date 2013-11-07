@@ -192,6 +192,8 @@
             'runtime/browser/android/net_disk_cache_remover.h',
             'runtime/browser/android/renderer_host/xwalk_render_view_host_ext.cc',
             'runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h',
+            'runtime/browser/android/state_serializer.cc',
+            'runtime/browser/android/state_serializer.h',
             'runtime/browser/android/xwalk_content.cc',
             'runtime/browser/android/xwalk_content.h',
             'runtime/browser/android/xwalk_contents_client_bridge.cc',

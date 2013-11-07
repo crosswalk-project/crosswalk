@@ -8,11 +8,14 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <vector>
 
+#include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
+#include "base/pickle.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
@@ -24,6 +27,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
+#include "xwalk/runtime/browser/android/state_serializer.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
@@ -215,6 +219,34 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
 jint XWalkContent::GetRoutingID(JNIEnv* env, jobject obj) {
   DCHECK(web_contents_.get());
   return web_contents_->GetRoutingID();
+}
+
+base::android::ScopedJavaLocalRef<jbyteArray> XWalkContent::GetState(
+    JNIEnv* env,
+    jobject obj) {
+  if (!web_contents_->GetController().GetEntryCount())
+    return ScopedJavaLocalRef<jbyteArray>();
+
+  Pickle pickle;
+  if (!WriteToPickle(*web_contents_, &pickle)) {
+    return ScopedJavaLocalRef<jbyteArray>();
+  } else {
+    return base::android::ToJavaByteArray(
+        env,
+        reinterpret_cast<const uint8*>(pickle.data()),
+        pickle.size());
+  }
+}
+
+jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
+  std::vector<uint8> state_vector;
+  base::android::JavaByteArrayToByteVector(env, state, &state_vector);
+
+  Pickle pickle(reinterpret_cast<const char*>(state_vector.begin()),
+                state_vector.size());
+  PickleIterator iterator(pickle);
+
+  return RestoreFromPickle(&iterator, web_contents_.get());
 }
 
 static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
