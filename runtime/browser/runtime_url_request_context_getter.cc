@@ -6,7 +6,6 @@
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 
 #include <algorithm>
-#include <vector>
 
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
@@ -14,7 +13,6 @@
 #include "base/strings/string_util.h"
 #include "base/threading/sequenced_worker_pool.h"
 #include "base/threading/worker_pool.h"
-#include "xwalk/runtime/browser/runtime_network_delegate.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
@@ -37,9 +35,11 @@
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "xwalk/runtime/browser/runtime_network_delegate.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
+#include "xwalk/runtime/browser/android/net/url_constants.h"
 #endif
 
 using content::BrowserThread;
@@ -175,6 +175,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
                 base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
 #if defined(OS_ANDROID)
+    set_protocol = job_factory->SetProtocolHandler(
+        xwalk::kContentScheme,
+        CreateContentSchemeProtocolHandler().release());
+    DCHECK(set_protocol);
     net::ProtocolInterceptJobFactory* intercept_job_factory =
         new net::ProtocolInterceptJobFactory(
             job_factory.PassAs<net::URLRequestJobFactory>(),
