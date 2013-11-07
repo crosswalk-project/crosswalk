@@ -161,13 +161,13 @@ exports.addEventListener = function(eventName, callback) {
   if (!_hasListener(eventName)) {
     var msg = {
       'cmd': 'addEventListener',
-      'eventName': eventName
+      'eventName': 'on' + eventName
     };
     extension.postMessage(JSON.stringify(msg));
   }
 
   var listener = {
-    'eventName': eventName,
+    'eventName': 'on' + eventName,
     'callback': callback
   };
 

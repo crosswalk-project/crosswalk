@@ -92,28 +92,28 @@
               onSuccess();
             }, Error);
 
-        navigator.system.addEventListener('onattach', function(storage) {
+        navigator.system.addEventListener('attach', function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
             output.value += 'Storage attached with below properties:\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        navigator.system.addEventListener('ondetach', function(storage) {
+        navigator.system.addEventListener('detach', function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
             output.value += 'Storage detached with below properties:\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        navigator.system.addEventListener('onconnect', function(display) {
+        navigator.system.addEventListener('connect', function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
             output.value += 'Display connected with below properties:\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        navigator.system.addEventListener('ondisconnect', function(display) {
+        navigator.system.addEventListener('disconnect', function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
             output.value += 'Display disconnected with below properties:\n' + msg + '--------\n';
