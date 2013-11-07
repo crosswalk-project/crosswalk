@@ -93,33 +93,72 @@
               onSuccess();
             }, Error);
 
-        system.addEventListener('onattach', function(storage) {
+        system.onattach = function(storage) {
+            var output = document.getElementById('event');
+            output.value += 'Error! Should not appear.\n';
+            output.scrollTop = output.scrollHeight;
+          };
+
+        system.onattach = function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
-            output.value += 'Storage attached with below properties:\n' + msg + '--------\n';
+            output.value += 'From storage attach listener(onattch):\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          };
+
+        system.addEventListener('attach', function(storage) {
+            var output = document.getElementById('event');
+            output.value += 'attach Listener1 test success!\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.addEventListener('ondetach', function(storage) {
+        system.addEventListener('attach', function(storage) {
+            var output = document.getElementById('event');
+            output.value += 'attach Listener2 test success!\n';
+            output.scrollTop = output.scrollHeight;
+          });
+
+        system.addEventListener('detach', function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
-            output.value += 'Storage detached with below properties:\n' + msg + '--------\n';
+            output.value += 'From storage detach listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.addEventListener('onconnect', function(display) {
+        system.ondetach = function(storage) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(storage);
+            output.value += 'From storage detach listener(ondetach):\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          };
+
+        system.addEventListener('connect', function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
-            output.value += 'Display connected with below properties:\n' + msg + '--------\n';
+            output.value += 'From display connect listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.addEventListener('ondisconnect', function(display) {
+        system.onconnect = function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
-            output.value += 'Display disconnected with below properties:\n' + msg + '--------\n';
+            output.value += 'From display connect listener(onconnect):\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          };
+
+        system.addEventListener('disconnect', function(display) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(display);
+            output.value += 'From display disconnect listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
+
+        system.ondisconnect = function(display) {
+            var output = document.getElementById('event');
+            var msg = enumerateAllProps(display);
+            output.value += 'From display disconnect listener(ondisconnect):\n' + msg + '--------\n';
+            output.scrollTop = output.scrollHeight;
+          };
 
       } catch(e) {
         console.log(e);
