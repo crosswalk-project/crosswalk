@@ -29,7 +29,9 @@ namespace extensions {
 namespace {
 
 XWalkExtensionService::RegisterExtensionsCallback
-g_register_extensions_callback;
+g_register_extension_thread_extensions_callback;
+XWalkExtensionService::RegisterExtensionsCallback
+g_register_ui_thread_extensions_callback;
 
 base::FilePath g_external_extensions_path_for_testing_;
 
@@ -240,9 +242,17 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 }
 
 // static
-void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
+void
+XWalkExtensionService::SetRegisterExtensionThreadExtensionsCallbackForTesting(
     const RegisterExtensionsCallback& callback) {
-  g_register_extensions_callback = callback;
+  g_register_extension_thread_extensions_callback = callback;
+}
+
+// static
+void
+XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
+    const RegisterExtensionsCallback& callback) {
+  g_register_ui_thread_extensions_callback = callback;
 }
 
 // static
@@ -328,8 +338,12 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
   delegate_->RegisterInternalExtensionsInUIThreadServer(
       ui_thread_server.get());
 
-  if (!g_register_extensions_callback.is_null())
-    g_register_extensions_callback.Run(extension_thread_server.get());
+  if (!g_register_extension_thread_extensions_callback.is_null()) {
+    g_register_extension_thread_extensions_callback.Run(
+        extension_thread_server.get());
+  }
+  if (!g_register_ui_thread_extensions_callback.is_null())
+    g_register_ui_thread_extensions_callback.Run(ui_thread_server.get());
 
   ExtensionServerMessageFilter* message_filter =
       new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),

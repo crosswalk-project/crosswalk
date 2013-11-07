@@ -22,7 +22,7 @@ ApplicationApiTest::~ApplicationApiTest() {
 }
 
 void ApplicationApiTest::SetUp() {
-  XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
+  XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
       base::Bind(&ApplicationApiTest::RegisterExtensions,
                  base::Unretained(this)));
   ApplicationBrowserTest::SetUp();

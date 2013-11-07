@@ -58,7 +58,10 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   typedef base::Callback<void(XWalkExtensionServer* server)>
       RegisterExtensionsCallback;
-  static void SetRegisterExtensionsCallbackForTesting(
+
+  static void SetRegisterExtensionThreadExtensionsCallbackForTesting(
+      const RegisterExtensionsCallback& callback);
+  static void SetRegisterUIThreadExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
 
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);

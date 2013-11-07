@@ -132,7 +132,7 @@ void SysAppsTestObject::OnFireTestEvent(
 class SysAppsCommonTest : public InProcessBrowserTest {
  public:
   void SetUp() {
-    XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
+    XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
         base::Bind(&SysAppsCommonTest::RegisterExtensions,
                    base::Unretained(this)));
     InProcessBrowserTest::SetUp();
