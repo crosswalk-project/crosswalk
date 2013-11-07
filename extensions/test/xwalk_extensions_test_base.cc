@@ -21,6 +21,9 @@ void XWalkExtensionsTestBase::SetUp() {
   XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
       base::Bind(&XWalkExtensionsTestBase::RegisterExtensions,
                  base::Unretained(this)));
+  XWalkExtensionService::SetRegisterExtensionThreadExtensionsCallbackForTesting(
+      base::Bind(&XWalkExtensionsTestBase::RegisterExtensionsOnExtensionThread,
+                 base::Unretained(this)));
   InProcessBrowserTest::SetUp();
 }
 

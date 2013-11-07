@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var error = 0;
+      var current_test = 0;
+
+      function runNextTest() {
+        test_list[current_test++]();
+      };
+
+      function endTest() {
+        document.title = error ? "Fail" : "Pass";
+      };
+
+      window.onerror = function() {
+        error++;
+        endTest();
+      };
+
+      function extensionThread() {
+        var api = in_process_extension_thread;
+        api.isExtensionRunningOnUIThread(function(reply) {
+          if (reply[0] == true)
+            error++;
+
+          runNextTest();
+        });
+      };
+
+      function extensionThreadSync() {
+        var api = in_process_extension_thread;
+        var reply = api.syncIsExtensionRunningOnUIThread();
+
+        if (reply == true)
+          error++;
+
+        runNextTest();
+      };
+
+      function UIThread() {
+        var api = in_process_ui_thread;
+        api.isExtensionRunningOnUIThread(function(reply) {
+          if (reply[0] == false)
+            error++;
+
+          runNextTest();
+        });
+      };
+
+      function UIThreadSync() {
+        var api = in_process_ui_thread;
+        var reply = api.syncIsExtensionRunningOnUIThread();
+
+        if (reply == false)
+          error++;
+
+        runNextTest();
+      };
+
+      var test_list = [
+        extensionThread,
+        extensionThreadSync,
+        UIThread,
+        UIThreadSync,
+        endTest
+      ];
+
+      runNextTest();
+    </script>
+  </body>
+</html>
