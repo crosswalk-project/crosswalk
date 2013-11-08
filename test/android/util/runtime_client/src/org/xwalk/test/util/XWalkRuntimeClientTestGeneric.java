@@ -29,6 +29,7 @@ public class XWalkRuntimeClientTestGeneric<T extends Activity>
                     mRuntimeView = new XWalkRuntimeClient(activity, null, null);
                 }
                 mRuntimeView.onCreate();
+                mRuntimeView.onResume();
                 mTestUtil = new XWalkRuntimeClientTestUtilBase(mRuntimeView,
                         getInstrumentation());
                 PageStatusCallback callback = mTestUtil.new PageStatusCallback();
