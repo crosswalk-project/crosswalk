@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
 #include "base/files/file_path.h"
+#include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
@@ -55,10 +56,13 @@ class XWalkExtensionProcessHost
   scoped_ptr<IPC::Message> pending_reply_for_render_process_;
 
   // We use this filter to know when RP asked for the extension process channel.
-  // Formally ownership is with the render process channel, we keep the pointer
-  // to remove the filter once we reply the message, since this exchange needs
-  // to happen only once.
-  IPC::ChannelProxy::MessageFilter* render_process_message_filter_;
+  // We keep the reference to invalidate the filter once we don't need it
+  // anymore.
+  //
+  // TODO(cmarcelo): Avoid having an extra filter, see if we can embed this
+  // handling in the existing filter we have in ExtensionData struct.
+  scoped_refptr<RenderProcessMessageFilter> render_process_message_filter_;
+
   base::FilePath external_extensions_path_;
 
   bool is_extension_process_channel_ready_;
