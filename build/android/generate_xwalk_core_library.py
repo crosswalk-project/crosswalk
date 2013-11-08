@@ -157,6 +157,26 @@ def CopyGeneratedSources(out_directory):
                              'app', 'NativeLibraries.java')
   shutil.copyfile(source_file, target_file)
 
+def CopyJSBindingFiles(project_source, out_directory):
+  print 'Copying js binding files...'
+  jsapi_directory = os.path.join(out_directory,
+                                 LIBRARY_PROJECT_NAME,
+                                 'assets',
+                                 'jsapi')
+  if not os.path.exists(jsapi_directory):
+    os.makedirs(jsapi_directory)
+
+  jsfiles_to_copy = [
+      'xwalk/experimental/presentation/presentation_api.js',
+      'xwalk/sysapps/device_capabilities/device_capabilities_api.js'
+  ]
+
+  # Copy JS binding file to assets/jsapi folder.
+  for jsfile in jsfiles_to_copy:
+    source_file = os.path.join(project_source, jsfile)
+    target_file = os.path.join(jsapi_directory, os.path.basename(source_file))
+    shutil.copyfile(source_file, target_file)
+
 
 def CopyBinaries(out_directory):
   """cp out/Release/<asset> out/Release/xwalk_core_library/assets/<asset>
@@ -290,6 +310,8 @@ def main(argv):
   # Copy binaries and resuorces.
   CopyBinaries(out_directory)
   CopyResources(options.source, out_directory)
+  # Copy JS API binding files.
+  CopyJSBindingFiles(options.source, out_directory)
   # Post copy library project.
   PostCopyLibraryProject(out_directory)
   print 'Your Android library project has been created at %s' % (
