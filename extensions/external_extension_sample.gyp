@@ -51,5 +51,22 @@
       }],
     ], # conditions
   },
+  {
+    'target_name': 'crash_extension',
+    'type': 'loadable_module',
+    'include_dirs': [
+      '../..',
+    ],
+    'sources': [
+      'test/crash_extension.c',
+    ],
+    'conditions': [
+      ['OS=="win"', {
+        'product_dir': '<(PRODUCT_DIR)\\tests\\extension\\crash_extension\\'
+      }, {
+        'product_dir': '<(PRODUCT_DIR)/tests/extension/crash_extension/'
+      }],
+    ], # conditions
+  },
   ],
 }
