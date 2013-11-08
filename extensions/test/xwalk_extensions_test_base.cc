@@ -33,3 +33,14 @@ GURL GetExtensionsTestURL(const base::FilePath& dir,
               .Append(dir).Append(file);
   return net::FilePathToFileURL(test_file);
 }
+
+base::FilePath GetExternalExtensionTestPath(
+    const base::FilePath::CharType test[]) {
+  base::FilePath extension_dir;
+  PathService::Get(base::DIR_EXE, &extension_dir);
+  extension_dir = extension_dir
+                  .Append(FILE_PATH_LITERAL("tests"))
+                  .Append(FILE_PATH_LITERAL("extension"))
+                  .Append(test);
+  return extension_dir;
+}

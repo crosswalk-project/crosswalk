@@ -58,6 +58,8 @@ class XWalkExtensionService : public content::NotificationObserver {
   static void SetRegisterExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
 
+  static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
+
  private:
   // We create one instance of this struct per RenderProcess.
   struct ExtensionData {

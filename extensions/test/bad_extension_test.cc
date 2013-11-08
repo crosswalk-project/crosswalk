@@ -13,21 +13,13 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
-using xwalk::extensions::XWalkExtensionServer;
 
 class BadExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    base::FilePath extension_dir;
-    PathService::Get(base::DIR_EXE, &extension_dir);
-
-    extension_dir = extension_dir
-                    .Append(FILE_PATH_LITERAL("tests"))
-                    .Append(FILE_PATH_LITERAL("extension"))
-                    .Append(FILE_PATH_LITERAL("bad_extension"));
-
-    extension_service->RegisterExternalExtensionsForPath(extension_dir);
+  virtual void SetUp() OVERRIDE {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+        GetExternalExtensionTestPath(FILE_PATH_LITERAL("bad_extension")));
+    XWalkExtensionsTestBase::SetUp();
   }
 };
 

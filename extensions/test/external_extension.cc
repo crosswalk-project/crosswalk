@@ -13,37 +13,22 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
-using xwalk::extensions::XWalkExtensionServer;
 
 class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    base::FilePath extension_dir;
-    PathService::Get(base::DIR_EXE, &extension_dir);
-
-    extension_dir = extension_dir
-                    .Append(FILE_PATH_LITERAL("tests"))
-                    .Append(FILE_PATH_LITERAL("extension"))
-                    .Append(FILE_PATH_LITERAL("echo_extension"));
-
-    extension_service->RegisterExternalExtensionsForPath(extension_dir);
+  virtual void SetUp() OVERRIDE {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+        GetExternalExtensionTestPath(FILE_PATH_LITERAL("echo_extension")));
+    XWalkExtensionsTestBase::SetUp();
   }
 };
 
 class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-                          XWalkExtensionServer* server) OVERRIDE {
-    base::FilePath extension_dir;
-    PathService::Get(base::DIR_EXE, &extension_dir);
-
-    extension_dir = extension_dir
-                    .Append(FILE_PATH_LITERAL("tests"))
-                    .Append(FILE_PATH_LITERAL("extension"))
-                    .Append(FILE_PATH_LITERAL("multiple_extension"));
-
-    extension_service->RegisterExternalExtensionsForPath(extension_dir);
+  virtual void SetUp() OVERRIDE {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+        GetExternalExtensionTestPath(FILE_PATH_LITERAL("mutiple_extension")));
+    XWalkExtensionsTestBase::SetUp();
   }
 };
 
