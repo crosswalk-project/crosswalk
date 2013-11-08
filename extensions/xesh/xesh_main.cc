@@ -47,6 +47,12 @@ const char kInputFilePath[] = "input-file";
 
 namespace {
 
+inline void PrintInitialInfo() {
+  fprintf(stderr, "\n---- XESh: XWalk Extensions Shell ----");
+  fprintf(stderr, "\nCrosswalk Version: %s\nv8 Version: %s\n", XWALK_VERSION,
+      v8::V8::GetVersion());
+}
+
 inline void PrintPromptLine() {
   fprintf(stderr, "xesh> ");
 }
@@ -163,7 +169,6 @@ class ExtensionManager {
     std::vector<std::string> extensions =
         RegisterExternalExtensionsInDirectory(&server_, extensions_dir);
 
-    fprintf(stderr, "\n---- XESh: XWalk Extensions Shell ----");
     fprintf(stderr, "\nExtensions Loaded:\n");
     std::vector<std::string>::const_iterator it = extensions.begin();
     for (; it != extensions.end(); ++it)
@@ -230,6 +235,8 @@ class ExtensionManager {
 int main(int argc, char* argv[]) {
   base::AtExitManager exit_manager;
   CommandLine::Init(argc, argv);
+
+  PrintInitialInfo();
 
   base::MessageLoop main_message_loop(base::MessageLoop::TYPE_UI);
   main_message_loop.set_thread_name("XESh_Main");
