@@ -605,6 +605,7 @@
     {
       'target_name': 'xwalk_extension_shell',
       'type': 'executable',
+      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
       'product_name': 'xesh',
       'conditions': [
         ['OS=="linux"', {

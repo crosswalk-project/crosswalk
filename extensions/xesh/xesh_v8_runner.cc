@@ -97,9 +97,6 @@ void XEShV8Runner::RegisterAccessors(v8::Handle<v8::Context> context) {
       v8::FunctionTemplate::New(PrintCallback)->GetFunction());
 
   context->Global()->SetAccessor(v8::String::New("quit"), QuitCallback);
-
-  context->Global()->Set(v8::String::New("version"),
-      v8::FunctionTemplate::New(VersionCallback)->GetFunction());
 }
 
 // static
@@ -128,14 +125,5 @@ void XEShV8Runner::QuitCallback(v8::Local<v8::String> property,
   fflush(stdout);
   fflush(stderr);
   exit(0);
-}
-
-// static
-void XEShV8Runner::VersionCallback(
-    const v8::FunctionCallbackInfo<v8::Value>& args) {
-  // FIXME(jeez): add XWalk version here.
-  std::string v8_version("V8 Version: ");
-  v8_version.append(v8::V8::GetVersion());
-  args.GetReturnValue().Set(v8::String::New(v8_version.c_str()));
 }
 
