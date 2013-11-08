@@ -562,7 +562,7 @@ def patch_stream(instream, hunks):
           yield line2write.rstrip("\r\n")+newline
         else: # newlines are mixed
           yield line2write
-   
+
   for line in instream:
     yield line
 
@@ -571,7 +571,7 @@ import stat
 
 def patch_hunks(srcname, tgtname, hunks):
   # get the current file mode
-  mode = os.stat(srcname)[stat.ST_MODE]
+  mode = os.stat(srcname).st_mode
 
   src = open(srcname, "rb")
   tgt = open(tgtname, "wb")
