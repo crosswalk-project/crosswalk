@@ -9,7 +9,7 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "xwalk/application/browser/application_daemon.h"
+#include "xwalk/application/browser/application_service_provider.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 
@@ -39,16 +39,16 @@ class ApplicationSystem {
     return application_service_.get();
   }
 
-  // Create the daemon object together with application system.
-  ApplicationDaemon* application_daemon() {
-    return application_daemon_.get();
+  // Create the service object together with application system.
+  ApplicationServiceProvider* application_service_provider() {
+    return application_service_provider_.get();
   }
 
  private:
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;
-  scoped_ptr<ApplicationDaemon> application_daemon_;
+  scoped_ptr<ApplicationServiceProvider> application_service_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };

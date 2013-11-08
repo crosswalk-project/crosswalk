@@ -278,7 +278,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     }
   } else if (command_line->HasSwitch(switches::kListApplications)) {
     // TODO(Bai): This part will eventually be removed and the functionality
-    // will be moved to application daemon, providing service through IPC.
+    // will be moved to application service provider, providing service through
+    // IPC.
     xwalk::application::ApplicationStore::ApplicationMap* apps =
         service->GetInstalledApplications();
     LOG(INFO) << "Application ID                       Application Name";
@@ -293,16 +294,16 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   NativeAppWindow::Initialize();
 
-  if (command_line->HasSwitch(switches::kDaemon)) {
-    run_default_message_loop_ = system->application_daemon()->Start();
+  if (command_line->HasSwitch(switches::kRunAsService)) {
+    run_default_message_loop_ = system->application_service_provider()->Start();
     return;
   }
 
   std::string command_name =
       command_line->GetProgram().BaseName().MaybeAsASCII();
 
-  // TODO(Bai): Move these parts into application daemon and provide service
-  // through IPC
+  // TODO(Bai): Move these parts into application service provider and provide
+  // service through IPC
 #if defined(OS_TIZEN_MOBILE)
   // On Tizen, applications are launched by a symbolic link
   // named like the application ID.

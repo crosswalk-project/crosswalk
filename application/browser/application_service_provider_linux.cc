@@ -2,9 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/application_daemon.h"
+#include "xwalk/application/browser/application_service_provider.h"
+
+#include <string>
+#include <vector>
 
 #include "base/bind.h"
+#include "base/strings/string_util.h"
 #include "base/threading/platform_thread.h"
 #include "base/threading/thread.h"
 #include "dbus/bus.h"
@@ -23,16 +27,14 @@ using xwalk::RuntimeContext;
 namespace xwalk {
 namespace application {
 
-class ApplicationDBusService {
+class ApplicationServiceProviderImpl {
  public:
-  explicit ApplicationDBusService(ApplicationSystem* application_system)
+  explicit ApplicationServiceProviderImpl(ApplicationSystem* application_system)
     : origin_thread_id_(base::PlatformThread::CurrentId()),
       system_(application_system),
-      dbus_thread_(NULL),
-      session_bus_(NULL),
       exported_object_(NULL) {
   }
-  ~ApplicationDBusService() {
+  ~ApplicationServiceProviderImpl() {
     if (session_bus_)
       session_bus_->ShutdownOnDBusThreadAndBlock();
   }
@@ -52,7 +54,7 @@ class ApplicationDBusService {
         << " :: " << method_path;
   }
 
-  // D-Bus function Launch(string id) return (bool success, string message)
+  // D-Bus function Launch(string id) return (bool success)
   void Launch(dbus::MethodCall* method_call,
                dbus::ExportedObject::ResponseSender response_sender) {
     DCHECK(OnOriginThread());
@@ -61,31 +63,34 @@ class ApplicationDBusService {
     scoped_ptr<dbus::Response> response =
         dbus::Response::FromMethodCall(method_call);
     dbus::MessageWriter writer(response.get());
+
     if (!reader.PopString(&id)) {
       response_sender.Run(scoped_ptr<dbus::Response>());
-      // Invalid IPC call.
+      LOG(ERROR) << "Invalid D-Bus Message.";
       return;
     }
+
     if (!xwalk::application::Application::IsIDValid(id)) {
       writer.AppendBool(false);
-      writer.AppendString("Invalid application ID: " + id);
+      LOG(ERROR) << "Invalid application ID: " << id;
       response_sender.Run(response.Pass());
       return;
     }
+
     xwalk::application::ApplicationService* service =
         system_->application_service();
-    LOG(INFO) << "Launching appliation: " << id;
+
     if (service->Launch(id)) {
       writer.AppendBool(true);
-      writer.AppendString("Application ID: " + id + " launched.");
+      LOG(INFO) << "Application with ID: " << id << " was launched.";
     } else {
       writer.AppendBool(false);
-      writer.AppendString("Failed to launch.");
+      LOG(ERROR) << "Failed to launch application with ID " << id;
     }
     response_sender.Run(response.Pass());
   }
 
-  // D-Bus function Terminate(string id) return (bool success, string message)
+  // D-Bus function Terminate(string id) return (bool success)
   void Terminate(dbus::MethodCall* method_call,
                dbus::ExportedObject::ResponseSender response_sender) {
     DCHECK(OnOriginThread());
@@ -94,31 +99,33 @@ class ApplicationDBusService {
     scoped_ptr<dbus::Response> response =
         dbus::Response::FromMethodCall(method_call);
     dbus::MessageWriter writer(response.get());
+
     if (!reader.PopString(&id)) {
       response_sender.Run(scoped_ptr<dbus::Response>());
-      // Invalid IPC call.
+      LOG(ERROR) << "Invalid D-Bus Message.";
       return;
     }
+
     if (!xwalk::application::Application::IsIDValid(id)) {
       writer.AppendBool(false);
-      writer.AppendString("Invalid application ID: " + id);
+      LOG(ERROR) << "Invalid application ID: " << id;
       response_sender.Run(response.Pass());
       return;
     }
     xwalk::application::ApplicationService* service =
         system_->application_service();
-    LOG(INFO) << "Terminating appliation: " << id;
+
     if (service->Terminate(id)) {
       writer.AppendBool(true);
-      writer.AppendString("Application ID: " + id + " Terminated.");
+      LOG(INFO) << "Application with ID: " << id << " was terminated.";
     } else {
       writer.AppendBool(false);
-      writer.AppendString("Failed to terminate");
+      LOG(ERROR) << "Failed to terminate";
     }
     response_sender.Run(response.Pass());
   }
 
-  // D-Bus function Install(string path) return (bool success, string message)
+  // D-Bus function Install(string path) return (bool success)
   void Install(dbus::MethodCall* method_call,
                dbus::ExportedObject::ResponseSender response_sender) {
     DCHECK(OnOriginThread());
@@ -127,26 +134,28 @@ class ApplicationDBusService {
     scoped_ptr<dbus::Response> response =
         dbus::Response::FromMethodCall(method_call);
     dbus::MessageWriter writer(response.get());
+
     if (!reader.PopString(&path)) {
       response_sender.Run(scoped_ptr<dbus::Response>());
-      // Invalid IPC call.
+      LOG(ERROR) << "Invalid D-Bus Message.";
       return;
     }
     base::FilePath file_path(path);
     std::string id;
     xwalk::application::ApplicationService* service =
         system_->application_service();
+
     if (service->Install(file_path, &id)) {
       writer.AppendBool(true);
-      writer.AppendString("Application ID: " + id + " installed.");
+      LOG(INFO) << "Application ID: " << id << " installed.";
     } else {
       writer.AppendBool(false);
-      writer.AppendString("Failed to install: " + path);
+      LOG(ERROR) << "Failed to install: " << path;
     }
     response_sender.Run(response.Pass());
   }
 
-  // D-Bus function Uninstall(string id) return (bool success, string message)
+  // D-Bus function Uninstall(string id) return (bool success)
   void Uninstall(dbus::MethodCall* method_call,
                dbus::ExportedObject::ResponseSender response_sender) {
     DCHECK(OnOriginThread());
@@ -155,24 +164,29 @@ class ApplicationDBusService {
     scoped_ptr<dbus::Response> response =
         dbus::Response::FromMethodCall(method_call);
     dbus::MessageWriter writer(response.get());
+
     if (!reader.PopString(&id)) {
       response_sender.Run(scoped_ptr<dbus::Response>());
-      // Invalid IPC call.
+      LOG(ERROR) << "Invalid D-Bus Message.";
       return;
     }
     xwalk::application::ApplicationService* service =
         system_->application_service();
+
     if (service->Uninstall(id)) {
       writer.AppendBool(true);
-      writer.AppendString("Application ID: " + id + " uninstalled");
+      LOG(INFO) << "Application ID: " << id << " uninstalled";
     } else {
       writer.AppendBool(false);
-      writer.AppendString("Failed to uninstall: " + id);
+      LOG(ERROR) << "Failed to uninstall: " << id;
     }
     response_sender.Run(response.Pass());
   }
 
-  void ListApps(dbus::MethodCall* method_call,
+  // D-Bus function ListInstalledApps() return (bool success, string app_list)
+  // The app_list is a JSON array, each element of which is a ID-name bundle.
+  // For example [{123456,app1},{234567,app2},{345678,app3}]
+  void ListInstalledApps(dbus::MethodCall* method_call,
                dbus::ExportedObject::ResponseSender response_sender) {
     DCHECK(OnOriginThread());
     dbus::MessageReader reader(method_call);
@@ -184,14 +198,12 @@ class ApplicationDBusService {
         system_->application_service();
     xwalk::application::ApplicationStore::ApplicationMap* apps =
             service->GetInstalledApplications();
-    std::string ret = "";
-    ret += "Application ID                       Application Name\n";
-    ret += "-----------------------------------------------------\n";
+    std::vector<std::string> app_list;
     xwalk::application::ApplicationStore::ApplicationMapIterator it;
     for (it = apps->begin(); it != apps->end(); ++it) {
-      ret += (it->first + "     " + it->second->Name() + "\n");
+      app_list.push_back("{" + it->first + "," + it->second->Name() + "}");
     }
-    ret += "-----------------------------------------------------\n";
+    std::string ret = "[" + JoinString(app_list, ',') + "]";
     writer.AppendBool(true);
     writer.AppendString(ret);
     response_sender.Run(response.Pass());
@@ -199,12 +211,13 @@ class ApplicationDBusService {
 
   bool StartService() {
     DCHECK(OnOriginThread());
-    if (dbus_thread_) {
+    if (dbus_thread_.get()) {
       LOG(ERROR) << "D-Bus service has already been started.";
       return false;
     }
     // Start the D-Bus thread.
-    dbus_thread_ = new base::Thread("D-Bus Thread");
+    dbus_thread_.reset(
+            new base::Thread("Crosswalk Application D-Bus Service Thread"));
     base::Thread::Options thread_options;
     thread_options.message_loop_type = base::MessageLoop::TYPE_IO;
     if (!dbus_thread_->StartWithOptions(thread_options)) {
@@ -218,79 +231,77 @@ class ApplicationDBusService {
     options.connection_type = dbus::Bus::PRIVATE;
     options.dbus_task_runner = dbus_thread_->message_loop_proxy();
     session_bus_ = new dbus::Bus(options);
-    session_bus_->RequestOwnership(kDbusServiceName,
+    session_bus_->RequestOwnership(kDBusServiceName,
                       dbus::Bus::REQUIRE_PRIMARY,
-                      base::Bind(&ApplicationDBusService::OnOwnershipAcquired,
+                      base::Bind(
+                          &ApplicationServiceProviderImpl::OnOwnershipAcquired,
                       base::Unretained(this)));
     exported_object_ = session_bus_->GetExportedObject(
-        dbus::ObjectPath(kDbusObjectPath));
+        dbus::ObjectPath(kDBusObjectPath));
     exported_object_->ExportMethod(
-        kDbusAppInterfaceName,
-        "Launch",
-        base::Bind(&ApplicationDBusService::Launch,
+        kDBusAppInterfaceName,
+        kDBusMethodLaunch,
+        base::Bind(&ApplicationServiceProviderImpl::Launch,
                    base::Unretained(this)),
-        base::Bind(&ApplicationDBusService::OnExported,
+        base::Bind(&ApplicationServiceProviderImpl::OnExported,
                    base::Unretained(this)));
     exported_object_->ExportMethod(
-        kDbusAppInterfaceName,
-        "Terminate",
-        base::Bind(&ApplicationDBusService::Terminate,
+        kDBusAppInterfaceName,
+        kDBusMethodTerminate,
+        base::Bind(&ApplicationServiceProviderImpl::Terminate,
                    base::Unretained(this)),
-        base::Bind(&ApplicationDBusService::OnExported,
+        base::Bind(&ApplicationServiceProviderImpl::OnExported,
                    base::Unretained(this)));
     exported_object_->ExportMethod(
-        kDbusAppInterfaceName,
-        "Install",
-        base::Bind(&ApplicationDBusService::Install,
+        kDBusAppInterfaceName,
+        kDBusMethodInstall,
+        base::Bind(&ApplicationServiceProviderImpl::Install,
                    base::Unretained(this)),
-        base::Bind(&ApplicationDBusService::OnExported,
+        base::Bind(&ApplicationServiceProviderImpl::OnExported,
                    base::Unretained(this)));
     exported_object_->ExportMethod(
-        kDbusAppInterfaceName,
-        "Uninstall",
-        base::Bind(&ApplicationDBusService::Uninstall,
+        kDBusAppInterfaceName,
+        kDBusMethodUninstall,
+        base::Bind(&ApplicationServiceProviderImpl::Uninstall,
                    base::Unretained(this)),
-        base::Bind(&ApplicationDBusService::OnExported,
+        base::Bind(&ApplicationServiceProviderImpl::OnExported,
                    base::Unretained(this)));
     exported_object_->ExportMethod(
-        kDbusAppInterfaceName,
-        "ListApps",
-        base::Bind(&ApplicationDBusService::ListApps,
+        kDBusAppInterfaceName,
+        kDBusMethodListInstalledApps,
+        base::Bind(&ApplicationServiceProviderImpl::ListInstalledApps,
                    base::Unretained(this)),
-        base::Bind(&ApplicationDBusService::OnExported,
+        base::Bind(&ApplicationServiceProviderImpl::OnExported,
                    base::Unretained(this)));
     return true;
   }
 
   private:
-    bool OnOriginThread() {
+    const bool OnOriginThread() {
       return base::PlatformThread::CurrentId() == origin_thread_id_;
     }
     ApplicationSystem* system_;
     base::PlatformThreadId origin_thread_id_;
-    base::Thread* dbus_thread_;
-    dbus::Bus* session_bus_;
     dbus::ExportedObject* exported_object_;
+    scoped_ptr<base::Thread> dbus_thread_;
+    scoped_refptr<dbus::Bus> session_bus_;
 };
 
-static ApplicationDBusService* g_application_dbus_service = NULL;
-
-ApplicationDaemon::ApplicationDaemon(xwalk::RuntimeContext* runtime_context)
-  : runtime_context_(runtime_context) {
+ApplicationServiceProvider::ApplicationServiceProvider(
+        xwalk::RuntimeContext* runtime_context)
+  : runtime_context_(runtime_context),
+    impl_(NULL) {
 }
 
-ApplicationDaemon::~ApplicationDaemon() {
-  delete g_application_dbus_service;
-  g_application_dbus_service = NULL;
+ApplicationServiceProvider::~ApplicationServiceProvider() {
+  delete impl_;
 }
 
-bool ApplicationDaemon::Start() {
-  if (g_application_dbus_service)
-    return false;
-  LOG(INFO) << "Starting daemon...";
-  g_application_dbus_service = new ApplicationDBusService(
+bool ApplicationServiceProvider::Start() {
+  LOG(INFO) << "Starting D-Bus service...";
+  impl_ = new ApplicationServiceProviderImpl(
       runtime_context_->GetApplicationSystem());
-  return g_application_dbus_service->StartService();
+  return impl_->StartService();
 }
 
 }  // namespace application

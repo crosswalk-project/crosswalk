@@ -26,13 +26,19 @@ extern const char kGeneratedMainDocumentFilename[];
 extern const char kSwitchLaunch[];
 extern const char kSwitchInstall[];
 extern const char kSwitchUninstall[];
-extern const char kSwitchListApps[];
+extern const char kSwitchListInstalledApps[];
 extern const char kSwitchVerbose[];
 
 // D-Bus constants
-extern const char kDbusServiceName[];
-extern const char kDbusObjectPath[];
-extern const char kDbusAppInterfaceName[];
+extern const char kDBusServiceName[];
+extern const char kDBusObjectPath[];
+extern const char kDBusAppInterfaceName[];
+extern const char kDBusMethodLaunch[];
+extern const char kDBusMethodTerminate[];
+extern const char kDBusMethodInstall[];
+extern const char kDBusMethodUninstall[];
+extern const char kDBusMethodListInstalledApps[];
+
 
 }  // namespace application
 }  // namespace xwalk

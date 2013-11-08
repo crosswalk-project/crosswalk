@@ -15,8 +15,8 @@
         'xwalk_application_resources',
       ],
       'sources': [
-        'browser/application_daemon.cc',
-        'browser/application_daemon.h',
+        'browser/application_service_provider.cc',
+        'browser/application_service_provider.h',
         'browser/application_store.cc',
         'browser/application_store.h',
         'browser/application_process_manager.cc',
@@ -78,10 +78,10 @@
             'xwalk_launcher',
           ],
           'sources!': [
-            'browser/application_daemon.cc',
+            'browser/application_service_provider.cc',
           ],
           'sources': [
-            'browser/application_daemon_linux.cc',
+            'browser/application_service_provider_linux.cc',
           ],
         }],
       ],

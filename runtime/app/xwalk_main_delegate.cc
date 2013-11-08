@@ -40,7 +40,7 @@ XWalkMainDelegate::~XWalkMainDelegate() {
 bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   logging::LoggingSettings loggingSettings;
   CommandLine* command_line = CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kDaemon)) {
+  if (command_line->HasSwitch(switches::kRunAsService)) {
 #ifdef OS_LINUX
     if (daemon(0, 0) == 0) {
       loggingSettings.logging_dest = logging::LOG_TO_FILE;

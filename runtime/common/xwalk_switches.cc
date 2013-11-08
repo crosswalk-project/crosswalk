@@ -13,8 +13,8 @@ const char kXWalkDataPath[] = "data-path";
 // Specifies the icon file for the app window.
 const char kAppIcon[] = "app-icon";
 
-// Indicate crosswalk runtime will run as a service daemon.
-const char kDaemon[] = "daemon";
+// Indicate crosswalk runtime will run as a service.
+const char kRunAsService[] = "run-as-service";
 
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";

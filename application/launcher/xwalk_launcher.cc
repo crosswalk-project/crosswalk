@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include <signal.h>
-#include <stdio.h>
 #include <unistd.h>
+#include <iostream> // NOLINT
 
 #include "base/at_exit.h"
 #include "base/command_line.h"
@@ -20,35 +20,67 @@
 #include "dbus/property.h"
 #include "xwalk/application/common/constants.h"
 
-namespace xwalk {
-namespace application {
+// Crosswalk Launcher Switches.
+using xwalk::application::kSwitchLaunch;
+using xwalk::application::kSwitchInstall;
+using xwalk::application::kSwitchUninstall;
+using xwalk::application::kSwitchListInstalledApps;
+using xwalk::application::kSwitchVerbose;
+
+// D-Bus constants.
+using xwalk::application::kDBusServiceName;
+using xwalk::application::kDBusAppInterfaceName;
+using xwalk::application::kDBusObjectPath;
+using xwalk::application::kDBusMethodLaunch;
+using xwalk::application::kDBusMethodTerminate;
+using xwalk::application::kDBusMethodInstall;
+using xwalk::application::kDBusMethodUninstall;
+using xwalk::application::kDBusMethodListInstalledApps;
+
+namespace {
 
 // Here -1 means waiting for a D-Bus command to return, forever.
 // We can not guarantee how much time a command will take. Some command
 // may take much longer time than the others, like Install.
-#define TIMEOUT -1
-#define P(x) printf("%s\n", (std::string(x)).c_str());
+const int TIMEOUT = -1;
 
 dbus::Bus* session_bus = NULL;
 dbus::ObjectProxy* object_proxy = NULL;
 base::MessageLoop* main_message_loop = NULL;
 std::string running_app_id;
 
+class Console {};
+typedef std::ostream& (*Manipulator) (std::ostream&);
+template <class T> Console& operator<<(Console& console, const T& s) {
+  std::cout << s; // NOLINT
+  return console;
+}
+Console& operator<<(Console& console, Manipulator manipulator) {
+  std::cout << manipulator; // NOLINT
+  return console;
+}
+Console c;
+
 void PrintUsage() {
-  P("Usage:");
-  P("  --" + std::string(kSwitchLaunch) + "=<AppID>      "
-    "Launch an application by ID.");
-  P("  --" + std::string(kSwitchInstall) + "=<Path>      "
-    "Install package from <path>.");
-  P("  --" + std::string(kSwitchUninstall) + "=<AppID>   "
-    "Uninstall an application by ID.");
-  P("  --" + std::string(kSwitchListApps) + "           "
-    "List installed applications.");
-  P("  --" + std::string(kSwitchVerbose) + "             "
-    "Verbose output.");
+  c << "Usage:" << std::endl;
+  c << "  --" << kSwitchLaunch << "=<AppID>      " <<
+      "Launch an application by ID." << std::endl;
+  c << "  --" << kSwitchInstall << "=<Path>      " <<
+      "Install package from <path>.";
+  c << "  --" << kSwitchUninstall << "=<AppID>   " <<
+      "Uninstall an application by ID.";
+  c << "  --" << kSwitchListInstalledApps << "           " <<
+      "List installed applications.";
+  c << "  --" << kSwitchVerbose << "             " <<
+      "Verbose output.";
 }
 
-void OnResponse(bool quit, dbus::Response* response) {
+enum RunningStatus {
+  QUIT,
+  KEEP_RUNNING
+};
+
+void OnResponse(RunningStatus running_status, dbus::Response* response) {
   if (response != NULL) {
     dbus::MessageReader reader(response);
     std::string message;
@@ -58,17 +90,17 @@ void OnResponse(bool quit, dbus::Response* response) {
     if (ret) {
       LOG(INFO) << "Command succeed.";
     } else {
-      P("Command failed.");
+      c << "Command failed." << std::endl;
     }
-    P(message);
+    c << message << std::endl;
   } else {
-    P("Error in processing D-Bus command.");
-    quit = true;
+    c << "Error in processing D-Bus command." << std::endl;
+    running_status = QUIT;
   }
   // Normally, the launcher will not exit after issuing a launch command
   // in order to handle system events and then pass to the daemon.
   // TODO(Bai): Handle system events after the daemon counterpart is ready.
-  if (quit) {
+  if (running_status == QUIT) {
     session_bus->ShutdownOnDBusThreadAndBlock();
     base::MessageLoop::current()->QuitWhenIdle();
   }
@@ -76,11 +108,11 @@ void OnResponse(bool quit, dbus::Response* response) {
 
 void OnTerminate(void) {
   LOG(INFO) << "Terminating: " + running_app_id;
-  dbus::MethodCall method_call(kDbusAppInterfaceName, "Terminate");
+  dbus::MethodCall method_call(kDBusAppInterfaceName, kDBusMethodTerminate);
   dbus::MessageWriter writer(&method_call);
   writer.AppendString(running_app_id);
   object_proxy->CallMethod(&method_call, TIMEOUT,
-                           base::Bind(OnResponse, true));
+                           base::Bind(OnResponse, QUIT));
 }
 
 void sig_handler(int signo) {
@@ -93,8 +125,9 @@ void sig_handler(int signo) {
     main_message_loop->PostTask(FROM_HERE, base::Bind(&OnTerminate));
   }
 }
+}  // namespace
 
-int launcher_main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[]) {
   bool run_message_loop = false;
   CommandLine::Init(argc, argv);
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
@@ -124,48 +157,49 @@ int launcher_main(int argc, const char *argv[]) {
   options.connection_type = dbus::Bus::PRIVATE;
   options.dbus_task_runner = dbus_thread.message_loop_proxy();
   session_bus = new dbus::Bus(options);
-  object_proxy = session_bus->GetObjectProxy(kDbusServiceName,
-                           dbus::ObjectPath(kDbusObjectPath));
+  object_proxy = session_bus->GetObjectProxy(kDBusServiceName,
+                           dbus::ObjectPath(kDBusObjectPath));
 
   if (command_line.HasSwitch(kSwitchInstall)) {
     std::string package_path =
               command_line.GetSwitchValueASCII(kSwitchInstall);
     LOG(INFO) << "Installing: " + package_path;
-    dbus::MethodCall method_call(kDbusAppInterfaceName, "Install");
+    dbus::MethodCall method_call(kDBusAppInterfaceName, kDBusMethodInstall);
     dbus::MessageWriter writer(&method_call);
     writer.AppendString(package_path);
     object_proxy->CallMethod(&method_call, TIMEOUT,
-                             base::Bind(OnResponse, true));
+                             base::Bind(OnResponse, QUIT));
     run_message_loop = true;
   } else if (command_line.HasSwitch(kSwitchUninstall)) {
     std::string id =
               command_line.GetSwitchValueASCII(kSwitchUninstall);
     LOG(INFO) << "Uninstalling: " + id;
-    dbus::MethodCall method_call(kDbusAppInterfaceName, "Uninstall");
+    dbus::MethodCall method_call(kDBusAppInterfaceName, kDBusMethodUninstall);
     dbus::MessageWriter writer(&method_call);
     writer.AppendString(id);
     object_proxy->CallMethod(&method_call, TIMEOUT,
-                             base::Bind(OnResponse, true));
+                             base::Bind(OnResponse, QUIT));
     run_message_loop = true;
   } else if (command_line.HasSwitch(kSwitchLaunch)) {
     running_app_id =
               command_line.GetSwitchValueASCII(kSwitchLaunch);
     LOG(INFO) << "Launching: " + running_app_id;
-    dbus::MethodCall method_call(kDbusAppInterfaceName, "Launch");
+    dbus::MethodCall method_call(kDBusAppInterfaceName, kDBusMethodLaunch);
     dbus::MessageWriter writer(&method_call);
     writer.AppendString(running_app_id);
     object_proxy->CallMethod(&method_call, TIMEOUT,
-                             base::Bind(OnResponse, false));
+                             base::Bind(OnResponse, KEEP_RUNNING));
     // We won't exit until SIGINT.
     if (signal(SIGINT, sig_handler) == SIG_ERR)
       PLOG(ERROR) << "Can't catch SIGINT: ";
     run_message_loop = true;
-  } else if (command_line.HasSwitch(kSwitchListApps)) {
+  } else if (command_line.HasSwitch(kSwitchListInstalledApps)) {
     LOG(INFO) << "Listing Applications.";
-    dbus::MethodCall method_call(kDbusAppInterfaceName, "ListApps");
+    dbus::MethodCall method_call(kDBusAppInterfaceName,
+            kDBusMethodListInstalledApps);
     dbus::MessageWriter writer(&method_call);
     object_proxy->CallMethod(&method_call, TIMEOUT,
-                             base::Bind(OnResponse, true));
+                             base::Bind(OnResponse, QUIT));
     run_message_loop = true;
   } else {
     PrintUsage();
@@ -176,9 +210,3 @@ int launcher_main(int argc, const char *argv[]) {
   return 0;
 }
 
-}  // namespace application
-}  // namespace xwalk
-
-int main(int argc, const char *argv[]) {
-    return xwalk::application::launcher_main(argc, argv);
-}
