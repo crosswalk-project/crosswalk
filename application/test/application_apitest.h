@@ -28,9 +28,7 @@ class ApplicationApiTest : public ApplicationBrowserTest {
   scoped_ptr<ApiTestRunner> test_runner_;
 
  private:
-  void RegisterExtensions(
-      xwalk::extensions::XWalkExtensionService* extension_service,
-      xwalk::extensions::XWalkExtensionServer* server);
+  void RegisterExtensions(xwalk::extensions::XWalkExtensionServer* server);
 };
 
 #endif  // XWALK_APPLICATION_TEST_APPLICATION_APITEST_H_

@@ -53,8 +53,8 @@ class XWalkExtensionService : public content::NotificationObserver {
   // XWalkContentBrowserClient::RenderProcessHostCreated().
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
-  typedef base::Callback<void(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server)> RegisterExtensionsCallback;
+  typedef base::Callback<void(XWalkExtensionServer* server)>
+      RegisterExtensionsCallback;
   static void SetRegisterExtensionsCallbackForTesting(
       const RegisterExtensionsCallback& callback);
 

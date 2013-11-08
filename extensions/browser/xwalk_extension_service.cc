@@ -211,7 +211,7 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
   delegate_->RegisterInternalExtensionsInServer(in_process_server.get());
 
   if (!g_register_extensions_callback.is_null())
-    g_register_extensions_callback.Run(this, in_process_server.get());
+    g_register_extensions_callback.Run(in_process_server.get());
 
   data->in_process_server_ = in_process_server.Pass();
 }

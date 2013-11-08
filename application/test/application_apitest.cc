@@ -35,9 +35,7 @@ void ApplicationApiTest::SetUpCommandLine(CommandLine* command_line) {
   command_line->AppendArg(url.spec());
 }
 
-void ApplicationApiTest::RegisterExtensions(
-    XWalkExtensionService* extension_service,
-    XWalkExtensionServer* server) {
+void ApplicationApiTest::RegisterExtensions(XWalkExtensionServer* server) {
   scoped_ptr<ApiTestExtension> extension(new ApiTestExtension);
   extension->SetObserver(test_runner_.get());
   bool registered = server->RegisterExtension(

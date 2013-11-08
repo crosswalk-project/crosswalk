@@ -14,7 +14,6 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::NativeAppWindow;
-using xwalk::extensions::XWalkExtensionService;
 using xwalk::extensions::XWalkExtensionServer;
 using xwalk::Runtime;
 using xwalk::RuntimeList;
@@ -62,8 +61,7 @@ class ExternalExtensionMultiProcessTest : public XWalkExtensionsTestBase {
   }
 
   // This will be called everytime a new RenderProcess has been created.
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
     register_extensions_count_++;
   }
 

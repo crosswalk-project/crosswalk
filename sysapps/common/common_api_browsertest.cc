@@ -138,8 +138,7 @@ class SysAppsCommonTest : public InProcessBrowserTest {
     InProcessBrowserTest::SetUp();
   }
 
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) {
+  void RegisterExtensions(XWalkExtensionServer* server) {
     bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new SysAppsTestExtension()));
     ASSERT_TRUE(registered);

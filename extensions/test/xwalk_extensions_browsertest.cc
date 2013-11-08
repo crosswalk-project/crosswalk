@@ -4,7 +4,6 @@
 
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -17,7 +16,6 @@
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionService;
 using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
@@ -105,8 +103,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
     bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new EchoExtension));
     ASSERT_TRUE(registered);
@@ -119,8 +116,7 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
 
 class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
     bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new DelayedEchoExtension));
   }

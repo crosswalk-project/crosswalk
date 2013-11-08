@@ -11,7 +11,6 @@
 namespace xwalk {
 namespace extensions {
 class XWalkExtensionServer;
-class XWalkExtensionService;
 }
 }
 
@@ -19,7 +18,6 @@ class XWalkExtensionsTestBase : public InProcessBrowserTest {
  public:
   virtual void SetUp() OVERRIDE;
   virtual void RegisterExtensions(
-      xwalk::extensions::XWalkExtensionService* extension_service,
       xwalk::extensions::XWalkExtensionServer* server) {}
 };
 
