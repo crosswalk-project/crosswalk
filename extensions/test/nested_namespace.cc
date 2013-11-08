@@ -92,27 +92,17 @@ class AnotherExtension : public XWalkExtension {
 class XWalkExtensionsNestedNamespaceTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered_outer = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new OuterExtension));
-    ASSERT_TRUE(registered_outer);
-    bool registered_inner = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new InnerExtension));
-    ASSERT_TRUE(registered_inner);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new OuterExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new InnerExtension));
   }
 };
 
 class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered_outer = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new OuterExtension));
-    ASSERT_TRUE(registered_outer);
-    bool registered_inner = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new InnerExtension));
-    ASSERT_TRUE(registered_inner);
-    bool registered_another = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new AnotherExtension));
-    ASSERT_TRUE(registered_another);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new OuterExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new InnerExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new AnotherExtension));
   }
 };
 

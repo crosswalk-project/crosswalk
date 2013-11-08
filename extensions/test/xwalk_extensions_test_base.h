@@ -10,6 +10,7 @@
 
 namespace xwalk {
 namespace extensions {
+class XWalkExtension;
 class XWalkExtensionServer;
 }
 }
@@ -26,6 +27,9 @@ GURL GetExtensionsTestURL(const base::FilePath& dir,
 
 base::FilePath GetExternalExtensionTestPath(
     const base::FilePath::CharType test[]);
+
+bool RegisterExtensionForTest(xwalk::extensions::XWalkExtensionServer* server,
+                              xwalk::extensions::XWalkExtension* extension);
 
 const string16 kPassString = ASCIIToUTF16("Pass");
 const string16 kFailString = ASCIIToUTF16("Fail");

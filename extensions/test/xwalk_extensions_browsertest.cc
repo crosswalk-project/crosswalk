@@ -104,21 +104,16 @@ class ExtensionWithInvalidName : public XWalkExtension {
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new EchoExtension));
-    ASSERT_TRUE(registered);
-
-    bool invalid_registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new ExtensionWithInvalidName));
-    ASSERT_FALSE(invalid_registered);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new EchoExtension));
+    ASSERT_FALSE(RegisterExtensionForTest(
+        server, new ExtensionWithInvalidName));
   }
 };
 
 class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new DelayedEchoExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new DelayedEchoExtension));
   }
 };
 

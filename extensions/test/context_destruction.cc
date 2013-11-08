@@ -76,9 +76,7 @@ class OnceExtension : public XWalkExtension {
 class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new OnceExtension));
-    ASSERT_TRUE(registered);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new OnceExtension));
   }
 
   // FIXME(cmarcelo): Test here should be equal instead of

@@ -5,8 +5,11 @@
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
 #include "base/path_service.h"
+#include "base/memory/scoped_ptr.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
@@ -43,4 +46,9 @@ base::FilePath GetExternalExtensionTestPath(
                   .Append(FILE_PATH_LITERAL("extension"))
                   .Append(test);
   return extension_dir;
+}
+
+bool RegisterExtensionForTest(xwalk::extensions::XWalkExtensionServer* server,
+                              xwalk::extensions::XWalkExtension* extension) {
+  return server->RegisterExtension(make_scoped_ptr(extension));
 }

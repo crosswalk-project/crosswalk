@@ -91,12 +91,9 @@ class ConflictsWithEntryPointExtension
 class XWalkExtensionsConflictsWithNameTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered_clean = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new CleanExtension));
-    ASSERT_TRUE(registered_clean);
-    bool registered_dirty = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new ConflictsWithNameExtension));
-    ASSERT_FALSE(registered_dirty);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
+    ASSERT_FALSE(RegisterExtensionForTest(
+        server, new ConflictsWithNameExtension));
   }
 };
 
@@ -104,12 +101,9 @@ class XWalkExtensionsConflictsWithEntryPointTest
     : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered_clean = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new CleanExtension));
-    ASSERT_TRUE(registered_clean);
-    bool registered_dirty = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new ConflictsWithEntryPointExtension));
-    ASSERT_FALSE(registered_dirty);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
+    ASSERT_FALSE(RegisterExtensionForTest(
+        server, new ConflictsWithEntryPointExtension));
   }
 };
 

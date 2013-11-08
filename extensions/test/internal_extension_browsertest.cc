@@ -155,9 +155,7 @@ void TestExtensionInstance::DispatchHeartbeat() {
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
   void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new TestExtension()));
-    ASSERT_TRUE(registered);
+    ASSERT_TRUE(RegisterExtensionForTest(server, new TestExtension));
   }
 };
 
