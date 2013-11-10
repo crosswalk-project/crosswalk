@@ -1,0 +1,33 @@
+# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Check src/tools/gritsettings/resource_ids for details. As of today,
+# ids after 31000 are reserved to projects using Chromium, which is
+# our case.
+
+{
+  "SRCDIR": "../..",
+
+  "xwalk/runtime/resources/xwalk_resources.grd": {
+    "includes": [31000],
+    "structures": [31500],
+    "messages": [32000],
+  },
+
+  "xwalk/experimental/experimental_resources.grd": {
+    "includes": [32100],
+  },
+
+  "xwalk/extensions/extensions_resources.grd": {
+    "includes": [32125],
+  },
+
+  "xwalk/application/application_resources.grd": {
+    "includes": [32150],
+  },
+
+  "xwalk/sysapps/sysapps_resources.grd": {
+    "includes": [32175],
+  },
+}

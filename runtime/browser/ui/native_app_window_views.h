@@ -13,9 +13,12 @@
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/tizen/sensor_provider.h"
+#endif
+
 namespace views {
 class WebView;
-class Widget;
 }
 
 namespace xwalk {
@@ -48,12 +51,13 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual bool IsMinimized() const OVERRIDE;
   virtual bool IsFullscreen() const OVERRIDE;
 
+  virtual views::Widget* GetWidget() OVERRIDE;
+  virtual const views::Widget* GetWidget() const OVERRIDE;
+
  private:
   // WidgetDelegate implementation.
   virtual views::View* GetInitiallyFocusedView() OVERRIDE;
   virtual views::View* GetContentsView() OVERRIDE;
-  virtual views::Widget* GetWidget() OVERRIDE;
-  virtual const views::Widget* GetWidget() const OVERRIDE;
   virtual string16 GetWindowTitle() const OVERRIDE;
   virtual void DeleteDelegate() OVERRIDE;
   virtual gfx::ImageSkia GetWindowAppIcon() OVERRIDE;
@@ -97,6 +101,10 @@ class NativeAppWindowViews : public NativeAppWindow,
   gfx::Size minimum_size_;
   gfx::Size maximum_size_;
   bool resizable_;
+
+#if defined(OS_TIZEN_MOBILE)
+  scoped_ptr<SensorProvider::Observer> sensor_observer_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };

@@ -15,8 +15,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Assert;
+
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
+import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
+import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 public class XWalkViewTestBase
@@ -122,6 +126,17 @@ public class XWalkViewTestBase
         loadDataSync(fileContent, "text/html", false);
     }
 
+    public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
+        CallbackHelper getTitleHelper = mTestContentsClient.getOnTitleUpdatedHelper();
+        int currentCallCount = getTitleHelper.getCallCount();
+        String fileContent = getFileContent(fileName);
+
+        loadDataSync(fileContent, "text/html", false);
+
+        getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
     protected XWalkView getXWalkView() {
         return mXWalkView;
     }
@@ -201,5 +216,19 @@ public class XWalkViewTestBase
                 return mXWalkView.canGoForward();
             }
         });
+    }
+
+    protected String executeJavaScriptAndWaitForResult(final String code) throws Exception {
+        final OnEvaluateJavaScriptResultHelper helper = mTestContentsClient.getOnEvaluateJavaScriptResultHelper();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                XWalkContent content = mXWalkView.getXWalkViewContentForTest();
+                helper.evaluateJavaScript(content.getContentViewCoreForTest(), code);
+            }
+        });
+        helper.waitUntilHasValue();
+        Assert.assertTrue("Failed to retrieve JavaScript evaluation results.", helper.hasValue());
+        return helper.getJsonResultAndClear();
     }
 }

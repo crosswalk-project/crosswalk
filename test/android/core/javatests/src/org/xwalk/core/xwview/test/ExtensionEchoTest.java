@@ -7,7 +7,9 @@ package org.xwalk.core.xwview.test;
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+
 import org.chromium.base.test.util.Feature;
+
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
@@ -37,12 +39,16 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
             @Override
             public void onReceivedTitle(XWalkView view, String title) {
                 mTestContentsClient.onTitleChanged(title);
-                assertEquals("Pass", title);
             }
         }
 
-        getXWalkView().setXWalkClient(new TestXWalkClient());
-        getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+                getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+            }
+        });
     }
 
     @SmallTest
@@ -50,7 +56,8 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
     public void testExtensionEcho() throws Throwable {
         ExtensionEcho echo = new ExtensionEcho();
 
-        loadAssetFile("echo.html");
+        loadAssetFileAndWaitForTitle("echo.html");
+        assertEquals("Pass", getTitleOnUiThread());
     }
 
     @SmallTest
@@ -59,6 +66,15 @@ public class ExtensionEchoTest extends XWalkViewTestBase {
         ExtensionEcho echo = new ExtensionEcho();
 
         loadAssetFile("echoSync.html");
+        assertEquals("Pass", getTitleOnUiThread());
+    }
+
+    @SmallTest
+    @Feature({"ExtensionEcho"})
+    public void testExtensionEchoMultiFrames() throws Throwable {
+        ExtensionEcho echo = new ExtensionEcho();
+
+        loadAssetFileAndWaitForTitle("framesEcho.html");
         assertEquals("Pass", getTitleOnUiThread());
     }
 }

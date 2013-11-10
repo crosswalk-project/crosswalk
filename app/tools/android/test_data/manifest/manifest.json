@@ -1,16 +1,18 @@
 {
   "name": "Example",
-  "app": {
-    "launch": {
-      "local_path": "http://www.intel.com"
-    }
-  },
   "version": "1.0.0",
+  "launch_path": "http://www.intel.com",
+  "app": {
+      "launch": {
+          "local_path": "http://www.intel.com"
+      }
+  },
   "description": "a sample description",
+  "origin": "app://app.id",
   "icons": {
   },
   "default_locale": "en",
-  "permissions": [],
+  "permissions": ["geolocation"],
   "required_version": "1.28.1.0",
   "plugin": [],
   "fullscreen":"true"

@@ -61,8 +61,11 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   virtual void OnRenderProcessShutdown() OVERRIDE;
 
  private:
-  // Message Handlers.
-  void OnExtensionProcessChannelCreated(const IPC::ChannelHandle& handle);
+  void SetupBrowserProcessClient(IPC::SyncChannel* browser_channel);
+
+  // We use the browser_channel to ask for the handle to setup the extension
+  // channel and plug the external_extensions_client_ into it.
+  void SetupExtensionProcessClient(IPC::SyncChannel* browser_channel);
 
   scoped_ptr<XWalkExtensionClient> in_browser_process_extensions_client_;
   scoped_ptr<XWalkExtensionClient> external_extensions_client_;

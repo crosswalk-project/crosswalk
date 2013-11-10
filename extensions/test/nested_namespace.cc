@@ -8,17 +8,20 @@
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
 
 bool g_outer_extension_loaded = false;
 bool g_inner_extension_loaded = false;
+bool g_another_extension_loaded = false;
 
 }
 
@@ -34,12 +37,7 @@ class OuterExtension : public XWalkExtension {
  public:
   OuterExtension() : XWalkExtension() {
     set_name("outer");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
-        "exports.value = true";
-    return kAPI;
+    set_javascript_api("exports.value = true");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
@@ -59,12 +57,7 @@ class InnerExtension : public XWalkExtension {
  public:
   InnerExtension() : XWalkExtension() {
     set_name("outer.inner");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
-        "exports.value = true";
-    return kAPI;
+    set_javascript_api("exports.value = true;");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
@@ -72,15 +65,58 @@ class InnerExtension : public XWalkExtension {
   }
 };
 
+class AnotherInstance : public XWalkExtensionInstance {
+ public:
+  AnotherInstance() {
+    g_another_extension_loaded = true;
+  }
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {}
+};
+
+class AnotherExtension : public XWalkExtension {
+ public:
+  AnotherExtension() : XWalkExtension() {
+    set_name("another");
+    // With load on demand enabled, this should cause 'outer' and 'outer.inner'
+    // extensions to be loaded. The aim is to guarantee that our trampoline
+    // mechanism works in the case that the JS API code depends on another
+    // extension.
+    set_javascript_api("if (outer.inner.value === true) { "
+                       "exports.value = true;"
+                       "}");
+  }
+
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+    return new AnotherInstance;
+  }
+};
+
 class XWalkExtensionsNestedNamespaceTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered_outer = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered_outer = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new OuterExtension));
     ASSERT_TRUE(registered_outer);
-    bool registered_inner = extension_service->RegisterExtension(
+    bool registered_inner = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new InnerExtension));
     ASSERT_TRUE(registered_inner);
+  }
+};
+
+class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
+ public:
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered_outer = server->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new OuterExtension));
+    ASSERT_TRUE(registered_outer);
+    bool registered_inner = server->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new InnerExtension));
+    ASSERT_TRUE(registered_inner);
+    bool registered_another = server->RegisterExtension(
+        scoped_ptr<XWalkExtension>(new AnotherExtension));
+    ASSERT_TRUE(registered_another);
   }
 };
 
@@ -113,4 +149,20 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
 
   EXPECT_TRUE(g_outer_extension_loaded);
   EXPECT_FALSE(g_inner_extension_loaded);
+}
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsTrampolinesForNested,
+                       InstanceCreatedForExtensionUsedByAnother) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("another.html"));
+
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+
+  EXPECT_TRUE(g_another_extension_loaded);
+  EXPECT_TRUE(g_inner_extension_loaded);
+  EXPECT_TRUE(g_outer_extension_loaded);
 }

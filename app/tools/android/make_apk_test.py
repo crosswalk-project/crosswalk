@@ -45,38 +45,80 @@ class TestMakeApk(unittest.TestCase):
       shutil.rmtree(test_data_dir)
 
   def testName(self):
-    proc = subprocess.Popen(['python', 'make_apk.py',
+    proc = subprocess.Popen(['python', 'make_apk.py', '--version=1.0.0',
                              '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The APK name is required!') != -1)
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                             '--version=1.0.0', '--package=org.xwalk.example'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The APK name is required!') == -1)
     Clean('Example')
 
+  def testVersion(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example', '--version=1.0.0',
+                             '--app-url=http://www.intel.com'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('versionName') != -1)
+    Clean('Example')
+
+  def testAppDescription(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--package=org.xwalk.example', '--version=1.0.0',
+                             '--description=a sample application',
+                             '--app-url=http://www.intel.com'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('description') != -1)
+    Clean('Example')
+
+  def testPermissions(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0', '--package=org.xwalk.example',
+                             '--permissions="geolocation"',
+                             '--app-url=http://www.intel.com'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('LOCATION_HARDWARE') != -1)
+    Clean('Example')
+
   def testPackage(self):
     proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--name=Example'],
+                             '--name=Example', '--version=1.0.0'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The package name is required!') != -1)
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                             '--version=1.0.0', '--package=org.xwalk.example'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The package name is required!') == -1)
     Clean('Example')
 
   def testEntry(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') == -1)
     self.assertTrue(os.path.exists('Example.apk'))
@@ -84,10 +126,11 @@ class TestMakeApk(unittest.TestCase):
 
     test_entry_root = 'test_data/entry'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-root=%s' % test_entry_root,
                              '--app-local-path=index.html'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') == -1)
     self.assertTrue(os.path.exists('Example.apk'))
@@ -95,7 +138,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testEntryWithErrors(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example'],
+                             '--version=1.0.0', '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') != -1)
@@ -103,27 +146,30 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example')
 
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--app-root=.'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example')
 
-    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example', 
+                             '--version=1.0.0',
                              '--package=org.xwalk.example', '--app-root=./'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example')
 
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-local-path=index.html'],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
@@ -132,10 +178,11 @@ class TestMakeApk(unittest.TestCase):
   def testIcon(self):
     icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--icon=%s' % icon_path],
-                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _, _ = proc.communicate()
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
@@ -146,6 +193,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testFullscreen(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com', '-f'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -159,6 +207,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testEnableRemoteDebugging(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--enable-remote-debugging'],
@@ -174,6 +223,7 @@ class TestMakeApk(unittest.TestCase):
   def testKeystore(self):
     keystore_path = os.path.join('test_data', 'keystore', 'xwalk-test.keystore')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--keystore-path=%s' % keystore_path,
@@ -209,6 +259,7 @@ class TestMakeApk(unittest.TestCase):
     # Test with an existed extension.
     extension_path = 'test_data/extensions/myextension'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--extensions=%s' % extension_path],
@@ -232,6 +283,7 @@ class TestMakeApk(unittest.TestCase):
     # Test with a non-existed extension.
     extension_path = 'test_data/extensions/myextension'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--extensions=%s1' % extension_path],
@@ -243,6 +295,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testMode(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -251,6 +304,7 @@ class TestMakeApk(unittest.TestCase):
     shared_mode_size = os.path.getsize('Example.apk')
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--mode=embedded'],
@@ -260,6 +314,26 @@ class TestMakeApk(unittest.TestCase):
     embeded_mode_size = os.path.getsize('Example.apk')
     self.assertTrue(shared_mode_size < embeded_mode_size)
     Clean('Example')
+
+  def testXPK(self):
+    xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--xpk=%s' % xpk_file],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.isfile('Example.apk'))
+    Clean('Example')
+
+  def testXPKWithError(self):
+    xpk_file = os.path.join('test_data', 'xpk', 'error.xpk')
+    proc = subprocess.Popen(['python', 'make_apk.py', '--xpk=%s' % xpk_file],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    error_msg = 'XPK doesn\'t contain manifest file'
+    self.assertTrue(out.find(error_msg) != -1)
+    self.assertFalse(os.path.exists('Example'))
+    self.assertFalse(os.path.isfile('Example.apk'))
+
 
 if __name__ == '__main__':
   parser = optparse.OptionParser()

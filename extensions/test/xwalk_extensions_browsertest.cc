@@ -6,6 +6,7 @@
 
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -17,6 +18,7 @@
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
 
@@ -70,10 +72,7 @@ class EchoExtension : public XWalkExtension {
  public:
   EchoExtension() : XWalkExtension() {
     set_name("echo");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    return kEchoAPI;
+    set_javascript_api(kEchoAPI);
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -85,10 +84,7 @@ class DelayedEchoExtension : public XWalkExtension {
  public:
   DelayedEchoExtension() : XWalkExtension() {
     set_name("echo");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    return kEchoAPI;
+    set_javascript_api(kEchoAPI);
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -102,7 +98,6 @@ class ExtensionWithInvalidName : public XWalkExtension {
     set_name("invalid name with spaces");
   }
 
-  virtual const char* GetJavaScriptAPI() { return ""; }
   virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
 };
 
@@ -110,12 +105,13 @@ class ExtensionWithInvalidName : public XWalkExtension {
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new EchoExtension));
     ASSERT_TRUE(registered);
 
-    bool invalid_registered = extension_service->RegisterExtension(
+    bool invalid_registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new ExtensionWithInvalidName));
     ASSERT_FALSE(invalid_registered);
   }
@@ -123,8 +119,9 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
 
 class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new DelayedEchoExtension));
   }
 };

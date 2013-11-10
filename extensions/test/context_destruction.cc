@@ -11,6 +11,7 @@
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -18,6 +19,7 @@
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
 
@@ -60,15 +62,11 @@ class OnceExtension : public XWalkExtension {
   OnceExtension()
       : XWalkExtension() {
     set_name("once");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
+    set_javascript_api(
         "exports.read = function(callback) {"
         "  extension.setMessageListener(callback);"
         "  extension.postMessage('PING');"
-        "};";
-    return kAPI;
+        "};");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -79,18 +77,19 @@ class OnceExtension : public XWalkExtension {
 
 class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new OnceExtension));
     ASSERT_TRUE(registered);
   }
 
-  // FIXME(cmarcelo): Test here should be exact instead of greater than. To
-  // achieve that we need to ensure that pages that don't use an extensions
-  // won't have an instance created for them.
+  // FIXME(cmarcelo): Test here should be equal instead of
+  // greater-than-or-equal. To achieve that we need to ensure that pages that
+  // don't use an extensions won't have an instance created for them.
   virtual void TearDown() OVERRIDE {
     SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_contexts_destroyed >= 2);
-    ASSERT_GT(g_contexts_destroyed, 2);
+    ASSERT_GE(g_contexts_destroyed, 2);
   }
 };
 
@@ -115,5 +114,5 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsContextDestructionTest,
   }
 
   // FIXME(cmarcelo): See comment in TearDown().
-  ASSERT_GT(g_contexts_created, 2);
+  ASSERT_GE(g_contexts_created, 2);
 }

@@ -35,10 +35,17 @@ class XWalkContent {
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
   ScopedJavaLocalRef<jstring> GetVersion(JNIEnv* env, jobject obj);
+  jint GetRoutingID(JNIEnv* env, jobject obj);
 
   XWalkRenderViewHostExt* render_view_host_ext() {
     return render_view_host_ext_.get();
   };
+
+  void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
+  jboolean SetManifest(JNIEnv* env,
+                       jobject obj,
+                       jstring path,
+                       jstring manifest);
 
  private:
   content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);

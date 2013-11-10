@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
+import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
 import org.xwalk.runtime.XWalkRuntimeViewProvider;
 
 /**
@@ -39,6 +41,8 @@ public class XWalkExtensionManager {
     private XWalkExtensionContextImpl mExtensionContextImpl;
 
     private ArrayList<XWalkExtension> mExtensions;
+    // This variable is to set whether to load external extensions. The default is true.
+    private boolean mLoadExternalExtensions;
 
     public XWalkExtensionManager(Context context, Activity activity, XWalkRuntimeViewProvider xwalkProvider) {
         mContext = context;
@@ -46,14 +50,23 @@ public class XWalkExtensionManager {
         mXwalkProvider = xwalkProvider;
         mExtensionContextImpl = new XWalkExtensionContextImpl(context, activity, this);
         mExtensions = new ArrayList<XWalkExtension>();
+        mLoadExternalExtensions = true;
     }
 
     public XWalkExtensionContext getExtensionContext() {
         return mExtensionContextImpl;
     }
 
-    public void postMessage(XWalkExtension extension, String message) {
-        mXwalkProvider.postMessage(extension, message);
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
+        mXwalkProvider.postMessage(extension, instanceID, message);
+    }
+
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        mXwalkProvider.broadcastMessage(extension, message);
+    }
+
+    public void destroyExtension(XWalkExtension extension) {
+        mXwalkProvider.destroyExtension(extension);
     }
 
     public Object registerExtension(XWalkExtension extension) {
@@ -80,8 +93,9 @@ public class XWalkExtensionManager {
 
     public void onDestroy() {
         for(XWalkExtension extension: mExtensions) {
-            extension.onDestroy();
+            extension.destroy();
         }
+        mExtensions.clear();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -95,6 +109,10 @@ public class XWalkExtensionManager {
         loadExternalExtensions();
     }
 
+    public void setAllowExternalExtensions(boolean load) {
+        mLoadExternalExtensions = load;
+    }
+
     private void loadInternalExtensions() {
         // Create all extension instances directly here. The internal extension will register
         // itself and add itself to XWalkExtensionManager.mExtensions automatically.
@@ -102,13 +120,36 @@ public class XWalkExtensionManager {
         //    String jsApiContent = "";
         //    try {
         //        jsApiContent = getAssetsFileContent(mContext.getAssets(), Device.JS_API_PATH);
+        //        new Device(jsApiContent, mExtensionContextImpl);
         //    } catch(IOException e) {
         //        Log.e(TAG, "Failed to read js API file of internal extension: Device");
         //    }
-        //    new Device(jsApiContent, mExtensionContextImpl);
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    PresentationExtension.JS_API_PATH);
+                // Load PresentationExtension as an internal extension.
+                new PresentationExtension(PresentationExtension.NAME, jsApiContent, mExtensionContextImpl);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
+            }
+        }
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    DeviceCapabilities.JS_API_PATH);
+                new DeviceCapabilities(jsApiContent, mExtensionContextImpl);
+            } catch(IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
+            }
+        }
     }
 
     private void loadExternalExtensions() {
+        if (!mLoadExternalExtensions) return;
+
         // Read extensions-config.json and create external extensions.
         String configFileContent;
         try {

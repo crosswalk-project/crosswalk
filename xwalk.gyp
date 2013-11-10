@@ -28,7 +28,7 @@
         '../base/base.gyp:base_i18n',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../content/content.gyp:content',
-        '../content/content.gyp:content_app_browser',
+        '../content/content.gyp:content_app_both',
         '../content/content.gyp:content_browser',
         '../content/content.gyp:content_common',
         '../content/content.gyp:content_gpu',
@@ -54,6 +54,7 @@
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
+        'experimental/experimental_resources.gyp:xwalk_experimental_resources',
       ],
       'include_dirs': [
         '..',
@@ -104,15 +105,10 @@
         'runtime/browser/runtime_select_file_policy.h',
         'runtime/browser/runtime_url_request_context_getter.cc',
         'runtime/browser/runtime_url_request_context_getter.h',
-        'runtime/browser/sensor_provider.cc',
-        'runtime/browser/sensor_provider.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
         'runtime/browser/ui/color_chooser_aura.cc',
-        'runtime/browser/ui/color_chooser_dialog_win.cc',
-        'runtime/browser/ui/color_chooser_dialog_win.h',
         'runtime/browser/ui/color_chooser_mac.cc',
-        'runtime/browser/ui/color_chooser_win.cc',
         'runtime/browser/ui/native_app_window.cc',
         'runtime/browser/ui/native_app_window.h',
         'runtime/browser/ui/native_app_window_mac.h',
@@ -134,7 +130,6 @@
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
         'runtime/extension/runtime.idl',
-        'runtime/extension/runtime_api.js',
         'runtime/extension/runtime_extension.cc',
         'runtime/extension/runtime_extension.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
@@ -152,17 +147,27 @@
       },
       'conditions': [
         [ 'tizen_mobile == 1', {
+          'dependencies': [
+            'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
+          ],
+          'includes': [
+            'sysapps/device_capabilities/device_capabilities.gypi',
+          ],
           'sources': [
+            'runtime/browser/tizen/sensor_provider.cc',
+            'runtime/browser/tizen/sensor_provider.h',
+            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.cc',
+            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.h',
+            'runtime/browser/tizen/tizen_platform_sensor.cc',
+            'runtime/browser/tizen/tizen_platform_sensor.h',
+            'runtime/browser/tizen/tizen_sensor_observer.cc',
+            'runtime/browser/tizen/tizen_sensor_observer.h',
             'runtime/browser/ui/tizen_plug_message_writer.cc',
             'runtime/browser/ui/tizen_plug_message_writer.h',
             'runtime/browser/ui/tizen_system_indicator.cc',
             'runtime/browser/ui/tizen_system_indicator.h',
             'runtime/browser/ui/tizen_system_indicator_watcher.cc',
             'runtime/browser/ui/tizen_system_indicator_watcher.h',
-            'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.cc',
-            'runtime/browser/ui/tizen/desktop_root_window_host_tizen_x11.h',
-            'runtime/browser/tizen_platform_sensor.cc',
-            'runtime/browser/tizen_platform_sensor.h',
           ],
         }],
         ['OS=="android"',{
@@ -207,6 +212,8 @@
             'runtime/common/android/xwalk_message_generator.h',
             'runtime/common/android/xwalk_render_view_messages.cc',
             'runtime/common/android/xwalk_render_view_messages.h',
+            'runtime/renderer/android/xwalk_render_process_observer.cc',
+            'runtime/renderer/android/xwalk_render_process_observer.h',
             'runtime/renderer/android/xwalk_render_view_ext.cc',
             'runtime/renderer/android/xwalk_render_view_ext.h',
           ],
@@ -302,7 +309,7 @@
         {
           'action_name': 'xwalk_resources',
           'variables': {
-            'grit_resource_ids': 'runtime/resources/resource_ids',
+            'grit_resource_ids': 'resources/resource_ids',
             'grit_grd_file': 'runtime/resources/xwalk_resources.grd',
           },
           'includes': [ '../build/grit_action.gypi' ],
@@ -364,6 +371,9 @@
           'variables': {
             'pak_inputs': [
               '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_application_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_experimental_resources.pak',
+              '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_extensions_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
               '<(SHARED_INTERMEDIATE_DIR)/ui/app_locale_settings/app_locale_settings_en-US.pak',
@@ -379,6 +389,13 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/webkit/devtools_resources.pak',
+                ],
+              },
+            }],
+            [ 'tizen_mobile == 1', {
+              'variables': {
+                'pak_inputs+': [
+                  '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_sysapps_resources.pak',
                 ],
               },
             }],
@@ -570,7 +587,9 @@
             'xwalk_core_test_apk',
             'xwalk_runtime_shell_apk',
             'xwalk_runtime_client_embedded_shell_apk',
+            'xwalk_runtime_client_embedded_test_apk',
             'xwalk_runtime_client_shell_apk',
+            'xwalk_runtime_client_test_apk',
 
             # For external testing.
             'pack_xwalk_core_library',

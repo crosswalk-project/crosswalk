@@ -1,0 +1,17 @@
+<html>
+<head>
+<script>
+
+function deadLoopForever() {
+	while(true) {};
+}
+
+function deadLoopFor40secs() {
+  var startTime = Date.now();
+  while (Date.now() - startTime < 40000) {}
+}
+
+</script>
+</head>
+</html>
+

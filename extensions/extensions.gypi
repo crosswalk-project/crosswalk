@@ -28,9 +28,11 @@
     'public/XW_Extension_SyncMessage.h',
     'renderer/xwalk_extension_renderer_controller.cc',
     'renderer/xwalk_extension_renderer_controller.h',
-    'renderer/xwalk_api.js',
     'renderer/xwalk_extension_module.cc',
     'renderer/xwalk_extension_module.h',
+    'renderer/xwalk_internal_api.js',
+    'renderer/xwalk_js_module.cc',
+    'renderer/xwalk_js_module.h',
     'renderer/xwalk_module_system.cc',
     'renderer/xwalk_module_system.h',
     'renderer/xwalk_v8tools_module.cc',
@@ -48,7 +50,7 @@
       ],
     }],
   ],
-  'includes': [
-    'xwalk_js2c.gypi',
+  'dependencies': [
+    'extensions/extensions_resources.gyp:xwalk_extensions_resources',
   ],
 }

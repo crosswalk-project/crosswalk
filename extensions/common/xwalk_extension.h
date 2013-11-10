@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTENSION_H_
 
 #include <string>
+#include <vector>
 #include "base/callback.h"
 #include "base/values.h"
 
@@ -33,22 +34,38 @@ class XWalkExtension {
  public:
   virtual ~XWalkExtension();
 
-  // Returns the JavaScript API code that will be executed in the render
-  // process. It allows the extension provide a function or object based
-  // interface on top of the message passing.
-  virtual const char* GetJavaScriptAPI() = 0;
-
   virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
+  std::string javascript_api() const { return javascript_api_; }
+
+  // Returns a list of entry points for which the extension should be loaded
+  // when accessed. Entry points are used when the extension needs to have
+  // objects outside the namespace that is implicitly created using its name.
+  virtual const base::ListValue& entry_points() const;
 
  protected:
   XWalkExtension();
   void set_name(const std::string& name) { name_ = name; }
+  void set_javascript_api(const std::string& javascript_api) {
+    javascript_api_ = javascript_api;
+  }
+  void set_entry_points(const std::vector<std::string>& entry_points) {
+    entry_points_.AppendStrings(entry_points);
+  }
 
  private:
   // Name of extension, used for dispatching messages.
   std::string name_;
+
+  // JavaScript API code that will be executed in the render process. It allows
+  // the extension provide a function or object based interface on top of the
+  // message passing.
+  std::string javascript_api_;
+
+  // FIXME(jeez): convert this to std::vector<std::string> to avoid
+  // extra conversions later on.
+  base::ListValue entry_points_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };

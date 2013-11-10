@@ -97,6 +97,22 @@ void XWalkWebContentsDelegate::RequestMediaAccessPermission(
       web_contents, request, callback);
 }
 
+void XWalkWebContentsDelegate::RendererUnresponsive(WebContents* source) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkWebContentsDelegate_rendererUnresponsive(env, obj.obj());
+}
+
+void XWalkWebContentsDelegate::RendererResponsive(WebContents* source) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkWebContentsDelegate_rendererResponsive(env, obj.obj());
+}
+
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
   return RegisterNativesImpl(env);
 }

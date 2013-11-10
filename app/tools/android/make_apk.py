@@ -16,6 +16,7 @@ import sys
 sys.path.append('scripts/gyp')
 from customize import ReplaceInvalidChars
 from dex import AddExeExtensions
+from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
 def CleanDir(path):
@@ -79,6 +80,12 @@ def ParseManifest(options):
     options.package = 'org.xwalk.' + parser.GetAppName().lower()
   if not options.name:
     options.name = parser.GetAppName()
+  if not options.version:
+    options.version = parser.GetVersion()
+  if parser.GetDescription():
+    options.description = parser.GetDescription()
+  if parser.GetPermissions():
+    options.permissions = parser.GetPermissions()
   if parser.GetAppUrl():
     options.app_url = parser.GetAppUrl()
   if parser.GetAppRoot():
@@ -99,6 +106,24 @@ def ParseManifest(options):
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
     options.fullscreen = False
+
+
+def ParseXPK(options, out_dir):
+  cmd = ['python', 'parse_xpk.py',
+         '--file=%s' % os.path.expanduser(options.xpk),
+         '--out=%s' % out_dir]
+  RunCommand(cmd)
+  if options.manifest:
+    print ('Use the manifest from XPK by default '
+           'when "--xpk" option is specified, and '
+           'the "--manifest" option would be ignored.')
+    sys.exit(7)
+
+  if os.path.isfile(os.path.join(out_dir, 'manifest.json')):
+    options.manifest = os.path.join(out_dir, 'manifest.json')
+  else:
+    print 'XPK doesn\'t contain manifest file.'
+    sys.exit(8)
 
 
 def FindExtensionJars(root_path):
@@ -123,6 +148,15 @@ def Customize(options):
   name = '--name=AppTemplate'
   if options.name:
     name = '--name=%s' % options.name
+  version = '1.0.0'
+  if options.version:
+    version = '--version=%s' % options.version
+  description = ''
+  if options.description:
+    description = '--description=%s' % options.description
+  permissions = ''
+  if options.permissions:
+    permissions = '--permissions=%s' % options.permissions
   icon = ''
   if options.icon:
     icon = '--icon=%s' % os.path.expanduser(options.icon)
@@ -145,8 +179,8 @@ def Customize(options):
   if options.extensions:
     extensions_list = '--extensions=%s' % options.extensions
   cmd = ['python', 'customize.py', package,
-          name, icon, app_url, remote_debugging,
-          app_root, app_local_path, fullscreen_flag,
+          name, version, description, icon, permissions, app_url,
+          remote_debugging, app_root, app_local_path, fullscreen_flag,
           extensions_list]
   RunCommand(cmd)
 
@@ -387,6 +421,7 @@ def Execution(options, sanitized_name):
   if options.mode == 'embedded':
     os.remove(pak_des_path)
 
+
 def main(argv):
   parser = optparse.OptionParser()
   info = ('The manifest file with the detail of the app.'
@@ -397,8 +432,17 @@ def main(argv):
   parser.add_option('--package', help=info)
   info = ('The apk name. Such as: --name=YourApplicationName')
   parser.add_option('--name', help=info)
+  info = ('The version number. Such as: --version=TheVersionNumber')
+  parser.add_option('--version', help=info)
+  info = ('The application description. Such as:'
+          '--description=YourApplicationDescription')
+  parser.add_option('--description', help=info)
   info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
   parser.add_option('--icon', help=info)
+  info = ('The permission list. Such as: --permissions="geolocation"'
+          'For more permissions, such as:'
+          '--permissions="geolocation:permission2"')
+  parser.add_option('--permissions', help=info)
   info = ('The url of application. '
           'This flag allows to package website as apk. Such as: '
           '--app-url=http://www.intel.com')
@@ -411,12 +455,12 @@ def main(argv):
           'This flag should work with "--app-root" together. '
           'Such as: --app-local-path=/relative/path/of/entry/file')
   parser.add_option('--app-local-path', help=info)
-  info = ('The path of the developer keystore, Such as: '
+  info = ('The path of the developer keystore. Such as: '
           '--keystore-path=/path/to/your/developer/keystore')
   parser.add_option('--keystore-path', help=info)
-  info = ('The alias name of keystore, Such as: --keystore-alias=alias_name')
+  info = ('The alias name of keystore. Such as: --keystore-alias=alias_name')
   parser.add_option('--keystore-alias', help=info)
-  info = ('The passcode of keystore, Such as: --keystore-passcode=code')
+  info = ('The passcode of keystore. Such as: --keystore-passcode=code')
   parser.add_option('--keystore-passcode', help=info)
   parser.add_option('--enable-remote-debugging', action='store_true',
                     dest='enable_remote_debugging', default=False,
@@ -434,10 +478,18 @@ def main(argv):
           'Set the default mode as "shared".'
           'Such as: --mode=shared')
   parser.add_option('--mode', help=info)
+  info = ('The path of the XPK file. Such as: --xpk=/path/to/xpk/file')
+  parser.add_option('--xpk', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
     return 0
+
+  xpk_temp_dir = ''
+  if options.xpk:
+    xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
+    xpk_temp_dir = xpk_name + '_xpk'
+    ParseXPK(options, xpk_temp_dir)
 
   if not options.manifest:
     if not options.package:
@@ -452,6 +504,9 @@ def main(argv):
                    'please use "--app-url" option; If the entry is local, '
                    'please use "--app-root" and '
                    '"--app-local-path" options together!')
+    if options.permissions:
+      permission_list = options.permissions.split(':')
+      options.permissions = HandlePermissionList(permission_list)
   else:
     try:
       ParseManifest(options)
@@ -469,6 +524,8 @@ def main(argv):
   except SystemExit, ec:
     CleanDir(sanitized_name)
     CleanDir('out')
+    if os.path.exists(xpk_temp_dir):
+      CleanDir(xpk_temp_dir)
     return ec.code
   return 0
 

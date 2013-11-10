@@ -32,8 +32,8 @@ public class XWalkExtensionClientImpl extends XWalkExtension {
         super(name, jsApi, context);
 
         mExtensionClient = extensionClient;
-        mOnMessage = lookupMethod("onMessage", String.class);
-        mOnSyncMessage = lookupMethod("onSyncMessage", String.class);
+        mOnMessage = lookupMethod("onMessage", int.class, String.class);
+        mOnSyncMessage = lookupMethod("onSyncMessage", int.class, String.class);
         mOnResume = lookupMethod("onResume");
         mOnPause = lookupMethod("onPause");
         mOnDestroy = lookupMethod("onDestroy");
@@ -41,13 +41,13 @@ public class XWalkExtensionClientImpl extends XWalkExtension {
     }
 
     @Override
-    public void onMessage(String message) {
-        invokeMethod(mOnMessage, mExtensionClient, message);
+    public void onMessage(int extensionInstanceID, String message) {
+        invokeMethod(mOnMessage, mExtensionClient, extensionInstanceID, message);
     }
 
     @Override
-    public String onSyncMessage(String message) {
-        return (String) invokeMethod(mOnSyncMessage, mExtensionClient, message);
+    public String onSyncMessage(int extensionInstanceID, String message) {
+        return (String) invokeMethod(mOnSyncMessage, mExtensionClient, extensionInstanceID, message);
     }
 
     @Override

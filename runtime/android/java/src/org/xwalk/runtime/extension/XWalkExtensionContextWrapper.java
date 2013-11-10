@@ -9,7 +9,7 @@ import android.content.Context;
 
 /**
  * This is a public class to provide context for extensions.
- * It'll be shared by all extensions.
+ * It'll be shared by all external extensions.
  */
 public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
     private XWalkExtensionContext mOriginContext;
@@ -26,12 +26,24 @@ public class XWalkExtensionContextWrapper extends XWalkExtensionContext {
         mOriginContext.unregisterExtension(extension);
     }
 
-    public void postMessage(XWalkExtension extension, String message) {
-        mOriginContext.postMessage(extension, message);
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
+        mOriginContext.postMessage(extension, instanceID, message);
+    }
+
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        mOriginContext.broadcastMessage(extension, message);
+    }
+
+    public void destroyExtension(XWalkExtension extension) {
+        mOriginContext.destroyExtension(extension);
     }
 
     public Context getContext() {
-        return mOriginContext.getContext();
+        // This is very tricky because for external extensions, we should
+        // use Activity which contains the context for runtime client side.
+        // mOriginContext.getContext() returns the context of library package,
+        // e.g., the package context of runtime side.
+        return mOriginContext.getActivity();
     }
 
     public Activity getActivity() {

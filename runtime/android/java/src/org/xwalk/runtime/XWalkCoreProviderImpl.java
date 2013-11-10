@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.chromium.content.browser.LoadUrlParams;
 import org.xwalk.core.XWalkView;
 import org.xwalk.runtime.extension.XWalkExtension;
 
@@ -17,7 +18,7 @@ import org.xwalk.runtime.extension.XWalkExtension;
  * The implementation class for runtime core. It calls the methods provided
  * by runtime core and customizes the behaviors for runtime.
  */
-class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
+class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     private Context mContext;
     private XWalkView mXwalkView;
 
@@ -27,6 +28,7 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
         init(context, activity);
     }
 
+    @Override
     public void init(Context context, Activity activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
@@ -41,7 +43,7 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
 
     @Override
     public void loadAppFromManifest(String manifestUrl) {
-        // TODO(yongsheng): Implement it.
+        mXwalkView.loadAppFromManifest(manifestUrl);
     }
 
     @Override
@@ -108,9 +110,21 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
     }
 
     @Override
-    public void postMessage(XWalkExtension extension, String message) {
+    public void postMessage(XWalkExtension extension, int instanceID, String message) {
         XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
-        bridge.postMessage(message);
+        bridge.postMessage(instanceID, message);
+    }
+
+    @Override
+    public void broadcastMessage(XWalkExtension extension, String message) {
+        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
+        bridge.broadcastMessage(message);
+    }
+
+    @Override
+    public void destroyExtension(XWalkExtension extension) {
+        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
+        bridge.destroy();
     }
 
     // For instrumentation test.
@@ -124,5 +138,17 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProvider {
         XWalkClientForTest clientForTest = new XWalkClientForTest(mContext, mXwalkView);
         clientForTest.setCallbackForTest(callback);
         mXwalkView.setXWalkClient(clientForTest);
+
+        XWalkWebChromeClientForTest webChromeClient =
+                new XWalkWebChromeClientForTest(mContext, mXwalkView);
+        webChromeClient.setCallbackForTest(callback);
+        mXwalkView.setXWalkWebChromeClient(webChromeClient);
+    }
+
+    @Override
+    public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
+        mXwalkView.getXWalkViewContentForTest().getContentViewCoreForTest(
+                ).loadUrl(LoadUrlParams.createLoadDataParams(
+                        data, mimeType, isBase64Encoded));
     }
 }

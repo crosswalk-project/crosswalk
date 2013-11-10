@@ -39,15 +39,20 @@ public class OnUpdateTitleTest extends XWalkViewTestBase {
                 mTestContentsClient.onTitleChanged(title);
             }
         }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
-        getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+                getXWalkView().setXWalkWebChromeClient(new TestXWalkChromeClient());
+            }
+        });
     }
 
     @SmallTest
     @Feature({"OnUpdateTitle"})
     public void testOnUpdateTitle() throws Throwable {
         final String name = "index.html";
-        final String expected_title = "Android Asset";
+        final String expected_title = "Crosswalk Sample Application";
 
         loadAssetFile(name);
         assertEquals(expected_title, getTitleOnUiThread());

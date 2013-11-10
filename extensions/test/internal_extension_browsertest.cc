@@ -8,30 +8,30 @@
 #include "base/logging.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
+#include "xwalk/grit/xwalk_extensions_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
-
-extern const char kSource_internal_extension_browsertest_api[];
 
 using namespace xwalk::extensions; // NOLINT
 using namespace xwalk::jsapi::test; // NOLINT
 
 TestExtension::TestExtension() {
   set_name("test");
-}
-
-const char* TestExtension::GetJavaScriptAPI() {
-  return kSource_internal_extension_browsertest_api;
+  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_EXTENSIONS_TESTS_INTERNAL_EXTENSION_BROWSERTEST_API)
+                     .as_string());
 }
 
 XWalkExtensionInstance* TestExtension::CreateInstance() {
   return new TestExtensionInstance();
 }
 
-TestExtensionInstance::TestExtensionInstance() : handler_(this) {
+TestExtensionInstance::TestExtensionInstance() : counter_(0), handler_(this) {
   handler_.Register("clearDatabase",
       base::Bind(&TestExtensionInstance::OnClearDatabase,
                  base::Unretained(this)));
@@ -46,6 +46,12 @@ TestExtensionInstance::TestExtensionInstance() : handler_(this) {
                  base::Unretained(this)));
   handler_.Register("getPersonAge",
       base::Bind(&TestExtensionInstance::OnGetPersonAge,
+                 base::Unretained(this)));
+  handler_.Register("startHeartbeat",
+      base::Bind(&TestExtensionInstance::OnStartHeartbeat,
+                 base::Unretained(this)));
+  handler_.Register("stopHeartbeat",
+      base::Bind(&TestExtensionInstance::OnStopHeartbeat,
                  base::Unretained(this)));
 }
 
@@ -130,10 +136,28 @@ void TestExtensionInstance::OnGetPersonAge(
   info->PostResult(GetPersonAge::Results::Create(age));
 }
 
+void TestExtensionInstance::OnStartHeartbeat(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  heartbeat_info_.reset(info.release());
+  timer_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(50),
+               this,
+               &TestExtensionInstance::DispatchHeartbeat);
+}
+
+void TestExtensionInstance::OnStopHeartbeat(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  timer_.Stop();
+}
+
+void TestExtensionInstance::DispatchHeartbeat() {
+  heartbeat_info_->PostResult(StartHeartbeat::Results::Create(counter_++));
+}
+
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new TestExtension()));
     ASSERT_TRUE(registered);
   }

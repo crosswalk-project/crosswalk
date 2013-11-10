@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
 import org.chromium.content.browser.ContentVideoView;
@@ -111,7 +112,6 @@ public class XWalkContent extends FrameLayout {
             mContentView.loadUrl(new LoadUrlParams(url));
         }
 
-        mContentView.clearFocus();
         mContentView.requestFocus();
     }
 
@@ -225,7 +225,13 @@ public class XWalkContent extends FrameLayout {
     }
 
     public String getVersion() {
+        if (mXWalkContent == 0) return "";
         return nativeGetVersion(mXWalkContent);
+    }
+
+    public void setNetworkAvailable(boolean networkUp) {
+        if (mXWalkContent == 0) return;
+        nativeSetJsOnlineProperty(mXWalkContent, networkUp);
     }
 
     // For instrumentation test.
@@ -239,6 +245,7 @@ public class XWalkContent extends FrameLayout {
     }
 
     public String devToolsAgentId() {
+        if (mXWalkContent == 0) return "";
         return nativeDevToolsAgentId(mXWalkContent);
     }
 
@@ -246,12 +253,52 @@ public class XWalkContent extends FrameLayout {
         return mSettings;
     }
 
+    public void loadAppFromManifest(String path, String manifest) {
+        if (path == null || manifest == null || mXWalkContent == 0) {
+            return;
+        }
+
+        if (!nativeSetManifest(mXWalkContent, path, manifest)) {
+            throw new RuntimeException("Failed to parse the manifest file.");
+        }
+    }
+
+    @CalledByNative
+    public void onGetUrlFromManifest(String url) {
+        if (url != null && !url.isEmpty()) {
+            loadUrl(url);
+        }
+    }
+
+    public void destroy() {
+        if (mXWalkContent == 0) return;
+
+        // Remove its children used for page rendering from view hierarchy.
+        removeView(mContentView);
+        removeView(mContentViewRenderView);
+        mContentViewRenderView.setCurrentContentView(null);
+
+        // Destroy the native resources.
+        mContentViewRenderView.destroy();
+        mContentView.destroy();
+
+        nativeDestroy(mXWalkContent);
+        mXWalkContent = 0;
+    }
+
+    public int getRoutingID() {
+        return nativeGetRoutingID(mXWalkContent);
+    }
+
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
-
+    private static native void nativeDestroy(int nativeXWalkContent);
     private native int nativeGetWebContents(int nativeXWalkContent,
             InterceptNavigationDelegate delegate);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(int nativeXWalkContent);
     private native String nativeGetVersion(int nativeXWalkContent);
+    private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
+    private native boolean nativeSetManifest(int nativeXWalkContent, String path, String manifest);
+    private native int nativeGetRoutingID(int nativeXWalkContent);
 }

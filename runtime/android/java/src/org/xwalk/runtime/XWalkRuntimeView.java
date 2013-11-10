@@ -169,4 +169,8 @@ public class XWalkRuntimeView extends FrameLayout {
     public void setCallbackForTest(Object callback) {
         mProvider.setCallbackForTest(callback);
     }
+
+    public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
+        mProvider.loadDataForTest(data, mimeType, isBase64Encoded);
+    }
 }

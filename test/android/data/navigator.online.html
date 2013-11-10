@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>navigator.onLine property test</title>
+<script>
+window.onload = function() {
+	document.title = navigator.onLine.toString();
+	window.addEventListener("online", function() {
+		document.title = "online:" + navigator.onLine.toString();
+	}, false);
+
+	window.addEventListener("offline", function() {
+		document.title = "offline:" + navigator.onLine.toString();
+	}, false);
+}
+</script>
+</head>
+</html>

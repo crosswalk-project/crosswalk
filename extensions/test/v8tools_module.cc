@@ -8,6 +8,7 @@
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -15,6 +16,7 @@
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionServer;
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
@@ -29,18 +31,14 @@ class TestV8ToolsExtension : public XWalkExtension {
   TestV8ToolsExtension()
       : XWalkExtension() {
     set_name("test_v8tools");
-  }
-
-  virtual const char* GetJavaScriptAPI() {
-    static const char* kAPI =
+    set_javascript_api(
         "var v8tools = requireNative('v8tools');"
         "exports.forceSetProperty = function(obj, key, value) {"
         "  v8tools.forceSetProperty(obj, key, value);"
         "};"
         "exports.lifecycleTracker = function() {"
         "  return v8tools.lifecycleTracker();"
-        "};";
-    return kAPI;
+        "};");
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
@@ -50,8 +48,9 @@ class TestV8ToolsExtension : public XWalkExtension {
 
 class XWalkExtensionsV8ToolsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
-    bool registered = extension_service->RegisterExtension(
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
+    bool registered = server->RegisterExtension(
         scoped_ptr<XWalkExtension>(new TestV8ToolsExtension));
     ASSERT_TRUE(registered);
   }

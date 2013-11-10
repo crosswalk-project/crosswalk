@@ -7,12 +7,11 @@
 #include <utility>
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
+#include "grit/xwalk_experimental_resources.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/experimental/dialog/dialog.h"
 
 using content::BrowserThread;
-
-// This will be generated from dialog_api.js.
-extern const char kSource_dialog_api[];
 
 namespace xwalk {
 namespace experimental {
@@ -23,15 +22,13 @@ DialogExtension::DialogExtension(RuntimeRegistry* runtime_registry)
   : runtime_registry_(runtime_registry),
     owning_window_(NULL) {
   set_name("xwalk.experimental.dialog");
+  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_EXPERIMENTAL_DIALOG_API).as_string());
   runtime_registry_->AddObserver(this);
 }
 
 DialogExtension::~DialogExtension() {
   runtime_registry_->RemoveObserver(this);
-}
-
-const char* DialogExtension::GetJavaScriptAPI() {
-  return kSource_dialog_api;
 }
 
 XWalkExtensionInstance* DialogExtension::CreateInstance() {

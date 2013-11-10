@@ -1,0 +1,17 @@
+<html>
+  <head>
+  <title></title>
+    <script type="text/javascript">
+      function load() {
+        window.setInterval(function() {
+                             var timestamp = (new Date()).valueOf();
+                             document.title = timestamp;
+                           }, 10);
+      }
+    </script>
+  </head>
+
+  <body onload="load()">
+    onPause, onResume test.
+  </body>
+</html>

@@ -5,18 +5,16 @@
 #include "xwalk/runtime/extension/runtime_extension.h"
 
 #include "base/bind.h"
+#include "grit/xwalk_resources.h"
 #include "xwalk/runtime/extension/runtime.h"
-
-extern const char kSource_runtime_api[];
+#include "ui/base/resource/resource_bundle.h"
 
 namespace xwalk {
 
 RuntimeExtension::RuntimeExtension() {
   set_name("xwalk.runtime");
-}
-
-const char* RuntimeExtension::GetJavaScriptAPI() {
-  return kSource_runtime_api;
+  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_RUNTIME_API).as_string());
 }
 
 XWalkExtensionInstance* RuntimeExtension::CreateInstance() {

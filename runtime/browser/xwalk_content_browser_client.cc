@@ -101,12 +101,20 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
 }
 
+// This allow us to append extra command line switches to the child
+// process we launch.
 void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line, int child_process_id) {
   CommandLine* browser_process_cmd_line = CommandLine::ForCurrentProcess();
-  if (browser_process_cmd_line->HasSwitch(
-          switches::kXWalkEnableLoadingExtensionsOnDemand)) {
-    command_line->AppendSwitch(switches::kXWalkEnableLoadingExtensionsOnDemand);
+  const int extra_switches_count = 2;
+  const char* extra_switches[extra_switches_count] = {
+    switches::kXWalkDisableLoadingExtensionsOnDemand,
+    switches::kXWalkDisableExtensionProcess
+  };
+
+  for (int i = 0; i < extra_switches_count; i++) {
+    if (browser_process_cmd_line->HasSwitch(extra_switches[i]))
+      command_line->AppendSwitch(extra_switches[i]);
   }
 }
 

@@ -11,6 +11,7 @@ namespace test {
 
   callback GetPersonsCallback = void (Person[] persons, long size);
   callback GetPersonAgeCallback = void (long age);
+  callback HeartbeatCallback = void (long count);
 
   interface Functions {
     static void clearDatabase();
@@ -20,5 +21,8 @@ namespace test {
 
     static void getAllPersons(long max_size, GetPersonsCallback callback);
     static void getPersonAge(DOMString name, GetPersonAgeCallback callback);
+
+    static void startHeartbeat(HeartbeatCallback callback);
+    static void stopHeartbeat();
   };
 };

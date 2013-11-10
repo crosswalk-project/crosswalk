@@ -4,8 +4,14 @@
 
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
+#include <algorithm>
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/stl_util.h"
+#include "base/strings/string_split.h"
+#include "v8/include/v8.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 
 namespace xwalk {
@@ -74,7 +80,7 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
 }
 
 XWalkModuleSystem::~XWalkModuleSystem() {
-  STLDeleteValues(&extension_modules_);
+  DeleteExtensionModules();
   STLDeleteValues(&native_modules_);
 
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
@@ -122,23 +128,146 @@ void XWalkModuleSystem::ResetModuleSystemFromContext(
 }
 
 void XWalkModuleSystem::RegisterExtensionModule(
-    scoped_ptr<XWalkExtensionModule> module) {
+    scoped_ptr<XWalkExtensionModule> module,
+    const std::vector<std::string>& entry_points) {
   const std::string& extension_name = module->extension_name();
-  CHECK(extension_modules_.find(extension_name) == extension_modules_.end());
-  extension_modules_[extension_name] = module.release();
-}
-
-XWalkExtensionModule* XWalkModuleSystem::GetExtensionModule(
-    const std::string& extension_name) {
-  ExtensionModuleMap::iterator it = extension_modules_.find(extension_name);
-  CHECK(it != extension_modules_.end());
-  return it->second;
+  if (ContainsExtensionModule(extension_name)) {
+    LOG(WARNING) << "Can't register Extension Module named for extension '"
+                 << extension_name << "' in the Module System because name was "
+                 << "already registered.";
+    return;
+  }
+  extension_modules_.push_back(
+      ExtensionModuleEntry(extension_name, module.release(), entry_points));
 }
 
 void XWalkModuleSystem::RegisterNativeModule(
     const std::string& name, scoped_ptr<XWalkNativeModule> module) {
-  CHECK(native_modules_.find(name) == native_modules_.end());
+  CHECK(!ContainsKey(native_modules_, name));
   native_modules_[name] = module.release();
+}
+
+namespace {
+
+v8::Handle<v8::Value> EnsureTargetObjectForTrampoline(
+    v8::Handle<v8::Context> context, const std::vector<std::string>& path,
+    std::string* error) {
+  v8::Handle<v8::Object> object = context->Global();
+
+  std::vector<std::string>::const_iterator it = path.begin();
+  for (; it != path.end(); ++it) {
+    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::Value> value = object->Get(part);
+
+    if (value->IsUndefined()) {
+      v8::Handle<v8::Object> next_object = v8::Object::New();
+      object->Set(part, next_object);
+      object = next_object;
+      continue;
+    }
+
+    if (!value->IsObject()) {
+      *error = "the property '" + *it + "' in the path is undefined";
+      return v8::Undefined();
+    }
+
+    object = value.As<v8::Object>();
+  }
+  return object;
+}
+
+v8::Handle<v8::Value> GetObjectForPath(v8::Handle<v8::Context> context,
+                                       const std::vector<std::string>& path,
+                                       std::string* error) {
+  v8::Handle<v8::Object> object = context->Global();
+
+  std::vector<std::string>::const_iterator it = path.begin();
+  for (; it != path.end(); ++it) {
+    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::Value> value = object->Get(part);
+
+    if (!value->IsObject()) {
+      *error = "the property '" + *it + "' in the path is undefined";
+      return v8::Undefined();
+    }
+
+    object = value.As<v8::Object>();
+  }
+
+  return object;
+}
+
+}  // namespace
+
+bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
+    v8::Handle<v8::Context> context,
+    const std::string& entry_point,
+    v8::Local<v8::External> user_data) {
+  std::vector<std::string> path;
+  base::SplitString(entry_point, '.', &path);
+  std::string basename = path.back();
+  path.pop_back();
+
+  std::string error;
+  v8::Handle<v8::Value> value =
+      EnsureTargetObjectForTrampoline(context, path, &error);
+  if (value->IsUndefined()) {
+    LOG(WARNING) << "Error installing trampoline for " << entry_point
+                 << ": " << error << ".";
+    return false;
+  }
+
+  // FIXME(cmarcelo): ensure that trampoline is readonly.
+  value.As<v8::Object>()->SetAccessor(v8::String::New(basename.c_str()),
+                                      TrampolineCallback, 0, user_data);
+  return true;
+}
+
+// static
+bool XWalkModuleSystem::DeleteAccessorForEntryPoint(
+    v8::Handle<v8::Context> context,
+    const std::string& entry_point) {
+  std::vector<std::string> path;
+  base::SplitString(entry_point, '.', &path);
+  std::string basename = path.back();
+  path.pop_back();
+
+  std::string error;
+  v8::Handle<v8::Value> value = GetObjectForPath(context, path, &error);
+  if (value->IsUndefined()) {
+    LOG(WARNING) << "Error retrieving object for " << entry_point
+                 << ": " << error << ".";
+    return false;
+  }
+
+  value.As<v8::Object>()->ForceDelete(v8::String::New(basename.c_str()));
+  return true;
+}
+
+bool XWalkModuleSystem::InstallTrampoline(v8::Handle<v8::Context> context,
+                                          ExtensionModuleEntry* entry) {
+  v8::Local<v8::External> entry_ptr = v8::External::New(entry);
+  bool ret;
+
+  ret = SetTrampolineAccessorForEntryPoint(context, entry->name, entry_ptr);
+  if (!ret) {
+    LOG(WARNING) << "Error installing trampoline for '"
+                 << entry->name << "'.";
+    return false;
+  }
+
+  std::vector<std::string>::const_iterator it = entry->entry_points.begin();
+  for (; it != entry->entry_points.end(); ++it) {
+    ret = SetTrampolineAccessorForEntryPoint(context, *it, entry_ptr);
+    if (!ret) {
+      // TODO(vcgomes): Remove already added trampolines when it fails.
+      LOG(WARNING) << "Error installing trampoline for '"
+                   << entry->name << "'.";
+      return false;
+    }
+  }
+
+  return true;
 }
 
 v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
@@ -150,6 +279,10 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
 }
 
 void XWalkModuleSystem::Initialize() {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  const bool on_demand_enabled =
+      !cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand);
+
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
 
@@ -159,14 +292,115 @@ void XWalkModuleSystem::Initialize() {
   v8::Handle<v8::Function> require_native =
       require_native_template->GetFunction();
 
-  // TODO(cmarcelo): Setup lazy loader instead of always running JS API code.
-  ExtensionModuleMap::iterator it = extension_modules_.begin();
-  for (; it != extension_modules_.end(); ++it)
-    it->second->LoadExtensionCode(context, require_native);
+  MarkModulesWithTrampoline();
+
+  ExtensionModules::iterator it = extension_modules_.begin();
+  for (; it != extension_modules_.end(); ++it) {
+    if (on_demand_enabled && it->use_trampoline) {
+      if (InstallTrampoline(context, &*it))
+        continue;
+    }
+    it->module->LoadExtensionCode(context, require_native);
+  }
 }
 
 v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
   return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
+}
+
+bool XWalkModuleSystem::ContainsExtensionModule(const std::string& name) {
+  ExtensionModules::iterator it = extension_modules_.begin();
+  for (; it != extension_modules_.end(); ++it) {
+    if (it->name == name)
+      return true;
+  }
+  return false;
+}
+
+void XWalkModuleSystem::DeleteExtensionModules() {
+  for (ExtensionModules::iterator it = extension_modules_.begin();
+       it != extension_modules_.end(); ++it) {
+    delete it->module;
+  }
+  extension_modules_.clear();
+}
+
+// static
+void XWalkModuleSystem::TrampolineCallback(
+    v8::Local<v8::String> property,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
+  void* ptr = info.Data().As<v8::External>()->Value();
+  ExtensionModuleEntry* entry = static_cast<ExtensionModuleEntry*>(ptr);
+
+  if (!entry)
+    return;
+
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::Handle<v8::Context> context = isolate->GetCurrentContext();
+
+  DeleteAccessorForEntryPoint(context, entry->name);
+
+  std::vector<std::string>::const_iterator it = entry->entry_points.begin();
+  for (; it != entry->entry_points.end(); ++it) {
+    DeleteAccessorForEntryPoint(context, *it);
+  }
+
+  XWalkModuleSystem* module_system = GetModuleSystemFromContext(context);
+  v8::Handle<v8::FunctionTemplate> require_native_template =
+        v8::Handle<v8::FunctionTemplate>::New(
+            isolate,
+            module_system->require_native_template_);
+
+  XWalkExtensionModule* module = entry->module;
+  module->LoadExtensionCode(module_system->GetV8Context(),
+                            require_native_template->GetFunction());
+
+  v8::Handle<v8::Object> holder = info.Holder();
+  info.GetReturnValue().Set(holder->Get(property));
+}
+
+XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
+  const std::string& name,
+  XWalkExtensionModule* module,
+  const std::vector<std::string>& entry_points) :
+    name(name), module(module), use_trampoline(true),
+    entry_points(entry_points) {
+}
+
+XWalkModuleSystem::ExtensionModuleEntry::~ExtensionModuleEntry() {
+}
+
+// Returns whether the name of first is prefix of the second, considering "."
+// character as a separator. So "a" is prefix of "a.b" but not of "ab".
+bool XWalkModuleSystem::ExtensionModuleEntry::IsPrefix(
+    const ExtensionModuleEntry& first,
+    const ExtensionModuleEntry& second) {
+  const std::string& p = first.name;
+  const std::string& s = second.name;
+  return s.size() > p.size() && s[p.size()] == '.'
+      && std::mismatch(p.begin(), p.end(), s.begin()).first == p.end();
+}
+
+// Mark the extension modules that we want to setup "trampolines"
+// instead of loading the code directly. The current algorithm is very
+// simple: we only create trampolines for extensions that are leaves
+// in the namespace tree.
+//
+// For example, if there are two extensions "tizen" and "tizen.time",
+// the first one won't be marked with trampoline, but the second one
+// will. So we'll only load code for "tizen" extension.
+void XWalkModuleSystem::MarkModulesWithTrampoline() {
+  std::sort(extension_modules_.begin(), extension_modules_.end());
+
+  ExtensionModules::iterator it = extension_modules_.begin();
+  while (it != extension_modules_.end()) {
+    it = std::adjacent_find(it, extension_modules_.end(),
+                            &ExtensionModuleEntry::IsPrefix);
+    if (it == extension_modules_.end())
+      break;
+    it->use_trampoline = false;
+    ++it;
+  }
 }
 
 }  // namespace extensions

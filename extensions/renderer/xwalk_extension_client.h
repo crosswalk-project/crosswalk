@@ -8,13 +8,14 @@
 #include <stdint.h>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/values.h"
 #include "ipc/ipc_listener.h"
 
 namespace base {
 class Value;
-class ListValue;
 }
 
 namespace IPC {
@@ -50,12 +51,19 @@ class XWalkExtensionClient : public IPC::Listener {
   scoped_ptr<base::Value> SendSyncMessageToNative(int64_t instance_id,
       scoped_ptr<base::Value> msg);
 
-  void Initialize(IPC::Sender* sender) { sender_ = sender; }
+  void Initialize(IPC::Sender* sender);
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  typedef std::map<std::string, std::string> ExtensionAPIMap;
+  struct ExtensionCodePoints {
+    ExtensionCodePoints();
+    ~ExtensionCodePoints();
+    std::string api;
+    std::vector<std::string> entry_points;
+  };
+
+  typedef std::map<std::string, ExtensionCodePoints*> ExtensionAPIMap;
 
   const ExtensionAPIMap& extension_apis() const { return extension_apis_; }
 
@@ -65,9 +73,6 @@ class XWalkExtensionClient : public IPC::Listener {
   // Message Handlers.
   void OnInstanceDestroyed(int64_t instance_id);
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
-  void OnRegisterExtension(const std::string& name, const std::string& api) {
-    extension_apis_[name] = api;
-  }
 
   IPC::Sender* sender_;
   ExtensionAPIMap extension_apis_;

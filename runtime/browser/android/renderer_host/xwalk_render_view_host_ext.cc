@@ -80,6 +80,10 @@ void XWalkRenderViewHostExt::SetInitialPageScale(double page_scale_factor) {
                                          page_scale_factor));
 }
 
+void XWalkRenderViewHostExt::SetJsOnlineProperty(bool network_up) {
+  Send(new XWalkViewMsg_SetJsOnlineProperty(network_up));
+}
+
 void XWalkRenderViewHostExt::RenderViewGone(base::TerminationStatus status) {
   DCHECK(CalledOnValidThread());
   for (std::map<int, DocumentHasImagesResult>::iterator pending_req =

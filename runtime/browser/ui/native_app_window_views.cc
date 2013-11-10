@@ -4,34 +4,22 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 
-#include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
-#include "content/public/browser/render_view_host.h"
-#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
-#include "third_party/skia/include/core/SkPaint.h"
-#include "ui/views/controls/webview/webview.h"
-#include "ui/views/view.h"
-#include "ui/views/views_delegate.h"
-#include "ui/views/widget/widget.h"
-#include "ui/views/window/native_frame_view.h"
-#include "xwalk/runtime/browser/ui/top_view_layout_views.h"
-
-#if defined(USE_AURA)
-#include "ui/aura/env.h"
-#include "ui/aura/root_window.h"
-#include "ui/aura/window.h"
 #include "ui/gfx/screen.h"
+#include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/desktop_aura/desktop_screen.h"
+#include "ui/views/widget/widget.h"
+#include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
-#endif
+#include "xwalk/runtime/common/xwalk_notification_types.h"
 
-#if defined(OS_WIN) && !defined(USE_AURA)
-#include "ui/gfx/icon_util.h"
+#if defined(OS_WIN)
+#include "ui/views/window/native_frame_view.h"
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/tizen/tizen_sensor_observer.h"
 #include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #endif
 
@@ -57,7 +45,8 @@ NativeAppWindowViews::NativeAppWindowViews(
 #if defined(OS_TIZEN_MOBILE)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   // On Tizen apps are sized to the work area.
-  gfx::Rect bounds = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
+  gfx::Rect bounds =
+      gfx::Screen::GetNativeScreen()->GetPrimaryDisplay().work_area();
   params.bounds = bounds;
 #else
   params.type = views::Widget::InitParams::TYPE_WINDOW;
@@ -69,6 +58,7 @@ NativeAppWindowViews::NativeAppWindowViews(
 #if defined(OS_TIZEN_MOBILE)
   // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
+  sensor_observer_.reset(new TizenSensorObserver(this));
 #else
   window_->CenterWindow(create_params.bounds.size());
 #endif
@@ -302,12 +292,10 @@ NativeAppWindow* NativeAppWindow::Create(
 
 // static
 void NativeAppWindow::Initialize() {
-#if !defined(OS_WIN) && defined(USE_AURA)
   CHECK(!views::ViewsDelegate::views_delegate);
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
   views::ViewsDelegate::views_delegate = new XWalkViewsDelegate();
-#endif
 }
 
 }  // namespace xwalk

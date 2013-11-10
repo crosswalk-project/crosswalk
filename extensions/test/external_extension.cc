@@ -13,10 +13,12 @@
 #include "content/public/test/test_utils.h"
 
 using xwalk::extensions::XWalkExtensionService;
+using xwalk::extensions::XWalkExtensionServer;
 
 class ExternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service) OVERRIDE {
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+      XWalkExtensionServer* server) OVERRIDE {
     base::FilePath extension_dir;
     PathService::Get(base::DIR_EXE, &extension_dir);
 
@@ -24,6 +26,22 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
                     .Append(FILE_PATH_LITERAL("tests"))
                     .Append(FILE_PATH_LITERAL("extension"))
                     .Append(FILE_PATH_LITERAL("echo_extension"));
+
+    extension_service->RegisterExternalExtensionsForPath(extension_dir);
+  }
+};
+
+class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
+ public:
+  void RegisterExtensions(XWalkExtensionService* extension_service,
+                          XWalkExtensionServer* server) OVERRIDE {
+    base::FilePath extension_dir;
+    PathService::Get(base::DIR_EXE, &extension_dir);
+
+    extension_dir = extension_dir
+                    .Append(FILE_PATH_LITERAL("tests"))
+                    .Append(FILE_PATH_LITERAL("extension"))
+                    .Append(FILE_PATH_LITERAL("multiple_extension"));
 
     extension_service->RegisterExternalExtensionsForPath(extension_dir);
   }
@@ -58,6 +76,18 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("sync_echo.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension,
+                       DISABLED_MultipleEntryPoints) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII("entry_points.html"));
   content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);

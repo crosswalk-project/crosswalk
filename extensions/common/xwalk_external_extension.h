@@ -41,7 +41,6 @@ class XWalkExternalExtension : public XWalkExtension {
   friend class XWalkExternalInstance;
 
   // XWalkExtension implementation.
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
   // XW_CoreInterface_1 (from XW_Extension.h) implementation.
@@ -51,6 +50,7 @@ class XWalkExternalExtension : public XWalkExtension {
       XW_CreatedInstanceCallback created_callback,
       XW_DestroyedInstanceCallback destroyed_callback);
   void CoreRegisterShutdownCallback(XW_ShutdownCallback callback);
+  void EntryPointsSetExtraJSEntryPoints(const char** entry_points);
 
   // XW_MessagingInterface_1 (from XW_Extension.h) implementation.
   void MessagingRegister(XW_HandleMessageCallback callback);
@@ -67,7 +67,6 @@ class XWalkExternalExtension : public XWalkExtension {
   XW_HandleMessageCallback handle_msg_callback_;
   XW_HandleSyncMessageCallback handle_sync_msg_callback_;
 
-  std::string js_api_;
   bool initialized_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExternalExtension);

@@ -5,6 +5,7 @@
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 
 #include "base/values.h"
+#include "base/stl_util.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 
@@ -17,6 +18,7 @@ XWalkExtensionClient::XWalkExtensionClient()
 }
 
 XWalkExtensionClient::~XWalkExtensionClient() {
+  STLDeleteValues(&extension_apis_);
 }
 
 bool XWalkExtensionClient::Send(IPC::Message* msg) {
@@ -42,14 +44,18 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionClient, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_PostMessageToJS,
         OnPostMessageToJS)
-    IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_RegisterExtension,
-        OnRegisterExtension)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_InstanceDestroyed,
         OnInstanceDestroyed)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
   return handled;
+}
+
+XWalkExtensionClient::ExtensionCodePoints::ExtensionCodePoints() {
+}
+
+XWalkExtensionClient::ExtensionCodePoints::~ExtensionCodePoints() {
 }
 
 void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
@@ -134,6 +140,28 @@ scoped_ptr<base::Value> XWalkExtensionClient::SendSyncMessageToNative(
   scoped_ptr<base::Value> reply;
   wrapped_reply->Remove(0, &reply);
   return reply.Pass();
+}
+
+void XWalkExtensionClient::Initialize(IPC::Sender* sender) {
+  sender_ = sender;
+
+  std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams> extensions;
+  Send(new XWalkExtensionServerMsg_GetExtensions(&extensions));
+
+  if (extensions.empty())
+    return;
+
+  std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>::iterator it =
+      extensions.begin();
+  for (; it != extensions.end(); ++it) {
+    ExtensionCodePoints* codepoint = new ExtensionCodePoints;
+    codepoint->api = (*it).js_api;
+
+    codepoint->entry_points = (*it).entry_points;
+
+    std::string name = (*it).name;
+    extension_apis_[name] = codepoint;
+  }
 }
 
 }  // namespace extensions

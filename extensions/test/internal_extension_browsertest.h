@@ -8,6 +8,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include "base/timer/timer.h"
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 
@@ -17,8 +18,6 @@ using xwalk::extensions::XWalkExtensionFunctionInfo;
 class TestExtension : public xwalk::extensions::XWalkExtension {
  public:
   TestExtension();
-
-  virtual const char* GetJavaScriptAPI() OVERRIDE;
 
   virtual xwalk::extensions::XWalkExtensionInstance* CreateInstance() OVERRIDE;
 };
@@ -40,8 +39,16 @@ class TestExtensionInstance
   void OnAddPersonObject(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetAllPersons(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetPersonAge(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnStartHeartbeat(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnStopHeartbeat(scoped_ptr<XWalkExtensionFunctionInfo> info);
+
+  void DispatchHeartbeat();
 
   std::vector<std::pair<std::string, int> > database_;
+
+  int counter_;
+  scoped_ptr<XWalkExtensionFunctionInfo> heartbeat_info_;
+  base::RepeatingTimer<TestExtensionInstance> timer_;
 
   XWalkExtensionFunctionHandler handler_;
 };

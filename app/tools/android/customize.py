@@ -50,14 +50,28 @@ def Prepare(options, sanitized_name):
     shutil.copytree(options.app_root, assets_path)
 
 
-def ReplaceNodeValue(doc, node, name, value):
+def EditElementAttribute(doc, node, name, value):
   item = doc.getElementsByTagName(node)[0]
-  item.attributes[name].value = value
+  if item.hasAttribute(name):
+    item.attributes[name].value = value
+  else:
+    item.setAttribute(name, value)
 
 
-def AddAttribute(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
+def AddElementAttribute(doc, node, name, value):
+  root = doc.documentElement
+  item = doc.createElement(node)
   item.setAttribute(name, value)
+  root.appendChild(item)
+
+
+def AddElementAttributeAndText(doc, node, name, value, data):
+  root = doc.documentElement
+  item = doc.createElement(node)
+  item.setAttribute(name, value)
+  text = doc.createTextNode(data)
+  item.appendChild(text)
+  root.appendChild(item)
 
 
 def AddThemeStyle(doc, node, name, value):
@@ -73,6 +87,22 @@ def RemoveThemeStyle(doc, node, name, value):
   item.attributes[name].value = dest_str
 
 
+def CustomizeStringXML(options, sanitized_name):
+  strings_path = os.path.join(sanitized_name, 'res', 'values', 'strings.xml')
+  if not os.path.isfile(strings_path):
+    print ('Please make sure strings_xml'
+           ' exists under app_src folder.')
+    sys.exit(6)
+
+  if options.description:
+    xmldoc = minidom.parse(strings_path)
+    AddElementAttributeAndText(xmldoc, 'string', 'name', 'description',
+                               options.description)
+    strings_file = open(strings_path, 'wb')
+    xmldoc.writexml(strings_file)
+    strings_file.close()
+
+
 def CustomizeXML(options, sanitized_name):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
@@ -80,12 +110,25 @@ def CustomizeXML(options, sanitized_name):
            ' exists under app_src folder.')
     sys.exit(6)
 
+  CustomizeStringXML(options, sanitized_name)
   xmldoc = minidom.parse(manifest_path)
-  ReplaceNodeValue(xmldoc, 'manifest', 'package', options.package)
-  ReplaceNodeValue(xmldoc, 'application', 'android:label', options.name)
+  EditElementAttribute(xmldoc, 'manifest', 'package', options.package)
+  if options.version:
+    EditElementAttribute(xmldoc, 'manifest', 'android:versionName',
+                         options.version)
+  if options.description:
+    EditElementAttribute(xmldoc, 'manifest', 'android:description',
+                         "@string/description")
+  # TODO: Update the permission list after the permission
+  # specification is defined.
+  if options.permissions:
+    if 'geolocation' in options.permissions:
+      AddElementAttribute(xmldoc, 'uses-permission', 'android:name',
+                          'android.permission.LOCATION_HARDWARE')
+  EditElementAttribute(xmldoc, 'application', 'android:label', options.name)
   activity_name = options.package + '.' + sanitized_name + 'Activity'
-  ReplaceNodeValue(xmldoc, 'activity', 'android:name', activity_name)
-  ReplaceNodeValue(xmldoc, 'activity', 'android:label', options.name)
+  EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
+  EditElementAttribute(xmldoc, 'activity', 'android:label', options.name)
   if options.fullscreen:
     AddThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   else:
@@ -98,8 +141,8 @@ def CustomizeXML(options, sanitized_name):
     icon_file = ReplaceInvalidChars(icon_file)
     shutil.copyfile(options.icon, os.path.join(drawable_path, icon_file))
     icon_name = os.path.splitext(icon_file)[0]
-    AddAttribute(xmldoc, 'application',
-                 'android:icon', '@drawable/%s' % icon_name)
+    EditElementAttribute(xmldoc, 'application',
+                         'android:icon', '@drawable/%s' % icon_name)
   elif options.icon and (not os.path.isfile(options.icon)):
     print ('Please make sure the icon file does exist!')
     sys.exit(6)
@@ -138,18 +181,25 @@ def CustomizeJava(options, sanitized_name):
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
-  if options.app_url:
-    if re.search(r'^http(|s)', options.app_url):
-      ReplaceString(dest_activity, 'file:///android_asset/index.html',
-                    options.app_url)
-  elif options.app_local_path:
-    if os.path.isfile(os.path.join(sanitized_name, 'assets',
-                                   options.app_local_path)):
-      ReplaceString(dest_activity, 'index.html', options.app_local_path)
-    else:
-      print ('Please make sure that the relative path of entry file'
-             ' is correct.')
-      sys.exit(8)
+  manifest_file = os.path.join(sanitized_name, 'assets', 'manifest.json')
+  if os.path.isfile(manifest_file):
+    ReplaceString(dest_activity,
+                  'loadAppFromUrl("file:///android_asset/index.html")',
+                  'loadAppFromManifest("file:///android_asset/manifest.json")')
+  else:
+    if options.app_url:
+      if re.search(r'^http(|s)', options.app_url):
+        ReplaceString(dest_activity, 'file:///android_asset/index.html',
+                      options.app_url)
+    elif options.app_local_path:
+      if os.path.isfile(os.path.join(sanitized_name, 'assets',
+                                     options.app_local_path)):
+        ReplaceString(dest_activity, 'index.html', options.app_local_path)
+      else:
+        print ('Please make sure that the relative path of entry file'
+               ' is correct.')
+        sys.exit(8)
+
   if options.enable_remote_debugging:
     SetVariable(dest_activity, 'RemoteDebugging', 'true')
 
@@ -258,8 +308,17 @@ def main():
   parser.add_option('--package', help=info)
   info = ('The apk name. Such as: --name=YourApplicationName')
   parser.add_option('--name', help=info)
+  info = ('The version. Such as: --version=TheVersionNumber')
+  parser.add_option('--version', help=info)
+  info = ('The application description. Such as:'
+          '--description=YourApplicationdDescription')
+  parser.add_option('--description', help=info)
   info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
   parser.add_option('--icon', help=info)
+  info = ('The permission list. Such as: --permissions="geolocation"'
+          'For more permissions, such as:'
+          '--permissions="geolocation:permission2"')
+  parser.add_option('--permissions', help=info)
   info = ('The url of application. '
           'This flag allows to package website as apk. Such as: '
           '--app-url=http://www.intel.com')

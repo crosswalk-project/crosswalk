@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-extension._setupExtensionInternal();
-var internal = extension._internal;
+var internal = requireNative("internal");
+internal.setupInternalExtension(extension);
+
+var heartbeatCallbackId;
 
 exports.Person = function(name, age) {
   this.name = name;
@@ -28,4 +30,21 @@ exports.getAllPersons = function(arg1, callback) {
 
 exports.getPersonAge = function(arg1, callback) {
   internal.postMessage('getPersonAge', [arg1], callback);
+};
+
+exports.startHeartbeat = function(callback) {
+  if (heartbeatCallbackId != null)
+    return;
+
+  heartbeatCallbackId = internal.postMessage('startHeartbeat', [], callback);
+};
+
+exports.stopHeartbeat = function() {
+  if (heartbeatCallbackId == null)
+    return;
+
+  internal.removeCallback(heartbeatCallbackId);
+  heartbeatCallbackId = null;
+
+  internal.postMessage('stopHeartbeat', []);
 };

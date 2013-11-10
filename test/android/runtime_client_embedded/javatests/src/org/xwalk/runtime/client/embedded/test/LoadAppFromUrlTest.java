@@ -7,6 +7,7 @@ package org.xwalk.runtime.client.embedded.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
  * Test suite for loadAppFromUrl().
@@ -16,11 +17,9 @@ public class LoadAppFromUrlTest extends XWalkRuntimeClientTestBase {
     @SmallTest
     @Feature({"LoadAppFromUrl"})
     public void testLoadAppFromUrl() throws Throwable {
-        String expectedTitle = "Crosswalk Sample Application";
-
-        loadUrlSync("file:///android_asset/index.html");
-
-        String title = getRuntimeView().getTitleForTest();
-        assertEquals(expectedTitle, title);
+        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+                        getTestUtil(), this);
+        helper.testLoadAppFromUrl();
     }
 }

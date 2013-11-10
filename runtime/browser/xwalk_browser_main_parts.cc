@@ -20,7 +20,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/extension/application_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -49,7 +49,10 @@
 #endif  // defined(OS_ANDROID)
 
 #if defined(OS_TIZEN_MOBILE)
+#include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
+#include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
+#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 #endif  // defined(OS_TIZEN_MOBILE)
 
 namespace {
@@ -119,6 +122,10 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
+  // Enable multithreaded GPU compositing of web content.
+  // This also enables pinch on Tizen.
+  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+
   // Show feedback on touch.
   command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
 
@@ -129,6 +136,13 @@ void SetXWalkCommandLineFlags() {
 
   // Enable WebGL for Android.
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
+
+  // Disable HW encoding/decoding acceleration for WebRTC on Android.
+  // FIXME: Remove these switches for Android when Android OS is removed from
+  // GPU accelerated_video_decode blacklist or we stop ignoring the GPU
+  // blacklist.
+  command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
+  command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 #endif
 
   // FIXME: Add comment why this is needed on Android and Tizen.
@@ -238,15 +252,12 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   DCHECK(runtime_context_);
   runtime_context_->PreMainMessageLoopRun();
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
+  extension_service_.reset(new extensions::XWalkExtensionService(this));
 #else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(
-      new extensions::XWalkExtensionService());
+  extension_service_.reset(new extensions::XWalkExtensionService(this));
 
-  RegisterInternalExtensions();
   RegisterExternalExtensions();
 
   xwalk::application::ApplicationSystem* system =
@@ -306,7 +317,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
         scoped_refptr<xwalk::application::PackageInstaller> installer =
             xwalk::application::PackageInstaller::Create(service, id,
                 runtime_context_->GetPath());
-        if (!installer->Uninstall()) {
+        if (!installer || !installer->Uninstall()) {
           LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
           return;
         }
@@ -334,7 +345,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
           scoped_refptr<xwalk::application::PackageInstaller> installer =
               xwalk::application::PackageInstaller::Create(service, id,
                   runtime_context_->GetPath());
-          if (!installer->Install()) {
+          if (!installer || !installer->Install()) {
             LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
             return;
           }
@@ -351,6 +362,18 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       return;
     }
   }
+
+#if defined(OS_TIZEN_MOBILE)
+  if (content::DeviceInertialSensorService* sensor_service =
+          content::DeviceInertialSensorService::GetInstance()) {
+    TizenDataFetcherSharedMemory* data_fetcher =
+        new TizenDataFetcherSharedMemory();
+    // As the data fetcher of sensors is implemented outside of Chromium, we
+    // need to make it available to Chromium by "abusing" the test framework.
+    // TODO(zliang7): Find a decent way to inject our sensor fetcher for Tizen.
+    sensor_service->SetDataFetcherForTests(data_fetcher);
+  }
+#endif  // OS_TIZEN_MOBILE
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);
@@ -379,13 +402,41 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 #endif
 }
 
-void XWalkBrowserMainParts::RegisterInternalExtensions() {
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new RuntimeExtension()));
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
+    extensions::XWalkExtensionServer* server) {
+  CHECK(server);
+#if defined(OS_ANDROID)
+  ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it)
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
+#elif defined(OS_TIZEN_MOBILE)
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
+#else
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationExtension(runtime_context()->GetApplicationSystem())));
-  extension_service_->RegisterExtension(scoped_ptr<XWalkExtension>(
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
+#endif
 }
+
+#if defined(OS_ANDROID)
+void XWalkBrowserMainParts::RegisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  extensions_.push_back(extension.release());
+}
+
+void XWalkBrowserMainParts::UnregisterExtension(
+    scoped_ptr<XWalkExtension> extension) {
+  ScopedVector<XWalkExtension>::iterator it = extensions_.begin();
+  for (; it != extensions_.end(); ++it) {
+    if (*it == extension.release()) break;
+  }
+
+  if (it != extensions_.end())
+    extensions_.erase(it);
+}
+#endif
 
 }  // namespace xwalk

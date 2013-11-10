@@ -60,17 +60,19 @@ public abstract class XWalkExtension {
      * JavaScript calls into Java code. The message is handled by
      * the extension implementation. The inherited classes should
      * override and add its implementation.
+     * @param instanceID the ID of extension instance where the message came from.
      * @param message the message from JavaScript code.
      */
-    public abstract void onMessage(String message);
+    public abstract void onMessage(int instanceID, String message);
 
     /**
      * Synchronized JavaScript calls into Java code. Similar to
      * onMessage. The only difference is it's a synchronized
      * message.
+     * @param instanceID the ID of extension instance where the message came from.
      * @param message the message from JavaScript code.
      */
-    public String onSyncMessage(String message) {
+    public String onSyncMessage(int instanceID, String message) {
         return null;
     }
 
@@ -78,10 +80,29 @@ public abstract class XWalkExtension {
      * Post messages to JavaScript via extension's context.
      * It's used by child classes to post message from Java side
      * to JavaScript side.
+     * @param instanceID the ID of target extension instance.
      * @param message the message to be passed to Javascript.
      */
-    public void postMessage(String message) {
-        mExtensionContext.postMessage(this, message);
+    public final void postMessage(int instanceID, String message) {
+        mExtensionContext.postMessage(this, instanceID, message);
+    }
+
+    /**
+     * Broadcast messages to JavaScript via extension's context.
+     * It's used by child classes to broad message from Java side
+     * to all JavaScript side instances of the extension.
+     * @param message the message to be passed to Javascript.
+     */
+    public final void broadcastMessage(String message) {
+        mExtensionContext.broadcastMessage(this, message);
+    }
+
+    /**
+     * Destroy the extension to free its resources occupied.
+     */
+    public final void destroy() {
+        onDestroy();
+        mExtensionContext.destroyExtension(this);
     }
 
     /**
@@ -113,7 +134,7 @@ public abstract class XWalkExtension {
      * Get the registered ID.
      * @return the registered ID object.
      */
-    public Object getRegisteredId() {
+    public final Object getRegisteredId() {
         return mRegisteredId;
     }
 }

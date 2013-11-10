@@ -71,10 +71,8 @@ bool PackageInstaller::Init() {
       std::remove_if(stripped_name_.begin(), stripped_name_.end(), ::isspace),
       stripped_name_.end());
 
-  if (!application_->GetManifest()->GetString(info::kIconKey, &icon_name_)) {
-    LOG(ERROR) << "Fail to get application icon name";
-    return false;
-  }
+  if (!application_->GetManifest()->GetString(info::kIconKey, &icon_name_))
+    LOG(WARNING) << "Fail to get application icon name.";
 
   icon_path_ = base::FilePath(info::kIconDir).AppendASCII(
       package_id_ + info::kSeparator + stripped_name_ +
@@ -125,9 +123,8 @@ bool PackageInstaller::GeneratePkgInfoXml() {
 
 bool PackageInstaller::CopyOrLinkResources() {
   base::FilePath icon = app_dir_.AppendASCII(icon_name_);
-  if (!base::PathExists(icon) ||
-      !base::CopyFile(icon, icon_path_))
-    return false;
+  if (!icon_name_.empty() && base::PathExists(icon))
+    base::CopyFile(icon, icon_path_);
 
   base::FilePath xwalk_path(info::kXwalkPath);
   base::FilePath dir_exec(execute_path_.DirName());

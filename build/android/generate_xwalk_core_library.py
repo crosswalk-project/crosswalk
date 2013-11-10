@@ -29,99 +29,126 @@ def CleanLibraryProject(out_directory):
 
 
 def CopyProjectFiles(project_source, out_directory):
+  """cp xwalk/build/android/xwalkcore_library_template/<file>
+        out/Release/xwalk_core_library/<file>
+  """
+
   print 'Copying library project files...'
-  # Copy AndroidManifest.xml from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'AndroidManifest.xml')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                             'AndroidManifest.xml')
-  shutil.copyfile(source_file, target_file)
-  # Copy Eclipse project properties from template.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'project.properties')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                             'project.properties')
-  shutil.copyfile(source_file, target_file)
-  # Copy Ant build file.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'build.xml')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'build.xml')
-  shutil.copyfile(source_file, target_file)
-  # Copy Ant properties file.
-  source_file = os.path.join(project_source, 'xwalk', 'build', 'android',
-                             'xwalkcore_library_template',
-                             'ant.properties')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'ant.properties')
-  shutil.copyfile(source_file, target_file)
+  template_folder = os.path.join(project_source, 'xwalk', 'build', 'android',
+                                 'xwalkcore_library_template')
+  files_to_copy = [
+      # AndroidManifest.xml from template.
+      'AndroidManifest.xml',
+      # Eclipse project properties from template.
+      'project.properties',
+      # Ant build file.
+      'build.xml',
+      # Customized Ant build file.
+      'precompile.xml',
+      # Python script to copy R.java.
+      'prepare_r_java.py',
+      # Ant properties file.
+      'ant.properties',
+      # Eclipse project file and builders.
+      '.project',
+      '.classpath',
+      '.externalToolBuilders/prepare_r_java.launch'
+  ]
+  for f in files_to_copy:
+    source_file = os.path.join(template_folder, f)
+    target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, f)
+
+    target_dir = os.path.dirname(target_file)
+
+    if not os.path.isdir(target_dir):
+      os.makedirs(target_dir)
+
+    shutil.copy2(source_file, target_file)
 
 
-def CopyChromiumJavaSources(project_source, out_directory):
+def CopyJavaSources(project_source, out_directory):
+  """cp <path>/java/src/<package>
+        out/Release/xwalk_core_library/src/<package>
+  """
+
   print 'Copying Java sources...'
-  target_package_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                                          'src', 'org', 'chromium')
-  if not os.path.exists(target_package_directory):
-    os.makedirs(target_package_directory)
+  target_source_directory = os.path.join(
+      out_directory, LIBRARY_PROJECT_NAME, 'src')
+  if not os.path.exists(target_source_directory):
+    os.makedirs(target_source_directory)
 
-  source_path = os.path.join(project_source, 'base', 'android', 'java', 'src',
-                             'org', 'chromium', 'base')
-  target_path = os.path.join(target_package_directory, 'base')
-  shutil.copytree(source_path, target_path)
+  # FIXME(wang16): There is an assumption here the package names listed
+  # here are all beginned with "org". If the assumption is broken in
+  # future, the logic needs to be adjusted accordingly.
+  java_srcs_to_copy = [
+      # Chromium java sources.
+      'base/android/java/src/org/chromium/base',
+      'content/public/android/java/src/org/chromium/content',
+      'media/base/android/java/src/org/chromium/media',
+      'net/android/java/src/org/chromium/net',
+      'ui/android/java/src/org/chromium/ui',
+      'components/navigation_interception/android/java/'
+          'src/org/chromium/components/navigation_interception',
+      'components/web_contents_delegate_android/android/java/'
+          'src/org/chromium/components/web_contents_delegate_android',
 
-  source_path = os.path.join(project_source, 'content', 'public', 'android',
-                             'java', 'src', 'org', 'chromium', 'content')
-  target_path = os.path.join(target_package_directory, 'content')
-  shutil.copytree(source_path, target_path)
+      # XWalk java sources.
+      'xwalk/runtime/android/java/src/org/xwalk/core',
+      'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
+      'xwalk/runtime/android/java/src/org/xwalk/runtime/extension',
+      'xwalk/runtime/android/java/'
+          'src/org/xwalk/runtime/XWalkCoreExtensionBridge.java',
+      'xwalk/runtime/android/java/'
+          'src/org/xwalk/runtime/XWalkManifestReader.java',
+      'xwalk/runtime/android/java/'
+          'src/org/xwalk/runtime/XWalkRuntimeViewProvider.java',
+  ]
 
-  source_path = os.path.join(project_source, 'media', 'base', 'android', 'java',
-                             'src', 'org', 'chromium', 'media')
-  target_path = os.path.join(target_package_directory, 'media')
-  shutil.copytree(source_path, target_path)
-
-  source_path = os.path.join(project_source, 'net', 'android', 'java', 'src',
-                             'org', 'chromium', 'net')
-  target_path = os.path.join(target_package_directory, 'net')
-  shutil.copytree(source_path, target_path)
-
-  source_path = os.path.join(project_source, 'ui', 'android', 'java', 'src',
-                             'org', 'chromium', 'ui')
-  target_path = os.path.join(target_package_directory, 'ui')
-  shutil.copytree(source_path, target_path)
-
-  source_path = os.path.join(project_source, 'components',
-                             'navigation_interception', 'android', 'java',
-                             'src', 'org', 'chromium', 'components',
-                             'navigation_interception',)
-  target_path = os.path.join(target_package_directory, 'components',
-                             'navigation_interception')
-  shutil.copytree(source_path, target_path)
-
-  source_path = os.path.join(project_source, 'components',
-                             'web_contents_delegate_android', 'android', 'java',
-                             'src', 'org', 'chromium', 'components',
-                             'web_contents_delegate_android')
-  target_path = os.path.join(target_package_directory, 'components',
-                             'web_contents_delegate_android')
-  shutil.copytree(source_path, target_path)
-
-  source_file = os.path.join(project_source, 'content', 'public', 'android',
-                             'java', 'resource_map', 'org', 'chromium',
-                             'content', 'R.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content', 'R.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(project_source, 'ui', 'android', 'java',
-                             'resource_map', 'org', 'chromium', 'ui', 'R.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'ui', 'R.java')
-  shutil.copyfile(source_file, target_file)
+  for source in java_srcs_to_copy:
+    # find the src/org in the path
+    src_slash_org_pos = source.find(r'src/org')
+    if src_slash_org_pos < 0:
+      raise Exception('Invalid java source path: %s' % source)
+    source_path = os.path.join(project_source, source)
+    package_path = source[src_slash_org_pos+4:]
+    target_path = os.path.join(target_source_directory, package_path)
+    if os.path.isfile(source_path):
+      if not os.path.isdir(os.path.dirname(target_path)):
+        os.makedirs(os.path.dirname(target_path))
+      shutil.copyfile(source_path, target_path)
+    else:
+      shutil.copytree(source_path, target_path)
 
 
 def CopyGeneratedSources(out_directory):
+  """cp out/Release/gen/templates/<path>
+        out/Release/xwalk_core_library/src/<path>
+     cp out/Release/xwalk_core_shell_apk/
+            native_libraries_java/NativeLibraries.java
+        out/Release/xwalk_core_library/src/org/
+            chromium/content/app/NativeLibraries.java
+  """
+
   print 'Copying generated source files...'
+  generated_srcs_to_copy = [
+      'org/chromium/content/common/ResultCodes.java',
+      'org/chromium/net/NetError.java',
+      'org/chromium/content/browser/PageTransitionTypes.java',
+      'org/chromium/content/browser/SpeechRecognitionError.java',
+      'org/chromium/net/PrivateKeyType.java',
+      'org/chromium/net/CertVerifyResultAndroid.java',
+      'org/chromium/net/CertificateMimeType.java',
+      'org/chromium/base/ActivityState.java',
+      'org/chromium/base/MemoryPressureLevelList.java',
+      'org/chromium/media/ImageFormat.java',
+  ]
+
+  for source in generated_srcs_to_copy:
+    source_file = os.path.join(out_directory, 'gen', 'templates', source)
+    target_file = os.path.join(
+        out_directory, LIBRARY_PROJECT_NAME, 'src', source)
+    shutil.copyfile(source_file, target_file)
+
   source_file = os.path.join(out_directory, XWALK_CORE_SHELL_APK,
                              'native_libraries_java',
                              'NativeLibraries.java')
@@ -130,121 +157,46 @@ def CopyGeneratedSources(out_directory):
                              'app', 'NativeLibraries.java')
   shutil.copyfile(source_file, target_file)
 
-  source_file = os.path.join(out_directory, 'gen', 'templates', 'org',
-                             'chromium', 'content', 'common',
-                             'ResultCodes.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content', 'common',
-                             'ResultCodes.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'net', 'NetError.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'net', 'NetError.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'content', 'browser',
-                             'PageTransitionTypes.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content', 'browser',
-                             'PageTransitionTypes.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'content', 'browser',
-                             'SpeechRecognitionError.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content', 'browser',
-                             'SpeechRecognitionError.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'net', 'PrivateKeyType.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'net', 'PrivateKeyType.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'net',
-                             'CertVerifyResultAndroid.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'net', 'CertVerifyResultAndroid.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'net',
-                             'CertificateMimeType.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'net', 'CertificateMimeType.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'base',
-                             'ActivityState.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'base', 'ActivityState.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'base',
-                             'MemoryPressureLevelList.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'base', 'MemoryPressureLevelList.java')
-  shutil.copyfile(source_file, target_file)
-
-  source_file = os.path.join(out_directory, 'gen', 'templates',
-                             'org', 'chromium', 'media', 'ImageFormat.java')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'media', 'ImageFormat.java')
-  shutil.copyfile(source_file, target_file)
-
-
-def CopyXwalkJavaSource(project_source, out_directory):
-  print 'Copying XWalk Java sources...'
-  target_package_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME,
-                                          'src', 'org', 'xwalk')
-  if not os.path.exists(target_package_directory):
-    os.mkdir(target_package_directory)
-  source_path = os.path.join(project_source, 'xwalk', 'runtime', 'android',
-                             'java', 'src', 'org', 'xwalk', 'core')
-  target_path = os.path.join(target_package_directory, 'core')
-  shutil.copytree(source_path, target_path)
-
-  source_path = os.path.join(project_source, 'xwalk', 'extensions', 'android',
-                             'java', 'src', 'org', 'xwalk', 'core', 'extensions')
-  target_path = os.path.join(target_package_directory, 'core', 'extensions')
-  shutil.copytree(source_path, target_path)
-
 
 def CopyBinaries(out_directory):
+  """cp out/Release/<asset> out/Release/xwalk_core_library/assets/<asset>
+     cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
+     cp out/Release/xwalk_core_shell_apk/libs/*
+        out/Release/xwalk_core_library/libs
+  """
+
   print 'Copying binaries...'
+  # Copy assets.
   asset_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'assets')
   if not os.path.exists(asset_directory):
     os.mkdir(asset_directory)
-  source_file = os.path.join(out_directory,
-                             'xwalk.pak')
-  target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'assets',
-                             'xwalk.pak')
-  shutil.copyfile(source_file, target_file)
+
+  assets_to_copy = [
+      'xwalk.pak',
+  ]
+
+  for asset in assets_to_copy:
+    source_file = os.path.join(out_directory, asset)
+    target_file = os.path.join(asset_directory, asset)
+    shutil.copyfile(source_file, target_file)
 
   # Copy jar files to libs.
   libs_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'libs')
   if not os.path.exists(libs_directory):
     os.mkdir(libs_directory)
-  source_file = os.path.join(out_directory, 'lib.java', 'eyesfree_java.jar')
-  target_file = os.path.join(libs_directory, 'eyesfree_java.jar')
-  shutil.copyfile(source_file, target_file)
 
-  source_file = os.path.join(out_directory, 'lib.java', 'guava_javalib.jar')
-  target_file = os.path.join(libs_directory, 'guava_javalib.jar')
-  shutil.copyfile(source_file, target_file)
+  libs_to_copy = [
+      'eyesfree_java.jar',
+      'guava_javalib.jar',
+      'jsr_305_javalib.jar',
+  ]
 
-  source_file = os.path.join(out_directory, 'lib.java', 'jsr_305_javalib.jar')
-  target_file = os.path.join(libs_directory, 'jsr_305_javalib.jar')
-  shutil.copyfile(source_file, target_file)
+  for lib in libs_to_copy:
+    source_file = os.path.join(out_directory, 'lib.java', lib)
+    target_file = os.path.join(libs_directory, lib)
+    shutil.copyfile(source_file, target_file)
 
+  # Copy native libraries.
   source_dir = os.path.join(out_directory, XWALK_CORE_SHELL_APK, 'libs')
   target_dir = libs_directory
   distutils.dir_util.copy_tree(source_dir, target_dir)
@@ -283,35 +235,24 @@ def CopyResources(project_source, out_directory):
   # Since there might be some resource files with same names from
   # different folders like ui_java, content_java and others,
   # it's necessary to rename some files to avoid overridding.
-  source_path = os.path.join(project_source, 'ui', 'android', 'java', 'res')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
-  source_path = os.path.join(out_directory, 'gen', 'ui_java',
-                             'res_grit')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
+  res_to_copy = [
+      # (package, prefix) turple.
+      ('ui/android/java/res', 'ui'),
+      ('content/public/android/java/res', 'content'),
+      ('xwalk/runtime/android/java/res', 'xwalk_core'),
+  ]
 
-  source_path = os.path.join(out_directory, 'gen', 'ui_java',
-                             'res_v14_compatibility')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'ui')
+  # For each res, there are two generated res folder in out directory,
+  # they are res_grit and res_v14_compatibility.
+  for res, prefix in res_to_copy:
+    res_path_src = os.path.join(project_source, res)
+    res_path_grit = os.path.join(out_directory,
+        'gen', '%s_java' % prefix, 'res_grit')
+    res_path_v14 = os.path.join(out_directory,
+        'gen', '%s_java' % prefix, 'res_v14_compatibility')
 
-  source_path = os.path.join(project_source, 'content', 'public', 'android',
-                             'java', 'res')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
-  source_path = os.path.join(out_directory, 'gen', 'content_java',
-                             'res_grit')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
-  source_path = os.path.join(out_directory, 'gen', 'content_java',
-                             'res_v14_compatibility')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'content')
-
-  source_path = os.path.join(project_source, 'xwalk', 'runtime', 'android',
-                             'java', 'res')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
-  source_path = os.path.join(out_directory, 'gen', 'xwalk_core_java',
-                             'res_grit')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
-  source_path = os.path.join(out_directory, 'gen', 'xwalk_core_java',
-                             'res_v14_compatibility')
-  CopyDirAndPrefixDuplicates(source_path, res_directory, 'xwalk')
+    for res_path in [res_path_src, res_path_grit, res_path_v14]:
+      CopyDirAndPrefixDuplicates(res_path, res_directory, prefix)
 
 
 def PostCopyLibraryProject(out_directory):
@@ -343,9 +284,8 @@ def main(argv):
 
   # Copy Eclipse project files of library project.
   CopyProjectFiles(options.source, out_directory)
-  # Copy Java sources of chromium.
-  CopyChromiumJavaSources(options.source, out_directory)
-  CopyXwalkJavaSource(options.source, out_directory)
+  # Copy Java sources of chromium and xwalk.
+  CopyJavaSources(options.source, out_directory)
   CopyGeneratedSources(out_directory)
   # Copy binaries and resuorces.
   CopyBinaries(out_directory)

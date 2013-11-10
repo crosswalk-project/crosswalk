@@ -25,7 +25,7 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
   env->ReleaseStringUTFChars(name, str);
 
   str = env->GetStringUTFChars(js_api, 0);
-  js_api_ = str;
+  set_javascript_api(str);
   env->ReleaseStringUTFChars(js_api, str);
 }
 
@@ -38,10 +38,21 @@ XWalkExtensionAndroid::~XWalkExtensionAndroid() {
   }
 
   Java_XWalkExtensionAndroid_onDestroy(env, obj.obj());
+
+  // Unregister the extension and clear its all instances.
+  XWalkContentBrowserClient::Get()->main_parts()->UnregisterExtension(
+      scoped_ptr<XWalkExtension>(this));
+
+  for (InstanceMap::iterator it = instances_.begin();
+       it != instances_.end(); ++it) {
+    XWalkExtensionInstance* instance = it->second;
+    delete instance;
+  }
+  instances_.clear();
 }
 
 bool XWalkExtensionAndroid::is_valid() {
-  if (instances_.empty() || js_api_.empty()) {
+  if (instances_.empty() || javascript_api().empty()) {
     return false;
   }
 
@@ -63,8 +74,8 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
   env->ReleaseStringUTFChars(msg, str);
 }
 
-const char* XWalkExtensionAndroid::GetJavaScriptAPI() {
-  return js_api_.c_str();
+void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
+  delete this;
 }
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
@@ -99,7 +110,7 @@ void XWalkExtensionAndroid::RemoveInstance(int instance) {
   }
 
   instances_.erase(instance);
-  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj());
+  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj(), instance);
 }
 
 XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(
@@ -130,7 +141,7 @@ void XWalkExtensionAndroidInstance::HandleMessage(
     return;
   }
 
-  Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), buffer);
+  Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), getID(), buffer);
 }
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
@@ -152,7 +163,8 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
   jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jstring> ret =
-      Java_XWalkExtensionAndroid_handleSyncMessage(env, obj.obj(), buffer);
+      Java_XWalkExtensionAndroid_handleSyncMessage(
+              env, obj.obj(), getID(), buffer);
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
   ret_val = base::Value::CreateStringValue(str);
@@ -165,9 +177,10 @@ static jint CreateExtension(JNIEnv* env, jobject obj,
                             jstring name, jstring js_api) {
   XWalkExtensionAndroid* extension =
       new XWalkExtensionAndroid(env, obj, name, js_api);
-  XWalkExtensionService* service =
-      XWalkContentBrowserClient::Get()->main_parts()->extension_service();
-  service->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+
+  XWalkContentBrowserClient::Get()->main_parts()->RegisterExtension(
+      scoped_ptr<XWalkExtension>(extension));
+
   return reinterpret_cast<jint>(extension);
 }
 

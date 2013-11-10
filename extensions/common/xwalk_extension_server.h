@@ -7,12 +7,16 @@
 
 #include <stdint.h>
 #include <map>
+#include <set>
 #include <string>
+#include <vector>
 
 #include "base/synchronization/lock.h"
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
+
+struct XWalkExtensionServerMsg_ExtensionRegisterParams;
 
 namespace base {
 class FilePath;
@@ -44,13 +48,11 @@ class XWalkExtensionServer : public IPC::Listener {
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnChannelConnected(int32 peer_pid) OVERRIDE;
 
   void Initialize(IPC::Sender* sender);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
-  void RegisterExtensionsInRenderProcess();
 
   void Invalidate();
 
@@ -66,6 +68,8 @@ class XWalkExtensionServer : public IPC::Listener {
   void OnPostMessageToNative(int64_t instance_id, const base::ListValue& msg);
   void OnSendSyncMessageToNative(int64_t instance_id,
       const base::ListValue& msg, IPC::Message* ipc_reply);
+  void OnGetExtensions(
+      std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>* reply);
 
   void PostMessageToJSCallback(int64_t instance_id,
                                scoped_ptr<base::Value> msg);
@@ -75,6 +79,8 @@ class XWalkExtensionServer : public IPC::Listener {
 
   void DeleteInstanceMap();
 
+  bool ValidateExtensionEntryPoints(const base::ListValue& entry_points);
+
   base::Lock sender_lock_;
   IPC::Sender* sender_;
 
@@ -83,6 +89,10 @@ class XWalkExtensionServer : public IPC::Listener {
 
   typedef std::map<int64_t, InstanceExecutionData> InstanceMap;
   InstanceMap instances_;
+
+  // The exported symbols for extensions already registered.
+  typedef std::set<std::string> ExtensionSymbolsSet;
+  ExtensionSymbolsSet extension_symbols_;
 };
 
 void RegisterExternalExtensionsInDirectory(

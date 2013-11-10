@@ -13,6 +13,10 @@ XWalkExtension::XWalkExtension() {}
 
 XWalkExtension::~XWalkExtension() {}
 
+const base::ListValue& XWalkExtension::entry_points() const {
+  return entry_points_;
+}
+
 XWalkExtensionInstance::XWalkExtensionInstance() {}
 
 XWalkExtensionInstance::~XWalkExtensionInstance() {}

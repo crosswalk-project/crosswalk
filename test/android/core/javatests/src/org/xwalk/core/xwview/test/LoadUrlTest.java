@@ -32,7 +32,12 @@ public class LoadUrlTest extends XWalkViewTestBase {
                 mTestContentsClient.didFinishLoad(url);
             }
         }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(new TestXWalkClient());
+            }
+        });
     }
 
     // @SmallTest
@@ -51,7 +56,7 @@ public class LoadUrlTest extends XWalkViewTestBase {
     @Feature({"LoadUrl"})
     public void testLocalUrl() throws Throwable {
         final String name = "index.html";
-        final String expected_title = "Android Asset";
+        final String expected_title = "Crosswalk Sample Application";
 
         loadAssetFile(name);
         assertEquals(expected_title, getTitleOnUiThread());

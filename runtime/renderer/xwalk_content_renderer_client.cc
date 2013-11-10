@@ -5,10 +5,16 @@
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "content/public/renderer/render_thread.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
+
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
+#endif
 
 namespace xwalk {
 
@@ -37,6 +43,19 @@ void XWalkContentRendererClient::RenderThreadStarted() {
       ASCIIToUTF16(application::kApplicationScheme));
   WebKit::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   WebKit::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
+
+#if defined(OS_ANDROID)
+  content::RenderThread* thread = content::RenderThread::Get();
+  xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
+  thread->AddObserver(xwalk_render_process_observer_.get());
+#endif
+}
+
+void XWalkContentRendererClient::RenderViewCreated(
+    content::RenderView* render_view) {
+#if defined(OS_ANDROID)
+  XWalkRenderViewExt::RenderViewCreated(render_view);
+#endif
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
