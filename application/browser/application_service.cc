@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/file_util.h"
+#include "base/memory/scoped_ptr.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/xpk_extractor.h"
@@ -25,7 +26,7 @@ namespace {
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
                            const std::string& app_id,
                            const base::FilePath& data_dir) {
-  scoped_refptr<xwalk::application::PackageInstaller> installer =
+  scoped_ptr<xwalk::application::PackageInstaller> installer =
       xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
   if (!installer || !installer->Install()) {
     LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
@@ -37,7 +38,7 @@ bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
 bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
                              const std::string& app_id,
                              const base::FilePath& data_dir) {
-  scoped_refptr<xwalk::application::PackageInstaller> installer =
+  scoped_ptr<xwalk::application::PackageInstaller> installer =
       xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
   if (!installer || !installer->Uninstall()) {
     LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";

@@ -8,18 +8,20 @@
 #include <unistd.h>
 #include <string>
 #include "base/files/file_path.h"
-#include "base/memory/ref_counted.h"
 #include "xwalk/application/browser/application_service.h"
 
 namespace xwalk {
 namespace application {
 
-class PackageInstaller
-    : public base::RefCountedThreadSafe<PackageInstaller> {
+// Utility class to interact with Tizen package manager. For installation, it
+// takes an app_id already installed to Crosswalk application store, generate
+// the necessary resources (e.g. icon for home screen) and add a new entry to
+// Tizen database. Uninstallation will remove the created resources and remove
+// the entry from Tizen database.
+class PackageInstaller {
  public:
-  PackageInstaller();
   ~PackageInstaller();
-  static scoped_refptr<PackageInstaller> Create(
+  static scoped_ptr<PackageInstaller> Create(
       ApplicationService* service,
       const std::string& package_id,
       const base::FilePath& data_dir);
@@ -27,8 +29,7 @@ class PackageInstaller
   bool Uninstall();
 
  private:
-  friend class base::RefCountedThreadSafe<PackageInstaller>;
-  explicit PackageInstaller(
+  PackageInstaller(
       ApplicationService* service,
       const std::string& package_id,
       const base::FilePath& data_dir);
@@ -51,6 +52,8 @@ class PackageInstaller
   base::FilePath xml_path_;
   base::FilePath execute_path_;
   base::FilePath icon_path_;
+
+  DISALLOW_COPY_AND_ASSIGN(PackageInstaller);
 };
 
 }  // namespace application
