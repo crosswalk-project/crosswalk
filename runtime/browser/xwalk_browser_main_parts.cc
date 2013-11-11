@@ -5,7 +5,6 @@
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
 #include <stdlib.h>
-#include <string>
 
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -31,12 +30,7 @@
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/url_constants.h"
 #include "content/public/common/result_codes.h"
-#include "grit/net_resources.h"
 #include "net/base/net_util.h"
-#include "net/base/net_module.h"
-#include "ui/base/layout.h"
-#include "ui/base/resource/resource_bundle.h"
-#include "ui/base/ui_base_paths.h"
 #include "ui/gl/gl_switches.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
@@ -44,50 +38,24 @@
 #include "ui/events/x/touch_factory_x11.h"
 #endif
 
-#if defined(OS_ANDROID)
-#include "content/public/browser/android/compositor.h"
-#include "net/android/network_change_notifier_factory_android.h"
-#include "net/base/network_change_notifier.h"
-#include "ui/base/l10n/l10n_util_android.h"
-#endif  // defined(OS_ANDROID)
-
-#if defined(OS_TIZEN_MOBILE)
-#include "content/browser/device_orientation/device_inertial_sensor_service.h"
-#include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
-#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
-#endif  // defined(OS_TIZEN_MOBILE)
-
 namespace {
 
-base::StringPiece PlatformResourceProvider(int key) {
-  if (key == IDR_DIR_HEADER_HTML) {
-    base::StringPiece html_data =
-        ui::ResourceBundle::GetSharedInstance().GetRawDataResource(
-            IDR_DIR_HEADER_HTML);
-    return html_data;
-  }
-  return base::StringPiece();
-}
-
 // FIXME: Compare with method in startup_browser_creator.cc.
-static GURL GetURLFromCommandLine(const CommandLine& command_line) {
-#if !defined(OS_ANDROID)
+GURL GetURLFromCommandLine(const CommandLine& command_line) {
   const CommandLine::StringVector& args = command_line.GetArgs();
 
   if (args.empty())
     return GURL();
 
   GURL url(args[0]);
-  if (url.is_valid() && url.has_scheme()) {
+  if (url.is_valid() && url.has_scheme())
     return url;
-  } else {
-    base::FilePath path(args[0]);
-    if (!path.IsAbsolute())
-      path = MakeAbsoluteFilePath(path);
-    return url = net::FilePathToFileURL(path);
-  }
-#endif
-  return GURL();
+
+  base::FilePath path(args[0]);
+  if (!path.IsAbsolute())
+    path = MakeAbsoluteFilePath(path);
+
+  return net::FilePathToFileURL(path);
 }
 
 }  // namespace
@@ -99,58 +67,6 @@ const char kEnableOverlayScrollbars[] = "enable-overlay-scrollbars";
 }
 
 namespace xwalk {
-
-void SetXWalkCommandLineFlags() {
-  static bool already_initialized = false;
-  if (already_initialized)
-    return;
-  already_initialized = true;
-
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-
-#if defined(OS_TIZEN_MOBILE)
-  command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
-
-  const char* gl_name;
-  if (base::PathExists(base::FilePath("/usr/lib/xwalk/libosmesa.so")))
-    gl_name = gfx::kGLImplementationOSMesaName;
-  else if (base::PathExists(base::FilePath("/usr/lib/libGL.so")))
-    gl_name = gfx::kGLImplementationDesktopName;
-  else
-    gl_name = gfx::kGLImplementationEGLName;
-  command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
-#endif
-
-  command_line->AppendSwitch(xswitches::kEnableViewport);
-
-  command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
-
-  // Enable multithreaded GPU compositing of web content.
-  // This also enables pinch on Tizen.
-  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
-
-  // Show feedback on touch.
-  command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
-
-#if defined(OS_ANDROID)
-  // Disable ExtensionProcess for Android.
-  // External extensions will run in the BrowserProcess (in process mode).
-  command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
-
-  // Enable WebGL for Android.
-  command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
-
-  // Disable HW encoding/decoding acceleration for WebRTC on Android.
-  // FIXME: Remove these switches for Android when Android OS is removed from
-  // GPU accelerated_video_decode blacklist or we stop ignoring the GPU
-  // blacklist.
-  command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
-  command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
-#endif
-
-  // FIXME: Add comment why this is needed on Android and Tizen.
-  command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
-}
 
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
@@ -164,37 +80,31 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
-  SetXWalkCommandLineFlags();
-
   CommandLine* command_line = CommandLine::ForCurrentProcess();
-  startup_url_ = GetURLFromCommandLine(*command_line);
+  command_line->AppendSwitch(xswitches::kEnableViewport);
 
-#if defined(OS_MACOSX)
-  PreMainMessageLoopStartMac();
-#endif
+  command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
+
+  // Enable multithreaded GPU compositing of web content.
+  // This also enables pinch on Tizen.
+  command_line->AppendSwitch(switches::kEnableThreadedCompositing);
+
+  // Show feedback on touch.
+  command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
+
+  // FIXME: Add comment why this is needed on Android and Tizen.
+  command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
+
+  startup_url_ = GetURLFromCommandLine(*command_line);
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
-#if defined(OS_ANDROID)
-  base::MessageLoopForUI::current()->Start();
-#endif
 }
 
 void XWalkBrowserMainParts::PreEarlyInitialization() {
 #if defined(USE_AURA) && defined(USE_X11)
     ui::InitializeInputMethodForTesting();
 #endif
-#if defined(OS_ANDROID)
-  net::NetworkChangeNotifier::SetFactory(
-      new net::NetworkChangeNotifierFactoryAndroid());
-
-  CommandLine::ForCurrentProcess()->AppendSwitch(
-      cc::switches::kCompositeToMailbox);
-
-  // Initialize the Compositor.
-  content::Compositor::Initialize();
-#endif
-
 #if defined(OS_LINUX)
   // FIXME: We disable the setuid sandbox on Linux because we don't ship
   // the setuid binary. It is important to remember that the seccomp-bpf
@@ -237,16 +147,6 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
-#if defined(OS_ANDROID)
-  net::NetModule::SetResourceProvider(PlatformResourceProvider);
-  if (parameters_.ui_task) {
-    parameters_.ui_task->Run();
-    delete parameters_.ui_task;
-    run_default_message_loop_ = false;
-  }
-
-  extension_service_.reset(new extensions::XWalkExtensionService(this));
-#else
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
 
@@ -283,18 +183,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-#if defined(OS_TIZEN_MOBILE)
-  if (content::DeviceInertialSensorService* sensor_service =
-          content::DeviceInertialSensorService::GetInstance()) {
-    TizenDataFetcherSharedMemory* data_fetcher =
-        new TizenDataFetcherSharedMemory();
-    // As the data fetcher of sensors is implemented outside of Chromium, we
-    // need to make it available to Chromium by "abusing" the test framework.
-    // TODO(zliang7): Find a decent way to inject our sensor fetcher for Tizen.
-    sensor_service->SetDataFetcherForTests(data_fetcher);
-  }
-#endif  // OS_TIZEN_MOBILE
-
   if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
                                         &run_default_message_loop_)) {
     return;
@@ -312,7 +200,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
-#endif
 }
 
 bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
@@ -322,50 +209,18 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_registry_->RemoveObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
-#if defined(OS_ANDROID)
-  base::MessageLoopForUI::current()->Start();
-#else
-  runtime_context_.reset();
-#endif
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
-#if defined(OS_ANDROID)
-  ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it)
-    server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
-#elif defined(OS_TIZEN_MOBILE)
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
-#else
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationExtension(runtime_context_->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
-#endif
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new sysapps::RawSocketExtension()));
 }
-
-#if defined(OS_ANDROID)
-void XWalkBrowserMainParts::RegisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
-  extensions_.push_back(extension.release());
-}
-
-void XWalkBrowserMainParts::UnregisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
-  ScopedVector<XWalkExtension>::iterator it = extensions_.begin();
-  for (; it != extensions_.end(); ++it) {
-    if (*it == extension.release()) break;
-  }
-
-  if (it != extensions_.end())
-    extensions_.erase(it);
-}
-#endif
 
 }  // namespace xwalk

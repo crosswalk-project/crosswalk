@@ -26,7 +26,16 @@
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
+#endif
+
+#if defined(OS_MACOSX)
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
+#endif
+
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
 
 namespace xwalk {
@@ -57,7 +66,15 @@ XWalkContentBrowserClient::~XWalkContentBrowserClient() {
 
 content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
+#if defined(OS_MACOSX)
+  main_parts_ = new XWalkBrowserMainPartsMac(parameters);
+#elif defined(OS_ANDROID)
+  main_parts_ = new XWalkBrowserMainPartsAndroid(parameters);
+#elif defined(OS_TIZEN_MOBILE)
+  main_parts_ = new XWalkBrowserMainPartsTizen(parameters);
+#else
   main_parts_ = new XWalkBrowserMainParts(parameters);
+#endif
 
   return main_parts_;
 }

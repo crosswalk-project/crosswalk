@@ -18,7 +18,7 @@
 // ETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -28,7 +28,13 @@
 
 namespace xwalk {
 
-void XWalkBrowserMainParts::PreMainMessageLoopStartMac() {
+XWalkBrowserMainPartsMac::XWalkBrowserMainPartsMac(
+    const content::MainFunctionParams& parameters)
+    : XWalkBrowserMainParts(parameters) {
+}
+
+void XWalkBrowserMainPartsMac::PreMainMessageLoopStart() {
+  XWalkBrowserMainParts::PreMainMessageLoopStart();
   // Force the NSApplication subclass to be used.
   [XWalkCrApplication sharedApplication];
 
