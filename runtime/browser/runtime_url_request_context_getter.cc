@@ -38,6 +38,7 @@
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
 
 #if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
 #endif
@@ -98,7 +99,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     url_request_context_->set_network_delegate(network_delegate_.get());
     storage_.reset(
         new net::URLRequestContextStorage(url_request_context_.get()));
+#if defined(OS_ANDROID)
+    storage_->set_cookie_store(xwalk::GetCookieMonster());
+#else
     storage_->set_cookie_store(new net::CookieMonster(NULL, NULL));
+#endif
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
