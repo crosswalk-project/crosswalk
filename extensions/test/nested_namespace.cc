@@ -6,7 +6,6 @@
 
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -14,7 +13,6 @@
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionService;
 using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
@@ -93,30 +91,18 @@ class AnotherExtension : public XWalkExtension {
 
 class XWalkExtensionsNestedNamespaceTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    bool registered_outer = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new OuterExtension));
-    ASSERT_TRUE(registered_outer);
-    bool registered_inner = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new InnerExtension));
-    ASSERT_TRUE(registered_inner);
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
+    ASSERT_TRUE(RegisterExtensionForTest(server, new OuterExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new InnerExtension));
   }
 };
 
 class XWalkExtensionsTrampolinesForNested : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    bool registered_outer = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new OuterExtension));
-    ASSERT_TRUE(registered_outer);
-    bool registered_inner = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new InnerExtension));
-    ASSERT_TRUE(registered_inner);
-    bool registered_another = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new AnotherExtension));
-    ASSERT_TRUE(registered_another);
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
+    ASSERT_TRUE(RegisterExtensionForTest(server, new OuterExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new InnerExtension));
+    ASSERT_TRUE(RegisterExtensionForTest(server, new AnotherExtension));
   }
 };
 

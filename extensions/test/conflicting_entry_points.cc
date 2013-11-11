@@ -7,7 +7,6 @@
 #include "base/values.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -15,7 +14,6 @@
 
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionService;
 using xwalk::extensions::XWalkExtensionServer;
 
 namespace {
@@ -92,28 +90,20 @@ class ConflictsWithEntryPointExtension
 
 class XWalkExtensionsConflictsWithNameTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    bool registered_clean = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new CleanExtension));
-    ASSERT_TRUE(registered_clean);
-    bool registered_dirty = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new ConflictsWithNameExtension));
-    ASSERT_FALSE(registered_dirty);
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
+    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
+    ASSERT_FALSE(RegisterExtensionForTest(
+        server, new ConflictsWithNameExtension));
   }
 };
 
 class XWalkExtensionsConflictsWithEntryPointTest
     : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionService* extension_service,
-      XWalkExtensionServer* server) OVERRIDE {
-    bool registered_clean = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new CleanExtension));
-    ASSERT_TRUE(registered_clean);
-    bool registered_dirty = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new ConflictsWithEntryPointExtension));
-    ASSERT_FALSE(registered_dirty);
+  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
+    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
+    ASSERT_FALSE(RegisterExtensionForTest(
+        server, new ConflictsWithEntryPointExtension));
   }
 };
 

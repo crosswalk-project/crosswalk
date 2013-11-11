@@ -29,6 +29,8 @@ namespace {
 XWalkExtensionService::RegisterExtensionsCallback
 g_register_extensions_callback;
 
+base::FilePath g_external_extensions_path_for_testing_;
+
 }
 
 // This object intercepts messages destined to a XWalkExtensionServer and
@@ -82,6 +84,8 @@ XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
     delegate)
     : extension_thread_("XWalkExtensionThread"),
       delegate_(delegate) {
+  if (!g_external_extensions_path_for_testing_.empty())
+    external_extensions_path_ = g_external_extensions_path_for_testing_;
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
                  content::NotificationService::AllBrowserContextsAndSources());
 
@@ -124,6 +128,12 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 void XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
     const RegisterExtensionsCallback& callback) {
   g_register_extensions_callback = callback;
+}
+
+// static
+void XWalkExtensionService::SetExternalExtensionsPathForTesting(
+    const base::FilePath& path) {
+  g_external_extensions_path_for_testing_ = path;
 }
 
 XWalkExtensionService::ExtensionData::ExtensionData() {
@@ -201,7 +211,7 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
   delegate_->RegisterInternalExtensionsInServer(in_process_server.get());
 
   if (!g_register_extensions_callback.is_null())
-    g_register_extensions_callback.Run(this, in_process_server.get());
+    g_register_extensions_callback.Run(in_process_server.get());
 
   data->in_process_server_ = in_process_server.Pass();
 }
