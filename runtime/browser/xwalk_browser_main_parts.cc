@@ -292,42 +292,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  std::string command_name =
-      command_line->GetProgram().BaseName().MaybeAsASCII();
-
-#if defined(OS_TIZEN_MOBILE)
-  // On Tizen, applications are launched by a symbolic link
-  // named like the application ID.
-  if (startup_url_.SchemeIsFile() || command_name.compare("xwalk") != 0) {
-#else
-  if (startup_url_.SchemeIsFile()) {
-#endif  // OS_TIZEN_MOBILE
-
-    xwalk::application::ApplicationService* service =
-        app_system->application_service();
-    if (xwalk::application::Application::IsIDValid(command_name)) {
-      run_default_message_loop_ = service->Launch(command_name);
-      return;
-    }
-
-    const CommandLine::StringVector& args = command_line->GetArgs();
-    std::string id;
-    if (args.size() > 0)
-      id = std::string(args[0].begin(), args[0].end());
-    if (xwalk::application::Application::IsIDValid(id)) {
-      run_default_message_loop_ = service->Launch(id);
-      return;
-    }
-
-    base::FilePath path;
-    if (!net::FileURLToFilePath(startup_url_, &path))
-      return;
-    if (base::DirectoryExists(path)) {
-      run_default_message_loop_ = service->Launch(path);
-      return;
-    }
-  }
-
 #if defined(OS_TIZEN_MOBILE)
   if (content::DeviceInertialSensorService* sensor_service =
           content::DeviceInertialSensorService::GetInstance()) {
@@ -339,6 +303,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     sensor_service->SetDataFetcherForTests(data_fetcher);
   }
 #endif  // OS_TIZEN_MOBILE
+
+  if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
+                                        &run_default_message_loop_)) {
+    return;
+  }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);

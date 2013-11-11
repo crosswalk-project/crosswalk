@@ -4,6 +4,7 @@
 
 #include "xwalk/application/browser/application_system.h"
 
+#include <string>
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "net/base/net_util.h"
@@ -71,6 +72,41 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
       LOG(INFO) << "[OK] Application installed: " << app_id;
     else
       LOG(ERROR) << "[ERR] Application install failure: " << path.value();
+    return true;
+  }
+
+  return false;
+}
+
+bool ApplicationSystem::LaunchFromCommandLine(
+    const CommandLine& cmd_line, const GURL& url,
+    bool* run_default_message_loop) {
+  // On Tizen, applications are launched by a symbolic link named like the
+  // application ID.
+  // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
+#if defined(OS_TIZEN_MOBILE)
+  std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
+  if (Application::IsIDValid(command_name)) {
+    *run_default_message_loop = application_service_->Launch(command_name);
+    return true;
+  }
+#endif
+
+  if (!url.SchemeIsFile())
+    return false;
+
+  // Handles raw app_id passed as first non-switch argument.
+  const CommandLine::StringVector& args = cmd_line.GetArgs();
+  if (!args.empty()) {
+    std::string app_id = std::string(args[0].begin(), args[0].end());
+    *run_default_message_loop = application_service_->Launch(app_id);
+    return true;
+  }
+
+  // Handles local directory.
+  base::FilePath path;
+  if (net::FileURLToFilePath(url, &path) && base::DirectoryExists(path)) {
+    *run_default_message_loop = application_service_->Launch(path);
     return true;
   }
 
