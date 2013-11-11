@@ -235,7 +235,11 @@ void XWalkExtensionModule::SendSyncMessageCallback(
   scoped_ptr<base::Value> reply(
       module->client_->SendSyncMessageToNative(module->instance_id_,
                                                value.Pass()));
-  result.Set(module->converter_->ToV8Value(reply.get(), context));
+
+  // If we tried to send a message to an instance that became invalid,
+  // then reply will be NULL.
+  if (reply)
+    result.Set(module->converter_->ToV8Value(reply.get(), context));
 }
 
 // static
