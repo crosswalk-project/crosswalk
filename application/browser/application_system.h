@@ -38,6 +38,15 @@ class ApplicationSystem {
     return application_service_.get();
   }
 
+  // Parse the command line and process the --install, --uninstall and
+  // --list-apps commands. Returns true when a management command was processed,
+  // so the caller shouldn't load a runtime.
+  //
+  // The parameter `url` contains the current URL Crosswalk is considering to
+  // load.
+  bool HandleApplicationManagementCommands(const CommandLine& cmd_line,
+                                           const GURL& url);
+
  private:
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;

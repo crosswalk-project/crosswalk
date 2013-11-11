@@ -262,11 +262,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_registry_->AddObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
 
-  xwalk::application::ApplicationSystem* system =
-      runtime_context_->GetApplicationSystem();
-  xwalk::application::ApplicationService* service =
-      system->application_service();
-
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kInstall) &&
       !command_line->HasSwitch(switches::kUninstall)) {
@@ -285,20 +280,17 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
           new RemoteDebuggingServer(runtime_context_.get(),
               loopback_ip, port, std::string()));
     }
-  } else if (command_line->HasSwitch(switches::kListApplications)) {
-    xwalk::application::ApplicationStore::ApplicationMap* apps =
-        service->GetInstalledApplications();
-    LOG(INFO) << "Application ID                       Application Name";
-    LOG(INFO) << "-----------------------------------------------------";
-    xwalk::application::ApplicationStore::ApplicationMapIterator it;
-    for (it = apps->begin(); it != apps->end(); ++it)
-      LOG(INFO) << it->first << "     " << it->second->Name();
-    LOG(INFO) << "-----------------------------------------------------";
-    run_default_message_loop_ = false;
-    return;
   }
 
   NativeAppWindow::Initialize();
+
+  xwalk::application::ApplicationSystem* app_system =
+      runtime_context_->GetApplicationSystem();
+  if (app_system->HandleApplicationManagementCommands(*command_line,
+                                                      startup_url_)) {
+    run_default_message_loop_ = false;
+    return;
+  }
 
   std::string command_name =
       command_line->GetProgram().BaseName().MaybeAsASCII();
@@ -311,6 +303,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   if (startup_url_.SchemeIsFile()) {
 #endif  // OS_TIZEN_MOBILE
 
+    xwalk::application::ApplicationService* service =
+        app_system->application_service();
     if (xwalk::application::Application::IsIDValid(command_name)) {
       run_default_message_loop_ = service->Launch(command_name);
       return;
@@ -321,34 +315,14 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     if (args.size() > 0)
       id = std::string(args[0].begin(), args[0].end());
     if (xwalk::application::Application::IsIDValid(id)) {
-      if (command_line->HasSwitch(switches::kUninstall)) {
-        if (!service->Uninstall(id))
-          LOG(ERROR) << "[ERR] An error occurred during"
-                        "uninstalling application "
-                     << id;
-        else
-          LOG(INFO) << "[OK] Application uninstalled successfully: " << id;
-        run_default_message_loop_ = false;
-      } else {
-        run_default_message_loop_ = service->Launch(id);
-      }
+      run_default_message_loop_ = service->Launch(id);
       return;
     }
+
     base::FilePath path;
     if (!net::FileURLToFilePath(startup_url_, &path))
       return;
-    if (command_line->HasSwitch(switches::kInstall)) {
-      if (base::PathExists(path)) {
-        std::string id;
-        if (service->Install(path, &id)) {
-          LOG(INFO) << "[OK] Application installed: " << id;
-        } else {
-          LOG(ERROR) << "[ERR] Application install failure: " << path.value();
-        }
-      }
-      run_default_message_loop_ = false;
-      return;
-    } else if (base::DirectoryExists(path)) {
+    if (base::DirectoryExists(path)) {
       run_default_message_loop_ = service->Launch(path);
       return;
     }
