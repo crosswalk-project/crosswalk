@@ -32,6 +32,7 @@ class ApplicationStore: public DBStore::Observer {
   static const char kManifestPath[];
   static const char kApplicationPath[];
   static const char kInstallTime[];
+  static const char kRegisteredEvents[];
 
   explicit ApplicationStore(xwalk::RuntimeContext* runtime_context);
   virtual ~ApplicationStore();
@@ -46,6 +47,10 @@ class ApplicationStore: public DBStore::Observer {
       const std::string& application_id) const;
 
   ApplicationMap* GetInstalledApplications() const;
+
+  bool SetApplicationEvents(const std::string& id,
+                            base::ListValue* events);
+  base::ListValue* GetApplicationEvents(const std::string& id);
 
   // Implement the DBStore::Observer.
   virtual void OnDBValueChanged(const std::string& key,

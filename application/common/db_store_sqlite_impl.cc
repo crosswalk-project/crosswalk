@@ -4,18 +4,28 @@
 
 #include "xwalk/application/common/db_store_sqlite_impl.h"
 
+#include <string>
+#include <vector>
+
 #include "base/file_util.h"
+#include "base/strings/stringprintf.h"
+#include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "base/json/json_file_value_serializer.h"
 #include "base/json/json_string_value_serializer.h"
 #include "sql/statement.h"
 #include "sql/transaction.h"
 #include "xwalk/application/browser/application_store.h"
+#include "xwalk/application/common/db_store_constants.h"
 
+namespace db_fields = xwalk::db_store_constants;
 namespace xwalk {
 namespace application {
 
 const base::FilePath::CharType DBStoreSqliteImpl::kDBFileName[] =
     FILE_PATH_LITERAL("applications.db");
+
+const char kEventSeparator = ';';
 
 // Switching the JSON format DB(version 0) to SQLite backend version 1,
 // should migrate all data from JSON DB to SQLite applications table.
@@ -41,23 +51,31 @@ inline const std::string GetInstallTimePath(const std::string& application_id) {
 
 // Initializes the applications table, returning true on success.
 bool InitApplicationsTable(sql::Connection* db) {
+  sql::Transaction transaction(db);
+  transaction.Begin();
   // The table is named "applications", the primary key is "id".
-  if (!db->DoesTableExist("applications")) {
-    if (!db->Execute("CREATE TABLE applications ("
-                     "id TEXT NOT NULL UNIQUE PRIMARY KEY,"
-                     "manifest TEXT NOT NULL,"
-                     "path TEXT NOT NULL,"
-                     "install_time REAL)"))
+  if (!db->DoesTableExist(db_fields::kAppTableName)) {
+    if (!db->Execute(db_fields::kCreateAppTableOp))
       return false;
   }
+  return transaction.Commit();
+}
 
-  return true;
+bool InitEventsTable(sql::Connection* db) {
+  sql::Transaction transaction(db);
+  transaction.Begin();
+  if (!db->DoesTableExist(db_fields::kEventTableName)) {
+    if (!db->Execute(db_fields::kCreateEventTableOp))
+     return false;
+  }
+  return transaction.Commit();
 }
 
 }  // namespace
 
 DBStoreSqliteImpl::DBStoreSqliteImpl(const base::FilePath& path)
     : DBStore(path),
+      sqlite_db_(new sql::Connection),
       db_initialized_(false) {
   // Ensure the parent directory for database file is created before reading
   // from it.
@@ -65,15 +83,11 @@ DBStoreSqliteImpl::DBStoreSqliteImpl(const base::FilePath& path)
     return;
 
   bool does_db_exist = base::PathExists(GetDBPath(path));
-  sqlite_db_.reset(new sql::Connection);
   if (!sqlite_db_->Open(GetDBPath(path))) {
     LOG(ERROR) << "Unable to open applications DB.";
     sqlite_db_.reset();
     return;
   }
-
-  sql::Transaction transaction(sqlite_db_.get());
-  transaction.Begin();
 
   if (!meta_table_.Init(sqlite_db_.get(), kVersionNumber, kVersionNumber) ||
       meta_table_.GetVersionNumber() != kVersionNumber) {
@@ -83,6 +97,12 @@ DBStoreSqliteImpl::DBStoreSqliteImpl(const base::FilePath& path)
 
   if (!InitApplicationsTable(sqlite_db_.get())) {
     LOG(ERROR) << "Unable to open applications table.";
+    sqlite_db_.reset();
+    return;
+  }
+
+  if (!InitEventsTable(sqlite_db_.get())) {
+    LOG(ERROR) << "Unable to open registered events table.";
     sqlite_db_.reset();
     return;
   }
@@ -102,11 +122,7 @@ DBStoreSqliteImpl::DBStoreSqliteImpl(const base::FilePath& path)
     }
   }
 
-  if (!transaction.Commit()) {
-    LOG(ERROR) << "An error occured when initializing the SQLite DB.";
-    return;
-  }
-
+  sqlite_db_->Execute("PRAGMA foreign_keys=ON");
   sqlite_db_->Preload();
 }
 
@@ -150,38 +166,47 @@ bool DBStoreSqliteImpl::InitDB() {
 }
 
 bool DBStoreSqliteImpl::UpdateDBCache() {
-  if (sqlite_db_.get() && sqlite_db_->is_open()) {
-    // Read all installed appliations information to db memory cache.
-    db_.reset(new base::DictionaryValue);
-    sql::Statement smt(sqlite_db_->GetUniqueStatement(
-        "SELECT id, manifest, path, install_time FROM applications"));
-    if (smt.is_valid()) {
-      std::string error_msg;
-      while (smt.Step()) {
-        std::string application_id = smt.ColumnString(0);
+  if (!sqlite_db_ || !sqlite_db_->is_open())
+    return false;
 
-        int error_code;
-        std::string manifest_str = smt.ColumnString(1);
-        JSONStringValueSerializer serializer(&manifest_str);
-        base::Value* manifest = serializer.Deserialize(&error_code, &error_msg);
-        if (manifest == NULL) {
-          LOG(ERROR) << "An error occured when deserializing the manifest, "
-                        "the error message is: "
-                     << error_msg;
-          return false;
-        }
-        std::string path = smt.ColumnString(2);
-        double install_time = smt.ColumnDouble(3);
-        base::DictionaryValue* value = new base::DictionaryValue;
-        value->Set(ApplicationStore::kManifestPath, manifest);
-        value->SetString(ApplicationStore::kApplicationPath, path);
-        value->SetDouble(ApplicationStore::kInstallTime, install_time);
-        db_->Set(application_id, value);
-      }
-      return true;
+  // Read all installed appliations information to db memory cache.
+  db_.reset(new base::DictionaryValue);
+  sql::Statement smt(sqlite_db_->GetUniqueStatement(
+      db_fields::kGetAllRowsFromAppEventTableOp));
+  if (!smt.is_valid())
+    return false;
+
+  std::string error_msg;
+  while (smt.Step()) {
+    std::string id = smt.ColumnString(0);
+
+    int error_code;
+    std::string manifest_str = smt.ColumnString(1);
+    JSONStringValueSerializer serializer(&manifest_str);
+    base::Value* manifest = serializer.Deserialize(&error_code, &error_msg);
+    if (manifest == NULL) {
+      LOG(ERROR) << "An error occured when deserializing the manifest, "
+                    "the error message is: "
+                 << error_msg;
+      return false;
     }
+    std::string path = smt.ColumnString(2);
+    double install_time = smt.ColumnDouble(3);
+    std::vector<std::string> events_vec;
+    base::ListValue* events_list = new base::ListValue;
+    base::SplitString(smt.ColumnString(4), kEventSeparator, &events_vec);
+    events_list->AppendStrings(events_vec);
+
+    base::DictionaryValue* value = new base::DictionaryValue;
+    value->Set(ApplicationStore::kManifestPath, manifest);
+    value->SetString(ApplicationStore::kApplicationPath, path);
+    value->SetDouble(ApplicationStore::kInstallTime, install_time);
+    if (events_list->GetSize())
+      value->Set(ApplicationStore::kRegisteredEvents, events_list);
+    db_->Set(id, value);
   }
-  return false;
+
+  return true;
 }
 
 bool DBStoreSqliteImpl::Insert(const Application* application,
@@ -207,6 +232,10 @@ bool DBStoreSqliteImpl::Remove(const std::string& key) {
   if (!db_initialized_)
     return false;
 
+  std::string current_path(key);
+  size_t delimiter_position = current_path.find('.');
+  std::string application_id(current_path, 0, delimiter_position);
+
   if (!db_->HasKey(key)) {
     LOG(ERROR) << "Database key " << key << " is invalid.";
     return false;
@@ -218,7 +247,10 @@ bool DBStoreSqliteImpl::Remove(const std::string& key) {
     return false;
   }
   ReportValueChanged(key, NULL);
-  return Commit(key, "", NULL, ACTION_DELETE);
+  std::string column;
+  if (delimiter_position != std::string::npos)
+    column = std::string(current_path, delimiter_position+1);
+  return Commit(application_id, column, NULL, ACTION_DELETE);
 }
 
 void DBStoreSqliteImpl::SetValue(const std::string& key, base::Value* value) {
@@ -281,8 +313,7 @@ bool DBStoreSqliteImpl::SetApplication(
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "INSERT INTO applications (manifest, path, install_time, id) "
-      "VALUES (?,?,?,?)"));
+      db_fields::kSetApplicationWithBindOp));
   if (!smt.is_valid()) {
     LOG(ERROR) << "Unable to insert application info into DB.";
     return false;
@@ -335,8 +366,7 @@ bool DBStoreSqliteImpl::UpdateApplication(
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "UPDATE applications SET manifest = ?, path = ?, "
-      "install_time = ? WHERE id = ?"));
+      db_fields::kUpdateApplicationWithBindOp));
   if (!smt.is_valid()) {
     LOG(ERROR) << "Unable to update application info in DB.";
     return false;
@@ -359,7 +389,7 @@ bool DBStoreSqliteImpl::DeleteApplication(const std::string& id) {
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "DELETE FROM applications WHERE id = ?"));
+      db_fields::kDeleteApplicationWithBindOp));
   smt.BindString(0, id);
   if (!smt.Run()) {
     LOG(ERROR) << "Could not delete application "
@@ -389,7 +419,7 @@ bool DBStoreSqliteImpl::SetManifestValue(
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "UPDATE applications SET manifest = ? WHERE id = ?"));
+      db_fields::kSetManifestWithBindOp));
   if (!smt.is_valid()) {
     LOG(ERROR) << "Unable to update manifest in db.";
     return false;
@@ -424,7 +454,7 @@ bool DBStoreSqliteImpl::SetInstallTimeValue(
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "UPDATE applications SET install_time = ? WHERE id = ?"));
+      db_fields::kSetInstallTimeWithBindOp));
   if (!smt.is_valid()) {
     LOG(ERROR) << "Unable to update install_time in db.";
     return false;
@@ -458,7 +488,7 @@ bool DBStoreSqliteImpl::SetApplicationPathValue(
     return false;
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      "UPDATE applications SET path = ? WHERE id = ?"));
+      db_fields::kSetApplicationPathWithBindOp));
   if (!smt.is_valid()) {
     LOG(ERROR) << "Unable to update path in db.";
     return false;
@@ -482,6 +512,9 @@ bool DBStoreSqliteImpl::Commit(const std::string& id,
     case ACTION_INSERT:
       if (column.empty())
         ret = SetApplication(id, value);
+      else if (column.compare(ApplicationStore::kRegisteredEvents) == 0)
+        ret = SetEventsValue(id, value,
+            std::string(db_fields::kInsertEventsWithBindOp));
       break;
     case ACTION_UPDATE:
       if (column.empty())
@@ -492,6 +525,9 @@ bool DBStoreSqliteImpl::Commit(const std::string& id,
         ret = SetApplicationPathValue(id, value);
       else if (column.compare(ApplicationStore::kInstallTime) == 0)
         ret = SetInstallTimeValue(id, value);
+      else if (column.compare(ApplicationStore::kRegisteredEvents) == 0)
+        ret = SetEventsValue(id, value,
+            std::string(db_fields::kUpdateEventsWithBindOp));
       else
         LOG(ERROR) << "Unable to update the column "
                    << column << " in database.";
@@ -499,12 +535,65 @@ bool DBStoreSqliteImpl::Commit(const std::string& id,
     case ACTION_DELETE:
       if (column.empty())
         ret = DeleteApplication(id);
+      else if (column.compare(ApplicationStore::kRegisteredEvents) == 0)
+        ret = DeleteEventsValue(id);
       break;
     case ACTION_UNKNOWN:
     default:
       LOG(ERROR) << "An unknow or illegal action has been committed.";
   }
   return ret;
+}
+
+bool DBStoreSqliteImpl::SetEventsValue(
+    const std::string& id,
+    base::Value* value,
+    const std::string& operation) {
+  if (!value)
+    return false;
+
+  base::ListValue* events = static_cast<base::ListValue*>(value);
+  sql::Transaction transaction(sqlite_db_.get());
+
+  std::vector<std::string> events_vec;
+  for (size_t i = 0; i < events->GetSize(); ++i) {
+    std::string event;
+    if (events->GetString(i, &event))
+      events_vec.push_back(event);
+  }
+  std::string events_list(JoinString(events_vec, kEventSeparator));
+
+  if (!transaction.Begin())
+    return false;
+
+  sql::Statement smt(sqlite_db_->GetUniqueStatement(
+      operation.c_str()));
+  smt.BindString(0, events_list);
+  smt.BindString(1, id);
+  if (!smt.Run()) {
+    LOG(ERROR) << "An error occured when inserting event information into DB.";
+    return false;
+  }
+
+  return transaction.Commit();
+}
+
+bool DBStoreSqliteImpl::DeleteEventsValue(
+    const std::string& id) {
+  sql::Transaction transaction(sqlite_db_.get());
+  if (!transaction.Begin())
+    return false;
+
+  sql::Statement smt(sqlite_db_->GetUniqueStatement(
+      db_fields::kDeleteEventsWithBindOp));
+  smt.BindString(0, id);
+
+  if (!smt.Run()) {
+    LOG(ERROR) << "An error occured when deleting event information from DB.";
+    return false;
+  }
+
+  return transaction.Commit();
 }
 
 void DBStoreSqliteImpl::ReportValueChanged(const std::string& key,

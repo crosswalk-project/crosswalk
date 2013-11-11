@@ -42,6 +42,8 @@
         'common/constants.h',
         'common/db_store.cc',
         'common/db_store.h',
+        'common/db_store_constants.cc',
+        'common/db_store_constants.h',
         'common/db_store_sqlite_impl.cc',
         'common/db_store_sqlite_impl.h',
         'common/id_util.cc',
