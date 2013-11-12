@@ -345,7 +345,7 @@ class PatchInfo(object):
             f2patch_dir = os.path.dirname(f2patch)
             try:
               os.stat(f2patch_dir)
-            except IOError:
+            except (IOError, OSError):
               os.mkdir(f2patch_dir)
 
             f = open(f2patch, "wb")
@@ -562,15 +562,16 @@ def patch_stream(instream, hunks):
           yield line2write.rstrip("\r\n")+newline
         else: # newlines are mixed
           yield line2write
-   
+
   for line in instream:
     yield line
 
 
+import stat
 
 def patch_hunks(srcname, tgtname, hunks):
   # get the current file mode
-  mode = os.stat(srcname).ST_MODE
+  mode = os.stat(srcname).st_mode
 
   src = open(srcname, "rb")
   tgt = open(tgtname, "wb")
