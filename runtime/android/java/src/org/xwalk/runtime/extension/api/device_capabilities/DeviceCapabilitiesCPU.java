@@ -56,14 +56,15 @@ public class DeviceCapabilitiesCPU {
             RandomAccessFile file = new RandomAccessFile(SYSTEM_INFO_STAT_FILE, "r");
             String line = file.readLine();
 
-            String[] arrs = line.split(" ");
-            long used1 = Long.parseLong(arrs[2]) + Long.parseLong(arrs[3])
-                         + Long.parseLong(arrs[4]);
-            long total1 = used1
-                          + Long.parseLong(arrs[5]) + Long.parseLong(arrs[6])
-                          + Long.parseLong(arrs[7]) + Long.parseLong(arrs[8]);
+            String[] arrs = line.split("\\s+");
+            long total1 = 0;
+            for (int i = 1; i < arrs.length; ++i) {
+                total1 += Long.parseLong(arrs[i]);
+            }
+            // arrs[4] is the time spent in idle tasks.
+            long used1 = total1 - Long.parseLong(arrs[4]);
             try {
-                Thread.sleep(360);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 mCPULoad = 0.0;
                 return false;
@@ -73,13 +74,13 @@ public class DeviceCapabilitiesCPU {
             line = file.readLine();
             file.close();
 
-            arrs = line.split(" ");
-            long used2 = Long.parseLong(arrs[2]) + Long.parseLong(arrs[3])
-                         + Long.parseLong(arrs[4]);
-            long total2 = used1
-                          + Long.parseLong(arrs[5]) + Long.parseLong(arrs[6])
-                          + Long.parseLong(arrs[7]) + Long.parseLong(arrs[8]);
-
+            arrs = line.split("\\s+");
+            long total2 = 0;
+            for (int i = 1; i < arrs.length; ++i) {
+                total2 += Long.parseLong(arrs[i]);
+            }
+            // arrs[4] is the time spent in idle tasks.
+            long used2 = total2 - Long.parseLong(arrs[4]);
             if (total2 == total1) {
                 mCPULoad = 0.0;
             } else {
