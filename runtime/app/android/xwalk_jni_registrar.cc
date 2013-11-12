@@ -11,9 +11,11 @@
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
+#include "xwalk/runtime/browser/android/xwalk_autofill_manager_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
+#include "xwalk/runtime/browser/android/xwalk_form_database.h"
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
@@ -33,6 +35,8 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
   { "XWalkSettings", RegisterXWalkSettings },
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
+  { "XWalkAutofillManagerDelegate", RegisterXWalkAutofillManagerDelegate },
+  { "XWalkFormDatabase", RegisterXWalkFormDatabase },
 };
 
 bool RegisterJni(JNIEnv* env) {

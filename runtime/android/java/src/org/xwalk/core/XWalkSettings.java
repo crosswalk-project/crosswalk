@@ -34,6 +34,7 @@ public class XWalkSettings {
     private boolean mJavaScriptEnabled = true;
     private boolean mAllowUniversalAccessFromFileURLs = false;
     private boolean mAllowFileAccessFromFileURLs = false;
+    private boolean mAutoCompleteEnabled = true;
     private boolean mJavaScriptCanOpenWindowsAutomatically = true;
     private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
@@ -268,6 +269,25 @@ public class XWalkSettings {
     }
 
     /**
+     * See {@link android.webkit.WebSettings#setSaveFormData}.
+     */
+    public void setSaveFormData(boolean flag) {
+        synchronized (mXWalkSettingsLock) {
+            if (mAutoCompleteEnabled != flag) {
+                mAutoCompleteEnabled = flag;
+                ThreadUtils.runOnUiThreadBlocking(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mNativeXWalkSettings != 0) {
+                            nativeUpdateFormDataPreferencesLocked(mNativeXWalkSettings);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
      * See {@link android.webkit.WebSettings#setLoadsImagesAutomatically}.
      */
     public void setLoadsImagesAutomatically(boolean flag) {
@@ -334,6 +354,20 @@ public class XWalkSettings {
         synchronized (mXWalkSettingsLock) {
             return mAllowFileAccessFromFileURLs;
         }
+    }
+
+    /**
+     * See {@link android.webkit.WebSettings#getSaveFormData}.
+     */
+    public boolean getSaveFormData() {
+        synchronized (mXWalkSettingsLock) {
+            return getSaveFormDataLocked();
+        }
+    }
+
+    @CalledByNative
+    private boolean getSaveFormDataLocked() {
+        return mAutoCompleteEnabled;
     }
 
     /**
@@ -552,4 +586,6 @@ public class XWalkSettings {
     private native void nativeUpdateEverything(int nativeXWalkSettings);
 
     private native void nativeUpdateWebkitPreferences(int nativeXWalkSettings);
+
+    private native void nativeUpdateFormDataPreferencesLocked(int nativeXWalkSettings);
 }

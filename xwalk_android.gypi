@@ -6,6 +6,8 @@
       'android_unmangled_name': 1,
       'dependencies': [
         '../components/components.gyp:auto_login_parser',
+        '../components/components.gyp:autofill_content_browser',
+        '../components/components.gyp:autofill_content_renderer',
         '../components/components.gyp:navigation_interception',
         '../components/components.gyp:visitedlink_browser',
         '../components/components.gyp:visitedlink_renderer',
@@ -94,9 +96,11 @@
       },
       'sources': [
         'runtime/android/java/src/org/xwalk/core/AndroidProtocolHandler.java',
+        'runtime/android/java/src/org/xwalk/core/XWalkAutofillManagerDelegate.java',
         'runtime/android/java/src/org/xwalk/core/XWalkContentsClientBridge.java',
         'runtime/android/java/src/org/xwalk/core/XWalkContent.java',
         'runtime/android/java/src/org/xwalk/core/XWalkDevToolsServer.java',
+        'runtime/android/java/src/org/xwalk/core/XWalkFormDatabase.java',
         'runtime/android/java/src/org/xwalk/core/XWalkSettings.java',
         'runtime/android/java/src/org/xwalk/core/XWalkWebContentsDelegate.java',
       ],

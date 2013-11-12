@@ -14,6 +14,8 @@
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 
 #if defined(OS_ANDROID)
+#include "components/autofill/content/renderer/autofill_agent.h"
+#include "components/autofill/content/renderer/password_autofill_agent.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #endif
@@ -61,6 +63,10 @@ void XWalkContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
 #if defined(OS_ANDROID)
   XWalkRenderViewExt::RenderViewCreated(render_view);
+
+  autofill::PasswordAutofillAgent* password_autofill_agent =
+      new autofill::PasswordAutofillAgent(render_view);
+  new autofill::AutofillAgent(render_view, password_autofill_agent);
 #endif
 }
 

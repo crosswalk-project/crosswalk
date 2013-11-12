@@ -23,7 +23,11 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
+#include "components/autofill/content/browser/autofill_driver_impl.h"
+#include "components/autofill/core/browser/autofill_manager.h"
+#include "components/autofill/core/browser/webdata/autofill_webdata_service.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
+#include "jni/XWalkContent_jni.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
@@ -32,12 +36,16 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/android/xwalk_autofill_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
-#include "jni/XWalkContent_jni.h"
+#include "ui/base/l10n/l10n_util_android.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
+using autofill::AutofillDriverImpl;
+using autofill::AutofillManager;
+using base::android::AttachCurrentThread;
 using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
 using navigation_interception::InterceptNavigationDelegate;
@@ -106,8 +114,40 @@ jint XWalkContent::GetWebContents(
 
     render_view_host_ext_.reset(
         new XWalkRenderViewHostExt(web_contents_.get()));
+
+    XWalkAutofillManagerDelegate* autofill_manager_delegate =
+        XWalkAutofillManagerDelegate::FromWebContents(web_contents_.get());
+    if (autofill_manager_delegate)
+        InitAutofillIfNecessary(autofill_manager_delegate->GetSaveFormData());
   }
   return reinterpret_cast<jint>(web_contents_.get());
+}
+
+void XWalkContent::InitAutofillIfNecessary(bool enabled) {
+  // Do not initialize if the feature is not enabled.
+  if (!enabled)
+    return;
+  // Check if the autofill driver already exists.
+  content::WebContents* web_contents = web_contents_.get();
+  if (AutofillDriverImpl::FromWebContents(web_contents))
+    return;
+
+  RuntimeContext::FromWebContents(web_contents)->
+      CreateUserPrefServiceIfNecessary();
+  XWalkAutofillManagerDelegate::CreateForWebContents(web_contents);
+  AutofillDriverImpl::CreateForWebContentsAndDelegate(
+      web_contents,
+      XWalkAutofillManagerDelegate::FromWebContents(web_contents),
+      l10n_util::GetDefaultLocale(),
+      AutofillManager::DISABLE_AUTOFILL_DOWNLOAD_MANAGER);
+}
+
+void XWalkContent::SetXWalkAutofillManagerDelegate(jobject delegate) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkContent_setXWalkAutofillManagerDelegate(env, obj.obj(), delegate);
 }
 
 content::WebContents* XWalkContent::CreateWebContents(
@@ -175,6 +215,16 @@ void XWalkContent::SetJsOnlineProperty(JNIEnv* env,
                                        jobject obj,
                                        jboolean network_up) {
   render_view_host_ext_->SetJsOnlineProperty(network_up);
+}
+
+void XWalkContent::SetSaveFormData(bool enabled) {
+  InitAutofillIfNecessary(enabled);
+  // We need to check for the existence, since autofill_manager_delegate
+  // may not be created when the setting is false.
+  if (AutofillDriverImpl::FromWebContents(web_contents_.get())) {
+    XWalkAutofillManagerDelegate::FromWebContents(web_contents_.get())->
+        SetSaveFormData(enabled);
+  }
 }
 
 jboolean XWalkContent::SetManifest(JNIEnv* env,
@@ -299,7 +349,7 @@ void ShowGeolocationPromptHelper(const JavaObjectWeakGlobalRef& java_ref,
 
 void XWalkContent::ShowGeolocationPrompt(
     const GURL& requesting_frame,
-    const base::Callback<void(bool)>& callback) {
+    const base::Callback<void(bool)>& callback) { //NOLINT
   GURL origin = requesting_frame.GetOrigin();
   bool show_prompt = pending_geolocation_prompts_.empty();
   pending_geolocation_prompts_.push_back(OriginCallback(origin, callback));

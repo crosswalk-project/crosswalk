@@ -68,6 +68,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 #endif
 
+  static RuntimeContext* GetRuntimeContext();
+
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
   XWalkBrowserMainParts* main_parts_;

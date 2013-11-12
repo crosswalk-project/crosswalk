@@ -124,6 +124,15 @@ void XWalkSettings::UpdateEverything() {
 
 void XWalkSettings::UpdateEverything(JNIEnv* env, jobject obj) {
   UpdateWebkitPreferences(env, obj);
+  UpdateFormDataPreferencesLocked(env, obj);
+}
+
+void XWalkSettings::UpdateFormDataPreferencesLocked(JNIEnv* env, jobject obj) {
+  if (!web_contents()) return;
+  XWalkContent* contents = XWalkContent::FromWebContents(web_contents());
+  if (!contents) return;
+
+  contents->SetSaveFormData(Java_XWalkSettings_getSaveFormDataLocked(env, obj));
 }
 
 void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {

@@ -32,6 +32,10 @@ namespace xwalk {
 class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
 
+#if defined(OS_ANDROID)
+class XWalkFormDatabaseService;
+#endif
+
 class RuntimeContext : public content::BrowserContext {
  public:
   RuntimeContext();
@@ -40,6 +44,18 @@ class RuntimeContext : public content::BrowserContext {
   // Convenience method to returns the RuntimeContext corresponding to the
   // given WebContents.
   static RuntimeContext* FromWebContents(content::WebContents* web_contents);
+
+  // Called before BrowserThreads are created.
+  void InitializeBeforeThreadCreation();
+
+  // Maps to BrowserMainParts::PreMainMessageLoopRun.
+  void PreMainMessageLoopRun();
+
+#if defined(OS_ANDROID)
+  XWalkFormDatabaseService* GetFormDatabaseService();
+
+  void CreateUserPrefServiceIfNecessary();
+#endif
 
   // BrowserContext implementation.
   virtual base::FilePath GetPath() const OVERRIDE;
@@ -94,6 +110,11 @@ class RuntimeContext : public content::BrowserContext {
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
        geolocation_permission_context_;
+
+#if defined(OS_ANDROID)
+  scoped_ptr<XWalkFormDatabaseService> form_database_service_;
+  bool user_pref_service_ready_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
 };

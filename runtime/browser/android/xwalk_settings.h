@@ -29,6 +29,7 @@ class XWalkSettings : public content::WebContentsObserver {
   void UpdateInitialPageScale(JNIEnv* env, jobject obj);
   void UpdateUserAgent(JNIEnv* env, jobject obj);
   void UpdateWebkitPreferences(JNIEnv* env, jobject obj);
+  void UpdateFormDataPreferencesLocked(JNIEnv* env, jobject obj);
 
  private:
   struct FieldIds;
