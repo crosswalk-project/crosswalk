@@ -7,8 +7,8 @@
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '31.0.1650.12'
-chromium_crosswalk_point = '14c6a7b04b3301598d457a79fc3229985695e5a0'
-blink_crosswalk_point = '293e75f05d1753b2c33e42e9414aff1e8e2d6165'
+chromium_crosswalk_point = 'f4c5d15d49d02b74eb834325e4dff50b16b53243'
+blink_crosswalk_point = '1e5189980e80ac43b3721c569956b8b09cdec0bf'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
@@ -17,6 +17,7 @@ deps_xwalk = {
   # grit-i18n to latest version"). This is used for incremental Tizen builds to
   # work.
   'src/tools/grit': 'http://grit-i18n.googlecode.com/svn/trunk@138',
+  'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
 }
 vars_xwalk = {
   'jsoncpp': 'http://svn.code.sf.net/p/jsoncpp/code',

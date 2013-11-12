@@ -109,6 +109,10 @@ if __name__ == '__main__':
   if ip_media_codecs == True:
       args.append('-Dffmpeg_branding=Chrome')
 
+  # Enable Web Audio by default on Android x86
+  if landmine_utils.platform() == 'android':
+    args.append('-Duse_openmax_dl_fft=1')
+
   # Enable Aura by default on all platforms except Android
   if landmine_utils.platform() != 'android' and landmine_utils.platform() != 'mac':
     args.append('-Duse_aura=1')
