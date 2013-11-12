@@ -258,8 +258,8 @@ public class XWalkView extends FrameLayout {
     }
 
     public void destroy() {
-        disableRemoteDebugging();
         mContent.destroy();
+        disableRemoteDebugging();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
