@@ -28,14 +28,17 @@ class ApplicationService {
   virtual ~ApplicationService();
 
   bool Install(const base::FilePath& path, std::string* id);
+  // TODO(Bai): Unload current running application before uninstall.
   bool Uninstall(const std::string& id);
   bool Launch(const std::string& id);
   bool Launch(const base::FilePath& path);
+  bool Terminate(const std::string& id);
 
   scoped_refptr<const Application> GetApplicationByID(
        const std::string& id) const;
   ApplicationStore::ApplicationMap* GetInstalledApplications() const;
   // Currently there's only one running application at a time.
+  // TODO(Bai): Fix this after shared runtime process is implemented.
   const Application* GetRunningApplication() const;
 
  private:

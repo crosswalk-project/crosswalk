@@ -4,7 +4,12 @@
 
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 
+#ifdef OS_LINUX
+#include <unistd.h>
+#endif
+
 #include "base/files/file_path.h"
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -13,6 +18,7 @@
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "content/public/common/content_switches.h"
@@ -33,11 +39,26 @@ XWalkMainDelegate::~XWalkMainDelegate() {
 
 bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   logging::LoggingSettings loggingSettings;
-  loggingSettings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kRunAsService)) {
+#ifdef OS_LINUX
+    if (daemon(0, 0) == 0) {
+      loggingSettings.logging_dest = logging::LOG_TO_FILE;
+      loggingSettings.log_file = FILE_PATH_LITERAL("/tmp/xwalk_debug.log");
+    } else {
+      *exit_code = -1;
+      return true;
+    }
+#else
+    *exit_code = -1;
+    return true;
+#endif
+  } else {
+    loggingSettings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
+  }
   logging::InitLogging(loggingSettings);
   SetContentClient(content_client_.get());
 #if defined(OS_WIN)
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
   std::string process_type =
           command_line->GetSwitchValueASCII(switches::kProcessType);
   // Only set the id for browser process

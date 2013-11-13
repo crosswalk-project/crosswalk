@@ -146,6 +146,13 @@ bool ApplicationService::Launch(const base::FilePath& path) {
                                            application.get());
 }
 
+bool ApplicationService::Terminate(const std::string& id) {
+  // TODO(Bai): Complete this function after the process manager can
+  // actually terminate an running application.
+  return true;
+}
+
+
 ApplicationStore::ApplicationMap*
 ApplicationService::GetInstalledApplications() const {
   return app_store_->GetInstalledApplications();

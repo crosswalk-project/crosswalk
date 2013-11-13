@@ -78,5 +78,26 @@
         },
       ],  # targets
     }],
+    [ 'OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'dbus',
+          'type': 'none',
+          'variables': {
+            'packages': [
+              'dbus-1',
+            ],
+          },
+          'dependencies': [
+            '../../dbus/dbus.gyp:dbus',
+          ],
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <@(packages))',
+            ],
+          },
+        },
+      ],
+    }],
   ],  # conditions
 }

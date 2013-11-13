@@ -15,6 +15,8 @@
         'xwalk_application_resources',
       ],
       'sources': [
+        'browser/application_service_provider.cc',
+        'browser/application_service_provider.h',
         'browser/application_store.cc',
         'browser/application_store.h',
         'browser/application_process_manager.cc',
@@ -72,12 +74,23 @@
             'browser/installer/tizen/package_installer.h',
           ],
         }],
+        [ 'OS=="linux"', {
+          'dependencies': [
+            'build/system.gyp:dbus',
+            'xwalk_launcher',
+          ],
+          'sources!': [
+            'browser/application_service_provider.cc',
+          ],
+          'sources': [
+            'browser/application_service_provider_linux.cc',
+          ],
+        }],
       ],
       'include_dirs': [
         '../..',
       ],
     },
-
     {
       'target_name': 'xwalk_application_resources',
       'type': 'none',
@@ -97,7 +110,6 @@
         },
       ],
     },
-
     {
       'target_name': 'generate_xwalk_application_resources',
       'type': 'none',
@@ -113,6 +125,23 @@
           },
           'includes': [ '../../build/grit_action.gypi' ],
         },
+      ],
+    },
+    {
+      'target_name': 'xwalk_launcher',
+      'type': 'executable',
+      'conditions': [
+        [ 'OS=="linux"', {
+          'dependencies': [
+            '../base/base.gyp:base',
+            'build/system.gyp:dbus',
+          ],
+          'sources': [
+            'common/constants.cc',
+            'common/constants.h',
+            'launcher/xwalk_launcher.cc',
+          ],
+        }],
       ],
     },
   ],
