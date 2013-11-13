@@ -189,10 +189,13 @@ def Customize(options):
   extensions_list = ''
   if options.extensions:
     extensions_list = '--extensions=%s' % options.extensions
+  orientation = '--orientation=unspecified'
+  if options.orientation:
+    orientation = '--orientation=%s' % options.orientation
   cmd = ['python', 'customize.py', package,
           name, app_version, description, icon, permissions, app_url,
           remote_debugging, app_root, app_local_path, fullscreen_flag,
-          extensions_list]
+          extensions_list, orientation]
   RunCommand(cmd)
 
 
@@ -495,6 +498,12 @@ def main(argv):
   parser.add_option('--mode', help=info)
   info = ('The path of the XPK file. Such as: --xpk=/path/to/xpk/file')
   parser.add_option('--xpk', help=info)
+  info = ('The orientation of the web app\'s display on the device. '
+          'Such as: --orientation=landscape. The default value is "unspecified"'
+          'The value options are the same as those on the Android: '
+          'http://developer.android.com/guide/topics/manifest/'
+          'activity-element.html#screen')
+  parser.add_option('--orientation', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()

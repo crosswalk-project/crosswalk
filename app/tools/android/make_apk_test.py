@@ -340,6 +340,23 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.exists('Example'))
     self.assertFalse(os.path.isfile('Example.apk'))
 
+  def testOrientation(self):
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example',
+                             '--app-url=http://www.intel.com',
+                             '--orientation=landscape'],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('landscape') != -1)
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.isfile('Example.apk'))
+    Clean('Example')
+
 
 if __name__ == '__main__':
   parser = optparse.OptionParser()
