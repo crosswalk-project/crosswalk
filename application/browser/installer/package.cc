@@ -5,8 +5,8 @@
 #include "xwalk/application/browser/installer/package.h"
 
 #include "base/file_util.h"
+#include "base/files/file_path.h"
 #include "base/logging.h"
-#include "crypto/signature_verifier.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/browser/installer/wgt_package.h"
 #include "xwalk/application/browser/installer/xpk_package.h"
@@ -28,9 +28,9 @@ Package::~Package() {
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   // TODO(riju): create specific package type
-  if (source_path.MatchesExtension(".xpk"))
+  if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk")))
       return XPKPackage::Create(source_path);
-  else if (source_path.MatchesExtension(".wgt"))
+  else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt")))
      return WGTPackage::Create(source_path);
 
   LOG(ERROR) << "Invalid package type";

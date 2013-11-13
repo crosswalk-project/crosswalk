@@ -5,15 +5,13 @@
 #include "xwalk/application/browser/installer/extractor.h"
 
 #include "base/file_util.h"
+#include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "third_party/zlib/google/zip.h"
 
 namespace xwalk {
 namespace application {
-
-const base::FilePath::CharType kApplicationFileExtension[] =
-    FILE_PATH_LITERAL(".xpk");
 
 Extractor::~Extractor() {
 }
@@ -22,7 +20,8 @@ Extractor::~Extractor() {
 scoped_ptr<Extractor> Extractor::Create(
     const base::FilePath& source_path) {
   if (base::PathExists(source_path) &&
-      source_path.MatchesExtension(kApplicationFileExtension)) {
+      (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk")) ||
+       source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt")))) {
     return scoped_ptr<Extractor>(new Extractor(source_path));
   }
   return scoped_ptr<Extractor>();
@@ -61,7 +60,7 @@ bool Extractor::Extract(base::FilePath* target_path) {
 
 // Create a temporary directory to decompress the XPK package.
 // As the package information might already exists under data_path,
-// it's safer to extract the XPK file into a temporary directory first.
+// it's safer to extract the XPK/WGT file into a temporary directory first.
 bool Extractor::CreateTempDirectory() {
   base::FilePath tmp;
   PathService::Get(base::DIR_TEMP, &tmp);

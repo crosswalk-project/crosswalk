@@ -17,7 +17,7 @@ class Extractor {
  public:
   ~Extractor();
   static scoped_ptr<Extractor> Create(const base::FilePath& source_path);
-  // The function will unzip the XPK file and return the target path where
+  // The function will unzip the XPK/WGT file and return the target path where
   // to decompress by the parameter |target_path|.
   bool Extract(base::FilePath* target_path);
   std::string GetPackageID() const;
