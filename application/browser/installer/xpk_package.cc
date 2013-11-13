@@ -25,15 +25,15 @@ XPKPackage::~XPKPackage() {
 }
 
 // static
-scoped_ptr<XPKPackage> XPKPackage::Create(const base::FilePath& path) {
+scoped_ptr<Package> XPKPackage::Create(const base::FilePath& path) {
   if (!base::PathExists(path))
-    scoped_ptr<XPKPackage>();
+    scoped_ptr<Package>();
   scoped_ptr<ScopedStdioHandle> file(
       new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
   Header header;
   size_t len = fread(&header, 1, sizeof(header), file->get());
   if (len < sizeof(header))
-    return scoped_ptr<XPKPackage>();
+    return scoped_ptr<Package>();
   if (!strncmp(XPKPackage::kXPKPackageHeaderMagic,
                header.magic,
                sizeof(header.magic)) &&
@@ -41,24 +41,23 @@ scoped_ptr<XPKPackage> XPKPackage::Create(const base::FilePath& path) {
       header.key_size <= XPKPackage::kMaxPublicKeySize &&
       header.signature_size > 0 &&
       header.signature_size <= XPKPackage::kMaxSignatureKeySize) {
-    scoped_ptr<XPKPackage> package(new XPKPackage(header, file.release()));
-    if (package->IsOk())
+    scoped_ptr<Package> package(new XPKPackage(header, file.release()));
+    if (package->IsValid())
       return package.Pass();
   }
-  return scoped_ptr<XPKPackage>();
+  return scoped_ptr<Package>();
 }
 
 XPKPackage::XPKPackage(Header header, ScopedStdioHandle* file)
     : header_(header),
-      file_(file),
-      is_ok_(true) {
+      Package(file, true) {
   zip_addr_ = sizeof(header) + header.key_size + header.signature_size;
   fseek(file_->get(), sizeof(header), SEEK_SET);
   key_.resize(header_.key_size);
   size_t len = fread(
       &key_.front(), sizeof(uint8), header_.key_size, file_->get());
   if (len < header_.key_size)
-    is_ok_ = false;
+    is_valid_ = false;
 
   signature_.resize(header_.signature_size);
   len = fread(&signature_.front(),
@@ -66,17 +65,17 @@ XPKPackage::XPKPackage(Header header, ScopedStdioHandle* file)
               header_.signature_size,
               file_->get());
   if (len < header_.signature_size)
-    is_ok_ = false;
+    is_valid_ = false;
 
-  if (!Validate())
-    is_ok_ = false;
+  if (!VerifySignature())
+    is_valid_ = false;
 
   std::string public_key =
       std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
   id_ = GenerateId(public_key);
 }
 
-bool XPKPackage::Validate() {
+bool XPKPackage::VerifySignature() {
 // Set the file read position to the beginning of compressed resource file,
 // which is behind the magic header, public key and signature key.
   fseek(file_->get(), zip_addr_, SEEK_SET);

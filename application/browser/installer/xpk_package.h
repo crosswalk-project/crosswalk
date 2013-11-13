@@ -11,11 +11,12 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_handle.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/application/browser/installer/package.h"
 
 namespace xwalk {
 namespace application {
 
-class XPKPackage {
+class XPKPackage : public Package {
  public:
   static const char kXPKPackageHeaderMagic[];
   static const size_t kXPKPackageHeaderMagicSize = 4;
@@ -29,23 +30,18 @@ class XPKPackage {
   };
   XPKPackage();
   ~XPKPackage();
-  static scoped_ptr<XPKPackage> Create(const base::FilePath& path);
-  // Validate the xpk file
-  bool IsOk() const { return is_ok_; }
-  const std::string& Id() const { return id_; }
+  static scoped_ptr<Package> Create(const base::FilePath& path);
 
  private:
   XPKPackage(Header header, ScopedStdioHandle* file);
-  bool Validate();
+  // verify the signature in the xpk package
+  virtual bool VerifySignature();
 
   Header header_;
-  scoped_ptr<ScopedStdioHandle> file_;
   std::vector<uint8> signature_;
   std::vector<uint8> key_;
   // It's the beginning address of the zip file
   int zip_addr_;
-  bool is_ok_;
-  std::string id_;
 };
 
 }  // namespace application

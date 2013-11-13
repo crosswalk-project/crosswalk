@@ -8,10 +8,13 @@
 #include "base/logging.h"
 #include "crypto/signature_verifier.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/browser/installer/xpk_package.h"
 
 namespace xwalk {
 namespace application {
 
+Package::Package() {
+}
 
 Package::Package(ScopedStdioHandle* file, bool is_valid)
   : file_(file),
@@ -24,6 +27,8 @@ Package::~Package() {
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   // TODO(riju): create specific package type
+  if (source_path.MatchesExtension(".xpk"))
+      return XPKPackage::Create(source_path);
   LOG(ERROR) << "Invalid package type";
   return scoped_ptr<Package>();
 }
