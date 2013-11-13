@@ -35,6 +35,8 @@
         'browser/event_observer.h',
         'browser/installer/extractor.cc',
         'browser/installer/extractor.h',
+        'browser/installer/package.h',
+        'browser/installer/package.cc',
         'browser/installer/xpk_package.cc',
         'browser/installer/xpk_package.h',
 

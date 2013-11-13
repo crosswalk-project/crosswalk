@@ -9,7 +9,7 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/files/scoped_temp_dir.h"
-#include "xwalk/application/browser/installer/xpk_package.h"
+#include "xwalk/application/browser/installer/package.h"
 
 namespace xwalk {
 namespace application {
@@ -32,7 +32,7 @@ class Extractor
   base::FilePath source_path_;
   // Temporary directory for unpacking.
   base::ScopedTempDir temp_dir_;
-  scoped_ptr<XPKPackage> xpk_package_;
+  scoped_ptr<Package> package_;
 };
 
 }  // namespace application

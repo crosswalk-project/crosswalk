@@ -30,17 +30,17 @@ scoped_refptr<Extractor> Extractor::Create(
 
 Extractor::Extractor(const base::FilePath& source_path)
     : source_path_(source_path),
-      xpk_package_(XPKPackage::Create(source_path)) {
+      package_(Package::Create(source_path)) {
 }
 
 std::string Extractor::GetPackageID() const {
-  return xpk_package_.get()?xpk_package_->Id():"";
+  return package_ ? package_->Id() : "";
 }
 
 bool Extractor::Extract(base::FilePath* target_path) {
-  if (!xpk_package_.get() ||
-      !xpk_package_->IsOk()) {
-    LOG(ERROR) << "XPK file is broken.";
+  if (!package_ ||
+      !package_->IsValid()) {
+    LOG(ERROR) << "XPK/WGT file is broken.";
     return false;
   }
 
