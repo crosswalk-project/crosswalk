@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/installer/xpk_extractor.h"
+#include "xwalk/application/browser/installer/extractor.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
@@ -81,7 +81,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   base::FilePath unpacked_dir;
   std::string app_id;
   if (!base::DirectoryExists(path)) {
-    scoped_refptr<XPKExtractor> extractor = XPKExtractor::Create(path);
+    scoped_refptr<Extractor> extractor = Extractor::Create(path);
     if (extractor)
       app_id = extractor->GetPackageID();
 

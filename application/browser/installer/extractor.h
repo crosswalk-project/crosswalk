@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_INSTALLER_XPK_EXTRACTOR_H_
-#define XWALK_APPLICATION_BROWSER_INSTALLER_XPK_EXTRACTOR_H_
+#ifndef XWALK_APPLICATION_BROWSER_INSTALLER_EXTRACTOR_H_
+#define XWALK_APPLICATION_BROWSER_INSTALLER_EXTRACTOR_H_
 
 #include <string>
 
@@ -14,20 +14,19 @@
 namespace xwalk {
 namespace application {
 
-class XPKExtractor
-    : public base::RefCountedThreadSafe<XPKExtractor> {
+class Extractor
+    : public base::RefCountedThreadSafe<Extractor> {
  public:
-  XPKExtractor();
-  static scoped_refptr<XPKExtractor> Create(const base::FilePath& source_path);
+  static scoped_refptr<Extractor> Create(const base::FilePath& source_path);
   // The function will unzip the XPK file and return the target path where
   // to decompress by the parameter |target_path|.
   bool Extract(base::FilePath* target_path);
   std::string GetPackageID() const;
 
  private:
-  friend class base::RefCountedThreadSafe<XPKExtractor>;
-  ~XPKExtractor();
-  explicit XPKExtractor(const base::FilePath& source_path);
+  friend class base::RefCountedThreadSafe<Extractor>;
+  ~Extractor();
+  explicit Extractor(const base::FilePath& source_path);
   bool CreateTempDirectory();
 
   base::FilePath source_path_;
@@ -39,4 +38,4 @@ class XPKExtractor
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_INSTALLER_XPK_EXTRACTOR_H_
+#endif  // XWALK_APPLICATION_BROWSER_INSTALLER_EXTRACTOR_H_

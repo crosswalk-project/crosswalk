@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/xpk_extractor.h"
+#include "xwalk/application/browser/installer/extractor.h"
 
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
@@ -12,7 +12,7 @@
 namespace xwalk {
 namespace application {
 
-class XPKExtractorTest : public testing::Test {
+class ExtractorTest : public testing::Test {
  public:
   void SetupXPKExtractor(const std::string& xpk_name) {
     base::FilePath xpk_path;
@@ -24,16 +24,16 @@ class XPKExtractorTest : public testing::Test {
         .AppendASCII(xpk_name);
     ASSERT_TRUE(base::PathExists(xpk_path)) << xpk_path.value();
 
-    extractor_ = XPKExtractor::Create(xpk_path);
+    extractor_ = Extractor::Create(xpk_path);
   }
 
  protected:
   base::ScopedTempDir temp_dir_;
-  scoped_refptr<XPKExtractor> extractor_;
+  scoped_ptr<Extractor> extractor_;
 };
 
-TEST_F(XPKExtractorTest, Good) {
-  SetupXPKExtractor("good.xpk");
+TEST_F(ExtractorTest, Good) {
+  SetupExtractor("good.xpk");
   EXPECT_FALSE(extractor_->GetPackageID().empty());
   base::FilePath path;
   EXPECT_TRUE(extractor_->Extract(&path));
@@ -41,32 +41,32 @@ TEST_F(XPKExtractorTest, Good) {
   EXPECT_TRUE(temp_dir_.Set(path));
 }
 
-TEST_F(XPKExtractorTest, BadMagicString) {
-  SetupXPKExtractor("bad_magic.xpk");
+TEST_F(ExtractorTest, BadMagicString) {
+  SetupExtractor("bad_magic.xpk");
   base::FilePath path;
   EXPECT_FALSE(extractor_->Extract(&path));
 }
 
-TEST_F(XPKExtractorTest, BadSignature) {
-  SetupXPKExtractor("bad_signature.xpk");
+TEST_F(ExtractorTest, BadSignature) {
+  SetupExtractor("bad_signature.xpk");
   base::FilePath path;
   EXPECT_FALSE(extractor_->Extract(&path));
 }
 
-TEST_F(XPKExtractorTest, NoMagicHeader) {
-  SetupXPKExtractor("no_magic_header.xpk");
+TEST_F(ExtractorTest, NoMagicHeader) {
+  SetupExtractor("no_magic_header.xpk");
   base::FilePath path;
   EXPECT_FALSE(extractor_->Extract(&path));
 }
 
-TEST_F(XPKExtractorTest, BadXPKPackageExtension) {
-  SetupXPKExtractor("error.ext");
+TEST_F(ExtractorTest, BadXPKPackageExtension) {
+  SetupExtractor("error.ext");
   base::FilePath path;
   EXPECT_TRUE(extractor_ == NULL);
 }
 
-TEST_F(XPKExtractorTest, BadUnzipFile) {
-  SetupXPKExtractor("bad_zip.xpk");
+TEST_F(ExtractorTest, BadUnzipFile) {
+  SetupExtractor("bad_zip.xpk");
   base::FilePath path;
   EXPECT_FALSE(extractor_->Extract(&path));
 }
