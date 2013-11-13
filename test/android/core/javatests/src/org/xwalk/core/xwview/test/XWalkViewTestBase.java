@@ -11,6 +11,7 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -22,14 +23,49 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
+import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkContent;
+import org.xwalk.core.XWalkContentsClient;
+import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebChromeClient;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
     protected final static int WAIT_TIMEOUT_SECONDS = 15;
     private XWalkView mXWalkView;
     final TestXWalkViewContentsClient mTestContentsClient = new TestXWalkViewContentsClient();
+
+    static class ViewPair {
+        private final XWalkContent content0;
+        private final TestXWalkViewContentsClient client0;
+        private final XWalkContent content1;
+        private final TestXWalkViewContentsClient client1;
+
+        ViewPair(XWalkContent content0, TestXWalkViewContentsClient client0,
+                XWalkContent content1, TestXWalkViewContentsClient client1) {
+            this.content0 = content0;
+            this.client0 = client0;
+            this.content1 = content1;
+            this.client1 = client1;
+        }
+
+        XWalkContent getContent0() {
+            return content0;
+        }
+
+        TestXWalkViewContentsClient getClient0() {
+            return client0;
+        }
+
+        XWalkContent getContent1() {
+            return content1;
+        }
+
+        TestXWalkViewContentsClient getClient1() {
+            return client1;
+        }
+    }
 
     public XWalkViewTestBase() {
         super(XWalkViewTestRunnerActivity.class);
@@ -103,6 +139,27 @@ public class XWalkViewTestBase
         });
     }
 
+    protected void loadUrlSyncByContent(final XWalkContent xWalkContent,
+            final TestXWalkViewContentsClient contentsClient,
+            final String url) throws Exception {
+        CallbackHelper pageFinishedHelper = contentsClient.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        loadUrlAsyncByContent(xWalkContent, url);
+
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    protected void loadUrlAsyncByContent(final XWalkContent xWalkContent,
+            final String url) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                xWalkContent.loadUrl(url);
+            }
+        });
+    }
+
     protected String getTitleOnUiThread() throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
@@ -134,6 +191,82 @@ public class XWalkViewTestBase
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected String getTitleOnUiThreadByContent(final XWalkContent xWalkContent) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                String title = xWalkContent.getContentViewCoreForTest().getTitle();
+                return title;
+            }
+        });
+    }
+
+    protected XWalkSettings getXWalkSettingsOnUiThreadByContent(
+            final XWalkContent xwalkContent) throws Exception {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
+            @Override
+            public XWalkSettings call() throws Exception {
+                return xwalkContent.getSettings();
+            }
+        });
+    }
+
+    protected XWalkView createXWalkViewContainerOnMainSync(
+            final Context context,
+            final XWalkContentsClient contentClient,
+            final XWalkClient xWalkClient,
+            final XWalkWebChromeClient xWlkWebChromeClient) throws Exception {
+        final AtomicReference<XWalkView> xWalkViewContainer =
+                new AtomicReference<XWalkView>();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                xWalkViewContainer.set(new XWalkView(context, getActivity()));
+                getActivity().addView(xWalkViewContainer.get());
+                xWalkViewContainer.get().getXWalkViewContentForTest().installWebContentsObserverForTest(contentClient);
+                xWalkViewContainer.get().setXWalkClient(xWalkClient);
+                xWalkViewContainer.get().setXWalkWebChromeClient(xWlkWebChromeClient);
+            }
+        });
+
+        return xWalkViewContainer.get();
+    }
+
+    protected XWalkContent getXWalkContentOnMainSync(final XWalkView view) throws Exception {
+        final AtomicReference<XWalkContent> xWalkContent =
+                new AtomicReference<XWalkContent>();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                xWalkContent.set(view.getXWalkViewContentForTest());
+            }
+        });
+
+        return xWalkContent.get();
+    }
+
+    protected ViewPair createViewsOnMainSync(final TestXWalkViewContentsClient contentClient0,
+            final TestXWalkViewContentsClient contentClient1, final XWalkClient viewClient0,
+                    final XWalkClient viewClient1, final XWalkWebChromeClient chromeClient0,
+                            final XWalkWebChromeClient chromeClient1, final Context context) throws Throwable {
+        final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context, contentClient0,
+                viewClient0, chromeClient0);
+        final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context, contentClient1,
+                viewClient1, chromeClient1);
+        final AtomicReference<ViewPair> viewPair = new AtomicReference<ViewPair>();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                XWalkContent content0 = walkView0.getXWalkViewContentForTest();
+                XWalkContent content1 = walkView1.getXWalkViewContentForTest();
+                viewPair.set(new ViewPair(content0, contentClient0, content1, contentClient1));
+            }
+        });
+
+        return viewPair.get();
     }
 
     protected void loadAssetFile(String fileName) throws Exception {
