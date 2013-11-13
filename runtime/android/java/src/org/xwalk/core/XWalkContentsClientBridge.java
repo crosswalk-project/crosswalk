@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -77,6 +76,10 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
         mXWalkWebChromeClient = client;
+    }
+
+    public XWalkWebChromeClient getXWalkWebChromeClient() {
+        return mXWalkWebChromeClient;
     }
 
     public void setXWalkClient(XWalkClient client) {
@@ -152,36 +155,46 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin,
-            GeolocationPermissions.Callback callback) {
+            XWalkGeolocationPermissions.Callback callback) {
+        if (mXWalkWebChromeClient != null) {
+            mXWalkWebChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
+        }
     }
 
     @Override
     public void onGeolocationPermissionsHidePrompt() {
+        if (mXWalkWebChromeClient != null) {
+            mXWalkWebChromeClient.onGeolocationPermissionsHidePrompt();
+        }
     }
 
     @Override
     public void handleJsAlert(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onJsAlert(mXWalkView, url, message, result);
+        }
     }
 
     @Override
     public void handleJsBeforeUnload(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onJsBeforeUnload(mXWalkView, url, message, result);
+        }
     }
 
     @Override
     public void handleJsConfirm(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onJsConfirm(mXWalkView, url, message, result);
+        }
     }
 
     @Override
     public void handleJsPrompt(
             String url, String message, String defaultValue, JsPromptResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onJsPrompt(mXWalkView, url, message, defaultValue, result);
+        }
     }
 
     @Override
@@ -195,32 +208,37 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onPageStarted(String url) {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onPageStarted(mXWalkView, url, mFavicon);
+        }
     }
 
     @Override
     public void onPageFinished(String url) {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onPageFinished(mXWalkView, url);
+        }
     }
 
     @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onReceivedError(mXWalkView, errorCode, description, failingUrl);
+        }
     }
 
     @Override
     public void onRendererUnresponsive() {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onRendererUnresponsive(mXWalkView);
+        }
     }
 
     @Override
     public void onRendererResponsive() {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onRendererResponsive(mXWalkView);
+        }
     }
 
     @Override
@@ -243,8 +261,9 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onCloseWindow() {
-        if (mXWalkClient != null)
+        if (mXWalkClient != null) {
             mXWalkClient.onCloseWindow(mXWalkView);
+        }
     }
 
     @Override
@@ -253,27 +272,31 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onReceivedTouchIconUrl(String url, boolean precomposed) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onReceivedTouchIconUrl(mXWalkView, url, precomposed);
+        }
     }
 
     @Override
     public void onReceivedIcon(Bitmap bitmap) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
+        if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onReceivedIcon(mXWalkView, bitmap);
+        }
         mFavicon = bitmap;
     }
 
     @Override
     public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
-        if (mXWalkWebChromeClient != null)
+        if (mXWalkWebChromeClient != null) {
             mXWalkWebChromeClient.onShowCustomView(view, callback);
+        }
     }
 
     @Override
     public void onHideCustomView() {
-        if (mXWalkWebChromeClient != null)
+        if (mXWalkWebChromeClient != null) {
             mXWalkWebChromeClient.onHideCustomView();
+        }
     }
 
     @Override

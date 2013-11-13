@@ -47,7 +47,9 @@
       'copies': [
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
-          'files': ['test/android/data/index.html'],
+          'files': [
+            'test/android/data/index.html',
+          ],
         }
       ],
       'includes': [ '../build/java_apk.gypi' ],
@@ -95,6 +97,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/framesEcho.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/geolocation.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/navigator.online.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/renderHung.html',
@@ -109,6 +112,7 @@
             'test/android/data/echo.html',
             'test/android/data/echoSync.html',
             'test/android/data/framesEcho.html',
+            'test/android/data/geolocation.html',
             'test/android/data/index.html',
             'test/android/data/navigator.online.html',
             'test/android/data/renderHung.html',

@@ -11,6 +11,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
+#include "content/public/browser/geolocation_permission_context.h"
 
 namespace net {
 class URLRequestContextGetter;
@@ -93,6 +94,8 @@ class RuntimeContext : public content::BrowserContext {
   scoped_ptr<xwalk::application::ApplicationSystem> application_system_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
+  scoped_refptr<content::GeolocationPermissionContext>
+       geolocation_permission_context_;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
 };
