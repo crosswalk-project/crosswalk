@@ -1,0 +1,30 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// RawSocket API - TCPServerSocket
+namespace tcp_server_socket {
+  dictionary TCPServerOptions {
+    DOMString localAddress;
+    long localPort;
+    boolean addressReuse;
+    boolean useSecureTransport;
+  };
+
+  interface Events {
+    static void onopen();
+    static void onconnect();
+    static void onerror();
+    static void oncnnecterror();
+  };
+
+  interface Functions {
+    static void close();
+    static void halfclose();
+    static void suspend();
+    static void resume();
+
+    [nodoc] static void init(TCPServerOptions options);
+    [nodoc] static void destroy();
+  };
+};
