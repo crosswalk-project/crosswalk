@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.Process;
 import java.lang.Runtime;
 import java.lang.StringBuffer;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,29 +42,57 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         mTestCase = testCase;
     }
 
+    public String getTitleOnUiThread() {
+        mTestCase.getInstrumentation().waitForIdleSync();
+        final AtomicReference<String> title = new AtomicReference<String>();
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                title.set(mTestUtil.getTestedView().getTitleForTest());
+            }
+        });
+        return title.get();
+    }
+
     public void compareTitle(String prevTitle, String title, String msg, Relation relation) {
+        if (prevTitle == null) prevTitle = "";
+        if (title == null) title = "";
+
         switch (relation) {
             case EQUAL:
                 mTestCase.assertTrue(msg, title.equals(prevTitle));
                 break;
             case GREATERTHAN:
-                mTestCase.assertTrue(msg, title.compareTo(title) > 0);
+                mTestCase.assertTrue(msg, title.compareTo(prevTitle) > 0);
                 break;
             default:
                 break;
         }
     }
 
-    public void compareTitleAfterTimer(final String prevTitle, int milliSeconds,
-            final String msg, final Relation relation) {
-        mTimer.schedule(new TimerTask() {
-            String title = "";
-            @Override
-            public void run() {
-                title = mTestUtil.getTestedView().getTitleForTest();
-                compareTitle(prevTitle, title, msg, relation);
+    public void waitForTimerFinish(int timer) throws Throwable {
+        Object notify = new Object();
+        synchronized (notify) {
+            NotifyTask testTask = new NotifyTask(notify);
+            mTimer.schedule(testTask, timer);
+            notify.wait();
+        }
+    }
+
+    public class NotifyTask extends TimerTask {
+        private Object mObj;
+
+        public NotifyTask(Object obj) {
+            super();
+            mObj = obj;
+        }
+
+        @Override
+        public void run() {
+            synchronized (mObj) {
+                mObj.notify();
             }
-        }, milliSeconds);
+        }
     }
 
     public void sendBroadCast(Activity activity, Context context, String extra) throws Throwable {
@@ -172,22 +201,30 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     // For onPause, onResume.
     public void testPauseAndResume() throws Throwable {
         String title = "";
+        String prevTitle = "";
+        String nextTitle = "";
         String msg = "";
 
         title = mTestUtil.loadAssetFileAndWaitForTitle("timer.html");
         mTestCase.assertNotNull(title);
 
         mTestUtil.onPause();
-        mTestUtil.waitForTitleUpdated(mTestUtil.WAIT_TIMEOUT_SECONDS);
-        title = mTestUtil.getTestedView().getTitleForTest();
         msg = "The second title should be equal to the first title.";
-        compareTitleAfterTimer(title, 200, msg, Relation.EQUAL);
+        // wait for the pause is finished.
+        waitForTimerFinish(5000);
+        prevTitle = getTitleOnUiThread();
+        waitForTimerFinish(200);
+        nextTitle = getTitleOnUiThread();
+        compareTitle(prevTitle, nextTitle, msg, Relation.EQUAL);
 
         mTestUtil.onResume();
-        mTestUtil.waitForTitleUpdated(mTestUtil.WAIT_TIMEOUT_SECONDS);
-        title = mTestUtil.getTestedView().getTitleForTest();
         msg = "The second title should be greater than the first title.";
-        compareTitleAfterTimer(title, 200, msg, Relation.GREATERTHAN);
+        // wait for the resume is finished.
+        waitForTimerFinish(5000);
+        prevTitle = getTitleOnUiThread();
+        waitForTimerFinish(200);
+        nextTitle = getTitleOnUiThread();
+        compareTitle(prevTitle, nextTitle, msg, Relation.GREATERTHAN);
     }
 
     // For enable the remote debugging.
