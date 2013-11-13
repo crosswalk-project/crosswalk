@@ -42,6 +42,8 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     }
 
     public void compareTitle(String prevTitle, String title, String msg, Relation relation) {
+        if (prevTitle == null) prevTitle = "";
+        if (title == null) title = "";
         switch (relation) {
             case EQUAL:
                 mTestCase.assertTrue(msg, title.equals(prevTitle));
