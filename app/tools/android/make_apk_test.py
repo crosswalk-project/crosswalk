@@ -45,22 +45,24 @@ class TestMakeApk(unittest.TestCase):
       shutil.rmtree(test_data_dir)
 
   def testName(self):
-    proc = subprocess.Popen(['python', 'make_apk.py', '--version=1.0.0',
+    proc = subprocess.Popen(['python', 'make_apk.py', '--app-version=1.0.0',
                              '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The APK name is required!') != -1)
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0', '--package=org.xwalk.example'],
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The APK name is required!') == -1)
     Clean('Example')
 
-  def testVersion(self):
+  def testAppVersion(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example', '--version=1.0.0',
+                             '--package=org.xwalk.example',
+                             '--app-version=1.0.0',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     _, _ = proc.communicate()
@@ -73,7 +75,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testAppDescription(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--package=org.xwalk.example', '--version=1.0.0',
+                             '--package=org.xwalk.example',
+                             '--app-version=1.0.0',
                              '--description=a sample application',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -87,7 +90,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testPermissions(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0', '--package=org.xwalk.example',
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example',
                              '--permissions="geolocation"',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -101,13 +105,14 @@ class TestMakeApk(unittest.TestCase):
 
   def testPackage(self):
     proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--name=Example', '--version=1.0.0'],
+                             '--name=Example', '--app-version=1.0.0'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The package name is required!') != -1)
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0', '--package=org.xwalk.example'],
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The package name is required!') == -1)
@@ -115,7 +120,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testEntry(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -126,7 +131,7 @@ class TestMakeApk(unittest.TestCase):
 
     test_entry_root = 'test_data/entry'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-root=%s' % test_entry_root,
                              '--app-local-path=index.html'],
@@ -138,7 +143,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testEntryWithErrors(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0', '--package=org.xwalk.example'],
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('The entry is required.') != -1)
@@ -146,7 +152,7 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example')
 
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--app-root=.'],
@@ -156,8 +162,8 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example')
 
-    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example', 
-                             '--version=1.0.0',
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example', '--app-root=./'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
@@ -166,7 +172,7 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example')
 
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-local-path=index.html'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -178,7 +184,7 @@ class TestMakeApk(unittest.TestCase):
   def testIcon(self):
     icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--icon=%s' % icon_path],
@@ -193,7 +199,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testFullscreen(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com', '-f'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -207,7 +213,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testEnableRemoteDebugging(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--enable-remote-debugging'],
@@ -223,7 +229,7 @@ class TestMakeApk(unittest.TestCase):
   def testKeystore(self):
     keystore_path = os.path.join('test_data', 'keystore', 'xwalk-test.keystore')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--keystore-path=%s' % keystore_path,
@@ -259,7 +265,7 @@ class TestMakeApk(unittest.TestCase):
     # Test with an existed extension.
     extension_path = 'test_data/extensions/myextension'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--extensions=%s' % extension_path],
@@ -283,7 +289,7 @@ class TestMakeApk(unittest.TestCase):
     # Test with a non-existed extension.
     extension_path = 'test_data/extensions/myextension'
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--extensions=%s1' % extension_path],
@@ -295,7 +301,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testMode(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com'],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -304,7 +310,7 @@ class TestMakeApk(unittest.TestCase):
     shared_mode_size = os.path.getsize('Example.apk')
     Clean('Example')
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
-                             '--version=1.0.0',
+                             '--app-version=1.0.0',
                              '--package=org.xwalk.example',
                              '--app-url=http://www.intel.com',
                              '--mode=embedded'],

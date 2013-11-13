@@ -74,14 +74,25 @@ def Find(name, path):
   return max(result.iteritems(), key=operator.itemgetter(1))[0]
 
 
+def GetVersion(path):
+  """Get the version of this python tool."""
+  version_str = 'XWalk packaging tool version '
+  file_handle = open(path, 'r')
+  src_content = file_handle.read()
+  version_nums = re.findall(r'\d+', src_content)
+  version_str += ('.').join(version_nums)
+  file_handle.close()
+  return version_str
+
+
 def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
   if not options.package:
     options.package = 'org.xwalk.' + parser.GetAppName().lower()
   if not options.name:
     options.name = parser.GetAppName()
-  if not options.version:
-    options.version = parser.GetVersion()
+  if not options.app_version:
+    options.app_version = parser.GetVersion()
   if parser.GetDescription():
     options.description = parser.GetDescription()
   if parser.GetPermissions():
@@ -148,9 +159,9 @@ def Customize(options):
   name = '--name=AppTemplate'
   if options.name:
     name = '--name=%s' % options.name
-  version = '1.0.0'
-  if options.version:
-    version = '--version=%s' % options.version
+  app_version = '--app-version=1.0.0'
+  if options.app_version:
+    app_version = '--app-version=%s' % options.app_version
   description = ''
   if options.description:
     description = '--description=%s' % options.description
@@ -179,7 +190,7 @@ def Customize(options):
   if options.extensions:
     extensions_list = '--extensions=%s' % options.extensions
   cmd = ['python', 'customize.py', package,
-          name, version, description, icon, permissions, app_url,
+          name, app_version, description, icon, permissions, app_url,
           remote_debugging, app_root, app_local_path, fullscreen_flag,
           extensions_list]
   RunCommand(cmd)
@@ -424,6 +435,9 @@ def Execution(options, sanitized_name):
 
 def main(argv):
   parser = optparse.OptionParser()
+  parser.add_option('-v', '--version', action='store_true',
+                    dest='version', default=False,
+                    help='The version of this python tool.')
   info = ('The manifest file with the detail of the app.'
           'Such as: --manifest=/path/to/your/manifest/file')
   parser.add_option('--manifest', help=info)
@@ -432,8 +446,9 @@ def main(argv):
   parser.add_option('--package', help=info)
   info = ('The apk name. Such as: --name=YourApplicationName')
   parser.add_option('--name', help=info)
-  info = ('The version number. Such as: --version=TheVersionNumber')
-  parser.add_option('--version', help=info)
+  info = ('The version number of the app. '
+          'Such as: --app-version=TheVersionNumber')
+  parser.add_option('--app-version', help=info)
   info = ('The application description. Such as:'
           '--description=YourApplicationDescription')
   parser.add_option('--description', help=info)
@@ -484,6 +499,13 @@ def main(argv):
   if len(argv) == 1:
     parser.print_help()
     return 0
+
+  if options.version:
+    if os.path.isfile('VERSION'):
+      print GetVersion('VERSION')
+      return 0
+    else:
+      parser.error('Can\'t get version due to the VERSION file missing!')
 
   xpk_temp_dir = ''
   if options.xpk:
