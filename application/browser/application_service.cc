@@ -81,7 +81,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   base::FilePath unpacked_dir;
   std::string app_id;
   if (!base::DirectoryExists(path)) {
-    scoped_refptr<Extractor> extractor = Extractor::Create(path);
+    scoped_ptr<Extractor> extractor = Extractor::Create(path);
     if (extractor)
       app_id = extractor->GetPackageID();
 

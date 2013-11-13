@@ -7,25 +7,22 @@
 
 #include <string>
 
-#include "base/memory/ref_counted.h"
 #include "base/files/scoped_temp_dir.h"
 #include "xwalk/application/browser/installer/package.h"
 
 namespace xwalk {
 namespace application {
 
-class Extractor
-    : public base::RefCountedThreadSafe<Extractor> {
+class Extractor {
  public:
-  static scoped_refptr<Extractor> Create(const base::FilePath& source_path);
+  ~Extractor();
+  static scoped_ptr<Extractor> Create(const base::FilePath& source_path);
   // The function will unzip the XPK file and return the target path where
   // to decompress by the parameter |target_path|.
   bool Extract(base::FilePath* target_path);
   std::string GetPackageID() const;
 
  private:
-  friend class base::RefCountedThreadSafe<Extractor>;
-  ~Extractor();
   explicit Extractor(const base::FilePath& source_path);
   bool CreateTempDirectory();
 

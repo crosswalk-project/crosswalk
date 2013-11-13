@@ -19,13 +19,13 @@ Extractor::~Extractor() {
 }
 
 // static
-scoped_refptr<Extractor> Extractor::Create(
+scoped_ptr<Extractor> Extractor::Create(
     const base::FilePath& source_path) {
   if (base::PathExists(source_path) &&
       source_path.MatchesExtension(kApplicationFileExtension)) {
-    return scoped_refptr<Extractor>(new Extractor(source_path));
+    return scoped_ptr<Extractor>(new Extractor(source_path));
   }
-  return NULL;
+  return scoped_ptr<Extractor>();
 }
 
 Extractor::Extractor(const base::FilePath& source_path)
