@@ -66,7 +66,7 @@ public class XWalkView extends FrameLayout {
 
     private void init(Context context, AttributeSet attrs) {
         // Intialize library, paks and others.
-        XWalkViewDelegate.init(context);
+        XWalkViewDelegate.init(this);
 
         initXWalkContent(context, attrs);
     }
@@ -281,6 +281,10 @@ public class XWalkView extends FrameLayout {
     public XWalkContent getXWalkViewContentForTest() {
         checkThreadSafety();
         return mContent;
+    }
+
+    public XWalkWebChromeClient getXWalkWebChromeClientForTest() {
+        return mContent.getXWalkWebChromeClient();
     }
 
     private static void checkThreadSafety() {
