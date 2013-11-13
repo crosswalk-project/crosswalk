@@ -28,8 +28,7 @@
 # Fail early to avoid bigger problems later in the process.
 set -e
 
-VERSION_NUMBER=`awk '/^Version:/ { print $2 }' crosswalk.spec`
-TAR_FILE="${GBP_TMP_DIR}/crosswalk-${VERSION_NUMBER}.tar"
+TAR_FILE="${GBP_TMP_DIR}/crosswalk.tar"
 
 if [ ! -f "${TAR_FILE}" ]; then
     echo "${TAR_FILE} does not exist. Aborting."
@@ -56,5 +55,5 @@ echo "Creating a new ${TAR_FILE} from ${BASE_SRC_DIR}/src"
 tar --update --file "${TAR_FILE}" \
     --exclude-vcs --exclude=native_client --exclude=LayoutTests \
     --exclude=src/out --directory="${BASE_SRC_DIR}" \
-    --transform="s:^:crosswalk-${VERSION_NUMBER}/:S" \
+    --transform="s:^:crosswalk/:S" \
     src
