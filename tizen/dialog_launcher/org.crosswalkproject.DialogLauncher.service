@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.crosswalkproject.DialogLauncher
+Exec=/usr/bin/dialog-launcher
