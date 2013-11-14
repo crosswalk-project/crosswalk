@@ -61,4 +61,17 @@ public class LoadUrlTest extends XWalkViewTestBase {
         loadAssetFile(name);
         assertEquals(expected_title, getTitleOnUiThread());
     }
+
+    @SmallTest
+    @Feature({"ContentScheme"})
+    public void testContentUrl() throws Throwable {
+        final String resource = "content_test";
+        final String content_url = TestContentProvider.createContentUrl(resource);
+
+        int count_before_load =
+                TestContentProvider.getResourceRequestCount(getActivity(), resource);
+        loadUrlSync(content_url);
+        assertEquals(count_before_load + 1,
+                TestContentProvider.getResourceRequestCount(getActivity(), resource));
+    } 
 }
