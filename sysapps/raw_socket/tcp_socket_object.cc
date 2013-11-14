@@ -11,6 +11,7 @@
 #include "xwalk/sysapps/raw_socket/tcp_socket.h"
 
 using namespace xwalk::jsapi::tcp_socket; // NOLINT
+using namespace xwalk::jsapi::raw_socket; // NOLINT
 
 namespace {
 

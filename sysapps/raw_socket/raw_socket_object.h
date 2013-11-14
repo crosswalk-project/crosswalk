@@ -8,7 +8,7 @@
 #include "xwalk/sysapps/raw_socket/raw_socket.h"
 #include "xwalk/sysapps/common/event_target.h"
 
-using namespace xwalk::jsapi::raw_socket; // NOLINT
+using xwalk::jsapi::raw_socket::ReadyState; // NOLINT
 
 namespace xwalk {
 namespace sysapps {
