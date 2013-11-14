@@ -53,11 +53,10 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
             final String url = navigationParams.url;
             boolean ignoreNavigation = false;
 
-            if (shouldOverrideUrlLoading(url)) return true;
-
             if (mNavigationHandler != null) {
                 ignoreNavigation = mNavigationHandler.handleNavigation(navigationParams);
             }
+            if (!ignoreNavigation) ignoreNavigation = shouldOverrideUrlLoading(url);
 
             if (!ignoreNavigation) {
                 // Post a message to UI thread to notify the page is starting to load.
