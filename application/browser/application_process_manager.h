@@ -35,7 +35,7 @@ class Manifest;
 class ApplicationProcessManager : public RuntimeRegistryObserver {
  public:
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
-  ~ApplicationProcessManager();
+  virtual ~ApplicationProcessManager();
 
   bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
                          const Application* application);
