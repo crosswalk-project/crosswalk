@@ -279,6 +279,8 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension/myextension.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
@@ -299,6 +301,13 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension',
           'files': ['test/android/data/myextension/myextension.js'],
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi',
+          'files': [
+            'experimental/presentation/presentation_api.js',
+            'sysapps/device_capabilities/device_capabilities_api.js',
+          ],
         },
       ],
       'includes': [ '../build/java_apk.gypi' ],
