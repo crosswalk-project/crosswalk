@@ -41,6 +41,9 @@ class XWalkContent {
   void Destroy(JNIEnv* env, jobject obj);
   ScopedJavaLocalRef<jstring> GetVersion(JNIEnv* env, jobject obj);
   jint GetRoutingID(JNIEnv* env, jobject obj);
+  base::android::ScopedJavaLocalRef<jbyteArray> GetState(JNIEnv* env,
+                                                         jobject obj);
+  jboolean SetState(JNIEnv* env, jobject obj, jbyteArray state);
 
   XWalkRenderViewHostExt* render_view_host_ext() {
     return render_view_host_ext_.get();

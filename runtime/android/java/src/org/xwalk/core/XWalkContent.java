@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -274,6 +275,41 @@ public class XWalkContent extends FrameLayout {
         }
     }
 
+    public WebBackForwardList copyBackForwardList() {
+        return new WebBackForwardList(mContentViewCore.getNavigationHistory());
+    }
+
+    public static final String SAVE_RESTORE_STATE_KEY = "XWALKVIEW_STATE";
+
+    public WebBackForwardList saveState(Bundle outState) {
+        if (outState == null) return null;
+
+        byte[] state = nativeGetState(mXWalkContent);
+        if (state == null) return null;
+
+        outState.putByteArray(SAVE_RESTORE_STATE_KEY, state);
+        return copyBackForwardList();
+    }
+
+    public WebBackForwardList restoreState(Bundle inState) {
+        if (inState == null) return null;
+
+        byte[] state = inState.getByteArray(SAVE_RESTORE_STATE_KEY);
+        if (state == null) return null;
+
+        boolean result = nativeSetState(mXWalkContent, state);
+
+        // The onUpdateTitle callback normally happens when a page is loaded,
+        // but is optimized out in the restoreState case because the title is
+        // already restored. See WebContentsImpl::UpdateTitleForEntry. So we
+        // call the callback explicitly here.
+        if (result) {
+            mContentsClientBridge.onUpdateTitle(mContentViewCore.getTitle());
+        }
+
+        return result ? copyBackForwardList() : null;
+    }
+
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {
@@ -356,4 +392,6 @@ public class XWalkContent extends FrameLayout {
     private native int nativeGetRoutingID(int nativeXWalkContent);
     private native void nativeInvokeGeolocationCallback(
             int nativeXWalkContent, boolean value, String requestingFrame);
+    private native byte[] nativeGetState(int nativeXWalkContent);
+    private native boolean nativeSetState(int nativeXWalkContent, byte[] state);
 }

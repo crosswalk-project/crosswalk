@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -285,6 +286,18 @@ public class XWalkView extends FrameLayout {
 
     public XWalkWebChromeClient getXWalkWebChromeClientForTest() {
         return mContent.getXWalkWebChromeClient();
+    }
+
+    public WebBackForwardList copyBackForwardList() {
+        return mContent.copyBackForwardList();
+    }
+
+    public WebBackForwardList saveState(Bundle outState) {
+        return mContent.saveState(outState);
+    }
+
+    public WebBackForwardList restoreState(Bundle inState) {
+        return mContent.restoreState(inState);
     }
 
     private static void checkThreadSafety() {

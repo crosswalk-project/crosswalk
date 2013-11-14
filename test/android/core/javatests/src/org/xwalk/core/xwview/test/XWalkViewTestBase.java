@@ -19,6 +19,8 @@ import junit.framework.Assert;
 
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
+import org.chromium.content.browser.test.util.Criteria;
+import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
 import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
@@ -45,6 +47,19 @@ public class XWalkViewTestBase
                 mXWalkView = new XWalkView(activity, activity);
                 getActivity().addView(mXWalkView);
                 mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestContentsClient);
+            }
+        });
+    }
+
+    protected boolean pollOnUiThread(final Callable<Boolean> callable) throws Exception {
+        return CriteriaHelper.pollForCriteria(new Criteria() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    return runTestOnUiThreadAndGetResult(callable);
+                } catch (Throwable e) {
+                    return false;
+                }
             }
         });
     }
