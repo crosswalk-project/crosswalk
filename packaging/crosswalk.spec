@@ -6,7 +6,7 @@ Summary:        Crosswalk is an app runtime based on Chromium
 License:        BSD-3-Clause
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
-Source:         %{name}-%{version}.tar
+Source:         %{name}.tar
 Source1:        xwalk
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
@@ -82,7 +82,7 @@ This package contains additional support files that are needed for running Cross
 %define _desktop_icondir /usr/share/icons/default/small
 
 %prep
-%setup -q
+%setup -q -n crosswalk
 
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
@@ -126,22 +126,56 @@ export GYP_GENERATORS='make'
 -Dtizen_mobile=1 \
 -Duse_openssl=1
 
-make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk
+# Support building in a non-standard directory, possibly outside %{_builddir}.
+# Since the build root is erased every time a new build is performed, one way
+# to avoid losing the build directory is to specify a location outside the
+# build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
+# (remember all paths are still inside the chroot):
+#    gbs build --define 'BUILDDIR_NAME /some/path'
+# If BUILDDIR_NAME is not set, the default directory, "out", is used.
+BUILDDIR_NAME="%{?BUILDDIR_NAME}"
+if [ -z "${BUILDDIR_NAME}" ]; then
+   BUILDDIR_NAME="out"
+fi
+
+make %{?_smp_mflags} -C src BUILDTYPE=Release \
+                            builddir_name="${BUILDDIR_NAME}" \
+                            xwalk
 
 %install
+# Support building in a non-standard directory, possibly outside %{_builddir}.
+# Since the build root is erased every time a new build is performed, one way
+# to avoid losing the build directory is to specify a location outside the
+# build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
+# (remember all paths are still inside the chroot):
+#    gbs build --define 'BUILDDIR_NAME /some/path'
+# If BUILDDIR_NAME is not set, the default directory, "out", is used.
+BUILDDIR_NAME="%{?BUILDDIR_NAME}"
+if [ -z "${BUILDDIR_NAME}" ]; then
+   BUILDDIR_NAME="out"
+fi
+
+# Since BUILDDIR_NAME can be either a relative path or an absolute one, we need
+# to cd into src/ so that it means the same thing in the build and install
+# stages: during the former, a relative location refers to a place inside src/,
+# whereas during the latter a relative location by default would refer to a
+# place one directory above src/. If BUILDDIR_NAME is an absolute path, this is
+# irrelevant anyway.
+cd src
+
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
-install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D ${BUILDDIR_NAME}/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D %{SOURCE1004} %{buildroot}%{_bindir}/install_into_pkginfo_db.py
 
 # Supporting libraries and resources.
-install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D src/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
-install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D ${BUILDDIR_NAME}/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D ${BUILDDIR_NAME}/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
+install -p -D ${BUILDDIR_NAME}/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 # Register xwalk to the package manager.
-install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
-install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+install -p -D ../%{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
+install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %files
 %manifest %{name}.manifest
