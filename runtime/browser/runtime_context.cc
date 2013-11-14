@@ -19,6 +19,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
+#include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -162,7 +163,14 @@ content::ResourceContext* RuntimeContext::GetResourceContext()  {
 
 content::GeolocationPermissionContext*
     RuntimeContext::GetGeolocationPermissionContext()  {
-  return NULL;
+#if defined(OS_ANDROID)
+  if (!geolocation_permission_context_) {
+    geolocation_permission_context_ =
+        RuntimeGeolocationPermissionContext::Create(this);
+  }
+#endif
+  // TODO(yongsheng): Create geolcation permission context for other platforms.
+  return geolocation_permission_context_.get();
 }
 
 quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {

@@ -1,0 +1,18 @@
+<html>
+<body>
+  <div> This feature is to test geolocation. </div>
+  <script>
+    function onSuccess(position) {
+      document.title = "Pass";
+    }
+    function onError(msg) {
+      console.log("can't get geolocation information: " + msg);
+      document.title = "Fail";
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(onSuccess, onError);
+    } else {
+      document.title = "Fail";
+    }
+  </script>
+</body>

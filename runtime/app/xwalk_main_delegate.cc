@@ -7,6 +7,10 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "content/public/browser/browser_main_runner.h"
+#include "content/public/common/content_switches.h"
+#include "ui/base/resource/resource_bundle.h"
+#include "ui/base/ui_base_paths.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -14,10 +18,6 @@
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
-#include "content/public/browser/browser_main_runner.h"
-#include "content/public/common/content_switches.h"
-#include "ui/base/resource/resource_bundle.h"
-#include "ui/base/ui_base_paths.h"
 
 namespace xwalk {
 
@@ -90,5 +90,4 @@ content::ContentRendererClient*
   renderer_client_.reset(new XWalkContentRendererClient);
   return renderer_client_.get();
 }
-
 }  // namespace xwalk

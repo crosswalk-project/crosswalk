@@ -4,9 +4,11 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 
+import org.chromium.base.ActivityStatus;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
 import org.chromium.content.app.LibraryLoader;
@@ -25,10 +27,17 @@ class XWalkViewDelegate {
             "libxwalkcore.so"
     };
 
-    public static void init(Context context) {
+    public static void init(XWalkView xwalkView) {
         if (sInitialized) {
             return;
         }
+
+        // Initialize the ActivityStatus. This is needed and used by many internal
+        // features such as location provider to listen to activity status.
+        ActivityStatus.initialize(xwalkView.getActivity().getApplication());
+
+        Context context = xwalkView.getViewContext();
+
         // Last place to initialize CommandLine object. If you haven't initialize
         // the CommandLine object before XWalkViewContent is created, here will create
         // the object to guarantee the CommandLine object is not null and the

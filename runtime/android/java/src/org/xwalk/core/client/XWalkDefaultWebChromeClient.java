@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebStorage;
-import android.webkit.GeolocationPermissions;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.widget.EditText;
@@ -26,6 +25,7 @@ import android.widget.FrameLayout;
 import org.xwalk.core.JsPromptResult;
 import org.xwalk.core.JsResult;
 import org.xwalk.core.R;
+import org.xwalk.core.XWalkGeolocationPermissions;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
 
@@ -188,5 +188,13 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
 
         mCustomView = null;
         mCustomViewCallback = null;
+    }
+
+    @Override
+    public void onGeolocationPermissionsShowPrompt(String origin,
+            XWalkGeolocationPermissions.Callback callback) {
+        // Allow all origins for geolocation requests here for Crosswalk.
+        // TODO(yongsheng): Need to define a UI prompt?
+        callback.invoke(origin, true, true);
     }
 }
