@@ -70,3 +70,29 @@ In order to build an RPM package, one is currently expected to:
 
  5. Run gbs as usual.
     $ gbs build -A i586
+
+Since the normal 'gbs build' is not an incremental build and usually takes a
+couple of hours, it's not acceptable for developer or trybot. The 'incremental_*'
+family scripts can be used to address this requirement. Simply put, it's
+achieved by cheating 'gbs' to work directly in the src tree on hosted system.
+Typically one just needs to:
+
+ 1. Tell script the location of XWALK_PREFIX and gbs root on hosted system.
+    By default they are '../../../' relative to this script, and '~/GBS-ROOT'.
+    If either location is changed afterwards, please re-do this.
+
+    $./incremental_setup.sh /root/of/xwalk/tree ~/GBS-ROOT
+
+    Again, '/root/of/xwalk/tree' here is the top-level directory of the tree
+    which _contains_ the src/ directory.
+
+ 2. Build incrementally whenever change is made under '/root/of/xwalk/tree'.
+
+    $./incremental_build.sh
+
+    Once succeeds, the rpm packages will be generated as usual except that the
+    src rpm package doesn't have the intact source files.
+
+ 3. Clean up if don't want to use it anymore
+
+    $./incremental_teardown.sh
