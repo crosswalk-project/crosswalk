@@ -13,11 +13,7 @@
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application.h"
-#include "xwalk/application/common/application_file_util.h"
-#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/extension/application_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
@@ -51,7 +47,6 @@
 
 #if defined(OS_TIZEN_MOBILE)
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
-#include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 #endif  // defined(OS_TIZEN_MOBILE)
@@ -264,11 +259,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_registry_->AddObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
 
-  xwalk::application::ApplicationSystem* system =
-      runtime_context_->GetApplicationSystem();
-  xwalk::application::ApplicationService* service =
-      system->application_service();
-
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kInstall) &&
       !command_line->HasSwitch(switches::kUninstall)) {
@@ -287,91 +277,16 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
           new RemoteDebuggingServer(runtime_context_.get(),
               loopback_ip, port, std::string()));
     }
-  } else if (command_line->HasSwitch(switches::kListApplications)) {
-    xwalk::application::ApplicationStore::ApplicationMap* apps =
-        service->GetInstalledApplications();
-    LOG(INFO) << "Application ID                       Application Name";
-    LOG(INFO) << "-----------------------------------------------------";
-    xwalk::application::ApplicationStore::ApplicationMapIterator it;
-    for (it = apps->begin(); it != apps->end(); ++it)
-      LOG(INFO) << it->first << "     " << it->second->Name();
-    LOG(INFO) << "-----------------------------------------------------";
-    run_default_message_loop_ = false;
-    return;
   }
 
   NativeAppWindow::Initialize();
 
-  std::string command_name =
-      command_line->GetProgram().BaseName().MaybeAsASCII();
-
-#if defined(OS_TIZEN_MOBILE)
-  // On Tizen, applications are launched by a symbolic link
-  // named like the application ID.
-  if (startup_url_.SchemeIsFile() || command_name.compare("xwalk") != 0) {
-#else
-  if (startup_url_.SchemeIsFile()) {
-#endif  // OS_TIZEN_MOBILE
-
-    if (xwalk::application::Application::IsIDValid(command_name)) {
-      run_default_message_loop_ = service->Launch(command_name);
-      return;
-    }
-
-    const CommandLine::StringVector& args = command_line->GetArgs();
-    std::string id;
-    if (args.size() > 0)
-      id = std::string(args[0].begin(), args[0].end());
-    if (xwalk::application::Application::IsIDValid(id)) {
-      if (command_line->HasSwitch(switches::kUninstall)) {
-#if defined(OS_TIZEN_MOBILE)
-        scoped_refptr<xwalk::application::PackageInstaller> installer =
-            xwalk::application::PackageInstaller::Create(service, id,
-                runtime_context_->GetPath());
-        if (!installer || !installer->Uninstall()) {
-          LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
-          return;
-        }
-#endif
-        if (!service->Uninstall(id))
-          LOG(ERROR) << "[ERR] An error occurred during"
-                        "uninstalling application "
-                     << id;
-        else
-          LOG(INFO) << "[OK] Application uninstalled successfully: " << id;
-        run_default_message_loop_ = false;
-      } else {
-        run_default_message_loop_ = service->Launch(id);
-      }
-      return;
-    }
-    base::FilePath path;
-    if (!net::FileURLToFilePath(startup_url_, &path))
-      return;
-    if (command_line->HasSwitch(switches::kInstall)) {
-      if (base::PathExists(path)) {
-        std::string id;
-        if (service->Install(path, &id)) {
-#if defined(OS_TIZEN_MOBILE)
-          scoped_refptr<xwalk::application::PackageInstaller> installer =
-              xwalk::application::PackageInstaller::Create(service, id,
-                  runtime_context_->GetPath());
-          if (!installer || !installer->Install()) {
-            LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
-            return;
-          }
-#endif  // OS_TIZEN_MOBILE
-          LOG(INFO) << "[OK] Application installed: " << id;
-        } else {
-          LOG(ERROR) << "[ERR] Application install failure: " << path.value();
-        }
-      }
-      run_default_message_loop_ = false;
-      return;
-    } else if (base::DirectoryExists(path)) {
-      run_default_message_loop_ = service->Launch(path);
-      return;
-    }
+  xwalk::application::ApplicationSystem* app_system =
+      runtime_context_->GetApplicationSystem();
+  if (app_system->HandleApplicationManagementCommands(*command_line,
+                                                      startup_url_)) {
+    run_default_message_loop_ = false;
+    return;
   }
 
 #if defined(OS_TIZEN_MOBILE)
@@ -385,6 +300,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     sensor_service->SetDataFetcherForTests(data_fetcher);
   }
 #endif  // OS_TIZEN_MOBILE
+
+  if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
+                                        &run_default_message_loop_)) {
+    return;
+  }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
   Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);

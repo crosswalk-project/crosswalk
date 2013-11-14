@@ -38,6 +38,31 @@ class ApplicationSystem {
     return application_service_.get();
   }
 
+  // Parse the command line and process the --install, --uninstall and
+  // --list-apps commands. Returns true when a management command was processed,
+  // so the caller shouldn't load a runtime.
+  //
+  // The parameter `url` contains the current URL Crosswalk is considering to
+  // load.
+  bool HandleApplicationManagementCommands(const CommandLine& cmd_line,
+                                           const GURL& url);
+
+  // Launches an application based on the given command line, there are
+  // different ways to inform which application should be launched
+  //
+  // (1) app_id from the binary name (used in Tizen);
+  // (2) app_id passed in the command line;
+  // (3) launching a directory that contains an extracted package.
+  //
+  // The parameter `url` contains the current URL Crosswalk is considering to
+  // load, and the output parameter `run_default_message_loop` controls whether
+  // Crosswalk should run the mainloop or not.
+  //
+  // A return value of true indicates that ApplicationSystem handled the command
+  // line, so the caller shouldn't try to load the url by itself.
+  bool LaunchFromCommandLine(const CommandLine& cmd_line, const GURL& url,
+                             bool* run_default_message_loop_);
+
  private:
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;

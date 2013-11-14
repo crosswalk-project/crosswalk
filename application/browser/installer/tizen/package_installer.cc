@@ -24,24 +24,21 @@ namespace info = xwalk::application_packageinfo_constants;
 namespace xwalk {
 namespace application {
 
-PackageInstaller::PackageInstaller() {
-}
-
 PackageInstaller::~PackageInstaller() {
 }
 
 // static
-scoped_refptr<PackageInstaller> PackageInstaller::Create(
+scoped_ptr<PackageInstaller> PackageInstaller::Create(
     ApplicationService* service,
     const std::string& package_id,
     const base::FilePath& data_dir) {
   if (!base::PathExists(data_dir))
-    return NULL;
-  scoped_refptr<PackageInstaller> handler =
-    new PackageInstaller(service, package_id, data_dir);
+    return scoped_ptr<PackageInstaller>();
+  scoped_ptr<PackageInstaller> handler(
+      new PackageInstaller(service, package_id, data_dir));
   if (!handler->Init())
-    return NULL;
-  return handler;
+    return scoped_ptr<PackageInstaller>();
+  return handler.Pass();
 }
 
 PackageInstaller::PackageInstaller(

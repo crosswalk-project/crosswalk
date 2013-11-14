@@ -7,13 +7,48 @@
 #include <string>
 
 #include "base/file_util.h"
+#include "base/memory/scoped_ptr.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/xpk_extractor.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/application/browser/installer/tizen/package_installer.h"
+#endif
+
 using xwalk::RuntimeContext;
+
+namespace {
+
+#if defined(OS_TIZEN_MOBILE)
+bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
+                           const std::string& app_id,
+                           const base::FilePath& data_dir) {
+  scoped_ptr<xwalk::application::PackageInstaller> installer =
+      xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
+  if (!installer || !installer->Install()) {
+    LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
+    return false;
+  }
+  return true;
+}
+
+bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
+                             const std::string& app_id,
+                             const base::FilePath& data_dir) {
+  scoped_ptr<xwalk::application::PackageInstaller> installer =
+      xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
+  if (!installer || !installer->Uninstall()) {
+    LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
+    return false;
+  }
+  return true;
+}
+#endif  // OS_TIZEN_MOBILE
+
+}  // namespace
 
 namespace xwalk {
 namespace application {
@@ -84,19 +119,30 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  if (app_store_->AddApplication(application)) {
-    LOG(INFO) << "Installed application with id: " << application->ID()
-              << " successfully.";
-    *id = application->ID();
-    return true;
+  if (!app_store_->AddApplication(application)) {
+    LOG(ERROR) << "Application with id " << application->ID()
+               << " couldn't be installed.";
+    return false;
   }
 
-  LOG(ERROR) << "Application with id " << application->ID()
-             << " couldn't be installed.";
-  return false;
+#if defined(OS_TIZEN_MOBILE)
+  if (!InstallPackageOnTizen(this, application->ID(),
+                             runtime_context_->GetPath()))
+    return false;
+#endif
+
+  LOG(INFO) << "Installed application with id: " << application->ID()
+            << " successfully.";
+  *id = application->ID();
+  return true;
 }
 
 bool ApplicationService::Uninstall(const std::string& id) {
+#if defined(OS_TIZEN_MOBILE)
+  if (!UninstallPackageOnTizen(this, id, runtime_context_->GetPath()))
+    return false;
+#endif
+
   if (!app_store_->RemoveApplication(id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << id
                << "; application is not installed.";
