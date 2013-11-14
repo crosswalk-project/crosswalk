@@ -23,9 +23,6 @@ public abstract class XWalkExtension {
     // The context used by extensions.
     protected XWalkExtensionContext mExtensionContext;
 
-    // The ID for registration.
-    private Object mRegisteredId;
-
     /**
      * Constructor with the information of an extension.
      * @param name the extension name.
@@ -37,7 +34,7 @@ public abstract class XWalkExtension {
         mName = name;
         mJsApi = jsApi;
         mExtensionContext = context;
-        mRegisteredId = mExtensionContext.registerExtension(this);
+        mExtensionContext.registerExtension(this);
     }
 
     /**
@@ -98,14 +95,6 @@ public abstract class XWalkExtension {
     }
 
     /**
-     * Destroy the extension to free its resources occupied.
-     */
-    public final void destroy() {
-        onDestroy();
-        mExtensionContext.destroyExtension(this);
-    }
-
-    /**
      * Called when this app is onResume.
      */
     public void onResume() {
@@ -128,13 +117,5 @@ public abstract class XWalkExtension {
      * of the exit code.
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
-    /**
-     * Get the registered ID.
-     * @return the registered ID object.
-     */
-    public final Object getRegisteredId() {
-        return mRegisteredId;
     }
 }

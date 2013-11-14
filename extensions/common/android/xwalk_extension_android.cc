@@ -30,15 +30,6 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
 }
 
 XWalkExtensionAndroid::~XWalkExtensionAndroid() {
-  JNIEnv* env = base::android::AttachCurrentThread();
-
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null()) {
-    return;
-  }
-
-  Java_XWalkExtensionAndroid_onDestroy(env, obj.obj());
-
   // Unregister the extension and clear its all instances.
   XWalkContentBrowserClient::Get()->main_parts()->UnregisterExtension(
       scoped_ptr<XWalkExtension>(this));
@@ -74,6 +65,17 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
   env->ReleaseStringUTFChars(msg, str);
 }
 
+void XWalkExtensionAndroid::BroadcastMessage(JNIEnv* env, jobject obj,
+                                             jstring msg) {
+  DCHECK(is_valid());
+  const char* str = env->GetStringUTFChars(msg, 0);
+  for (InstanceMap::iterator it = instances_.begin();
+       it != instances_.end(); ++it) {
+    it->second->PostMessageWrapper(str);
+  }
+  env->ReleaseStringUTFChars(msg, str);
+}
+
 void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
   delete this;
 }
@@ -89,9 +91,6 @@ XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
       new XWalkExtensionAndroidInstance(this, java_ref_, next_instance_id_);
   instances_[next_instance_id_] = instance;
 
-  Java_XWalkExtensionAndroid_onInstanceCreated(env,
-                                               obj.obj(),
-                                               next_instance_id_);
   next_instance_id_++;
   return instance;
 }
@@ -110,7 +109,6 @@ void XWalkExtensionAndroid::RemoveInstance(int instance) {
   }
 
   instances_.erase(instance);
-  Java_XWalkExtensionAndroid_onInstanceRemoved(env, obj.obj(), instance);
 }
 
 XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(

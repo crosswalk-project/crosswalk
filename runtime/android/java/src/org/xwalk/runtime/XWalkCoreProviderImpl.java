@@ -12,7 +12,7 @@ import android.widget.FrameLayout;
 
 import org.chromium.content.browser.LoadUrlParams;
 import org.xwalk.core.XWalkView;
-import org.xwalk.runtime.extension.XWalkExtension;
+import org.xwalk.runtime.extension.XWalkExtensionManager;
 
 /**
  * The implementation class for runtime core. It calls the methods provided
@@ -25,15 +25,15 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     public XWalkCoreProviderImpl(Context context, Activity activity) {
         super(context, activity);
         mContext = context;
+        mExtensionManager = new XWalkExtensionManager(context, activity);
         init(context, activity);
     }
 
-    @Override
-    public void init(Context context, Activity activity) {
+    private void init(Context context, Activity activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
         mXwalkView = new XWalkView(context, activity);
-        super.init(context, activity);
+        mExtensionManager.loadExtensions();
     }
 
     @Override
@@ -94,37 +94,6 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     @Override
     public View getView() {
         return mXwalkView;
-    }
-
-    @Override
-    public Object onExtensionRegistered(XWalkExtension extension) {
-        // TODO(yongsheng): This object is supposed to register itself into native extension system.
-        // If not, we'll need to register it.
-        XWalkCoreExtensionBridge bridge = new XWalkCoreExtensionBridge(extension, this);
-        return bridge;
-    }
-
-    @Override
-    public void onExtensionUnregistered(XWalkExtension extension) {
-        // TODO(yongsheng): Figure out how to do this.
-    }
-
-    @Override
-    public void postMessage(XWalkExtension extension, int instanceID, String message) {
-        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
-        bridge.postMessage(instanceID, message);
-    }
-
-    @Override
-    public void broadcastMessage(XWalkExtension extension, String message) {
-        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
-        bridge.broadcastMessage(message);
-    }
-
-    @Override
-    public void destroyExtension(XWalkExtension extension) {
-        XWalkCoreExtensionBridge bridge = (XWalkCoreExtensionBridge)extension.getRegisteredId();
-        bridge.destroy();
     }
 
     // For instrumentation test.
