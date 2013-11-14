@@ -99,8 +99,10 @@ bool ApplicationSystem::LaunchFromCommandLine(
   const CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
-    *run_default_message_loop = application_service_->Launch(app_id);
-    return true;
+    if (Application::IsIDValid(app_id)) {
+        *run_default_message_loop = application_service_->Launch(app_id);
+        return true;
+    }
   }
 
   // Handles local directory.
