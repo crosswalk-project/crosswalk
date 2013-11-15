@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.xwalk.core.HttpAuthDatabase;
-import org.xwalk.core.HttpAuthHandler;
+import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.R;
 import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkClient;
@@ -114,7 +114,7 @@ public class XWalkDefaultClient extends XWalkClient {
         mDatabase.setHttpAuthUsernamePassword(host, realm, username, password);
     }
 
-    private void showHttpAuthDialog( final HttpAuthHandler handler,
+    private void showHttpAuthDialog( final XWalkHttpAuthHandler handler,
             final String host, final String realm) {
         LinearLayout layout = new LinearLayout((Activity)mContext);
         final TextView userNameView = new TextView((Activity)mContext);
@@ -153,19 +153,8 @@ public class XWalkDefaultClient extends XWalkClient {
 
     @Override
     public void onReceivedHttpAuthRequest(XWalkView view,
-            HttpAuthHandler handler, String host, String realm) {
-        String userName = null;
-        String password = null;
-        if (handler.useHttpAuthUsernamePassword() && view != null) {
-            String[] credentials = getHttpAuthUsernamePassword(host, realm);
-            if (credentials != null && credentials.length == 2) {
-                userName = credentials[0];
-                password = credentials[1];
-            }
-        }
-        if (userName != null && password != null) {
-            handler.proceed(userName, password);
-        } else {
+            XWalkHttpAuthHandler handler, String host, String realm) {
+        if (view != null) {
             showHttpAuthDialog(handler, host, realm);
         }
     }

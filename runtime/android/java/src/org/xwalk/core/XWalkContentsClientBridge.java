@@ -137,8 +137,8 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
         return false;
     }
 
-    @Override
-    public void onReceivedHttpAuthRequest(HttpAuthHandler handler, String host, String realm) {
+    @CalledByNative
+    public void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler, String host, String realm) {
         if (mXWalkClient != null && mXWalkView != null)
             mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
     }

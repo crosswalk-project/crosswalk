@@ -262,13 +262,13 @@ public class XWalkClient {
      * default behavior is to cancel the request.
      *
      * @param view The XWalkView that is initiating the callback.
-     * @param handler The HttpAuthHandler that will handle the user's response.
+     * @param handler The XWalkHttpAuthHandler that will handle the user's response.
      * @param host The host requiring authentication.
      * @param realm A description to help store user credentials for future
      *            visits.
      */
     public void onReceivedHttpAuthRequest(XWalkView view,
-            HttpAuthHandler handler, String host, String realm) {
+            XWalkHttpAuthHandler handler, String host, String realm) {
         handler.cancel();
     }
 
