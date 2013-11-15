@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#include "xwalk_contents_client_bridge.h"
 
 #include <string>
 
@@ -155,6 +155,21 @@ void XWalkContentsClientBridge::RunBeforeUnloadDialog(
 
   Java_XWalkContentsClientBridge_handleJsBeforeUnload(
       env, obj.obj(), jurl.obj(), jmessage.obj(), callback_id);
+}
+
+bool XWalkContentsClientBridge::OnReceivedHttpAuthRequest(const JavaRef<jobject>& handler,
+                                                          const std::string& host,
+                                                          const std::string& realm) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return false;
+
+  ScopedJavaLocalRef<jstring> jhost = ConvertUTF8ToJavaString(env, host);
+  ScopedJavaLocalRef<jstring> jrealm = ConvertUTF8ToJavaString(env, realm);
+  Java_XWalkContentsClientBridge_onReceivedHttpAuthRequest(env, obj.obj(), handler.obj(),
+      jhost.obj(), jrealm.obj());
+  return true;
 }
 
 void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,

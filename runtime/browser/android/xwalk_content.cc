@@ -148,6 +148,23 @@ void XWalkContent::SetJsOnlineProperty(JNIEnv* env,
   render_view_host_ext_->SetJsOnlineProperty(network_up);
 }
 
+/*
+bool XWalkContent::OnReceivedHttpAuthRequest(const JavaRef<jobject>& handler,
+                                             const std::string& host,
+                                             const std::string& realm) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return false;
+
+  ScopedJavaLocalRef<jstring> jhost = ConvertUTF8ToJavaString(env, host);
+  ScopedJavaLocalRef<jstring> jrealm = ConvertUTF8ToJavaString(env, realm);
+  Java_XWalkContent_onReceivedHttpAuthRequest(env, obj.obj(), handler.obj(),
+      jhost.obj(), jrealm.obj());
+  return true;
+}
+*/
+
 jboolean XWalkContent::SetManifest(JNIEnv* env,
                                    jobject obj,
                                    jstring path,

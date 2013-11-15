@@ -15,7 +15,7 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
-import org.xwalk.core.HttpAuthHandler;
+import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.JsPromptResult;
 import org.xwalk.core.JsResult;
 import org.xwalk.core.SslErrorHandler;
@@ -173,7 +173,7 @@ public class NullContentsClient extends XWalkContentsClient {
     }
 
     @Override
-    public void onReceivedHttpAuthRequest(HttpAuthHandler handler, String host, String realm) {
+    public void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler, String host, String realm) {
     }
 
     @Override

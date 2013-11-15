@@ -40,7 +40,18 @@ class XWalkContent {
     return render_view_host_ext_.get();
   };
 
+  XWalkContentsClientBridge* contents_client_bridge() {
+    return contents_client_bridge_.get();
+  };
+  
   void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
+  
+  /*
+  bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
+                                 const std::string& host,
+                                 const std::string& realm);
+  */
+  
   jboolean SetManifest(JNIEnv* env,
                        jobject obj,
                        jstring path,

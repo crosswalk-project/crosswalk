@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_BASE_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_BASE_H_
 
+#include "base/android/scoped_java_ref.h"
 #include "base/callback_forward.h"
 #include "base/supports_user_data.h"
 #include "content/public/browser/javascript_dialog_manager.h"
@@ -34,7 +35,7 @@ class XWalkContentsClientBridgeBase {
   static XWalkContentsClientBridgeBase* FromWebContents(
       content::WebContents* web_contents);
   static XWalkContentsClientBridgeBase* FromID(int render_process_id,
-                                            int render_view_id);
+                                               int render_view_id);
 
   virtual ~XWalkContentsClientBridgeBase();
 

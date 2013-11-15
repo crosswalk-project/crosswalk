@@ -52,6 +52,10 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       OVERRIDE;
 
+  bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
+                                 const std::string& host,
+                                 const std::string& realm);
+ 
   // Methods called from Java.
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
