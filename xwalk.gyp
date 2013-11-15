@@ -590,6 +590,7 @@
           'dependencies': [
             'xwalk',
             'xwalk_all_tests',
+            'xwalk_xpk_generator',
           ],
         },
         {
@@ -631,6 +632,18 @@
             'extensions/xesh/xesh_v8_runner.cc',
           ],
         }],
+      ],
+    },
+    {
+      'target_name': 'xwalk_xpk_generator',
+      'type': 'none',
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/tools',
+          'files': [
+            'tools/make_xpk.py',
+          ],
+        },
       ],
     },
   ], # targets
