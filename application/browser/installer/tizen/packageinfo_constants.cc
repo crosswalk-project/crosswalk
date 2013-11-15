@@ -22,6 +22,7 @@ const base::FilePath::CharType kXwalkPath[] =
 const base::FilePath::CharType kExecDir[] =
     FILE_PATH_LITERAL("bin");
 
+const char kDefaultIconName[] = "crosswalk.png";
 const char kIconKey[] = "icons.128";
 const char kOwner[] = "app";
 
