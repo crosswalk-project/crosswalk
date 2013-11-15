@@ -129,6 +129,9 @@ def CustomizeXML(options, sanitized_name):
   activity_name = options.package + '.' + sanitized_name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
   EditElementAttribute(xmldoc, 'activity', 'android:label', options.name)
+  if options.orientation:
+    EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
+                         options.orientation)
   if options.fullscreen:
     AddThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   else:
@@ -341,6 +344,12 @@ def main():
           'On Linux and Mac, the separator is ":". On Windows, it is ";".'
           'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
   parser.add_option('--extensions', help=info)
+  info = ('The orientation of the web app\'s display on the device. '
+          'Such as: --orientation=landscape. The default value is "unspecified"'
+          'The value options are the same as those on the Android: '
+          'http://developer.android.com/guide/topics/manifest/'
+          'activity-element.html#screen')
+  parser.add_option('--orientation', help=info)
   options, _ = parser.parse_args()
   sanitized_name = ReplaceInvalidChars(options.name)
   try:
