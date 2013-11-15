@@ -11,8 +11,8 @@ import android.net.http.SslError;
 import java.lang.reflect.Method;
 
 import org.xwalk.core.client.XWalkDefaultClient;
-import org.xwalk.core.HttpAuthHandler;
 import org.xwalk.core.SslErrorHandler;
+import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.XWalkView;
 
 public class XWalkClientForTest extends XWalkDefaultClient {
@@ -46,21 +46,6 @@ public class XWalkClientForTest extends XWalkDefaultClient {
                 Method onReceivedSslError = objectClass.getMethod(
                         "onReceivedSslError", SslErrorHandler.class, SslError.class);
                 onReceivedSslError.invoke(mCallbackForTest, handler, error);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void onReceivedHttpAuthRequest(XWalkView view, HttpAuthHandler handler,
-            String hosts, String realm) {
-        if (mCallbackForTest != null) {
-            try {
-                Class objectClass = mCallbackForTest.getClass();
-                Method onReceivedHttpAuthRequest = objectClass.getMethod(
-                        "onReceivedHttpAuthRequest", HttpAuthHandler.class, String.class, String.class);
-                onReceivedHttpAuthRequest.invoke(mCallbackForTest, handler, hosts, realm);
             } catch (Exception e) {
                 e.printStackTrace();
             }
