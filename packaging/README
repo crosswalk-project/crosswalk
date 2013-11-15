@@ -39,7 +39,7 @@ faulty in the build directory (or the whole directory).
 
 It is important to note that depending on what the .spec file looks like, an
 incremental build may still rebuild some files even if nothing has changed: for
-example, is patches are applied as part of the %prep stage and they modify some
+example, if patches are applied as part of the %prep stage and they modify some
 source files, these ones will always be rebuilt.
 
 This method is not completely fail-proof, though, and a full rebuild may end up
