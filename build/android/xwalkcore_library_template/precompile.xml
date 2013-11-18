@@ -24,7 +24,32 @@
   <!-- Code Generation: Copying R.java to additional packages -->
   <target name="-pre-compile">
       <mkdir dir="${gen.absolute.dir}" />
-      <exec executable="python" failonerror="true">
+      
+      <condition property="isWindows">
+        <os family="windows" />
+      </condition>
+
+      <if condition="${isWindows}">
+        <else>
+          <property name="pythonExt" value="" />
+        </else>
+        <then>
+          <exec executable="where" failonerror="false" osfamily="windows" resultproperty="isExe">
+            <arg line="python.exe" />   
+          </exec>
+          <exec executable="where" failonerror="false" osfamily="windows" resultproperty="isBat">
+            <arg line="python.bat" />        
+          </exec>
+          <condition property="pythonExt" value=".bat">
+            <equals arg1="${isBat}" arg2="0" />
+          </condition>
+          <condition property="pythonExt" value=".exe">
+            <equals arg1="${isExe}" arg2="0" />
+          </condition>
+        </then>
+      </if>
+
+      <exec executable="python${pythonExt}" failonerror="true">
         <arg line="prepare_r_java.py --app-package ${project.app.package}" />
         <arg line="--packages ${project.additional.packages}" />
         <arg line="--gen-path ${gen.absolute.dir}" />
