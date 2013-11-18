@@ -92,12 +92,14 @@ class ExtensionSandboxedProcessLauncherDelegate
 
 XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
-    const base::FilePath& external_extensions_path)
+    const base::FilePath& external_extensions_path,
+    XWalkExtensionProcessHost::Delegate* delegate)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
       external_extensions_path_(external_extensions_path),
-      is_extension_process_channel_ready_(false) {
+      is_extension_process_channel_ready_(false),
+      delegate_(delegate) {
   render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
@@ -160,8 +162,18 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
-void XWalkExtensionProcessHost::OnProcessCrashed(int exit_code) {
-  VLOG(1) << "Process crashed with exit_code=" << exit_code;
+void XWalkExtensionProcessHost::OnChannelError() {
+  // This function is called just before
+  // BrowserChildProcessHostImpl::OnChildDisconnected gets called. Please refer
+  // to ChildProcessHostImpl::OnChannelError() from child_process_host_impl.cc.
+  // This means that content::BrowserChildProcessHost (process_, in our case)
+  // is about to delete its delegate, which is us!
+  // We should alert our XWalkExtensionProcessHost::Delegate, since it will
+  // most likely have a pointer to us that needs to be invalidated.
+
+  VLOG(1) << "\n\nExtensionProcess crashed";
+  if (delegate_)
+    delegate_->OnExtensionProcessDied(this, render_process_host_->GetID());
 }
 
 void XWalkExtensionProcessHost::OnProcessLaunched() {

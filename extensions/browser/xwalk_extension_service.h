@@ -15,6 +15,7 @@
 #include "base/threading/thread.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
+#include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 
 namespace content {
 class RenderProcessHost;
@@ -26,13 +27,13 @@ namespace extensions {
 
 class ExtensionServerMessageFilter;
 class XWalkExtension;
-class XWalkExtensionProcessHost;
 class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
 // created. It's life time follows the Browser process itself.
-class XWalkExtensionService : public content::NotificationObserver {
+class XWalkExtensionService : public content::NotificationObserver,
+    public XWalkExtensionProcessHost::Delegate {
  public:
   class Delegate {
    public:
@@ -74,6 +75,10 @@ class XWalkExtensionService : public content::NotificationObserver {
     // This object lives on the IO-thread.
     scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
   };
+
+  // XWalkExtensionProcessHost::Delegate implementation.
+  virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
+      int render_process_id);
 
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,
