@@ -37,17 +37,9 @@ class RuntimeContext : public content::BrowserContext {
   RuntimeContext();
   virtual ~RuntimeContext();
 
-#if defined(OS_ANDROID)
   // Convenience method to returns the RuntimeContext corresponding to the
   // given WebContents.
   static RuntimeContext* FromWebContents(content::WebContents* web_contents);
-
-  // Called before BrowserThreads are created.
-  void InitializeBeforeThreadCreation();
-
-  // Maps to BrowserMainParts::PreMainMessageLoopRun.
-  void PreMainMessageLoopRun();
-#endif
 
   // BrowserContext implementation.
   virtual base::FilePath GetPath() const OVERRIDE;

@@ -48,16 +48,13 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
       extensions::XWalkExtensionServer* server) OVERRIDE;
 
 #if defined(OS_ANDROID)
-  void SetRuntimeContext(RuntimeContext* context);
-  RuntimeContext* runtime_context() { return runtime_context_; }
+  RuntimeContext* runtime_context() { return runtime_context_.get(); }
 
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand
   // by XWalkExtensionService each time a in_process Server is created.
   void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
   void UnregisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
-#else
-  RuntimeContext* runtime_context() { return runtime_context_.get(); }
 #endif
   extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();
@@ -74,11 +71,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
 #endif
 
 #if defined(OS_ANDROID)
-  RuntimeContext* runtime_context_;
   ScopedVector<extensions::XWalkExtension> extensions_;
-#else
-  scoped_ptr<RuntimeContext> runtime_context_;
 #endif
+  scoped_ptr<RuntimeContext> runtime_context_;
 
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;

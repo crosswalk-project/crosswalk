@@ -32,6 +32,7 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "jni/XWalkContent_jni.h"
 
@@ -111,8 +112,14 @@ jint XWalkContent::GetWebContents(
 
 content::WebContents* XWalkContent::CreateWebContents(
     JNIEnv* env, jobject intercept_navigation_delegate) {
-  RuntimeContext* runtime_context =
-      XWalkContentBrowserClient::GetRuntimeContext();
+
+  XWalkBrowserMainParts* main_parts =
+          XWalkContentBrowserClient::Get()->main_parts();
+  CHECK(main_parts);
+  // FIXME : need a better way to get context.
+  RuntimeContext* runtime_context = main_parts->runtime_context();
+  CHECK(runtime_context);
+
   content::WebContents* web_contents = content::WebContents::Create(
       content::WebContents::CreateParams(runtime_context));
 
