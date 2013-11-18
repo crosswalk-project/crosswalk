@@ -19,6 +19,10 @@
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
+#endif
+
 namespace xwalk {
 
 XWalkMainDelegate::XWalkMainDelegate()
@@ -87,7 +91,12 @@ content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
 
 content::ContentRendererClient*
     XWalkMainDelegate::CreateContentRendererClient() {
-  renderer_client_.reset(new XWalkContentRendererClient);
+#if defined(OS_TIZEN_MOBILE)
+  renderer_client_.reset(new XWalkContentRendererClientTizen());
+#else
+  renderer_client_.reset(new XWalkContentRendererClient());
+#endif
   return renderer_client_.get();
 }
+
 }  // namespace xwalk

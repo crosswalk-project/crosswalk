@@ -176,6 +176,8 @@
             'runtime/browser/ui/tizen_system_indicator_watcher.h',
             'runtime/browser/xwalk_browser_main_parts_tizen.cc',
             'runtime/browser/xwalk_browser_main_parts_tizen.h',
+            'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.cc',
+            'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h',
           ],
         }],
         ['OS=="android"',{

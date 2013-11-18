@@ -7,19 +7,13 @@
 #include "base/auto_reset.h"
 #include "base/bind.h"
 #include "base/command_line.h"
-#include "base/file_util.h"
+#include "base/debug/leak_annotations.h"
 #include "base/files/file_path.h"
+#include "base/file_util.h"
 #include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/test/test_file_util.h"
-#include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
-#include "xwalk/runtime/common/xwalk_paths.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
-#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
-#include "xwalk/test/base/xwalk_test_suite.h"
-#include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/common/content_switches.h"
@@ -29,15 +23,32 @@
 #include "content/public/test/test_navigation_observer.h"
 #include "content/public/test/test_utils.h"
 #include "net/test/spawned_test_server/spawned_test_server.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
+#include "xwalk/test/base/xwalk_test_suite.h"
+#include "xwalk/test/base/xwalk_test_utils.h"
+
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
+#endif
 
 using xwalk::RuntimeList;
 using xwalk::RuntimeRegistry;
+using xwalk::XWalkContentRendererClient;
 
 namespace {
 
 // Used when running in single-process mode.
-base::LazyInstance<xwalk::XWalkContentRendererClient>::Leaky
-    g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+#if defined(OS_TIZEN_MOBILE)
+base::LazyInstance<XWalkContentRendererClientTizen>::Leaky
+        g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+#else
+base::LazyInstance<XWalkContentRendererClient>::Leaky
+        g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
+#endif
 
 }  // namespace
 

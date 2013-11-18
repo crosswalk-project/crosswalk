@@ -342,3 +342,14 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_PNG) {
   content::RunMessageLoop();
   RuntimeRegistry::Get()->RemoveObserver(&observer);
 }
+
+#if defined(OS_TIZEN_MOBILE)
+IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadTizenWebUiFwFile) {
+  GURL url = xwalk_test_utils::GetTestURL(
+      base::FilePath(), base::FilePath().AppendASCII("tizenwebuifw.html"));
+  string16 title = ASCIIToUTF16("Pass");
+  content::TitleWatcher title_watcher(runtime()->web_contents(), title);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
+}
+#endif
