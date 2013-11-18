@@ -16,6 +16,8 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_message_macros.h"
+#include "xwalk/extensions/browser/xwalk_extension_data.h"
+#include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
@@ -226,7 +228,7 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
     content::RenderProcessHost* host) {
   CHECK(host);
 
-  ExtensionData* data = new ExtensionData;
+  XWalkExtensionData* data = new XWalkExtensionData;
   CreateInProcessExtensionServers(host, data);
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -261,12 +263,6 @@ void XWalkExtensionService::SetExternalExtensionsPathForTesting(
   g_external_extensions_path_for_testing_ = path;
 }
 
-XWalkExtensionService::ExtensionData::ExtensionData() {
-}
-
-XWalkExtensionService::ExtensionData::~ExtensionData() {
-}
-
 // We use this to keep track of the RenderProcess shutdown events.
 // This is _very_ important so we can clean up all we need gracefully,
 // avoiding invalid IPC steps after the IPC channel is gonne.
@@ -291,7 +287,7 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
   if (it == extension_data_map_.end())
     return;
 
-  ExtensionData* data = it->second;
+  XWalkExtensionData* data = it->second;
 
   // Invalidate the objects in the different threads so they stop posting
   // messages to each other. This is important because we'll schedule the
@@ -330,7 +326,7 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
 }
 
 void XWalkExtensionService::CreateInProcessExtensionServers(
-    content::RenderProcessHost* host, ExtensionData* data) {
+    content::RenderProcessHost* host, XWalkExtensionData* data) {
   scoped_ptr<XWalkExtensionServer> extension_thread_server(
       new XWalkExtensionServer);
   scoped_ptr<XWalkExtensionServer> ui_thread_server(
@@ -368,7 +364,7 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 }
 
 void XWalkExtensionService::CreateExtensionProcessHost(
-    content::RenderProcessHost* host, ExtensionData* data) {
+    content::RenderProcessHost* host, XWalkExtensionData* data) {
   data->extension_process_host_ = make_scoped_ptr(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this));
 }
@@ -380,7 +376,7 @@ void XWalkExtensionService::OnExtensionProcessDied(
   // segfault when trying to delete it within
   // XWalkExtensionService::OnRenderProcessHostClosed();
 
-  ExtensionData* data = extension_data_map_[render_process_id];
+  XWalkExtensionData* data = extension_data_map_[render_process_id];
 
   if (data) {
     XWalkExtensionProcessHost* extension_process_host =
