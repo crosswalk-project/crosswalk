@@ -7,6 +7,12 @@
 
 #include "base/memory/scoped_ptr.h"
 
+namespace base {
+
+class Thread;
+
+}
+
 namespace xwalk {
 namespace extensions {
 
@@ -18,10 +24,48 @@ class XWalkExtensionServer;
 // of extensions associated to that particular render process. It holds pointers
 // to the servers running in the browser process and the communication channel
 // to the extension process.
-struct XWalkExtensionData {
+class XWalkExtensionData {
+ public:
   XWalkExtensionData();
   ~XWalkExtensionData();
 
+  XWalkExtensionServer* in_process_ui_thread_server() {
+    return in_process_ui_thread_server_.get();
+  }
+
+  ExtensionServerMessageFilter* in_process_message_filter() {
+    return in_process_message_filter_;
+  }
+
+  scoped_ptr<XWalkExtensionProcessHost> extension_process_host() {
+    return extension_process_host_.Pass();
+  }
+
+  void set_in_process_extension_thread_server(
+      scoped_ptr<XWalkExtensionServer> server) {
+    in_process_extension_thread_server_.reset(server.release());
+  }
+
+  void set_in_process_ui_thread_server(
+      scoped_ptr<XWalkExtensionServer> server) {
+    in_process_ui_thread_server_.reset(server.release());
+  }
+
+  // We don't take the ownership of the filter because filters are owned by
+  // the IPC Channel they are filtering.
+  void set_in_process_message_filter(ExtensionServerMessageFilter* filter) {
+    in_process_message_filter_ = filter;
+  }
+
+  void set_extension_process_host(scoped_ptr<XWalkExtensionProcessHost> host) {
+    extension_process_host_.reset(host.release());
+  }
+
+  void set_extension_thread(base::Thread* thread) {
+    extension_thread_ = thread;
+  }
+
+ private:
   // Extension servers living on their respective threads.
   scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
   scoped_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
@@ -31,6 +75,8 @@ struct XWalkExtensionData {
 
   // This object lives on the IO-thread.
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
+
+  base::Thread* extension_thread_;
 };
 
 }  // namespace extensions
