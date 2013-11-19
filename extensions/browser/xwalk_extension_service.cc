@@ -229,6 +229,8 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   CHECK(host);
 
   XWalkExtensionData* data = new XWalkExtensionData;
+  data->set_render_process_host(host);
+
   CreateInProcessExtensionServers(host, data);
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -358,10 +360,25 @@ void XWalkExtensionService::OnExtensionProcessDied(
   // segfault when trying to delete it within
   // XWalkExtensionService::OnRenderProcessHostClosed();
 
-  XWalkExtensionData* data = extension_data_map_[render_process_id];
+  RenderProcessToExtensionDataMap::iterator it =
+      extension_data_map_.find(render_process_id);
 
-  if (data)
-    CHECK(data->extension_process_host().release() == eph);
+  if (it == extension_data_map_.end())
+    return;
+
+  XWalkExtensionData* data = it->second;
+
+  CHECK(data->extension_process_host().release() == eph);
+
+  content::RenderProcessHost* rph = data->render_process_host();
+  if (rph) {
+    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE, base::Bind(
+        base::IgnoreResult(&content::RenderProcessHost::FastShutdownIfPossible),
+        base::Unretained(rph)));
+  }
+
+  extension_data_map_.erase(it);
+  delete data;
 }
 
 void XWalkExtensionService::OnRenderProcessDied(

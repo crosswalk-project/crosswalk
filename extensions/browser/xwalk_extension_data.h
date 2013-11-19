@@ -8,9 +8,11 @@
 #include "base/memory/scoped_ptr.h"
 
 namespace base {
-
 class Thread;
+}
 
+namespace content {
+class RenderProcessHost;
 }
 
 namespace xwalk {
@@ -41,6 +43,10 @@ class XWalkExtensionData {
     return extension_process_host_.Pass();
   }
 
+  content::RenderProcessHost* render_process_host() {
+    return render_process_host_;
+  }
+
   void set_in_process_extension_thread_server(
       scoped_ptr<XWalkExtensionServer> server) {
     in_process_extension_thread_server_.reset(server.release());
@@ -65,6 +71,10 @@ class XWalkExtensionData {
     extension_thread_ = thread;
   }
 
+  void set_render_process_host(content::RenderProcessHost* rph) {
+    render_process_host_ = rph;
+  }
+
  private:
   // Extension servers living on their respective threads.
   scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
@@ -77,6 +87,8 @@ class XWalkExtensionData {
   scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
 
   base::Thread* extension_thread_;
+
+  content::RenderProcessHost* render_process_host_;
 };
 
 }  // namespace extensions
