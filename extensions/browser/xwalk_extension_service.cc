@@ -364,5 +364,19 @@ void XWalkExtensionService::OnExtensionProcessDied(
     CHECK(data->extension_process_host().release() == eph);
 }
 
+void XWalkExtensionService::OnRenderProcessDied(
+    content::RenderProcessHost* host) {
+  RenderProcessToExtensionDataMap::iterator it =
+      extension_data_map_.find(host->GetID());
+
+  if (it == extension_data_map_.end())
+    return;
+
+  XWalkExtensionData* data = it->second;
+
+  extension_data_map_.erase(it);
+  delete data;
+}
+
 }  // namespace extensions
 }  // namespace xwalk

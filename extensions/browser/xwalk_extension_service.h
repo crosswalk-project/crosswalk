@@ -55,6 +55,11 @@ class XWalkExtensionService : public content::NotificationObserver,
   // XWalkContentBrowserClient::RenderProcessHostCreated().
   void OnRenderProcessHostCreated(content::RenderProcessHost* host);
 
+  // To be called when a RenderProcess died, so we can gracefully shutdown the
+  // associated ExtensionProcess. See Runtime::RenderProcessGone() and
+  // XWalkContentBrowserClient::RenderProcessHostGone().
+  void OnRenderProcessDied(content::RenderProcessHost* host);
+
   typedef base::Callback<void(XWalkExtensionServer* server)>
       RegisterExtensionsCallback;
 
