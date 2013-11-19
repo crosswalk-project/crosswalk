@@ -71,6 +71,17 @@
         'renderer/application_native_module.h',
       ],
       'conditions': [
+        [ 'OS == "linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:dbus',
+            '../dbus/dbus.gyp:dbus',
+            'dbus/xwalk_dbus.gyp:xwalk_dbus',
+          ],
+          'sources': [
+            'browser/application_service_provider_linux.cc',
+            'browser/application_service_provider_linux.h',
+          ],
+        }],
         [ 'tizen_mobile == 1', {
           'dependencies': [
             '../third_party/libxml/libxml.gyp:libxml',
