@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_service_provider.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -24,6 +25,11 @@ ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
     process_manager_(new ApplicationProcessManager(runtime_context)),
     application_service_(new ApplicationService(runtime_context)),
     event_manager_(new ApplicationEventManager(this)) {
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kXWalkRunAsService)) {
+    service_provider_ =
+        ApplicationServiceProvider::Create(application_service_.get());
+  }
 }
 
 ApplicationSystem::~ApplicationSystem() {

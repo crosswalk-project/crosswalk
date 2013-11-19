@@ -25,6 +25,8 @@
         'browser/application_protocols.h',
         'browser/application_service.cc',
         'browser/application_service.h',
+        'browser/application_service_provider.cc',
+        'browser/application_service_provider.h',
         'browser/application_store.cc',
         'browser/application_store.h',
         'browser/application_system.cc',
