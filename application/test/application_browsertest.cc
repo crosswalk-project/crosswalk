@@ -47,5 +47,5 @@ void ApplicationBrowserTest::WaitForRuntimes(int runtime_count) {
 }
 
 int ApplicationBrowserTest::GetRuntimeNumber() {
-  return xwalk::RuntimeRegistry::Get()->runtimes().size();
+  return runtime_registry().runtimes().size();
 }

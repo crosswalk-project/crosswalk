@@ -74,7 +74,7 @@ XWalkContentBrowserClient::~XWalkContentBrowserClient() {
 
 content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
-  main_parts_ = new XWalkBrowserMainParts(parameters);
+  main_parts_ = new XWalkBrowserMainParts(parameters, runtime_registry_);
 
 #if defined(OS_ANDROID)
   main_parts_->SetRuntimeContext(g_runtime_context);

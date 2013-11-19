@@ -34,7 +34,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   // At least the main document's runtime exist after launch.
   ASSERT_GE(GetRuntimeNumber(), 1);
 
-  xwalk::Runtime* main_runtime = xwalk::RuntimeRegistry::Get()->runtimes()[0];
+  xwalk::Runtime* main_runtime = runtime_registry().runtimes()[0];
   xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
   xwalk::application::ApplicationService* service =
     runtime_context->GetApplicationSystem()->application_service();

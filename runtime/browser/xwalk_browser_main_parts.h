@@ -31,7 +31,8 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
     public extensions::XWalkExtensionService::Delegate {
  public:
   explicit XWalkBrowserMainParts(
-      const content::MainFunctionParams& parameters);
+      const content::MainFunctionParams& parameters,
+      RuntimeRegistry& runtime_registry);
   virtual ~XWalkBrowserMainParts();
 
   // BrowserMainParts overrides.
@@ -81,7 +82,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
 #endif
 
   // An application wide instance to manage all Runtime instances.
-  scoped_ptr<RuntimeRegistry> runtime_registry_;
+  RuntimeRegistry* runtime_registry_;
 
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
 

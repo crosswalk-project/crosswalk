@@ -152,8 +152,10 @@ void SetXWalkCommandLineFlags() {
 }
 
 XWalkBrowserMainParts::XWalkBrowserMainParts(
-    const content::MainFunctionParams& parameters)
+    const content::MainFunctionParams& parameters,
+    RuntimeRegistry& runtime_registry)
     : BrowserMainParts(),
+      runtime_registry_(&runtime_registry),
       startup_url_(content::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
@@ -256,11 +258,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   DCHECK(runtime_context_);
   runtime_context_->PreMainMessageLoopRun();
-  runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
 #else
   runtime_context_.reset(new RuntimeContext);
-  runtime_registry_.reset(new RuntimeRegistry);
 
   runtime_registry_->AddObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
@@ -350,13 +350,13 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
     server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
 #elif defined(OS_TIZEN_MOBILE)
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
+      new sysapps::DeviceCapabilitiesExtension(runtime_registry_)));
 #else
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationExtension(runtime_context()->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new experimental::DialogExtension(runtime_registry_.get())));
+      new experimental::DialogExtension(runtime_registry_)));
 #endif
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new sysapps::RawSocketExtension()));
