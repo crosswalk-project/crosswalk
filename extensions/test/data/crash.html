@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>Pass</title>
+</head>
+<body>
+<script>
+function changeTitle() {
+  document.title = "Fail";
+}
+
+function run() {
+  crash.syncDie("DIE!");
+
+  setTimeout(function() {
+    changeTitle();
+  }, 100);
+}
+
+run();
+
+</script>
+</body>
+</html>
