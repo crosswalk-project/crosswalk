@@ -1,6 +1,21 @@
 {
   'targets': [
   {
+    'target_name': 'xwalk_all_tests',
+    'type': 'none',
+    'dependencies': [
+      'xwalk_unittest',
+      'xwalk_browsertest',
+    ],
+    'conditions': [
+      ['OS=="linux"', {
+        'dependencies': [
+          'dbus/xwalk_dbus.gyp:xwalk_dbus_unittests',
+        ],
+      }],
+    ],
+  },
+  {
     'target_name': 'xwalk_test_common',
     'type': 'static_library',
     'dependencies': [
@@ -43,7 +58,6 @@
       }],
     ],
   },  # xwalk_test_common target
-
   {
     'target_name': 'xwalk_unittest',
     'type': 'executable',

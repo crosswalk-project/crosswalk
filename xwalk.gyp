@@ -582,8 +582,7 @@
         ['OS!="android"', {
           'dependencies': [
             'xwalk',
-            'xwalk_browsertest',
-            'xwalk_unittest',
+            'xwalk_all_tests',
           ],
         },
         {
