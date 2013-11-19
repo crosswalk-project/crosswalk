@@ -13,7 +13,6 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_message_macros.h"
-#include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
@@ -219,7 +218,24 @@ void XWalkExtensionService::CreateInProcessExtensionServer(
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, ExtensionData* data) {
   data->extension_process_host_ = make_scoped_ptr(
-      new XWalkExtensionProcessHost(host, external_extensions_path_));
+      new XWalkExtensionProcessHost(host, external_extensions_path_, this));
+}
+
+void XWalkExtensionService::OnExtensionProcessDied(
+    XWalkExtensionProcessHost* eph, int render_process_id) {
+  // When this is called it means that XWalkExtensionProcessHost is about
+  // to be deleted. We should invalidate our reference to it so we avoid a
+  // segfault when trying to delete it within
+  // XWalkExtensionService::OnRenderProcessHostClosed();
+
+  ExtensionData* data = extension_data_map_[render_process_id];
+
+  if (data) {
+    XWalkExtensionProcessHost* extension_process_host =
+        data->extension_process_host_.release();
+
+    CHECK(extension_process_host == eph);
+  }
 }
 
 }  // namespace extensions

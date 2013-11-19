@@ -26,8 +26,18 @@ namespace extensions {
 class XWalkExtensionProcessHost
     : public content::BrowserChildProcessHostDelegate {
  public:
+  class Delegate {
+   public:
+    virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
+      int render_process_id) {}
+
+   protected:
+    ~Delegate() {}
+  };
+
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
-                            const base::FilePath& external_extensions_path);
+                            const base::FilePath& external_extensions_path,
+                            XWalkExtensionProcessHost::Delegate* delegate);
   virtual ~XWalkExtensionProcessHost();
 
  private:
@@ -42,7 +52,7 @@ class XWalkExtensionProcessHost
 
   // content::BrowserChildProcessHostDelegate implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void OnProcessCrashed(int exit_code) OVERRIDE;
+  virtual void OnChannelError() OVERRIDE;
   virtual void OnProcessLaunched() OVERRIDE;
 
   // Message Handlers.
@@ -66,6 +76,8 @@ class XWalkExtensionProcessHost
   base::FilePath external_extensions_path_;
 
   bool is_extension_process_channel_ready_;
+
+  XWalkExtensionProcessHost::Delegate* delegate_;
 };
 
 }  // namespace extensions
