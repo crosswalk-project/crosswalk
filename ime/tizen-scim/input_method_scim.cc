@@ -3,20 +3,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "input_method_scim.h"
-
-#include "base/logging.h"
-#include "ui/events/event_utils.h"
-#include "ui/base/ime/input_method_delegate.h"
-#include "ui/base/ime/text_input_client.h"
-#include "ui/events/keycodes/keyboard_code_conversion.h"
-#include "ui/aura/root_window.h"
+#include "xwalk/ime/tizen-scim/input_method_scim.h"
 
 #include <X11/X.h>
-#include <X11/Xlib.h>
-#include "ui/events/keycodes/keyboard_code_conversion_x.h"
 
-#include "scim_bridge.h"
+#include "base/logging.h"
+#include "ui/aura/root_window.h"
+#include "ui/base/ime/input_method_delegate.h"
+#include "ui/base/ime/text_input_client.h"
+#include "ui/events/event_utils.h"
+#include "ui/events/keycodes/keyboard_code_conversion.h"
+#include "ui/events/keycodes/keyboard_code_conversion_x.h"
+#include "xwalk/ime/tizen-scim/scim_bridge.h"
+
+// Xlib.h must include after "root_window.h" otherwise compiler complains.
+#include <X11/Xlib.h> // NOLINT
 
 namespace {
 
@@ -34,11 +35,11 @@ namespace ui {
 InputMethodSCIM::InputMethodSCIM(internal::InputMethodDelegate* delegate)
     : delegate_(NULL),
       text_input_client_(NULL),
-      scim_bridge_(new SCIMBridge()){
+      scim_bridge_(new SCIMBridge()) {
   SetDelegate(delegate);
 }
 
-InputMethodSCIM::~InputMethodSCIM(){
+InputMethodSCIM::~InputMethodSCIM() {
 }
 
 void InputMethodSCIM::SetDelegate(internal::InputMethodDelegate* delegate) {
@@ -47,9 +48,10 @@ void InputMethodSCIM::SetDelegate(internal::InputMethodDelegate* delegate) {
 
 void InputMethodSCIM::SetFocusedTextInputClient(TextInputClient* client) {
   if (client && client->GetAttachedWindow()) {
-    aura::RootWindow* rw = client->GetAttachedWindow()->GetRootWindow();
+    aura::Window* rw = client->GetAttachedWindow()->GetRootWindow();
       if (rw) {
-        scim_bridge_->SetFocusedWindow(rw->GetAcceleratedWidget());
+        scim_bridge_->SetFocusedWindow(
+            rw->GetDispatcher()->GetAcceleratedWidget());
         scim_bridge_->Init();
       }
   }
@@ -107,7 +109,6 @@ bool InputMethodSCIM::OnUntranslatedIMEMessage(const base::NativeEvent& event,
 }
 
 void InputMethodSCIM::OnTextInputTypeChanged(const TextInputClient* client) {
-
   if (client) {
     scim_bridge_->TextInputChanged(client->GetTextInputType());
   }
@@ -121,12 +122,12 @@ void InputMethodSCIM::CancelComposition(const TextInputClient* client) {}
 void InputMethodSCIM::OnInputLocaleChanged() {}
 
 std::string InputMethodSCIM::GetInputLocale() {
-  // TODO: Fetch locale from SCIM.
+  // TODO(alexshalamov): Fetch locale from SCIM.
   return "";
 }
 
 base::i18n::TextDirection InputMethodSCIM::GetInputTextDirection() {
-  // TODO: Fetch input text direction from SCIM.
+  // TODO(alexshalamov): Fetch input text direction from SCIM.
   return base::i18n::UNKNOWN_DIRECTION;
 }
 

@@ -176,11 +176,9 @@ public class XWalkContent extends FrameLayout {
     }
 
     public void onPause() {
-        mContentViewCore.onActivityPause();
     }
 
     public void onResume() {
-        mContentViewCore.onActivityResume();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

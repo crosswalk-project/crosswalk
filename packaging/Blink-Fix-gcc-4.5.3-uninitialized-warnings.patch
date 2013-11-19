@@ -1,0 +1,45 @@
+From cfd86a7c91bd254c6827745cc5dfed7ee6823f61 Mon Sep 17 00:00:00 2001
+From: Halton Huo <halton.huo@intel.com>
+Date: Tue, 19 Nov 2013 02:07:35 +0800
+Subject: [PATCH 6/6] Blink: Fix gcc 4.5.3 uninitialized warnings
+
+Upstream does not have that issue.
+Author: Halton Huo <halton.huo@intel.com>
+---
+ src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp | 6 ++++--
+ src/third_party/WebKit/Source/core/page/CreateWindow.cpp            | 2 +-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp b/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp
+index ae7cebf..9726377 100644
+--- a/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp
++++ b/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp
+@@ -1180,8 +1180,10 @@ void CompositeEditCommand::moveParagraphs(const VisiblePosition& startOfParagrap
+ 
+     // FIXME: This is an inefficient way to preserve style on nodes in the paragraph to move. It
+     // shouldn't matter though, since moved paragraphs will usually be quite small.
+-    RefPtr<DocumentFragment> fragment = startOfParagraphToMove != endOfParagraphToMove ?
+-        createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), "") : 0;
++    RefPtr<DocumentFragment> fragment = 0;
++    if (startOfParagraphToMove != endOfParagraphToMove) {
++        fragment = createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), ""); 
++    }
+ 
+     // A non-empty paragraph's style is moved when we copy and move it.  We don't move
+     // anything if we're given an empty paragraph, but an empty paragraph can have style
+diff --git a/src/third_party/WebKit/Source/core/page/CreateWindow.cpp b/src/third_party/WebKit/Source/core/page/CreateWindow.cpp
+index 0cd7ee0..c1cc9c4 100644
+--- a/src/third_party/WebKit/Source/core/page/CreateWindow.cpp
++++ b/src/third_party/WebKit/Source/core/page/CreateWindow.cpp
+@@ -133,7 +133,7 @@ Frame* createWindow(const String& urlString, const AtomicString& frameName, cons
+ 
+     // We pass the opener frame for the lookupFrame in case the active frame is different from
+     // the opener frame, and the name references a frame relative to the opener frame.
+-    bool created;
++    bool created = false;
+     Frame* newFrame = createWindow(activeFrame, openerFrame, frameRequest, windowFeatures, created);
+     if (!newFrame)
+         return 0;
+-- 
+1.8.1.2
+

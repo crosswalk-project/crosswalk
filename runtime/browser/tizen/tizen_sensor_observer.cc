@@ -51,7 +51,7 @@ gfx::Transform TizenSensorObserver::GetTransform(
 void TizenSensorObserver::OnRotationChanged(
     gfx::Display::Rotation rotation) {
   // Set transform for root window
-  aura::RootWindow* root = window_->GetNativeWindow()->GetRootWindow();
+  aura::Window* root = window_->GetNativeWindow()->GetRootWindow();
   if (!root)
     return;
   root->SetTransform(GetTransform(rotation));

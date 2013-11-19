@@ -259,7 +259,7 @@ void XWalkRenderViewExt::OnSetTextZoomLevel(double zoom_level) {
     return;
   // Hide selection and autofill popups.
   render_view()->GetWebView()->hidePopups();
-  render_view()->GetWebView()->setZoomLevel(true, zoom_level);
+  render_view()->GetWebView()->setZoomLevel(zoom_level);
 }
 
 void XWalkRenderViewExt::OnResetScrollAndScaleState() {

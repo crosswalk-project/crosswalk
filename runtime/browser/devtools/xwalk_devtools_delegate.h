@@ -31,9 +31,9 @@ class XWalkDevToolsDelegate : public content::DevToolsHttpHandlerDelegate {
   virtual bool BundlesFrontendResources() OVERRIDE;
   virtual base::FilePath GetDebugFrontendDir() OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
-  virtual content::RenderViewHost* CreateNewTarget() OVERRIDE;
-  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE;
-  virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE;
+  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(
+      const GURL& url) OVERRIDE;
+  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE;

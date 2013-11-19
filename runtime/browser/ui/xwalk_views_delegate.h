@@ -25,6 +25,7 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
                                    const gfx::Rect& bounds,
                                    ui::WindowShowState show_state) OVERRIDE {}
   virtual bool GetSavedWindowPlacement(
+      const views::Widget* widget,
       const std::string& window_name,
       gfx::Rect* bounds,
       ui::WindowShowState* show_state) const OVERRIDE { return false; }

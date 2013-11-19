@@ -6,7 +6,7 @@ not .2. Adjust the library being looked for, otherwise the detection will fail.
 Not upstreamable.
 --- src/ui/gl/gl_implementation_x11.cc
 +++ src/ui/gl/gl_implementation_x11.cc
-@@ -139,7 +139,7 @@ bool InitializeGLBindings(GLImplementation implementation) {
+@@ -92,7 +92,7 @@ bool InitializeGLBindings(GLImplementation implementation) {
        break;
      }
      case kGLImplementationEGLGLES2: {

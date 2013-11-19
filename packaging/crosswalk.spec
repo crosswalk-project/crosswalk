@@ -1,5 +1,5 @@
 Name:           crosswalk
-Version:        3.31.39.0
+Version:        3.32.39.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 # License:        (BSD-3-Clause and LGPL-2.1+)
@@ -16,6 +16,8 @@ Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-look-for-pvr-libGLESv2.so.patch
 Patch3:         %{name}-include-tizen-ime-files.patch
 Patch4:         %{name}-disable-ffmpeg-pragmas.patch
+Patch5:         Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
+Patch6:         Blink-Fix-gcc-4.5.3-uninitialized-warnings.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -23,6 +25,7 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libasound-devel
+BuildRequires:  libcap-devel
 BuildRequires:  pkgmgr-info-parser-devel
 BuildRequires:  python
 BuildRequires:  python-xml
@@ -39,6 +42,7 @@ BuildRequires:  pkgconfig(freetype2)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(icu-i18n)
+BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpci)
 BuildRequires:  pkgconfig(libpulse)
@@ -99,6 +103,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch2
 %patch3
 %patch4
+%patch5 -p1
+%patch6 -p1
 
 %build
 
@@ -108,8 +114,11 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
 # Use openssl instead of nss, until Tizen gets nss >= 3.14.3
+# --no-parallel is added because chroot does not mount a /dev/shm, this will
+# cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='make'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
+--no-parallel \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \

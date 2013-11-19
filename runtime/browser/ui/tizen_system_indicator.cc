@@ -112,6 +112,7 @@ void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
     case ui::ET_GESTURE_LONG_PRESS:
     case ui::ET_GESTURE_LONG_TAP:
     case ui::ET_GESTURE_MULTIFINGER_SWIPE:
+    case ui::ET_GESTURE_SHOW_PRESS:
     case ui::ET_SCROLL:
     case ui::ET_SCROLL_FLING_START:
     case ui::ET_SCROLL_FLING_CANCEL:

@@ -15,13 +15,20 @@
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "content/public/browser/android/devtools_auth.h"
+#include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
+#include "content/public/browser/devtools_target.h"
+#include "content/public/browser/favicon_status.h"
+#include "content/public/browser/navigation_entry.h"
+#include "content/public/browser/render_view_host.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/chrome_version.h"
+
+using content::DevToolsAgentHost;
 
 namespace {
 
@@ -31,6 +38,34 @@ namespace {
 const char kFrontEndURL[] =
     "http://chrome-devtools-frontend.appspot.com/static/%s/devtools.html";
 const char kChromeVersion[] = CHROME_VERSION_STRING;
+
+class Target : public content::DevToolsTarget {
+ public:
+  explicit Target() {
+  }
+
+  virtual std::string GetId() const OVERRIDE { return std::string(); }
+  virtual std::string GetType() const OVERRIDE { return std::string(); }
+  virtual std::string GetTitle() const OVERRIDE { return std::string(); }
+  virtual std::string GetDescription() const OVERRIDE { return std::string(); }
+  virtual GURL GetUrl() const OVERRIDE { return url_; }
+  virtual GURL GetFaviconUrl() const OVERRIDE { return favicon_url_; }
+  virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
+    return last_activity_time_;
+  }
+  virtual bool IsAttached() const OVERRIDE { return false; }
+  virtual scoped_refptr<DevToolsAgentHost> GetAgentHost() const OVERRIDE {
+    return agent_host_;
+  }
+  virtual bool Activate() const OVERRIDE { return true; }
+  virtual bool Close() const OVERRIDE { return true; }
+
+ private:
+  scoped_refptr<DevToolsAgentHost> agent_host_;
+  GURL url_;
+  GURL favicon_url_;
+  base::TimeTicks last_activity_time_;
+};
 
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
@@ -57,22 +92,18 @@ class XWalkDevToolsServerDelegate
     return std::string();
   }
 
-  virtual content::RenderViewHost* CreateNewTarget() OVERRIDE {
-    return NULL;
-  }
-
-  virtual TargetType GetTargetType(content::RenderViewHost*) OVERRIDE {
-    return kTargetTypeTab;
-  }
-
-  virtual std::string GetViewDescription(content::RenderViewHost*) OVERRIDE {
-    return std::string();
+  virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(
+      const GURL&) OVERRIDE {
+    return scoped_ptr<content::DevToolsTarget>(new Target());
   }
 
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
       net::StreamListenSocket::Delegate* delegate,
       std::string* name) OVERRIDE {
     return scoped_ptr<net::StreamListenSocket>();
+  }
+
+  virtual void EnumerateTargets(TargetCallback callback) OVERRIDE {
   }
 
  private:

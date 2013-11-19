@@ -38,6 +38,11 @@
 #include "ui/base/ui_base_paths.h"
 #include "ui/gl/gl_switches.h"
 
+#if defined(USE_AURA) && defined(USE_X11)
+#include "ui/base/ime/input_method_initializer.h"
+#include "ui/events/x/touch_factory_x11.h"
+#endif
+
 #if defined(OS_ANDROID)
 #include "content/public/browser/android/compositor.h"
 #include "net/android/network_change_notifier_factory_android.h"
@@ -115,8 +120,6 @@ void SetXWalkCommandLineFlags() {
   command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
 #endif
 
-  // Always use fixed layout and viewport tag.
-  command_line->AppendSwitch(switches::kEnableFixedLayout);
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
@@ -183,6 +186,9 @@ void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 }
 
 void XWalkBrowserMainParts::PreEarlyInitialization() {
+#if defined(USE_AURA) && defined(USE_X11)
+    ui::InitializeInputMethodForTesting();
+#endif
 #if defined(OS_ANDROID)
   net::NetworkChangeNotifier::SetFactory(
       new net::NetworkChangeNotifierFactoryAndroid());

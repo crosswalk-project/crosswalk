@@ -4,7 +4,7 @@
       'target_name': 'xwalk_test_util_java',
       'type': 'none',
       'dependencies': [
-        '../content/content.gyp:content_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
       ],
       'variables': {
         'java_in_dir': 'test/android/util',
@@ -82,7 +82,7 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:base_java_test_support',
-        '../content/content.gyp:content_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
         '../net/net.gyp:net_java_test_support',
         'xwalk_core_shell_apk_java',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
@@ -336,7 +336,7 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:base_java_test_support',
-        '../content/content.gyp:content_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
         '../net/net.gyp:net_java_test_support',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
@@ -354,7 +354,7 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:base_java_test_support',
-        '../content/content.gyp:content_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
         '../net/net.gyp:net_java_test_support',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
@@ -401,7 +401,7 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:base_java_test_support',
-        '../content/content.gyp:content_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
         '../net/net.gyp:net_java_test_support',
         '../tools/android/forwarder2/forwarder.gyp:forwarder2',
         '../tools/android/md5sum/md5sum.gyp:md5sum',
