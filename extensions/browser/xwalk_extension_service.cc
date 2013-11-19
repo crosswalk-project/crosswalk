@@ -285,7 +285,14 @@ void XWalkExtensionService::Observe(int type,
 
 void XWalkExtensionService::OnRenderProcessHostClosed(
     content::RenderProcessHost* host) {
-  ExtensionData* data = extension_data_map_[host->GetID()];
+  RenderProcessToExtensionDataMap::iterator it =
+      extension_data_map_.find(host->GetID());
+
+  if (it == extension_data_map_.end())
+    return;
+
+  ExtensionData* data = it->second;
+
   // Invalidate the objects in the different threads so they stop posting
   // messages to each other. This is important because we'll schedule the
   // deletion of both objects to their respective threads.
@@ -318,7 +325,8 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
   if (eph)
     BrowserThread::DeleteSoon(BrowserThread::IO, FROM_HERE, eph.release());
 
-  extension_data_map_.erase(host->GetID());
+  extension_data_map_.erase(it);
+  delete data;
 }
 
 void XWalkExtensionService::CreateInProcessExtensionServers(
