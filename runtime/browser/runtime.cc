@@ -14,6 +14,9 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/tizen/browser/ui/date_time_chooser_tizen.h"
+#endif
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -92,6 +95,9 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
       weak_ptr_factory_(this),
       fullscreen_options_(NO_FULLSCREEN),
       observer_(observer) {
+#if defined(OS_TIZEN_MOBILE)
+      new DateTimeChooserTizen(web_contents);
+#endif
   web_contents_->SetDelegate(this);
   runtime_context_ = RuntimeContext::FromWebContents(web_contents);
   content::NotificationService::current()->Notify(

@@ -6,6 +6,8 @@
     'dependencies': [
       '../../skia/skia.gyp:skia',
       '../../ui/ui.gyp:ui',
+      '../../build/linux/system.gyp:dbus',
+      '../../dbus/dbus.gyp:dbus',
       '../build/system.gyp:tizen_appcore',
       '../build/system.gyp:tizen_vibration',
     ],
@@ -31,6 +33,8 @@
       'mobile/sensor/tizen_data_fetcher_shared_memory.h',
       'mobile/sensor/tizen_platform_sensor.cc',
       'mobile/sensor/tizen_platform_sensor.h',
+      'browser/ui/date_time_chooser_tizen.h',
+      'browser/ui/date_time_chooser_tizen.cc',
       'browser/vibration/vibration_provider_tizen.cc',
       'browser/vibration/vibration_provider_tizen.h',
     ],
