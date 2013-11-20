@@ -73,6 +73,7 @@
       'sysapps/sysapps_unittests.gypi',
     ],
     'sources': [
+      'application/browser/application_event_router_unittest.cc',
       'application/browser/installer/xpk_extractor_unittest.cc',
       'application/common/application_unittest.cc',
       'application/common/application_file_util_unittest.cc',

@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -18,10 +19,11 @@ using xwalk::RuntimeContext;
 namespace xwalk {
 namespace application {
 
-ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context) {
-  runtime_context_ = runtime_context;
-  process_manager_.reset(new ApplicationProcessManager(runtime_context));
-  application_service_.reset(new ApplicationService(runtime_context));
+ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
+  : runtime_context_(runtime_context),
+    process_manager_(new ApplicationProcessManager(runtime_context)),
+    application_service_(new ApplicationService(runtime_context)),
+    event_manager_(new ApplicationEventManager(this)) {
 }
 
 ApplicationSystem::~ApplicationSystem() {

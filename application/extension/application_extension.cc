@@ -11,6 +11,7 @@
 #include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application.h"
 #include "xwalk/runtime/browser/runtime.h"

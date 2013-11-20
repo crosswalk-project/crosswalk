@@ -13,6 +13,7 @@
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
+#include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/extension/application_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
