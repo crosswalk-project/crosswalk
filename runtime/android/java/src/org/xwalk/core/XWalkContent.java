@@ -176,9 +176,11 @@ public class XWalkContent extends FrameLayout {
     }
 
     public void onPause() {
+        mContentView.onHide();
     }
 
     public void onResume() {
+        mContentView.onShow();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -334,7 +336,7 @@ public class XWalkContent extends FrameLayout {
     public int getRoutingID() {
         return nativeGetRoutingID(mXWalkContent);
     }
- 
+
     private class XWalkGeolocationCallback implements XWalkGeolocationPermissions.Callback {
         @Override
         public void invoke(final String origin, final boolean allow, final boolean retain) {
