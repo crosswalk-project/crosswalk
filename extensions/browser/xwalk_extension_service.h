@@ -36,7 +36,16 @@ class XWalkExtensionData;
 class XWalkExtensionService : public content::NotificationObserver,
     public XWalkExtensionProcessHost::Delegate {
  public:
-  XWalkExtensionService();
+  class Delegate {
+   public:
+    virtual void CheckAPIAccessControl(std::string extension_name,
+        std::string api_name, const PermissionCallback& callback) {}
+
+   protected:
+    ~Delegate() {}
+  };
+
+  explicit XWalkExtensionService(Delegate* delegate);
   virtual ~XWalkExtensionService();
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
@@ -73,6 +82,9 @@ class XWalkExtensionService : public content::NotificationObserver,
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
 
+  virtual void OnCheckAPIAccessControl(std::string extension_name,
+      std::string api_name, const PermissionCallback& callback) OVERRIDE;
+
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
@@ -93,6 +105,8 @@ class XWalkExtensionService : public content::NotificationObserver,
   base::Thread extension_thread_;
 
   content::NotificationRegistrar registrar_;
+
+  Delegate* delegate_;
 
   base::FilePath external_extensions_path_;
 
