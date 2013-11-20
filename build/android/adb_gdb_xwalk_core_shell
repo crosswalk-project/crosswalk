@@ -11,7 +11,7 @@ cd ${CHROME_SRC}
 
 PROGDIR=${CHROME_SRC}/build/android
 export ADB_GDB_PROGNAME=$(basename "$0")
-export ADB_GDB_ACTIVITY=.XwViewShellActivity
+export ADB_GDB_ACTIVITY=.XWalkViewShellActivity
 "$PROGDIR"/adb_gdb \
     --program-name=XwViewShellActivity \
     --package-name=org.xwalk.core.xwview.shell \
