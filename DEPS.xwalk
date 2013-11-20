@@ -12,6 +12,11 @@ blink_crosswalk_point = '293e75f05d1753b2c33e42e9414aff1e8e2d6165'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
+
+  # Required until chromium-crosswalk gets past Chromium r234545 ("Rolling
+  # grit-i18n to latest version"). This is used for incremental Tizen builds to
+  # work.
+  'src/tools/grit': 'http://grit-i18n.googlecode.com/svn/trunk@138',
 }
 vars_xwalk = {
   'jsoncpp': 'http://svn.code.sf.net/p/jsoncpp/code',
