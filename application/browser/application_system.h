@@ -24,6 +24,7 @@ class ApplicationEventManager;
 class ApplicationProcessManager;
 class ApplicationService;
 class ApplicationServiceProvider;
+class ApplicationPermissionService;
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -47,6 +48,11 @@ class ApplicationSystem {
   // The ApplicationEventManager is created at startup.
   ApplicationEventManager* event_manager() {
     return event_manager_.get();
+  }
+  
+  // The ApplicationService is created at startup.
+  ApplicationPermissionService* application_permission_service() {
+    return application_permission_service_.get();
   }
 
   // Parse the command line and process the --install, --uninstall and
@@ -82,6 +88,7 @@ class ApplicationSystem {
   scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
   scoped_ptr<ApplicationServiceProvider> service_provider_;
+  scoped_ptr<ApplicationPermissionService> application_permission_service_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };

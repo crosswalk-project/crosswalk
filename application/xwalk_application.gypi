@@ -33,6 +33,8 @@
         'browser/application_system.h',
         'browser/event_observer.cc',
         'browser/event_observer.h',
+        'browser/application_permission_service.cc',
+        'browser/application_permission_service.h',
         'browser/installer/xpk_extractor.cc',
         'browser/installer/xpk_extractor.h',
         'browser/installer/xpk_package.cc',
