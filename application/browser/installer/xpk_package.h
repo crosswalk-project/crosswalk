@@ -30,7 +30,7 @@ class XPKPackage : public Package {
   };
   XPKPackage();
   ~XPKPackage();
-  static scoped_ptr<Package> Create(const base::FilePath& path);
+  explicit XPKPackage(const base::FilePath& path);
 
  private:
   XPKPackage(Header header, ScopedStdioHandle* file);

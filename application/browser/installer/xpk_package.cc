@@ -24,16 +24,15 @@ XPKPackage::XPKPackage() {
 XPKPackage::~XPKPackage() {
 }
 
-// static
-scoped_ptr<Package> XPKPackage::Create(const base::FilePath& path) {
+XPKPackage::XPKPackage(const base::FilePath& path) {
   if (!base::PathExists(path))
-    scoped_ptr<Package>();
+    return;
   scoped_ptr<ScopedStdioHandle> file(
       new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
   Header header;
   size_t len = fread(&header, 1, sizeof(header), file->get());
   if (len < sizeof(header))
-    return scoped_ptr<Package>();
+    return;
   if (!strncmp(XPKPackage::kXPKPackageHeaderMagic,
                header.magic,
                sizeof(header.magic)) &&
@@ -41,11 +40,9 @@ scoped_ptr<Package> XPKPackage::Create(const base::FilePath& path) {
       header.key_size <= XPKPackage::kMaxPublicKeySize &&
       header.signature_size > 0 &&
       header.signature_size <= XPKPackage::kMaxSignatureKeySize) {
-    scoped_ptr<Package> package(new XPKPackage(header, file.release()));
-    if (package->IsValid())
-      return package.Pass();
+    XPKPackage(header, file.release());
   }
-  return scoped_ptr<Package>();
+  return;
 }
 
 XPKPackage::XPKPackage(Header header, ScopedStdioHandle* file)

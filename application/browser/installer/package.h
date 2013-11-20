@@ -17,16 +17,17 @@ namespace application {
 
 // Base class for all types of packages (right now .wgt and .xpk)
 // The actual zip file , id and is_valid_ are common to all the package classes
-// specifics like signature checking for XPK are taken care of in XPKPackage::Validate()
+// specifics like signature checking for XPK are taken care of in
+//  XPKPackage::Validate()
 class Package {
  public:
-  Package();
-  Package(ScopedStdioHandle* file, bool is_valid);
   virtual ~Package();
   bool IsValid() const { return is_valid_; }
   const std::string& Id() const { return id_; }
   static scoped_ptr<Package> Create(const base::FilePath& path);
  protected:
+  Package();
+  Package(ScopedStdioHandle* file, bool is_valid);
   scoped_ptr<ScopedStdioHandle> file_;
   bool is_valid_;
   std::string id_;

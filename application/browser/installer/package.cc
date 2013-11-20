@@ -27,11 +27,18 @@ Package::~Package() {
 
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
-  // TODO(riju): create specific package type
-  if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk")))
-      return XPKPackage::Create(source_path);
-  else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt")))
-     return WGTPackage::Create(source_path);
+  if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
+      scoped_ptr<Package> package(new XPKPackage(source_path));
+      if (package->IsValid()) {
+        return package.Pass();
+      } else {
+          LOG(ERROR) << "Package not valid";
+          return scoped_ptr<Package>();
+      }
+  } else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
+     scoped_ptr<Package> package(new WGTPackage(source_path));
+     return package.Pass();
+  }
 
   LOG(ERROR) << "Invalid package type";
   return scoped_ptr<Package>();

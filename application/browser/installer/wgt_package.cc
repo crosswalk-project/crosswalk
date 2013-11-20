@@ -16,22 +16,16 @@ WGTPackage::WGTPackage() {
 WGTPackage::~WGTPackage() {
 }
 
-// static
-scoped_ptr<Package>WGTPackage::Create(const base::FilePath& path) {
+WGTPackage::WGTPackage(const base::FilePath& path) {
   if (!base::PathExists(path))
-    scoped_ptr<Package>();
+    return;
   scoped_ptr<ScopedStdioHandle> file(
         new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
-  // TODO(riju) : see if any pre processing is required before parsing)
-  scoped_ptr<Package> package(new WGTPackage(file.release()));
-  if (package->IsValid())
-    return package.Pass();
 
-  return scoped_ptr<Package>();
+  WGTPackage(file.release());
 }
 
-WGTPackage::WGTPackage(ScopedStdioHandle* file)
-  : Package(file, true) {
+WGTPackage::WGTPackage(ScopedStdioHandle* file) : Package(file, true) {
 }
 
 }  // namespace application

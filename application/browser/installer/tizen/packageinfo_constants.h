@@ -23,7 +23,6 @@ namespace application_packageinfo_constants {
   extern const char kOwner[];
 
   extern const char kXmlExtension[];
-  extern const char kXpkExtension[];
   extern const char kSeparator[];
 }  // namespace application_packageinfo_constants
 }  // namespace xwalk

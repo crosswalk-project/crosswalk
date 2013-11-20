@@ -19,9 +19,8 @@ namespace application {
 class WGTPackage : public Package {
  public:
   WGTPackage();
+  explicit WGTPackage(const base::FilePath& path);
   ~WGTPackage();
-  static scoped_ptr<Package> Create(const base::FilePath& path);  // OVERRIDE;
-
  private:
   explicit WGTPackage(ScopedStdioHandle* file);
 };
