@@ -24,6 +24,7 @@ BuildRequires:  bzip2-devel
 BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
+BuildRequires:  gst-plugins-atomisp-devel
 BuildRequires:  libasound-devel
 BuildRequires:  libcap-devel
 BuildRequires:  pkgmgr-info-parser-devel
