@@ -20,6 +20,11 @@ class RuntimeContext;
 namespace xwalk {
 namespace application {
 
+typedef enum {
+  PERMISSION_REJECT,
+  PERMISSION_ALLOW
+} PermissionAction;
+
 // This will manages applications install, uninstall, update and so on. It'll
 // also maintain all installed applications' info.
 class ApplicationService {
@@ -37,6 +42,10 @@ class ApplicationService {
   ApplicationStore::ApplicationMap* GetInstalledApplications() const;
   // Currently there's only one running application at a time.
   const ApplicationData* GetRunningApplication() const;
+  // Check whether application has the permission to access API. This API will
+  // be called by XWalkBrowserMainParts
+  PermissionAction CheckAPIAccessControl(std::string extension_name,
+      std::string api_name, std::string app_id);
 
   // Client code may use this class (and register with AddObserver below) to
   // keep track of applications installed/uninstalled.

@@ -215,6 +215,19 @@ void ApplicationService::AddObserver(Observer* observer) {
 void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 };
+PermissionAction ApplicationService::CheckAPIAccessControl(
+    std::string extension_name, std::string api_name, std::string app_id) {
+  PermissionAction allowed = PERMISSION_REJECT;
+  // TODO(Xu): check input parameter
+  // 1. query application ID from application DB
+  // 2. query extension name and api name from permissions DB
+  // 3. If inputs can't be found from DB, return false.
+
+  // TODO(Bai): query whether app has permission to access API from permissions
+  // group
+
+  return allowed;
+}
 
 bool ApplicationService::Launch(
     scoped_refptr<const ApplicationData> application) {
