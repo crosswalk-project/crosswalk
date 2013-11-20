@@ -101,7 +101,10 @@ bool PackageInstaller::GeneratePkgInfoXml() {
     xml_writer.AddAttribute("type", "c++app");
     xml_writer.AddAttribute("taskmanage", "true");
     xml_writer.WriteElement("label", application_->Name());
-    xml_writer.WriteElement("icon", icon_path_.BaseName().MaybeAsASCII());
+    if (icon_name_.empty())
+      xml_writer.WriteElement("icon", info::kDefaultIconName);
+    else
+      xml_writer.WriteElement("icon", icon_path_.BaseName().MaybeAsASCII());
     xml_writer.EndElement();  // Ends "ui-application"
   }
 
