@@ -16,6 +16,7 @@ const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchWebURLKey[] = "app.launch.web_url";
 const char kManifestVersionKey[] = "manifest_version";
 const char kNameKey[] = "name";
+const char kPermissionsKey[] = "permissions";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
 }  // namespace application_manifest_keys

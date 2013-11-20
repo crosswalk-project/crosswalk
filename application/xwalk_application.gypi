@@ -51,6 +51,8 @@
         'common/manifest.h',
         'common/manifest_handler.cc',
         'common/manifest_handler.h',
+        'common/manifest_handlers/permissions_handler.cc',
+        'common/manifest_handlers/permissions_handler.h',
 
         'extension/application_extension.cc',
         'extension/application_extension.h',

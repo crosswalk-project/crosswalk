@@ -7,6 +7,7 @@
 #include <set>
 
 #include "base/stl_util.h"
+#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 
 namespace xwalk {
 namespace application {
@@ -53,6 +54,7 @@ ManifestHandlerRegistry* ManifestHandlerRegistry::GetInstance() {
     std::vector<ManifestHandler*> handlers;
     // FIXME: Add manifest handlers here like this:
     // handlers.push_back(new xxxHandler);
+    handlers.push_back(new PermissionsHandler);
 
     registry_ = new ManifestHandlerRegistry(handlers);
   }
