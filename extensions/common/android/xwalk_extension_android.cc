@@ -9,7 +9,7 @@
 #include "base/logging.h"
 #include "jni/XWalkExtensionAndroid_jni.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 namespace xwalk {
@@ -31,8 +31,8 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
 
 XWalkExtensionAndroid::~XWalkExtensionAndroid() {
   // Unregister the extension and clear its all instances.
-  XWalkContentBrowserClient::Get()->main_parts()->UnregisterExtension(
-      scoped_ptr<XWalkExtension>(this));
+  ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
+      UnregisterExtension(scoped_ptr<XWalkExtension>(this));
 
   for (InstanceMap::iterator it = instances_.begin();
        it != instances_.end(); ++it) {
@@ -176,8 +176,8 @@ static jint CreateExtension(JNIEnv* env, jobject obj,
   XWalkExtensionAndroid* extension =
       new XWalkExtensionAndroid(env, obj, name, js_api);
 
-  XWalkContentBrowserClient::Get()->main_parts()->RegisterExtension(
-      scoped_ptr<XWalkExtension>(extension));
+  ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
+      RegisterExtension(scoped_ptr<XWalkExtension>(extension));
 
   return reinterpret_cast<jint>(extension);
 }

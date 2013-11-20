@@ -25,13 +25,12 @@ class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
 
-void SetXWalkCommandLineFlags();
-
 class XWalkBrowserMainParts : public content::BrowserMainParts,
     public extensions::XWalkExtensionService::Delegate {
  public:
   explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
+
   virtual ~XWalkBrowserMainParts();
 
   // BrowserMainParts overrides.
@@ -60,19 +59,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
     return extension_service_.get();
   }
 
- private:
+ protected:
   void RegisterExternalExtensions();
-  void RegisterInternalExtensions();
-#if defined(OS_MACOSX)
-  void PreMainMessageLoopStartMac();
-#elif defined(USE_AURA)
-  void PreMainMessageLoopStartAura();
-  void PostMainMessageLoopRunAura();
-#endif
 
-#if defined(OS_ANDROID)
-  ScopedVector<extensions::XWalkExtension> extensions_;
-#endif
   scoped_ptr<RuntimeContext> runtime_context_;
 
   // An application wide instance to manage all Runtime instances.
@@ -92,6 +81,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
   // Remote debugger server.
   scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainParts);
 };
 
