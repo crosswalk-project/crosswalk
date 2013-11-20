@@ -6,11 +6,13 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 using xwalk::application::Application;

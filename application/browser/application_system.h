@@ -9,8 +9,9 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "xwalk/application/browser/application_process_manager.h"
-#include "xwalk/application/browser/application_service.h"
+
+class CommandLine;
+class GURL;
 
 namespace xwalk {
 class RuntimeContext;
@@ -18,6 +19,10 @@ class RuntimeContext;
 
 namespace xwalk {
 namespace application {
+
+class ApplicationEventManager;
+class ApplicationProcessManager;
+class ApplicationService;
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -36,6 +41,11 @@ class ApplicationSystem {
   // The ApplicationService is created at startup.
   ApplicationService* application_service() {
     return application_service_.get();
+  }
+
+  // The ApplicationEventManager is created at startup.
+  ApplicationEventManager* event_manager() {
+    return event_manager_.get();
   }
 
   // Parse the command line and process the --install, --uninstall and
@@ -67,6 +77,7 @@ class ApplicationSystem {
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;
+  scoped_ptr<ApplicationEventManager> event_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
