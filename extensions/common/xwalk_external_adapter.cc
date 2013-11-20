@@ -95,6 +95,13 @@ const void* XWalkExternalAdapter::GetInterface(const char* name) {
     return &entryPointsInterface1;
   }
 
+  if (!strcmp(name, XW_INTERNAL_PERMISSIONS_INTERFACE_1)) {
+    static const XW_Internal_PermissionsInterface_1 permissionsInterface1 = {
+      PermissionsCheckAPIAccessControl
+    };
+    return &permissionsInterface1;
+  }
+
   LOG(WARNING) << "Interface '" << name << "' is not supported.";
   return NULL;
 }
@@ -131,6 +138,18 @@ void XWalkExternalAdapter::LogInvalidCall(
     const char* interface, const char* function) {
   LOG(WARNING) << "Ignoring call to " << interface << " function " << function
                << " as it received wrong XW_" << type << "=" << value << ".";
+}
+
+int XWalkExternalAdapter::PermissionsCheckAPIAccessControl(XW_Extension xw,
+  const char* app_id, const char* api_name) {
+  XWalkExternalExtension* ptr = GetExtension(xw);
+  if (!ptr) {
+    LogInvalidCall(xw, "Extension", "Permissions", "CheckAPIAccessControl");
+    return 0;
+  } else {
+    bool status = ptr->PermissionsCheckAPIAccessControl(app_id, api_name);
+    return status? 1:0;
+  }
 }
 
 }  // namespace extensions

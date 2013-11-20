@@ -22,6 +22,7 @@
 #include "ipc/ipc_switches.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/application/browser/application_service.h"
 
 using content::BrowserThread;
 
@@ -157,6 +158,8 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(
         XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
         OnRenderChannelCreated)
+    IPC_MESSAGE_HANDLER(XWalkExtensionProcessHostMsg_CheckAPIAccessControl,
+        OnCheckAPIAccessControl)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -204,6 +207,17 @@ void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
   render_process_host_->Send(pending_reply_for_render_process_.release());
 }
 
+void XWalkExtensionProcessHost::OnCheckAPIAccessControl(
+    std::string extension_name, std::string app_id, std::string api_name,
+    bool* status) {
+  *status = xwalk::application::ApplicationService
+      ::CheckAPIAccessControl(extension_name, app_id, api_name);
+}
+
+bool XWalkExtensionProcessHost::Send(IPC::Message* msg) {
+    process_->GetHost()->Send(msg);
+    return true;
+}
 
 }  // namespace extensions
 }  // namespace xwalk

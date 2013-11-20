@@ -16,6 +16,7 @@
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace content {
 class RenderProcessHost;
@@ -32,7 +33,8 @@ class XWalkExtensionServer;
 // track of the extensions, and enable them on WebContents once they are
 // created. It's life time follows the Browser process itself.
 class XWalkExtensionService : public content::NotificationObserver,
-    public XWalkExtensionProcessHost::Delegate {
+    public XWalkExtensionProcessHost::Delegate,
+    public XWalkExtension::PermissionsDelegate {
  public:
   class Delegate {
    public:
@@ -69,6 +71,9 @@ class XWalkExtensionService : public content::NotificationObserver,
       const RegisterExtensionsCallback& callback);
 
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
+
+  virtual bool CheckAPIAccessControl(std::string extension_name,
+      std::string app_id, std::string api_name);
 
  private:
   // XWalkExtensionProcessHost::Delegate implementation.

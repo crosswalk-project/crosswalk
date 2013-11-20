@@ -5,6 +5,8 @@
 #ifndef XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 #define XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 
+#include <string>
+
 #include "base/values.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
@@ -33,11 +35,13 @@ class XWalkExtensionRunner;
 // of the extension <-> render process channel.
 // It will be responsible for handling the native side (instances) of
 // External extensions through its XWalkExtensionServer.
-class XWalkExtensionProcess : public IPC::Listener {
+class XWalkExtensionProcess : public IPC::Listener,
+                              public XWalkExtension::PermissionsDelegate {
  public:
   XWalkExtensionProcess();
   virtual ~XWalkExtensionProcess();
-
+  virtual bool CheckAPIAccessControl(std::string extension_name,
+      std::string app_id, std::string api_name);
  private:
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
