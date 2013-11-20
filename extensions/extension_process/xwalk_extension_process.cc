@@ -13,6 +13,7 @@
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 namespace xwalk {
 namespace extensions {
@@ -102,11 +103,27 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
           true);
 #endif
 
-  extensions_server_.Initialize(render_process_channel_.get());
+  extensions_server_.Initialize(render_process_channel_.get(), this);
 
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
           rp_channel_handle_));
+}
+
+bool XWalkExtensionProcess::CheckAPIAccessControl(std::string extension_name,
+    std::string api_name) {
+  // TODO(Bai): Implement cache here.
+  RuntimePermission result = INVALID_RUNTIME_PERM;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
+        extension_name, api_name, &result));
+  LOG(INFO) << extension_name << "." << api_name << "() --> " << result;
+  if (result == ALLOW_ONCE
+      || result == ALLOW_SESSION
+      || result == ALLOW_FOREVER)
+    return true;
+  else
+    return false;
 }
 
 }  // namespace extensions

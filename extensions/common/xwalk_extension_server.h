@@ -15,6 +15,8 @@
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/extensions/common/xwalk_external_extension.h"
 
 struct XWalkExtensionServerMsg_ExtensionRegisterParams;
 
@@ -33,7 +35,6 @@ class Sender;
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtension;
 class XWalkExtensionInstance;
 
 // Manages the instances for a set of extensions. It communicates with one
@@ -49,13 +50,24 @@ class XWalkExtensionServer : public IPC::Listener {
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void Initialize(IPC::Sender* sender);
+  // Different types of ExtensionServers are initialized with different
+  // permission delegates: For out-of-process extensions the extension
+  // process act as the delegate and dispatch permission request through
+  // IPC; For in-process extensions running in extension thread, we will\
+  // give a delegate that will do an async method call and for UI thread
+  // extensions, doing synchronous request is not allowed.
+  void Initialize(IPC::Sender* sender,
+      XWalkExtension::PermissionsDelegate* delegate = NULL);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
   bool ContainsExtension(const std::string& extension_name) const;
 
   void Invalidate();
+
+  XWalkExtension::PermissionsDelegate* permissions_delegate() {
+    return permissions_delegate_;
+  }
 
   // These Message Handlers can be accessed by a message filter when
   // running on the browser process.
@@ -97,6 +109,8 @@ class XWalkExtensionServer : public IPC::Listener {
   // The exported symbols for extensions already registered.
   typedef std::set<std::string> ExtensionSymbolsSet;
   ExtensionSymbolsSet extension_symbols_;
+
+  XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(

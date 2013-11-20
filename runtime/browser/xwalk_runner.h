@@ -23,6 +23,7 @@ class ApplicationComponent;
 class SysAppsComponent;
 class XWalkComponent;
 class XWalkContentBrowserClient;
+class XWalkAppExtensionBridge;
 
 namespace application {
 class ApplicationSystem;
@@ -120,6 +121,7 @@ class XWalkRunner {
   scoped_ptr<XWalkContentBrowserClient> content_browser_client_;
   scoped_ptr<RuntimeContext> runtime_context_;
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
+  scoped_ptr<XWalkAppExtensionBridge> app_extension_bridge_;
 
   // XWalkRunner uses the XWalkComponent interface to be able to handle
   // different subsystems and call them in specific situations, e.g. when

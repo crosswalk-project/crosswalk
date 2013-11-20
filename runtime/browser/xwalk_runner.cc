@@ -15,6 +15,7 @@
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
+#include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -73,8 +74,10 @@ void XWalkRunner::PreMainMessageLoopRun() {
   // command line.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kUninstall))
-    extension_service_.reset(new extensions::XWalkExtensionService);
-
+    extension_service_.reset(new extensions::XWalkExtensionService(
+        app_extension_bridge_.get()));
+  app_extension_bridge_.reset(new XWalkAppExtensionBridge(
+      app_component_->app_system()));
   CreateComponents();
 }
 

@@ -8,6 +8,7 @@
 #include "base/values.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_message_macros.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 // Note: it is safe to use numbers after LastIPCMsgStart since that limit
 // is not relevant for embedders. It is used only by a tool inside chrome/
@@ -39,6 +40,13 @@ IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated, /
 IPC_SYNC_MESSAGE_CONTROL0_1(XWalkExtensionProcessHostMsg_GetExtensionProcessChannel,  // NOLINT(*)
                             IPC::ChannelHandle /* channel id */)
 
+// Message from Extension Process to Browser Process
+IPC_ENUM_TRAITS_MAX_VALUE(xwalk::extensions::RuntimePermission,
+                          xwalk::extensions::INVALID_RUNTIME_PERM)
+IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionProcessHostMsg_CheckAPIAccessControl, // NOLINT(*)
+                            std::string,
+                            std::string,
+                            xwalk::extensions::RuntimePermission)
 
 // We use a separated message class for Client<->Server communication
 // to ease filtering.
