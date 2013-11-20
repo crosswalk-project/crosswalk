@@ -157,6 +157,8 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(
         XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
         OnRenderChannelCreated)
+    IPC_MESSAGE_HANDLER(XWalkExtensionProcessHostMsg_CheckAPIAccessControl,
+        OnCheckAPIAccessControl)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -204,6 +206,20 @@ void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
   render_process_host_->Send(pending_reply_for_render_process_.release());
 }
 
+void XWalkExtensionProcessHost::OnCheckAPIAccessControl(
+    std::string extension_name, std::string api_name, bool* allowed) {
+  CHECK(delegate_);
+  PermissionResult result = PERMISSION_DENY;
+  delegate_->OnCheckAPIAccessControl(extension_name, api_name, &result);
+  if (result == PERMISSION_DENY)
+      *allowed = false;
+  else
+      *allowed = true;
+}
+
+bool XWalkExtensionProcessHost::Send(IPC::Message* msg) {
+  return process_->GetHost()->Send(msg);
+}
 
 }  // namespace extensions
 }  // namespace xwalk

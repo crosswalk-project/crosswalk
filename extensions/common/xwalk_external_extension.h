@@ -30,11 +30,27 @@ class XWalkExternalInstance;
 // library.
 class XWalkExternalExtension : public XWalkExtension {
  public:
+  class PermissionsDelegate {
+    public:
+      virtual bool CheckAPIAccessControl(std::string extension_name,
+          std::string api_name) { return false; }
+
+    protected:
+      ~PermissionsDelegate() {}
+  };
+
   explicit XWalkExternalExtension(const base::FilePath& path);
 
   virtual ~XWalkExternalExtension();
 
   bool is_valid();
+
+  void set_permissions_delegate(
+      XWalkExternalExtension::PermissionsDelegate* delegate) {
+    permissions_delegate_ = delegate;
+  }
+
+  bool CheckAPIAccessControl(const char* api_name);
 
  private:
   friend class XWalkExternalAdapter;
@@ -66,6 +82,8 @@ class XWalkExternalExtension : public XWalkExtension {
   XW_ShutdownCallback shutdown_callback_;
   XW_HandleMessageCallback handle_msg_callback_;
   XW_HandleSyncMessageCallback handle_sync_msg_callback_;
+
+  PermissionsDelegate* permissions_delegate_;
 
   bool initialized_;
 

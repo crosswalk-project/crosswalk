@@ -16,6 +16,7 @@
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace content {
 class RenderProcessHost;
@@ -40,6 +41,8 @@ class XWalkExtensionService : public content::NotificationObserver,
         XWalkExtensionServer* server) {}
     virtual void RegisterInternalExtensionsInUIThreadServer(
         XWalkExtensionServer* server) {}
+    virtual void CheckAPIAccessControl(std::string extension_name,
+        std::string api_name, extensions::PermissionResult* result) {}
 
    protected:
     ~Delegate() {}
@@ -74,6 +77,9 @@ class XWalkExtensionService : public content::NotificationObserver,
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
+
+  virtual void OnCheckAPIAccessControl(std::string extension_name,
+      std::string api_name, PermissionResult* result) OVERRIDE;
 
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,
