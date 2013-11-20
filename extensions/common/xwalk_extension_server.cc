@@ -12,7 +12,6 @@
 #include "base/stl_util.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_sender.h"
-#include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 
@@ -20,7 +19,8 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionServer::XWalkExtensionServer()
-    : sender_(NULL) {}
+    : sender_(NULL),
+      permissions_delegate_(NULL) {}
 
 XWalkExtensionServer::~XWalkExtensionServer() {
   DeleteInstanceMap();
@@ -95,10 +95,13 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   data.instance->HandleMessage(value.Pass());
 }
 
-void XWalkExtensionServer::Initialize(IPC::Sender* sender) {
+void XWalkExtensionServer::Initialize(IPC::Sender* sender,
+    XWalkExtension::PermissionsDelegate* delegate) {
   base::AutoLock l(sender_lock_);
   DCHECK(!sender_);
+  DCHECK(!permissions_delegate_);
   sender_ = sender;
+  permissions_delegate_ = delegate;
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {
@@ -169,6 +172,8 @@ bool XWalkExtensionServer::RegisterExtension(
     (*it)->GetAsString(&entry_point);
     extension_symbols_.insert(entry_point);
   }
+
+  extension->set_permissions_delegate(permissions_delegate_);
 
   std::string name = extension->name();
   extension_symbols_.insert(name);

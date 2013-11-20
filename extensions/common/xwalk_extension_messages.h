@@ -38,6 +38,12 @@ IPC_MESSAGE_CONTROL1(XWalkExtensionProcessHostMsg_RenderProcessChannelCreated, /
 IPC_SYNC_MESSAGE_CONTROL0_1(XWalkExtensionProcessHostMsg_GetExtensionProcessChannel,  // NOLINT(*)
                             IPC::ChannelHandle /* channel id */)
 
+// Message from Extension Process to Browser Process
+IPC_SYNC_MESSAGE_CONTROL3_1(XWalkExtensionProcessHostMsg_CheckAPIAccessControl,
+                            std::string,
+                            std::string,
+                            std::string,
+                            bool)
 
 // We use a separated message class for Client<->Server communication
 // to ease filtering.
@@ -49,6 +55,7 @@ IPC_STRUCT_BEGIN(XWalkExtensionServerMsg_ExtensionRegisterParams)
   IPC_STRUCT_MEMBER(std::string, js_api)
   IPC_STRUCT_MEMBER(std::vector<std::string>, entry_points)
 IPC_STRUCT_END()
+
 
 IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_CreateInstance,  // NOLINT(*)
                      int64_t /* instance id */,
