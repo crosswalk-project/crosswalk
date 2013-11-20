@@ -24,7 +24,6 @@ class RuntimeResourceDispatcherHostDelegate
       ResourceType::Type resource_type,
       int child_id,
       int route_id,
-      bool is_continuation_of_transferred_request,
       ScopedVector<content::ResourceThrottle>* throttles) OVERRIDE;
   virtual void DownloadStarting(
       net::URLRequest* request,
