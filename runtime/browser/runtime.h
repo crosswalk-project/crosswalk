@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -39,9 +40,11 @@ class Runtime : public content::WebContentsDelegate,
                 public NativeAppWindowDelegate {
  public:
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext*, const GURL&);
+  static Runtime* Create(RuntimeContext*, const GURL&,
+                         const std::string& app_id = "");
   // Create a new Runtime instance which binds to a default app window.
-  static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&);
+  static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&,
+                                          const std::string& app_id = "");
 
   // Attach to a default app window.
   void AttachDefaultWindow();
@@ -56,9 +59,11 @@ class Runtime : public content::WebContentsDelegate,
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
+  const std::string& app_id() const { return app_id_; }
+
  protected:
-  explicit Runtime(RuntimeContext* runtime_context);
-  explicit Runtime(content::WebContents* web_contents);
+  explicit Runtime(content::WebContents* web_contents,
+                   const std::string& app_id);
   virtual ~Runtime();
 
     // Overridden from content::WebContentsDelegate:
@@ -138,6 +143,7 @@ class Runtime : public content::WebContentsDelegate,
   NativeAppWindow* window_;
 
   gfx::Image app_icon_;
+  std::string app_id_;
 
   base::WeakPtrFactory<Runtime> weak_ptr_factory_;
 

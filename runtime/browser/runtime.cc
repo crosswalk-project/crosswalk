@@ -40,27 +40,30 @@ const int kDefaultHeight = 600;
 }  // namespace
 
 // static
-Runtime* Runtime::Create(RuntimeContext* runtime_context, const GURL& url) {
+Runtime* Runtime::Create(RuntimeContext* runtime_context, const GURL& url,
+                         const std::string& app_id) {
   WebContents::CreateParams params(runtime_context, NULL);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 
-  Runtime* runtime = new Runtime(web_contents);
+  Runtime* runtime = new Runtime(web_contents, app_id);
   runtime->LoadURL(url);
   return runtime;
 }
 
 // static
 Runtime* Runtime::CreateWithDefaultWindow(
-    RuntimeContext* runtime_context, const GURL& url) {
-  Runtime* runtime = Runtime::Create(runtime_context, url);
+    RuntimeContext* runtime_context, const GURL& url,
+    const std::string& app_id) {
+  Runtime* runtime = Runtime::Create(runtime_context, url, app_id);
   runtime->AttachDefaultWindow();
   return runtime;
 }
 
-Runtime::Runtime(content::WebContents* web_contents)
+Runtime::Runtime(content::WebContents* web_contents, const std::string& app_id)
     : WebContentsObserver(web_contents),
       window_(NULL),
+      app_id_(app_id),
       weak_ptr_factory_(this),
       fullscreen_options_(NO_FULLSCREEN)  {
   web_contents_.reset(web_contents);
@@ -208,7 +211,7 @@ void Runtime::WebContentsCreated(
     const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime* new_runtime = new Runtime(new_contents);
+  Runtime* new_runtime = new Runtime(new_contents, app_id_);
   new_runtime->AttachDefaultWindow();
 }
 
