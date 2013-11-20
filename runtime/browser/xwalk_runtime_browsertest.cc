@@ -119,7 +119,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
         new content::WindowedNotificationObserver(
           xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
+    const RuntimeList& runtimes = runtime_registry().runtimes();
     for (RuntimeList::const_iterator it = runtimes.begin();
          it != runtimes.end(); ++it)
       original_runtimes_.push_back(*it);
@@ -128,7 +128,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
   // Block UI thread until a new Runtime instance is created.
   Runtime* WaitForSingleNewRuntime() {
     notification_observer_->Wait();
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
+    const RuntimeList& runtimes = runtime_registry().runtimes();
     for (RuntimeList::const_iterator it = runtimes.begin();
          it != runtimes.end(); ++it) {
       RuntimeList::iterator target =
@@ -151,22 +151,22 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
 // app launch, this test is disabled to avoid floody launches.
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_SecondLaunch) {
   MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
+  runtime_registry().AddObserver(&observer);
   Relaunch(GetCommandLineForRelaunch());
 
   Runtime* second_runtime = NULL;
   EXPECT_TRUE(second_runtime == WaitForSingleNewRuntime());
   EXPECT_CALL(observer, OnRuntimeAdded(second_runtime)).Times(1);
-  ASSERT_EQ(2u, RuntimeRegistry::Get()->runtimes().size());
+  ASSERT_EQ(2u, runtime_registry().runtimes().size());
 
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  runtime_registry().RemoveObserver(&observer);
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
   MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
+  runtime_registry().AddObserver(&observer);
   // At least one Runtime instance is created at startup.
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   ASSERT_EQ(1, len);
 
   // Create a new Runtime instance.
@@ -177,44 +177,44 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
   EXPECT_TRUE(url == new_runtime->web_contents()->GetURL());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len + 1, runtime_registry().runtimes().size());
 
   // Close the newly created Runtime instance.
   EXPECT_CALL(observer, OnRuntimeRemoved(new_runtime)).Times(1);
   new_runtime->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtime_registry().runtimes().size());
 
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  runtime_registry().RemoveObserver(&observer);
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
   GURL url(test_server()->GetURL("test.html"));
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   runtime()->LoadURL(url);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtime_registry().runtimes().size());
   runtime()->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtime_registry().runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), url);
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   new_runtime->window()->Close();
   content::RunAllPendingInMessageLoop();
   // Closing native window will lead to close Runtime instance.
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtime_registry().runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
+  runtime_registry().AddObserver(&observer);
   // At least one Runtime instance is created at startup.
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   ASSERT_EQ(1, len);
   // Original Runtime should has non fullscreen window.
   EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
@@ -230,7 +230,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), url);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len + 1, runtime_registry().runtimes().size());
   fullscreen_observer.Wait();
   EXPECT_TRUE(true == new_runtime->window()->IsFullscreen());
 
@@ -238,13 +238,13 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   EXPECT_CALL(observer, OnRuntimeRemoved(new_runtime)).Times(1);
   new_runtime->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtime_registry().runtimes().size());
 
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  runtime_registry().RemoveObserver(&observer);
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("fullscreen.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
@@ -285,7 +285,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("new_target.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
@@ -298,7 +298,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   Runtime* second = WaitForSingleNewRuntime();
   EXPECT_TRUE(NULL != second);
   EXPECT_NE(runtime(), second);
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len + 1, runtime_registry().runtimes().size());
 }
 
 #if !defined(USE_AURA)
@@ -311,7 +311,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_ICO) {
       base::FilePath(FILE_PATH_LITERAL("16x16.ico"))));
 
   FaviconChangedObserver observer(icon_file);
-  RuntimeRegistry::Get()->AddObserver(&observer);
+  runtime_registry().AddObserver(&observer);
 
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(FILE_PATH_LITERAL("favicon")),
@@ -319,7 +319,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_ICO) {
 
   xwalk_test_utils::NavigateToURL(runtime(), url);
   content::RunMessageLoop();
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  runtime_registry().RemoveObserver(&observer);
 }
 
 #if !defined(USE_AURA)
@@ -332,7 +332,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_PNG) {
       base::FilePath(FILE_PATH_LITERAL("48x48.png"))));
 
   FaviconChangedObserver observer(icon_file);
-  RuntimeRegistry::Get()->AddObserver(&observer);
+  runtime_registry().AddObserver(&observer);
 
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(FILE_PATH_LITERAL("favicon")),
@@ -340,5 +340,5 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_PNG) {
 
   xwalk_test_utils::NavigateToURL(runtime(), url);
   content::RunMessageLoop();
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  runtime_registry().RemoveObserver(&observer);
 }

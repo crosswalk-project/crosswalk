@@ -14,24 +14,12 @@ using content::RenderViewHost;
 
 namespace xwalk {
 
-// An application-wide runtime registry.
-static RuntimeRegistry* g_runtime_registry = NULL;
-
 RuntimeRegistry::RuntimeRegistry() {
-  DCHECK(g_runtime_registry == NULL);
-  g_runtime_registry = this;
 }
 
 RuntimeRegistry::~RuntimeRegistry() {
-  DCHECK(g_runtime_registry);
   DCHECK(runtime_list_.empty()) <<
       "Runtime instances are not empty!";
-  g_runtime_registry = NULL;
-}
-
-// static
-RuntimeRegistry* RuntimeRegistry::Get() {
-  return g_runtime_registry;
 }
 
 void RuntimeRegistry::AddObserver(RuntimeRegistryObserver* obs) {

@@ -14,7 +14,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/test/test_file_util.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
@@ -88,11 +88,15 @@ void InProcessBrowserTest::TearDown() {
   BrowserTestBase::TearDown();
 }
 
+xwalk::RuntimeRegistry& InProcessBrowserTest::runtime_registry() const {
+    return xwalk::XWalkContentBrowserClient::Get()->runtime_registry();
+}
+
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // Pump startup related events.
   content::RunAllPendingInMessageLoop();
 
-  const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
+  const RuntimeList& runtimes = runtime_registry().runtimes();
   if (!runtimes.empty()) {
     runtime_ = runtimes.at(0);
       content::WaitForLoadStop(runtime_->web_contents());
@@ -133,5 +137,5 @@ bool InProcessBrowserTest::CreateDataPathDir() {
 }
 
 void InProcessBrowserTest::QuitAllRuntimes() {
-  RuntimeRegistry::Get()->CloseAll();
+  runtime_registry().CloseAll();
 }

@@ -61,7 +61,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
         new content::WindowedNotificationObserver(
           xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
+    const RuntimeList& runtimes = runtime_registry().runtimes();
     for (RuntimeList::const_iterator it = runtimes.begin();
          it != runtimes.end(); ++it)
       original_runtimes_.push_back(*it);
@@ -76,7 +76,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII(
           "geolocation/simple.html"));
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtime_registry().runtimes().size();
   xwalk_test_utils::NavigateToURL(runtime(), url);
   int error_code;
   ASSERT_TRUE(content::ExecuteScriptAndExtractInt(
@@ -85,8 +85,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
       &error_code));
   EXPECT_NE(error_code, -1);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtime_registry().runtimes().size());
   runtime()->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtime_registry().runtimes().size());
 }

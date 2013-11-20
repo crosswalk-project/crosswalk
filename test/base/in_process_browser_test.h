@@ -16,6 +16,7 @@
 
 namespace xwalk {
 class Runtime;
+class RuntimeRegistry;
 }
 
 class CommandLine;
@@ -49,6 +50,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
  protected:
   // Returns the runtime instance created by CreateRuntime.
   xwalk::Runtime* runtime() const { return runtime_; }
+  xwalk::RuntimeRegistry& runtime_registry() const;
 
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.

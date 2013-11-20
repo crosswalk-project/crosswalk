@@ -15,6 +15,7 @@
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
@@ -67,14 +68,15 @@ Runtime::Runtime(content::WebContents* web_contents)
   web_contents_->SetDelegate(this);
   runtime_context_ =
       static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
-  RuntimeRegistry::Get()->AddRuntime(this);
+  XWalkContentBrowserClient::Get()->runtime_registry().AddRuntime(this);
 }
 
 Runtime::~Runtime() {
-  RuntimeRegistry::Get()->RemoveRuntime(this);
-
+  RuntimeRegistry& registry =
+          XWalkContentBrowserClient::Get()->runtime_registry();
+  registry.RemoveRuntime(this);
   // Quit the app once the last Runtime instance is removed.
-  if (RuntimeRegistry::Get()->runtimes().empty()) {
+  if (registry.runtimes().empty()) {
     base::MessageLoop::current()->PostTask(
         FROM_HERE, base::MessageLoop::QuitClosure());
   }
@@ -289,7 +291,8 @@ void Runtime::DidDownloadFavicon(int id,
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
   window_->UpdateIcon(app_icon_);
 
-  RuntimeRegistry::Get()->RuntimeAppIconChanged(this);
+  XWalkContentBrowserClient::Get()->
+          runtime_registry().RuntimeAppIconChanged(this);
 }
 
 void Runtime::Observe(int type,

@@ -10,6 +10,7 @@
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace content {
 class BrowserContext;
@@ -69,9 +70,12 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 #endif
 
+  RuntimeRegistry& runtime_registry() { return runtime_registry_; }
+
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
   XWalkBrowserMainParts* main_parts_;
+  RuntimeRegistry runtime_registry_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };

@@ -6,7 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_RUNTIME_REGISTRY_H_
 
 #include <vector>
-
+#include "base/basictypes.h"
 #include "base/observer_list.h"
 
 namespace content {
@@ -38,9 +38,6 @@ typedef std::vector<Runtime*> RuntimeList;
 // It allows to retrieve all Runtime instances via RuntimeRegistry.
 class RuntimeRegistry {
  public:
-  // Get the singleton instance of RuntimeRegistry.
-  static RuntimeRegistry* Get();
-
   RuntimeRegistry();
   ~RuntimeRegistry();
 
@@ -66,6 +63,8 @@ class RuntimeRegistry {
   RuntimeList runtime_list_;
 
   ObserverList<RuntimeRegistryObserver> observer_list_;
+
+  DISALLOW_COPY_AND_ASSIGN(RuntimeRegistry);
 };
 
 }  // namespace xwalk
