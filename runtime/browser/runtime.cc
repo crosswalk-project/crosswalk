@@ -65,8 +65,7 @@ Runtime::Runtime(content::WebContents* web_contents)
       fullscreen_options_(NO_FULLSCREEN)  {
   web_contents_.reset(web_contents);
   web_contents_->SetDelegate(this);
-  runtime_context_ =
-      static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
+  runtime_context_ = RuntimeContext::FromWebContents(web_contents);
   RuntimeRegistry::Get()->AddRuntime(this);
 }
 

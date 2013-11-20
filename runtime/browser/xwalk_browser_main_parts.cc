@@ -163,12 +163,6 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
 XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
-#if defined(OS_ANDROID)
-void XWalkBrowserMainParts::SetRuntimeContext(RuntimeContext* context) {
-  runtime_context_ = context;
-}
-#endif
-
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   SetXWalkCommandLineFlags();
 
@@ -215,10 +209,6 @@ void XWalkBrowserMainParts::PreEarlyInitialization() {
 }
 
 int XWalkBrowserMainParts::PreCreateThreads() {
-#if defined(OS_ANDROID)
-  DCHECK(runtime_context_);
-  runtime_context_->InitializeBeforeThreadCreation();
-#endif
   return content::RESULT_CODE_NORMAL_EXIT;
 }
 
@@ -255,9 +245,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
   }
 
-  DCHECK(runtime_context_);
-  runtime_context_->PreMainMessageLoopRun();
-  runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
 #else
   runtime_context_.reset(new RuntimeContext);
@@ -355,7 +342,7 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
 #else
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new ApplicationExtension(runtime_context()->GetApplicationSystem())));
+      new ApplicationExtension(runtime_context_->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
 #endif

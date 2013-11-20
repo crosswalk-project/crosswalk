@@ -58,12 +58,8 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceContext);
 };
 
-#if !defined(OS_ANDROID)
 RuntimeContext::RuntimeContext()
   : resource_context_(new RuntimeResourceContext) {
-#else
-RuntimeContext::RuntimeContext() {
-#endif
   InitWhileIOAllowed();
   application_system_.reset(new xwalk::application::ApplicationSystem(this));
 }
@@ -75,14 +71,12 @@ RuntimeContext::~RuntimeContext() {
   }
 }
 
-#if defined(OS_ANDROID)
 // static
 RuntimeContext* RuntimeContext::FromWebContents(
     content::WebContents* web_contents) {
   // This is safe; this is the only implementation of the browser context.
   return static_cast<RuntimeContext*>(web_contents->GetBrowserContext());
 }
-#endif
 
 void RuntimeContext::InitWhileIOAllowed() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -102,14 +96,6 @@ base::FilePath RuntimeContext::GetPath() const {
 #endif
   return result;
 }
-
-#if defined(OS_ANDROID)
-void RuntimeContext::InitializeBeforeThreadCreation() {
-}
-
-void RuntimeContext::PreMainMessageLoopRun() {
-}
-#endif
 
 bool RuntimeContext::IsOffTheRecord() const {
   // We don't consider off the record scenario.
@@ -155,10 +141,6 @@ net::URLRequestContextGetter*
 }
 
 content::ResourceContext* RuntimeContext::GetResourceContext()  {
-#if defined(OS_ANDROID)
-  if (!resource_context_.get())
-    resource_context_.reset(new RuntimeResourceContext);
-#endif
   return resource_context_.get();
 }
 
