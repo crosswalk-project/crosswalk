@@ -15,6 +15,7 @@
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
 #include "ipc/ipc_listener.h"
+#include "xwalk/extensions/common/xwalk_extension.h"
 
 struct XWalkExtensionServerMsg_ExtensionRegisterParams;
 
@@ -33,7 +34,6 @@ class Sender;
 namespace xwalk {
 namespace extensions {
 
-class XWalkExtension;
 class XWalkExtensionInstance;
 
 // Manages the instances for a set of extensions. It communicates with one
@@ -49,7 +49,8 @@ class XWalkExtensionServer : public IPC::Listener {
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
-  void Initialize(IPC::Sender* sender);
+  void Initialize(IPC::Sender* sender,
+      XWalkExtension::PermissionsDelegate* delegate = NULL);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
@@ -97,6 +98,8 @@ class XWalkExtensionServer : public IPC::Listener {
   // The exported symbols for extensions already registered.
   typedef std::set<std::string> ExtensionSymbolsSet;
   ExtensionSymbolsSet extension_symbols_;
+
+  XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
