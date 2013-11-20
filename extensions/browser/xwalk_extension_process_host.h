@@ -5,12 +5,16 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
+#include <string>
+
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_channel_proxy.h"
+#include "ipc/ipc_sender.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 namespace content {
 class BrowserChildProcessHost;
@@ -24,12 +28,15 @@ namespace extensions {
 // communication channel. It has to run some operations in IO thread for
 // creating the extra process.
 class XWalkExtensionProcessHost
-    : public content::BrowserChildProcessHostDelegate {
+    : public content::BrowserChildProcessHostDelegate,
+      public IPC::Sender {
  public:
   class Delegate {
    public:
     virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) {}
+    virtual void OnCheckAPIAccessControl(std::string extension_name,
+      std::string api_name, const PermissionCallback& callback) {}
 
    protected:
     ~Delegate() {}
@@ -39,6 +46,9 @@ class XWalkExtensionProcessHost
                             const base::FilePath& external_extensions_path,
                             XWalkExtensionProcessHost::Delegate* delegate);
   virtual ~XWalkExtensionProcessHost();
+
+  // IPC::Sender implementation
+  virtual bool Send(IPC::Message* msg) OVERRIDE;
 
  private:
   class RenderProcessMessageFilter;
@@ -59,6 +69,11 @@ class XWalkExtensionProcessHost
   void OnRenderChannelCreated(const IPC::ChannelHandle& channel_id);
 
   void ReplyChannelHandleToRenderProcess();
+
+  void OnCheckAPIAccessControl(std::string extension_name,
+      std::string api_name, IPC::Message* reply_msg);
+  void ReplyAccessControlToExtension(IPC::Message* reply_msg,
+      RuntimePermission perm);
 
   scoped_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;

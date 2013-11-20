@@ -9,12 +9,18 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtension::XWalkExtension() {}
+XWalkExtension::XWalkExtension() : permissions_delegate_(NULL) {}
 
 XWalkExtension::~XWalkExtension() {}
 
 const base::ListValue& XWalkExtension::entry_points() const {
   return entry_points_;
+}
+
+bool XWalkExtension::CheckAPIAccessControl(const char* api_name) {
+  if (!permissions_delegate_)
+    return false;
+  return permissions_delegate_->CheckAPIAccessControl(this->name(), api_name);
 }
 
 XWalkExtensionInstance::XWalkExtensionInstance() {}

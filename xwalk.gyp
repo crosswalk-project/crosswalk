@@ -184,6 +184,8 @@
         'runtime/browser/ui/top_view_layout_views.h',
         'runtime/browser/ui/xwalk_views_delegate.cc',
         'runtime/browser/ui/xwalk_views_delegate.h',
+        'runtime/browser/xwalk_app_extension_bridge.cc',
+        'runtime/browser/xwalk_app_extension_bridge.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
