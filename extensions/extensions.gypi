@@ -1,5 +1,7 @@
 {
   'sources': [
+    'browser/xwalk_extension_data.cc',
+    'browser/xwalk_extension_data.h',
     'browser/xwalk_extension_function_handler.cc',
     'browser/xwalk_extension_function_handler.h',
     'browser/xwalk_extension_process_host.cc',

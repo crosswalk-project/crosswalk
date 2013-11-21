@@ -25,8 +25,7 @@ class WebContents;
 namespace xwalk {
 namespace extensions {
 
-class ExtensionServerMessageFilter;
-class XWalkExtension;
+class XWalkExtensionData;
 class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
@@ -67,22 +66,6 @@ class XWalkExtensionService : public content::NotificationObserver,
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
 
  private:
-  // We create one instance of this struct per RenderProcess.
-  struct ExtensionData {
-    ExtensionData();
-    ~ExtensionData();
-
-    // Extension servers living on their respective threads.
-    scoped_ptr<XWalkExtensionServer> in_process_extension_thread_server_;
-    scoped_ptr<XWalkExtensionServer> in_process_ui_thread_server_;
-
-    // This object lives on the IO-thread.
-    ExtensionServerMessageFilter* in_process_message_filter_;
-
-    // This object lives on the IO-thread.
-    scoped_ptr<XWalkExtensionProcessHost> extension_process_host_;
-  };
-
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
@@ -94,9 +77,9 @@ class XWalkExtensionService : public content::NotificationObserver,
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
   void CreateInProcessExtensionServers(content::RenderProcessHost* host,
-      ExtensionData* data);
+      XWalkExtensionData* data);
   void CreateExtensionProcessHost(content::RenderProcessHost* host,
-      ExtensionData* data);
+      XWalkExtensionData* data);
 
   // The server that handles in process extensions will live in the
   // extension_thread_.
@@ -108,7 +91,7 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   base::FilePath external_extensions_path_;
 
-  typedef std::map<int, ExtensionData*> RenderProcessToExtensionDataMap;
+  typedef std::map<int, XWalkExtensionData*> RenderProcessToExtensionDataMap;
   RenderProcessToExtensionDataMap extension_data_map_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionService);
