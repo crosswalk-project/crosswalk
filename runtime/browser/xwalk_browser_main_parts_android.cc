@@ -99,7 +99,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
   }
 
-  DCHECK(runtime_context_);
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
