@@ -17,9 +17,9 @@ function DOMError(msg) {
 }
 
 function ShowRequest(id, successCallback, errorCallback) {
-	this._requestId = id;
-	this._successCallback = successCallback;
-	this._errorCallback = errorCallback;
+  this._requestId = id;
+  this._successCallback = successCallback;
+  this._errorCallback = errorCallback;
 }
 
 /* TODO(hmin): Add Promise support instead of callback approach. */
@@ -35,11 +35,14 @@ function requestShowPresentation(url, successCallback, errorCallback) {
     return;
   }
 
-	var requestId = ++_nextRequestId;
-	var request = new ShowRequest(requestId, successCallback, errorCallback);
-	_showRequests[requestId] = request;
+  var requestId = ++_nextRequestId;
+  var request = new ShowRequest(requestId, successCallback, errorCallback);
+  _showRequests[requestId] = request;
+  // Requested url should be absolute.
+  // If the requested url is relative, we need to combine it with baseUrl to make it absolute.
+  var baseUrl = location.href.substring(0, location.href.lastIndexOf("/")+1);
 
-  var message = { "cmd": "RequestShow", "requestId": requestId, "url": url };
+  var message = { "cmd": "RequestShow", "requestId": requestId, "url": url, "baseUrl": baseUrl };
   extension.postMessage(JSON.stringify(message));
 }
 
@@ -50,7 +53,7 @@ function addEventListener(name, callback, useCapture /* ignored */) {
   }
 
   if (!_listeners[name])
-  	_listeners[name] = [];
+    _listeners[name] = [];
   _listeners[name].push(callback);
 }
 
@@ -61,9 +64,9 @@ function removeEventListener(name, callback) {
   }
 
   if (_listeners[name]) {
-  	var index = _listeners[name].indexOf(callback);
-  	if (index != -1)
-  	  _listeners[name].splice(index, 1);
+    var index = _listeners[name].indexOf(callback);
+    if (index != -1)
+      _listeners[name].splice(index, 1);
   }
 }
 
@@ -82,12 +85,12 @@ function handleDisplayAvailableChange(isAvailable) {
 }
 
 function handleShowSucceeded(requestId, viewId) {
-	var request = _showRequests[requestId];
-	if (request) {
+  var request = _showRequests[requestId];
+  if (request) {
     var view = v8toolsNative.getWindowObject(viewId);
     request._successCallback.apply(null, [view]);
     delete _showRequests[requestId];
-	}
+  }
 }
 
 function handleShowFailed(requestId, errorMessage) {
@@ -126,10 +129,10 @@ exports.addEventListener = addEventListener;
 exports.removeEventListener = removeEventListener;
 exports.__defineSetter__("on" + DISPLAY_AVAILABLE_CHANGE_EVENT,
   function(callback) {
-	  if (callback)
-	    addEventListener(DISPLAY_AVAILABLE_CHANGE_EVENT, callback);
-	  else
-	    removeEventListener(DISPLAY_AVAILABLE_CHANGE_EVENT,
+    if (callback)
+      addEventListener(DISPLAY_AVAILABLE_CHANGE_EVENT, callback);
+    else
+      removeEventListener(DISPLAY_AVAILABLE_CHANGE_EVENT,
                           this.ondisplayavailablechange);
   }
 );
