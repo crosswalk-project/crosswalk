@@ -25,6 +25,8 @@
         'browser/application_protocols.h',
         'browser/application_service.cc',
         'browser/application_service.h',
+        'browser/application_service_provider.cc',
+        'browser/application_service_provider.h',
         'browser/application_store.cc',
         'browser/application_store.h',
         'browser/application_system.cc',
@@ -69,6 +71,17 @@
         'renderer/application_native_module.h',
       ],
       'conditions': [
+        [ 'OS == "linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:dbus',
+            '../dbus/dbus.gyp:dbus',
+            'dbus/xwalk_dbus.gyp:xwalk_dbus',
+          ],
+          'sources': [
+            'browser/application_service_provider_linux.cc',
+            'browser/application_service_provider_linux.h',
+          ],
+        }],
         [ 'tizen_mobile == 1', {
           'dependencies': [
             '../third_party/libxml/libxml.gyp:libxml',

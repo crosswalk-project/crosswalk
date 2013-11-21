@@ -23,6 +23,7 @@ namespace application {
 class ApplicationEventManager;
 class ApplicationProcessManager;
 class ApplicationService;
+class ApplicationServiceProvider;
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -73,11 +74,14 @@ class ApplicationSystem {
   bool LaunchFromCommandLine(const CommandLine& cmd_line, const GURL& url,
                              bool* run_default_message_loop_);
 
+  bool is_running_as_service() const { return !!service_provider_.get(); }
+
  private:
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
+  scoped_ptr<ApplicationServiceProvider> service_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
