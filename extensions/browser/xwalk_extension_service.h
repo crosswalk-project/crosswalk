@@ -78,7 +78,7 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
-      int render_process_id);
+      int render_process_id) OVERRIDE;
 
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,

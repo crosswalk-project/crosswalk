@@ -34,7 +34,7 @@ class ApplicationSystem;
 class ApplicationEventRouter : public content::WebContentsObserver {
  public:
   ApplicationEventRouter(ApplicationSystem* system, const std::string& app_id);
-  ~ApplicationEventRouter();
+  virtual ~ApplicationEventRouter();
 
   // Implement content::WebContentsObserver.
   virtual void DidStopLoading(

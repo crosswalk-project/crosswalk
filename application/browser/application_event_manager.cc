@@ -27,6 +27,9 @@ Event::Event(const std::string& event_name,
   DCHECK(args_);
 }
 
+Event::~Event() {
+}
+
 ApplicationEventManager::ApplicationEventManager(ApplicationSystem* system)
   : system_(system) {
 }

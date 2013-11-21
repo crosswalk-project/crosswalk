@@ -35,7 +35,9 @@ class Event : public base::RefCounted<Event> {
   base::ListValue* args() const { return args_.get(); }
 
  private:
+  friend class base::RefCounted<Event>;
   Event(const std::string& event_name, scoped_ptr<base::ListValue> event_args);
+  ~Event();
 
   // The event to dispatch.
   std::string name_;
