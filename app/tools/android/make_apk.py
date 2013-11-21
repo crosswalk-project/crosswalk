@@ -399,7 +399,7 @@ def Execution(options, sanitized_name):
 
   src_dir = '-DSOURCE_DIR=' + os.path.join(sanitized_name, 'src')
   apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
-  native_lib_path = '-DNATIVE_LIBS_DIR='
+  native_lib_path = '-DNATIVE_LIBS_DIR= '
   if options.mode == 'embedded':
     native_lib_path += os.path.join('native_libs', 'libs')
   cmd = ['python', 'scripts/gyp/ant.py',
