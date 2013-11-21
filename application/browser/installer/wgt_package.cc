@@ -16,7 +16,8 @@ WGTPackage::WGTPackage() {
 WGTPackage::~WGTPackage() {
 }
 
-WGTPackage::WGTPackage(const base::FilePath& path) {
+WGTPackage::WGTPackage(const base::FilePath& path)
+  : Package(path) {
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(

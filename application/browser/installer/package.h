@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/files/file_path.h"
+#include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_handle.h"
 #include "base/memory/scoped_ptr.h"
 
@@ -24,13 +25,23 @@ class Package {
   virtual ~Package();
   bool IsValid() const { return is_valid_; }
   const std::string& Id() const { return id_; }
+  // Factory method for creating a package
   static scoped_ptr<Package> Create(const base::FilePath& path);
+  // The function will unzip the XPK/WGT file and return the target path where
+  // to decompress by the parameter |target_path|.
+  bool Extract(base::FilePath* target_path);
  protected:
   Package();
+  explicit Package(const base::FilePath& source_path);
   Package(ScopedStdioHandle* file, bool is_valid);
   scoped_ptr<ScopedStdioHandle> file_;
   bool is_valid_;
   std::string id_;
+  // Unzipping of the zipped file happens in a temporary directory
+  bool CreateTempDirectory();
+  base::FilePath source_path_;
+  // Temporary directory for unpacking.
+  base::ScopedTempDir temp_dir_;
 };
 
 }  // namespace application

@@ -24,7 +24,8 @@ XPKPackage::XPKPackage() {
 XPKPackage::~XPKPackage() {
 }
 
-XPKPackage::XPKPackage(const base::FilePath& path) {
+XPKPackage::XPKPackage(const base::FilePath& path)
+  : Package(path) {
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(
