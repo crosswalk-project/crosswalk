@@ -14,7 +14,7 @@ namespace sysapps {
 DeviceCapabilitiesExtension::DeviceCapabilitiesExtension(
     RuntimeRegistry* runtime_registry)
     : runtime_registry_(runtime_registry) {
-  set_name("navigator.system");
+  set_name("xwalk.experimental.system");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_SYSAPPS_DEVICE_CAPABILITIES_API).as_string());
   runtime_registry_->AddObserver(this);
