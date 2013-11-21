@@ -122,4 +122,14 @@ public class HandleActionUriTest extends XWalkViewTestBase {
         Intent intent = loadActionUri(uri);
         assertEquals(uri, intent.toUri(0).substring(0, uri.length()));
     }
+
+    @SmallTest
+    @Feature({"WTAIUri"})
+    public void testWTAICallUri() throws Throwable {
+        final String uri = "wtai://wp/mc;5551212";
+        Intent intent = loadActionUri(uri);
+        final String equalTelUri = uri.replace("wtai://wp/mc;", "tel:");
+        assertEquals(equalTelUri,
+                intent.toUri(0).substring(0, equalTelUri.length()));
+    }
 }
