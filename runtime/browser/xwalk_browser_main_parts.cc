@@ -183,18 +183,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-#if defined(OS_TIZEN_MOBILE)
-  if (content::DeviceInertialSensorService* sensor_service =
-          content::DeviceInertialSensorService::GetInstance()) {
-    TizenDataFetcherSharedMemory* data_fetcher =
-        new TizenDataFetcherSharedMemory();
-    // As the data fetcher of sensors is implemented outside of Chromium, we
-    // need to make it available to Chromium by "abusing" the test framework.
-    // TODO(zliang7): Find a decent way to inject our sensor fetcher for Tizen.
-    sensor_service->SetDataFetcherForTests(data_fetcher);
-  }
-#endif  // OS_TIZEN_MOBILE
-
   if (app_system->is_running_as_service()) {
     // In service mode, Crosswalk doesn't launch anything, just waits
     // for external requests to launch apps.
