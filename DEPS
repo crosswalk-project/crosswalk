@@ -38,12 +38,6 @@ hooks = [
     "action": ["python", "src/xwalk/tools/fetch_deps.py", "-v"],
   },
   {
-    # Apply patches.
-    "name": "patcher",
-    "pattern": ".",
-    "action": ["python", "src/xwalk/tools/patcher.py", "--patch-config", "src/xwalk/patch/patch.cfg"],
-  },
-  {
     # A change to a .gyp, .gypi, or to GYP itself should run the generator.
     "name": "gyp-xwalk",
     "pattern": ".",
