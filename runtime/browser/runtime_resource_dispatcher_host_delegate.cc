@@ -52,7 +52,6 @@ void RuntimeResourceDispatcherHostDelegate::RequestBeginning(
     ResourceType::Type resource_type,
     int child_id,
     int route_id,
-    bool is_continuation_of_transferred_request,
     ScopedVector<content::ResourceThrottle>* throttles) {
 #if defined(OS_ANDROID)
   throttles->push_back(
