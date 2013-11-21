@@ -50,6 +50,12 @@ class DBStoreSqliteImpl: public DBStore {
   bool SetManifestValue(const std::string& id, base::Value* value);
   bool SetInstallTimeValue(const std::string& id, base::Value* value);
   bool SetApplicationPathValue(const std::string& id, base::Value* value);
+
+  bool SetEventsValue(const std::string& id,
+                      base::Value* events,
+                      const std::string& operation);
+  bool DeleteEventsValue(const std::string& id);
+
   scoped_ptr<sql::Connection> sqlite_db_;
   sql::MetaTable meta_table_;
   bool db_initialized_;

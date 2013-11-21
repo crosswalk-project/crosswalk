@@ -18,6 +18,15 @@ const char ApplicationStore::kApplicationPath[] = "path";
 
 const char ApplicationStore::kInstallTime[] = "install_time";
 
+const char ApplicationStore::kRegisteredEvents[] = "registered_events";
+
+namespace {
+inline const std::string GetRegisteredEventsPath(
+    const std::string& application_id) {
+  return application_id + "." + ApplicationStore::kRegisteredEvents;
+}
+}
+
 ApplicationStore::ApplicationStore(xwalk::RuntimeContext* runtime_context)
     : runtime_context_(runtime_context),
       db_store_(new DBStoreImpl(runtime_context->GetPath())),
@@ -74,6 +83,36 @@ scoped_refptr<const Application> ApplicationStore::GetApplicationByID(
 ApplicationStore::ApplicationMap*
 ApplicationStore::GetInstalledApplications() const {
   return applications_.get();
+}
+
+base::ListValue* ApplicationStore::GetApplicationEvents(const std::string& id) {
+  base::DictionaryValue* db = db_store_->GetApplications();
+  if (!db)
+    return NULL;
+
+  base::DictionaryValue* value = NULL;
+  base::ListValue* events = NULL;
+  if (!db->GetDictionary(id, &value) ||
+      !value->GetList(ApplicationStore::kRegisteredEvents, &events))
+    return NULL;
+  return events;
+}
+
+bool ApplicationStore::SetApplicationEvents(
+    const std::string& id,
+    base::ListValue* events) {
+  base::DictionaryValue* db = db_store_->GetApplications();
+  if (!db || !db->HasKey(id)) {
+    LOG(ERROR) << "Application " << id << " is not installed. "
+               << "Could not set system events for it.";
+    return false;
+  }
+
+  if (!events)
+    return db_store_->Remove(GetRegisteredEventsPath(id));
+
+  db_store_->SetValue(GetRegisteredEventsPath(id), events);
+  return true;
 }
 
 void ApplicationStore::InitApplications(const base::DictionaryValue* db) {
