@@ -122,7 +122,11 @@ DBStoreSqliteImpl::DBStoreSqliteImpl(const base::FilePath& path)
     }
   }
 
-  sqlite_db_->Execute("PRAGMA foreign_keys=ON");
+  int ret = sqlite_db_->Execute("PRAGMA foreign_keys=ON");
+  if (!ret) {
+    LOG(ERROR) << "Unable to enforce foreign key contraints.";
+    return;
+  }
   sqlite_db_->Preload();
 }
 
