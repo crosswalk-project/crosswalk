@@ -1,34 +1,6 @@
-Index: build/features.gypi
-===================================================================
---- build/features.gypi	(revision 16872)
-+++ build/features.gypi	(working copy)
-@@ -43,6 +43,9 @@
- 
-     'v8_use_snapshot%': 'true',
- 
-+     # Enable XDK profiling support by default.
-+    'v8_enable_xdkprof': 1,
-+
-     # With post mortem support enabled, metadata is embedded into libv8 that
-     # describes various parameters of the VM for use by debuggers. See
-     # tools/gen-postmortem-metadata.py for details.
-Index: tools/gyp/v8.gyp
-===================================================================
---- tools/gyp/v8.gyp	(revision 16872)
-+++ tools/gyp/v8.gyp	(working copy)
-@@ -554,6 +554,9 @@
-         }, {
-           'toolsets': ['target'],
-         }],
-+       ['v8_enable_xdkprof==1', {
-+          'dependencies': ['../../src/third_party/xdk/xdk-v8.gyp:v8_xdk',],
-+        }],
-         ['v8_target_arch=="arm"', {
-           'sources': [  ### gcmole(arch:arm) ###
-             '../../src/arm/assembler-arm-inl.h',
 Index: src/log.cc
 ===================================================================
---- src/log.cc	(revision 17269)
+--- src/log.cc	(revision 17646)
 +++ src/log.cc	(working copy)
 @@ -43,6 +43,9 @@
  #include "string-stream.h"
@@ -56,44 +28,7 @@ Index: src/log.cc
    const char* get() { return utf8_buffer_; }
    int size() const { return utf8_pos_; }
  
-@@ -230,8 +242,36 @@
- }
- 
- 
-+// This overload function is already added in the latest V8 version.
-+// We have to do it because currently Crosswalk depends on V8 version which
-+// does not have this overload function.
-+// It will be removed once Crosswalk moves on new latest V8 version.
- void CodeEventLogger::CodeCreateEvent(Logger::LogEventsAndTags tag,
-                                       Code* code,
-+                                      SharedFunctionInfo* shared,
-+                                      CompilationInfo* info,
-+                                      Name* source, int line, int column) {
-+  name_buffer_->Init(tag);
-+  name_buffer_->AppendBytes(ComputeMarker(code));
-+  name_buffer_->AppendString(shared->DebugName());
-+  name_buffer_->AppendByte(' ');
-+  if (source->IsString()) {
-+    name_buffer_->AppendString(String::cast(source));
-+  } else {
-+    name_buffer_->AppendBytes("symbol(hash ");
-+    name_buffer_->AppendHex(Name::cast(source)->Hash());
-+    name_buffer_->AppendByte(')');
-+  }
-+  name_buffer_->AppendByte(':');
-+  name_buffer_->AppendInt(line);
-+  name_buffer_->AppendByte(':');
-+  name_buffer_->AppendInt(column);
-+  LogRecordedBuffer(code, shared, name_buffer_->get(), name_buffer_->size());
-+}
-+
-+
-+void CodeEventLogger::CodeCreateEvent(Logger::LogEventsAndTags tag,
-+                                      Code* code,
-                                       int args_count) {
-   name_buffer_->Init(tag);
-   name_buffer_->AppendInt(args_count);
-@@ -431,6 +471,226 @@
+@@ -431,6 +443,196 @@
    void* StartCodePosInfoEvent();
    void EndCodePosInfoEvent(Code* code, void* jit_handler_data);
  
@@ -169,6 +104,7 @@ Index: src/log.cc
 +    }
 +    msg->AppendByte('"');
 +  }
++
 +
 +  void AppendSymbolName(NameBuffer* msg, Symbol* symbol) {
 +    CHECK(msg);
@@ -268,37 +204,6 @@ Index: src/log.cc
 +
 +  virtual void CodeCreateEvent(Logger::LogEventsAndTags tag,
 +                               Code* code,
-+                               SharedFunctionInfo* shared,
-+                               CompilationInfo* info,
-+                               Name* source,
-+                               int line) {
-+    name_buffer_->Reset();
-+    AppendCodeCreateHeader(name_buffer_, tag, code);
-+    SmartArrayPointer<char> name =
-+        shared->DebugName()->ToCString(DISALLOW_NULLS, ROBUST_STRING_TRAVERSAL);
-+    name_buffer_->AppendByte('"');
-+    name_buffer_->AppendBytes(*name);
-+    name_buffer_->AppendByte(' ');
-+    if (source->IsString()) {
-+        SmartArrayPointer<char> sourcestr =
-+           String::cast(source)->ToCString(DISALLOW_NULLS,
-+                                           ROBUST_STRING_TRAVERSAL);
-+        name_buffer_->AppendBytes(*sourcestr);
-+    } else {
-+        AppendSymbolName(name_buffer_, Symbol::cast(source));
-+    }
-+    name_buffer_->AppendByte(':');
-+    name_buffer_->AppendInt(line);
-+    name_buffer_->AppendBytes("\",");
-+    name_buffer_->AppendAddress(shared->address());
-+    name_buffer_->AppendByte(',');
-+    name_buffer_->AppendBytes(ComputeMarker(code));
-+    LogRecordedBuffer(code, shared, name_buffer_->get(), name_buffer_->size());
-+  }
-+
-+
-+  virtual void CodeCreateEvent(Logger::LogEventsAndTags tag,
-+                               Code* code,
 +                               int args_count) {
 +    name_buffer_->Reset();
 +    AppendCodeCreateHeader(name_buffer_, tag, code);
@@ -320,15 +225,7 @@ Index: src/log.cc
   private:
    virtual void LogRecordedBuffer(Code* code,
                                   SharedFunctionInfo* shared,
-@@ -535,6 +795,7 @@
- }
- 
- 
-+
- // The Profiler samples pc and sp values for the main thread.
- // Each sample is appended to a circular buffer.
- // An independent thread removes data and writes it to the log.
-@@ -1147,8 +1408,8 @@
+@@ -1147,8 +1349,8 @@
                kLogEventsNames[Logger::CODE_CREATION_EVENT],
                kLogEventsNames[tag],
                code->kind());
@@ -339,18 +236,7 @@ Index: src/log.cc
  }
  
  
-@@ -1235,8 +1496,8 @@
-   PROFILER_LOG(CodeCreateEvent(tag, code, shared, info, source, line));
- 
-   if (!is_logging_code_events()) return;
--  CALL_LISTENERS(CodeCreateEvent(tag, code, shared, info, source, line));
--
-+  CALL_LISTENERS(CodeCreateEvent(tag, code, shared, info, source, line,
-+                                 column));
-   if (!FLAG_log_code || !log_->IsEnabled()) return;
-   Log::MessageBuilder msg(log_);
-   AppendCodeCreateHeader(&msg, tag, code);
-@@ -1394,11 +1655,18 @@
+@@ -1395,11 +1597,18 @@
                                 Address from,
                                 Address to) {
    if (!FLAG_log_code || !log_->IsEnabled()) return;
@@ -371,7 +257,7 @@ Index: src/log.cc
    msg.Append('\n');
    msg.WriteToLogFile();
  }
-@@ -1519,6 +1787,15 @@
+@@ -1520,6 +1729,15 @@
  }
  
  
@@ -387,7 +273,7 @@ Index: src/log.cc
  void Logger::StopProfiler() {
    if (!log_->IsEnabled()) return;
    if (profiler_ != NULL) {
-@@ -1846,10 +2123,17 @@
+@@ -1855,10 +2073,17 @@
      is_logging_ = true;
    }
  
@@ -405,82 +291,369 @@ Index: src/log.cc
    }
  
    if (FLAG_log_internal_timer_events || FLAG_prof) timer_.Start();
-Index: src/log.h
+Index: src/third_party/xdk/xdk-code-map.cc
 ===================================================================
---- src/log.h	(revision 17269)
-+++ src/log.h	(working copy)
-@@ -352,6 +352,13 @@
-   // When data collection is paused, CPU Tick events are discarded.
-   void StopProfiler();
- 
-+  // Resumes collection of CPU Tick events.
-+  void XDKResumeProfiler();
+--- src/third_party/xdk/xdk-code-map.cc	(revision 0)
++++ src/third_party/xdk/xdk-code-map.cc	(revision 0)
+@@ -0,0 +1,148 @@
++// Copyright (c) 2013 Intel Corporation. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
 +
-+  // XDK agent uses it log code map (list of CodeAdded event
-+  // before resume CPU Tick events.
-+  Log* XDKGetLog() { return log_; }
++#include "xdk-code-map.h"
++#include <sstream>
 +
-   void LogExistingFunction(Handle<SharedFunctionInfo> shared,
-                            Handle<Code> code);
-   // Logs all compiled functions found in the heap.
-@@ -474,6 +481,19 @@
-   virtual void CodeCreateEvent(Logger::LogEventsAndTags tag,
-                                Code* code,
-                                int args_count) = 0;
++namespace xdk {
++namespace internal {
 +
-+  // This overload function is already added in the latest V8 version.
-+  // We have to do it because currently Crosswalk depends on V8 version which
-+  // does not have this overload function.
-+  // It will be removed once Crosswalk moves on new latest V8 version.
-+  virtual void CodeCreateEvent(Logger::LogEventsAndTags tag,
-+                               Code* code,
-+                               SharedFunctionInfo* shared,
-+                               CompilationInfo* info,
-+                               Name* source,
-+                               int line,
-+                               int column) { }
++static std::string replaceAddress(const std::string& str,
++                                  v8engine::Address addr) {
++  // The input str: code-creation,LazyCompile,0,0x3851c4e0,200," native uri.js"
++  std::string first;
++  std::string end;
 +
-   virtual void CallbackEvent(Name* name, Address entry_point) = 0;
-   virtual void GetterCallbackEvent(Name* name, Address entry_point) = 0;
-   virtual void SetterCallbackEvent(Name* name, Address entry_point) = 0;
-@@ -510,6 +530,18 @@
-                                CompilationInfo* info,
-                                Name* source,
-                                int line);
++  std::size_t found = str.find(',');
++  if (found != std::string::npos) {
++    found = str.find(',', found + 1);
++    if (found != std::string::npos) {
++      found = str.find(',', found + 1);
++      if (found != std::string::npos) {
++        first = str.substr(0, found);
++        found = str.find(',', found + 1);
++        if (found != std::string::npos) {
++          end = str.substr(found, str.size() - found);
++        }
++      }
++    }
++  }
 +
-+  // This overload function is already added in the latest V8 version.
-+  // We have to do it because currently Crosswalk depends on V8 version which
-+  // does not have this overload function.
-+  // It will be removed once Crosswalk moves on new latest V8 version.
-+  virtual void CodeCreateEvent(Logger::LogEventsAndTags tag,
-+                               Code* code,
-+                               SharedFunctionInfo* shared,
-+                               CompilationInfo* info,
-+                               Name* source,
-+                               int line, int column);
++  if (!first.size() || !end.size()) {
++    XDK_LOG("xdk: Couldn't replace address. Returned the original string.\n");
++    return str;
++  }
 +
-   virtual void RegExpCodeCreateEvent(Code* code, String* source);
- 
-   virtual void CallbackEvent(Name* name, Address entry_point) { }
-@@ -518,15 +550,15 @@
-   virtual void SharedFunctionInfoMoveEvent(Address from, Address to) { }
-   virtual void CodeMovingGCEvent() { }
- 
-- private:
-+ protected:
-   class NameBuffer;
-+  NameBuffer* name_buffer_;
- 
++  std::stringstream ss;
++  ss << first << ','
++     << std::showbase << std::hex << static_cast<void*>(addr) << end;
++  return ss.str();
++}
++
++
++Function::Function(v8engine::Address codeAddr, uint32_t codeLen,
++                   const std::string& name, const std::string& type,
++                   const LineMap* lineMap)
++    : m_codeAddr(codeAddr), m_codeLen(codeLen), m_name(name), m_type(type) {
++  CHECK(codeAddr);
++  CHECK(codeLen);
++  // Can't be empty because it's came from CodeCreation(...) events
++  CHECK(!name.empty());
++  m_logLine = m_name;
++
++  if (lineMap && lineMap->getSize()) m_lineMap = *lineMap;
++}
++
++
++void FunctionSnapshot::removeAll(const Range& range) {
++  CodeMap::iterator low = m_impl.lower_bound(range);
++  CodeMap::iterator up = m_impl.upper_bound(range);
++  CodeMap::iterator::difference_type num = std::distance(low, up);
++
++  if (num) {
++    XDK_LOG("xdk: %d ranges were overlapped and removed\n", num);
++
++    CodeMap::iterator itr = low;
++    for (itr; itr != up; ++itr) {
++      XDK_LOG("xdk:  ovrl&removed addr=0x%x len=0x%x name=%s\n",
++              itr->first.start(), itr->first.length(),
++              itr->second.getLogLine().c_str());
++    }
++    m_impl.erase(low, up);
++  }
++}
++
++
++void FunctionSnapshot::insert(const Function& func) {
++  v8engine::Address codeAddr = func.getCodeAddress();
++  uint32_t codeLen = func.getCodeLength();
++  CHECK(codeAddr);
++  CHECK(codeLen);
++
++  Range range(codeAddr, codeLen);
++
++  removeAll(range);
++
++  std::pair<CodeMap::iterator, bool> res =
++    m_impl.insert(std::make_pair(range, func));
++  CHECK(res.second);
++
++  XDK_LOG("xdk: size=%d added addr=0x%x name=%s\n",
++          m_impl.size(), range.start(), func.getLogLine().c_str());
++}
++
++
++void FunctionSnapshot::remove(v8engine::Address codeAddr) {
++  if (!codeAddr) return;
++  CodeMap::iterator itr = m_impl.find(Range(codeAddr, 1));
++  if (itr != m_impl.end()) {
++    std::string name = itr->second.getLogLine();
++    uint32_t len = itr->first.length();
++    m_impl.erase(itr);
++    XDK_LOG("xdk: size=%d removed addr=0x%x name=%s\n",
++             m_impl.size(), codeAddr, len, name.c_str());
++  }
++}
++
++
++void FunctionSnapshot::move(v8engine::Address from, v8engine::Address to) {
++  if (!from || !to) return;
++  if (from == to) return;
++
++  CodeMap::iterator itr = m_impl.find(Range(from, 1));
++  if (itr == m_impl.end()) {
++    XDK_LOG("xdk: couldn't find a code to move from=0x%x to=0x%x\n", from, to);
++    return;
++  }
++  if (itr->first.start() != from) {
++    XDK_LOG("xdk: discarded move from=0x%x to=0x%x\n", from, to);
++    return;
++  }
++
++  uint32_t codeLen = itr->second.getCodeLength();
++  const LineMap& lines = itr->second.getLineMap();
++
++  // In case of CodeMoved we have to check that name contains the same code
++  // addr and code length as the input params and replace if they are different.
++  const std::string& orig = itr->second.getName();
++  std::string name = replaceAddress(orig, to);
++
++  const std::string& type = itr->second.getType();
++  Function toEntry(to, codeLen, name, type, &lines);
++
++  m_impl.erase(itr);
++
++  Range range(to, codeLen);
++  removeAll(range);
++
++  // Now ready to move
++
++  bool ok = m_impl.insert(std::make_pair(range, toEntry)).second;
++  CHECK(ok);
++
++  XDK_LOG("xdk: size=%d moved from=0x%x to=0x%x name=%s\n",
++           m_impl.size(), from, to, toEntry.getLogLine().c_str());
++}
++
++} }  // namespace xdk::internal
+Index: src/third_party/xdk/xdk-types.h
+===================================================================
+--- src/third_party/xdk/xdk-types.h	(revision 0)
++++ src/third_party/xdk/xdk-types.h	(revision 0)
+@@ -0,0 +1,19 @@
++// Copyright (c) 2013 Intel Corporation. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef XDK_TYPES_H_
++#define XDK_TYPES_H_
++
++#include "v8.h"
++
++namespace v8engine = v8::internal;
++
++#if DEBUG
++#define XDK_LOG v8engine::PrintF
++#else
++#define XDK_LOG
++#endif
++
++#endif  // XDK_TYPES__H_
++
+Index: src/third_party/xdk/xdk-code-map.h
+===================================================================
+--- src/third_party/xdk/xdk-code-map.h	(revision 0)
++++ src/third_party/xdk/xdk-code-map.h	(revision 0)
+@@ -0,0 +1,134 @@
++// Copyright (c) 2013 Intel Corporation. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef XDK_CODE_MAP_H_
++#define XDK_CODE_MAP_H_
++
++// ----------------------------------------------------------------------------
++//
++// This file contains the FunctionSnapshot and related objects declarations
++//
++// The FunctionSnapshot object maintains a map of JIT compiled functions.
++// It is modified on code events(CodeAdded, CodeMoved and CodeDeleted) from
++// V8 built-in profiler.
++//
++// ----------------------------------------------------------------------------
++
++#include "xdk-types.h"
++#include <map>
++#include <list>
++#include <string>
++#include <algorithm>
++
++namespace xdk {
++namespace internal {
++
++class LineMap;
++typedef std::map<
++          v8engine::Address,  // start address of code
++          LineMap*> LineMaps;
++
++// This class is used to record the JITted code position info for JIT
++// code profiling.
++class LineMap {
++ public:
++  struct LineEntry {
++    LineEntry(size_t offset, size_t line)
++      : pcOffset(offset), line(line) { }
++
++    size_t pcOffset;  // PC offset from the begining of the code trace.
++    size_t line;      // Can be either position returned from V8 assembler
++                      // (which needs to be converted to src line) or src line
++                      // number.
++  };
++
++  typedef std::list<LineEntry> Entries;
++
++  void setPosition(size_t offset, size_t line) {
++    addCodeLineEntry(LineEntry(offset, line));
++  }
++
++  inline size_t getSize() const { return m_lines.size(); }
++  const Entries* getEntries() const { return &m_lines; }
++
 + private:
-   virtual void LogRecordedBuffer(Code* code,
-                                  SharedFunctionInfo* shared,
-                                  const char* name,
-                                  int length) = 0;
--
--  NameBuffer* name_buffer_;
- };
- 
- 
++  void addCodeLineEntry(const LineEntry& entry) { m_lines.push_back(entry); }
++
++  Entries m_lines;
++};
++
++// This class describes the function reported with CodeAdded event.
++class Function {
++ public:
++  explicit Function(v8engine::Address codeAddr, uint32_t codeLen,
++                    const std::string& name, const std::string& type,
++                    const LineMap* lineMap);
++
++  inline v8engine::Address getCodeAddress() const { return m_codeAddr; }
++  inline uint32_t getCodeLength() const { return m_codeLen; }
++
++  inline const std::string& getType() const { return m_type; }
++  inline const std::string& getName() const { return m_name; }
++  inline const std::string& getLogLine() const { return m_logLine; }
++
++  const LineMap& getLineMap() const { return m_lineMap; }
++
++ private:
++  v8engine::Address m_codeAddr;
++  uint32_t m_codeLen;
++  std::string m_name;
++  std::string m_type;
++  std::string m_logLine;
++  LineMap m_lineMap;
++};
++
++// This class describes the code range related to object of Function type.
++// The start address and length are taken from CodeAdded event.
++class Range {
++ public:
++  class Comparator : public std::binary_function<Range&, Range&, bool> {
++   public:
++     bool operator()(const Range& l, const Range& r) const {
++       return (l.start() + l.length() <= r.start());
++     }
++  };
++
++  Range(v8engine::Address start, uint32_t length)
++    : m_start(start), m_length(length) { }
++
++  inline v8engine::Address start() const { return m_start; }
++  inline uint32_t length() const { return m_length; }
++
++ private:
++  v8engine::Address m_start;
++  uint32_t m_length;
++};
++
++// This class maintains a map of JIT compiled functions.
++// The content is changed on CodeAdded, CodeMoved and CodeDeleted events.
++typedef std::map<Range, const Function, Range::Comparator> CodeMap;
++
++class FunctionSnapshot {
++ public:
++  explicit FunctionSnapshot() {}
++  virtual ~FunctionSnapshot() { m_impl.clear(); }
++
++  void insert(const Function& func);
++  void move(v8engine::Address from, v8engine::Address to);
++  void remove(v8engine::Address addr);
++
++  inline const CodeMap& entries() { return m_impl; }
++
++ private:
++  FunctionSnapshot(const FunctionSnapshot&);
++  FunctionSnapshot& operator=(const FunctionSnapshot&);
++
++  void removeAll(const Range& range);
++
++  CodeMap m_impl;
++};
++
++} }  // namespace xdk::internal
++
++#endif  // XDK_CODE_MAP_H_
+Index: src/third_party/xdk/xdk-v8.gyp
+===================================================================
+--- src/third_party/xdk/xdk-v8.gyp	(revision 0)
++++ src/third_party/xdk/xdk-v8.gyp	(revision 0)
+@@ -0,0 +1,42 @@
++# Copyright (c) 2013 Intel Corporation. All rights reserved.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++{
++  'variables': {
++    'v8_code': 1,
++   },
++  'includes': ['../../../build/toolchain.gypi', '../../../build/features.gypi'],
++  'targets': [
++    {
++      'target_name': 'v8_xdk',
++      'type': 'static_library',
++      'conditions': [
++        ['want_separate_host_toolset==1', {
++          'toolsets': ['host', 'target'],
++        }, {
++          'toolsets': ['target'],
++        }],
++      ],
++      'include_dirs+': [
++        '../../',
++      ],
++      'sources': [
++        'xdk-v8.h',
++        'xdk-v8.cc',
++        'xdk-agent.h',
++        'xdk-agent.cc',
++        'xdk-code-map.h',
++        'xdk-code-map.cc',
++        'xdk-types.h',
++      ],
++      'direct_dependent_settings': {
++        'conditions': [
++          ['OS != "win"', {
++            'libraries': ['-ldl',],
++          }],
++        ],
++      },
++    },
++  ]
++}
 Index: src/third_party/xdk/xdk-v8.cc
 ===================================================================
 --- src/third_party/xdk/xdk-v8.cc	(revision 0)
@@ -1220,362 +1393,68 @@ Index: src/third_party/xdk/xdk-agent.h
 +} }  // namespace xdk::internal
 +
 +#endif  // XDK_AGENT_H_
-Index: src/third_party/xdk/xdk-code-map.cc
+Index: src/log.h
 ===================================================================
---- src/third_party/xdk/xdk-code-map.cc	(revision 0)
-+++ src/third_party/xdk/xdk-code-map.cc	(revision 0)
-@@ -0,0 +1,144 @@
-+// Copyright (c) 2013 Intel Corporation. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+--- src/log.h	(revision 17646)
++++ src/log.h	(working copy)
+@@ -353,6 +353,13 @@
+   // When data collection is paused, CPU Tick events are discarded.
+   void StopProfiler();
+ 
++  // Resumes collection of CPU Tick events.
++  void XDKResumeProfiler();
 +
-+#include "xdk-code-map.h"
-+#include <sstream>
++  // XDK agent uses it to write code ranges from the code map into the log
++  // before the agent resumes CPU Tick events.
++  Log* XDKGetLog() { return log_; }
 +
-+namespace xdk {
-+namespace internal {
-+
-+static std::string replaceAddress(const std::string& str,
-+                                  v8engine::Address addr) {
-+  // The input str: code-creation,LazyCompile,0,0x3851c4e0,200," native uri.js"
-+  std::string first;
-+  std::string end;
-+
-+  std::size_t found = str.find(',');
-+  if (found != std::string::npos) {
-+    found = str.find(',', found + 1);
-+    if (found != std::string::npos) {
-+      found = str.find(',', found + 1);
-+      if (found != std::string::npos) {
-+        first = str.substr(0, found);
-+        found = str.find(',', found + 1);
-+        if (found != std::string::npos) {
-+          end = str.substr(found, str.size() - found);
-+        }
-+      }
-+    }
-+  }
-+
-+  if (!first.size() || !end.size()) return str;
-+
-+  std::stringstream ss;
-+  ss << first << ',' << std::showbase << std::hex << addr << end;
-+  return ss.str();
-+}
-+
-+
-+Function::Function(v8engine::Address codeAddr, uint32_t codeLen,
-+                   const std::string& name, const std::string& type,
-+                   const LineMap* lineMap)
-+    : m_codeAddr(codeAddr), m_codeLen(codeLen), m_name(name), m_type(type) {
-+  CHECK(codeAddr);
-+  CHECK(codeLen);
-+  // Can't be empty because it's came from CodeCreation(...) events
-+  CHECK(!name.empty());
-+  m_logLine = m_name;
-+
-+  if (lineMap && lineMap->getSize()) m_lineMap = *lineMap;
-+}
-+
-+
-+void FunctionSnapshot::removeAll(const Range& range) {
-+  CodeMap::iterator low = m_impl.lower_bound(range);
-+  CodeMap::iterator up = m_impl.upper_bound(range);
-+  CodeMap::iterator::difference_type num = std::distance(low, up);
-+
-+  if (num) {
-+    XDK_LOG("xdk: %d ranges were overlapped and removed\n", num);
-+
-+    CodeMap::iterator itr = low;
-+    for (itr; itr != up; ++itr) {
-+      XDK_LOG("xdk:  ovrl&removed addr=0x%x len=0x%x name=%s\n",
-+              itr->first.start(), itr->first.length(),
-+              itr->second.getLogLine().c_str());
-+    }
-+    m_impl.erase(low, up);
-+  }
-+}
-+
-+
-+void FunctionSnapshot::insert(const Function& func) {
-+  v8engine::Address codeAddr = func.getCodeAddress();
-+  uint32_t codeLen = func.getCodeLength();
-+  CHECK(codeAddr);
-+  CHECK(codeLen);
-+
-+  Range range(codeAddr, codeLen);
-+
-+  removeAll(range);
-+
-+  std::pair<CodeMap::iterator, bool> res =
-+    m_impl.insert(std::make_pair(range, func));
-+  CHECK(res.second);
-+
-+  XDK_LOG("xdk: size=%d added addr=0x%x name=%s\n",
-+          m_impl.size(), range.start(), func.getLogLine().c_str());
-+}
-+
-+
-+void FunctionSnapshot::remove(v8engine::Address codeAddr) {
-+  if (!codeAddr) return;
-+  CodeMap::iterator itr = m_impl.find(Range(codeAddr, 1));
-+  if (itr != m_impl.end()) {
-+    std::string name = itr->second.getLogLine();
-+    uint32_t len = itr->first.length();
-+    m_impl.erase(itr);
-+    XDK_LOG("xdk: size=%d removed addr=0x%x name=%s\n",
-+             m_impl.size(), codeAddr, len, name.c_str());
-+  }
-+}
-+
-+
-+void FunctionSnapshot::move(v8engine::Address from, v8engine::Address to) {
-+  if (!from || !to) return;
-+  if (from == to) return;
-+
-+  CodeMap::iterator itr = m_impl.find(Range(from, 1));
-+  if (itr == m_impl.end()) {
-+    XDK_LOG("xdk: couldn't find a code to move from=0x%x to=0x%x\n", from, to);
-+    return;
-+  }
-+  if (itr->first.start() != from) {
-+    XDK_LOG("xdk: discarded move from=0x%x to=0x%x\n", from, to);
-+    return;
-+  }
-+
-+  uint32_t codeLen = itr->second.getCodeLength();
-+  const LineMap& lines = itr->second.getLineMap();
-+
-+  // In case of CodeMoved we have to check that name contains the same code
-+  // addr and code length as the input params and replace if they are different.
-+  const std::string& orig = itr->second.getName();
-+  std::string name = replaceAddress(orig, to);
-+
-+  const std::string& type = itr->second.getType();
-+  Function toEntry(to, codeLen, name, type, &lines);
-+
-+  m_impl.erase(itr);
-+
-+  Range range(to, codeLen);
-+  removeAll(range);
-+
-+  // Now ready to move
-+
-+  bool ok = m_impl.insert(std::make_pair(range, toEntry)).second;
-+  CHECK(ok);
-+
-+  XDK_LOG("xdk: size=%d moved from=0x%x to=0x%x name=%s\n",
-+           m_impl.size(), from, to, toEntry.getLogLine().c_str());
-+}
-+
-+} }  // namespace xdk::internal
-Index: src/third_party/xdk/xdk-types.h
+   void LogExistingFunction(Handle<SharedFunctionInfo> shared,
+                            Handle<Code> code);
+   // Logs all compiled functions found in the heap.
+@@ -519,15 +526,15 @@
+   virtual void SharedFunctionInfoMoveEvent(Address from, Address to) { }
+   virtual void CodeMovingGCEvent() { }
+ 
+- private:
++ protected:
+   class NameBuffer;
++  NameBuffer* name_buffer_;
+ 
++ private:
+   virtual void LogRecordedBuffer(Code* code,
+                                  SharedFunctionInfo* shared,
+                                  const char* name,
+                                  int length) = 0;
+-
+-  NameBuffer* name_buffer_;
+ };
+ 
+ 
+Index: build/features.gypi
 ===================================================================
---- src/third_party/xdk/xdk-types.h	(revision 0)
-+++ src/third_party/xdk/xdk-types.h	(revision 0)
-@@ -0,0 +1,19 @@
-+// Copyright (c) 2013 Intel Corporation. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+--- build/features.gypi	(revision 17646)
++++ build/features.gypi	(working copy)
+@@ -43,6 +43,9 @@
+ 
+     'v8_use_snapshot%': 'true',
+ 
++     # Enable XDK profiling support by default.
++    'v8_enable_xdkprof': 1,
 +
-+#ifndef XDK_TYPES_H_
-+#define XDK_TYPES_H_
-+
-+#include "v8.h"
-+
-+namespace v8engine = v8::internal;
-+
-+#if DEBUG
-+#define XDK_LOG v8engine::PrintF
-+#else
-+#define XDK_LOG
-+#endif
-+
-+#endif  // XDK_TYPES__H_
-+
-Index: src/third_party/xdk/xdk-code-map.h
+     # With post mortem support enabled, metadata is embedded into libv8 that
+     # describes various parameters of the VM for use by debuggers. See
+     # tools/gen-postmortem-metadata.py for details.
+Index: tools/gyp/v8.gyp
 ===================================================================
---- src/third_party/xdk/xdk-code-map.h	(revision 0)
-+++ src/third_party/xdk/xdk-code-map.h	(revision 0)
-@@ -0,0 +1,134 @@
-+// Copyright (c) 2013 Intel Corporation. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
-+
-+#ifndef XDK_CODE_MAP_H_
-+#define XDK_CODE_MAP_H_
-+
-+// ----------------------------------------------------------------------------
-+//
-+// This file contains the FunctionSnapshot and related objects declarations
-+//
-+// The FunctionSnapshot object maintains a map of JIT compiled functions.
-+// It is modified on code events(CodeAdded, CodeMoved and CodeDeleted) from
-+// V8 built-in profiler.
-+//
-+// ----------------------------------------------------------------------------
-+
-+#include "xdk-types.h"
-+#include <map>
-+#include <list>
-+#include <string>
-+#include <algorithm>
-+
-+namespace xdk {
-+namespace internal {
-+
-+class LineMap;
-+typedef std::map<
-+          v8engine::Address,  // start address of code
-+          LineMap*> LineMaps;
-+
-+// This class is used to record the JITted code position info for JIT
-+// code profiling.
-+class LineMap {
-+ public:
-+  struct LineEntry {
-+    LineEntry(size_t offset, size_t line)
-+      : pcOffset(offset), line(line) { }
-+
-+    size_t pcOffset;  // PC offset from the begining of the code trace.
-+    size_t line;      // Can be either position returned from V8 assembler
-+                      // (which needs to be converted to src line) or src line
-+                      // number.
-+  };
-+
-+  typedef std::list<LineEntry> Entries;
-+
-+  void setPosition(size_t offset, size_t line) {
-+    addCodeLineEntry(LineEntry(offset, line));
-+  }
-+
-+  inline size_t getSize() const { return m_lines.size(); }
-+  const Entries* getEntries() const { return &m_lines; }
-+
-+ private:
-+  void addCodeLineEntry(const LineEntry& entry) { m_lines.push_back(entry); }
-+
-+  Entries m_lines;
-+};
-+
-+// This class describes the function reported with CodeAdded event.
-+class Function {
-+ public:
-+  explicit Function(v8engine::Address codeAddr, uint32_t codeLen,
-+                    const std::string& name, const std::string& type,
-+                    const LineMap* lineMap);
-+
-+  inline v8engine::Address getCodeAddress() const { return m_codeAddr; }
-+  inline uint32_t getCodeLength() const { return m_codeLen; }
-+
-+  inline const std::string& getType() const { return m_type; }
-+  inline const std::string& getName() const { return m_name; }
-+  inline const std::string& getLogLine() const { return m_logLine; }
-+
-+  const LineMap& getLineMap() const { return m_lineMap; }
-+
-+ private:
-+  v8engine::Address m_codeAddr;
-+  uint32_t m_codeLen;
-+  std::string m_name;
-+  std::string m_type;
-+  std::string m_logLine;
-+  LineMap m_lineMap;
-+};
-+
-+// This class describes the code range related to object of Function type.
-+// The start address and length are taken from CodeAdded event.
-+class Range {
-+ public:
-+  class Comparator : public std::binary_function<Range&, Range&, bool> {
-+   public:
-+     bool operator()(const Range& l, const Range& r) const {
-+       return (l.start() + l.length() <= r.start());
-+     }
-+  };
-+
-+  Range(v8engine::Address start, uint32_t length)
-+    : m_start(start), m_length(length) { }
-+
-+  inline v8engine::Address start() const { return m_start; }
-+  inline uint32_t length() const { return m_length; }
-+
-+ private:
-+  v8engine::Address m_start;
-+  uint32_t m_length;
-+};
-+
-+// This class maintains a map of JIT compiled functions.
-+// The content is changed on CodeAdded, CodeMoved and CodeDeleted events.
-+typedef std::map<Range, const Function, Range::Comparator> CodeMap;
-+
-+class FunctionSnapshot {
-+ public:
-+  explicit FunctionSnapshot() {}
-+  virtual ~FunctionSnapshot() { m_impl.clear(); }
-+
-+  void insert(const Function& func);
-+  void move(v8engine::Address from, v8engine::Address to);
-+  void remove(v8engine::Address addr);
-+
-+  inline const CodeMap& entries() { return m_impl; }
-+
-+ private:
-+  FunctionSnapshot(const FunctionSnapshot&);
-+  FunctionSnapshot& operator=(const FunctionSnapshot&);
-+
-+  void removeAll(const Range& range);
-+
-+  CodeMap m_impl;
-+};
-+
-+} }  // namespace xdk::internal
-+
-+#endif  // XDK_CODE_MAP_H_
-Index: src/third_party/xdk/xdk-v8.gyp
-===================================================================
---- src/third_party/xdk/xdk-v8.gyp	(revision 0)
-+++ src/third_party/xdk/xdk-v8.gyp	(revision 0)
-@@ -0,0 +1,42 @@
-+# Copyright (c) 2013 Intel Corporation. All rights reserved.
-+# Use of this source code is governed by a BSD-style license that can be
-+# found in the LICENSE file.
-+
-+{
-+  'variables': {
-+    'v8_code': 1,
-+   },
-+  'includes': ['../../../build/toolchain.gypi', '../../../build/features.gypi'],
-+  'targets': [
-+    {
-+      'target_name': 'v8_xdk',
-+      'type': 'static_library',
-+      'conditions': [
-+        ['want_separate_host_toolset==1', {
-+          'toolsets': ['host', 'target'],
-+        }, {
-+          'toolsets': ['target'],
+--- tools/gyp/v8.gyp	(revision 17646)
++++ tools/gyp/v8.gyp	(working copy)
+@@ -563,6 +563,9 @@
+         }, {
+           'toolsets': ['target'],
+         }],
++        ['v8_enable_xdkprof==1', {
++          'dependencies': ['../../src/third_party/xdk/xdk-v8.gyp:v8_xdk',],
 +        }],
-+      ],
-+      'include_dirs+': [
-+        '../../',
-+      ],
-+      'sources': [
-+        'xdk-v8.h',
-+        'xdk-v8.cc',
-+        'xdk-agent.h',
-+        'xdk-agent.cc',
-+        'xdk-code-map.h',
-+        'xdk-code-map.cc',
-+        'xdk-types.h',
-+      ],
-+      'direct_dependent_settings': {
-+        'conditions': [
-+          ['OS != "win"', {
-+            'libraries': ['-ldl',],
-+          }],
-+        ],
-+      },
-+    },
-+  ]
-+}
+         ['v8_target_arch=="arm"', {
+           'sources': [  ### gcmole(arch:arm) ###
+             '../../src/arm/assembler-arm-inl.h',
