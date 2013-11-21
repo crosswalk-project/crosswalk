@@ -176,6 +176,11 @@ bool XWalkExtensionServer::RegisterExtension(
   return true;
 }
 
+bool XWalkExtensionServer::ContainsExtension(
+    const std::string& extension_name) const {
+  return ContainsKey(extensions_, extension_name);
+}
+
 void XWalkExtensionServer::PostMessageToJSCallback(
     int64_t instance_id, scoped_ptr<base::Value> msg) {
   base::ListValue wrapped_msg;

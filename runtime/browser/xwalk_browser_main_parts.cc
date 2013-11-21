@@ -211,7 +211,7 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
       runtime_context_->GetApplicationSystem()->process_manager());
 }
 
-void XWalkBrowserMainParts::RegisterInternalExtensionsInServer(
+void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));

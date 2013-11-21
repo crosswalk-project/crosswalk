@@ -53,8 +53,15 @@ class XWalkExtensionServer : public IPC::Listener {
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
+  bool ContainsExtension(const std::string& extension_name) const;
 
   void Invalidate();
+
+  // These Message Handlers can be accessed by a message filter when
+  // running on the browser process.
+  void OnCreateInstance(int64_t instance_id, std::string name);
+  void OnGetExtensions(
+      std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>* reply);
 
  private:
   struct InstanceExecutionData {
@@ -63,13 +70,10 @@ class XWalkExtensionServer : public IPC::Listener {
   };
 
   // Message Handlers
-  void OnCreateInstance(int64_t instance_id, std::string name);
   void OnDestroyInstance(int64_t instance_id);
   void OnPostMessageToNative(int64_t instance_id, const base::ListValue& msg);
   void OnSendSyncMessageToNative(int64_t instance_id,
       const base::ListValue& msg, IPC::Message* ipc_reply);
-  void OnGetExtensions(
-      std::vector<XWalkExtensionServerMsg_ExtensionRegisterParams>* reply);
 
   void PostMessageToJSCallback(int64_t instance_id,
                                scoped_ptr<base::Value> msg);

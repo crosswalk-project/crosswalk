@@ -18,8 +18,11 @@
 using xwalk::extensions::XWalkExtensionService;
 
 void XWalkExtensionsTestBase::SetUp() {
-  XWalkExtensionService::SetRegisterExtensionsCallbackForTesting(
+  XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
       base::Bind(&XWalkExtensionsTestBase::RegisterExtensions,
+                 base::Unretained(this)));
+  XWalkExtensionService::SetRegisterExtensionThreadExtensionsCallbackForTesting(
+      base::Bind(&XWalkExtensionsTestBase::RegisterExtensionsOnExtensionThread,
                  base::Unretained(this)));
   InProcessBrowserTest::SetUp();
 }

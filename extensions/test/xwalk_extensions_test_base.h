@@ -20,6 +20,8 @@ class XWalkExtensionsTestBase : public InProcessBrowserTest {
   virtual void SetUp() OVERRIDE;
   virtual void RegisterExtensions(
       xwalk::extensions::XWalkExtensionServer* server) {}
+  virtual void RegisterExtensionsOnExtensionThread(
+      xwalk::extensions::XWalkExtensionServer* server) {}
 };
 
 GURL GetExtensionsTestURL(const base::FilePath& dir,
