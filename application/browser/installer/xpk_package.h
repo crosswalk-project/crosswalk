@@ -28,12 +28,10 @@ class XPKPackage : public Package {
     uint32 key_size;
     uint32 signature_size;
   };
-  XPKPackage();
   ~XPKPackage();
   explicit XPKPackage(const base::FilePath& path);
 
  private:
-  XPKPackage(Header header, ScopedStdioHandle* file);
   // verify the signature in the xpk package
   virtual bool VerifySignature();
 

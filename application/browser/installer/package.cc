@@ -16,16 +16,8 @@
 namespace xwalk {
 namespace application {
 
-Package::Package() {
-}
-
 Package::Package(const base::FilePath& source_path)
   : source_path_(source_path) {
-}
-
-Package::Package(ScopedStdioHandle* file, bool is_valid)
-  : file_(file),
-    is_valid_(is_valid) {
 }
 
 Package::~Package() {

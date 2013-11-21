@@ -18,9 +18,6 @@ const uint8 kSignatureAlgorithm[15] = {
 
 const char XPKPackage::kXPKPackageHeaderMagic[] = "CrWk";
 
-XPKPackage::XPKPackage() {
-}
-
 XPKPackage::~XPKPackage() {
 }
 
@@ -41,36 +38,33 @@ XPKPackage::XPKPackage(const base::FilePath& path)
       header.key_size <= XPKPackage::kMaxPublicKeySize &&
       header.signature_size > 0 &&
       header.signature_size <= XPKPackage::kMaxSignatureKeySize) {
-    XPKPackage(header, file.release());
+      header_ = header;
+      zip_addr_ = sizeof(header) + header.key_size + header.signature_size;
+        fseek(file_->get(), sizeof(header), SEEK_SET);
+        key_.resize(header_.key_size);
+        size_t len = fread(
+            &key_.front(), sizeof(uint8), header_.key_size, file_->get());
+        if (len < header_.key_size)
+          is_valid_ = false;
+
+        signature_.resize(header_.signature_size);
+        len = fread(&signature_.front(),
+                    sizeof(uint8),
+                    header_.signature_size,
+                    file_->get());
+        if (len < header_.signature_size)
+          is_valid_ = false;
+
+        if (!VerifySignature())
+          is_valid_ = false;
+
+        std::string public_key =
+            std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
+        id_ = GenerateId(public_key);
+
+        file_ = file.Pass();
   }
   return;
-}
-
-XPKPackage::XPKPackage(Header header, ScopedStdioHandle* file)
-    : header_(header),
-      Package(file, true) {
-  zip_addr_ = sizeof(header) + header.key_size + header.signature_size;
-  fseek(file_->get(), sizeof(header), SEEK_SET);
-  key_.resize(header_.key_size);
-  size_t len = fread(
-      &key_.front(), sizeof(uint8), header_.key_size, file_->get());
-  if (len < header_.key_size)
-    is_valid_ = false;
-
-  signature_.resize(header_.signature_size);
-  len = fread(&signature_.front(),
-              sizeof(uint8),
-              header_.signature_size,
-              file_->get());
-  if (len < header_.signature_size)
-    is_valid_ = false;
-
-  if (!VerifySignature())
-    is_valid_ = false;
-
-  std::string public_key =
-      std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
-  id_ = GenerateId(public_key);
 }
 
 bool XPKPackage::VerifySignature() {

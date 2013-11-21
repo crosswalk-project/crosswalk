@@ -18,11 +18,8 @@ namespace application {
 
 class WGTPackage : public Package {
  public:
-  WGTPackage();
   explicit WGTPackage(const base::FilePath& path);
   ~WGTPackage();
- private:
-  explicit WGTPackage(ScopedStdioHandle* file);
 };
 
 }  // namespace application

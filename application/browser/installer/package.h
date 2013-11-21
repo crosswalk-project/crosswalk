@@ -17,7 +17,7 @@ namespace xwalk {
 namespace application {
 
 // Base class for all types of packages (right now .wgt and .xpk)
-// The actual zip file , id and is_valid_ are common to all the package classes
+// The actual zip file, id, is_valid_, source_path_ are common in all packages
 // specifics like signature checking for XPK are taken care of in
 //  XPKPackage::Validate()
 class Package {
@@ -31,9 +31,7 @@ class Package {
   // to decompress by the parameter |target_path|.
   bool Extract(base::FilePath* target_path);
  protected:
-  Package();
   explicit Package(const base::FilePath& source_path);
-  Package(ScopedStdioHandle* file, bool is_valid);
   scoped_ptr<ScopedStdioHandle> file_;
   bool is_valid_;
   std::string id_;

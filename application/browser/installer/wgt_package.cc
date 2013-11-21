@@ -10,9 +10,6 @@
 namespace xwalk {
 namespace application {
 
-WGTPackage::WGTPackage() {
-}
-
 WGTPackage::~WGTPackage() {
 }
 
@@ -23,10 +20,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   scoped_ptr<ScopedStdioHandle> file(
         new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
 
-  WGTPackage(file.release());
-}
-
-WGTPackage::WGTPackage(ScopedStdioHandle* file) : Package(file, true) {
+  file_ = file.Pass();
 }
 
 }  // namespace application
