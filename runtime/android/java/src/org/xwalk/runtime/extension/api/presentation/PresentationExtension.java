@@ -248,6 +248,7 @@ public class PresentationExtension extends XWalkExtension {
                     @Override
                     public void onContentClosed(XWalkPresentationContent content) {
                         if (content == mPresentationContent) {
+                            mPresentationContent.close();
                             mPresentationContent = null;
                             if (mPresentationView != null) mPresentationView.cancel();
                         }

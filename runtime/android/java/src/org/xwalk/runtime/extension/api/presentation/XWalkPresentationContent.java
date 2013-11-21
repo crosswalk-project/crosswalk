@@ -63,8 +63,7 @@ public class XWalkPresentationContent {
     }
 
     public void close() {
-        // TODO(hmin): Add code to destroy XWalkView instance.
-        // mContentView.destroy();
+        mContentView.destroy();
         mPresentationId = INVALID_PRESENTATION_ID;
         mContentView = null;
     }
