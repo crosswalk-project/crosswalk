@@ -23,7 +23,13 @@ inline bool IsAPIPermission(const std::string& permission) {
 PermissionsInfo::PermissionsInfo() {
 }
 
+PermissionsInfo::~PermissionsInfo() {
+}
+
 PermissionsHandler::PermissionsHandler() {
+}
+
+PermissionsHandler::~PermissionsHandler() {
 }
 
 bool PermissionsHandler::Parse(scoped_refptr<Application> application,

@@ -16,6 +16,7 @@ namespace application {
 class PermissionsInfo: public Application::ManifestData {
  public:
   PermissionsInfo();
+  virtual ~PermissionsInfo();
 
   const std::vector<std::string>& GetAPIPermissions() const {
     return api_permissions_;}
@@ -31,6 +32,7 @@ class PermissionsInfo: public Application::ManifestData {
 class PermissionsHandler: public ManifestHandler {
  public:
   PermissionsHandler();
+  virtual ~PermissionsHandler();
 
   virtual bool Parse(scoped_refptr<Application> application,
                      string16* error) OVERRIDE;
