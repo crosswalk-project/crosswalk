@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DeviceCapabilities extends XWalkExtension {
-    public static final String NAME = "navigator.system";
+    public static final String NAME = "xwalk.experimental.system";
     public static final String JS_API_PATH = "jsapi/device_capabilities_api.js";
 
     private static final String TAG = "DeviceCapabilities";
