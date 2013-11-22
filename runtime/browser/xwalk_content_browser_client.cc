@@ -170,4 +170,12 @@ void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
 }
 #endif
 
+void XWalkContentBrowserClient::RenderProcessHostGone(
+    content::RenderProcessHost* host) {
+  xwalk::extensions::XWalkExtensionService* extension_service =
+      main_parts_->extension_service();
+  if (extension_service)
+    extension_service->OnRenderProcessDied(host);
+}
+
 }  // namespace xwalk

@@ -15,7 +15,8 @@ namespace extensions {
 
 XWalkExtensionData::XWalkExtensionData()
     : in_process_message_filter_(NULL),
-      extension_thread_(NULL) {}
+      extension_thread_(NULL),
+      render_process_host_(NULL) {}
 
 XWalkExtensionData::~XWalkExtensionData() {
   DCHECK(in_process_extension_thread_server_);
