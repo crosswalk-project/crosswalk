@@ -17,6 +17,8 @@ import java.lang.Process;
 import java.lang.Runtime;
 import java.lang.StringBuffer;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -242,6 +244,15 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         mTestUtil.loadUrlSync(mUrl);
         int index = getSocketNameIndex();
         mTestCase.assertTrue (index < 0);
+    }
+
+    // For getVersion.
+    public void testGetVersion() throws Throwable {
+        String version = mTestUtil.getTestedView().getVersion();
+
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");
+        Matcher matcher = pattern.matcher(version);
+        mTestCase.assertTrue("The version is invalid.", matcher.find());
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
