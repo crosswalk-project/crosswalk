@@ -17,6 +17,11 @@ deps_xwalk = {
   # grit-i18n to latest version"). This is used for incremental Tizen builds to
   # work.
   'src/tools/grit': 'http://grit-i18n.googlecode.com/svn/trunk@138',
+
+  # Required until chromium-crosswalk tracks gyp r1797 or later.
+  # Needed for incremental Tizen builds after M32. See XWALK-454.
+  'src/tools/gyp': 'http://gyp.googlecode.com/svn/trunk@1797',
+
   'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
 }
 vars_xwalk = {

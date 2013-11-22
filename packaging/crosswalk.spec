@@ -117,12 +117,36 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
+# Support building in a non-standard directory, possibly outside %{_builddir}.
+# Since the build root is erased every time a new build is performed, one way
+# to avoid losing the build directory is to specify a location outside the
+# build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
+# (remember all paths are still inside the chroot):
+#    gbs build --define 'BUILDDIR_NAME /some/path'
+# If BUILDDIR_NAME is not set, the default directory, "out", is used.
+BUILDDIR_NAME="%{?BUILDDIR_NAME}"
+if [ -z "${BUILDDIR_NAME}" ]; then
+   BUILDDIR_NAME="out"
+fi
+
+# Change src/ so that we can pass "." to --depth below, otherwise we would need
+# to pass "src" to it, but this confuses the gyp make generator, that expects
+# to be called from the root source directory.
+cd src
+
 # Use openssl instead of nss, until Tizen gets nss >= 3.14.3
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
+# The --depth and --generator-output combo is used to put all the Makefiles
+# inside the build directory, and (this is the important part) keep file lists
+# (generatedwith <|() in gyp) in the build directory as well, otherwise they
+# will be in the source directory, erased every time and trigger an almost full
+# Blink rebuild (among other smaller targets).
 export GYP_GENERATORS='make'
-./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
+./xwalk/gyp_xwalk xwalk/xwalk.gyp \
 --no-parallel \
+--depth=. \
+--generator-output="${BUILDDIR_NAME}" \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
@@ -139,21 +163,7 @@ export GYP_GENERATORS='make'
 -Dtizen_mobile=1 \
 -Duse_openssl=1
 
-# Support building in a non-standard directory, possibly outside %{_builddir}.
-# Since the build root is erased every time a new build is performed, one way
-# to avoid losing the build directory is to specify a location outside the
-# build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
-# (remember all paths are still inside the chroot):
-#    gbs build --define 'BUILDDIR_NAME /some/path'
-# If BUILDDIR_NAME is not set, the default directory, "out", is used.
-BUILDDIR_NAME="%{?BUILDDIR_NAME}"
-if [ -z "${BUILDDIR_NAME}" ]; then
-   BUILDDIR_NAME="out"
-fi
-
-make %{?_smp_mflags} -C src BUILDTYPE=Release \
-                            builddir_name="${BUILDDIR_NAME}" \
-                            xwalk
+make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk
 
 %install
 # Support building in a non-standard directory, possibly outside %{_builddir}.
