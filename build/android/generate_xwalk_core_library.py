@@ -96,8 +96,6 @@ def CopyJavaSources(project_source, out_directory):
       'xwalk/runtime/android/java/src/org/xwalk/core',
       'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
       'xwalk/runtime/android/java/src/org/xwalk/runtime/extension',
-      'xwalk/runtime/android/java/'
-          'src/org/xwalk/runtime/XWalkManifestReader.java',
   ]
 
   for source in java_srcs_to_copy:
