@@ -15,7 +15,6 @@
 
 const char kTestServiceName[] = "org.crosswalkproject.test_properties";
 const char kTestInterface[] = "org.crosswalkproject.test_properties.Interface";
-const char kTestProperty[] = "Property";
 const dbus::ObjectPath kTestObjectPath("/object_with_properties");
 
 class ExportObjectWithPropertiesService {
@@ -31,14 +30,18 @@ class ExportObjectWithPropertiesService {
                    base::Unretained(this)));
   }
 
+  void SetStringProperty(const std::string& property,
+                         const std::string& value) {
+    scoped_ptr<base::Value> v(base::Value::CreateStringValue(value));
+    properties_->Set(kTestInterface, property, v.Pass());
+  }
+
  private:
   void OnInitialized() {
     dbus_object_ =
         manager_.session_bus()->GetExportedObject(kTestObjectPath);
     properties_.reset(
         new dbus::PropertyExporter(dbus_object_, kTestObjectPath));
-    scoped_ptr<base::Value> value(base::Value::CreateStringValue("Pass"));
-    properties_->Set(kTestInterface, kTestProperty, value.Pass());
     on_initialized_callback_.Run();
   }
 
@@ -53,15 +56,18 @@ class GetPropertyClient : public dbus::TestClient {
  public:
   struct Properties : public dbus::PropertySet {
     dbus::Property<std::string> property;
+    dbus::Property<std::string> other_property;
     Properties(dbus::ObjectProxy* object_proxy,
                const PropertyChangedCallback callback)
         : dbus::PropertySet(object_proxy, kTestInterface, callback) {
-      RegisterProperty(kTestProperty, &property);
+      RegisterProperty("Property", &property);
+      RegisterProperty("OtherProperty", &other_property);
     }
   };
 
-  explicit GetPropertyClient(const base::Closure& on_get_property_callback)
-      : on_get_property_callback_(on_get_property_callback) {
+  explicit GetPropertyClient(base::MessageLoop* message_loop)
+      : message_loop_(message_loop),
+        update_count_(0) {
     object_proxy_ = bus_->GetObjectProxy(kTestServiceName, kTestObjectPath);
     properties_.reset(
         new Properties(object_proxy_,
@@ -70,40 +76,105 @@ class GetPropertyClient : public dbus::TestClient {
     properties_->ConnectSignals();
   }
 
-  void GetProperty() {
-    properties_->property.Get(
-        base::Bind(&GetPropertyClient::GetCallback, base::Unretained(this)));
+  void WaitForUpdates(int count) {
+    while (update_count_ < count)
+      message_loop_->Run();
+    update_count_ -= count;
   }
 
-  std::string result() const { return result_; }
+  Properties* properties() { return properties_.get(); }
 
  private:
-  void OnPropertyChanged(const std::string& property_name) {}
-  void GetCallback(bool success) {
-    if (success)
-      result_ = properties_->property.value();
-    on_get_property_callback_.Run();
+  void OnPropertyChanged(const std::string& property_name) {
+    update_count_++;
+    message_loop_->Quit();
   }
 
   dbus::ObjectProxy* object_proxy_;
   scoped_ptr<Properties> properties_;
-  base::Closure on_get_property_callback_;
-  std::string result_;
+  base::MessageLoop* message_loop_;
+  int update_count_;
 };
 
+void CheckSuccessCallback(bool success) {
+  ASSERT_TRUE(success);
+}
+
 // Get a property exported using PropertyExporter helper class.
-TEST(PropertyExporterTest, Simple) {
+TEST(PropertyExporterTest, Get) {
   base::MessageLoop message_loop;
   ExportObjectWithPropertiesService test_service;
+  GetPropertyClient test_client(&message_loop);
 
-  base::RunLoop run_loop;
-  GetPropertyClient test_client(run_loop.QuitClosure());
+  // Will run message loop until service is initialized.
+  test_service.Initialize(base::Bind(&base::MessageLoop::Quit,
+                                     base::Unretained(&message_loop)));
+  message_loop.Run();
 
-  // After initialize we call GetProperty in the client that will try to get a
-  // property and then run the QuitClosure() passed above, exiting the run loop.
-  test_service.Initialize(base::Bind(&GetPropertyClient::GetProperty,
-                                     base::Unretained(&test_client)));
-  run_loop.Run();
+  test_service.SetStringProperty("Property", "Pass");
 
-  ASSERT_EQ(test_client.result(), "Pass");
+  // We didn't Get from D-Bus yet, so value won't match.
+  ASSERT_NE(test_client.properties()->property.value(), "Pass");
+
+  test_client.properties()->property.Get(base::Bind(&CheckSuccessCallback));
+  test_client.WaitForUpdates(1);
+
+  ASSERT_EQ(test_client.properties()->property.value(), "Pass");
+}
+
+// Get two properties exported.
+TEST(PropertyExporterTest, GetTwo) {
+  base::MessageLoop message_loop;
+  ExportObjectWithPropertiesService test_service;
+  GetPropertyClient test_client(&message_loop);
+
+  // Will run message loop until service is initialized.
+  test_service.Initialize(base::Bind(&base::MessageLoop::Quit,
+                                     base::Unretained(&message_loop)));
+  message_loop.Run();
+
+  test_service.SetStringProperty("Property", "Pass");
+  test_service.SetStringProperty("OtherProperty", "Pass");
+
+  // We didn't Get from D-Bus yet, so values won't match.
+  ASSERT_NE(test_client.properties()->property.value(), "Pass");
+  ASSERT_NE(test_client.properties()->other_property.value(), "Pass");
+
+  test_client.properties()->property.Get(base::Bind(&CheckSuccessCallback));
+  test_client.properties()->other_property.Get(
+      base::Bind(&CheckSuccessCallback));
+  test_client.WaitForUpdates(2);
+
+  ASSERT_EQ(test_client.properties()->property.value(), "Pass");
+  ASSERT_EQ(test_client.properties()->other_property.value(), "Pass");
+}
+
+// Get a property, change it in the service and get it again.
+TEST(PropertyExporterTest, GetChangeGet) {
+  base::MessageLoop message_loop;
+  ExportObjectWithPropertiesService test_service;
+  GetPropertyClient test_client(&message_loop);
+
+  // Will run message loop until service is initialized.
+  test_service.Initialize(base::Bind(&base::MessageLoop::Quit,
+                                     base::Unretained(&message_loop)));
+  message_loop.Run();
+
+  test_service.SetStringProperty("Property", "Pass 1");
+
+  // We didn't Get from D-Bus yet, so values won't match.
+  ASSERT_NE(test_client.properties()->property.value(), "Pass 1");
+
+  // Get Pass 1.
+  test_client.properties()->property.Get(base::Bind(&CheckSuccessCallback));
+  test_client.WaitForUpdates(1);
+  ASSERT_EQ(test_client.properties()->property.value(), "Pass 1");
+
+  // Set Pass 2.
+  test_service.SetStringProperty("Property", "Pass 2");
+
+  // Get Pass 2.
+  test_client.properties()->property.Get(base::Bind(&CheckSuccessCallback));
+  test_client.WaitForUpdates(1);
+  ASSERT_EQ(test_client.properties()->property.value(), "Pass 2");
 }
