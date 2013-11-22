@@ -52,7 +52,7 @@ bool XWalkExtensionAndroid::is_valid() {
 
 void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
                                        jint instance, jstring msg) {
-  DCHECK(is_valid());
+  if (!is_valid()) return;
 
   InstanceMap::iterator it = instances_.find(instance);
   if (it == instances_.end()) {
@@ -67,7 +67,8 @@ void XWalkExtensionAndroid::PostMessage(JNIEnv* env, jobject obj,
 
 void XWalkExtensionAndroid::BroadcastMessage(JNIEnv* env, jobject obj,
                                              jstring msg) {
-  DCHECK(is_valid());
+  if (!is_valid()) return;
+
   const char* str = env->GetStringUTFChars(msg, 0);
   for (InstanceMap::iterator it = instances_.begin();
        it != instances_.end(); ++it) {
