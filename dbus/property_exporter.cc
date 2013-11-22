@@ -28,6 +28,10 @@ PropertyExporter::PropertyExporter(ExportedObject* object,
       kPropertiesInterface, kPropertiesGet,
       base::Bind(&PropertyExporter::OnGet, weak_factory_.GetWeakPtr()),
       base::Bind(&PropertyExporter::OnExported, weak_factory_.GetWeakPtr()));
+  object->ExportMethod(
+      kPropertiesInterface, kPropertiesGetAll,
+      base::Bind(&PropertyExporter::OnGetAll, weak_factory_.GetWeakPtr()),
+      base::Bind(&PropertyExporter::OnExported, weak_factory_.GetWeakPtr()));
 }
 
 PropertyExporter::~PropertyExporter() {
@@ -61,17 +65,17 @@ void PropertyExporter::Set(const std::string& interface,
 
 namespace {
 
-void AppendVariantOfValue(MessageWriter* writer, const base::Value* value) {
-  switch (value->GetType()) {
+void AppendVariantOfValue(MessageWriter* writer, const base::Value& value) {
+  switch (value.GetType()) {
     case base::Value::TYPE_STRING: {
       std::string s;
-      value->GetAsString(&s);
+      value.GetAsString(&s);
       writer->AppendVariantOfString(s);
       break;
     }
     case base::Value::TYPE_INTEGER: {
       int n;
-      value->GetAsInteger(&n);
+      value.GetAsInteger(&n);
       writer->AppendVariantOfInt32(n);
       break;
     }
@@ -80,7 +84,45 @@ void AppendVariantOfValue(MessageWriter* writer, const base::Value* value) {
   }
 }
 
+scoped_ptr<Response> CreateParseError(MethodCall* method_call) {
+  scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
+      method_call, kErrorName, "Error parsing arguments.");
+  return error_response.PassAs<Response>();
+}
+
+scoped_ptr<Response> CreateInterfaceNotFoundError(
+    MethodCall* method_call, const std::string& interface,
+    const dbus::ObjectPath& path) {
+  scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
+      method_call, kErrorName,
+      "Interface '" + interface + "' not found for object '"
+      + path.value() + "'.");
+  return error_response.PassAs<Response>();
+}
+
 }  // namespace
+
+void PropertyExporter::AppendPropertiesToWriter(const std::string& interface,
+                                                MessageWriter* writer) {
+  InterfacesMap::iterator it = interfaces_.find(interface);
+  if (it == interfaces_.end())
+    return;
+
+  MessageWriter dict_writer(NULL);
+  writer->OpenArray("{sv}", &dict_writer);
+
+  for (base::DictionaryValue::Iterator dict_it(*it->second);
+       !dict_it.IsAtEnd();
+       dict_it.Advance()) {
+    MessageWriter entry_writer(NULL);
+    dict_writer.OpenDictEntry(&entry_writer);
+    entry_writer.AppendString(dict_it.key());
+    AppendVariantOfValue(&entry_writer, dict_it.value());
+    dict_writer.CloseContainer(&entry_writer);
+  }
+
+  writer->CloseContainer(&dict_writer);
+}
 
 void PropertyExporter::OnGet(
     MethodCall* method_call, ExportedObject::ResponseSender response_sender) {
@@ -88,19 +130,16 @@ void PropertyExporter::OnGet(
   std::string interface;
   std::string property;
   if (!reader.PopString(&interface) || !reader.PopString(&property)) {
-    scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
-        method_call, kErrorName, "Error parsing arguments.");
-    response_sender.Run(error_response.PassAs<Response>());
+    scoped_ptr<Response> error_response = CreateParseError(method_call);
+    response_sender.Run(error_response.Pass());
     return;
   }
 
   InterfacesMap::const_iterator it = interfaces_.find(interface);
   if (it == interfaces_.end()) {
-    scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
-        method_call, kErrorName,
-        "Interface '" + interface + "' not found for object '"
-        + path_.value() + "'.");
-    response_sender.Run(error_response.PassAs<Response>());
+    scoped_ptr<Response> error_response =
+        CreateInterfaceNotFoundError(method_call, interface, path_);
+    response_sender.Run(error_response.Pass());
     return;
   }
 
@@ -117,7 +156,31 @@ void PropertyExporter::OnGet(
 
   scoped_ptr<Response> response = Response::FromMethodCall(method_call);
   MessageWriter writer(response.get());
-  AppendVariantOfValue(&writer, value);
+  AppendVariantOfValue(&writer, *value);
+  response_sender.Run(response.Pass());
+}
+
+void PropertyExporter::OnGetAll(
+    MethodCall* method_call, ExportedObject::ResponseSender response_sender) {
+  MessageReader reader(method_call);
+  std::string interface;
+  if (!reader.PopString(&interface)) {
+    scoped_ptr<Response> error_response = CreateParseError(method_call);
+    response_sender.Run(error_response.Pass());
+    return;
+  }
+
+  InterfacesMap::const_iterator it = interfaces_.find(interface);
+  if (it == interfaces_.end()) {
+    scoped_ptr<Response> error_response =
+        CreateInterfaceNotFoundError(method_call, interface, path_);
+    response_sender.Run(error_response.Pass());
+    return;
+  }
+
+  scoped_ptr<Response> response = Response::FromMethodCall(method_call);
+  MessageWriter writer(response.get());
+  AppendPropertiesToWriter(interface, &writer);
   response_sender.Run(response.Pass());
 }
 

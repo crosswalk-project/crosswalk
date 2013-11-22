@@ -178,3 +178,27 @@ TEST(PropertyExporterTest, GetChangeGet) {
   test_client.WaitForUpdates(1);
   ASSERT_EQ(test_client.properties()->property.value(), "Pass 2");
 }
+
+// Test GetAll interface with multiple properties.
+TEST(PropertyExporterTest, GetAll) {
+  base::MessageLoop message_loop;
+  ExportObjectWithPropertiesService test_service;
+  GetPropertyClient test_client(&message_loop);
+
+  // Will run message loop until service is initialized.
+  test_service.Initialize(base::Bind(&base::MessageLoop::Quit,
+                                     base::Unretained(&message_loop)));
+  message_loop.Run();
+
+  test_service.SetStringProperty("Property", "Pass");
+  test_service.SetStringProperty("OtherProperty", "Pass");
+
+  ASSERT_NE(test_client.properties()->property.value(), "Pass");
+  ASSERT_NE(test_client.properties()->other_property.value(), "Pass");
+
+  test_client.properties()->GetAll();
+  test_client.WaitForUpdates(2);
+
+  ASSERT_EQ(test_client.properties()->property.value(), "Pass");
+  ASSERT_EQ(test_client.properties()->other_property.value(), "Pass");
+}

@@ -19,6 +19,8 @@ class Value;
 
 namespace dbus {
 
+class MessageWriter;
+
 // Exports org.freedesktop.DBus.Properties interface for the given
 // ExportedObject. Properties should be set directly into the exporter object
 // using the function Set().
@@ -34,9 +36,14 @@ class PropertyExporter {
   // TODO(cmarcelo): We need some callback to indicate when all the methods
   // were exported.
 
+  void AppendPropertiesToWriter(const std::string& interface,
+                                MessageWriter* writer);
+
  private:
   void OnGet(dbus::MethodCall* method_call,
              dbus::ExportedObject::ResponseSender response_sender);
+  void OnGetAll(dbus::MethodCall* method_call,
+                dbus::ExportedObject::ResponseSender response_sender);
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
