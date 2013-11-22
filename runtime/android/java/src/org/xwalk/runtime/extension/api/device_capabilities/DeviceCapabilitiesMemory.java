@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
-public class DeviceCapabilitiesMemory {
+class DeviceCapabilitiesMemory {
     private static final String TAG = "DeviceCapabilitiesMemory";
 
     private DeviceCapabilities mDeviceCapabilities;

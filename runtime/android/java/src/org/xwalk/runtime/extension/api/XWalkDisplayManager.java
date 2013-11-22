@@ -34,10 +34,11 @@ public abstract class XWalkDisplayManager {
         }
 
         if (mInstance == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 mInstance = new DisplayManagerJBMR1(mContext);
-            else
+            } else {
                 mInstance = new DisplayManagerNull();
+            }
         }
         return mInstance;
     }

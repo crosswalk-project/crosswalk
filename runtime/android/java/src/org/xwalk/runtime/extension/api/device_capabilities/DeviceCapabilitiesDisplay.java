@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import org.xwalk.runtime.extension.api.XWalkDisplayManager;
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
-public class DeviceCapabilitiesDisplay {
+class DeviceCapabilitiesDisplay {
     private static final String TAG = "DeviceCapabilitiesDisplay";
 
     private DeviceCapabilities mDeviceCapabilities;

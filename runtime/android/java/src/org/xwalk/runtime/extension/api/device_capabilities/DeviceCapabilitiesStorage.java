@@ -20,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
-public class DeviceCapabilitiesStorage {
+class DeviceCapabilitiesStorage {
     private static final String TAG = "DeviceCapabilitiesStorage";
 
     private DeviceCapabilities mDeviceCapabilities;
