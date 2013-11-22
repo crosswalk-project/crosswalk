@@ -368,7 +368,9 @@ void XWalkExtensionService::OnExtensionProcessDied(
 
   XWalkExtensionData* data = it->second;
 
-  CHECK(data->extension_process_host().release() == eph);
+  XWalkExtensionProcessHost* stored_eph =
+      data->extension_process_host().release();
+  CHECK_EQ(stored_eph, eph);
 
   content::RenderProcessHost* rph = data->render_process_host();
   if (rph) {

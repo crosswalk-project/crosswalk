@@ -56,7 +56,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* host) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
 
-  virtual void RenderProcessHostGone(content::RenderProcessHost* host);
+  void RenderProcessHostGone(content::RenderProcessHost* host);
 
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
