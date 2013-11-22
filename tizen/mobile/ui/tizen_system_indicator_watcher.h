@@ -3,16 +3,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
-#define XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
-
-#include "xwalk/runtime/browser/ui/tizen_plug_message_writer.h"
+#ifndef XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
+#define XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
 
 #include <string>
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "ui/gfx/size.h"
+#include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
 
 namespace xwalk {
 
@@ -73,4 +72,4 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
+#endif  // XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_

@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/tizen_plug_message_writer.h"
+#include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
 
 #include <arpa/inet.h>
 #include <unistd.h>
