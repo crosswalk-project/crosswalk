@@ -23,12 +23,16 @@ class WebView;
 
 namespace xwalk {
 
+class TopViewLayout;
+
 class NativeAppWindowViews : public NativeAppWindow,
                              public views::WidgetObserver,
                              public views::WidgetDelegateView {
  public:
   explicit NativeAppWindowViews(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowViews();
+
+  virtual void Initialize();
 
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
@@ -54,6 +58,12 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual views::Widget* GetWidget() OVERRIDE;
   virtual const views::Widget* GetWidget() const OVERRIDE;
 
+ protected:
+  TopViewLayout* top_view_layout();
+
+  virtual void ViewHierarchyChanged(
+      const ViewHierarchyChangedDetails& details) OVERRIDE;
+
  private:
   // WidgetDelegate implementation.
   virtual views::View* GetInitiallyFocusedView() OVERRIDE;
@@ -75,8 +85,6 @@ class NativeAppWindowViews : public NativeAppWindow,
 #endif
   // views::View implementation.
   virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
-  virtual void ViewHierarchyChanged(
-      const ViewHierarchyChangedDetails& details) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
   virtual gfx::Size GetMaximumSize() OVERRIDE { return maximum_size_; }
   virtual gfx::Size GetMinimumSize() OVERRIDE { return minimum_size_; }
@@ -88,6 +96,8 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual void OnWidgetDestroyed(views::Widget* widget) OVERRIDE;
   virtual void OnWidgetBoundsChanged(
       views::Widget* widget, const gfx::Rect& new_bounds) OVERRIDE;
+
+  NativeAppWindow::CreateParams create_params_;
 
   NativeAppWindowDelegate* delegate_;
   content::WebContents* web_contents_;
@@ -101,10 +111,6 @@ class NativeAppWindowViews : public NativeAppWindow,
   gfx::Size minimum_size_;
   gfx::Size maximum_size_;
   bool resizable_;
-
-#if defined(OS_TIZEN_MOBILE)
-  scoped_ptr<SensorProvider::Observer> sensor_observer_;
-#endif
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowViews);
 };
