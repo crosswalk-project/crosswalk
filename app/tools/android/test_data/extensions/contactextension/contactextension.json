@@ -1,0 +1,6 @@
+{
+  "name":  "contact",
+  "class": "com.example.extension.ContactExtension",
+  "jsapi": "contactextension.js",
+  "permissions": ["android.permission.WRITE_CONTACTS", "android.permission.READ_CONTACTS"]
+}

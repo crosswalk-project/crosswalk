@@ -299,6 +299,28 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(out.find(error_msg) != -1)
     self.assertTrue(out.find('Exiting with error code: 9') != -1)
 
+  def testExtensionWithPermissions(self):
+    test_entry_root = 'test_data/entry'
+    # Add redundant separators for test.
+    extension_path = 'test_data//extensions/contactextension/'
+    proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
+                             '--app-version=1.0.0',
+                             '--package=org.xwalk.example',
+                             '--app-root=%s' % test_entry_root,
+                             '--app-local-path=contactextension.html',
+                             '--extensions=%s' % extension_path],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    _, _ = proc.communicate()
+    self.assertTrue(os.path.exists('Example'))
+    self.assertTrue(os.path.exists('Example.apk'))
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('android.permission.WRITE_CONTACTS') != -1)
+    self.assertTrue(content.find('android.permission.READ_CONTACTS') != -1)
+    Clean('Example')
+
   def testMode(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',
                              '--app-version=1.0.0',

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Contact external extension Example</title>
+    <script type="text/javascript">
+      function writeContact() {
+        var name = document.getElementById('writeName').value;
+        var phone = document.getElementById('writePhone').value;
+        contact.write(name, phone);
+      }
+      function readContact() {
+        var name = document.getElementById('readName').value;
+        contact.read(name, function (phone) {
+            document.getElementById('showPhone').innerText = phone;
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div><h3>Write to contact</h3>
+      Name: <input type="text" id="writeName" value="Intel China" /><br>
+      Phone: <input type="text" id="writePhone" value="8610-5751-8800" /><br>
+      <button type="button" onclick="writeContact()">Write</button>
+    </div>
+    <div><h3>Read phone number by name</h3>
+      Name: <input type="text" id="readName" value="Intel China" /><br>
+      <p>Phone got from contact:&nbsp;&nbsp;<label id="showPhone" style="color:blue">no number</label></p>
+      <button type="button" onclick="readContact()">Read</button>
+    </div>
+  </body>
+</html>
