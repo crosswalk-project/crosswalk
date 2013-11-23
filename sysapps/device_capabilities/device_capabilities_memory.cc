@@ -4,7 +4,7 @@
 
 #include "xwalk/sysapps/device_capabilities/device_capabilities_memory.h"
 
-#include <device.h>
+#include "base/sys_info.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -26,22 +26,12 @@ void DeviceCapabilitiesMemory::SetJsonValue(Json::Value* obj) {
 }
 
 bool DeviceCapabilitiesMemory::QueryCapacity() {
-  unsigned int capacity = 0;
-  if (device_memory_get_total(&capacity) != DEVICE_ERROR_NONE) {
-    return false;
-  }
-
-  capacity_ = capacity;
+  capacity_ = base::SysInfo::AmountOfPhysicalMemory();
   return true;
 }
 
 bool DeviceCapabilitiesMemory::QueryAvailableCapacity() {
-  unsigned int availablecapacity = 0;
-  if (device_memory_get_available(&availablecapacity) != DEVICE_ERROR_NONE) {
-    return false;
-  }
-
-  availCapacity_ = availablecapacity;
+  availCapacity_ = base::SysInfo::AmountOfAvailablePhysicalMemory();
   return true;
 }
 
