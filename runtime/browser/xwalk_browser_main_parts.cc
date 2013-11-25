@@ -14,7 +14,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/extension/application_extension.h"
+#include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -223,7 +223,8 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
   CHECK(server);
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new ApplicationExtension(runtime_context_->GetApplicationSystem())));
+      new ApplicationRuntimeExtension(
+          runtime_context_->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(

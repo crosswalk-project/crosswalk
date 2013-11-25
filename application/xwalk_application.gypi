@@ -64,8 +64,8 @@
         'common/manifest_handlers/permissions_handler.cc',
         'common/manifest_handlers/permissions_handler.h',
 
-        'extension/application_extension.cc',
-        'extension/application_extension.h',
+        'extension/application_runtime_extension.cc',
+        'extension/application_runtime_extension.h',
 
         'renderer/application_native_module.cc',
         'renderer/application_native_module.h',

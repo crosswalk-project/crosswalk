@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_EXTENSION_APPLICATION_EXTENSION_H_
-#define XWALK_APPLICATION_EXTENSION_APPLICATION_EXTENSION_H_
+#ifndef XWALK_APPLICATION_EXTENSION_APPLICATION_RUNTIME_EXTENSION_H_
+#define XWALK_APPLICATION_EXTENSION_APPLICATION_RUNTIME_EXTENSION_H_
 
 #include <string>
 
@@ -22,9 +22,9 @@ using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 
-class ApplicationExtension : public XWalkExtension {
+class ApplicationRuntimeExtension : public XWalkExtension {
  public:
-  explicit ApplicationExtension(
+  explicit ApplicationRuntimeExtension(
       application::ApplicationSystem* application_system);
 
   // XWalkExtension implementation.
@@ -34,9 +34,9 @@ class ApplicationExtension : public XWalkExtension {
   application::ApplicationSystem* application_system_;
 };
 
-class ApplicationExtensionInstance : public XWalkExtensionInstance {
+class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit ApplicationExtensionInstance(
+  explicit AppRuntimeExtensionInstance(
       application::ApplicationSystem* application_system);
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
@@ -66,4 +66,4 @@ class ApplicationExtensionInstance : public XWalkExtensionInstance {
 
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_EXTENSION_APPLICATION_EXTENSION_H_
+#endif  // XWALK_APPLICATION_EXTENSION_APPLICATION_RUNTIME_EXTENSION_H_
