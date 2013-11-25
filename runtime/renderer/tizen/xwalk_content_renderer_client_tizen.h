@@ -11,6 +11,8 @@ namespace xwalk {
 
 class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
  public:
+  XWalkContentRendererClientTizen() : XWalkContentRendererClient() {}
+
   virtual bool WillSendRequest(WebKit::WebFrame* frame,
                                content::PageTransition transition_type,
                                const GURL& url,
