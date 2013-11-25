@@ -80,6 +80,10 @@
           'sources': [
             'browser/application_service_provider_linux.cc',
             'browser/application_service_provider_linux.h',
+            'browser/linux/installed_application_object.cc',
+            'browser/linux/installed_application_object.h',
+            'browser/linux/installed_applications_root.cc',
+            'browser/linux/installed_applications_root.h',
           ],
         }],
         [ 'tizen_mobile == 1', {
