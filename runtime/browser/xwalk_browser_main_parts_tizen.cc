@@ -53,7 +53,8 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
   XWalkBrowserMainParts::PreMainMessageLoopRun();
 }
 
-void XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInServer(
+void
+XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInExtensionThreadServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
   server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(

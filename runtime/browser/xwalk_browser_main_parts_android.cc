@@ -110,7 +110,8 @@ void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {
   base::MessageLoopForUI::current()->Start();
 }
 
-void XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInServer(
+void
+XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInExtensionThreadServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
   ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();

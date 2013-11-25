@@ -21,7 +21,7 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
-  virtual void RegisterInternalExtensionsInServer(
+  virtual void RegisterInternalExtensionsInExtensionThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
 
   // XWalkExtensionAndroid needs to register its extensions on
