@@ -17,10 +17,6 @@ namespace application {
 
 class DBStoreSqliteImplTest : public testing::Test {
  public:
-  virtual ~DBStoreSqliteImplTest() {
-    temp_dir_.Delete();
-  }
-
   void TestInit() {
     base::FilePath tmp;
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &tmp));

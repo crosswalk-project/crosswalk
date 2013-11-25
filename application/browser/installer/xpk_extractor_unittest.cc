@@ -14,10 +14,6 @@ namespace application {
 
 class XPKExtractorTest : public testing::Test {
  public:
-  virtual ~XPKExtractorTest() {
-    temp_dir_.Delete();
-  }
-
   void SetupXPKExtractor(const std::string& xpk_name) {
     base::FilePath xpk_path;
     ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &xpk_path));
