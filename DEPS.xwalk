@@ -7,7 +7,7 @@
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '32.0.1700.14'
-chromium_crosswalk_point = '47e923a2f57dd628541c88aadc2caab927fac7ca'
+chromium_crosswalk_point = '58e2e1f5f49d1928606e20fb094aecc2d2938a4b'
 blink_crosswalk_point = '406ead10374ecc6a9271c5074f5861e17c43432f'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
@@ -17,6 +17,11 @@ deps_xwalk = {
   # grit-i18n to latest version"). This is used for incremental Tizen builds to
   # work.
   'src/tools/grit': 'http://grit-i18n.googlecode.com/svn/trunk@138',
+
+  # Required until chromium-crosswalk tracks gyp r1797 or later.
+  # Needed for incremental Tizen builds after M32. See XWALK-454.
+  'src/tools/gyp': 'http://gyp.googlecode.com/svn/trunk@1797',
+
   'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
 }
 vars_xwalk = {
