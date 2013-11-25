@@ -15,6 +15,8 @@ namespace xwalk {
 
 class XWalkRenderProcessObserver;
 
+// When implementing a derived class, make sure to update
+// `in_process_browser_test.cc` and `xwalk_main_delegate.cc`.
 class XWalkContentRendererClient
     : public content::ContentRendererClient,
       public extensions::XWalkExtensionRendererController::Delegate {

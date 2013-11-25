@@ -18,6 +18,10 @@
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #endif
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
+#endif
+
 namespace xwalk {
 
 namespace {
