@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_MESSAGE_WRITER_H_
-#define XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_MESSAGE_WRITER_H_
+#ifndef XWALK_TIZEN_MOBILE_UI_TIZEN_PLUG_MESSAGE_WRITER_H_
+#define XWALK_TIZEN_MOBILE_UI_TIZEN_PLUG_MESSAGE_WRITER_H_
 
 #include "base/basictypes.h"
 
@@ -124,4 +124,4 @@ class TizenPlugMessageWriter {
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_TIZEN_PLUG_MESSAGE_WRITER_H_
+#endif  // XWALK_TIZEN_MOBILE_UI_TIZEN_PLUG_MESSAGE_WRITER_H_

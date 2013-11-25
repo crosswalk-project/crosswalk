@@ -155,6 +155,7 @@
         [ 'tizen_mobile == 1', {
           'dependencies': [
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
+            'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
           ],
           'includes': [
             'sysapps/device_capabilities/device_capabilities.gypi',
@@ -168,12 +169,6 @@
             'runtime/browser/tizen/tizen_platform_sensor.h',
             'runtime/browser/ui/native_app_window_tizen.cc',
             'runtime/browser/ui/native_app_window_tizen.h',
-            'runtime/browser/ui/tizen_plug_message_writer.cc',
-            'runtime/browser/ui/tizen_plug_message_writer.h',
-            'runtime/browser/ui/tizen_system_indicator.cc',
-            'runtime/browser/ui/tizen_system_indicator.h',
-            'runtime/browser/ui/tizen_system_indicator_watcher.cc',
-            'runtime/browser/ui/tizen_system_indicator_watcher.h',
             'runtime/browser/xwalk_browser_main_parts_tizen.cc',
             'runtime/browser/xwalk_browser_main_parts_tizen.h',
           ],

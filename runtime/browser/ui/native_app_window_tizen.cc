@@ -9,8 +9,8 @@
 #include "ui/gfx/transform.h"
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
-#include "xwalk/runtime/browser/ui/tizen_system_indicator.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
+#include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 
 namespace xwalk {
 
