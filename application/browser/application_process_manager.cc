@@ -83,7 +83,7 @@ bool ApplicationProcessManager::RunMainDocument(
     return false;
   }
 
-  main_runtime_ = Runtime::Create(runtime_context_, url);
+  main_runtime_ = Runtime::Create(runtime_context_, url, application->ID());
   return true;
 }
 
@@ -105,7 +105,7 @@ bool ApplicationProcessManager::RunFromLocalPath(
       return false;
     }
 
-    Runtime::CreateWithDefaultWindow(runtime_context_, url);
+    Runtime::CreateWithDefaultWindow(runtime_context_, url, application->ID());
     return true;
   }
 
