@@ -27,7 +27,8 @@ class MockEventObserver : public EventObserver {
     : EventObserver(manager) {
   }
 
-  virtual void Observe(const std::string& app_id, scoped_refptr<Event> event) {
+  virtual void Observe(const std::string& app_id,
+                       scoped_refptr<Event> event) OVERRIDE {
     if (event->name() == kMockEvent0 || event->name() == kMockEvent1) {
       HandleEvent(app_id, event);
       return;

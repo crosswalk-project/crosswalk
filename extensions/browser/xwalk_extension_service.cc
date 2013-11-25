@@ -66,7 +66,8 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
     ui_thread_server_ = NULL;
   }
 
-  bool Send(IPC::Message* msg_ptr) {
+  // IPC::Sender implementation.
+  virtual bool Send(IPC::Message* msg_ptr) OVERRIDE {
     scoped_ptr<IPC::Message> msg(msg_ptr);
 
     if (!sender_)
