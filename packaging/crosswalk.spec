@@ -162,7 +162,7 @@ export GYP_GENERATORS='make'
 -Dtizen_mobile=1 \
 -Duse_openssl=1
 
-make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk
+make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl
 
 %install
 # Support building in a non-standard directory, possibly outside %{_builddir}.
@@ -187,6 +187,7 @@ cd src
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D %{SOURCE1004} %{buildroot}%{_bindir}/install_into_pkginfo_db.py
 
 # Supporting libraries and resources.
@@ -202,6 +203,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
+%{_bindir}/xwalkctl
 %{_bindir}/install_into_pkginfo_db.py
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
