@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.chromium.base.ThreadUtils;
 
@@ -32,9 +34,11 @@ public class PresentationExtension extends XWalkExtension {
     public final static String NAME = "navigator.presentation";
 
     // Tags:
+    private final static String TAG_BASE_URL = "baseUrl";
     private final static String TAG_CMD = "cmd";
     private final static String TAG_DATA = "data";
     private final static String TAG_REQUEST_ID = "requestId";
+    private final static String TAG_URL = "url";
 
     // Command messages:
     private final static String CMD_DISPLAY_AVAILABLE_CHANGE = "DisplayAvailableChange";
@@ -45,6 +49,7 @@ public class PresentationExtension extends XWalkExtension {
 
     // Error messages:
     private final static String ERROR_INVALID_ACCESS = "InvalidAccessError";
+    private final static String ERROR_INVALID_PARAMETER = "InvalidParameterError";
     private final static String ERROR_INVALID_STATE = "InvalidStateError";
     private final static String ERROR_NOT_FOUND = "NotFoundError";
     private final static String ERROR_NOT_SUPPORTED = "NotSupportedError";
@@ -179,6 +184,7 @@ public class PresentationExtension extends XWalkExtension {
         int requestId = -1;
         String cmd = null;
         String url = null;
+        String baseUrl = null;
         try {
             reader.beginObject();
             while (reader.hasNext()) {
@@ -187,8 +193,10 @@ public class PresentationExtension extends XWalkExtension {
                     cmd = reader.nextString();
                 } else if (name.equals(TAG_REQUEST_ID)) {
                     requestId = reader.nextInt();
-                } else if (name.equals("url")) {
+                } else if (name.equals(TAG_URL)) {
                     url = reader.nextString();
+                } else if (name.equals(TAG_BASE_URL)) {
+                    baseUrl = reader.nextString();
                 } else {
                     reader.skipValue();
                 }
@@ -197,14 +205,15 @@ public class PresentationExtension extends XWalkExtension {
             reader.close();
 
             if (cmd != null && cmd.equals(CMD_REQUEST_SHOW) && requestId >= 0) {
-                handleRequestShow(instanceId, url, requestId);
+                handleRequestShow(instanceId, requestId, url, baseUrl);
             }
         } catch (IOException e) {
             Log.d(TAG, "Error: " + e);
         }
     }
 
-    private void handleRequestShow(final int instanceId, final String url, final int requestId) {
+    private void handleRequestShow(final int instanceId, final int requestId,
+                                   final String url, final String baseUrl) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             notifyRequestShowFail(instanceId, requestId, ERROR_NOT_SUPPORTED);
             return;
@@ -236,6 +245,23 @@ public class PresentationExtension extends XWalkExtension {
                     return;
                 }
 
+                // Check the url passed to requestShow.
+                // If it's relative, combine it with baseUrl to make it abslute.
+                // If the url is invalid, notify the JS side ERROR_INVALID_PARAMETER exception.
+                String targetUrl = url;
+                URI targetUri = null;
+                try {
+                    targetUri = new URI(url);
+                    if (!targetUri.isAbsolute()) {
+                        URI baseUri = new URI(baseUrl);
+                        targetUrl = baseUri.resolve(targetUri).toString();
+                    }
+                } catch (URISyntaxException e) {
+                    Log.e(TAG, "Invalid url passed to requestShow");
+                    notifyRequestShowFail(instanceId, requestId, ERROR_INVALID_PARAMETER);
+                    return;
+                }
+
                 mPresentationContent = new XWalkPresentationContent(
                         mExtensionContext.getContext(),
                         mExtensionContext.getActivity(),
@@ -254,11 +280,6 @@ public class PresentationExtension extends XWalkExtension {
                         }
                     }
                 });
-
-                String targetUrl = url;
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    targetUrl = "file:///android_asset/" + url;
-                }
 
                 // Start to load the content from the target url.
                 mPresentationContent.load(targetUrl);
