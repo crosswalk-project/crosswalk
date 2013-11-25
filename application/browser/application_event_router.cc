@@ -76,8 +76,8 @@ void ApplicationEventRouter::DetachObserver(const std::string& event_name,
 
 void ApplicationEventRouter::DetachObserver(EventObserver* observer) {
   ObserverListMap::iterator it = observers_.begin();
-  for (; it != observers_.end(); ++it)
-    DetachObserver(it->first, observer);
+  while (it != observers_.end())
+    DetachObserver((it++)->first, observer);
 }
 
 void ApplicationEventRouter::DispatchEvent(scoped_refptr<Event> event) {
