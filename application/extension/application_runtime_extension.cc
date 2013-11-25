@@ -52,71 +52,35 @@ void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
 
 void AppRuntimeExtensionInstance::OnGetManifest(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  base::DictionaryValue** manifest_data = new DictionaryValue*(NULL);
-  BrowserThread::PostTaskAndReply(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(&AppRuntimeExtensionInstance::GetManifest,
-                 base::Unretained(this),
-                 base::Unretained(manifest_data)),
-      base::Bind(&AppRuntimeExtensionInstance::PostManifest,
-                 base::Unretained(this),
-                 base::Passed(&info),
-                 base::Owned(manifest_data)));
-}
-
-void AppRuntimeExtensionInstance::OnGetMainDocumentID(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  int* main_routing_id = new int(MSG_ROUTING_NONE);
-  BrowserThread::PostTaskAndReply(
-      BrowserThread::UI,
-      FROM_HERE,
-      base::Bind(&AppRuntimeExtensionInstance::GetMainDocumentID,
-                 base::Unretained(this),
-                 base::Unretained(main_routing_id)),
-      base::Bind(&AppRuntimeExtensionInstance::PostMainDocumentID,
-                 base::Unretained(this),
-                 base::Passed(&info),
-                 base::Owned(main_routing_id)));
-}
-
-void AppRuntimeExtensionInstance::GetManifest(
-    base::DictionaryValue** manifest_data) {
-  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  base::DictionaryValue* manifest_data = NULL;
   const application::ApplicationService* service =
     application_system_->application_service();
   const application::Application* app = service->GetRunningApplication();
   if (app)
-    *manifest_data = app->GetManifest()->value()->DeepCopy();
-}
+    manifest_data = app->GetManifest()->value()->DeepCopy();
 
-void AppRuntimeExtensionInstance::PostManifest(
-    scoped_ptr<XWalkExtensionFunctionInfo> info,
-    base::DictionaryValue** manifest_data) {
-  DCHECK(thread_checker_.CalledOnValidThread());
   scoped_ptr<base::ListValue> results(new base::ListValue());
-  if (*manifest_data)
-    results->Append(*manifest_data);
+  if (manifest_data)
+    results->Append(manifest_data);
   else
     // Return an empty dictionary value when there's no valid manifest data.
     results->Append(new base::DictionaryValue());
   info->PostResult(results.Pass());
 }
 
-void AppRuntimeExtensionInstance::GetMainDocumentID(int* main_routing_id) {
-  CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+void AppRuntimeExtensionInstance::OnGetMainDocumentID(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  int main_routing_id = MSG_ROUTING_NONE;
   const application::ApplicationProcessManager* pm =
     application_system_->process_manager();
   const Runtime* runtime = pm->GetMainDocumentRuntime();
   if (runtime)
-    *main_routing_id = runtime->web_contents()->GetRoutingID();
-}
+    main_routing_id = runtime->web_contents()->GetRoutingID();
 
-void AppRuntimeExtensionInstance::PostMainDocumentID(
-    scoped_ptr<XWalkExtensionFunctionInfo> info, int* main_routing_id) {
-  DCHECK(thread_checker_.CalledOnValidThread());
   scoped_ptr<base::ListValue> results(new base::ListValue());
-  results->AppendInteger(*main_routing_id);
+  results->AppendInteger(main_routing_id);
   info->PostResult(results.Pass());
 }
 
