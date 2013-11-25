@@ -15,13 +15,13 @@
 #include "ipc/unix_domain_socket_util.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/environment.h"
-#include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 
 using content::BrowserThread;
 
 namespace {
 
-const char kServiceName[] = "elm_indicator_portrait";
+const char kServicePortrait[] = "elm_indicator_portrait";
+const char kServiceLandscape[] = "elm_indicator_landscape";
 const char kServiceNumber[] = "0";
 
 // Environment variable format is x, y, width, height.
@@ -64,9 +64,15 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
     height_(-1),
     alpha_(-1),
     updated_(false),
-    fd_(-1) {
+    fd_(-1),
+    weak_ptr_factory_(this) {
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();
+
+  if (indicator_->GetOrientation() == TizenSystemIndicator::PORTRAIT)
+    service_name_ = kServicePortrait;
+  else
+    service_name_ = kServiceLandscape;
 }
 
 TizenSystemIndicatorWatcher::~TizenSystemIndicatorWatcher() {}
@@ -105,7 +111,7 @@ void TizenSystemIndicatorWatcher::StopWatching() {
 bool TizenSystemIndicatorWatcher::Connect() {
   base::FilePath path(file_util::GetHomeDir()
                       .Append(".ecore")
-                      .Append(kServiceName)
+                      .Append(service_name_)
                       .Append(kServiceNumber));
   return IPC::CreateClientUnixDomainSocket(path, &fd_);
 }
@@ -364,7 +370,7 @@ bool TizenSystemIndicatorWatcher::OnResize(const uint8_t* payload,
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(&TizenSystemIndicatorWatcher::ResizeIndicator,
-                 base::Unretained(this)));
+                 weak_ptr_factory_.GetWeakPtr()));
 
   return true;
 }
@@ -388,7 +394,7 @@ bool TizenSystemIndicatorWatcher::OnUpdateDone() {
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(&TizenSystemIndicatorWatcher::UpdateIndicatorImage,
-                 base::Unretained(this)));
+                 weak_ptr_factory_.GetWeakPtr()));
 
   updated_ = false;
   return true;
