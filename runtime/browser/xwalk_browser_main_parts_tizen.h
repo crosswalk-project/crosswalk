@@ -19,7 +19,7 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
 
-  virtual void RegisterInternalExtensionsInServer(
+  virtual void RegisterInternalExtensionsInExtensionThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
 
  private:
