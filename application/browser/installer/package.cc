@@ -27,24 +27,21 @@ Package::~Package() {
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
       scoped_ptr<Package> package(new XPKPackage(source_path));
-      if (package->IsValid()) {
-        return package.Pass();
-      } else {
-          LOG(ERROR) << "Package not valid";
-          return scoped_ptr<Package>();
-      }
+      if (!package->IsValid())
+        LOG(ERROR) << "Package not valid";
+      return package.Pass();
   } else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
      scoped_ptr<Package> package(new WGTPackage(source_path));
      return package.Pass();
   }
 
-  LOG(ERROR) << "Invalid package type";
+  LOG(ERROR) << "Invalid package type. Only .xpk/.wgt supported now";
   return scoped_ptr<Package>();
 }
 
 bool Package::Extract(base::FilePath* target_path) {
   if (!IsValid()) {
-    LOG(ERROR) << "XPK/WGT file is broken.";
+    LOG(ERROR) << "XPK/WGT file is not valid.";
     return false;
   }
 

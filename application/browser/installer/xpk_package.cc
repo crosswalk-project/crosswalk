@@ -27,20 +27,21 @@ XPKPackage::XPKPackage(const base::FilePath& path)
     return;
   scoped_ptr<ScopedStdioHandle> file(
       new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
-  Header header;
-  size_t len = fread(&header, 1, sizeof(header), file->get());
-  if (len < sizeof(header))
+  file_ = file.Pass();
+  size_t len = fread(&header_, 1, sizeof(header_), file_->get());
+  is_valid_ = false;
+  if (len < sizeof(header_))
     return;
   if (!strncmp(XPKPackage::kXPKPackageHeaderMagic,
-               header.magic,
-               sizeof(header.magic)) &&
-      header.key_size > 0 &&
-      header.key_size <= XPKPackage::kMaxPublicKeySize &&
-      header.signature_size > 0 &&
-      header.signature_size <= XPKPackage::kMaxSignatureKeySize) {
-      header_ = header;
-      zip_addr_ = sizeof(header) + header.key_size + header.signature_size;
-        fseek(file_->get(), sizeof(header), SEEK_SET);
+               header_.magic,
+               sizeof(header_.magic)) &&
+      header_.key_size > 0 &&
+      header_.key_size <= XPKPackage::kMaxPublicKeySize &&
+      header_.signature_size > 0 &&
+      header_.signature_size <= XPKPackage::kMaxSignatureKeySize) {
+      is_valid_ = true;
+      zip_addr_ = sizeof(header_) + header_.key_size + header_.signature_size;
+        fseek(file_->get(), sizeof(header_), SEEK_SET);
         key_.resize(header_.key_size);
         size_t len = fread(
             &key_.front(), sizeof(uint8), header_.key_size, file_->get());
@@ -61,8 +62,6 @@ XPKPackage::XPKPackage(const base::FilePath& path)
         std::string public_key =
             std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
         id_ = GenerateId(public_key);
-
-        file_ = file.Pass();
   }
   return;
 }
