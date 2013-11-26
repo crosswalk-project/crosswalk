@@ -30,10 +30,7 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
 }
 
 XWalkExtensionAndroid::~XWalkExtensionAndroid() {
-  // Unregister the extension and clear its all instances.
-  ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
-      UnregisterExtension(scoped_ptr<XWalkExtension>(this));
-
+  //  Clear its all instances.
   for (InstanceMap::iterator it = instances_.begin();
        it != instances_.end(); ++it) {
     XWalkExtensionInstance* instance = it->second;
@@ -78,7 +75,13 @@ void XWalkExtensionAndroid::BroadcastMessage(JNIEnv* env, jobject obj,
 }
 
 void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
-  delete this;
+    // Instead of using 'delete' to destroy the extension object, here we
+    // reply on the method of UnregisterExtension to delete it since it will
+    // remove a scoped_ptr of XWalkExtensionAndroid object from a
+    // ScopedVector object. Otherwise, the 'delete' operation would be
+    // called recursively.
+    ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
+        UnregisterExtension(scoped_ptr<XWalkExtension>(this));
 }
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
