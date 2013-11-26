@@ -123,10 +123,9 @@ export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 # build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
 # (remember all paths are still inside the chroot):
 #    gbs build --define 'BUILDDIR_NAME /some/path'
-# If BUILDDIR_NAME is not set, the default directory, "out", is used.
 BUILDDIR_NAME="%{?BUILDDIR_NAME}"
 if [ -z "${BUILDDIR_NAME}" ]; then
-   BUILDDIR_NAME="out"
+   BUILDDIR_NAME="."
 fi
 
 # Change src/ so that we can pass "." to --depth below, otherwise we would need
@@ -172,10 +171,9 @@ make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk
 # build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
 # (remember all paths are still inside the chroot):
 #    gbs build --define 'BUILDDIR_NAME /some/path'
-# If BUILDDIR_NAME is not set, the default directory, "out", is used.
 BUILDDIR_NAME="%{?BUILDDIR_NAME}"
 if [ -z "${BUILDDIR_NAME}" ]; then
-   BUILDDIR_NAME="out"
+   BUILDDIR_NAME="."
 fi
 
 # Since BUILDDIR_NAME can be either a relative path or an absolute one, we need
@@ -188,13 +186,13 @@ cd src
 
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
-install -p -D ${BUILDDIR_NAME}/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D %{SOURCE1004} %{buildroot}%{_bindir}/install_into_pkginfo_db.py
 
 # Supporting libraries and resources.
-install -p -D ${BUILDDIR_NAME}/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D ${BUILDDIR_NAME}/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
-install -p -D ${BUILDDIR_NAME}/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D ${BUILDDIR_NAME}/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
+install -p -D ${BUILDDIR_NAME}/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 # Register xwalk to the package manager.
 install -p -D ../%{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
