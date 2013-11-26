@@ -19,8 +19,9 @@ WGTPackage::WGTPackage(const base::FilePath& path)
     return;
   scoped_ptr<ScopedStdioHandle> file(
         new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
-
   file_ = file.Pass();
+  // TODO(riju): check for validation of wgt file
+  is_valid_ = true;
 }
 
 }  // namespace application
