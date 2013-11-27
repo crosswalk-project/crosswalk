@@ -51,6 +51,7 @@ BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpci)
 BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  pkgconfig(libsmack)
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libxslt)
@@ -229,4 +230,6 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %{_libdir}/xwalk/libosmesa.so
 
 %post
+# Give Crosswalk binary the capability to change its SMACK label. This cap will
+# be dropped accordingly.
 /usr/sbin/setcap cap_mac_admin=ep %{_libdir}/xwalk/xwalk
