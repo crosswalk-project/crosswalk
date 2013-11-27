@@ -144,5 +144,17 @@
         },
       ],
     },
+    {
+      'target_name': 'xwalk_application_tools',
+      'type': 'none',
+      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            'application/tools/linux/xwalk_application_tools.gyp:xwalkctl',
+          ],
+        }],
+      ],
+    },
   ],
 }
