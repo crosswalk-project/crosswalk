@@ -30,7 +30,7 @@
 
     var tests = [
       function testGetManifest() {
-        xwalk.app.getManifest(function(manifest) {
+        xwalk.app.runtime.getManifest(function(manifest) {
           runTestCase(function() {
             assert(manifest);
             assert(manifest.name === "xwalk.app API Test");
@@ -42,7 +42,7 @@
       },
 
       function testGetMainDocument() {
-        xwalk.app.getMainDocument(function(main) {
+        xwalk.app.runtime.getMainDocument(function(main) {
           runTestCase(function() {
             assert(main);
             assert(main.initialized);

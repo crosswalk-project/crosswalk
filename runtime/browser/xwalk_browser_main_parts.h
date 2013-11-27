@@ -45,6 +45,8 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
   // XWalkExtensionService::Delegate overrides.
   virtual void RegisterInternalExtensionsInExtensionThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
+  virtual void RegisterInternalExtensionsInUIThreadServer(
+      extensions::XWalkExtensionServer* server) OVERRIDE;
 
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context() { return runtime_context_.get(); }

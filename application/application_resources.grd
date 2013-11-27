@@ -10,7 +10,8 @@
   <translations />
   <release seq="1">
     <includes>
-      <include name="IDR_XWALK_APPLICATION_API" file="extension/application_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_APPLICATION_EVENT_API" file="extension/application_event_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_APPLICATION_RUNTIME_API" file="extension/application_runtime_api.js" type="BINDATA" />
       <include name="IDR_XWALK_APPLICATION_TEST_API" file="test/application_testapi.js" type="BINDATA" />
     </includes>
   </release>
