@@ -123,9 +123,19 @@ export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 # build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
 # (remember all paths are still inside the chroot):
 #    gbs build --define 'BUILDDIR_NAME /some/path'
+#
+# The --depth and --generator-output combo is used to put all the Makefiles
+# inside the build directory, and (this is the important part) keep file lists
+# (generatedwith <|() in gyp) in the build directory as well, otherwise they
+# will be in the source directory, erased every time and trigger an almost full
+# Blink rebuild (among other smaller targets).
+# We cannot always pass those flags, though, because gyp's make generator does
+# not work if the --generator-output is the top-level source directory.
 BUILDDIR_NAME="%{?BUILDDIR_NAME}"
 if [ -z "${BUILDDIR_NAME}" ]; then
    BUILDDIR_NAME="."
+else
+   GYP_EXTRA_FLAGS="--depth=. --generator-output=${BUILDDIR_NAME}"
 fi
 
 # Change src/ so that we can pass "." to --depth below, otherwise we would need
@@ -136,16 +146,10 @@ cd src
 # Use openssl instead of nss, until Tizen gets nss >= 3.14.3
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
-# The --depth and --generator-output combo is used to put all the Makefiles
-# inside the build directory, and (this is the important part) keep file lists
-# (generatedwith <|() in gyp) in the build directory as well, otherwise they
-# will be in the source directory, erased every time and trigger an almost full
-# Blink rebuild (among other smaller targets).
 export GYP_GENERATORS='make'
 ./xwalk/gyp_xwalk xwalk/xwalk.gyp \
 --no-parallel \
---depth=. \
---generator-output="${BUILDDIR_NAME}" \
+${GYP_EXTRA_FLAGS} \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
