@@ -58,6 +58,17 @@ class TestMakeApk(unittest.TestCase):
     out, _ = proc.communicate()
     self.assertTrue(out.find('The APK name is required!') == -1)
     Clean('Example')
+    invalid_chars = '\/:.*?"<>|- '
+    for c in invalid_chars:
+      invalid_name = '--name=Example' + c
+      proc = subprocess.Popen(['python', 'make_apk.py', invalid_name,
+                               '--app-version=1.0.0',
+                               '--package=org.xwalk.example',
+                               '--app-url=http://www.intel.com'],
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+      out, _ = proc.communicate()
+      self.assertTrue(out.find('Illegal character') != -1)
+      Clean('Example_')
 
   def testAppVersion(self):
     proc = subprocess.Popen(['python', 'make_apk.py', '--name=Example',

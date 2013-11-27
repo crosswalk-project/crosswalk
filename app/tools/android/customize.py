@@ -21,8 +21,10 @@ def ReplaceInvalidChars(value, mode='default'):
   if mode == 'default':
     invalid_chars = '\/:*?"<>|- '
   elif mode == 'apkname':
-    invalid_chars = '\/:*?"<>|-'
+    invalid_chars = '\/:.*?"<>|- '
   for c in invalid_chars:
+    if mode == 'apkname' and c in value:
+      print "Illegal character: '%s' is replaced with '_'" % c
     value = value.replace(c,'_')
   return value
 
@@ -374,7 +376,7 @@ def main():
           'activity-element.html#screen')
   parser.add_option('--orientation', help=info)
   options, _ = parser.parse_args()
-  sanitized_name = ReplaceInvalidChars(options.name)
+  sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
   try:
     Prepare(options, sanitized_name)
     CustomizeXML(options, sanitized_name)
