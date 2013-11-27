@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,6 +7,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <vector>
 
 #include "base/android/jni_string.h"
 #include "base/basictypes.h"
@@ -14,6 +16,7 @@
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
@@ -22,13 +25,16 @@
 #include "content/public/browser/favicon_status.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/web_contents.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "xwalk/chrome_version.h"
+#include "webkit/common/user_agent/user_agent_util.h"
 
 using content::DevToolsAgentHost;
+using content::RenderViewHost;
+using content::WebContents;
 
 namespace {
 
@@ -36,36 +42,48 @@ namespace {
 // for remote debugging to work in chrome (see chrome's devtools_ui.cc).
 // Currently, the chrome version is hardcoded because of this dependancy.
 const char kFrontEndURL[] =
-    "http://chrome-devtools-frontend.appspot.com/static/%s/devtools.html";
-const char kChromeVersion[] = CHROME_VERSION_STRING;
+    "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/devtools.html";
+const char kTargetTypePage[] = "page";
 
 class Target : public content::DevToolsTarget {
  public:
-  explicit Target() {
-  }
+  explicit Target(WebContents* web_contents);
 
-  virtual std::string GetId() const OVERRIDE { return std::string(); }
-  virtual std::string GetType() const OVERRIDE { return std::string(); }
-  virtual std::string GetTitle() const OVERRIDE { return std::string(); }
+  virtual std::string GetId() const OVERRIDE { return id_; }
+  virtual std::string GetType() const OVERRIDE { return kTargetTypePage; }
+  virtual std::string GetTitle() const OVERRIDE { return title_; }
+  // TODO(hmin): Get the description about web contents view.
   virtual std::string GetDescription() const OVERRIDE { return std::string(); }
   virtual GURL GetUrl() const OVERRIDE { return url_; }
-  virtual GURL GetFaviconUrl() const OVERRIDE { return favicon_url_; }
+  virtual GURL GetFaviconUrl() const OVERRIDE { return GURL(); }
   virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
     return last_activity_time_;
   }
-  virtual bool IsAttached() const OVERRIDE { return false; }
+  virtual bool IsAttached() const OVERRIDE {
+    return agent_host_->IsAttached();
+  }
   virtual scoped_refptr<DevToolsAgentHost> GetAgentHost() const OVERRIDE {
     return agent_host_;
   }
-  virtual bool Activate() const OVERRIDE { return true; }
-  virtual bool Close() const OVERRIDE { return true; }
+  virtual bool Activate() const OVERRIDE { return false; }
+  virtual bool Close() const OVERRIDE { return false; }
 
  private:
   scoped_refptr<DevToolsAgentHost> agent_host_;
+  std::string id_;
+  std::string title_;
   GURL url_;
-  GURL favicon_url_;
   base::TimeTicks last_activity_time_;
 };
+
+Target::Target(WebContents* web_contents) {
+  agent_host_ =
+      DevToolsAgentHost::GetOrCreateFor(web_contents->GetRenderViewHost());
+  id_ = agent_host_->GetId();
+  title_ = UTF16ToUTF8(web_contents->GetTitle());
+  url_ = web_contents->GetURL();
+  last_activity_time_ = web_contents->GetLastSelectedTime();
+}
 
 // Delegate implementation for the devtools http handler on android. A new
 // instance of this gets created each time devtools is enabled.
@@ -94,7 +112,7 @@ class XWalkDevToolsServerDelegate
 
   virtual scoped_ptr<content::DevToolsTarget> CreateNewTarget(
       const GURL&) OVERRIDE {
-    return scoped_ptr<content::DevToolsTarget>(new Target());
+    return scoped_ptr<content::DevToolsTarget>();
   }
 
   virtual scoped_ptr<net::StreamListenSocket> CreateSocketForTethering(
@@ -104,6 +122,16 @@ class XWalkDevToolsServerDelegate
   }
 
   virtual void EnumerateTargets(TargetCallback callback) OVERRIDE {
+    TargetList targets;
+    std::vector<RenderViewHost*> rvh_list =
+        DevToolsAgentHost::GetValidRenderViewHosts();
+    for (std::vector<RenderViewHost*>::iterator it = rvh_list.begin();
+         it != rvh_list.end(); ++it) {
+      WebContents* web_contents = WebContents::FromRenderViewHost(*it);
+      if (web_contents)
+        targets.push_back(new Target(web_contents));
+    }
+    callback.Run(targets);
   }
 
  private:
@@ -142,7 +170,8 @@ void XWalkDevToolsServer::Start() {
           socket_name_,
           "",  // fallback socket name
           base::Bind(&CanUserConnectToDevTools)),
-      base::StringPrintf(kFrontEndURL, kChromeVersion),
+      base::StringPrintf(kFrontEndURL,
+                         webkit_glue::GetWebKitRevision().c_str()),
       new XWalkDevToolsServerDelegate());
 }
 
