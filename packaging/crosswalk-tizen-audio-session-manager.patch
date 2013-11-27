@@ -3,16 +3,28 @@ Author: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
 This patch includes Chromium side changes needed for integrating
 WebMediaPlayer with the Tizen Audio Session Manager.
 
+Also, it has changes that are needed for generating audio-session-manager
+stubs and load the library dynamically in the Browser process.
+
+audio-session-manager is using an _attribute_((constructor)) to initialize
+code and setup signal handlers at startup. So, linking with this library
+is causing a sandbox violation by executing the code in Renderer Process,
+since the Renderer Process and the Browser Process are linked with the
+same libraries.
+
+To prevent the problem, we load the audio-session-manager dynamically in
+the Browser process.
+
 diff --git src/build/linux/system.gyp src/build/linux/system.gyp
 index 68e4d36..3ae6ab3 100644
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
-@@ -892,5 +892,27 @@
+@@ -892,5 +892,19 @@
          }],
        ],
      },
 +    {
-+      'target_name': 'resource_manager',
++      'target_name': 'audio_session_manager',
 +      'type': 'none',
 +      'toolsets': ['host', 'target'],
 +      'conditions': [
@@ -20,14 +32,6 @@ index 68e4d36..3ae6ab3 100644
 +          'direct_dependent_settings': {
 +            'cflags': [
 +              '<!@(<(pkg-config) --cflags audio-session-mgr)',
-+            ],
-+          },
-+          'link_settings': {
-+            'ldflags': [
-+              '<!@(<(pkg-config) --libs-only-L --libs-only-other audio-session-mgr)',
-+            ],
-+            'libraries': [
-+              '<!@(<(pkg-config) --libs-only-l audio-session-mgr)',
 +            ],
 +          },
 +        }],
@@ -98,7 +102,7 @@ diff --git src/content/content_browser.gypi src/content/content_browser.gypi
 index 1e3485c..6336e49 100644
 --- src/content/content_browser.gypi
 +++ src/content/content_browser.gypi
-@@ -1558,5 +1558,19 @@
+@@ -1558,5 +1558,69 @@
          '../third_party/speex/speex.gyp:libspeex',
        ],
      }],
@@ -106,14 +110,64 @@ index 1e3485c..6336e49 100644
 +      'sources': [
 +        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager.cc',
 +        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager.h',
++        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager_init.cc',
++        '<(DEPTH)/xwalk/tizen/browser/audio_session_manager_init.h',
 +        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.cc',
 +        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.h',
 +      ],
++      'variables': {
++        'generate_stubs_script': '../tools/generate_stubs/generate_stubs.py',
++        'extra_header': '../xwalk/tizen/browser/audio_session_manager_stub_headers.fragment',
++        'sig_files': ['../xwalk/tizen/browser/audio_session_manager.sigs'],
++        'outfile_type': 'posix_stubs',
++        'stubs_filename_root': 'audio_session_manager_stubs',
++        'project_path': 'xwalk/tizen/browser',
++        'intermediate_dir': '<(INTERMEDIATE_DIR)',
++        'output_root': '<(SHARED_INTERMEDIATE_DIR)/audio_session_manager',
++      },
++      'include_dirs': [
++        '<(output_root)',
++      ],
++      'actions': [
++        {
++          'action_name': 'generate_stubs',
++          'inputs': [
++          '<(generate_stubs_script)',
++          '<(extra_header)',
++          '<@(sig_files)',
++          ],
++          'outputs': [
++            '<(intermediate_dir)/<(stubs_filename_root).cc',
++            '<(output_root)/<(project_path)/<(stubs_filename_root).h',
++          ],
++          'action': ['python',
++            '<(generate_stubs_script)',
++            '-i', '<(intermediate_dir)',
++            '-o', '<(output_root)/<(project_path)',
++            '-t', '<(outfile_type)',
++            '-e', '<(extra_header)',
++            '-s', '<(stubs_filename_root)',
++            '-p', '<(project_path)',
++            '<@(_inputs)',
++          ],
++          'process_outputs_as_sources': 1,
++          'message': 'Generating audio session manager stubs for dynamic loading',
++        },
++      ],
++      'conditions': [
++        ['OS=="linux" or OS=="solaris"', {
++          'link_settings': {
++            'libraries': [
++            '-ldl',
++            ],
++          },
++        }],
++      ],
 +      'dependencies': [
-+        '../build/linux/system.gyp:resource_manager',
++        '../build/linux/system.gyp:audio_session_manager',
 +      ],
 +      'export_dependent_settings': [
-+        '../build/linux/system.gyp:resource_manager',
++        '../build/linux/system.gyp:audio_session_manager',
 +      ],
 +    }],
    ],
