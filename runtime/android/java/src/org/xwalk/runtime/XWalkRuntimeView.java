@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
 /**
@@ -159,6 +160,14 @@ public class XWalkRuntimeView extends FrameLayout {
      */
     public void disableRemoteDebugging() {
         mProvider.disableRemoteDebugging();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Passdown the key-up event to runtime core.
+        if (mProvider.onKeyUp(keyCode, event)) return true;
+
+        return super.onKeyUp(keyCode, event);
     }
 
     // For instrumentation test.

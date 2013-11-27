@@ -98,6 +98,16 @@ public class XWalkViewShellActivity extends Activity {
         mView.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && mView.canGoBack()) {
+            mView.goBack();
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
     private void waitForDebuggerIfNeeded() {
         if (CommandLine.getInstance().hasSwitch(CommandLine.WAIT_FOR_JAVA_DEBUGGER)) {
             Log.e(TAG, "Waiting for Java debugger to connect...");
