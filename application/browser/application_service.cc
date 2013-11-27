@@ -134,6 +134,10 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   LOG(INFO) << "Installed application with id: " << application->ID()
             << " successfully.";
   *id = application->ID();
+
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    OnApplicationInstalled(application->ID()));
+
   return true;
 }
 
@@ -157,6 +161,9 @@ bool ApplicationService::Uninstall(const std::string& id) {
                << id << "; Cannot remove all resources.";
     return false;
   }
+
+  FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
+
   return true;
 }
 
@@ -205,6 +212,14 @@ scoped_refptr<const Application> ApplicationService::GetApplicationByID(
 const Application* ApplicationService::GetRunningApplication() const {
   return application_.get();
 }
+
+void ApplicationService::AddObserver(Observer* observer) {
+  observers_.AddObserver(observer);
+};
+
+void ApplicationService::RemoveObserver(Observer* observer) {
+  observers_.RemoveObserver(observer);
+};
 
 }  // namespace application
 }  // namespace xwalk
