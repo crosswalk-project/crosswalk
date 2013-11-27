@@ -33,8 +33,10 @@
         'browser/application_system.h',
         'browser/event_observer.cc',
         'browser/event_observer.h',
-        'browser/installer/xpk_extractor.cc',
-        'browser/installer/xpk_extractor.h',
+        'browser/installer/package.h',
+        'browser/installer/package.cc',
+        'browser/installer/wgt_package.h',
+        'browser/installer/wgt_package.cc',
         'browser/installer/xpk_package.cc',
         'browser/installer/xpk_package.h',
 

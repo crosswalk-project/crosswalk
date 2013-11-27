@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/installer/xpk_extractor.h"
+#include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
@@ -81,12 +81,12 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   base::FilePath unpacked_dir;
   std::string app_id;
   if (!base::DirectoryExists(path)) {
-    scoped_refptr<XPKExtractor> extractor = XPKExtractor::Create(path);
-    if (extractor)
-      app_id = extractor->GetPackageID();
+    scoped_ptr<Package> package = Package::Create(path);
+    if (package)
+      app_id = package->Id();
 
     if (app_id.empty()) {
-      LOG(ERROR) << "XPK file is invalid.";
+      LOG(ERROR) << "XPK/WGT file is invalid.";
       return false;
     }
 
@@ -97,7 +97,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     }
 
     base::FilePath temp_dir;
-    extractor->Extract(&temp_dir);
+    package->Extract(&temp_dir);
     unpacked_dir = data_dir.AppendASCII(app_id);
     if (base::DirectoryExists(unpacked_dir) &&
         !base::DeleteFile(unpacked_dir, true))
