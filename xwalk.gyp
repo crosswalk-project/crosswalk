@@ -581,27 +581,6 @@
       ],
     },
     {
-      'target_name': 'xwalk_extension_shell',
-      'type': 'executable',
-      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
-      'product_name': 'xesh',
-      'conditions': [
-        ['OS=="linux"', {
-          'dependencies': [
-            'xwalk_runtime',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'extensions/xesh/xesh_main.cc',
-            'extensions/xesh/xesh_v8_runner.h',
-            'extensions/xesh/xesh_v8_runner.cc',
-          ],
-        }],
-      ],
-    },
-    {
       'target_name': 'xwalk_xpk_generator',
       'type': 'none',
       'copies': [
@@ -615,6 +594,9 @@
     },
   ], # targets
   'conditions': [
+    ['OS=="linux"', {
+      'includes': [ 'extensions/xesh/xesh.gypi' ],
+    }],
     ['OS=="mac"', {
       'targets': [
         {
