@@ -79,12 +79,9 @@ class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
     ASSERT_TRUE(RegisterExtensionForTest(server, new OnceExtension));
   }
 
-  // FIXME(cmarcelo): Test here should be equal instead of
-  // greater-than-or-equal. To achieve that we need to ensure that pages that
-  // don't use an extensions won't have an instance created for them.
   virtual void TearDown() OVERRIDE {
     SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(g_contexts_destroyed >= 2);
-    ASSERT_GE(g_contexts_destroyed, 2);
+    ASSERT_EQ(g_contexts_destroyed, 2);
   }
 };
 
@@ -108,6 +105,5 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsContextDestructionTest,
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 
-  // FIXME(cmarcelo): See comment in TearDown().
-  ASSERT_GE(g_contexts_created, 2);
+  ASSERT_EQ(g_contexts_created, 2);
 }
