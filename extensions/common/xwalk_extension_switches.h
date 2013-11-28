@@ -10,6 +10,7 @@ namespace switches {
 
 extern const char kXWalkDisableExtensionProcess[];
 extern const char kXWalkExtensionProcess[];
+extern const char kXWalkExternalExtensionsPath[];
 
 }  // namespace switches
 
