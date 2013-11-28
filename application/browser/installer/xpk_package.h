@@ -28,7 +28,7 @@ class XPKPackage : public Package {
     uint32 key_size;
     uint32 signature_size;
   };
-  ~XPKPackage();
+  virtual ~XPKPackage();
   explicit XPKPackage(const base::FilePath& path);
 
  private:
