@@ -8,14 +8,14 @@
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
-using xwalk::application::Application;
+using xwalk::application::ApplicationData;
 
 class ApplicationMainDocumentBrowserTest: public ApplicationBrowserTest {
  public:
@@ -40,7 +40,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
   xwalk::application::ApplicationService* service =
     runtime_context->GetApplicationSystem()->application_service();
-  const Application* app = service->GetRunningApplication();
+  const ApplicationData* app = service->GetRunningApplication();
   GURL generated_url =
     app->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);
   // Check main document URL.

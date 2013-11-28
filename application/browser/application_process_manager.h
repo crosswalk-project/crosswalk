@@ -14,7 +14,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/time/time.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
 class GURL;
@@ -38,7 +38,7 @@ class ApplicationProcessManager : public RuntimeRegistryObserver {
   virtual ~ApplicationProcessManager();
 
   bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
-                         const Application* application);
+                         const ApplicationData* application);
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
 
@@ -48,8 +48,8 @@ class ApplicationProcessManager : public RuntimeRegistryObserver {
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
  private:
-  bool RunMainDocument(const Application* application);
-  bool RunFromLocalPath(const Application* application);
+  bool RunMainDocument(const ApplicationData* application);
+  bool RunFromLocalPath(const ApplicationData* application);
   void CloseMainDocument();
 
   xwalk::RuntimeContext* runtime_context_;

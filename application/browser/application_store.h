@@ -9,7 +9,7 @@
 #include <string>
 
 #include "base/memory/ref_counted.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/db_store_sqlite_impl.h"
 
 namespace xwalk {
@@ -23,9 +23,9 @@ namespace application {
 class ApplicationStore: public DBStore::Observer {
  public:
   typedef DBStoreSqliteImpl DBStoreImpl;
-  typedef std::map<std::string, scoped_refptr<const Application> >
+  typedef std::map<std::string, scoped_refptr<const ApplicationData> >
       ApplicationMap;
-  typedef std::map<std::string, scoped_refptr<const Application> >::iterator
+  typedef std::map<std::string, scoped_refptr<const ApplicationData> >::iterator
       ApplicationMapIterator;
 
   // The constaints for application storage.
@@ -37,13 +37,13 @@ class ApplicationStore: public DBStore::Observer {
   explicit ApplicationStore(xwalk::RuntimeContext* runtime_context);
   virtual ~ApplicationStore();
 
-  bool AddApplication(scoped_refptr<const Application> application);
+  bool AddApplication(scoped_refptr<const ApplicationData> application);
 
   bool RemoveApplication(const std::string& id);
 
   bool Contains(const std::string& app_id) const;
 
-  scoped_refptr<const Application> GetApplicationByID(
+  scoped_refptr<const ApplicationData> GetApplicationByID(
       const std::string& application_id) const;
 
   ApplicationMap* GetInstalledApplications() const;
@@ -59,7 +59,7 @@ class ApplicationStore: public DBStore::Observer {
 
  private:
   void InitApplications(const base::DictionaryValue* value);
-  bool Insert(scoped_refptr<const Application> application);
+  bool Insert(scoped_refptr<const ApplicationData> application);
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<DBStoreImpl> db_store_;
   scoped_ptr<ApplicationMap> applications_;

@@ -55,7 +55,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
       return false;
 
     std::string app_id = std::string(args[0].begin(), args[0].end());
-    if (!Application::IsIDValid(app_id))
+    if (!ApplicationData::IsIDValid(app_id))
       return false;
 
     if (application_service_->Uninstall(app_id)) {
@@ -94,7 +94,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
 #if defined(OS_TIZEN_MOBILE)
   std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
-  if (Application::IsIDValid(command_name)) {
+  if (ApplicationData::IsIDValid(command_name)) {
     *run_default_message_loop = application_service_->Launch(command_name);
     return true;
   }
@@ -107,7 +107,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   const CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
-    if (Application::IsIDValid(app_id)) {
+    if (ApplicationData::IsIDValid(app_id)) {
         *run_default_message_loop = application_service_->Launch(app_id);
         return true;
     }

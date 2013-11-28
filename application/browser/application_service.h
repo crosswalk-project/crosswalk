@@ -11,7 +11,7 @@
 #include "base/observer_list.h"
 #include "xwalk/application/browser/application_store.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
 class RuntimeContext;
@@ -32,11 +32,11 @@ class ApplicationService {
   bool Launch(const std::string& id);
   bool Launch(const base::FilePath& path);
 
-  scoped_refptr<const Application> GetApplicationByID(
+  scoped_refptr<const ApplicationData> GetApplicationByID(
        const std::string& id) const;
   ApplicationStore::ApplicationMap* GetInstalledApplications() const;
   // Currently there's only one running application at a time.
-  const Application* GetRunningApplication() const;
+  const ApplicationData* GetRunningApplication() const;
 
   // Client code may use this class (and register with AddObserver below) to
   // keep track of applications installed/uninstalled.
@@ -54,7 +54,7 @@ class ApplicationService {
  private:
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStore> app_store_;
-  scoped_refptr<const Application> application_;
+  scoped_refptr<const ApplicationData> application_;
   ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);

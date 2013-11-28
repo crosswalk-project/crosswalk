@@ -10,14 +10,14 @@
 #include "base/path_service.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/constants.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
 
-using xwalk::application::Application;
+using xwalk::application::ApplicationData;
 using xwalk::application::Manifest;
 
 namespace keys = xwalk::application_manifest_keys;
@@ -40,7 +40,7 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
       .AppendASCII("aaa");
 
   std::string error;
-  scoped_refptr<Application> application(LoadApplication(
+  scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
@@ -59,7 +59,7 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("aaa");
 
   std::string error;
-  scoped_refptr<Application> application(LoadApplication(
+  scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
@@ -79,7 +79,7 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("bbb");
 
   std::string error;
-  scoped_refptr<Application> application(LoadApplication(
+  scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, Manifest::COMMAND_LINE, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
@@ -88,18 +88,18 @@ TEST_F(ApplicationFileUtilTest,
                error.c_str());
 }
 
-static scoped_refptr<Application> LoadApplicationManifest(
+static scoped_refptr<ApplicationData> LoadApplicationManifest(
     base::DictionaryValue* manifest,
     const base::FilePath& manifest_dir,
     Manifest::SourceType location,
     int extra_flags,
     std::string* error) {
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       manifest_dir, location, *manifest, std::string(), error);
   return application;
 }
 
-static scoped_refptr<Application> LoadApplicationManifest(
+static scoped_refptr<ApplicationData> LoadApplicationManifest(
     const std::string& manifest_value,
     const base::FilePath& manifest_dir,
     Manifest::SourceType location,
@@ -134,7 +134,7 @@ TEST_F(ApplicationFileUtilTest, ValidateThemeUTF8) {
           "  \"theme\": { \"images\": { \"theme_frame\": \"%s\" } }"
           "}", non_ascii_file.c_str());
   std::string error;
-  scoped_refptr<Application> application = LoadApplicationManifest(
+  scoped_refptr<ApplicationData> application = LoadApplicationManifest(
       kManifest, temp.path(), Manifest::COMMAND_LINE, 0, &error);
   ASSERT_TRUE(application.get()) << error;
 }

@@ -9,7 +9,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/stl_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/manifest_handler.h"
 #include "xwalk/application/common/install_warning.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -91,7 +91,7 @@ class ManifestHandlerTest : public testing::Test {
     virtual ~TestManifestHandler() {}
 
     virtual bool Parse(
-        scoped_refptr<Application> application, string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
       watcher_->Record(name_);
       return true;
     }
@@ -120,7 +120,7 @@ class ManifestHandlerTest : public testing::Test {
         : TestManifestHandler(name, keys, prereqs, watcher) {
     }
     virtual bool Parse(
-        scoped_refptr<Application> application, string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
       *error = ASCIIToUTF16(name_);
       return false;
     }
@@ -151,12 +151,12 @@ class ManifestHandlerTest : public testing::Test {
     }
 
     virtual bool Parse(
-        scoped_refptr<Application> application, string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
       return true;
     }
 
     virtual bool Validate(
-        scoped_refptr<const Application> application,
+        scoped_refptr<const ApplicationData> application,
         std::string* error,
         std::vector<InstallWarning>* warnings) const OVERRIDE {
       return return_value_;
@@ -214,7 +214,7 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
   manifest.SetInteger("c.f", 5);
   manifest.SetInteger("g", 6);
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest,
@@ -242,7 +242,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
 
   // Succeeds when "a" is not recognized.
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest_a,
@@ -259,7 +259,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   registry.reset();
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
 
-  application = Application::Create(
+  application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest_a,
@@ -280,7 +280,7 @@ TEST_F(ManifestHandlerTest, Validate) {
   manifest.SetInteger("a", 1);
   manifest.SetInteger("b", 2);
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::COMMAND_LINE,
       manifest,

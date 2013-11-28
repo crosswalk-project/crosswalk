@@ -73,7 +73,7 @@ InstalledApplicationsRoot::~InstalledApplicationsRoot() {
 
 void InstalledApplicationsRoot::OnApplicationInstalled(
     const std::string& app_id) {
-  scoped_refptr<const Application> app(
+  scoped_refptr<const ApplicationData> app(
       application_service_->GetApplicationByID(app_id));
   installed_apps_.push_back(CreateObject(app));
 
@@ -120,7 +120,7 @@ void InstalledApplicationsRoot::CreateInitialObjects() {
 }
 
 InstalledApplicationObject* InstalledApplicationsRoot::CreateObject(
-    scoped_refptr<const Application> app) {
+    scoped_refptr<const ApplicationData> app) {
   InstalledApplicationObject* object =
       new InstalledApplicationObject(bus_, kInstalledApplicationsRootPath, app);
   // See comment in InstalledApplicationsRoot::OnUninstall().

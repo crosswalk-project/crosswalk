@@ -16,7 +16,7 @@ namespace application {
 namespace {
 
 const std::vector<std::string>& GetAPIPermissionsInfo(
-    scoped_refptr<const Application> application) {
+    scoped_refptr<const ApplicationData> application) {
   PermissionsInfo* info = static_cast<PermissionsInfo*>(
       application->GetManifestData(keys::kPermissionsKey));
   DCHECK(info);
@@ -33,7 +33,7 @@ TEST_F(PermissionsHandlerTest, NonePermission) {
   manifest.SetString(keys::kNameKey, "no name");
   manifest.SetString(keys::kVersionKey, "0");
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest,
@@ -50,7 +50,7 @@ TEST_F(PermissionsHandlerTest, EmptyPermission) {
   base::ListValue* permissions = new base::ListValue;
   manifest.Set(keys::kPermissionsKey, permissions);
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest,
@@ -68,7 +68,7 @@ TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
   permissions->AppendString("geolocation");
   manifest.Set(keys::kPermissionsKey, permissions);
   std::string error;
-  scoped_refptr<Application> application = Application::Create(
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
       Manifest::INVALID_TYPE,
       manifest,

@@ -13,7 +13,7 @@
 namespace xwalk {
 namespace application {
 
-class PermissionsInfo: public Application::ManifestData {
+class PermissionsInfo: public ApplicationData::ManifestData {
  public:
   PermissionsInfo();
   virtual ~PermissionsInfo();
@@ -34,7 +34,7 @@ class PermissionsHandler: public ManifestHandler {
   PermissionsHandler();
   virtual ~PermissionsHandler();
 
-  virtual bool Parse(scoped_refptr<Application> application,
+  virtual bool Parse(scoped_refptr<ApplicationData> application,
                      string16* error) OVERRIDE;
   virtual bool AlwaysParseForType(Manifest::Type type) const OVERRIDE;
   virtual std::vector<std::string> Keys() const OVERRIDE;

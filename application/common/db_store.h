@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
 #include "base/time/time.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
 namespace application {
@@ -31,7 +31,7 @@ class DBStore {
   };
   explicit DBStore(base::FilePath path);
   virtual ~DBStore();
-  virtual bool Insert(const Application* application,
+  virtual bool Insert(const ApplicationData* application,
                       const base::Time install_time) = 0;
   virtual bool Remove(const std::string& key) = 0;
   base::DictionaryValue* GetApplications() const { return db_.get(); }

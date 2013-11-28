@@ -40,8 +40,8 @@
         'browser/installer/xpk_package.cc',
         'browser/installer/xpk_package.h',
 
-        'common/application.cc',
-        'common/application.h',
+        'common/application_data.cc',
+        'common/application_data.h',
         'common/application_file_util.cc',
         'common/application_file_util.h',
         'common/application_manifest_constants.cc',

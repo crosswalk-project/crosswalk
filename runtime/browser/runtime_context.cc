@@ -170,7 +170,7 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 
   xwalk::application::ApplicationService* service =
     application_system_.get()->application_service();
-  const xwalk::application::Application* running_app =
+  const xwalk::application::ApplicationData* running_app =
     service->GetRunningApplication();
   if (running_app) {
     protocol_handlers->insert(std::pair<std::string,

@@ -15,7 +15,7 @@ namespace application {
 ManifestHandler::~ManifestHandler() {
 }
 
-bool ManifestHandler::Validate(scoped_refptr<const Application> application,
+bool ManifestHandler::Validate(scoped_refptr<const ApplicationData> application,
                                std::string* error,
                                std::vector<InstallWarning>* warnings) const {
   return true;
@@ -69,7 +69,7 @@ void ManifestHandlerRegistry::Register(ManifestHandler* handler) {
 }
 
 bool ManifestHandlerRegistry::ParseAppManifest(
-    scoped_refptr<Application> application, string16* error) {
+    scoped_refptr<ApplicationData> application, string16* error) {
   std::map<int, ManifestHandler*> handlers_by_order;
   for (ManifestHandlerMap::iterator iter = handlers_.begin();
        iter != handlers_.end(); ++iter) {
@@ -89,7 +89,7 @@ bool ManifestHandlerRegistry::ParseAppManifest(
 }
 
 bool ManifestHandlerRegistry::ValidateAppManifest(
-    scoped_refptr<const Application> application,
+    scoped_refptr<const ApplicationData> application,
     std::string* error,
     std::vector<InstallWarning>* warnings) {
   for (ManifestHandlerMap::iterator iter = handlers_.begin();

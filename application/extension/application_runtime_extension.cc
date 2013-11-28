@@ -13,7 +13,7 @@
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
 using content::BrowserThread;
@@ -56,7 +56,7 @@ void AppRuntimeExtensionInstance::OnGetManifest(
   base::DictionaryValue* manifest_data = NULL;
   const application::ApplicationService* service =
     application_system_->application_service();
-  const application::Application* app = service->GetRunningApplication();
+  const application::ApplicationData* app = service->GetRunningApplication();
   if (app)
     manifest_data = app->GetManifest()->value()->DeepCopy();
 

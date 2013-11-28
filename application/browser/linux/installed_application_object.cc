@@ -6,7 +6,7 @@
 
 #include "dbus/bus.h"
 #include "dbus/message.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
 namespace application {
@@ -32,7 +32,7 @@ const char kInstalledApplicationDBusError[] =
 
 InstalledApplicationObject::InstalledApplicationObject(
     scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& base_path,
-    const Application* app)
+    const ApplicationData* app)
     : app_id_(app->ID()),
       path_(dbus::ObjectPath(base_path.value() + "/" + app_id_)),
       dbus_object_(bus->GetExportedObject(path_)),
