@@ -55,6 +55,7 @@
         'xwalk_application_lib',
         'xwalk_resources',
         'experimental/experimental_resources.gyp:xwalk_experimental_resources',
+        'extensions/extensions.gypi:xwalk_extensions_lib',
       ],
       'include_dirs': [
         '..',
@@ -141,7 +142,6 @@
         'runtime/renderer/xwalk_content_renderer_client.h',
       ],
       'includes': [
-        'extensions/extensions.gypi',
         'experimental/dialog/dialog.gypi',
         'sysapps/sysapps.gypi',
         'xwalk_jsapi.gypi',

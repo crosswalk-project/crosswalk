@@ -11,9 +11,7 @@
         '../ipc/ipc.gyp:ipc',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
-      ],
-      'includes': [
-        '../extensions.gypi',
+        'extensions/extensions.gypi:xwalk_extensions_lib',
       ],
       'include_dirs': [
         '../../..',
