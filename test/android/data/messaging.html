@@ -1,0 +1,204 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <style type="text/css">
+    body { margin: auto; width: 100%; }
+    div { margin: 15; padding: 10; width: 100%; }
+    textarea { margin: 10; padding: 10; width: 95%; height: 15%; font-size: 12; resize: none; }
+    .button { margin: 10; padding: 10; width: 80%; height: 5%; font-size: 40; }
+    .title { margin: 20; padding: 10; font-size: 42; font-weight: bold; }
+    .subtitle { margin: 10; padding: 10; font-size: 35; }
+    .input { font-size: 32; }
+    .text { font-size: 32; }
+    .center { text-align: center; }
+    .border { margin: 10; padding: 10; width: 95%; border: 1px solid rgb(151, 193, 218); }
+    .log { font-size: 25; }
+    .sms { background-color: #FFFACD; }
+    .mms { background-color: #CAE1FF; }
+    .event { background-color: #D1D1D1; }
+  </style>
+  <body>
+  <script>
+  window.onload = function() {
+   function printLog(msg){
+        var div_logging = document.getElementById("logging");
+        div_logging.innerHTML += "Message:";
+        div_logging.innerHTML += msg
+        div_logging.innerHTML += "\n\n"
+    }
+    xwalk.experimental.messaging.sms.onreceived = function(evt){
+        printLog(JSON.stringify(evt));
+    }
+    xwalk.experimental.messaging.sms.onsent = function(evt){
+        printLog(JSON.stringify(evt));
+    }
+    function test_send(){
+        var text = "Hello XWalkman"
+        xwalk.experimental.messaging.sms.send ( document.getElementById("phoneNumber").value, document.getElementById("messageText").value).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            printLog(JSON.stringify(error));
+        } )
+    }
+
+    function test_segmentInfo(){
+        xwalk.experimental.messaging.sms.segmentInfo(document.getElementById("segmentText").value).then(
+          function(body) {
+            printLog(JSON.stringify(body))
+        },
+          function(error) {  printLog(JSON.stringify(error)); } )
+    }
+
+    function test_findMessages(){
+        var filter = {
+            type: "sms"
+        }
+
+        var filterOption = {
+            sortBy: "date",
+            sortOrder: "descending",
+            limit: 100
+        }
+        xwalk.experimental.messaging.findMessages(filter, filterOption).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+            var cursor = body;
+            printLog(JSON.stringify(cursor.previous()));
+            printLog(JSON.stringify(cursor.previous()));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    function test_getMessage(){
+        xwalk.experimental.messaging.getMessage("sms", document.getElementById("getMessageID").value).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    function test_deleteMessage(){
+
+        xwalk.experimental.messaging.deleteMessage("sms", document.getElementById("deleteMessageID").value).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    function test_deleteConversation(){
+        xwalk.experimental.messaging.deleteConversation("sms", document.getElementById("deleteConversationID").value).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    function test_markMessageRead(){
+        xwalk.experimental.messaging.markMessageRead("sms", document.getElementById("markMessageReadID").value, false).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    function test_markConversationRead(){
+        xwalk.experimental.messaging.markConversationRead("sms", document.getElementById("markConversationReadID").value, false).then(
+          function(body) {
+            printLog(JSON.stringify(body));
+        },
+        function(error) {
+            console.error('Error: ' + error);
+        }
+        );
+    }
+
+    xwalk.experimental.messaging.sms.onreceived = function(evt) {
+      printLog(JSON.stringify(evt));
+    };
+    document.getElementById('sms_send').onclick = function() {
+      test_send();
+    }
+    document.getElementById('sms_segmentInfo').onclick = function() {
+      test_segmentInfo();
+    }
+    document.getElementById('findMessages').onclick = function() {
+      test_findMessages();
+    }
+    document.getElementById('getMessage').onclick = function() {
+      test_getMessage();
+    }
+    document.getElementById('deleteMessage').onclick = function() {
+      test_deleteMessage();
+    }
+    document.getElementById('deleteConversation').onclick = function() {
+      test_deleteConversation();
+    }
+    document.getElementById('markMessageRead').onclick = function() {
+      test_markMessageRead();
+    }
+    document.getElementById('markConversationRead').onclick = function() {
+      test_markConversationRead();
+    }
+  };
+  </script>
+  <div class="title center">SysApp EXAMPLE -- Messaging</div>
+  <div class="sms">
+    <p class="subtitle center">SMS Manager</p>
+    <div class="border">
+      <p class="text"><button class="button" id="sms_send">Test send button</button></p>
+      <p class="text">phone:<input class="input" id="phoneNumber" type="text" value="5556"/></p>
+      <p class="text">text:<input class="input" id="messageText" type="text" value="Hello XWalk man!!"/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="sms_segmentInfo">Test segmentInfo button</button></p>
+      <p class="text"><input class="input" id="segmentText" type="text" value="xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx xxxxxxxxxx "/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="findMessages">Test findMessages button</button></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="getMessage">Test getMessage button</button></p>
+      <p class="text"><input class="input" id="getMessageID" type="text"/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="deleteMessage">Test deleteMessage button</button></p>
+      <p class="text"><input class="input" id="deleteMessageID" type="text"/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="deleteConversation">Test deleteConversation button</button></p>
+      <p class="text"><input class="input" id="deleteConversationID" type="text"/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="markMessageRead">Test markMessageRead button</button></p>
+      <p class="text"><input class="input" id="markMessageReadID" type="text"/></p>
+    </div>
+    <div class="border">
+      <p class="text"><button class="button" id="markConversationRead">Test markConversationRead button</button></p>
+      <p class="text"><input class="input" id="markConversationReadID" type="text"/></p>
+    </div>
+    <div class="border">
+      <p class="text">SMS log:</p>
+      <textarea id="logging" readonly=true></textarea>
+    </div>
+  </div>
+  </body>
+</html>
