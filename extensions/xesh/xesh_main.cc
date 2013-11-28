@@ -26,12 +26,12 @@
 #include "ipc/ipc_sync_channel.h"
 #include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_module.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 #include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 #include "xwalk/extensions/xesh/xesh_v8_runner.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
 
 
 using xwalk::extensions::XWalkExtensionClient;

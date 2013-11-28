@@ -20,8 +20,6 @@ extern const char kListApplications[];
 
 extern const char kUninstall[];
 
-extern const char kXWalkExternalExtensionsPath[];
-
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 
 extern const char kXWalkRunAsService[];

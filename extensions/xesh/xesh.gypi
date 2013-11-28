@@ -22,10 +22,6 @@
         'xesh_main.cc',
         'xesh_v8_runner.h',
         'xesh_v8_runner.cc',
-
-        # FIXME(cmarcelo): For 'switches::kXWalkExternalExtensionsPath', remove this.
-        '../../runtime/common/xwalk_switches.cc',
-        '../../runtime/common/xwalk_switches.h',
       ],
     },
   ],
