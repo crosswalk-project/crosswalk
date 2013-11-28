@@ -8,6 +8,7 @@
 #include "base/strings/string_piece.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
+#include "gpu/config/gpu_info.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "webkit/common/user_agent/user_agent_util.h"
@@ -19,6 +20,15 @@ XWalkContentClient::XWalkContentClient() {
 }
 
 XWalkContentClient::~XWalkContentClient() {
+}
+
+void XWalkContentClient::SetGpuInfo(const gpu::GPUInfo& gpu_info) {
+#if defined(OS_TIZEN_MOBILE)
+  gpu::GPUInfo& gpu_info_writable = const_cast<gpu::GPUInfo&>(gpu_info);
+  // Enable Accelerated 2D Canvas.
+  // See SupportsAccelerated2dCanvas() in compositor_util.cc
+  gpu_info_writable.can_lose_context = false;
+#endif
 }
 
 std::string XWalkContentClient::GetProduct() const {
