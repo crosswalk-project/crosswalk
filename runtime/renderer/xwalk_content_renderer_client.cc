@@ -82,6 +82,9 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   module_system->RegisterNativeModule("application", app_module.Pass());
   module_system->RegisterNativeModule("sysapps_common",
       extensions::CreateJSModuleFromResource(IDR_XWALK_SYSAPPS_COMMON_API));
+  module_system->RegisterNativeModule("sysapps_promise",
+      extensions::CreateJSModuleFromResource(
+          IDR_XWALK_SYSAPPS_COMMON_PROMISE_API));
 }
 
 }  // namespace xwalk

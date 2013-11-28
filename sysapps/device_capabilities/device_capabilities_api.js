@@ -1,49 +1,13 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// The Promise code are modified from https://gist.github.com/unscriptable/814052
-// with original copyright and license as below.
-//
-// (c) copyright unscriptable.com / John Hann
-// License MIT
 
 var _promises = {};
 var _next_promise_id = 0;
 var _listeners = {};
 var _next_listener_id = 0;
 
-function Promise() {
-  this._thens = [];
-}
-
-Promise.prototype = {
-  then: function(onFulfilled, onRejected) {
-    this._thens.push({fulfill: onFulfilled, reject: onRejected});
-    return this;
-  },
-  fulfill: function(value) {
-    this._done('fulfill', value);
-  },
-  reject: function(error) {
-    this._done('reject', error);
-  },
-  _done: function(which, arg) {
-    // Cover and sync func `then()`.
-    this.then = which === 'fulfill' ?
-      function(fulfill, reject) {fulfill && fulfill(arg); return this;} :
-      function(fulfill, reject) {reject && reject(arg); return this;};
-    // Disallow multiple calls.
-    this.fulfill = this.reject =
-      function() {throw new Error('Promise already completed.');}
-    // Complete all async `then()`s.
-    var then, i = 0;
-    while (then = this._thens[i++]) {
-      then[which] && then[which](arg);
-    }
-    delete this._thens;
-  }
-};
+var Promise = requireNative('sysapps_promise').Promise;
 
 var postMessage = function(msg) {
   var p = new Promise();
