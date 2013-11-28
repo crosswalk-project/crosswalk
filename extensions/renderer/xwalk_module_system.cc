@@ -291,10 +291,6 @@ v8::Handle<v8::Object> XWalkModuleSystem::RequireNative(
 }
 
 void XWalkModuleSystem::Initialize() {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  const bool on_demand_enabled =
-      !cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand);
-
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
 
@@ -308,10 +304,8 @@ void XWalkModuleSystem::Initialize() {
 
   ExtensionModules::iterator it = extension_modules_.begin();
   for (; it != extension_modules_.end(); ++it) {
-    if (on_demand_enabled && it->use_trampoline) {
-      if (InstallTrampoline(context, &*it))
-        continue;
-    }
+    if (it->use_trampoline && InstallTrampoline(context, &*it))
+      continue;
     it->module->LoadExtensionCode(context, require_native);
   }
 }
