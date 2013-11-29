@@ -21,6 +21,8 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
 
   virtual void RegisterInternalExtensionsInExtensionThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
+  virtual void RegisterInternalExtensionsInUIThreadServer(
+      extensions::XWalkExtensionServer* server) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);
