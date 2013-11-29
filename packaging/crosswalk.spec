@@ -227,3 +227,6 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %files emulator-support
 %{_libdir}/xwalk/libosmesa.so
+
+%post
+/usr/sbin/setcap cap_mac_admin=ep %{_libdir}/xwalk/xwalk
