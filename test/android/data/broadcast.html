@@ -14,7 +14,7 @@
         + "   var messageReceivedInIframe = null;\n"
         + "    function messageHandler (msg) {\n"
         + "      messageReceivedInIframe = msg;\n"
-        + "      if (messageReceivedInIframe != null)\n"
+        + "      if (top.window.messageReceivedInTop != null)\n"
         + "      top.window.verifyResult();\n"
         + "    }\n"
         + "   broadcast.setHandler(messageHandler);\n"
