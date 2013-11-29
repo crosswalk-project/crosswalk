@@ -48,6 +48,8 @@
         'device_capabilities_new/memory_info_provider.h',
         'device_capabilities_new/storage_info_provider.cc',
         'device_capabilities_new/storage_info_provider.h',
+        'device_capabilities_new/storage_info_provider_mock.cc',
+        'device_capabilities_new/storage_info_provider_mock.h',
         'raw_socket/raw_socket.idl',
         'raw_socket/raw_socket_extension.cc',
         'raw_socket/raw_socket_extension.h',

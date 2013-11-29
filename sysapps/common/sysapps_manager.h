@@ -15,6 +15,7 @@ using extensions::XWalkExtensionVector;
 class AVCodecsProvider;
 class CPUInfoProvider;
 class MemoryInfoProvider;
+class StorageInfoProvider;
 
 // This class manages the registration of the SysApps APIs. It will append
 // to the list of extensions the SysApps APIs, taking the features flags into
@@ -34,6 +35,7 @@ class SysAppsManager {
   static AVCodecsProvider* GetAVCodecsProvider();
   static CPUInfoProvider* GetCPUInfoProvider();
   static MemoryInfoProvider* GetMemoryInfoProvider();
+  static StorageInfoProvider* GetStorageInfoProvider();
 
  private:
   bool device_capabilities_enabled_;
