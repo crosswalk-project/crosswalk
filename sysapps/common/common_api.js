@@ -13,6 +13,15 @@ function getUniqueId() {
   return (unique_id++).toString();
 }
 
+function wrapPromiseAsCallback(promise) {
+  return function(data, error) {
+    if (error)
+      promise.reject(error);
+    else
+      promise.fulfill(data);
+  };
+};
+
 // The BindingObject is responsible for bridging between the JavaScript
 // implementation and the native code. It keeps a unique ID for each
 // instance of a given object that is used by the BindingObjectStore to
@@ -39,15 +48,24 @@ function getUniqueId() {
 //     define as not enumerable by default. Set |has_callback| to true if the
 //     method expects a callback as the last parameter.
 //
+// _addMethodWithPromise(name, promise):
+//     Convenience function for adding methods that return a Promise. The reply
+//     from the native side is expected to have two parameters: |data| and
+//     |error|. If the |data| parameter is not empty, it will trigger a
+//     |reject()| and be passed as parameter to it, otherwise we |fullfill()|
+//     is invoked with |data|.
+//
 var BindingObjectPrototype = function() {
   function postMessage(name, args, callback) {
     return internal.postMessage("postMessageToObject",
         [this._id, name, args], callback);
   };
 
-  function addMethod(name, has_callback) {
-    var enumerable = name.indexOf("_") != 0;
+  function isEnumerable(method_name) {
+    return name.indexOf("_") != 0;
+  };
 
+  function addMethod(name, has_callback) {
     Object.defineProperty(this, name, {
       value: function() {
         var args = Array.prototype.slice.call(arguments);
@@ -58,7 +76,18 @@ var BindingObjectPrototype = function() {
 
         this._postMessage(name, args, callback);
       },
-      enumerable: enumerable,
+      enumerable: isEnumerable(name),
+    });
+  };
+
+  function addMethodWithPromise(name, promise) {
+    Object.defineProperty(this, name, {
+      value: function() {
+        var args = Array.prototype.slice.call(arguments);
+        this._postMessage(name, args, wrapPromiseAsCallback(promise));
+        return promise;
+      },
+      enumerable: isEnumerable(name),
     });
   };
 
@@ -79,6 +108,9 @@ var BindingObjectPrototype = function() {
     },
     "_addMethod" : {
       value: addMethod,
+    },
+    "_addMethodWithPromise" : {
+      value: addMethodWithPromise,
     },
     "_registerLifecycleTracker" : {
       value: registerLifecycleTracker,
