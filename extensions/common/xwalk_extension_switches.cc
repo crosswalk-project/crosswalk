@@ -19,4 +19,8 @@ const char kXWalkExtensionProcess[] = "xwalk-extension-process";
 // Specifies where XWalk will look for external extensions.
 const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 
+// Used internally to pass the WebApp ID to its extension process.
+// This will be used as the SMACK Label of the Extension Process.
+const char kXWalkWebAppID[] = "xwalk-webapp-id";
+
 }  // namespace switches
