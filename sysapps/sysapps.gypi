@@ -8,6 +8,8 @@
     'common/event_target.h',
     'common/sysapps_manager.cc',
     'common/sysapps_manager.h',
+    'device_capabilities_new/cpu_info_provider.cc',
+    'device_capabilities_new/cpu_info_provider.h',
     'device_capabilities_new/device_capabilities.idl',
     'device_capabilities_new/device_capabilities_api.js',
     'device_capabilities_new/device_capabilities_extension_new.cc',

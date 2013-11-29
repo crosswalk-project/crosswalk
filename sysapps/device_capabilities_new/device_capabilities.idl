@@ -4,4 +4,9 @@
 
 // Device Capabilities API
 namespace device_capabilities {
+  dictionary SystemCPU {
+    long numOfProcessors;
+    DOMString archName;
+    double load;
+  };
 };
