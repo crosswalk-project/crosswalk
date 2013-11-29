@@ -216,6 +216,7 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_registry_->RemoveObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
+  runtime_context_.reset();
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
