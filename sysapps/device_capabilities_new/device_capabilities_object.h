@@ -5,15 +5,26 @@
 #ifndef XWALK_SYSAPPS_DEVICE_CAPABILITIES_NEW_DEVICE_CAPABILITIES_OBJECT_H_
 #define XWALK_SYSAPPS_DEVICE_CAPABILITIES_NEW_DEVICE_CAPABILITIES_OBJECT_H_
 
-#include "xwalk/sysapps/common/binding_object.h"
+#include <string>
+#include "xwalk/sysapps/common/event_target.h"
+#include "xwalk/sysapps/device_capabilities_new/storage_info_provider.h"
 
 namespace xwalk {
 namespace sysapps {
 
-class DeviceCapabilitiesObject : public BindingObject {
+class DeviceCapabilitiesObject : public EventTarget,
+                                 public StorageInfoProvider::Observer {
  public:
   DeviceCapabilitiesObject();
   virtual ~DeviceCapabilitiesObject();
+
+  // EventTarget implementation.
+  virtual void StartEvent(const std::string& type) OVERRIDE;
+  virtual void StopEvent(const std::string& type) OVERRIDE;
+
+  // StorageInfoProvider::Observer implementation.
+  virtual void OnStorageAttached(const StorageUnit& storage) OVERRIDE;
+  virtual void OnStorageDetached(const StorageUnit& storage) OVERRIDE;
 
  private:
   void OnGetAVCodecs(scoped_ptr<XWalkExtensionFunctionInfo> info);

@@ -32,7 +32,34 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
                                base::Unretained(this)));
 }
 
-DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {}
+DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {
+  if (SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
+    SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+}
+
+void DeviceCapabilitiesObject::StartEvent(const std::string& type) {
+  if (!SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
+    SysAppsManager::GetStorageInfoProvider()->AddObserver(this);
+}
+
+void DeviceCapabilitiesObject::StopEvent(const std::string& type) {
+  if (!IsEventActive("storageattach") && !IsEventActive("storagedetach"))
+    SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+}
+
+void DeviceCapabilitiesObject::OnStorageAttached(const StorageUnit& storage) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(storage.ToValue().release());
+
+  DispatchEvent("storageattach", eventData.Pass());
+}
+
+void DeviceCapabilitiesObject::OnStorageDetached(const StorageUnit& storage) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(storage.ToValue().release());
+
+  DispatchEvent("storagedetach", eventData.Pass());
+}
 
 void DeviceCapabilitiesObject::OnGetAVCodecs(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
