@@ -1,0 +1,10 @@
+{
+  "name": "xwalk.app.events API Test",
+  "version": "1.0",
+  "manifest_version": 1,
+  "app": {
+    "main": {
+      "scripts": ["main.js"]
+    }
+  }
+}

@@ -8,6 +8,7 @@
 
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
@@ -194,6 +195,9 @@ bool ApplicationService::Launch(const base::FilePath& path) {
   }
 
   application_ = application;
+  ApplicationEventManager* event_manager =
+      runtime_context_->GetApplicationSystem()->event_manager();
+  event_manager->OnAppLoaded(application->ID());
   return runtime_context_->GetApplicationSystem()->
       process_manager()->LaunchApplication(runtime_context_,
                                            application.get());

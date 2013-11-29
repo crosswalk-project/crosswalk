@@ -8,6 +8,8 @@
 
 #include "base/stl_util.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application_event_manager.h"
+#include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -84,6 +86,10 @@ bool ApplicationProcessManager::RunMainDocument(
   }
 
   main_runtime_ = Runtime::Create(runtime_context_, url);
+  ApplicationEventManager* event_manager =
+      runtime_context_->GetApplicationSystem()->event_manager();
+  event_manager->OnMainDocumentCreated(
+      application->ID(), main_runtime_->web_contents());
   return true;
 }
 
