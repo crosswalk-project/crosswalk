@@ -51,11 +51,13 @@ namespace device_capabilities {
   callback SystemAVCodecsPromise = void (SystemAVCodecs info, DOMString error);
   callback SystemCPUPromise = void (SystemCPU info, DOMString error);
   callback SystemMemoryPromise = void (SystemMemory info, DOMString error);
+  callback SystemStoragePromise = void (SystemStorage info, DOMString error);
 
   interface Functions {
     static void getAVCodecs(SystemAVCodecsPromise promise);
     static void getCPUInfo(SystemCPUPromise promise);
     static void getMemoryInfo(SystemMemoryPromise promise);
+    static void getStorageInfo(SystemStoragePromise promise);
 
     [nodoc] static DeviceCapabilities deviceCapabilitiesConstructor(DOMString objectId);
   };

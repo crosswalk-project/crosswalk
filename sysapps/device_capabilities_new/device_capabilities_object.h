@@ -19,6 +19,7 @@ class DeviceCapabilitiesObject : public BindingObject {
   void OnGetAVCodecs(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetCPUInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetMemoryInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetStorageInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
 };
 
 }  // namespace sysapps

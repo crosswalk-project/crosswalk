@@ -22,6 +22,7 @@ var DeviceCapabilities = function() {
   this._addMethodWithPromise("getAVCodecs", Promise);
   this._addMethodWithPromise("getCPUInfo", Promise);
   this._addMethodWithPromise("getMemoryInfo", Promise);
+  this._addMethodWithPromise("getStorageInfo", Promise);
 };
 
 DeviceCapabilities.prototype = new common.BindingObjectPrototype();
