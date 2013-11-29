@@ -55,7 +55,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void ResizeIndicator();
 
   TizenSystemIndicator* indicator_;
-  TizenPlugMessageWriter* writer_;
+  TizenPlugMessageWriter writer_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
   scoped_ptr<base::SharedMemory> shared_memory_;
 
