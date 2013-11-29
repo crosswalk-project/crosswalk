@@ -23,6 +23,13 @@ class CPUInfoProvider {
   scoped_ptr<SystemCPU> cpu_info() const;
 
  private:
+  // This is calculated from the average number of tasks in the
+  // OS task queue divided by the number of CPUs in a 1 minute
+  // window. The spec is not strict about how to calculate this,
+  // so we use getloadavg(), which is avaliable on Linux, Mac and
+  // Android (via /proc/loadavg).
+  double GetCPULoad() const;
+
   int number_of_processors_;
   std::string processor_architecture_;
 

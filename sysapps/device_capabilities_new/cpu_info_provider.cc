@@ -21,8 +21,7 @@ scoped_ptr<SystemCPU> CPUInfoProvider::cpu_info() const {
 
   info->num_of_processors = number_of_processors_;
   info->arch_name = processor_architecture_;
-  // FIXME(tmpsantos): Implement and make it multi-platform.
-  info->load = 0.0;
+  info->load = GetCPULoad();
 
   return info.Pass();
 }
