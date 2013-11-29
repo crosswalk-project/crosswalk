@@ -1,0 +1,10 @@
+# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+#------------------------------------------------
+# Functions from audio-session-manager used in Crosswalk code.
+#------------------------------------------------
+bool ASM_register_sound(const int application_pid, int *asm_handle, ASM_sound_events_t sound_event, ASM_sound_states_t sound_state, ASM_sound_cb_t callback, void* cb_data, ASM_resource_t mm_resource, int *error_code);
+bool ASM_unregister_sound(const int asm_handle, ASM_sound_events_t sound_event, int *error_code);
+bool ASM_set_sound_state(const int asm_handle, ASM_sound_events_t sound_event, ASM_sound_states_t sound_state, ASM_resource_t mm_resource, int *error_code);

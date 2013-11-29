@@ -7,6 +7,7 @@
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "xwalk/tizen/browser/audio_session_manager_init.h"
 #include "xwalk/tizen/common/media_player_messages.h"
 
 namespace tizen {
@@ -102,6 +103,13 @@ void BrowserMediaPlayerManager::OnInitialize(
     MediaPlayerID player_id,
     int process_id,
     const GURL& url) {
+
+  // Initialize the audio session manager library.
+  if (!InitializeAudioSessionManager()) {
+    DLOG(WARNING) << "Failed on loading the audio session manager library";
+    return;
+  }
+
   RemoveAudioSessionManager(player_id);
   AudioSessionManager* session_manager =
       new AudioSessionManager(this, player_id, process_id);
