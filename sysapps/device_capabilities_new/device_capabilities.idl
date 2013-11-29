@@ -31,6 +31,23 @@ namespace device_capabilities {
     double availCapacity;
   };
 
+  enum StorageUnitType {
+    fixed,
+    removable,
+    unknown
+  };
+
+  dictionary StorageUnit {
+    DOMString id;
+    DOMString name;
+    DOMString type;
+    double capacity;
+  };
+
+  dictionary SystemStorage {
+    StorageUnit[] storages;
+  };
+
   callback SystemAVCodecsPromise = void (SystemAVCodecs info, DOMString error);
   callback SystemCPUPromise = void (SystemCPU info, DOMString error);
   callback SystemMemoryPromise = void (SystemMemory info, DOMString error);
