@@ -16,8 +16,12 @@ var Promise = requireNative('sysapps_promise').Promise;
 
 var DeviceCapabilities = function() {
   common.BindingObject.call(this, common.getUniqueId());
+  common.EventTarget.call(this);
 
   internal.postMessage("deviceCapabilitiesConstructor", [this._id]);
+
+  this._addEvent("storageattach");
+  this._addEvent("storagedetach");
 
   this._addMethodWithPromise("getAVCodecs", Promise);
   this._addMethodWithPromise("getCPUInfo", Promise);
@@ -25,7 +29,7 @@ var DeviceCapabilities = function() {
   this._addMethodWithPromise("getStorageInfo", Promise);
 };
 
-DeviceCapabilities.prototype = new common.BindingObjectPrototype();
+DeviceCapabilities.prototype = new common.EventTargetPrototype();
 DeviceCapabilities.prototype.constructor = DeviceCapabilities;
 
 exports = new DeviceCapabilities();
