@@ -10,7 +10,11 @@ namespace device_capabilities {
     double load;
   };
 
+  callback SystemCPUPromise = void (SystemCPU info, DOMString error);
+
   interface Functions {
+    static void getCPUInfo(SystemCPUPromise promise);
+
     [nodoc] static DeviceCapabilities deviceCapabilitiesConstructor(DOMString objectId);
   };
 };

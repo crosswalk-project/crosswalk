@@ -14,6 +14,9 @@ class DeviceCapabilitiesObject : public BindingObject {
  public:
   DeviceCapabilitiesObject();
   virtual ~DeviceCapabilitiesObject();
+
+ private:
+  void OnGetCPUInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
 };
 
 }  // namespace sysapps

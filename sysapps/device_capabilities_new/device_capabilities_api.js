@@ -12,10 +12,14 @@ var v8tools = requireNative('v8tools');
 var common = requireNative('sysapps_common');
 common.setupSysAppsCommon(internal, v8tools);
 
+var Promise = requireNative('sysapps_promise').Promise;
+
 var DeviceCapabilities = function() {
   common.BindingObject.call(this, common.getUniqueId());
 
   internal.postMessage("deviceCapabilitiesConstructor", [this._id]);
+
+  this._addMethodWithPromise("getCPUInfo", Promise);
 };
 
 DeviceCapabilities.prototype = new common.BindingObjectPrototype();
