@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
+#include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/device_capabilities_extension_new.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
@@ -42,6 +43,13 @@ void SysAppsManager::CreateExtensionsForExtensionThread(
 // static
 CPUInfoProvider* SysAppsManager::GetCPUInfoProvider() {
   CR_DEFINE_STATIC_LOCAL(CPUInfoProvider, provider, ());
+
+  return &provider;
+}
+
+// static
+MemoryInfoProvider* SysAppsManager::GetMemoryInfoProvider() {
+  CR_DEFINE_STATIC_LOCAL(MemoryInfoProvider, provider, ());
 
   return &provider;
 }

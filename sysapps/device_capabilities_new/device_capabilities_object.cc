@@ -8,6 +8,7 @@
 
 #include "xwalk/sysapps/common/sysapps_manager.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
+#include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -18,6 +19,9 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
   handler_.Register("getCPUInfo",
                     base::Bind(&DeviceCapabilitiesObject::OnGetCPUInfo,
                                base::Unretained(this)));
+  handler_.Register("getMemoryInfo",
+                    base::Bind(&DeviceCapabilitiesObject::OnGetMemoryInfo,
+                               base::Unretained(this)));
 }
 
 DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {}
@@ -27,6 +31,13 @@ void DeviceCapabilitiesObject::OnGetCPUInfo(
   scoped_ptr<SystemCPU> cpu_info(
       SysAppsManager::GetCPUInfoProvider()->cpu_info());
   info->PostResult(GetCPUInfo::Results::Create(*cpu_info, std::string()));
+}
+
+void DeviceCapabilitiesObject::OnGetMemoryInfo(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<SystemMemory> memory_info(
+      SysAppsManager::GetMemoryInfoProvider()->memory_info());
+  info->PostResult(GetMemoryInfo::Results::Create(*memory_info, std::string()));
 }
 
 }  // namespace sysapps
