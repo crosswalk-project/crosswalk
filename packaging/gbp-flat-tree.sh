@@ -56,4 +56,5 @@ tar --update --file "${TAR_FILE}" \
     --exclude-vcs --exclude=native_client --exclude=LayoutTests \
     --exclude=src/out --directory="${BASE_SRC_DIR}" \
     --transform="s:^:crosswalk/:S" \
+    --verbose \
     src
