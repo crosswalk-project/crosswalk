@@ -37,6 +37,8 @@ class EventTarget : public BindingObject {
   void DispatchEvent(const std::string& type);
   void DispatchEvent(const std::string& type, scoped_ptr<base::ListValue> data);
 
+  bool IsEventActive(const std::string& type) const;
+
  private:
   void OnAddEventListener(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnRemoveEventListener(scoped_ptr<XWalkExtensionFunctionInfo> info);
