@@ -31,5 +31,39 @@ void StorageInfoProvider::MarkInitialized() {
   callbacks_.clear();
 }
 
+void StorageInfoProvider::AddObserver(Observer* observer) {
+  bool should_start_monitoring = false;
+  if (!observer_list_.might_have_observers())
+    should_start_monitoring = true;
+
+  observer_list_.AddObserver(observer);
+
+  // We start monitoring only when the first observer is added. Unfortunately
+  // there is no public size() function for the observer list, so we have to
+  // query for emptiness and store the status. StartStorageMonitoring() is
+  // called after adding the observer so it doesn't miss any notification.
+  if (should_start_monitoring)
+    StartStorageMonitoring();
+}
+
+void StorageInfoProvider::RemoveObserver(Observer* observer) {
+  observer_list_.RemoveObserver(observer);
+
+  if (!observer_list_.might_have_observers())
+    StopStorageMonitoring();
+}
+
+bool StorageInfoProvider::HasObserver(Observer* observer) const {
+  return observer_list_.HasObserver(observer);
+}
+
+void StorageInfoProvider::NotifyStorageAttached(const StorageUnit& storage) {
+  FOR_EACH_OBSERVER(Observer, observer_list_, OnStorageAttached(storage));
+}
+
+void StorageInfoProvider::NotifyStorageDetached(const StorageUnit& storage) {
+  FOR_EACH_OBSERVER(Observer, observer_list_, OnStorageDetached(storage));
+}
+
 }  // namespace sysapps
 }  // namespace xwalk
