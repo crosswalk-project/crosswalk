@@ -112,13 +112,20 @@ void InstalledApplicationsRoot::OnApplicationUninstalled(
     return;
   }
 
+  dbus::Signal interfaces_removed(kDBusObjectManagerInterface,
+                                "InterfacesRemoved");
+  dbus::MessageWriter writer(&interfaces_removed);
+
+  writer.AppendObjectPath((*it)->path());
+  writer.AppendArrayOfStrings((*it)->interfaces());
+
+  root_object_->SendSignal(&interfaces_removed);
+
   // We need to explicitly unregister the exported object.
   bus_->UnregisterExportedObject((*it)->path());
 
   // Since this is a ScopedVector, erasing will actually destroy the value.
   installed_apps_.erase(it);
-
-  // TODO(cmarcelo): Emit InterfacesRemoved() signal.
 }
 
 void InstalledApplicationsRoot::CreateInitialObjects() {

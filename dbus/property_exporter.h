@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "dbus/exported_object.h"
@@ -38,6 +39,8 @@ class PropertyExporter {
 
   void AppendPropertiesToWriter(const std::string& interface,
                                 MessageWriter* writer);
+
+  std::vector<std::string> interfaces() const;
 
  private:
   void OnGet(dbus::MethodCall* method_call,

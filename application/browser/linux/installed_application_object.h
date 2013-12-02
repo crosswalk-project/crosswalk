@@ -6,6 +6,7 @@
 #define XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATION_OBJECT_H_
 
 #include <string>
+#include <vector>
 #include "base/memory/ref_counted.h"
 #include "xwalk/dbus/property_exporter.h"
 
@@ -36,6 +37,10 @@ class InstalledApplicationObject {
 
   dbus::ObjectPath path() const { return path_; }
   std::string app_id() const { return app_id_; }
+
+  std::vector<std::string> interfaces() const {
+    return properties_.interfaces();
+  }
 
  private:
   std::string app_id_;
