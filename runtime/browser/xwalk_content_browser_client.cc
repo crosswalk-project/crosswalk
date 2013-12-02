@@ -103,9 +103,8 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
 void XWalkContentBrowserClient::AppendExtraCommandLineSwitches(
     CommandLine* command_line, int child_process_id) {
   CommandLine* browser_process_cmd_line = CommandLine::ForCurrentProcess();
-  const int extra_switches_count = 2;
+  const int extra_switches_count = 1;
   const char* extra_switches[extra_switches_count] = {
-    switches::kXWalkDisableLoadingExtensionsOnDemand,
     switches::kXWalkDisableExtensionProcess
   };
 
