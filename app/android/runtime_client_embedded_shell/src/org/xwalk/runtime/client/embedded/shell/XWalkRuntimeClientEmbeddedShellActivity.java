@@ -30,6 +30,17 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // Passdown the key-up event to runtime view.
+        if (getRuntimeView() != null &&
+                getRuntimeView().onKeyUp(keyCode, event)) {
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
     private static String sanitizeUrl(String url) {
         if (url == null) return url;
         if (url.startsWith("www.") || url.indexOf(":") == -1) url = "http://" + url;

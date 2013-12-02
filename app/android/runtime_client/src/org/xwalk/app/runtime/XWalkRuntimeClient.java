@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -35,6 +36,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mOnActivityResult;
     private Method mEnableRemoteDebugging;
     private Method mDisableRemoteDebugging;
+    private Method mOnKeyUp;
 
     // For instrumentation test.
     private Method mGetTitleForTest;
@@ -62,6 +64,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
+        mOnKeyUp = lookupMethod("onKeyUp", int.class, KeyEvent.class);
     }
 
     /**
@@ -215,6 +218,14 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      */
     public void disableRemoteDebugging() {
         invokeMethod(mDisableRemoteDebugging, mInstance);
+    }
+
+    /**
+     * Passdown key-up event to the runtime view.
+     * Usually meet the case of clicking on the back key.
+     */
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return (Boolean) invokeMethod(mOnKeyUp, mInstance, keyCode, event);
     }
 
     // The following functions just for instrumentation test.
