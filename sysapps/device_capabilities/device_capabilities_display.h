@@ -15,7 +15,7 @@ namespace xwalk {
 namespace sysapps {
 
 struct DeviceDisplayUnit {
-  unsigned int id;
+  int64 id;
   std::string name;
   bool isPrimary;
   bool isInternal;
@@ -44,7 +44,7 @@ class DeviceCapabilitiesDisplay : public DeviceCapabilitiesObject {
   void SetJsonValue(Json::Value* obj, const DeviceDisplayUnit& unit);
   void QueryDisplayUnits();
 
-  typedef std::map<unsigned int, DeviceDisplayUnit> DisplaysMap;
+  typedef std::map<int64, DeviceDisplayUnit> DisplaysMap;
   DisplaysMap displays_;
 };
 
