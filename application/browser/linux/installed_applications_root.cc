@@ -31,6 +31,8 @@ const char kInstalledApplicationsRootDBusInterface[] =
 const char kInstalledApplicationsRootDBusError[] =
     "org.crosswalkproject.InstalledApplicationsRoot.Error";
 
+const char kDBusObjectManagerInterface[] = "org.freedesktop.DBus.ObjectManager";
+
 const dbus::ObjectPath kInstalledApplicationsRootPath("/installed");
 
 }  // namespace
@@ -51,7 +53,7 @@ InstalledApplicationsRoot::InstalledApplicationsRoot(
 
   root_object_ = bus_->GetExportedObject(kInstalledApplicationsRootPath);
   root_object_->ExportMethod(
-      "org.freedesktop.DBus.ObjectManager", "GetManagedObjects",
+      kDBusObjectManagerInterface, "GetManagedObjects",
       base::Bind(&InstalledApplicationsRoot::OnGetManagedObjects,
                  weak_factory_.GetWeakPtr()),
       base::Bind(&InstalledApplicationsRoot::OnExported,
@@ -75,9 +77,17 @@ void InstalledApplicationsRoot::OnApplicationInstalled(
     const std::string& app_id) {
   scoped_refptr<const Application> app(
       application_service_->GetApplicationByID(app_id));
-  installed_apps_.push_back(CreateObject(app));
+  InstalledApplicationObject* object = CreateObject(app);
 
-  // TODO(cmarcelo): Emit InterfacesAdded() signal.
+  installed_apps_.push_back(object);
+
+  dbus::Signal interfaces_added(kDBusObjectManagerInterface, "InterfacesAdded");
+  dbus::MessageWriter writer(&interfaces_added);
+  writer.AppendObjectPath(object->path());
+
+  object->AppendAllPropertiesToWriter(&writer);
+
+  root_object_->SendSignal(&interfaces_added);
 }
 
 namespace {
