@@ -142,6 +142,14 @@ content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
   return XWalkMediaCaptureDevicesDispatcher::GetInstance();
 }
 
+// staic
+RuntimeContext* XWalkContentBrowserClient::GetRuntimeContext() {
+    XWalkBrowserMainParts* main_parts =
+        XWalkContentBrowserClient::Get()->main_parts();
+    CHECK(main_parts);
+    return main_parts->runtime_context();
+}
+
 #if defined(OS_ANDROID)
 void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const CommandLine& command_line,

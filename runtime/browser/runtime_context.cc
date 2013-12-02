@@ -19,16 +19,36 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/runtime/browser/android/xwalk_form_database_service.h"
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
+#if defined(OS_ANDROID)
+#include "base/prefs/pref_registry_simple.h"
+#include "base/prefs/pref_service.h"
+#include "base/prefs/pref_service_builder.h"
+#include "components/autofill/core/common/autofill_pref_names.h"
+#include "components/user_prefs/user_prefs.h"
+#include "xwalk/runtime/browser/xwalk_pref_store.h"
+#endif
+
 using content::BrowserThread;
 using content::DownloadManager;
 
 namespace xwalk {
+
+namespace {
+
+#if defined(OS_ANDROID)
+// Shows notifications which correspond to PersistentPrefStore's reading errors.
+void HandleReadError(PersistentPrefStore::PrefReadError error) {
+}
+#endif
+
+}  // namespace
 
 class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
  public:
@@ -59,7 +79,12 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
 };
 
 RuntimeContext::RuntimeContext()
+#if defined(OS_ANDROID)
+  : resource_context_(new RuntimeResourceContext),
+    user_pref_service_ready_(false) {
+#else
   : resource_context_(new RuntimeResourceContext) {
+#endif
   InitWhileIOAllowed();
   application_system_.reset(new xwalk::application::ApplicationSystem(this));
 }
@@ -96,6 +121,18 @@ base::FilePath RuntimeContext::GetPath() const {
 #endif
   return result;
 }
+
+#if defined(OS_ANDROID)
+void RuntimeContext::InitializeBeforeThreadCreation() {
+}
+
+XWalkFormDatabaseService* RuntimeContext::GetFormDatabaseService() {
+  if (!form_database_service_)
+    form_database_service_.reset(new XWalkFormDatabaseService(GetPath()));
+
+  return form_database_service_.get();
+}
+#endif
 
 bool RuntimeContext::IsOffTheRecord() const {
   // We don't consider off the record scenario.
@@ -196,5 +233,33 @@ net::URLRequestContextGetter*
         content::ProtocolHandlerMap* protocol_handlers) {
   return NULL;
 }
+
+#if defined(OS_ANDROID)
+// Create user pref service for autofill functionality.
+void RuntimeContext::CreateUserPrefServiceIfNecessary() {
+  if (user_pref_service_ready_)
+    return;
+
+  user_pref_service_ready_ = true;
+  PrefRegistrySimple* pref_registry = new PrefRegistrySimple();
+  // We only use the autocomplete feature of the Autofill, which is
+  // controlled via the manager_delegate. We don't use the rest
+  // of autofill, which is why it is hardcoded as disabled here.
+  pref_registry->RegisterBooleanPref(
+      autofill::prefs::kAutofillEnabled, false);
+  pref_registry->RegisterDoublePref(
+      autofill::prefs::kAutofillPositiveUploadRate, 0.0);
+  pref_registry->RegisterDoublePref(
+      autofill::prefs::kAutofillNegativeUploadRate, 0.0);
+
+  PrefServiceBuilder pref_service_builder;
+  pref_service_builder.WithUserPrefs(new XWalkPrefStore());
+  pref_service_builder.WithReadErrorCallback(base::Bind(&HandleReadError));
+
+  user_prefs::UserPrefs::Set(this,
+                             pref_service_builder.Create(pref_registry));
+}
+
+#endif
 
 }  // namespace xwalk

@@ -44,6 +44,8 @@ public class XWalkContent extends FrameLayout {
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
     private XWalkSettings mSettings;
     private XWalkGeolocationPermissions mGeolocationPermissions;
+    private XWalkAutofillManagerDelegate mXWalkAutofillManagerDelegate;
+    private XWalkFormDatabase mXWalkFormDatabase;
 
     int mXWalkContent;
     int mWebContents;
@@ -216,6 +218,21 @@ public class XWalkContent extends FrameLayout {
         mContentView.stopLoading();
     }
 
+    /**
+     * @see android.webkit.WebView#clearFormData()
+     */
+    public void hideAutofillPopup() {
+        if (mXWalkAutofillManagerDelegate != null)
+            mXWalkAutofillManagerDelegate.hideAutofillPopup();
+    }
+
+    public XWalkFormDatabase getFormDatabase() {
+        if (mXWalkFormDatabase == null) {
+            mXWalkFormDatabase = new XWalkFormDatabase();
+        }
+        return mXWalkFormDatabase;
+    }
+
     // TODO(Guangzhen): ContentViewStatics will be removed in upstream,
     // details in content_view_statics.cc.
     // We need follow up after upstream updates that.
@@ -316,6 +333,13 @@ public class XWalkContent extends FrameLayout {
             loadUrl(url);
         }
     }
+
+    @CalledByNative
+    private void setXWalkAutofillManagerDelegate(XWalkAutofillManagerDelegate delegate) {
+        mXWalkAutofillManagerDelegate = delegate;
+        delegate.init(mContentViewCore);
+    }
+
 
     public void destroy() {
         if (mXWalkContent == 0) return;

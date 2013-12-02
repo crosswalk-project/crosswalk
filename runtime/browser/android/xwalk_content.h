@@ -57,15 +57,19 @@ class XWalkContent {
 
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,
-                             const base::Callback<void(bool)>& callback);
+                             const base::Callback<void(bool)>& callback); // NOLINT
   void HideGeolocationPrompt(const GURL& origin);
   void InvokeGeolocationCallback(JNIEnv* env,
                                  jobject obj,
                                  jboolean value,
                                  jstring origin);
+  void SetSaveFormData(bool enabled);
+  // Sets the java delegate
+  void SetXWalkAutofillManagerDelegate(jobject delegate);
 
  private:
   content::WebContents* CreateWebContents(JNIEnv* env, jobject delegate);
+  void InitAutofillIfNecessary(bool enabled);
 
   JavaObjectWeakGlobalRef java_ref_;
   scoped_ptr<content::WebContents> web_contents_;
