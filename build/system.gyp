@@ -75,6 +75,28 @@
             ],
           },
         },
+        {
+          'target_name': 'tizen_geolocation',
+          'type': 'none',
+          'variables': {
+            'packages': [
+              'capi-location-manager',
+            ],
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <@(packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <@(packages))',
+            ],
+          },
+        },
       ],  # targets
     }],
   ],  # conditions

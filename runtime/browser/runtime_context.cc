@@ -146,7 +146,7 @@ content::ResourceContext* RuntimeContext::GetResourceContext()  {
 
 content::GeolocationPermissionContext*
     RuntimeContext::GetGeolocationPermissionContext()  {
-#if defined(OS_ANDROID)
+#if defined(OS_ANDROID) || defined(OS_TIZEN_MOBILE)
   if (!geolocation_permission_context_) {
     geolocation_permission_context_ =
         RuntimeGeolocationPermissionContext::Create(this);

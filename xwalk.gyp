@@ -154,6 +154,7 @@
       'conditions': [
         [ 'tizen_mobile == 1', {
           'dependencies': [
+            'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
           ],
@@ -161,6 +162,8 @@
             'sysapps/device_capabilities/device_capabilities.gypi',
           ],
           'sources': [
+            'runtime/browser/geolocation/tizen/location_provider_tizen.cc',
+            'runtime/browser/geolocation/tizen/location_provider_tizen.h',
             'runtime/browser/tizen/sensor_provider.cc',
             'runtime/browser/tizen/sensor_provider.h',
             'runtime/browser/tizen/tizen_data_fetcher_shared_memory.cc',
