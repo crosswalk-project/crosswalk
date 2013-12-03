@@ -90,6 +90,8 @@
             'browser/linux/installed_application_object.h',
             'browser/linux/installed_applications_root.cc',
             'browser/linux/installed_applications_root.h',
+            'browser/linux/running_applications_root.cc',
+            'browser/linux/running_applications_root.h',
           ],
         }],
         [ 'tizen_mobile == 1', {
