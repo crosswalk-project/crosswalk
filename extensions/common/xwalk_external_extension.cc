@@ -128,5 +128,14 @@ void XWalkExternalExtension::EntryPointsSetExtraJSEntryPoints(
   set_entry_points(entries);
 }
 
+bool XWalkExternalExtension::PermissionsCheckAPIAccessControl(
+    const char* app_id, const char* api_name) {
+  bool result = CheckAPIAccessControl(std::string(app_id),
+      std::string(api_name));
+  VLOG(0) << "CoreCheckAPIAccessControl result: " << result;
+  return result;
+}
+
+
 }  // namespace extensions
 }  // namespace xwalk

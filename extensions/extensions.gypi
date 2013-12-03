@@ -28,6 +28,7 @@
     'extension_process/xwalk_extension_process.h',
     'public/XW_Extension.h',
     'public/XW_Extension_SyncMessage.h',
+    'public/XW_Extension_Permissions.h',
     'renderer/xwalk_extension_renderer_controller.cc',
     'renderer/xwalk_extension_renderer_controller.h',
     'renderer/xwalk_extension_module.cc',

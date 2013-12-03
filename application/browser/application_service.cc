@@ -225,5 +225,19 @@ void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 };
 
+bool ApplicationService::CheckAPIAccessControl(std::string extension_name,
+    std::string app_id, std::string api_name) {
+  bool status = false;
+  // TODO(Xu): check input parameter
+  // 1. query application ID from application DB
+  // 2. query extension name and api name from permissions DB
+  // 3. If inputs can't be found from DB, return false.
+
+  // TODO(Bai): query whether app has permission to access API from permissions
+  // group
+
+  return status;
+}
+
 }  // namespace application
 }  // namespace xwalk
