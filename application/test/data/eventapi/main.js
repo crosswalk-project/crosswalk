@@ -21,6 +21,10 @@ function dummy(arg1, arg2) {
   });
 };
 
+function bad() {
+  assert(false); 
+};
+
 function foo(arg1, arg2) {
   runTestCase(function() {
     assert(dummy_called === true);
@@ -53,7 +57,10 @@ runTestCase(function() {
   xwalk.app.test.notifyPass(function(){});
 });
 
+// The "bad" handler will triggers exception which catched by Event.dispatchEvent.
+onMockEvent.addListener(bad);
 onMockEvent.addListener(foo);
+
 // Wait one sec, if the foo listener is not trigger then return fail.
 setTimeout(function() {
   xwalk.app.test.notifyFail(function() {});

@@ -177,7 +177,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
             'experimental/presentation/presentation_api.js',
-            'sysapps/device_capabilities/device_capabilities_api.js',
+            'runtime/android/java/src/org/xwalk/runtime/extension/api/device_capabilities/device_capabilities_api.js',
           ],
         },
       ],

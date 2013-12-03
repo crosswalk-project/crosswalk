@@ -22,7 +22,11 @@ Event.dispatchEvent = function(eventName, args) {
   // the iteration.
   var listeners = evt.listeners.slice();
   for (var i = 0; i < listeners.length; i++) {
-    listeners[i].apply(null, args);
+    try {
+      listeners[i].apply(null, args);
+    } catch (e) {
+      console.error('Error in event handler for:' + eventName + ' :' + new Error().stack);
+    }
   }
 
   internal.postMessage('dispatchEventFinish', [eventName]);
@@ -35,7 +39,7 @@ Event.prototype.addListener = function(callback) {
     if (registeredEvents[eventName])
       throw new Error('Event:' + eventName + ' is already registered.');
     registeredEvents[eventName] = this;
-    internal.postMessage('registerEvent', [eventName], function(args){
+    internal.postMessage('registerEvent', [eventName], function(args) {
       Event.dispatchEvent(eventName, args);
     });
   }

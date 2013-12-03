@@ -58,7 +58,6 @@
           'type': 'none',
           'variables': {
             'packages': [
-              'capi-system-device',
               'vconf',
             ],
           },

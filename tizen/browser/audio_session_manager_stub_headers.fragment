@@ -1,0 +1,8 @@
+// The extra include header needed in the generated stub file for defining
+// various audio session manager types.
+
+extern "C" {
+
+#include <audio-session-manager.h>
+
+}

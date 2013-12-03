@@ -44,10 +44,6 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
     LOG(INFO) << "EXTENSION PROCESS DISABLED.";
   else
     SetupExtensionProcessClient(browser_channel);
-
-  if (cmd_line->HasSwitch(switches::kXWalkDisableLoadingExtensionsOnDemand)) {
-    LOG(INFO) << "LOADING EXTENSIONS ON DEMAND DISABLED.";
-  }
 }
 
 XWalkExtensionRendererController::~XWalkExtensionRendererController() {

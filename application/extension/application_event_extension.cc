@@ -10,6 +10,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application.h"
+#include "xwalk/application/common/event_names.h"
 
 namespace xwalk {
 
@@ -91,9 +92,10 @@ void AppEventExtensionInstance::OnDispatchEventFinish(
       !info->arguments()->GetString(0, &event_name))
     return;
 
-  event_name = "onDispatchEventFinish_" + event_name;
+  scoped_ptr<base::ListValue> args(new base::ListValue());
+  args->AppendString(event_name);
   scoped_refptr<Event> event = Event::CreateEvent(
-      event_name, scoped_ptr<base::ListValue>(new base::ListValue()));
+      application::kOnJavaScriptEventAck, args.Pass());
   event_manager_->SendEvent(app_id_, event);
 }
 

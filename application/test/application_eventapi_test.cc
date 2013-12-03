@@ -8,6 +8,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/event_observer.h"
+#include "xwalk/application/common/event_names.h"
 #include "xwalk/application/test/application_apitest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -15,6 +16,13 @@
 
 using xwalk::application::ApplicationEventManager;
 using xwalk::application::Event;
+using xwalk::application::kOnJavaScriptEventAck;
+
+namespace {
+
+const char kMockEvent[] = "onMockEvent";
+
+}  // namespace
 
 class ApplicationEventApiTest : public ApplicationApiTest {
  public:
@@ -54,7 +62,7 @@ class ApplicationEventApiTest : public ApplicationApiTest {
     scoped_ptr<base::ListValue> args(new base::ListValue());
     args->AppendInteger(1234);
     args->AppendBoolean(false);
-    scoped_refptr<Event> event = Event::CreateEvent("onMockEvent", args.Pass());
+    scoped_refptr<Event> event = Event::CreateEvent(kMockEvent, args.Pass());
     event_manager_->SendEvent(app_id_, event);
   }
 
@@ -70,13 +78,15 @@ class ApplicationEventApiTest : public ApplicationApiTest {
         const std::string& app_id)
       : EventObserver(event_manager),
         has_been_notified_(false) {
-      event_manager_->AttachObserver(
-          app_id, "onDispatchEventFinish_onMockEvent", this);
+      event_manager_->AttachObserver(app_id, kOnJavaScriptEventAck, this);
     }
 
     virtual void Observe(const std::string& app_id,
                          scoped_refptr<Event> event) OVERRIDE {
-      ASSERT_EQ(event->name(), "onDispatchEventFinish_onMockEvent");
+      ASSERT_EQ(event->name(), std::string(kOnJavaScriptEventAck));
+      std::string ack_event_name;
+      ASSERT_TRUE(event->args()->GetString(0, &ack_event_name));
+      EXPECT_EQ(ack_event_name, std::string(kMockEvent));
       has_been_notified_ = true;
     }
 

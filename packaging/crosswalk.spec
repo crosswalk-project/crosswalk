@@ -1,5 +1,5 @@
 Name:           crosswalk
-Version:        3.32.45.0
+Version:        3.32.47.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 # License:        (BSD-3-Clause and LGPL-2.1+)
@@ -38,7 +38,6 @@ BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(audio-session-mgr)
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-appfw-application)
-BuildRequires:  pkgconfig(capi-system-device)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(freetype2)

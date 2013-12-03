@@ -121,9 +121,8 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
   EXPECT_TRUE(g_inner_extension_loaded);
 }
 
-// TODO(cmarcelo): This will be enabled when we fully land load on demand.
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsNestedNamespaceTest,
-                       DISABLED_InstanceNotCreatedForUnusedInnerExtension) {
+                       InstanceNotCreatedForUnusedInnerExtension) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("outer.html"));

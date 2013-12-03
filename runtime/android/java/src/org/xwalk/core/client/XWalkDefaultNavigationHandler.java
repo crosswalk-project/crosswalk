@@ -4,6 +4,7 @@
 
 package org.xwalk.core.client;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -45,9 +46,12 @@ public class XWalkDefaultNavigationHandler implements XWalkNavigationHandler {
         }
         return intent != null && startActivity(intent);
     }
-    
+
     protected boolean startActivity(Intent intent) {
         try {
+            if (!(mContext instanceof Activity)) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
             mContext.startActivity(intent);
         } catch (ActivityNotFoundException exception) {
             Log.w(TAG, "Activity not found for Intent:");

@@ -56,6 +56,8 @@
         'common/db_store_constants.h',
         'common/db_store_sqlite_impl.cc',
         'common/db_store_sqlite_impl.h',
+        'common/event_names.cc',
+        'common/event_names.h',
         'common/id_util.cc',
         'common/id_util.h',
         'common/install_warning.h',

@@ -33,8 +33,6 @@ class DeviceCapabilitiesCpu : public DeviceCapabilitiesObject {
   int numOfProcessors_;
   std::string archName_;
   double load_;
-  unsigned long long old_total_; //NOLINT
-  unsigned long long old_used_; //NOLINT
 };
 
 }  // namespace sysapps

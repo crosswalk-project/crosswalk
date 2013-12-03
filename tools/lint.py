@@ -178,7 +178,7 @@ def do_py_lint(changeset):
     os.chdir(previous_cwd)
   if _has_import_error:
     print 'You have error for python importing, please check your PYTHONPATH'
- 
+
 def do_lint(repo, base, args):
   # dir structure should be src/xwalk for xwalk
   #                         src/third_party/WebKit for blink
@@ -233,7 +233,7 @@ def main():
            '  3. HEAD~ elsewise')
 
   options, args = option_parser.parse_args()
-  
+
   sys.exit(do_lint(options.repo, options.base, args))
 
 if __name__ == '__main__':

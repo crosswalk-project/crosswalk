@@ -16,10 +16,8 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  */
 public class PresentationTest extends XWalkRuntimeClientTestBase {
 
-    // @SmallTest
-    // @Feature({"PresentationTest"})
-    // TODO: Since the embedded extension issue, disable this temporarily.
-    @DisabledTest
+    @SmallTest
+    @Feature({"PresentationTest"})
     public void testPresentationDisplayAvailable() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
