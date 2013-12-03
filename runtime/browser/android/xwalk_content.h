@@ -49,6 +49,10 @@ class XWalkContent {
     return render_view_host_ext_.get();
   };
 
+  XWalkContentsClientBridge* GetContentsClientBridge() {
+    return contents_client_bridge_.get();
+  };
+
   void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
   jboolean SetManifest(JNIEnv* env,
                        jobject obj,

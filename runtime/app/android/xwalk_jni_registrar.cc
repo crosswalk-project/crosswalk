@@ -9,11 +9,14 @@
 #include "components/navigation_interception/component_jni_registrar.h"
 #include "components/web_contents_delegate_android/component_jni_registrar.h"
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
+#include "xwalk/runtime/browser/android/intercepted_request_data_impl.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
+#include "xwalk/runtime/browser/android/xwalk_http_auth_handler.h"
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
@@ -23,14 +26,18 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   // Register JNI for xwalk classes.
   { "AndroidProtocolHandler", RegisterAndroidProtocolHandler },
   { "InputStream", RegisterInputStream },
+  { "InterceptedRequestDataImpl", RegisterInterceptedRequestData },
   { "NavigationInterception",
       navigation_interception::RegisterNavigationInterceptionJni },
   { "WebContentsDelegateAndroid",
       web_contents_delegate_android::RegisterWebContentsDelegateAndroidJni },
   { "XWalkContentsClientBridge", RegisterXWalkContentsClientBridge },
+  { "XWalkContentsIoThreadClientImpl",
+      RegisterXWalkContentsIoThreadClientImpl },
   { "XWalkContent", RegisterXWalkContent },
   { "XWalkDevToolsServer", RegisterXWalkDevToolsServer },
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
+  { "XWalkHttpAuthHandler", RegisterXWalkHttpAuthHandler },
   { "XWalkSettings", RegisterXWalkSettings },
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
 };
