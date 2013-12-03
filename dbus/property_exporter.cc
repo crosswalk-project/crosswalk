@@ -124,6 +124,17 @@ void PropertyExporter::AppendPropertiesToWriter(const std::string& interface,
   writer->CloseContainer(&dict_writer);
 }
 
+std::vector<std::string> PropertyExporter::interfaces() const {
+  std::vector<std::string> interfaces;
+
+  InterfacesMap::const_iterator it = interfaces_.begin();
+  for (; it != interfaces_.end(); ++it) {
+    interfaces.push_back(it->first);
+  }
+
+  return interfaces;
+}
+
 void PropertyExporter::OnGet(
     MethodCall* method_call, ExportedObject::ResponseSender response_sender) {
   MessageReader reader(method_call);
