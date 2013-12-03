@@ -56,6 +56,8 @@ class ApplicationService {
   void RemoveObserver(Observer* observer);
 
  private:
+  bool DoLaunch(const Application* application);
+
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStore> app_store_;
   scoped_refptr<const Application> application_;

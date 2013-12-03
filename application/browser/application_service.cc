@@ -175,10 +175,7 @@ bool ApplicationService::Launch(const std::string& id) {
     return false;
   }
 
-  application_ = application;
-  return runtime_context_->GetApplicationSystem()->
-      process_manager()->LaunchApplication(runtime_context_,
-                                           application.get());
+  return DoLaunch(application.get());
 }
 
 bool ApplicationService::Launch(const base::FilePath& path) {
@@ -194,13 +191,7 @@ bool ApplicationService::Launch(const base::FilePath& path) {
     return false;
   }
 
-  application_ = application;
-  ApplicationEventManager* event_manager =
-      runtime_context_->GetApplicationSystem()->event_manager();
-  event_manager->OnAppLoaded(application->ID());
-  return runtime_context_->GetApplicationSystem()->
-      process_manager()->LaunchApplication(runtime_context_,
-                                           application.get());
+  return DoLaunch(application.get());
 }
 
 ApplicationStore::ApplicationMap*
@@ -237,6 +228,16 @@ bool ApplicationService:::CheckAPIAccessControl(std::string extension_name,
   // group
 
   return status;
+}
+
+bool ApplicationService::DoLaunch(const Application* application) {
+  application_ = application;
+  ApplicationEventManager* event_manager =
+      runtime_context_->GetApplicationSystem()->event_manager();
+  event_manager->OnAppLoaded(application->ID());
+  return runtime_context_->GetApplicationSystem()->
+      process_manager()->LaunchApplication(runtime_context_,
+                                           application);
 }
 
 }  // namespace application
