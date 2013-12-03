@@ -43,7 +43,7 @@ void LifecycleTrackerCleanup(v8::Isolate* isolate,
 
   if (function.IsEmpty() || !function->IsFunction()) {
     DLOG(WARNING) << "Destructor function not set for LifecycleTracker.";
-    tracker->Dispose();
+    tracker->Reset();
     return;
   }
 
@@ -56,7 +56,7 @@ void LifecycleTrackerCleanup(v8::Isolate* isolate,
     LOG(WARNING) << "Exception when running LifecycleTracker destructor: "
         << ExceptionToString(try_catch);
 
-  tracker->Dispose();
+  tracker->Reset();
 }
 
 void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -133,8 +133,7 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
 }
 
 XWalkV8ToolsModule::~XWalkV8ToolsModule() {
-  object_template_.Dispose();
-  object_template_.Clear();
+  object_template_.Reset();
 }
 
 v8::Handle<v8::Object> XWalkV8ToolsModule::NewInstance() {

@@ -72,12 +72,9 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkExtensionModule));
 
-  object_template_.Dispose();
-  object_template_.Clear();
-  function_data_.Dispose();
-  function_data_.Clear();
-  message_listener_.Dispose();
-  message_listener_.Clear();
+  object_template_.Reset();
+  function_data_.Reset();
+  message_listener_.Reset();
 
   if (instance_id_)
     client_->DestroyInstance(instance_id_);
@@ -263,13 +260,10 @@ void XWalkExtensionModule::SetMessageListenerCallback(
   }
 
   v8::Isolate* isolate = info.GetIsolate();
-  if (info[0]->IsUndefined()) {
-    module->message_listener_.Dispose();
-    module->message_listener_.Clear();
-  } else {
-    module->message_listener_.Dispose();
+  if (info[0]->IsUndefined())
+    module->message_listener_.Reset();
+  else
     module->message_listener_.Reset(isolate, info[0].As<v8::Function>());
-  }
 
   result.Set(true);
 }
