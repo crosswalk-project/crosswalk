@@ -18,6 +18,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "xwalk/application/common/application_data.h"
+#include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -35,39 +36,131 @@ namespace application {
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     Manifest::SourceType source_type,
+    bool isLegacyWgt,
     std::string* error) {
   return LoadApplication(application_path, std::string(),
-                         source_type, error);
+                         source_type, isLegacyWgt,
+                         error);
 }
 
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
     Manifest::SourceType source_type,
+    bool isLegacyWgt,
     std::string* error) {
-  scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
-  if (!manifest.get())
-    return NULL;
 
-  scoped_refptr<ApplicationData> application = ApplicationData::Create(
-                                                             application_path,
-                                                             source_type,
-                                                             *manifest,
-                                                             application_id,
-                                                             error);
-  if (!application.get())
-    return NULL;
+  if (isLegacyWgt) {
+    scoped_ptr<DictionaryValue> manifest(LoadManifestWgt(application_path,
+                                                        error));
+    if (!manifest.get())
+        return NULL;
+    scoped_refptr<ApplicationData> application =
+        ApplicationData::Create(application_path,
+                           source_type,
+                           *manifest,
+                           application_id,
+                           error);
+    if (!application.get())
+      return NULL;
 
-  std::vector<InstallWarning> warnings;
-  if (!ManifestHandlerRegistry::GetInstance()->ValidateAppManifest(
-          application, error, &warnings))
-    return NULL;
-  if (!warnings.empty()) {
-    LOG(WARNING) << "There are some warnings when validating the application "
-                 << application->ID();
+    std::vector<InstallWarning> warnings;
+      if (!ManifestHandlerRegistry::GetInstance()->ValidateAppManifest(
+              application, error, &warnings))
+        return NULL;
+      if (!warnings.empty()) {
+        LOG(WARNING) << "There are some warnings when validating the application "
+                     << application->ID();
+      }
+
+    return application;
+  } else {
+    scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
+    if (!manifest.get())
+        return NULL;
+
+    scoped_refptr<ApplicationData> application =
+        ApplicationData::Create(application_path,
+                           source_type,
+                           *manifest,
+                           application_id,
+                           error);
+    if (!application.get())
+      return NULL;
+
+    std::vector<InstallWarning> warnings;
+    if (!ManifestHandlerRegistry::GetInstance()->ValidateAppManifest(
+            application, error, &warnings))
+      return NULL;
+    if (!warnings.empty()) {
+      LOG(WARNING) << "There are some warnings when validating the application "
+                   << application->ID();
+    }
+
+    return application;
   }
+}
 
-  return application;
+DictionaryValue* LoadManifestWgt(const base::FilePath& application_path,
+                              std::string* error) {
+  base::FilePath manifest_path =
+        application_path.Append(kConfigXmlFilename);
+    if (!base::PathExists(manifest_path)) {
+      *error = base::StringPrintf("%s",
+                                  errors::kManifestUnreadable);
+      return NULL;
+    }
+
+    DictionaryValue* xml_root = new base::DictionaryValue();
+
+    XmlReader xml_reader;
+    std::string xml_contents;
+    std::string node_name;
+    std::string value;
+
+    if (!ReadFileToString(manifest_path, &xml_contents))
+      return NULL;
+    if (!xml_reader.Load(xml_contents))
+        return NULL;
+    // Parsing the config.xml
+    // version, name, description, icon, application id
+    // are the attributes presently used in the PackageInstaller
+    // we return a DictionaryValue containing these values
+    do {
+        // Skip to the next open tag, exit when done.
+         while (!xml_reader.SkipToElement()) {
+           if (!xml_reader.Read()) {
+             return xml_root;
+           }
+         }
+        node_name = xml_reader.NodeName();
+        if (node_name == "widget") {
+          if (xml_reader.NodeAttribute("version", &value))
+            xml_root->SetString("version", value);
+        }
+        if (node_name == "name") {
+            if (xml_reader.ReadElementContent(&value))
+              xml_root->SetString("name", value);
+        }
+        if (node_name == "icon") {
+            if (xml_reader.NodeAttribute("src", &value))
+              xml_root->SetString("icon", value);
+        }
+        if (node_name == "content") {
+            if (xml_reader.NodeAttribute("src", &value))
+              xml_root->SetString("content", value);
+        }
+        if (node_name == "description") {
+            if (xml_reader.ReadElementContent(&value))
+              xml_root->SetString("description", value);
+        }
+        if (node_name == "application") {
+            if (xml_reader.NodeAttribute("id", &value))
+              xml_root->SetString("application", value);
+        }
+    } while (xml_reader.Read());
+
+    return xml_root;
 }
 
 DictionaryValue* LoadManifest(const base::FilePath& application_path,
@@ -103,7 +196,6 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
                                 errors::kManifestUnreadable);
     return NULL;
   }
-
   return static_cast<DictionaryValue*>(root.release());
 }
 

@@ -11,6 +11,8 @@ namespace application {
 const char kApplicationScheme[] = "app";
 const base::FilePath::CharType kManifestFilename[] =
     FILE_PATH_LITERAL("manifest.json");
+const base::FilePath::CharType kConfigXmlFilename[] =
+    FILE_PATH_LITERAL("config.xml");
 const base::FilePath::CharType kMessagesFilename[] =
     FILE_PATH_LITERAL("messages.json");
 const char kGeneratedMainDocumentFilename[] =

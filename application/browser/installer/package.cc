@@ -16,8 +16,10 @@
 namespace xwalk {
 namespace application {
 
-Package::Package(const base::FilePath& source_path)
-  : source_path_(source_path) {
+Package::Package(PackageType pkg_type, const base::FilePath& source_path)
+  : pkg_type_(pkg_type),
+    source_path_(source_path),
+    is_valid_(true) {
 }
 
 Package::~Package() {
@@ -26,12 +28,14 @@ Package::~Package() {
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
-      scoped_ptr<Package> package(new XPKPackage(source_path));
+      scoped_ptr<Package> package(new XPKPackage(Package::XPK_PACKAGE,
+                                                  source_path));
       if (!package->IsValid())
         LOG(ERROR) << "Package not valid";
       return package.Pass();
   } else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
-     scoped_ptr<Package> package(new WGTPackage(source_path));
+     scoped_ptr<Package> package(new WGTPackage(Package::WGT_PACKAGE,
+                                                 source_path));
      return package.Pass();
   }
 

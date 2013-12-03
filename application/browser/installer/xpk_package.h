@@ -29,7 +29,7 @@ class XPKPackage : public Package {
     uint32 signature_size;
   };
   virtual ~XPKPackage();
-  explicit XPKPackage(const base::FilePath& path);
+  explicit XPKPackage(PackageType pkg_type, const base::FilePath& path);
 
  private:
   // verify the signature in the xpk package
