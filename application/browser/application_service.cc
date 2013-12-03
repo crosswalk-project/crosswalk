@@ -216,7 +216,7 @@ void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 };
 
-bool ApplicationService:::CheckAPIAccessControl(std::string extension_name,
+bool ApplicationService::CheckAPIAccessControl(std::string extension_name,
     std::string app_id, std::string api_name) {
   bool status = false;
   // TODO(Xu): check input parameter
