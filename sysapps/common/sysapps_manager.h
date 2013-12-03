@@ -14,6 +14,7 @@ using extensions::XWalkExtensionVector;
 
 class AVCodecsProvider;
 class CPUInfoProvider;
+class DisplayInfoProvider;
 class MemoryInfoProvider;
 class StorageInfoProvider;
 
@@ -34,6 +35,7 @@ class SysAppsManager {
 
   static AVCodecsProvider* GetAVCodecsProvider();
   static CPUInfoProvider* GetCPUInfoProvider();
+  static DisplayInfoProvider* GetDisplayInfoProvider();
   static MemoryInfoProvider* GetMemoryInfoProvider();
   static StorageInfoProvider* GetStorageInfoProvider();
 
