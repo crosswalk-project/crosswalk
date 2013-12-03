@@ -67,6 +67,23 @@
               onSuccess();
             }, Error);
 
+        system.getAVCodecs()
+            .then(function(avcodecs) {
+              var msg = "";
+              for (var i = 0; i < avcodecs.audioCodecs.length; ++i) {
+                  msg += enumerateAllProps(avcodecs.audioCodecs[i]);
+                  msg += '---------\n';
+              }
+              for (var i = 0; i < avcodecs.videoCodecs.length; ++i) {
+                  msg += enumerateAllProps(avcodecs.videoCodecs[i]);
+                  msg += '---------\n';
+              }
+              var output = document.getElementById("avcodecs");
+              output.value += msg;
+              output.scrollTop = output.scrollHeight;
+              onSuccess();
+            }, Error);
+
         system.getDisplayInfo()
             .then(function(display) {
               var msg = ''; 
@@ -135,6 +152,10 @@
   <div class="memory">
     <p class="subtitle center">MemoryInfo</p>
     <p class="text" id="memory"></p>
+  </div>
+  <div class="avcodecs">
+    <p class="subtitle center">avcodecs</p>
+    <textarea id="avcodecs" readonly=true></textarea>
   </div>
   <div class="display">
     <p class="subtitle center">DisplayInfo</p>

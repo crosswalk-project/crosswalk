@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "base/logging.h"
+#include "xwalk/sysapps/device_capabilities/device_capabilities_avcodecs.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_cpu.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_display.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_memory.h"
@@ -34,6 +35,8 @@ DeviceCapabilitiesInstance::~DeviceCapabilitiesInstance() {
 
 void DeviceCapabilitiesInstance::DeviceMapInitialize() {
   device_map_.insert(DeviceMapPair(
+      "AVCodec", DeviceCapabilitiesAVCodecs::GetDeviceInstance()));
+  device_map_.insert(DeviceMapPair(
       "CPU", DeviceCapabilitiesCpu::GetDeviceInstance()));
   device_map_.insert(DeviceMapPair(
       "Display", DeviceCapabilitiesDisplay::GetDeviceInstance()));
@@ -58,7 +61,9 @@ void DeviceCapabilitiesInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   }
   std::string cmd = input["cmd"].asString();
 
-  if (cmd == "getCPUInfo") {
+  if (cmd == "getAVCodecs") {
+    HandleGetDeviceInfo("AVCodec", input);
+  } else if (cmd == "getCPUInfo") {
     HandleGetDeviceInfo("CPU", input);
   } else if (cmd == "getMemoryInfo") {
     HandleGetDeviceInfo("Memory", input);

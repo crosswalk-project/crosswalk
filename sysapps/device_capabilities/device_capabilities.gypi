@@ -1,9 +1,12 @@
 {
   'dependencies': [
     '../third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+    '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
     'build/system.gyp:tizen_sysapps',
   ],
   'sources': [
+    'device_capabilities_avcodecs.cc',
+    'device_capabilities_avcodecs.h',
     'device_capabilities_cpu.h',
     'device_capabilities_cpu_posix.cc',
     'device_capabilities_display.h',
