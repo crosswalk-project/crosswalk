@@ -399,9 +399,11 @@ def Execution(options, sanitized_name):
 
   src_dir = '-DSOURCE_DIR=' + os.path.join(sanitized_name, 'src')
   apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
-  native_lib_path = '-DNATIVE_LIBS_DIR= '
+  native_lib_path = '-DNATIVE_LIBS_DIR='
   if options.mode == 'embedded':
     native_lib_path += os.path.join('native_libs', 'libs')
+  # A space is needed for Windows.
+  native_lib_path += ' '
   cmd = ['python', 'scripts/gyp/ant.py',
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
          '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
