@@ -33,7 +33,7 @@ public class HelloWorldActivity extends XWalkRuntimeActivityBase {
     protected void didTryLoadRuntimeView(View runtimeView) {
         if (runtimeView != null) {
             setContentView(runtimeView);
-            getRuntimeView().loadAppFromUrl("file:///android_asset/index.html");
+            getRuntimeView().loadAppFromUrl("file:///android_asset/www/index.html");
         } else {
             TextView msgText = new TextView(this);
             msgText.setText(R.string.dialog_message_install_runtime_lib);

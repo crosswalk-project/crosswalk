@@ -49,7 +49,9 @@ def Prepare(options, sanitized_name):
   if options.app_root:
     assets_path = os.path.join(sanitized_name, 'assets')
     shutil.rmtree(assets_path)
-    shutil.copytree(options.app_root, assets_path)
+    os.makedirs(assets_path)
+    app_src_path = os.path.join(assets_path, 'www')
+    shutil.copytree(options.app_root, app_src_path)
 
 
 def EditElementAttribute(doc, node, name, value):
@@ -186,18 +188,19 @@ def CustomizeJava(options, sanitized_name):
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
   ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
-  manifest_file = os.path.join(sanitized_name, 'assets', 'manifest.json')
+  manifest_file = os.path.join(sanitized_name, 'assets/www', 'manifest.json')
   if os.path.isfile(manifest_file):
-    ReplaceString(dest_activity,
-                  'loadAppFromUrl("file:///android_asset/index.html")',
-                  'loadAppFromManifest("file:///android_asset/manifest.json")')
+    ReplaceString(
+        dest_activity,
+        'loadAppFromUrl("file:///android_asset/www/index.html")',
+        'loadAppFromManifest("file:///android_asset/www/manifest.json")')
   else:
     if options.app_url:
       if re.search(r'^http(|s)', options.app_url):
-        ReplaceString(dest_activity, 'file:///android_asset/index.html',
+        ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       options.app_url)
     elif options.app_local_path:
-      if os.path.isfile(os.path.join(sanitized_name, 'assets',
+      if os.path.isfile(os.path.join(sanitized_name, 'assets/www',
                                      options.app_local_path)):
         ReplaceString(dest_activity, 'index.html', options.app_local_path)
       else:
