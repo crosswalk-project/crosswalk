@@ -279,6 +279,12 @@ def Execution(options, sanitized_name):
     pak_des_path = os.path.join(sanitized_name, 'assets', 'xwalk.pak')
     shutil.copy(pak_src_path, pak_des_path)
 
+    js_src_dir = os.path.join('native_libs_res', 'jsapi')
+    js_des_dir = os.path.join(sanitized_name, 'assets', 'jsapi')
+    if os.path.exists(js_des_dir):
+      shutil.rmtree(js_des_dir)
+    shutil.copytree(js_src_dir, js_des_dir)
+
     res_ui_java = os.path.join('gen', 'ui_java')
     res_content_java = os.path.join('gen', 'content_java')
     res_xwalk_java = os.path.join('gen', 'xwalk_core_java')
