@@ -175,10 +175,7 @@ bool ApplicationService::Launch(const std::string& id) {
     return false;
   }
 
-  application_ = application;
-  return runtime_context_->GetApplicationSystem()->
-      process_manager()->LaunchApplication(runtime_context_,
-                                           application.get());
+  return Launch(application);
 }
 
 bool ApplicationService::Launch(const base::FilePath& path) {
@@ -194,13 +191,7 @@ bool ApplicationService::Launch(const base::FilePath& path) {
     return false;
   }
 
-  application_ = application;
-  ApplicationEventManager* event_manager =
-      runtime_context_->GetApplicationSystem()->event_manager();
-  event_manager->OnAppLoaded(application->ID());
-  return runtime_context_->GetApplicationSystem()->
-      process_manager()->LaunchApplication(runtime_context_,
-                                           application.get());
+  return Launch(application);
 }
 
 ApplicationStore::ApplicationMap*
@@ -224,6 +215,18 @@ void ApplicationService::AddObserver(Observer* observer) {
 void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 };
+
+bool ApplicationService::Launch(
+    scoped_refptr<const ApplicationData> application) {
+  application_ = application;
+  ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+  ApplicationEventManager* event_manager = system->event_manager();
+  event_manager->OnAppLoaded(application->ID());
+
+  return system->process_manager()->LaunchApplication(
+      runtime_context_,
+      application);
+}
 
 }  // namespace application
 }  // namespace xwalk
