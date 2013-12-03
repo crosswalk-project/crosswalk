@@ -108,7 +108,8 @@ std::string WrapAPICode(const std::string& extension_code,
       "extension.internal = {};"
       "extension.internal.sendSyncMessage = extension.sendSyncMessage;"
       "delete extension.sendSyncMessage;"
-      "return (function(exports) {'use strict'; %s\n})(%s); });",
+      "var exports = {}; (function() {'use strict'; %s\n})();"
+      "%s = exports; });",
       CodeToEnsureNamespace(extension_name).c_str(),
       extension_code.c_str(),
       extension_name.c_str());
