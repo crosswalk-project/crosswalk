@@ -138,10 +138,10 @@ XWalkV8ToolsModule::~XWalkV8ToolsModule() {
 
 v8::Handle<v8::Object> XWalkV8ToolsModule::NewInstance() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
+  v8::EscapableHandleScope handle_scope(isolate);
   v8::Handle<v8::ObjectTemplate> object_template =
       v8::Handle<v8::ObjectTemplate>::New(isolate, object_template_);
-  return handle_scope.Close(object_template->NewInstance());
+  return handle_scope.Escape(object_template->NewInstance());
 }
 
 }  // namespace extensions

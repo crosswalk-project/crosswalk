@@ -30,13 +30,13 @@ XWalkJSModule::~XWalkJSModule() {
 
 v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
+  v8::EscapableHandleScope handle_scope(isolate);
 
   if (compiled_script_.IsEmpty()) {
     std::string compilation_error;
     if (!Compile(isolate, &compilation_error)) {
       LOG(WARNING) << "Error compiling JS module: " << compilation_error;
-      return v8::Handle<v8::Object>();
+      return handle_scope.Escape(v8::Local<v8::Object>());
     }
   }
 
@@ -45,14 +45,14 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
-  v8::Handle<v8::Value> result = script->Run();
+  v8::Local<v8::Value> result = script->Run();
   if (try_catch.HasCaught()) {
     LOG(WARNING) << "Error during requireNative(): "
                  << ExceptionToString(try_catch);
-    return v8::Handle<v8::Object>();
+    return handle_scope.Escape(v8::Local<v8::Object>());
   }
 
-  return handle_scope.Close(result.As<v8::Object>());
+  return handle_scope.Escape(result.As<v8::Object>());
 }
 
 bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {

@@ -117,7 +117,7 @@ std::string WrapAPICode(const std::string& extension_code,
 v8::Handle<v8::Value> RunString(const std::string& code,
                                 std::string* exception) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  v8::HandleScope handle_scope(isolate);
+  v8::EscapableHandleScope handle_scope(isolate);
   v8::Handle<v8::String> v8_code(
       v8::String::NewFromUtf8(isolate, code.c_str()));
 
@@ -128,16 +128,18 @@ v8::Handle<v8::Value> RunString(const std::string& code,
   v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty()));
   if (try_catch.HasCaught()) {
     *exception = ExceptionToString(try_catch);
-    return v8::Undefined();
+    return handle_scope.Escape(
+        v8::Local<v8::Primitive>(v8::Undefined(isolate)));
   }
 
-  v8::Handle<v8::Value> result = script->Run();
+  v8::Local<v8::Value> result = script->Run();
   if (try_catch.HasCaught()) {
     *exception = ExceptionToString(try_catch);
-    return v8::Undefined();
+    return handle_scope.Escape(
+        v8::Local<v8::Primitive>(v8::Undefined(isolate)));
   }
 
-  return handle_scope.Close(result);
+  return handle_scope.Escape(result);
 }
 
 }  // namespace
