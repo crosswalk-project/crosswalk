@@ -3,6 +3,7 @@
     'test/bad_extension_test.cc',
     'test/context_destruction.cc',
     'test/crash_extension_process.cc',
+    'test/export_object.cc',
     'test/extension_in_iframe.cc',
     'test/external_extension.cc',
     'test/external_extension_multi_process.cc',
