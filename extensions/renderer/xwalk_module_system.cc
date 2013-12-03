@@ -30,15 +30,18 @@ const char* kXWalkModuleSystem = "kXWalkModuleSystem";
 
 XWalkModuleSystem* GetModuleSystem(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
-  v8::HandleScope handle_scope(info.GetIsolate());
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+
   v8::Handle<v8::Object> data = info.Data().As<v8::Object>();
   v8::Handle<v8::Value> module_system =
-      data->Get(v8::String::New(kXWalkModuleSystem));
+      data->Get(v8::String::NewFromUtf8(isolate, kXWalkModuleSystem));
   if (module_system.IsEmpty() || module_system->IsUndefined()) {
     LOG(WARNING) << "Trying to use requireNative from already "
                  << "destroyed module system!";
     return NULL;
   }
+
   CHECK(module_system->IsExternal());
   return static_cast<XWalkModuleSystem*>(
       module_system.As<v8::External>()->Value());
@@ -70,7 +73,7 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
 
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> function_data = v8::Object::New();
-  function_data->Set(v8::String::New(kXWalkModuleSystem),
+  function_data->Set(v8::String::NewFromUtf8(isolate, kXWalkModuleSystem),
                      v8::External::New(this));
   v8::Handle<v8::FunctionTemplate> require_native_template =
       v8::FunctionTemplate::New(RequireNativeCallback, function_data);
@@ -96,12 +99,9 @@ XWalkModuleSystem::~XWalkModuleSystem() {
   //     v8::Handle<v8::Object>::New(isolate, function_data_);
   // function_data->Delete(v8::String::New(kXWalkModuleSystem));
 
-  require_native_template_.Dispose();
-  require_native_template_.Clear();
-  function_data_.Dispose();
-  function_data_.Clear();
-  v8_context_.Dispose();
-  v8_context_.Clear();
+  require_native_template_.Reset();
+  function_data_.Reset();
+  v8_context_.Reset();
 }
 
 // static
@@ -168,7 +168,8 @@ v8::Handle<v8::Value> EnsureTargetObjectForTrampoline(
 
   std::vector<std::string>::const_iterator it = path.begin();
   for (; it != path.end(); ++it) {
-    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::String> part =
+        v8::String::NewFromUtf8(context->GetIsolate(), it->c_str());
     v8::Handle<v8::Value> value = object->Get(part);
 
     if (value->IsUndefined()) {
@@ -195,7 +196,8 @@ v8::Handle<v8::Value> GetObjectForPath(v8::Handle<v8::Context> context,
 
   std::vector<std::string>::const_iterator it = path.begin();
   for (; it != path.end(); ++it) {
-    v8::Handle<v8::String> part = v8::String::New(it->c_str());
+    v8::Handle<v8::String> part =
+        v8::String::NewFromUtf8(context->GetIsolate(), it->c_str());
     v8::Handle<v8::Value> value = object->Get(part);
 
     if (!value->IsObject()) {
@@ -230,8 +232,9 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
   }
 
   // FIXME(cmarcelo): ensure that trampoline is readonly.
-  value.As<v8::Object>()->SetAccessor(v8::String::New(basename.c_str()),
-                                      TrampolineCallback, 0, user_data);
+  value.As<v8::Object>()->SetAccessor(
+      v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()),
+      TrampolineCallback, 0, user_data);
   return true;
 }
 
@@ -252,7 +255,8 @@ bool XWalkModuleSystem::DeleteAccessorForEntryPoint(
     return false;
   }
 
-  value.As<v8::Object>()->ForceDelete(v8::String::New(basename.c_str()));
+  value.As<v8::Object>()->ForceDelete(
+      v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()));
   return true;
 }
 
