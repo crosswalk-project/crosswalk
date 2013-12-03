@@ -14,6 +14,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/time/time.h"
+#include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 
@@ -48,14 +49,17 @@ class ApplicationProcessManager : public RuntimeRegistryObserver {
   virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
 
  private:
+  friend class FinishEventObserver;
   bool RunMainDocument(const ApplicationData* application);
   bool RunFromLocalPath(const ApplicationData* application);
   void CloseMainDocument();
+  bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
 
   xwalk::RuntimeContext* runtime_context_;
   xwalk::Runtime* main_runtime_;
   base::WeakPtrFactory<ApplicationProcessManager> weak_ptr_factory_;
   std::set<Runtime*> runtimes_;
+  scoped_ptr<EventObserver> finish_observer_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationProcessManager);
 };

@@ -9,6 +9,8 @@ namespace application {
 
 const char kOnLaunched[] = "onLaunched";
 
+const char kOnSuspend[] = "onSuspend";
+
 const char kOnJavaScriptEventAck[] = "onJavaScriptEventAck";
 
 }  // namespace application

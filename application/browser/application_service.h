@@ -50,6 +50,7 @@ class ApplicationService {
 
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
+  ApplicationStore* application_store();
 
  private:
   bool Launch(scoped_refptr<const ApplicationData> application);
