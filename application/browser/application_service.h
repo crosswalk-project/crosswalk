@@ -9,7 +9,7 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
-#include "xwalk/application/browser/application_store.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
@@ -34,7 +34,7 @@ class ApplicationService {
 
   scoped_refptr<const ApplicationData> GetApplicationByID(
        const std::string& id) const;
-  ApplicationStore::ApplicationMap* GetInstalledApplications() const;
+  const ApplicationData::ApplicationDataMap& GetInstalledApplications() const;
   // Currently there's only one running application at a time.
   const ApplicationData* GetRunningApplication() const;
 
@@ -50,13 +50,13 @@ class ApplicationService {
 
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
-  ApplicationStore* application_store();
+  ApplicationStorage* application_storage();
 
  private:
   bool Launch(scoped_refptr<const ApplicationData> application);
 
   xwalk::RuntimeContext* runtime_context_;
-  scoped_ptr<ApplicationStore> app_store_;
+  scoped_ptr<ApplicationStorage> app_storage_;
   scoped_refptr<const ApplicationData> application_;
   ObserverList<Observer> observers_;
 

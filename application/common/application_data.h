@@ -38,16 +38,16 @@ class AppcoreContext;
 namespace xwalk {
 namespace application {
 
-// Represents a xwalk application.
-// Once created, an Application object is immutable, with the exception of its
-// RuntimeData. This makes it safe to use on any thread, since access to the
-// RuntimeData is protected by a lock.
 class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
  public:
   struct ManifestData;
 
   typedef std::map<const std::string, linked_ptr<ManifestData> >
       ManifestDataMap;
+  typedef std::map<std::string, scoped_refptr<ApplicationData> >
+      ApplicationDataMap;
+  typedef std::map<std::string, scoped_refptr<ApplicationData> >::iterator
+      ApplicationDataMapIterator;
 
   // A base class for parsed manifest data that APIs want to store on
   // the application. Related to base::SupportsUserData, but with an immutable
@@ -107,12 +107,19 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
     return manifest_.get();
   }
 
+  // System events
+  void SetEvents(const std::set<std::string>& events);
+  const std::set<std::string>& GetEvents() const;
+
+  bool IsDirty() const { return is_dirty_; }
+
   // App-related.
   bool IsPlatformApp() const;
   bool IsHostedApp() const;
 
  private:
   friend class base::RefCountedThreadSafe<ApplicationData>;
+  friend class ApplicationStorageImpl;
 
   // Chooses the application ID for an application based on a variety of
   // criteria. The chosen ID will be set in |manifest|.
@@ -158,6 +165,13 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Any warnings that occurred when trying to create/parse the application.
   std::vector<InstallWarning> install_warnings_;
+
+  // System events
+  std::set<std::string> events_;
+
+  // If it's true, means the data have been changed,
+  // and need to save in database.
+  bool is_dirty_;
 
   // The base application url for the application.
   GURL application_url_;

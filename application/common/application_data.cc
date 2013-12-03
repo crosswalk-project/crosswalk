@@ -156,7 +156,8 @@ ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
       manifest_(manifest.release()),
-      finished_parsing_manifest_(false) {
+      finished_parsing_manifest_(false),
+      is_dirty_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
 }
@@ -265,6 +266,15 @@ bool ApplicationData::LoadManifestVersion(string16* error) {
 
   manifest_version_ = manifest_->GetManifestVersion();
   return true;
+}
+
+void ApplicationData::SetEvents(const std::set<std::string>& events) {
+  events_ = events;
+  is_dirty_ = true;
+}
+
+const std::set<std::string>& ApplicationData::GetEvents() const {
+  return events_;
 }
 
 }   // namespace application
