@@ -43,7 +43,7 @@ class PackageInstaller {
       const gid_t& gid);
 
   const ApplicationService* service_;
-  scoped_refptr<const Application> application_;
+  scoped_refptr<const ApplicationData> application_;
   std::string package_id_;
   std::string icon_name_;
   std::string stripped_name_;
