@@ -23,17 +23,17 @@ class FilePath;
 namespace xwalk {
 namespace application {
 
-class Application;
+class ApplicationData;
 
 // Loads and validates an application from the specified directory. Returns NULL
 // on failure, with a description of the error in |error|.
-scoped_refptr<Application> LoadApplication(
+scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     Manifest::SourceType source_type,
     std::string* error);
 
 // The same as LoadApplication except use the provided |application_id|.
-scoped_refptr<Application> LoadApplication(
+scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
     Manifest::SourceType source_type,

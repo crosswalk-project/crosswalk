@@ -23,7 +23,7 @@ class DBStoreSqliteImpl: public DBStore {
   virtual ~DBStoreSqliteImpl();
 
   // Implement the DBStore inferface.
-  virtual bool Insert(const Application* application,
+  virtual bool Insert(const ApplicationData* application,
                       const base::Time install_time) OVERRIDE;
   virtual bool Remove(const std::string& key) OVERRIDE;
   virtual bool InitDB() OVERRIDE;

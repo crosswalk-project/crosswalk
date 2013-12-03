@@ -213,7 +213,7 @@ bool DBStoreSqliteImpl::UpdateDBCache() {
   return true;
 }
 
-bool DBStoreSqliteImpl::Insert(const Application* application,
+bool DBStoreSqliteImpl::Insert(const ApplicationData* application,
                                const base::Time install_time) {
   if (!db_initialized_)
     return false;

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_APPLICATION_H_
-#define XWALK_APPLICATION_COMMON_APPLICATION_H_
+#ifndef XWALK_APPLICATION_COMMON_APPLICATION_DATA_H_
+#define XWALK_APPLICATION_COMMON_APPLICATION_DATA_H_
 
 #include <algorithm>
 #include <iosfwd>
@@ -42,7 +42,7 @@ namespace application {
 // Once created, an Application object is immutable, with the exception of its
 // RuntimeData. This makes it safe to use on any thread, since access to the
 // RuntimeData is protected by a lock.
-class Application : public base::RefCountedThreadSafe<Application> {
+class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
  public:
   struct ManifestData;
 
@@ -56,7 +56,7 @@ class Application : public base::RefCountedThreadSafe<Application> {
     virtual ~ManifestData() {}
   };
 
-  static scoped_refptr<Application> Create(const base::FilePath& path,
+  static scoped_refptr<ApplicationData> Create(const base::FilePath& path,
       Manifest::SourceType source_type,
       const base::DictionaryValue& manifest_data,
       const std::string& explicit_id,
@@ -112,7 +112,7 @@ class Application : public base::RefCountedThreadSafe<Application> {
   bool IsHostedApp() const;
 
  private:
-  friend class base::RefCountedThreadSafe<Application>;
+  friend class base::RefCountedThreadSafe<ApplicationData>;
 
   // Chooses the application ID for an application based on a variety of
   // criteria. The chosen ID will be set in |manifest|.
@@ -121,9 +121,9 @@ class Application : public base::RefCountedThreadSafe<Application> {
                               const std::string& explicit_id,
                               string16* error);
 
-  Application(const base::FilePath& path,
+  ApplicationData(const base::FilePath& path,
             scoped_ptr<Manifest> manifest);
-  virtual ~Application();
+  virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
   bool Init(string16* error);
@@ -186,10 +186,10 @@ class Application : public base::RefCountedThreadSafe<Application> {
   scoped_ptr<tizen::AppcoreContext> appcore_context_;
 #endif
 
-  DISALLOW_COPY_AND_ASSIGN(Application);
+  DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };
 
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_APPLICATION_H_
+#endif  // XWALK_APPLICATION_COMMON_APPLICATION_DATA_H_

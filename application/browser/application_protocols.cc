@@ -22,14 +22,14 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
 
 using content::ResourceRequestInfo;
-using xwalk::application::Application;
+using xwalk::application::ApplicationData;
 
 namespace {
 
@@ -69,7 +69,7 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
   GeneratedMainDocumentJob(net::URLRequest* request,
                            net::NetworkDelegate* network_delegate,
                            const base::FilePath& relative_path,
-                           const scoped_refptr<const Application> application)
+                           const scoped_refptr<const ApplicationData> application)
     : net::URLRequestSimpleJob(request, network_delegate),
       application_(application),
       mime_type_("text/html"),
@@ -109,7 +109,7 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
  private:
   virtual ~GeneratedMainDocumentJob() {}
 
-  scoped_refptr<const Application> application_;
+  scoped_refptr<const ApplicationData> application_;
   const std::string mime_type_;
   const base::FilePath relative_path_;
   net::HttpResponseInfo response_info_;
@@ -183,7 +183,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
 class ApplicationProtocolHandler
     : public net::URLRequestJobFactory::ProtocolHandler {
  public:
-  explicit ApplicationProtocolHandler(const Application* application)
+  explicit ApplicationProtocolHandler(const ApplicationData* application)
     : application_(application) {
     CHECK(application_);
   }
@@ -195,7 +195,7 @@ class ApplicationProtocolHandler
       net::NetworkDelegate* network_delegate) const OVERRIDE;
 
  private:
-  const Application* application_;
+  const ApplicationData* application_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationProtocolHandler);
 };
 
@@ -234,7 +234,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
 }  // namespace
 
 linked_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateApplicationProtocolHandler(const Application* application) {
+CreateApplicationProtocolHandler(const ApplicationData* application) {
   return  linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
       new ApplicationProtocolHandler(application));
 }

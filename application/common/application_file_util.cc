@@ -17,7 +17,7 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -32,7 +32,7 @@ namespace errors = xwalk::application_manifest_errors;
 namespace xwalk {
 namespace application {
 
-scoped_refptr<Application> LoadApplication(
+scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     Manifest::SourceType source_type,
     std::string* error) {
@@ -40,7 +40,7 @@ scoped_refptr<Application> LoadApplication(
                          source_type, error);
 }
 
-scoped_refptr<Application> LoadApplication(
+scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
     Manifest::SourceType source_type,
@@ -49,7 +49,8 @@ scoped_refptr<Application> LoadApplication(
   if (!manifest.get())
     return NULL;
 
-  scoped_refptr<Application> application = Application::Create(application_path,
+  scoped_refptr<ApplicationData> application = ApplicationData::Create(
+                                                             application_path,
                                                              source_type,
                                                              *manifest,
                                                              application_id,

@@ -54,7 +54,7 @@ class ManifestTest : public testing::Test {
 };
 
 // Verifies that application can access the correct keys.
-TEST_F(ManifestTest, Application) {
+TEST_F(ManifestTest, ApplicationData) {
   scoped_ptr<base::DictionaryValue> manifest_value(new base::DictionaryValue());
   manifest_value->SetString(keys::kNameKey, "extension");
   manifest_value->SetString(keys::kVersionKey, "1");

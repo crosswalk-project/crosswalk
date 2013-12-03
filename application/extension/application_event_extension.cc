@@ -9,7 +9,7 @@
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/event_names.h"
 
 namespace xwalk {
@@ -29,7 +29,7 @@ XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
     application_system_->application_service();
   // FIXME: return corresponding application info after shared runtime process
   // model is enabled.
-  const application::Application* app = service->GetRunningApplication();
+  const application::ApplicationData* app = service->GetRunningApplication();
   CHECK(app);
   return new AppEventExtensionInstance(
       application_system_->event_manager(), app->ID());

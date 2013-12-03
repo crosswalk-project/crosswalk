@@ -32,7 +32,7 @@ PermissionsHandler::PermissionsHandler() {
 PermissionsHandler::~PermissionsHandler() {
 }
 
-bool PermissionsHandler::Parse(scoped_refptr<Application> application,
+bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
                                string16* error) {
   if (!application->GetManifest()->HasKey(keys::kPermissionsKey)) {
     application->SetManifestData(keys::kPermissionsKey, new PermissionsInfo);

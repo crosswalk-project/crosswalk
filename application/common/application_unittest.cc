@@ -4,7 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
@@ -23,15 +23,15 @@ TEST(ApplicationTest, LocationValuesTest) {
 }
 
 TEST(ApplicationTest, IsIDValid) {
-  EXPECT_TRUE(Application::IsIDValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
-  EXPECT_TRUE(Application::IsIDValid("pppppppppppppppppppppppppppppppp"));
-  EXPECT_TRUE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnop"));
-  EXPECT_TRUE(Application::IsIDValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
-  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmno"));
-  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnopa"));
-  EXPECT_FALSE(Application::IsIDValid("0123456789abcdef0123456789abcdef"));
-  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmnoq"));
-  EXPECT_FALSE(Application::IsIDValid("abcdefghijklmnopabcdefghijklmno0"));
+  EXPECT_TRUE(ApplicationData::IsIDValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+  EXPECT_TRUE(ApplicationData::IsIDValid("pppppppppppppppppppppppppppppppp"));
+  EXPECT_TRUE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnop"));
+  EXPECT_TRUE(ApplicationData::IsIDValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
+  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmno"));
+  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnopa"));
+  EXPECT_FALSE(ApplicationData::IsIDValid("0123456789abcdef0123456789abcdef"));
+  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnoq"));
+  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmno0"));
 }
 
 }  // namespace application

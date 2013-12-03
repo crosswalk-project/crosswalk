@@ -40,7 +40,7 @@ ApplicationStore::~ApplicationStore() {
 }
 
 bool ApplicationStore::AddApplication(
-    scoped_refptr<const Application> application) {
+    scoped_refptr<const ApplicationData> application) {
   if (Contains(application->ID()))
     return true;
 
@@ -70,7 +70,7 @@ bool ApplicationStore::Contains(const std::string& app_id) const {
   return applications_->find(app_id) != applications_->end();
 }
 
-scoped_refptr<const Application> ApplicationStore::GetApplicationByID(
+scoped_refptr<const ApplicationData> ApplicationStore::GetApplicationByID(
     const std::string& application_id) const {
   ApplicationMapIterator it = applications_->find(application_id);
   if (it != applications_->end()) {
@@ -130,8 +130,8 @@ void ApplicationStore::InitApplications(const base::DictionaryValue* db) {
       break;
 
     std::string error;
-    scoped_refptr<Application> application =
-        Application::Create(base::FilePath::FromUTF8Unsafe(app_path),
+    scoped_refptr<ApplicationData> application =
+        ApplicationData::Create(base::FilePath::FromUTF8Unsafe(app_path),
                             Manifest::INTERNAL,
                             *manifest,
                             id,
@@ -149,9 +149,9 @@ void ApplicationStore::InitApplications(const base::DictionaryValue* db) {
   }
 }
 
-bool ApplicationStore::Insert(scoped_refptr<const Application> application) {
+bool ApplicationStore::Insert(scoped_refptr<const ApplicationData> application) {
   return applications_->insert(
-      std::pair<std::string, scoped_refptr<const Application> >(
+      std::pair<std::string, scoped_refptr<const ApplicationData> >(
           application->ID(), application)).second;
 }
 

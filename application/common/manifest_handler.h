@@ -11,7 +11,7 @@
 
 #include "base/memory/linked_ptr.h"
 #include "base/strings/string16.h"
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
 namespace application {
@@ -22,12 +22,12 @@ class ManifestHandler {
 
   // Returns false in case of failure and sets writes error message
   // in |error| if present.
-  virtual bool Parse(scoped_refptr<Application> application,
+  virtual bool Parse(scoped_refptr<ApplicationData> application,
                      string16* error) = 0;
 
   // Returns false in case of failure and sets writes error message
   // in |error| if present.
-  virtual bool Validate(scoped_refptr<const Application> application,
+  virtual bool Validate(scoped_refptr<const ApplicationData> application,
                         std::string* error,
                         std::vector<InstallWarning>* warnings) const;
 
@@ -57,8 +57,8 @@ class ManifestHandlerRegistry {
   static ManifestHandlerRegistry* GetInstance();
 
   bool ParseAppManifest(
-       scoped_refptr<Application> application, string16* error);
-  bool ValidateAppManifest(scoped_refptr<const Application> application,
+       scoped_refptr<ApplicationData> application, string16* error);
+  bool ValidateAppManifest(scoped_refptr<const ApplicationData> application,
                            std::string* error,
                            std::vector<InstallWarning>* warnings);
 

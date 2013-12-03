@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/application.h"
+#include "xwalk/application/common/application_data.h"
 
 #include "base/base64.h"
 #include "base/basictypes.h"
@@ -41,7 +41,8 @@ namespace xwalk {
 namespace application {
 
 // static
-scoped_refptr<Application> Application::Create(const base::FilePath& path,
+scoped_refptr<ApplicationData> ApplicationData::Create(
+                                           const base::FilePath& path,
                                            Manifest::SourceType source_type,
                                            const DictionaryValue& manifest_data,
                                            const std::string& explicit_id,
@@ -62,7 +63,7 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
     return NULL;
   }
 
-  scoped_refptr<Application> application = new Application(path,
+  scoped_refptr<ApplicationData> application = new ApplicationData(path,
                                                            manifest.Pass());
   application->install_warnings_.swap(install_warnings);
 
@@ -75,7 +76,7 @@ scoped_refptr<Application> Application::Create(const base::FilePath& path,
 }
 
 // static
-bool Application::IsIDValid(const std::string& id) {
+bool ApplicationData::IsIDValid(const std::string& id) {
   // Verify that the id is legal.
   if (id.size() != (kIdSize * 2))
     return false;
@@ -91,14 +92,14 @@ bool Application::IsIDValid(const std::string& id) {
 }
 
 // static
-GURL Application::GetBaseURLFromApplicationId(
+GURL ApplicationData::GetBaseURLFromApplicationId(
     const std::string& application_id) {
   return GURL(std::string(xwalk::application::kApplicationScheme) +
               content::kStandardSchemeSeparator + application_id + "/");
 }
 
-Application::ManifestData* Application::GetManifestData(const std::string& key)
-    const {
+ApplicationData::ManifestData* ApplicationData::GetManifestData(
+        const std::string& key) const {
   DCHECK(finished_parsing_manifest_ || thread_checker_.CalledOnValidThread());
   ManifestDataMap::const_iterator iter = manifest_data_.find(key);
   if (iter != manifest_data_.end())
@@ -106,34 +107,34 @@ Application::ManifestData* Application::GetManifestData(const std::string& key)
   return NULL;
 }
 
-void Application::SetManifestData(const std::string& key,
-                                Application::ManifestData* data) {
+void ApplicationData::SetManifestData(const std::string& key,
+                                ApplicationData::ManifestData* data) {
   DCHECK(!finished_parsing_manifest_ && thread_checker_.CalledOnValidThread());
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-Manifest::SourceType Application::GetSourceType() const {
+Manifest::SourceType ApplicationData::GetSourceType() const {
   return manifest_->GetSourceType();
 }
 
-const std::string& Application::ID() const {
+const std::string& ApplicationData::ID() const {
   return manifest_->GetApplicationID();
 }
 
-const std::string Application::VersionString() const {
+const std::string ApplicationData::VersionString() const {
   return Version()->GetString();
 }
 
-bool Application::IsPlatformApp() const {
+bool ApplicationData::IsPlatformApp() const {
   return manifest_->IsPackaged();
 }
 
-bool Application::IsHostedApp() const {
+bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
 }
 
 // static
-bool Application::InitApplicationID(xwalk::application::Manifest* manifest,
+bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
                                 const base::FilePath& path,
                                 const std::string& explicit_id,
                                 string16* error) {
@@ -151,7 +152,7 @@ bool Application::InitApplicationID(xwalk::application::Manifest* manifest,
   return true;
 }
 
-Application::Application(const base::FilePath& path,
+ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
       manifest_(manifest.release()),
@@ -160,11 +161,11 @@ Application::Application(const base::FilePath& path,
   path_ = path;
 }
 
-Application::~Application() {
+ApplicationData::~ApplicationData() {
 }
 
 // static
-GURL Application::GetResourceURL(const GURL& application_url,
+GURL ApplicationData::GetResourceURL(const GURL& application_url,
                                const std::string& relative_path) {
   DCHECK(application_url.SchemeIs(xwalk::application::kApplicationScheme));
   DCHECK_EQ("/", application_url.path());
@@ -183,11 +184,11 @@ GURL Application::GetResourceURL(const GURL& application_url,
   return ret_val;
 }
 
-Manifest::Type Application::GetType() const {
+Manifest::Type ApplicationData::GetType() const {
   return manifest_->GetType();
 }
 
-bool Application::Init(string16* error) {
+bool ApplicationData::Init(string16* error) {
   DCHECK(error);
 
   if (!LoadName(error))
@@ -199,7 +200,7 @@ bool Application::Init(string16* error) {
   if (!LoadManifestVersion(error))
     return false;
 
-  application_url_ = Application::GetBaseURLFromApplicationId(ID());
+  application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
 
   if (!ManifestHandlerRegistry::GetInstance()->ParseAppManifest(this, error))
     return false;
@@ -211,7 +212,7 @@ bool Application::Init(string16* error) {
   return true;
 }
 
-bool Application::LoadName(string16* error) {
+bool ApplicationData::LoadName(string16* error) {
   DCHECK(error);
   string16 localized_name;
   if (!manifest_->GetString(keys::kNameKey, &localized_name)) {
@@ -224,7 +225,7 @@ bool Application::LoadName(string16* error) {
   return true;
 }
 
-bool Application::LoadVersion(string16* error) {
+bool ApplicationData::LoadVersion(string16* error) {
   DCHECK(error);
   std::string version_str;
   if (!manifest_->GetString(keys::kVersionKey, &version_str)) {
@@ -239,7 +240,7 @@ bool Application::LoadVersion(string16* error) {
   return true;
 }
 
-bool Application::LoadDescription(string16* error) {
+bool ApplicationData::LoadDescription(string16* error) {
   DCHECK(error);
   if (manifest_->HasKey(keys::kDescriptionKey) &&
       !manifest_->GetString(keys::kDescriptionKey, &description_)) {
@@ -249,7 +250,7 @@ bool Application::LoadDescription(string16* error) {
   return true;
 }
 
-bool Application::LoadManifestVersion(string16* error) {
+bool ApplicationData::LoadManifestVersion(string16* error) {
   DCHECK(error);
   // Get the original value out of the dictionary so that we can validate it
   // more strictly.

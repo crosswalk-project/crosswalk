@@ -12,7 +12,7 @@
 namespace xwalk {
 namespace application {
 
-class Application;
+class ApplicationData;
 
 extern const char kInstalledApplicationDBusInterface[];
 extern const char kInstalledApplicationDBusError[];
@@ -24,7 +24,7 @@ class InstalledApplicationObject {
  public:
   InstalledApplicationObject(
       scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& base_path,
-      const Application* app);
+      const ApplicationData* app);
 
   // Set the callback used when the Uninstall() method is called in an
   // ApplicationObject.

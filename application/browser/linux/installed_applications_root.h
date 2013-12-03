@@ -38,7 +38,7 @@ class InstalledApplicationsRoot : public ApplicationService::Observer {
   void CreateInitialObjects();
 
   InstalledApplicationObject* CreateObject(
-      scoped_refptr<const Application> app);
+      scoped_refptr<const ApplicationData> app);
 
   void OnGetManagedObjects(
       dbus::MethodCall* method_call,
