@@ -6,6 +6,7 @@
       'dependencies': [
         '../../base/base.gyp:base',
         '../../net/net.gyp:net',
+        '../../ui/gfx/gfx.gyp:gfx',
         '../../ui/ui.gyp:ui',
         '../extensions/extensions.gyp:xwalk_extensions',
         'sysapps_resources.gyp:xwalk_sysapps_resources',
@@ -44,6 +45,9 @@
         'device_capabilities_new/device_capabilities_extension_new.h',
         'device_capabilities_new/device_capabilities_object.cc',
         'device_capabilities_new/device_capabilities_object.h',
+        'device_capabilities_new/display_info_provider.cc',
+        'device_capabilities_new/display_info_provider.h',
+        'device_capabilities_new/display_info_provider_android.cc',
         'device_capabilities_new/memory_info_provider.cc',
         'device_capabilities_new/memory_info_provider.h',
         'device_capabilities_new/storage_info_provider.cc',

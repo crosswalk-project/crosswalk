@@ -9,6 +9,7 @@
 #include "xwalk/sysapps/common/sysapps_manager.h"
 #include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
+#include "xwalk/sysapps/device_capabilities_new/display_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/storage_info_provider.h"
 
@@ -24,6 +25,9 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
   handler_.Register("getCPUInfo",
                     base::Bind(&DeviceCapabilitiesObject::OnGetCPUInfo,
                                base::Unretained(this)));
+  handler_.Register("getDisplayInfo",
+                    base::Bind(&DeviceCapabilitiesObject::OnGetDisplayInfo,
+                               base::Unretained(this)));
   handler_.Register("getMemoryInfo",
                     base::Bind(&DeviceCapabilitiesObject::OnGetMemoryInfo,
                                base::Unretained(this)));
@@ -35,16 +39,44 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
 DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {
   if (SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
     SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+
+  if (SysAppsManager::GetDisplayInfoProvider()->HasObserver(this))
+    SysAppsManager::GetDisplayInfoProvider()->RemoveObserver(this);
 }
 
 void DeviceCapabilitiesObject::StartEvent(const std::string& type) {
-  if (!SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
-    SysAppsManager::GetStorageInfoProvider()->AddObserver(this);
+  if (type == "storageattach" || type == "storagedetach") {
+    if (!SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
+      SysAppsManager::GetStorageInfoProvider()->AddObserver(this);
+  } else if (type == "displayconnect" || type == "displaydisconnect") {
+    if (!SysAppsManager::GetDisplayInfoProvider()->HasObserver(this))
+      SysAppsManager::GetDisplayInfoProvider()->AddObserver(this);
+  }
 }
 
 void DeviceCapabilitiesObject::StopEvent(const std::string& type) {
-  if (!IsEventActive("storageattach") && !IsEventActive("storagedetach"))
-    SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+  if (type == "storageattach" || type == "storagedetach") {
+    if (!IsEventActive("storageattach") && !IsEventActive("storagedetach"))
+      SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+  } else if (type == "displayconnect" || type == "displaydisconnect") {
+    if (!IsEventActive("displayconnect") && !IsEventActive("displaydisconnect"))
+      SysAppsManager::GetDisplayInfoProvider()->RemoveObserver(this);
+  }
+}
+
+void DeviceCapabilitiesObject::OnDisplayConnected(const DisplayUnit& display) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(display.ToValue().release());
+
+  DispatchEvent("displayconnect", eventData.Pass());
+}
+
+void DeviceCapabilitiesObject::OnDisplayDisconnected(
+    const DisplayUnit& display) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(display.ToValue().release());
+
+  DispatchEvent("displaydisconnect", eventData.Pass());
 }
 
 void DeviceCapabilitiesObject::OnStorageAttached(const StorageUnit& storage) {
@@ -73,6 +105,14 @@ void DeviceCapabilitiesObject::OnGetCPUInfo(
   scoped_ptr<SystemCPU> cpu_info(
       SysAppsManager::GetCPUInfoProvider()->cpu_info());
   info->PostResult(GetCPUInfo::Results::Create(*cpu_info, std::string()));
+}
+
+void DeviceCapabilitiesObject::OnGetDisplayInfo(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  DisplayInfoProvider* provider(SysAppsManager::GetDisplayInfoProvider());
+  scoped_ptr<SystemDisplay> display_info(provider->display_info());
+  info->PostResult(GetDisplayInfo::Results::Create(*display_info,
+                                                   std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetMemoryInfo(
