@@ -9,6 +9,7 @@
 #include "base/values.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
+#include "xwalk/sysapps/common/binding_object_store.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -35,7 +36,11 @@ class DeviceCapabilitiesInstance : public XWalkExtensionInstance {
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
  private:
+  void OnDeviceCapabilitiesConstructor(
+      scoped_ptr<XWalkExtensionFunctionInfo> info);
+
   XWalkExtensionFunctionHandler handler_;
+  BindingObjectStore store_;
 };
 
 }  // namespace experimental

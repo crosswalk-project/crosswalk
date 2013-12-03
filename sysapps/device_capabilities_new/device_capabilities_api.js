@@ -7,3 +7,18 @@
 
 var internal = requireNative('internal');
 internal.setupInternalExtension(extension);
+
+var v8tools = requireNative('v8tools');
+var common = requireNative('sysapps_common');
+common.setupSysAppsCommon(internal, v8tools);
+
+var DeviceCapabilities = function() {
+  common.BindingObject.call(this, common.getUniqueId());
+
+  internal.postMessage("deviceCapabilitiesConstructor", [this._id]);
+};
+
+DeviceCapabilities.prototype = new common.BindingObjectPrototype();
+DeviceCapabilities.prototype.constructor = DeviceCapabilities;
+
+exports = new DeviceCapabilities();
