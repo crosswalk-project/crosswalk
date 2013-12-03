@@ -8,11 +8,15 @@
 
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/message_loop/message_loop.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
+#include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
 #if defined(OS_TIZEN_MOBILE)
@@ -22,6 +26,32 @@
 using xwalk::RuntimeContext;
 
 namespace {
+
+void WaitForFinishLoad(content::WebContents* content) {
+  class CloseAfterLoadObserver : public content::WebContentsObserver {
+   public:
+    static CloseAfterLoadObserver* Create(content::WebContents* content) {
+      return new CloseAfterLoadObserver(content);
+    }
+
+    virtual void DidFinishLoad(
+        int64 frame_id,
+        const GURL& validate_url,
+        bool is_main_frame,
+        content::RenderViewHost* render_view_host) OVERRIDE {
+      // FIXME: Quit message loop here at present. This should go away once
+      // we have Application in place.
+      base::MessageLoop::current()->QuitWhenIdle();
+      delete this;
+    }
+
+   private:
+    explicit CloseAfterLoadObserver(content::WebContents* content)
+        : content::WebContentsObserver(content) {}
+  };
+
+  CloseAfterLoadObserver* observer = CloseAfterLoadObserver::Create(content);
+}
 
 #if defined(OS_TIZEN_MOBILE)
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
@@ -139,6 +169,14 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationInstalled(application->ID()));
 
+  // We need to run main document after installation in order to
+  // register system events.
+  if (application->HasMainDocument() && Launch(application->ID())) {
+    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+    ApplicationProcessManager* pm = system->process_manager();
+    WaitForFinishLoad(pm->GetMainDocumentRuntime()->web_contents());
+  }
+
   return true;
 }
 
@@ -199,7 +237,7 @@ ApplicationService::GetInstalledApplications() const {
   return app_storage_->GetInstalledApplications();
 }
 
-scoped_refptr<const ApplicationData> ApplicationService::GetApplicationByID(
+scoped_refptr<ApplicationData> ApplicationService::GetApplicationByID(
     const std::string& id) const {
   return app_storage_->GetApplicationData(id);
 }

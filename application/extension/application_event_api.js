@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 var internal = requireNative("internal");
+var application = requireNative("application");
 internal.setupInternalExtension(extension);
 
 // A map of event names to the event object that is registered to that name.
@@ -39,9 +40,11 @@ Event.prototype.addListener = function(callback) {
     if (registeredEvents[eventName])
       throw new Error('Event:' + eventName + ' is already registered.');
     registeredEvents[eventName] = this;
-    internal.postMessage('registerEvent', [eventName], function(args) {
-      Event.dispatchEvent(eventName, args);
-    });
+    var routing_id = application.getCurrentRoutingID();
+    internal.postMessage('registerEvent', [eventName, routing_id],
+        function(args){
+          Event.dispatchEvent(eventName, args);
+        });
   }
 
   if (!this.hasListener(callback))
@@ -58,7 +61,8 @@ Event.prototype.removeListener = function(callback) {
     if (!registeredEvents[this.eventName])
       throw new Error('Event:' + this.eventName + ' is not registered.');
     delete registeredEvents[this.eventName];
-    internal.postMessage('unregisterEvent', [this.eventName]);
+    var routing_id = application.getCurrentRoutingID();
+    internal.postMessage('unregisterEvent', [this.eventName, routing_id]);
   }
 };
 

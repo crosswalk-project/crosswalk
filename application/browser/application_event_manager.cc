@@ -8,6 +8,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_router.h"
 #include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 
 using content::BrowserThread;
@@ -38,9 +39,16 @@ ApplicationEventManager::~ApplicationEventManager() {
 }
 
 void ApplicationEventManager::OnAppLoaded(const std::string& app_id) {
+  scoped_refptr<const ApplicationData> app_data =
+      system_->application_service()->GetApplicationByID(app_id);
+  std::set<std::string> events;
+  if (app_data)
+    events = app_data->GetEvents();
+
   linked_ptr<ApplicationEventRouter> router(
       new ApplicationEventRouter(system_, app_id));
-  router->SetMainEvents(GetAppMainEvents(app_id));
+  router->SetMainEvents(events);
+
   app_routers_.insert(std::make_pair(app_id, router));
 }
 
@@ -95,17 +103,6 @@ ApplicationEventRouter* ApplicationEventManager::GetAppRouter(
 
   DLOG(WARNING) << "Application " << app_id << " router not found.";
   return NULL;
-}
-
-const std::set<std::string> ApplicationEventManager::GetAppMainEvents(
-    const std::string& app_id) {
-  NOTIMPLEMENTED();
-  return std::set<std::string>();
-}
-
-void ApplicationEventManager::SetAppMainEvents(
-    const std::string& app_id, const std::set<std::string>& events) {
-  NOTIMPLEMENTED();
 }
 
 }  // namespace application

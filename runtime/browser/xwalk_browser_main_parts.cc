@@ -156,8 +156,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
       runtime_context_->GetApplicationSystem()->process_manager());
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
-  if (!command_line->HasSwitch(switches::kInstall) &&
-      !command_line->HasSwitch(switches::kUninstall)) {
+  if (!command_line->HasSwitch(switches::kUninstall)) {
     extension_service_.reset(new extensions::XWalkExtensionService());
 
     RegisterExternalExtensions();
@@ -179,9 +178,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   xwalk::application::ApplicationSystem* app_system =
       runtime_context_->GetApplicationSystem();
-  if (app_system->HandleApplicationManagementCommands(*command_line,
-                                                      startup_url_)) {
-    run_default_message_loop_ = false;
+  if (app_system->HandleApplicationManagementCommands(
+      *command_line, startup_url_,
+      run_default_message_loop_)) {
     return;
   }
 

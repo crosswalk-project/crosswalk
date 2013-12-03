@@ -21,6 +21,10 @@ class ApplicationNativeModule : public xwalk::extensions::XWalkNativeModule {
   // Return main frame window object according to the routing id.
   static void GetViewByIDCallback(const v8::FunctionCallbackInfo<v8::Value>&);
 
+  // Return routing id of current render view according.
+  static void GetCurrentRoutingIDCallback(
+      const v8::FunctionCallbackInfo<v8::Value>&);
+
   v8::Persistent<v8::ObjectTemplate> object_template_;
   v8::Persistent<v8::Object> function_data_;
 };

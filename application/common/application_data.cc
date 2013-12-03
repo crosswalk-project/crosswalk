@@ -26,6 +26,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
+#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -131,6 +132,13 @@ bool ApplicationData::IsPlatformApp() const {
 
 bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
+}
+
+bool ApplicationData::HasMainDocument() const {
+  MainDocumentInfo* main_info = ToMainDocumentInfo(
+      GetManifestData(application_manifest_keys::kAppMainKey));
+
+  return main_info != NULL;
 }
 
 // static

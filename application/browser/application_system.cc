@@ -44,7 +44,9 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
 }
 
 bool ApplicationSystem::HandleApplicationManagementCommands(
-    const CommandLine& cmd_line, const GURL& url) {
+    const CommandLine& cmd_line, const GURL& url,
+    bool& run_default_message_loop) {
+  run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
     const ApplicationData::ApplicationDataMap& apps =
         application_service_->GetInstalledApplications();
@@ -84,13 +86,17 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
       return false;
 
     std::string app_id;
-    if (application_service_->Install(path, &app_id))
+    if (application_service_->Install(path, &app_id)) {
       LOG(INFO) << "[OK] Application installed: " << app_id;
-    else
+      if (application_service_->GetApplicationByID(app_id)->HasMainDocument())
+        run_default_message_loop = true;
+    } else {
       LOG(ERROR) << "[ERR] Application install failure: " << path.value();
+    }
     return true;
   }
 
+  run_default_message_loop = true;
   return false;
 }
 

@@ -53,6 +53,18 @@ void ApplicationNativeModule::GetViewByIDCallback(
   info.GetReturnValue().Set(window);
 }
 
+void ApplicationNativeModule::GetCurrentRoutingIDCallback(
+    const v8::FunctionCallbackInfo<v8::Value>& info) {
+  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
+  DCHECK(webframe);
+
+  WebKit::WebView* webview = webframe->view();
+  DCHECK(webview);
+
+  content::RenderView* render_view = content::RenderView::FromWebView(webview);
+  info.GetReturnValue().Set(render_view->GetRoutingID());
+}
+
 ApplicationNativeModule::ApplicationNativeModule() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
@@ -66,6 +78,11 @@ ApplicationNativeModule::ApplicationNativeModule() {
       "getViewByID",
       v8::FunctionTemplate::New(&ApplicationNativeModule::GetViewByIDCallback,
                                 function_data));
+  object_template->Set(
+      "getCurrentRoutingID",
+      v8::FunctionTemplate::New(
+          &ApplicationNativeModule::GetCurrentRoutingIDCallback,
+          function_data));
 
   function_data_.Reset(isolate, function_data);
   object_template_.Reset(isolate, object_template);
