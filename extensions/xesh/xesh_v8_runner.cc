@@ -24,10 +24,12 @@ XEShV8Runner::XEShV8Runner(v8::Handle<v8::Context> context) {
 }
 
 std::string XEShV8Runner::ExecuteString(std::string statement) {
-  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
   v8::TryCatch try_catch;
   v8::Handle<v8::Script> script = v8::Script::Compile(
-      v8::String::New(statement.c_str()), v8::String::New("(xesh)"));
+      v8::String::NewFromUtf8(isolate, statement.c_str()),
+      v8::String::NewFromUtf8(isolate, "(xesh)"));
 
   if (script.IsEmpty()) {
     // Print errors that happened during compilation.
@@ -93,10 +95,13 @@ std::string XEShV8Runner::ReportException(v8::TryCatch* try_catch) {
 }
 
 void XEShV8Runner::RegisterAccessors(v8::Handle<v8::Context> context) {
-  context->Global()->Set(v8::String::New("print"),
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  context->Global()->Set(
+      v8::String::NewFromUtf8(isolate, "print"),
       v8::FunctionTemplate::New(PrintCallback)->GetFunction());
-
-  context->Global()->SetAccessor(v8::String::New("quit"), QuitCallback);
+  context->Global()->SetAccessor(
+      v8::String::NewFromUtf8(isolate, "quit"),
+      QuitCallback);
 }
 
 // static

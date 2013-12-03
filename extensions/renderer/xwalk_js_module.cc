@@ -34,7 +34,7 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
 
   if (compiled_script_.IsEmpty()) {
     std::string compilation_error;
-    if (!Compile(&compilation_error)) {
+    if (!Compile(isolate, &compilation_error)) {
       LOG(WARNING) << "Error compiling JS module: " << compilation_error;
       return v8::Handle<v8::Object>();
     }
@@ -55,12 +55,13 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
   return handle_scope.Close(result.As<v8::Object>());
 }
 
-bool XWalkJSModule::Compile(std::string* error) {
+bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {
   std::string wrapped_js_code =
       "'use strict'; (function() { var exports = {}; (function(exports) {"
       + js_code_ + "})(exports); return exports; })()";
 
-  v8::Handle<v8::String> v8_code(v8::String::New(wrapped_js_code.c_str()));
+  v8::Handle<v8::String> v8_code(
+      v8::String::NewFromUtf8(isolate, wrapped_js_code.c_str()));
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;

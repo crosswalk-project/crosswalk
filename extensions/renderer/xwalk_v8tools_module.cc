@@ -39,7 +39,7 @@ void LifecycleTrackerCleanup(v8::Isolate* isolate,
   v8::Local<v8::Object> local_tracker =
       v8::Local<v8::Object>::New(isolate, *tracker);
   v8::Handle<v8::Value> function =
-      local_tracker->Get(v8::String::New("destructor"));
+      local_tracker->Get(v8::String::NewFromUtf8(isolate, "destructor"));
 
   if (function.IsEmpty() || !function->IsFunction()) {
     DLOG(WARNING) << "Destructor function not set for LifecycleTracker.";
@@ -118,12 +118,15 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
-  object_template->Set("forceSetProperty",
-                        v8::FunctionTemplate::New(ForceSetPropertyCallback));
-  object_template->Set("lifecycleTracker",
+
+  // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
+  // update the Chromium (and V8) version.
+  object_template->Set(v8::String::NewFromUtf8(isolate, "forceSetProperty"),
+                       v8::FunctionTemplate::New(ForceSetPropertyCallback));
+  object_template->Set(v8::String::NewFromUtf8(isolate, "lifecycleTracker"),
                        v8::FunctionTemplate::New(LifecycleTracker));
 
-  object_template->Set("getWindowObject",
+  object_template->Set(v8::String::NewFromUtf8(isolate, "getWindowObject"),
                        v8::FunctionTemplate::New(GetWindowObject));
 
   object_template_.Reset(isolate, object_template);

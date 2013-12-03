@@ -38,18 +38,20 @@ XWalkExtensionModule::XWalkExtensionModule(XWalkExtensionClient* client,
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> function_data = v8::Object::New();
-  function_data->Set(v8::String::New(kXWalkExtensionModule),
+  function_data->Set(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule),
                      v8::External::New(this));
 
   v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
+  // update the Chromium (and V8) version.
   object_template->Set(
-      "postMessage",
+      v8::String::NewFromUtf8(isolate, "postMessage"),
       v8::FunctionTemplate::New(PostMessageCallback, function_data));
   object_template->Set(
-      "sendSyncMessage",
+      v8::String::NewFromUtf8(isolate, "sendSyncMessage"),
       v8::FunctionTemplate::New(SendSyncMessageCallback, function_data));
   object_template->Set(
-      "setMessageListener",
+      v8::String::NewFromUtf8(isolate, "setMessageListener"),
       v8::FunctionTemplate::New(SetMessageListenerCallback, function_data));
 
   function_data_.Reset(isolate, function_data);
@@ -117,8 +119,10 @@ std::string WrapAPICode(const std::string& extension_code,
 
 v8::Handle<v8::Value> RunString(const std::string& code,
                                 std::string* exception) {
-  v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
-  v8::Handle<v8::String> v8_code(v8::String::New(code.c_str()));
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+  v8::Handle<v8::String> v8_code(
+      v8::String::NewFromUtf8(isolate, code.c_str()));
 
   WebKit::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
@@ -273,10 +277,12 @@ void XWalkExtensionModule::SetMessageListenerCallback(
 // static
 XWalkExtensionModule* XWalkExtensionModule::GetExtensionModule(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
-  v8::HandleScope handle_scope(info.GetIsolate());
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+
   v8::Local<v8::Object> data = info.Data().As<v8::Object>();
   v8::Local<v8::Value> module =
-      data->Get(v8::String::New(kXWalkExtensionModule));
+      data->Get(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule));
   if (module.IsEmpty() || module->IsUndefined()) {
     LOG(WARNING) << "Trying to use extension from already destroyed context!";
     return NULL;
