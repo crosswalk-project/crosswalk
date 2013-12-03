@@ -32,6 +32,15 @@ class XWalkExtensionInstance;
 // XWalkExtensionInstance.
 class XWalkExtension {
  public:
+  class PermissionsDelegate {
+    public:
+      virtual bool CheckAPIAccessControl(std::string extension_name,
+          std::string app_id, std::string api_name) { return true; }
+
+    protected:
+      ~PermissionsDelegate() {}
+  };
+
   virtual ~XWalkExtension();
 
   virtual XWalkExtensionInstance* CreateInstance() = 0;
@@ -44,6 +53,10 @@ class XWalkExtension {
   // objects outside the namespace that is implicitly created using its name.
   virtual const base::ListValue& entry_points() const;
 
+  void set_permissions_delegate(XWalkExtension::PermissionsDelegate* delegate) {
+    permissions_delegate_ = delegate;
+  }
+
  protected:
   XWalkExtension();
   void set_name(const std::string& name) { name_ = name; }
@@ -53,6 +66,7 @@ class XWalkExtension {
   void set_entry_points(const std::vector<std::string>& entry_points) {
     entry_points_.AppendStrings(entry_points);
   }
+  bool CheckAPIAccessControl(std::string app_id, std::string api_name);
 
  private:
   // Name of extension, used for dispatching messages.
@@ -66,6 +80,8 @@ class XWalkExtension {
   // FIXME(jeez): convert this to std::vector<std::string> to avoid
   // extra conversions later on.
   base::ListValue entry_points_;
+
+  PermissionsDelegate* permissions_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };

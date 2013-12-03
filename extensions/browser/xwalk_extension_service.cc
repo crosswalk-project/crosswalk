@@ -22,6 +22,7 @@
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/application/browser/application_service.h"
 
 using content::BrowserThread;
 
@@ -317,7 +318,7 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
   IPC::ChannelProxy* channel = host->GetChannel();
 
-  extension_thread_server->Initialize(channel);
+  extension_thread_server->Initialize(channel, this);
   ui_thread_server->Initialize(channel);
 
   delegate_->RegisterInternalExtensionsInExtensionThreadServer(
@@ -396,6 +397,14 @@ void XWalkExtensionService::OnRenderProcessDied(
 
   extension_data_map_.erase(it);
   delete data;
+}
+
+bool XWalkExtensionService::CheckAPIAccessControl(std::string extension_name,
+    std::string app_id, std::string api_name) {
+  // ASK APPLICATION PERMISSION SERVICE.
+  bool status = xwalk::application::ApplicationService
+      ::CheckAPIAccessControl(extension_name, app_id, api_name);
+  return status;
 }
 
 }  // namespace extensions

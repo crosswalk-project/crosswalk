@@ -143,6 +143,8 @@ struct XW_CoreInterface_1 {
   // getting it returns NULL.
   void (*SetInstanceData)(XW_Instance instance, void* data);
   void* (*GetInstanceData)(XW_Instance instance);
+  int (*CheckAPIAccessControl)(XW_Extension extension, const char* app_id,
+       const char* api_name);
 };
 
 typedef struct XW_CoreInterface_1 XW_CoreInterface;

@@ -5,17 +5,21 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
+#include <string>
+
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_channel_proxy.h"
+#include "ipc/ipc_sender.h"
 
 namespace content {
 class BrowserChildProcessHost;
 class RenderProcessHost;
 }
+
 
 namespace xwalk {
 namespace extensions {
@@ -24,7 +28,8 @@ namespace extensions {
 // communication channel. It has to run some operations in IO thread for
 // creating the extra process.
 class XWalkExtensionProcessHost
-    : public content::BrowserChildProcessHostDelegate {
+    : public content::BrowserChildProcessHostDelegate,
+      public IPC::Sender {
  public:
   class Delegate {
    public:
@@ -39,6 +44,8 @@ class XWalkExtensionProcessHost
                             const base::FilePath& external_extensions_path,
                             XWalkExtensionProcessHost::Delegate* delegate);
   virtual ~XWalkExtensionProcessHost();
+
+  bool Send(IPC::Message* msg);
 
  private:
   class RenderProcessMessageFilter;
@@ -59,6 +66,9 @@ class XWalkExtensionProcessHost
   void OnRenderChannelCreated(const IPC::ChannelHandle& channel_id);
 
   void ReplyChannelHandleToRenderProcess();
+
+  void OnCheckAPIAccessControl(std::string extension_name,
+      std::string app_name, std::string api_name, bool* status);
 
   scoped_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;

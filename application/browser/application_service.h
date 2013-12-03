@@ -37,6 +37,10 @@ class ApplicationService {
   ApplicationStore::ApplicationMap* GetInstalledApplications() const;
   // Currently there's only one running application at a time.
   const Application* GetRunningApplication() const;
+  // Check whether application has the permisson to access API. This API will
+  // be called by XWalkExtensionProcessHost.
+  static bool CheckAPIAccessControl(std::string extension_name,
+      std::string app_id, std::string api_name);
 
   // Client code may use this class (and register with AddObserver below) to
   // keep track of applications installed/uninstalled.

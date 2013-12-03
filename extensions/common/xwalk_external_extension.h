@@ -52,6 +52,9 @@ class XWalkExternalExtension : public XWalkExtension {
   void CoreRegisterShutdownCallback(XW_ShutdownCallback callback);
   void EntryPointsSetExtraJSEntryPoints(const char** entry_points);
 
+  bool PermissionsCheckAPIAccessControl(const char* app_id,
+                                        const char* api_name);
+
   // XW_MessagingInterface_1 (from XW_Extension.h) implementation.
   void MessagingRegister(XW_HandleMessageCallback callback);
 
