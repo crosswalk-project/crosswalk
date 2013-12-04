@@ -1,0 +1,22 @@
+<html>
+<head>
+  <title>Screen Orientation API Test Page</title>
+<script>
+screen.addEventListener("orientationchange", function() {
+  console.log("1: " + screen.orientation);
+  throw("should be discarded");
+});
+screen.onorientationchange = function() {
+  console.log("2: " + screen.orientation);
+}
+</script>
+</head>
+<body>
+
+<h1>Screen Orientation API Test Page</h1>
+<input type="button" value="lock(portrait)" onclick="screen.lockOrientation(['portrait-primary', 'portrait-secondary']);"/><br/><br/><br/>
+<input type="button" value="lock(landscape)" onclick="screen.lockOrientation('landscape');"/><br/><br/><br/>
+<input type="button" value="unlock" onclick="screen.unlockOrientation();"/>
+
+</body>
+</html>

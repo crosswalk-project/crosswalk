@@ -16,6 +16,7 @@
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
+#include "xwalk/runtime/extension/screen_orientation_extension.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 
 namespace xwalk {
@@ -61,6 +62,12 @@ XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInExtensionThreadServer(
       new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
   server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
       new sysapps::RawSocketExtension()));
+}
+
+void XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInUIThreadServer(
+    extensions::XWalkExtensionServer* server) {
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new ScreenOrientationExtension(server)));
 }
 
 }  // namespace xwalk
