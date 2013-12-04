@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_CONTENTS_CLIENT_BRIDGE_H_
 
 #include <jni.h>
+#include <string>
 
 #include "base/android/jni_helper.h"
 #include "base/android/scoped_java_ref.h"
@@ -52,6 +53,9 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       OVERRIDE;
 
+  bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
+                                 const std::string& host,
+                                 const std::string& realm);
   // Methods called from Java.
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
