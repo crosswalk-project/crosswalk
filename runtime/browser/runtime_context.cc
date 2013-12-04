@@ -15,6 +15,7 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_switches.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_protocols.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
@@ -170,13 +171,13 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 
   xwalk::application::ApplicationService* service =
     application_system_.get()->application_service();
-  const xwalk::application::ApplicationData* running_app =
-    service->GetRunningApplication();
+  const xwalk::application::Application* running_app =
+          service->GetActiveApplication();
   if (running_app) {
     protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
           application::kApplicationScheme,
-          CreateApplicationProtocolHandler(running_app)));
+          CreateApplicationProtocolHandler(running_app->data())));
   }
 
   url_request_getter_ = new RuntimeURLRequestContextGetter(

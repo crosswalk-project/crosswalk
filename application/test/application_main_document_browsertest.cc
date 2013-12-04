@@ -40,7 +40,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
   xwalk::application::ApplicationService* service =
     runtime_context->GetApplicationSystem()->application_service();
-  const ApplicationData* app = service->GetRunningApplication();
+  const ApplicationData* app = service->GetActiveApplication();
   GURL generated_url =
     app->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);
   // Check main document URL.
