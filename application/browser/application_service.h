@@ -20,6 +20,8 @@ class RuntimeContext;
 namespace xwalk {
 namespace application {
 
+class Application;
+
 // This will manages applications install, uninstall, update and so on. It'll
 // also maintain all installed applications' info.
 class ApplicationService {
@@ -36,7 +38,7 @@ class ApplicationService {
        const std::string& id) const;
   const ApplicationData::ApplicationDataMap& GetInstalledApplications() const;
   // Currently there's only one running application at a time.
-  const ApplicationData* GetRunningApplication() const;
+  const Application* GetActiveApplication() const { return application_.get(); }
 
   // Client code may use this class (and register with AddObserver below) to
   // keep track of applications installed/uninstalled.
@@ -53,11 +55,11 @@ class ApplicationService {
   ApplicationStorage* application_storage();
 
  private:
-  bool Launch(scoped_refptr<const ApplicationData> application);
+  bool Launch(scoped_refptr<const ApplicationData> application_data);
 
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> app_storage_;
-  scoped_refptr<const ApplicationData> application_;
+  scoped_ptr<Application> application_;
   ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);

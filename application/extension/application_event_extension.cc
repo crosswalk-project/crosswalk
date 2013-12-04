@@ -6,6 +6,7 @@
 
 #include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
@@ -29,10 +30,10 @@ XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
     application_system_->application_service();
   // FIXME: return corresponding application info after shared runtime process
   // model is enabled.
-  const application::ApplicationData* app = service->GetRunningApplication();
+  const application::Application* app = service->GetActiveApplication();
   CHECK(app);
   return new AppEventExtensionInstance(
-      application_system_->event_manager(), app->ID());
+      application_system_->event_manager(), app->data()->ID());
 }
 
 AppEventExtensionInstance::AppEventExtensionInstance(
