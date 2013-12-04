@@ -13,11 +13,15 @@
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 using ui::SelectFileDialog;
 
 namespace xwalk {
+
+namespace application {
+class ApplicationSystem;
+}
+
 namespace experimental {
 
 using extensions::XWalkExtension;
@@ -25,25 +29,18 @@ using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 
-class DialogExtension : public XWalkExtension,
-                        public RuntimeRegistryObserver {
+class DialogExtension : public XWalkExtension {
  public:
-  explicit DialogExtension(RuntimeRegistry* runtime_registry);
+  explicit DialogExtension(application::ApplicationSystem* system);
   virtual ~DialogExtension();
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
-  // RuntimeRegistryObserver implementation.
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
-  virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
-
  private:
   friend class DialogInstance;
 
-  RuntimeRegistry* runtime_registry_;
-  gfx::NativeWindow owning_window_;
+  application::ApplicationSystem* system_;
 };
 
 
@@ -64,9 +61,10 @@ class DialogInstance : public XWalkExtensionInstance,
  private:
   void OnShowOpenDialog(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnShowSaveDialog(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  gfx::NativeWindow GetOwningWindow() const;
 
   DialogExtension* extension_;
-  scoped_refptr<SelectFileDialog> dialog_;
+  scoped_refptr<SelectFileDialog> dialog_;  
 
   XWalkExtensionFunctionHandler handler_;
 };
