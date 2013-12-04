@@ -8,8 +8,8 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -24,7 +24,6 @@ namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
-    process_manager_(new ApplicationProcessManager(runtime_context)),
     application_service_(new ApplicationService(runtime_context)),
     event_manager_(new ApplicationEventManager(this)) {}
 
@@ -143,9 +142,9 @@ bool ApplicationSystem::LaunchFromCommandLine(
 void ApplicationSystem::SendOnLaunchedEvent() {
   scoped_refptr<Event> event = Event::CreateEvent(
       kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-  DCHECK(application_service_->GetRunningApplication());
+  DCHECK(application_service_->GetActiveApplication());
   event_manager_->SendEvent(
-      application_service_->GetRunningApplication()->ID(), event);
+      application_service_->GetActiveApplication()->data()->ID(), event);
 }
 
 bool ApplicationSystem::IsRunningAsService() const {

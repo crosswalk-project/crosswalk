@@ -11,8 +11,8 @@
 #include "grit/xwalk_application_resources.h"
 #include "ipc/ipc_message.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
@@ -37,19 +37,18 @@ XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
     application_system_->application_service();
 
   int main_routing_id = MSG_ROUTING_NONE;
-  application::ApplicationProcessManager* pm =
-      application_system_->process_manager();
-  const Runtime* runtime = pm->GetMainDocumentRuntime();
+  // FIXME: return corresponding application info after shared runtime process
+  // model is enabled.
+  const application::Application* app = service->GetActiveApplication();
+  CHECK(app);
+
+  const Runtime* runtime = app->GetMainDocumentRuntime();
   if (runtime)
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
-  // FIXME: return corresponding application info after shared runtime process
-  // model is enabled.
-  const application::ApplicationData* app = service->GetRunningApplication();
-  CHECK(app);
   return new AppEventExtensionInstance(
       application_system_,
-      app->ID(), main_routing_id);
+      app->data()->ID(), main_routing_id);
 }
 
 AppEventExtensionInstance::AppEventExtensionInstance(
