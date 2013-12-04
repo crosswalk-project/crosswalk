@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
-public class DeviceCapabilitiesCPU {
+class DeviceCapabilitiesCPU {
     private static final String SYSTEM_INFO_STAT_FILE = "/proc/stat";
     private static final String TAG = "DeviceCapabilitiesCPU";
 
