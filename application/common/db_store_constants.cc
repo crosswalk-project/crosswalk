@@ -34,10 +34,10 @@ const char kCreateEventTableOp[] =
     "ON DELETE CASCADE)";
 
 const char kGetAllRowsFromAppEventTableOp[] =
-    "SELECT applications.id, manifest, path, install_time, event_names "
-    "FROM applications "
-    "LEFT JOIN registered_events "
-    "ON applications.id = registered_events.id";
+    "SELECT A.id, A.manifest, A.path, A.install_time, B.event_names "
+    "FROM applications as A "
+    "LEFT JOIN registered_events as B "
+    "ON A.id = B.id";
 
 const char kSetApplicationWithBindOp[] =
     "INSERT INTO applications (manifest, path, install_time, id) "
