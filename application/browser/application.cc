@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 
 #include <string>
 
@@ -21,32 +21,33 @@ using xwalk::RuntimeContext;
 namespace xwalk {
 namespace application {
 
-ApplicationProcessManager::ApplicationProcessManager(
+Application::Application(
+    scoped_refptr<const ApplicationData> data,
     RuntimeContext* runtime_context)
     : runtime_context_(runtime_context),
+      application_data_(data),
       main_runtime_(NULL),
       weak_ptr_factory_(this) {
+  DCHECK(application_data_);
 }
 
-ApplicationProcessManager::~ApplicationProcessManager() {
+Application::~Application() {
 }
 
-bool ApplicationProcessManager::LaunchApplication(
-        RuntimeContext* runtime_context,
-        const ApplicationData* application) {
-  if (RunMainDocument(application))
+bool Application::Launch() {
+  if (RunMainDocument())
     return true;
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
-  return RunFromLocalPath(application);
+  return RunFromLocalPath();
 }
 
-void ApplicationProcessManager::OnRuntimeAdded(Runtime* runtime) {
+void Application::OnRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.insert(runtime);
 }
 
-void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
+void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
   // FIXME: main_runtime_ should always be the last one to close
@@ -56,9 +57,8 @@ void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
     CloseMainDocument();
 }
 
-bool ApplicationProcessManager::RunMainDocument(
-    const ApplicationData* application) {
-  const Manifest* manifest = application->GetManifest();
+bool Application::RunMainDocument() {
+  const Manifest* manifest = application_data_->GetManifest();
   const base::DictionaryValue* dict = NULL;
   if (!manifest->GetDictionary(application_manifest_keys::kAppMainKey, &dict))
     return false;
@@ -75,37 +75,36 @@ bool ApplicationProcessManager::RunMainDocument(
     LOG(WARNING) << "An app should not has more than one main document.";
 
   if (!main_source.empty()) {
-    url = application->GetResourceURL(main_source);
+    url = application_data_->GetResourceURL(main_source);
   } else if (main_scripts && main_scripts->GetSize()) {
     // When no main.source is defined but main.scripts are, we implicitly create
     // a main document.
-    url = application->GetResourceURL(kGeneratedMainDocumentFilename);
+    url = application_data_->GetResourceURL(kGeneratedMainDocumentFilename);
   } else {
     LOG(WARNING) << "The app.main field doesn't contain a valid main document.";
     return false;
   }
 
-  main_runtime_ = Runtime::Create(runtime_context_, url);
+  main_runtime_ = Runtime::Create(runtime_context_, url, this);
   ApplicationEventManager* event_manager =
       runtime_context_->GetApplicationSystem()->event_manager();
   event_manager->OnMainDocumentCreated(
-      application->ID(), main_runtime_->web_contents());
+      application_data_->ID(), main_runtime_->web_contents());
   return true;
 }
 
-void ApplicationProcessManager::CloseMainDocument() {
+void Application::CloseMainDocument() {
   DCHECK(main_runtime_);
   main_runtime_->Close();
   main_runtime_ = NULL;
 }
 
-bool ApplicationProcessManager::RunFromLocalPath(
-    const ApplicationData* application) {
-  const Manifest* manifest = application->GetManifest();
+bool Application::RunFromLocalPath() {
+  const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
   if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
         &entry_page) && !entry_page.empty()) {
-    GURL url = application->GetResourceURL(entry_page);
+    GURL url = application_data_->GetResourceURL(entry_page);
     if (url.is_empty()) {
       LOG(WARNING) << "Can't find a valid local path URL for app.";
       return false;

@@ -21,7 +21,6 @@ namespace xwalk {
 namespace application {
 
 class ApplicationEventManager;
-class ApplicationProcessManager;
 class ApplicationService;
 class ApplicationServiceProvider;
 
@@ -33,11 +32,6 @@ class ApplicationSystem {
  public:
   explicit ApplicationSystem(xwalk::RuntimeContext* runtime_context);
   ~ApplicationSystem();
-
-  // The ApplicationProcessManager is created at startup.
-  ApplicationProcessManager* process_manager() {
-    return process_manager_.get();
-  }
 
   // The ApplicationService is created at startup.
   ApplicationService* application_service() {
@@ -78,7 +72,6 @@ class ApplicationSystem {
 
  private:
   xwalk::RuntimeContext* runtime_context_;
-  scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
   scoped_ptr<ApplicationServiceProvider> service_provider_;

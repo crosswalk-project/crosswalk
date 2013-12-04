@@ -102,8 +102,6 @@
         'runtime/browser/runtime_platform_util_win.cc',
         'runtime/browser/runtime_quota_permission_context.cc',
         'runtime/browser/runtime_quota_permission_context.h',
-        'runtime/browser/runtime_registry.cc',
-        'runtime/browser/runtime_registry.h',
         'runtime/browser/runtime_resource_dispatcher_host_delegate.cc',
         'runtime/browser/runtime_resource_dispatcher_host_delegate.h',
         'runtime/browser/runtime_resource_dispatcher_host_delegate_android.cc',

@@ -31,7 +31,6 @@
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
@@ -109,7 +108,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   }
 
   runtime_context_.reset(new RuntimeContext);
-  runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
 
   // Prepare the cookie store.
