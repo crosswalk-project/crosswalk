@@ -5,7 +5,9 @@
 var _promises = {};
 var _next_promise_id = 0;
 var _listeners = {};
-var _next_listener_id = 0;
+// Preserve 4 spaces to hold onattach, ondetach, onconnect and ondisconnect's
+// callback functions.
+var _next_listener_id = 4;
 
 var Promise = requireNative('sysapps_promise').Promise;
 
@@ -101,17 +103,17 @@ extension.setMessageListener(function(json) {
   delete _promises[msg._promise_id];
 });
 
-var _hasListener = function(eventName) {
+var _getListenerNumber = function(eventName) {
   var count = 0;
   for (var i in _listeners) {
     if (_listeners[i]['eventName'] === eventName) {
       count += 1;
     }
   }
-  return (0 !== count);
+  return count;
 };
 
-exports.addEventListener = function(eventName, callback) {
+function _addEventListener(eventName, callback) {
   if (typeof eventName !== 'string') {
     console.log("Invalid parameters (*, -)!");
     return -1;
@@ -122,25 +124,77 @@ exports.addEventListener = function(eventName, callback) {
     return -1;
   }
 
-  if (!_hasListener(eventName)) {
-    var msg = {
-      'cmd': 'addEventListener',
-      'eventName': eventName
-    };
-    extension.postMessage(JSON.stringify(msg));
-  }
-
   var listener = {
     'eventName': eventName,
     'callback': callback
   };
 
-  var listener_id = _next_listener_id;
-  _next_listener_id += 1;
-  _listeners[listener_id] = listener;
+  var listener_id;
+
+  switch(listener.eventName) {
+    case 'onattach':
+      _listeners[0] = listener;
+      listener_id = 0;
+      break;
+
+    case 'ondetach':
+      _listeners[1] = listener;
+      listener_id = 1;
+      break;
+
+    case 'onconnect':
+      _listeners[2] = listener;
+      listener_id = 2;
+      break;
+
+    case 'ondisconnect':
+      _listeners[3] = listener;
+      listener_id = 3;
+      break;
+
+    default:
+      listener.eventName = 'on' + eventName;
+      listener_id = _next_listener_id;
+      _next_listener_id += 1;
+      _listeners[listener_id] = listener;
+  }
+
+  if (_getListenerNumber(listener.eventName) == 1) {
+    var msg = {
+      'cmd': 'addEventListener',
+      'eventName': listener.eventName
+    };
+    extension.postMessage(JSON.stringify(msg));
+  }
 
   return listener_id;
-};
+}
+
+Object.defineProperty(exports, 'onattach', {
+  set: function(callback) {
+    _addEventListener('onattach', callback);
+  }
+});
+
+Object.defineProperty(exports, 'ondetach', {
+  set: function(callback) {
+    _addEventListener('ondetach', callback);
+  }
+});
+
+Object.defineProperty(exports, 'onconnect', {
+  set: function(callback) {
+    _addEventListener('onconnect', callback);
+  }
+});
+
+Object.defineProperty(exports, 'ondisconnect', {
+  set: function(callback) {
+    _addEventListener('ondisconnect', callback);
+  }
+});
+
+exports.addEventListener = _addEventListener;
 
 var _sendSyncMessage = function(msg) {
   return extension.internal.sendSyncMessage(JSON.stringify(msg));
