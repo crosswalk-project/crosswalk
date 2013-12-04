@@ -53,6 +53,9 @@ AppEventExtensionInstance::AppEventExtensionInstance(
                         base::Unretained(this)));
 }
 
+AppEventExtensionInstance::~AppEventExtensionInstance() {
+}
+
 void AppEventExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass());
 }
