@@ -8,7 +8,6 @@
 #include "base/bind.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace {
 
@@ -121,7 +120,7 @@ void RunningApplicationsManager::OnTerminate(
 
   // FIXME(cmarcelo): While there's still no notion of Running Application yet,
   // we'll simply close all the windows of the current one.
-  RuntimeRegistry::Get()->CloseAll();
+  // RuntimeRegistry::Get()->CloseAll();
 
   adaptor_.RemoveManagedObject(object->path());
 
