@@ -19,14 +19,6 @@
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
 
-#if defined(OS_ANDROID)
-#include "components/navigation_interception/intercept_navigation_delegate.h"
-#include "xwalk/runtime/browser/android/xwalk_download_resource_throttle.h"
-#endif
-
-using content::BrowserThread;
-using navigation_interception::InterceptNavigationDelegate;
-
 namespace {
 base::LazyInstance<xwalk::RuntimeResourceDispatcherHostDelegate>
     g_runtime_resource_dispatcher_host_delegate = LAZY_INSTANCE_INITIALIZER;
@@ -55,25 +47,6 @@ void RuntimeResourceDispatcherHostDelegate::RequestBeginning(
     int child_id,
     int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
-#if defined(OS_ANDROID)
-  bool allow_intercepting =
-      // We allow intercepting navigations within subframes, but only if the
-      // scheme other than http or https. This is because the embedder
-      // can't distinguish main frame and subframe callbacks (which could lead
-      // to broken content if the embedder decides to not ignore the main frame
-      // navigation, but ignores the subframe navigation).
-      // The reason this is supported at all is that certain JavaScript-based
-      // frameworks use iframe navigation as a form of communication with the
-      // embedder.
-      (resource_type == ResourceType::MAIN_FRAME ||
-       (resource_type == ResourceType::SUB_FRAME &&
-        !request->url().SchemeIs(content::kHttpScheme) &&
-        !request->url().SchemeIs(content::kHttpsScheme)));
-  if (allow_intercepting) {
-    throttles->push_back(InterceptNavigationDelegate::CreateThrottleFor(
-        request));
-  }
-#endif
 }
 
 void RuntimeResourceDispatcherHostDelegate::DownloadStarting(
@@ -85,26 +58,13 @@ void RuntimeResourceDispatcherHostDelegate::DownloadStarting(
     bool is_content_initiated,
     bool must_download,
     ScopedVector<content::ResourceThrottle>* throttles) {
-#if defined(OS_ANDROID)
-  throttles->push_back(
-      new XWalkDownloadResourceThrottle(
-          request, child_id, route_id, request_id));
-#endif
 }
 
 bool RuntimeResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
     int child_id,
     int route_id) {
-#if defined(OS_ANDROID)
-  // On Android, there are many Uris need to be handled differently.
-  // e.g: sms:, tel:, mailto: and etc.
-  // So here return false to let embedders to decide which protocol
-  // to be handled.
-  return false;
-#else
   return true;
-#endif
 }
 
 }  // namespace xwalk
