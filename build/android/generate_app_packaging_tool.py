@@ -85,12 +85,12 @@ def PrepareFromXwalk(target_dir):
   for folder in app_src_folder_list:
     shutil.copytree(folder, os.path.join(app_src_dir, os.path.basename(folder)))
 
-  pak_file_src_path = os.path.join(os.path.dirname(target_dir),
-                                   'xwalk_runtime_lib', 'assets', 'xwalk.pak')
-  pak_file_des_dir = os.path.join(target_dir, 'native_libs_res')
-  if not os.path.exists(pak_file_des_dir):
-    os.makedirs(pak_file_des_dir)
-  shutil.copy(pak_file_src_path, os.path.join(pak_file_des_dir, 'xwalk.pak'))
+  native_res_file_src_dir = os.path.join(os.path.dirname(target_dir),
+                                         'xwalk_runtime_lib', 'assets')
+  native_res_file_des_dir = os.path.join(target_dir, 'native_libs_res')
+  if os.path.exists(native_res_file_des_dir):
+    shutil.rmtree(native_res_file_des_dir)
+  shutil.copytree(native_res_file_src_dir, native_res_file_des_dir)
 
   packaging_tool_list = ['./app/tools/android/customize.py',
                          './app/tools/android/make_apk.py',

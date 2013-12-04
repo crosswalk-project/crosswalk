@@ -119,14 +119,14 @@
         {
           'action_name': 'prepare_xwalk_app_template',
           'inputs': [
-            'tools/prepare.py',
+            'build/android/generate_app_packaging_tool.py',
           ],
           'outputs': [
             # put an inexist file here to do this step every time.
             '<(PRODUCT_DIR)/xwalk_app_template_1'
           ],
           'action': [
-            'python', 'tools/prepare.py',
+            'python', 'build/android/generate_app_packaging_tool.py',
             '<(PRODUCT_DIR)/xwalk_app_template'
           ],
         },
