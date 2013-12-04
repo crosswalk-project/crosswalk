@@ -42,6 +42,7 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
  public:
   AppEventExtensionInstance(application::ApplicationEventManager* event_manager,
                             const std::string& app_id);
+  virtual ~AppEventExtensionInstance();
 
   // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
