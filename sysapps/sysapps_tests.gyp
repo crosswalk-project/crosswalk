@@ -6,9 +6,11 @@
       'dependencies': [
         '../../base/base.gyp:base',
         '../../base/base.gyp:run_all_unittests',
+        '../../content/content_shell_and_tests.gyp:test_support_content',
         '../../testing/gtest.gyp:gtest',
         '../../ui/ui.gyp:ui',
         '../../ui/views/views.gyp:views',
+        '../../webkit/child/webkit_child.gyp:webkit_child',
         '../extensions/extensions.gyp:xwalk_extensions',
         'sysapps.gyp:sysapps',
       ],
@@ -21,6 +23,13 @@
         'device_capabilities_new/display_info_provider_unittest.cc',
         'device_capabilities_new/memory_info_provider_unittest.cc',
         'device_capabilities_new/storage_info_provider_unittest.cc',
+      ],
+      'conditions': [
+        ['os_posix==1 and OS!="mac" and linux_use_tcmalloc==1', {
+          'dependencies': [
+            '../../base/allocator/allocator.gyp:allocator',
+          ],
+        }],
       ],
     },
     {

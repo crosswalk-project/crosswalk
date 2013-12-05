@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
+#include "content/public/test/test_browser_thread_bundle.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/sysapps/common/sysapps_manager.h"
 #include "xwalk/sysapps/device_capabilities_new/device_capabilities.h"
@@ -61,7 +62,10 @@ void TestClosure() {
 }  // namespace
 
 TEST(XWalkSysAppsDeviceCapabilitiesTest, StorageInfoProvider) {
-  base::MessageLoop message_loop;
+  // The StorageMonitor backend requires an UIThread up and running. Luckily
+  // the abstraction bellow does all the heavy lifting for us.
+  content::TestBrowserThreadBundle thread_bundle(
+      content::TestBrowserThreadBundle::IO_MAINLOOP);
 
   StorageInfoProvider* provider(SysAppsManager::GetStorageInfoProvider());
   EXPECT_TRUE(provider != NULL);
@@ -71,7 +75,7 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, StorageInfoProvider) {
   if (!provider->IsInitialized())
     provider->AddOnInitCallback(closure);
   else
-    message_loop.PostTask(FROM_HERE, closure);
+    base::MessageLoop::current()->PostTask(FROM_HERE, closure);
 
-  message_loop.Run();
+  base::MessageLoop::current()->Run();
 }
