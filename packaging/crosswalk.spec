@@ -93,7 +93,6 @@ This package contains additional support files that are needed for running Cross
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
-cp %{SOURCE1004} .
 sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
 
 cp -a src/AUTHORS AUTHORS.chromium
