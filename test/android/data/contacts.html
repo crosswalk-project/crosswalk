@@ -1,0 +1,261 @@
+<html>
+<head>
+  <title></title>
+</head>
+<style type="text/css">
+  body { margin: auto; width: 100%; }
+  div { margin: 15; padding: 10; width: 100%; }
+  textarea { margin: 10; padding: 10; width: 95%; height: 15%; font-size: 12; resize: none; }
+  .button { margin: 10; padding: 10; width: 80%; height: 5%; font-size: 40; }
+  .title { margin: 20; padding: 20; font-size: 42; font-weight: bold; }
+  .subtitle { margin: 10; padding: 10; font-size: 32; }
+  .text { font-size: 25; }
+  .center { text-align: center; }
+  .save { background-color: #FFFACD; }
+  .update { background-color: #CAE1FF; }
+  .find { background-color: #FFF0F5; }
+  .remove { background-color: #F0FFF0; }
+  .event { background-color:  #D1D1D1; }
+</style>
+<body>
+
+<script>
+
+window.onload = function() {
+  var contacts = navigator.contacts || xwalk.experimental.contacts;
+
+  function ContactName(init) {
+    this.displayName = init.displayName;
+    this.honorificPrefixes = init.honorificPrefixes;
+    this.givenNames = init.givenNames;
+    this.familyNames = init.familyNames;
+    this.nickNames = init.nickNames;
+  }
+
+  function ContactField(init) {
+    this.types = init.types;
+    this.prefered = init.prefered;
+    this.value = init.value;
+  }
+
+  function ContactTelField(init) {
+    this.carrier = init.carrier;
+    this.types = init.types;
+    this.prefered = init.prefered;
+    this.value = init.value;
+  }
+
+  function Contact(init) {
+    this.name = init.name;
+    this.emails = init.emails;
+    this.phoneNumbers = init.phoneNumbers;
+  }
+
+  function ContactFindOptions(init) {
+    this.value = init.value;
+    this.operator = init.operator;
+    this.fields = init.fields;
+    this.sortBy = init.sortBy;
+    this.sortOrder = init.sortOrder;
+    this.resultsLimit = init.resultsLimit;
+  }
+
+  var successCount = 0;
+  function onSuccess() {
+    ++successCount;
+    // Features to test:
+    // 1. Save a new contact
+    // 2. Update a existing contact
+    // 3. Find a contact
+    if (successCount >= 3) {
+      document.title = 'Pass';
+    }
+  }
+
+  var errorCallback = function(error) {
+    document.title = 'Fail';
+    console.log(error);
+  }
+
+  var firstID = -1;
+  var secondID = -1;
+
+  var saveCallback = function(contact) {
+    var output = '';
+    if (firstID == -1) {
+      firstID = contact.id;
+    } else {
+      secondID = contact.id;
+      output += '<br>'
+    }
+    output +=  'Contact ' +
+      contact.id + ' ' +
+      contact.name.givenNames[0] + ' ' +
+      contact.name.familyNames[0] + ' saved!';
+    document.getElementById('save').innerHTML += output;
+    onSuccess();
+  };
+
+  var expectedNewPhoneNumber = '+4455001';
+  var updateStartCallback = function(contact) {
+    var output = 'Updating contact ' +
+      contact.id + ' ' +
+      contact.name.givenNames[0] + ' ' +
+      contact.name.familyNames[0] + ',<br>phone number: ' +
+      contact.phoneNumbers[0].value;
+    document.getElementById('update').innerHTML += output;
+    contact.phoneNumbers[0].value = expectedNewPhoneNumber;
+    contacts.save(contact).then(updateDoneCallback, errorCallback);
+  };
+
+  var updateDoneCallback = function(contact) {
+    var output = '<p>Contact ' +
+      contact.id + ' ' +
+      contact.name.givenNames[0] + ' ' +
+      contact.name.familyNames[0] + ' updated,<br>phone number now is: ' +
+      contact.phoneNumbers[0].value;
+    document.getElementById('update').innerHTML += output;
+    if (contact.phoneNumbers[0].value == expectedNewPhoneNumber) {
+      onSuccess();
+    }
+  };
+
+  var findStartCallback = function(c) {
+    var options = new ContactFindOptions({
+      value: 'Doe',
+      operator: 'contains',
+      fields: ['familyName'],
+      sortBy: ['familyNames'],
+      sortOrder: 'ascending',
+      resultsLimit: 3
+    });
+    contacts.find(options).then(findDoneCallback, errorCallback);
+  };
+
+  var findDoneCallback = function(items) {
+    var output = 'Found '+items.length + ' contact(s):';
+    output += '<p>';
+    for(var i = 0, l = items.length; i < l; ++i) {
+      output += items[i].name.givenNames[0] + ' '
+                + items[i].name.familyNames[0] + '<br>';
+    }
+    document.getElementById('find').innerHTML = output;
+    onSuccess();
+    contacts.remove(firstID);
+    contacts.remove(secondID);
+    output = "Contacts " + firstID + " and " + secondID + " are removed";
+    document.getElementById('remove').innerHTML = output;
+  };
+
+  var contactName = new ContactName({
+    givenNames: ['John'],
+    familyNames: ['Doe']
+  });
+
+  var mobilePhone = new ContactTelField({
+    types: ['home'],
+    preferred: true,
+    value: '+44698765432'
+  });
+
+  var contact = new Contact({
+    name: contactName,
+    phoneNumbers: [mobilePhone]
+  });
+
+  try {
+    contacts.addEventListener(function(data) {
+        var output = document.getElementById('event');
+        output.value += 'contacts changes:\n';
+        if (data.added) {
+          var msg = 'added: ';
+          for (var i = 0; i < data.added.length; ++i) {
+             msg += data.added[i] + '|';
+          }
+          output.value += msg + '\n';
+        }
+        if (data.removed) {
+          var msg = 'removed: ';
+          for (var i = 0; i < data.removed.length; ++i) {
+             msg += data.removed[i] + '|';
+          }
+          output.value += msg + '\n';
+        }
+        if (data.modified) {
+          var msg = 'modified: ';
+          for (var i = 0; i < data.modified.length; ++i) {
+             msg += data.modified[i] + '|';
+          }
+          output.value += msg + '\n';
+        }
+        output.value += '-----------\n';
+        output.scrollTop = output.scrollHeight;
+      });
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    contacts.save(contact)                       // save a contact
+      .then(saveCallback, errorCallback)         // and then print the result of saving
+      .then(updateStartCallback, errorCallback); // and then update this contact
+  } catch(e) {
+    console.log(e);
+  }
+
+  contact.name.familyNames[0] = 'Smith';
+  contact.phoneNumbers[0].value = '+1012345678';
+  try {
+    contacts.save(contact)                     // save another contact
+      .then(saveCallback, errorCallback)       // and then print the result of saving
+      .then(findStartCallback, errorCallback); // and then find a contact
+  } catch(e) {
+    console.log(e);
+  }
+
+  document.getElementById("btnSaveUpdateOneMore").onclick = function() {
+    try {
+      contact.name.givenNames[0] = 'Bob';
+      contact.name.familyNames[0] = 'George';
+      contact.phoneNumbers[0].value = '+01010101';
+      contacts.save(contact)
+        .then(saveCallback, errorCallback)
+        .then(updateStartCallback, errorCallback);
+    } catch(e) {
+      console.log(e);
+    }
+  }
+};
+
+</script>
+
+<div class="title center">Contacts API Example</div>
+
+<div class="save">
+  <p class="subtitle center">Save Contact</p>
+  <p class="text center" id="save"></p>
+</div>
+
+<div class="update">
+  <p class="subtitle center">Update Contact</p>
+  <p class="text center" id="update"></p>
+</div>
+
+<div class="find">
+  <p class="subtitle center">Find Contact</p>
+  <p class="text center" id="find"></p>
+</div>
+
+<div class="remove">
+  <p class="subtitle center">Remove Contact</p>
+  <p class="text center" id="remove"></p>
+</div>
+
+<div class="event">
+  <p class="subtitle center">Contact Event</p>
+  <button class="button" id="btnSaveUpdateOneMore">Save one more contact and update</button>
+  <textarea id="event" readonly=true></textarea>
+</div>
+
+</body>
+</html>
