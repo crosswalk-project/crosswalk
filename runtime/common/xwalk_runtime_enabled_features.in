@@ -11,4 +11,6 @@
 // can have its runtime flag removed soon after.
 //
 
+DeviceCapabilities status=stable, text="device-capabilities", description="Device Capabilities API"
+RawSocket status=stable, text="raw-socket", description="Raw Socket API"
 XWalkRunAsService status=experimental, text="run-as-service", description="Runs Crosswalk in service mode. It loads no application by default but stays alive and listens for external requests to launch applications."
