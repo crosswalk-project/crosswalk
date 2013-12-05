@@ -11,7 +11,6 @@ Source1:        xwalk
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
-Source1004:     install_into_pkginfo_db.py
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
 Patch2:         %{name}-look-for-pvr-libGLESv2.so.patch
 Patch3:         %{name}-include-tizen-ime-files.patch
@@ -191,7 +190,6 @@ cd src
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
-install -p -D %{SOURCE1004} %{buildroot}%{_bindir}/install_into_pkginfo_db.py
 
 # Supporting libraries and resources.
 install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
@@ -207,7 +205,6 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_bindir}/xwalkctl
-%{_bindir}/install_into_pkginfo_db.py
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
