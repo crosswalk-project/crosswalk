@@ -7,6 +7,7 @@
 
 #include "xwalk/application/browser/application_service_provider.h"
 
+#include <string>
 #include "xwalk/dbus/dbus_manager.h"
 
 namespace xwalk {
@@ -23,7 +24,7 @@ class ApplicationServiceProviderLinux : public ApplicationServiceProvider {
   virtual ~ApplicationServiceProviderLinux();
 
  private:
-  void OnDBusInitialized();
+  void OnServiceNameExported(const std::string& service_name, bool success);
 
   // TODO(cmarcelo): Remove this once we expose real objects.
   void ExportTestObject();

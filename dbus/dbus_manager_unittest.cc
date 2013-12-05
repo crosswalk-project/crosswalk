@@ -22,19 +22,6 @@ const char kTestInterface[] = "org.crosswalkproject.test_service.Interface";
 const char kTestMethod[] = "Method";
 const dbus::ObjectPath kTestObjectPath("/test/path");
 
-// Test whether initialization of a DBusManager succeeds.
-TEST(DBusManagerTest, Initialize) {
-  base::MessageLoop message_loop;
-  DBusManager manager(kTestServiceName);
-
-  base::RunLoop run_loop;
-  manager.Initialize(run_loop.QuitClosure());
-  run_loop.Run();
-
-  ASSERT_TRUE(manager.session_bus());
-  ASSERT_TRUE(manager.session_bus()->is_connected());
-}
-
 void EmptyCallback() {}
 
 // Uses a DBusManager to expose an object with a method. Provide hooks (on_*
@@ -45,12 +32,22 @@ class ExportObjectService {
   ExportObjectService()
       : on_exported(base::Bind(EmptyCallback)),
         on_method_called(base::Bind(EmptyCallback)),
-        manager_(kTestServiceName),
+        manager_(),
         dbus_object_(NULL) {}
 
   void Initialize() {
-    manager_.Initialize(
-        base::Bind(&ExportObjectService::OnInitialized,
+    scoped_refptr<dbus::Bus> bus = manager_.session_bus();
+    dbus_object_ = bus->GetExportedObject(kTestObjectPath);
+    dbus_object_->ExportMethod(
+        kTestInterface, kTestMethod,
+        base::Bind(&ExportObjectService::OnMethodCalled,
+                   base::Unretained(this)),
+        base::Bind(&ExportObjectService::OnExported,
+                   base::Unretained(this)));
+    bus->RequestOwnership(
+        kTestServiceName,
+        dbus::Bus::REQUIRE_PRIMARY,
+        base::Bind(&ExportObjectService::OnOwnershipCallback,
                    base::Unretained(this)));
   }
 
@@ -58,20 +55,16 @@ class ExportObjectService {
   base::Closure on_method_called;
 
  private:
-  void OnInitialized() {
-    dbus_object_ = manager_.session_bus()->GetExportedObject(kTestObjectPath);
-    dbus_object_->ExportMethod(
-        kTestInterface, kTestMethod,
-        base::Bind(&ExportObjectService::OnMethodCalled,
-                   base::Unretained(this)),
-        base::Bind(&ExportObjectService::OnExported,
-                   base::Unretained(this)));
+  void OnOwnershipCallback(const std::string& service_name, bool success) {
+    ASSERT_TRUE(success)
+        << "Couldn't get ownership of D-Bus service name:" << service_name;
+    on_exported.Run();
   }
 
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success) {
-    on_exported.Run();
+    ASSERT_TRUE(success);
   }
 
   void OnMethodCalled(dbus::MethodCall* method_call,

@@ -18,26 +18,36 @@ namespace application {
 
 ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
     ApplicationService* app_service)
-    : ApplicationServiceProvider(app_service),
-      dbus_manager_(kXWalkDBusServiceName) {
-  dbus_manager_.Initialize(
-      base::Bind(&ApplicationServiceProviderLinux::OnDBusInitialized,
+    : ApplicationServiceProvider(app_service) {
+  scoped_refptr<dbus::Bus> bus = dbus_manager_.session_bus();
+
+  installed_apps_.reset(new InstalledApplicationsRoot(
+      dbus_manager_.session_bus(), app_service));
+  running_apps_.reset(new RunningApplicationsRoot(
+      dbus_manager_.session_bus(), app_service));
+
+  // TODO(cmarcelo): This is just a placeholder to test D-Bus is working, remove
+  // once we exported proper objects.
+  ExportTestObject();
+
+  // Auto activation waits for the service name to be registered, so we do this
+  // as the last step so all the object paths and interfaces are set.
+  bus->RequestOwnership(
+      kXWalkDBusServiceName,
+      dbus::Bus::REQUIRE_PRIMARY,
+      base::Bind(&ApplicationServiceProviderLinux::OnServiceNameExported,
                  base::Unretained(this)));
 }
 
 ApplicationServiceProviderLinux::~ApplicationServiceProviderLinux() {}
 
-void ApplicationServiceProviderLinux::OnDBusInitialized() {
-  VLOG(1) << "D-Bus initialized.";
-
-  installed_apps_.reset(new InstalledApplicationsRoot(
-      dbus_manager_.session_bus(), app_service()));
-  running_apps_.reset(new RunningApplicationsRoot(
-      dbus_manager_.session_bus(), app_service()));
-
-  // TODO(cmarcelo): This is just a placeholder to test D-Bus is working, remove
-  // once we exported proper objects.
-  ExportTestObject();
+void ApplicationServiceProviderLinux::OnServiceNameExported(
+    const std::string& service_name, bool success) {
+  if (!success) {
+    LOG(ERROR) << "Couldn't own D-Bus service name: " << service_name;
+    return;
+  }
+  VLOG(1) << "D-Bus service name exported.";
 }
 
 namespace {
