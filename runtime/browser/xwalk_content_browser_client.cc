@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
+#include <string>
 #include <vector>
 
 #include "base/command_line.h"
@@ -25,6 +26,7 @@
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
+#include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
@@ -139,6 +141,48 @@ void XWalkContentBrowserClient::RenderProcessHostCreated(
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
   return XWalkMediaCaptureDevicesDispatcher::GetInstance();
+}
+
+bool XWalkContentBrowserClient::AllowGetCookie(
+    const GURL& url,
+    const GURL& first_party,
+    const net::CookieList& cookie_list,
+    content::ResourceContext* context,
+    int render_process_id,
+    int render_view_id) {
+#if defined(OS_ANDROID)
+  return XWalkCookieAccessPolicy::GetInstance()->AllowGetCookie(
+      url,
+      first_party,
+      cookie_list,
+      context,
+      render_process_id,
+      render_view_id);
+#else
+  return true;
+#endif
+}
+
+bool XWalkContentBrowserClient::AllowSetCookie(
+    const GURL& url,
+    const GURL& first_party,
+    const std::string& cookie_line,
+    content::ResourceContext* context,
+    int render_process_id,
+    int render_view_id,
+    net::CookieOptions* options) {
+#if defined(OS_ANDROID)
+  return XWalkCookieAccessPolicy::GetInstance()->AllowSetCookie(
+      url,
+      first_party,
+      cookie_line,
+      context,
+      render_process_id,
+      render_view_id,
+      options);
+#else
+  return true;
+#endif
 }
 
 #if defined(OS_ANDROID)

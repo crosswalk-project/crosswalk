@@ -8,6 +8,10 @@
 #include "net/base/static_cookie_policy.h"
 #include "net/url_request/url_request.h"
 
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
+#endif
+
 namespace xwalk {
 
 RuntimeNetworkDelegate::RuntimeNetworkDelegate() {
@@ -77,15 +81,24 @@ RuntimeNetworkDelegate::OnAuthRequired(
 bool RuntimeNetworkDelegate::OnCanGetCookies(
     const net::URLRequest& request,
     const net::CookieList& cookie_list) {
-  // TODO(hmin): We need to define a policy for cookie read/write.
+#if defined(OS_ANDROID)
+  return XWalkCookieAccessPolicy::GetInstance()->OnCanGetCookies(
+    request, cookie_list);
+#else
   return true;
+#endif
 }
 
 bool RuntimeNetworkDelegate::OnCanSetCookie(const net::URLRequest& request,
                                             const std::string& cookie_line,
                                             net::CookieOptions* options) {
-  // TODO(hmin): We need to define a policy for cookie read/write.
+#if defined(OS_ANDROID)
+  return XWalkCookieAccessPolicy::GetInstance()->OnCanSetCookie(request,
+                                                                cookie_line,
+                                                                options);
+#else
   return true;
+#endif
 }
 
 bool RuntimeNetworkDelegate::OnCanAccessFile(const net::URLRequest& request,

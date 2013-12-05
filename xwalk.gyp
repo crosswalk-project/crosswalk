@@ -179,6 +179,8 @@
           'sources': [
             'runtime/app/android/xwalk_main_delegate_android.cc',
             'runtime/app/android/xwalk_main_delegate_android.h',
+            'runtime/browser/android/cookie_manager.cc',
+            'runtime/browser/android/cookie_manager.h',
             'runtime/browser/android/intercepted_request_data.h',
             'runtime/browser/android/intercepted_request_data_impl.cc',
             'runtime/browser/android/intercepted_request_data_impl.h',
@@ -208,6 +210,8 @@
             'runtime/browser/android/xwalk_contents_client_bridge.h',
             'runtime/browser/android/xwalk_contents_client_bridge_base.cc',
             'runtime/browser/android/xwalk_contents_client_bridge_base.h',
+            'runtime/browser/android/xwalk_cookie_access_policy.cc',
+            'runtime/browser/android/xwalk_cookie_access_policy.h',
             'runtime/browser/android/xwalk_dev_tools_server.cc',
             'runtime/browser/android/xwalk_dev_tools_server.h',
             'runtime/browser/android/xwalk_download_resource_throttle.cc',

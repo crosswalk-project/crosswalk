@@ -4,28 +4,36 @@
 
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 
+#include "base/android/path_utils.h"
+#include "base/base_paths_android.h"
+#include "base/files/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop/message_loop.h"
+#include "base/path_service.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "cc/base/switches.h"
+#include "content/public/browser/android/compositor.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/browser/cookie_store_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
 #include "grit/net_resources.h"
+#include "net/android/network_change_notifier_factory_android.h"
+#include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 #include "ui/base/layout.h"
+#include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
-
-#include "content/public/browser/android/compositor.h"
-#include "net/android/network_change_notifier_factory_android.h"
-#include "net/base/network_change_notifier.h"
-#include "ui/base/l10n/l10n_util_android.h"
 
 namespace {
 
@@ -43,6 +51,7 @@ base::StringPiece PlatformResourceProvider(int key) {
 
 namespace xwalk {
 
+using content::BrowserThread;
 using extensions::XWalkExtension;
 
 XWalkBrowserMainPartsAndroid::XWalkBrowserMainPartsAndroid(
@@ -102,6 +111,29 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService(this));
+
+  // Prepare the cookie store.
+  base::FilePath user_data_dir;
+  if (!PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir)) {
+    NOTREACHED() << "Failed to get app data directory for Crosswalk";
+  }
+
+  base::FilePath cookie_store_path = user_data_dir.Append(
+      FILE_PATH_LITERAL("Cookies"));
+  scoped_refptr<base::SequencedTaskRunner> background_task_runner =
+      BrowserThread::GetBlockingPool()->GetSequencedTaskRunner(
+          BrowserThread::GetBlockingPool()->GetSequenceToken());
+
+  cookie_store_ = content::CreatePersistentCookieStore(
+      cookie_store_path,
+      true,
+      NULL,
+      NULL,
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
+      background_task_runner);
+
+  cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
+  SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {

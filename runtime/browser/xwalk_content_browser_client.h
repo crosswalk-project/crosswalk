@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_CONTENT_BROWSER_CLIENT_H_
 
+#include <string>
 #include <vector>
 
 #include "base/compiler_specific.h"
@@ -58,6 +59,19 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   void RenderProcessHostGone(content::RenderProcessHost* host);
 
+  virtual bool AllowGetCookie(const GURL& url,
+                              const GURL& first_party,
+                              const net::CookieList& cookie_list,
+                              content::ResourceContext* context,
+                              int render_process_id,
+                              int render_view_id) OVERRIDE;
+  virtual bool AllowSetCookie(const GURL& url,
+                              const GURL& first_party,
+                              const std::string& cookie_line,
+                              content::ResourceContext* context,
+                              int render_process_id,
+                              int render_view_id,
+                              net::CookieOptions* options) OVERRIDE;
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
       const CommandLine& command_line,
