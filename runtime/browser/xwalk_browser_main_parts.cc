@@ -227,8 +227,10 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
   server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new experimental::DialogExtension(runtime_registry_.get())));
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new sysapps::RawSocketExtension()));
+  if (XWalkRuntimeEnabledFeatures::sysAppsRawSocketEnabled()) {
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(
+        new sysapps::RawSocketExtension()));
+  }
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensionsInUIThreadServer(

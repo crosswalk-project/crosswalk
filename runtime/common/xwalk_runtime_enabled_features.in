@@ -12,4 +12,6 @@
 // can have its runtime flag removed soon after.
 //
 
+SysAppsDeviceCapabilities status=stable, text="sysapps-device-capabilities", description="W3C SysApps Device Capabilities API"
 RunAsService status=experimental, text="run-as-service", description="Runs Crosswalk in service mode. It loads no application by default but stays alive and listens for external requests to launch applications."
+SysAppsRawSocket status=stable, text="sysapps-raw-socket", description="W3C SysApps Raw Socket API"
