@@ -53,6 +53,7 @@
         '../webkit/glue/webkit_glue.gyp:glue_child',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
+        'xwalk_runtime_flags',
         'xwalk_resources',
         'experimental/experimental_resources.gyp:xwalk_experimental_resources',
       ],
@@ -139,6 +140,8 @@
         'runtime/extension/runtime_extension.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
         'runtime/renderer/xwalk_content_renderer_client.h',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.h',
       ],
       'includes': [
         'extensions/extensions.gypi',
@@ -286,6 +289,32 @@
             ['exclude', '_aura\\.cc$'],
           ],
         }],
+      ],
+    },
+    {
+      'target_name': 'xwalk_runtime_flags',
+      'type': 'none',
+      'actions': [
+        {
+          'action_name': 'make_runtime_flags',
+          'includes': [ '../third_party/WebKit/Source/build/scripts/scripts.gypi' ],
+          'inputs': [
+            '<@(scripts_for_in_files)',
+            'build/scripts/make_runtime_features.py',
+            'runtime/common/xwalk_runtime_enabled_features.in',
+          ],
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.h',
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.cpp',
+          ],
+          'action': [
+            'python',
+            'build/scripts/make_runtime_features.py',
+            'runtime/common/xwalk_runtime_enabled_features.in',
+            '--output_dir',
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk',
+          ],
+        },
       ],
     },
     {

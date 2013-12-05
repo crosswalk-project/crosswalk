@@ -32,6 +32,7 @@
 #include "content/public/common/result_codes.h"
 #include "net/base/net_util.h"
 #include "ui/gl/gl_switches.h"
+#include "xwalk_runtime_enabled_features.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
 #include "ui/base/ime/input_method_initializer.h"
@@ -80,6 +81,7 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
+  XWalkRuntimeEnabledFeatures::setStableFeaturesEnabled(true);
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(xswitches::kEnableViewport);
 
