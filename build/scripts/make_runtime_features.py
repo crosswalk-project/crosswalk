@@ -41,6 +41,7 @@ import template_expander
 
 class RuntimeFeatureWriter(in_generator.Writer):
     class_name = 'xwalk_runtime_enabled_features'
+    switches_name = 'xwalk_runtime_switches'
 
     # FIXME: valid_values and defaults should probably roll into one object.
     valid_values = {
@@ -57,8 +58,10 @@ class RuntimeFeatureWriter(in_generator.Writer):
 
     def __init__(self, in_file_path, enabled_conditions):
         super(RuntimeFeatureWriter, self).__init__(in_file_path, enabled_conditions)
-        self._outputs = {(self.class_name + ".h"): self.generate_header,
-                         (self.class_name + ".cc"): self.generate_implementation,
+        self._outputs = {(self.class_name + ".h"): self.generate_header_features,
+                         (self.class_name + ".cc"): self.generate_implementation_features,
+                         (self.switches_name + ".h"): self.generate_header_switches,
+                         (self.switches_name + ".cc"): self.generate_implementation_switches,
                         }
 
         self._features = self.in_file.name_dictionaries
@@ -79,14 +82,28 @@ class RuntimeFeatureWriter(in_generator.Writer):
         return self.valid_values['status']
 
     @template_expander.use_jinja(class_name + ".h.tmpl")
-    def generate_header(self):
+    def generate_header_features(self):
         return {
             'features': self._features,
             'feature_sets': self._feature_sets(),
         }
 
     @template_expander.use_jinja(class_name + ".cc.tmpl")
-    def generate_implementation(self):
+    def generate_implementation_features(self):
+        return {
+            'features': self._features,
+            'feature_sets': self._feature_sets(),
+        }
+
+    @template_expander.use_jinja(switches_name + ".h.tmpl")
+    def generate_header_switches(self):
+        return {
+            'features': self._features,
+            'feature_sets': self._feature_sets(),
+        }
+
+    @template_expander.use_jinja(switches_name + ".cc.tmpl")
+    def generate_implementation_switches(self):
         return {
             'features': self._features,
             'feature_sets': self._feature_sets(),

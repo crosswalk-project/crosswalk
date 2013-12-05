@@ -1,0 +1,15 @@
+{% from "macros.tmpl" import wrap_with_condition, license -%}
+{{ license() }}
+
+#include "xwalk_runtime_switches.h"
+
+namespace switches {
+
+// Store all the command line switches to trigger the features.
+
+{% for feature in features %}
+  // {{feature.description}}
+  const char kXWalk{{feature.name}}[] = {{feature.text}};
+{% endfor %}
+
+} // namespace switches

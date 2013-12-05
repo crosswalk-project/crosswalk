@@ -142,6 +142,8 @@
         'runtime/renderer/xwalk_content_renderer_client.h',
         '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.cc',
         '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.h',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_switches.cc',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_switches.h',
       ],
       'includes': [
         'extensions/extensions.gypi',
@@ -302,10 +304,16 @@
             '<@(scripts_for_in_files)',
             'build/scripts/make_runtime_features.py',
             'runtime/common/xwalk_runtime_enabled_features.in',
+            'build/scripts/templates/xwalk_runtime_enabled_features.cc.tmpl',
+            'build/scripts/templates/xwalk_runtime_enabled_features.h.tmpl',
+            'build/scripts/templates/xwalk_runtime_switches.cc.tmpl',
+            'build/scripts/templates/xwalk_runtime_switches.h.tmpl',
           ],
           'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.cc',
             '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.h',
-            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_enabled_features.cpp',
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_switches.cc',
+            '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_runtime_switches.h',
           ],
           'action': [
             'python',

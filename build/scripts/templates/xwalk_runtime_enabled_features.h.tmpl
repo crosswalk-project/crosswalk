@@ -4,6 +4,9 @@
 #ifndef XWALK_RUNTIME_ENABLED_FEATURES_H_
 #define XWALK_RUNTIME_ENABLED_FEATURES_H_
 
+#include "base/command_line.h"
+#include "xwalk_runtime_switches.h"
+
 namespace xwalk {
 
 // A class that stores static enablers for all experimental features.
@@ -20,7 +23,14 @@ public:
     static bool {{feature.first_lowered_name}}Enabled();
 {%- else %}
     static void set{{feature.name}}Enabled(bool isEnabled) { is{{feature.name}}Enabled = isEnabled; }
-    static bool {{feature.first_lowered_name}}Enabled() { return {{feature.enabled_condition}}; }
+    static bool {{feature.first_lowered_name}}Enabled() {
+        // The command line argument always override our default.
+        CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+        if (cmd_line->HasSwitch(switches::kXWalk{{feature.name}})) {
+            return true;
+        }
+        return {{feature.enabled_condition}};
+    }
 {%- endif %}
 {% endfor %}
 
