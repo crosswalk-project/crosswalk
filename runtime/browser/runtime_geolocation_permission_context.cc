@@ -36,7 +36,11 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
   }
 
   xwalk_content->ShowGeolocationPrompt(requesting_frame, callback);
+#elif defined(OS_TIZEN_MOBILE)
+  // TODO(shalamov): Implement geolocation permission UI for Tizen.
+  callback.Run(true);
 #endif
+
   // TODO(yongsheng): Handle this for other platforms.
 }
 
