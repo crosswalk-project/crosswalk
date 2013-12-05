@@ -202,7 +202,8 @@ def CustomizeJava(options, sanitized_name):
     elif options.app_local_path:
       if os.path.isfile(os.path.join(sanitized_name, 'assets/www',
                                      options.app_local_path)):
-        ReplaceString(dest_activity, 'index.html', options.app_local_path)
+        ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
+                      'app://' + options.package + '/' + options.app_local_path)
       else:
         print ('Please make sure that the relative path of entry file'
                ' is correct.')

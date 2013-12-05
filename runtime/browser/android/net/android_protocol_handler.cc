@@ -78,6 +78,9 @@ class AndroidStreamReaderURLRequestJobDelegateImpl
                           InputStream* stream,
                           std::string* charset) OVERRIDE;
 
+  virtual bool GetPackageName(JNIEnv* env,
+                              std::string* name) OVERRIDE;
+
   virtual ~AndroidStreamReaderURLRequestJobDelegateImpl();
 };
 
@@ -103,6 +106,13 @@ class AssetFileProtocolHandler : public AndroidProtocolHandlerBase {
   const std::string asset_prefix_;
   // file:///android_res/
   const std::string resource_prefix_;
+};
+
+// Protocol handler for app:// scheme requests.
+class AppSchemeProtocolHandler : public AndroidProtocolHandlerBase {
+ public:
+  AppSchemeProtocolHandler();
+  virtual bool CanHandleRequest(const net::URLRequest* request) const OVERRIDE;
 };
 
 // Protocol handler for content:// scheme requests.
@@ -199,6 +209,21 @@ bool AndroidStreamReaderURLRequestJobDelegateImpl::GetCharset(
   return false;
 }
 
+bool AndroidStreamReaderURLRequestJobDelegateImpl::GetPackageName(
+    JNIEnv* env,
+    std::string* name) {
+  ScopedJavaLocalRef<jstring> returned_name =
+      xwalk::Java_AndroidProtocolHandler_getPackageName(
+          env,
+          GetResourceContext(env).obj());
+
+  if (ClearException(env) || returned_name.is_null())
+    return false;
+
+  *name = base::android::ConvertJavaStringToUTF8(returned_name);
+  return true;
+}
+
 // AndroidProtocolHandlerBase -------------------------------------------------
 
 net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
@@ -264,6 +289,15 @@ bool ContentSchemeProtocolHandler::CanHandleRequest(
   return request->url().SchemeIs(xwalk::kContentScheme);
 }
 
+// AppSchemeProtocolHandler
+AppSchemeProtocolHandler::AppSchemeProtocolHandler() {
+}
+
+bool AppSchemeProtocolHandler::CanHandleRequest(
+    const net::URLRequest* request) const {
+  return request->url().SchemeIs(xwalk::kAppScheme);
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -285,6 +319,13 @@ CreateAssetFileProtocolHandler() {
   return make_scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>(
       new AssetFileProtocolHandler());
 }
+// static
+scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+CreateAppSchemeProtocolHandler() {
+  return make_scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+      new AppSchemeProtocolHandler());
+}
+
 
 // Set a context object to be used for resolving resource queries. This can
 // be used to override the default application context and redirect all

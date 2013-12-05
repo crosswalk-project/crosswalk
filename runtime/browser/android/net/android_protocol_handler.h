@@ -31,6 +31,11 @@ scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
 scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
     CreateAssetFileProtocolHandler();
 
+//  - "app:" scheme is used for accessing application resources in assets.
+//    It's part of sysapps API, http://app-uri.sysapps.org.
+scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
+    CreateAppSchemeProtocolHandler();
+
 
 bool RegisterAndroidProtocolHandler(JNIEnv* env);
 

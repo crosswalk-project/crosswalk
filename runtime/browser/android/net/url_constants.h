@@ -9,6 +9,7 @@
 
 namespace xwalk {
 
+extern const char kAppScheme[];
 extern const char kContentScheme[];
 // Special Android file paths.
 extern const char kAndroidAssetPath[];

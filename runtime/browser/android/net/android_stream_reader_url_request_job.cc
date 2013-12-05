@@ -30,6 +30,7 @@
 #include "net/url_request/url_request_job_manager.h"
 #include "xwalk/runtime/browser/android/net/input_stream.h"
 #include "xwalk/runtime/browser/android/net/input_stream_reader.h"
+#include "xwalk/runtime/browser/android/net/url_constants.h"
 
 using base::android::AttachCurrentThread;
 using base::PostTaskAndReplyWithResult;
@@ -40,10 +41,16 @@ using xwalk::InputStreamReader;
 namespace {
 
 const int kHTTPOk = 200;
+const int kHTTPBadRequest = 400;
+const int kHTTPForbidden = 403;
 const int kHTTPNotFound = 404;
+const int kHTTPNotImplemented = 501;
 
 const char kHTTPOkText[] = "OK";
+const char kHTTPBadRequestText[] = "Bad Request";
+const char kHTTPForbiddenText[] = "Forbidden";
 const char kHTTPNotFoundText[] = "Not Found";
+const char kHTTPNotImplementedText[] = "Not Implemented";
 
 }  // namespace
 
@@ -125,6 +132,27 @@ void OpenInputStreamOnWorkerThread(
 
 void AndroidStreamReaderURLRequestJob::Start() {
   DCHECK(thread_checker_.CalledOnValidThread());
+
+  GURL url = request()->url();
+  // Generate the HTTP header response for app scheme.
+  if (url.SchemeIs(xwalk::kAppScheme)) {
+    if (request()->method() != "GET") {
+      HeadersComplete(kHTTPNotImplemented, kHTTPNotImplementedText);
+    } else if (url.path().empty()) {
+      HeadersComplete(kHTTPBadRequest, kHTTPBadRequestText);
+    } else {
+      JNIEnv* env = AttachCurrentThread();
+      DCHECK(env);
+      std::string package_name;
+      delegate_->GetPackageName(env, &package_name);
+
+      // TODO(Xingnan): More permission control policy will be added here,
+      // if it's needed.
+      if (request()->url().host() != package_name)
+        HeadersComplete(kHTTPForbidden, kHTTPForbiddenText);
+    }
+  }
+
   // Start reading asynchronously so that all error reporting and data
   // callbacks happen as they would for network requests.
   SetStatus(net::URLRequestStatus(net::URLRequestStatus::IO_PENDING,
