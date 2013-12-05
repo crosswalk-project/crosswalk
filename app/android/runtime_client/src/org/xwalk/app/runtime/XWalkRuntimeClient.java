@@ -225,7 +225,12 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      * Usually meet the case of clicking on the back key.
      */
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return (Boolean) invokeMethod(mOnKeyUp, mInstance, keyCode, event);
+        // Normally, java can handle the convertion of boolean and Boolean well,
+        // But here invokeMethod is possible to return null if runtime lib not found,
+        // Convert null to boolean will cause NullPointerException.
+        Boolean handled = (Boolean) invokeMethod(mOnKeyUp, mInstance, keyCode, event);
+        if (handled != null) return handled;
+        return false;
     }
 
     // The following functions just for instrumentation test.
