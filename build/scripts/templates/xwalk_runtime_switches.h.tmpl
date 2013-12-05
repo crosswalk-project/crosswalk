@@ -1,0 +1,17 @@
+{% from "macros.tmpl" import wrap_with_condition, license -%}
+{{ license() }}
+
+#ifndef XWALK_RUNTIME_SWITCHES_H_
+#define XWALK_RUNTIME_SWITCHES_H_
+
+namespace switches {
+
+// Store all the command line switches to trigger the features.
+
+{% for feature in features %}
+  extern const char kXWalk{{feature.name}}[];
+{% endfor %}
+
+} // namespace switches
+
+#endif // XWALK_RUNTIME_ENABLED_FEATURES_H_

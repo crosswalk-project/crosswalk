@@ -25,6 +25,7 @@
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk_runtime_enabled_features.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -150,8 +151,10 @@ XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInExtensionThreadServer(
   for (; it != extensions_.end(); ++it)
     server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
 
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new sysapps::RawSocketExtension()));
+  if (XWalkRuntimeEnabledFeatures::sysAppsRawSocketEnabled()) {
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(
+        new sysapps::RawSocketExtension()));
+  }
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(

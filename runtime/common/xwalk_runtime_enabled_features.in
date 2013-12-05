@@ -1,0 +1,17 @@
+//
+// This list is used to generate XWalkRuntimeEnabledFeatures.h/cc which contains
+// a class that stores static enablers for all experimental features.
+//
+// Each feature can be assigned a "status":
+// status=stable -> Enable this in all XWalk configurations.  We are committed to these APIs/features indefinitely.
+// status=experimental -> In-progress features, developers might play with, but are not on by default in stable.
+// status=test -> Enabled in tests, otherwise off.
+// Features without a status are not enabled anywhere by default.
+//
+// "stable" features listed here should be rare, as anything which we've shipped stable
+// can have its runtime flag removed soon after.
+//
+
+SysAppsDeviceCapabilities status=stable, text="sysapps-device-capabilities", description="W3C SysApps Device Capabilities API"
+RunAsService status=experimental, text="run-as-service", description="Runs Crosswalk in service mode. It loads no application by default but stays alive and listens for external requests to launch applications."
+SysAppsRawSocket status=stable, text="sysapps-raw-socket", description="W3C SysApps Raw Socket API"
