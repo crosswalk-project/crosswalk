@@ -32,13 +32,8 @@ ApplicationProcessManager::~ApplicationProcessManager() {
 }
 
 bool ApplicationProcessManager::LaunchApplication(
-        RuntimeContext* runtime_context,
         const ApplicationData* application) {
-  if (RunMainDocument(application))
-    return true;
-  // NOTE: For now we allow launching a web app from a local path. This may go
-  // away at some point.
-  return RunFromLocalPath(application);
+  return RunMainDocument(application);
 }
 
 void ApplicationProcessManager::OnRuntimeAdded(Runtime* runtime) {
@@ -97,25 +92,6 @@ void ApplicationProcessManager::CloseMainDocument() {
   DCHECK(main_runtime_);
   main_runtime_->Close();
   main_runtime_ = NULL;
-}
-
-bool ApplicationProcessManager::RunFromLocalPath(
-    const ApplicationData* application) {
-  const Manifest* manifest = application->GetManifest();
-  std::string entry_page;
-  if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
-        &entry_page) && !entry_page.empty()) {
-    GURL url = application->GetResourceURL(entry_page);
-    if (url.is_empty()) {
-      LOG(WARNING) << "Can't find a valid local path URL for app.";
-      return false;
-    }
-
-    Runtime::CreateWithDefaultWindow(runtime_context_, url);
-    return true;
-  }
-
-  return false;
 }
 
 }  // namespace application

@@ -223,9 +223,7 @@ bool ApplicationService::Launch(
   ApplicationEventManager* event_manager = system->event_manager();
   event_manager->OnAppLoaded(application->ID());
 
-  return system->process_manager()->LaunchApplication(
-      runtime_context_,
-      application);
+  return system->process_manager()->LaunchApplication(application);
 }
 
 }  // namespace application
