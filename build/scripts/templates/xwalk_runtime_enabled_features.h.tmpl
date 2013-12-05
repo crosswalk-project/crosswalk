@@ -1,0 +1,34 @@
+{% from "macros.tmpl" import wrap_with_condition, license -%}
+{{ license() }}
+
+#ifndef XWALK_RUNTIME_ENABLED_FEATURES_H_
+#define XWALK_RUNTIME_ENABLED_FEATURES_H_
+
+namespace xwalk {
+
+// A class that stores static enablers for all experimental features.
+
+class XWalkRuntimeEnabledFeatures {
+public:
+
+{%- for feature_set in feature_sets %}
+    static void set{{feature_set|capitalize}}FeaturesEnabled(bool);
+{%- endfor %}
+
+{% for feature in features %}
+    static void set{{feature.name}}Enabled(bool isEnabled) { is{{feature.name}}Enabled = isEnabled; }
+    static bool {{feature.first_lowered_name}}Enabled() { return {{feature.enabled_condition}}; }
+{% endfor %}
+
+private:
+    XWalkRuntimeEnabledFeatures() { }
+{% for feature in features %}
+{%- call wrap_with_condition(feature.condition) %}
+    static bool is{{feature.name}}Enabled;
+{%- endcall %}
+{%- endfor %}
+};
+
+} // namespace xwalk
+
+#endif // XWALK_RUNTIME_ENABLED_FEATURES_H_
