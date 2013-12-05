@@ -8,12 +8,17 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.content.Context;
 import android.util.Log;
+import android.os.Build;
+
+import java.io.RandomAccessFile;
+import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesMemory {
+    private static final String MEM_INFO_FILE = "/proc/meminfo";
     private static final String TAG = "DeviceCapabilitiesMemory";
 
     private DeviceCapabilities mDeviceCapabilities;
@@ -47,7 +52,41 @@ class DeviceCapabilitiesMemory {
         ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(mem_info);
 
-        mCapacity = mem_info.totalMem / 1024;
-        mAvailableCapacity = mem_info.availMem / 1024;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mCapacity = mem_info.totalMem;
+        } else {
+            mCapacity = getTotalMemFromFile();
+        }
+        mAvailableCapacity = mem_info.availMem;
+    }
+
+    private long getTotalMemFromFile() {
+        long capacity = 0;
+        RandomAccessFile file = null;
+
+        try {
+            file = new RandomAccessFile(MEM_INFO_FILE, "r");
+            String line = file.readLine();
+
+            String[] arrs = line.split(":");
+            if (!arrs[0].equals("MemTotal")) {
+                return 0;
+            }
+            String[] values = arrs[1].trim().split("\\s+");
+            capacity = Long.parseLong(values[0]) * 1024;
+        } catch (IOException e) {
+            capacity = 0;
+            Log.e(TAG, e.toString());
+        } finally {
+            try {
+                if (file != null) {
+                    file.close();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, e.toString());
+            }
+        }
+
+        return capacity; 
     }
 }
