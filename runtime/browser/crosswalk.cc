@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/crosswalk.h"
 
 #include "base/logging.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 namespace xwalk {
 
@@ -14,7 +15,8 @@ Crosswalk* g_crosswalk = NULL;
 
 }  // namespace
 
-Crosswalk::Crosswalk() {
+Crosswalk::Crosswalk()
+    : content_browser_client_(new XWalkContentBrowserClient) {
   VLOG(1) << "Creating Crosswalk object.";
   DCHECK(!g_crosswalk);
   g_crosswalk = this;
@@ -34,6 +36,10 @@ Crosswalk* Crosswalk::Get() {
 // static
 scoped_ptr<Crosswalk> Crosswalk::Create() {
   return scoped_ptr<Crosswalk>(new Crosswalk);
+}
+
+content::ContentBrowserClient* Crosswalk::GetContentBrowserClient() {
+  return content_browser_client_.get();
 }
 
 }  // namespace xwalk
