@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
-#define XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
+#ifndef XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_
+#define XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_
 
 #include <string>
 #include "base/memory/ref_counted.h"
@@ -41,4 +41,4 @@ class RunningApplicationsManager {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
+#endif  // XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_

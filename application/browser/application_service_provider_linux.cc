@@ -10,8 +10,8 @@
 #include "dbus/exported_object.h"
 #include "dbus/message.h"
 #include "xwalk/dbus/xwalk_service_name.h"
-#include "xwalk/application/browser/linux/installed_applications_root.h"
-#include "xwalk/application/browser/linux/running_applications_root.h"
+#include "xwalk/application/browser/linux/installed_applications_manager.h"
+#include "xwalk/application/browser/linux/running_applications_manager.h"
 
 namespace xwalk {
 namespace application {

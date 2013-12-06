@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/linux/running_applications_root.h"
+#include "xwalk/application/browser/linux/running_applications_manager.h"
 
 #include <string>
 #include "base/bind.h"

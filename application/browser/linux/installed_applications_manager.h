@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
-#define XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
+#ifndef XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_
+#define XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_
 
 #include <string>
 #include "base/memory/ref_counted.h"
@@ -66,4 +66,4 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
+#endif  // XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_
