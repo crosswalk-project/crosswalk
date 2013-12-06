@@ -37,7 +37,8 @@ class ApplicationProcessManager : public RuntimeRegistryObserver {
   explicit ApplicationProcessManager(xwalk::RuntimeContext* runtime_context);
   virtual ~ApplicationProcessManager();
 
-  bool LaunchApplication(const ApplicationData* application);
+  bool LaunchApplication(xwalk::RuntimeContext* runtime_context,
+                         const ApplicationData* application);
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
 
@@ -48,6 +49,7 @@ class ApplicationProcessManager : public RuntimeRegistryObserver {
 
  private:
   bool RunMainDocument(const ApplicationData* application);
+  bool RunFromLocalPath(const ApplicationData* application);
   void CloseMainDocument();
 
   xwalk::RuntimeContext* runtime_context_;
