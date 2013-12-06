@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
-#define XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
+#ifndef XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_
+#define XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_
 
 #include <string>
 #include "base/memory/ref_counted.h"
@@ -22,13 +22,13 @@ class InstalledApplicationObject;
 // D-Bus.
 //
 // The exported object implements org.freedesktop.DBus.ObjectManager, and the
-// interface org.crosswalkproject.InstalledApplicationsRoot (see .cc file for
+// interface org.crosswalkproject.Installed.Manager (see .cc file for
 // description).
-class InstalledApplicationsRoot : public ApplicationService::Observer {
+class InstalledApplicationsManager : public ApplicationService::Observer {
  public:
-  InstalledApplicationsRoot(scoped_refptr<dbus::Bus> bus,
+  InstalledApplicationsManager(scoped_refptr<dbus::Bus> bus,
                             ApplicationService* service);
-  ~InstalledApplicationsRoot();
+  ~InstalledApplicationsManager();
 
  private:
   // ApplicationService::Observer implementation.
@@ -54,7 +54,7 @@ class InstalledApplicationsRoot : public ApplicationService::Observer {
                   const std::string& method_name,
                   bool success);
 
-  base::WeakPtrFactory<InstalledApplicationsRoot> weak_factory_;
+  base::WeakPtrFactory<InstalledApplicationsManager> weak_factory_;
 
   ApplicationService* application_service_;
   dbus::Bus* bus_;
@@ -66,4 +66,4 @@ class InstalledApplicationsRoot : public ApplicationService::Observer {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_ROOT_H_
+#endif  // XWALK_APPLICATION_BROWSER_LINUX_INSTALLED_APPLICATIONS_MANAGER_H_

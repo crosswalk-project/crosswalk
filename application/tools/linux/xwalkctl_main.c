@@ -11,9 +11,9 @@
 static const char* xwalk_service_name = "org.crosswalkproject";
 static const char* xwalk_installed_path = "/installed";
 static const char* xwalk_installed_iface =
-    "org.crosswalkproject.InstalledApplicationsRoot";
+    "org.crosswalkproject.Installed.Manager";
 static const char* xwalk_installed_app_iface =
-    "org.crosswalkproject.InstalledApplication";
+    "org.crosswalkproject.Installed.Application";
 
 static char* install_path;
 static char* uninstall_appid;

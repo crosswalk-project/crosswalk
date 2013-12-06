@@ -19,8 +19,8 @@ extern const char kInstalledApplicationDBusInterface[];
 extern const char kInstalledApplicationDBusError[];
 
 // Holds the D-Bus representation of an installed application. These objects are
-// owned by InstalledApplicationsRoot and the corresponding objects in D-Bus are
-// child of '/installed/' object path.
+// owned by InstalledApplicationsManager and the corresponding objects in D-Bus
+// are child of '/installed/' object path.
 class InstalledApplicationObject {
  public:
   InstalledApplicationObject(

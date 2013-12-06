@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/linux/running_applications_root.h"
+#include "xwalk/application/browser/linux/running_applications_manager.h"
 
 #include <string>
 #include "base/bind.h"
@@ -11,7 +11,7 @@
 
 namespace {
 
-// D-Bus Interface implemented by the root object of running applications.
+// D-Bus Interface implemented by the manager object of running applications.
 //
 // Methods:
 //
@@ -20,34 +20,34 @@ namespace {
 //
 // TODO(cmarcelo): This should return an object path pointing to the
 // object representing the running application.
-const char kRunningApplicationsRootDBusInterface[] =
-    "org.crosswalkproject.RunningApplicationsRoot";
+const char kRunningManagerDBusInterface[] =
+    "org.crosswalkproject.Running.Manager";
 
-const char kRunningApplicationsRootDBusError[] =
-    "org.crosswalkproject.RunningApplicationsRoot.Error";
+const char kRunningManagerDBusError[] =
+    "org.crosswalkproject.Running.Manager.Error";
 
-const dbus::ObjectPath kRunningApplicationsRootPath("/running");
+const dbus::ObjectPath kRunningManagerDBusPath("/running");
 
 }  // namespace
 
 namespace xwalk {
 namespace application {
 
-RunningApplicationsRoot::RunningApplicationsRoot(
+RunningApplicationsManager::RunningApplicationsManager(
     scoped_refptr<dbus::Bus> bus, ApplicationService* service)
     : weak_factory_(this),
       application_service_(service),
       bus_(bus) {
-  root_object_ = bus_->GetExportedObject(kRunningApplicationsRootPath);
+  root_object_ = bus_->GetExportedObject(kRunningManagerDBusPath);
   root_object_->ExportMethod(
-      kRunningApplicationsRootDBusInterface, "Launch",
-      base::Bind(&RunningApplicationsRoot::OnLaunch,
+      kRunningManagerDBusInterface, "Launch",
+      base::Bind(&RunningApplicationsManager::OnLaunch,
                  weak_factory_.GetWeakPtr()),
-      base::Bind(&RunningApplicationsRoot::OnExported,
+      base::Bind(&RunningApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
 }
 
-RunningApplicationsRoot::~RunningApplicationsRoot() {}
+RunningApplicationsManager::~RunningApplicationsManager() {}
 
 namespace {
 
@@ -55,13 +55,13 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
                                        const std::string& message) {
     scoped_ptr<dbus::ErrorResponse> error_response =
         dbus::ErrorResponse::FromMethodCall(
-            method_call, kRunningApplicationsRootDBusError, message);
+            method_call, kRunningManagerDBusError, message);
     return error_response.PassAs<dbus::Response>();
 }
 
-}
+}  // namespace
 
-void RunningApplicationsRoot::OnLaunch(
+void RunningApplicationsManager::OnLaunch(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
 
@@ -88,14 +88,14 @@ void RunningApplicationsRoot::OnLaunch(
   response_sender.Run(response.Pass());
 }
 
-void RunningApplicationsRoot::OnExported(
+void RunningApplicationsManager::OnExported(
     const std::string& interface_name,
     const std::string& method_name,
     bool success) {
   if (!success) {
     LOG(WARNING) << "Error exporting method '" << interface_name
                  << "." << method_name << "' in '"
-                 << kRunningApplicationsRootPath.value() << "'.";
+                 << kRunningManagerDBusPath.value() << "'.";
   }
 }
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/linux/installed_applications_root.h"
+#include "xwalk/application/browser/linux/installed_applications_manager.h"
 
 #include <algorithm>
 #include <string>
@@ -17,7 +17,7 @@
 
 namespace {
 
-// D-Bus Interface implemented by the root object of installed applications.
+// D-Bus Interface implemented by the manager object of installed applications.
 //
 // Methods:
 //
@@ -25,15 +25,15 @@ namespace {
 //     Will install application at "path", that should be an absolute path to
 //     the package file. If installation is successful, returns the ObjectPath
 //     of the InstalledApplication object that represents it.
-const char kInstalledApplicationsRootDBusInterface[] =
-    "org.crosswalkproject.InstalledApplicationsRoot";
+const char kInstalledManagerDBusInterface[] =
+    "org.crosswalkproject.Installed.Manager";
 
-const char kInstalledApplicationsRootDBusError[] =
-    "org.crosswalkproject.InstalledApplicationsRoot.Error";
+const char kInstalledManagerDBusError[] =
+    "org.crosswalkproject.Installed.Manager.Error";
 
 const char kDBusObjectManagerInterface[] = "org.freedesktop.DBus.ObjectManager";
 
-const dbus::ObjectPath kInstalledApplicationsRootPath("/installed");
+const dbus::ObjectPath kInstalledManagerDBusPath("/installed");
 
 }  // namespace
 
@@ -41,39 +41,39 @@ namespace xwalk {
 namespace application {
 
 // TODO(cmarcelo): Extract the ObjectManager bits into an ObjectManager<T> class
-// and make InstalledApplicationsRoot a subclass of
+// and make InstalledApplicationsManager a subclass of
 // ObjectManager<InstalledApplicationObject>. The interface for T expects a
 // PropertyExporter to be available.
-InstalledApplicationsRoot::InstalledApplicationsRoot(
+InstalledApplicationsManager::InstalledApplicationsManager(
     scoped_refptr<dbus::Bus> bus, ApplicationService* service)
     : weak_factory_(this),
       application_service_(service),
       bus_(bus) {
   application_service_->AddObserver(this);
 
-  root_object_ = bus_->GetExportedObject(kInstalledApplicationsRootPath);
+  root_object_ = bus_->GetExportedObject(kInstalledManagerDBusPath);
   root_object_->ExportMethod(
       kDBusObjectManagerInterface, "GetManagedObjects",
-      base::Bind(&InstalledApplicationsRoot::OnGetManagedObjects,
+      base::Bind(&InstalledApplicationsManager::OnGetManagedObjects,
                  weak_factory_.GetWeakPtr()),
-      base::Bind(&InstalledApplicationsRoot::OnExported,
+      base::Bind(&InstalledApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
 
   root_object_->ExportMethod(
-      kInstalledApplicationsRootDBusInterface, "Install",
-      base::Bind(&InstalledApplicationsRoot::OnInstall,
+      kInstalledManagerDBusInterface, "Install",
+      base::Bind(&InstalledApplicationsManager::OnInstall,
                  weak_factory_.GetWeakPtr()),
-      base::Bind(&InstalledApplicationsRoot::OnExported,
+      base::Bind(&InstalledApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
 
   CreateInitialObjects();
 }
 
-InstalledApplicationsRoot::~InstalledApplicationsRoot() {
+InstalledApplicationsManager::~InstalledApplicationsManager() {
   application_service_->RemoveObserver(this);
 }
 
-void InstalledApplicationsRoot::OnApplicationInstalled(
+void InstalledApplicationsManager::OnApplicationInstalled(
     const std::string& app_id) {
   scoped_refptr<const ApplicationData> app(
       application_service_->GetApplicationByID(app_id));
@@ -103,7 +103,7 @@ struct MatchAppID {
 
 }  // namespace
 
-void InstalledApplicationsRoot::OnApplicationUninstalled(
+void InstalledApplicationsManager::OnApplicationUninstalled(
     const std::string& app_id) {
   ScopedVector<InstalledApplicationObject>::iterator it = std::find_if(
       installed_apps_.begin(), installed_apps_.end(), MatchAppID(app_id));
@@ -128,7 +128,7 @@ void InstalledApplicationsRoot::OnApplicationUninstalled(
   installed_apps_.erase(it);
 }
 
-void InstalledApplicationsRoot::CreateInitialObjects() {
+void InstalledApplicationsManager::CreateInitialObjects() {
   ApplicationStore::ApplicationMap* apps =
       application_service_->GetInstalledApplications();
   ApplicationStore::ApplicationMap::iterator it;
@@ -136,21 +136,21 @@ void InstalledApplicationsRoot::CreateInitialObjects() {
     installed_apps_.push_back(CreateObject(it->second));
 }
 
-InstalledApplicationObject* InstalledApplicationsRoot::CreateObject(
+InstalledApplicationObject* InstalledApplicationsManager::CreateObject(
     scoped_refptr<const ApplicationData> app) {
   InstalledApplicationObject* object =
-      new InstalledApplicationObject(bus_, kInstalledApplicationsRootPath, app);
-  // See comment in InstalledApplicationsRoot::OnUninstall().
+      new InstalledApplicationObject(bus_, kInstalledManagerDBusPath, app);
+  // See comment in InstalledApplicationsManager::OnUninstall().
   object->ExportUninstallMethod(
-      base::Bind(&InstalledApplicationsRoot::OnUninstall,
+      base::Bind(&InstalledApplicationsManager::OnUninstall,
                  weak_factory_.GetWeakPtr(),
                  base::Unretained(object)),
-      base::Bind(&InstalledApplicationsRoot::OnExported,
+      base::Bind(&InstalledApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
   return object;
 }
 
-void InstalledApplicationsRoot::OnGetManagedObjects(
+void InstalledApplicationsManager::OnGetManagedObjects(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
   scoped_ptr<dbus::Response> response =
@@ -180,13 +180,13 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
                                        const std::string& message) {
     scoped_ptr<dbus::ErrorResponse> error_response =
         dbus::ErrorResponse::FromMethodCall(
-            method_call, kInstalledApplicationsRootDBusError, message);
+            method_call, kInstalledManagerDBusError, message);
     return error_response.PassAs<dbus::Response>();
 }
 
 }  // namespace
 
-void InstalledApplicationsRoot::OnInstall(
+void InstalledApplicationsManager::OnInstall(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
   dbus::MessageReader reader(method_call);
@@ -226,13 +226,13 @@ void InstalledApplicationsRoot::OnInstall(
   response_sender.Run(response.Pass());
 }
 
-// InstalledApplicationsRoot implements the callback exposed in the child
+// InstalledApplicationsManager implements the callback exposed in the child
 // objects interface, we bind the actual child to the first parameter. There are
 // two reasons to do this: we save the need of creating WeakPtrFactories for all
 // individual objects, and we ensure that is safe to destroy the object when
 // handling the callback -- which is done by our OnApplicationUninstalled
 // implementation.
-void InstalledApplicationsRoot::OnUninstall(
+void InstalledApplicationsManager::OnUninstall(
     InstalledApplicationObject* installed_app_object,
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
@@ -251,14 +251,14 @@ void InstalledApplicationsRoot::OnUninstall(
   response_sender.Run(response.Pass());
 }
 
-void InstalledApplicationsRoot::OnExported(
+void InstalledApplicationsManager::OnExported(
     const std::string& interface_name,
     const std::string& method_name,
     bool success) {
   if (!success) {
     LOG(WARNING) << "Error exporting method '" << interface_name
                  << "." << method_name << "' in '"
-                 << kInstalledApplicationsRootPath.value() << "'.";
+                 << kInstalledManagerDBusPath.value() << "'.";
   }
 }
 

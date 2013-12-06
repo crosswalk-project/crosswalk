@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
-#define XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
+#ifndef XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_
+#define XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_
 
 #include <string>
 #include "base/memory/ref_counted.h"
@@ -18,11 +18,11 @@ namespace application {
 // Holds the D-Bus representation of the set of installed applications. This is
 // the entry point for launching applications and listing currently running
 // applications.
-class RunningApplicationsRoot {
+class RunningApplicationsManager {
  public:
-  RunningApplicationsRoot(scoped_refptr<dbus::Bus> bus,
-                          ApplicationService* service);
-  ~RunningApplicationsRoot();
+  RunningApplicationsManager(scoped_refptr<dbus::Bus> bus,
+                             ApplicationService* service);
+  ~RunningApplicationsManager();
 
  private:
   void OnLaunch(dbus::MethodCall* method_call,
@@ -31,7 +31,7 @@ class RunningApplicationsRoot {
                   const std::string& method_name,
                   bool success);
 
-  base::WeakPtrFactory<RunningApplicationsRoot> weak_factory_;
+  base::WeakPtrFactory<RunningApplicationsManager> weak_factory_;
 
   ApplicationService* application_service_;
   dbus::Bus* bus_;
@@ -41,4 +41,4 @@ class RunningApplicationsRoot {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_ROOT_H_
+#endif  // XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATIONS_MANAGER_H_
