@@ -116,11 +116,11 @@ public class XWalkDefaultClient extends XWalkClient {
 
     private void showHttpAuthDialog( final XWalkHttpAuthHandler handler,
             final String host, final String realm) {
-        LinearLayout layout = new LinearLayout((Activity)mContext);
-        final TextView userNameView = new TextView((Activity)mContext);
-        final EditText userNameEditText = new EditText((Activity)mContext);
-        final TextView passwordView = new TextView((Activity)mContext);
-        final EditText passwordEditText = new EditText((Activity)mContext);
+        LinearLayout layout = new LinearLayout(mContext);
+        final TextView userNameView = new TextView(mContext);
+        final EditText userNameEditText = new EditText(mContext);
+        final TextView passwordView = new TextView(mContext);
+        final EditText passwordEditText = new EditText(mContext);
         layout.setOrientation(LinearLayout.VERTICAL);
         userNameView.setText(R.string.http_auth_user_name);
         passwordView.setText(R.string.http_auth_password);
@@ -129,8 +129,9 @@ public class XWalkDefaultClient extends XWalkClient {
         layout.addView(passwordView);
         layout.addView(passwordEditText);
 
-        AlertDialog.Builder mHttpAuthDialog = new AlertDialog.Builder((Activity)mContext);
-        mHttpAuthDialog.setTitle(R.string.http_auth_title)
+        final Activity curActivity = mView.getActivity();
+        AlertDialog.Builder httpAuthDialog = new AlertDialog.Builder(curActivity);
+        httpAuthDialog.setTitle(R.string.http_auth_title)
                 .setView(layout)
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
