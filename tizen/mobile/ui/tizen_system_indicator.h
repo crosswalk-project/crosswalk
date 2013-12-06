@@ -23,6 +23,10 @@ class TizenSystemIndicator : public views::View {
 
   bool IsConnected() const;
 
+  enum Orientation { LANDSCAPE, PORTRAIT };
+  void SetOrientation(Orientation orientation);
+  Orientation GetOrientation() const;
+
   // views::View implementation.
   virtual void OnPaint(gfx::Canvas* canvas) OVERRIDE;
   gfx::Size GetPreferredSize() OVERRIDE;
@@ -36,6 +40,7 @@ class TizenSystemIndicator : public views::View {
   virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
 
   gfx::ImageSkia image_;
+  Orientation orientation_;
   scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
   friend class TizenSystemIndicatorWatcher;
 };

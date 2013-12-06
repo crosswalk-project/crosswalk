@@ -21,7 +21,8 @@ SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
 namespace xwalk {
 
 TizenSystemIndicator::TizenSystemIndicator()
-    : watcher_(new TizenSystemIndicatorWatcher(this)) {
+    : orientation_(PORTRAIT),
+      watcher_(new TizenSystemIndicatorWatcher(this)) {
   if (!watcher_->Connect()) {
     watcher_.reset();
     return;
@@ -51,24 +52,34 @@ void TizenSystemIndicator::OnPaint(gfx::Canvas* canvas) {
 }
 
 gfx::Size TizenSystemIndicator::GetPreferredSize() {
-  return watcher_->GetSize();
+  if (IsConnected())
+    return watcher_->GetSize();
+  return gfx::Size(0, 0);
 }
 
 void TizenSystemIndicator::SetImage(const gfx::ImageSkia& img) {
+  if (!IsConnected() || img.isNull())
+    return;
   image_ = img;
   SchedulePaint();
 }
 
 bool TizenSystemIndicator::OnMousePressed(const ui::MouseEvent& event) {
+  if (!IsConnected())
+    return false;
   watcher_->OnMouseDown();
   return true;
 }
 
 void TizenSystemIndicator::OnMouseReleased(const ui::MouseEvent& event) {
-  watcher_->OnMouseUp();
+  if (IsConnected())
+    watcher_->OnMouseUp();
 }
 
 void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
+  if (!IsConnected())
+    return;
+
   const gfx::Point position = event->location();
 
   switch (event->type()) {
@@ -125,8 +136,39 @@ void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
 }
 
 void TizenSystemIndicator::OnMouseMoved(const ui::MouseEvent& event) {
+  if (!IsConnected())
+    return;
   const gfx::Point position = event.location();
   watcher_->OnMouseMove(position.x(), position.y());
+}
+
+void TizenSystemIndicator::SetOrientation(Orientation orientation) {
+  orientation_ = orientation;
+  image_ = gfx::ImageSkia();
+
+  // TODO(ricardotk): Implement landscape mode, for now we simply do not show
+  // the indicator in landscape mode.
+  if (orientation_ == LANDSCAPE) {
+    watcher_.reset();
+    set_background(NULL);
+    return;
+  }
+
+  watcher_.reset(new TizenSystemIndicatorWatcher(this));
+  if (!watcher_->Connect()) {
+    watcher_.reset();
+    return;
+  }
+  set_background(views::Background::CreateSolidBackground(kBGColor));
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO, FROM_HERE,
+      base::Bind(&TizenSystemIndicatorWatcher::StartWatching,
+                 base::Unretained(watcher_.get())));
+}
+
+TizenSystemIndicator::Orientation TizenSystemIndicator::GetOrientation() const {
+  return orientation_;
 }
 
 }  // namespace xwalk

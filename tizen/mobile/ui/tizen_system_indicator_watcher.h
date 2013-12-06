@@ -9,8 +9,10 @@
 #include <string>
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
+#include "base/memory/weak_ptr.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "ui/gfx/size.h"
+#include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 #include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
 
 namespace xwalk {
@@ -55,7 +57,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void ResizeIndicator();
 
   TizenSystemIndicator* indicator_;
-  TizenPlugMessageWriter* writer_;
+  TizenPlugMessageWriter writer_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
   scoped_ptr<base::SharedMemory> shared_memory_;
 
@@ -65,7 +67,10 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   bool updated_;
   int fd_;
   std::string shm_name_;
+  std::string service_name_;
   struct EcoreIPCMsgHeader current_msg_header_;
+
+  base::WeakPtrFactory<TizenSystemIndicatorWatcher> weak_ptr_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(TizenSystemIndicatorWatcher);
 };

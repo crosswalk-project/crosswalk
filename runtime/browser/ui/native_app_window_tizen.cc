@@ -10,13 +10,14 @@
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
-#include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 
 namespace xwalk {
 
 NativeAppWindowTizen::NativeAppWindowTizen(
     const NativeAppWindow::CreateParams& create_params)
-    : NativeAppWindowViews(create_params) {
+    : NativeAppWindowViews(create_params),
+      indicator_(new TizenSystemIndicator()),
+      orientation_(PORTRAIT) {
   if (SensorProvider::GetInstance())
     SensorProvider::GetInstance()->AddObserver(this);
 }
@@ -30,12 +31,11 @@ void NativeAppWindowTizen::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
     NativeAppWindowViews::ViewHierarchyChanged(details);
-    TizenSystemIndicator* indicator = new TizenSystemIndicator();
-    if (indicator->IsConnected()) {
-      AddChildView(indicator);
-      top_view_layout()->set_top_view(indicator);
+    if (indicator_->IsConnected()) {
+      AddChildView(indicator_.get());
+      top_view_layout()->set_top_view(indicator_.get());
     } else {
-      delete indicator;
+      indicator_.reset();
     }
   }
 }
@@ -66,7 +66,26 @@ gfx::Transform GetRotationAroundCenter(const gfx::Size& size,
   return transform;
 }
 
+TizenSystemIndicator::Orientation ConvertToIndicatorOrientation(
+  NativeAppWindowTizen::Orientation orientation) {
+  switch (orientation) {
+     case NativeAppWindowTizen::PORTRAIT:
+       return TizenSystemIndicator::PORTRAIT;
+     case NativeAppWindowTizen::LANDSCAPE:
+       return TizenSystemIndicator::LANDSCAPE;
+  }
+}
+
 }  // namespace
+
+void NativeAppWindowTizen::SetOrientation(Orientation orientation) {
+  if (orientation_ == orientation)
+    return;
+  orientation_ = orientation;
+  if (indicator_) {
+    indicator_->SetOrientation(ConvertToIndicatorOrientation(orientation_));
+  }
+}
 
 void NativeAppWindowTizen::OnRotationChanged(gfx::Display::Rotation rotation) {
   aura::Window* root = GetNativeWindow()->GetRootWindow();
@@ -82,8 +101,10 @@ void NativeAppWindowTizen::OnRotationChanged(gfx::Display::Rotation rotation) {
   if (rotation == gfx::Display::ROTATE_90
       || rotation == gfx::Display::ROTATE_270) {
     content_size = gfx::Size(size.height(), size.width());
+    SetOrientation(LANDSCAPE);
   } else {
     content_size = size;
+    SetOrientation(PORTRAIT);
   }
 
   GetWidget()->GetRootView()->SetSize(content_size);
