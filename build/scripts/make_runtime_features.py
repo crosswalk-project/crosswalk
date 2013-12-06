@@ -34,12 +34,12 @@ import sys
 sys.path.append('../third_party/WebKit/Source/build/scripts')
 
 import in_generator
-from name_utilities import lower_first
 import template_expander
 
 
 class RuntimeFeatureWriter(in_generator.Writer):
   class_name = 'xwalk_runtime_enabled_features'
+  switches_name = 'xwalk_runtime_switches'
 
   # FIXME: valid_values and defaults should probably roll into one object.
   valid_values = {
@@ -55,20 +55,22 @@ class RuntimeFeatureWriter(in_generator.Writer):
 
   def __init__(self, in_file_path, enabled_conditions):
     in_generator.Writer.__init__(self, in_file_path, enabled_conditions)
-    self._outputs = {(self.class_name + ".h"): self.generate_header,
-      (self.class_name + ".cc"): self.generate_implementation,
+    self._outputs = {(self.class_name + ".h"): self.generate_header_features,
+      (self.class_name + ".cc"): self.generate_implementation_features,
+      (self.switches_name + ".h"): self.generate_header_switches,
+      (self.switches_name + ".cc"): self.generate_implementation_switches,
     }
 
     self._features = self.in_file.name_dictionaries
     # Make sure the resulting dictionaries have all the keys we expect.
     for feature in self._features:
-      feature['first_lowered_name'] = lower_first(feature['name'])
       # Most features just check their isFooEnabled bool
       # but some depend on more than one bool.
       enabled_condition = "is%sEnabled" % feature['name']
       for dependant_name in feature['depends_on']:
         enabled_condition += " && is%sEnabled" % dependant_name
       feature['enabled_condition'] = enabled_condition
+      feature['text'] = feature['text'][1:-1]
 
   def _feature_sets(self):
     # Another way to think of the status levels is as "sets of features"
@@ -76,14 +78,28 @@ class RuntimeFeatureWriter(in_generator.Writer):
     return self.valid_values['status']
 
   @template_expander.use_jinja(class_name + ".h.tmpl")
-  def generate_header(self):
+  def generate_header_features(self):
     return {
       'features': self._features,
       'feature_sets': self._feature_sets(),
     }
 
   @template_expander.use_jinja(class_name + ".cc.tmpl")
-  def generate_implementation(self):
+  def generate_implementation_features(self):
+    return {
+      'features': self._features,
+      'feature_sets': self._feature_sets(),
+    }
+
+  @template_expander.use_jinja(switches_name + ".h.tmpl")
+  def generate_header_switches(self):
+    return {
+      'features': self._features,
+      'feature_sets': self._feature_sets(),
+    }
+
+  @template_expander.use_jinja(switches_name + ".cc.tmpl")
+  def generate_implementation_switches(self):
     return {
       'features': self._features,
       'feature_sets': self._feature_sets(),

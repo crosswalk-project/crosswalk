@@ -11,4 +11,4 @@
 // can have its runtime flag removed soon after.
 //
 
-RunAsService status=experimental, text="run-as-service", description="Runs Crosswalk in service mode. It loads no application by default but stays alive and listens for external requests to launch applications."
+XWalkRunAsService status=experimental, text="run-as-service", description="Runs Crosswalk in service mode. It loads no application by default but stays alive and listens for external requests to launch applications."
