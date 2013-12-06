@@ -11,7 +11,7 @@
 
 namespace {
 
-// D-Bus Interface implemented by the root object of running applications.
+// D-Bus Interface implemented by the manager object of running applications.
 //
 // Methods:
 //
@@ -20,13 +20,13 @@ namespace {
 //
 // TODO(cmarcelo): This should return an object path pointing to the
 // object representing the running application.
-const char kRunningApplicationsRootDBusInterface[] =
-    "org.crosswalkproject.RunningApplicationsRoot";
+const char kRunningManagerDBusInterface[] =
+    "org.crosswalkproject.Running.Manager";
 
-const char kRunningApplicationsRootDBusError[] =
-    "org.crosswalkproject.RunningApplicationsRoot.Error";
+const char kRunningManagerDBusError[] =
+    "org.crosswalkproject.Running.Manager.Error";
 
-const dbus::ObjectPath kRunningApplicationsRootPath("/running");
+const dbus::ObjectPath kRunningManagerDBusPath("/running");
 
 }  // namespace
 
@@ -38,9 +38,9 @@ RunningApplicationsRoot::RunningApplicationsRoot(
     : weak_factory_(this),
       application_service_(service),
       bus_(bus) {
-  root_object_ = bus_->GetExportedObject(kRunningApplicationsRootPath);
+  root_object_ = bus_->GetExportedObject(kRunningManagerDBusPath);
   root_object_->ExportMethod(
-      kRunningApplicationsRootDBusInterface, "Launch",
+      kRunningManagerDBusInterface, "Launch",
       base::Bind(&RunningApplicationsRoot::OnLaunch,
                  weak_factory_.GetWeakPtr()),
       base::Bind(&RunningApplicationsRoot::OnExported,
@@ -55,11 +55,11 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
                                        const std::string& message) {
     scoped_ptr<dbus::ErrorResponse> error_response =
         dbus::ErrorResponse::FromMethodCall(
-            method_call, kRunningApplicationsRootDBusError, message);
+            method_call, kRunningManagerDBusError, message);
     return error_response.PassAs<dbus::Response>();
 }
 
-}
+}  // namespace
 
 void RunningApplicationsRoot::OnLaunch(
     dbus::MethodCall* method_call,
@@ -95,7 +95,7 @@ void RunningApplicationsRoot::OnExported(
   if (!success) {
     LOG(WARNING) << "Error exporting method '" << interface_name
                  << "." << method_name << "' in '"
-                 << kRunningApplicationsRootPath.value() << "'.";
+                 << kRunningManagerDBusPath.value() << "'.";
   }
 }
 

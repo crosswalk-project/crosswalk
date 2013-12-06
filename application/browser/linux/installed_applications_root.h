@@ -22,7 +22,7 @@ class InstalledApplicationObject;
 // D-Bus.
 //
 // The exported object implements org.freedesktop.DBus.ObjectManager, and the
-// interface org.crosswalkproject.InstalledApplicationsRoot (see .cc file for
+// interface org.crosswalkproject.Installed.Manager (see .cc file for
 // description).
 class InstalledApplicationsRoot : public ApplicationService::Observer {
  public:

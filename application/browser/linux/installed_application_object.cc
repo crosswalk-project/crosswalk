@@ -25,10 +25,10 @@ namespace application {
 //   readonly string AppID
 //   readonly string Name
 const char kInstalledApplicationDBusInterface[] =
-    "org.crosswalkproject.InstalledApplication";
+    "org.crosswalkproject.Installed.Application";
 
 const char kInstalledApplicationDBusError[] =
-    "org.crosswalkproject.InstalledApplication.Error";
+    "org.crosswalkproject.Installed.Application.Error";
 
 InstalledApplicationObject::InstalledApplicationObject(
     scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& base_path,
