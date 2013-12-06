@@ -108,12 +108,29 @@
       'includes': [ '../build/java_apk.gypi' ],
     },
     {
+      # Combine runtime client and activity into one jar.
+      'target_name': 'xwalk_app_runtime_java',
+      'type': 'none',
+      'dependencies': [
+        'generate_xwalk_runtime_client_version',
+      ],
+      'variables': {
+        'java_in_dir': 'app/android/runtime_activity',
+        'additional_src_dirs': [
+          'app/android/runtime_client',
+        ],
+        'generated_src_dirs': [ '<(SHARED_INTERMEDIATE_DIR)/version_java' ],
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
       'target_name': 'prepare_xwalk_app_template',
       'type': 'none',
       'dependencies': [
+        'xwalk_app_runtime_java',
         'xwalk_app_template_apk',
-        'xwalk_runtime_lib_apk',
         'xwalk_core_embedded',
+        'xwalk_runtime_lib_apk',
       ],
       'actions': [
         {
