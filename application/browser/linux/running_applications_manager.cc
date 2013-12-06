@@ -8,6 +8,7 @@
 #include "base/bind.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
+#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace {
 
@@ -15,11 +16,8 @@ namespace {
 //
 // Methods:
 //
-//   Launch(string app_id)
+//   Launch(string app_id) -> ObjectPath
 //     Launches the application with 'app_id'.
-//
-// TODO(cmarcelo): This should return an object path pointing to the
-// object representing the running application.
 const char kRunningManagerDBusInterface[] =
     "org.crosswalkproject.Running.Manager";
 
@@ -27,6 +25,28 @@ const char kRunningManagerDBusError[] =
     "org.crosswalkproject.Running.Manager.Error";
 
 const dbus::ObjectPath kRunningManagerDBusPath("/running");
+
+// D-Bus Interface implemented by objects that represent running
+// applications.
+//
+// Methods:
+//
+//   Terminate()
+//     Will terminate the running application. This object will be unregistered
+//     from D-Bus.
+//
+// Properties:
+//
+//   readonly string AppID
+const char kRunningApplicationDBusInterface[] =
+    "org.crosswalkproject.Running.Application";
+
+const char kRunningApplicationDBusError[] =
+    "org.crosswalkproject.Running.Application.Error";
+
+dbus::ObjectPath GetRunningPathForAppID(const std::string& app_id) {
+  return dbus::ObjectPath(kRunningManagerDBusPath.value() + "/" + app_id);
+}
 
 }  // namespace
 
@@ -37,9 +57,8 @@ RunningApplicationsManager::RunningApplicationsManager(
     scoped_refptr<dbus::Bus> bus, ApplicationService* service)
     : weak_factory_(this),
       application_service_(service),
-      bus_(bus) {
-  root_object_ = bus_->GetExportedObject(kRunningManagerDBusPath);
-  root_object_->ExportMethod(
+      adaptor_(bus, kRunningManagerDBusPath) {
+  adaptor_.manager_object()->ExportMethod(
       kRunningManagerDBusInterface, "Launch",
       base::Bind(&RunningApplicationsManager::OnLaunch,
                  weak_factory_.GetWeakPtr()),
@@ -83,6 +102,29 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
+  // FIXME(cmarcelo): ApplicationService should tell us when new applications
+  // appear and we create new managed objects in D-Bus based on that. See
+  // InstalledApplicationManager for an example. We also have to store the
+  // response_sender associated with that app_id.
+  AddObject(app_id);
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  dbus::MessageWriter writer(response.get());
+  writer.AppendObjectPath(GetRunningPathForAppID(app_id));
+  response_sender.Run(response.Pass());
+}
+
+void RunningApplicationsManager::OnTerminate(
+    dbus::ManagedObject* object, dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+
+  // FIXME(cmarcelo): While there's still no notion of Running Application yet,
+  // we'll simply close all the windows of the current one.
+  RuntimeRegistry::Get()->CloseAll();
+
+  adaptor_.RemoveManagedObject(object->path());
+
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
   response_sender.Run(response.Pass());
@@ -97,6 +139,24 @@ void RunningApplicationsManager::OnExported(
                  << "." << method_name << "' in '"
                  << kRunningManagerDBusPath.value() << "'.";
   }
+}
+
+void RunningApplicationsManager::AddObject(const std::string& app_id) {
+  scoped_ptr<dbus::ManagedObject> object(
+      new dbus::ManagedObject(adaptor_.bus(), GetRunningPathForAppID(app_id)));
+  object->dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "Terminate",
+      base::Bind(&RunningApplicationsManager::OnTerminate,
+                 weak_factory_.GetWeakPtr(),
+                 base::Unretained(object.get())),
+      base::Bind(&RunningApplicationsManager::OnExported,
+                 weak_factory_.GetWeakPtr()));
+
+  object->properties()->Set(
+      kRunningApplicationDBusInterface, "AppID",
+      scoped_ptr<base::Value>(base::Value::CreateStringValue(app_id)));
+  dbus::ObjectPath path = object->path();
+  adaptor_.AddManagedObject(object.Pass());
 }
 
 }  // namespace application
