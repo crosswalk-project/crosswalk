@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/ime/tizen-scim/input_method_scim.h"
+#include "xwalk/tizen/ime/input_method_scim.h"
 
 #include <X11/X.h>
 
@@ -14,7 +14,7 @@
 #include "ui/events/event_utils.h"
 #include "ui/events/keycodes/keyboard_code_conversion.h"
 #include "ui/events/keycodes/keyboard_code_conversion_x.h"
-#include "xwalk/ime/tizen-scim/scim_bridge.h"
+#include "xwalk/tizen/ime/scim_bridge.h"
 
 // Xlib.h must include after "root_window.h" otherwise compiler complains.
 #include <X11/Xlib.h> // NOLINT
