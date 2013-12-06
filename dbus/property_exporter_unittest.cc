@@ -20,13 +20,18 @@ const dbus::ObjectPath kTestObjectPath("/object_with_properties");
 class ExportObjectWithPropertiesService {
  public:
   ExportObjectWithPropertiesService()
-      : manager_(kTestServiceName),
-        dbus_object_(NULL) {}
+      : dbus_object_(NULL) {}
 
   void Initialize(const base::Closure& on_initialized_callback) {
     on_initialized_callback_ = on_initialized_callback;
-    manager_.Initialize(
-        base::Bind(&ExportObjectWithPropertiesService::OnInitialized,
+    scoped_refptr<dbus::Bus> bus = manager_.session_bus();
+    dbus_object_ = bus->GetExportedObject(kTestObjectPath);
+    properties_.reset(
+        new dbus::PropertyExporter(dbus_object_, kTestObjectPath));
+    bus->RequestOwnership(
+        kTestServiceName,
+        dbus::Bus::REQUIRE_PRIMARY,
+        base::Bind(&ExportObjectWithPropertiesService::OnOwnershipCallback,
                    base::Unretained(this)));
   }
 
@@ -37,11 +42,9 @@ class ExportObjectWithPropertiesService {
   }
 
  private:
-  void OnInitialized() {
-    dbus_object_ =
-        manager_.session_bus()->GetExportedObject(kTestObjectPath);
-    properties_.reset(
-        new dbus::PropertyExporter(dbus_object_, kTestObjectPath));
+  void OnOwnershipCallback(const std::string& service_name, bool success) {
+    ASSERT_TRUE(success)
+        << "Couldn't get ownership of D-Bus service name:" << service_name;
     on_initialized_callback_.Run();
   }
 
