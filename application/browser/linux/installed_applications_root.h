@@ -24,11 +24,11 @@ class InstalledApplicationObject;
 // The exported object implements org.freedesktop.DBus.ObjectManager, and the
 // interface org.crosswalkproject.Installed.Manager (see .cc file for
 // description).
-class InstalledApplicationsRoot : public ApplicationService::Observer {
+class InstalledApplicationsManager : public ApplicationService::Observer {
  public:
-  InstalledApplicationsRoot(scoped_refptr<dbus::Bus> bus,
+  InstalledApplicationsManager(scoped_refptr<dbus::Bus> bus,
                             ApplicationService* service);
-  ~InstalledApplicationsRoot();
+  ~InstalledApplicationsManager();
 
  private:
   // ApplicationService::Observer implementation.
@@ -54,7 +54,7 @@ class InstalledApplicationsRoot : public ApplicationService::Observer {
                   const std::string& method_name,
                   bool success);
 
-  base::WeakPtrFactory<InstalledApplicationsRoot> weak_factory_;
+  base::WeakPtrFactory<InstalledApplicationsManager> weak_factory_;
 
   ApplicationService* application_service_;
   dbus::Bus* bus_;

@@ -21,9 +21,9 @@ ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
     : ApplicationServiceProvider(app_service) {
   scoped_refptr<dbus::Bus> bus = dbus_manager_.session_bus();
 
-  installed_apps_.reset(new InstalledApplicationsRoot(
+  installed_apps_.reset(new InstalledApplicationsManager(
       dbus_manager_.session_bus(), app_service));
-  running_apps_.reset(new RunningApplicationsRoot(
+  running_apps_.reset(new RunningApplicationsManager(
       dbus_manager_.session_bus(), app_service));
 
   // TODO(cmarcelo): This is just a placeholder to test D-Bus is working, remove

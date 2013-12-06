@@ -13,8 +13,8 @@
 namespace xwalk {
 namespace application {
 
-class InstalledApplicationsRoot;
-class RunningApplicationsRoot;
+class InstalledApplicationsManager;
+class RunningApplicationsManager;
 
 // Uses a D-Bus service named "org.crosswalkproject" to expose application
 // management and launch functionality from ApplicationService.
@@ -30,8 +30,8 @@ class ApplicationServiceProviderLinux : public ApplicationServiceProvider {
   void ExportTestObject();
 
   DBusManager dbus_manager_;
-  scoped_ptr<InstalledApplicationsRoot> installed_apps_;
-  scoped_ptr<RunningApplicationsRoot> running_apps_;
+  scoped_ptr<InstalledApplicationsManager> installed_apps_;
+  scoped_ptr<RunningApplicationsManager> running_apps_;
 };
 
 }  // namespace application

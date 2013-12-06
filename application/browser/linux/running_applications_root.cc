@@ -33,7 +33,7 @@ const dbus::ObjectPath kRunningManagerDBusPath("/running");
 namespace xwalk {
 namespace application {
 
-RunningApplicationsRoot::RunningApplicationsRoot(
+RunningApplicationsManager::RunningApplicationsManager(
     scoped_refptr<dbus::Bus> bus, ApplicationService* service)
     : weak_factory_(this),
       application_service_(service),
@@ -41,13 +41,13 @@ RunningApplicationsRoot::RunningApplicationsRoot(
   root_object_ = bus_->GetExportedObject(kRunningManagerDBusPath);
   root_object_->ExportMethod(
       kRunningManagerDBusInterface, "Launch",
-      base::Bind(&RunningApplicationsRoot::OnLaunch,
+      base::Bind(&RunningApplicationsManager::OnLaunch,
                  weak_factory_.GetWeakPtr()),
-      base::Bind(&RunningApplicationsRoot::OnExported,
+      base::Bind(&RunningApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
 }
 
-RunningApplicationsRoot::~RunningApplicationsRoot() {}
+RunningApplicationsManager::~RunningApplicationsManager() {}
 
 namespace {
 
@@ -61,7 +61,7 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
 
 }  // namespace
 
-void RunningApplicationsRoot::OnLaunch(
+void RunningApplicationsManager::OnLaunch(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
 
@@ -88,7 +88,7 @@ void RunningApplicationsRoot::OnLaunch(
   response_sender.Run(response.Pass());
 }
 
-void RunningApplicationsRoot::OnExported(
+void RunningApplicationsManager::OnExported(
     const std::string& interface_name,
     const std::string& method_name,
     bool success) {
