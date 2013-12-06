@@ -11,6 +11,8 @@
       'sources': [
         'dbus_manager.cc',
         'dbus_manager.h',
+        'object_manager_adaptor.cc',
+        'object_manager_adaptor.h',
         'property_exporter.cc',
         'property_exporter.h',
         'xwalk_service_name.cc',
