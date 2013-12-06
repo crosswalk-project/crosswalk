@@ -31,40 +31,23 @@ const char kInstalledApplicationDBusError[] =
     "org.crosswalkproject.Installed.Application.Error";
 
 InstalledApplicationObject::InstalledApplicationObject(
-    scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& base_path,
+    scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& path,
     const ApplicationData* app)
-    : app_id_(app->ID()),
-      path_(dbus::ObjectPath(base_path.value() + "/" + app_id_)),
-      dbus_object_(bus->GetExportedObject(path_)),
-      properties_(dbus_object_, path_) {
+    : dbus::ManagedObject(bus, path),
+      app_id_(app->ID()) {
   scoped_ptr<base::Value> app_id(base::Value::CreateStringValue(app->ID()));
-  properties_.Set(kInstalledApplicationDBusInterface, "AppID", app_id.Pass());
+  properties()->Set(kInstalledApplicationDBusInterface, "AppID", app_id.Pass());
 
   scoped_ptr<base::Value> name(base::Value::CreateStringValue(app->Name()));
-  properties_.Set(kInstalledApplicationDBusInterface, "Name", name.Pass());
+  properties()->Set(kInstalledApplicationDBusInterface, "Name", name.Pass());
 }
 
 void InstalledApplicationObject::ExportUninstallMethod(
     dbus::ExportedObject::MethodCallCallback method_call_callback,
     dbus::ExportedObject::OnExportedCallback on_exported_callback) {
-  dbus_object_->ExportMethod(
+  dbus_object()->ExportMethod(
       kInstalledApplicationDBusInterface, "Uninstall",
       method_call_callback, on_exported_callback);
-}
-
-void InstalledApplicationObject::AppendAllPropertiesToWriter(
-    dbus::MessageWriter* writer) {
-  dbus::MessageWriter interfaces_writer(NULL);
-  writer->OpenArray("{sa{sv}}", &interfaces_writer);
-
-  dbus::MessageWriter entry_writer(NULL);
-  interfaces_writer.OpenDictEntry(&entry_writer);
-  entry_writer.AppendString(kInstalledApplicationDBusInterface);
-  properties_.AppendPropertiesToWriter(
-      kInstalledApplicationDBusInterface, &entry_writer);
-  interfaces_writer.CloseContainer(&entry_writer);
-
-  writer->CloseContainer(&interfaces_writer);
 }
 
 }  // namespace application

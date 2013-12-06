@@ -7,10 +7,9 @@
 
 #include <string>
 #include "base/memory/ref_counted.h"
-#include "base/memory/scoped_vector.h"
 #include "base/memory/weak_ptr.h"
-#include "dbus/exported_object.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/dbus/object_manager_adaptor.h"
 
 namespace xwalk {
 namespace application {
@@ -27,7 +26,7 @@ class InstalledApplicationObject;
 class InstalledApplicationsManager : public ApplicationService::Observer {
  public:
   InstalledApplicationsManager(scoped_refptr<dbus::Bus> bus,
-                            ApplicationService* service);
+                               ApplicationService* service);
   ~InstalledApplicationsManager();
 
  private:
@@ -35,14 +34,9 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
   void OnApplicationInstalled(const std::string& app_id);
   void OnApplicationUninstalled(const std::string& app_id);
 
-  void CreateInitialObjects();
+  void AddInitialObjects();
+  void AddObject(scoped_refptr<const ApplicationData> app);
 
-  InstalledApplicationObject* CreateObject(
-      scoped_refptr<const ApplicationData> app);
-
-  void OnGetManagedObjects(
-      dbus::MethodCall* method_call,
-      dbus::ExportedObject::ResponseSender response_sender);
   void OnInstall(
       dbus::MethodCall* method_call,
       dbus::ExportedObject::ResponseSender response_sender);
@@ -50,17 +44,14 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
       InstalledApplicationObject* installed_app_object,
       dbus::MethodCall* method_call,
       dbus::ExportedObject::ResponseSender response_sender);
+
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
 
   base::WeakPtrFactory<InstalledApplicationsManager> weak_factory_;
-
   ApplicationService* application_service_;
-  dbus::Bus* bus_;
-  dbus::ExportedObject* root_object_;
-
-  ScopedVector<InstalledApplicationObject> installed_apps_;
+  dbus::ObjectManagerAdaptor adaptor_;
 };
 
 }  // namespace application
