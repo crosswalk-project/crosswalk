@@ -52,6 +52,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         if (libVersion == null || !compareVersion(libVersion, getVersion())) {
             handleException(new XWalkRuntimeLibraryException(
                     XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL));
+            mInstance = null;
             return;
         }
         mRuntimeLoaded = true;
@@ -109,13 +110,36 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
 
     @Override
     public void handleException(Exception e) {
+        Exception toHandle = e;
+        boolean wrongNativeLibraryAbi = false;
         if (mRuntimeLoaded) {
-            super.handleException(new XWalkRuntimeLibraryException(
-                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED, e));
+            toHandle = new XWalkRuntimeLibraryException(
+                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED, e);
         } else {
-            super.handleException(new XWalkRuntimeLibraryException(
-                    XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_LOAD_FAILED, e));
+            if (!(e instanceof XWalkRuntimeLibraryException)) {
+                Throwable rootCause = e;
+                while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+                    rootCause = rootCause.getCause();
+                }
+                // UnsatisfiedLinkError happens when the libxwalkcore.so is not found.
+                // If the runtime library package exist, but the native library not, it can
+                // be considered that the installed runtime lib apk is for another cpu
+                // architecture.
+                if (rootCause instanceof UnsatisfiedLinkError) {
+                    wrongNativeLibraryAbi = true;
+                    toHandle = new XWalkRuntimeLibraryException(
+                            XWalkRuntimeLibraryException.XWALK_CORE_LIBRARY_SO_NOT_EXIST, e);
+                } else {
+                    toHandle = new XWalkRuntimeLibraryException(
+                            XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_INSTALLED, e);
+                }
+            }
         }
+        // Here is for handling runtime library not found or not match,
+        // if library is embedded, should not invoke it.
+        // Except the error is for incorrect abi, which could also happen for
+        // embedded mode.
+        if (!libraryIsEmbedded() || wrongNativeLibraryAbi) super.handleException(toHandle);
     }
 
     public FrameLayout get() {
