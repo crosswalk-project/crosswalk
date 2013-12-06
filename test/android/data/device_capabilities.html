@@ -110,70 +110,70 @@
               onSuccess();
             }, Error);
 
-        system.onattach = function(storage) {
+        system.onstorageattach = function(storage) {
             var output = document.getElementById('event');
             output.value += 'Error! Should not appear.\n';
             output.scrollTop = output.scrollHeight;
           };
 
-        system.onattach = function(storage) {
+        system.onstorageattach = function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
-            output.value += 'From storage attach listener(onattch):\n' + msg + '--------\n';
+            output.value += 'From storage attach listener(onstorageattch):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           };
 
-        system.addEventListener('attach', function(storage) {
+        system.addEventListener('storageattach', function(storage) {
             var output = document.getElementById('event');
             output.value += 'attach Listener1 test success!\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.addEventListener('attach', function(storage) {
+        system.addEventListener('storageattach', function(storage) {
             var output = document.getElementById('event');
             output.value += 'attach Listener2 test success!\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.addEventListener('detach', function(storage) {
+        system.addEventListener('storagedetach', function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
             output.value += 'From storage detach listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.ondetach = function(storage) {
+        system.onstoragedetach = function(storage) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(storage);
-            output.value += 'From storage detach listener(ondetach):\n' + msg + '--------\n';
+            output.value += 'From storage detach listener(onstoragedetach):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           };
 
-        system.addEventListener('connect', function(display) {
+        system.addEventListener('displayconnect', function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
             output.value += 'From display connect listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.onconnect = function(display) {
+        system.ondisplayconnect = function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
-            output.value += 'From display connect listener(onconnect):\n' + msg + '--------\n';
+            output.value += 'From display connect listener(ondisplayconnect):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           };
 
-        system.addEventListener('disconnect', function(display) {
+        system.addEventListener('displaydisconnect', function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
             output.value += 'From display disconnect listener(addEventListener):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           });
 
-        system.ondisconnect = function(display) {
+        system.ondisplaydisconnect = function(display) {
             var output = document.getElementById('event');
             var msg = enumerateAllProps(display);
-            output.value += 'From display disconnect listener(ondisconnect):\n' + msg + '--------\n';
+            output.value += 'From display disconnect listener(ondisplaydisconnect):\n' + msg + '--------\n';
             output.scrollTop = output.scrollHeight;
           };
 
