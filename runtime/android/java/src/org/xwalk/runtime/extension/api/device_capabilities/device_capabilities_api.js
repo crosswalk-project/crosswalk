@@ -177,25 +177,25 @@ function _addEventListener(eventName, callback) {
   return listener_id;
 }
 
-Object.defineProperty(exports, 'onattach', {
+Object.defineProperty(exports, 'onstorageattach', {
   set: function(callback) {
     _addEventListener('onattach', callback);
   }
 });
 
-Object.defineProperty(exports, 'ondetach', {
+Object.defineProperty(exports, 'onstoragedetach', {
   set: function(callback) {
     _addEventListener('ondetach', callback);
   }
 });
 
-Object.defineProperty(exports, 'onconnect', {
+Object.defineProperty(exports, 'ondisplayconnect', {
   set: function(callback) {
     _addEventListener('onconnect', callback);
   }
 });
 
-Object.defineProperty(exports, 'ondisconnect', {
+Object.defineProperty(exports, 'ondisplaydisconnect', {
   set: function(callback) {
     _addEventListener('ondisconnect', callback);
   }
