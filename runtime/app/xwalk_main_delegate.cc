@@ -13,6 +13,7 @@
 #include "ui/base/ui_base_paths.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
+#include "xwalk/runtime/browser/crosswalk.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/paths_mac.h"
@@ -85,6 +86,7 @@ void XWalkMainDelegate::InitializeResourceBundle() {
 }
 
 content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
+  crosswalk_object_ = Crosswalk::Create();
   browser_client_.reset(new XWalkContentBrowserClient);
   return browser_client_.get();
 }

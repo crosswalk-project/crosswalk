@@ -63,6 +63,8 @@
       'sources': [
         'runtime/app/xwalk_main_delegate.cc',
         'runtime/app/xwalk_main_delegate.h',
+        'runtime/browser/crosswalk.cc',
+        'runtime/browser/crosswalk.h',
         'runtime/browser/xwalk_application_mac.h',
         'runtime/browser/xwalk_application_mac.mm',
         'runtime/browser/xwalk_browser_main_parts.cc',
