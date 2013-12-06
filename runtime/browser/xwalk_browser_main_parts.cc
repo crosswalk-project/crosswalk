@@ -19,6 +19,7 @@
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/runtime/browser/crosswalk.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -72,7 +73,7 @@ namespace xwalk {
 
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : BrowserMainParts(),
+    : crosswalk_(Crosswalk::Get()),
       startup_url_(content::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
@@ -149,7 +150,9 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 }
 
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
-  runtime_context_.reset(new RuntimeContext);
+  crosswalk_->PreMainMessageLoopRun();
+
+  runtime_context_ = crosswalk_->runtime_context();
   runtime_registry_.reset(new RuntimeRegistry);
 
   runtime_registry_->AddObserver(
@@ -170,7 +173,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     const char* loopback_ip = "127.0.0.1";
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       remote_debugging_server_.reset(
-          new RemoteDebuggingServer(runtime_context_.get(),
+          new RemoteDebuggingServer(runtime_context_,
               loopback_ip, port, std::string()));
     }
   }
@@ -204,7 +207,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   // The new created Runtime instance will be managed by RuntimeRegistry.
-  Runtime::CreateWithDefaultWindow(runtime_context_.get(), startup_url_);
+  Runtime::CreateWithDefaultWindow(runtime_context_, startup_url_);
 
   // If the |ui_task| is specified in main function parameter, it indicates
   // that we will run this UI task instead of running the the default main
@@ -224,7 +227,8 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_registry_->RemoveObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
-  runtime_context_.reset();
+
+  crosswalk_->PostMainMessageLoopRun();
 }
 
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(

@@ -15,6 +15,8 @@ class XWalkTestSuiteInitializer;
 
 namespace xwalk {
 
+class RuntimeContext;
+
 // Main object for the Browser Process execution in Crosswalk. It is created and
 // owned by XWalkMainDelegate. It's role is to setup (and teardown) all the
 // subsystems of Crosswalk.
@@ -23,10 +25,18 @@ class Crosswalk {
   static Crosswalk* Get();
   virtual ~Crosswalk();
 
+  RuntimeContext* runtime_context() { return runtime_context_.get(); }
+
  protected:
   Crosswalk();
 
+  // Stages of main parts. See content/browser_main_parts.h for description.
+  void PreMainMessageLoopRun();
+  void PostMainMessageLoopRun();
+
  private:
+  friend class XWalkBrowserMainParts;
+  friend class XWalkBrowserMainPartsAndroid;
   friend class XWalkMainDelegate;
   friend class ::XWalkTestSuiteInitializer;
 
@@ -38,6 +48,7 @@ class Crosswalk {
   content::ContentBrowserClient* GetContentBrowserClient();
 
   scoped_ptr<content::ContentBrowserClient> content_browser_client_;
+  scoped_ptr<RuntimeContext> runtime_context_;
 
   DISALLOW_COPY_AND_ASSIGN(Crosswalk);
 };

@@ -30,6 +30,7 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
+#include "xwalk/runtime/browser/crosswalk.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -109,7 +110,10 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
   }
 
-  runtime_context_.reset(new RuntimeContext);
+  crosswalk_->PreMainMessageLoopRun();
+
+  runtime_context_ = crosswalk_->runtime_context();
+
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService);
 
