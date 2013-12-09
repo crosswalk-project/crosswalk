@@ -40,7 +40,14 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
   // needs to send a message back if the parameters couldn't be correctly read
   // from the original message received. See DispatchDealyReplyWithSendParams().
   bool Send(IPC::Message* message) {
-    return eph_->render_process_host_->Send(message);
+    if (eph_)
+      return eph_->render_process_host_->Send(message);
+    delete message;
+    return false;
+  }
+
+  void Invalidate() {
+    eph_ = NULL;
   }
 
  private:
@@ -58,14 +65,12 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
 
   void OnGetExtensionProcessChannel(IPC::Message* reply) {
     scoped_ptr<IPC::Message> scoped_reply(reply);
-    BrowserThread::PostTask(
-        BrowserThread::UI, FROM_HERE,
-        base::Bind(&XWalkExtensionProcessHost::OnGetExtensionProcessChannel,
-                   base::Unretained(eph_),
-                   base::Passed(&scoped_reply)));
+    if (eph_)
+      eph_->OnGetExtensionProcessChannel(scoped_reply.Pass());
   }
 
   virtual ~RenderProcessMessageFilter() {}
+
   XWalkExtensionProcessHost* eph_;
 };
 
@@ -100,6 +105,8 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
 }
 
 XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
+  render_process_message_filter_->Invalidate();
   StopProcess();
 }
 
@@ -132,9 +139,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 }
 
 void XWalkExtensionProcessHost::StopProcess() {
-  CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  CHECK(process_);
-
+  DCHECK(process_);
   process_.reset();
 }
 
@@ -142,12 +147,6 @@ void XWalkExtensionProcessHost::OnGetExtensionProcessChannel(
     scoped_ptr<IPC::Message> reply) {
   pending_reply_for_render_process_ = reply.Pass();
   ReplyChannelHandleToRenderProcess();
-
-  // We just need to send the channel information once, so the filter is no
-  // longer necessary.
-  render_process_host_->GetChannel()->RemoveFilter(
-      render_process_message_filter_);
-  render_process_message_filter_ = NULL;
 }
 
 bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
