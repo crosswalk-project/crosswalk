@@ -51,6 +51,7 @@ public class XWalkSettings {
     private boolean mAllowFileUrlAccess = true;
     private boolean mShouldFocusFirstNode = true;
     private boolean mGeolocationEnabled = true;
+    private String mUserAgent;
 
     // Protects access to settings global fields.
     private static final Object sGlobalContentSettingsLock = new Object();
@@ -69,6 +70,10 @@ public class XWalkSettings {
 
     private static final int MINIMUM_FONT_SIZE = 1;
     private static final int MAXIMUM_FONT_SIZE = 72;
+
+    static class LazyDefaultUserAgent{
+        private static final String sInstance = nativeGetDefaultUserAgent();
+    }
 
     // Class to handle messages to be processed on the UI thread.
     private class EventHandler {
@@ -92,6 +97,12 @@ public class XWalkSettings {
                         }
                     }
                 };
+        }
+
+        void maybeRunOnUiThreadBlocking(Runnable r) {
+            if (mHandler != null) {
+                ThreadUtils.runOnUiThreadBlocking(r);
+            }
         }
 
         private void updateWebkitPreferencesLocked() {
@@ -132,6 +143,8 @@ public class XWalkSettings {
             mAllowUniversalAccessFromFileURLs = true;
             mAllowFileAccessFromFileURLs = true;
         }
+
+        mUserAgent = LazyDefaultUserAgent.sInstance;
 
         mEventHandler = new EventHandler();
         nativeUpdateEverything(mNativeXWalkSettings);
@@ -550,6 +563,52 @@ public class XWalkSettings {
     }
 
     /**
+     * @returns the default User-Agent used by each ContentViewCore instance, i.e. unless
+     * overridden by {@link #setUserAgentString()}
+     */
+    public static String getDefaultUserAgent() {
+        return LazyDefaultUserAgent.sInstance;
+    }
+
+    /**
+     * See {@link android.webkit.WebSettings#setUserAgentString}.
+     */
+    public void setUserAgentString(String ua) {
+        synchronized (mXWalkSettingsLock) {
+            final String oldUserAgent = mUserAgent;
+            if (ua == null || ua.length() == 0) {
+                mUserAgent = LazyDefaultUserAgent.sInstance;
+            } else {
+                mUserAgent = ua;
+            }
+            if (!oldUserAgent.equals(mUserAgent)) {
+                mEventHandler.maybeRunOnUiThreadBlocking(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mNativeXWalkSettings != 0) {
+                            nativeUpdateUserAgent(mNativeXWalkSettings);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * See {@link android.webkit.WebSettings#getUserAgentString}.
+     */
+    public String getUserAgentString() {
+        synchronized (mXWalkSettingsLock) {
+            return mUserAgent;
+        }
+    }
+
+    @CalledByNative
+    private String getUserAgentLocked() {
+        return mUserAgent;
+    }
+
+    /**
      * See {@link android.webkit.WebSettings#getDefaultVideoPosterURL}.
      */
     public String getDefaultVideoPosterURL() {
@@ -569,9 +628,13 @@ public class XWalkSettings {
 
     private native void nativeDestroy(int nativeXWalkSettings);
 
+    private static native String nativeGetDefaultUserAgent();
+
     private native void nativeSetWebContents(int nativeXWalkSettings, int nativeWebContents);
 
     private native void nativeUpdateEverything(int nativeXWalkSettings);
+
+    private native void nativeUpdateUserAgent(int nativeXWalkSettings);
 
     private native void nativeUpdateWebkitPreferences(int nativeXWalkSettings);
 }
