@@ -32,6 +32,7 @@
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
@@ -150,8 +151,10 @@ XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInExtensionThreadServer(
   for (; it != extensions_.end(); ++it)
     server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
 
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new sysapps::RawSocketExtension()));
+  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled()) {
+    server->RegisterExtension(scoped_ptr<XWalkExtension>(
+        new sysapps::RawSocketExtension()));
+  }
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(

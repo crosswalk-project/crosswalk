@@ -139,6 +139,8 @@
         'runtime/common/xwalk_content_client.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
+        'runtime/common/xwalk_runtime_features.cc',
+        'runtime/common/xwalk_runtime_features.h',
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
         'runtime/extension/runtime.idl',
