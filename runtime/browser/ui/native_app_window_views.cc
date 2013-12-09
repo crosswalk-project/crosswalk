@@ -14,9 +14,7 @@
 #include "xwalk/runtime/browser/ui/xwalk_views_delegate.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 
-#if defined(OS_WIN)
 #include "ui/views/window/native_frame_view.h"
-#endif
 
 #if defined(OS_TIZEN_MOBILE)
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
@@ -228,12 +226,16 @@ bool NativeAppWindowViews::CanMaximize() const {
   return resizable_ && maximum_size_.IsEmpty();
 }
 
-#if defined(OS_WIN)
+// XWalk makes use of a plane view, in order to not draw any custom window
+// decoration and let that up to the native platform.
 views::NonClientFrameView* NativeAppWindowViews::CreateNonClientFrameView(
     views::Widget* widget) {
+#if defined(OS_TIZEN_MOBILE)
+  // Tizen must use a frameless window. See NativeAppWindowViews::Initialize().
+  NOTREACHED();
+#endif
   return new views::NativeFrameView(widget);
 }
-#endif
 
 ////////////////////////////////////////////////////////////
 // views::View implementation

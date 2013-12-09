@@ -79,10 +79,8 @@ class NativeAppWindowViews : public NativeAppWindow,
       gfx::Rect* bounds, ui::WindowShowState* show_state) const OVERRIDE;
   virtual bool CanResize() const OVERRIDE;
   virtual bool CanMaximize() const OVERRIDE;
-#if defined(OS_WIN)
   virtual views::NonClientFrameView* CreateNonClientFrameView(
       views::Widget* widget) OVERRIDE;
-#endif
   // views::View implementation.
   virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
