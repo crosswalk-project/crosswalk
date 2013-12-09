@@ -1,0 +1,23 @@
+{% from "macros.tmpl" import wrap_with_condition, license -%}
+{{ license() }}
+
+#include "xwalk_runtime_enabled_features.h"
+
+namespace xwalk {
+
+{% for feature_set in feature_sets %}
+void XWalkRuntimeEnabledFeatures::set{{feature_set|capitalize}}FeaturesEnabled(bool enable)
+{
+{%- for feature in features if feature.status == feature_set %}
+    set{{feature.name}}Enabled(enable);
+{%- endfor %}
+}
+{% endfor %}
+
+{%- for feature in features if not feature.custom %}
+{%- call wrap_with_condition(feature.condition) %}
+bool XWalkRuntimeEnabledFeatures::is{{feature.name}}Enabled = false;
+{%- endcall %}
+{%- endfor %}
+
+} // namespace xwalk

@@ -31,9 +31,4 @@ const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 const char kXWalkAllowExternalExtensionsForRemoteSources[] =
     "allow-external-extensions-for-remote-sources";
 
-// Runs Crosswalk in service mode: it loads no application by default but stays
-// alive, and listens for external requests to launch applications. The way to
-// issue these requests is platform-specific.
-const char kXWalkRunAsService[] = "run-as-service";
-
 }  // namespace switches
