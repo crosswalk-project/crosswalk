@@ -40,16 +40,44 @@ class TestMakeApk(unittest.TestCase):
       cls._mode = '--mode=shared'
     elif options.mode == 'embedded':
       cls._mode = '--mode=embedded'
+    cls.fakeNativeLibrary()
 
   @classmethod
   def tearDownClass(cls):
-    # Clean the test data
+    # Clean the test data.
     test_data_dir = os.path.join(options.build_dir,
                                  options.target,
                                  'xwalk_app_template',
                                  'test_data')
     if os.path.exists(test_data_dir):
       shutil.rmtree(test_data_dir)
+    cls.restoreNativeLibrary()
+
+  @staticmethod
+  def fakeNativeLibrary():
+    # To reduce the time consumption of make_apk test for embedded mode,
+    # replace the original native library with an empty library.
+    # Because it doesn't affect the result of test.
+    if options.mode == 'embedded':
+      native_library_dir = os.path.join('native_libs', 'libs')
+      native_library_temp_dir = os.path.join('native_libs', 'temp')
+      shutil.copytree(native_library_dir, native_library_temp_dir)
+      for root, _, files in os.walk(native_library_dir):
+        if 'libxwalkcore.so' in files:
+          native_library_path = os.path.join(root, 'libxwalkcore.so')
+          # Remove the original library
+          os.remove(native_library_path)
+          # Create an empty library file
+          open(native_library_path, 'a').close()
+
+  @staticmethod
+  def restoreNativeLibrary():
+    # Restore the original native library for embedded mode.
+    if options.mode == 'embedded':
+      native_library_dir = os.path.join('native_libs', 'libs')
+      native_library_temp_dir = os.path.join('native_libs', 'temp')
+      shutil.rmtree(native_library_dir)
+      shutil.move(native_library_temp_dir, native_library_dir)
 
   def checkApk(self, apk_path):
     # Check files whether is contained in the apk.
