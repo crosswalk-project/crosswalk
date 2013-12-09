@@ -26,8 +26,10 @@ std::string XWalkContentClient::GetProduct() const {
 }
 
 std::string XWalkContentClient::GetUserAgent() const {
-  // TODO(hmin): Define user agent for xwalk.
-  std::string product = "Chrome/" XWALK_VERSION;
+  std::string product = "Chrome/31.0.1650.59";
+#if (defined(OS_TIZEN_MOBILE) || defined(OS_ANDROID))
+  product +=  " Mobile Crosswalk/" XWALK_VERSION;
+#endif
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
