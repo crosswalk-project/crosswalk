@@ -53,6 +53,10 @@ scoped_refptr<ApplicationData> LoadApplication(
   if (isLegacyWgt) {
     scoped_ptr<DictionaryValue> manifest(LoadManifestWgt(application_path,
                                                         error));
+    std::string application_id;
+    std::string value;
+    if (manifest->GetString("package", &value))
+      application_id = value;
     if (!manifest.get())
         return NULL;
     scoped_refptr<ApplicationData> application =
@@ -69,7 +73,7 @@ scoped_refptr<ApplicationData> LoadApplication(
               application, error, &warnings))
         return NULL;
       if (!warnings.empty()) {
-        LOG(WARNING) << "There are some warnings when validating the application "
+        LOG(WARNING) << "There are warnings when validating the application "
                      << application->ID();
       }
 
@@ -139,12 +143,15 @@ DictionaryValue* LoadManifestWgt(const base::FilePath& application_path,
             xml_root->SetString("version", value);
         }
         if (node_name == "name") {
+            value.clear();
             if (xml_reader.ReadElementContent(&value))
               xml_root->SetString("name", value);
+            LOG(INFO) << "name: " << value;
         }
         if (node_name == "icon") {
             if (xml_reader.NodeAttribute("src", &value))
               xml_root->SetString("icon", value);
+            LOG(INFO) << "icon: " << value;
         }
         if (node_name == "content") {
             if (xml_reader.NodeAttribute("src", &value))
@@ -155,8 +162,17 @@ DictionaryValue* LoadManifestWgt(const base::FilePath& application_path,
               xml_root->SetString("description", value);
         }
         if (node_name == "application") {
-            if (xml_reader.NodeAttribute("id", &value))
+            /*
+            if (xml_reader.NodeAttribute("id", &value)) {
               xml_root->SetString("application", value);
+              LOG(INFO) << "app id: " << value;
+            }
+            */
+            // in PackageInstaller packageID is used
+            if (xml_reader.NodeAttribute("package", &value)) {
+              xml_root->SetString("package", value);
+              LOG(INFO) << "package id: " << value;
+            }
         }
     } while (xml_reader.Read());
 

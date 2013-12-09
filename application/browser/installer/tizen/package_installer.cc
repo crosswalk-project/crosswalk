@@ -63,6 +63,8 @@ bool PackageInstaller::Init() {
                << " haven't been installed in Xwalk database.";
     return false;
   }
+  LOG(INFO) << "installer : package_id => " << package_id_;
+  LOG(INFO) << "installer : app_id => " << application_->ID();
   stripped_name_ = application_->Name();
   stripped_name_.erase(
       std::remove_if(stripped_name_.begin(), stripped_name_.end(), ::isspace),

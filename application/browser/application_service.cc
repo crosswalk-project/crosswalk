@@ -84,24 +84,24 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   std::string app_id;
   if (!base::DirectoryExists(path)) {
     scoped_ptr<Package> package = Package::Create(path);
-    if (package->GetPackageType() == Package::WGT_PACKAGE)
+    if (package->GetPackageType() == Package::WGT_PACKAGE) {
       isLegacyWgt = true;
     LOG(INFO) << "isLegacyWgt: " << isLegacyWgt;
-    /*
-    if (package)
-      app_id = package->Id();
+    } else {
+      if (package)
+        app_id = package->Id();
 
-    if (app_id.empty()) {
-      LOG(ERROR) << "XPK/WGT file is invalid.";
-      return false;
-    }
+      if (app_id.empty()) {
+        LOG(ERROR) << "XPK/WGT file is invalid.";
+        return false;
+      }
 
-    if (app_store_->Contains(app_id)) {
-      *id = app_id;
-      LOG(INFO) << "Already installed: " << app_id;
-      return false;
+      if (app_store_->Contains(app_id)) {
+        *id = app_id;
+        LOG(INFO) << "Already installed: " << app_id;
+        return false;
+      }
     }
-    */
     base::FilePath temp_dir;
     package->Extract(&temp_dir);
     unpacked_dir = data_dir.AppendASCII(app_id);
@@ -131,7 +131,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
                << " couldn't be installed.";
     return false;
   }
-
+  LOG(INFO) << "install on Tizen check: App ID => " << application->ID();
 #if defined(OS_TIZEN_MOBILE)
   if (!InstallPackageOnTizen(this, application->ID(),
                              runtime_context_->GetPath()))
