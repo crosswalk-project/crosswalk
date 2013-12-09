@@ -47,9 +47,9 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
 
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path) {
+  CreateRenderProcessChannel();
   if (!path.empty())
     RegisterExternalExtensionsInDirectory(&extensions_server_, path);
-  CreateRenderProcessChannel();
 }
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel() {
@@ -78,12 +78,22 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
        base::FileDescriptor(render_process_channel_->TakeClientFileDescriptor(),
           true);
 #endif
-
-  extensions_server_.Initialize(render_process_channel_.get());
+  extensions_server_.Initialize(render_process_channel_.get(), this);
 
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
           rp_channel_handle_));
+}
+
+bool XWalkExtensionProcess::CheckAPIAccessControl(std::string extension_name,
+    std::string api_name) {
+  // Send a message to browser process to query whether this operation is
+  // allowed.
+  bool allowed = false;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
+          extension_name, api_name, &allowed));
+  return allowed;
 }
 
 }  // namespace extensions

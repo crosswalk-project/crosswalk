@@ -13,6 +13,7 @@
 #include "content/public/common/main_function_params.h"
 #include "url/gurl.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 namespace xwalk {
 
@@ -47,6 +48,8 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
       extensions::XWalkExtensionServer* server) OVERRIDE;
   virtual void RegisterInternalExtensionsInUIThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;
+  virtual void CheckAPIAccessControl(std::string extension_name,
+      std::string api_name, extensions::PermissionResult* result) OVERRIDE;
 
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context() { return runtime_context_.get(); }

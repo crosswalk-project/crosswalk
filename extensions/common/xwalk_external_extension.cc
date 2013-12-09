@@ -21,6 +21,7 @@ XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
       shutdown_callback_(NULL),
       handle_msg_callback_(NULL),
       handle_sync_msg_callback_(NULL),
+      permissions_delegate_(NULL),
       initialized_(false) {
   std::string error;
   base::ScopedNativeLibrary library(base::LoadNativeLibrary(path, &error));
@@ -126,6 +127,12 @@ void XWalkExternalExtension::EntryPointsSetExtraJSEntryPoints(
     entries.push_back(std::string(entry_points[i]));
 
   set_entry_points(entries);
+}
+
+bool XWalkExternalExtension::CheckAPIAccessControl(const char* api_name) {
+  if (!permissions_delegate_)
+    return false;
+  return permissions_delegate_->CheckAPIAccessControl(this->name(), api_name);
 }
 
 }  // namespace extensions

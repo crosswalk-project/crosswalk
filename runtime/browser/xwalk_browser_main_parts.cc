@@ -14,6 +14,8 @@
 #include "base/strings/string_number_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
@@ -239,6 +241,23 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInUIThreadServer(
           runtime_context_->GetApplicationSystem())));
   server->RegisterExtension(scoped_ptr<XWalkExtension>(
       new ApplicationEventExtension(runtime_context_->GetApplicationSystem())));
+}
+
+void XWalkBrowserMainParts::CheckAPIAccessControl(std::string extension_name,
+    std::string api_name, extensions::PermissionResult* result) {
+  *result = extensions::PERMISSION_DENY;
+  // Get application ID from running application
+  xwalk::application::ApplicationService* service =
+      runtime_context_->GetApplicationSystem()->application_service();
+  const xwalk::application::ApplicationData* running_app =
+      service->GetRunningApplication();
+  if (running_app) {
+    std::string app_id = running_app->ID();
+    xwalk::application::PermissionAction allowed =
+        service->CheckAPIAccessControl(extension_name, api_name, app_id);
+    if (allowed == xwalk::application::PERMISSION_ALLOW)
+      *result = extensions::PERMISSION_ALLOW;
+  }
 }
 
 }  // namespace xwalk

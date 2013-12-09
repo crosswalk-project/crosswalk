@@ -398,5 +398,12 @@ void XWalkExtensionService::OnRenderProcessDied(
   delete data;
 }
 
+void XWalkExtensionService::OnCheckAPIAccessControl(
+    std::string extension_name, std::string api_name,
+    PermissionResult* result) {
+  CHECK(delegate_);
+  delegate_->CheckAPIAccessControl(extension_name, api_name, result);
+}
+
 }  // namespace extensions
 }  // namespace xwalk
