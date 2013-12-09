@@ -92,22 +92,26 @@ void NativeAppWindowTizen::OnRotationChanged(gfx::Display::Rotation rotation) {
   if (!root)
     return;
 
-  // The size of the root window remains the same, we rotate and
-  // possibly resize the contents of the window.
-  gfx::Size size = GetBounds().size();
-  root->SetTransform(GetRotationAroundCenter(size, rotation));
+  // Set rotation transform for root window. The size of the root window
+  // will be changed automaticlly while the transform is set.
+  gfx::Rect bounds = GetBounds();
+  root->SetTransform(GetRotationAroundCenter(bounds.size(), rotation));
 
-  gfx::Size content_size;
-  if (rotation == gfx::Display::ROTATE_90
-      || rotation == gfx::Display::ROTATE_270) {
-    content_size = gfx::Size(size.height(), size.width());
+  // Adjust the size of sub-windows
+  // FIXME(zliang7): It should follow the change while the root is resized.
+  if (rotation == gfx::Display::ROTATE_90 ||
+      rotation == gfx::Display::ROTATE_270) {
+    int width = bounds.width();
+    bounds.set_width(bounds.height());
+    bounds.set_height(width);
     SetOrientation(LANDSCAPE);
   } else {
-    content_size = size;
     SetOrientation(PORTRAIT);
   }
-
-  GetWidget()->GetRootView()->SetSize(content_size);
+  GetNativeWindow()->parent()->SetBounds(bounds);
+  GetNativeWindow()->SetBounds(bounds);
+  // FIXME(zliang7): Why resizing the widget doesn't work?
+  GetWidget()->GetRootView()->SetSize(bounds.size());
 }
 
 }  // namespace xwalk
