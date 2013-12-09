@@ -43,25 +43,9 @@ bool TizenSystemIndicator::IsConnected() const {
   return watcher_;
 }
 
-void TizenSystemIndicator::OnPaint(gfx::Canvas* canvas) {
-  View::OnPaint(canvas);
-
-  if (image_.isNull())
-    return;
-  canvas->DrawImageInt(image_, 0, 0);
-}
-
 gfx::Size TizenSystemIndicator::GetPreferredSize() {
-  if (IsConnected())
-    return watcher_->GetSize();
-  return gfx::Size(0, 0);
-}
-
-void TizenSystemIndicator::SetImage(const gfx::ImageSkia& img) {
-  if (!IsConnected() || img.isNull())
-    return;
-  image_ = img;
-  SchedulePaint();
+  // The size must be in DIPs. SkiaImage handles that and null images.
+  return GetImage().size();
 }
 
 bool TizenSystemIndicator::OnMousePressed(const ui::MouseEvent& event) {
@@ -144,7 +128,7 @@ void TizenSystemIndicator::OnMouseMoved(const ui::MouseEvent& event) {
 
 void TizenSystemIndicator::SetOrientation(Orientation orientation) {
   orientation_ = orientation;
-  image_ = gfx::ImageSkia();
+  SetImage(0);
 
   // TODO(ricardotk): Implement landscape mode, for now we simply do not show
   // the indicator in landscape mode.
