@@ -33,6 +33,7 @@
 #include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
+#include "net/url_request/url_request_context_builder.h"
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
@@ -43,6 +44,7 @@
 #endif
 
 using content::BrowserThread;
+using net::URLRequestContextBuilder;
 
 namespace xwalk {
 
@@ -93,6 +95,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (!url_request_context_) {
+    net::URLRequestContextBuilder builder;
+    builder.set_user_agent(content::GetUserAgent(GURL()));
     url_request_context_.reset(new net::URLRequestContext());
     network_delegate_.reset(new RuntimeNetworkDelegate);
     url_request_context_->set_network_delegate(network_delegate_.get());

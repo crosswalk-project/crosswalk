@@ -15,9 +15,9 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/content_client.h"
 #include "jni/XWalkSettings_jni.h"
-#include "webkit/glue/webkit_glue.h"
-#include "webkit/common/webpreferences.h"
 #include "webkit/common/user_agent/user_agent.h"
+#include "webkit/common/webpreferences.h"
+#include "webkit/glue/webkit_glue.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
@@ -124,6 +124,25 @@ void XWalkSettings::UpdateEverything() {
 
 void XWalkSettings::UpdateEverything(JNIEnv* env, jobject obj) {
   UpdateWebkitPreferences(env, obj);
+  UpdateUserAgent(env, obj);
+}
+
+void XWalkSettings::UpdateUserAgent(JNIEnv* env, jobject obj) {
+  if (!web_contents()) return;
+
+  ScopedJavaLocalRef<jstring> str =
+      Java_XWalkSettings_getUserAgentLocked(env, obj);
+  bool ua_overidden = str.obj() != NULL;
+
+  if (ua_overidden) {
+    std::string override = base::android::ConvertJavaStringToUTF8(str);
+    web_contents()->SetUserAgentOverride(override);
+  }
+
+  const content::NavigationController& controller =
+      web_contents()->GetController();
+  for (int i = 0; i < controller.GetEntryCount(); ++i)
+    controller.GetEntryAtIndex(i)->SetIsOverridingUserAgent(ua_overidden);
 }
 
 void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
@@ -207,6 +226,11 @@ static jint Init(JNIEnv* env,
   XWalkSettings* settings = new XWalkSettings(env, obj);
   settings->SetWebContents(env, obj, web_contents);
   return reinterpret_cast<jint>(settings);
+}
+
+static jstring GetDefaultUserAgent(JNIEnv* env, jclass clazz) {
+  return base::android::ConvertUTF8ToJavaString(
+      env, content::GetUserAgent(GURL())).Release();
 }
 
 bool RegisterXWalkSettings(JNIEnv* env) {
