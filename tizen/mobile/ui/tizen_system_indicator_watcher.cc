@@ -15,6 +15,8 @@
 #include "ipc/unix_domain_socket_util.h"
 #include "base/strings/string_tokenizer.h"
 #include "base/environment.h"
+#include "ui/gfx/image/image_skia.h"
+#include "ui/gfx/screen.h"
 
 using content::BrowserThread;
 
@@ -480,7 +482,10 @@ void TizenSystemIndicatorWatcher::UpdateIndicatorImage() {
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width_, height_);
   bitmap.setPixels(shared_memory_->memory());
 
-  const gfx::ImageSkia img_skia = gfx::ImageSkia::CreateFrom1xBitmap(bitmap);
+  gfx::ImageSkia img_skia;
+  gfx::Display display = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay();
+  img_skia.AddRepresentation(gfx::ImageSkiaRep(bitmap,
+      display.device_scale_factor()));
   indicator_->SetImage(img_skia);
 }
 
