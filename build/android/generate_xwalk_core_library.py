@@ -280,6 +280,17 @@ def PostCopyLibraryProject(out_directory):
     os.remove(common_aidl_file)
 
 
+def RemoveUnusedFiles(out_directory):
+  # Exclude gdbserver binary in release mode, as it's GPL license.
+  mode = os.path.basename(os.path.normpath(out_directory))
+  if mode == 'Release':
+    libs_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'libs')
+    if os.path.exists(libs_directory):
+      for root, _, files in os.walk(libs_directory):
+        if 'gdbserver' in files:
+          os.remove(os.path.join(root, 'gdbserver'))
+
+
 def main(argv):
   print 'Generating XWalkCore Library Project...'
   option_parser = optparse.OptionParser()
@@ -310,6 +321,8 @@ def main(argv):
   CopyJSBindingFiles(options.source, out_directory)
   # Post copy library project.
   PostCopyLibraryProject(out_directory)
+  # Remove unused files.
+  RemoveUnusedFiles(out_directory)
   print 'Your Android library project has been created at %s' % (
       out_project_directory)
 
