@@ -103,8 +103,8 @@ scoped_ptr<Response> CreateInterfaceNotFoundError(
 }  // namespace
 
 void PropertyExporter::AppendPropertiesToWriter(const std::string& interface,
-                                                MessageWriter* writer) {
-  InterfacesMap::iterator it = interfaces_.find(interface);
+                                                MessageWriter* writer) const {
+  InterfacesMap::const_iterator it = interfaces_.find(interface);
   if (it == interfaces_.end())
     return;
 

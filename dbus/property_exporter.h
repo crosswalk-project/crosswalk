@@ -38,7 +38,7 @@ class PropertyExporter {
   // were exported.
 
   void AppendPropertiesToWriter(const std::string& interface,
-                                MessageWriter* writer);
+                                MessageWriter* writer) const;
 
   std::vector<std::string> interfaces() const;
 
