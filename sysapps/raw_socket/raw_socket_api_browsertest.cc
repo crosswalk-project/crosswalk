@@ -43,7 +43,7 @@ class SysAppsRawSocketTestExtension : public XWalkExtension {
 
 class SysAppsRawSocketTest : public InProcessBrowserTest {
  public:
-  void SetUp() {
+  virtual void SetUp() {
     XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
         base::Bind(&SysAppsRawSocketTest::RegisterExtensions,
                    base::Unretained(this)));

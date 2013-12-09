@@ -54,7 +54,7 @@ class ApplicationEventApiTest : public ApplicationApiTest {
   // ApplicationEventManager::DetachObserver called from test case destruction
   // the check for running on UI thread will fail even it runs on UI thread.
   void CloseFinishObserver() {
-    event_finish_observer_.release();
+    MockFinishObserver* observer = event_finish_observer_.release();
   }
 
   void SendEvent() {
