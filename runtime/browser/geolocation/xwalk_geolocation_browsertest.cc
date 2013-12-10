@@ -8,7 +8,6 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -28,23 +27,8 @@
 
 using xwalk::NativeAppWindow;
 using xwalk::Runtime;
-using xwalk::RuntimeRegistry;
-using xwalk::RuntimeList;
 using content::WebContents;
 using testing::_;
-
-// A mock observer to listen runtime registry changes.
-class MockRuntimeRegistryObserver : public xwalk::RuntimeRegistryObserver {
- public:
-  MockRuntimeRegistryObserver() {}
-  virtual ~MockRuntimeRegistryObserver() {}
-
-  MOCK_METHOD1(OnRuntimeAdded, void(Runtime* runtime));
-  MOCK_METHOD1(OnRuntimeRemoved, void(Runtime* runtime));
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MockRuntimeRegistryObserver);
-};
 
 class XWalkRuntimeTest : public InProcessBrowserTest {
  public:
@@ -61,10 +45,7 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
         new content::WindowedNotificationObserver(
           xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
-    for (RuntimeList::const_iterator it = runtimes.begin();
-         it != runtimes.end(); ++it)
-      original_runtimes_.push_back(*it);
+    original_runtimes_.assign(runtimes().begin(), runtimes().end());
   }
 
  private:
@@ -76,7 +57,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII(
           "geolocation/simple.html"));
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   xwalk_test_utils::NavigateToURL(runtime(), url);
   int error_code;
   ASSERT_TRUE(content::ExecuteScriptAndExtractInt(
@@ -85,8 +66,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
       &error_code));
   EXPECT_NE(error_code, -1);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtimes().size());
   runtime()->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtimes().size());
 }

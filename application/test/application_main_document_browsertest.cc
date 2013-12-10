@@ -6,14 +6,13 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 using xwalk::application::ApplicationData;
 
@@ -34,13 +33,13 @@ void ApplicationMainDocumentBrowserTest::SetUpCommandLine(
 IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   content::RunAllPendingInMessageLoop();
   // At least the main document's runtime exist after launch.
-  ASSERT_GE(GetRuntimeNumber(), 1);
+  ASSERT_GE(GetRuntimeCount(), 1);
 
-  xwalk::Runtime* main_runtime = xwalk::RuntimeRegistry::Get()->runtimes()[0];
+  xwalk::Runtime* main_runtime = runtimes()[0];
   xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
   xwalk::application::ApplicationService* service =
     runtime_context->GetApplicationSystem()->application_service();
-  const ApplicationData* app = service->GetActiveApplication();
+  const ApplicationData* app = service->GetActiveApplication()->data();
   GURL generated_url =
     app->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);
   // Check main document URL.
