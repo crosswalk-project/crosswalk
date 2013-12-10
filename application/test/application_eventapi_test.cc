@@ -4,6 +4,7 @@
 
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
@@ -12,7 +13,6 @@
 #include "xwalk/application/test/application_apitest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 using xwalk::application::ApplicationEventManager;
 using xwalk::application::Event;
@@ -38,13 +38,13 @@ class ApplicationEventApiTest : public ApplicationApiTest {
   }
 
   void PrepareFinishObserver() {
-    xwalk::Runtime* main_runtime = xwalk::RuntimeRegistry::Get()->runtimes()[0];
+    xwalk::Runtime* main_runtime = runtimes()[0];
     xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
     xwalk::application::ApplicationSystem* system =
       runtime_context->GetApplicationSystem();
     DCHECK(system->application_service()->GetActiveApplication());
 
-    app_id_ = system->application_service()->GetActiveApplication()->ID();
+    app_id_ = system->application_service()->GetActiveApplication()->data()->ID();
     event_manager_ = system->event_manager();
     event_finish_observer_.reset(
         new MockFinishObserver(event_manager_, app_id_));
