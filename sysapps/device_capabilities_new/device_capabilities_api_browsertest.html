@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var current_test = 0;
+      var test_list = [
+        getCPUInfo,
+        endTest
+      ];
+
+      function runNextTest() {
+        test_list[current_test++]();
+      };
+
+      function reportFail(message) {
+        console.log(message);
+        document.title = "Fail";
+      };
+
+      function endTest() {
+        document.title = "Pass";
+      };
+
+      var api = xwalk.experimental.system;
+
+      function getCPUInfo() {
+        var call_max = 1000;
+        var call_count = 0;
+
+        function checkCPUInfo(info) {
+          if (info.numOfProcessors < 1)
+            reportFail("What!? A computer with less than 1 CPU?");
+
+          if (!info.archName)
+            reportFail("Missing archtecture name in the SystemCPU object.");
+
+          if (typeof info.archName != "string")
+            reportFail("Archtecture name is not a string.");
+
+          if (info.load < 0 || info.load > 1)
+            reportFail("Load should be in the range of 0 and 1.");
+
+          if (++call_count == call_max)
+            runNextTest();
+        };
+
+        for (var i = 0; i < call_max; ++i)
+          api.getCPUInfo().then(checkCPUInfo, reportFail);
+      };
+
+      runNextTest();
+    </script>
+  </body>
+</html>
