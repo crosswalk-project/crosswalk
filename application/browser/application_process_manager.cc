@@ -14,6 +14,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
+#include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
@@ -25,6 +26,29 @@ namespace xwalk {
 namespace keys = application_manifest_keys;
 
 namespace application {
+
+class FinishEventObserver : public EventObserver {
+ public:
+  FinishEventObserver(
+      ApplicationEventManager* event_manager,
+      ApplicationProcessManager* process_manager)
+      : EventObserver(event_manager),
+        process_manager_(process_manager) {
+  }
+
+  virtual void Observe(const std::string& app_id,
+                       scoped_refptr<Event> event) OVERRIDE {
+    DCHECK(xwalk::application::kOnJavaScriptEventAck == event->name());
+    std::string ack_event_name;
+    event->args()->GetString(0, &ack_event_name);
+    if (ack_event_name == xwalk::application::kOnSuspend)
+      process_manager_->CloseMainDocument();
+  }
+
+
+ private:
+  ApplicationProcessManager* process_manager_;
+};
 
 ApplicationProcessManager::ApplicationProcessManager(
     RuntimeContext* runtime_context)
@@ -57,8 +81,31 @@ void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
   // FIXME: main_runtime_ should always be the last one to close
   // in RuntimeRegistry. Need to fix the issue from browser tests.
   if (runtimes_.size() == 1 &&
-      ContainsKey(runtimes_, main_runtime_))
-    CloseMainDocument();
+      ContainsKey(runtimes_, main_runtime_)) {
+    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+    ApplicationEventManager* event_manager = system->event_manager();
+    ApplicationService* service = system->application_service();
+    std::string app_id = service->GetRunningApplication()->ID();
+
+    // If onSuspend is not registered in main document,
+    // we close the main document immediately.
+    if (!IsOnSuspendHandlerRegistered(app_id)) {
+      CloseMainDocument();
+      return;
+    }
+
+    DCHECK(!finish_observer_);
+    finish_observer_.reset(
+        new FinishEventObserver(event_manager, this));
+    event_manager->AttachObserver(
+      app_id, kOnJavaScriptEventAck,
+      finish_observer_.get());
+
+    scoped_ptr<base::ListValue> event_args(new base::ListValue);
+    scoped_refptr<Event> event = Event::CreateEvent(
+        xwalk::application::kOnSuspend, event_args.Pass());
+    event_manager->SendEvent(app_id, event);
+  }
 }
 
 bool ApplicationProcessManager::RunMainDocument(
@@ -78,6 +125,8 @@ bool ApplicationProcessManager::RunMainDocument(
 
 void ApplicationProcessManager::CloseMainDocument() {
   DCHECK(main_runtime_);
+
+  finish_observer_.reset();
   main_runtime_->Close();
   main_runtime_ = NULL;
 }
@@ -99,6 +148,20 @@ bool ApplicationProcessManager::RunFromLocalPath(
   }
 
   return false;
+}
+
+bool ApplicationProcessManager::IsOnSuspendHandlerRegistered(
+    const std::string& app_id) const {
+  ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+  ApplicationService* service = system->application_service();
+
+  base::ListValue* events =
+      service->application_store()->GetApplicationEvents(app_id);
+  if (!events ||
+      events->Find(base::StringValue(kOnSuspend)) == events->end())
+    return false;
+
+  return true;
 }
 
 }  // namespace application

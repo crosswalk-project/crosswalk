@@ -228,5 +228,9 @@ bool ApplicationService::Launch(
       application);
 }
 
+ApplicationStore* ApplicationService::application_store() {
+  return app_store_.get();
+}
+
 }  // namespace application
 }  // namespace xwalk

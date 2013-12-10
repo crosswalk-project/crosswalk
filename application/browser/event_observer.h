@@ -24,8 +24,9 @@ class EventObserver {
   virtual void Observe(const std::string& app_id,
                        scoped_refptr<Event> event) = 0;
 
- protected:
   virtual ~EventObserver();
+
+ protected:
   ApplicationEventManager* event_manager_;
 };
 

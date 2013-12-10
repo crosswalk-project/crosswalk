@@ -9,6 +9,7 @@ namespace xwalk {
 namespace application {
 
 extern const char kOnLaunched[];
+extern const char kOnSuspend[];
 extern const char kOnJavaScriptEventAck[];
 
 }  // namespace application
