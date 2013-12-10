@@ -20,6 +20,12 @@
       'mobile/ui/tizen_system_indicator.h',
       'mobile/ui/tizen_system_indicator_watcher.cc',
       'mobile/ui/tizen_system_indicator_watcher.h',
+      'mobile/sensor/sensor_provider.cc',
+      'mobile/sensor/sensor_provider.h',
+      'mobile/sensor/tizen_data_fetcher_shared_memory.cc',
+      'mobile/sensor/tizen_data_fetcher_shared_memory.h',
+      'mobile/sensor/tizen_platform_sensor.cc',
+      'mobile/sensor/tizen_platform_sensor.h',
     ],
   }],
 }

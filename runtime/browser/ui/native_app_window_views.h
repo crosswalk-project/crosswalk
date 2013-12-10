@@ -13,10 +13,6 @@
 #include "ui/views/widget/widget_delegate.h"
 #include "ui/views/widget/widget_observer.h"
 
-#if defined(OS_TIZEN_MOBILE)
-#include "xwalk/runtime/browser/tizen/sensor_provider.h"
-#endif
-
 namespace views {
 class WebView;
 }
