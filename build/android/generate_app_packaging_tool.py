@@ -21,106 +21,130 @@ def PrepareFromChromium(target_dir):
   shutil.copy('../build/android/gyp/ant.py', gyp_dir)
 
 
-def PrepareFromXwalk(target_dir):
-  src_folder = os.path.dirname(os.path.dirname(os.path.dirname(target_dir)))
-  version_src = os.path.join(src_folder, 'xwalk', 'VERSION')
-  version_dest = os.path.join(target_dir, 'VERSION')
-  shutil.copy(version_src, version_dest)
+def PrepareFromXwalk(src_dir, target_dir):
+  '''Prepare different files for app packaging tools. All resources are used by
+  make_apk.py.
+  '''
+  # Get the dir of source code from src_dir: ../../.
+  source_code_dir = os.path.dirname(os.path.dirname(src_dir))
 
-  libs_dir = os.path.join(target_dir, 'libs')
-  if not os.path.exists(libs_dir):
-    os.makedirs(libs_dir)
-  src_dir = os.path.join(os.path.dirname(target_dir), 'lib.java')
-  jar_file_list = ['xwalk_app_runtime_activity_java.dex.jar',
-                   'xwalk_app_runtime_activity_java.jar',
-                   'xwalk_app_runtime_client_java.dex.jar',
-                   'xwalk_app_runtime_client_java.jar',
-                   'xwalk_core_embedded.dex.jar']
-  for jar_file in jar_file_list:
-    shutil.copy(os.path.join(src_dir, jar_file), libs_dir)
+  # The directories for source and target .jar files.
+  jar_src_dir = os.path.join(src_dir, 'lib.java')
+  jar_target_dir = os.path.join(target_dir, 'libs')
 
-  native_libs_target_dir = os.path.join(target_dir, 'native_libs', 'libs')
-  native_libs_src_dir = os.path.join(os.path.dirname(target_dir),
-                                     'xwalk_runtime_lib_apk', 'libs')
-  shutil.copytree(native_libs_src_dir, native_libs_target_dir)
+  # The directories for generated resources.
+  gen_res_src_dir = os.path.join(src_dir, 'gen')
+  gen_res_target_dir = os.path.join(target_dir, 'gen')
 
-  native_libs_java_des_dir = os.path.join(target_dir, 'native_libs_java')
-  native_libs_java_src_dir = os.path.join(os.path.dirname(target_dir),
-                                          'xwalk_runtime_lib_apk',
-                                          'native_libraries_java')
-  shutil.copytree(native_libs_java_src_dir, native_libs_java_des_dir)
+  # The directory for source packaging tools.
+  tools_src_dir = os.path.join(source_code_dir, 'xwalk/app/tools/android')
 
-  ant_dir =  os.path.join(target_dir, 'scripts', 'ant')
-  if not os.path.exists(ant_dir):
-    os.makedirs(ant_dir)
-  ant_file_list = ['./app/tools/android/ant/apk-codegen.xml',
-                   './app/tools/android/ant/apk-package.xml',
-                   './app/tools/android/ant/apk-package-resources.xml',
-                   './app/tools/android/ant/xwalk-debug.keystore']
-  for ant_file in ant_file_list:
-    shutil.copy(ant_file, ant_dir)
+  # The directories for source and target gyp.
+  gyp_src_dir =  os.path.join(tools_src_dir, 'gyp')
+  gyp_target_dir = os.path.join(target_dir, 'scripts/gyp')
 
-  gyp_dir = os.path.join(target_dir, 'scripts', 'gyp')
-  if not os.path.exists(gyp_dir):
-    os.makedirs(gyp_dir)
-  gyp_file_list = ['./app/tools/android/gyp/dex.py',
-                   './app/tools/android/gyp/finalize_apk.py',
-                   './app/tools/android/gyp/jar.py',
-                   './app/tools/android/gyp/javac.py']
-  for gyp_file in gyp_file_list:
-    shutil.copy(gyp_file, gyp_dir)
+  # The source file/directory list to be copied and the target directory list.
+  source_target_list = [
+    (os.path.join(source_code_dir, 'xwalk/VERSION'),
+     os.path.join(target_dir, 'VERSION')),
 
-  util_dir = os.path.join(gyp_dir, 'util')
-  if not os.path.exists(util_dir):
-    os.makedirs(util_dir)
-  shutil.copy('./app/tools/android/gyp/util/build_utils.py', util_dir)
+    # This jar is needed for 'javac' compile.
+    (os.path.join(jar_src_dir, 'xwalk_app_runtime_java.jar'), jar_target_dir),
+    (os.path.join(jar_src_dir, 'xwalk_core_embedded.dex.jar'), jar_target_dir),
 
-  app_src_dir = os.path.join(target_dir, 'app_src')
-  if not os.path.exists(app_src_dir):
-    os.makedirs(app_src_dir)
-  shutil.copy('./app/android/app_template/AndroidManifest.xml', app_src_dir)
-  app_src_folder_list = ['./app/android/app_template/assets',
-                         './app/android/app_template/res',
-                         './app/android/app_template/src']
-  for folder in app_src_folder_list:
-    shutil.copytree(folder, os.path.join(app_src_dir, os.path.basename(folder)))
+    # Native library, like libxwalkcore.so.
+    (os.path.join(src_dir, 'xwalk_runtime_lib_apk/libs'),
+     os.path.join(target_dir, 'native_libs/libs')),
 
-  native_res_file_src_dir = os.path.join(os.path.dirname(target_dir),
-                                         'xwalk_runtime_lib', 'assets')
-  native_res_file_des_dir = os.path.join(target_dir, 'native_libs_res')
-  if os.path.exists(native_res_file_des_dir):
-    shutil.rmtree(native_res_file_des_dir)
-  shutil.copytree(native_res_file_src_dir, native_res_file_des_dir)
+    # Native source package(xwalk.pak) and related js files for extension.
+    (os.path.join(src_dir, 'xwalk_runtime_lib/assets'),
+     os.path.join(target_dir, 'native_libs_res')),
 
-  packaging_tool_list = ['./app/tools/android/customize.py',
-                         './app/tools/android/make_apk.py',
-                         './app/tools/android/manifest_json_parser.py',
-                         './app/tools/android/parse_xpk.py']
-  for packaging_tool in packaging_tool_list:
-    shutil.copy(packaging_tool, target_dir)
+    # Various Java resources.
+    (os.path.join(source_code_dir, 'content/public/android/java/res'),
+     os.path.join(target_dir, 'libs_res/content')),
+    (os.path.join(source_code_dir, 'ui/android/java/res'),
+     os.path.join(target_dir, 'libs_res/ui')),
+    (os.path.join(source_code_dir, 'xwalk/runtime/android/java/res'),
+     os.path.join(target_dir, 'libs_res/runtime')),
 
-  resources_for_embeded = ['ui_java', 'xwalk_core_java', 'content_java']
-  res_src_dir = os.path.join(os.path.dirname(target_dir), 'gen')
-  res_target_dir = os.path.join(target_dir, 'gen')
-  for resource in resources_for_embeded:
-    shutil.copytree(os.path.join(res_src_dir, resource),
-                    os.path.join(res_target_dir, resource))
-  java_res_for_embeded = {'../ui/android/java/res': 'ui',
-                          'runtime/android/java/res': 'runtime',
-                          '../content/public/android/java/res': 'content'}
-  java_res_des_dir = os.path.join(target_dir, 'libs_res')
-  for key in java_res_for_embeded:
-    shutil.copytree(os.path.join(os.getcwd(), key),
-                    os.path.join(java_res_des_dir, java_res_for_embeded[key]))
+    (os.path.join(gen_res_src_dir, 'ui_java/java_R'),
+     os.path.join(gen_res_target_dir, 'ui_java/java_R')),
+    (os.path.join(gen_res_src_dir, 'ui_java/res_crunched'),
+     os.path.join(gen_res_target_dir, 'ui_java/res_crunched')),
+    (os.path.join(gen_res_src_dir, 'ui_java/res_grit'),
+     os.path.join(gen_res_target_dir, 'ui_java/res_grit')),
+    (os.path.join(gen_res_src_dir, 'ui_java/res_v14_compatibility'),
+     os.path.join(gen_res_target_dir, 'ui_java/res_v14_compatibility')),
+
+    (os.path.join(gen_res_src_dir, 'content_java/java_R'),
+     os.path.join(gen_res_target_dir, 'content_java/java_R')),
+    (os.path.join(gen_res_src_dir, 'content_java/res_crunched'),
+     os.path.join(gen_res_target_dir, 'content_java/res_crunched')),
+    (os.path.join(gen_res_src_dir, 'content_java/res_grit'),
+     os.path.join(gen_res_target_dir, 'content_java/res_grit')),
+    (os.path.join(gen_res_src_dir, 'content_java/res_v14_compatibility'),
+     os.path.join(gen_res_target_dir, 'content_java/res_v14_compatibility')),
+
+    (os.path.join(gen_res_src_dir, 'xwalk_core_java/java_R'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_java/java_R')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_crunched'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_crunched')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_grit'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_grit')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_v14_compatibility'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_v14_compatibility')),
+
+    # The app wrapper code. It's the template Java code.
+    (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),
+     os.path.join(target_dir, 'app_src')),
+
+    # Copy below 5 files to overwrite the existing ones from Chromium.
+    (os.path.join(gyp_src_dir, 'util/build_utils.py'),
+     os.path.join(gyp_target_dir, 'util')),
+    (os.path.join(gyp_src_dir, 'dex.py'), gyp_target_dir),
+    (os.path.join(gyp_src_dir, 'finalize_apk.py'), gyp_target_dir),
+    (os.path.join(gyp_src_dir, 'jar.py'), gyp_target_dir),
+    (os.path.join(gyp_src_dir, 'javac.py'), gyp_target_dir),
+
+    # Build and python tools.
+    (os.path.join(tools_src_dir, 'ant'),
+     os.path.join(target_dir, 'scripts/ant')),
+    (os.path.join(tools_src_dir, 'customize.py'), target_dir),
+    (os.path.join(tools_src_dir, 'make_apk.py'), target_dir),
+    (os.path.join(tools_src_dir, 'manifest_json_parser.py'), target_dir),
+    (os.path.join(tools_src_dir, 'parse_xpk.py'), target_dir)
+  ]
+
+  for index in range(len(source_target_list)):
+    source_path, target_path = source_target_list[index]
+
+    # Process source.
+    if not os.path.exists(source_path):
+      print ('The source path "%s" does not exist.' % source_path)
+      continue
+
+    source_is_file = os.path.isfile(source_path)
+
+    # Process target.
+    if source_is_file and not os.path.exists(target_path):
+      os.makedirs(target_path)
+
+    # Do copy.
+    if source_is_file:
+      shutil.copy(source_path, target_path)
+    else:
+      shutil.copytree(source_path, target_path)
 
 def main(args):
   if len(args) != 1:
     print 'You must provide only one argument: folder to update'
     return 1
   target_dir = args[0]
+  src_dir = os.path.dirname(target_dir)
   Clean(target_dir)
   PrepareFromChromium(target_dir)
-  PrepareFromXwalk(target_dir)
+  PrepareFromXwalk(src_dir, target_dir)
 
 
 if __name__ == '__main__':

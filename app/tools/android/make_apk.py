@@ -337,16 +337,13 @@ def Execution(options, sanitized_name):
     print 'Please install Oracle JDK first.'
     sys.exit(5)
 
+  # Compile App source code with app runtime code.
   classpath = '--classpath='
   classpath += os.path.join(os.getcwd(), 'libs',
-                            'xwalk_app_runtime_activity_java.jar')
-  classpath += ' ' + os.path.join(os.getcwd(),
-                                  'libs', 'xwalk_app_runtime_client_java.jar')
+                            'xwalk_app_runtime_java.jar')
   classpath += ' ' + sdk_jar_path
   src_dirs = '--src-dirs=' + os.path.join(os.getcwd(), sanitized_name, 'src') +\
              ' ' + os.path.join(os.getcwd(), 'out', 'gen')
-  if options.mode == 'embedded':
-    src_dirs += ' ' + os.path.join(os.getcwd(), 'native_libs_java')
   cmd = ['python', os.path.join('scripts', 'gyp', 'javac.py'),
          '--output-dir=%s' % os.path.join('out', 'classes'),
          classpath,
@@ -356,6 +353,7 @@ def Execution(options, sanitized_name):
          '--stamp=compile.stam']
   RunCommand(cmd)
 
+  # Package resources.
   asset_dir = '-DASSET_DIR=%s' % os.path.join(sanitized_name, 'assets')
   xml_path = os.path.join('scripts', 'ant', 'apk-package-resources.xml')
   cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
@@ -380,10 +378,8 @@ def Execution(options, sanitized_name):
   RunCommand(cmd)
 
   dex_path = '--dex-path=' + os.path.join(os.getcwd(), 'out', 'classes.dex')
-  activity_jar = os.path.join(os.getcwd(),
-                              'libs', 'xwalk_app_runtime_activity_java.dex.jar')
-  client_jar = os.path.join(os.getcwd(),
-                            'libs', 'xwalk_app_runtime_client_java.dex.jar')
+  app_runtime_jar = os.path.join(os.getcwd(),
+                                 'libs', 'xwalk_app_runtime_java.jar')
 
   # Check whether external extensions are included.
   extensions_string = 'xwalk-extensions'
@@ -396,8 +392,7 @@ def Execution(options, sanitized_name):
   dex_command_list = ['python', os.path.join('scripts', 'gyp', 'dex.py'),
                       dex_path,
                       '--android-sdk-root=%s' % sdk_root_path,
-                      activity_jar,
-                      client_jar,
+                      app_runtime_jar,
                       os.path.join(os.getcwd(), 'out', 'classes')]
   dex_command_list.extend(external_extension_jars)
   dex_command_list.extend(input_jars)
