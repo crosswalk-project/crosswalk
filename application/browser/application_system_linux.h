@@ -8,6 +8,10 @@
 #include "xwalk/application/browser/application_system.h"
 
 namespace xwalk {
+class DBusManager;
+}
+
+namespace xwalk {
 namespace application {
 
 class ApplicationServiceProviderLinux;
@@ -17,11 +21,14 @@ class ApplicationSystemLinux : public ApplicationSystem {
   explicit ApplicationSystemLinux(RuntimeContext* runtime_context);
   virtual ~ApplicationSystemLinux();
 
+  DBusManager& dbus_manager();
+
  private:
   // ApplicationSystem implementation.
   virtual bool IsRunningAsService() const OVERRIDE;
 
   scoped_ptr<ApplicationServiceProviderLinux> service_provider_;
+  scoped_ptr<DBusManager> dbus_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystemLinux);
 };

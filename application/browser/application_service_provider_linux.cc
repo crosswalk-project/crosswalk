@@ -17,13 +17,12 @@ namespace xwalk {
 namespace application {
 
 ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
-    ApplicationService* app_service) {
-  scoped_refptr<dbus::Bus> bus = dbus_manager_.session_bus();
-
-  installed_apps_.reset(new InstalledApplicationsManager(
-      dbus_manager_.session_bus(), app_service));
-  running_apps_.reset(new RunningApplicationsManager(
-      dbus_manager_.session_bus(), app_service));
+    ApplicationService* app_service, scoped_refptr<dbus::Bus> session_bus)
+    : session_bus_(session_bus) {
+  installed_apps_.reset(new InstalledApplicationsManager(session_bus_,
+                                                         app_service));
+  running_apps_.reset(new RunningApplicationsManager(session_bus_,
+                                                     app_service));
 
   // TODO(cmarcelo): This is just a placeholder to test D-Bus is working, remove
   // once we exported proper objects.
@@ -31,7 +30,7 @@ ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
 
   // Auto activation waits for the service name to be registered, so we do this
   // as the last step so all the object paths and interfaces are set.
-  bus->RequestOwnership(
+  session_bus_->RequestOwnership(
       kXWalkDBusServiceName,
       dbus::Bus::REQUIRE_PRIMARY,
       base::Bind(&ApplicationServiceProviderLinux::OnServiceNameExported,
@@ -73,7 +72,7 @@ void OnPing(dbus::MethodCall* method_call,
 
 void ApplicationServiceProviderLinux::ExportTestObject() {
   dbus::ExportedObject* object =
-      dbus_manager_.session_bus()->GetExportedObject(dbus::ObjectPath("/test"));
+      session_bus_->GetExportedObject(dbus::ObjectPath("/test"));
   object->ExportMethod("org.crosswalkproject.TestInterface", "Ping",
                        base::Bind(&OnPing), base::Bind(&OnExported));
 }

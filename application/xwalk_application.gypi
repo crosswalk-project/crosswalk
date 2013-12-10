@@ -29,8 +29,6 @@
         'browser/application_storage.h',
         'browser/application_system.cc',
         'browser/application_system.h',
-        'browser/application_system_linux.cc',
-        'browser/application_system_linux.h',
         'browser/event_observer.cc',
         'browser/event_observer.h',
         'browser/installer/package.h',
@@ -86,6 +84,8 @@
           'sources': [
             'browser/application_service_provider_linux.cc',
             'browser/application_service_provider_linux.h',
+            'browser/application_system_linux.cc',
+            'browser/application_system_linux.h',
             'browser/linux/installed_application_object.cc',
             'browser/linux/installed_application_object.h',
             'browser/linux/installed_applications_manager.cc',
