@@ -98,12 +98,13 @@ void
 DeviceCapabilitiesInstance::HandleAddEventListener(const Json::Value& msg) {
   std::string event_name = msg["eventName"].asString();
   DeviceMap::iterator it;
-  if (event_name == "onattach" || event_name == "ondetach") {
+  if (event_name == "storageattach" || event_name == "storagedetach") {
     it = device_map_.find("Storage");
     if (it != device_map_.end()) {
       (it->second).AddEventListener(event_name, this);
     }
-  } else if (event_name == "onconnect" || event_name == "ondisconnect") {
+  } else if (event_name == "displayconnect" ||
+             event_name == "displaydisconnect") {
     it = device_map_.find("Display");
     if (it != device_map_.end()) {
       (it->second).AddEventListener(event_name, this);

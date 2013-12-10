@@ -40,7 +40,7 @@ Json::Value* DeviceCapabilitiesStorage::Get() {
 
 void DeviceCapabilitiesStorage::AddEventListener(const std::string& event_name,
     DeviceCapabilitiesInstance* instance) {
-  if (event_name == "onattach")
+  if (event_name == "storageattach")
     attach_listeners_.push_back(instance);
   else
     detach_listeners_.push_back(instance);
@@ -113,7 +113,7 @@ void DeviceCapabilitiesStorage::UpdateStorageUnits(std::string command) {
   output["reply"] = Json::Value(command);
   DeviceStorageUnit mmcUnit;
   if (command == "attachStorage" && QueryStorage("MMC", mmcUnit)) {
-    output["eventName"] = Json::Value("onattach");
+    output["eventName"] = Json::Value("storageattach");
     SetJsonValue(&data, mmcUnit);
     storages_[mmcUnit.id] = mmcUnit;
     output["data"] = data;
@@ -126,7 +126,7 @@ void DeviceCapabilitiesStorage::UpdateStorageUnits(std::string command) {
        it != storages_.end(); it++) {
     DeviceStorageUnit unit = it->second;
     if (unit.type == "removable") {
-      output["eventName"] = Json::Value("ondetach");
+      output["eventName"] = Json::Value("storagedetach");
       SetJsonValue(&data, unit);
       storages_.erase(it);
       output["data"] = data;
