@@ -2,6 +2,7 @@
   'variables': {
     'xwalk_product_name': 'XWalk',
     'xwalk_version': '<!(python ../chrome/tools/build/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
+    'chrome_version': '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -19,7 +20,7 @@
       'target_name': 'xwalk_runtime',
       'type': 'static_library',
       'defines!': ['CONTENT_IMPLEMENTATION'],
-      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
+      'defines': ['XWALK_VERSION="<(xwalk_version)"','CHROME_VERSION="<(chrome_version)"'],
       'variables': {
         'chromium_code': 1,
       },
