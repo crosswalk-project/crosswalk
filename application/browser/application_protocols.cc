@@ -27,9 +27,12 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 
 using content::ResourceRequestInfo;
 using xwalk::application::ApplicationData;
+using xwalk::application::MainDocumentInfo;
+namespace keys = xwalk::application_manifest_keys;
 
 namespace {
 
@@ -66,10 +69,11 @@ net::HttpResponseHeaders* BuildHttpHeaders(
 
 class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
  public:
-  GeneratedMainDocumentJob(net::URLRequest* request,
-                           net::NetworkDelegate* network_delegate,
-                           const base::FilePath& relative_path,
-                           const scoped_refptr<const ApplicationData> application)
+  GeneratedMainDocumentJob(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate,
+      const base::FilePath& relative_path,
+      const scoped_refptr<const ApplicationData> application)
     : net::URLRequestSimpleJob(request, network_delegate),
       application_(application),
       mime_type_("text/html"),
@@ -85,16 +89,12 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
     *charset = "utf-8";
     *data = "<!DOCTYPE html>\n<body>\n";
 
-    // TODO(xiang): use manifest handler instead of the raw data.
-    const base::ListValue* main_scripts;
-    application_->GetManifest()->GetList(
-        xwalk::application_manifest_keys::kAppMainScriptsKey,
-        &main_scripts);
-    for (size_t i = 0; i < main_scripts->GetSize(); ++i) {
-      std::string script;
-      main_scripts->GetString(i, &script);
+    MainDocumentInfo* main_info = xwalk::application::ToMainDocumentInfo(
+        application_->GetManifestData(keys::kAppMainKey));
+    const std::vector<std::string>& main_scripts = main_info->GetMainScripts();
+    for (size_t i = 0; i < main_scripts.size(); ++i) {
       *data += "<script src=\"";
-      *data += script;
+      *data += main_scripts[i];
       *data += "\"></script>\n";
     }
     return net::OK;
