@@ -1,0 +1,13 @@
+{
+  "name": "Example",
+  "version": "1.0.0",
+  "description": "a sample description",
+  "origin": "app://app.id",
+  "icons": {
+  },
+  "default_locale": "en",
+  "permissions": ["geolocation"],
+  "required_version": "1.28.1.0",
+  "plugin": [],
+  "fullscreen":"true"
+}

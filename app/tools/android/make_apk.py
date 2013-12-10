@@ -99,6 +99,11 @@ def ParseManifest(options):
     options.permissions = parser.GetPermissions()
   if parser.GetAppUrl():
     options.app_url = parser.GetAppUrl()
+  elif parser.GetAppLocalPath():
+    options.app_local_path = parser.GetAppLocalPath()
+  else:
+    print 'Error: there is no app launch path defined in manifest.json.'
+    sys.exit(9)
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
     temp_dict = parser.GetIcons()
@@ -110,8 +115,6 @@ def ParseManifest(options):
     if icon_dict:
       icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
       options.icon = os.path.join(options.app_root, icon_file)
-  if parser.GetAppLocalPath():
-    options.app_local_path = parser.GetAppLocalPath()
   options.enable_remote_debugging = False
   if parser.GetFullScreenFlag().lower() == 'true':
     options.fullscreen = True
