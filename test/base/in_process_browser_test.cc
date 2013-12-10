@@ -4,6 +4,7 @@
 
 #include "xwalk/test/base/in_process_browser_test.h"
 
+#include <algorithm>
 #include "base/auto_reset.h"
 #include "base/bind.h"
 #include "base/command_line.h"
@@ -24,7 +25,6 @@
 #include "content/public/test/test_utils.h"
 #include "net/test/spawned_test_server/spawned_test_server.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
@@ -35,9 +35,8 @@
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
-using xwalk::RuntimeList;
-using xwalk::RuntimeRegistry;
 using xwalk::XWalkContentRendererClient;
+using xwalk::Runtime;
 
 namespace {
 
@@ -49,6 +48,43 @@ base::LazyInstance<XWalkContentRendererClientTizen>::Leaky
 base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #endif
+
+class RuntimeRegistry : public Runtime::Observer {
+public:
+  typedef InProcessBrowserTest::RuntimeList RuntimeList;
+
+  void CloseAll() {
+    RuntimeList cached(runtimes_);
+    std::for_each(cached.begin(), cached.end(), std::mem_fun(&Runtime::Close));
+
+    DCHECK(runtimes_.empty()) << runtimes_.size();
+  }
+
+  const RuntimeList& runtimes() const { return runtimes_; }
+
+private:
+  void OnRuntimeAdded(Runtime* runtime) {
+    DCHECK(runtime);
+    runtimes_.push_back(runtime);
+  }
+
+  void OnRuntimeRemoved(Runtime* runtime) {
+    DCHECK(runtime);
+    RuntimeList::iterator it =
+         std::find(runtimes_.begin(), runtimes_.end(), runtime);
+    if (it != runtimes_.end()) {
+      runtimes_.erase(it);
+
+      if (runtimes_.empty())
+        base::MessageLoop::current()->PostTask(
+              FROM_HERE, base::MessageLoop::QuitClosure());
+    }
+  }
+
+  RuntimeList runtimes_;
+};
+
+RuntimeRegistry* g_runtime_registry;
 
 }  // namespace
 
@@ -87,6 +123,11 @@ void InProcessBrowserTest::SetUp() {
         &g_xwalk_content_renderer_client.Get());
   }
 
+  if (!g_runtime_registry) {
+    g_runtime_registry = new RuntimeRegistry;
+    Runtime::SetGlobalObserverForTesting(g_runtime_registry);
+  }
+
   BrowserTestBase::SetUp();
 }
 
@@ -99,14 +140,19 @@ void InProcessBrowserTest::TearDown() {
   BrowserTestBase::TearDown();
 }
 
+const InProcessBrowserTest::RuntimeList& InProcessBrowserTest::runtimes()
+                                                               const {
+  return g_runtime_registry->runtimes();
+}
+
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // Pump startup related events.
   content::RunAllPendingInMessageLoop();
 
-  const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
+  const RuntimeList& runtimes = g_runtime_registry->runtimes();
   if (!runtimes.empty()) {
     runtime_ = runtimes.at(0);
-      content::WaitForLoadStop(runtime_->web_contents());
+    content::WaitForLoadStop(runtime_->web_contents());
   }
 
   content::RunAllPendingInMessageLoop();
@@ -144,5 +190,5 @@ bool InProcessBrowserTest::CreateDataPathDir() {
 }
 
 void InProcessBrowserTest::QuitAllRuntimes() {
-  RuntimeRegistry::Get()->CloseAll();
+  g_runtime_registry->CloseAll();
 }

@@ -12,7 +12,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -36,58 +35,8 @@
 
 using xwalk::NativeAppWindow;
 using xwalk::Runtime;
-using xwalk::RuntimeRegistry;
-using xwalk::RuntimeList;
 using content::WebContents;
 using testing::_;
-
-// A mock observer to listen runtime registry changes.
-class MockRuntimeRegistryObserver : public xwalk::RuntimeRegistryObserver {
- public:
-  MockRuntimeRegistryObserver() {}
-  virtual ~MockRuntimeRegistryObserver() {}
-
-  MOCK_METHOD1(OnRuntimeAdded, void(Runtime* runtime));
-  MOCK_METHOD1(OnRuntimeRemoved, void(Runtime* runtime));
-  MOCK_METHOD1(OnRuntimeAppIconChanged, void(Runtime* runtime));
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MockRuntimeRegistryObserver);
-};
-
-// An observer used to verify app icon change.
-class FaviconChangedObserver : public xwalk::RuntimeRegistryObserver {
- public:
-  explicit FaviconChangedObserver(const base::FilePath& icon_file)
-      : icon_file_(icon_file) {
-  }
-
-  virtual ~FaviconChangedObserver() {}
-
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {}
-
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
-
-  virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {
-    const base::FilePath::StringType kPNGFormat(FILE_PATH_LITERAL(".png"));
-    const base::FilePath::StringType kICOFormat(FILE_PATH_LITERAL(".ico"));
-
-    gfx::Image image;
-    image = xwalk_utils::LoadImageFromFilePath(icon_file_);
-
-    EXPECT_FALSE(image.IsEmpty());
-    gfx::Image icon = runtime->app_icon();
-    EXPECT_FALSE(icon.IsEmpty());
-    EXPECT_EQ(image.Size(), icon.Size());
-
-    // Quit the message loop.
-    base::MessageLoop::current()->PostTask(
-        FROM_HERE, base::MessageLoop::QuitClosure());
-  }
-
- private:
-  const base::FilePath& icon_file_;
-};
 
 // Observer for NOTIFICATION_FULLSCREEN_CHANGED notifications.
 class FullscreenNotificationObserver
@@ -119,18 +68,18 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
         new content::WindowedNotificationObserver(
           xwalk::NOTIFICATION_RUNTIME_OPENED,
           content::NotificationService::AllSources()));
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
-    for (RuntimeList::const_iterator it = runtimes.begin();
-         it != runtimes.end(); ++it)
+    const RuntimeList& runtime_list = runtimes();
+    for (RuntimeList::const_iterator it = runtime_list.begin();
+         it != runtime_list.end(); ++it)
       original_runtimes_.push_back(*it);
   }
 
   // Block UI thread until a new Runtime instance is created.
   Runtime* WaitForSingleNewRuntime() {
     notification_observer_->Wait();
-    const RuntimeList& runtimes = RuntimeRegistry::Get()->runtimes();
-    for (RuntimeList::const_iterator it = runtimes.begin();
-         it != runtimes.end(); ++it) {
+    const RuntimeList& runtime_list = runtimes();
+    for (RuntimeList::const_iterator it = runtime_list.begin();
+         it != runtime_list.end(); ++it) {
       RuntimeList::iterator target =
           std::find(original_runtimes_.begin(), original_runtimes_.end(), *it);
       // Not found means a new one.
@@ -150,71 +99,57 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
 // FIXME(hmin): Since currently the browser process is not shared by multiple
 // app launch, this test is disabled to avoid floody launches.
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_SecondLaunch) {
-  MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
   Relaunch(GetCommandLineForRelaunch());
 
   Runtime* second_runtime = NULL;
   EXPECT_TRUE(second_runtime == WaitForSingleNewRuntime());
-  EXPECT_CALL(observer, OnRuntimeAdded(second_runtime)).Times(1);
-  ASSERT_EQ(2u, RuntimeRegistry::Get()->runtimes().size());
-
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  ASSERT_EQ(2u, runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
-  MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
-  // At least one Runtime instance is created at startup.
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   ASSERT_EQ(1, len);
 
   // Create a new Runtime instance.
   GURL url(test_server()->GetURL("test.html"));
-  EXPECT_CALL(observer, OnRuntimeAdded(_)).Times(1);
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), url);
   EXPECT_TRUE(url == new_runtime->web_contents()->GetURL());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len + 1, runtimes().size());
 
   // Close the newly created Runtime instance.
-  EXPECT_CALL(observer, OnRuntimeRemoved(new_runtime)).Times(1);
   new_runtime->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
-
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  EXPECT_EQ(len, runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
   GURL url(test_server()->GetURL("test.html"));
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   runtime()->LoadURL(url);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len, runtimes().size());
   runtime()->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), url);
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   new_runtime->window()->Close();
   content::RunAllPendingInMessageLoop();
   // Closing native window will lead to close Runtime instance.
-  EXPECT_EQ(len - 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len - 1, runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
-  MockRuntimeRegistryObserver observer;
-  RuntimeRegistry::Get()->AddObserver(&observer);
   // At least one Runtime instance is created at startup.
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   ASSERT_EQ(1, len);
   // Original Runtime should has non fullscreen window.
   EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
@@ -226,25 +161,21 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   // Create a new Runtime instance.
   FullscreenNotificationObserver fullscreen_observer;
   GURL url(test_server()->GetURL("test.html"));
-  EXPECT_CALL(observer, OnRuntimeAdded(_)).Times(1);
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), url);
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
+  EXPECT_EQ(len + 1, runtimes().size());
   fullscreen_observer.Wait();
   EXPECT_TRUE(true == new_runtime->window()->IsFullscreen());
 
   // Close the newly created Runtime instance.
-  EXPECT_CALL(observer, OnRuntimeRemoved(new_runtime)).Times(1);
   new_runtime->Close();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, RuntimeRegistry::Get()->runtimes().size());
-
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  EXPECT_EQ(len, runtimes().size());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("fullscreen.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
@@ -285,7 +216,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
-  size_t len = RuntimeRegistry::Get()->runtimes().size();
+  size_t len = runtimes().size();
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("new_target.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
@@ -298,49 +229,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   Runtime* second = WaitForSingleNewRuntime();
   EXPECT_TRUE(NULL != second);
   EXPECT_NE(runtime(), second);
-  EXPECT_EQ(len + 1, RuntimeRegistry::Get()->runtimes().size());
-}
-
-#if !defined(USE_AURA)
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, FaviconTest_ICO) {
-#else
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_ICO) {
-#endif
-  base::FilePath icon_file(xwalk_test_utils::GetTestFilePath(
-      base::FilePath(FILE_PATH_LITERAL("favicon")),
-      base::FilePath(FILE_PATH_LITERAL("16x16.ico"))));
-
-  FaviconChangedObserver observer(icon_file);
-  RuntimeRegistry::Get()->AddObserver(&observer);
-
-  GURL url = xwalk_test_utils::GetTestURL(
-      base::FilePath(FILE_PATH_LITERAL("favicon")),
-      base::FilePath().AppendASCII("favicon_ico.html"));
-
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::RunMessageLoop();
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
-}
-
-#if !defined(USE_AURA)
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, FaviconTest_PNG) {
-#else
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_FaviconTest_PNG) {
-#endif
-  base::FilePath icon_file(xwalk_test_utils::GetTestFilePath(
-      base::FilePath(FILE_PATH_LITERAL("favicon")),
-      base::FilePath(FILE_PATH_LITERAL("48x48.png"))));
-
-  FaviconChangedObserver observer(icon_file);
-  RuntimeRegistry::Get()->AddObserver(&observer);
-
-  GURL url = xwalk_test_utils::GetTestURL(
-      base::FilePath(FILE_PATH_LITERAL("favicon")),
-      base::FilePath().AppendASCII("favicon_png.html"));
-
-  xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::RunMessageLoop();
-  RuntimeRegistry::Get()->RemoveObserver(&observer);
+  EXPECT_EQ(len + 1, runtimes().size());
 }
 
 #if defined(OS_TIZEN_MOBILE)

@@ -70,6 +70,8 @@ class Runtime : public content::WebContentsDelegate,
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
+  static void SetGlobalObserverForTesting(Observer* observer);
+
  protected:
   Runtime(content::WebContents* web_contents, Observer* observer);
   virtual ~Runtime();
@@ -139,6 +141,8 @@ class Runtime : public content::WebContentsDelegate,
 
   // NativeAppWindowDelegate implementation.
   virtual void OnWindowDestroyed() OVERRIDE;
+
+  Observer* GetObserver() const;
 
   // The browsing context.
   xwalk::RuntimeContext* runtime_context_;
