@@ -78,6 +78,7 @@
       'application/common/application_unittest.cc',
       'application/common/application_file_util_unittest.cc',
       'application/common/id_util_unittest.cc',
+      'application/common/manifest_handlers/main_document_handler_unittest.cc',
       'application/common/manifest_handlers/permissions_handler_unittest.cc',
       'application/common/manifest_handler_unittest.cc',
       'application/common/manifest_unittest.cc',

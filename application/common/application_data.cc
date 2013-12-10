@@ -108,7 +108,7 @@ ApplicationData::ManifestData* ApplicationData::GetManifestData(
 }
 
 void ApplicationData::SetManifestData(const std::string& key,
-                                ApplicationData::ManifestData* data) {
+                                      ApplicationData::ManifestData* data) {
   DCHECK(!finished_parsing_manifest_ && thread_checker_.CalledOnValidThread());
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
