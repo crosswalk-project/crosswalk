@@ -271,6 +271,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
   EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
 }
 
+
+#if !defined(OS_MACOSX)
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("title.html"));
@@ -283,6 +285,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
   string16 window_title = window->GetNativeWindow()->title();
   EXPECT_EQ(title, window_title);
 }
+#endif
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   size_t len = RuntimeRegistry::Get()->runtimes().size();
