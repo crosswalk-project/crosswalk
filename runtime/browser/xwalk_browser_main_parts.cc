@@ -184,7 +184,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (app_system->is_running_as_service()) {
+  if (app_system->IsRunningAsService()) {
     // In service mode, Crosswalk doesn't launch anything, just waits
     // for external requests to launch apps.
     VLOG(1) << "Crosswalk running as Service.";

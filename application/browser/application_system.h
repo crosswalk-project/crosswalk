@@ -31,7 +31,7 @@ class ApplicationServiceProvider;
 // RuntimeContext.
 class ApplicationSystem {
  public:
-  ~ApplicationSystem();
+  virtual ~ApplicationSystem();
 
   static scoped_ptr<ApplicationSystem> Create(RuntimeContext* runtime_context);
 
@@ -75,7 +75,9 @@ class ApplicationSystem {
   bool LaunchFromCommandLine(const CommandLine& cmd_line, const GURL& url,
                              bool* run_default_message_loop_);
 
-  bool is_running_as_service() const { return !!service_provider_.get(); }
+  // Return true if the application system is running in service mode,
+  // i.e. taking requests from native IPC mechanism to launch applications.
+  virtual bool IsRunningAsService() const;
 
  protected:
   explicit ApplicationSystem(RuntimeContext* runtime_context);
@@ -88,7 +90,6 @@ class ApplicationSystem {
   scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
-  scoped_ptr<ApplicationServiceProvider> service_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
