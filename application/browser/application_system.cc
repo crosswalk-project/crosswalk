@@ -16,8 +16,6 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
-using xwalk::RuntimeContext;
-
 namespace xwalk {
 namespace application {
 
@@ -34,6 +32,14 @@ ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
 }
 
 ApplicationSystem::~ApplicationSystem() {
+}
+
+// static
+scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
+    RuntimeContext* runtime_context) {
+  scoped_ptr<ApplicationSystem> app_system;
+  app_system.reset(new ApplicationSystem(runtime_context));
+  return app_system.Pass();
 }
 
 bool ApplicationSystem::HandleApplicationManagementCommands(

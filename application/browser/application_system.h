@@ -31,8 +31,9 @@ class ApplicationServiceProvider;
 // RuntimeContext.
 class ApplicationSystem {
  public:
-  explicit ApplicationSystem(xwalk::RuntimeContext* runtime_context);
   ~ApplicationSystem();
+
+  static scoped_ptr<ApplicationSystem> Create(RuntimeContext* runtime_context);
 
   // The ApplicationProcessManager is created at startup.
   ApplicationProcessManager* process_manager() {
@@ -75,6 +76,9 @@ class ApplicationSystem {
                              bool* run_default_message_loop_);
 
   bool is_running_as_service() const { return !!service_provider_.get(); }
+
+ protected:
+  explicit ApplicationSystem(RuntimeContext* runtime_context);
 
  private:
   // Dispatch the onLaunched event to current running application.
