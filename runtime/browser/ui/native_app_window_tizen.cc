@@ -7,6 +7,8 @@
 #include "base/memory/scoped_ptr.h"
 #include "ui/aura/root_window.h"
 #include "ui/gfx/transform.h"
+#include "ui/gfx/rect.h"
+#include "ui/gfx/screen.h"
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
@@ -16,8 +18,20 @@ namespace xwalk {
 NativeAppWindowTizen::NativeAppWindowTizen(
     const NativeAppWindow::CreateParams& create_params)
     : NativeAppWindowViews(create_params),
-      indicator_(new TizenSystemIndicator()),
-      orientation_(PORTRAIT) {
+      indicator_(new TizenSystemIndicator()) {
+}
+
+void NativeAppWindowTizen::Initialize() {
+  NativeAppWindowViews::Initialize();
+
+  // Get display info such as device_scale_factor, and current
+  // rotation (orientation). NOTE: This is a local copy of the info.
+  display_ = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay();
+
+  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
+  DCHECK(root_window);
+  root_window->AddObserver(this);
+
   if (SensorProvider::GetInstance())
     SensorProvider::GetInstance()->AddObserver(this);
 }
@@ -25,6 +39,9 @@ NativeAppWindowTizen::NativeAppWindowTizen(
 NativeAppWindowTizen::~NativeAppWindowTizen() {
   if (SensorProvider::GetInstance())
     SensorProvider::GetInstance()->RemoveObserver(this);
+  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
+  DCHECK(root_window);
+  root_window->RemoveObserver(this);
 }
 
 void NativeAppWindowTizen::ViewHierarchyChanged(
@@ -40,78 +57,85 @@ void NativeAppWindowTizen::ViewHierarchyChanged(
   }
 }
 
-namespace {
+void NativeAppWindowTizen::OnWindowBoundsChanged(
+    aura::Window* window,
+    const gfx::Rect& old_bounds,
+    const gfx::Rect& new_bounds) {
+  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
+  DCHECK_EQ(root_window, window);
 
-gfx::Transform GetRotationAroundCenter(const gfx::Size& size,
-                                       const gfx::Display::Rotation& rotation) {
-  gfx::Transform transform;
-  switch (rotation) {
+  // We are working with DIPs here. size() returns in DIPs.
+  GetWidget()->GetRootView()->SetSize(new_bounds.size());
+}
+
+void NativeAppWindowTizen::OnWindowVisibilityChanging(aura::Window* window,
+                                                      bool visible) {
+  if (visible)
+    ApplyDisplayRotation();
+}
+
+gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
+  // This method assumed a fixed portrait device. As everything
+  // is calculated from the fixed position we do not update the
+  // display bounds after rotation change.
+  gfx::Transform rotate;
+  float one_pixel = 1.0f / display_.device_scale_factor();
+  switch (display_.rotation()) {
     case gfx::Display::ROTATE_0:
       break;
     case gfx::Display::ROTATE_90:
-      transform.Translate(size.width() - 1, 0);
-      transform.Rotate(90);
-      break;
-    case gfx::Display::ROTATE_180:
-      transform.Translate(size.width() - 1, size.height() - 1);
-      transform.Rotate(180);
+      rotate.Translate(display_.bounds().width() - one_pixel, 0);
+      rotate.Rotate(90);
       break;
     case gfx::Display::ROTATE_270:
-      transform.Translate(0, size.height() - 1);
-      transform.Rotate(270);
+      rotate.Translate(0, display_.bounds().height() - one_pixel);
+      rotate.Rotate(270);
       break;
-    default:
-      NOTREACHED();
+    case gfx::Display::ROTATE_180:
+      rotate.Translate(display_.bounds().width() - one_pixel,
+                       display_.bounds().height() - one_pixel);
+      rotate.Rotate(180);
+      break;
   }
-  return transform;
+
+  return rotate;
 }
 
-TizenSystemIndicator::Orientation ConvertToIndicatorOrientation(
-  NativeAppWindowTizen::Orientation orientation) {
-  switch (orientation) {
-     case NativeAppWindowTizen::PORTRAIT:
-       return TizenSystemIndicator::PORTRAIT;
-     case NativeAppWindowTizen::LANDSCAPE:
-       return TizenSystemIndicator::LANDSCAPE;
+namespace {
+
+TizenSystemIndicator::Orientation ToOrientation(
+    gfx::Display::Rotation rotation) {
+  switch (rotation) {
+  case gfx::Display::ROTATE_0:
+  case gfx::Display::ROTATE_180:
+    return TizenSystemIndicator::PORTRAIT;
+  default:
+    return TizenSystemIndicator::LANDSCAPE;
   }
 }
 
 }  // namespace
 
-void NativeAppWindowTizen::SetOrientation(Orientation orientation) {
-  if (orientation_ == orientation)
-    return;
-  orientation_ = orientation;
-  if (indicator_) {
-    indicator_->SetOrientation(ConvertToIndicatorOrientation(orientation_));
-  }
+void NativeAppWindowTizen::ApplyDisplayRotation() {
+  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
+  root_window->SetTransform(GetRotationTransform());
+
+  if (indicator_)
+    indicator_->SetOrientation(ToOrientation(display_.rotation()));
 }
 
-void NativeAppWindowTizen::OnRotationChanged(gfx::Display::Rotation rotation) {
-  aura::Window* root = GetNativeWindow()->GetRootWindow();
-  if (!root)
-    return;
+void NativeAppWindowTizen::OnRotationChanged(
+    gfx::Display::Rotation rotation) {
+  // We always store the current sensor position, even if we do not
+  // apply it in case the window is invisible.
 
-  // Set rotation transform for root window. The size of the root window
-  // will be changed automaticlly while the transform is set.
-  gfx::Rect bounds = GetBounds();
-  root->SetTransform(GetRotationAroundCenter(bounds.size(), rotation));
+  // FIXME: Given the current orientation (sensor), set the preferred
+  // rotation from the set of allowed orientations for this window.
+  display_.set_rotation(rotation);
 
-  // Adjust the size of sub-windows
-  // FIXME(zliang7): It should follow the change while the root is resized.
-  if (rotation == gfx::Display::ROTATE_90 ||
-      rotation == gfx::Display::ROTATE_270) {
-    int width = bounds.width();
-    bounds.set_width(bounds.height());
-    bounds.set_height(width);
-    SetOrientation(LANDSCAPE);
-  } else {
-    SetOrientation(PORTRAIT);
-  }
-  GetNativeWindow()->parent()->SetBounds(bounds);
-  GetNativeWindow()->SetBounds(bounds);
-  // FIXME(zliang7): Why resizing the widget doesn't work?
-  GetWidget()->GetRootView()->SetSize(bounds.size());
+  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
+  if (root_window->IsVisible())
+    ApplyDisplayRotation();
 }
 
 }  // namespace xwalk
