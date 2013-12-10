@@ -61,7 +61,7 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
 RuntimeContext::RuntimeContext()
   : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
-  application_system_.reset(new xwalk::application::ApplicationSystem(this));
+  application_system_ = application::ApplicationSystem::Create(this);
 }
 
 RuntimeContext::~RuntimeContext() {
