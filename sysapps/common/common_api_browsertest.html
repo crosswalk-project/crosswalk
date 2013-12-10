@@ -16,6 +16,8 @@
         memoryManagement,
         addEventListener,
         removeEventListener,
+        promiseFulfill,
+        promiseReject,
         endTest
       ];
 
@@ -57,6 +59,8 @@
           "dispatchEvent",
           "addEventListener",
           "removeEventListener",
+          "makeFulfilledPromise",
+          "makeRejectedPromise",
           "ontest",
         ];
 
@@ -247,6 +251,24 @@
 
           runNextTest();
         };
+      };
+
+      function promiseFulfill() {
+        (new api.TestObject()).makeFulfilledPromise().then(function(data) {
+          if (data == "Lorem ipsum")
+            runNextTest();
+          else
+            reportFail("Invalid Promise data.");
+        });
+      };
+
+      function promiseReject() {
+        (new api.TestObject()).makeRejectedPromise().then(null, function(error) {
+          if (error == "Lorem ipsum")
+            runNextTest();
+          else
+            reportFail("Invalid Promise error message.");
+        });
       };
 
       // Tests entry point.

@@ -34,12 +34,16 @@ SysAppsTestExtension::SysAppsTestExtension() {
     "var common = requireNative('sysapps_common');"
     "common.setupSysAppsCommon(internal, v8tools);"
     ""
+    "var Promise = requireNative('sysapps_promise').Promise;"
+    ""
     "var TestObject = function() {"
     "  common.BindingObject.call(this, common.getUniqueId());"
     "  common.EventTarget.call(this);"
     "  internal.postMessage('TestObjectConstructor', [this._id]);"
     "  this._addMethod('isTestEventActive', true);"
     "  this._addMethod('fireTestEvent', true);"
+    "  this._addMethodWithPromise('makeFulfilledPromise', new Promise());"
+    "  this._addMethodWithPromise('makeRejectedPromise', new Promise());"
     "  this._addEvent('test');"
     "  this._registerLifecycleTracker();"
     "};"
@@ -99,6 +103,12 @@ SysAppsTestObject::SysAppsTestObject() : is_test_event_active_(false) {
   handler_.Register("fireTestEvent",
       base::Bind(&SysAppsTestObject::OnFireTestEvent,
                  base::Unretained(this)));
+  handler_.Register("makeFulfilledPromise",
+      base::Bind(&SysAppsTestObject::OnMakeFulfilledPromise,
+                 base::Unretained(this)));
+  handler_.Register("makeRejectedPromise",
+      base::Bind(&SysAppsTestObject::OnMakeRejectedPromise,
+                 base::Unretained(this)));
 }
 
 void SysAppsTestObject::StartEvent(const std::string& type) {
@@ -126,6 +136,24 @@ void SysAppsTestObject::OnFireTestEvent(
   DispatchEvent("test", data.Pass());
 
   scoped_ptr<base::ListValue> result(new base::ListValue());
+  info->PostResult(result.Pass());
+}
+
+void SysAppsTestObject::OnMakeFulfilledPromise(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<base::ListValue> result(new base::ListValue());
+  result->AppendString("Lorem ipsum");  // Data.
+  result->AppendString("");  // Error, empty == no error.
+
+  info->PostResult(result.Pass());
+}
+
+void SysAppsTestObject::OnMakeRejectedPromise(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<base::ListValue> result(new base::ListValue());
+  result->AppendString("");  // Data.
+  result->AppendString("Lorem ipsum");  // Error, !empty == error.
+
   info->PostResult(result.Pass());
 }
 
