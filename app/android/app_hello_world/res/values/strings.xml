@@ -15,4 +15,7 @@ found in the LICENSE file.
     <string name="dialog_message_update_runtime_lib_warning">An update is recommended for &quot;Crosswalk Runtime Library&quot;.</string>
     <string name="dialog_title_install_runtime_lib">Crosswalk Runtime Library not found</string>
     <string name="dialog_message_install_runtime_lib">Please install &quot;Crosswalk Runtime Library&quot; first.</string>
+    <string name="dialog_title_install_right_abi">Mismatch on process architecture between Crosswalk and your device</string>
+    <string name="dialog_message_install_right_abi_embedded">Please install %1$s packaged with Crosswalk for %2$s.</string>
+    <string name="dialog_message_install_right_abi_shared">Please install &quot;Crosswalk Runtime Library&quot; for %1$s.</string>
 </resources>

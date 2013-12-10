@@ -17,19 +17,19 @@ public abstract class CrossPackageWrapper {
     private Class<?> mTargetClass;
     private Constructor<?> mCreator;
     private CrossPackageWrapperExceptionHandler mExceptionHandler;
-    private boolean mLibraryEmbedded;
+    private static boolean sLibraryEmbedded = true;
 
     public CrossPackageWrapper(Context ctx, String className,
             CrossPackageWrapperExceptionHandler handler, Class<?>... parameters) {
         try {
             mTargetClass = ctx.getClassLoader().loadClass(className);
-            mLibraryEmbedded = true;
+            sLibraryEmbedded = true;
         } catch (ClassNotFoundException e) {
-            mLibraryEmbedded = false;
+            sLibraryEmbedded = false;
         }
         mExceptionHandler = handler;
         try {
-            if (mLibraryEmbedded) {
+            if (sLibraryEmbedded) {
                 mLibCtx = ctx;
             } else {
                 mLibCtx = ctx.createPackageContext(
@@ -67,14 +67,10 @@ public abstract class CrossPackageWrapper {
     }
 
     public void handleException(Exception e) {
-        // mExceptionHandler is for handling runtime library not found or
-        // not match, if library is embedded, should not invoke it.
-        if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
     }
 
     public void handleException(String e) {
-        if (mLibraryEmbedded) return;
         if (mExceptionHandler != null) mExceptionHandler.onException(e);
     }
 
@@ -112,5 +108,9 @@ public abstract class CrossPackageWrapper {
             }
         }
         return ret;
+    }
+
+    public static boolean libraryIsEmbedded() {
+        return sLibraryEmbedded;
     }
 }

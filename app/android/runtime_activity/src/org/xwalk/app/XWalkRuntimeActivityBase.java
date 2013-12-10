@@ -146,7 +146,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             XWalkRuntimeLibraryException runtimeException = (XWalkRuntimeLibraryException) e;
             switch (runtimeException.getType()) {
             case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL:
-            case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_LOAD_FAILED:
                 title = getString("dialog_title_update_runtime_lib");
                 message = getString("dialog_message_update_runtime_lib");
                 break;
@@ -157,6 +156,19 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_INSTALLED:
                 title = getString("dialog_title_install_runtime_lib");
                 message = getString("dialog_message_install_runtime_lib");
+                break;
+            case XWalkRuntimeLibraryException.XWALK_CORE_LIBRARY_SO_NOT_EXIST:
+                title = getString("dialog_title_install_right_abi");
+                if (XWalkRuntimeClient.libraryIsEmbedded()) {
+                    String appName = getPackageManager().getApplicationLabel(
+                            getApplicationContext().getApplicationInfo()).toString();
+                    if (appName == null) appName = getApplicationContext().getPackageName();
+                    message = String.format(getString("dialog_message_install_right_abi_embedded"),
+                            appName, System.getProperty("os.arch"));
+                } else {
+                    message = String.format(getString("dialog_message_install_right_abi_shared"),
+                            System.getProperty("os.arch"));
+                }
                 break;
             case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED:
             default:
@@ -180,31 +192,41 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     private void showRuntimeLibraryExceptionDialog(String title, String message) {
         if (!mShownNotFoundDialog) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setNegativeButton(android.R.string.cancel,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-            final String downloadUrl = getLibraryApkDownloadUrl();
-            if (downloadUrl != null && downloadUrl.length() > 0) {
-                builder.setNeutralButton(getString("download_from_url"),
+            if (XWalkRuntimeClient.libraryIsEmbedded()) {
+                builder.setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Intent goDownload = new Intent(Intent.ACTION_VIEW);
-                                goDownload.setData(Uri.parse(downloadUrl));
-                                startActivity(goDownload);
+                                finish();
+                            }
+                        });
+            } else {
+                builder.setNegativeButton(android.R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                final String downloadUrl = getLibraryApkDownloadUrl();
+                if (downloadUrl != null && downloadUrl.length() > 0) {
+                    builder.setNeutralButton(getString("download_from_url"),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Intent goDownload = new Intent(Intent.ACTION_VIEW);
+                                    goDownload.setData(Uri.parse(downloadUrl));
+                                    startActivity(goDownload);
+                                }
+                            });
+                }
+                builder.setPositiveButton(getString("download_from_store"),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent goToMarket = new Intent(Intent.ACTION_VIEW);
+                                goToMarket.setData(Uri.parse(
+                                        "market://details?id="+CrossPackageWrapper.LIBRARY_APK_PACKAGE_NAME));
+                                startActivity(goToMarket);
                             }
                         });
             }
-            builder.setPositiveButton(getString("download_from_store"),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent goToMarket = new Intent(Intent.ACTION_VIEW);
-                            goToMarket.setData(Uri.parse("market://details?id="+CrossPackageWrapper.LIBRARY_APK_PACKAGE_NAME));
-                            startActivity(goToMarket);
-                        }
-                    });
             builder.setTitle(title).setMessage(message);
 
             mLibraryNotFoundDialog = builder.create();
