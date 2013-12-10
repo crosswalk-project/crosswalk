@@ -40,6 +40,8 @@ namespace {
 const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
 
+static Runtime::Observer* g_observer_for_testing;
+
 }  // namespace
 
 // static
@@ -62,6 +64,11 @@ Runtime* Runtime::CreateWithDefaultWindow(
   return runtime;
 }
 
+// static
+void Runtime::SetGlobalObserverForTesting(Observer* observer) {
+  g_observer_for_testing = observer;
+}
+
 Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
     : WebContentsObserver(web_contents),
       web_contents_(web_contents),
@@ -71,9 +78,13 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
       observer_(observer) {
   web_contents_->SetDelegate(this);
   runtime_context_ = RuntimeContext::FromWebContents(web_contents);
+  content::NotificationService::current()->Notify(
+       xwalk::NOTIFICATION_RUNTIME_OPENED,
+       content::Source<Runtime>(this),
+       content::NotificationService::NoDetails());
 
-  if (observer_)
-    observer_->OnRuntimeAdded(this);
+  if (GetObserver())
+    GetObserver()->OnRuntimeAdded(this);
 }
 
 Runtime::~Runtime() {
@@ -81,8 +92,8 @@ Runtime::~Runtime() {
           xwalk::NOTIFICATION_RUNTIME_CLOSED,
           content::Source<Runtime>(this),
           content::NotificationService::NoDetails());
-  if (observer_)
-    observer_->OnRuntimeRemoved(this);
+  if (GetObserver())
+    GetObserver()->OnRuntimeRemoved(this);
 }
 
 void Runtime::AttachDefaultWindow() {
@@ -214,7 +225,7 @@ void Runtime::WebContentsCreated(
     const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime* new_runtime = new Runtime(new_contents, observer_);
+  Runtime* new_runtime = new Runtime(new_contents, GetObserver());
   new_runtime->AttachDefaultWindow();
 }
 
@@ -312,6 +323,12 @@ void Runtime::Observe(int type,
 
 void Runtime::OnWindowDestroyed() {
   Close();
+}
+
+inline Runtime::Observer* Runtime::GetObserver() const {
+  if (g_observer_for_testing)
+    return g_observer_for_testing;
+  return observer_;
 }
 
 void Runtime::RequestMediaAccessPermission(
