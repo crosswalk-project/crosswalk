@@ -130,20 +130,12 @@ void TizenSystemIndicator::SetOrientation(Orientation orientation) {
   orientation_ = orientation;
   SetImage(0);
 
-  // TODO(ricardotk): Implement landscape mode, for now we simply do not show
-  // the indicator in landscape mode.
-  if (orientation_ == LANDSCAPE) {
-    watcher_.reset();
-    set_background(NULL);
-    return;
-  }
-
+  // TODO(ricardotk): Add overlaying layout and event support to landscape mode.
   watcher_.reset(new TizenSystemIndicatorWatcher(this));
   if (!watcher_->Connect()) {
     watcher_.reset();
     return;
   }
-  set_background(views::Background::CreateSolidBackground(kBGColor));
 
   content::BrowserThread::PostTask(
       content::BrowserThread::IO, FROM_HERE,
