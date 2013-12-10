@@ -9,8 +9,8 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_vector.h"
 #include "base/memory/weak_ptr.h"
-#include "dbus/exported_object.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/dbus/object_manager_adaptor.h"
 
 namespace xwalk {
 namespace application {
@@ -18,6 +18,10 @@ namespace application {
 // Holds the D-Bus representation of the set of installed applications. This is
 // the entry point for launching applications and listing currently running
 // applications.
+//
+// The exported object implements org.freedesktop.DBus.ObjectManager, and the
+// interface org.crosswalkproject.Installed.Manager (see .cc file for
+// description).
 class RunningApplicationsManager {
  public:
   RunningApplicationsManager(scoped_refptr<dbus::Bus> bus,
@@ -25,17 +29,24 @@ class RunningApplicationsManager {
   ~RunningApplicationsManager();
 
  private:
+  // org.crosswalkproject.Running.Manager interface.
   void OnLaunch(dbus::MethodCall* method_call,
                 dbus::ExportedObject::ResponseSender response_sender);
+
+  // org.crosswalkproject.Running.Application interface.
+  void OnTerminate(dbus::ManagedObject* object,
+                   dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender);
+
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
 
-  base::WeakPtrFactory<RunningApplicationsManager> weak_factory_;
+  void AddObject(const std::string& app_id);
 
+  base::WeakPtrFactory<RunningApplicationsManager> weak_factory_;
   ApplicationService* application_service_;
-  dbus::Bus* bus_;
-  dbus::ExportedObject* root_object_;
+  dbus::ObjectManagerAdaptor adaptor_;
 };
 
 }  // namespace application
