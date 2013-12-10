@@ -20,3 +20,5 @@ exports.getMainDocument = function(callback) {
 
   internal.postMessage('getMainDocumentID', [], callback_);
 };
+
+exports.onLaunched = new xwalk.app.events.Event("onLaunched");

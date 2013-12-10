@@ -12,8 +12,8 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/common/event_names.h"
 
 namespace xwalk {
 namespace application {
@@ -81,15 +81,11 @@ void ApplicationEventRouter::DetachObserver(EventObserver* observer) {
 }
 
 void ApplicationEventRouter::DispatchEvent(scoped_refptr<Event> event) {
-  ApplicationService* service = system_->application_service();
   const std::string& event_name = event->name();
 
   if (main_events_.find(event_name) != main_events_.end() ||
-      event_name == "app.onLaunched") {
+      event_name == kOnLaunched) {
     if (!application_launched_) {
-      if (lazy_events_.empty() && !service->Launch(app_id_))
-        LOG(WARNING) << "Fail to launch application:" << app_id_;
-      else
         lazy_events_.push_back(event);
       return;
     }
@@ -130,9 +126,10 @@ void ApplicationEventRouter::ProcessLazyEvents() {
 
 void ApplicationEventRouter::ProcessEvent(scoped_refptr<Event> event) {
   const std::string& event_name = event->name();
-  DCHECK(ContainsKey(observers_, event_name));
-  FOR_EACH_OBSERVER(
-      EventObserver, *observers_[event_name], Observe(app_id_, event));
+  if (ContainsKey(observers_, event_name)) {
+    FOR_EACH_OBSERVER(
+        EventObserver, *observers_[event_name], Observe(app_id_, event));
+  }
 }
 
 }  // namespace application

@@ -12,6 +12,7 @@
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_service_provider.h"
+#include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -96,6 +97,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
   if (ApplicationData::IsIDValid(command_name)) {
     *run_default_message_loop = application_service_->Launch(command_name);
+    SendOnLaunchedEvent();
     return true;
   }
 #endif
@@ -109,6 +111,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (ApplicationData::IsIDValid(app_id)) {
         *run_default_message_loop = application_service_->Launch(app_id);
+        SendOnLaunchedEvent();
         return true;
     }
   }
@@ -117,10 +120,19 @@ bool ApplicationSystem::LaunchFromCommandLine(
   base::FilePath path;
   if (net::FileURLToFilePath(url, &path) && base::DirectoryExists(path)) {
     *run_default_message_loop = application_service_->Launch(path);
+    SendOnLaunchedEvent();
     return true;
   }
 
   return false;
+}
+
+void ApplicationSystem::SendOnLaunchedEvent() {
+  scoped_refptr<Event> event = Event::CreateEvent(
+      kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
+  DCHECK(application_service_->GetRunningApplication());
+  event_manager_->SendEvent(
+      application_service_->GetRunningApplication()->ID(), event);
 }
 
 }  // namespace application

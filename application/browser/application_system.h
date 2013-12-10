@@ -77,6 +77,9 @@ class ApplicationSystem {
   bool is_running_as_service() const { return !!service_provider_.get(); }
 
  private:
+  // Dispatch the onLaunched event to current running application.
+  void SendOnLaunchedEvent();
+
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationProcessManager> process_manager_;
   scoped_ptr<ApplicationService> application_service_;

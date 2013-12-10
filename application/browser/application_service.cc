@@ -210,11 +210,11 @@ const ApplicationData* ApplicationService::GetRunningApplication() const {
 
 void ApplicationService::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
-};
+}
 
 void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
-};
+}
 
 bool ApplicationService::Launch(
     scoped_refptr<const ApplicationData> application) {

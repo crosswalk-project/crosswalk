@@ -65,6 +65,8 @@
         'common/manifest.h',
         'common/manifest_handler.cc',
         'common/manifest_handler.h',
+        'common/manifest_handlers/main_document_handler.cc',
+        'common/manifest_handlers/main_document_handler.h',
         'common/manifest_handlers/permissions_handler.cc',
         'common/manifest_handlers/permissions_handler.h',
 
