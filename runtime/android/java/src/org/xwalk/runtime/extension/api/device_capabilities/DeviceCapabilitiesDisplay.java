@@ -121,7 +121,7 @@ class DeviceCapabilitiesDisplay {
         JSONObject out = new JSONObject();
         try {
             out.put("reply", "connectDisplay");
-            out.put("eventName", "onconnect");
+            out.put("eventName", "displayconnect");
             out.put("data", convertDisplayToJSON(disp));
 
             mDeviceCapabilities.broadcastMessage(out.toString());
@@ -135,7 +135,7 @@ class DeviceCapabilitiesDisplay {
         JSONObject out = new JSONObject();
         try {
             out.put("reply", "disconnectDisplay");
-            out.put("eventName", "ondisconnect");
+            out.put("eventName", "displaydisconnect");
             out.put("data", convertDisplayToJSON(disp));
 
             mDeviceCapabilities.broadcastMessage(out.toString());

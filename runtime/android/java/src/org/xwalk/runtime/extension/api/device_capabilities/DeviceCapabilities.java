@@ -73,7 +73,7 @@ public class DeviceCapabilities extends XWalkExtension {
     }
 
     private void handleAddEventListener(String eventName) {
-        if (eventName.equals("onattach") || eventName.equals("ondetach")) {
+        if (eventName.equals("storageattach") || eventName.equals("storagedetach")) {
             mStorage.registerListener();
         }
     }

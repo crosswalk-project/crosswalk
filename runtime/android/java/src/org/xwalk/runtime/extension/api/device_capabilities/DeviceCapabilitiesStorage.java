@@ -233,7 +233,7 @@ class DeviceCapabilitiesStorage {
         JSONObject out = new JSONObject();
         try {
             out.put("reply", "attachStorage");
-            out.put("eventName", "onattach");
+            out.put("eventName", "storageattach");
             out.put("data", unit.convertToJSON());
 
             mDeviceCapabilities.broadcastMessage(out.toString());
@@ -253,7 +253,7 @@ class DeviceCapabilitiesStorage {
         JSONObject out = new JSONObject();
         try {
             out.put("reply", "detachStorage");
-            out.put("eventName", "ondetach");
+            out.put("eventName", "storagedetach");
             out.put("data", unit.convertToJSON());
 
             mDeviceCapabilities.broadcastMessage(out.toString());

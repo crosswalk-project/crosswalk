@@ -110,24 +110,19 @@ extension.setMessageListener(function(json) {
   delete _promises[msg._promise_id];
 });
 
-var _getListenerNumber = function(eventName) {
-  var count = 0;
-  for (var i in _listeners) {
-    if (_listeners[i]['eventName'] === eventName) {
-      count += 1;
-    }
-  }
-  return count;
-};
-
-function _addEventListener(eventName, callback) {
+function _addEventListener(isOn, eventName, callback) {
   if (typeof eventName !== 'string') {
-    console.log("Invalid parameters (*, -)!");
+    console.log("Invalid parameters of eventName!");
     return -1;
   }
 
-  if (typeof callback !== 'function') {
-    console.log("Invalid parameters (-, *)!");
+  if (!isOn && (typeof callback !== 'function')) {
+    console.log("Invalid parameters of callback!");
+    return -1;
+  }
+
+  if (isOn && (typeof callback !== null) && (typeof callback !== 'function')) {
+    console.log("Invalid parameters of callback!");
     return -1;
   }
 
@@ -138,35 +133,39 @@ function _addEventListener(eventName, callback) {
 
   var listener_id;
 
-  switch(listener.eventName) {
-    case 'onattach':
-      _listeners[0] = listener;
-      listener_id = 0;
-      break;
+  if (isOn) {
+    switch(listener.eventName) {
+      case 'storageattach':
+        _listeners[0] = listener;
+        listener_id = 0;
+        break;
 
-    case 'ondetach':
-      _listeners[1] = listener;
-      listener_id = 1;
-      break;
+      case 'storagedetach':
+        _listeners[1] = listener;
+        listener_id = 1;
+        break;
 
-    case 'onconnect':
-      _listeners[2] = listener;
-      listener_id = 2;
-      break;
+      case 'displayconnect':
+        _listeners[2] = listener;
+        listener_id = 2;
+        break;
 
-    case 'ondisconnect':
-      _listeners[3] = listener;
-      listener_id = 3;
-      break;
+      case 'displaydisconnect':
+        _listeners[3] = listener;
+        listener_id = 3;
+        break;
 
-    default:
-      listener.eventName = 'on' + eventName;
+      default:
+        console.log("Invalid event name!");
+        break;
+    }
+  } else {
       listener_id = _next_listener_id;
       _next_listener_id += 1;
       _listeners[listener_id] = listener;
   }
 
-  if (_getListenerNumber(listener.eventName) == 1) {
+  if (_listeners[listener_id] != null) {
     var msg = {
       'cmd': 'addEventListener',
       'eventName': listener.eventName
@@ -179,29 +178,31 @@ function _addEventListener(eventName, callback) {
 
 Object.defineProperty(exports, 'onstorageattach', {
   set: function(callback) {
-    _addEventListener('onattach', callback);
+    _addEventListener(true, 'storageattach', callback);
   }
 });
 
 Object.defineProperty(exports, 'onstoragedetach', {
   set: function(callback) {
-    _addEventListener('ondetach', callback);
+    _addEventListener(true, 'storagedetach', callback);
   }
 });
 
 Object.defineProperty(exports, 'ondisplayconnect', {
   set: function(callback) {
-    _addEventListener('onconnect', callback);
+    _addEventListener(true, 'displayconnect', callback);
   }
 });
 
 Object.defineProperty(exports, 'ondisplaydisconnect', {
   set: function(callback) {
-    _addEventListener('ondisconnect', callback);
+    _addEventListener(true, 'displaydisconnect', callback);
   }
 });
 
-exports.addEventListener = _addEventListener;
+exports.addEventListener = function(eventName, callback) {
+  return _addEventListener(false, eventName, callback);
+}
 
 var _sendSyncMessage = function(msg) {
   return extension.internal.sendSyncMessage(JSON.stringify(msg));
