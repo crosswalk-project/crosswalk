@@ -30,6 +30,7 @@ const char kServiceNumber[] = "0";
 const char kTizenSystemIndicatorGeometryVar[] = "ILLUME_IND";
 
 // Copied from EFL 1.7, in src/lib/ecore_evas/ecore_evas_extn.c.
+// Last updated from (tizen_2.1/20130514.052329)
 enum PlugOperation {
   OP_RESIZE,
   OP_SHOW,
@@ -51,7 +52,9 @@ enum PlugOperation {
   OP_EV_MULTI_MOVE,
   OP_EV_KEY_UP,
   OP_EV_KEY_DOWN,
-  OP_EV_HOLD
+  OP_EV_HOLD,
+  OP_MSG_PARENT,
+  OP_MSG
 };
 
 }  // namespace
@@ -470,8 +473,14 @@ bool TizenSystemIndicatorWatcher::ProcessPayload() {
     case OP_EV_KEY_UP:
     case OP_EV_KEY_DOWN:
     case OP_EV_HOLD:
+    case OP_MSG_PARENT:
+    case OP_MSG:
       // Not implemented yet.
       ok = true;
+      break;
+    default:
+      PLOG(ERROR) << "Unhandled opcode " << op_code;
+      ok = true;  // Ignore unknown opcodes.
       break;
   }
 
