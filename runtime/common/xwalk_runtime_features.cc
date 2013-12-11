@@ -34,6 +34,10 @@ XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
 
 XWalkRuntimeFeatures::XWalkRuntimeFeatures(const CommandLine* cmd)
   : command_line_(cmd) {
+  if (cmd->HasSwitch("enable-xwalk-experimental-features"))
+    experimental_features_enabled_ = true;
+  else
+    experimental_features_enabled_ = false;
   // Add new features here with the following parameters :
   // - Name of the feature
   // - Name of the command line switch which will be used after the
@@ -56,7 +60,9 @@ void XWalkRuntimeFeatures::AddFeature(const char* name,
   RuntimeFeature feature;
   feature.name = name;
 
-  if (command_line_->HasSwitch(
+  if (experimental_features_enabled_) {
+    feature.enabled = true;
+  } else if (command_line_->HasSwitch(
               ("disable-" + std::string(command_line_switch)))) {
     feature.enabled = false;
   } else if (command_line_->HasSwitch(
@@ -70,6 +76,9 @@ void XWalkRuntimeFeatures::AddFeature(const char* name,
 }
 
 bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
+  if (experimental_features_enabled_)
+    return true;
+
   RuntimeFeaturesList::const_iterator it = std::find_if(
     runtimeFeatures_.begin(), runtimeFeatures_.end(),
       MatchRuntimeFeature(name));
