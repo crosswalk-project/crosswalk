@@ -2,7 +2,6 @@
   'dependencies': [
     '../third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
     '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
-    'build/system.gyp:tizen_sysapps',
   ],
   'sources': [
     'device_capabilities_avcodecs.cc',
@@ -18,7 +17,7 @@
     'device_capabilities_memory.h',
     'device_capabilities_memory.cc',
     'device_capabilities_storage.h',
-    'device_capabilities_storage_tizen.cc',
+    'device_capabilities_storage_linux.cc',
     'device_capabilities_utils.h',
   ],
 }

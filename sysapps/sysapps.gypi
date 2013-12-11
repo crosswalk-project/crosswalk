@@ -1,4 +1,12 @@
 {
+  'conditions': [
+    [ 'OS=="linux" and OS!="android"', {
+        'includes': [
+          'device_capabilities/device_capabilities.gypi',
+        ],
+      }
+    ],
+  ],
   'sources': [
     'common/binding_object.h',
     'common/binding_object_store.cc',
