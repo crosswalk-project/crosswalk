@@ -146,28 +146,27 @@ DictionaryValue* LoadManifestWgt(const base::FilePath& application_path,
             value.clear();
             if (xml_reader.ReadElementContent(&value))
               xml_root->SetString("name", value);
-            LOG(INFO) << "name: " << value;
+              LOG(INFO) << "name: " << value;
         }
         if (node_name == "icon") {
             if (xml_reader.NodeAttribute("src", &value))
-              xml_root->SetString("icon", value);
-            LOG(INFO) << "icon: " << value;
+              xml_root->SetString("icon.128", value);
+              LOG(INFO) << "icon: " << value;
         }
         if (node_name == "content") {
             if (xml_reader.NodeAttribute("src", &value))
               xml_root->SetString("content", value);
+              LOG(INFO) << "content: " << value;
         }
         if (node_name == "description") {
             if (xml_reader.ReadElementContent(&value))
               xml_root->SetString("description", value);
         }
         if (node_name == "application") {
-            /*
             if (xml_reader.NodeAttribute("id", &value)) {
               xml_root->SetString("application", value);
               LOG(INFO) << "app id: " << value;
             }
-            */
             // in PackageInstaller packageID is used
             if (xml_reader.NodeAttribute("package", &value)) {
               xml_root->SetString("package", value);
