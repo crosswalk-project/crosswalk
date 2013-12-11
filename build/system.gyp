@@ -38,6 +38,7 @@
               'aul',
               'capi-appfw-application',
               'sensor',
+              'vconf',
             ],
           },
           'direct_dependent_settings': {
