@@ -182,4 +182,8 @@ public class XWalkRuntimeView extends FrameLayout {
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
         mProvider.loadDataForTest(data, mimeType, isBase64Encoded);
     }
+
+    public String[] getPermissionsForTest() {
+        return mProvider.getPermissionsForTest();
+    }
 }

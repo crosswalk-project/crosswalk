@@ -26,6 +26,7 @@
 #include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest.h"
+#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/runtime/browser/android/net_disk_cache_remover.h"
 #include "xwalk/runtime/browser/android/state_serializer.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
@@ -185,22 +186,26 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string json_input =
       base::android::ConvertJavaStringToUTF8(env, manifest_string);
 
-  base::Value* manifest_value = base::JSONReader::Read(json_input);
+  scoped_ptr<base::Value> manifest_value(base::JSONReader::Read(json_input));
   if (!manifest_value) return false;
 
   base::DictionaryValue* manifest_dictionary;
   manifest_value->GetAsDictionary(&manifest_dictionary);
   if (!manifest_dictionary) return false;
 
-  scoped_ptr<base::DictionaryValue>
-      manifest_dictionary_ptr(manifest_dictionary);
+  std::string error;
+  application_ = application::ApplicationData::Create(
+      base::FilePath(),
+      application::Manifest::INVALID_TYPE,
+      *manifest_dictionary,
+      "",
+      &error);
+  if (!application_.get())
+    return false;
 
-  xwalk::application::Manifest manifest(
-      xwalk::application::Manifest::INVALID_TYPE,
-      manifest_dictionary_ptr.Pass());
-
+  const xwalk::application::Manifest* manifest = application_->GetManifest();
   std::string url;
-  if (manifest.GetString(
+  if (manifest->GetString(
           xwalk::application_manifest_keys::kLaunchLocalPathKey, &url)) {
     // According to original proposal for "app:launch:local_path", the "http"
     // and "https" schemes are supported. So |url| should do nothing when it
@@ -213,7 +218,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       url = path_str + url;
     }
   } else {
-    manifest.GetString(
+    manifest->GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
   }
 
@@ -221,6 +226,28 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       base::android::ConvertUTF8ToJavaString(env, url);
   Java_XWalkContent_onGetUrlFromManifest(env, obj, buffer.obj());
   return true;
+}
+
+ScopedJavaLocalRef<jobjectArray> XWalkContent::GetPermissions(JNIEnv* env, jobject obj) {
+  application::ApplicationData* application = application_.get();
+  DCHECK(application);
+  if (!application) {
+    std::vector<std::string> permissions;
+    return base::android::ToJavaArrayOfStrings(env, permissions);
+  }
+
+  application::PermissionsInfo* info =
+      static_cast<application::PermissionsInfo*>(
+          application->GetManifestData(
+              application_manifest_keys::kPermissionsKey));
+  DCHECK(info);
+  if (!info) {
+    std::vector<std::string> permissions;
+    return base::android::ToJavaArrayOfStrings(env, permissions);
+  }
+
+  const std::vector<std::string>& permissions = info->GetAPIPermissions();
+  return base::android::ToJavaArrayOfStrings(env, permissions);
 }
 
 jint XWalkContent::GetRoutingID(JNIEnv* env, jobject obj) {

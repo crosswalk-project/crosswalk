@@ -256,6 +256,11 @@ public class XWalkContent extends FrameLayout {
         contentClient.installWebContentsObserver(mContentViewCore);
     }
 
+    // For instrumentation test.
+    public String[] getPermissionsForTest() {
+        return nativeGetPermissions(mXWalkContent);
+    }
+
     public String devToolsAgentId() {
         if (mXWalkContent == 0) return "";
         return nativeDevToolsAgentId(mXWalkContent);
@@ -394,4 +399,5 @@ public class XWalkContent extends FrameLayout {
             int nativeXWalkContent, boolean value, String requestingFrame);
     private native byte[] nativeGetState(int nativeXWalkContent);
     private native boolean nativeSetState(int nativeXWalkContent, byte[] state);
+    private native String[] nativeGetPermissions(int nativeXWalkContent);
 }

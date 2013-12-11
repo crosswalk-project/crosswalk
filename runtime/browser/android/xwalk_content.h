@@ -23,6 +23,10 @@ class WebContents;
 
 namespace xwalk {
 
+namespace application {
+  class ApplicationData;
+}
+
 class XWalkWebContentsDelegate;
 class XWalkContentsClientBridge;
 
@@ -58,6 +62,8 @@ class XWalkContent {
                        jobject obj,
                        jstring path,
                        jstring manifest);
+  ScopedJavaLocalRef<jobjectArray> GetPermissions(JNIEnv* env,
+                                                  jobject obj);
 
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,
@@ -76,6 +82,7 @@ class XWalkContent {
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
   scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
+  scoped_refptr<application::ApplicationData> application_;
 
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result

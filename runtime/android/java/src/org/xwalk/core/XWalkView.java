@@ -279,6 +279,10 @@ public class XWalkView extends FrameLayout {
         return mContent.getXWalkWebChromeClient();
     }
 
+    public String[] getPermissionsForTest() {
+        return mContent.getPermissionsForTest();
+    }
+
     public WebBackForwardList copyBackForwardList() {
         return mContent.copyBackForwardList();
     }
