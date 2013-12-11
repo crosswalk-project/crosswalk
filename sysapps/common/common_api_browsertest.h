@@ -51,6 +51,8 @@ class SysAppsTestObject : public EventTarget {
   // JavaScript function handlers.
   void OnIsTestEventActive(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnFireTestEvent(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnMakeFulfilledPromise(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnMakeRejectedPromise(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   bool is_test_event_active_;
 };
