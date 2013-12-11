@@ -8,31 +8,42 @@
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
+#include "ui/aura/window_observer.h"
 
 namespace xwalk {
 
 // Tizen uses the Views native window but adds its own features like orientation
 // handling and integration with system indicator bar.
-class NativeAppWindowTizen : public NativeAppWindowViews,
+class NativeAppWindowTizen : public aura::WindowObserver,
+                             public NativeAppWindowViews,
                              public SensorProvider::Observer {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
 
-  enum Orientation { LANDSCAPE, PORTRAIT };
-
  private:
-  // views::View implementation.
+  // NativeAppWindowViews overrides:
+  virtual void Initialize() OVERRIDE;
+
+  // WindowObserver overrides:
+  virtual void OnWindowVisibilityChanging(aura::Window* window,
+                                          bool visible) OVERRIDE;
+  virtual void OnWindowBoundsChanged(aura::Window* window,
+                                     const gfx::Rect& old_bounds,
+                                     const gfx::Rect& new_bounds) OVERRIDE;
+
+  // views::View overrides:
   virtual void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) OVERRIDE;
 
-  void SetOrientation(Orientation orientation);
+  gfx::Transform GetRotationTransform() const;
+  void ApplyDisplayRotation();
 
-  // SensorProvider::Observer implementation.
+  // SensorProvider::Observer overrides:
   virtual void OnRotationChanged(gfx::Display::Rotation rotation) OVERRIDE;
 
   scoped_ptr<TizenSystemIndicator> indicator_;
-  Orientation orientation_;
+  gfx::Display display_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowTizen);
 };
