@@ -43,6 +43,7 @@ class XWalkRuntimeFeatures {
   typedef std::vector<RuntimeFeature> RuntimeFeaturesList;
   RuntimeFeaturesList runtimeFeatures_;
   const CommandLine* command_line_;
+  bool experimental_features_enabled_;
 };
 
 }  // namespace xwalk

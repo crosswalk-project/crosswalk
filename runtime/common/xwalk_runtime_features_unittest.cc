@@ -30,3 +30,18 @@ TEST(XWalkRuntimeFeaturesTest, CommandLineOverrideDefaults) {
   xwalk::XWalkRuntimeFeatures::Initialize(&cmd2);
   EXPECT_FALSE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
 }
+
+TEST(XWalkRuntimeFeaturesTest, CommandLineEnableExperimentalFeatures) {
+  CommandLine cmd(CommandLine::NO_PROGRAM);
+  cmd.AppendSwitch("--enable-xwalk-experimental-features");
+  xwalk::XWalkRuntimeFeatures::Initialize(&cmd);
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
+
+  CommandLine cmd2 = CommandLine(CommandLine::NO_PROGRAM);
+  cmd2.AppendSwitch("--disable-raw-sockets");
+  cmd2.AppendSwitch("--enable-xwalk-experimental-features");
+  xwalk::XWalkRuntimeFeatures::Initialize(&cmd2);
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
+}
