@@ -38,7 +38,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void StopWatching();
   bool Connect();
 
-  void OnMouseDown();
+  void OnMouseDown(int x, int y);
   void OnMouseUp();
   void OnMouseMove(int x, int y);
 
