@@ -17,6 +17,7 @@ TEST(XWalkRuntimeFeaturesTest, ValidateStableFeatures) {
 TEST(XWalkRuntimeFeaturesTest, ValidateExperimentalFeatures) {
   CommandLine cmd(CommandLine::NO_PROGRAM);
   xwalk::XWalkRuntimeFeatures::Initialize(&cmd);
+  EXPECT_FALSE(xwalk::XWalkRuntimeFeatures::isDialogAPIEnabled());
 }
 
 TEST(XWalkRuntimeFeaturesTest, CommandLineOverrideDefaults) {
@@ -37,6 +38,7 @@ TEST(XWalkRuntimeFeaturesTest, CommandLineEnableExperimentalFeatures) {
   xwalk::XWalkRuntimeFeatures::Initialize(&cmd);
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDialogAPIEnabled());
 
   CommandLine cmd2 = CommandLine(CommandLine::NO_PROGRAM);
   cmd2.AppendSwitch("--disable-raw-sockets");
@@ -44,4 +46,5 @@ TEST(XWalkRuntimeFeaturesTest, CommandLineEnableExperimentalFeatures) {
   xwalk::XWalkRuntimeFeatures::Initialize(&cmd2);
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isRawSocketsAPIEnabled());
   EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled());
+  EXPECT_TRUE(xwalk::XWalkRuntimeFeatures::isDialogAPIEnabled());
 }
