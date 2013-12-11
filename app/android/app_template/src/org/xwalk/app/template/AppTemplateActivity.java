@@ -36,7 +36,7 @@ public class AppTemplateActivity extends XWalkRuntimeActivityBase {
             getRuntimeView().loadAppFromUrl("file:///android_asset/index.html");
         } else {
             TextView msgText = new TextView(this);
-            msgText.setText(R.string.dialog_message_install_runtime_lib);
+            msgText.setText("Crosswalk failed to initialize.");
             msgText.setTextSize(36);
             msgText.setTextColor(Color.BLACK);
             setContentView(msgText);
