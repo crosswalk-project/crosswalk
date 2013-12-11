@@ -9,6 +9,7 @@
 #include "content/public/common/content_switches.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 #include "ui/gl/gl_switches.h"
@@ -57,10 +58,14 @@ void
 XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInExtensionThreadServer(
     extensions::XWalkExtensionServer* server) {
   CHECK(server);
-  server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
-      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
-  server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
-      new sysapps::RawSocketExtension()));
+  if (XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled()) {
+    server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
+        new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
+  }
+  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled()) {
+    server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
+        new sysapps::RawSocketExtension()));
+  }
 }
 
 }  // namespace xwalk
