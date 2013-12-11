@@ -1,15 +1,13 @@
 {
   "name": "loadAppFromManifest Test",
   "version": "1.0.0",
-  "discription": "Test for GetPermissions.",
+  "discription": "Test for GetEmptyPermission.",
   "manifest_version": 2,
   "app": {
     "launch": {
       "local_path": "index.html"
     }
   },
-  "permissions": [
-    "geolocation"
-  ]
+  "permissions": []
 }
 

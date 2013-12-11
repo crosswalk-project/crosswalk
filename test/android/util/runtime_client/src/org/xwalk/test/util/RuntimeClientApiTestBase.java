@@ -166,6 +166,48 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
+    // For testGetPermissions.
+    public void testGetPermissions() throws Throwable {
+        final String[] expectedPermissions = new String[]{"geolocation"};
+
+        mTestUtil.loadManifestSync("file:///android_asset/manifest.json");
+
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String[] permissions = mTestUtil.getTestedView().getPermissionsForTest();
+                mTestCase.assertTrue (permissions.length == 1);
+                mTestCase.assertEquals(permissions[0], expectedPermissions[0]);
+            }
+        });
+    }
+
+    // For testGetEmptyPermission.
+    public void testGetEmptyPermission() throws Throwable {
+        mTestUtil.loadManifestSync("file:///android_asset/manifest_empty_permission.json");
+
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String[] permissions = mTestUtil.getTestedView().getPermissionsForTest();
+                mTestCase.assertTrue (permissions.length == 0);
+            }
+        });
+    }
+
+    // For testGetNullPermission.
+    public void testGetNullPermission() throws Throwable {
+        mTestUtil.loadManifestSync("file:///android_asset/manifest_null_permission.json");
+
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String[] permissions = mTestUtil.getTestedView().getPermissionsForTest();
+                mTestCase.assertTrue (permissions.length == 0);
+            }
+        });
+    }
+
     // For internal extension implementation of Contacts.
     public void testContacts() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("contacts.html");
