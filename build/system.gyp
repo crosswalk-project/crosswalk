@@ -37,6 +37,7 @@
               'appcore-efl',
               'aul',
               'capi-appfw-application',
+              'sensor',
             ],
           },
           'direct_dependent_settings': {

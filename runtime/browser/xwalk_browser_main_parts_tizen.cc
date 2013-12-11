@@ -15,8 +15,8 @@
 
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
-#include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
+#include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 
 namespace xwalk {
 

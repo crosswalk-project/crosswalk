@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#include "xwalk/runtime/browser/tizen/tizen_data_fetcher_shared_memory.h"
+#include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 
 namespace xwalk {
 

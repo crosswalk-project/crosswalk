@@ -171,12 +171,6 @@
           'sources': [
             'runtime/browser/geolocation/tizen/location_provider_tizen.cc',
             'runtime/browser/geolocation/tizen/location_provider_tizen.h',
-            'runtime/browser/tizen/sensor_provider.cc',
-            'runtime/browser/tizen/sensor_provider.h',
-            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.cc',
-            'runtime/browser/tizen/tizen_data_fetcher_shared_memory.h',
-            'runtime/browser/tizen/tizen_platform_sensor.cc',
-            'runtime/browser/tizen/tizen_platform_sensor.h',
             'runtime/browser/ui/native_app_window_tizen.cc',
             'runtime/browser/ui/native_app_window_tizen.h',
             'runtime/browser/xwalk_browser_main_parts_tizen.cc',

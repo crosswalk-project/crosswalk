@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
-#define XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
+#ifndef XWALK_TIZEN_MOBILE_SENSOR_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
+#define XWALK_TIZEN_MOBILE_SENSOR_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
 
 #include "content/browser/device_orientation/data_fetcher_shared_memory.h"
-#include "xwalk/runtime/browser/tizen/sensor_provider.h"
+#include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 
 namespace xwalk {
 
@@ -41,4 +41,4 @@ class TizenDataFetcherSharedMemory : public content::DataFetcherSharedMemory,
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_TIZEN_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
+#endif  // XWALK_TIZEN_MOBILE_SENSOR_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
