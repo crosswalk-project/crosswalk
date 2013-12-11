@@ -53,10 +53,12 @@ class ManifestJsonParser(object):
       input_src = input_file.read()
       self.data_src = json.JSONDecoder().decode(input_src)
       self.ret_dict = self._output_items()
-    except IOError:
-      raise Exception('Error in decoding json-format manifest file.')
+    except (TypeError, ValueError, IOError):
+      print 'There is a parser error in manifest.json file.'
+      sys.exit(1)
     except KeyError:
-      raise Exception('Wrong keyword in json-format manifest file.')
+      print 'There is a field error in manifest.json file.'
+      sys.exit(1)
     finally:
       input_file.close()
 
@@ -83,7 +85,13 @@ class ManifestJsonParser(object):
     fullscreen:       The fullscreen flag of the application.
     """
     ret_dict = {}
+    if not self.data_src.has_key('name'):
+      print 'Error: no \'name\' field in manifest.json file.'
+      sys.exit(1)
     ret_dict['app_name'] = self.data_src['name']
+    if not self.data_src.has_key('version'):
+      print 'Error: no \'version\' field in manifest.json file.'
+      sys.exit(1)
     ret_dict['version'] = self.data_src['version']
     if self.data_src.has_key('launch_path'):
       app_url = self.data_src['launch_path']
@@ -112,8 +120,12 @@ class ManifestJsonParser(object):
     ret_dict['app_local_path'] = app_local_path
     ret_dict['permissions'] = ''
     if self.data_src.has_key('permissions'):
-      permission_list = self.data_src['permissions']
-      ret_dict['permissions'] = HandlePermissionList(permission_list)
+      try:
+        permission_list = self.data_src['permissions']
+        ret_dict['permissions'] = HandlePermissionList(permission_list)
+      except (TypeError, ValueError, IOError):
+        print '\'Permissions\' field error in manifest.json file.'
+        sys.exit(1)
     ret_dict['required_version'] = ''
     if self.data_src.has_key('required_version'):
       ret_dict['required_version'] = self.data_src['required_version']

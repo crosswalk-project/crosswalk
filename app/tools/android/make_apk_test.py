@@ -397,6 +397,30 @@ class TestMakeApk(unittest.TestCase):
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('no app launch path') != -1)
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_no_name.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('no \'name\' field') != -1)
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_no_version.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('no \'version\' field') != -1)
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_permissions_error.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('\'Permissions\' field error') != -1)
 
   def testExtensionsWithOneExtension(self):
     # Test with an existed extension.
