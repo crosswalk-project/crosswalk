@@ -39,4 +39,7 @@ const char kXWalkRunAsService[] = "run-as-service";
 // List the command lines feature flags.
 const char kListFeaturesFlags[] = "list-features-flags";
 
+// Enable all the experimental features in XWalk.
+const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
+
 }  // namespace switches

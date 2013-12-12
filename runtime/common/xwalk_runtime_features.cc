@@ -42,7 +42,7 @@ XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
 
 XWalkRuntimeFeatures::XWalkRuntimeFeatures(const CommandLine* cmd)
   : command_line_(cmd) {
-  if (cmd->HasSwitch("enable-xwalk-experimental-features"))
+  if (cmd->HasSwitch(switches::kExperimentalFeatures))
     experimental_features_enabled_ = true;
   else
     experimental_features_enabled_ = false;
