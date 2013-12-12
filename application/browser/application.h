@@ -37,6 +37,8 @@ class Application : public Runtime::Observer {
   virtual ~Application();
 
   bool Launch();
+  bool is_active() const { return !runtimes_.empty(); }
+  void Close();
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
 
