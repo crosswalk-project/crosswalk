@@ -42,7 +42,7 @@ class XWalkRuntimeFeatures {
                   const char* description, RuntimeFeatureStatus status);
   bool isFeatureEnabled(const char* name) const;
   typedef std::vector<RuntimeFeature> RuntimeFeaturesList;
-  RuntimeFeaturesList runtimeFeatures_;
+  RuntimeFeaturesList runtime_features_;
   const CommandLine* command_line_;
   bool experimental_features_enabled_;
 };

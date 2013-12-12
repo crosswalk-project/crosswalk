@@ -75,7 +75,7 @@ void XWalkRuntimeFeatures::AddFeature(const char* name,
     feature.enabled = (status == Stable);
   }
 
-  runtimeFeatures_.push_back(feature);
+  runtime_features_.push_back(feature);
 }
 
 bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
@@ -83,9 +83,9 @@ bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
     return true;
 
   RuntimeFeaturesList::const_iterator it = std::find_if(
-    runtimeFeatures_.begin(), runtimeFeatures_.end(),
+    runtime_features_.begin(), runtime_features_.end(),
       MatchRuntimeFeature(name));
-  if (it == runtimeFeatures_.end())
+  if (it == runtime_features_.end())
     return false;
   return (*it).enabled;
 }
