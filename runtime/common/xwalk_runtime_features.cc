@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
 #include "base/message_loop/message_loop.h"
 
@@ -56,12 +57,26 @@ XWalkRuntimeFeatures::XWalkRuntimeFeatures(const CommandLine* cmd)
 
 XWalkRuntimeFeatures::~XWalkRuntimeFeatures() {}
 
+void XWalkRuntimeFeatures::DumpFeatures() const {
+  std::cout << "Runtime features:" << std::endl;
+  for (RuntimeFeaturesList::const_iterator it = runtime_features_.begin();
+       it != runtime_features_.end(); ++it) {
+    std::cout
+        << (it->enabled ? "  --disable-" : "  --enable-")
+        << it->command_line_switch
+        << (it->enabled ? " (disable " : " (enable ") << it->description << ")"
+        << std::endl;
+  }
+}
+
 void XWalkRuntimeFeatures::AddFeature(const char* name,
                                  const char* command_line_switch,
                                  const char* description,
                                  RuntimeFeatureStatus status) {
   RuntimeFeature feature;
   feature.name = name;
+  feature.command_line_switch = command_line_switch;
+  feature.description = description;
 
   if (experimental_features_enabled_) {
     feature.enabled = true;

@@ -25,8 +25,12 @@ class XWalkRuntimeFeatures {
   static void Initialize(const CommandLine* cmd);
   static XWalkRuntimeFeatures* GetInstance();
 
+  void DumpFeatures() const;
+
   struct RuntimeFeature {
     std::string name;
+    std::string command_line_switch;
+    std::string description;
     bool enabled;
   };
 
