@@ -80,12 +80,13 @@ var BindingObjectPrototype = function() {
     });
   };
 
-  function addMethodWithPromise(name, promise) {
+  function addMethodWithPromise(name, Promise) {
     Object.defineProperty(this, name, {
       value: function() {
+        var promise_instance = new Promise();
         var args = Array.prototype.slice.call(arguments);
-        this._postMessage(name, args, wrapPromiseAsCallback(promise));
-        return promise;
+        this._postMessage(name, args, wrapPromiseAsCallback(promise_instance));
+        return promise_instance;
       },
       enumerable: isEnumerable(name),
     });
