@@ -29,6 +29,7 @@
         'common/event_target.h',
         'common/sysapps_manager.cc',
         'common/sysapps_manager.h',
+        'device_capabilities_new/av_codecs_provider.h',
         'device_capabilities_new/cpu_info_provider.cc',
         'device_capabilities_new/cpu_info_provider.h',
         'device_capabilities_new/cpu_info_provider_android.cc',

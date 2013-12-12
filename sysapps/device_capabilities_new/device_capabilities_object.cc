@@ -7,6 +7,7 @@
 #include <string>
 
 #include "xwalk/sysapps/common/sysapps_manager.h"
+#include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
 
@@ -16,6 +17,9 @@ namespace sysapps {
 using namespace jsapi::device_capabilities; // NOLINT
 
 DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
+  handler_.Register("getAVCodecs",
+                    base::Bind(&DeviceCapabilitiesObject::OnGetAVCodecs,
+                               base::Unretained(this)));
   handler_.Register("getCPUInfo",
                     base::Bind(&DeviceCapabilitiesObject::OnGetCPUInfo,
                                base::Unretained(this)));
@@ -25,6 +29,10 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
 }
 
 DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {}
+
+void DeviceCapabilitiesObject::OnGetAVCodecs(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+}
 
 void DeviceCapabilitiesObject::OnGetCPUInfo(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
