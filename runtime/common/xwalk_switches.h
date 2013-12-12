@@ -26,6 +26,8 @@ extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 
 extern const char kXWalkRunAsService[];
 
+extern const char kListFeaturesFlags[];
+
 }  // namespace switches
 
 #endif  // XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
