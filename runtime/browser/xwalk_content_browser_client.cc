@@ -69,7 +69,8 @@ XWalkContentBrowserClient::~XWalkContentBrowserClient() {
 
 content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
     const content::MainFunctionParams& parameters) {
-  XWalkRuntimeFeatures::Initialize(CommandLine::ForCurrentProcess());
+  XWalkRuntimeFeatures::GetInstance()->Initialize(
+    CommandLine::ForCurrentProcess());
 #if defined(OS_MACOSX)
   main_parts_ = new XWalkBrowserMainPartsMac(parameters);
 #elif defined(OS_ANDROID)

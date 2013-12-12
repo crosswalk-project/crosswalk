@@ -8,11 +8,10 @@
 #include <functional>
 #include <iostream> // NOLINT
 
+#include "base/logging.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
-
-XWalkRuntimeFeatures* g_features = NULL;
 
 struct MatchRuntimeFeature
   : std::unary_function<XWalkRuntimeFeatures::RuntimeFeature, bool> {
@@ -26,22 +25,18 @@ struct MatchRuntimeFeature
 XWalkRuntimeFeatures::RuntimeFeature::RuntimeFeature() {}
 
 // static
-void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
-  g_features = new XWalkRuntimeFeatures(cmd);
-}
-
-// static
-void XWalkRuntimeFeatures::DumpFeaturesFlagsInCommandLine() {
-  g_features->DumpFeaturesFlags();
-}
-
-// static
 XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
-  return g_features;
+  return Singleton<XWalkRuntimeFeatures>::get();
 }
 
-XWalkRuntimeFeatures::XWalkRuntimeFeatures(const CommandLine* cmd)
-  : command_line_(cmd) {
+XWalkRuntimeFeatures::XWalkRuntimeFeatures()
+  : command_line_(0)
+  , initialized_(false) {}
+
+void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
+  command_line_ = cmd;
+  initialized_ = true;
+  runtime_features_.clear();
   if (cmd->HasSwitch(switches::kExperimentalFeatures))
     experimental_features_enabled_ = true;
   else
@@ -131,6 +126,7 @@ void XWalkRuntimeFeatures::DumpFeaturesFlags() {
 }
 
 bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
+  CHECK(initialized_);
   if (experimental_features_enabled_)
     return true;
 
