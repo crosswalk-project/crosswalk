@@ -32,8 +32,10 @@ void NativeAppWindowTizen::Initialize() {
   DCHECK(root_window);
   root_window->AddObserver(this);
 
-  if (SensorProvider::GetInstance())
-    SensorProvider::GetInstance()->AddObserver(this);
+  if (SensorProvider* sensor = SensorProvider::GetInstance()) {
+    OnRotationChanged(sensor->GetCurrentRotation());
+    sensor->AddObserver(this);
+  }
 }
 
 NativeAppWindowTizen::~NativeAppWindowTizen() {
