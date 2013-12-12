@@ -39,6 +39,7 @@
           'action_name': 'generate_xwalk_core_library',
           'message': 'Generating XwalkCore Library Project.',
           'inputs': [
+            '<(DEPTH)/xwalk/build/android/common_function.py',
             '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
           ],
           'outputs': [

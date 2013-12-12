@@ -3,12 +3,14 @@
 # Copyright (c) 2013 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+# pylint: disable=F0401
 
 import distutils.dir_util
 import optparse
 import os
 import shutil
 import sys
+from common_function import RemoveUnusedFilesInReleaseMode
 
 LIBRARY_PROJECT_NAME = 'xwalk_core_library'
 XWALK_CORE_SHELL_APK = 'xwalk_core_shell_apk'
@@ -280,17 +282,6 @@ def PostCopyLibraryProject(out_directory):
     os.remove(common_aidl_file)
 
 
-def RemoveUnusedFiles(out_directory):
-  # Exclude gdbserver binary in release mode, as it's GPL license.
-  mode = os.path.basename(os.path.normpath(out_directory))
-  if mode == 'Release':
-    libs_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'libs')
-    if os.path.exists(libs_directory):
-      for root, _, files in os.walk(libs_directory):
-        if 'gdbserver' in files:
-          os.remove(os.path.join(root, 'gdbserver'))
-
-
 def main(argv):
   print 'Generating XWalkCore Library Project...'
   option_parser = optparse.OptionParser()
@@ -322,7 +313,9 @@ def main(argv):
   # Post copy library project.
   PostCopyLibraryProject(out_directory)
   # Remove unused files.
-  RemoveUnusedFiles(out_directory)
+  mode = os.path.basename(os.path.normpath(out_directory))
+  RemoveUnusedFilesInReleaseMode(mode,
+        os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'libs'))
   print 'Your Android library project has been created at %s' % (
       out_project_directory)
 

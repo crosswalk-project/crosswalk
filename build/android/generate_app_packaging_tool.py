@@ -3,10 +3,12 @@
 # Copyright (c) 2013 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+# pylint: disable=F0401
 
 import os
 import shutil
 import sys
+from common_function import RemoveUnusedFilesInReleaseMode
 
 def Clean(dir_to_clean):
   if os.path.isdir(dir_to_clean):
@@ -135,6 +137,11 @@ def PrepareFromXwalk(src_dir, target_dir):
       shutil.copy(source_path, target_path)
     else:
       shutil.copytree(source_path, target_path)
+
+  # Remove unused files.
+  mode = os.path.basename(os.path.dirname(target_dir))
+  RemoveUnusedFilesInReleaseMode(mode, os.path.join(target_dir, 'native_libs'))
+
 
 def main(args):
   if len(args) != 1:
