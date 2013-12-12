@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/memory/singleton.h"
 
 namespace xwalk {
 
@@ -22,8 +23,8 @@ class XWalkRuntimeFeatures {
   DECLARE_RUNTIME_FEATURE(DeviceCapabilitiesAPI);
   DECLARE_RUNTIME_FEATURE(DialogAPI);
 
-  static void Initialize(const CommandLine* cmd);
-  static void DumpFeaturesFlagsInCommandLine();
+  void Initialize(const CommandLine* cmd);
+  void DumpFeaturesFlags();
   static XWalkRuntimeFeatures* GetInstance();
 
   enum RuntimeFeatureStatus {
@@ -42,15 +43,16 @@ class XWalkRuntimeFeatures {
   };
 
  private:
-  explicit XWalkRuntimeFeatures(const CommandLine* cmd);
+  friend struct DefaultSingletonTraits<XWalkRuntimeFeatures>;
+  XWalkRuntimeFeatures();
   ~XWalkRuntimeFeatures();
   void AddFeature(const char* name, const char* command_line_switch,
                   const char* description, RuntimeFeatureStatus status);
-  void DumpFeaturesFlags();
   bool isFeatureEnabled(const char* name) const;
   typedef std::vector<RuntimeFeature> RuntimeFeaturesList;
   RuntimeFeaturesList runtime_features_;
   const CommandLine* command_line_;
+  bool initialized_;
   bool experimental_features_enabled_;
 };
 

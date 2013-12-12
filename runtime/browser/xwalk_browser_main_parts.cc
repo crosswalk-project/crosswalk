@@ -186,7 +186,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   }
 
   if (command_line->HasSwitch(switches::kListFeaturesFlags)) {
-    XWalkRuntimeFeatures::DumpFeaturesFlagsInCommandLine();
+    XWalkRuntimeFeatures::GetInstance()->DumpFeaturesFlags();
     run_default_message_loop_ = false;
     return;
   }
