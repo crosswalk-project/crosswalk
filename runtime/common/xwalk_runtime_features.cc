@@ -86,7 +86,7 @@ void XWalkRuntimeFeatures::AddFeature(const char* name,
     feature.enabled = (status == Stable);
   }
 
-  runtimeFeatures_.push_back(feature);
+  runtime_features_.push_back(feature);
 }
 
 void XWalkRuntimeFeatures::DumpFeaturesFlags() {
@@ -109,8 +109,8 @@ void XWalkRuntimeFeatures::DumpFeaturesFlags() {
     + command_line_title.length() + status_title.length();
   output += std::string(total_length, '-') + '\n';
 
-  RuntimeFeaturesList::const_iterator it = runtimeFeatures_.begin();
-  for (; it != runtimeFeatures_.end(); ++it) {
+  RuntimeFeaturesList::const_iterator it = runtime_features_.begin();
+  for (; it != runtime_features_.end(); ++it) {
     std::string status = (it->status == Stable) ?
       std::string("Stable") : std::string("Experimental");
     std::string command_line;
@@ -135,9 +135,9 @@ bool XWalkRuntimeFeatures::isFeatureEnabled(const char* name) const {
     return true;
 
   RuntimeFeaturesList::const_iterator it = std::find_if(
-    runtimeFeatures_.begin(), runtimeFeatures_.end(),
+    runtime_features_.begin(), runtime_features_.end(),
       MatchRuntimeFeature(name));
-  if (it == runtimeFeatures_.end())
+  if (it == runtime_features_.end())
     return false;
   return (*it).enabled;
 }
