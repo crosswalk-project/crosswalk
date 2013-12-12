@@ -64,11 +64,22 @@ Application::~Application() {
 }
 
 bool Application::Launch() {
+  if (is_active())
+    return false;
+
   if (RunMainDocument())
     return true;
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
   return RunFromLocalPath();
+}
+
+void Application::Close() {
+   std::set<Runtime*> cached(runtimes_);
+   std::set<Runtime*>::iterator it = cached.begin();
+   for (; it!= cached.end(); ++it)
+     if (main_runtime_ != *it)
+       (*it)->Close();
 }
 
 void Application::OnRuntimeAdded(Runtime* runtime) {
