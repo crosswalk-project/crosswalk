@@ -55,8 +55,10 @@ def PrepareFromXwalk(src_dir, target_dir):
     (os.path.join(jar_src_dir, 'xwalk_core_embedded.dex.jar'), jar_target_dir),
 
     # Native library, like libxwalkcore.so.
-    (os.path.join(src_dir, 'xwalk_runtime_lib_apk/libs'),
-     os.path.join(target_dir, 'native_libs/libs')),
+    (os.path.join(src_dir, 'xwalk_runtime_lib_apk/libs/x86'),
+     os.path.join(target_dir, 'native_libs/x86/libs/x86')),
+    (os.path.join(src_dir, 'xwalk_runtime_lib_apk/libs/armeabi-v7a'),
+     os.path.join(target_dir, 'native_libs/armeabi-v7a/libs/armeabi-v7a')),
 
     # Native source package(xwalk.pak) and related js files for extension.
     (os.path.join(src_dir, 'xwalk_runtime_lib/assets'),

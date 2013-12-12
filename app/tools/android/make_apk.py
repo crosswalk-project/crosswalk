@@ -402,7 +402,22 @@ def Execution(options, sanitized_name):
   apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
   native_lib_path = '-DNATIVE_LIBS_DIR='
   if options.mode == 'embedded':
-    native_lib_path += os.path.join('native_libs', 'libs')
+    if options.arch == 'x86':
+      x86_native_lib_path = os.path.join('native_libs', 'x86', 'libs',
+                                         'x86', 'libxwalkcore.so')
+      if os.path.isfile(x86_native_lib_path):
+        native_lib_path += os.path.join('native_libs', 'x86', 'libs')
+      else:
+        print 'Missing x86 native library for Crosswalk embedded APK. Abort!'
+        sys.exit(10)
+    elif options.arch == 'arm':
+      arm_native_lib_path = os.path.join('native_libs', 'armeabi-v7a', 'libs',
+                                         'armeabi-v7a', 'libxwalkcore.so')
+      if os.path.isfile(arm_native_lib_path):
+        native_lib_path += os.path.join('native_libs', 'armeabi-v7a', 'libs')
+      else:
+        print 'Missing ARM native library for Crosswalk embedded APK. Abort!'
+        sys.exit(10)
   # A space is needed for Windows.
   native_lib_path += ' '
   cmd = ['python', 'scripts/gyp/ant.py',
@@ -432,11 +447,57 @@ def Execution(options, sanitized_name):
   RunCommand(cmd)
 
   src_file = os.path.join('out', sanitized_name + '.apk')
-  dst_file = '%s.apk' % options.name
+  if options.mode == 'shared':
+    dst_file = '%s.apk' % options.name
+  elif options.mode == 'embedded':
+    dst_file = '%s_%s.apk' % (options.name, options.arch)
   shutil.copyfile(src_file, dst_file)
   CleanDir('out')
   if options.mode == 'embedded':
     os.remove(pak_des_path)
+
+
+def MakeApk(options, sanitized_name):
+  Customize(options)
+  if options.mode == 'shared':
+    Execution(options, sanitized_name)
+    print ('The cross platform APK of the web application was '
+           'generated successfully at %s.apk, based on the shared '
+           'Crosswalk library.'
+           % sanitized_name)
+  elif options.mode == 'embedded':
+    if options.arch:
+      Execution(options, sanitized_name)
+      print ('The Crosswalk embedded APK of web application "%s" for '
+             'platform %s was generated successfully at %s_%s.apk.'
+             % (sanitized_name, options.arch, sanitized_name, options.arch))
+    else:
+      # If the arch option is unspecified, all of available platform APKs
+      # will be generated.
+      platform_str = ''
+      apk_str = ''
+      valid_archs = ['x86', 'armeabi-v7a']
+      for arch in valid_archs:
+        if os.path.isfile(os.path.join('native_libs', arch, 'libs',
+                                       arch, 'libxwalkcore.so')):
+          if platform_str != '':
+            platform_str += ' and '
+            apk_str += ' and '
+          if arch.find('x86') != -1:
+            options.arch = 'x86'
+          elif arch.find('arm') != -1:
+            options.arch = 'arm'
+          platform_str += options.arch
+          apk_str += '%s_%s.apk' % (sanitized_name, options.arch)
+          Execution(options, sanitized_name)
+      if apk_str.find('and') != -1:
+        print ('The Crosswalk embedded APKs of web application "%s" for '
+               'platfrom %s were generated successfully at %s.'
+               % (sanitized_name, platform_str, apk_str))
+      else:
+        print ('The Crosswalk embedded APK of web application "%s" for '
+               'platfrom %s was generated successfully at %s.'
+               % (sanitized_name, platform_str, apk_str))
 
 
 def main(argv):
@@ -507,6 +568,11 @@ def main(argv):
           'http://developer.android.com/guide/topics/manifest/'
           'activity-element.html#screen')
   parser.add_option('--orientation', help=info)
+  info = ('The architecture of the platform, that web app targets. '
+          'Such as: --arch=x86. "x86" means the x86 platform; '
+          '"arm" means the ARM platform. If this option is unspecified, '
+          'all of available platform apks will be generated.')
+  parser.add_option('--arch', help=info)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
@@ -553,8 +619,7 @@ def main(argv):
   sanitized_name = ReplaceInvalidChars(options.name)
 
   try:
-    Customize(options)
-    Execution(options, sanitized_name)
+    MakeApk(options, sanitized_name)
   except SystemExit, ec:
     CleanDir(sanitized_name)
     CleanDir('out')
