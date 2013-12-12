@@ -18,7 +18,8 @@ SensorProvider* SensorProvider::GetInstance() {
   return instance_.get();
 }
 
-SensorProvider::SensorProvider() {
+SensorProvider::SensorProvider()
+    : last_rotation_(gfx::Display::ROTATE_0) {
 }
 
 SensorProvider::~SensorProvider() {
@@ -34,6 +35,8 @@ void SensorProvider::RemoveObserver(Observer* observer) {
 }
 
 void SensorProvider::OnRotationChanged(gfx::Display::Rotation rotation) {
+  last_rotation_ = rotation;
+
   std::set<Observer*>::iterator it;
   for (it = observers_.begin(); it != observers_.end(); ++it)
     (*it)->OnRotationChanged(rotation);

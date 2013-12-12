@@ -32,6 +32,10 @@ class SensorProvider {
   virtual void AddObserver(Observer* observer);
   virtual void RemoveObserver(Observer* observer);
 
+  virtual gfx::Display::Rotation GetCurrentRotation() const {
+    return last_rotation_;
+  }
+
  protected:
   SensorProvider();
 
@@ -45,6 +49,7 @@ class SensorProvider {
   virtual void OnRotationRateChanged(float alpha, float beta, float gamma);
 
   std::set<Observer*> observers_;
+  gfx::Display::Rotation last_rotation_;
 
  private:
   static scoped_ptr<SensorProvider> instance_;

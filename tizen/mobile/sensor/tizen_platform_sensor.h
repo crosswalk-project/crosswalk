@@ -17,6 +17,7 @@
 #define XWALK_TIZEN_MOBILE_SENSOR_TIZEN_PLATFORM_SENSOR_H_
 
 #include <sensor.h>
+#include <vconf.h>
 
 #include "base/native_library.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
@@ -34,12 +35,14 @@ class TizenPlatformSensor : public SensorProvider {
  private:
   gfx::Display::Rotation ToDisplayRotation(int rotation) const;
 
+  bool auto_rotation_enabled_;
   int accel_handle_;
   int gyro_handle_;
 
   static void OnEventReceived(unsigned int event_type,
                               sensor_event_data_t* event_data,
                               void* udata);
+  static void OnAutoRotationEnabledChanged(keynode_t* node, void* udata);
 
   DISALLOW_COPY_AND_ASSIGN(TizenPlatformSensor);
 };
