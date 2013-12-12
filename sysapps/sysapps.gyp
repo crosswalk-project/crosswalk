@@ -55,6 +55,17 @@
         'raw_socket/tcp_socket_object.cc',
         'raw_socket/tcp_socket_object.h',
       ],
+      'conditions': [
+        ['OS!="android"', {
+          'dependencies': [
+            '../../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+          ],
+          'sources': [
+            'device_capabilities_new/av_codecs_provider_ffmpeg.cc',
+            'device_capabilities_new/av_codecs_provider_ffmpeg.h',
+          ],
+        }],
+      ],
       'direct_dependent_settings': {
         'include_dirs': [
           # Build units including this module should have this
