@@ -39,4 +39,15 @@
   'dependencies': [
     'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
   ],
+  'conditions': [
+    ['OS!="android"', {
+      'dependencies': [
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+      ],
+      'sources': [
+        'device_capabilities_new/av_codecs_provider_ffmpeg.cc',
+        'device_capabilities_new/av_codecs_provider_ffmpeg.h',
+      ],
+    }],
+  ],
 }
