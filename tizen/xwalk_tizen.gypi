@@ -7,6 +7,7 @@
       '../../skia/skia.gyp:skia',
       '../../ui/ui.gyp:ui',
       '../build/system.gyp:tizen_appcore',
+      '../build/system.gyp:tizen_vibration',
     ],
     'include_dirs': [
       '../..',
@@ -26,6 +27,8 @@
       'mobile/sensor/tizen_data_fetcher_shared_memory.h',
       'mobile/sensor/tizen_platform_sensor.cc',
       'mobile/sensor/tizen_platform_sensor.h',
+      'browser/vibration/vibration_provider_tizen.cc',
+      'browser/vibration/vibration_provider_tizen.h',
     ],
   }],
 }
