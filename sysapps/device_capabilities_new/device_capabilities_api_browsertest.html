@@ -6,6 +6,7 @@
     <script>
       var current_test = 0;
       var test_list = [
+        getAVCodecs,
         getCPUInfo,
         getMemoryInfo,
         endTest
@@ -25,6 +26,49 @@
       };
 
       var api = xwalk.experimental.system;
+
+      function getAVCodecs() {
+        function checkAVCodecsInfo(info) {
+          if (!info.audioCodecs)
+            reportFail("Missing AudioCodec attribute in the SystemAVCodecs object.");
+
+          if (!info.videoCodecs)
+            reportFail("Missing VideoCodec name in the SystemAVCodecs object.");
+
+          for (var i = 0; i < info.audioCodecs.length; ++i) {
+            if (info.audioCodecs[i].format == null)
+              reportFail("Missing audio encoding format in the AudioCodec object.");
+
+            if (typeof info.audioCodecs[i].format != "string")
+              reportFail("Audio encoding format is not a string.");
+          }
+
+          for (var i = 0; i < info.videoCodecs.length; ++i) {
+            if (info.videoCodecs[i].format == null)
+              reportFail("Missing video encoding format in the VideoCodec object.");
+
+            if (typeof info.videoCodecs[i].format != "string")
+              reportFail("Video encoding format is not a string.");
+
+            if (info.videoCodecs[i].hwAccel == null)
+              reportFail("Missing hwAccel in the VideoCodec object.");
+
+            if (typeof info.videoCodecs[i].hwAccel != "boolean")
+              reportFail("hwAccel is not a boolean.");
+
+            if (info.videoCodecs[i].encode == null)
+              reportFail("Missing encode in the VideoCodec object.");
+
+            if (typeof info.videoCodecs[i].encode != "boolean")
+              reportFail("encode is not a boolean.");
+          }
+
+          if (document.title != "Fail")
+            runNextTest();
+        };
+
+        api.getAVCodecs().then(checkAVCodecsInfo);
+      };
 
       function getCPUInfo() {
         var call_max = 1000;
