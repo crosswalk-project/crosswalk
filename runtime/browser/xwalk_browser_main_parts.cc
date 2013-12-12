@@ -185,6 +185,12 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
+  if (command_line->HasSwitch(switches::kListFeaturesFlags)) {
+    XWalkRuntimeFeatures::DumpFeaturesFlagsInCommandLine();
+    run_default_message_loop_ = false;
+    return;
+  }
+
   if (app_system->IsRunningAsService()) {
     // In service mode, Crosswalk doesn't launch anything, just waits
     // for external requests to launch apps.

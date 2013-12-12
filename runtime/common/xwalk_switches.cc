@@ -22,7 +22,7 @@ const char kListApplications[] = "list-apps";
 // Specifies install an application.
 const char kInstall[] = "install";
 
-// Spedifies uninstall an application from runtime.
+// Specifies uninstall an application from runtime.
 const char kUninstall[] = "uninstall";
 
 // Specifies where XWalk will look for external extensions.
@@ -35,5 +35,11 @@ const char kXWalkAllowExternalExtensionsForRemoteSources[] =
 // alive, and listens for external requests to launch applications. The way to
 // issue these requests is platform-specific.
 const char kXWalkRunAsService[] = "run-as-service";
+
+// List the command lines feature flags.
+const char kListFeaturesFlags[] = "list-features-flags";
+
+// Enable all the experimental features in XWalk.
+const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 
 }  // namespace switches

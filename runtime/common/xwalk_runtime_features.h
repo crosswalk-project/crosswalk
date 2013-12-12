@@ -23,26 +23,33 @@ class XWalkRuntimeFeatures {
   DECLARE_RUNTIME_FEATURE(DialogAPI);
 
   static void Initialize(const CommandLine* cmd);
+  static void DumpFeaturesFlagsInCommandLine();
   static XWalkRuntimeFeatures* GetInstance();
 
-  struct RuntimeFeature {
-    std::string name;
-    bool enabled;
-  };
-
- private:
   enum RuntimeFeatureStatus {
     Stable,
     Experimental
   };
 
+
+  struct RuntimeFeature {
+    std::string name;
+    std::string description;
+    std::string command_line_switch;
+    RuntimeFeatureStatus status;
+    bool enabled;
+    RuntimeFeature();
+  };
+
+ private:
   explicit XWalkRuntimeFeatures(const CommandLine* cmd);
   ~XWalkRuntimeFeatures();
   void AddFeature(const char* name, const char* command_line_switch,
                   const char* description, RuntimeFeatureStatus status);
+  void DumpFeaturesFlags();
   bool isFeatureEnabled(const char* name) const;
   typedef std::vector<RuntimeFeature> RuntimeFeaturesList;
-  RuntimeFeaturesList runtimeFeatures_;
+  RuntimeFeaturesList runtime_features_;
   const CommandLine* command_line_;
   bool experimental_features_enabled_;
 };
