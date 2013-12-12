@@ -28,8 +28,12 @@ class MainDocumentInfo : public ApplicationData::ManifestData {
     main_scripts_ = scripts;
   }
 
+  bool IsPersistent() const { return persistent_; }
+  void SetPersistent(bool persistent) { persistent_ = persistent; }
+
  private:
   GURL main_url_;
+  bool persistent_;
   std::vector<std::string> main_scripts_;
 
   DISALLOW_COPY_AND_ASSIGN(MainDocumentInfo);

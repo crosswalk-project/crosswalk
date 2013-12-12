@@ -14,7 +14,7 @@ namespace keys = application_manifest_keys;
 
 namespace application {
 
-MainDocumentInfo::MainDocumentInfo() {
+MainDocumentInfo::MainDocumentInfo() : persistent_(false) {
 }
 
 MainDocumentInfo::~MainDocumentInfo() {
@@ -43,6 +43,14 @@ bool MainDocumentHandler::Parse(scoped_refptr<ApplicationData> application,
     *error = ASCIIToUTF16("app.main doesn't contain a valid main document.");
     return false;
   }
+
+  bool persistent = false;
+  if (manifest->HasPath(keys::kAppMainPersistentKey) &&
+      !manifest->GetBoolean(keys::kAppMainPersistentKey, &persistent)) {
+    *error = ASCIIToUTF16("Invalid value of app.main.persistent");
+    return false;
+  }
+  main_doc_info->SetPersistent(persistent);
 
   application->SetManifestData(keys::kAppMainKey, main_doc_info.release());
   return true;

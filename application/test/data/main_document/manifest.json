@@ -4,7 +4,8 @@
   "version": "1.0",
   "app": {
     "main": {
-      "scripts": ["main.js"]
+      "scripts": ["main.js"],
+      "persistent": true
     }
   }
 }

@@ -73,6 +73,16 @@ TEST_F(MainDocumentHandlerTest, SourceAndScripts) {
   ASSERT_TRUE(application.get());
   EXPECT_EQ(GetMainDocInfo(application)->GetMainURL(),
             application->GetResourceURL("1.html"));
+  EXPECT_FALSE(GetMainDocInfo(application)->IsPersistent());
+}
+
+TEST_F(MainDocumentHandlerTest, MainPersistent) {
+  manifest.SetString(keys::kAppMainSourceKey, "1.html");
+  manifest.SetBoolean(keys::kAppMainPersistentKey, true);
+  scoped_refptr<ApplicationData> application = CreateApplication();
+
+  ASSERT_TRUE(application.get());
+  EXPECT_TRUE(GetMainDocInfo(application)->IsPersistent());
 }
 
 }  // namespace application
