@@ -254,21 +254,35 @@
       };
 
       function promiseFulfill() {
-        (new api.TestObject()).makeFulfilledPromise().then(function(data) {
-          if (data == "Lorem ipsum")
-            runNextTest();
-          else
-            reportFail("Invalid Promise data.");
-        });
+        var testObject = new api.TestObject();
+        var call_max = 1000;
+        var call_count = 0;
+
+        for (var i = 0; i < call_max; ++i) {
+          testObject.makeFulfilledPromise().then(function(data) {
+            if (data == "Lorem ipsum") {
+              if (++call_count == call_max)
+                runNextTest();
+            } else
+              reportFail("Invalid Promise data.");
+          });
+        }
       };
 
       function promiseReject() {
-        (new api.TestObject()).makeRejectedPromise().then(null, function(error) {
-          if (error == "Lorem ipsum")
-            runNextTest();
-          else
-            reportFail("Invalid Promise error message.");
-        });
+        var testObject = new api.TestObject();
+        var call_max = 1000;
+        var call_count = 0;
+
+        for (var i = 0; i < call_max; ++i) {
+          testObject.makeRejectedPromise().then(null, function(data) {
+            if (data == "Lorem ipsum") {
+              if (++call_count == call_max)
+                runNextTest();
+            } else
+              reportFail("Invalid Promise error message.");
+          });
+        }
       };
 
       // Tests entry point.
