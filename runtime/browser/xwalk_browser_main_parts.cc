@@ -152,10 +152,16 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
 
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kXWalkListRuntimeFeatures)) {
+    XWalkRuntimeFeatures::GetInstance()->DumpFeatures();
+    run_default_message_loop_ = false;
+    return;
+  }
+
   runtime_registry_->AddObserver(
       runtime_context_->GetApplicationSystem()->process_manager());
 
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kInstall) &&
       !command_line->HasSwitch(switches::kUninstall)) {
     extension_service_.reset(new extensions::XWalkExtensionService(this));

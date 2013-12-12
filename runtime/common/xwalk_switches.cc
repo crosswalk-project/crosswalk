@@ -36,4 +36,8 @@ const char kXWalkAllowExternalExtensionsForRemoteSources[] =
 // issue these requests is platform-specific.
 const char kXWalkRunAsService[] = "run-as-service";
 
+// Dump into the standard output the list of runtime features that can be passed
+// as command line switch.
+const char kXWalkListRuntimeFeatures[] = "list-runtime-features";
+
 }  // namespace switches
