@@ -64,13 +64,11 @@ XWalkExtensionModule::~XWalkExtensionModule() {
 
   // Deleting the data will disable the functions, they'll return early. We do
   // this because it might be the case that the JS objects we created outlive
-  // this object, even if we destroy the references we have.
-  // TODO(cmarcelo): Add a test for this case.
-  // FIXME(cmarcelo): These calls are causing crashes on shutdown with Chromium
-  //                  29.0.1547.57 and had to be commented out.
-  // v8::Handle<v8::Object> function_data =
-  //     v8::Handle<v8::Object>::New(isolate, function_data_);
-  // function_data->Delete(v8::String::New(kXWalkExtensionModule));
+  // this object (getting references from inside an iframe and then destroying
+  // the iframe), even if we destroy the references we have.
+  v8::Handle<v8::Object> function_data =
+      v8::Handle<v8::Object>::New(isolate, function_data_);
+  function_data->Delete(v8::String::New(kXWalkExtensionModule));
 
   object_template_.Reset();
   function_data_.Reset();
