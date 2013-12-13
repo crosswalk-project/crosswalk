@@ -6,6 +6,7 @@
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
@@ -41,28 +42,13 @@
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
+#include "xwalk/runtime/browser/android/net/xwalk_url_request_job_factory.h"
+#include "xwalk/runtime/browser/android/xwalk_request_interceptor.h"
 #endif
 
 using content::BrowserThread;
 
 namespace xwalk {
-
-namespace {
-
-void InstallProtocolHandlers(net::URLRequestJobFactoryImpl* job_factory,
-                             content::ProtocolHandlerMap* protocol_handlers) {
-  for (content::ProtocolHandlerMap::iterator it =
-           protocol_handlers->begin();
-       it != protocol_handlers->end();
-       ++it) {
-    bool set_protocol = job_factory->SetProtocolHandler(
-        it->first, it->second.release());
-    DCHECK(set_protocol);
-  }
-  protocol_handlers->clear();
-}
-
-}  // namespace
 
 RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
     bool ignore_certificate_errors,
@@ -165,37 +151,85 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         network_session_params, main_backend);
     storage_->set_http_transaction_factory(main_cache);
 
-    scoped_ptr<net::URLRequestJobFactoryImpl> job_factory(
-        new net::URLRequestJobFactoryImpl());
-    InstallProtocolHandlers(job_factory.get(), &protocol_handlers_);
-    bool set_protocol = job_factory->SetProtocolHandler(
+#if defined(OS_ANDROID)
+    scoped_ptr<XWalkURLRequestJobFactory> job_factory_impl(
+        new XWalkURLRequestJobFactory);
+#else
+    scoped_ptr<net::URLRequestJobFactoryImpl> job_factory_impl(
+        new net::URLRequestJobFactoryImpl);
+#endif
+
+    bool set_protocol;
+
+    // Step 1:
+    // Install all the default schemes for crosswalk.
+    for (content::ProtocolHandlerMap::iterator it =
+             protocol_handlers_.begin();
+         it != protocol_handlers_.end();
+         ++it) {
+      set_protocol = job_factory_impl->SetProtocolHandler(
+          it->first, it->second.release());
+      DCHECK(set_protocol);
+    }
+    protocol_handlers_.clear();
+
+    // Step 2:
+    // Add new basic schemes.
+    set_protocol = job_factory_impl->SetProtocolHandler(
         chrome::kDataScheme,
         new net::DataProtocolHandler);
     DCHECK(set_protocol);
-    set_protocol = job_factory->SetProtocolHandler(
+    set_protocol = job_factory_impl->SetProtocolHandler(
         chrome::kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
             GetTaskRunnerWithShutdownBehavior(
                 base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
+
 #if defined(OS_ANDROID)
-    set_protocol = job_factory->SetProtocolHandler(
-        xwalk::kContentScheme,
-        CreateContentSchemeProtocolHandler().release());
-    DCHECK(set_protocol);
-    set_protocol = job_factory->SetProtocolHandler(
+    set_protocol = job_factory_impl->SetProtocolHandler(
         xwalk::kAppScheme,
         CreateAppSchemeProtocolHandler().release());
     DCHECK(set_protocol);
-    net::ProtocolInterceptJobFactory* intercept_job_factory =
-        new net::ProtocolInterceptJobFactory(
-            job_factory.PassAs<net::URLRequestJobFactory>(),
-            CreateAssetFileProtocolHandler());
-    storage_->set_job_factory(intercept_job_factory);
-#else
-    storage_->set_job_factory(job_factory.release());
 #endif
+
+    // Step 3:
+    // Add the scheme interceptors.
+    // Create a chain of URLRequestJobFactories. The handlers will be invoked
+    // in the order in which they appear in the protocol_handlers vector.
+    typedef std::vector<net::URLRequestJobFactory::ProtocolHandler*>
+        ProtocolHandlerVector;
+    ProtocolHandlerVector protocol_interceptors;
+
+#if defined(OS_ANDROID)
+    protocol_interceptors.push_back(
+        CreateContentSchemeProtocolHandler().release());
+    protocol_interceptors.push_back(
+        CreateAssetFileProtocolHandler().release());
+    // The XWalkRequestInterceptor must come after the content and asset
+    // file job factories. This for WebViewClassic compatibility where it
+    // was not possible to intercept resource loads to resolvable content://
+    // and file:// URIs.
+    // This logical dependency is also the reason why the Content
+    // ProtocolHandler has to be added as a ProtocolInterceptJobFactory rather
+    // than via SetProtocolHandler.
+    protocol_interceptors.push_back(new XWalkRequestInterceptor());
+#endif
+
+    // The chain of responsibility will execute the handlers in reverse to the
+    // order in which the elements of the chain are created.
+    scoped_ptr<net::URLRequestJobFactory> job_factory(
+        job_factory_impl.PassAs<net::URLRequestJobFactory>());
+    for (ProtocolHandlerVector::reverse_iterator
+             i = protocol_interceptors.rbegin();
+         i != protocol_interceptors.rend();
+         ++i) {
+      job_factory.reset(new net::ProtocolInterceptJobFactory(
+          job_factory.Pass(), make_scoped_ptr(*i)));
+    }
+
+    storage_->set_job_factory(job_factory.release());
   }
 
   return url_request_context_.get();
