@@ -7,10 +7,15 @@ package org.xwalk.test.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.test.ActivityInstrumentationTestCase2;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
 import java.lang.Process;
@@ -137,6 +142,29 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         }
     }
 
+    public void createButtonAndClick(final Context context, final XWalkRuntimeClientRunnerActivity activity,
+            final LinearLayout linearLayout) {
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                Button button = new Button(context);
+                button.setText("button");
+                linearLayout.addView(button);
+
+                button.setOnClickListener(new Button.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent newIntent = new Intent(activity, SecondActivity.class);
+                        newIntent.putExtra("From", activity.getClass());
+                        activity.startActivityForResult(newIntent, 2);
+                    }
+                });
+
+                button.performClick();
+            }
+        });
+    }
+
     // For loadAppFromUrl.
     public void testLoadAppFromUrl() throws Throwable {
         final String expectedTitle = "Crosswalk Sample Application";
@@ -259,6 +287,42 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         Pattern pattern = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");
         Matcher matcher = pattern.matcher(version);
         mTestCase.assertTrue("The version is invalid.", matcher.find());
+    }
+
+    // For onActivityResult.
+    public void testOnActivityResult(final XWalkRuntimeClientRunnerActivity activity,
+            Context context) throws Throwable {
+        Bundle buddle = null;
+        String extra = null;
+        LinearLayout linearLayout = activity.getLinearLayout();
+        Instrumentation.ActivityMonitor activityMonitor =
+                mTestUtil.getInstrumentation().addMonitor(SecondActivity.class.getName(), null, false);
+
+        createButtonAndClick(context, activity, linearLayout);
+
+        mTestUtil.getInstrumentation().waitForIdleSync();
+        final SecondActivity secondActivity = (SecondActivity)mTestUtil.getInstrumentation(
+                ).waitForMonitorWithTimeout(activityMonitor, mTestUtil.WAIT_TIMEOUT_SECONDS);
+        secondActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                secondActivity.clickButton();
+            }
+        });
+        mTestUtil.getInstrumentation().waitForIdleSync();
+
+        Intent intent = activity.getSecondIntent();
+        int requestCode = activity.getRequestCode();
+        int resultCode = activity.getResultCode();
+        if (intent != null) {
+            buddle = intent.getExtras();
+        }
+
+        if (buddle != null) {
+            extra = buddle.getString("From");
+        }
+        mTestUtil.getTestedView().onActivityResult(requestCode, resultCode, intent);
+        mTestCase.assertEquals(extra, secondActivity.getExtraData());
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)

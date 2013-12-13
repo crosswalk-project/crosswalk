@@ -20,6 +20,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
         </activity>
+        <activity android:name="org.xwalk.test.util.SecondActivity"
+            android:label="SecondActivity">
+        </activity>
         <activity android:name="org.xwalk.runtime.client.test.XWalkRuntimeClientTestRunnerActivity"
             android:label="XWalkRuntimeClientTestRunnerActivity">
           <intent-filter>

@@ -15,13 +15,18 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
 import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.test.util.XWalkRuntimeClientRunnerActivity;
 
 /*
  * This is a lightweight activity for tests that only require XWalk functionality.
  */
-public class XWalkRuntimeClientTestRunnerActivity extends Activity {
+public class XWalkRuntimeClientTestRunnerActivity
+        extends XWalkRuntimeClientRunnerActivity {
     private LinearLayout mLinearLayout;
     private BroadcastReceiver mReceiver;
+    private int mRequestCode;
+    private int mResultCode;
+    private Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +76,33 @@ public class XWalkRuntimeClientTestRunnerActivity extends Activity {
             }
         };
         registerReceiver(mReceiver, intentFilter);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mRequestCode = requestCode;
+        mResultCode = resultCode;
+        mIntent = data;
+    }
+
+    @Override
+    public LinearLayout getLinearLayout() {
+        return mLinearLayout;
+    }
+
+    @Override
+    public Intent getSecondIntent() {
+        return mIntent;
+    }
+
+    @Override
+    public int getResultCode() {
+        return mResultCode;
+    }
+
+    @Override
+    public int getRequestCode() {
+        return mRequestCode;
     }
 
     @Override
