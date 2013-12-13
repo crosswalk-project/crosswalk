@@ -17,7 +17,7 @@
 #include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -158,7 +158,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kInstall) &&
       !command_line->HasSwitch(switches::kUninstall)) {
-    extension_service_.reset(new extensions::XWalkExtensionService(this));
+    extension_service_.reset(new extensions::XWalkExtensionService());
 
     RegisterExternalExtensions();
   }
@@ -227,27 +227,23 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
   runtime_context_.reset();
 }
 
-void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
-    extensions::XWalkExtensionServer* server) {
-  CHECK(server);
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(new RuntimeExtension()));
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new experimental::DialogExtension(runtime_registry_.get())));
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled()) {
-    server->RegisterExtension(scoped_ptr<XWalkExtension>(
-        new sysapps::RawSocketExtension()));
-  }
+void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  application::ApplicationSystem* app_system
+      = runtime_context_->GetApplicationSystem();
+  extensions->push_back(new ApplicationRuntimeExtension(app_system));
+  extensions->push_back(new ApplicationEventExtension(app_system));
 }
 
-void XWalkBrowserMainParts::RegisterInternalExtensionsInUIThreadServer(
-    extensions::XWalkExtensionServer* server) {
-  CHECK(server);
-  DCHECK(runtime_context_);
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new ApplicationRuntimeExtension(
-          runtime_context_->GetApplicationSystem())));
-  server->RegisterExtension(scoped_ptr<XWalkExtension>(
-      new ApplicationEventExtension(runtime_context_->GetApplicationSystem())));
+void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  extensions->push_back(new RuntimeExtension);
+  extensions->push_back(
+      new experimental::DialogExtension(runtime_registry_.get()));
+  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
+    extensions->push_back(new sysapps::RawSocketExtension());
 }
 
 }  // namespace xwalk

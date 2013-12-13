@@ -5,7 +5,6 @@
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -14,9 +13,7 @@
 #include "base/task_runner.h"
 #include "base/time/time.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
+using namespace xwalk::extensions;  // NOLINT
 
 namespace {
 
@@ -74,9 +71,14 @@ class EchoExtension : public XWalkExtension {
   }
 
   virtual XWalkExtensionInstance* CreateInstance() {
+    s_instance_was_created = true;
     return new EchoContext();
   }
+
+  static bool s_instance_was_created;
 };
+
+bool EchoExtension::s_instance_was_created = false;
 
 class DelayedEchoExtension : public XWalkExtension {
  public:
@@ -96,24 +98,32 @@ class ExtensionWithInvalidName : public XWalkExtension {
     set_name("invalid name with spaces");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() { return NULL; }
+  virtual XWalkExtensionInstance* CreateInstance() {
+    s_instance_was_created = true;
+    return NULL;
+  }
+
+  static bool s_instance_was_created;
 };
+
+bool ExtensionWithInvalidName::s_instance_was_created = false;
 
 }  // namespace
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new EchoExtension));
-    ASSERT_FALSE(RegisterExtensionForTest(
-        server, new ExtensionWithInvalidName));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new EchoExtension);
+    extensions->push_back(new ExtensionWithInvalidName);
   }
 };
 
 class XWalkExtensionsDelayedTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new DelayedEchoExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new DelayedEchoExtension);
   }
 };
 
@@ -125,6 +135,19 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtension) {
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, ExtensionWithInvalidNameIgnored) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("test_extension.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+
+  EXPECT_TRUE(EchoExtension::s_instance_was_created);
+  EXPECT_FALSE(ExtensionWithInvalidName::s_instance_was_created);
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, EchoExtensionSync) {

@@ -16,6 +16,7 @@
     'common/xwalk_extension_server.h',
     'common/xwalk_extension_switches.cc',
     'common/xwalk_extension_switches.h',
+    'common/xwalk_extension_vector.h',
     'common/xwalk_external_adapter.cc',
     'common/xwalk_external_adapter.h',
     'common/xwalk_external_extension.cc',

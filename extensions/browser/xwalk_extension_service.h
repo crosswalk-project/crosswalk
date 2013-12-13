@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <map>
 #include <string>
+#include <vector>
 #include "base/callback_forward.h"
 #include "base/containers/scoped_ptr_hash_map.h"
 #include "base/files/file_path.h"
@@ -16,6 +17,7 @@
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
 
 namespace content {
 class RenderProcessHost;
@@ -25,8 +27,8 @@ class WebContents;
 namespace xwalk {
 namespace extensions {
 
+class XWalkExtension;
 class XWalkExtensionData;
-class XWalkExtensionServer;
 
 // This is the entry point for Crosswalk extensions. Its responsible for keeping
 // track of the extensions, and enable them on WebContents once they are
@@ -34,18 +36,7 @@ class XWalkExtensionServer;
 class XWalkExtensionService : public content::NotificationObserver,
     public XWalkExtensionProcessHost::Delegate {
  public:
-  class Delegate {
-   public:
-    virtual void RegisterInternalExtensionsInExtensionThreadServer(
-        XWalkExtensionServer* server) {}
-    virtual void RegisterInternalExtensionsInUIThreadServer(
-        XWalkExtensionServer* server) {}
-
-   protected:
-    ~Delegate() {}
-  };
-
-  explicit XWalkExtensionService(Delegate* delegate);
+  XWalkExtensionService();
   virtual ~XWalkExtensionService();
 
   void RegisterExternalExtensionsForPath(const base::FilePath& path);
@@ -53,20 +44,27 @@ class XWalkExtensionService : public content::NotificationObserver,
   // To be called when a new RenderProcessHost is created, will plug the
   // extension system to that render process. See
   // XWalkContentBrowserClient::RenderProcessHostCreated().
-  void OnRenderProcessHostCreated(content::RenderProcessHost* host);
+  //
+  // The vectors contain the extensions to be used for this render process,
+  // ownership of these extensions is taken by the XWalkExtensionService. The
+  // vectors will be empty after the call.
+  void OnRenderProcessHostCreated(
+      content::RenderProcessHost* host,
+      XWalkExtensionVector* ui_thread_extensions,
+      XWalkExtensionVector* extension_thread_extensions);
 
   // To be called when a RenderProcess died, so we can gracefully shutdown the
   // associated ExtensionProcess. See Runtime::RenderProcessGone() and
   // XWalkContentBrowserClient::RenderProcessHostGone().
   void OnRenderProcessDied(content::RenderProcessHost* host);
 
-  typedef base::Callback<void(XWalkExtensionServer* server)>
-      RegisterExtensionsCallback;
+  typedef base::Callback<void(XWalkExtensionVector* extensions)>
+      CreateExtensionsCallback;
 
-  static void SetRegisterExtensionThreadExtensionsCallbackForTesting(
-      const RegisterExtensionsCallback& callback);
-  static void SetRegisterUIThreadExtensionsCallbackForTesting(
-      const RegisterExtensionsCallback& callback);
+  static void SetCreateExtensionThreadExtensionsCallbackForTesting(
+      const CreateExtensionsCallback& callback);
+  static void SetCreateUIThreadExtensionsCallbackForTesting(
+      const CreateExtensionsCallback& callback);
 
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
 
@@ -81,8 +79,12 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   void OnRenderProcessHostClosed(content::RenderProcessHost* host);
 
-  void CreateInProcessExtensionServers(content::RenderProcessHost* host,
-      XWalkExtensionData* data);
+  void CreateInProcessExtensionServers(
+      content::RenderProcessHost* host,
+      XWalkExtensionData* data,
+      XWalkExtensionVector* ui_thread_extensions,
+      XWalkExtensionVector* extension_thread_extensions);
+
   void CreateExtensionProcessHost(content::RenderProcessHost* host,
       XWalkExtensionData* data);
 
@@ -91,8 +93,6 @@ class XWalkExtensionService : public content::NotificationObserver,
   base::Thread extension_thread_;
 
   content::NotificationRegistrar registrar_;
-
-  Delegate* delegate_;
 
   base::FilePath external_extensions_path_;
 

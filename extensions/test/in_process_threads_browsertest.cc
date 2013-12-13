@@ -5,17 +5,12 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
-using xwalk::extensions::XWalkExtensionService;
+using namespace xwalk::extensions;  // NOLINT
 
 const char kInProcessExtensionThread[] = "in_process_extension_thread";
 const char kInProcessUIThread[] = "in_process_ui_thread";
@@ -70,19 +65,14 @@ class InProcessExtension : public XWalkExtension {
 
 class InProcessThreadsTest : public XWalkExtensionsTestBase {
  public:
-  virtual void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(
-            new InProcessExtension(kInProcessUIThread)));
-    ASSERT_TRUE(registered);
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new InProcessExtension(kInProcessUIThread));
   }
 
-  virtual void RegisterExtensionsOnExtensionThread(
-      XWalkExtensionServer* server) OVERRIDE {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(
-            new InProcessExtension(kInProcessExtensionThread)));
-    ASSERT_TRUE(registered);
+  virtual void CreateExtensionsForExtensionThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new InProcessExtension(kInProcessExtensionThread));
   }
 };
 

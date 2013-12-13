@@ -4,28 +4,35 @@
 
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 
+#include <vector>
 #include "base/path_service.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
 
+using xwalk::extensions::XWalkExtensionVector;
 using xwalk::extensions::XWalkExtensionService;
 
 void XWalkExtensionsTestBase::SetUp() {
-  XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
-      base::Bind(&XWalkExtensionsTestBase::RegisterExtensions,
+  XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+      base::Bind(&XWalkExtensionsTestBase::CreateExtensionsForUIThread,
                  base::Unretained(this)));
-  XWalkExtensionService::SetRegisterExtensionThreadExtensionsCallbackForTesting(
-      base::Bind(&XWalkExtensionsTestBase::RegisterExtensionsOnExtensionThread,
+  XWalkExtensionService::SetCreateExtensionThreadExtensionsCallbackForTesting(
+      base::Bind(&XWalkExtensionsTestBase::CreateExtensionsForExtensionThread,
                  base::Unretained(this)));
   InProcessBrowserTest::SetUp();
 }
+
+void XWalkExtensionsTestBase::CreateExtensionsForUIThread(
+    XWalkExtensionVector* extensions) {}
+
+void XWalkExtensionsTestBase::CreateExtensionsForExtensionThread(
+    XWalkExtensionVector* extensions) {}
 
 GURL GetExtensionsTestURL(const base::FilePath& dir,
                           const base::FilePath& file) {
@@ -49,9 +56,4 @@ base::FilePath GetExternalExtensionTestPath(
                   .Append(FILE_PATH_LITERAL("extension"))
                   .Append(test);
   return extension_dir;
-}
-
-bool RegisterExtensionForTest(xwalk::extensions::XWalkExtensionServer* server,
-                              xwalk::extensions::XWalkExtension* extension) {
-  return server->RegisterExtension(make_scoped_ptr(extension));
 }
