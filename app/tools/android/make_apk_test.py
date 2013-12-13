@@ -376,6 +376,16 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example')
     Clean('Example')
 
+  def testManifestWithError(self):
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_no_app_launch_path.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('no app launch path') != -1)
+
   def testExtensionsWithOneExtension(self):
     # Test with an existed extension.
     extension_path = 'test_data/extensions/myextension'
