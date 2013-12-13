@@ -170,8 +170,6 @@ static void list_applications(GDBusObjectManager* installed) {
 int main(int argc, char* argv[]) {
   GError* error = NULL;
   GOptionContext* context;
-  GMainLoop* mainloop;
-  int err = 0;
   bool success;
 
 #if !GLIB_CHECK_VERSION(2, 36, 0)
