@@ -501,6 +501,9 @@ def MakeApk(options, sanitized_name):
         print ('The Crosswalk embedded APK of web application "%s" for '
                'platfrom %s was generated successfully at %s.'
                % (sanitized_name, platform_str, apk_str))
+  else:
+    print 'Unknown mode for packaging the application. Abort!'
+    sys.exit(11)
 
 
 def main(argv):
@@ -557,12 +560,11 @@ def main(argv):
           'On Linux and Mac, the separator is ":". On Windows, it is ";".'
           'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
   parser.add_option('--extensions', help=info)
-  info = ('The packaging mode of the application. "shared" means '
-          'the application shares the Xwalk with other applications; '
-          '"embedded" means the application owns XWalk Runtime itself. '
-          'Set the default mode as "shared".'
-          'Such as: --mode=shared')
-  parser.add_option('--mode', help=info)
+  info = ('The packaging mode of the application. \'shared\' means '
+          'the application shares the Crosswalk with other applications; '
+          '\'embedded\' means the application owns Crosswalk Runtime itself. '
+          'Set the default mode as \'embedded\'. Such as: --mode=embedded')
+  parser.add_option('--mode', default='embedded', help=info)
   info = ('The path of the XPK file. Such as: --xpk=/path/to/xpk/file')
   parser.add_option('--xpk', help=info)
   info = ('The orientation of the web app\'s display on the device. '
