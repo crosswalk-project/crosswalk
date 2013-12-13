@@ -12,7 +12,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -172,8 +171,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // We need to run main document after installation in order to
   // register system events.
   if (application->HasMainDocument() && Launch(application->ID())) {
-    DCHECK(application_);
-    WaitForFinishLoad(application_->GetMainDocumentRuntime()->web_contents());
+    DCHECK(applications_.size() == 1);
+    WaitForFinishLoad(applications_[0]->GetMainDocumentRuntime()->web_contents());
   }
 
   return true;
@@ -205,9 +204,9 @@ bool ApplicationService::Uninstall(const std::string& id) {
   return true;
 }
 
-bool ApplicationService::Launch(const std::string& id) {
+Application* ApplicationService::Launch(const std::string& id) {
   scoped_refptr<const ApplicationData> application_data =
-          GetApplicationByID(id);
+          app_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
     return false;
@@ -216,7 +215,7 @@ bool ApplicationService::Launch(const std::string& id) {
   return Launch(application_data);
 }
 
-bool ApplicationService::Launch(const base::FilePath& path) {
+Application* ApplicationService::Launch(const base::FilePath& path) {
   if (!base::DirectoryExists(path))
     return false;
 
@@ -232,16 +231,6 @@ bool ApplicationService::Launch(const base::FilePath& path) {
   return Launch(application_data);
 }
 
-const ApplicationData::ApplicationDataMap&
-ApplicationService::GetInstalledApplications() const {
-  return app_storage_->GetInstalledApplications();
-}
-
-scoped_refptr<ApplicationData> ApplicationService::GetApplicationByID(
-    const std::string& id) const {
-  return app_storage_->GetApplicationData(id);
-}
-
 void ApplicationService::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }
@@ -250,14 +239,28 @@ void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 }
 
-bool ApplicationService::Launch(
+void ApplicationService::OnApplicationTerminated(
+                                      Application* application) OVERRIDE {
+  ScopedVector<Application>::iterator found = std::find(
+            applications_.begin(), applications_.end(), application);
+  CHECK(found != applications_.end());
+  applications_.erase(found);
+}
+
+Application* ApplicationService::Launch(
     scoped_refptr<const ApplicationData> application_data) {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
   ApplicationEventManager* event_manager = system->event_manager();
   event_manager->OnAppLoaded(application_data->ID());
 
-  application_.reset(new Application(application_data, runtime_context_));
-  return application_->Launch();
+  scoped_ptr<Application> application(new Application(application_data,
+                                                      runtime_context_, this));
+
+  if (!application->Launch())
+    return NULL;
+
+  applications_.push_back(application.release());
+  return applications_.back();
 }
 
 ApplicationStorage* ApplicationService::application_storage() {

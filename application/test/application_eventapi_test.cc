@@ -42,9 +42,11 @@ class ApplicationEventApiTest : public ApplicationApiTest {
     xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
     xwalk::application::ApplicationSystem* system =
       runtime_context->GetApplicationSystem();
-    DCHECK(system->application_service()->GetActiveApplication());
+    xwalk::application::ApplicationService* service =
+      system->application_service();
+    DCHECK(service->active_applications().size() == 1);
 
-    app_id_ = system->application_service()->GetActiveApplication()->data()->ID();
+    app_id_ = service->active_applications()[0]->id();
     event_manager_ = system->event_manager();
     event_finish_observer_.reset(
         new MockFinishObserver(event_manager_, app_id_));

@@ -40,7 +40,8 @@ ApplicationEventManager::~ApplicationEventManager() {
 
 void ApplicationEventManager::OnAppLoaded(const std::string& app_id) {
   scoped_refptr<const ApplicationData> app_data =
-      system_->application_service()->GetApplicationByID(app_id);
+      system_->application_service()->
+      application_storage()->GetApplicationData(app_id);
   std::set<std::string> events;
   if (app_data)
     events = app_data->GetEvents();

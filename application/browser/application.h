@@ -18,13 +18,11 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
-class GURL;
 
 namespace xwalk {
+
 class RuntimeContext;
-}
 
-namespace xwalk {
 namespace application {
 
 class ApplicationHost;
@@ -32,13 +30,23 @@ class Manifest;
 
 class Application : public Runtime::Observer {
  public:
+  class Observer {
+   public:
+    virtual void OnApplicationTerminated(Application*) {}
+
+   protected:
+    ~Observer() {}
+  };
+
   Application(scoped_refptr<const ApplicationData> data,
-              xwalk::RuntimeContext* context);
+              xwalk::RuntimeContext* context, Observer* observer);
   virtual ~Application();
 
   bool Launch();
   bool is_active() const { return !runtimes_.empty(); }
   void Close();
+
+  std::string id() const { return application_data_->ID(); }
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
 
@@ -59,9 +67,9 @@ class Application : public Runtime::Observer {
   xwalk::RuntimeContext* runtime_context_;
   scoped_refptr<const ApplicationData> application_data_;
   xwalk::Runtime* main_runtime_;
-  base::WeakPtrFactory<Application> weak_ptr_factory_;
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
+  Observer* observer_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

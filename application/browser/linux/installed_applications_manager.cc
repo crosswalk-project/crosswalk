@@ -62,7 +62,8 @@ InstalledApplicationsManager::~InstalledApplicationsManager() {
 
 void InstalledApplicationsManager::OnApplicationInstalled(
     const std::string& app_id) {
-  AddObject(application_service_->GetApplicationByID(app_id));
+  AddObject(application_service_->application_storage()
+                                ->GetApplicationData(app_id));
 }
 
 void InstalledApplicationsManager::OnApplicationUninstalled(
@@ -72,7 +73,7 @@ void InstalledApplicationsManager::OnApplicationUninstalled(
 
 void InstalledApplicationsManager::AddInitialObjects() {
   const ApplicationData::ApplicationDataMap& apps =
-      application_service_->GetInstalledApplications();
+      application_service_->application_storage()->GetInstalledApplications();
   ApplicationData::ApplicationDataMap::const_iterator it;
   for (it = apps.begin(); it != apps.end(); ++it)
     AddObject(it->second);

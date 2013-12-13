@@ -8,7 +8,9 @@
 #include <string>
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
@@ -20,29 +22,12 @@ class RuntimeContext;
 namespace xwalk {
 namespace application {
 
-class Application;
-
-// This will manages applications install, uninstall, update and so on. It'll
-// also maintain all installed applications' info.
-class ApplicationService {
+// This will manage application install, uninstall, update and so on.
+class ApplicationService : public Application::Observer {
  public:
-  explicit ApplicationService(xwalk::RuntimeContext* runtime_context);
-  virtual ~ApplicationService();
-
-  bool Install(const base::FilePath& path, std::string* id);
-  bool Uninstall(const std::string& id);
-  bool Launch(const std::string& id);
-  bool Launch(const base::FilePath& path);
-
-  scoped_refptr<ApplicationData> GetApplicationByID(
-       const std::string& id) const;
-  const ApplicationData::ApplicationDataMap& GetInstalledApplications() const;
-  // Currently there's only one running application at a time.
-  const Application* GetActiveApplication() const { return application_.get(); }
-
   // Client code may use this class (and register with AddObserver below) to
   // keep track of applications installed/uninstalled.
-  struct Observer {
+  class Observer {
    public:
     virtual void OnApplicationInstalled(const std::string& app_id) {}
     virtual void OnApplicationUninstalled(const std::string& app_id) {}
@@ -50,16 +35,30 @@ class ApplicationService {
     ~Observer() {}
   };
 
+  explicit ApplicationService(xwalk::RuntimeContext* runtime_context);
+  virtual ~ApplicationService();
+
+  bool Install(const base::FilePath& path, std::string* id);
+  bool Uninstall(const std::string& id);
+  Application* Launch(const std::string& id);
+  Application* Launch(const base::FilePath& path);
+
+  const ScopedVector<Application>& active_applications() const {
+      return applications_; }
+
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
   ApplicationStorage* application_storage();
 
  private:
-  bool Launch(scoped_refptr<const ApplicationData> application_data);
+  // Implementation of Application::Observer
+  virtual void OnApplicationTerminated(Application*) OVERRIDE;
+
+  Application* Launch(scoped_refptr<const ApplicationData> application_data);
 
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> app_storage_;
-  scoped_ptr<Application> application_;
+  ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);

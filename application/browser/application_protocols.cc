@@ -22,7 +22,7 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
-#include "xwalk/application/common/application_data.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_resource.h"
@@ -234,7 +234,9 @@ ApplicationProtocolHandler::MaybeCreateJob(
 }  // namespace
 
 linked_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateApplicationProtocolHandler(const ApplicationData* application) {
+CreateApplicationProtocolHandler(const xwalk::application::Application*
+                                 application) {
+  DCHECK(application);
   return  linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new ApplicationProtocolHandler(application));
+              new ApplicationProtocolHandler(application->data()));
 }

@@ -39,8 +39,8 @@ XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
   int main_routing_id = MSG_ROUTING_NONE;
   // FIXME: return corresponding application info after shared runtime process
   // model is enabled.
-  const application::Application* app = service->GetActiveApplication();
-  CHECK(app);
+  CHECK(!service->active_applications().empty());
+  const application::Application* app = service->active_applications()[0];
 
   const Runtime* runtime = app->GetMainDocumentRuntime();
   if (runtime)
@@ -103,7 +103,7 @@ void AppEventExtensionInstance::OnRegisterEvent(
     application::ApplicationStorage* app_store =
         service->application_storage();
     scoped_refptr<application::ApplicationData> app_data =
-        service->GetApplicationByID(app_id_);
+        app_store->GetApplicationData(app_id_);
     if (!app_data)
       return;
 
@@ -135,10 +135,10 @@ void AppEventExtensionInstance::OnUnregisterEvent(
   if (routing_id == main_routing_id_) {
     application::ApplicationService* service =
         app_system_->application_service();
-    scoped_refptr<application::ApplicationData> app_data =
-        service->GetApplicationByID(app_id_);
     application::ApplicationStorage* app_store =
         service->application_storage();
+    scoped_refptr<application::ApplicationData> app_data =
+        app_store->GetApplicationData(app_id_);
     if (!app_data)
       return;
 
