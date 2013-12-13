@@ -129,12 +129,17 @@ void DialogInstance::OnShowSaveDialog(
 gfx::NativeWindow DialogInstance::GetOwningWindow() const {
   // FIXME(cmarcelo): We only support one runtime! (like MenuExtension)
   using namespace application;
-  const Application* running_app =
-        extension_->system_->application_service()->GetActiveApplication();
-  if (!running_app)
+  // FIXME(Mikhail): Should be able to obtain the corresponding app instance.
+  const ScopedVector<Application>& apps =
+        extension_->system_->application_service()->active_applications();
+
+  if (apps.empty())
     return NULL;
 
-  Runtime* runtime = running_app->GetMainDocumentRuntime();
+  Runtime* runtime = apps[0]->GetMainDocumentRuntime();
+  if (!runtime)
+    return NULL;
+
   return runtime->window()->GetNativeWindow();
 }
 

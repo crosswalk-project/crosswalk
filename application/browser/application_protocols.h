@@ -11,14 +11,14 @@
 
 namespace xwalk {
 namespace application {
-class ApplicationData;
+class Application;
 }
 }
 
 // Creates the handlers for the app:// scheme.
 linked_ptr<net::URLRequestJobFactory::ProtocolHandler>
 CreateApplicationProtocolHandler(
-    const xwalk::application::ApplicationData* application);
+    const xwalk::application::Application* application);
 
 
 #endif  // XWALK_APPLICATION_BROWSER_APPLICATION_PROTOCOLS_H_

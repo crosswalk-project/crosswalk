@@ -52,12 +52,14 @@ class FinishEventObserver : public EventObserver {
 
 Application::Application(
     scoped_refptr<const ApplicationData> data,
-    RuntimeContext* runtime_context)
+    RuntimeContext* runtime_context, Observer* observer)
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      weak_ptr_factory_(this) {
+      observer_(observer) {
+  DCHECK(runtime_context_);
   DCHECK(application_data_);
+  DCHECK(observer_);
 }
 
 Application::~Application() {
@@ -90,8 +92,11 @@ void Application::OnRuntimeAdded(Runtime* runtime) {
 void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
-  // FIXME: main_runtime_ should always be the last one to close
-  // in RuntimeRegistry. Need to fix the issue from browser tests.
+
+  if (runtimes_.empty())
+    observer_->OnApplicationTerminated(this);
+
+  // FIXME: main_runtime_ should always be closed as the last one.
   if (runtimes_.size() == 1 &&
       ContainsKey(runtimes_, main_runtime_)) {
     ApplicationSystem* system = runtime_context_->GetApplicationSystem();
