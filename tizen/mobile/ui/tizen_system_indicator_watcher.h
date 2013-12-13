@@ -7,6 +7,7 @@
 #define XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_WATCHER_H_
 
 #include <string>
+#include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
@@ -58,14 +59,17 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
 
   TizenSystemIndicator* indicator_;
   TizenPlugMessageWriter writer_;
+
+  int fd_;
+  file_util::ScopedFD fd_closer_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
+
   scoped_ptr<base::SharedMemory> shared_memory_;
 
   int width_;
   int height_;
   int alpha_;
   bool updated_;
-  int fd_;
   std::string shm_name_;
   std::string service_name_;
   struct EcoreIPCMsgHeader current_msg_header_;

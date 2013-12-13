@@ -115,7 +115,9 @@ bool TizenSystemIndicatorWatcher::Connect() {
                       .Append(".ecore")
                       .Append(service_name_)
                       .Append(kServiceNumber));
-  return IPC::CreateClientUnixDomainSocket(path, &fd_);
+  bool success = IPC::CreateClientUnixDomainSocket(path, &fd_);
+  fd_closer_.reset(&fd_);
+  return success;
 }
 
 void TizenSystemIndicatorWatcher::OnMouseDown() {
