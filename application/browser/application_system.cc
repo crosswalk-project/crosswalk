@@ -45,8 +45,9 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
 bool ApplicationSystem::HandleApplicationManagementCommands(
     const CommandLine& cmd_line, const GURL& url) {
   if (cmd_line.HasSwitch(switches::kListApplications)) {
-    const ApplicationData::ApplicationDataMap& apps =
-        application_service_->GetInstalledApplications();
+    const ApplicationData::ApplicationDataMap& apps = application_service_->
+        application_storage()->GetInstalledApplications();
+
     LOG(INFO) << "Application ID                       Application Name";
     LOG(INFO) << "-----------------------------------------------------";
     ApplicationData::ApplicationDataMap::const_iterator it;
@@ -93,17 +94,28 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
   return false;
 }
 
+template <typename T>
+bool ApplicationSystem::LaunchFromCommandLineParam(const T& param) {
+  scoped_refptr<Event> event = Event::CreateEvent(
+        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
+  if (Application* application = application_service_->Launch(param)) {
+    event_manager_->SendEvent(application->id(), event);
+    return true;
+  }
+  return false;
+}
+
 bool ApplicationSystem::LaunchFromCommandLine(
     const CommandLine& cmd_line, const GURL& url,
     bool* run_default_message_loop) {
+
   // On Tizen, applications are launched by a symbolic link named like the
   // application ID.
   // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
 #if defined(OS_TIZEN_MOBILE)
   std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
   if (ApplicationData::IsIDValid(command_name)) {
-    *run_default_message_loop = application_service_->Launch(command_name);
-    SendOnLaunchedEvent();
+    *run_default_message_loop = LaunchFromCommandLineParam(command_name);
     return true;
   }
 #endif
@@ -116,29 +128,19 @@ bool ApplicationSystem::LaunchFromCommandLine(
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (ApplicationData::IsIDValid(app_id)) {
-        *run_default_message_loop = application_service_->Launch(app_id);
-        SendOnLaunchedEvent();
-        return true;
+      *run_default_message_loop = LaunchFromCommandLineParam(app_id);
+      return true;
     }
   }
 
   // Handles local directory.
   base::FilePath path;
-  if (net::FileURLToFilePath(url, &path) && base::DirectoryExists(path)) {
-    *run_default_message_loop = application_service_->Launch(path);
-    SendOnLaunchedEvent();
+  if (net::FileURLToFilePath(url, &path)) {
+    *run_default_message_loop = LaunchFromCommandLineParam(path);
     return true;
   }
 
   return false;
-}
-
-void ApplicationSystem::SendOnLaunchedEvent() {
-  scoped_refptr<Event> event = Event::CreateEvent(
-      kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-  DCHECK(application_service_->GetActiveApplication());
-  event_manager_->SendEvent(
-      application_service_->GetActiveApplication()->data()->ID(), event);
 }
 
 bool ApplicationSystem::IsRunningAsService() const {

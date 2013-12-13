@@ -56,9 +56,12 @@ void AppRuntimeExtensionInstance::OnGetManifest(
   base::DictionaryValue* manifest_data = NULL;
   const application::ApplicationService* service =
     application_system_->application_service();
-  const application::Application* app = service->GetActiveApplication();
-  if (app)
+  // FIXME: return corresponding application after shared runtime process
+  // model is enabled.
+  if (!service->active_applications().empty()) {
+    const application::Application* app = service->active_applications()[0];
     manifest_data = app->data()->GetManifest()->value()->DeepCopy();
+  }
 
   scoped_ptr<base::ListValue> results(new base::ListValue());
   if (manifest_data)
@@ -73,8 +76,14 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   int main_routing_id = MSG_ROUTING_NONE;
-  const application::Application* application =
-          application_system_->application_service()->GetActiveApplication();
+
+  const application::ApplicationService* service =
+    application_system_->application_service();
+  if (service->active_applications().empty())
+    return;
+  // FIXME: return corresponding application info after shared runtime process
+  // model is enabled.
+  const application::Application* application = service->active_applications()[0];
   const Runtime* runtime = application->GetMainDocumentRuntime();
   if (runtime)
     main_routing_id = runtime->web_contents()->GetRoutingID();

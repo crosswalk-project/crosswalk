@@ -31,6 +31,8 @@ using content::DownloadManager;
 
 namespace xwalk {
 
+using application::Application;
+
 class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
  public:
   RuntimeResourceContext() : getter_(NULL) {}
@@ -170,14 +172,17 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
   DCHECK(!url_request_getter_);
 
   xwalk::application::ApplicationService* service =
-    application_system_.get()->application_service();
-  const xwalk::application::Application* running_app =
-          service->GetActiveApplication();
-  if (running_app) {
+    application_system_->application_service();
+
+  // FIXME : this is called only once, what do we do when an app is terminated
+  // or a new app is launched?
+  for (ScopedVector<Application>::const_iterator it =
+       service->active_applications().begin();
+       it != service->active_applications().end(); ++it) {
     protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
           application::kApplicationScheme,
-          CreateApplicationProtocolHandler(running_app->data())));
+          CreateApplicationProtocolHandler(*it)));
   }
 
   url_request_getter_ = new RuntimeURLRequestContextGetter(

@@ -28,12 +28,13 @@ ApplicationEventExtension::ApplicationEventExtension(
 XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
   const application::ApplicationService* service =
     application_system_->application_service();
-  // FIXME: return corresponding application info after shared runtime process
+  // FIXME: return corresponding application after shared runtime process
   // model is enabled.
-  const application::Application* app = service->GetActiveApplication();
-  CHECK(app);
+  CHECK(!service->active_applications().empty());
+  const application::Application* app = service->active_applications()[0];
+
   return new AppEventExtensionInstance(
-      application_system_->event_manager(), app->data()->ID());
+              application_system_->event_manager(), app->id());
 }
 
 AppEventExtensionInstance::AppEventExtensionInstance(
