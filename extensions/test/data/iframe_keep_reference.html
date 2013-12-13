@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>This should not crash the Render Process!</h1>
+<script>
+// Create an iframe that will load a page that contains only a do_count()
+// function that calls the counter extension.
+var c = document.createElement("iframe");
+c.src = 'do_count_function.html';
+
+// When the page load, we keep a reference to the function inside the iframe,
+// destroy the iframe, and try to
+c.onload = function() {
+  var do_count = c.contentWindow.do_count;
+
+  // We use setTimeout here to escape from the onload callback of iframe, since
+  // during callback execution the iframe wouldn't be garbage collected, because
+  // it would still be on the stack.
+  setTimeout(function() {
+    try {
+      // This will be correctly called, and increase the counter.
+      do_count();
+      document.body.removeChild(c);
+      c = null;
+      gc();
+
+      // This won't affect the counter, since by now the instance will be destroyed.
+      // It should also not crash the Render Process.
+      do_count();
+      document.title = 'Pass';
+    } catch(e) {
+      console
+      document.title = 'Fail';
+    }
+  }, 0);
+};
+
+// Makes sure the iframe will get loaded by adding to the page.
+document.body.appendChild(c);
+</script>
+</body>
+</html>
