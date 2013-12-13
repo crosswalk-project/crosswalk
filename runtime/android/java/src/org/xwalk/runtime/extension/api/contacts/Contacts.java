@@ -4,12 +4,11 @@
 
 package org.xwalk.runtime.extension.api.contacts;
 
-import org.xwalk.runtime.extension.XWalkExtension;
-import org.xwalk.runtime.extension.XWalkExtensionContext;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
@@ -18,8 +17,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import org.xwalk.runtime.extension.XWalkExtension;
+import org.xwalk.runtime.extension.XWalkExtensionContext;
 
 public class Contacts extends XWalkExtension {
     public static final String NAME = "xwalk.experimental.contacts";
@@ -56,7 +59,12 @@ public class Contacts extends XWalkExtension {
                 jsonOutput.put("data", saver.save(jsonInput.getString("contact")));
             } else if (cmd.equals("find")) {
                 ContactFinder finder = new ContactFinder(mResolver);
-                jsonOutput.put("data", finder.find(jsonInput.getString("options")));
+                String options = jsonInput.has("options") ? jsonInput.getString("options") : null;
+                JSONArray results = finder.find(options);
+                if (results == null) {
+                    results = new JSONArray(); // return an empty array if nothing found.
+                }
+                jsonOutput.put("data", results);
             } else if (cmd.equals("remove")) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
                 String[] args = new String[] { jsonInput.getString("contactId") };
@@ -69,6 +77,11 @@ public class Contacts extends XWalkExtension {
                 } catch (OperationApplicationException e) {
                     Log.e(TAG, "Failed to apply batch to delete contacts: " + e.toString());
                 }
+            } else if (cmd.equals("clear")) {
+                handleClear();
+            } else {
+                Log.e(TAG, "Unexpected message received: " + message);
+                return;
             }
             this.postMessage(instanceID, jsonOutput.toString());
         } catch (JSONException e) {
@@ -90,5 +103,19 @@ public class Contacts extends XWalkExtension {
     @Override
     public void onDestroy() {
         mResolver.unregisterContentObserver(mObserver);
+    }
+
+    // Remove all contacts.
+    private void handleClear() {
+        Cursor c = mResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        try {
+            while (c.moveToNext()) {
+                String key = c.getString(c.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+                Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key);
+                mResolver.delete(uri, null, null);
+            }
+        } finally {
+            c.close();
+        }
     }
 }

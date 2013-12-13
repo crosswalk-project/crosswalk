@@ -114,14 +114,18 @@ public class ContactConstants {
         return createStringMap(new String[]{name, "value"});
     }
 
+    // For data map without type, should use `createDataMap()`
     public static final Map<String, String> photoDataMap = createDataMap(Photo.PHOTO);
     public static final Map<String, String> companyDataMap = createDataMap(Organization.COMPANY);
     public static final Map<String, String> jobtitleDataMap = createDataMap(Organization.TITLE);
+    public static final Map<String, String> noteDataMap = createDataMap(Note.NOTE);
+
+    // For data map with type, should use `createValueMap()`
     public static final Map<String, String> emailDataMap = createValueMap(Email.DATA);
     public static final Map<String, String> websiteDataMap = createValueMap(Website.DATA);
     public static final Map<String, String> phoneDataMap = createValueMap(Phone.DATA);
-    public static final Map<String, String> noteDataMap = createValueMap(Note.NOTE);
     public static final Map<String, String> imDataMap = createValueMap(Im.DATA);
+
     public static final Map<String, String> addressDataMap = createStringMap(new String[]{
         StructuredPostal.STREET, "streetAddress",
         StructuredPostal.NEIGHBORHOOD, "locality",
