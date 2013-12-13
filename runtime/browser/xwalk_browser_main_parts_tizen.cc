@@ -13,6 +13,7 @@
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 #include "ui/gl/gl_switches.h"
+#include "ui/gfx/switches.h"
 
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
@@ -38,6 +39,10 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
   else
     gl_name = gfx::kGLImplementationEGLName;
   command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
+
+  // Workaround to provide viewport meta tag proper behavior on Tizen.
+  // FIXME: Must be removed when Chromium r235967 is in place.
+  command_line->AppendSwitchASCII(switches::kForceDeviceScaleFactor, "2.0");
 
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 }
