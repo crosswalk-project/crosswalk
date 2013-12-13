@@ -34,6 +34,7 @@
 #include "content/public/common/result_codes.h"
 #include "net/base/net_util.h"
 #include "ui/gl/gl_switches.h"
+#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
 #include "ui/base/ime/input_method_initializer.h"
@@ -237,6 +238,10 @@ void XWalkBrowserMainParts::RegisterInternalExtensionsInExtensionThreadServer(
     server->RegisterExtension(scoped_ptr<XWalkExtension>(
         new sysapps::RawSocketExtension()));
   }
+#if !defined(OS_ANDROID)
+  server->RegisterExtension(scoped_ptr<XWalkExtension>(
+      new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
+#endif
 }
 
 void XWalkBrowserMainParts::RegisterInternalExtensionsInUIThreadServer(
