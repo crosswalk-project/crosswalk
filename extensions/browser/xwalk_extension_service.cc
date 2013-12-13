@@ -30,14 +30,15 @@ namespace extensions {
 
 namespace {
 
-XWalkExtensionService::RegisterExtensionsCallback
-g_register_extension_thread_extensions_callback;
-XWalkExtensionService::RegisterExtensionsCallback
-g_register_ui_thread_extensions_callback;
+XWalkExtensionService::CreateExtensionsCallback
+    g_create_extension_thread_extensions_callback;
+
+XWalkExtensionService::CreateExtensionsCallback
+    g_create_ui_thread_extensions_callback;
 
 base::FilePath g_external_extensions_path_for_testing_;
 
-}
+}  // namespace
 
 // This object intercepts messages destined to a XWalkExtensionServer and
 // dispatch them to its task runner. A message loop proxy of a thread is a
@@ -199,10 +200,8 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
   std::set<int64_t> extension_thread_instances_ids_;
 };
 
-XWalkExtensionService::XWalkExtensionService(XWalkExtensionService::Delegate*
-    delegate)
-    : extension_thread_("XWalkExtensionThread"),
-      delegate_(delegate) {
+XWalkExtensionService::XWalkExtensionService()
+    : extension_thread_("XWalkExtensionThread") {
   if (!g_external_extensions_path_for_testing_.empty())
     external_extensions_path_ = g_external_extensions_path_for_testing_;
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
@@ -226,13 +225,16 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
 }
 
 void XWalkExtensionService::OnRenderProcessHostCreated(
-    content::RenderProcessHost* host) {
+    content::RenderProcessHost* host,
+    XWalkExtensionVector* ui_thread_extensions,
+    XWalkExtensionVector* extension_thread_extensions) {
   CHECK(host);
 
   XWalkExtensionData* data = new XWalkExtensionData;
   data->set_render_process_host(host);
 
-  CreateInProcessExtensionServers(host, data);
+  CreateInProcessExtensionServers(host, data, ui_thread_extensions,
+                                  extension_thread_extensions);
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
@@ -248,16 +250,16 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
 // static
 void
-XWalkExtensionService::SetRegisterExtensionThreadExtensionsCallbackForTesting(
-    const RegisterExtensionsCallback& callback) {
-  g_register_extension_thread_extensions_callback = callback;
+XWalkExtensionService::SetCreateExtensionThreadExtensionsCallbackForTesting(
+    const CreateExtensionsCallback& callback) {
+  g_create_extension_thread_extensions_callback = callback;
 }
 
 // static
 void
-XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
-    const RegisterExtensionsCallback& callback) {
-  g_register_ui_thread_extensions_callback = callback;
+XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+    const CreateExtensionsCallback& callback) {
+  g_create_ui_thread_extensions_callback = callback;
 }
 
 // static
@@ -308,8 +310,28 @@ void XWalkExtensionService::OnRenderProcessHostClosed(
   delete data;
 }
 
+namespace {
+
+void RegisterExtensionsIntoServer(XWalkExtensionVector* extensions,
+                                  XWalkExtensionServer* server) {
+  XWalkExtensionVector::iterator it = extensions->begin();
+  for (; it != extensions->end(); ++it) {
+    std::string name = (*it)->name();
+    if (!server->RegisterExtension(scoped_ptr<XWalkExtension>(*it))) {
+      LOG(WARNING) << "Couldn't register extension with name '"
+                   << name << "'\n";
+    }
+  }
+  extensions->clear();
+}
+
+}  // namespace
+
+
 void XWalkExtensionService::CreateInProcessExtensionServers(
-    content::RenderProcessHost* host, XWalkExtensionData* data) {
+    content::RenderProcessHost* host, XWalkExtensionData* data,
+    XWalkExtensionVector* ui_thread_extensions,
+    XWalkExtensionVector* extension_thread_extensions) {
   scoped_ptr<XWalkExtensionServer> extension_thread_server(
       new XWalkExtensionServer);
   scoped_ptr<XWalkExtensionServer> ui_thread_server(
@@ -320,17 +342,21 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
   extension_thread_server->Initialize(channel);
   ui_thread_server->Initialize(channel);
 
-  delegate_->RegisterInternalExtensionsInExtensionThreadServer(
-      extension_thread_server.get());
-  delegate_->RegisterInternalExtensionsInUIThreadServer(
-      ui_thread_server.get());
+  RegisterExtensionsIntoServer(extension_thread_extensions,
+                               extension_thread_server.get());
+  RegisterExtensionsIntoServer(ui_thread_extensions, ui_thread_server.get());
 
-  if (!g_register_extension_thread_extensions_callback.is_null()) {
-    g_register_extension_thread_extensions_callback.Run(
-        extension_thread_server.get());
+  if (!g_create_ui_thread_extensions_callback.is_null()) {
+    XWalkExtensionVector extensions;
+    g_create_ui_thread_extensions_callback.Run(&extensions);
+    RegisterExtensionsIntoServer(&extensions, ui_thread_server.get());
   }
-  if (!g_register_ui_thread_extensions_callback.is_null())
-    g_register_ui_thread_extensions_callback.Run(ui_thread_server.get());
+
+  if (!g_create_extension_thread_extensions_callback.is_null()) {
+    XWalkExtensionVector extensions;
+    g_create_extension_thread_extensions_callback.Run(&extensions);
+    RegisterExtensionsIntoServer(&extensions, extension_thread_server.get());
+  }
 
   ExtensionServerMessageFilter* message_filter =
       new ExtensionServerMessageFilter(extension_thread_.message_loop_proxy(),

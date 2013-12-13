@@ -136,10 +136,20 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
-  xwalk::extensions::XWalkExtensionService* extension_service =
+  extensions::XWalkExtensionService* extension_service =
       main_parts_->extension_service();
-  if (extension_service)
-    extension_service->OnRenderProcessHostCreated(host);
+  if (extension_service) {
+    std::vector<extensions::XWalkExtension*> ui_thread_extensions;
+    main_parts_->CreateInternalExtensionsForUIThread(
+        host, &ui_thread_extensions);
+
+    std::vector<extensions::XWalkExtension*> extension_thread_extensions;
+    main_parts_->CreateInternalExtensionsForExtensionThread(
+        host, &extension_thread_extensions);
+
+    extension_service->OnRenderProcessHostCreated(
+        host, &ui_thread_extensions, &extension_thread_extensions);
+  }
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {

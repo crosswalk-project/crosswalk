@@ -5,16 +5,11 @@
 #ifndef XWALK_APPLICATION_TEST_APPLICATION_APITEST_H_
 #define XWALK_APPLICATION_TEST_APPLICATION_APITEST_H_
 
+#include <vector>
 #include "xwalk/application/test/application_browsertest.h"
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
 
 class ApiTestRunner;
-
-namespace xwalk {
-namespace extensions {
-class XWalkExtensionServer;
-class XWalkExtensionService;
-}
-}
 
 class ApplicationApiTest : public ApplicationBrowserTest {
  public:
@@ -28,7 +23,7 @@ class ApplicationApiTest : public ApplicationBrowserTest {
   scoped_ptr<ApiTestRunner> test_runner_;
 
  private:
-  void RegisterExtensions(xwalk::extensions::XWalkExtensionServer* server);
+  void CreateExtensions(xwalk::extensions::XWalkExtensionVector* extensions);
 };
 
 #endif  // XWALK_APPLICATION_TEST_APPLICATION_APITEST_H_

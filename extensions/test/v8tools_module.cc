@@ -7,14 +7,11 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
+using namespace xwalk::extensions;  // NOLINT
 
 class TestV8ToolsExtensionInstance : public XWalkExtensionInstance {
  public:
@@ -46,8 +43,9 @@ class TestV8ToolsExtension : public XWalkExtension {
 
 class XWalkExtensionsV8ToolsTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new TestV8ToolsExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new TestV8ToolsExtension);
   }
 };
 

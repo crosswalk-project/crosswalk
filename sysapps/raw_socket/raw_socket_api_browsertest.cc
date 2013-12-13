@@ -9,15 +9,11 @@
 #include "net/base/net_util.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
-using xwalk::extensions::XWalkExtensionService;
+using namespace xwalk::extensions;  // NOLINT
 
 namespace {
 
@@ -44,16 +40,14 @@ class SysAppsRawSocketTestExtension : public XWalkExtension {
 class SysAppsRawSocketTest : public InProcessBrowserTest {
  public:
   virtual void SetUp() {
-    XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
-        base::Bind(&SysAppsRawSocketTest::RegisterExtensions,
+    XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+        base::Bind(&SysAppsRawSocketTest::CreateExtensions,
                    base::Unretained(this)));
     InProcessBrowserTest::SetUp();
   }
 
-  void RegisterExtensions(XWalkExtensionServer* server) {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new SysAppsRawSocketTestExtension()));
-    ASSERT_TRUE(registered);
+  void CreateExtensions(XWalkExtensionVector* extensions) {
+    extensions->push_back(new SysAppsRawSocketTestExtension);
   }
 };
 
