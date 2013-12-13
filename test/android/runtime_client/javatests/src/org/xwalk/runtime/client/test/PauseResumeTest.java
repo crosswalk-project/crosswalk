@@ -7,6 +7,7 @@ package org.xwalk.runtime.client.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.runtime.client.shell.XWalkRuntimeClientShellActivity;
 import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
@@ -17,8 +18,8 @@ public class PauseResumeTest extends XWalkRuntimeClientTestBase {
     @SmallTest
     @Feature({"PauseResume"})
     public void testPauseAndResume() throws Throwable {
-        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
-                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+        RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
                         getTestUtil(), this);
         helper.testPauseAndResume();
     }
