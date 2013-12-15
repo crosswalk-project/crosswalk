@@ -16,4 +16,7 @@ const char kXWalkDisableExtensionProcess[] =
 // Used internally to launch an extension process.
 const char kXWalkExtensionProcess[] = "xwalk-extension-process";
 
+// Specifies where XWalk will look for external extensions.
+const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
+
 }  // namespace switches
