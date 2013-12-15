@@ -4,15 +4,14 @@
 
 #include "xwalk/application/test/application_apitest.h"
 
+#include <vector>
 #include "content/public/test/browser_test_utils.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 
-using xwalk::extensions::XWalkExtensionService;
-using xwalk::extensions::XWalkExtensionServer;
+using namespace xwalk::extensions;  // NOLINT
 
 ApplicationApiTest::ApplicationApiTest()
   : test_runner_(new ApiTestRunner()) {
@@ -22,8 +21,8 @@ ApplicationApiTest::~ApplicationApiTest() {
 }
 
 void ApplicationApiTest::SetUp() {
-  XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
-      base::Bind(&ApplicationApiTest::RegisterExtensions,
+  XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+      base::Bind(&ApplicationApiTest::CreateExtensions,
                  base::Unretained(this)));
   ApplicationBrowserTest::SetUp();
 }
@@ -35,12 +34,10 @@ void ApplicationApiTest::SetUpCommandLine(CommandLine* command_line) {
   command_line->AppendArg(url.spec());
 }
 
-void ApplicationApiTest::RegisterExtensions(XWalkExtensionServer* server) {
-  scoped_ptr<ApiTestExtension> extension(new ApiTestExtension);
+void ApplicationApiTest::CreateExtensions(XWalkExtensionVector* extensions) {
+  ApiTestExtension* extension = new ApiTestExtension;
   extension->SetObserver(test_runner_.get());
-  bool registered = server->RegisterExtension(
-      extension.PassAs<XWalkExtension>());
-  ASSERT_TRUE(registered);
+  extensions->push_back(extension);
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationApiTest, ApiTest) {

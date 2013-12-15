@@ -10,14 +10,11 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
+using namespace xwalk::extensions;  // NOLINT
 
 namespace {
 
@@ -55,8 +52,9 @@ class CounterExtension : public XWalkExtension {
 
 class XWalkExtensionsIFrameTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new CounterExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new CounterExtension);
   }
 };
 

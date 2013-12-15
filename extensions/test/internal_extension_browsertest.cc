@@ -10,7 +10,6 @@
 #include "content/public/test/test_utils.h"
 #include "xwalk/grit/xwalk_extensions_resources.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -154,8 +153,9 @@ void TestExtensionInstance::DispatchHeartbeat() {
 
 class InternalExtensionTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new TestExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new TestExtension);
   }
 };
 
