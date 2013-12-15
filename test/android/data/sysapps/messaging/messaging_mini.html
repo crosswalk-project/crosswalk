@@ -1,0 +1,57 @@
+<html>
+<head>
+  <title></title>
+</head>
+<style type="text/css">
+  body { margin: auto; width: 100%; }
+  div { margin: 15; padding: 10; width: 100%; }
+  .title { margin: 20; padding: 20; font-size: 2.5em; font-weight: bold; }
+  .subtitle { margin: 10; padding: 10; font-size: 32; }
+  .pass { background-color: #FFFACD; }
+</style>
+<body>
+<script>
+
+window.onload = function() {
+  var messaging = navigator.messaging || xwalk.experimental.messaging;
+  var pass = true;
+
+  function checkProperty(obj, propName) {
+    if (propName in obj) {
+      return true;
+    } else {
+      document.getElementById("log").innerHTML = propName + " is not exist";
+      return false;
+    }
+  }
+
+  do {
+    if (!messaging) { pass = false; break; };
+    if (!checkProperty(messaging, "sms")) { pass = false; break; };
+    if (!checkProperty(messaging, "findMessages")) { pass = false; break; };
+    if (!checkProperty(messaging, "findConversations")) { pass = false; break; };
+    if (!checkProperty(messaging, "getMessage")) { pass = false; break; };
+    if (!checkProperty(messaging, "deleteMessage")) { pass = false; break; };
+    if (!checkProperty(messaging, "deleteConversation")) { pass = false; break; };
+    if (!checkProperty(messaging, "markMessageRead")) { pass = false; break; };
+    if (!checkProperty(messaging, "markConversationRead")) { pass = false; break; };
+    if (!checkProperty(messaging.sms, "type")) { pass = false; break; };
+    if (!checkProperty(messaging.sms, "serviceIDs")) { pass = false; break; };
+    if (!checkProperty(messaging.sms, "segmentInfo")) { pass = false; break; };
+    if (!checkProperty(messaging.sms, "clear")) { pass = false; break; };
+  } while(0);
+
+  if (pass) {
+    document.title = 'Pass';
+    document.getElementById("pass").innerHTML = "Pass";
+  } else {
+    document.title = 'Fail';
+    document.getElementById("pass").innerHTML = "Fail";
+  }
+}
+
+</script>
+<div class="title pass" id="pass"></div>
+<div class="subtitle" id="log"></p>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<html>
+<head>
+  <title></title>
+</head>
+<style type="text/css">
+  body { margin: auto; width: 100%; }
+  div { margin: 15; padding: 10; width: 100%; }
+  textarea { margin: 10; padding: 10; width: 95%; height: 15%; font-size: 12; resize: none; }
+  .button { margin: 10; padding: 10; width: 80%; height: 5%; font-size: 40; }
+  .title { margin: 20; padding: 20; font-size: 2.5em; font-weight: bold; }
+  .subtitle { margin: 10; padding: 10; font-size: 32; }
+  .text { font-size: 1.875em; }
+  .result { font-size: 2em; }
+  .center { text-align: center; }
+  .pass { background-color: #FFFACD; }
+</style>
+<body>
+
+<script>
+
+window.onload = function() {
+  var messaging = navigator.messaging || xwalk.experimental.messaging;
+
+  var successCount = 0;
+  function onSuccess() {
+    ++successCount;
+    // Features to test:
+    // 1.send sms message
+    // 2.clear sms message
+    // 3.segmentInfo
+    // 4.findMessages
+    // 5.getMessage
+    // 6.deleteMessage
+    // 7.deleteConversation
+    // 8.markMessageRead
+    // 9.markConversationRead
+    if (successCount >= 9) {
+      document.title = 'Pass';
+      document.getElementById("pass").innerHTML = "Pass";
+    }
+  }
+
+  var errorCallback = function(error) {
+    document.title = 'Fail';
+    console.log(JSON.stringify(error));
+  }
+
+  var printJson = function(displayTagName, object) {
+    document.getElementById(displayTagName).innerHTML +=
+      JSON.stringify(object, undefined, 2);
+  }
+
+  messaging.sms.onsent = function(evt) {
+    printJson("onsent", evt);
+  };
+
+  messaging.sms.ondeliverysuccess = function(evt) {
+    printJson("ondeliverysuccess", evt);
+  };
+
+  messaging.sms.ondeliveryerror = function(evt) {
+    printJson("ondeliveryerror", evt);
+  };
+
+  var sendSmsCallback = function(msg) {
+    printJson('send', msg);
+    onSuccess();
+  };
+
+  var clearSmsCallback = function(msg) {
+    printJson('clear', msg);
+    onSuccess();
+  };
+
+  var segmentInfoCallback = function(msg) {
+    printJson('segmentInfo', msg);
+    onSuccess();
+  };
+
+  var findMessagesCallback = function(msg) {
+    printJson('findMessages', msg);
+    onSuccess();
+  };
+
+  var getMessageCallback = function(msg) {
+    printJson('getMessage', msg);
+    onSuccess();
+  };
+
+  var deleteMessageCallback = function(msg) {
+    printJson('deleteMessage', msg);
+    onSuccess();
+  };
+
+  var deleteConversationCallback = function(msg) {
+    printJson('deleteConversation', msg);
+    onSuccess();
+  };
+
+  var markMessageReadCallback = function(msg) {
+    printJson('markMessageRead', msg);
+    onSuccess();
+  };
+
+  var markConversationReadCallback = function(msg) {
+    printJson('markConversationRead', msg);
+    onSuccess();
+  };
+
+  var testNumber = "5556"; // this number is just for testing.
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+        .then(sendSmsCallback, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    for (var serviceID in messaging.sms.serviceIDs) {
+      messaging.sms.clear(serviceID)
+          .then(clearSmsCallback, errorCallback) 
+    };
+    
+  } catch(e) {
+    console.log(e);
+  }
+
+  var msg = "";
+  for (var i = 0; i < 300; i++) {
+    msg += "a";
+  };
+  try {
+    messaging.sms.segmentInfo(msg)
+        .then(segmentInfoCallback, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+  
+  var filter = {
+    type: "sms",
+  }
+  var filterOption = {
+    sortBy: "date",
+    sortOrder: "descending",
+    limit: 3
+  }
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(findMessagesCallback, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(function(msg) {
+        if (msg.element.length > 0) {
+          messaging.getMessage("sms", msg.element[0].messageID)
+              .then(getMessageCallback, errorCallback) 
+        }
+      }, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(function(msg) {
+        if (msg.element.length > 0) {
+          messaging.deleteMessage("sms", msg.element[0].messageID)
+              .then(deleteMessageCallback, errorCallback) 
+        }
+      }, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(function(msg) {
+        if (msg.element.length > 0) {
+          messaging.deleteConversation("sms", msg.element[0].conversationID)
+              .then(deleteConversationCallback, errorCallback) 
+        }
+      }, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(function(msg) {
+        if (msg.element.length > 0) {
+          messaging.markMessageRead("sms", msg.element[0].messageID, false)
+              .then(markMessageReadCallback, errorCallback) 
+        }
+      }, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+
+  try {
+    messaging.sms.send(testNumber, "Hello Xwalk!")
+    messaging.findMessages(filter, filterOption)
+        .then(function(msg) {
+        if (msg.element.length > 0) {
+          messaging.markConversationRead("sms", msg.element[0].conversationID, false)
+              .then(markConversationReadCallback, errorCallback) 
+        }
+      }, errorCallback) 
+  } catch(e) {
+    console.log(e);
+  }
+}
+
+</script>
+<div class="title pass" id="pass"></div>
+
+<div class="title center">Messaging API Example</div>
+
+<div>
+  <p class="subtitle center">Send Sms Message</p>
+  <pre class="result" id="send"></p>
+</div>
+
+<div>
+  <p class="subtitle center">onsent</p>
+  <pre class="result" id="onsent"></p>
+</div>
+
+<div>
+  <p class="subtitle center">ondeliverysuccess</p>
+  <pre class="result" id="ondeliverysuccess"></p>
+</div>
+
+<div>
+  <p class="subtitle center">ondeliveryerror</p>
+  <pre class="result" id="ondeliveryerror"></p>
+</div>
+
+<div>
+  <p class="subtitle center">Clear Sms Message</p>
+  <pre class="result" id="clear"></p>
+</div>
+
+<div>
+  <p class="subtitle center">SegmentInfo</p>
+  <pre class="result" id="segmentInfo"></p>
+</div>
+
+<div>
+  <p class="subtitle center">findMessages</p>
+  <pre class="result" id="findMessages"></p>
+</div>
+
+<div>
+  <p class="subtitle center">getMessage</p>
+  <pre class="result" id="getMessage"></p>
+</div>
+
+<div>
+  <p class="subtitle center">deleteMessage</p>
+  <pre class="result" id="deleteMessage"></p>
+</div>
+
+<div>
+  <p class="subtitle center">deleteConversation</p>
+  <pre class="result" id="deleteConversation"></p>
+</div>
+
+<div>
+  <p class="subtitle center">markMessageRead</p>
+  <pre class="result" id="markMessageRead"></p>
+</div>
+
+<div>
+  <p class="subtitle center">markConversationRead</p>
+  <pre class="result" id="markConversationRead"></p>
+</div>
+
+</body>
+</html>
