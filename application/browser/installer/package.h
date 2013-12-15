@@ -22,6 +22,11 @@ namespace application {
 //  XPKPackage::Validate()
 class Package {
  public:
+  enum PackageType {
+    XPK_PACKAGE,
+    WGT_PACKAGE
+  };
+  PackageType GetPackageType() const { return pkg_type_; }
   virtual ~Package();
   bool IsValid() const { return is_valid_; }
   const std::string& Id() const { return id_; }
@@ -30,8 +35,9 @@ class Package {
   // The function will unzip the XPK/WGT file and return the target path where
   // to decompress by the parameter |target_path|.
   bool Extract(base::FilePath* target_path);
+
  protected:
-  explicit Package(const base::FilePath& source_path);
+  explicit Package(PackageType pkg_type, const base::FilePath& source_path);
   scoped_ptr<ScopedStdioHandle> file_;
   bool is_valid_;
   std::string id_;
@@ -40,6 +46,8 @@ class Package {
   base::FilePath source_path_;
   // Temporary directory for unpacking.
   base::ScopedTempDir temp_dir_;
+  // WGT or XPK
+  PackageType pkg_type_;
 };
 
 }  // namespace application

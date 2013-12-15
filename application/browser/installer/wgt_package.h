@@ -18,7 +18,7 @@ namespace application {
 
 class WGTPackage : public Package {
  public:
-  explicit WGTPackage(const base::FilePath& path);
+  explicit WGTPackage(PackageType pkg_type, const base::FilePath& path);
   virtual ~WGTPackage();
 };
 

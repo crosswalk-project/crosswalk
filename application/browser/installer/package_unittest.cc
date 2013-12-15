@@ -15,17 +15,17 @@ namespace application {
 // As of now only XPK unit tests are present
 class PackageTest : public testing::Test {
  public:
-  void SetupPackage(const std::string& xpk_name) {
-    base::FilePath xpk_path;
-    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &xpk_path));
-    xpk_path = xpk_path.AppendASCII("xwalk")
+  void SetupPackage(const std::string& package_name) {
+    base::FilePath package_path;
+    ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &package_path));
+    package_path = package_path.AppendASCII("xwalk")
         .AppendASCII("application")
         .AppendASCII("test")
         .AppendASCII("unpacker")
-        .AppendASCII(xpk_name);
-    ASSERT_TRUE(base::PathExists(xpk_path)) << xpk_path.value();
+        .AppendASCII(package_name);
+    ASSERT_TRUE(base::PathExists(package_path)) << package_path.value();
 
-    package_ = Package::Create(xpk_path);
+    package_ = Package::Create(package_path);
   }
 
  protected:
@@ -70,6 +70,15 @@ TEST_F(PackageTest, BadUnzipFile) {
   SetupPackage("bad_zip.xpk");
   base::FilePath path;
   EXPECT_FALSE(package_->Extract(&path));
+}
+
+// .wgt unittest
+TEST_F(PackageTest, GoodWgt) {
+  SetupPackage("hangoman.wgt");
+  base::FilePath path;
+  EXPECT_TRUE(package_->Extract(&path));
+  EXPECT_TRUE(base::DirectoryExists(path));
+  EXPECT_TRUE(temp_dir_.Set(path));
 }
 
 }  // namespace application

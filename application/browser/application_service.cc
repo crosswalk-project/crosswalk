@@ -79,24 +79,29 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       !file_util::CreateDirectory(data_dir))
     return false;
 
+  bool isLegacyWgt = false;
   base::FilePath unpacked_dir;
   std::string app_id;
   if (!base::DirectoryExists(path)) {
     scoped_ptr<Package> package = Package::Create(path);
-    if (package)
-      app_id = package->Id();
+    if (package->GetPackageType() == Package::WGT_PACKAGE) {
+      isLegacyWgt = true;
+    LOG(INFO) << "isLegacyWgt: " << isLegacyWgt;
+    } else {
+      if (package)
+        app_id = package->Id();
 
-    if (app_id.empty()) {
-      LOG(ERROR) << "XPK/WGT file is invalid.";
-      return false;
+      if (app_id.empty()) {
+        LOG(ERROR) << "XPK/WGT file is invalid.";
+        return false;
+      }
+
+      if (app_store_->Contains(app_id)) {
+        *id = app_id;
+        LOG(INFO) << "Already installed: " << app_id;
+        return false;
+      }
     }
-
-    if (app_store_->Contains(app_id)) {
-      *id = app_id;
-      LOG(INFO) << "Already installed: " << app_id;
-      return false;
-    }
-
     base::FilePath temp_dir;
     package->Extract(&temp_dir);
     unpacked_dir = data_dir.AppendASCII(app_id);
@@ -114,6 +119,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       LoadApplication(unpacked_dir,
                       app_id,
                       Manifest::COMMAND_LINE,
+                      isLegacyWgt,
                       &error);
   if (!application) {
     LOG(ERROR) << "Error during application installation: " << error;
@@ -125,7 +131,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
                << " couldn't be installed.";
     return false;
   }
-
+  LOG(INFO) << "install on Tizen check: App ID => " << application->ID();
 #if defined(OS_TIZEN_MOBILE)
   if (!InstallPackageOnTizen(this, application->ID(),
                              runtime_context_->GetPath()))
@@ -183,8 +189,10 @@ bool ApplicationService::Launch(const base::FilePath& path) {
     return false;
 
   std::string error;
+  // TODO(riju) : temporary hack, during launch we specify that
+  // isLegacyWgt = false
   scoped_refptr<const ApplicationData> application =
-      LoadApplication(path, Manifest::COMMAND_LINE, &error);
+      LoadApplication(path, Manifest::COMMAND_LINE, false , &error);
 
   if (!application) {
     LOG(ERROR) << "Error during launch application: " << error;

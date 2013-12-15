@@ -40,8 +40,9 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
       .AppendASCII("aaa");
 
   std::string error;
+  bool isLegacyWgt = false;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, Manifest::COMMAND_LINE, isLegacyWgt, &error));
   ASSERT_TRUE(application != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
 }
@@ -59,8 +60,9 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("aaa");
 
   std::string error;
+  bool isLegacyWgt = false;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, Manifest::COMMAND_LINE, isLegacyWgt, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest file is missing or unreadable.", error.c_str());
@@ -79,8 +81,9 @@ TEST_F(ApplicationFileUtilTest,
       .AppendASCII("bbb");
 
   std::string error;
+  bool isLegacyWgt = false;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, Manifest::COMMAND_LINE, isLegacyWgt, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."

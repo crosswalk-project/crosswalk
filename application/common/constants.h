@@ -16,6 +16,9 @@ extern const char kApplicationScheme[];
 // The name of the manifest inside an application.
 extern const base::FilePath::CharType kManifestFilename[];
 
+// The name of the manifest of legacy .wgt application.
+extern const base::FilePath::CharType kConfigXmlFilename[];
+
 // The name of the messages file inside an application.
 extern const base::FilePath::CharType kMessagesFilename[];
 

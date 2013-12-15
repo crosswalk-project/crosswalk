@@ -21,8 +21,8 @@ const char XPKPackage::kXPKPackageHeaderMagic[] = "CrWk";
 XPKPackage::~XPKPackage() {
 }
 
-XPKPackage::XPKPackage(const base::FilePath& path)
-  : Package(path) {
+XPKPackage::XPKPackage(PackageType pkg_type, const base::FilePath& path)
+  : Package(pkg_type, path) {
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(

@@ -53,27 +53,33 @@ PackageInstaller::PackageInstaller(
 
 bool PackageInstaller::Init() {
   app_dir_ = data_dir_.Append(info::kAppDir).AppendASCII(package_id_);
+  LOG(INFO) << "App_dir = " << app_dir_.value();
   xml_path_ = base::FilePath(info::kXmlDir)
       .AppendASCII(package_id_ + std::string(info::kXmlExtension));
+  LOG(INFO) << "xml_path = " << xml_path_.value();
   execute_path_ = app_dir_.Append(info::kExecDir).AppendASCII(package_id_);
-
+  LOG(INFO) << "execute_path_ = " << execute_path_.value();
   application_ = service_->GetApplicationByID(package_id_);
   if (!application_) {
     LOG(ERROR) << "Application " << package_id_
                << " haven't been installed in Xwalk database.";
     return false;
   }
+  LOG(INFO) << "installer : package_id => " << package_id_;
+  LOG(INFO) << "installer : app_id => " << application_->ID();
   stripped_name_ = application_->Name();
+  LOG(INFO) << "Stripped name => " << stripped_name_;
   stripped_name_.erase(
       std::remove_if(stripped_name_.begin(), stripped_name_.end(), ::isspace),
       stripped_name_.end());
-
+  LOG(INFO) << "modified Stripped name => " << stripped_name_;
   if (!application_->GetManifest()->GetString(info::kIconKey, &icon_name_))
     LOG(WARNING) << "Fail to get application icon name.";
 
   icon_path_ = base::FilePath(info::kIconDir).AppendASCII(
       package_id_ + info::kSeparator + stripped_name_ +
       base::FilePath::FromUTF8Unsafe(icon_name_).Extension());
+  LOG(INFO) << "Icon path = > " << icon_path_.value();
   return true;
 }
 

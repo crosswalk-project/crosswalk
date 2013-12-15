@@ -13,14 +13,16 @@ namespace application {
 WGTPackage::~WGTPackage() {
 }
 
-WGTPackage::WGTPackage(const base::FilePath& path)
-  : Package(path) {
+WGTPackage::WGTPackage(PackageType pkg_type, const base::FilePath& path)
+  : Package(pkg_type, path) {
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(
         new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
-
   file_ = file.Pass();
+  // TODO(riju): check for validation of wgt file
+  is_valid_ = true;
+  // id_ = "dummyID";
 }
 
 }  // namespace application

@@ -12,6 +12,7 @@
         '../url/url.gyp:url_lib',
         '../third_party/WebKit/public/blink.gyp:blink',
         '../third_party/zlib/google/zip.gyp:zip',
+        '../third_party/libxml/libxml.gyp:libxml',
         'xwalk_application_resources',
       ],
       'sources': [
