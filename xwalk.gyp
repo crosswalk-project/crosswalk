@@ -56,6 +56,7 @@
         'xwalk_application_lib',
         'xwalk_resources',
         'experimental/experimental_resources.gyp:xwalk_experimental_resources',
+        'extensions/extensions.gypi:xwalk_extensions_lib',
       ],
       'include_dirs': [
         '..',
@@ -150,7 +151,6 @@
         'runtime/renderer/xwalk_content_renderer_client.h',
       ],
       'includes': [
-        'extensions/extensions.gypi',
         'experimental/dialog/dialog.gypi',
         'sysapps/sysapps.gypi',
         'xwalk_jsapi.gypi',
@@ -599,27 +599,6 @@
       ],
     },
     {
-      'target_name': 'xwalk_extension_shell',
-      'type': 'executable',
-      'defines': ['XWALK_VERSION="<(xwalk_version)"'],
-      'product_name': 'xesh',
-      'conditions': [
-        ['OS=="linux"', {
-          'dependencies': [
-            'xwalk_runtime',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'extensions/xesh/xesh_main.cc',
-            'extensions/xesh/xesh_v8_runner.h',
-            'extensions/xesh/xesh_v8_runner.cc',
-          ],
-        }],
-      ],
-    },
-    {
       'target_name': 'xwalk_xpk_generator',
       'type': 'none',
       'copies': [
@@ -633,6 +612,9 @@
     },
   ], # targets
   'conditions': [
+    ['OS=="linux"', {
+      'includes': [ 'extensions/xesh/xesh.gypi' ],
+    }],
     ['OS=="mac"', {
       'targets': [
         {
