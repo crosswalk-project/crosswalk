@@ -19,12 +19,12 @@ namespace {
 //   Launch(string app_id) -> ObjectPath
 //     Launches the application with 'app_id'.
 const char kRunningManagerDBusInterface[] =
-    "org.crosswalkproject.Running.Manager";
+    "org.crosswalkproject.Running.Manager1";
 
 const char kRunningManagerDBusError[] =
     "org.crosswalkproject.Running.Manager.Error";
 
-const dbus::ObjectPath kRunningManagerDBusPath("/running");
+const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 
 // D-Bus Interface implemented by objects that represent running
 // applications.
@@ -39,7 +39,7 @@ const dbus::ObjectPath kRunningManagerDBusPath("/running");
 //
 //   readonly string AppID
 const char kRunningApplicationDBusInterface[] =
-    "org.crosswalkproject.Running.Application";
+    "org.crosswalkproject.Running.Application1";
 
 const char kRunningApplicationDBusError[] =
     "org.crosswalkproject.Running.Application.Error";

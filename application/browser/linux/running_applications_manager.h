@@ -20,7 +20,7 @@ namespace application {
 // applications.
 //
 // The exported object implements org.freedesktop.DBus.ObjectManager, and the
-// interface org.crosswalkproject.Installed.Manager (see .cc file for
+// interface org.crosswalkproject.Installed.Manager1 (see .cc file for
 // description).
 class RunningApplicationsManager {
  public:
@@ -29,11 +29,11 @@ class RunningApplicationsManager {
   ~RunningApplicationsManager();
 
  private:
-  // org.crosswalkproject.Running.Manager interface.
+  // org.crosswalkproject.Running.Manager1 interface.
   void OnLaunch(dbus::MethodCall* method_call,
                 dbus::ExportedObject::ResponseSender response_sender);
 
-  // org.crosswalkproject.Running.Application interface.
+  // org.crosswalkproject.Running.Application1 interface.
   void OnTerminate(dbus::ManagedObject* object,
                    dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);

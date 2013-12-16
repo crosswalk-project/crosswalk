@@ -23,12 +23,12 @@ namespace {
 //     the package file. If installation is successful, returns the ObjectPath
 //     of the InstalledApplication object that represents it.
 const char kInstalledManagerDBusInterface[] =
-    "org.crosswalkproject.Installed.Manager";
+    "org.crosswalkproject.Installed.Manager1";
 
 const char kInstalledManagerDBusError[] =
     "org.crosswalkproject.Installed.Manager.Error";
 
-const dbus::ObjectPath kInstalledManagerDBusPath("/installed");
+const dbus::ObjectPath kInstalledManagerDBusPath("/installed1");
 
 dbus::ObjectPath GetInstalledPathForAppID(const std::string& app_id) {
   return dbus::ObjectPath(kInstalledManagerDBusPath.value() + "/" + app_id);

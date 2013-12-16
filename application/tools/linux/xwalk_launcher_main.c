@@ -16,12 +16,12 @@
 #include "xwalk_tizen_user.h"
 #include "xwalk_launcher_tizen.h"
 
-static const char* xwalk_service_name = "org.crosswalkproject";
-static const char* xwalk_running_path = "/running";
+static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
+static const char* xwalk_running_path = "/running1";
 static const char* xwalk_running_manager_iface =
-    "org.crosswalkproject.Running.Manager";
+    "org.crosswalkproject.Running.Manager1";
 static const char* xwalk_running_app_iface =
-    "org.crosswalkproject.Running.Application";
+    "org.crosswalkproject.Running.Application1";
 
 static char* application_object_path;
 

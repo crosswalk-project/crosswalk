@@ -10,12 +10,12 @@
 
 #include "xwalk_tizen_user.h"
 
-static const char* xwalk_service_name = "org.crosswalkproject";
-static const char* xwalk_installed_path = "/installed";
+static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
+static const char* xwalk_installed_path = "/installed1";
 static const char* xwalk_installed_iface =
-    "org.crosswalkproject.Installed.Manager";
+    "org.crosswalkproject.Installed.Manager1";
 static const char* xwalk_installed_app_iface =
-    "org.crosswalkproject.Installed.Application";
+    "org.crosswalkproject.Installed.Application1";
 
 static char* install_path;
 static char* uninstall_appid;
