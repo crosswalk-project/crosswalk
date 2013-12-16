@@ -115,6 +115,8 @@ public class PresentationExtension extends XWalkExtension {
         super(name, jsApi, context);
 
         mDisplayManager = XWalkDisplayManager.getInstance(context.getContext());
+        Display[] displays = mDisplayManager.getPresentationDisplays();
+        mAvailableDisplayCount = displays.length;
     }
 
     private Display getPreferredDisplay() {
