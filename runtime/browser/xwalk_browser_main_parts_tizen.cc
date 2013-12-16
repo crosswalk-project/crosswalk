@@ -8,7 +8,6 @@
 #include "base/files/file_path.h"
 #include "content/public/common/content_switches.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
@@ -59,18 +58,16 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
   XWalkBrowserMainParts::PreMainMessageLoopRun();
 }
 
-void
-XWalkBrowserMainPartsTizen::RegisterInternalExtensionsInExtensionThreadServer(
-    extensions::XWalkExtensionServer* server) {
-  CHECK(server);
+void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
   if (XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled()) {
-    server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
-        new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get())));
+    extensions->push_back(
+        new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get()));
   }
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled()) {
-    server->RegisterExtension(scoped_ptr<extensions::XWalkExtension>(
-        new sysapps::RawSocketExtension()));
-  }
+
+  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
+    extensions->push_back(new sysapps::RawSocketExtension);
 }
 
 }  // namespace xwalk

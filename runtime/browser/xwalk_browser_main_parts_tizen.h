@@ -5,7 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_TIZEN_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_TIZEN_H_
 
-#include <string>
+#include <vector>
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
 namespace xwalk {
@@ -19,8 +19,9 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
 
-  virtual void RegisterInternalExtensionsInExtensionThreadServer(
-      extensions::XWalkExtensionServer* server) OVERRIDE;
+  virtual void CreateInternalExtensionsForExtensionThread(
+      content::RenderProcessHost* host,
+      extensions::XWalkExtensionVector* extensions) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);

@@ -12,21 +12,23 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
 #include "url/gurl.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
+
+namespace content {
+class RenderProcessHost;
+}
 
 namespace xwalk {
-
-namespace extensions {
-class XWalkExtension;
-class XWalkExtensionServer;
-}
 
 class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
 
-class XWalkBrowserMainParts : public content::BrowserMainParts,
-    public extensions::XWalkExtensionService::Delegate {
+namespace extensions {
+class XWalkExtensionService;
+}
+
+class XWalkBrowserMainParts : public content::BrowserMainParts {
  public:
   explicit XWalkBrowserMainParts(
       const content::MainFunctionParams& parameters);
@@ -42,11 +44,15 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
   virtual bool MainMessageLoopRun(int* result_code) OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
-  // XWalkExtensionService::Delegate overrides.
-  virtual void RegisterInternalExtensionsInExtensionThreadServer(
-      extensions::XWalkExtensionServer* server) OVERRIDE;
-  virtual void RegisterInternalExtensionsInUIThreadServer(
-      extensions::XWalkExtensionServer* server) OVERRIDE;
+  // Create all the extensions to be hooked into a new
+  // RenderProcessHost. Base class implementation should be called by
+  // subclasses overriding this..
+  virtual void CreateInternalExtensionsForUIThread(
+      content::RenderProcessHost* host,
+      extensions::XWalkExtensionVector* extensions);
+  virtual void CreateInternalExtensionsForExtensionThread(
+      content::RenderProcessHost* host,
+      extensions::XWalkExtensionVector* extensions);
 
 #if defined(OS_ANDROID)
   RuntimeContext* runtime_context() { return runtime_context_.get(); }

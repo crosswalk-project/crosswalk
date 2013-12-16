@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_ANDROID_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_BROWSER_MAIN_PARTS_ANDROID_H_
 
+#include <vector>
+#include "base/memory/ref_counted.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 
 namespace net {
@@ -25,8 +27,9 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
   virtual void PreMainMessageLoopRun() OVERRIDE;
   virtual void PostMainMessageLoopRun() OVERRIDE;
 
-  virtual void RegisterInternalExtensionsInExtensionThreadServer(
-      extensions::XWalkExtensionServer* server) OVERRIDE;
+  virtual void CreateInternalExtensionsForExtensionThread(
+      content::RenderProcessHost* host,
+      extensions::XWalkExtensionVector* extensions) OVERRIDE;
 
   virtual void RegisterInternalExtensionsInUIThreadServer(
       extensions::XWalkExtensionServer* server) OVERRIDE;

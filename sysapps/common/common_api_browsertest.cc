@@ -12,15 +12,12 @@
 #include "net/base/net_util.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/sysapps/common/binding_object.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionServer;
-using xwalk::extensions::XWalkExtensionService;
+using namespace xwalk::extensions;  // NOLINT
 using xwalk::sysapps::BindingObject;
 
 SysAppsTestExtension::SysAppsTestExtension() {
@@ -160,16 +157,14 @@ void SysAppsTestObject::OnMakeRejectedPromise(
 class SysAppsCommonTest : public InProcessBrowserTest {
  public:
   virtual void SetUp() {
-    XWalkExtensionService::SetRegisterUIThreadExtensionsCallbackForTesting(
-        base::Bind(&SysAppsCommonTest::RegisterExtensions,
+    XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+        base::Bind(&SysAppsCommonTest::CreateExtensions,
                    base::Unretained(this)));
     InProcessBrowserTest::SetUp();
   }
 
-  void RegisterExtensions(XWalkExtensionServer* server) {
-    bool registered = server->RegisterExtension(
-        scoped_ptr<XWalkExtension>(new SysAppsTestExtension()));
-    ASSERT_TRUE(registered);
+  void CreateExtensions(XWalkExtensionVector* extensions) {
+    extensions->push_back(new SysAppsTestExtension);
   }
 };
 

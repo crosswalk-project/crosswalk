@@ -26,9 +26,9 @@
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application_system.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
@@ -111,7 +111,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
 
   runtime_context_.reset(new RuntimeContext);
   runtime_registry_.reset(new RuntimeRegistry);
-  extension_service_.reset(new extensions::XWalkExtensionService(this));
+  extension_service_.reset(new extensions::XWalkExtensionService);
 
   // Prepare the cookie store.
   base::FilePath user_data_dir;
@@ -143,18 +143,18 @@ void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {
   base::MessageLoopForUI::current()->Start();
 }
 
-void
-XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInExtensionThreadServer(
-    extensions::XWalkExtensionServer* server) {
-  CHECK(server);
+void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  // FIXME(cmarcelo): Android port keeps the ownership of extensions
+  // here in the XWalkBrowserMainParts for some reason, this is incorrect use
+  // of extensions system.
   ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
-    server->RegisterExtension(scoped_ptr<XWalkExtension>(*it));
+    extensions->push_back(*it);
 
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled()) {
-    server->RegisterExtension(scoped_ptr<XWalkExtension>(
-        new sysapps::RawSocketExtension()));
-  }
+  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
+    extensions->push_back(new sysapps::RawSocketExtension());
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInUIThreadServer(

@@ -8,13 +8,10 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
-#include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-using xwalk::extensions::XWalkExtension;
-using xwalk::extensions::XWalkExtensionInstance;
-using xwalk::extensions::XWalkExtensionServer;
+using namespace xwalk::extensions;  // NOLINT
 
 namespace {
 
@@ -90,20 +87,20 @@ class ConflictsWithEntryPointExtension
 
 class XWalkExtensionsConflictsWithNameTest : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
-    ASSERT_FALSE(RegisterExtensionForTest(
-        server, new ConflictsWithNameExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new CleanExtension);
+    extensions->push_back(new ConflictsWithNameExtension);
   }
 };
 
 class XWalkExtensionsConflictsWithEntryPointTest
     : public XWalkExtensionsTestBase {
  public:
-  void RegisterExtensions(XWalkExtensionServer* server) OVERRIDE {
-    ASSERT_TRUE(RegisterExtensionForTest(server, new CleanExtension));
-    ASSERT_FALSE(RegisterExtensionForTest(
-        server, new ConflictsWithEntryPointExtension));
+  virtual void CreateExtensionsForUIThread(
+      XWalkExtensionVector* extensions) OVERRIDE {
+    extensions->push_back(new CleanExtension);
+    extensions->push_back(new ConflictsWithEntryPointExtension);
   }
 };
 
