@@ -23,6 +23,7 @@ namespace application {
 class ApplicationEventManager;
 class ApplicationService;
 class ApplicationServiceProvider;
+class ApplicationStorage;
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -42,6 +43,10 @@ class ApplicationSystem {
   // The ApplicationEventManager is created at startup.
   ApplicationEventManager* event_manager() {
     return event_manager_.get();
+  }
+
+  ApplicationStorage* application_storage() {
+    return app_storage_.get();
   }
 
   // Parse the command line and process the --install, --uninstall and
@@ -82,6 +87,7 @@ class ApplicationSystem {
   bool LaunchFromCommandLineParam(const T& param);
 
   xwalk::RuntimeContext* runtime_context_;
+  scoped_ptr<ApplicationStorage> app_storage_;
   scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
 

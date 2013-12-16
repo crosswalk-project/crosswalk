@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -24,7 +25,9 @@ namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
-    application_service_(new ApplicationService(runtime_context)),
+    app_storage_(new ApplicationStorage(runtime_context->GetPath())),
+    application_service_(new ApplicationService(runtime_context,
+                                                app_storage_.get())),
     event_manager_(new ApplicationEventManager(this)) {}
 
 ApplicationSystem::~ApplicationSystem() {
@@ -47,8 +50,8 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
     bool& run_default_message_loop) {
   run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
-    const ApplicationData::ApplicationDataMap& apps = application_service_->
-        application_storage()->GetInstalledApplications();
+    const ApplicationData::ApplicationDataMap& apps =
+        app_storage_->GetInstalledApplications();
 
     LOG(INFO) << "Application ID                       Application Name";
     LOG(INFO) << "-----------------------------------------------------";
@@ -88,8 +91,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
     std::string app_id;
     if (application_service_->Install(path, &app_id)) {
       LOG(INFO) << "[OK] Application installed: " << app_id;
-      if (application_service_->application_storage()->
-          GetApplicationData(app_id)->HasMainDocument())
+      if (app_storage_->GetApplicationData(app_id)->HasMainDocument())
         run_default_message_loop = true;
     } else {
       LOG(ERROR) << "[ERR] Application install failure: " << path.value();

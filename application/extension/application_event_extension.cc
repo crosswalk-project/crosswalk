@@ -98,10 +98,8 @@ void AppEventExtensionInstance::OnRegisterEvent(
       return;
 
     // If the event is from main document, add it into system database.
-    application::ApplicationService* service =
-        app_system_->application_service();
     application::ApplicationStorage* app_store =
-        service->application_storage();
+        app_system_->application_storage();
     scoped_refptr<application::ApplicationData> app_data =
         app_store->GetApplicationData(app_id_);
     if (!app_data)
@@ -133,10 +131,8 @@ void AppEventExtensionInstance::OnUnregisterEvent(
 
   // If the event is from main document, remove it from system database.
   if (routing_id == main_routing_id_) {
-    application::ApplicationService* service =
-        app_system_->application_service();
     application::ApplicationStorage* app_store =
-        service->application_storage();
+        app_system_->application_storage();
     scoped_refptr<application::ApplicationData> app_data =
         app_store->GetApplicationData(app_id_);
     if (!app_data)

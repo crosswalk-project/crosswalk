@@ -12,6 +12,7 @@ namespace xwalk {
 namespace application {
 
 class ApplicationService;
+class ApplicationStorage;
 class InstalledApplicationsManager;
 class RunningApplicationsManager;
 
@@ -19,7 +20,8 @@ class RunningApplicationsManager;
 // management and launch functionality from ApplicationService.
 class ApplicationServiceProviderLinux {
  public:
-  explicit ApplicationServiceProviderLinux(ApplicationService* app_service);
+  explicit ApplicationServiceProviderLinux(ApplicationService* app_service,
+                                           ApplicationStorage* app_storage);
   virtual ~ApplicationServiceProviderLinux();
 
  private:
