@@ -14,6 +14,7 @@
       <include file="icons/crosswalk_48x48.png" name="IDR_XWALK_ICON_48" type="BINDATA" />
       <include file="devtools_discovery_page.html" name="IDR_DEVTOOLS_FRONTEND_PAGE_HTML" type="BINDATA"/>
       <include name="IDR_XWALK_RUNTIME_API" file="../extension/runtime_api.js" type="BINDATA" />
+      <include name="IDR_XWALK_SCREEN_ORIENTATION_API" file="../extension/screen_orientation_api.js" type="BINDATA" />
     </includes>
     <messages fallback_to_english="true">
       <message name="IDS_IMAGE_FILES" desc="The description of the image file extensions in the select file dialog.">

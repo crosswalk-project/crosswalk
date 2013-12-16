@@ -33,6 +33,7 @@
 
 #if defined(OS_TIZEN_MOBILE)
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
+using xwalk::XWalkContentRendererClientTizen;
 #endif
 
 using xwalk::RuntimeList;

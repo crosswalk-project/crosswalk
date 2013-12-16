@@ -1,0 +1,20 @@
+<html>
+<head>
+<title></title>
+<script>
+window.addEventListener("load", function() {
+  if (typeof(screen.orientation) === 'string' &&
+      typeof(screen.lockOrientation) === 'function' &&
+      typeof(screen.unlockOrientation) === 'function' &&
+      typeof(screen.addEventListener) === 'function' &&
+      typeof(screen.removeEventListener) === 'function' &&
+      typeof(screen.dispatchEvent) === 'function')
+    window.document.title = 'Pass';
+  else
+    window.document.title = 'Fail';
+});
+</script>
+</head>
+<body>
+</body>
+</html>
