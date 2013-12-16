@@ -133,10 +133,10 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       bool is_authority_match)
       : net::URLRequestFileJob(
           request, network_delegate, base::FilePath(), file_task_runner),
-      relative_path_(relative_path),
-      resource_(application_id, directory_path, relative_path),
-      is_authority_match_(is_authority_match),
-      weak_factory_(this) {
+        relative_path_(relative_path),
+        is_authority_match_(is_authority_match),
+        resource_(application_id, directory_path, relative_path),
+        weak_factory_(this) {
   }
 
   virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {

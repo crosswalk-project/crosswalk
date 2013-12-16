@@ -155,8 +155,8 @@ bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
 ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
-      manifest_(manifest.release()),
       is_dirty_(false),
+      manifest_(manifest.release()),
       finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
