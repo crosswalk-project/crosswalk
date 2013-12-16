@@ -12,16 +12,9 @@
 #include "ui/views/widget/root_view.h"
 #include "ui/aura/root_window.h"
 
-namespace {
-
-SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
-
-}  // namespace
-
 namespace xwalk {
 
 TizenSystemIndicator::TizenSystemIndicator() {
-  set_background(views::Background::CreateSolidBackground(kBGColor));
 }
 
 TizenSystemIndicator::~TizenSystemIndicator() {
@@ -115,8 +108,6 @@ void TizenSystemIndicator::OnMouseMoved(const ui::MouseEvent& event) {
 }
 
 void TizenSystemIndicator::SetDisplay(const gfx::Display& display) {
-  SetImage(0);
-
   // TODO(ricardotk): Add overlaying layout and event support to landscape mode.
   watcher_.reset(new TizenSystemIndicatorWatcher(this, display));
 
