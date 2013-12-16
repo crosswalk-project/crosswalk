@@ -156,8 +156,8 @@ ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
       manifest_(manifest.release()),
-      finished_parsing_manifest_(false),
-      is_dirty_(false) {
+      is_dirty_(false),
+      finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
 }

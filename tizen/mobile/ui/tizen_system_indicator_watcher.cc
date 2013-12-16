@@ -67,11 +67,11 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(
   : indicator_(indicator),
     display_(display),
     writer_(&fd_),
+    fd_(-1),
     width_(-1),
     height_(-1),
     alpha_(-1),
     updated_(false),
-    fd_(-1),
     weak_ptr_factory_(this) {
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();

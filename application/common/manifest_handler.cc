@@ -153,8 +153,8 @@ void ManifestHandlerRegistry::ReorderHandlersGivenDependencies() {
 
   // If there are any leftover unsorted handlers, they must have had
   // circular dependencies.
-  CHECK_EQ(unsorted_handlers.size(), 0) << "Application manifest handlers have "
-                                        << "circular dependencies!";
+  CHECK(unsorted_handlers.empty()) << "Application manifest handlers have "
+                                   << "circular dependencies!";
 }
 
 }  // namespace application
