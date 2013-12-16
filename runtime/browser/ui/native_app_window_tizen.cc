@@ -33,14 +33,17 @@ void NativeAppWindowTizen::Initialize() {
   root_window->AddObserver(this);
 
   if (SensorProvider* sensor = SensorProvider::GetInstance()) {
+    AddObserver(this);
     OnRotationChanged(sensor->GetCurrentRotation());
     sensor->AddObserver(this);
   }
 }
 
 NativeAppWindowTizen::~NativeAppWindowTizen() {
-  if (SensorProvider::GetInstance())
+  if (SensorProvider::GetInstance()) {
     SensorProvider::GetInstance()->RemoveObserver(this);
+    RemoveObserver(this);
+  }
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   DCHECK(root_window);
   root_window->RemoveObserver(this);
@@ -65,6 +68,10 @@ void NativeAppWindowTizen::OnWindowBoundsChanged(
     const gfx::Rect& new_bounds) {
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   DCHECK_EQ(root_window, window);
+
+  // Change the bounds of children windows to make touching work correctly.
+  GetNativeWindow()->parent()->SetBounds(new_bounds);
+  GetNativeWindow()->SetBounds(new_bounds);
 
   // We are working with DIPs here. size() returns in DIPs.
   GetWidget()->GetRootView()->SetSize(new_bounds.size());
@@ -122,12 +129,15 @@ void NativeAppWindowTizen::ApplyDisplayRotation() {
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   root_window->SetTransform(GetRotationTransform());
 
+  // FIXME: TizenSystemIndicator should be an observer of ScreenOrientation.
   if (indicator_)
     indicator_->SetOrientation(ToOrientation(display_.rotation()));
 }
 
-void NativeAppWindowTizen::OnRotationChanged(
-    gfx::Display::Rotation rotation) {
+void NativeAppWindowTizen::OnScreenOrientationChanged(
+    ScreenOrientation::Mode mode) {
+  gfx::Display::Rotation rotation = ToRotation(mode);
+
   // We always store the current sensor position, even if we do not
   // apply it in case the window is invisible.
 
@@ -138,6 +148,11 @@ void NativeAppWindowTizen::OnRotationChanged(
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   if (root_window->IsVisible())
     ApplyDisplayRotation();
+}
+
+void NativeAppWindowTizen::OnRotationChanged(
+    gfx::Display::Rotation rotation) {
+  SetRotation(rotation);
 }
 
 }  // namespace xwalk

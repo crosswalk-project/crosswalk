@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
+#include "xwalk/runtime/browser/ui/screen_orientation.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 #include "ui/aura/window_observer.h"
@@ -16,6 +17,8 @@ namespace xwalk {
 // handling and integration with system indicator bar.
 class NativeAppWindowTizen : public aura::WindowObserver,
                              public NativeAppWindowViews,
+                             public ScreenOrientation,
+                             public ScreenOrientation::Observer,
                              public SensorProvider::Observer {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
@@ -38,6 +41,10 @@ class NativeAppWindowTizen : public aura::WindowObserver,
 
   gfx::Transform GetRotationTransform() const;
   void ApplyDisplayRotation();
+
+  // ScreenOrientation::Observer overrides:
+  virtual void OnScreenOrientationChanged(
+      ScreenOrientation::Mode mode) OVERRIDE;
 
   // SensorProvider::Observer overrides:
   virtual void OnRotationChanged(gfx::Display::Rotation rotation) OVERRIDE;

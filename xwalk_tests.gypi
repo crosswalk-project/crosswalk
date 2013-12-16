@@ -157,6 +157,11 @@
           'runtime/browser/ui/taskbar_util_browsertest.cc',
         ],
       }],  # OS=="win"
+      ['tizen_mobile==1', {
+        'sources': [
+          'runtime/extension/screen_orientation_browsertest.cc',
+        ],
+      }],  # tizen_mobile==1
     ],
   }], # xwalk_browser_tests target
 }
