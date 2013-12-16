@@ -9,7 +9,7 @@
 #include "base/files/file_path.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
-#include "xwalk/application/browser/application_store.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/linux/installed_application_object.h"
 
 namespace {
@@ -71,10 +71,10 @@ void InstalledApplicationsManager::OnApplicationUninstalled(
 }
 
 void InstalledApplicationsManager::AddInitialObjects() {
-  ApplicationStore::ApplicationMap* apps =
+  const ApplicationData::ApplicationDataMap& apps =
       application_service_->GetInstalledApplications();
-  ApplicationStore::ApplicationMap::iterator it;
-  for (it = apps->begin(); it != apps->end(); ++it)
+  ApplicationData::ApplicationDataMap::const_iterator it;
+  for (it = apps.begin(); it != apps.end(); ++it)
     AddObject(it->second);
 }
 

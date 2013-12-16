@@ -59,7 +59,7 @@ const base::FilePath::CharType kApplicationsDir[] =
 
 ApplicationService::ApplicationService(RuntimeContext* runtime_context)
     : runtime_context_(runtime_context),
-      app_store_(new ApplicationStore(runtime_context)) {
+      app_storage_(new ApplicationStorage(runtime_context->GetPath())) {
 }
 
 ApplicationService::~ApplicationService() {
@@ -91,7 +91,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       return false;
     }
 
-    if (app_store_->Contains(app_id)) {
+    if (app_storage_->Contains(app_id)) {
       *id = app_id;
       LOG(INFO) << "Already installed: " << app_id;
       return false;
@@ -120,7 +120,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  if (!app_store_->AddApplication(application)) {
+  if (!app_storage_->AddApplication(application)) {
     LOG(ERROR) << "Application with id " << application->ID()
                << " couldn't be installed.";
     return false;
@@ -148,7 +148,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
     return false;
 #endif
 
-  if (!app_store_->RemoveApplication(id)) {
+  if (!app_storage_->RemoveApplication(id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << id
                << "; application is not installed.";
     return false;
@@ -194,14 +194,14 @@ bool ApplicationService::Launch(const base::FilePath& path) {
   return Launch(application);
 }
 
-ApplicationStore::ApplicationMap*
+const ApplicationData::ApplicationDataMap&
 ApplicationService::GetInstalledApplications() const {
-  return app_store_->GetInstalledApplications();
+  return app_storage_->GetInstalledApplications();
 }
 
 scoped_refptr<const ApplicationData> ApplicationService::GetApplicationByID(
     const std::string& id) const {
-  return app_store_->GetApplicationByID(id);
+  return app_storage_->GetApplicationData(id);
 }
 
 const ApplicationData* ApplicationService::GetRunningApplication() const {
@@ -228,8 +228,8 @@ bool ApplicationService::Launch(
       application);
 }
 
-ApplicationStore* ApplicationService::application_store() {
-  return app_store_.get();
+ApplicationStorage* ApplicationService::application_storage() {
+  return app_storage_.get();
 }
 
 }  // namespace application

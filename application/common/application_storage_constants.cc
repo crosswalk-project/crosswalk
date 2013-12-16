@@ -2,21 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/db_store_constants.h"
+#include "xwalk/application/common/application_storage_constants.h"
 #include "base/strings/stringprintf.h"
 
 namespace xwalk {
-namespace db_store_constants {
+namespace application_storage_constants {
 
 const char kAppTableName[] = "applications";
-const char kAppID[] = "id";
-const char kAppManifest[] = "manifest";
-const char kAppPath[] = "path";
-const char kAppInstallTime[] = "install_time";
-
 const char kEventTableName[] = "registered_events";
-const char kEventAppID[] = "id";
-const char kEventsName[] = "event_names";
 
 const char kCreateAppTableOp[] =
     "CREATE TABLE applications ("
@@ -50,15 +43,6 @@ const char kUpdateApplicationWithBindOp[] =
 const char kDeleteApplicationWithBindOp[] =
     "DELETE FROM applications WHERE id = ?";
 
-const char kSetManifestWithBindOp[] =
-    "UPDATE applications SET manifest = ? WHERE id = ?";
-
-const char kSetInstallTimeWithBindOp[] =
-    "UPDATE applications SET install_time = ? WHERE id = ?";
-
-const char kSetApplicationPathWithBindOp[] =
-    "UPDATE applications SET path = ? WHERE id = ?";
-
 const char kInsertEventsWithBindOp[] =
     "INSERT INTO registered_events (event_names, id) "
     "VALUES(?,?)";
@@ -69,5 +53,5 @@ const char kUpdateEventsWithBindOp[] =
 const char kDeleteEventsWithBindOp[] =
     "DELETE FROM registered_events WHERE id = ?";
 
-}  // namespace db_store_constants
+}  // namespace application_storage_constants
 }  // namespace xwalk

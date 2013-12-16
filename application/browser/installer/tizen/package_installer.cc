@@ -16,7 +16,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
-#include "xwalk/application/browser/application_store.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/installer/tizen/packageinfo_constants.h"
 
 namespace info = xwalk::application_packageinfo_constants;

@@ -155,10 +155,9 @@ bool ApplicationProcessManager::IsOnSuspendHandlerRegistered(
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
   ApplicationService* service = system->application_service();
 
-  base::ListValue* events =
-      service->application_store()->GetApplicationEvents(app_id);
-  if (!events ||
-      events->Find(base::StringValue(kOnSuspend)) == events->end())
+  const std::set<std::string>& events =
+      service->GetApplicationByID(app_id)->GetEvents();
+  if (events.find(kOnSuspend) == events.end())
     return false;
 
   return true;
