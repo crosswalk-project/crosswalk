@@ -61,9 +61,11 @@ enum PlugOperation {
 
 namespace xwalk {
 
-TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
-                                                         indicator)
+TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(
+    TizenSystemIndicator* indicator,
+    const gfx::Display& display)
   : indicator_(indicator),
+    display_(display),
     writer_(&fd_),
     width_(-1),
     height_(-1),
@@ -74,10 +76,12 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(TizenSystemIndicator*
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();
 
-  if (indicator_->GetOrientation() == TizenSystemIndicator::PORTRAIT)
+  if (display.rotation() == gfx::Display::ROTATE_0 ||
+      display.rotation() == gfx::Display::ROTATE_180) {
     service_name_ = kServicePortrait;
-  else
+  } else {
     service_name_ = kServiceLandscape;
+  }
 }
 
 TizenSystemIndicatorWatcher::~TizenSystemIndicatorWatcher() {}
@@ -494,9 +498,8 @@ void TizenSystemIndicatorWatcher::UpdateIndicatorImage() {
   bitmap.setPixels(shared_memory_->memory());
 
   gfx::ImageSkia img_skia;
-  gfx::Display display = gfx::Screen::GetNativeScreen()->GetPrimaryDisplay();
   img_skia.AddRepresentation(gfx::ImageSkiaRep(bitmap,
-      display.device_scale_factor()));
+      display_.device_scale_factor()));
   indicator_->SetImage(img_skia);
 }
 
@@ -523,8 +526,8 @@ void TizenSystemIndicatorWatcher::SetSizeFromEnvVar() {
 }
 
 void TizenSystemIndicatorWatcher::ResizeIndicator() {
-  indicator_->PreferredSizeChanged();
   UpdateIndicatorImage();
+  indicator_->PreferredSizeChanged();
 }
 
 }  // namespace xwalk

@@ -50,12 +50,9 @@ void NativeAppWindowTizen::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
     NativeAppWindowViews::ViewHierarchyChanged(details);
-    if (indicator_->IsConnected()) {
-      AddChildView(indicator_.get());
-      top_view_layout()->set_top_view(indicator_.get());
-    } else {
-      indicator_.reset();
-    }
+
+    AddChildView(indicator_.get());
+    top_view_layout()->set_top_view(indicator_.get());
   }
 }
 
@@ -103,27 +100,10 @@ gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
   return rotate;
 }
 
-namespace {
-
-TizenSystemIndicator::Orientation ToOrientation(
-    gfx::Display::Rotation rotation) {
-  switch (rotation) {
-  case gfx::Display::ROTATE_0:
-  case gfx::Display::ROTATE_180:
-    return TizenSystemIndicator::PORTRAIT;
-  default:
-    return TizenSystemIndicator::LANDSCAPE;
-  }
-}
-
-}  // namespace
-
 void NativeAppWindowTizen::ApplyDisplayRotation() {
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   root_window->SetTransform(GetRotationTransform());
-
-  if (indicator_)
-    indicator_->SetOrientation(ToOrientation(display_.rotation()));
+  indicator_->SetDisplay(display_);
 }
 
 void NativeAppWindowTizen::OnRotationChanged(

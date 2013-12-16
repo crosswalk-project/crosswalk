@@ -21,7 +21,11 @@ class NativeAppWindowTizen : public aura::WindowObserver,
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
 
+
  private:
+  gfx::Transform GetRotationTransform() const;
+  void ApplyDisplayRotation();
+
   // NativeAppWindowViews overrides:
   virtual void Initialize() OVERRIDE;
 
@@ -35,9 +39,6 @@ class NativeAppWindowTizen : public aura::WindowObserver,
   // views::View overrides:
   virtual void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) OVERRIDE;
-
-  gfx::Transform GetRotationTransform() const;
-  void ApplyDisplayRotation();
 
   // SensorProvider::Observer overrides:
   virtual void OnRotationChanged(gfx::Display::Rotation rotation) OVERRIDE;

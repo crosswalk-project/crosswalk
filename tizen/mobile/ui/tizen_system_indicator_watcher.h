@@ -12,6 +12,7 @@
 #include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
 #include "base/message_loop/message_pump_libevent.h"
+#include "ui/gfx/display.h"
 #include "ui/gfx/size.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 #include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
@@ -25,7 +26,7 @@ class TizenSystemIndicator;
 // TizenSystemIndicator to update its image.
 class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
  public:
-  explicit TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator);
+  TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator, const gfx::Display& display);
   virtual ~TizenSystemIndicatorWatcher();
 
   // base::MessagePumpLibevent::Watcher implementation.
@@ -58,6 +59,8 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void ResizeIndicator();
 
   TizenSystemIndicator* indicator_;
+  gfx::Display display_;
+
   TizenPlugMessageWriter writer_;
 
   int fd_;

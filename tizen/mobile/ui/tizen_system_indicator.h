@@ -5,7 +5,7 @@
 #ifndef XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_H_
 #define XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_H_
 
-#include <string>
+#include "ui/gfx/display.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/views/controls/image_view.h"
 
@@ -23,9 +23,8 @@ class TizenSystemIndicator : public views::ImageView {
 
   bool IsConnected() const;
 
-  enum Orientation { LANDSCAPE, PORTRAIT };
-  void SetOrientation(Orientation orientation);
-  Orientation GetOrientation() const;
+  // Apply new display configuration.
+  void SetDisplay(const gfx::Display& display);
 
   // views::View implementation.
   gfx::Size GetPreferredSize() OVERRIDE;
@@ -36,7 +35,6 @@ class TizenSystemIndicator : public views::ImageView {
   virtual void OnMouseMoved(const ui::MouseEvent& event) OVERRIDE;
   virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
 
-  Orientation orientation_;
   scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
   friend class TizenSystemIndicatorWatcher;
 };
