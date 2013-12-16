@@ -63,7 +63,10 @@ void NativeAppWindowTizen::OnWindowBoundsChanged(
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   DCHECK_EQ(root_window, window);
 
-  // We are working with DIPs here. size() returns in DIPs.
+  // Change the bounds of child windows to make touch work correctly.
+  GetNativeWindow()->parent()->SetBounds(new_bounds);
+  GetNativeWindow()->SetBounds(new_bounds);
+
   GetWidget()->GetRootView()->SetSize(new_bounds.size());
 }
 
