@@ -39,7 +39,7 @@ class Application : public Runtime::Observer {
   };
 
   Application(scoped_refptr<const ApplicationData> data,
-              xwalk::RuntimeContext* context, Observer* observer);
+              RuntimeContext* context, Observer* observer);
   virtual ~Application();
 
   bool Launch();
@@ -49,6 +49,8 @@ class Application : public Runtime::Observer {
   std::string id() const { return application_data_->ID(); }
 
   Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
+
+  int GetRenderProcessHostID() const;
 
   const ApplicationData* data() const { return application_data_; }
 
@@ -64,9 +66,10 @@ class Application : public Runtime::Observer {
   void CloseMainDocument();
   bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
 
-  xwalk::RuntimeContext* runtime_context_;
+  RuntimeContext* runtime_context_;
   scoped_refptr<const ApplicationData> application_data_;
-  xwalk::Runtime* main_runtime_;
+  Runtime* main_runtime_;
+  int render_process_host_id_;
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;

@@ -7,6 +7,8 @@
 #include <string>
 
 #include "base/stl_util.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
@@ -54,6 +56,7 @@ Application::Application(
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
+      render_process_host_id_(0),
       observer_(observer) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
@@ -91,8 +94,11 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
 
-  if (runtimes_.empty())
+  if (runtimes_.empty()) {
+    render_process_host_id_ = 0;
     observer_->OnApplicationTerminated(this);
+    return;
+  }
 
   // FIXME: main_runtime_ should always be closed as the last one.
   if (runtimes_.size() == 1 &&
@@ -128,6 +134,8 @@ bool Application::RunMainDocument() {
     return false;
 
   main_runtime_ = Runtime::Create(runtime_context_, main_info->GetMainURL(), this);
+  render_process_host_id_ = main_runtime_->web_contents()->
+                            GetRenderProcessHost()->GetID();
   ApplicationEventManager* event_manager =
       runtime_context_->GetApplicationSystem()->event_manager();
   event_manager->OnMainDocumentCreated(
@@ -154,7 +162,10 @@ bool Application::RunFromLocalPath() {
       return false;
     }
 
-    Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
+    Runtime* runtime =
+            Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
+    render_process_host_id_ = runtime->web_contents()->
+                              GetRenderProcessHost()->GetID();
     return true;
   }
 
