@@ -157,9 +157,10 @@ void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
     extensions->push_back(new sysapps::RawSocketExtension());
 }
 
-void XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInUIThreadServer(
-    extensions::XWalkExtensionServer* server) {
-  // This empty function tries to override the implementation in the class
+void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForUIThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  // This empty function overrides the implementation in the class
   // XWalkBrowserMainParts. It's because application runtime and event related
   // extensions are not ready for Android port. Need to re-design these 2
   // mechanisms on Android. Please see JIRA issue:
