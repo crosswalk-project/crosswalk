@@ -20,20 +20,8 @@ SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
 
 namespace xwalk {
 
-TizenSystemIndicator::TizenSystemIndicator()
-    : orientation_(PORTRAIT),
-      watcher_(new TizenSystemIndicatorWatcher(this)) {
-  if (!watcher_->Connect()) {
-    watcher_.reset();
-    return;
-  }
-
+TizenSystemIndicator::TizenSystemIndicator() {
   set_background(views::Background::CreateSolidBackground(kBGColor));
-
-  content::BrowserThread::PostTask(
-      content::BrowserThread::IO, FROM_HERE,
-      base::Bind(&TizenSystemIndicatorWatcher::StartWatching,
-                 base::Unretained(watcher_.get())));
 }
 
 TizenSystemIndicator::~TizenSystemIndicator() {
@@ -126,12 +114,12 @@ void TizenSystemIndicator::OnMouseMoved(const ui::MouseEvent& event) {
   watcher_->OnMouseMove(position.x(), position.y());
 }
 
-void TizenSystemIndicator::SetOrientation(Orientation orientation) {
-  orientation_ = orientation;
+void TizenSystemIndicator::SetDisplay(const gfx::Display& display) {
   SetImage(0);
 
   // TODO(ricardotk): Add overlaying layout and event support to landscape mode.
-  watcher_.reset(new TizenSystemIndicatorWatcher(this));
+  watcher_.reset(new TizenSystemIndicatorWatcher(this, display));
+
   if (!watcher_->Connect()) {
     watcher_.reset();
     return;
@@ -141,10 +129,6 @@ void TizenSystemIndicator::SetOrientation(Orientation orientation) {
       content::BrowserThread::IO, FROM_HERE,
       base::Bind(&TizenSystemIndicatorWatcher::StartWatching,
                  base::Unretained(watcher_.get())));
-}
-
-TizenSystemIndicator::Orientation TizenSystemIndicator::GetOrientation() const {
-  return orientation_;
 }
 
 }  // namespace xwalk
