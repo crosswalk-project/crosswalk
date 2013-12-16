@@ -22,6 +22,8 @@ using content::BrowserThread;
 
 namespace {
 
+SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
+
 const char kServicePortrait[] = "elm_indicator_portrait";
 const char kServiceLandscape[] = "elm_indicator_landscape";
 const char kServiceNumber[] = "0";
@@ -76,11 +78,19 @@ TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(
   memset(&current_msg_header_, 0, sizeof(current_msg_header_));
   SetSizeFromEnvVar();
 
+  indicator_->SetImage(0);
+
   if (display.rotation() == gfx::Display::ROTATE_0 ||
       display.rotation() == gfx::Display::ROTATE_180) {
     service_name_ = kServicePortrait;
+    indicator_->set_background(
+        views::Background::CreateSolidBackground(kBGColor));
   } else {
     service_name_ = kServiceLandscape;
+    // FIXME: We should use NULL here and find out
+    // to draw the indicator on top of the web content
+    indicator_->set_background(
+        views::Background::CreateSolidBackground(SK_ColorWHITE));
   }
 }
 
