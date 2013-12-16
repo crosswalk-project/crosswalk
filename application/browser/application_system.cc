@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -24,7 +25,9 @@ namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
-    application_service_(new ApplicationService(runtime_context)),
+    app_storage_(new ApplicationStorage(runtime_context->GetPath())),
+    application_service_(new ApplicationService(runtime_context,
+                                                app_storage_.get())),
     event_manager_(new ApplicationEventManager(this)) {}
 
 ApplicationSystem::~ApplicationSystem() {
@@ -45,8 +48,8 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
 bool ApplicationSystem::HandleApplicationManagementCommands(
     const CommandLine& cmd_line, const GURL& url) {
   if (cmd_line.HasSwitch(switches::kListApplications)) {
-    const ApplicationData::ApplicationDataMap& apps = application_service_->
-        application_storage()->GetInstalledApplications();
+    const ApplicationData::ApplicationDataMap& apps =
+        app_storage_->GetInstalledApplications();
 
     LOG(INFO) << "Application ID                       Application Name";
     LOG(INFO) << "-----------------------------------------------------";

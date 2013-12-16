@@ -9,6 +9,7 @@
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/application/browser/application_event_manager.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -56,9 +57,10 @@ namespace application {
 const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
 
-ApplicationService::ApplicationService(RuntimeContext* runtime_context)
+ApplicationService::ApplicationService(RuntimeContext* runtime_context,
+                                       ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
-      app_storage_(new ApplicationStorage(runtime_context->GetPath())) {
+      app_storage_(app_storage) {
 }
 
 ApplicationService::~ApplicationService() {
@@ -224,10 +226,6 @@ Application* ApplicationService::Launch(
 
   applications_.push_back(application.release());
   return applications_.back();
-}
-
-ApplicationStorage* ApplicationService::application_storage() {
-  return app_storage_.get();
 }
 
 }  // namespace application

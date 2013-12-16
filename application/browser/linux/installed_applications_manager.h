@@ -26,7 +26,8 @@ class InstalledApplicationObject;
 class InstalledApplicationsManager : public ApplicationService::Observer {
  public:
   InstalledApplicationsManager(scoped_refptr<dbus::Bus> bus,
-                               ApplicationService* service);
+                               ApplicationService* service,
+                               ApplicationStorage* app_storage);
   ~InstalledApplicationsManager();
 
  private:
@@ -51,6 +52,7 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
 
   base::WeakPtrFactory<InstalledApplicationsManager> weak_factory_;
   ApplicationService* application_service_;
+  ApplicationStorage* app_storage_;
   dbus::ObjectManagerAdaptor adaptor_;
 };
 

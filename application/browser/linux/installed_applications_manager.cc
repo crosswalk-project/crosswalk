@@ -40,9 +40,11 @@ namespace xwalk {
 namespace application {
 
 InstalledApplicationsManager::InstalledApplicationsManager(
-    scoped_refptr<dbus::Bus> bus, ApplicationService* service)
+    scoped_refptr<dbus::Bus> bus, ApplicationService* service,
+    ApplicationStorage* app_storage)
     : weak_factory_(this),
       application_service_(service),
+      app_storage_(app_storage),
       adaptor_(bus, kInstalledManagerDBusPath) {
   application_service_->AddObserver(this);
 
@@ -62,8 +64,7 @@ InstalledApplicationsManager::~InstalledApplicationsManager() {
 
 void InstalledApplicationsManager::OnApplicationInstalled(
     const std::string& app_id) {
-  AddObject(application_service_->application_storage()
-                                ->GetApplicationData(app_id));
+  AddObject(app_storage_->GetApplicationData(app_id));
 }
 
 void InstalledApplicationsManager::OnApplicationUninstalled(
@@ -73,7 +74,7 @@ void InstalledApplicationsManager::OnApplicationUninstalled(
 
 void InstalledApplicationsManager::AddInitialObjects() {
   const ApplicationData::ApplicationDataMap& apps =
-      application_service_->application_storage()->GetInstalledApplications();
+      app_storage_->GetInstalledApplications();
   ApplicationData::ApplicationDataMap::const_iterator it;
   for (it = apps.begin(); it != apps.end(); ++it)
     AddObject(it->second);
