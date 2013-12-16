@@ -7,8 +7,10 @@
       'product_name': 'xesh',
       'dependencies': [
         '../base/base.gyp:base',
+        '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../content/content.gyp:content',
         '../ipc/ipc.gyp:ipc',
+        '../third_party/WebKit/public/blink.gyp:blink',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
         'extensions/extensions.gypi:xwalk_extensions_lib',
