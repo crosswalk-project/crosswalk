@@ -11,6 +11,7 @@ const char kAppKey[] = "app";
 const char kAppMainKey[] = "app.main";
 const char kAppMainScriptsKey[] = "app.main.scripts";
 const char kAppMainSourceKey[] = "app.main.source";
+const char kCSPKey[] = "content_security_policy";
 const char kDescriptionKey[] = "description";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchWebURLKey[] = "app.launch.web_url";
