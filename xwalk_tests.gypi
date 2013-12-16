@@ -71,6 +71,7 @@
         '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
         '../ui/ui.gyp:ui',
+        '../third_party/libxml/libxml.gyp:libxml',
         'test/base/base.gyp:xwalk_test_base',
         'xwalk_application_lib',
         'xwalk_resources',

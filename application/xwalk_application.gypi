@@ -13,6 +13,7 @@
         '../third_party/WebKit/public/blink.gyp:blink',
         '../third_party/zlib/google/zip.gyp:zip',
         'xwalk_application_resources',
+        '../third_party/libxml/libxml.gyp:libxml',
       ],
       'sources': [
         'browser/application.cc',
@@ -100,7 +101,6 @@
         }],
         [ 'tizen_mobile == 1', {
           'dependencies': [
-            '../third_party/libxml/libxml.gyp:libxml',
             'build/system.gyp:tizen',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
           ],

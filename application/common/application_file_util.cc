@@ -7,9 +7,9 @@
 #include <map>
 #include <vector>
 
-#include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/files/scoped_temp_dir.h"
+#include "base/file_util.h"
 #include "base/json/json_file_value_serializer.h"
 #include "base/logging.h"
 #include "base/metrics/histogram.h"
@@ -17,17 +17,19 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
-#include "xwalk/application/common/application_data.h"
-#include "xwalk/application/common/constants.h"
-#include "xwalk/application/common/manifest.h"
-#include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/install_warning.h"
-#include "xwalk/application/common/manifest_handler.h"
 #include "net/base/escape.h"
 #include "net/base/file_stream.h"
+#include "third_party/libxml/chromium/libxml_utils.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/install_warning.h"
+#include "xwalk/application/common/manifest.h"
+#include "xwalk/application/common/manifest_handler.h"
 
 namespace errors = xwalk::application_manifest_errors;
+namespace keys = xwalk::application_manifest_keys;
 
 namespace xwalk {
 namespace application {
@@ -70,16 +72,8 @@ scoped_refptr<ApplicationData> LoadApplication(
   return application;
 }
 
-DictionaryValue* LoadManifest(const base::FilePath& application_path,
-                              std::string* error) {
-  base::FilePath manifest_path =
-      application_path.Append(kManifestFilename);
-  if (!base::PathExists(manifest_path)) {
-    *error = base::StringPrintf("%s",
-                                errors::kManifestUnreadable);
-    return NULL;
-  }
-
+static DictionaryValue* LoadManifestXpk(const base::FilePath& manifest_path,
+      std::string* error) {
   JSONFileValueSerializer serializer(manifest_path);
   scoped_ptr<Value> root(serializer.Deserialize(NULL, error));
   if (!root.get()) {
@@ -88,8 +82,7 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
       // It would be cleaner to have the JSON reader give a specific error
       // in this case, but other code tests for a file error with
       // error->empty().  For now, be consistent.
-      *error = base::StringPrintf("%s",
-                                  errors::kManifestUnreadable);
+      *error = base::StringPrintf("%s", errors::kManifestUnreadable);
     } else {
       *error = base::StringPrintf("%s  %s",
                                   errors::kManifestParseError,
@@ -99,12 +92,81 @@ DictionaryValue* LoadManifest(const base::FilePath& application_path,
   }
 
   if (!root->IsType(Value::TYPE_DICTIONARY)) {
-    *error = base::StringPrintf("%s",
-                                errors::kManifestUnreadable);
+    *error = base::StringPrintf("%s", errors::kManifestUnreadable);
     return NULL;
   }
 
-  return static_cast<DictionaryValue*>(root.release());
+  DictionaryValue* dv = static_cast<DictionaryValue*>(root.release());
+#if defined(OS_TIZEN)
+  // Ignore any Tizen application ID, as this is automatically generated.
+  dv->Remove(keys::kTizenAppIdKey, NULL);
+#endif
+
+  return dv;
+}
+
+static DictionaryValue* LoadManifestWgt(const base::FilePath& manifest_path,
+      std::string* error) {
+  XmlReader xml;
+
+  if (!xml.LoadFile(manifest_path.MaybeAsASCII())) {
+    *error = base::StringPrintf("%s", errors::kManifestUnreadable);
+    return NULL;
+  }
+
+  while (!xml.SkipToElement()) {
+    if (!xml.Read()) {
+      *error = base::StringPrintf("%s", errors::kManifestUnreadable);
+      return NULL;
+    }
+  }
+
+  scoped_ptr<base::DictionaryValue> dv(new base::DictionaryValue);
+  std::string value;
+  while (xml.Read()) {
+    std::string node_name = xml.NodeName();
+
+    if (node_name == "widget") {
+      if (xml.NodeAttribute("version", &value))
+        dv->SetString(keys::kVersionKey, value);
+      else if (xml.NodeAttribute("id", &value))
+        dv->SetString(keys::kWebURLsKey, value);
+    } else if (node_name == "content") {
+      if (xml.NodeAttribute("src", &value))
+        dv->SetString(keys::kLaunchLocalPathKey, value);
+    } else if (node_name == "name") {
+      value = "";  // ReadElementContent() will concatenate the value.
+
+      if (xml.ReadElementContent(&value))
+        dv->SetString(keys::kNameKey, value);
+#if defined(OS_TIZEN)
+    } else if (node_name == "icon") {
+      if (xml.NodeAttribute("src", &value))
+        dv->SetString(keys::kIcon128Key, value);
+    } else if (node_name == "application") {
+      if (xml.NodeAttribute("package", &value))
+        dv->SetString(keys::kTizenAppIdKey, value);
+#endif
+    }
+  }
+
+  return dv.release();
+}
+
+DictionaryValue* LoadManifest(const base::FilePath& application_path,
+      std::string* error) {
+  base::FilePath manifest_path;
+
+  manifest_path = application_path.Append(kManifestXpkFilename);
+  if (base::PathExists(manifest_path))
+    return LoadManifestXpk(manifest_path, error);
+
+  manifest_path = application_path.Append(kManifestWgtFilename);
+  if (base::PathExists(manifest_path))
+    return LoadManifestWgt(manifest_path, error);
+
+  *error = base::StringPrintf("%s", errors::kManifestUnreadable);
+  return NULL;
 }
 
 base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {

@@ -13,8 +13,11 @@ namespace application {
 // Scheme we serve application content from.
 extern const char kApplicationScheme[];
 
-// The name of the manifest inside an application.
-extern const base::FilePath::CharType kManifestFilename[];
+// The name of the manifest inside a XPK-packaged application.
+extern const base::FilePath::CharType kManifestXpkFilename[];
+
+// The name of the manifest inside a WGT-packaged application.
+extern const base::FilePath::CharType kManifestWgtFilename[];
 
 // The name of the messages file inside an application.
 extern const base::FilePath::CharType kMessagesFilename[];

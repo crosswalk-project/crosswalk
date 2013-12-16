@@ -20,6 +20,12 @@ const char kNameKey[] = "name";
 const char kPermissionsKey[] = "permissions";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
+
+#if defined(OS_TIZEN)
+const char kTizenAppIdKey[] = "tizen_app_id";
+const char kIcon128Key[] = "icons.128";
+#endif
+
 }  // namespace application_manifest_keys
 
 namespace application_manifest_errors {
