@@ -12,7 +12,7 @@
 #include "base/process/process_handle.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/crosswalk.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "content/public/test/test_launcher.h"
@@ -38,6 +38,8 @@ void RemoveSharedMemoryFile(const std::string& filename) {
 #endif
 }
 
+}  // namespace
+
 class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
  public:
   XWalkTestSuiteInitializer() {
@@ -47,24 +49,22 @@ class XWalkTestSuiteInitializer : public testing::EmptyTestEventListener {
     content_client_.reset(new xwalk::XWalkContentClient);
     content::SetContentClient(content_client_.get());
 
-    browser_content_client_.reset(new xwalk::XWalkContentBrowserClient());
-    SetBrowserClientForTesting(browser_content_client_.get());
+    crosswalk_.reset(new xwalk::Crosswalk());
+    SetBrowserClientForTesting(crosswalk_->GetContentBrowserClient());
   }
 
   virtual void OnTestEnd(const testing::TestInfo& test_info) OVERRIDE {
-    browser_content_client_.reset();
+    crosswalk_.reset();
     content_client_.reset();
     content::SetContentClient(NULL);
   }
 
  private:
   scoped_ptr<xwalk::XWalkContentClient> content_client_;
-  scoped_ptr<xwalk::XWalkContentBrowserClient> browser_content_client_;
+  scoped_ptr<xwalk::Crosswalk> crosswalk_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkTestSuiteInitializer);
 };
-
-}  // namespace
 
 XWalkTestSuite::XWalkTestSuite(int argc, char** argv)
     : content::ContentTestSuiteBase(argc, argv) {

@@ -21,6 +21,7 @@ class XWalkExtension;
 class XWalkExtensionServer;
 }
 
+class Crosswalk;
 class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
@@ -49,7 +50,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
       extensions::XWalkExtensionServer* server) OVERRIDE;
 
 #if defined(OS_ANDROID)
-  RuntimeContext* runtime_context() { return runtime_context_.get(); }
+  RuntimeContext* runtime_context() { return runtime_context_; }
 
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand
@@ -64,7 +65,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts,
  protected:
   void RegisterExternalExtensions();
 
-  scoped_ptr<RuntimeContext> runtime_context_;
+  Crosswalk* crosswalk_;
+
+  RuntimeContext* runtime_context_;
 
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;
