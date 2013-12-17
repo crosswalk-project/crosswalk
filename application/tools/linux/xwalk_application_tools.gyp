@@ -31,6 +31,8 @@
         '..',
       ],
       'sources': [
+        'xwalk_tizen_user.h',
+        'xwalk_tizen_user.c',
         'xwalkctl_main.c',
       ],
     },

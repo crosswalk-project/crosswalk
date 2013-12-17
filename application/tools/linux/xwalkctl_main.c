@@ -8,6 +8,8 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "xwalk_tizen_user.h"
+
 static const char* xwalk_service_name = "org.crosswalkproject";
 static const char* xwalk_installed_path = "/installed";
 static const char* xwalk_installed_iface =
@@ -176,6 +178,9 @@ int main(int argc, char* argv[]) {
   // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
   g_type_init();
 #endif
+
+  if (xwalk_tizen_set_home_for_user_app())
+    exit(1);
 
   context = g_option_context_new("- Crosswalk Application Management");
   g_option_context_add_main_entries(context, entries, NULL);
