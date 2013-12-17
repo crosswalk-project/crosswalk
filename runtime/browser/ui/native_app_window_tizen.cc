@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 
+#include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/aura/root_window.h"
 #include "ui/gfx/transform.h"
@@ -18,7 +19,8 @@ namespace xwalk {
 NativeAppWindowTizen::NativeAppWindowTizen(
     const NativeAppWindow::CreateParams& create_params)
     : NativeAppWindowViews(create_params),
-      indicator_(new TizenSystemIndicator()) {
+      indicator_(new TizenSystemIndicator()),
+      allowed_orientations_(ANY) {
 }
 
 void NativeAppWindowTizen::Initialize() {
@@ -32,8 +34,12 @@ void NativeAppWindowTizen::Initialize() {
   DCHECK(root_window);
   root_window->AddObserver(this);
 
+  OnAllowedOrientationsChanged(GetAllowedUAOrientations());
   if (SensorProvider* sensor = SensorProvider::GetInstance()) {
-    OnRotationChanged(sensor->GetCurrentRotation());
+    gfx::Display::Rotation rotation
+      = GetClosestAllowedRotation(sensor->GetCurrentRotation());
+    display_.set_rotation(rotation);
+    ApplyDisplayRotation();
     sensor->AddObserver(this);
   }
 }
@@ -70,8 +76,8 @@ void NativeAppWindowTizen::OnWindowBoundsChanged(
   GetWidget()->GetRootView()->SetSize(new_bounds.size());
 }
 
-void NativeAppWindowTizen::OnWindowVisibilityChanging(aura::Window* window,
-                                                      bool visible) {
+void NativeAppWindowTizen::OnWindowVisibilityChanging(
+    aura::Window* window, bool visible) {
   if (visible)
     ApplyDisplayRotation();
 }
@@ -103,10 +109,70 @@ gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
   return rotate;
 }
 
-void NativeAppWindowTizen::ApplyDisplayRotation() {
-  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
-  root_window->SetTransform(GetRotationTransform());
-  indicator_->SetDisplay(display_);
+OrientationMask NativeAppWindowTizen::GetAllowedUAOrientations() const {
+  char* env = getenv("TIZEN_ALLOWED_ORIENTATIONS");
+  int value = env ? atoi(env) : 0;
+  if (value > 0 && value < (1 << 4))
+    return static_cast<OrientationMask>(value);
+
+  // Tizen mobile supports all orientations by default.
+  return ANY;
+}
+
+namespace {
+
+// Rotates a binary mask of 4 positions to the left.
+unsigned rotl4(unsigned value, int shift) {
+  unsigned res = (value << shift);
+  if (res > (1 << 4) - 1)
+    res = res >> 4;
+  return res;
+}
+
+}  // namespace.
+
+gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
+    gfx::Display::Rotation rotation) const {
+
+  unsigned result = PORTRAIT_PRIMARY;
+  // gfx::Display::Rotation starts at portrait-primary and
+  // belongs to the set [0:3].
+  result = rotl4(result, rotation);
+
+  // Test current orientation
+  if (allowed_orientations_ & result)
+    return rotation;
+
+  // Test orientation right of current one.
+  if (allowed_orientations_ & rotl4(result, 1))
+    return static_cast<gfx::Display::Rotation>((rotation + 1) % 4);
+
+  // Test orientation left of current one.
+  if (allowed_orientations_ & rotl4(result, 3))
+    return static_cast<gfx::Display::Rotation>((rotation + 3) % 4);
+
+  // Test orientation opposite of current one.
+  if (allowed_orientations_ & rotl4(result, 2))
+    return static_cast<gfx::Display::Rotation>((rotation + 2) % 4);
+
+  NOTREACHED();
+  return rotation;
+}
+
+void NativeAppWindowTizen::OnAllowedOrientationsChanged(
+    OrientationMask orientations) {
+  allowed_orientations_ = orientations;
+
+  if (orientations == ANY)
+    return;
+
+  gfx::Display::Rotation rotation
+      = GetClosestAllowedRotation(display_.rotation());
+  if (display_.rotation() == rotation)
+    return;
+
+  display_.set_rotation(rotation);
+  ApplyDisplayRotation();
 }
 
 void NativeAppWindowTizen::OnRotationChanged(
@@ -114,13 +180,21 @@ void NativeAppWindowTizen::OnRotationChanged(
   // We always store the current sensor position, even if we do not
   // apply it in case the window is invisible.
 
-  // FIXME: Given the current orientation (sensor), set the preferred
-  // rotation from the set of allowed orientations for this window.
-  display_.set_rotation(rotation);
+  rotation = GetClosestAllowedRotation(rotation);
+  if (display_.rotation() == rotation)
+    return;
 
+  display_.set_rotation(rotation);
+  ApplyDisplayRotation();
+}
+
+void NativeAppWindowTizen::ApplyDisplayRotation() {
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
-  if (root_window->IsVisible())
-    ApplyDisplayRotation();
+  if (!root_window->IsVisible())
+    return;
+
+  root_window->SetTransform(GetRotationTransform());
+  indicator_->SetDisplay(display_);
 }
 
 }  // namespace xwalk
