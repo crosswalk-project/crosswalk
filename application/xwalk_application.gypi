@@ -159,6 +159,7 @@
           'dependencies': [
             'application/tools/linux/xwalk_application_tools.gyp:xwalkctl',
             'application/tools/linux/xwalk_application_tools.gyp:xwalk_launcher',
+            'application/tools/tizen/xwalk_tizen_helper.gyp:xwalk-pkg-helper',
           ],
         }],
       ],
