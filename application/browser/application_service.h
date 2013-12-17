@@ -54,6 +54,9 @@ class ApplicationService {
 
  private:
   bool Launch(scoped_refptr<const ApplicationData> application);
+  bool GenerateAppIDAndLoadApplication(
+      const base::FilePath& package_path, const base::FilePath& data_dir,
+      std::string& app_id, scoped_refptr<ApplicationData>& application);
 
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> app_storage_;
