@@ -12,13 +12,9 @@
 #include "content/public/app/content_main_delegate.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 
-namespace content {
-class ContentBrowserClient;
-class ContentRendererClient;
-class ContentClient;
-}
-
 namespace xwalk {
+
+class Crosswalk;
 
 class XWalkMainDelegate : public content::ContentMainDelegate {
  public:
@@ -37,7 +33,7 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   static void InitializeResourceBundle();
 
  private:
-  scoped_ptr<content::ContentBrowserClient> browser_client_;
+  scoped_ptr<Crosswalk> crosswalk_object_;
   scoped_ptr<content::ContentRendererClient> renderer_client_;
   scoped_ptr<content::ContentClient> content_client_;
 

@@ -13,7 +13,7 @@
 #include "ui/base/ui_base_paths.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/extension_process/xwalk_extension_process_main.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/crosswalk.h"
 #include "xwalk/runtime/browser/ui/taskbar_util.h"
 #include "xwalk/runtime/common/paths_mac.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -29,11 +29,7 @@ XWalkMainDelegate::XWalkMainDelegate()
     : content_client_(new XWalkContentClient) {
 }
 
-XWalkMainDelegate::~XWalkMainDelegate() {
-  browser_client_.reset();
-  renderer_client_.reset();
-  content_client_.reset();
-}
+XWalkMainDelegate::~XWalkMainDelegate() {}
 
 bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   logging::LoggingSettings loggingSettings;
@@ -85,8 +81,8 @@ void XWalkMainDelegate::InitializeResourceBundle() {
 }
 
 content::ContentBrowserClient* XWalkMainDelegate::CreateContentBrowserClient() {
-  browser_client_.reset(new XWalkContentBrowserClient);
-  return browser_client_.get();
+  crosswalk_object_ = Crosswalk::Create();
+  return crosswalk_object_->GetContentBrowserClient();
 }
 
 content::ContentRendererClient*
