@@ -26,7 +26,7 @@
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
-#include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
+#include "xwalk/sysapps/common/sysapps_manager.h"
 #include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -159,6 +159,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   if (!command_line->HasSwitch(switches::kInstall) &&
       !command_line->HasSwitch(switches::kUninstall)) {
     extension_service_.reset(new extensions::XWalkExtensionService());
+    sysapps_manager_.reset(new sysapps::SysAppsManager());
 
     RegisterExternalExtensions();
   }
@@ -234,6 +235,8 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
       = runtime_context_->GetApplicationSystem();
   extensions->push_back(new ApplicationRuntimeExtension(app_system));
   extensions->push_back(new ApplicationEventExtension(app_system));
+
+  sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }
 
 void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
@@ -242,8 +245,8 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
   extensions->push_back(new RuntimeExtension);
   extensions->push_back(
       new experimental::DialogExtension(runtime_registry_.get()));
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
-    extensions->push_back(new sysapps::RawSocketExtension());
+
+  sysapps_manager_->CreateExtensionsForExtensionThread(extensions);
 }
 
 }  // namespace xwalk
