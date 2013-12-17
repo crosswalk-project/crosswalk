@@ -32,6 +32,7 @@
 #include "xwalk/runtime/browser/android/cookie_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_registry.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
@@ -109,7 +110,9 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
     run_default_message_loop_ = false;
   }
 
-  runtime_context_.reset(new RuntimeContext);
+  xwalk_runner_->PreMainMessageLoopRun();
+
+  runtime_context_ = xwalk_runner_->runtime_context();
   runtime_registry_.reset(new RuntimeRegistry);
   extension_service_.reset(new extensions::XWalkExtensionService);
 

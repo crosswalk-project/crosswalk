@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #include "base/logging.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 namespace xwalk {
@@ -34,6 +35,14 @@ XWalkRunner::~XWalkRunner() {
 // static
 XWalkRunner* XWalkRunner::Get() {
   return g_xwalk_runner;
+}
+
+void XWalkRunner::PreMainMessageLoopRun() {
+  runtime_context_.reset(new RuntimeContext);
+}
+
+void XWalkRunner::PostMainMessageLoopRun() {
+  runtime_context_.reset();
 }
 
 // static

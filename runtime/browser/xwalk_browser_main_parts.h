@@ -23,6 +23,7 @@ namespace xwalk {
 class RuntimeContext;
 class RuntimeRegistry;
 class RemoteDebuggingServer;
+class XWalkRunner;
 
 namespace extensions {
 class XWalkExtensionService;
@@ -59,7 +60,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
       extensions::XWalkExtensionVector* extensions);
 
 #if defined(OS_ANDROID)
-  RuntimeContext* runtime_context() { return runtime_context_.get(); }
+  RuntimeContext* runtime_context() { return runtime_context_; }
 
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand
@@ -74,7 +75,9 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
  protected:
   void RegisterExternalExtensions();
 
-  scoped_ptr<RuntimeContext> runtime_context_;
+  XWalkRunner* xwalk_runner_;
+
+  RuntimeContext* runtime_context_;
 
   // An application wide instance to manage all Runtime instances.
   scoped_ptr<RuntimeRegistry> runtime_registry_;
