@@ -85,7 +85,16 @@ void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
     ApplicationSystem* system = runtime_context_->GetApplicationSystem();
     ApplicationEventManager* event_manager = system->event_manager();
     ApplicationService* service = system->application_service();
-    std::string app_id = service->GetRunningApplication()->ID();
+
+    scoped_refptr<const ApplicationData> app_data =
+        service->GetRunningApplication();
+    const MainDocumentInfo* main_info =
+        ToMainDocumentInfo(app_data->GetManifestData(keys::kAppMainKey));
+    DCHECK(main_info);
+    if (main_info->IsPersistent())
+      return;
+
+    std::string app_id = app_data->ID();
 
     // If onSuspend is not registered in main document,
     // we close the main document immediately.

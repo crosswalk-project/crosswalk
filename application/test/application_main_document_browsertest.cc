@@ -51,3 +51,28 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   // window created by main document).
   WaitForRuntimes(2);
 }
+
+IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest,
+                       MainDocumentPersistent) {
+  content::RunAllPendingInMessageLoop();
+  // At least the main document's runtime exist after launch.
+  ASSERT_GE(GetRuntimeNumber(), 1);
+
+  xwalk::Runtime* main_runtime = xwalk::RuntimeRegistry::Get()->runtimes()[0];
+  xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
+  xwalk::application::ApplicationService* service =
+    runtime_context->GetApplicationSystem()->application_service();
+  const ApplicationData* app = service->GetRunningApplication();
+  GURL generated_url =
+    app->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);
+  // Check main document URL.
+  ASSERT_EQ(main_runtime->web_contents()->GetURL(), generated_url);
+  ASSERT_TRUE(!main_runtime->window());
+
+  // There should exist 2 runtimes(one for generated main document, one for the
+  // window created by main document).
+  WaitForRuntimes(2);
+
+  xwalk::RuntimeRegistry::Get()->runtimes()[1]->Close();
+  WaitForRuntimes(1);
+}
