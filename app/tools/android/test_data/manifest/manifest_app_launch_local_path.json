@@ -1,6 +1,11 @@
 {
   "name": "Example",
   "version": "1.0.0",
+  "app": {
+      "launch": {
+          "local_path": "abc.html"
+      }
+  },
   "description": "a sample description",
   "origin": "app://app.id",
   "icons": {
