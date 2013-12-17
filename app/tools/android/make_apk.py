@@ -495,11 +495,11 @@ def MakeApk(options, sanitized_name):
           Execution(options, sanitized_name)
       if apk_str.find('and') != -1:
         print ('The Crosswalk embedded APKs of web application "%s" for '
-               'platfrom %s were generated successfully at %s.'
+               'platform %s were generated successfully at %s.'
                % (sanitized_name, platform_str, apk_str))
       else:
         print ('The Crosswalk embedded APK of web application "%s" for '
-               'platfrom %s was generated successfully at %s.'
+               'platform %s was generated successfully at %s.'
                % (sanitized_name, platform_str, apk_str))
   else:
     print 'Unknown mode for packaging the application. Abort!'
@@ -511,73 +511,93 @@ def main(argv):
   parser.add_option('-v', '--version', action='store_true',
                     dest='version', default=False,
                     help='The version of this python tool.')
-  info = ('The manifest file with the detail of the app.'
-          'Such as: --manifest=/path/to/your/manifest/file')
-  parser.add_option('--manifest', help=info)
-  info = ('The package name. Such as: '
-          '--package=com.example.YourPackage')
-  parser.add_option('--package', help=info)
-  info = ('The apk name. Such as: --name=YourApplicationName')
-  parser.add_option('--name', help=info)
-  info = ('The version number of the app. '
-          'Such as: --app-version=TheVersionNumber')
-  parser.add_option('--app-version', help=info)
-  info = ('The application description. Such as:'
-          '--description=YourApplicationDescription')
-  parser.add_option('--description', help=info)
-  info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
-  parser.add_option('--icon', help=info)
-  info = ('The permission list. Such as: --permissions="geolocation"'
-          'For more permissions, such as:'
-          '--permissions="geolocation:permission2"')
-  parser.add_option('--permissions', help=info)
+  info = ('The packaging mode of the web application. The value \'shared\' '
+          'means that the runtime is shared across multiple application '
+          'instances and that the runtime needs to be distributed separately. '
+          'The value \'embedded\' means that the runtime is embedded into the '
+          'application itself and distributed along with it.'
+          'Set the default mode as \'embedded\'. For example: --mode=embedded')
+  parser.add_option('--mode', default='embedded', help=info)
+  info = ('The target architecture of the embedded runtime. Supported values '
+          'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
+          'architestures will be generated.')
+  parser.add_option('--arch', help=info)
+  group = optparse.OptionGroup(parser, 'Application Source Options',
+      'This packaging tool supports 3 kinds of web application source: '
+      '1) XPK package; 2) manifest.json; 3) various command line options, '
+      'for example, \'--app-url\' for website, \'--app-root\' and '
+      '\'--app-local-path\' for local web application.')
+  info = ('The path of the XPK package. For example, --xpk=/path/to/xpk/file')
+  group.add_option('--xpk', help=info)
+  info = ('The manifest file with the detail description of the application. '
+          'For example, --manifest=/path/to/your/manifest/file')
+  group.add_option('--manifest', help=info)
   info = ('The url of application. '
-          'This flag allows to package website as apk. Such as: '
+          'This flag allows to package website as apk. For example, '
           '--app-url=http://www.intel.com')
-  parser.add_option('--app-url', help=info)
+  group.add_option('--app-url', help=info)
   info = ('The root path of the web app. '
-          'This flag allows to package local web app as apk. Such as: '
+          'This flag allows to package local web app as apk. For example, '
           '--app-root=/root/path/of/the/web/app')
-  parser.add_option('--app-root', help=info)
-  info = ('The relative path of entry file based on |app_root|. '
-          'This flag should work with "--app-root" together. '
-          'Such as: --app-local-path=/relative/path/of/entry/file')
-  parser.add_option('--app-local-path', help=info)
-  info = ('The path of the developer keystore. Such as: '
-          '--keystore-path=/path/to/your/developer/keystore')
-  parser.add_option('--keystore-path', help=info)
-  info = ('The alias name of keystore. Such as: --keystore-alias=alias_name')
-  parser.add_option('--keystore-alias', help=info)
-  info = ('The passcode of keystore. Such as: --keystore-passcode=code')
-  parser.add_option('--keystore-passcode', help=info)
-  parser.add_option('--enable-remote-debugging', action='store_true',
+  group.add_option('--app-root', help=info)
+  info = ('The relative path of entry file based on the value from '
+          '\'app_root\'. This flag should work with \'--app-root\' together. '
+          'For example, --app-local-path=/relative/path/of/entry/file')
+  group.add_option('--app-local-path', help=info)
+  parser.add_option_group(group)
+  group = optparse.OptionGroup(parser, 'Mandatory arguments',
+      'They are used for describing the APK information through '
+      'command line options.')
+  info = ('The apk name. For example, --name=YourApplicationName')
+  group.add_option('--name', help=info)
+  info = ('The package name. For example, '
+          '--package=com.example.YourPackage')
+  group.add_option('--package', help=info)
+  parser.add_option_group(group)
+  group = optparse.OptionGroup(parser, 'Optional arguments',
+      'They are used for various settings for applications through '
+      'command line options.')
+  info = ('The version name of the application. '
+          'For example, --app-version=1.0.0')
+  group.add_option('--app-version', help=info)
+  info = ('The description of the application. For example, '
+          '--description=YourApplicationDescription')
+  group.add_option('--description', help=info)
+  group.add_option('--enable-remote-debugging', action='store_true',
                     dest='enable_remote_debugging', default=False,
                     help = 'Enable remote debugging.')
-  parser.add_option('-f', '--fullscreen', action='store_true',
-                    dest='fullscreen', default=False,
-                    help='Make application fullscreen.')
-  info = ('The path list for external extensions separated by os separator.'
-          'On Linux and Mac, the separator is ":". On Windows, it is ";".'
-          'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
-  parser.add_option('--extensions', help=info)
-  info = ('The packaging mode of the application. \'shared\' means '
-          'the application shares the Crosswalk with other applications; '
-          '\'embedded\' means the application owns Crosswalk Runtime itself. '
-          'Set the default mode as \'embedded\'. Such as: --mode=embedded')
-  parser.add_option('--mode', default='embedded', help=info)
-  info = ('The path of the XPK file. Such as: --xpk=/path/to/xpk/file')
-  parser.add_option('--xpk', help=info)
+  info = ('The list of external extension paths splitted by OS separators. '
+          'The separators are \':\' , \';\' and \':\' on Linux, Windows and '
+          'Mac OS respectively. For example, '
+          '--extensions=/path/to/extension1:/path/to/extension2.')
+  group.add_option('--extensions', help=info)
+  group.add_option('-f', '--fullscreen', action='store_true',
+                   dest='fullscreen', default=False,
+                   help='Make application fullscreen.')
+  info = ('The path of application icon. '
+          'Such as: --icon=/path/to/your/customized/icon')
+  group.add_option('--icon', help=info)
   info = ('The orientation of the web app\'s display on the device. '
-          'Such as: --orientation=landscape. The default value is "unspecified"'
-          'The value options are the same as those on the Android: '
+          'For example, --orientation=landscape. The default value is '
+          '\'unspecified\'. The permitted values are from Android: '
           'http://developer.android.com/guide/topics/manifest/'
           'activity-element.html#screen')
-  parser.add_option('--orientation', help=info)
-  info = ('The architecture of the platform, that web app targets. '
-          'Such as: --arch=x86. "x86" means the x86 platform; '
-          '"arm" means the ARM platform. If this option is unspecified, '
-          'all of available platform apks will be generated.')
-  parser.add_option('--arch', help=info)
+  group.add_option('--orientation', help=info)
+  info = ('The list of permissions to be used by web application. For example, '
+          '--permissions=\'geolocation:webgl\'')
+  group.add_option('--permissions', help=info)
+  parser.add_option_group(group)
+  group = optparse.OptionGroup(parser, 'Keystore Options',
+      'The keystore is a signature from web developer, it\'s used when '
+      'developer wants to distribute the applications.')
+  info = ('The path to the developer keystore. For example, '
+          '--keystore-path=/path/to/your/developer/keystore')
+  group.add_option('--keystore-path', help=info)
+  info = ('The alias name of keystore. For example, --keystore-alias=name')
+  group.add_option('--keystore-alias', help=info)
+  info = ('The passcode of keystore. For example, --keystore-passcode=code')
+  group.add_option('--keystore-passcode', help=info)
+  parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
     parser.print_help()
