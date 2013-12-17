@@ -16,7 +16,8 @@ ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (cmd_line->HasSwitch(switches::kXWalkRunAsService)) {
     service_provider_.reset(
-        new ApplicationServiceProviderLinux(application_service()));
+        new ApplicationServiceProviderLinux(application_service(),
+                                            application_storage()));
   }
 }
 

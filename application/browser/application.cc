@@ -7,9 +7,12 @@
 #include <string>
 
 #include "base/stl_util.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
@@ -17,9 +20,6 @@
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-
-using xwalk::Runtime;
-using xwalk::RuntimeContext;
 
 namespace xwalk {
 
@@ -56,6 +56,7 @@ Application::Application(
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
+      render_process_host_id_(0),
       observer_(observer) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
@@ -93,8 +94,11 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
 
-  if (runtimes_.empty())
+  if (runtimes_.empty()) {
+    render_process_host_id_ = 0;
     observer_->OnApplicationTerminated(this);
+    return;
+  }
 
   // FIXME: main_runtime_ should always be closed as the last one.
   if (runtimes_.size() == 1 &&
@@ -130,6 +134,8 @@ bool Application::RunMainDocument() {
     return false;
 
   main_runtime_ = Runtime::Create(runtime_context_, main_info->GetMainURL(), this);
+  render_process_host_id_ = main_runtime_->web_contents()->
+                            GetRenderProcessHost()->GetID();
   ApplicationEventManager* event_manager =
       runtime_context_->GetApplicationSystem()->event_manager();
   event_manager->OnMainDocumentCreated(
@@ -156,7 +162,10 @@ bool Application::RunFromLocalPath() {
       return false;
     }
 
-    Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
+    Runtime* runtime =
+            Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
+    render_process_host_id_ = runtime->web_contents()->
+                              GetRenderProcessHost()->GetID();
     return true;
   }
 
@@ -166,8 +175,7 @@ bool Application::RunFromLocalPath() {
 bool Application::IsOnSuspendHandlerRegistered(
     const std::string& app_id) const {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
-  ApplicationStorage* storage = system->application_service()
-                                      ->application_storage();
+  ApplicationStorage* storage = system->application_storage();                                     
 
   const std::set<std::string>& events =
       storage->GetApplicationData(app_id)->GetEvents();
