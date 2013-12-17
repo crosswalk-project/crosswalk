@@ -16,7 +16,6 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/base/ui_base_paths.h"
 #include "ui/base/ui_base_switches.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 
@@ -49,12 +48,6 @@ int XWalkMainDelegateAndroid::RunProcess(
     return 0;
   }
   return -1;
-}
-
-content::ContentBrowserClient*
-    XWalkMainDelegateAndroid::CreateContentBrowserClient() {
-  browser_client_.reset(new XWalkContentBrowserClient);
-  return browser_client_.get();
 }
 
 void XWalkMainDelegateAndroid::InitResourceBundle() {

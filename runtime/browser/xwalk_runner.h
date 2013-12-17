@@ -7,6 +7,12 @@
 
 #include "base/memory/scoped_ptr.h"
 
+namespace content {
+class ContentBrowserClient;
+}
+
+class XWalkTestSuiteInitializer;
+
 namespace xwalk {
 
 // Main object for the Browser Process execution in Crosswalk. It is created and
@@ -22,11 +28,18 @@ class XWalkRunner {
 
  private:
   friend class XWalkMainDelegate;
+  friend class ::XWalkTestSuiteInitializer;
 
   // Create the XWalkRunner object. We use a factory function so that we can
   // switch the concrete class on compile time based on the platform, separating
   // the per-platform behavior and data in the subclasses.
   static scoped_ptr<XWalkRunner> Create();
+
+  // Note: this is not public as we want to discourage the rest of Crosswalk to
+  // rely directly on this object.
+  content::ContentBrowserClient* GetContentBrowserClient();
+
+  scoped_ptr<content::ContentBrowserClient> content_browser_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };
