@@ -51,12 +51,6 @@ int XWalkMainDelegateAndroid::RunProcess(
   return -1;
 }
 
-content::ContentBrowserClient*
-    XWalkMainDelegateAndroid::CreateContentBrowserClient() {
-  browser_client_.reset(new XWalkContentBrowserClient);
-  return browser_client_.get();
-}
-
 void XWalkMainDelegateAndroid::InitResourceBundle() {
   int pak_fd =
       base::GlobalDescriptors::GetInstance()->MaybeGet(kXWalkPakDescriptor);

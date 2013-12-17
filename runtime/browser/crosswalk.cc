@@ -17,7 +17,7 @@ Crosswalk* g_crosswalk = NULL;
 }  // namespace
 
 Crosswalk::Crosswalk() {
-  VLOG(1) << "Creating Crosswalk object.";
+  VLOG(0) << "Creating Crosswalk object.";
   DCHECK(!g_crosswalk);
   g_crosswalk = this;
 
@@ -28,7 +28,7 @@ Crosswalk::Crosswalk() {
 Crosswalk::~Crosswalk() {
   DCHECK(g_crosswalk);
   g_crosswalk = NULL;
-  VLOG(1) << "Destroying Crosswalk object.";
+  VLOG(0) << "Destroying Crosswalk object.";
 }
 
 // static

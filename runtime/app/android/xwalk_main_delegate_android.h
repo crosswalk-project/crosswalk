@@ -29,13 +29,11 @@ class XWalkMainDelegateAndroid : public XWalkMainDelegate {
   virtual void PreSandboxStartup() OVERRIDE;
   virtual int RunProcess(const std::string& process_type,
       const content::MainFunctionParams& main_function_params) OVERRIDE;
-  virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
 
   void InitResourceBundle();
 
  private:
   scoped_ptr<content::BrowserMainRunner> browser_runner_;
-  scoped_ptr<content::ContentBrowserClient> browser_client_;
   scoped_ptr<content::ContentClient> content_client_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkMainDelegateAndroid);
