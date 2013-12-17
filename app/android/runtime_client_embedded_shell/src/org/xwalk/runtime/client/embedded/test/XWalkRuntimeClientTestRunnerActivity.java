@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -20,8 +21,10 @@ import org.xwalk.app.runtime.XWalkRuntimeClient;
  * This is a lightweight activity for tests that only require XWalk functionality.
  */
 public class XWalkRuntimeClientTestRunnerActivity extends Activity {
+    private final String TAG = "XWalkRuntimeClientTestRunnerActivity";
     private LinearLayout mLinearLayout;
     private BroadcastReceiver mReceiver;
+    private IntentFilter mIntentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +55,7 @@ public class XWalkRuntimeClientTestRunnerActivity extends Activity {
     }
 
     public void registerBroadcastReceiver(final XWalkRuntimeClient runtimeView) {
-        IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
+        mIntentFilter = new IntentFilter("org.xwalk.intent");
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -70,12 +73,36 @@ public class XWalkRuntimeClientTestRunnerActivity extends Activity {
                 }
             }
         };
-        registerReceiver(mReceiver, intentFilter);
+        registerReceiver(mReceiver, mIntentFilter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mReceiver != null & mIntentFilter != null) {
+            registerReceiver(mReceiver, mIntentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            unregisterReceiver(mReceiver);
+        } catch (IllegalArgumentException e) {
+            // Do nothing.
+            Log.e(TAG, "Illegal Argunment error");
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
+        try {
+            unregisterReceiver(mReceiver);
+        } catch (IllegalArgumentException e) {
+            // Do nothing.
+            Log.e(TAG, "Illegal Argunment error");
+        }
     }
 }
