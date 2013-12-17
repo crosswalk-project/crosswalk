@@ -20,6 +20,9 @@ void SysAppsManager::CreateExtensionsForUIThread(
 
 void SysAppsManager::CreateExtensionsForExtensionThread(
     XWalkExtensionVector* extensions) {
+  if (!XWalkRuntimeFeatures::isSysAppsEnabled())
+    return;
+
   if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
     extensions->push_back(new RawSocketExtension());
 }
