@@ -178,6 +178,8 @@
             'runtime/browser/ui/screen_orientation.h',
             'runtime/browser/xwalk_browser_main_parts_tizen.cc',
             'runtime/browser/xwalk_browser_main_parts_tizen.h',
+            'runtime/extension/screen_orientation_extension.cc',
+            'runtime/extension/screen_orientation_extension.h',
             'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.cc',
             'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h',
           ],

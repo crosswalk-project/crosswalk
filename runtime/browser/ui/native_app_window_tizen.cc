@@ -161,10 +161,8 @@ gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
 
 void NativeAppWindowTizen::OnAllowedOrientationsChanged(
     OrientationMask orientations) {
-  allowed_orientations_ = orientations;
-
-  if (orientations == ANY)
-    return;
+  allowed_orientations_ = (orientations == UA_DEFAULTS)
+      ? GetAllowedUAOrientations() : orientations;
 
   gfx::Display::Rotation rotation
       = GetClosestAllowedRotation(display_.rotation());

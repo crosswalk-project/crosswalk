@@ -22,7 +22,9 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
   virtual void CreateInternalExtensionsForExtensionThread(
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions) OVERRIDE;
-
+  virtual void CreateInternalExtensionsForUIThread(
+      content::RenderProcessHost* host,
+      extensions::XWalkExtensionVector* extensions) OVERRIDE;
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);
 };
