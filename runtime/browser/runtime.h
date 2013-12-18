@@ -54,6 +54,8 @@ class Runtime : public content::WebContentsDelegate,
   static Runtime* Create(RuntimeContext*, const GURL&, Observer* = NULL);
   // Create a new Runtime instance which binds to a default app window.
   static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&, Observer* = NULL);
+  // FIXME: This class vitally needs refactoring.
+  static Runtime* Create(RuntimeContext*, Observer* = NULL);
 
   // Attach to a default app window.
   void AttachDefaultWindow();

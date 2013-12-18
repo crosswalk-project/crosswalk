@@ -10,10 +10,14 @@
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 
+namespace content {
+class RenderProcessHost;
+}
+
 namespace xwalk {
 
 namespace application {
-class ApplicationSystem;
+class Application;
 }
 
 using extensions::XWalkExtension;
@@ -23,20 +27,18 @@ using extensions::XWalkExtensionInstance;
 
 class ApplicationRuntimeExtension : public XWalkExtension {
  public:
-  explicit ApplicationRuntimeExtension(
-      application::ApplicationSystem* application_system);
+  explicit ApplicationRuntimeExtension(application::Application* app);
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
-  application::ApplicationSystem* application_system_;
+  application::Application* application_;
 };
 
 class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit AppRuntimeExtensionInstance(
-      application::ApplicationSystem* application_system);
+  explicit AppRuntimeExtensionInstance(application::Application* app);
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
@@ -44,7 +46,7 @@ class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
   void OnGetMainDocumentID(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetManifest(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
-  application::ApplicationSystem* application_system_;
+  application::Application* application_;
 
   XWalkExtensionFunctionHandler handler_;
 };
