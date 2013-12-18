@@ -87,7 +87,9 @@ class ManifestJsonParser(object):
     ret_dict['version'] = self.data_src['version']
     if self.data_src.has_key('launch_path'):
       app_url = self.data_src['launch_path']
-    elif self.data_src.has_key('local_path'):
+    elif (self.data_src.has_key('app') and
+        self.data_src['app'].has_key('launch') and
+            self.data_src['app']['launch'].has_key('local_path')):
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
