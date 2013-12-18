@@ -19,9 +19,6 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
           </intent-filter>
-        </activity>
-        <activity android:name="org.xwalk.runtime.client.test.XWalkRuntimeClientTestRunnerActivity"
-            android:label="XWalkRuntimeClientTestRunnerActivity">
           <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />

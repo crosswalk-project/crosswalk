@@ -8,6 +8,7 @@ package org.xwalk.runtime.client.test;
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.runtime.client.shell.XWalkRuntimeClientShellActivity;
 import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
@@ -19,8 +20,8 @@ public class DeviceCapabilitiesTest extends XWalkRuntimeClientTestBase {
     // @Feature({"DeviceCapabilities"})
     @DisabledTest
     public void testDeviceCapabilities() throws Throwable {
-        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
-                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+        RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
                         getTestUtil(), this);
         helper.testDeviceCapabilities();
     }

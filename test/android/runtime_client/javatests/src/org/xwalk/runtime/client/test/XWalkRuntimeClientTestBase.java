@@ -9,20 +9,19 @@ import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 
 import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.runtime.client.shell.XWalkRuntimeClientShellActivity;
 import org.xwalk.test.util.XWalkRuntimeClientTestGeneric;
 import org.xwalk.test.util.XWalkRuntimeClientTestUtilBase;
 import org.xwalk.test.util.XWalkRuntimeClientTestUtilBase.PageStatusCallback;
 
 public class XWalkRuntimeClientTestBase
-        extends XWalkRuntimeClientTestGeneric<XWalkRuntimeClientTestRunnerActivity> {
+        extends XWalkRuntimeClientTestGeneric<XWalkRuntimeClientShellActivity> {
 
     public XWalkRuntimeClientTestBase() {
-        super(XWalkRuntimeClientTestRunnerActivity.class);
+        super(XWalkRuntimeClientShellActivity.class);
     }
 
     @Override
     public void postSetUp() {
-        getActivity().addView(getTestUtil().getTestedView().getViewForTest());
-        getActivity().registerBroadcastReceiver(getTestUtil().getTestedView());
     }
 }

@@ -18,6 +18,7 @@
       'dependencies': [
         'xwalk_test_util_java',
         'xwalk_app_runtime_client_java',
+        'xwalk_app_runtime_activity_java',
       ],
       'variables': {
         'java_in_dir': 'test/android/util/runtime_client',

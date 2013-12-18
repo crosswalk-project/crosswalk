@@ -9,6 +9,7 @@ import android.content.Context;
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
+import org.xwalk.runtime.client.shell.XWalkRuntimeClientShellActivity;
 import org.xwalk.test.util.RuntimeClientApiTestBase;
 
 /**
@@ -19,8 +20,8 @@ public class EnableRemoteDebuggingTest extends XWalkRuntimeClientTestBase {
     @Feature({"EnableRemoteDebugging"})
     public void testEnableRemoteDebugging() throws Throwable {
         Context context = getActivity();
-        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
-                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+        RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
                         getTestUtil(), this);
         helper.testEnableRemoteDebugging(getActivity(), context);
     }
@@ -32,8 +33,8 @@ public class EnableRemoteDebuggingTest extends XWalkRuntimeClientTestBase {
     @DisabledTest
     public void testDisableRemoteDebugging() throws Throwable {
         Context context = getActivity();
-        RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity> helper =
-                new RuntimeClientApiTestBase<XWalkRuntimeClientTestRunnerActivity>(
+        RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
+                new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
                         getTestUtil(), this);
         helper.testDisableRemoteDebugging(getActivity(), context);
     }
