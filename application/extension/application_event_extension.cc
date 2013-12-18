@@ -21,11 +21,10 @@
 #include "xwalk/runtime/browser/runtime.h"
 
 namespace xwalk {
-
-using application::Event;
+namespace application {
 
 ApplicationEventExtension::ApplicationEventExtension(
-    application::ApplicationSystem* system)
+    ApplicationSystem* system)
   : application_system_(system) {
   set_name("xwalk.app.events");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -33,19 +32,17 @@ ApplicationEventExtension::ApplicationEventExtension(
 }
 
 XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
-  application::ApplicationService* service =
-    application_system_->application_service();
+  ApplicationService* service = application_system_->application_service();
 
   int main_routing_id = MSG_ROUTING_NONE;
-  application::ApplicationProcessManager* pm =
-      application_system_->process_manager();
+  ApplicationProcessManager* pm = application_system_->process_manager();
   const Runtime* runtime = pm->GetMainDocumentRuntime();
   if (runtime)
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
   // FIXME: return corresponding application info after shared runtime process
   // model is enabled.
-  const application::ApplicationData* app = service->GetRunningApplication();
+  const ApplicationData* app = service->GetRunningApplication();
   CHECK(app);
   return new AppEventExtensionInstance(
       application_system_,
@@ -53,10 +50,10 @@ XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
 }
 
 AppEventExtensionInstance::AppEventExtensionInstance(
-    application::ApplicationSystem* system,
+    ApplicationSystem* system,
     const std::string& app_id,
     int main_routing_id)
-  : application::EventObserver(system ? system->event_manager(): NULL),
+  : EventObserver(system ? system->event_manager(): NULL),
     app_system_(system),
     app_id_(app_id),
     main_routing_id_(main_routing_id),
@@ -99,11 +96,9 @@ void AppEventExtensionInstance::OnRegisterEvent(
       return;
 
     // If the event is from main document, add it into system database.
-    application::ApplicationService* service =
-        app_system_->application_service();
-    application::ApplicationStorage* app_store =
-        service->application_storage();
-    scoped_refptr<application::ApplicationData> app_data =
+    ApplicationService* service = app_system_->application_service();
+    ApplicationStorage* app_store = service->application_storage();
+    scoped_refptr<ApplicationData> app_data =
         service->GetApplicationByID(app_id_);
     if (!app_data)
       return;
@@ -134,12 +129,10 @@ void AppEventExtensionInstance::OnUnregisterEvent(
 
   // If the event is from main document, remove it from system database.
   if (routing_id == main_routing_id_) {
-    application::ApplicationService* service =
-        app_system_->application_service();
-    scoped_refptr<application::ApplicationData> app_data =
+    ApplicationService* service = app_system_->application_service();
+    ApplicationStorage* app_store = service->application_storage();
+    scoped_refptr<ApplicationData> app_data =
         service->GetApplicationByID(app_id_);
-    application::ApplicationStorage* app_store =
-        service->application_storage();
     if (!app_data)
       return;
 
@@ -162,12 +155,12 @@ void AppEventExtensionInstance::OnDispatchEventFinish(
   scoped_ptr<base::ListValue> args(new base::ListValue());
   args->AppendString(event_name);
   scoped_refptr<Event> event = Event::CreateEvent(
-      application::kOnJavaScriptEventAck, args.Pass());
+      kOnJavaScriptEventAck, args.Pass());
   event_manager_->SendEvent(app_id_, event);
 }
 
 void AppEventExtensionInstance::Observe(
-    const std::string& app_id, scoped_refptr<application::Event> event) {
+    const std::string& app_id, scoped_refptr<Event> event) {
   DCHECK(app_id_ == app_id);
   EventCallbackMap::iterator it = registered_events_.find(event->name());
   if (it == registered_events_.end())
@@ -178,4 +171,5 @@ void AppEventExtensionInstance::Observe(
   it->second.Run(args.Pass());
 }
 
+}  // namespace application
 }  // namespace xwalk

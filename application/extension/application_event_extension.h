@@ -13,11 +13,9 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace xwalk {
-
 namespace application {
 class ApplicationEventManager;
 class ApplicationSystem;
-}
 
 class AppEventExtensionInstance;
 
@@ -28,19 +26,19 @@ using extensions::XWalkExtensionInstance;
 
 class ApplicationEventExtension : public XWalkExtension {
  public:
-  explicit ApplicationEventExtension(application::ApplicationSystem* system);
+  explicit ApplicationEventExtension(ApplicationSystem* system);
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
-  application::ApplicationSystem* application_system_;
+  ApplicationSystem* application_system_;
 };
 
 class AppEventExtensionInstance : public XWalkExtensionInstance,
-                                  public application::EventObserver {
+                                  public EventObserver {
  public:
-  AppEventExtensionInstance(application::ApplicationSystem* app_system,
+  AppEventExtensionInstance(ApplicationSystem* app_system,
                             const std::string& app_id,
                             int main_routing_id);
 
@@ -50,7 +48,7 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
 
   // EventObserver implementation.
   virtual void Observe(const std::string& app_id,
-                       scoped_refptr<application::Event> event) OVERRIDE;
+                       scoped_refptr<Event> event) OVERRIDE;
 
  private:
   // Registered handlers for incoming JS messages.
@@ -61,13 +59,14 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
   typedef std::map<std::string, XWalkExtensionFunctionInfo::PostResultCallback>
       EventCallbackMap;
   EventCallbackMap registered_events_;
-  application::ApplicationSystem* app_system_;
+  ApplicationSystem* app_system_;
   std::string app_id_;
   int main_routing_id_;  // routing id of the main document.
 
   XWalkExtensionFunctionHandler handler_;
 };
 
+}  // namespace application
 }  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_EXTENSION_APPLICATION_EVENT_EXTENSION_H_
