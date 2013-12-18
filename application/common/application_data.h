@@ -117,6 +117,8 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool IsPlatformApp() const;
   bool IsHostedApp() const;
 
+  bool HasMainDocument() const;
+
  private:
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;

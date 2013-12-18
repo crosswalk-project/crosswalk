@@ -57,7 +57,8 @@ class ApplicationSystem {
   // The parameter `url` contains the current URL Crosswalk is considering to
   // load.
   bool HandleApplicationManagementCommands(const CommandLine& cmd_line,
-                                           const GURL& url);
+                                           const GURL& url,
+                                           bool& run_default_message_loop);
 
   // Launches an application based on the given command line, there are
   // different ways to inform which application should be launched

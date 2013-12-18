@@ -72,12 +72,6 @@ class ApplicationEventManager {
   void OnMainDocumentCreated(const std::string& app_id,
                              content::WebContents* contents);
 
-  // TODO(xiang): Get events registered in main document.
-  const std::set<std::string> GetAppMainEvents(const std::string& app_id);
-  // TODO(xiang): save these events to backing store at app installation time.
-  void SetAppMainEvents(const std::string& app_id,
-                        const std::set<std::string>& events);
-
  private:
   ApplicationEventRouter* GetAppRouter(const std::string& app_id);
 

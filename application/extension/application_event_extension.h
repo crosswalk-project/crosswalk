@@ -40,10 +40,11 @@ class ApplicationEventExtension : public XWalkExtension {
 class AppEventExtensionInstance : public XWalkExtensionInstance,
                                   public application::EventObserver {
  public:
-  AppEventExtensionInstance(application::ApplicationEventManager* event_manager,
-                            const std::string& app_id);
-  virtual ~AppEventExtensionInstance();
+  AppEventExtensionInstance(application::ApplicationSystem* app_system,
+                            const std::string& app_id,
+                            int main_routing_id);
 
+  virtual ~AppEventExtensionInstance();
   // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
@@ -60,7 +61,9 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
   typedef std::map<std::string, XWalkExtensionFunctionInfo::PostResultCallback>
       EventCallbackMap;
   EventCallbackMap registered_events_;
+  application::ApplicationSystem* app_system_;
   std::string app_id_;
+  int main_routing_id_;  // routing id of the main document.
 
   XWalkExtensionFunctionHandler handler_;
 };
