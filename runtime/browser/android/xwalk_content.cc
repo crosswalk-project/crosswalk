@@ -16,11 +16,12 @@
 #include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
-#include "content/public/browser/web_contents.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/devtools_agent_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/common/renderer_preferences.h"
 #include "content/public/common/url_constants.h"
 #include "components/navigation_interception/intercept_navigation_delegate.h"
@@ -30,8 +31,10 @@
 #include "xwalk/runtime/browser/android/state_serializer.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client_impl.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "jni/XWalkContent_jni.h"
@@ -40,6 +43,7 @@ using base::android::AttachCurrentThread;
 using base::android::ConvertUTF8ToJavaString;
 using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
+using content::WebContents;
 using navigation_interception::InterceptNavigationDelegate;
 
 namespace xwalk {
@@ -100,9 +104,11 @@ XWalkContent* XWalkContent::FromWebContents(
 }
 
 jint XWalkContent::GetWebContents(
-    JNIEnv* env, jobject obj, jobject intercept_navigation_delegate) {
+    JNIEnv* env, jobject obj, jobject io_thread_client,
+    jobject intercept_navigation_delegate) {
   if (!web_contents_) {
-    web_contents_.reset(CreateWebContents(env, intercept_navigation_delegate));
+    web_contents_.reset(CreateWebContents(env, io_thread_client,
+                                          intercept_navigation_delegate));
 
     render_view_host_ext_.reset(
         new XWalkRenderViewHostExt(web_contents_.get()));
@@ -111,7 +117,8 @@ jint XWalkContent::GetWebContents(
 }
 
 content::WebContents* XWalkContent::CreateWebContents(
-    JNIEnv* env, jobject intercept_navigation_delegate) {
+    JNIEnv* env, jobject io_thread_client,
+    jobject intercept_navigation_delegate) {
 
   XWalkBrowserMainParts* main_parts =
           XWalkContentBrowserClient::Get()->main_parts();
@@ -126,6 +133,8 @@ content::WebContents* XWalkContent::CreateWebContents(
   web_contents->SetUserData(kXWalkContentUserDataKey,
                             new XWalkContentUserData(this));
 
+  XWalkContentsIoThreadClientImpl::RegisterPendingContents(web_contents);
+
   // XWalk does not use disambiguation popup for multiple targets.
   content::RendererPreferences* prefs =
       web_contents->GetMutableRendererPrefs();
@@ -134,6 +143,12 @@ content::WebContents* XWalkContent::CreateWebContents(
 
   XWalkContentsClientBridgeBase::Associate(web_contents,
       contents_client_bridge_.get());
+  XWalkContentsIoThreadClientImpl::Associate(web_contents,
+      ScopedJavaLocalRef<jobject>(env, io_thread_client));
+  int child_id = web_contents->GetRenderProcessHost()->GetID();
+  int route_id = web_contents->GetRoutingID();
+  RuntimeResourceDispatcherHostDelegateAndroid::OnIoThreadClientReady(
+      child_id, route_id);
   InterceptNavigationDelegate::Associate(web_contents,
       make_scoped_ptr(new InterceptNavigationDelegate(
           env, intercept_navigation_delegate)));
