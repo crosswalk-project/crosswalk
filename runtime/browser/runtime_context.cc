@@ -176,13 +176,11 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 
   // FIXME : this is called only once, what do we do when an app is terminated
   // or a new app is launched?
-  for (ScopedVector<Application>::const_iterator it =
-       service->active_applications().begin();
-       it != service->active_applications().end(); ++it) {
+  if (!service->active_applications().empty()) {
     protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
           application::kApplicationScheme,
-          CreateApplicationProtocolHandler(*it)));
+          CreateApplicationProtocolHandler(service->active_applications()[0])));
   }
 
   url_request_getter_ = new RuntimeURLRequestContextGetter(

@@ -45,6 +45,7 @@ scoped_refptr<ApplicationData> LoadApplication(
     const std::string& application_id,
     Manifest::SourceType source_type,
     std::string* error) {
+  DCHECK(base::DirectoryExists(application_path));
   scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
   if (!manifest.get())
     return NULL;

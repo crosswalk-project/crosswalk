@@ -144,7 +144,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
 
   // Handles local directory.
   base::FilePath path;
-  if (net::FileURLToFilePath(url, &path)) {
+  if (net::FileURLToFilePath(url, &path) && base::DirectoryExists(path)) {
     *run_default_message_loop = LaunchFromCommandLineParam(path);
     return true;
   }

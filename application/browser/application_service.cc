@@ -211,23 +211,20 @@ Application* ApplicationService::Launch(const std::string& id) {
           app_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
-    return false;
+    return NULL;
   }
 
   return Launch(application_data);
 }
 
 Application* ApplicationService::Launch(const base::FilePath& path) {
-  if (!base::DirectoryExists(path))
-    return false;
-
   std::string error;
   scoped_refptr<const ApplicationData> application_data =
       LoadApplication(path, Manifest::COMMAND_LINE, &error);
 
   if (!application_data) {
     LOG(ERROR) << "Error during launch application: " << error;
-    return false;
+    return NULL;
   }
 
   return Launch(application_data);
@@ -255,14 +252,15 @@ Application* ApplicationService::Launch(
   ApplicationEventManager* event_manager = system->event_manager();
   event_manager->OnAppLoaded(application_data->ID());
 
-  scoped_ptr<Application> application(new Application(application_data,
-                                                      runtime_context_, this));
-
-  if (!application->Launch())
-    return NULL;
-
-  applications_.push_back(application.release());
-  return applications_.back();
+  Application* application = new Application(application_data,
+                                             runtime_context_, this);
+  applications_.push_back(application);
+  if (!application->Launch()) {
+    applications_.get().pop_back();
+    delete application;
+    application = NULL;
+  }
+  return application;
 }
 
 }  // namespace application

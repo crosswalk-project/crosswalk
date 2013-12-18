@@ -82,9 +82,10 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),
        content::NotificationService::NoDetails());
-
-  if (GetObserver())
-    GetObserver()->OnRuntimeAdded(this);
+  if (observer_)
+    observer_->OnRuntimeAdded(this);
+  if (g_observer_for_testing)
+    g_observer_for_testing->OnRuntimeAdded(this);
 }
 
 Runtime::~Runtime() {
@@ -92,8 +93,11 @@ Runtime::~Runtime() {
           xwalk::NOTIFICATION_RUNTIME_CLOSED,
           content::Source<Runtime>(this),
           content::NotificationService::NoDetails());
-  if (GetObserver())
-    GetObserver()->OnRuntimeRemoved(this);
+
+  if (observer_)
+    observer_->OnRuntimeRemoved(this);
+  if (g_observer_for_testing)
+    g_observer_for_testing->OnRuntimeRemoved(this);
 }
 
 void Runtime::AttachDefaultWindow() {
@@ -225,7 +229,7 @@ void Runtime::WebContentsCreated(
     const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime* new_runtime = new Runtime(new_contents, GetObserver());
+  Runtime* new_runtime = new Runtime(new_contents, observer_);
   new_runtime->AttachDefaultWindow();
 }
 
@@ -323,12 +327,6 @@ void Runtime::Observe(int type,
 
 void Runtime::OnWindowDestroyed() {
   Close();
-}
-
-inline Runtime::Observer* Runtime::GetObserver() const {
-  if (g_observer_for_testing)
-    return g_observer_for_testing;
-  return observer_;
 }
 
 void Runtime::RequestMediaAccessPermission(
