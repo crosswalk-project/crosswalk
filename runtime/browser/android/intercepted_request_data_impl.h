@@ -26,6 +26,7 @@ class InterceptedRequestDataImpl : public InterceptedRequestData {
   virtual scoped_ptr<InputStream> GetInputStream(JNIEnv* env) const;
   virtual bool GetMimeType(JNIEnv* env, std::string* mime_type) const;
   virtual bool GetCharset(JNIEnv* env, std::string* charset) const;
+  virtual bool GetPackageName(JNIEnv* env, std::string* name) const;
 
   virtual net::URLRequestJob* CreateJobFor(
       net::URLRequest* request,

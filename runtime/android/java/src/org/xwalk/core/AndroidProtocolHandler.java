@@ -12,6 +12,8 @@ import android.util.TypedValue;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.List;
 
@@ -30,6 +32,8 @@ public class AndroidProtocolHandler {
     // clank/native/framework/chrome/url_request_android_job.cc.
     private static final String FILE_SCHEME = "file";
     private static final String CONTENT_SCHEME = "content";
+    private static final String APP_SCHEME = "app";
+    private static final String APP_SRC = "www";
 
     /**
      * Open an InputStream for an Android resource.
@@ -54,8 +58,32 @@ public class AndroidProtocolHandler {
             }
         } else if (uri.getScheme().equals(CONTENT_SCHEME)) {
             return openContent(context, uri);
+        } else if (uri.getScheme().equals(APP_SCHEME)) {
+            // Use package name as the host.
+            if (!uri.getHost().equals(context.getPackageName())) return null;
+
+            // path == "/" or path == ""
+            if (path.length() <= 1) return null;
+
+            return openAsset(context, appUriToFileUri(uri));
         }
+
         return null;
+    }
+
+    // Convert app uri to file uri to access the actual files in assets.
+    private static Uri appUriToFileUri(Uri uri) {
+        assert(uri.getScheme().equals(APP_SCHEME));
+        assert(uri.getPath() != null);
+
+        try {
+            URI fileUri = new URI(FILE_SCHEME,
+                nativeGetAndroidAssetPath() + APP_SRC + uri.getPath(), null);
+            return Uri.parse(fileUri.normalize().toString());
+        } catch (URISyntaxException e) {
+            Log.e(TAG, "Unable to convert app URI to file URI: " + uri, e);
+            return null;
+        }
     }
 
     private static int getFieldId(Context context, String assetType, String assetName)
@@ -172,7 +200,8 @@ public class AndroidProtocolHandler {
         if (uri.getScheme().equals(CONTENT_SCHEME)) {
             return context.getContentResolver().getType(uri);
         // Asset files may have a known extension.
-        } else if (uri.getScheme().equals(FILE_SCHEME) &&
+        } else if (uri.getScheme().equals(APP_SCHEME) ||
+                   uri.getScheme().equals(FILE_SCHEME) &&
                    path.startsWith(nativeGetAndroidAssetPath())) {
             String mimeType = URLConnection.guessContentTypeFromName(path);
             if (mimeType != null) {
@@ -185,6 +214,18 @@ public class AndroidProtocolHandler {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Get the package name of the current Activity.
+     * @param context The context manager.
+     * @return Package name.
+     */
+    @CalledByNativeUnchecked
+    public static String getPackageName(Context context) {
+        // Make sure the context is the application context.
+        // Or it will get the wrong package name in shared mode.
+        return context.getPackageName();
     }
 
     /**

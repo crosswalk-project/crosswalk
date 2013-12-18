@@ -62,8 +62,8 @@
         'java_in_dir': 'app/android/app_hello_world',
         'resource_dir': 'app/android/app_hello_world/res',
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/app_hello_world/assets/index.html',
-          '<(PRODUCT_DIR)/app_hello_world/assets/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/app_hello_world/assets/www/index.html',
+          '<(PRODUCT_DIR)/app_hello_world/assets/www/sampapp-icon-helloworld.png',
         ],
         'asset_location': '<(ant_build_out)/app_hello_world/assets',
         'app_manifest_version_code': '<(xwalk_version_code)',
@@ -71,7 +71,7 @@
       },
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/app_hello_world/assets',
+          'destination': '<(PRODUCT_DIR)/app_hello_world/assets/www',
           'files': [
             'test/android/data/index.html',
             'test/android/data/sampapp-icon-helloworld.png',
@@ -91,14 +91,14 @@
         'java_in_dir': 'app/android/app_template',
         'resource_dir': 'app/android/app_template/res',
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/app_template/assets/index.html',
-          '<(PRODUCT_DIR)/app_template/assets/sampapp-icon-helloworld.png',
+          '<(PRODUCT_DIR)/app_template/assets/www/index.html',
+          '<(PRODUCT_DIR)/app_template/assets/www/sampapp-icon-helloworld.png',
         ],
         'asset_location': '<(ant_build_out)/app_template/assets',
       },
       'copies': [
         {
-          'destination': '<(PRODUCT_DIR)/app_template/assets',
+          'destination': '<(PRODUCT_DIR)/app_template/assets/www',
           'files': [
             'test/android/data/index.html',
             'test/android/data/sampapp-icon-helloworld.png',

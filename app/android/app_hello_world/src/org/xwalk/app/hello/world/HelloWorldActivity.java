@@ -33,7 +33,7 @@ public class HelloWorldActivity extends XWalkRuntimeActivityBase {
     protected void didTryLoadRuntimeView(View runtimeView) {
         if (runtimeView != null) {
             setContentView(runtimeView);
-            getRuntimeView().loadAppFromUrl("file:///android_asset/index.html");
+            getRuntimeView().loadAppFromUrl("app://org.xwalk.app.hello.world/index.html");
         } else {
             TextView msgText = new TextView(this);
             msgText.setText("Crosswalk failed to initialize.");

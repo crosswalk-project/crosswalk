@@ -54,6 +54,11 @@ class StreamReaderJobDelegateImpl
       return intercepted_request_data_impl_->GetCharset(env, charset);
     }
 
+    virtual bool GetPackageName(JNIEnv* env,
+                                std::string* name) OVERRIDE {
+      return intercepted_request_data_impl_->GetPackageName(env, name);
+    }
+
  private:
     const InterceptedRequestDataImpl* intercepted_request_data_impl_;
 };
@@ -95,6 +100,12 @@ bool InterceptedRequestDataImpl::GetCharset(
     return false;
   *charset = ConvertJavaStringToUTF8(jstring_charset);
   return true;
+}
+
+bool InterceptedRequestDataImpl::GetPackageName(
+    JNIEnv* env, std::string* name) const {
+  // TODO(Xingnan): Implement this if we use intercepter for app scheme.
+  return false;
 }
 
 bool RegisterInterceptedRequestData(JNIEnv* env) {

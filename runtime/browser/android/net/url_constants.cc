@@ -6,6 +6,10 @@
 
 namespace xwalk {
 
+// "app:" scheme is used for accessing application resources in assets.
+// It's part of sysapps API, http://app-uri.sysapps.org.
+const char kAppScheme[] = "app";
+
 // The content: scheme is used in Android for interacting with content
 // provides.
 // See http://developer.android.com/reference/android/content/ContentUris.html

@@ -184,6 +184,10 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         xwalk::kContentScheme,
         CreateContentSchemeProtocolHandler().release());
     DCHECK(set_protocol);
+    set_protocol = job_factory->SetProtocolHandler(
+        xwalk::kAppScheme,
+        CreateAppSchemeProtocolHandler().release());
+    DCHECK(set_protocol);
     net::ProtocolInterceptJobFactory* intercept_job_factory =
         new net::ProtocolInterceptJobFactory(
             job_factory.PassAs<net::URLRequestJobFactory>(),

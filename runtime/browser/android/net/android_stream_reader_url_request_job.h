@@ -66,6 +66,10 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
         xwalk::InputStream* stream,
         std::string* charset) = 0;
 
+    virtual bool GetPackageName(
+        JNIEnv* env,
+        std::string* name) = 0;
+
     virtual ~Delegate() {}
   };
 
