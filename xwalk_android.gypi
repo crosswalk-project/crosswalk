@@ -194,6 +194,7 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/contacts_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
@@ -228,6 +229,7 @@
             'experimental/presentation/presentation_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/contacts/contacts_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/java/src/org/xwalk/runtime/extension/api/messaging/messaging_api.js',
           ],
         },
       ],

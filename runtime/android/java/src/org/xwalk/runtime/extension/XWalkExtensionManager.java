@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.api.contacts.Contacts;
 import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
+import org.xwalk.runtime.extension.api.messaging.Messaging;
 import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
 
 /**
@@ -165,6 +166,16 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 new DeviceCapabilities(jsApiContent, this);
             } catch(IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
+            }
+        }
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    Messaging.JS_API_PATH);
+                new Messaging(jsApiContent, this);
+            } catch(IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
             }
         }
     }

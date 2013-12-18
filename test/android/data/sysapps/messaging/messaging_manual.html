@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title></title>
+</head>
+<style type="text/css">
+  body { margin: auto; width: 100%; }
+  div { margin: 15; padding: 10; width: 100%; }
+  textarea { margin: 10; padding: 10; width: 95%; height: 15%; font-size: 12; resize: none; }
+  .button { margin: 10; padding: 10; width: 80%; height: 5%; font-size: 40; }
+  .title { margin: 20; padding: 20; font-size: 2.5em; font-weight: bold; }
+  .subtitle { margin: 10; padding: 10; font-size: 32; }
+  .text { font-size: 1.875em; }
+  .result { font-size: 2em; }
+  .center { text-align: center; }
+  .pass { background-color: #FFFACD; }
+</style>
+
+<body>
+
+<script>
+
+window.onload = function() {
+  var messaging = navigator.messaging || xwalk.experimental.messaging;
+
+  var errorCallback = function(error) {
+    document.title = 'Fail';
+    console.log(JSON.stringify(error));
+  }
+
+  var printJson = function(displayTagName, object) {
+    document.getElementById(displayTagName).innerHTML += JSON.stringify(object, undefined, 2);
+  }
+
+  messaging.sms.onreceived = function(evt) {
+    printJson("onreceived", evt);
+  };
+
+  messaging.sms.onserviceadded = function(evt) {
+    printJson("onserviceadded", evt);
+  };
+
+  messaging.sms.onserviceremoved = function(evt) {
+    printJson("onserviceremoved", evt);
+  };
+}
+
+</script>
+
+<div>
+  <p class="subtitle center">Receive Sms Message</p>
+  <pre class="result" id="onreceived"></p>
+</div>
+
+<div>
+  <p class="subtitle center">onserviceadded</p>
+  <pre class="result" id="onserviceadded"></p>
+</div>
+
+<div>
+  <p class="subtitle center">onserviceremoved</p>
+  <pre class="result" id="onserviceremoved"></p>
+</div>
+
+</body>
+</html>

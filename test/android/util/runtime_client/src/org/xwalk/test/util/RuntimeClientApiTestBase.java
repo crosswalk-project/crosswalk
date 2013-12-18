@@ -206,6 +206,11 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
+    // For internal extension implementation of Messaging.
+    public void testMessaging() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("messaging_mini.html");
+        mTestCase.assertEquals("Pass", title);
+    }
     // For onPause, onResume.
     public void testPauseAndResume() throws Throwable {
         String title = "";
