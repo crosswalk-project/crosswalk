@@ -157,6 +157,17 @@ XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInExtensionThreadServer(
   }
 }
 
+void XWalkBrowserMainPartsAndroid::RegisterInternalExtensionsInUIThreadServer(
+    extensions::XWalkExtensionServer* server) {
+  // This empty function tries to override the implementation in the class
+  // XWalkBrowserMainParts. It's because application runtime and event related
+  // extensions are not ready for Android port. Need to re-design these 2
+  // mechanisms on Android. Please see JIRA issue:
+  // https://crosswalk-project.org/jira/browse/XWALK-674
+  // TODO(yongsheng): Remove this implementation once above 2 features
+  // are ready for Android.
+}
+
 void XWalkBrowserMainPartsAndroid::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
   extensions_.push_back(extension.release());
