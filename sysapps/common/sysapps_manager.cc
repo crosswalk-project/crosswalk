@@ -4,7 +4,9 @@
 
 #include "xwalk/sysapps/common/sysapps_manager.h"
 
+#include "base/basictypes.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
+#include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/device_capabilities_extension_new.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
@@ -35,6 +37,13 @@ void SysAppsManager::CreateExtensionsForExtensionThread(
 
   if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
     extensions->push_back(new RawSocketExtension());
+}
+
+// static
+CPUInfoProvider* SysAppsManager::GetCPUInfoProvider() {
+  CR_DEFINE_STATIC_LOCAL(CPUInfoProvider, provider, ());
+
+  return &provider;
 }
 
 }  // namespace sysapps

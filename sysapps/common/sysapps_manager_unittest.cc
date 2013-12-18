@@ -11,7 +11,9 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
+#include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 
+using xwalk::sysapps::CPUInfoProvider;
 using xwalk::sysapps::SysAppsManager;
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
@@ -67,4 +69,16 @@ TEST(XWalkSysAppsManager, DoesNotReplaceExtensions) {
   EXPECT_EQ(extensions[0], extension_ptr);
 
   STLDeleteElements(&extensions);
+}
+
+TEST(XWalkSysAppsManager, GetCPUProvider) {
+  xwalk::sysapps::SysAppsManager manager;
+
+  CPUInfoProvider* provider(manager.GetCPUInfoProvider());
+  EXPECT_TRUE(provider != NULL);
+
+  // CPUInfoProvider is shared among different extensions
+  // instances. GetCPUInfoProvider() should always return
+  // the same provider.
+  EXPECT_EQ(provider, manager.GetCPUInfoProvider());
 }
