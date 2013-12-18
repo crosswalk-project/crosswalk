@@ -232,8 +232,10 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     extensions::XWalkExtensionVector* extensions) {
   application::ApplicationSystem* app_system
       = runtime_context_->GetApplicationSystem();
-  extensions->push_back(new ApplicationRuntimeExtension(app_system));
-  extensions->push_back(new ApplicationEventExtension(app_system));
+  extensions->push_back(
+      new application::ApplicationRuntimeExtension(app_system));
+  extensions->push_back(
+      new application::ApplicationEventExtension(app_system));
 
   sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }

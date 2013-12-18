@@ -19,9 +19,10 @@
 using content::BrowserThread;
 
 namespace xwalk {
+namespace application {
 
 ApplicationRuntimeExtension::ApplicationRuntimeExtension(
-    application::ApplicationSystem* application_system)
+    ApplicationSystem* application_system)
   : application_system_(application_system) {
   set_name("xwalk.app.runtime");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
@@ -33,7 +34,7 @@ XWalkExtensionInstance* ApplicationRuntimeExtension::CreateInstance() {
 }
 
 AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
-    application::ApplicationSystem* application_system)
+    ApplicationSystem* application_system)
   : application_system_(application_system),
     handler_(this) {
   handler_.Register(
@@ -54,9 +55,9 @@ void AppRuntimeExtensionInstance::OnGetManifest(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   base::DictionaryValue* manifest_data = NULL;
-  const application::ApplicationService* service =
+  const ApplicationService* service =
     application_system_->application_service();
-  const application::ApplicationData* app = service->GetRunningApplication();
+  const ApplicationData* app = service->GetRunningApplication();
   if (app)
     manifest_data = app->GetManifest()->value()->DeepCopy();
 
@@ -73,7 +74,7 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   int main_routing_id = MSG_ROUTING_NONE;
-  const application::ApplicationProcessManager* pm =
+  const ApplicationProcessManager* pm =
     application_system_->process_manager();
   const Runtime* runtime = pm->GetMainDocumentRuntime();
   if (runtime)
@@ -84,4 +85,5 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
   info->PostResult(results.Pass());
 }
 
+}  // namespace application
 }  // namespace xwalk
