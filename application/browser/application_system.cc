@@ -12,6 +12,8 @@
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/event_names.h"
+#include "xwalk/application/extension/application_event_extension.h"
+#include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -150,6 +152,18 @@ void ApplicationSystem::SendOnLaunchedEvent() {
 
 bool ApplicationSystem::IsRunningAsService() const {
   return false;
+}
+
+void ApplicationSystem::CreateExtensions(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  // FIXME(xiang): When service mode is enabled, we need to check whether the
+  // RPH belongs to an active application.
+  if (!application_service_->GetRunningApplication())
+    return;
+
+  extensions->push_back(new ApplicationRuntimeExtension(this));
+  extensions->push_back(new ApplicationEventExtension(this));
 }
 
 }  // namespace application
