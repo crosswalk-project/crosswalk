@@ -6,6 +6,7 @@
       'defines': ['XWALK_VERSION="<(xwalk_version)"'],
       'product_name': 'xesh',
       'dependencies': [
+        '../base/allocator/allocator.gyp:allocator',
         '../base/base.gyp:base',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../content/content.gyp:content',
@@ -13,6 +14,8 @@
         '../third_party/WebKit/public/blink.gyp:blink',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
+        '../webkit/glue/webkit_glue.gyp:glue',
+        '../webkit/glue/webkit_glue.gyp:glue_child',
         'extensions/extensions.gypi:xwalk_extensions_lib',
       ],
       'include_dirs': [
