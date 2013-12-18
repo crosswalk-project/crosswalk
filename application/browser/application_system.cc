@@ -7,12 +7,15 @@
 #include <string>
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/event_names.h"
+#include "xwalk/application/extension/application_event_extension.h"
+#include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -154,6 +157,19 @@ bool ApplicationSystem::LaunchFromCommandLine(
 
 bool ApplicationSystem::IsRunningAsService() const {
   return false;
+}
+
+void ApplicationSystem::CreateApplicationExtensions(content::RenderProcessHost* host,
+                                                    extensions::XWalkExtensionVector* extensions) const {
+  Application* application = application_service_->GetApplicationByRenderHostID(host->GetID());
+  if (!application) {
+    return; // We might be in browser mode.
+  }
+
+  extensions->push_back(new ApplicationRuntimeExtension(application));
+  extensions->push_back(new ApplicationEventExtension(
+                        event_manager_.get(), app_storage_.get(), application));
+
 }
 
 }  // namespace application

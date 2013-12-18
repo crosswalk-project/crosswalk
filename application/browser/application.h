@@ -38,7 +38,7 @@ class Application : public Runtime::Observer {
     ~Observer() {}
   };
 
-  Application(scoped_refptr<const ApplicationData> data,
+  Application(scoped_refptr<ApplicationData> data,
               RuntimeContext* context, Observer* observer);
   virtual ~Application();
 
@@ -46,13 +46,15 @@ class Application : public Runtime::Observer {
   bool is_active() const { return !runtimes_.empty(); }
   void Close();
 
+  bool HasMainDocument() const { return application_data_->HasMainDocument(); }
   std::string id() const { return application_data_->ID(); }
 
-  Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
+  Runtime* GetMainDocumentRuntime() const;
 
   int GetRenderProcessHostID() const;
 
   const ApplicationData* data() const { return application_data_; }
+  ApplicationData* data() { return application_data_; }
 
  protected:
   // Runtime::Observer implementation.
@@ -67,9 +69,8 @@ class Application : public Runtime::Observer {
   bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
 
   RuntimeContext* runtime_context_;
-  scoped_refptr<const ApplicationData> application_data_;
+  scoped_refptr<ApplicationData> application_data_;
   Runtime* main_runtime_;
-  int render_process_host_id_;
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;

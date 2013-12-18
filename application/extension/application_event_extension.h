@@ -16,7 +16,8 @@ namespace xwalk {
 
 namespace application {
 class ApplicationEventManager;
-class ApplicationSystem;
+class ApplicationStorage;
+class Application;
 }
 
 class AppEventExtensionInstance;
@@ -28,20 +29,25 @@ using extensions::XWalkExtensionInstance;
 
 class ApplicationEventExtension : public XWalkExtension {
  public:
-  explicit ApplicationEventExtension(application::ApplicationSystem* system);
+  ApplicationEventExtension(application::ApplicationEventManager* event_manager,
+                            application::ApplicationStorage* app_storage,
+                            application::Application* app);
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
-  application::ApplicationSystem* application_system_;
+  application::ApplicationEventManager* event_manager_;
+  application::ApplicationStorage* app_storage_;
+  application::Application* application_;
 };
 
 class AppEventExtensionInstance : public XWalkExtensionInstance,
                                   public application::EventObserver {
  public:
-  AppEventExtensionInstance(application::ApplicationSystem* app_system,
-                            const std::string& app_id,
+  AppEventExtensionInstance(application::ApplicationEventManager* event_manager,
+                            application::ApplicationStorage* app_storage,
+                            application::Application* app,
                             int main_routing_id);
 
   virtual ~AppEventExtensionInstance();
@@ -61,8 +67,8 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
   typedef std::map<std::string, XWalkExtensionFunctionInfo::PostResultCallback>
       EventCallbackMap;
   EventCallbackMap registered_events_;
-  application::ApplicationSystem* app_system_;
-  std::string app_id_;
+  application::ApplicationStorage* app_storage_;
+  application::Application* application_;
   int main_routing_id_;  // routing id of the main document.
 
   XWalkExtensionFunctionHandler handler_;

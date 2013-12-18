@@ -51,12 +51,11 @@ class FinishEventObserver : public EventObserver {
 };
 
 Application::Application(
-    scoped_refptr<const ApplicationData> data,
+    scoped_refptr<ApplicationData> data,
     RuntimeContext* runtime_context, Observer* observer)
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      render_process_host_id_(0),
       observer_(observer) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
@@ -70,8 +69,8 @@ bool Application::Launch() {
   if (is_active())
     return false;
 
-  if (RunMainDocument())
-    return true;
+  if (HasMainDocument())
+    return RunMainDocument();
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
   return RunFromLocalPath();
@@ -81,7 +80,7 @@ void Application::Close() {
    std::set<Runtime*> cached(runtimes_);
    std::set<Runtime*>::iterator it = cached.begin();
    for (; it!= cached.end(); ++it)
-     if (main_runtime_ != *it)
+     if (!HasMainDocument() || main_runtime_ != *it)
        (*it)->Close();
 }
 
@@ -95,13 +94,12 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   runtimes_.erase(runtime);
 
   if (runtimes_.empty()) {
-    render_process_host_id_ = 0;
     observer_->OnApplicationTerminated(this);
     return;
   }
 
   // FIXME: main_runtime_ should always be closed as the last one.
-  if (runtimes_.size() == 1 &&
+  if (runtimes_.size() == 1 && HasMainDocument() &&
       ContainsKey(runtimes_, main_runtime_)) {
     ApplicationSystem* system = runtime_context_->GetApplicationSystem();
     ApplicationEventManager* event_manager = system->event_manager();
@@ -130,12 +128,13 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
 bool Application::RunMainDocument() {
   const MainDocumentInfo* main_info =
       ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info || !main_info->GetMainURL().is_valid())
+  DCHECK(main_info);
+  if (!main_info->GetMainURL().is_valid())
     return false;
 
-  main_runtime_ = Runtime::Create(runtime_context_, main_info->GetMainURL(), this);
-  render_process_host_id_ = main_runtime_->web_contents()->
-                            GetRenderProcessHost()->GetID();
+  main_runtime_ = Runtime::Create(runtime_context_, this);
+  main_runtime_->LoadURL(main_info->GetMainURL());
+
   ApplicationEventManager* event_manager =
       runtime_context_->GetApplicationSystem()->event_manager();
   event_manager->OnMainDocumentCreated(
@@ -151,6 +150,15 @@ void Application::CloseMainDocument() {
   main_runtime_ = NULL;
 }
 
+Runtime* Application::GetMainDocumentRuntime() const {
+  return HasMainDocument() ? main_runtime_ : NULL;
+}
+
+int Application::GetRenderProcessHostID() const {
+  return main_runtime_->web_contents()->
+          GetRenderProcessHost()->GetID();
+}
+
 bool Application::RunFromLocalPath() {
   const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
@@ -162,10 +170,9 @@ bool Application::RunFromLocalPath() {
       return false;
     }
 
-    Runtime* runtime =
-            Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
-    render_process_host_id_ = runtime->web_contents()->
-                              GetRenderProcessHost()->GetID();
+    main_runtime_ = Runtime::Create(runtime_context_, this);
+    main_runtime_->LoadURL(url);
+    main_runtime_->AttachDefaultWindow();
     return true;
   }
 

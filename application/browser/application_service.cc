@@ -207,7 +207,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
 }
 
 Application* ApplicationService::Launch(const std::string& id) {
-  scoped_refptr<const ApplicationData> application_data =
+  scoped_refptr<ApplicationData> application_data =
           app_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
@@ -219,15 +219,35 @@ Application* ApplicationService::Launch(const std::string& id) {
 
 Application* ApplicationService::Launch(const base::FilePath& path) {
   std::string error;
-  scoped_refptr<const ApplicationData> application_data =
+  scoped_refptr<ApplicationData> application_data =
       LoadApplication(path, Manifest::COMMAND_LINE, &error);
-
   if (!application_data) {
     LOG(ERROR) << "Error during launch application: " << error;
     return NULL;
   }
 
   return Launch(application_data);
+}
+
+namespace {
+
+struct ApplicationRenderHostIDComparator {
+    explicit ApplicationRenderHostIDComparator(int id) : id(id) { }
+    bool operator() (Application* application) {
+       return id == application->GetRenderProcessHostID();
+    }
+    int id;
+};
+
+}
+
+Application* ApplicationService::GetApplicationByRenderHostID(int id) const {
+   ApplicationRenderHostIDComparator comparator(id);
+   ScopedVector<Application>::const_iterator found = std::find_if(
+                applications_.begin(), applications_.end(), comparator);
+   if (found != applications_.end())
+     return *found;
+   return NULL;
 }
 
 void ApplicationService::AddObserver(Observer* observer) {
@@ -247,7 +267,7 @@ void ApplicationService::OnApplicationTerminated(
 }
 
 Application* ApplicationService::Launch(
-    scoped_refptr<const ApplicationData> application_data) {
+    scoped_refptr<ApplicationData> application_data) {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
   ApplicationEventManager* event_manager = system->event_manager();
   event_manager->OnAppLoaded(application_data->ID());

@@ -45,6 +45,8 @@ class ApplicationService : public Application::Observer {
   Application* Launch(const std::string& id);
   Application* Launch(const base::FilePath& path);
 
+  Application* GetApplicationByRenderHostID(int id) const;
+
   const ScopedVector<Application>& active_applications() const {
       return applications_; }
 
@@ -55,7 +57,7 @@ class ApplicationService : public Application::Observer {
   // Implementation of Application::Observer
   virtual void OnApplicationTerminated(Application*) OVERRIDE;
 
-  Application* Launch(scoped_refptr<const ApplicationData> application_data);
+  Application* Launch(scoped_refptr<ApplicationData> application_data);
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* app_storage_;

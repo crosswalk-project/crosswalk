@@ -9,9 +9,14 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
 
 class CommandLine;
 class GURL;
+
+namespace content {
+class RenderProcessHost;
+}
 
 namespace xwalk {
 class RuntimeContext;
@@ -78,6 +83,9 @@ class ApplicationSystem {
   // Return true if the application system is running in service mode,
   // i.e. taking requests from native IPC mechanism to launch applications.
   virtual bool IsRunningAsService() const;
+
+  virtual void CreateApplicationExtensions(content::RenderProcessHost* host,
+                                           extensions::XWalkExtensionVector* extensions) const;
 
  protected:
   explicit ApplicationSystem(RuntimeContext* runtime_context);

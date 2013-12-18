@@ -11,30 +11,29 @@
 #include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
 using content::BrowserThread;
+using xwalk::application::Application;
 
 namespace xwalk {
 
 ApplicationRuntimeExtension::ApplicationRuntimeExtension(
-    application::ApplicationSystem* application_system)
-  : application_system_(application_system) {
+    Application* application)
+  : application_(application) {
   set_name("xwalk.app.runtime");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_APPLICATION_RUNTIME_API).as_string());
 }
 
 XWalkExtensionInstance* ApplicationRuntimeExtension::CreateInstance() {
-  return new AppRuntimeExtensionInstance(application_system_);
+  return new AppRuntimeExtensionInstance(application_);
 }
 
 AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
-    application::ApplicationSystem* application_system)
-  : application_system_(application_system),
+    Application* application)
+  : application_(application),
     handler_(this) {
   handler_.Register(
       "getManifest",
@@ -53,15 +52,9 @@ void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
 void AppRuntimeExtensionInstance::OnGetManifest(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  base::DictionaryValue* manifest_data = NULL;
-  const application::ApplicationService* service =
-    application_system_->application_service();
-  // FIXME: return corresponding application after shared runtime process
-  // model is enabled.
-  if (!service->active_applications().empty()) {
-    const application::Application* app = service->active_applications()[0];
-    manifest_data = app->data()->GetManifest()->value()->DeepCopy();
-  }
+
+  base::DictionaryValue* manifest_data =
+          application_->data()->GetManifest()->value()->DeepCopy();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());
   if (manifest_data)
@@ -77,15 +70,7 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   int main_routing_id = MSG_ROUTING_NONE;
 
-  const application::ApplicationService* service =
-    application_system_->application_service();
-  if (service->active_applications().empty())
-    return;
-  // FIXME: return corresponding application info after shared runtime process
-  // model is enabled.
-  const application::Application* application = service->active_applications()[0];
-  const Runtime* runtime = application->GetMainDocumentRuntime();
-  if (runtime)
+  if (Runtime* runtime = application_->GetMainDocumentRuntime())
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());
