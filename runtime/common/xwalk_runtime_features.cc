@@ -48,6 +48,8 @@ void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
   // - Description of the feature
   // - Status of the feature : experimental which is turned off by default or
   // stable which is turned on by default
+  AddFeature("SysApps", "sysapps",
+             "Master switch for the SysApps category of APIs", Stable);
   AddFeature("RawSocketsAPI", "raw-sockets",
              "JavaScript support for using TCP and UDP sockets", Stable);
   AddFeature("DeviceCapabilitiesAPI", "device-capabilities",

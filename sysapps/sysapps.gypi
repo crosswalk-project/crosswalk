@@ -6,6 +6,8 @@
     'common/common.idl',
     'common/event_target.cc',
     'common/event_target.h',
+    'common/sysapps_manager.cc',
+    'common/sysapps_manager.h',
     'raw_socket/raw_socket.idl',
     'raw_socket/raw_socket_api.js',
     'raw_socket/raw_socket_extension.cc',

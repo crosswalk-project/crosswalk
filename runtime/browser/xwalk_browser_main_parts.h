@@ -28,6 +28,10 @@ namespace extensions {
 class XWalkExtensionService;
 }
 
+namespace sysapps {
+class SysAppsManager;
+}
+
 class XWalkBrowserMainParts : public content::BrowserMainParts {
  public:
   explicit XWalkBrowserMainParts(
@@ -76,6 +80,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   scoped_ptr<RuntimeRegistry> runtime_registry_;
 
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
+  scoped_ptr<sysapps::SysAppsManager> sysapps_manager_;
 
   // Should be about:blank If no URL is specified in command line arguments.
   GURL startup_url_;
