@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
+import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
 
 import org.chromium.base.CalledByNative;
@@ -41,6 +42,7 @@ public class XWalkContent extends FrameLayout {
     private WindowAndroid mWindow;
     private XWalkView mXWalkView;
     private XWalkContentsClientBridge mContentsClientBridge;
+    private XWalkContentsIoThreadClient mIoThreadClient;
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
     private XWalkSettings mSettings;
     private XWalkGeolocationPermissions mGeolocationPermissions;
@@ -58,6 +60,7 @@ public class XWalkContent extends FrameLayout {
         mContentsClientBridge = new XWalkContentsClientBridge(mXWalkView);
         mXWalkContentsDelegateAdapter = new XWalkWebContentsDelegateAdapter(
             mContentsClientBridge);
+        mIoThreadClient = new XWalkIoThreadClientImpl();
 
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context) {
@@ -76,7 +79,7 @@ public class XWalkContent extends FrameLayout {
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
         mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
-        mWebContents = nativeGetWebContents(mXWalkContent,
+        mWebContents = nativeGetWebContents(mXWalkContent, mIoThreadClient,
                 mContentsClientBridge.getInterceptNavigationDelegate());
 
         // Initialize mWindow which is needed by content
@@ -337,6 +340,66 @@ public class XWalkContent extends FrameLayout {
         return nativeGetRoutingID(mXWalkContent);
     }
 
+    //--------------------------------------------------------------------------------------------
+    private class XWalkIoThreadClientImpl implements XWalkContentsIoThreadClient {
+        // All methods are called on the IO thread.
+
+        @Override
+        public int getCacheMode() {
+            return mSettings.getCacheMode();
+        }
+
+        @Override
+        public InterceptedRequestData shouldInterceptRequest(final String url,
+                boolean isMainFrame) {
+
+            WebResourceResponse webResourceResponse = mContentsClientBridge.shouldInterceptRequest(url);
+            InterceptedRequestData interceptedRequestData = null;
+
+            if (webResourceResponse == null) {
+                mContentsClientBridge.getCallbackHelper().postOnLoadResource(url);
+            } else {
+                if (isMainFrame && webResourceResponse.getData() == null) {
+                    mContentsClientBridge.getCallbackHelper().postOnReceivedError(-1, null, url);
+                }
+                interceptedRequestData = new InterceptedRequestData(webResourceResponse.getMimeType(),
+                                                                    webResourceResponse.getEncoding(),
+                                                                    webResourceResponse.getData());
+            }
+            return interceptedRequestData;
+        }
+
+        @Override
+        public boolean shouldBlockContentUrls() {
+            return !mSettings.getAllowContentAccess();
+        }
+
+        @Override
+        public boolean shouldBlockFileUrls() {
+            return !mSettings.getAllowFileAccess();
+        }
+
+        @Override
+        public boolean shouldBlockNetworkLoads() {
+            return mSettings.getBlockNetworkLoads();
+        }
+
+        @Override
+        public void onDownloadStart(String url,
+                                    String userAgent,
+                                    String contentDisposition,
+                                    String mimeType,
+                                    long contentLength) {
+            mContentsClientBridge.getCallbackHelper().postOnDownloadStart(url, userAgent,
+                    contentDisposition, mimeType, contentLength);
+        }
+
+        @Override
+        public void newLoginRequest(String realm, String account, String args) {
+            mContentsClientBridge.getCallbackHelper().postOnReceivedLoginRequest(realm, account, args);
+        }
+    }
+
     private class XWalkGeolocationCallback implements XWalkGeolocationPermissions.Callback {
         @Override
         public void invoke(final String origin, final boolean allow, final boolean retain) {
@@ -383,6 +446,7 @@ public class XWalkContent extends FrameLayout {
             XWalkContentsClientBridge bridge);
     private static native void nativeDestroy(int nativeXWalkContent);
     private native int nativeGetWebContents(int nativeXWalkContent,
+            XWalkContentsIoThreadClient ioThreadClient,
             InterceptNavigationDelegate delegate);
     private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(int nativeXWalkContent);

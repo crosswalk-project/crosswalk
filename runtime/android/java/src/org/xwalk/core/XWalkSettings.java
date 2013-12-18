@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.webkit.WebSettings;
 
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
@@ -35,6 +36,7 @@ public class XWalkSettings {
     private boolean mAllowUniversalAccessFromFileURLs = false;
     private boolean mAllowFileAccessFromFileURLs = false;
     private boolean mJavaScriptCanOpenWindowsAutomatically = true;
+    private int mCacheMode = WebSettings.LOAD_DEFAULT;
     private boolean mSupportMultipleWindows = false;
     private boolean mAppCacheEnabled = true;
     private boolean mDomStorageEnabled = true;
@@ -143,6 +145,26 @@ public class XWalkSettings {
     public void setWebContents(int nativeWebContents) {
         synchronized (mXWalkSettingsLock) {
             nativeSetWebContents(mNativeXWalkSettings, nativeWebContents);
+        }
+    }
+
+    /**
+     * See {@link android.webkit.WebSettings#setCacheMode}.
+     */
+    public void setCacheMode(int mode) {
+        synchronized (mXWalkSettingsLock) {
+            if (mCacheMode != mode) {
+                mCacheMode = mode;
+            }
+        }
+    }
+
+    /**
+     * See {@link android.webkit.WebSettings#getCacheMode}.
+     */
+    public int getCacheMode() {
+        synchronized (mXWalkSettingsLock) {
+            return mCacheMode;
         }
     }
 
