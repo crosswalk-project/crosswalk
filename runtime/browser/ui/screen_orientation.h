@@ -17,7 +17,10 @@ LANDSCAPE_SECONDARY = 1 << 3,
 // Combinations
 PORTRAIT            = PORTRAIT_PRIMARY | PORTRAIT_SECONDARY,
 LANDSCAPE           = LANDSCAPE_PRIMARY | LANDSCAPE_SECONDARY,
-ANY                 = PORTRAIT | LANDSCAPE
+ANY                 = PORTRAIT | LANDSCAPE,
+
+// Special
+UA_DEFAULTS         = 0
 };
 
 typedef unsigned OrientationMask;
