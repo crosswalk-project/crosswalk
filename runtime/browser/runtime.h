@@ -50,8 +50,6 @@ class Runtime : public content::WebContentsDelegate,
       ~Observer() {}
   };
 
-  void SetObserver(Observer* observer) { observer_ = observer; }
-
   // Create a new Runtime instance with the given browsing context.
   static Runtime* Create(RuntimeContext*, const GURL&, Observer* = NULL);
   // Create a new Runtime instance which binds to a default app window.
@@ -141,8 +139,6 @@ class Runtime : public content::WebContentsDelegate,
 
   // NativeAppWindowDelegate implementation.
   virtual void OnWindowDestroyed() OVERRIDE;
-
-  Observer* GetObserver() const;
 
   // The browsing context.
   xwalk::RuntimeContext* runtime_context_;
