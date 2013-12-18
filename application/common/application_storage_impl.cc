@@ -223,6 +223,8 @@ bool ApplicationStorageImpl::GetInstalledApplications(
       return false;
     }
 
+    application->install_time_ = base::Time::FromDoubleT(install_time);
+
     if (!events.empty()) {
       application->events_ =
           std::set<std::string>(events.begin(), events.end());
