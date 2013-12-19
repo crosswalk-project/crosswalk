@@ -11,18 +11,14 @@
 namespace xwalk {
 namespace sysapps {
 
-DeviceCapabilitiesExtension::DeviceCapabilitiesExtension(
-    RuntimeRegistry* runtime_registry)
-    : runtime_registry_(runtime_registry) {
+DeviceCapabilitiesExtension::DeviceCapabilitiesExtension() {
   set_name("xwalk.experimental.system");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_SYSAPPS_DEVICE_CAPABILITIES_API).as_string());
-  runtime_registry_->AddObserver(this);
   DeviceCapabilitiesInstance::DeviceMapInitialize();
 }
 
 DeviceCapabilitiesExtension::~DeviceCapabilitiesExtension() {
-  runtime_registry_->RemoveObserver(this);
 }
 
 XWalkExtensionInstance* DeviceCapabilitiesExtension::CreateInstance() {

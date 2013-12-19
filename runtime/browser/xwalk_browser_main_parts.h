@@ -21,7 +21,6 @@ class RenderProcessHost;
 namespace xwalk {
 
 class RuntimeContext;
-class RuntimeRegistry;
 class RemoteDebuggingServer;
 class XWalkRunner;
 
@@ -78,9 +77,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   XWalkRunner* xwalk_runner_;
 
   RuntimeContext* runtime_context_;
-
-  // An application wide instance to manage all Runtime instances.
-  scoped_ptr<RuntimeRegistry> runtime_registry_;
 
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
   scoped_ptr<sysapps::SysAppsManager> sysapps_manager_;

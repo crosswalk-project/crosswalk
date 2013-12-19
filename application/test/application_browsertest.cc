@@ -6,7 +6,6 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "xwalk/application/test/application_browsertest.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 
 namespace {
@@ -31,7 +30,7 @@ void ApplicationBrowserTest::SetUpCommandLine(CommandLine* commond_line) {
 }
 
 void ApplicationBrowserTest::WaitForRuntimes(int runtime_count) {
-  int count = runtime_count - GetRuntimeNumber();
+  int count = runtime_count - GetRuntimeCount();
   if (count > 0) {
     content::WindowedNotificationObserver(
         xwalk::NOTIFICATION_RUNTIME_OPENED,
@@ -43,9 +42,9 @@ void ApplicationBrowserTest::WaitForRuntimes(int runtime_count) {
         base::Bind(&WaitForRuntimeCountCallback, &count)).Wait();
   }
 
-  ASSERT_EQ(GetRuntimeNumber(), runtime_count);
+  ASSERT_EQ(GetRuntimeCount(), runtime_count);
 }
 
-int ApplicationBrowserTest::GetRuntimeNumber() {
-  return xwalk::RuntimeRegistry::Get()->runtimes().size();
+int ApplicationBrowserTest::GetRuntimeCount() const {
+  return runtimes().size();
 }

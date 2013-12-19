@@ -12,7 +12,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -172,9 +172,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // We need to run main document after installation in order to
   // register system events.
   if (application->HasMainDocument() && Launch(application->ID())) {
-    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
-    ApplicationProcessManager* pm = system->process_manager();
-    WaitForFinishLoad(pm->GetMainDocumentRuntime()->web_contents());
+    DCHECK(application_);
+    WaitForFinishLoad(application_->GetMainDocumentRuntime()->web_contents());
   }
 
   return true;
@@ -207,13 +206,14 @@ bool ApplicationService::Uninstall(const std::string& id) {
 }
 
 bool ApplicationService::Launch(const std::string& id) {
-  scoped_refptr<const ApplicationData> application = GetApplicationByID(id);
-  if (!application) {
+  scoped_refptr<const ApplicationData> application_data =
+          GetApplicationByID(id);
+  if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
     return false;
   }
 
-  return Launch(application);
+  return Launch(application_data);
 }
 
 bool ApplicationService::Launch(const base::FilePath& path) {
@@ -221,15 +221,15 @@ bool ApplicationService::Launch(const base::FilePath& path) {
     return false;
 
   std::string error;
-  scoped_refptr<const ApplicationData> application =
+  scoped_refptr<const ApplicationData> application_data =
       LoadApplication(path, Manifest::COMMAND_LINE, &error);
 
-  if (!application) {
+  if (!application_data) {
     LOG(ERROR) << "Error during launch application: " << error;
     return false;
   }
 
-  return Launch(application);
+  return Launch(application_data);
 }
 
 const ApplicationData::ApplicationDataMap&
@@ -242,10 +242,6 @@ scoped_refptr<ApplicationData> ApplicationService::GetApplicationByID(
   return app_storage_->GetApplicationData(id);
 }
 
-const ApplicationData* ApplicationService::GetRunningApplication() const {
-  return application_.get();
-}
-
 void ApplicationService::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }
@@ -255,15 +251,13 @@ void ApplicationService::RemoveObserver(Observer* observer) {
 }
 
 bool ApplicationService::Launch(
-    scoped_refptr<const ApplicationData> application) {
-  application_ = application;
+    scoped_refptr<const ApplicationData> application_data) {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
   ApplicationEventManager* event_manager = system->event_manager();
-  event_manager->OnAppLoaded(application->ID());
+  event_manager->OnAppLoaded(application_data->ID());
 
-  return system->process_manager()->LaunchApplication(
-      runtime_context_,
-      application);
+  application_.reset(new Application(application_data, runtime_context_));
+  return application_->Launch();
 }
 
 ApplicationStorage* ApplicationService::application_storage() {

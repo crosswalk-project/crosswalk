@@ -14,6 +14,10 @@
 
 namespace xwalk {
 
+namespace application {
+class Application;
+}
+
 class Runtime;
 class NativeAppWindowTizen;
 
@@ -24,17 +28,19 @@ using extensions::XWalkExtensionInstance;
 
 class ScreenOrientationExtension : public XWalkExtension {
  public:
-  explicit ScreenOrientationExtension();
+  explicit ScreenOrientationExtension(application::Application* app);
   virtual ~ScreenOrientationExtension();
 
  private:
   // XWalkExtension overrides:
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
+
+  application::Application* application_;
 };
 
 class ScreenOrientationInstance : public XWalkExtensionInstance {
  public:
-  explicit ScreenOrientationInstance(Runtime* runtime);
+  explicit ScreenOrientationInstance(application::Application* app);
   virtual ~ScreenOrientationInstance();
 
  private:
@@ -46,6 +52,8 @@ class ScreenOrientationInstance : public XWalkExtensionInstance {
 
   ScreenOrientationAPISupplement* supplement_;
   XWalkExtensionFunctionHandler handler_;
+
+  application::Application* application_;
 };
 
 }  // namespace xwalk
