@@ -146,12 +146,27 @@ bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
                                 const base::FilePath& path,
                                 const std::string& explicit_id,
                                 string16* error) {
+  std::string application_id;
+#if defined(OS_TIZEN)
+  if (manifest->HasKey(keys::kTizenAppIdKey)) {
+    if (!manifest->GetString(keys::kTizenAppIdKey, &application_id)) {
+      NOTREACHED() << "Could not get Tizen application key";
+      return false;
+    }
+  }
+
+  if (!application_id.empty()) {
+    manifest->SetApplicationID(application_id);
+    return true;
+  }
+#endif
+
   if (!explicit_id.empty()) {
     manifest->SetApplicationID(explicit_id);
     return true;
   }
 
-  std::string application_id = GenerateIdForPath(path);
+  application_id = GenerateIdForPath(path);
   if (application_id.empty()) {
     NOTREACHED() << "Could not create ID from path.";
     return false;
