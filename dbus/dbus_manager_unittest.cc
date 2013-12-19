@@ -17,10 +17,10 @@
 
 using xwalk::DBusManager;
 
-const char kTestServiceName[] = "org.crosswalkproject.test_service";
-const char kTestInterface[] = "org.crosswalkproject.test_service.Interface";
+const char kTestServiceName[] = "org.crosswalkproject.test_service1";
+const char kTestInterface[] = "org.crosswalkproject.test_service.Interface1";
 const char kTestMethod[] = "Method";
-const dbus::ObjectPath kTestObjectPath("/test/path");
+const dbus::ObjectPath kTestObjectPath("/test/path1");
 
 void EmptyCallback() {}
 

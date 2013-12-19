@@ -13,9 +13,9 @@
 #include "xwalk/dbus/dbus_manager.h"
 #include "xwalk/dbus/test_client.h"
 
-const char kTestServiceName[] = "org.crosswalkproject.test_properties";
-const char kTestInterface[] = "org.crosswalkproject.test_properties.Interface";
-const dbus::ObjectPath kTestObjectPath("/object_with_properties");
+const char kTestServiceName[] = "org.crosswalkproject.test_properties1";
+const char kTestInterface[] = "org.crosswalkproject.test_properties.Interface1";
+const dbus::ObjectPath kTestObjectPath("/object_with_properties1");
 
 class ExportObjectWithPropertiesService {
  public:

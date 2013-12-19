@@ -73,7 +73,7 @@ void OnPing(dbus::MethodCall* method_call,
 void ApplicationServiceProviderLinux::ExportTestObject() {
   dbus::ExportedObject* object =
       session_bus_->GetExportedObject(dbus::ObjectPath("/test"));
-  object->ExportMethod("org.crosswalkproject.TestInterface", "Ping",
+  object->ExportMethod("org.crosswalkproject.TestInterface1", "Ping",
                        base::Bind(&OnPing), base::Bind(&OnExported));
 }
 

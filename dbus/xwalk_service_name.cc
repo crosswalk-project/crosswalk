@@ -6,6 +6,6 @@
 
 namespace xwalk {
 
-const char kXWalkDBusServiceName[] = "org.crosswalkproject";
+const char kXWalkDBusServiceName[] = "org.crosswalkproject.Runtime1";
 
 }  // namespace xwalk

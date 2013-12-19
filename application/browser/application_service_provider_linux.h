@@ -20,8 +20,8 @@ class ApplicationService;
 class InstalledApplicationsManager;
 class RunningApplicationsManager;
 
-// Uses a D-Bus service named "org.crosswalkproject" to expose application
-// management and launch functionality from ApplicationService.
+// Uses a D-Bus service named "org.crosswalkproject.Runtime1" to expose
+// application management and launch functionality from ApplicationService.
 class ApplicationServiceProviderLinux {
  public:
   ApplicationServiceProviderLinux(ApplicationService* app_service,

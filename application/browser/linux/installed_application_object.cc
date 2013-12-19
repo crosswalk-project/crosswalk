@@ -25,7 +25,7 @@ namespace application {
 //   readonly string AppID
 //   readonly string Name
 const char kInstalledApplicationDBusInterface[] =
-    "org.crosswalkproject.Installed.Application";
+    "org.crosswalkproject.Installed.Application1";
 
 const char kInstalledApplicationDBusError[] =
     "org.crosswalkproject.Installed.Application.Error";
