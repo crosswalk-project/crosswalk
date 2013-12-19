@@ -71,6 +71,7 @@
     'includes': [
       'extensions/extensions_unittests.gypi',
       'sysapps/sysapps_unittests.gypi',
+      'xwalk_jsapi.gypi',
     ],
     'sources': [
       'application/browser/application_event_router_unittest.cc',
