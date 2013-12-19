@@ -158,6 +158,7 @@
         ['OS=="linux"', {
           'dependencies': [
             'application/tools/linux/xwalk_application_tools.gyp:xwalkctl',
+            'application/tools/linux/xwalk_application_tools.gyp:xwalk_launcher',
           ],
         }],
       ],
