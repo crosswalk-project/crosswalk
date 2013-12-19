@@ -46,7 +46,6 @@ class FinishEventObserver : public EventObserver {
       application_->CloseMainDocument();
   }
 
-
  private:
   Application* application_;
 };

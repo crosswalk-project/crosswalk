@@ -23,3 +23,4 @@ exports.getMainDocument = function(callback) {
 
 exports.onLaunched = new xwalk.app.events.Event("onLaunched");
 exports.onSuspend = new xwalk.app.events.Event("onSuspend");
+exports.onInstalled = new xwalk.app.events.Event("onInstalled");
