@@ -113,6 +113,12 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
         return mXwalkView.getTitle();
     }
 
+    // For instrumentation test.
+    @Override
+    public String[] getPermissionsForTest() {
+        return mXwalkView.getPermissionsForTest();
+    }
+
     @Override
     public void setCallbackForTest(Object callback) {
         XWalkClientForTest clientForTest = new XWalkClientForTest(mContext, mXwalkView);

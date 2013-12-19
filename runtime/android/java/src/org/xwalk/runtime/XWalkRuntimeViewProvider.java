@@ -36,4 +36,5 @@ public interface XWalkRuntimeViewProvider {
     public String getTitleForTest();
     public void setCallbackForTest(Object callback);
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded);
+    public String[] getPermissionsForTest();
 }

@@ -42,6 +42,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mGetTitleForTest;
     private Method mSetCallbackForTest;
     private Method mLoadDataForTest;
+    private Method mGetPermissionsForTest;
 
     public XWalkRuntimeClient(Activity activity, AttributeSet attrs, CrossPackageWrapperExceptionHandler exceptionHandler) {
         super(activity, RUNTIME_VIEW_CLASS_NAME, exceptionHandler, Activity.class, Context.class, AttributeSet.class);
@@ -66,6 +67,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
         mOnKeyUp = lookupMethod("onKeyUp", int.class, KeyEvent.class);
+        mGetPermissionsForTest = lookupMethod("getPermissionsForTest");
     }
 
     /**
@@ -284,5 +286,9 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         }
 
         invokeMethod(mLoadDataForTest, mInstance, data, mimeType, isBase64Encoded);
+    }
+
+    public String[] getPermissionsForTest() {
+        return (String[]) invokeMethod(mGetPermissionsForTest, mInstance);
     }
 }
