@@ -1,0 +1,20 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// Device Capabilities API
+namespace device_capabilities {
+  dictionary SystemCPU {
+    long numOfProcessors;
+    DOMString archName;
+    double load;
+  };
+
+  callback SystemCPUPromise = void (SystemCPU info, DOMString error);
+
+  interface Functions {
+    static void getCPUInfo(SystemCPUPromise promise);
+
+    [nodoc] static DeviceCapabilities deviceCapabilitiesConstructor(DOMString objectId);
+  };
+};
