@@ -14,6 +14,10 @@ using content::BrowserThread;
 namespace {
 const char kTestApiName[] = "xwalk.app.test";
 
+const char kTestNotifyPass[] = "notifyPass";
+const char kTestNotifyFail[] = "notifyFail";
+const char kTestNotifyTimeout[] = "notifyTimeout";
+
 }  // namespace
 
 ApiTestExtension::ApiTestExtension() {
@@ -36,12 +40,16 @@ ApiTestExtensionInstance::ApiTestExtensionInstance(
   : observer_(observer),
     handler_(this) {
   handler_.Register(
-      "notifyPass",
+      kTestNotifyPass,
       base::Bind(&ApiTestExtensionInstance::OnNotifyPass,
                  base::Unretained(this)));
   handler_.Register(
-      "notifyFail",
+      kTestNotifyFail,
       base::Bind(&ApiTestExtensionInstance::OnNotifyFail,
+                 base::Unretained(this)));
+  handler_.Register(
+      kTestNotifyTimeout,
+      base::Bind(&ApiTestExtensionInstance::OnNotifyTimeout,
                  base::Unretained(this)));
 }
 
@@ -52,27 +60,19 @@ void ApiTestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
 void ApiTestExtensionInstance::OnNotifyPass(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   CHECK(observer_);
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
-      base::Bind(&Observer::NotifyTestComplete,
-                 base::Unretained(observer_),
-                 Observer::PASS));
-
-  scoped_ptr<base::ListValue> results(new base::ListValue());
-  info->PostResult(results.Pass());
+  observer_->OnTestNotificationReceived(info.Pass(), kTestNotifyPass);
 }
 
 void ApiTestExtensionInstance::OnNotifyFail(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   CHECK(observer_);
-  BrowserThread::PostTask(
-      BrowserThread::UI, FROM_HERE,
-      base::Bind(&Observer::NotifyTestComplete,
-                 base::Unretained(observer_),
-                 Observer::FAILURE));
+  observer_->OnTestNotificationReceived(info.Pass(), kTestNotifyFail);
+}
 
-  scoped_ptr<base::ListValue> results(new base::ListValue());
-  info->PostResult(results.Pass());
+void ApiTestExtensionInstance::OnNotifyTimeout(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  CHECK(observer_);
+  observer_->OnTestNotificationReceived(info.Pass(), kTestNotifyTimeout);
 }
 
 ApiTestRunner::ApiTestRunner()
@@ -82,7 +82,7 @@ ApiTestRunner::ApiTestRunner()
 ApiTestRunner::~ApiTestRunner() {
 }
 
-bool ApiTestRunner::WaitForTestComplete() {
+bool ApiTestRunner::WaitForTestNotification() {
   if (result_ != NOT_SET || message_loop_runner_)
     return false;
 
@@ -92,7 +92,20 @@ bool ApiTestRunner::WaitForTestComplete() {
   return true;
 }
 
-void ApiTestRunner::NotifyTestComplete(ApiTestRunner::Result result) {
+void ApiTestRunner::OnTestNotificationReceived(
+    scoped_ptr<XWalkExtensionFunctionInfo> info,
+    const std::string& result_str) {
+  notify_func_info_.reset(info.release());
+  Result result = NOT_SET;
+  if (result_str == kTestNotifyPass)
+    result = PASS;
+  else if (result_str == kTestNotifyFail)
+    result = FAILURE;
+  else if (result_str == kTestNotifyTimeout)
+    result = TIMEOUT;
+  else
+    NOTREACHED();
+
   CHECK(result != NOT_SET);
   result_ = result;
   // It may be notified before wait really happens.
@@ -100,6 +113,12 @@ void ApiTestRunner::NotifyTestComplete(ApiTestRunner::Result result) {
     return;
 
   message_loop_runner_->Quit();
+}
+
+void ApiTestRunner::PostResultToNotificationCallback() {
+  ResetResult();
+  notify_func_info_->PostResult(
+      scoped_ptr<base::ListValue>(new base::ListValue));
 }
 
 ApiTestRunner::Result ApiTestRunner::GetTestsResult() const {

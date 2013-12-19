@@ -5,6 +5,8 @@
 #ifndef XWALK_APPLICATION_TEST_APPLICATION_TESTAPI_H_
 #define XWALK_APPLICATION_TEST_APPLICATION_TESTAPI_H_
 
+#include <string>
+
 #include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 
@@ -22,12 +24,9 @@ class ApiTestExtensionInstance : public XWalkExtensionInstance {
   // Observer will be created in UI thread.
   class Observer {
    public:
-    enum Result {
-      NOT_SET = 0,
-      PASS,
-      FAILURE,
-    };
-    virtual void NotifyTestComplete(Result result) = 0;
+    virtual void OnTestNotificationReceived(
+        scoped_ptr<XWalkExtensionFunctionInfo> info,
+        const std::string& result_str) = 0;
    protected:
     virtual ~Observer() {}
   };
@@ -39,6 +38,7 @@ class ApiTestExtensionInstance : public XWalkExtensionInstance {
  private:
   void OnNotifyPass(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnNotifyFail(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnNotifyTimeout(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   Observer* observer_;
   XWalkExtensionFunctionHandler handler_;
@@ -58,7 +58,12 @@ class ApiTestExtension : public XWalkExtension {
 
 class ApiTestRunner : public ApiTestExtensionInstance::Observer {
  public:
-  typedef ApiTestExtensionInstance::Observer::Result Result;
+  enum Result {
+    NOT_SET = 0,
+    PASS,
+    FAILURE,
+    TIMEOUT,
+  };
 
   ApiTestRunner();
   virtual ~ApiTestRunner();
@@ -66,17 +71,22 @@ class ApiTestRunner : public ApiTestExtensionInstance::Observer {
   // Block wait until the test API is called. If the test API is already called,
   // this will return immediately. Returns true if the waiting happened, returns
   // false if the waiting does not happen.
-  bool WaitForTestComplete();
+  bool WaitForTestNotification();
 
   // Implement ApiTestExtensionInstance::Observer.
-  virtual void NotifyTestComplete(Result result) OVERRIDE;
+  virtual void OnTestNotificationReceived(
+      scoped_ptr<XWalkExtensionFunctionInfo> info,
+      const std::string& result_str) OVERRIDE;
+
+  void PostResultToNotificationCallback();
 
   Result GetTestsResult() const;
 
+ private:
   // Reset current test result, then it can wait again.
   void ResetResult();
 
- private:
+  scoped_ptr<XWalkExtensionFunctionInfo> notify_func_info_;
   Result result_;
   scoped_refptr<content::MessageLoopRunner> message_loop_runner_;
 };

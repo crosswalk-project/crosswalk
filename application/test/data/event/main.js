@@ -1,20 +1,10 @@
-function assert(condition, message) {
-  if (!condition)
-    throw message || "Assertion failed";
-};
+var tests = [
+  function(resolve) {
+    xwalk.app.runtime.onLaunched.addListener(function() {
+        resolve();
+    });
+  },
+];
 
-function runTestCase(fn) {
-  try {
-    fn();
-  } catch(e) {
-    console.log(e);
-    console.log(new Error().stack);
-    xwalk.app.test.notifyFail(function(){});
-  }
-};
-
-runTestCase(function() {
-  xwalk.app.runtime.onLaunched.addListener(function() {
-    window.open("index.html");
-  });
-});
+// Wait at most 10 seconds, see commen in eventapi/main.js
+xwalk.app.test.runTests(tests, 10000);

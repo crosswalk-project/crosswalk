@@ -19,6 +19,6 @@ class ApplicationEventTest : public ApplicationApiTest {
 };
 
 IN_PROC_BROWSER_TEST_F(ApplicationEventTest, EventTest) {
-  test_runner_->WaitForTestComplete();
+  test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }

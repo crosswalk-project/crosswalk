@@ -41,9 +41,6 @@ void ApplicationApiTest::CreateExtensions(XWalkExtensionVector* extensions) {
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationApiTest, ApiTest) {
-  // Wait for main document and its opened test window ready.
-  WaitForRuntimes(2);
-
-  test_runner_->WaitForTestComplete();
+  test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }

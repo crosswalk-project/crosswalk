@@ -1,40 +1,10 @@
-function assert(condition, message) {
-  if (!condition)
-    throw message || "Assertion failed";
-};
-
-function runTestCase(fn) {
-  try {
-    fn();
-  } catch(e) {
-    console.log(e);
-    console.log(new Error().stack);
-    xwalk.app.test.notifyFail(function(){});
-  }
-};
-
-function dummy(arg1, arg2) {
-  runTestCase(function() {
-    assert(arg1 === 1234);
-    assert(arg2 === false);
+var assert = xwalk.app.test.assert;
+var dummy_called = false;
+var eventListenerTest = function(resolve) {
+  function dummy(arg1, arg2) {
     dummy_called = true;
-  });
-};
+  };
 
-function bad() {
-  assert(false); 
-};
-
-function foo(arg1, arg2) {
-  runTestCase(function() {
-    assert(dummy_called === true);
-    assert(arg1 === 1234);
-    assert(arg2 === false);
-    xwalk.app.test.notifyPass(function(){});
-  });
-};
-
-runTestCase(function() {
   onMockEvent = new xwalk.app.events.Event("onMockEvent");
   var onMockEvent2 = new xwalk.app.events.Event("onMockEvent");
 
@@ -54,14 +24,36 @@ runTestCase(function() {
     assert(e.message.search("already registered") >= 0);
   }
 
-  xwalk.app.test.notifyPass(function(){});
-});
+  resolve();
+};
 
-// The "bad" handler will triggers exception which catched by Event.dispatchEvent.
-onMockEvent.addListener(bad);
-onMockEvent.addListener(foo);
+var eventDispatchTest = function(resolve) {
+  function bad() {
+    assert(false); 
+  };
 
-// Wait one sec, if the foo listener is not trigger then return fail.
-setTimeout(function() {
-  xwalk.app.test.notifyFail(function() {});
-}, 1000);
+  function foo(arg1, arg2) {
+    assert(dummy_called === true);
+    assert(arg1 === 1234);
+    assert(arg2 === false);
+    resolve();
+  };
+
+  // The "bad" handler will triggers exception which catched by
+  // Event.dispatchEvent.
+  onMockEvent.addListener(bad);
+  onMockEvent.addListener(foo);
+
+  // Send a notification here to make sure the event listeners are set before
+  // event sending.
+  xwalk.app.test.notifyPass();
+};
+
+var tests = [
+  eventListenerTest,
+  eventDispatchTest,
+];
+
+// Wait at most 10 seconds before sending TIMEOUT fail. When multiple browser
+// tests running parallelly the finish time may longer than expected.
+xwalk.app.test.runTests(tests, 10000);
