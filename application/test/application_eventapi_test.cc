@@ -99,17 +99,14 @@ class ApplicationEventApiTest : public ApplicationApiTest {
 };
 
 IN_PROC_BROWSER_TEST_F(ApplicationEventApiTest, EventApiTest) {
-  test_runner_->WaitForTestComplete();
-  ASSERT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
-
-  PrepareFinishObserver();
-  test_runner_->ResetResult();
-
-  // Send event to test JS listeners and event finish observer.
-  SendEvent();
-  test_runner_->WaitForTestComplete();
+  test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
-  content::RunAllPendingInMessageLoop();
+
+  test_runner_->PostResultToNotificationCallback();
+  PrepareFinishObserver();
+  SendEvent();
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
   EXPECT_TRUE(EventFinishObserverNotified());
   CloseFinishObserver();
 }

@@ -20,14 +20,19 @@ void ApplicationTestApiTest::SetUpCommandLine(CommandLine* command_line) {
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationTestApiTest, TestApiTest) {
-  // Wait for main document open.
-  WaitForRuntimes(1);
-
-  test_runner_->WaitForTestComplete();
+  test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::FAILURE);
 
-  // We must reset the result before wait again.
-  test_runner_->ResetResult();
-  test_runner_->WaitForTestComplete();
+  test_runner_->PostResultToNotificationCallback();
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
+
+  test_runner_->PostResultToNotificationCallback();
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::TIMEOUT);
+
+  // xwalk.app.test.runTest will notify pass when all tests are finished.
+  test_runner_->PostResultToNotificationCallback();
+  test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }
