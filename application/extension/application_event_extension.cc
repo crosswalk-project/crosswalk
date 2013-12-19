@@ -7,6 +7,7 @@
 #include <set>
 
 #include "base/stl_util.h"
+#include "base/threading/thread_restrictions.h"
 #include "content/public/browser/web_contents.h"
 #include "grit/xwalk_application_resources.h"
 #include "ipc/ipc_message.h"
@@ -68,6 +69,9 @@ AppEventExtensionInstance::AppEventExtensionInstance(
                     base::Bind(
                         &AppEventExtensionInstance::OnDispatchEventFinish,
                         base::Unretained(this)));
+  // FIXME: give UI thread I/O permission temporarily. The application storage
+  // database should be accessed on DB thread.
+  base::ThreadRestrictions::SetIOAllowed(true);
 }
 
 AppEventExtensionInstance::~AppEventExtensionInstance() {
