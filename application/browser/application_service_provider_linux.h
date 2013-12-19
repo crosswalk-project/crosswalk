@@ -6,7 +6,12 @@
 #define XWALK_APPLICATION_BROWSER_APPLICATION_SERVICE_PROVIDER_LINUX_H_
 
 #include <string>
-#include "xwalk/dbus/dbus_manager.h"
+#include "base/memory/ref_counted.h"
+#include "base/memory/scoped_ptr.h"
+
+namespace dbus {
+class Bus;
+}
 
 namespace xwalk {
 namespace application {
@@ -19,7 +24,8 @@ class RunningApplicationsManager;
 // management and launch functionality from ApplicationService.
 class ApplicationServiceProviderLinux {
  public:
-  explicit ApplicationServiceProviderLinux(ApplicationService* app_service);
+  ApplicationServiceProviderLinux(ApplicationService* app_service,
+                                  scoped_refptr<dbus::Bus> session_bus);
   virtual ~ApplicationServiceProviderLinux();
 
  private:
@@ -28,7 +34,7 @@ class ApplicationServiceProviderLinux {
   // TODO(cmarcelo): Remove this once we expose real objects.
   void ExportTestObject();
 
-  DBusManager dbus_manager_;
+  scoped_refptr<dbus::Bus> session_bus_;
   scoped_ptr<InstalledApplicationsManager> installed_apps_;
   scoped_ptr<RunningApplicationsManager> running_apps_;
 };
