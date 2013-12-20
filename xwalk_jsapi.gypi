@@ -8,6 +8,7 @@
     'api_gen_dir': '<(DEPTH)/tools/json_schema_compiler',
     'api_gen': '<(api_gen_dir)/compiler.py',
     'root_namespace': 'xwalk::jsapi',
+    'jsapi_component%': '',
   },
   'rules': [
     {
@@ -29,15 +30,15 @@
         '<(api_gen_dir)/util_cc_helper.py',
       ],
       'outputs': [
-        '<(SHARED_INTERMEDIATE_DIR)/xwalk/<(RULE_INPUT_DIRNAME)/<(RULE_INPUT_ROOT).cc',
-        '<(SHARED_INTERMEDIATE_DIR)/xwalk/<(RULE_INPUT_DIRNAME)/<(RULE_INPUT_ROOT).h',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/<(jsapi_component)/<(RULE_INPUT_DIRNAME)/<(RULE_INPUT_ROOT).cc',
+        '<(SHARED_INTERMEDIATE_DIR)/xwalk/<(jsapi_component)/<(RULE_INPUT_DIRNAME)/<(RULE_INPUT_ROOT).h',
       ],
       'action': [
         'python',
         '<(api_gen)',
         '<(RULE_INPUT_PATH)',
-        '--root=<(DEPTH)',
-        '--destdir=<(SHARED_INTERMEDIATE_DIR)',
+        '--root=.',
+        '--destdir=<(SHARED_INTERMEDIATE_DIR)/xwalk/<(jsapi_component)',
         '--namespace=<(root_namespace)',
         '--generator=cpp',
       ],
@@ -47,6 +48,7 @@
   ],
   'include_dirs': [
     '<(SHARED_INTERMEDIATE_DIR)',
+    '<(SHARED_INTERMEDIATE_DIR)/xwalk/<(jsapi_component)',
     '<(DEPTH)',
   ],
   'dependencies':[

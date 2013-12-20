@@ -57,6 +57,7 @@
         'xwalk_resources',
         'experimental/experimental_resources.gyp:xwalk_experimental_resources',
         'extensions/extensions.gyp:xwalk_extensions',
+        'sysapps/sysapps.gyp:sysapps',
       ],
       'include_dirs': [
         '..',
@@ -156,7 +157,6 @@
       ],
       'includes': [
         'experimental/dialog/dialog.gypi',
-        'sysapps/sysapps.gypi',
         'xwalk_jsapi.gypi',
       ],
       'msvs_settings': {

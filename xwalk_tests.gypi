@@ -8,6 +8,8 @@
       'xwalk_unittest',
       'extensions/extensions_tests.gyp:xwalk_extensions_browsertest',
       'extensions/extensions_tests.gyp:xwalk_extensions_unittest',
+      'sysapps/sysapps_tests.gyp:xwalk_sysapps_browsertest',
+      'sysapps/sysapps_tests.gyp:xwalk_sysapps_unittest',
     ],
     'conditions': [
       ['OS=="linux"', {
@@ -29,9 +31,6 @@
       'test/base/base.gyp:xwalk_test_base',
       'xwalk_application_lib',
       'xwalk_runtime',
-    ],
-    'includes': [
-      'sysapps/sysapps_unittests.gypi',
     ],
     'sources': [
       'application/browser/application_event_router_unittest.cc',
@@ -102,10 +101,6 @@
       'runtime/browser/xwalk_switches_browsertest.cc',
       'runtime/browser/devtools/xwalk_devtools_browsertest.cc',
       'runtime/browser/geolocation/xwalk_geolocation_browsertest.cc',
-    ],
-    'includes': [
-      'sysapps/sysapps_browsertests.gypi',
-      'xwalk_jsapi.gypi',
     ],
     'conditions': [
       ['OS=="win" and win_use_allocator_shim==1', {
