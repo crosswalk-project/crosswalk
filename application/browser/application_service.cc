@@ -7,13 +7,14 @@
 #include <set>
 #include <string>
 
+#include "base/files/file_enumerator.h"
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
@@ -21,8 +22,8 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_TIZEN_MOBILE)
@@ -169,6 +170,22 @@ bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
 }
 #endif  // OS_TIZEN_MOBILE
 
+bool CopyDirectoryContents(const base::FilePath& from,
+    const base::FilePath& to) {
+  base::FileEnumerator iter(from, false,
+      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
+  for (base::FilePath path = iter.Next(); !path.empty(); path = iter.Next()) {
+    if (iter.GetInfo().IsDirectory()) {
+      if (!base::CopyDirectory(path, to, true))
+        return false;
+    } else if (!base::CopyFile(path, to.Append(path.BaseName()))) {
+        return false;
+    }
+  }
+
+  return true;
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -190,6 +207,8 @@ ApplicationService::~ApplicationService() {
 }
 
 bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
+  // FIXME(leandro): Installation is not robust enough -- should any step
+  // fail, it can't roll back to a consistent state.
   if (!base::PathExists(path))
     return false;
 
@@ -204,45 +223,44 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
 
   base::FilePath unpacked_dir;
-  std::string app_id;
+  scoped_ptr<Package> package;
   if (!base::DirectoryExists(path)) {
-    scoped_ptr<Package> package = Package::Create(path);
-    if (package)
-      app_id = package->Id();
-
-    if (app_id.empty()) {
-      LOG(ERROR) << "XPK/WGT file is invalid.";
-      return false;
-    }
-
-    if (application_storage_->Contains(app_id)) {
-      *id = app_id;
-      LOG(INFO) << "Already installed: " << app_id;
-      return false;
-    }
-
-    base::FilePath temp_dir;
-    package->Extract(&temp_dir);
-    unpacked_dir = data_dir.AppendASCII(app_id);
-    if (base::DirectoryExists(unpacked_dir) &&
-        !base::DeleteFile(unpacked_dir, true))
-      return false;
-    if (!base::Move(temp_dir, unpacked_dir))
-      return false;
+    package = Package::Create(path);
+    package->Extract(&unpacked_dir);
   } else {
     unpacked_dir = path;
   }
 
   std::string error;
-  scoped_refptr<ApplicationData> application_data =
-      LoadApplication(unpacked_dir,
-                      app_id,
-                      Manifest::COMMAND_LINE,
-                      &error);
+  scoped_refptr<ApplicationData> application_data = LoadApplication(
+                      unpacked_dir, Manifest::COMMAND_LINE, &error);
   if (!application_data) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
   }
+
+  if (application_storage_->Contains(application_data->ID())) {
+    *id = application_data->ID();
+    LOG(INFO) << "Already installed: " << id;
+    return false;
+  }
+
+  base::FilePath app_dir = data_dir.AppendASCII(application_data->ID());
+  if (base::DirectoryExists(app_dir)) {
+    if (!base::DeleteFile(app_dir, true))
+      return false;
+  }
+  if (!package) {
+    if (!file_util::CreateDirectory(app_dir))
+      return false;
+    if (!CopyDirectoryContents(unpacked_dir, app_dir))
+      return false;
+  } else {
+    if (!base::Move(unpacked_dir, app_dir))
+      return false;
+  }
+
+  application_data->SetPath(app_dir);
 
   if (!application_storage_->AddApplication(application_data)) {
     LOG(ERROR) << "Application with id " << application_data->ID()
@@ -257,6 +275,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
 #endif
 
+  LOG(INFO) << "Application be installed in: " << app_dir.MaybeAsASCII();
   LOG(INFO) << "Installed application with id: " << application_data->ID()
             << " successfully.";
   *id = application_data->ID();

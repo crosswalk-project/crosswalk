@@ -94,6 +94,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // Accessors:
 
   const base::FilePath& Path() const { return path_; }
+  void SetPath(const base::FilePath& path) { path_ = path; }
   const GURL& URL() const { return application_url_; }
   Manifest::SourceType GetSourceType() const;
   const std::string& ID() const;
