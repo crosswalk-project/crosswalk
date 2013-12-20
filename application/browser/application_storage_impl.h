@@ -8,6 +8,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "base/files/file_path.h"
 #include "sql/connection.h"
@@ -29,7 +30,8 @@ class ApplicationStorageImpl {
   bool RemoveApplication(const std::string& key);
   bool UpdateApplication(ApplicationData* application,
                          const base::Time& install_time);
-  bool Init(ApplicationData::ApplicationDataMap& applications);
+  bool Init(
+      ApplicationData::ApplicationDataMap& applications);
   bool GetInstalledApplications(
       ApplicationData::ApplicationDataMap& applications);
 
@@ -38,7 +40,7 @@ class ApplicationStorageImpl {
   bool SetApplicationValue(const ApplicationData* application,
                            const base::Time& install_time,
                            const std::string& operation);
-
+  // Events helper functions
   bool SetEventsValue(const std::string& id,
                       const std::set<std::string>& events,
                       const std::string& operation);
@@ -47,6 +49,15 @@ class ApplicationStorageImpl {
   bool UpdateEvents(const std::string& id,
                     const std::set<std::string>& events);
   bool DeleteEvents(const std::string& id);
+  // Permissions helper functions
+  bool SetPermissionsValue(const std::string& id,
+                           const StoredPermissionMap& permissions,
+                           const std::string& operation);
+  bool SetPermissions(const std::string& id,
+                      const StoredPermissionMap& permissions);
+  bool UpdatePermissions(const std::string& id,
+                         const StoredPermissionMap& permissions);
+  bool DeletePermissions(const std::string& id);
 
   scoped_ptr<sql::Connection> sqlite_db_;
   sql::MetaTable meta_table_;
