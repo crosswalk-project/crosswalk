@@ -14,8 +14,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "xwalk/application/browser/application_process_manager.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/extension/application_event_extension.h"
-#include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -233,13 +231,7 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  application::ApplicationSystem* app_system
-      = runtime_context_->GetApplicationSystem();
-  extensions->push_back(
-      new application::ApplicationRuntimeExtension(app_system));
-  extensions->push_back(
-      new application::ApplicationEventExtension(app_system));
-
+  runtime_context_->GetApplicationSystem()->CreateExtensions(host, extensions);
   sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }
 
