@@ -32,6 +32,9 @@ DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {}
 
 void DeviceCapabilitiesObject::OnGetAVCodecs(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<SystemAVCodecs> av_codecs(
+      SysAppsManager::GetAVCodecsProvider()->GetSupportedCodecs());
+  info->PostResult(GetAVCodecs::Results::Create(*av_codecs, std::string()));
 }
 
 void DeviceCapabilitiesObject::OnGetCPUInfo(
