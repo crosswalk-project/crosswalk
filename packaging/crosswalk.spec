@@ -166,7 +166,7 @@ ${GYP_EXTRA_FLAGS} \
 -Dtizen_mobile=1 \
 -Duse_openssl=1
 
-make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl xwalk_launcher
+make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
 %install
 # Support building in a non-standard directory, possibly outside %{_builddir}.
@@ -193,6 +193,7 @@ install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
+install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
 
 # Supporting libraries and resources.
 install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
@@ -209,6 +210,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %{_bindir}/xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
+%{_bindir}/xwalk-pkg-helper
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
