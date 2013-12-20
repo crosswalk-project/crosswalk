@@ -4,8 +4,10 @@
     'target_name': 'xwalk_all_tests',
     'type': 'none',
     'dependencies': [
-      'xwalk_unittest',
       'xwalk_browsertest',
+      'xwalk_unittest',
+      'extensions/extensions_tests.gyp:xwalk_extensions_browsertest',
+      'extensions/extensions_tests.gyp:xwalk_extensions_unittest',
     ],
     'conditions': [
       ['OS=="linux"', {
@@ -29,9 +31,7 @@
       'xwalk_runtime',
     ],
     'includes': [
-      'extensions/extensions_unittests.gypi',
       'sysapps/sysapps_unittests.gypi',
-      'xwalk_jsapi.gypi',
     ],
     'sources': [
       'application/browser/application_event_router_unittest.cc',
@@ -104,7 +104,6 @@
       'runtime/browser/geolocation/xwalk_geolocation_browsertest.cc',
     ],
     'includes': [
-      'extensions/extensions_browsertests.gypi',
       'sysapps/sysapps_browsertests.gypi',
       'xwalk_jsapi.gypi',
     ],

@@ -56,7 +56,7 @@
         'xwalk_application_lib',
         'xwalk_resources',
         'experimental/experimental_resources.gyp:xwalk_experimental_resources',
-        'extensions/extensions.gypi:xwalk_extensions_lib',
+        'extensions/extensions.gyp:xwalk_extensions',
       ],
       'include_dirs': [
         '..',
