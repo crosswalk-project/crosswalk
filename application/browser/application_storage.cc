@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "xwalk/application/browser/application_storage_impl.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 

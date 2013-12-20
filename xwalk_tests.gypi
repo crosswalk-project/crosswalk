@@ -75,10 +75,10 @@
     ],
     'sources': [
       'application/browser/application_event_router_unittest.cc',
+      'application/browser/application_storage_impl_unittest.cc',
       'application/browser/installer/package_unittest.cc',
       'application/common/application_unittest.cc',
       'application/common/application_file_util_unittest.cc',
-      'application/common/application_storage_impl_unittest.cc',
       'application/common/id_util_unittest.cc',
       'application/common/manifest_handlers/main_document_handler_unittest.cc',
       'application/common/manifest_handlers/permissions_handler_unittest.cc',

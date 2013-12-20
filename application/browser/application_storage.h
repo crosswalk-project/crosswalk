@@ -12,7 +12,6 @@
 #include "base/memory/ref_counted.h"
 #include "base/observer_list.h"
 #include "xwalk/application/common/application_data.h"
-#include "xwalk/application/common/application_storage_impl.h"
 
 namespace xwalk {
 namespace application {
@@ -38,7 +37,7 @@ class ApplicationStorage {
  private:
   bool Insert(scoped_refptr<ApplicationData> app_data);
   base::FilePath data_path_;
-  scoped_ptr<ApplicationStorageImpl> impl_;
+  scoped_ptr<class ApplicationStorageImpl> impl_;
   ApplicationData::ApplicationDataMap applications_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationStorage);
 };
