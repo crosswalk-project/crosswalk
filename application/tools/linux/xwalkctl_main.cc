@@ -4,10 +4,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
@@ -19,6 +21,7 @@ static const char* xwalk_installed_app_iface =
 
 static char* install_path;
 static char* uninstall_appid;
+static GDBusConnection* g_connection;
 
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
@@ -34,8 +37,8 @@ static bool install_application(const char* path) {
   bool ret;
   GVariant* result = NULL;
 
-  proxy = g_dbus_proxy_new_for_bus_sync(
-      G_BUS_TYPE_SESSION,
+  proxy = g_dbus_proxy_new_sync(
+      g_connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
       xwalk_installed_path, xwalk_installed_iface, NULL, &error);
   if (!proxy) {
@@ -188,11 +191,17 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  GDBusObjectManager* installed_om =
-      g_dbus_object_manager_client_new_for_bus_sync(
-          G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-          xwalk_service_name, xwalk_installed_path,
-          NULL, NULL, NULL, NULL, &error);
+  g_connection = get_session_bus_connection(&error);
+  if (!g_connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    exit(1);
+  }
+
+  GDBusObjectManager* installed_om = g_dbus_object_manager_client_new_sync(
+      g_connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+      xwalk_service_name, xwalk_installed_path,
+      NULL, NULL, NULL, NULL, &error);
   if (!installed_om) {
     g_print("Service '%s' could not be reached: %s\n", xwalk_service_name,
             error->message);

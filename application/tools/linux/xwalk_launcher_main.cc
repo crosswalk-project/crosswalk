@@ -13,6 +13,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 
@@ -93,22 +94,28 @@ int main(int argc, char** argv) {
     appid = basename(argv[0]);
   }
 
-  GDBusObjectManager* running_apps_om =
-      g_dbus_object_manager_client_new_for_bus_sync(
-          G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-          xwalk_service_name, xwalk_running_path,
-          NULL, NULL, NULL, NULL, NULL);
+  GDBusConnection* connection = get_session_bus_connection(&error);
+  if (!connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    exit(1);
+  }
+
+  GDBusObjectManager* running_apps_om = g_dbus_object_manager_client_new_sync(
+      connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+      xwalk_service_name, xwalk_running_path,
+      NULL, NULL, NULL, NULL, &error);
   if (!running_apps_om) {
-    fprintf(stderr, "Service '%s' does could not be reached\n",
-            xwalk_service_name);
+    fprintf(stderr, "Service '%s' does could not be reached: %s\n",
+            xwalk_service_name, error->message);
     exit(1);
   }
 
   g_signal_connect(running_apps_om, "object-removed",
                    G_CALLBACK(object_removed), NULL);
 
-  GDBusProxy* running_proxy = g_dbus_proxy_new_for_bus_sync(
-      G_BUS_TYPE_SESSION,
+  GDBusProxy* running_proxy = g_dbus_proxy_new_sync(
+      connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
       xwalk_running_path, xwalk_running_manager_iface, NULL, &error);
   if (!running_proxy) {
@@ -131,8 +138,8 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Application launched with path '%s'\n",
           application_object_path);
 
-  GDBusProxy* app_proxy = g_dbus_proxy_new_for_bus_sync(
-      G_BUS_TYPE_SESSION,
+  GDBusProxy* app_proxy = g_dbus_proxy_new_sync(
+      connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
       application_object_path, xwalk_running_app_iface, NULL, &error);
   if (!app_proxy) {
