@@ -10,6 +10,7 @@ namespace application_storage_constants {
 
 const char kAppTableName[] = "applications";
 const char kEventTableName[] = "registered_events";
+const char kPermissionTableName[] = "stored_permissions";
 
 const char kCreateAppTableOp[] =
     "CREATE TABLE applications ("
@@ -22,6 +23,14 @@ const char kCreateEventTableOp[] =
     "CREATE TABLE registered_events ("
     "id TEXT NOT NULL,"
     "event_names TEXT NOT NULL,"
+    "PRIMARY KEY (id),"
+    "FOREIGN KEY (id) REFERENCES applications(id)"
+    "ON DELETE CASCADE)";
+
+const char kCreatePermissionTableOp[] =
+    "CREATE TABLE stored_permissions ("
+    "id TEXT NOT NULL,"
+    "permission_names TEXT NOT NULL,"
     "PRIMARY KEY (id),"
     "FOREIGN KEY (id) REFERENCES applications(id)"
     "ON DELETE CASCADE)";
@@ -52,6 +61,16 @@ const char kUpdateEventsWithBindOp[] =
 
 const char kDeleteEventsWithBindOp[] =
     "DELETE FROM registered_events WHERE id = ?";
+
+const char kInsertPermissionsWithBindOp[] =
+    "INSERT INTO stored_permissions (permission_names, id) "
+    "VALUES(?,?)";
+
+const char kUpdatePermissionsWithBindOp[] =
+    "UPDATE stored_permissions SET permission_names = ? WHERE id = ?";
+
+const char kDeletePermissionsWithBindOp[] =
+    "DELETE FROM stored_permissions WHERE id = ?";
 
 }  // namespace application_storage_constants
 }  // namespace xwalk
