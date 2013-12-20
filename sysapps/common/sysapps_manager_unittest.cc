@@ -11,8 +11,10 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
+#include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 
+using xwalk::sysapps::AVCodecsProvider;
 using xwalk::sysapps::CPUInfoProvider;
 using xwalk::sysapps::SysAppsManager;
 using xwalk::extensions::XWalkExtension;
@@ -69,6 +71,18 @@ TEST(XWalkSysAppsManager, DoesNotReplaceExtensions) {
   EXPECT_EQ(extensions[0], extension_ptr);
 
   STLDeleteElements(&extensions);
+}
+
+TEST(XWalkSysAppsManager, GetAVCodecsProvider) {
+  xwalk::sysapps::SysAppsManager manager;
+
+  AVCodecsProvider* provider(manager.GetAVCodecsProvider());
+  EXPECT_TRUE(provider != NULL);
+
+  // AVCodecsProvider is shared among different extensions
+  // instances. GetAVCodecsProvider() should always return
+  // the same provider.
+  EXPECT_EQ(provider, manager.GetAVCodecsProvider());
 }
 
 TEST(XWalkSysAppsManager, GetCPUProvider) {
