@@ -11,6 +11,7 @@
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
@@ -18,9 +19,6 @@
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-
-using xwalk::Runtime;
-using xwalk::RuntimeContext;
 
 namespace xwalk {
 
@@ -173,10 +171,10 @@ bool Application::RunFromLocalPath() {
 bool Application::IsOnSuspendHandlerRegistered(
     const std::string& app_id) const {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
-  ApplicationService* service = system->application_service();
+  ApplicationStorage* storage = system->application_storage();
 
   const std::set<std::string>& events =
-      service->GetApplicationByID(app_id)->GetEvents();
+      storage->GetApplicationData(app_id)->GetEvents();
   if (events.find(kOnSuspend) == events.end())
     return false;
 

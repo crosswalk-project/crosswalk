@@ -17,10 +17,13 @@ namespace xwalk {
 namespace application {
 
 ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
-    ApplicationService* app_service, scoped_refptr<dbus::Bus> session_bus)
+    ApplicationService* app_service,
+    ApplicationStorage* app_storage,
+    scoped_refptr<dbus::Bus> session_bus)
     : session_bus_(session_bus) {
   installed_apps_.reset(new InstalledApplicationsManager(session_bus_,
-                                                         app_service));
+                                                         app_service,
+                                                         app_storage));
   running_apps_.reset(new RunningApplicationsManager(session_bus_,
                                                      app_service));
 

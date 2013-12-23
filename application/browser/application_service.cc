@@ -11,8 +11,9 @@
 #include "base/message_loop/message_loop.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_event_manager.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -87,9 +88,10 @@ namespace application {
 const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
 
-ApplicationService::ApplicationService(RuntimeContext* runtime_context)
+ApplicationService::ApplicationService(RuntimeContext* runtime_context,
+                                       ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
-      app_storage_(new ApplicationStorage(runtime_context->GetPath())) {
+      application_storage_(app_storage) {
 }
 
 ApplicationService::~ApplicationService() {
@@ -121,7 +123,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       return false;
     }
 
-    if (app_storage_->Contains(app_id)) {
+    if (application_storage_->Contains(app_id)) {
       *id = app_id;
       LOG(INFO) << "Already installed: " << app_id;
       return false;
@@ -150,7 +152,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  if (!app_storage_->AddApplication(application)) {
+  if (!application_storage_->AddApplication(application)) {
     LOG(ERROR) << "Application with id " << application->ID()
                << " couldn't be installed.";
     return false;
@@ -185,7 +187,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
     return false;
 #endif
 
-  if (!app_storage_->RemoveApplication(id)) {
+  if (!application_storage_->RemoveApplication(id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << id
                << "; application is not installed.";
     return false;
@@ -207,7 +209,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
 
 bool ApplicationService::Launch(const std::string& id) {
   scoped_refptr<const ApplicationData> application_data =
-          GetApplicationByID(id);
+          application_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
     return false;
@@ -232,16 +234,6 @@ bool ApplicationService::Launch(const base::FilePath& path) {
   return Launch(application_data);
 }
 
-const ApplicationData::ApplicationDataMap&
-ApplicationService::GetInstalledApplications() const {
-  return app_storage_->GetInstalledApplications();
-}
-
-scoped_refptr<ApplicationData> ApplicationService::GetApplicationByID(
-    const std::string& id) const {
-  return app_storage_->GetApplicationData(id);
-}
-
 void ApplicationService::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }
@@ -258,10 +250,6 @@ bool ApplicationService::Launch(
 
   application_.reset(new Application(application_data, runtime_context_));
   return application_->Launch();
-}
-
-ApplicationStorage* ApplicationService::application_storage() {
-  return app_storage_.get();
 }
 
 }  // namespace application
