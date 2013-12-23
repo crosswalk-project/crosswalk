@@ -6,9 +6,9 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '32.0.1700.14'
-chromium_crosswalk_point = '5725642f1c67d0f97e8613ec1c3e8107ab53fdf8'
-blink_crosswalk_point = '2cb175435ece6896eabf6fe2ff9f1bf6ea8969e3'
+chromium_version = '32.0.1700.68'
+chromium_crosswalk_point = '5a84e2fe8f1d3d17bb0ab54d5457b69f89f7c2ff'
+blink_crosswalk_point = '76890d529deb0573f221339843bb6f3244f4d08f'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
@@ -21,6 +21,20 @@ deps_xwalk = {
   # Required until chromium-crosswalk tracks gyp r1797 or later.
   # Needed for incremental Tizen builds after M32. See XWALK-454.
   'src/tools/gyp': 'http://gyp.googlecode.com/svn/trunk@1797',
+
+  # Required until http://code.google.com/p/v8/issues/detail?id=3065 is fixed.
+  #
+  # r17545 (merged into 3.22 by r17968) introduces compiler permissive yelling
+  # about no declaration of CheckFastAsciiConvert(). The root cause is
+  # CheckFastAsciiConvert() implementated after it get used in
+  # FastAsciiConvert().
+  #
+  # r17566 fix this issue but not merge into 3.22 branch yet.
+  #
+  # So far, patch for v8 is not acceptible for crosswalk because there is no
+  # downstream v8 repo in crosswalk-project. To avoid patch on v8, we
+  # alternatively stay on a previous revision that can compile - r17956.
+  'src/v8': 'http://v8.googlecode.com/svn/branches/3.22@17956',
 
   'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
 }

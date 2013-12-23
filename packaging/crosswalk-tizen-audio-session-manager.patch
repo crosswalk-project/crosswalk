@@ -43,16 +43,16 @@ diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/conten
 index 68204fb..a3e654b 100644
 --- src/content/browser/renderer_host/render_view_host_impl.cc
 +++ src/content/browser/renderer_host/render_view_host_impl.cc
-@@ -83,6 +83,8 @@
- #include "content/browser/renderer_host/popup_menu_helper_mac.h"
- #elif defined(OS_ANDROID)
+@@ -85,6 +85,8 @@
  #include "content/browser/media/android/browser_media_player_manager.h"
+ #elif defined(OS_WIN)
+ #include "base/win/win_util.h"
 +#elif defined(OS_TIZEN_MOBILE)
 +#include "xwalk/tizen/browser/browser_mediaplayer_manager.h"
  #endif
 
  using base::TimeDelta;
-@@ -208,6 +210,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+@@ -210,6 +212,8 @@ RenderViewHostImpl::RenderViewHostImpl(
 
  #if defined(OS_ANDROID)
    media_player_manager_.reset(BrowserMediaPlayerManager::Create(this));
