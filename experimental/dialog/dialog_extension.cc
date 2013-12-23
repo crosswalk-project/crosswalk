@@ -9,38 +9,33 @@
 #include "content/public/browser/browser_thread.h"
 #include "grit/xwalk_experimental_resources.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_system.h"
 #include "xwalk/experimental/dialog/dialog.h"
 
 using content::BrowserThread;
 
 namespace xwalk {
+
+using application::Application;
+
 namespace experimental {
 
 using namespace jsapi::dialog; // NOLINT
 
-DialogExtension::DialogExtension(RuntimeRegistry* runtime_registry)
-  : runtime_registry_(runtime_registry),
-    owning_window_(NULL) {
+DialogExtension::DialogExtension(application::ApplicationSystem* system)
+  : system_(system) {
   set_name("xwalk.experimental.dialog");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_EXPERIMENTAL_DIALOG_API).as_string());
-  runtime_registry_->AddObserver(this);
 }
 
 DialogExtension::~DialogExtension() {
-  runtime_registry_->RemoveObserver(this);
 }
 
 XWalkExtensionInstance* DialogExtension::CreateInstance() {
   return new DialogInstance(this);
-}
-
-void DialogExtension::OnRuntimeAdded(Runtime* runtime) {
-  // FIXME(cmarcelo): We only support one runtime! (like MenuExtension)
-  if (owning_window_)
-    return;
-  if (runtime->window())
-    owning_window_ = runtime->window()->GetNativeWindow();
 }
 
 DialogInstance::DialogInstance(DialogExtension* extension)
@@ -95,10 +90,11 @@ void DialogInstance::OnShowOpenDialog(
   if (!dialog_)
     dialog_ = ui::SelectFileDialog::Create(this, 0 /* policy */);
 
+  DCHECK(GetOwningWindow());
   dialog_->SelectFile(dialog_type, title16,
                       base::FilePath::FromUTF8Unsafe(params->initial_path),
                       NULL /* file_type */, 0 /* type_index */, file_extension,
-                      extension_->owning_window_, info.release());
+                      GetOwningWindow(), info.release());
 }
 
 void DialogInstance::OnShowSaveDialog(
@@ -127,9 +123,21 @@ void DialogInstance::OnShowSaveDialog(
   base::FilePath proposedFilePath =
       base::FilePath::FromUTF8Unsafe(params->proposed_new_filename);
 
+  DCHECK(GetOwningWindow());
   dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE, title16,
     filePath.Append(proposedFilePath), NULL /* file_type */, 0 /* type_index */,
-    file_extension, extension_->owning_window_, info.release());
+    file_extension, GetOwningWindow(), info.release());
+}
+
+gfx::NativeWindow DialogInstance::GetOwningWindow() const {
+  // FIXME(cmarcelo): We only support one runtime! (like MenuExtension)
+  Application* running_app =
+        extension_->system_->application_service()->GetActiveApplication();
+  if (!running_app)
+    return NULL;
+
+  Runtime* runtime = running_app->GetMainDocumentRuntime();
+  return runtime->window()->GetNativeWindow();
 }
 
 void DialogInstance::FileSelected(const base::FilePath& path, int,

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_APPLICATION_STORAGE_IMPL_H_
-#define XWALK_APPLICATION_COMMON_APPLICATION_STORAGE_IMPL_H_
+#ifndef XWALK_APPLICATION_BROWSER_APPLICATION_STORAGE_IMPL_H_
+#define XWALK_APPLICATION_BROWSER_APPLICATION_STORAGE_IMPL_H_
 
 #include <set>
 #include <string>
@@ -57,4 +57,4 @@ class ApplicationStorageImpl {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_APPLICATION_STORAGE_IMPL_H_
+#endif  // XWALK_APPLICATION_BROWSER_APPLICATION_STORAGE_IMPL_H_

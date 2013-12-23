@@ -21,210 +21,188 @@
 
 <script>
 
+// Features to test:
+// 1. Save - by saving two new contacts and check by onchangechange event.
+// 2. Contact change event - by checking if all new added IDs are received.
+// 3. Update - by updating first contact.
+// 4. Find - by looking for the updated contact and compare with expected result.
+// 5. Remove - by removing the second contact.
+// 6. Clear - by clearing all contacts and check if all contacts are removed.
+
 window.onload = function() {
   var contacts = navigator.contacts || xwalk.experimental.contacts;
 
-  function ContactName(init) {
-    this.displayName = init.displayName;
-    this.honorificPrefixes = init.honorificPrefixes;
-    this.givenNames = init.givenNames;
-    this.familyNames = init.familyNames;
-    this.nickNames = init.nickNames;
+  contacts.addEventListener('contactschange', function(data) {
+      var output = document.getElementById('event');
+      output.value += 'contacts changes:\n';
+      data.added && logEventListener('added: ', data.added, output);
+      data.removed && logEventListener('removed: ', data.removed, output);
+      data.modified && logEventListener('modified: ', data.modified, output);
+      output.value += '-----------\n';
+      output.scrollTop = output.scrollHeight;
+  });
+
+  // Helpers
+  function setHTML(id, str) { document.getElementById(id).innerHTML = str; }
+  function addHTML(id, str) { document.getElementById(id).innerHTML += str+'<br>'; }
+  function ifcontains(a, e) { return a.indexOf(e) != -1; }
+  function logContactSaved(contact) {
+    addHTML('save', 'Contact ' + contact.id + ' ' + contact.name.givenNames[0] + ' ' + contact.name.familyNames[0] + ' saved!');
   }
 
-  function ContactField(init) {
-    this.types = init.types;
-    this.prefered = init.prefered;
-    this.value = init.value;
-  }
-
-  function ContactTelField(init) {
-    this.carrier = init.carrier;
-    this.types = init.types;
-    this.prefered = init.prefered;
-    this.value = init.value;
-  }
-
-  function Contact(init) {
-    this.name = init.name;
-    this.emails = init.emails;
-    this.phoneNumbers = init.phoneNumbers;
-  }
-
-  function ContactFindOptions(init) {
-    this.value = init.value;
-    this.operator = init.operator;
-    this.fields = init.fields;
-    this.sortBy = init.sortBy;
-    this.sortOrder = init.sortOrder;
-    this.resultsLimit = init.resultsLimit;
-  }
-
-  var successCount = 0;
-  function onSuccess() {
-    ++successCount;
-    // Features to test:
-    // 1. Save a new contact
-    // 2. Update a existing contact
-    // 3. Find a contact
-    if (successCount >= 3) {
-      document.title = 'Pass';
-    }
-  }
-
-  var errorCallback = function(error) {
+  function errorCallback(error) {
     document.title = 'Fail';
     console.log(error);
   }
 
-  var firstID = -1;
-  var secondID = -1;
-
-  var saveCallback = function(contact) {
-    var output = '';
-    if (firstID == -1) {
-      firstID = contact.id;
-    } else {
-      secondID = contact.id;
-      output += '<br>'
-    }
-    output +=  'Contact ' +
-      contact.id + ' ' +
-      contact.name.givenNames[0] + ' ' +
-      contact.name.familyNames[0] + ' saved!';
-    document.getElementById('save').innerHTML += output;
-    onSuccess();
-  };
-
+  var addedIDs = [];
+  var testNewContactFlag = false;
   var expectedNewPhoneNumber = '+4455001';
-  var updateStartCallback = function(contact) {
-    var output = 'Updating contact ' +
-      contact.id + ' ' +
-      contact.name.givenNames[0] + ' ' +
-      contact.name.familyNames[0] + ',<br>phone number: ' +
-      contact.phoneNumbers[0].value;
-    document.getElementById('update').innerHTML += output;
-    contact.phoneNumbers[0].value = expectedNewPhoneNumber;
-    contacts.save(contact).then(updateDoneCallback, errorCallback);
-  };
-
-  var updateDoneCallback = function(contact) {
-    var output = '<p>Contact ' +
-      contact.id + ' ' +
-      contact.name.givenNames[0] + ' ' +
-      contact.name.familyNames[0] + ' updated,<br>phone number now is: ' +
-      contact.phoneNumbers[0].value;
-    document.getElementById('update').innerHTML += output;
-    if (contact.phoneNumbers[0].value == expectedNewPhoneNumber) {
-      onSuccess();
+  function testNewContacts() {
+    // Test Case 2: check if oncontactchanges received all new contacts IDs.
+    if (addedIDs.length != 2) {
+      return;
     }
-  };
 
-  var findStartCallback = function(c) {
+    if (ifcontains(addedIDs, contact1.id) && ifcontains(addedIDs, contact2.id)) {
+      testNewContactFlag = true;
+    }
+
+    // Test Case 3: update first contact after both contacts are saved.
+    var output = 'Will update contact ' + 
+                 contact1.id + ' ' +
+                 contact1.name.givenNames[0] + ' ' +
+                 contact1.name.familyNames[0] + ': phone from ' +
+                 contact1.phoneNumbers[0].value + ' to ' + expectedNewPhoneNumber;
+    addHTML('update', output);
+
+    contact1.phoneNumbers[0].value = expectedNewPhoneNumber;
+    contacts.save(contact1).then(updateCallback, errorCallback);
+  }
+
+  var removedIDs = [];
+  contacts.oncontactschange = function(data) {
+    if (data.added) {
+      addedIDs.push.apply(addedIDs, data.added); // Append added IDs to addedIDs
+      testNewContacts();
+    }
+    if (data.removed) {
+      removedIDs.push.apply(removedIDs, data.removed); // Append removed IDs to removedIDs
+      tryFinalVerify();
+    }
+  }
+
+  // Create two contacts for testing
+  var givenName = 'John';
+
+  var contactName1 = new ContactName({
+    givenNames: [givenName],
+    familyNames: ['Doe']
+  });
+
+  var contactName2 = new ContactName({
+    givenNames: [givenName],
+    familyNames: ['Smith']
+  });
+
+  var mobilePhone1 = new ContactTelField({
+    types: ['home'],
+    preferred: true,
+    value: '+01234567890'
+  });
+
+  var mobilePhone2 = new ContactTelField({
+    types: ['work'],
+    preferred: false,
+    value: '+11234567890'
+  });
+
+  // Test Case 1: Save two new contacts
+  var contact1 = new Contact({
+    name: contactName1,
+    phoneNumbers: [mobilePhone1]
+  });
+
+  var contact2 = new Contact({
+    name: contactName2,
+    phoneNumbers: [mobilePhone2]
+  });
+
+  contacts.save(contact1).then(function(item) { logContactSaved(item); contact1.id = item.id; }, errorCallback);
+  contacts.save(contact2).then(function(item) { logContactSaved(item); contact2.id = item.id; }, errorCallback);
+
+  var testUpdateFirstFlag = false;
+  function updateCallback(item) {
+    var output = '<p>Contact ' + 
+                 item.id + ' ' +
+                 item.name.givenNames[0] + ' ' +
+                 item.name.familyNames[0] + ' updated:<br>phone now is: ' +
+                 item.phoneNumbers[0].value;
+    addHTML('update', output);
+    testUpdateFirstFlag = (item.phoneNumbers[0].value == expectedNewPhoneNumber);
+
+    // Test Case 4: find first contact after it is updated.
+    var ContactFindOptions = function(init) {
+      this.value = init.value;
+      this.operator = init.operator;
+      this.fields = init.fields;
+      this.sortBy = init.sortBy;
+      this.sortOrder = init.sortOrder;
+      this.resultsLimit = init.resultsLimit;
+    }
     var options = new ContactFindOptions({
-      value: 'Doe',
+      value: contact1.name.familyNames[0],
       operator: 'contains',
       fields: ['familyName'],
       sortBy: ['familyNames'],
       sortOrder: 'ascending',
       resultsLimit: 3
     });
-    contacts.find(options).then(findDoneCallback, errorCallback);
+    contacts.find(options).then(findCallback, errorCallback);
   };
 
-  var findDoneCallback = function(items) {
+  var testFindFirstFlag = false;
+  function findCallback(items) {
+    testFindFirstFlag = (items[0].name.familyNames[0] == contact1.name.familyNames[0]);
     var output = 'Found '+items.length + ' contact(s):';
     output += '<p>';
-    for(var i = 0, l = items.length; i < l; ++i) {
-      output += items[i].name.givenNames[0] + ' '
-                + items[i].name.familyNames[0] + '<br>';
+    for (var i = 0, l = items.length; i < l; ++i) {
+      output += items[i].name.givenNames[0] + ' ' + items[i].name.familyNames[0] + '<br>';
     }
-    document.getElementById('find').innerHTML = output;
-    onSuccess();
-    contacts.remove(firstID);
-    contacts.remove(secondID);
-    output = "Contacts " + firstID + " and " + secondID + " are removed";
-    document.getElementById('remove').innerHTML = output;
+    setHTML('find', output);
+
+    // Test Case 5: remove specific contact.
+    contacts.remove(contact2.id).then(removeCallback, errorCallback);
+    addHTML('remove', "Will remove contact " + contact2.id);
   };
 
-  var contactName = new ContactName({
-    givenNames: ['John'],
-    familyNames: ['Doe']
-  });
-
-  var mobilePhone = new ContactTelField({
-    types: ['home'],
-    preferred: true,
-    value: '+44698765432'
-  });
-
-  var contact = new Contact({
-    name: contactName,
-    phoneNumbers: [mobilePhone]
-  });
-
-  try {
-    contacts.addEventListener(function(data) {
-        var output = document.getElementById('event');
-        output.value += 'contacts changes:\n';
-        if (data.added) {
-          var msg = 'added: ';
-          for (var i = 0; i < data.added.length; ++i) {
-             msg += data.added[i] + '|';
-          }
-          output.value += msg + '\n';
-        }
-        if (data.removed) {
-          var msg = 'removed: ';
-          for (var i = 0; i < data.removed.length; ++i) {
-             msg += data.removed[i] + '|';
-          }
-          output.value += msg + '\n';
-        }
-        if (data.modified) {
-          var msg = 'modified: ';
-          for (var i = 0; i < data.modified.length; ++i) {
-             msg += data.modified[i] + '|';
-          }
-          output.value += msg + '\n';
-        }
-        output.value += '-----------\n';
-        output.scrollTop = output.scrollHeight;
-      });
-  } catch(e) {
-    console.log(e);
+  function removeCallback() {
+    addHTML('remove', contact2.id + " is removed.<br>Will test clear()");
+    // Test Case 6: clear all contacts.
+    contacts.clear().then(tryFinalVerify, errorCallback);
   }
 
-  try {
-    contacts.save(contact)                       // save a contact
-      .then(saveCallback, errorCallback)         // and then print the result of saving
-      .then(updateStartCallback, errorCallback); // and then update this contact
-  } catch(e) {
-    console.log(e);
-  }
-
-  contact.name.familyNames[0] = 'Smith';
-  contact.phoneNumbers[0].value = '+1012345678';
-  try {
-    contacts.save(contact)                     // save another contact
-      .then(saveCallback, errorCallback)       // and then print the result of saving
-      .then(findStartCallback, errorCallback); // and then find a contact
-  } catch(e) {
-    console.log(e);
-  }
-
-  document.getElementById("btnSaveUpdateOneMore").onclick = function() {
-    try {
-      contact.name.givenNames[0] = 'Bob';
-      contact.name.familyNames[0] = 'George';
-      contact.phoneNumbers[0].value = '+01010101';
-      contacts.save(contact)
-        .then(saveCallback, errorCallback)
-        .then(updateStartCallback, errorCallback);
-    } catch(e) {
-      console.log(e);
+  // Check if contacts are all removed, which means all test steps are done. If so we verify all results.
+  function tryFinalVerify() {
+    if (removedIDs.length != 2) {
+      return;
+    }
+    addHTML('remove', "All contacts are removed.");
+    testRemovedSecondFlag = ifcontains(removedIDs, contact2.id);
+    if (testNewContactFlag && testUpdateFirstFlag && testFindFirstFlag && testRemovedSecondFlag) {
+      document.title = 'Pass';
+    } else {
+      document.title = 'Fail';
     }
   }
+
+  function logEventListener(msg, data, output) {
+    for (var i = 0; i < data.length; ++i) {
+      msg += data[i] + '|';
+    }
+    output.value += msg + '\n';
+  }
+
 };
 
 </script>
@@ -253,7 +231,6 @@ window.onload = function() {
 
 <div class="event">
   <p class="subtitle center">Contact Event</p>
-  <button class="button" id="btnSaveUpdateOneMore">Save one more contact and update</button>
   <textarea id="event" readonly=true></textarea>
 </div>
 

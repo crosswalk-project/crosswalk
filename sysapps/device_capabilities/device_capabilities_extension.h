@@ -7,7 +7,6 @@
 
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -15,22 +14,13 @@ namespace sysapps {
 using extensions::XWalkExtension;
 using extensions::XWalkExtensionInstance;
 
-class DeviceCapabilitiesExtension : public XWalkExtension,
-                                    public RuntimeRegistryObserver {
+class DeviceCapabilitiesExtension : public XWalkExtension {
  public:
-  explicit DeviceCapabilitiesExtension(RuntimeRegistry* runtime_registry);
+  DeviceCapabilitiesExtension();
   virtual ~DeviceCapabilitiesExtension();
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
-
-  // RuntimeRegistryObserver implementation.
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {}
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {}
-  virtual void OnRuntimeAppIconChanged(Runtime* runtime) OVERRIDE {}
-
- private:
-  RuntimeRegistry* runtime_registry_;
 };
 
 }  // namespace sysapps

@@ -20,6 +20,8 @@
     'device_capabilities_new/device_capabilities_extension_new.h',
     'device_capabilities_new/device_capabilities_object.cc',
     'device_capabilities_new/device_capabilities_object.h',
+    'device_capabilities_new/memory_info_provider.cc',
+    'device_capabilities_new/memory_info_provider.h',
     'raw_socket/raw_socket.idl',
     'raw_socket/raw_socket_api.js',
     'raw_socket/raw_socket_extension.cc',

@@ -7,6 +7,7 @@
       var current_test = 0;
       var test_list = [
         getCPUInfo,
+        getMemoryInfo,
         endTest
       ];
 
@@ -48,6 +49,24 @@
 
         for (var i = 0; i < call_max; ++i)
           api.getCPUInfo().then(checkCPUInfo, reportFail);
+      };
+
+      function getMemoryInfo() {
+        function checkMemoryInfo(info) {
+          if (info.capacity <= 0)
+            reportFail("How can we run this in a computer with no memory?");
+
+          if (info.availCapacity <= 0)
+            reportFail("You should have some free memory to run this test.");
+
+          if (info.availCapacity > info.capacity)
+            reportFail("Availiable memory cannot be more than the total memory.");
+
+          if (document.title != "Fail")
+            runNextTest();
+        };
+
+        api.getMemoryInfo().then(checkMemoryInfo, reportFail);
       };
 
       runNextTest();

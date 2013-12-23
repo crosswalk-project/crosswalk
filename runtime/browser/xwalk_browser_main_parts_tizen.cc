@@ -7,6 +7,9 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "content/public/common/content_switches.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
@@ -21,6 +24,8 @@
 #include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 
 namespace xwalk {
+
+using application::Application;
 
 XWalkBrowserMainPartsTizen::XWalkBrowserMainPartsTizen(
     const content::MainFunctionParams& parameters)
@@ -64,7 +69,7 @@ void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
     extensions::XWalkExtensionVector* extensions) {
   if (XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled()) {
     extensions->push_back(
-        new sysapps::DeviceCapabilitiesExtension(runtime_registry_.get()));
+        new sysapps::DeviceCapabilitiesExtension());
   }
 
   if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
@@ -74,7 +79,12 @@ void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
 void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  extensions->push_back(new ScreenOrientationExtension());
+  application::ApplicationSystem* app_system
+      = runtime_context_->GetApplicationSystem();
+  application::ApplicationService* app_service
+      = app_system->application_service();
+  if (Application* application = app_service->GetActiveApplication())
+    extensions->push_back(new ScreenOrientationExtension(application));
 }
 
 }  // namespace xwalk

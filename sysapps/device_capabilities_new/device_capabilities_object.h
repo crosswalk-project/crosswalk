@@ -17,6 +17,7 @@ class DeviceCapabilitiesObject : public BindingObject {
 
  private:
   void OnGetCPUInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnGetMemoryInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
 };
 
 }  // namespace sysapps

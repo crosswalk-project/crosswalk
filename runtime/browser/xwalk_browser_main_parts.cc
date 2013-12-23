@@ -6,13 +6,15 @@
 
 #include <stdlib.h>
 
+#include <set>
+
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
@@ -20,7 +22,6 @@
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -57,6 +58,35 @@ GURL GetURLFromCommandLine(const CommandLine& command_line) {
     path = MakeAbsoluteFilePath(path);
 
   return net::FilePathToFileURL(path);
+}
+
+void RunAsBrowser(xwalk::RuntimeContext* runtime_context,
+                  const GURL& startup_url) {
+    using xwalk::Runtime;
+
+    class Observer : public Runtime::Observer {
+        void OnRuntimeAdded(Runtime* runtime) {
+          DCHECK(runtime);
+          runtimes_.insert(runtime);
+        }
+
+        void OnRuntimeRemoved(Runtime* runtime) {
+          DCHECK(runtime);
+          runtimes_.erase(runtime);
+
+          if (runtimes_.empty()) {
+              base::MessageLoop::current()->PostTask(
+                      FROM_HERE, base::MessageLoop::QuitClosure());
+              delete this;
+          }
+        }
+
+        std::set<Runtime*> runtimes_;
+    };
+
+    // The new created Runtime instance will be managed by RuntimeRegistry.
+    Runtime::CreateWithDefaultWindow(runtime_context,
+                                     startup_url, new Observer);
 }
 
 }  // namespace
@@ -151,10 +181,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
   runtime_context_ = xwalk_runner_->runtime_context();
-  runtime_registry_.reset(new RuntimeRegistry);
-
-  runtime_registry_->AddObserver(
-      runtime_context_->GetApplicationSystem()->process_manager());
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (!command_line->HasSwitch(switches::kUninstall)) {
@@ -199,13 +225,10 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
+  if (!app_system->LaunchFromCommandLine(*command_line, startup_url_,
                                         &run_default_message_loop_)) {
-    return;
+    RunAsBrowser(runtime_context_, startup_url_);
   }
-
-  // The new created Runtime instance will be managed by RuntimeRegistry.
-  Runtime::CreateWithDefaultWindow(runtime_context_, startup_url_);
 
   // If the |ui_task| is specified in main function parameter, it indicates
   // that we will run this UI task instead of running the the default main
@@ -223,8 +246,6 @@ bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopRun() {
-  runtime_registry_->RemoveObserver(
-      runtime_context_->GetApplicationSystem()->process_manager());
   xwalk_runner_->PostMainMessageLoopRun();
 }
 
@@ -238,9 +259,11 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
 void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
+  application::ApplicationSystem* app_system
+        = runtime_context_->GetApplicationSystem();
   extensions->push_back(new RuntimeExtension);
   extensions->push_back(
-      new experimental::DialogExtension(runtime_registry_.get()));
+      new experimental::DialogExtension(app_system));
 
   sysapps_manager_->CreateExtensionsForExtensionThread(extensions);
 }

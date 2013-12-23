@@ -7,7 +7,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_router.h"
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 

@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 
 #include <string>
 
+#include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_event_manager.h"
@@ -31,9 +32,9 @@ class FinishEventObserver : public EventObserver {
  public:
   FinishEventObserver(
       ApplicationEventManager* event_manager,
-      ApplicationProcessManager* process_manager)
+      Application* application)
       : EventObserver(event_manager),
-        process_manager_(process_manager) {
+        application_(application) {
   }
 
   virtual void Observe(const std::string& app_id,
@@ -42,54 +43,74 @@ class FinishEventObserver : public EventObserver {
     std::string ack_event_name;
     event->args()->GetString(0, &ack_event_name);
     if (ack_event_name == xwalk::application::kOnSuspend)
-      process_manager_->CloseMainDocument();
+      application_->CloseMainDocument();
   }
 
 
  private:
-  ApplicationProcessManager* process_manager_;
+  Application* application_;
 };
 
-ApplicationProcessManager::ApplicationProcessManager(
+Application::Application(
+    scoped_refptr<const ApplicationData> data,
     RuntimeContext* runtime_context)
     : runtime_context_(runtime_context),
+      application_data_(data),
       main_runtime_(NULL),
       weak_ptr_factory_(this) {
+  DCHECK(application_data_);
 }
 
-ApplicationProcessManager::~ApplicationProcessManager() {
+Application::~Application() {
 }
 
-bool ApplicationProcessManager::LaunchApplication(
-        RuntimeContext* runtime_context,
-        const ApplicationData* application) {
-  if (RunMainDocument(application))
+bool Application::Launch() {
+  if (is_launched()) {
+    LOG(ERROR) << "Attempt to launch app: " << id()
+               << " that was already launched.";
+    return false;
+  }
+
+  if (RunMainDocument())
     return true;
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
-  return RunFromLocalPath(application);
+  return RunFromLocalPath();
 }
 
-void ApplicationProcessManager::OnRuntimeAdded(Runtime* runtime) {
+void Application::Close() {
+  std::set<Runtime*> cached(runtimes_);
+  std::set<Runtime*>::iterator it = cached.begin();
+  for (; it!= cached.end(); ++it)
+    if (main_runtime_ != *it)
+      (*it)->Close();
+}
+
+void Application::OnRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.insert(runtime);
 }
 
-void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
+void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
-  // FIXME: main_runtime_ should always be the last one to close
-  // in RuntimeRegistry. Need to fix the issue from browser tests.
+
+  if (runtimes_.empty()) {
+    // FIXME(Mikhail): this should go away. We will notify ApplicationService
+    // about termination instead.
+    base::MessageLoop::current()->PostTask(
+          FROM_HERE, base::MessageLoop::QuitClosure());
+    return;
+  }
+
   if (runtimes_.size() == 1 &&
       ContainsKey(runtimes_, main_runtime_)) {
     ApplicationSystem* system = runtime_context_->GetApplicationSystem();
     ApplicationEventManager* event_manager = system->event_manager();
-    ApplicationService* service = system->application_service();
-    std::string app_id = service->GetRunningApplication()->ID();
 
     // If onSuspend is not registered in main document,
     // we close the main document immediately.
-    if (!IsOnSuspendHandlerRegistered(app_id)) {
+    if (!IsOnSuspendHandlerRegistered(application_data_->ID())) {
       CloseMainDocument();
       return;
     }
@@ -98,32 +119,32 @@ void ApplicationProcessManager::OnRuntimeRemoved(Runtime* runtime) {
     finish_observer_.reset(
         new FinishEventObserver(event_manager, this));
     event_manager->AttachObserver(
-      app_id, kOnJavaScriptEventAck,
+      application_data_->ID(), kOnJavaScriptEventAck,
       finish_observer_.get());
 
     scoped_ptr<base::ListValue> event_args(new base::ListValue);
     scoped_refptr<Event> event = Event::CreateEvent(
         xwalk::application::kOnSuspend, event_args.Pass());
-    event_manager->SendEvent(app_id, event);
+    event_manager->SendEvent(application_data_->ID(), event);
   }
 }
 
-bool ApplicationProcessManager::RunMainDocument(
-    const ApplicationData* application) {
+bool Application::RunMainDocument() {
   const MainDocumentInfo* main_info =
-      ToMainDocumentInfo(application->GetManifestData(keys::kAppMainKey));
+      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
   if (!main_info || !main_info->GetMainURL().is_valid())
     return false;
 
-  main_runtime_ = Runtime::Create(runtime_context_, main_info->GetMainURL());
+  main_runtime_ = Runtime::Create(runtime_context_,
+                                  main_info->GetMainURL(), this);
   ApplicationEventManager* event_manager =
       runtime_context_->GetApplicationSystem()->event_manager();
   event_manager->OnMainDocumentCreated(
-      application->ID(), main_runtime_->web_contents());
+      application_data_->ID(), main_runtime_->web_contents());
   return true;
 }
 
-void ApplicationProcessManager::CloseMainDocument() {
+void Application::CloseMainDocument() {
   DCHECK(main_runtime_);
 
   finish_observer_.reset();
@@ -131,26 +152,25 @@ void ApplicationProcessManager::CloseMainDocument() {
   main_runtime_ = NULL;
 }
 
-bool ApplicationProcessManager::RunFromLocalPath(
-    const ApplicationData* application) {
-  const Manifest* manifest = application->GetManifest();
+bool Application::RunFromLocalPath() {
+  const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
-  if (manifest->GetString(keys::kLaunchLocalPathKey, &entry_page) &&
-      !entry_page.empty()) {
-    GURL url = application->GetResourceURL(entry_page);
+  if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
+        &entry_page) && !entry_page.empty()) {
+    GURL url = application_data_->GetResourceURL(entry_page);
     if (url.is_empty()) {
       LOG(WARNING) << "Can't find a valid local path URL for app.";
       return false;
     }
 
-    Runtime::CreateWithDefaultWindow(runtime_context_, url);
+    Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
     return true;
   }
 
   return false;
 }
 
-bool ApplicationProcessManager::IsOnSuspendHandlerRegistered(
+bool Application::IsOnSuspendHandlerRegistered(
     const std::string& app_id) const {
   ApplicationSystem* system = runtime_context_->GetApplicationSystem();
   ApplicationService* service = system->application_service();

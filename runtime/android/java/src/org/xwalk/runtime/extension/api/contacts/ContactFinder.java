@@ -20,8 +20,8 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.util.Log;
+import android.util.Pair;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -201,9 +201,9 @@ public class ContactFinder {
 
     /**
      * Generate a string to be used as sort order by SQL clause
-     * @param sortBy e.g. "GIVEN_NAME", "EMAIL"
+     * @param sortBy e.g. "givenNames", "phoneNumbers"
      * @param sortOrder e.g. "descending"
-     * @return A string with SQL syntax, e.g. "GIVEN_NAME DESC, EMAIL DESC"
+     * @return Data name with SQL clause: "StructuredName.GIVEN_NAME DESC, Phone.NUMBER DESC"
      */
     private String getSortOrder(List<String> sortBy, String sortOrder) {
         if (sortOrder == null) {
@@ -219,25 +219,56 @@ public class ContactFinder {
 
         String order = "";
         for (String s : sortBy) {
-            order += ContactConstants.contactDataMap.get(s).first + suffix + ",";
+            Pair<String, String> fields = ContactConstants.contactDataMap.get(s);
+            if (fields == null) {
+                continue;
+            }
+            order += fields.first + suffix + ",";
         }
-        return order.substring(0, order.length()-1);
+        return (order != "") ? order.substring(0, order.length()-1) : null;
     }
 
-    public JSONArray getContacts(Set<String> contactIds, String sortOrder, Long resultsLimit) {
-        if (contactIds.size() == 0) {
-            return null;
-        }
-
+    //TODO(hdq): Currently this function doesn't support multi-column sorting.
+    private JSONArray getContacts(
+            Set<String> contactIds, String sortOrder, String sortByMimeType, Long resultsLimit) {
         JSONArray returnArray = new JSONArray();
         Map<Long, ContactData> dataMap = new LinkedHashMap<Long, ContactData>();
 
-        // Get all records of these contactIds
-        String where = Data.CONTACT_ID
-            + " in (" + ContactUtils.makeQuestionMarkList(contactIds) + ")";
-        String[] whereArgs = contactIds.toArray(new String[contactIds.size()]);
-
+        // Get all records of given contactIds.
+        // For example, sort by ascending:
+        // -----------------------------
+        // id  data           mimetype
+        // -----------------------------
+        // 60  +34600000000   phone_v2
+        // 59  +34698765432   phone_v2
+        // 59  David1 Smith   name
+        // 60  David2 Smith   name
+        String where = null;
+        String[] whereArgs = null;
+        if (contactIds.size() != 0) {
+            where = Data.CONTACT_ID + " in (" + ContactUtils.makeQuestionMarkList(contactIds) + ")";
+            whereArgs = contactIds.toArray(new String[contactIds.size()]);
+        }
         Cursor c = mUtils.mResolver.query(Data.CONTENT_URI, null, where, whereArgs, sortOrder);
+
+        // Read contact IDs to build the array by sortOrder.
+        if (sortOrder != null) {
+            while (c.moveToNext()) {
+                // We should only check for mimetype of sorting field.
+                // As e.g. above, sort by phone number will get [60, 59], by name will get [59, 60]
+                String mime = c.getString(c.getColumnIndex(Data.MIMETYPE));
+                if (!mime.equals(sortByMimeType)) {
+                    continue;
+                }
+                long id = c.getLong(c.getColumnIndex(Data.CONTACT_ID));
+                if (!dataMap.containsKey(id)) {
+                    dataMap.put(id, new ContactData());
+                }
+            }
+            c.moveToFirst();
+        }
+
+        // Read details of each contacts
         while (c.moveToNext()) {
             long id = c.getLong(c.getColumnIndex(Data.CONTACT_ID));
             if (!dataMap.containsKey(id)) {
@@ -311,50 +342,58 @@ public class ContactFinder {
         return returnArray;
     }
 
-    public JSONArray find(String findString) {
-        FindOption findIdOption = null;
+    private FindOption createFindIDOption(String findString) {
         ContactJson findJson = new ContactJson(findString);
-        if (findString == null
-            || findString.equals("")
-            || findJson.getString("value").equals("")) {
-            findIdOption = new FindOption(null, null, null);
+        String value = (findString != null) ? findJson.getString("value") : null;
+        if (value == null || value.equals("") || findString.equals("")) {
+            return new FindOption(null, null, null);
         } else {
-            String where = "";
             List<String> args = new ArrayList<String>();
             List<String> fields = findJson.getStringArray("fields");
-            String value = findJson.getString("value");
             String operator = findJson.getString("operator");
             if (operator == null) {
-                Log.e(TAG, "find - Wrong find option: must has FilterOperator.");
-                return null;
+                return new FindOption(null, null, null);
             } else if (operator.equals("is")) {
                 operator = " = ";
             } else if (operator.equals("contains")) {
                 operator = " LIKE ";
                 value = "%" + value + "%";
             } else {
-                Log.e(TAG, "find - Wrong FilterOperator: ["+operator+"], should be 'is' or 'contains'");
+                Log.e(TAG, "find - Wrong Operator: ["+operator+"], should be 'is' or 'contains'");
                 return null;
             }
+            String where = "";
             for (String field : fields) {
                 // E.g. for "givenName" should check column of "givenNames".
                 String column = ContactConstants.findFieldMap.get(field);
+                if (column == null) { // Skip invalid fields
+                    continue;
+                }
                 android.util.Pair<String, String> name = ContactConstants.contactDataMap.get(column);
                 // E.g. first is GIVEN_NAME, second is StructuredName.MIMETYPE
                 where += name.first + operator + " ? AND " + Data.MIMETYPE + " = ? or ";
                 args.add(value);
                 args.add(name.second);
             }
+            if (where == "") {
+                return new FindOption(null, null, null);
+            }
             // Remove the "or " which appended in the loop above.
             where = where.substring(0, where.length()-3);
             String[] whereArgs = args.toArray(new String[args.size()]);
-
-            findIdOption = new FindOption(where, whereArgs, null);
+            return new FindOption(where, whereArgs, null);
         }
-        Set<String> ids = getContactIds(findIdOption);
-        String order = getSortOrder(findJson.getStringArray("sortBy"), findJson.getString("sortOrder"));
+    }
+
+    public JSONArray find(String findString) {
+        Set<String> ids = getContactIds(createFindIDOption(findString));
+        ContactJson findJson = new ContactJson(findString);
+        List<String> sortBy = findJson.getStringArray("sortBy");
+        String order = getSortOrder(sortBy, findJson.getString("sortOrder"));
+        String orderMimeType = (order == null) ? null :
+                ContactConstants.contactDataMap.get(sortBy.get(0)).second;
         String resultsLimit = findJson.getString("resultsLimit");
         Long resultsLimitLong = (resultsLimit == null) ? null : Long.valueOf(resultsLimit);
-        return getContacts(ids, order, resultsLimitLong);
+        return getContacts(ids, order, orderMimeType, resultsLimitLong);
     }
 }

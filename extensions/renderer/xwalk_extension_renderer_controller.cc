@@ -100,6 +100,7 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
     WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+  v8::Context::Scope contextScope(context);
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }
 

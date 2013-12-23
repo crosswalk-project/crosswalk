@@ -24,7 +24,7 @@ class ApplicationBrowserTest: public InProcessBrowserTest {
   // Wait for Runtime number in RuntimeRegistry becomes |runtime_count|.
   void WaitForRuntimes(int runtime_count);
 
-  int GetRuntimeNumber();
+  int GetRuntimeCount() const;
 
   base::FilePath test_data_dir_;
 };

@@ -13,6 +13,7 @@ namespace sysapps {
 using extensions::XWalkExtensionVector;
 
 class CPUInfoProvider;
+class MemoryInfoProvider;
 
 // This class manages the registration of the SysApps APIs. It will append
 // to the list of extensions the SysApps APIs, taking the features flags into
@@ -27,6 +28,7 @@ class SysAppsManager {
   void CreateExtensionsForExtensionThread(XWalkExtensionVector* extensions);
 
   static CPUInfoProvider* GetCPUInfoProvider();
+  static MemoryInfoProvider* GetMemoryInfoProvider();
 };
 
 }  // namespace sysapps

@@ -19,7 +19,7 @@ var _next_listener_id = 1;
 
 var Promise = requireNative('sysapps_promise').Promise;
 
-var postMessage = function(msg) {
+var _postMessage = function(msg) {
   var p = new Promise();
 
   _promises[_next_promise_id] = p;
@@ -58,7 +58,7 @@ extension.setMessageListener(function(json) {
     return;
   }
 
-  if (msg.data.error) {
+  if (msg.data && msg.data.error) {
     _promises[msg._promise_id].reject(msg.data.error);
   } else {
     _promises[msg._promise_id].fulfill(msg.data);
@@ -71,22 +71,28 @@ exports.save = function(contact) {
   var msg = {};
   msg['cmd'] = 'save';
   msg['contact'] = contact;
-  return postMessage(msg);
-};
+  return _postMessage(msg);
+}
 
 exports.find = function(options) {
   var msg = {};
   msg['cmd'] = 'find';
   msg['options'] = options;
-  return postMessage(msg);
+  return _postMessage(msg);
 };
 
 exports.remove = function(contactId) {
   var msg = {};
   msg['cmd'] = 'remove';
   msg['contactId'] = contactId;
-  return postMessage(msg);
+  return _postMessage(msg);
 };
+
+exports.clear = function() {
+  var msg = {};
+  msg['cmd'] = 'clear';
+  return _postMessage(msg);
+}
 
 function _addListener(isOnChange, callback) {
   // Check validation of callback for addEventListener way.
@@ -120,7 +126,11 @@ function _addListener(isOnChange, callback) {
   return listener_id;
 }
 
-function _addEventListener(callback) {
+exports.addEventListener = function(eventName, callback) {
+  if (eventName !== 'contactschange') {
+    console.log("Invalid parameters of eventName: "+eventName);
+    return -1;
+  }
   return _addListener(false, callback);
 }
 
@@ -130,4 +140,58 @@ Object.defineProperty(exports, 'oncontactschange', {
   }
 });
 
-exports.addEventListener = _addEventListener;
+window.ContactField = function(init) {
+  this.types = init.types;
+  this.preferred = init.preferred;
+  this.value = init.value;
+};
+
+window.ContactTelField = function(init) {
+  this.carrier = init.carrier;
+  this.types = init.types;
+  this.preferred = init.preferred;
+  this.value = init.value;
+};
+
+window.ContactAddress = function(init) {
+  this.types = init.types;
+  this.preferred = init.preferred;
+  this.streetAddress = init.streetAddress;
+  this.locality = init.locality;
+  this.region = init.region;
+  this.postalCode = init.postalCode;
+  this.countryName = init.countryName;
+};
+
+window.ContactName = function(init) {
+  this.displayName = init.displayName;
+  this.honorificPrefixes = init.honorificPrefixes;
+  this.givenNames = init.givenNames;
+  this.additionalNames = init.additionalNames;
+  this.familyNames = init.familyNames;
+  this.honorificSuffixes = init.honorificSuffixes;
+  this.nicknames = init.nicknames;
+};
+
+window.Contact = function(init) {
+  this.name = init.name;
+  this.emails = init.emails;
+  this.photos = init.photos;
+  this.urls = init.urls;
+  this.categories = init.categories;
+  this.addresses = init.addresses;
+  this.phoneNumbers = init.phoneNumbers;
+  this.organizations = init.organizations;
+  this.jobTitles = init.jobTitles;
+  this.birthday = init.birthday;
+  this.notes = init.notes;
+  this.impp = init.impp;
+  this.anniversary = init.anniversary;
+  this.gender = init.gender;
+};
+
+window.ContactsChangeEvent = function(init) {
+  this.added = init.added;
+  this.modified = init.modified;
+  this.removed = init.removed;
+};
