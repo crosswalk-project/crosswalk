@@ -10,7 +10,7 @@
 #include "ipc/ipc_message.h"
 #include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "xwalk/application/browser/application_process_manager.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_data.h"
@@ -57,9 +57,9 @@ void AppRuntimeExtensionInstance::OnGetManifest(
   base::DictionaryValue* manifest_data = NULL;
   const ApplicationService* service =
     application_system_->application_service();
-  const ApplicationData* app = service->GetRunningApplication();
+  const Application* app = service->GetActiveApplication();
   if (app)
-    manifest_data = app->GetManifest()->value()->DeepCopy();
+    manifest_data = app->data()->GetManifest()->value()->DeepCopy();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());
   if (manifest_data)
@@ -74,10 +74,10 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   int main_routing_id = MSG_ROUTING_NONE;
-  const ApplicationProcessManager* pm =
-    application_system_->process_manager();
-  const Runtime* runtime = pm->GetMainDocumentRuntime();
-  if (runtime)
+
+  const Application* application =
+          application_system_->application_service()->GetActiveApplication();
+  if (Runtime* runtime = application->GetMainDocumentRuntime())
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());

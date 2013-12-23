@@ -38,10 +38,28 @@ class Runtime : public content::WebContentsDelegate,
                 public content::NotificationObserver,
                 public NativeAppWindowDelegate {
  public:
+  // New "Runtimes" are also created from Runtime::WebContentsCreated which
+  // is overridden WebContentsDelegate method. The "observer" is needed to
+  // observe appearance and removal of such Runtime instances.
+  class Observer {
+    public:
+      // Called when a new Runtime instance is added.
+      virtual void OnRuntimeAdded(Runtime* runtime) = 0;
+
+      // Called when a Runtime instance is removed.
+      virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
+
+    protected:
+      ~Observer() {}
+  };
+
+  void SetObserver(Observer* observer) { observer_ = observer; }
+
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext*, const GURL&);
+  static Runtime* Create(RuntimeContext*, const GURL&, Observer* = NULL);
   // Create a new Runtime instance which binds to a default app window.
-  static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&);
+  static Runtime* CreateWithDefaultWindow(RuntimeContext*, const GURL&,
+                                          Observer* = NULL);
 
   // Attach to a default app window.
   void AttachDefaultWindow();
@@ -56,9 +74,10 @@ class Runtime : public content::WebContentsDelegate,
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
+  static void SetGlobalObserverForTesting(Observer* observer);
+
  protected:
-  explicit Runtime(RuntimeContext* runtime_context);
-  explicit Runtime(content::WebContents* web_contents);
+  Runtime(content::WebContents* web_contents, Observer* observer);
   virtual ~Runtime();
 
     // Overridden from content::WebContentsDelegate:
@@ -152,6 +171,8 @@ class Runtime : public content::WebContentsDelegate,
   };
 
   unsigned int fullscreen_options_;
+
+  Observer* observer_;
 };
 
 }  // namespace xwalk

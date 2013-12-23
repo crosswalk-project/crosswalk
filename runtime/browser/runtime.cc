@@ -13,12 +13,13 @@
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/notification_details.h"
+#include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
@@ -39,46 +40,64 @@ namespace {
 const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
 
+static Runtime::Observer* g_observer_for_testing;
+
 }  // namespace
 
 // static
-Runtime* Runtime::Create(RuntimeContext* runtime_context, const GURL& url) {
+Runtime* Runtime::Create(
+        RuntimeContext* runtime_context, const GURL& url, Observer* observer) {
   WebContents::CreateParams params(runtime_context, NULL);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 
-  Runtime* runtime = new Runtime(web_contents);
+  Runtime* runtime = new Runtime(web_contents, observer);
   runtime->LoadURL(url);
   return runtime;
 }
 
 // static
 Runtime* Runtime::CreateWithDefaultWindow(
-    RuntimeContext* runtime_context, const GURL& url) {
-  Runtime* runtime = Runtime::Create(runtime_context, url);
+    RuntimeContext* runtime_context, const GURL& url, Observer* observer) {
+  Runtime* runtime = Runtime::Create(runtime_context, url, observer);
   runtime->AttachDefaultWindow();
   return runtime;
 }
 
-Runtime::Runtime(content::WebContents* web_contents)
+// static
+void Runtime::SetGlobalObserverForTesting(Observer* observer) {
+  g_observer_for_testing = observer;
+}
+
+#define FOR_EACH_RUNTIME_OBSERVER(method) \
+  if (observer_)                          \
+    observer_->method;                    \
+  if (g_observer_for_testing)             \
+    g_observer_for_testing->method
+
+Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
     : WebContentsObserver(web_contents),
+      web_contents_(web_contents),
       window_(NULL),
       weak_ptr_factory_(this),
-      fullscreen_options_(NO_FULLSCREEN)  {
-  web_contents_.reset(web_contents);
+      fullscreen_options_(NO_FULLSCREEN),
+      observer_(observer) {
   web_contents_->SetDelegate(this);
   runtime_context_ = RuntimeContext::FromWebContents(web_contents);
-  RuntimeRegistry::Get()->AddRuntime(this);
+  content::NotificationService::current()->Notify(
+       xwalk::NOTIFICATION_RUNTIME_OPENED,
+       content::Source<Runtime>(this),
+       content::NotificationService::NoDetails());
+
+  FOR_EACH_RUNTIME_OBSERVER(OnRuntimeAdded(this));
 }
 
 Runtime::~Runtime() {
-  RuntimeRegistry::Get()->RemoveRuntime(this);
-
-  // Quit the app once the last Runtime instance is removed.
-  if (RuntimeRegistry::Get()->runtimes().empty()) {
-    base::MessageLoop::current()->PostTask(
-        FROM_HERE, base::MessageLoop::QuitClosure());
-  }
+  content::NotificationService::current()->Notify(
+          xwalk::NOTIFICATION_RUNTIME_CLOSED,
+          content::Source<Runtime>(this),
+          content::NotificationService::NoDetails());
+  FOR_EACH_RUNTIME_OBSERVER(OnRuntimeRemoved(this));
 }
 
 void Runtime::AttachDefaultWindow() {
@@ -210,7 +229,7 @@ void Runtime::WebContentsCreated(
     const string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime* new_runtime = new Runtime(new_contents);
+  Runtime* new_runtime = new Runtime(new_contents, observer_);
   new_runtime->AttachDefaultWindow();
 }
 
@@ -289,8 +308,6 @@ void Runtime::DidDownloadFavicon(int id,
     return;
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
   window_->UpdateIcon(app_icon_);
-
-  RuntimeRegistry::Get()->RuntimeAppIconChanged(this);
 }
 
 void Runtime::Observe(int type,

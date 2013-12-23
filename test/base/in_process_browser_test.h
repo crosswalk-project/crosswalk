@@ -5,6 +5,8 @@
 #ifndef XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
 #define XWALK_TEST_BASE_IN_PROCESS_BROWSER_TEST_H_
 
+#include <vector>
+
 #include "base/compiler_specific.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/ref_counted.h"
@@ -36,6 +38,8 @@ class RuleBasedHostResolverProc;
 //
 class InProcessBrowserTest : public content::BrowserTestBase {
  public:
+  typedef std::vector<xwalk::Runtime*> RuntimeList;
+
   InProcessBrowserTest();
   virtual ~InProcessBrowserTest();
 
@@ -49,6 +53,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
  protected:
   // Returns the runtime instance created by CreateRuntime.
   xwalk::Runtime* runtime() const { return runtime_; }
+  const RuntimeList& runtimes() const;
 
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.

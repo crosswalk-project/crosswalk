@@ -5,10 +5,12 @@
 #include "xwalk/application/browser/linux/running_applications_manager.h"
 
 #include <string>
+
+#include "xwalk/application/browser/application.h"
+
 #include "base/bind.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
-#include "xwalk/runtime/browser/runtime_registry.h"
 
 namespace {
 
@@ -119,9 +121,8 @@ void RunningApplicationsManager::OnTerminate(
     dbus::ManagedObject* object, dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
 
-  // FIXME(cmarcelo): While there's still no notion of Running Application yet,
-  // we'll simply close all the windows of the current one.
-  RuntimeRegistry::Get()->CloseAll();
+  if (Application* application = application_service_->GetActiveApplication())
+    application->Close();
 
   adaptor_.RemoveManagedObject(object->path());
 
