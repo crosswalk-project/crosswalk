@@ -109,44 +109,10 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       !file_util::CreateDirectory(data_dir))
     return false;
 
-  base::FilePath unpacked_dir;
   std::string app_id;
-  if (!base::DirectoryExists(path)) {
-    scoped_ptr<Package> package = Package::Create(path);
-    if (package)
-      app_id = package->Id();
-
-    if (app_id.empty()) {
-      LOG(ERROR) << "XPK/WGT file is invalid.";
-      return false;
-    }
-
-    if (app_storage_->Contains(app_id)) {
-      *id = app_id;
-      LOG(INFO) << "Already installed: " << app_id;
-      return false;
-    }
-
-    base::FilePath temp_dir;
-    package->Extract(&temp_dir);
-    unpacked_dir = data_dir.AppendASCII(app_id);
-    if (base::DirectoryExists(unpacked_dir) &&
-        !base::DeleteFile(unpacked_dir, true))
-      return false;
-    if (!base::Move(temp_dir, unpacked_dir))
-      return false;
-  } else {
-    unpacked_dir = path;
-  }
-
-  std::string error;
-  scoped_refptr<ApplicationData> application =
-      LoadApplication(unpacked_dir,
-                      app_id,
-                      Manifest::COMMAND_LINE,
-                      &error);
-  if (!application) {
-    LOG(ERROR) << "Error during application installation: " << error;
+  scoped_refptr<ApplicationData> application;
+  if (!GenerateAppIDAndLoadApplication(path, data_dir, app_id, application)) {
+    *id = app_id;
     return false;
   }
 
@@ -268,6 +234,55 @@ bool ApplicationService::Launch(
 
 ApplicationStorage* ApplicationService::application_storage() {
   return app_storage_.get();
+}
+
+bool ApplicationService::GenerateAppIDAndLoadApplication(
+    const base::FilePath& package_path,
+    const base::FilePath& data_dir,
+    std::string& app_id,
+    scoped_refptr<ApplicationData>& application) {
+  // Packaged Application should be extracted and moved under Crosswalk data
+  // directory. Otherwise, we do nothing about the unpackaged application.
+  base::FilePath unpacked_dir;
+  if (!base::DirectoryExists(package_path)) {
+    scoped_ptr<Package> package = Package::Create(package_path);
+    if (package)
+      app_id = package->Id();
+
+    if (app_id.empty()) {
+      LOG(ERROR) << "XPK/WGT file is invalid.";
+      return false;
+    }
+
+    if (app_storage_->Contains(app_id)) {
+      LOG(INFO) << "Already installed: " << app_id;
+      return false;
+    }
+
+    base::FilePath temp_dir;
+    package->Extract(&temp_dir);
+
+    unpacked_dir = data_dir.AppendASCII(app_id);
+    if (base::DirectoryExists(unpacked_dir) &&
+        !base::DeleteFile(unpacked_dir, true))
+      return false;
+    if (!base::Move(temp_dir, unpacked_dir))
+      return false;
+  } else {
+    unpacked_dir = package_path;
+  }
+
+  std::string error;
+  application = LoadApplication(unpacked_dir,
+                                app_id,
+                                Manifest::COMMAND_LINE,
+                                &error);
+  if (!application) {
+    LOG(ERROR) << "Error during application installation: " << error;
+    return false;
+  }
+
+  return true;
 }
 
 }  // namespace application
