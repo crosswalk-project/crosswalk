@@ -8,7 +8,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "xwalk_tizen_user.h"
+#include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_installed_path = "/installed1";
@@ -20,8 +20,7 @@ static const char* xwalk_installed_app_iface =
 static char* install_path;
 static char* uninstall_appid;
 
-static GOptionEntry entries[] =
-{
+static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed", "PATH" },
   { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_appid,
@@ -29,15 +28,16 @@ static GOptionEntry entries[] =
   { NULL }
 };
 
-static bool install_application(const char* path)
-{
+static bool install_application(const char* path) {
   GError* error = NULL;
   GDBusProxy* proxy;
   bool ret;
+  GVariant* result = NULL;
 
-  proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SESSION,
-		  G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
-		  xwalk_installed_path, xwalk_installed_iface, NULL, &error);
+  proxy = g_dbus_proxy_new_for_bus_sync(
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
+      xwalk_installed_path, xwalk_installed_iface, NULL, &error);
   if (!proxy) {
     g_print("Couldn't create proxy for '%s': %s\n", xwalk_installed_iface,
             error->message);
@@ -46,10 +46,10 @@ static bool install_application(const char* path)
     goto done;
   }
 
-  GVariant* result = g_dbus_proxy_call_sync(proxy, "Install",
-                                            g_variant_new("(s)", path),
-                                            G_DBUS_CALL_FLAGS_NONE,
-                                            -1, NULL, &error);
+  result = g_dbus_proxy_call_sync(proxy, "Install",
+                                  g_variant_new("(s)", path),
+                                  G_DBUS_CALL_FLAGS_NONE,
+                                  -1, NULL, &error);
   if (!result) {
     g_print("Installing application failed: %s\n", error->message);
     g_error_free(error);
@@ -65,7 +65,7 @@ static bool install_application(const char* path)
 
   ret = true;
 
-done:
+ done:
   if (proxy)
     g_object_unref(proxy);
 
@@ -73,14 +73,13 @@ done:
 }
 
 static bool uninstall_application(GDBusObjectManager* installed,
-                                  const char* appid)
-{
+                                  const char* appid) {
   GList* objects = g_dbus_object_manager_get_objects(installed);
   GList* l;
   bool ret = false;
 
   for (l = objects; l; l = l->next) {
-    GDBusObject* object = l->data;
+    GDBusObject* object = reinterpret_cast<GDBusObject*>(l->data);
     GDBusInterface* iface = g_dbus_object_get_interface(
         object,
         xwalk_installed_app_iface);
@@ -122,7 +121,7 @@ static bool uninstall_application(GDBusObjectManager* installed,
 
   g_print("Application ID '%s' could not be found\n", appid);
 
-done:
+ done:
   g_list_free_full(objects, g_object_unref);
 
   return ret;
@@ -133,7 +132,7 @@ static void list_applications(GDBusObjectManager* installed) {
   GList* l;
 
   for (l = objects; l; l = l->next) {
-    GDBusObject* object = l->data;
+    GDBusObject* object = reinterpret_cast<GDBusObject*>(l->data);
     GDBusInterface* iface = g_dbus_object_get_interface(
         object,
         xwalk_installed_app_iface);
@@ -189,10 +188,11 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  GDBusObjectManager* installed_om = g_dbus_object_manager_client_new_for_bus_sync(
-      G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-      xwalk_service_name, xwalk_installed_path,
-      NULL, NULL, NULL, NULL, NULL);
+  GDBusObjectManager* installed_om =
+      g_dbus_object_manager_client_new_for_bus_sync(
+          G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+          xwalk_service_name, xwalk_installed_path,
+          NULL, NULL, NULL, NULL, NULL);
   if (!installed_om) {
     g_print("Service '%s' could not be reached\n", xwalk_service_name);
     exit(1);

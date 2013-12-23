@@ -18,18 +18,20 @@ int xwalk_tizen_set_home_for_user_app(void) {
 
   // Tizen doesn't set HOME by default on login for user "app".
   uid_t uid = getuid();
-  struct passwd* passwd = getpwuid(uid);
+  struct passwd* passwd = getpwuid(uid);  // NOLINT
 
   if (!passwd)
     return -ENOENT;
 
   if (strcmp(passwd->pw_name, "app")) {
-    fprintf(stderr, "User is not 'app', launching an application will not work\n");
+    fprintf(stderr,
+            "User is not 'app', launching an application will not work\n");
     return -EINVAL;
   }
 
   if (setenv("HOME", passwd->pw_dir, true) != 0) {
-    fprintf(stderr, "Couldn't set 'HOME' env variable to '%s'\n", passwd->pw_dir);
+    fprintf(stderr, "Couldn't set 'HOME' env variable to '%s'\n",
+            passwd->pw_dir);
     return -EINVAL;
   }
 

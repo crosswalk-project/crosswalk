@@ -28,22 +28,25 @@
         'gio',
       ],
       'include_dirs': [
-        '..',
+        '../../../..',
       ],
       'sources': [
         'xwalk_tizen_user.h',
-        'xwalk_tizen_user.c',
-        'xwalkctl_main.c',
+        'xwalk_tizen_user.cc',
+        'xwalkctl_main.cc',
       ],
     },
     {
       'target_name': 'xwalk_launcher',
       'type': 'executable',
       'product_name': 'xwalk-launcher',
+      'include_dirs': [
+        '../../../..',
+      ],
       'sources': [
         'xwalk_tizen_user.h',
-        'xwalk_tizen_user.c',
-        'xwalk_launcher_main.c',
+        'xwalk_tizen_user.cc',
+        'xwalk_launcher_main.cc',
       ],
       'conditions' : [
         ['OS=="linux"', {
@@ -61,9 +64,6 @@
             'xwalk_launcher_tizen.h',
           ],
         }],
-      ],
-      'include_dirs': [
-        '..',
       ],
     },
   ],
