@@ -7,8 +7,9 @@ Upstream does not have that issue.
 Author: Halton Huo <halton.huo@intel.com>
 ---
  src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp | 6 ++++--
+ src/third_party/WebKit/Source/core/loader/FrameLoader.cpp           | 5 ++++-
  src/third_party/WebKit/Source/core/page/CreateWindow.cpp            | 2 +-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ 3 files changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp b/src/third_party/WebKit/Source/core/editing/CompositeEditCommand.cpp
 index ae7cebf..9726377 100644
@@ -21,12 +22,28 @@ index ae7cebf..9726377 100644
 -    RefPtr<DocumentFragment> fragment = startOfParagraphToMove != endOfParagraphToMove ?
 -        createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), "") : 0;
 +    RefPtr<DocumentFragment> fragment = 0;
-+    if (startOfParagraphToMove != endOfParagraphToMove) {
++    if (startOfParagraphToMove != endOfParagraphToMove)
 +        fragment = createFragmentFromMarkup(document(), createMarkup(range.get(), 0, DoNotAnnotateForInterchange, true, DoNotResolveURLs, constrainingAncestor), ""); 
-+    }
++
  
      // A non-empty paragraph's style is moved when we copy and move it.  We don't move
      // anything if we're given an empty paragraph, but an empty paragraph can have style
+diff --git a/src/third_party/WebKit/Source/core/loader/FrameLoader.cpp b/Source/core/loader/FrameLoader.cpp
+index 5a91b7a..70ed7ed 100644
+--- a/src/third_party/WebKit/Source/core/loader/FrameLoader.cpp
++++ b/src/third_party/WebKit/Source/core/loader/FrameLoader.cpp
+@@ -716,7 +716,10 @@ void FrameLoader::load(const FrameLoadRequest& passedRequest)
+     if (!prepareRequestForThisFrame(request))
+         return;
+ 
+-    RefPtr<Frame> targetFrame = request.formState() ? 0 : findFrameForNavigation(request.frameName(), request.formState() ? request.formState()->sourceDocument() : m_frame->document());
++    RefPtr<Frame> targetFrame = 0;
++    if (!request.formState())
++      targetFrame = findFrameForNavigation(request.frameName(), request.formState() ? request.formState()->sourceDocument() : m_frame->document());
++
+     if (targetFrame && targetFrame != m_frame) {
+         request.setFrameName("_self");
+         targetFrame->loader().load(request);
 diff --git a/src/third_party/WebKit/Source/core/page/CreateWindow.cpp b/src/third_party/WebKit/Source/core/page/CreateWindow.cpp
 index 0cd7ee0..c1cc9c4 100644
 --- a/src/third_party/WebKit/Source/core/page/CreateWindow.cpp

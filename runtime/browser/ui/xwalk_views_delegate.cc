@@ -40,6 +40,11 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
 HICON XWalkViewsDelegate::GetDefaultWindowIcon() const {
   return LoadIcon(NULL, MAKEINTRESOURCE(IDR_XWALK_ICON_48));
 }
+
+bool XWalkViewsDelegate::IsWindowInMetro(gfx::NativeWindow window) const {
+  // FIXME(halton): crosswalk does not support metro on windows.
+  return false;
+}
 #endif
 
 }  // namespace xwalk
