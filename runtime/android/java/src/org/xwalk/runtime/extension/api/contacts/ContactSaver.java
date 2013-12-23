@@ -135,10 +135,15 @@ public class ContactSaver {
                     for (Map.Entry<String, String> entry : contactMap.mDataMap.entrySet()) {
                         String value = json.getString(entry.getValue());
                         if (contactMap.mName.equals("impp")) {
-                            String imProtocol = value.substring(0, value.indexOf(':'));
-                            value = value.substring(value.indexOf(':')+1);
+                            int colonIdx = value.indexOf(':');
+                            // An impp must indicate its protocol type by ':'
+                            if (-1 == colonIdx) {
+                                continue;
+                            }
+                            String protocol = value.substring(0, colonIdx);
                             builder.withValue(Im.PROTOCOL,
-                                    ContactConstants.imProtocolMap.get(imProtocol));
+                                    ContactConstants.imProtocolMap.get(protocol));
+                            value = value.substring(colonIdx+1);
                         }
                         builder.withValue(entry.getKey(), value);
                     }
