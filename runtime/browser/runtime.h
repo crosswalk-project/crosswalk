@@ -50,7 +50,7 @@ class Runtime : public content::WebContentsDelegate,
       virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
 
     protected:
-      ~Observer() {}
+      virtual ~Observer() {}
   };
 
   void SetObserver(Observer* observer) { observer_ = observer; }
