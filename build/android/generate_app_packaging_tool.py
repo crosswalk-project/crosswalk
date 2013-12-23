@@ -47,8 +47,7 @@ def PrepareFromXwalk(src_dir, target_dir):
 
   # The source file/directory list to be copied and the target directory list.
   source_target_list = [
-    (os.path.join(source_code_dir, 'xwalk/VERSION'),
-     os.path.join(target_dir, 'VERSION')),
+    (os.path.join(source_code_dir, 'xwalk/VERSION'), target_dir),
 
     # This jar is needed for 'javac' compile.
     (os.path.join(jar_src_dir, 'xwalk_app_runtime_java.jar'), jar_target_dir),

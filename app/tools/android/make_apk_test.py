@@ -162,6 +162,11 @@ class TestMakeApk(unittest.TestCase):
         self.assertTrue(out.find('Illegal character') != -1)
         Clean('Example_')
 
+  def testToolVersion(self):
+    cmd = ['python', 'make_apk.py', '--version']
+    out = RunCommand(cmd)
+    self.assertTrue(out.find('Crosswalk app packaging tool version') != -1)
+
   def testAppDescriptionAndVersion(self):
     cmd = ['python', 'make_apk.py', '--name=Example',
            '--package=org.xwalk.example', '--app-version=1.0.0',
@@ -538,6 +543,7 @@ def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
   test_suite.addTest(TestMakeApk('testEmptyMode'))
+  test_suite.addTest(TestMakeApk('testToolVersion'))
   return test_suite
 
 
