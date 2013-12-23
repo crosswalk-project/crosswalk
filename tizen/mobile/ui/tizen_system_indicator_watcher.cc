@@ -139,8 +139,8 @@ void TizenSystemIndicatorWatcher::OnMouseUp() {
 
 void TizenSystemIndicatorWatcher::OnMouseMove(int x, int y) {
   struct IPCDataEvMouseMove ipc;
-  ipc.x = x;
-  ipc.y = y;
+  ipc.x = static_cast<int>(x * display_.device_scale_factor());
+  ipc.y = static_cast<int>(y * display_.device_scale_factor());
 
   writer_.SendEvent(OP_EV_MOUSE_MOVE, &ipc, sizeof(ipc));
 }
