@@ -9,6 +9,7 @@
 
 namespace content {
 class ContentBrowserClient;
+class RenderProcessHost;
 }
 
 class XWalkTestSuiteInitializer;
@@ -72,6 +73,19 @@ class XWalkRunner {
  private:
   friend class XWalkMainDelegate;
   friend class ::XWalkTestSuiteInitializer;
+
+  // To track OnRenderProcessHostGone.
+  friend class Runtime;
+
+  // This class acts as an "arm" of XWalkRunner to fulfill Content API needs,
+  // it may call us back in some situations where the a more wider view of the
+  // objects is necessary, e.g. during render process lifecycle callbacks.
+  friend class XWalkContentBrowserClient;
+
+  // We track the render process lifecycle to register Crosswalk
+  // extensions. Some subsystems are mostly implemented using extensions.
+  void OnRenderProcessHostCreated(content::RenderProcessHost* host);
+  void OnRenderProcessHostGone(content::RenderProcessHost* host);
 
   // Create the XWalkRunner object. We use a factory function so that we can
   // switch the concrete class on compile time based on the platform, separating

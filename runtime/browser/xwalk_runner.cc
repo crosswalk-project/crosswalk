@@ -4,11 +4,13 @@
 
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -34,7 +36,7 @@ XWalkRunner::XWalkRunner()
 
   // Initializing after the g_xwalk_runner is set to ensure
   // XWalkRunner::GetInstance() can be used in all sub objects if needed.
-  content_browser_client_.reset(new XWalkContentBrowserClient);
+  content_browser_client_.reset(new XWalkContentBrowserClient(this));
 }
 
 XWalkRunner::~XWalkRunner() {
@@ -56,17 +58,38 @@ void XWalkRunner::PreMainMessageLoopRun() {
   // FIXME(cmarcelo): Remove this check once we remove the --uninstall
   // command line.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (!cmd_line->HasSwitch(switches::kUninstall)) {
+  if (!cmd_line->HasSwitch(switches::kUninstall))
     extension_service_.reset(new extensions::XWalkExtensionService);
-    content_browser_client_->set_extension_service(extension_service_.get());
-  }
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {
-  content_browser_client_->set_extension_service(NULL);
   extension_service_.reset();
   app_system_.reset();
   runtime_context_.reset();
+}
+
+void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
+  if (!extension_service_)
+    return;
+
+  // TODO(cmarcelo): Move Create*Extensions*() functions to XWalkRunner.
+  XWalkBrowserMainParts* main_parts = content_browser_client_->main_parts();
+  std::vector<extensions::XWalkExtension*> ui_thread_extensions;
+  main_parts->CreateInternalExtensionsForUIThread(
+      host, &ui_thread_extensions);
+
+  std::vector<extensions::XWalkExtension*> extension_thread_extensions;
+  main_parts->CreateInternalExtensionsForExtensionThread(
+      host, &extension_thread_extensions);
+
+  extension_service_->OnRenderProcessHostCreated(
+      host, &ui_thread_extensions, &extension_thread_extensions);
+}
+
+void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
+  if (!extension_service_)
+    return;
+  extension_service_->OnRenderProcessDied(host);
 }
 
 // static

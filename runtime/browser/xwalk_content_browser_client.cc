@@ -10,7 +10,6 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
-#include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
@@ -18,6 +17,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
@@ -56,9 +56,10 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
 }
 
 
-XWalkContentBrowserClient::XWalkContentBrowserClient()
-    : main_parts_(NULL),
-      extension_service_(NULL) {
+XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
+    : xwalk_runner_(xwalk_runner),
+      url_request_context_getter_(NULL),
+      main_parts_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -135,18 +136,7 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
-  if (extension_service_) {
-    std::vector<extensions::XWalkExtension*> ui_thread_extensions;
-    main_parts_->CreateInternalExtensionsForUIThread(
-        host, &ui_thread_extensions);
-
-    std::vector<extensions::XWalkExtension*> extension_thread_extensions;
-    main_parts_->CreateInternalExtensionsForExtensionThread(
-        host, &extension_thread_extensions);
-
-    extension_service_->OnRenderProcessHostCreated(
-        host, &ui_thread_extensions, &extension_thread_extensions);
-  }
+  xwalk_runner_->OnRenderProcessHostCreated(host);
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {
@@ -223,12 +213,6 @@ void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   ResourceDispatcherHostCreated();
 }
 #endif
-
-void XWalkContentBrowserClient::RenderProcessHostGone(
-    content::RenderProcessHost* host) {
-  if (extension_service_)
-    extension_service_->OnRenderProcessDied(host);
-}
 
 content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
