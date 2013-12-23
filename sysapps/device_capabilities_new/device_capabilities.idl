@@ -10,10 +10,18 @@ namespace device_capabilities {
     double load;
   };
 
+  dictionary SystemMemory {
+    // If we use long here, it will overflow.
+    double capacity;
+    double availCapacity;
+  };
+
   callback SystemCPUPromise = void (SystemCPU info, DOMString error);
+  callback SystemMemoryPromise = void (SystemMemory info, DOMString error);
 
   interface Functions {
     static void getCPUInfo(SystemCPUPromise promise);
+    static void getMemoryInfo(SystemMemoryPromise promise);
 
     [nodoc] static DeviceCapabilities deviceCapabilitiesConstructor(DOMString objectId);
   };
