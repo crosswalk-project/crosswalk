@@ -30,12 +30,13 @@ PackageInstaller::~PackageInstaller() {
 // static
 scoped_ptr<PackageInstaller> PackageInstaller::Create(
     ApplicationService* service,
+    ApplicationStorage* storage,
     const std::string& package_id,
     const base::FilePath& data_dir) {
   if (!base::PathExists(data_dir))
     return scoped_ptr<PackageInstaller>();
   scoped_ptr<PackageInstaller> handler(
-      new PackageInstaller(service, package_id, data_dir));
+      new PackageInstaller(service, storage, package_id, data_dir));
   if (!handler->Init())
     return scoped_ptr<PackageInstaller>();
   return handler.Pass();
@@ -43,9 +44,11 @@ scoped_ptr<PackageInstaller> PackageInstaller::Create(
 
 PackageInstaller::PackageInstaller(
     ApplicationService* service,
+    ApplicationStorage* storage,
     const std::string& package_id,
     const base::FilePath& data_dir)
     : service_(service)
+    , storage_(storage)
     , package_id_(package_id)
     , data_dir_(data_dir) {
   CHECK(service_);
@@ -57,7 +60,7 @@ bool PackageInstaller::Init() {
       .AppendASCII(package_id_ + std::string(info::kXmlExtension));
   execute_path_ = app_dir_.Append(info::kExecDir).AppendASCII(package_id_);
 
-  application_ = service_->GetApplicationByID(package_id_);
+  application_ = storage_->GetApplicationData(package_id_);
   if (!application_) {
     LOG(ERROR) << "Application " << package_id_
                << " haven't been installed in Xwalk database.";
