@@ -8,7 +8,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_router.h"
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 
 using content::BrowserThread;
@@ -40,7 +40,7 @@ ApplicationEventManager::~ApplicationEventManager() {
 
 void ApplicationEventManager::OnAppLoaded(const std::string& app_id) {
   scoped_refptr<const ApplicationData> app_data =
-      system_->application_service()->GetApplicationByID(app_id);
+      system_->application_storage()->GetApplicationData(app_id);
   std::set<std::string> events;
   if (app_data)
     events = app_data->GetEvents();

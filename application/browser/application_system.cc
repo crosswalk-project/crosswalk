@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
@@ -26,7 +27,9 @@ namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
-    application_service_(new ApplicationService(runtime_context)),
+    application_storage_(new ApplicationStorage(runtime_context->GetPath())),
+    application_service_(new ApplicationService(runtime_context,
+                                                application_storage_.get())),
     event_manager_(new ApplicationEventManager(this)) {}
 
 ApplicationSystem::~ApplicationSystem() {
@@ -50,7 +53,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
   run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
     const ApplicationData::ApplicationDataMap& apps =
-        application_service_->GetInstalledApplications();
+        application_storage_->GetInstalledApplications();
     LOG(INFO) << "Application ID                       Application Name";
     LOG(INFO) << "-----------------------------------------------------";
     ApplicationData::ApplicationDataMap::const_iterator it;
@@ -89,7 +92,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
     std::string app_id;
     if (application_service_->Install(path, &app_id)) {
       LOG(INFO) << "[OK] Application installed: " << app_id;
-      if (application_service_->GetApplicationByID(app_id)->HasMainDocument())
+      if (application_storage_->GetApplicationData(app_id)->HasMainDocument())
         run_default_message_loop = true;
     } else {
       LOG(ERROR) << "[ERR] Application install failure: " << path.value();

@@ -17,6 +17,7 @@ namespace xwalk {
 namespace application {
 
 class ApplicationService;
+class ApplicationStorage;
 class InstalledApplicationsManager;
 class RunningApplicationsManager;
 
@@ -25,6 +26,7 @@ class RunningApplicationsManager;
 class ApplicationServiceProviderLinux {
  public:
   ApplicationServiceProviderLinux(ApplicationService* app_service,
+                                  ApplicationStorage* app_storage,
                                   scoped_refptr<dbus::Bus> session_bus);
   virtual ~ApplicationServiceProviderLinux();
 

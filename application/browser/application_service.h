@@ -9,7 +9,6 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/observer_list.h"
-#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
@@ -21,12 +20,14 @@ namespace xwalk {
 namespace application {
 
 class Application;
+class ApplicationStorage;
 
 // This will manages applications install, uninstall, update and so on. It'll
 // also maintain all installed applications' info.
 class ApplicationService {
  public:
-  explicit ApplicationService(xwalk::RuntimeContext* runtime_context);
+  ApplicationService(RuntimeContext* runtime_context,
+                     ApplicationStorage* app_storage);
   virtual ~ApplicationService();
 
   bool Install(const base::FilePath& path, std::string* id);
@@ -34,9 +35,6 @@ class ApplicationService {
   bool Launch(const std::string& id);
   bool Launch(const base::FilePath& path);
 
-  scoped_refptr<ApplicationData> GetApplicationByID(
-       const std::string& id) const;
-  const ApplicationData::ApplicationDataMap& GetInstalledApplications() const;
   // Currently there's only one running application at a time.
   // FIXME: This method should go away when multiple applications
   // running is supported.
@@ -54,13 +52,12 @@ class ApplicationService {
 
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
-  ApplicationStorage* application_storage();
 
  private:
   bool Launch(scoped_refptr<const ApplicationData> application_data);
 
   xwalk::RuntimeContext* runtime_context_;
-  scoped_ptr<ApplicationStorage> app_storage_;
+  ApplicationStorage* application_storage_;
   scoped_ptr<Application> application_;
   ObserverList<Observer> observers_;
 

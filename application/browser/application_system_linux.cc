@@ -19,6 +19,7 @@ ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
   if (cmd_line->HasSwitch(switches::kXWalkRunAsService)) {
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
+                                            application_storage(),
                                             dbus_manager().session_bus()));
   }
 }
