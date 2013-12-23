@@ -15,6 +15,12 @@
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/xwalk_runner_android.h"
+#elif defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -94,7 +100,15 @@ void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
 
 // static
 scoped_ptr<XWalkRunner> XWalkRunner::Create() {
-  return scoped_ptr<XWalkRunner>(new XWalkRunner);
+  XWalkRunner* runner = NULL;
+#if defined(OS_ANDROID)
+  runner = new XWalkRunnerAndroid;
+#elif defined(OS_TIZEN_MOBILE)
+  runner = new XWalkRunnerTizen;
+#else
+  runner = new XWalkRunner;
+#endif
+  return scoped_ptr<XWalkRunner>(runner);
 }
 
 content::ContentBrowserClient* XWalkRunner::GetContentBrowserClient() {
