@@ -219,40 +219,43 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   }
 
   std::string error;
-  scoped_refptr<ApplicationData> application =
+  scoped_refptr<ApplicationData> application_data =
       LoadApplication(unpacked_dir,
                       app_id,
                       Manifest::COMMAND_LINE,
                       &error);
-  if (!application) {
+  if (!application_data) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
   }
 
-  if (!application_storage_->AddApplication(application)) {
-    LOG(ERROR) << "Application with id " << application->ID()
+  if (!application_storage_->AddApplication(application_data)) {
+    LOG(ERROR) << "Application with id " << application_data->ID()
                << " couldn't be installed.";
     return false;
   }
 
 #if defined(OS_TIZEN_MOBILE)
-  if (!InstallPackageOnTizen(this, application_storage_, application->ID(),
+  if (!InstallPackageOnTizen(this, application_storage_,
+                             application_data->ID(),
                              runtime_context_->GetPath()))
     return false;
 #endif
 
-  LOG(INFO) << "Installed application with id: " << application->ID()
+  LOG(INFO) << "Installed application with id: " << application_data->ID()
             << " successfully.";
-  *id = application->ID();
+  *id = application_data->ID();
 
   FOR_EACH_OBSERVER(Observer, observers_,
-                    OnApplicationInstalled(application->ID()));
+                    OnApplicationInstalled(application_data->ID()));
 
   // We need to run main document after installation in order to
   // register system events.
-  if (application->HasMainDocument() && Launch(application->ID())) {
-    WaitForFinishLoad(application, event_manager_,
-        application_->GetMainDocumentRuntime()->web_contents());
+  if (application_data->HasMainDocument()) {
+    if (Application* application = Launch(application_data->ID())) {
+      WaitForFinishLoad(application->data(), event_manager_,
+          application->GetMainDocumentRuntime()->web_contents());
+    }
   }
 
   return true;
@@ -285,31 +288,37 @@ bool ApplicationService::Uninstall(const std::string& id) {
   return true;
 }
 
-bool ApplicationService::Launch(const std::string& id) {
-  scoped_refptr<const ApplicationData> application_data =
+Application* ApplicationService::Launch(const std::string& id) {
+  scoped_refptr<ApplicationData> application_data =
           application_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " haven't installed.";
-    return false;
+    return NULL;
   }
 
   return Launch(application_data);
 }
 
-bool ApplicationService::Launch(const base::FilePath& path) {
+Application* ApplicationService::Launch(const base::FilePath& path) {
   if (!base::DirectoryExists(path))
-    return false;
+    return NULL;
 
   std::string error;
-  scoped_refptr<const ApplicationData> application_data =
+  scoped_refptr<ApplicationData> application_data =
       LoadApplication(path, Manifest::COMMAND_LINE, &error);
 
   if (!application_data) {
     LOG(ERROR) << "Error during launch application: " << error;
-    return false;
+    return NULL;
   }
 
   return Launch(application_data);
+}
+
+Application* ApplicationService::GetActiveApplication() const {
+  if (applications_.empty())
+    return NULL;
+  return applications_[0];  // Return the first item in the list.
 }
 
 void ApplicationService::AddObserver(Observer* observer) {
@@ -320,11 +329,33 @@ void ApplicationService::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 }
 
-bool ApplicationService::Launch(
-    scoped_refptr<const ApplicationData> application_data) {
+void ApplicationService::OnApplicationTerminated(
+                                      Application* application) {
+  ScopedVector<Application>::iterator found = std::find(
+            applications_.begin(), applications_.end(), application);
+  CHECK(found != applications_.end());
+  applications_.erase(found);
+  if (applications_.empty()) {
+    base::MessageLoop::current()->PostTask(
+            FROM_HERE, base::MessageLoop::QuitClosure());
+  }
+}
+
+Application* ApplicationService::Launch(
+    scoped_refptr<ApplicationData> application_data) {
   event_manager_->OnAppLoaded(application_data->ID());
-  application_.reset(new Application(application_data, runtime_context_));
-  return application_->Launch();
+
+  Application* application(new Application(application_data,
+                                           runtime_context_,
+                                           this));
+  applications_.push_back(application);
+  if (!application->Launch()) {
+    applications_.get().pop_back();
+    delete application;
+    application = NULL;
+  }
+
+  return application;
 }
 
 }  // namespace application

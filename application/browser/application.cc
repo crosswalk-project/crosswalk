@@ -50,20 +50,23 @@ class FinishEventObserver : public EventObserver {
 };
 
 Application::Application(
-    scoped_refptr<const ApplicationData> data,
-    RuntimeContext* runtime_context)
+    scoped_refptr<ApplicationData> data,
+    RuntimeContext* runtime_context,
+    Observer* observer)
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      weak_ptr_factory_(this) {
+      observer_(observer) {
+  DCHECK(runtime_context_);
   DCHECK(application_data_);
+  DCHECK(observer_);
 }
 
 Application::~Application() {
 }
 
 bool Application::Launch() {
-  if (is_launched()) {
+  if (!runtimes_.empty()) {
     LOG(ERROR) << "Attempt to launch app: " << id()
                << " that was already launched.";
     return false;
@@ -94,10 +97,7 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   runtimes_.erase(runtime);
 
   if (runtimes_.empty()) {
-    // FIXME(Mikhail): this should go away. We will notify ApplicationService
-    // about termination instead.
-    base::MessageLoop::current()->PostTask(
-          FROM_HERE, base::MessageLoop::QuitClosure());
+    observer_->OnApplicationTerminated(this);
     return;
   }
 
