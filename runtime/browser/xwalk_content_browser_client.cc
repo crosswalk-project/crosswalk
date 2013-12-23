@@ -17,6 +17,7 @@
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
+#include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/web_contents.h"
@@ -230,6 +231,11 @@ void XWalkContentBrowserClient::RenderProcessHostGone(
       main_parts_->extension_service();
   if (extension_service)
     extension_service->OnRenderProcessDied(host);
+}
+
+content::SpeechRecognitionManagerDelegate*
+    XWalkContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
+  return new xwalk::XWalkSpeechRecognitionManagerDelegate();
 }
 
 }  // namespace xwalk
