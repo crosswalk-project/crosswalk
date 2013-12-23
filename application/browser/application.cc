@@ -19,6 +19,7 @@
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace xwalk {
 
@@ -102,7 +103,7 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
 
   if (runtimes_.size() == 1 &&
       ContainsKey(runtimes_, main_runtime_)) {
-    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+    ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
     ApplicationEventManager* event_manager = system->event_manager();
 
     // If onSuspend is not registered in main document,
@@ -135,7 +136,7 @@ bool Application::RunMainDocument() {
   main_runtime_ = Runtime::Create(runtime_context_,
                                   main_info->GetMainURL(), this);
   ApplicationEventManager* event_manager =
-      runtime_context_->GetApplicationSystem()->event_manager();
+      XWalkRunner::GetInstance()->app_system()->event_manager();
   event_manager->OnMainDocumentCreated(
       application_data_->ID(), main_runtime_->web_contents());
   return true;
@@ -169,7 +170,7 @@ bool Application::RunFromLocalPath() {
 
 bool Application::IsOnSuspendHandlerRegistered(
     const std::string& app_id) const {
-  ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+  ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
   ApplicationStorage* storage = system->application_storage();
 
   const std::set<std::string>& events =

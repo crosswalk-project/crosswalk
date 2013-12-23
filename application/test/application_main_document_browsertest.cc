@@ -12,7 +12,7 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 using xwalk::application::ApplicationData;
 
@@ -36,9 +36,8 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   ASSERT_GE(GetRuntimeCount(), 1);
 
   xwalk::Runtime* main_runtime = runtimes()[0];
-  xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
   xwalk::application::ApplicationService* service =
-    runtime_context->GetApplicationSystem()->application_service();
+      xwalk::XWalkRunner::GetInstance()->app_system()->application_service();
   const ApplicationData* app_data = service->GetActiveApplication()->data();
   GURL generated_url =
   app_data->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);

@@ -17,12 +17,16 @@ namespace xwalk {
 
 class RuntimeContext;
 
+namespace application {
+class ApplicationSystem;
+}
+
 // Main object for the Browser Process execution in Crosswalk. It is created and
 // owned by XWalkMainDelegate. It's role is to own, setup and teardown all the
 // subsystems of Crosswalk.
 class XWalkRunner {
  public:
-  static XWalkRunner* Get();
+  static XWalkRunner* GetInstance();
   virtual ~XWalkRunner();
 
   // All sub objects should have their dependencies passed during their
@@ -44,7 +48,7 @@ class XWalkRunner {
   //   object. Certain APIs doesn't allow us to pass the dependencies, so we
   //   need to reach them some way.
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
-
+  application::ApplicationSystem* app_system() { return app_system_.get(); }
 
   // Stages of main parts. See content/browser_main_parts.h for description.
   void PreMainMessageLoopRun();
@@ -68,6 +72,7 @@ class XWalkRunner {
 
   scoped_ptr<content::ContentBrowserClient> content_browser_client_;
   scoped_ptr<RuntimeContext> runtime_context_;
+  scoped_ptr<application::ApplicationSystem> app_system_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

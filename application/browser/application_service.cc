@@ -165,10 +165,11 @@ const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
 
 ApplicationService::ApplicationService(RuntimeContext* runtime_context,
-                                       ApplicationStorage* app_storage)
+                                       ApplicationStorage* app_storage,
+                                       ApplicationEventManager* event_manager)
     : runtime_context_(runtime_context),
-      application_storage_(app_storage) {
-}
+      application_storage_(app_storage),
+      event_manager_(event_manager) {}
 
 ApplicationService::~ApplicationService() {
 }
@@ -250,8 +251,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // We need to run main document after installation in order to
   // register system events.
   if (application->HasMainDocument() && Launch(application->ID())) {
-    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
-    WaitForFinishLoad(application, system->event_manager(),
+    WaitForFinishLoad(application, event_manager_,
         application_->GetMainDocumentRuntime()->web_contents());
   }
 
@@ -322,10 +322,7 @@ void ApplicationService::RemoveObserver(Observer* observer) {
 
 bool ApplicationService::Launch(
     scoped_refptr<const ApplicationData> application_data) {
-  ApplicationSystem* system = runtime_context_->GetApplicationSystem();
-  ApplicationEventManager* event_manager = system->event_manager();
-  event_manager->OnAppLoaded(application_data->ID());
-
+  event_manager_->OnAppLoaded(application_data->ID());
   application_.reset(new Application(application_data, runtime_context_));
   return application_->Launch();
 }

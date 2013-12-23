@@ -101,7 +101,7 @@ namespace xwalk {
 
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
-    : xwalk_runner_(XWalkRunner::Get()),
+    : xwalk_runner_(XWalkRunner::GetInstance()),
       startup_url_(content::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
@@ -204,8 +204,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   NativeAppWindow::Initialize();
 
-  xwalk::application::ApplicationSystem* app_system =
-      runtime_context_->GetApplicationSystem();
+  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   if (app_system->HandleApplicationManagementCommands(
       *command_line, startup_url_,
       run_default_message_loop_)) {
@@ -252,7 +251,7 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  runtime_context_->GetApplicationSystem()->CreateExtensions(host, extensions);
+  xwalk_runner_->app_system()->CreateExtensions(host, extensions);
   sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }
 
@@ -260,7 +259,7 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
   application::ApplicationSystem* app_system
-        = runtime_context_->GetApplicationSystem();
+        = xwalk_runner_->app_system();
   extensions->push_back(new RuntimeExtension);
   extensions->push_back(
       new experimental::DialogExtension(app_system));

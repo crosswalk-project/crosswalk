@@ -23,6 +23,7 @@
 #include "xwalk/runtime/browser/runtime_download_manager_delegate.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -62,7 +63,6 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
 RuntimeContext::RuntimeContext()
   : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
-  application_system_ = application::ApplicationSystem::Create(this);
 }
 
 RuntimeContext::~RuntimeContext() {
@@ -161,18 +161,14 @@ quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-xwalk::application::ApplicationSystem* RuntimeContext::GetApplicationSystem() {
-  return application_system_.get();
-}
-
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers) {
   DCHECK(!url_request_getter_);
 
-  xwalk::application::ApplicationService* service =
-    application_system_.get()->application_service();
-  const xwalk::application::Application* running_app =
-          service->GetActiveApplication();
+  application::ApplicationService* service =
+      XWalkRunner::GetInstance()->app_system()->application_service();
+  const application::Application* running_app =
+      service->GetActiveApplication();
   if (running_app) {
     protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
