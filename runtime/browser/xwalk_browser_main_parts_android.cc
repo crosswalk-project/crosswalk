@@ -112,7 +112,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
   runtime_context_ = xwalk_runner_->runtime_context();
-  extension_service_.reset(new extensions::XWalkExtensionService);
+  extension_service_ = xwalk_runner_->extension_service();
 
   // Prepare the cookie store.
   base::FilePath user_data_dir;

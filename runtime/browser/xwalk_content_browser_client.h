@@ -29,6 +29,10 @@ namespace xwalk {
 class XWalkBrowserMainParts;
 class RuntimeContext;
 
+namespace extensions {
+class XWalkExtensionService;
+}
+
 class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
   static XWalkContentBrowserClient* Get();
@@ -87,9 +91,15 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 #endif
 
+  void set_extension_service(
+      extensions::XWalkExtensionService* extension_service) {
+    extension_service_ = extension_service;
+  }
+
  private:
   net::URLRequestContextGetter* url_request_context_getter_;
   XWalkBrowserMainParts* main_parts_;
+  extensions::XWalkExtensionService* extension_service_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };

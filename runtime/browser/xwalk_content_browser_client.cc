@@ -57,7 +57,8 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
 
 
 XWalkContentBrowserClient::XWalkContentBrowserClient()
-    : main_parts_(NULL) {
+    : main_parts_(NULL),
+      extension_service_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -134,9 +135,7 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessHostCreated(
     content::RenderProcessHost* host) {
-  extensions::XWalkExtensionService* extension_service =
-      main_parts_->extension_service();
-  if (extension_service) {
+  if (extension_service_) {
     std::vector<extensions::XWalkExtension*> ui_thread_extensions;
     main_parts_->CreateInternalExtensionsForUIThread(
         host, &ui_thread_extensions);
@@ -145,7 +144,7 @@ void XWalkContentBrowserClient::RenderProcessHostCreated(
     main_parts_->CreateInternalExtensionsForExtensionThread(
         host, &extension_thread_extensions);
 
-    extension_service->OnRenderProcessHostCreated(
+    extension_service_->OnRenderProcessHostCreated(
         host, &ui_thread_extensions, &extension_thread_extensions);
   }
 }
@@ -227,10 +226,8 @@ void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
 
 void XWalkContentBrowserClient::RenderProcessHostGone(
     content::RenderProcessHost* host) {
-  xwalk::extensions::XWalkExtensionService* extension_service =
-      main_parts_->extension_service();
-  if (extension_service)
-    extension_service->OnRenderProcessDied(host);
+  if (extension_service_)
+    extension_service_->OnRenderProcessDied(host);
 }
 
 content::SpeechRecognitionManagerDelegate*
