@@ -13,6 +13,8 @@
 namespace xwalk {
 namespace application {
 
+class ApplicationStorage;
+
 // Utility class to interact with Tizen package manager. For installation, it
 // takes an app_id already installed to Crosswalk application store, generate
 // the necessary resources (e.g. icon for home screen) and add a new entry to
@@ -23,6 +25,7 @@ class PackageInstaller {
   ~PackageInstaller();
   static scoped_ptr<PackageInstaller> Create(
       ApplicationService* service,
+      ApplicationStorage* storage,
       const std::string& package_id,
       const base::FilePath& data_dir);
   bool Install();
@@ -31,6 +34,7 @@ class PackageInstaller {
  private:
   PackageInstaller(
       ApplicationService* service,
+      ApplicationStorage* storage,
       const std::string& package_id,
       const base::FilePath& data_dir);
   bool Init();
@@ -43,6 +47,7 @@ class PackageInstaller {
       const gid_t& gid);
 
   const ApplicationService* service_;
+  const ApplicationStorage* storage_;
   scoped_refptr<const ApplicationData> application_;
   std::string package_id_;
   std::string icon_name_;

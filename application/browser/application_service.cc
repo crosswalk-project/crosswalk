@@ -56,10 +56,12 @@ void WaitForFinishLoad(content::WebContents* content) {
 
 #if defined(OS_TIZEN_MOBILE)
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
+                           xwalk::application::ApplicationStorage* storage,
                            const std::string& app_id,
                            const base::FilePath& data_dir) {
   scoped_ptr<xwalk::application::PackageInstaller> installer =
-      xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
+      xwalk::application::PackageInstaller::Create(service, storage,
+                                                   app_id, data_dir);
   if (!installer || !installer->Install()) {
     LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
     return false;
@@ -68,10 +70,12 @@ bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
 }
 
 bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
+                             xwalk::application::ApplicationStorage* storage,
                              const std::string& app_id,
                              const base::FilePath& data_dir) {
   scoped_ptr<xwalk::application::PackageInstaller> installer =
-      xwalk::application::PackageInstaller::Create(service, app_id, data_dir);
+      xwalk::application::PackageInstaller::Create(service, storage,
+                                                   app_id, data_dir);
   if (!installer || !installer->Uninstall()) {
     LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
     return false;
@@ -159,7 +163,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   }
 
 #if defined(OS_TIZEN_MOBILE)
-  if (!InstallPackageOnTizen(this, application->ID(),
+  if (!InstallPackageOnTizen(this, application_storage_, application->ID(),
                              runtime_context_->GetPath()))
     return false;
 #endif
@@ -183,7 +187,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
 
 bool ApplicationService::Uninstall(const std::string& id) {
 #if defined(OS_TIZEN_MOBILE)
-  if (!UninstallPackageOnTizen(this, id, runtime_context_->GetPath()))
+  if (!UninstallPackageOnTizen(this, application_storage_, id,
+                               runtime_context_->GetPath()))
     return false;
 #endif
 
