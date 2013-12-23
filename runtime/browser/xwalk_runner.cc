@@ -4,9 +4,11 @@
 
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 
 namespace xwalk {
 
@@ -20,6 +22,9 @@ XWalkRunner::XWalkRunner() {
   VLOG(1) << "Creating XWalkRunner object.";
   DCHECK(!g_xwalk_runner);
   g_xwalk_runner = this;
+
+  XWalkRuntimeFeatures::GetInstance()->Initialize(
+      CommandLine::ForCurrentProcess());
 
   // Initializing after the g_xwalk_runner is set to ensure XWalkRunner::Get()
   // can be used in all sub objects if needed.
