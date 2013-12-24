@@ -10,6 +10,7 @@
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
+#include "base/version.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application.h"
@@ -270,6 +271,128 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
           application->GetMainDocumentRuntime()->web_contents());
     }
   }
+
+  return true;
+}
+
+bool ApplicationService::Update(const std::string& id,
+                                const base::FilePath& path) {
+  if (!base::PathExists(path)) {
+    LOG(ERROR) << "The XPK/WGT package file " << path.value() << " is invalid.";
+    return false;
+  }
+
+  if (base::DirectoryExists(path)) {
+    LOG(WARNING) << "Can not update an unpacked XPK/WGT package.";
+    return false;
+  }
+
+  base::FilePath unpacked_dir;
+  base::FilePath origin_dir;
+  std::string app_id;
+  scoped_ptr<Package> package = Package::Create(path);
+  if (!package) {
+    LOG(ERROR) << "XPK/WGT file is invalid.";
+    return false;
+  }
+
+  app_id = package->Id();
+
+  if (app_id.empty()) {
+    LOG(ERROR) << "XPK/WGT file is invalid, and the application id is empty.";
+    return false;
+  }
+
+  if (id.empty() &&
+      id.compare(app_id) != 0) {
+    LOG(ERROR) << "The XPK/WGT file is not the same as expecting.";
+    return false;
+  }
+
+  if (!package->Extract(&unpacked_dir))
+    return false;
+
+  std::string error;
+  scoped_refptr<ApplicationData> new_application =
+      LoadApplication(unpacked_dir,
+                      app_id,
+                      Manifest::COMMAND_LINE,
+                      &error);
+  if (!new_application) {
+    LOG(ERROR) << "An error occurred during application updating: " << error;
+    return false;
+  }
+
+  scoped_refptr<ApplicationData> old_application =
+      application_storage_->GetApplicationData(app_id);
+  if (!old_application) {
+    LOG(INFO) << "Application haven't installed yet: " << app_id;
+    return false;
+  }
+
+  if (old_application->Version()->CompareTo(
+          *(new_application->Version())) >= 0) {
+    LOG(INFO) << "The version number of new XPK/WGT package "
+                 "should be higher than "
+              << old_application->VersionString();
+    return false;
+  }
+
+  const base::FilePath& app_dir = old_application->Path();
+  const base::FilePath tmp_dir(app_dir.value()
+                               + FILE_PATH_LITERAL(".tmp"));
+
+  // FIXME: Need to terminate the application here if it's running, after
+  // shared runtime process mode has been implemented.
+  if (!base::Move(app_dir, tmp_dir) ||
+      !base::Move(unpacked_dir, app_dir))
+    return false;
+
+  new_application = LoadApplication(app_dir,
+                                    app_id,
+                                    Manifest::COMMAND_LINE,
+                                    &error);
+  if (!new_application) {
+    LOG(ERROR) << "Error during loading new package: " << error;
+    base::DeleteFile(app_dir, true);
+    base::Move(tmp_dir, app_dir);
+    return false;
+  }
+
+#if defined(OS_TIZEN_MOBILE)
+  if (!UnInstallPackageOnTizen(this, app_id, runtime_context_->GetPath())) {
+    base::DeleteFile(app_dir, true);
+    base::Move(tmp_dir, app_dir);
+    return false;
+  }
+#endif
+
+  if (!application_storage_->UpdateApplication(new_application)) {
+    LOG(ERROR) << "An Error occurred when updating the application.";
+    base::DeleteFile(app_dir, true);
+    base::Move(tmp_dir, app_dir);
+#if defined(OS_TIZEN_MOBILE)
+    InstallPackageOnTizen(this, app_id, runtime_context_->GetPath());
+#endif
+    return false;
+  }
+#if defined(OS_TIZEN_MOBILE)
+  if (!InstallPackageOnTizen(this, app_id, runtime_context_->GetPath()))
+    return false;
+#endif
+  base::DeleteFile(tmp_dir, true);
+
+  // We need to run main document after installation in order to
+  // register system events.
+  if (new_application->HasMainDocument()) {
+    if (Application* application = Launch(app_id)) {
+      WaitForFinishLoad(application->data(), event_manager_,
+                        application->GetMainDocumentRuntime()->web_contents());
+    }
+  }
+
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    OnApplicationUpdated(app_id));
 
   return true;
 }

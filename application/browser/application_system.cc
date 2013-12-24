@@ -97,8 +97,14 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
       LOG(INFO) << "[OK] Application installed: " << app_id;
       if (application_storage_->GetApplicationData(app_id)->HasMainDocument())
         run_default_message_loop = true;
+    } else if (!app_id.empty() &&
+               application_service_->Update(app_id, path)) {
+      LOG(INFO) << "[OK] Application updated: " << app_id;
+      if (application_storage_->GetApplicationData(app_id)->HasMainDocument())
+        run_default_message_loop = true;
     } else {
-      LOG(ERROR) << "[ERR] Application install failure: " << path.value();
+      LOG(ERROR) << "[ERR] Application install/update failure: "
+                 << path.value();
     }
     return true;
   }
