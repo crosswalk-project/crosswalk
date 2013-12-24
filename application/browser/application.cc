@@ -192,8 +192,8 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
     finish_observer_.reset(
         new FinishEventObserver(event_manager, this));
     event_manager->AttachObserver(
-      application_data_->ID(), kOnJavaScriptEventAck,
-      finish_observer_.get());
+        application_data_->ID(), kOnJavaScriptEventAck,
+        finish_observer_.get());
 
     scoped_ptr<base::ListValue> event_args(new base::ListValue);
     scoped_refptr<Event> event = Event::CreateEvent(
