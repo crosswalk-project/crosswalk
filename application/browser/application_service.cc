@@ -4,6 +4,7 @@
 
 #include "xwalk/application/browser/application_service.h"
 
+#include <set>
 #include <string>
 
 #include "base/file_util.h"
@@ -17,6 +18,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
+#include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
@@ -28,11 +30,66 @@ using xwalk::RuntimeContext;
 
 namespace {
 
-void WaitForFinishLoad(content::WebContents* content) {
+void CloseMessageLoop() {
+  // FIXME: Quit message loop here at present. This should go away once
+  // we have Application in place.
+  base::MessageLoop::current()->QuitWhenIdle();
+}
+
+void WaitForEventAndClose(
+    const std::string& app_id, const std::string& event_name,
+    xwalk::application::ApplicationEventManager* event_manager) {
+  class CloseOnEventArrived : public xwalk::application::EventObserver {
+   public:
+    static CloseOnEventArrived* Create(const std::string& event_name,
+        xwalk::application::ApplicationEventManager* event_manager) {
+      return new CloseOnEventArrived(event_name, event_manager);
+    }
+
+    virtual void Observe(
+        const std::string& app_id,
+        scoped_refptr<xwalk::application::Event> event) OVERRIDE {
+      DCHECK(xwalk::application::kOnJavaScriptEventAck == event->name());
+      std::string ack_event_name;
+      event->args()->GetString(0, &ack_event_name);
+      if (ack_event_name != event_name_)
+        return;
+      CloseMessageLoop();
+      delete this;
+    }
+
+   private:
+    CloseOnEventArrived(
+        const std::string& event_name,
+        xwalk::application::ApplicationEventManager* event_manager)
+        : xwalk::application::EventObserver(event_manager),
+          event_name_(event_name) {}
+
+    std::string event_name_;
+  };
+
+  DCHECK(event_manager);
+  CloseOnEventArrived* observer =
+      CloseOnEventArrived::Create(event_name, event_manager);
+  event_manager->AttachObserver(app_id,
+      xwalk::application::kOnJavaScriptEventAck, observer);
+}
+
+void WaitForFinishLoad(
+    scoped_refptr<xwalk::application::ApplicationData> application,
+    xwalk::application::ApplicationEventManager* event_manager,
+    content::WebContents* contents) {
   class CloseAfterLoadObserver : public content::WebContentsObserver {
    public:
-    static CloseAfterLoadObserver* Create(content::WebContents* content) {
-      return new CloseAfterLoadObserver(content);
+    CloseAfterLoadObserver(
+        scoped_refptr<xwalk::application::ApplicationData> application,
+        xwalk::application::ApplicationEventManager* event_manager,
+        content::WebContents* contents)
+        : content::WebContentsObserver(contents),
+          application_(application),
+          event_manager_(event_manager) {
+      DCHECK(application_);
+      DCHECK(event_manager_);
     }
 
     virtual void DidFinishLoad(
@@ -40,18 +97,33 @@ void WaitForFinishLoad(content::WebContents* content) {
         const GURL& validate_url,
         bool is_main_frame,
         content::RenderViewHost* render_view_host) OVERRIDE {
-      // FIXME: Quit message loop here at present. This should go away once
-      // we have Application in place.
-      base::MessageLoop::current()->QuitWhenIdle();
+      if (!IsEventHandlerRegistered(xwalk::application::kOnInstalled)) {
+        CloseMessageLoop();
+      } else {
+        scoped_ptr<base::ListValue> event_args(new base::ListValue);
+        scoped_refptr<xwalk::application::Event> event =
+            xwalk::application::Event::CreateEvent(
+                xwalk::application::kOnInstalled, event_args.Pass());
+        event_manager_->SendEvent(application_->ID(), event);
+
+        WaitForEventAndClose(
+            application_->ID(), event->name(), event_manager_);
+      }
       delete this;
     }
 
    private:
-    explicit CloseAfterLoadObserver(content::WebContents* content)
-        : content::WebContentsObserver(content) {}
+    bool IsEventHandlerRegistered(const std::string& event_name) const {
+      const std::set<std::string>& events = application_->GetEvents();
+      return events.find(event_name) != events.end();
+    }
+
+    scoped_refptr<xwalk::application::ApplicationData> application_;
+    xwalk::application::ApplicationEventManager* event_manager_;
   };
 
-  CloseAfterLoadObserver* observer = CloseAfterLoadObserver::Create(content);
+  CloseAfterLoadObserver* observer =
+      new CloseAfterLoadObserver(application, event_manager, contents);
 }
 
 #if defined(OS_TIZEN_MOBILE)
@@ -178,8 +250,9 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // We need to run main document after installation in order to
   // register system events.
   if (application->HasMainDocument() && Launch(application->ID())) {
-    DCHECK(application_);
-    WaitForFinishLoad(application_->GetMainDocumentRuntime()->web_contents());
+    ApplicationSystem* system = runtime_context_->GetApplicationSystem();
+    WaitForFinishLoad(application, system->event_manager(),
+        application_->GetMainDocumentRuntime()->web_contents());
   }
 
   return true;

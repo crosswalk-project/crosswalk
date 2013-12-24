@@ -10,6 +10,7 @@ namespace application {
 
 extern const char kOnLaunched[];
 extern const char kOnSuspend[];
+extern const char kOnInstalled[];
 extern const char kOnJavaScriptEventAck[];
 
 }  // namespace application
