@@ -635,8 +635,7 @@ def main(argv):
   else:
     try:
       ParseManifest(options)
-    except KeyError, ec:
-      print 'The manifest file contains syntax errors.'
+    except SystemExit, ec:
       return ec.code
 
   options.name = ReplaceInvalidChars(options.name, 'apkname')
