@@ -15,6 +15,7 @@
 namespace content {
 class BrowserContext;
 class QuotaPermissionContext;
+class SpeechRecognitionManagerDelegate;
 class WebContents;
 class WebContentsViewDelegate;
 }
@@ -72,6 +73,10 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                               int render_process_id,
                               int render_view_id,
                               net::CookieOptions* options) OVERRIDE;
+
+  virtual content::SpeechRecognitionManagerDelegate*
+      GetSpeechRecognitionManagerDelegate() OVERRIDE;
+
 #if defined(OS_ANDROID)
   virtual void GetAdditionalMappedFilesForChildProcess(
       const CommandLine& command_line,

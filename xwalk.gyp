@@ -84,6 +84,8 @@
         'runtime/browser/image_util.h',
         'runtime/browser/media/media_capture_devices_dispatcher.cc',
         'runtime/browser/media/media_capture_devices_dispatcher.h',
+        'runtime/browser/speech/speech_recognition_manager_delegate.cc',
+        'runtime/browser/speech/speech_recognition_manager_delegate.h',
         'runtime/browser/runtime.cc',
         'runtime/browser/runtime.h',
         'runtime/browser/runtime_context.cc',
