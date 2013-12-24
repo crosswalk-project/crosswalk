@@ -183,7 +183,7 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
 
     // If onSuspend is not registered in main document,
     // we close the main document immediately.
-    if (!IsOnSuspendHandlerRegistered(application_data_->ID())) {
+    if (!IsOnSuspendHandlerRegistered()) {
       CloseMainDocument();
       return;
     }
@@ -219,13 +219,11 @@ int Application::GetRenderProcessHostID() const {
           GetRenderProcessHost()->GetID();
 }
 
-bool Application::IsOnSuspendHandlerRegistered(
-    const std::string& app_id) const {
+bool Application::IsOnSuspendHandlerRegistered() const {
   ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
   ApplicationStorage* storage = system->application_storage();
 
-  const std::set<std::string>& events =
-      storage->GetApplicationData(app_id)->GetEvents();
+  const std::set<std::string>& events = data()->GetEvents();
   if (events.find(kOnSuspend) == events.end())
     return false;
 
