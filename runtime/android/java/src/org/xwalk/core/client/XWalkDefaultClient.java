@@ -120,7 +120,7 @@ public class XWalkDefaultClient extends XWalkClient {
         final EditText userNameEditText = new EditText(mContext);
         final EditText passwordEditText = new EditText(mContext);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPaddingRelative(20, 0, 20, 0);
+        layout.setPaddingRelative(10, 0, 10, 20);
         userNameEditText.setHint(R.string.http_auth_user_name);
         passwordEditText.setHint(R.string.http_auth_password);
         layout.addView(userNameEditText);
