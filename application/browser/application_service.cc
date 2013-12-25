@@ -22,6 +22,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -198,7 +199,8 @@ ApplicationService::ApplicationService(RuntimeContext* runtime_context,
                                        ApplicationEventManager* event_manager)
     : runtime_context_(runtime_context),
       application_storage_(app_storage),
-      event_manager_(event_manager) {
+      event_manager_(event_manager),
+      permission_policy_manager_(new PermissionPolicyManager()) {
   AddObserver(event_manager);
 }
 
