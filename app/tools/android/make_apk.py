@@ -76,7 +76,7 @@ def Find(name, path):
 
 def GetVersion(path):
   """Get the version of this python tool."""
-  version_str = 'XWalk packaging tool version '
+  version_str = 'Crosswalk app packaging tool version is '
   file_handle = open(path, 'r')
   src_content = file_handle.read()
   version_nums = re.findall(r'\d+', src_content)
