@@ -12,7 +12,7 @@
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/test/application_apitest.h"
 #include "xwalk/application/test/application_testapi.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 using xwalk::application::ApplicationEventManager;
 using xwalk::application::Event;
@@ -38,10 +38,8 @@ class ApplicationEventApiTest : public ApplicationApiTest {
   }
 
   void PrepareFinishObserver() {
-    xwalk::Runtime* main_runtime = runtimes()[0];
-    xwalk::RuntimeContext* runtime_context = main_runtime->runtime_context();
     xwalk::application::ApplicationSystem* system =
-      runtime_context->GetApplicationSystem();
+        xwalk::XWalkRunner::GetInstance()->app_system();
     DCHECK(system->application_service()->GetActiveApplication());
 
     app_id_ = system->application_service()->GetActiveApplication()->id();

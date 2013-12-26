@@ -6,6 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "xwalk/application/browser/application_system.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -26,8 +27,8 @@ XWalkRunner::XWalkRunner() {
   XWalkRuntimeFeatures::GetInstance()->Initialize(
       CommandLine::ForCurrentProcess());
 
-  // Initializing after the g_xwalk_runner is set to ensure XWalkRunner::Get()
-  // can be used in all sub objects if needed.
+  // Initializing after the g_xwalk_runner is set to ensure
+  // XWalkRunner::GetInstance() can be used in all sub objects if needed.
   content_browser_client_.reset(new XWalkContentBrowserClient);
 }
 
@@ -38,15 +39,18 @@ XWalkRunner::~XWalkRunner() {
 }
 
 // static
-XWalkRunner* XWalkRunner::Get() {
+XWalkRunner* XWalkRunner::GetInstance() {
   return g_xwalk_runner;
 }
 
 void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
+  app_system_ =
+      application::ApplicationSystem::Create(runtime_context_.get());
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {
+  app_system_.reset();
   runtime_context_.reset();
 }
 

@@ -22,12 +22,6 @@ class DownloadManagerDelegate;
 }
 
 namespace xwalk {
-namespace application {
-class ApplicationSystem;
-}
-}
-
-namespace xwalk {
 
 class RuntimeDownloadManagerDelegate;
 class RuntimeURLRequestContextGetter;
@@ -72,8 +66,6 @@ class RuntimeContext : public content::BrowserContext {
       int bridge_id,
       const GURL& requesting_frame) OVERRIDE {}
 
-  xwalk::application::ApplicationSystem* GetApplicationSystem();
-
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
@@ -89,7 +81,6 @@ class RuntimeContext : public content::BrowserContext {
   void InitWhileIOAllowed();
 
   scoped_ptr<RuntimeResourceContext> resource_context_;
-  scoped_ptr<xwalk::application::ApplicationSystem> application_system_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>

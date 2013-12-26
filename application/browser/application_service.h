@@ -21,13 +21,15 @@ namespace application {
 
 class Application;
 class ApplicationStorage;
+class ApplicationEventManager;
 
 // This will manages applications install, uninstall, update and so on. It'll
 // also maintain all installed applications' info.
 class ApplicationService {
  public:
   ApplicationService(RuntimeContext* runtime_context,
-                     ApplicationStorage* app_storage);
+                     ApplicationStorage* app_storage,
+                     ApplicationEventManager* event_manager);
   virtual ~ApplicationService();
 
   bool Install(const base::FilePath& path, std::string* id);
@@ -58,6 +60,7 @@ class ApplicationService {
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
+  ApplicationEventManager* event_manager_;
   scoped_ptr<Application> application_;
   ObserverList<Observer> observers_;
 

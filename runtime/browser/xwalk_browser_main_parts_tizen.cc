@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
@@ -79,8 +80,7 @@ void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
 void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  application::ApplicationSystem* app_system
-      = runtime_context_->GetApplicationSystem();
+  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   application::ApplicationService* app_service
       = app_system->application_service();
   if (Application* application = app_service->GetActiveApplication())

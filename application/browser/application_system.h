@@ -96,8 +96,8 @@ class ApplicationSystem {
 
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> application_storage_;
-  scoped_ptr<ApplicationService> application_service_;
   scoped_ptr<ApplicationEventManager> event_manager_;
+  scoped_ptr<ApplicationService> application_service_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);
 };
