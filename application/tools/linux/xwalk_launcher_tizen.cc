@@ -2,36 +2,36 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include <stdio.h>
 #include <string.h>
 #if defined(OS_TIZEN_MOBILE)
 #include <appcore/appcore-common.h>
 #endif
-#include "xwalk_launcher_tizen.h"
+#include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 
 enum app_event {
-	AE_UNKNOWN,
-	AE_CREATE,
-	AE_TERMINATE,
-	AE_PAUSE,
-	AE_RESUME,
-	AE_RESET,
-	AE_LOWMEM_POST,
-	AE_MEM_FLUSH,
-	AE_MAX
+  AE_UNKNOWN,
+  AE_CREATE,
+  AE_TERMINATE,
+  AE_PAUSE,
+  AE_RESUME,
+  AE_RESET,
+  AE_LOWMEM_POST,
+  AE_MEM_FLUSH,
+  AE_MAX
 };
 
-// Private struct from appcore-internal, necessary to get events from the system.
+// Private struct from appcore-internal, necessary to get events from
+// the system.
 struct ui_ops {
-	void* data;
-	void (*cb_app) (enum app_event evnt, void* data, bundle* b);
+  void* data;
+  void (*cb_app)(enum app_event evnt, void* data, bundle* b);
 };
 
 static struct ui_ops appcore_ops;
 
 static const char* event2str(enum app_event event) {
-  switch(event) {
+  switch (event) {
     case AE_UNKNOWN:
       return "AE_UNKNOWN";
     case AE_CREATE:

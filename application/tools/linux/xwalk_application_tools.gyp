@@ -60,7 +60,7 @@
             '../../../build/system.gyp:tizen_appcore_common'
           ],
           'sources': [
-            'xwalk_launcher_tizen.c',
+            'xwalk_launcher_tizen.cc',
             'xwalk_launcher_tizen.h',
           ],
         }],
