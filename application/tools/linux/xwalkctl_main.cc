@@ -192,11 +192,23 @@ int main(int argc, char* argv[]) {
       g_dbus_object_manager_client_new_for_bus_sync(
           G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
           xwalk_service_name, xwalk_installed_path,
-          NULL, NULL, NULL, NULL, NULL);
+          NULL, NULL, NULL, NULL, &error);
   if (!installed_om) {
-    g_print("Service '%s' could not be reached\n", xwalk_service_name);
+    g_print("Service '%s' could not be reached: %s\n", xwalk_service_name,
+            error->message);
     exit(1);
   }
+
+  // GDBus may return a valid ObjectManager even if it fails to auto activate
+  // the proper service name. We should check 'name-owner' property to make sure
+  // the service is working. See GDBusObjectManager documentation.
+  gchar* name_owner = NULL;
+  g_object_get(installed_om, "name-owner", &name_owner, NULL);
+  if (!name_owner) {
+    g_print("Service '%s' could not be activated.\n", xwalk_service_name);
+    exit(1);
+  }
+  g_free(name_owner);
 
   if (install_path) {
     success = install_application(install_path);
