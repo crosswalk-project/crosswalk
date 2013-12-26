@@ -227,5 +227,50 @@ bool Application::IsOnSuspendHandlerRegistered() const {
   return true;
 }
 
+bool Application::ContainsExtension(const std::string& extension_name) const {
+  // TODO(Bai): Tells whether the application contains the specified extension
+  return true;
+}
+
+std::string Application::GetRegisteredPermissionName(
+    const std::string& extension_name,
+    const std::string& api_name) const {
+  std::map<std::string, std::string>::const_iterator iter;
+  iter = name_perm_map_.find(api_name);
+  if (iter == name_perm_map_.end())
+    return std::string("");
+  return iter->second;
+}
+
+StoredPermission Application::GetPermission(const PermissionType type,
+                               const std::string& permission_name) const {
+  StoredPermissionMap::const_iterator iter;
+  if (type == SESSION_PERMISSION) {
+    iter = permission_map_.find(permission_name);
+    if (iter == permission_map_.end())
+      return INVALID_STORED_PERM;
+    return iter->second;
+  }
+  if (type == PERSISTENT_PERMISSION) {
+    return application_data_->GetPermission(permission_name);
+  }
+  NOTREACHED();
+  return INVALID_STORED_PERM;
+}
+
+bool Application::SetPermission(const PermissionType type,
+                                const std::string& permission_name,
+                                const StoredPermission perm) {
+  if (type == SESSION_PERMISSION) {
+    permission_map_[permission_name] = perm;
+    return true;
+  }
+  if (type == PERSISTENT_PERMISSION)
+    return application_data_->SetPermission(permission_name, perm);
+
+  NOTREACHED();
+  return false;
+}
+
 }  // namespace application
 }  // namespace xwalk

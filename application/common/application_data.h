@@ -129,10 +129,12 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool IsPlatformApp() const;
   bool IsHostedApp() const;
 
-  // Permission related
-  StoredPermission GetPermission(std::string permission_name);
+  // Functions to get/set persistent permissions.
+  StoredPermission GetPermission(const std::string& permission_name) const;
   bool SetPermission(const std::string& permission_name,
                      const StoredPermission& perm);
+  void ClearPermissions();
+  PermissionSet GetManifestPermissions() const;
 
   bool HasMainDocument() const;
 
