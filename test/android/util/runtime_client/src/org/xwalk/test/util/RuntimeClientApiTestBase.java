@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import java.io.IOException;
 import java.lang.Process;
@@ -103,6 +104,18 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         context.sendBroadcast(intent);
     }
 
+    public void destroyProcess(Process process) {
+        try {
+            if (process != null) {
+                Log.e("RuntimeClientApiTestBase.java", "destroyProcess call exitValue");
+                process.exitValue();
+            }
+        } catch (IllegalThreadStateException e) {
+            Log.e("RuntimeClientApiTestBase.java", "destroyProcess call destroy");
+            process.destroy();
+        }
+    }
+
     public int getSocketNameIndex() {
         try {
             // Try to find the abstract socket name opened for remote debugging
@@ -122,11 +135,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
             int bytesReceived = process.getInputStream().read(bytes, 0, BUFFER_SIZE);
             while (bytesReceived > 0) {
                 String tmp = new String(bytes, 0, bytesReceived);
+                Log.e("RuntimeClientApiTestBase.java", "getSocketNameIndex tmp=" + tmp);
                 buffer.append(tmp);
                 bytesReceived = process.getInputStream().read(bytes, 0, BUFFER_SIZE);
             }
 
-            process.destroy();
+            destroyProcess(process);
 
             String contents = new String(buffer);
             int index = contents.indexOf(mSocketName + "_devtools_remote");
@@ -247,13 +261,21 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         int index = getSocketNameIndex();
         mTestCase.assertTrue (index != -1);
         sendBroadCast(activity, context, "false");
+        waitForTimerFinish(1000);
     }
 
-    //  For disable the remote debugging.
+    // For disable the remote debugging.
     public void testDisableRemoteDebugging(Activity activity, Context context) throws Throwable {
-        sendBroadCast(activity, context, "false");
+        sendBroadCast(activity, context, "true");
         mTestUtil.loadUrlSync(mUrl);
         int index = getSocketNameIndex();
+        mTestCase.assertTrue (index != -1);
+
+        Log.e("RuntimeClientApiTestBase.java", "testDisableRemoteDebugging disable it.");
+        sendBroadCast(activity, context, "false");
+        waitForTimerFinish(1000);
+        mTestUtil.loadUrlSync(mUrl);
+        index = getSocketNameIndex();
         mTestCase.assertTrue (index < 0);
     }
 
