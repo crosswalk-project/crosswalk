@@ -13,8 +13,8 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include "xwalk_tizen_user.h"
-#include "xwalk_launcher_tizen.h"
+#include "xwalk/application/tools/linux/xwalk_tizen_user.h"
+#include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_running_path = "/running1";
@@ -93,21 +93,24 @@ int main(int argc, char** argv) {
     appid = basename(argv[0]);
   }
 
-  GDBusObjectManager* running_apps_om = g_dbus_object_manager_client_new_for_bus_sync(
-      G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-      xwalk_service_name, xwalk_running_path,
-      NULL, NULL, NULL, NULL, NULL);
+  GDBusObjectManager* running_apps_om =
+      g_dbus_object_manager_client_new_for_bus_sync(
+          G_BUS_TYPE_SESSION, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+          xwalk_service_name, xwalk_running_path,
+          NULL, NULL, NULL, NULL, NULL);
   if (!running_apps_om) {
-    fprintf(stderr, "Service '%s' does could not be reached\n", xwalk_service_name);
+    fprintf(stderr, "Service '%s' does could not be reached\n",
+            xwalk_service_name);
     exit(1);
   }
 
   g_signal_connect(running_apps_om, "object-removed",
                    G_CALLBACK(object_removed), NULL);
 
-  GDBusProxy* running_proxy = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SESSION,
-		  G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
-		  xwalk_running_path, xwalk_running_manager_iface, NULL, &error);
+  GDBusProxy* running_proxy = g_dbus_proxy_new_for_bus_sync(
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
+      xwalk_running_path, xwalk_running_manager_iface, NULL, &error);
   if (!running_proxy) {
     g_print("Couldn't create proxy for '%s': %s\n", xwalk_running_manager_iface,
             error->message);
@@ -125,7 +128,8 @@ int main(int argc, char** argv) {
   }
 
   g_variant_get(result, "(o)", &application_object_path);
-  fprintf(stderr, "Application launched with path '%s'\n", application_object_path);
+  fprintf(stderr, "Application launched with path '%s'\n",
+          application_object_path);
 
   GDBusProxy* app_proxy = g_dbus_proxy_new_for_bus_sync(
       G_BUS_TYPE_SESSION,
