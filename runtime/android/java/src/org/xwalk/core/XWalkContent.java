@@ -120,7 +120,9 @@ public class XWalkContent extends FrameLayout {
         if (TextUtils.equals(url, mContentView.getUrl())) {
             mContentView.reload();
         } else {
-            mContentView.loadUrl(new LoadUrlParams(url));
+            LoadUrlParams params = new LoadUrlParams(url);
+            params.setOverrideUserAgent(LoadUrlParams.UA_OVERRIDE_TRUE);
+            mContentView.loadUrl(params);
         }
 
         mContentView.requestFocus();
