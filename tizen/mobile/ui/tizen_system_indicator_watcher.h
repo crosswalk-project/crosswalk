@@ -26,7 +26,8 @@ class TizenSystemIndicator;
 // TizenSystemIndicator to update its image.
 class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
  public:
-  TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator, const gfx::Display& display);
+  TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator,
+                              const gfx::Display& display);
   virtual ~TizenSystemIndicatorWatcher();
 
   // base::MessagePumpLibevent::Watcher implementation.
@@ -37,7 +38,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void StopWatching();
   bool Connect();
 
-  void OnMouseDown();
+  void OnMouseDown(int x, int y);
   void OnMouseUp();
   void OnMouseMove(int x, int y);
 

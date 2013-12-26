@@ -39,7 +39,8 @@ gfx::Size TizenSystemIndicator::GetPreferredSize() {
 bool TizenSystemIndicator::OnMousePressed(const ui::MouseEvent& event) {
   if (!IsConnected())
     return false;
-  watcher_->OnMouseDown();
+  const gfx::Point position = event.location();
+  watcher_->OnMouseDown(position.x(), position.y());
   return true;
 }
 
@@ -70,7 +71,7 @@ void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
       watcher_->OnMouseUp();
       break;
     case ui::ET_TOUCH_PRESSED:
-      watcher_->OnMouseDown();
+      watcher_->OnMouseDown(position.x(), position.y());
       break;
     case ui::ET_TOUCH_MOVED:
       watcher_->OnMouseMove(position.x(), position.y());

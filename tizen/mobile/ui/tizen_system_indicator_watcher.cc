@@ -127,8 +127,12 @@ bool TizenSystemIndicatorWatcher::Connect() {
   return success;
 }
 
-void TizenSystemIndicatorWatcher::OnMouseDown() {
+void TizenSystemIndicatorWatcher::OnMouseDown(int x, int y) {
   struct IPCDataEvMouseDown ipc;
+  // Mouse down event in Elementary Plug don't send it's coordinates,
+  // it gets from the last mouse move. Some mouse down events need this
+  // coordinates correctly, to solve this we trigger OnMouseMove here.
+  OnMouseMove(x, y);
   writer_.SendEvent(OP_EV_MOUSE_DOWN, &ipc, sizeof(ipc));
 }
 
