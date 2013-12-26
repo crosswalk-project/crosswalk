@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "xwalk/application/common/manifest_handler.h"
+#include "xwalk/application/common/permission_types.h"
 
 namespace xwalk {
 namespace application {
@@ -18,14 +19,14 @@ class PermissionsInfo: public ApplicationData::ManifestData {
   PermissionsInfo();
   virtual ~PermissionsInfo();
 
-  const std::vector<std::string>& GetAPIPermissions() const {
+  const PermissionSet& GetAPIPermissions() const {
     return api_permissions_;}
-  void SetAPIPermissions(const std::vector<std::string>& api_permissions) {
+  void SetAPIPermissions(const PermissionSet& api_permissions) {
     api_permissions_ = api_permissions;
   }
 
  private:
-  std::vector<std::string> api_permissions_;
+  PermissionSet api_permissions_;
   DISALLOW_COPY_AND_ASSIGN(PermissionsInfo);
 };
 

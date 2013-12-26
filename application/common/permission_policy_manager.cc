@@ -21,5 +21,28 @@ StoredPermission PermissionPolicyManager::GetPermission(
   return ALLOW;
 }
 
+bool PermissionPolicyManager::InitApplicationPermission(
+    ApplicationData* app_data) {
+  app_data->ClearPermissions();
+  PermissionSet permissions = app_data->GetManifestPermissions();
+  if (permissions.empty())
+    return true;
+  // Convert manifest permissions to stored permissions.
+  StoredPermission perm = UNDEFINED_STORED_PERM;
+  for (PermissionSet::const_iterator iter = permissions.begin();
+      iter != permissions.end(); ++iter) {
+    perm = GetPermission(app_data->ID(), *iter);
+    if (perm == UNDEFINED_STORED_PERM) {
+      // If there are something added before we run into this undefined
+      // permission item, clear all the previous ones.
+      app_data->ClearPermissions();
+      LOG(ERROR) << "Invalid permission found: " << *iter;
+      return false;
+    }
+    app_data->SetPermission(*iter, perm);
+  }
+  return true;
+}
+
 }  // namespace application
 }  // namespace xwalk

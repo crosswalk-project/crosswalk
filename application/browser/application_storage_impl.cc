@@ -40,14 +40,14 @@ const std::string StoredPermissionStr[] = {
 };
 
 std::string ToString(StoredPermission permission) {
-  if (permission == INVALID_STORED_PERM)
+  if (permission == UNDEFINED_STORED_PERM)
     return std::string("");
   return StoredPermissionStr[permission];
 }
 
 StoredPermission ToPermission(const std::string& str) {
   unsigned int i;
-  for (i = 0; i < INVALID_STORED_PERM; ++i) {
+  for (i = 0; i < UNDEFINED_STORED_PERM; ++i) {
     if (str == StoredPermissionStr[i])
       break;
   }
