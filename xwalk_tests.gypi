@@ -16,57 +16,17 @@
     ],
   },
   {
-    'target_name': 'xwalk_test_common',
-    'type': 'static_library',
-    'dependencies': [
-      'xwalk_application_lib',
-      'xwalk_runtime',
-      'xwalk_resources',
-      '../base/base.gyp:test_support_base',
-      '../base/base.gyp:base_prefs_test_support',
-      '../content/content.gyp:content',
-      '../content/content_shell_and_tests.gyp:test_support_content',
-      '../net/net.gyp:net',
-      '../net/net.gyp:net_test_support',
-      '../skia/skia.gyp:skia',
-      '../testing/gmock.gyp:gmock',
-      '../testing/gtest.gyp:gtest',
-      '../third_party/zlib/zlib.gyp:zlib',
-    ],
-    'export_dependent_settings': [
-      '../base/base.gyp:test_support_base',
-    ],
-    'include_dirs': [
-      '..',
-    ],
-    'sources': [
-      'test/base/xwalk_test_suite.cc',
-      'test/base/xwalk_test_suite.h',
-      'test/base/xwalk_test_utils.cc',
-      'test/base/xwalk_test_utils.h',
-    ],
-    'conditions': [
-      ['OS=="win"', {
-        'include_dirs': [
-          '<DEPTH>/third_party/wtl/include',
-        ],
-      }],
-      ['OS=="win" and win_use_allocator_shim==1', {
-        'dependencies': [
-          '../base/allocator/allocator.gyp:allocator',
-        ],
-      }],
-    ],
-  },  # xwalk_test_common target
-  {
     'target_name': 'xwalk_unittest',
     'type': 'executable',
     'dependencies': [
-      'xwalk_test_common',
+      '../base/base.gyp:base',
+      '../content/content.gyp:content_common',
+      '../content/content_shell_and_tests.gyp:test_support_content',
       '../testing/gtest.gyp:gtest',
-    ],
-    'include_dirs' : [
-      '..',
+      '../ui/ui.gyp:ui',
+      'test/base/base.gyp:xwalk_test_base',
+      'xwalk_application_lib',
+      'xwalk_runtime',
     ],
     'includes': [
       'extensions/extensions_unittests.gypi',
@@ -87,7 +47,6 @@
       'application/common/manifest_unittest.cc',
       'runtime/common/xwalk_content_client_unittest.cc',
       'runtime/common/xwalk_runtime_features_unittest.cc',
-      'test/base/run_all_unittests.cc',
     ],
     'conditions': [
       ['OS=="win" and win_use_allocator_shim==1', {
@@ -110,14 +69,18 @@
     'target_name': 'xwalk_browsertest',
     'type': 'executable',
     'dependencies': [
-      'xwalk',
-      'xwalk_test_common',
+      '../base/base.gyp:base',
+      '../content/content.gyp:content_browser',
+      '../content/content.gyp:content_common',
+      '../content/content_shell_and_tests.gyp:test_support_content',
+      '../net/net.gyp:net',
       '../skia/skia.gyp:skia',
-      '../testing/gtest.gyp:gtest',
       '../testing/gmock.gyp:gmock',
-    ],
-    'include_dirs': [
-      '..',
+      '../testing/gtest.gyp:gtest',
+      '../ui/ui.gyp:ui',
+      'test/base/base.gyp:xwalk_test_base',
+      'xwalk_application_lib',
+      'xwalk_runtime',
     ],
     'defines': [
       'HAS_OUT_OF_PROC_TEST_RUNNER',
@@ -139,9 +102,6 @@
       'runtime/browser/xwalk_switches_browsertest.cc',
       'runtime/browser/devtools/xwalk_devtools_browsertest.cc',
       'runtime/browser/geolocation/xwalk_geolocation_browsertest.cc',
-      'test/base/in_process_browser_test.cc',
-      'test/base/in_process_browser_test.h',
-      'test/base/xwalk_test_launcher.cc',
     ],
     'includes': [
       'extensions/extensions_browsertests.gypi',

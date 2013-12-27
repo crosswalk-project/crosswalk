@@ -21,11 +21,6 @@
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "xwalk/test/base/xwalk_test_suite.h"
 
-#if defined(OS_WIN)
-#include "content/public/app/startup_helper_win.h"
-#include "sandbox/win/src/sandbox_types.h"
-#endif  // defined(OS_WIN)
-
 #if defined(TOOLKIT_VIEWS)
 #include "ui/views/focus/accelerator_handler.h"
 #endif
