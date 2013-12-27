@@ -1,0 +1,7 @@
+[Unit]
+Description=Crosswalk
+
+[Service]
+Type=dbus
+BusName=org.crosswalkproject.Runtime1
+ExecStart=/usr/lib/xwalk/xwalk --run-as-service --external-extensions-path=/usr/lib/tizen-extensions-crosswalk
