@@ -4,7 +4,6 @@
 
 #include "xwalk/application/browser/application_system_linux.h"
 
-#include "base/command_line.h"
 #include "dbus/bus.h"
 #include "xwalk/application/browser/application_service_provider_linux.h"
 #include "xwalk/dbus/dbus_manager.h"
@@ -15,7 +14,6 @@ namespace application {
 
 ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
     : ApplicationSystem(runtime_context) {
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (XWalkRunner::GetInstance()->is_running_as_service()) {
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
