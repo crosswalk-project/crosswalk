@@ -12,7 +12,6 @@ class CookieMonster;
 }  // namespace net
 
 namespace xwalk {
-class AwURLRequestJobFactory;
 
 void SetCookieMonsterOnNetworkStackInit(net::CookieMonster* cookie_monster);
 
