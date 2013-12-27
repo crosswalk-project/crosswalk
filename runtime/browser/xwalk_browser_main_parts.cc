@@ -65,6 +65,8 @@ void RunAsBrowser(xwalk::RuntimeContext* runtime_context,
     using xwalk::Runtime;
 
     class Observer : public Runtime::Observer {
+        virtual ~Observer() {}
+
         void OnRuntimeAdded(Runtime* runtime) {
           DCHECK(runtime);
           runtimes_.insert(runtime);
