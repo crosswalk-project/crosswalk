@@ -7,6 +7,7 @@
 #include <string>
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
@@ -157,13 +158,14 @@ bool ApplicationSystem::LaunchFromCommandLine(
 void ApplicationSystem::CreateExtensions(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  // FIXME(xiang): When service mode is enabled, we need to check whether the
-  // RPH belongs to an active application.
-  if (!application_service_->GetActiveApplication())
-    return;
+  Application* application =
+    application_service_->GetApplicationByRenderHostID(host->GetID());
+  if (!application)
+    return;  // We might be in browser mode.
 
-  extensions->push_back(new ApplicationRuntimeExtension(this));
-  extensions->push_back(new ApplicationEventExtension(this));
+  extensions->push_back(new ApplicationRuntimeExtension(application));
+  extensions->push_back(new ApplicationEventExtension(
+              event_manager_.get(), application_storage_.get(), application));
 }
 
 }  // namespace application

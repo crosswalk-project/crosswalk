@@ -47,6 +47,8 @@ class ApplicationService : public Application::Observer {
   Application* Launch(const std::string& id);
   Application* Launch(const base::FilePath& path);
 
+  Application* GetApplicationByRenderHostID(int id) const;
+
   const ScopedVector<Application>& active_applications() const {
       return applications_; }
 

@@ -11,8 +11,6 @@
 #include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
@@ -22,20 +20,20 @@ namespace xwalk {
 namespace application {
 
 ApplicationRuntimeExtension::ApplicationRuntimeExtension(
-    ApplicationSystem* application_system)
-  : application_system_(application_system) {
+    Application* application)
+  : application_(application) {
   set_name("xwalk.app.runtime");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_APPLICATION_RUNTIME_API).as_string());
 }
 
 XWalkExtensionInstance* ApplicationRuntimeExtension::CreateInstance() {
-  return new AppRuntimeExtensionInstance(application_system_);
+  return new AppRuntimeExtensionInstance(application_);
 }
 
 AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
-    ApplicationSystem* application_system)
-  : application_system_(application_system),
+    Application* application)
+  : application_(application),
     handler_(this) {
   handler_.Register(
       "getManifest",
@@ -54,12 +52,8 @@ void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
 void AppRuntimeExtensionInstance::OnGetManifest(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  base::DictionaryValue* manifest_data = NULL;
-  const ApplicationService* service =
-    application_system_->application_service();
-  const Application* app = service->GetActiveApplication();
-  if (app)
-    manifest_data = app->data()->GetManifest()->value()->DeepCopy();
+  base::DictionaryValue* manifest_data =
+          application_->data()->GetManifest()->value()->DeepCopy();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());
   if (manifest_data)
@@ -75,9 +69,7 @@ void AppRuntimeExtensionInstance::OnGetMainDocumentID(
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   int main_routing_id = MSG_ROUTING_NONE;
 
-  const Application* application =
-          application_system_->application_service()->GetActiveApplication();
-  if (Runtime* runtime = application->GetMainDocumentRuntime())
+  if (Runtime* runtime = application_->GetMainDocumentRuntime())
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
   scoped_ptr<base::ListValue> results(new base::ListValue());

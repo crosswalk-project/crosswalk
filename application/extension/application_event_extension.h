@@ -15,8 +15,8 @@
 namespace xwalk {
 namespace application {
 class ApplicationEventManager;
-class ApplicationSystem;
-
+class ApplicationStorage;
+class Application;
 class AppEventExtensionInstance;
 
 using extensions::XWalkExtension;
@@ -26,20 +26,25 @@ using extensions::XWalkExtensionInstance;
 
 class ApplicationEventExtension : public XWalkExtension {
  public:
-  explicit ApplicationEventExtension(ApplicationSystem* system);
+  ApplicationEventExtension(ApplicationEventManager* event_manager,
+                            ApplicationStorage* app_storage,
+                            Application* application);
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
-  ApplicationSystem* application_system_;
+  ApplicationEventManager* event_manager_;
+  ApplicationStorage* app_storage_;
+  Application* application_;
 };
 
 class AppEventExtensionInstance : public XWalkExtensionInstance,
                                   public EventObserver {
  public:
-  AppEventExtensionInstance(ApplicationSystem* app_system,
-                            const std::string& app_id,
+  AppEventExtensionInstance(ApplicationEventManager* event_manager,
+                            ApplicationStorage* app_storage,
+                            Application* application,
                             int main_routing_id);
 
   virtual ~AppEventExtensionInstance();
@@ -59,8 +64,8 @@ class AppEventExtensionInstance : public XWalkExtensionInstance,
   typedef std::map<std::string, XWalkExtensionFunctionInfo::PostResultCallback>
       EventCallbackMap;
   EventCallbackMap registered_events_;
-  ApplicationSystem* app_system_;
-  std::string app_id_;
+  ApplicationStorage* app_storage_;
+  Application* application_;
   int main_routing_id_;  // routing id of the main document.
 
   XWalkExtensionFunctionHandler handler_;

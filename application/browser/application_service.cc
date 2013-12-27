@@ -321,6 +321,27 @@ Application* ApplicationService::GetActiveApplication() const {
   return applications_[0];  // Return the first item in the list.
 }
 
+namespace {
+
+struct ApplicationRenderHostIDComparator {
+    explicit ApplicationRenderHostIDComparator(int id) : id(id) { }
+    bool operator() (Application* application) {
+       return id == application->GetRenderProcessHostID();
+    }
+    int id;
+};
+
+}  // namespace
+
+Application* ApplicationService::GetApplicationByRenderHostID(int id) const {
+  ApplicationRenderHostIDComparator comparator(id);
+  ScopedVector<Application>::const_iterator found = std::find_if(
+                applications_.begin(), applications_.end(), comparator);
+  if (found != applications_.end())
+    return *found;
+  return NULL;
+}
+
 void ApplicationService::AddObserver(Observer* observer) {
   observers_.AddObserver(observer);
 }

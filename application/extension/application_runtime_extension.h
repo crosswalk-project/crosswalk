@@ -12,7 +12,7 @@
 
 namespace xwalk {
 namespace application {
-class ApplicationSystem;
+class Application;
 
 using extensions::XWalkExtension;
 using extensions::XWalkExtensionFunctionHandler;
@@ -21,20 +21,18 @@ using extensions::XWalkExtensionInstance;
 
 class ApplicationRuntimeExtension : public XWalkExtension {
  public:
-  explicit ApplicationRuntimeExtension(
-      ApplicationSystem* application_system);
+  explicit ApplicationRuntimeExtension(Application* application);
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
 
  private:
-  ApplicationSystem* application_system_;
+  Application* application_;
 };
 
 class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
  public:
-  explicit AppRuntimeExtensionInstance(
-      ApplicationSystem* application_system);
+  explicit AppRuntimeExtensionInstance(Application* application);
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
@@ -42,7 +40,7 @@ class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
   void OnGetMainDocumentID(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetManifest(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
-  ApplicationSystem* application_system_;
+  Application* application_;
 
   XWalkExtensionFunctionHandler handler_;
 };
