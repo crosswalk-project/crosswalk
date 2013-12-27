@@ -87,8 +87,8 @@ class ApplicationSystem {
   explicit ApplicationSystem(RuntimeContext* runtime_context);
 
  private:
-  // Dispatch the onLaunched event to current running application.
-  void SendOnLaunchedEvent();
+  template <typename T>
+  bool LaunchWithCommandLineParam(const T& param);
 
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> application_storage_;

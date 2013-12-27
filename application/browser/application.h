@@ -12,19 +12,16 @@
 #include "base/callback.h"
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "base/memory/weak_ptr.h"
-#include "base/time/time.h"
+#include "base/memory/scoped_vector.h"
+#include "base/observer_list.h"
 #include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
-class GURL;
-
 namespace xwalk {
+
 class RuntimeContext;
-}
 
-namespace xwalk {
 namespace application {
 
 class ApplicationHost;
@@ -34,9 +31,6 @@ class Manifest;
 // Application instances are owned by ApplicationService.
 // ApplicationService will delete an Application instance when it is
 // terminated.
-// FIXME(Mikhail): now application just quits main loop when it is closed, the
-// behavior will be like the described above when running of multiple apps
-// is supported.
 // FIXME(Mikhail): Add information about the relationship of the Application
 // and the render process.
 class Application : public Runtime::Observer {
@@ -46,6 +40,15 @@ class Application : public Runtime::Observer {
   // application amoung both running applications and installed ones
   // (ApplicationData objects).
   std::string id() const { return application_data_->ID(); }
+  class Observer {
+   public:
+    // Invoked when application is terminated - all its pages (runtimes)
+    // are closed.
+    virtual void OnApplicationTerminated(Application* app) {}
+
+   protected:
+    virtual ~Observer() {}
+  };
 
   // Closes all the application's runtimes (application pages).
   void Close();
@@ -61,6 +64,7 @@ class Application : public Runtime::Observer {
   const std::set<Runtime*>& runtimes() const { return runtimes_; }
 
   const ApplicationData* data() const { return application_data_; }
+  ApplicationData* data() { return application_data_; }
 
  private:
   // Runtime::Observer implementation.
@@ -69,10 +73,10 @@ class Application : public Runtime::Observer {
 
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
-  Application(scoped_refptr<const ApplicationData> data,
-              xwalk::RuntimeContext* context);
+  Application(scoped_refptr<ApplicationData> data,
+              RuntimeContext* context,
+              Observer* observer);
   bool Launch();
-  bool is_launched() const { return !runtimes_.empty(); }
 
   friend class FinishEventObserver;
   bool RunMainDocument();
@@ -80,12 +84,12 @@ class Application : public Runtime::Observer {
   void CloseMainDocument();
   bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
 
-  xwalk::RuntimeContext* runtime_context_;
-  scoped_refptr<const ApplicationData> application_data_;
-  xwalk::Runtime* main_runtime_;
-  base::WeakPtrFactory<Application> weak_ptr_factory_;
+  RuntimeContext* runtime_context_;
+  scoped_refptr<ApplicationData> application_data_;
+  Runtime* main_runtime_;
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
+  Observer* observer_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

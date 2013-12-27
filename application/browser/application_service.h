@@ -8,25 +8,35 @@
 #include <string>
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
-class RuntimeContext;
-}
 
-namespace xwalk {
+class RuntimeContext;
+
 namespace application {
 
-class Application;
 class ApplicationStorage;
 class ApplicationEventManager;
 
-// This will manages applications install, uninstall, update and so on. It'll
-// also maintain all installed applications' info.
-class ApplicationService {
+// The application service manages install, uninstall and updates of
+// applications.
+class ApplicationService : public Application::Observer {
  public:
+  // Client code may use this class (and register with AddObserver below) to
+  // keep track of [un]installation of applications.
+  class Observer {
+   public:
+    virtual void OnApplicationInstalled(const std::string& app_id) {}
+    virtual void OnApplicationUninstalled(const std::string& app_id) {}
+   protected:
+    virtual ~Observer() {}
+  };
+
   ApplicationService(RuntimeContext* runtime_context,
                      ApplicationStorage* app_storage,
                      ApplicationEventManager* event_manager);
@@ -34,34 +44,29 @@ class ApplicationService {
 
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
-  bool Launch(const std::string& id);
-  bool Launch(const base::FilePath& path);
+  Application* Launch(const std::string& id);
+  Application* Launch(const base::FilePath& path);
 
-  // Currently there's only one running application at a time.
+  const ScopedVector<Application>& active_applications() const {
+      return applications_; }
+
   // FIXME: This method should go away when multiple applications
   // running is supported.
-  Application* GetActiveApplication() const { return application_.get(); }
-
-  // Client code may use this class (and register with AddObserver below) to
-  // keep track of applications installed/uninstalled.
-  struct Observer {
-   public:
-    virtual void OnApplicationInstalled(const std::string& app_id) {}
-    virtual void OnApplicationUninstalled(const std::string& app_id) {}
-   protected:
-    ~Observer() {}
-  };
+  Application* GetActiveApplication() const;
 
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
  private:
-  bool Launch(scoped_refptr<const ApplicationData> application_data);
+  // Implementation of Application::Observer.
+  virtual void OnApplicationTerminated(Application* app) OVERRIDE;
+
+  Application* Launch(scoped_refptr<ApplicationData> application_data);
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
   ApplicationEventManager* event_manager_;
-  scoped_ptr<Application> application_;
+  ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
