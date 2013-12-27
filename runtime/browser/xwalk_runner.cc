@@ -10,6 +10,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace xwalk {
 
@@ -19,13 +20,16 @@ XWalkRunner* g_xwalk_runner = NULL;
 
 }  // namespace
 
-XWalkRunner::XWalkRunner() {
+XWalkRunner::XWalkRunner()
+    : is_running_as_service_(false) {
   VLOG(1) << "Creating XWalkRunner object.";
   DCHECK(!g_xwalk_runner);
   g_xwalk_runner = this;
 
   XWalkRuntimeFeatures::GetInstance()->Initialize(
       CommandLine::ForCurrentProcess());
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  is_running_as_service_ = cmd_line->HasSwitch(switches::kXWalkRunAsService);
 
   // Initializing after the g_xwalk_runner is set to ensure
   // XWalkRunner::GetInstance() can be used in all sub objects if needed.

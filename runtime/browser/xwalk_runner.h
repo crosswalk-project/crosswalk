@@ -50,6 +50,10 @@ class XWalkRunner {
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
   application::ApplicationSystem* app_system() { return app_system_.get(); }
 
+  // Return true if Crosswalk is running in service mode, i.e. taking
+  // requests from native IPC mechanism to launch applications.
+  bool is_running_as_service() const { return is_running_as_service_; }
+
   // Stages of main parts. See content/browser_main_parts.h for description.
   void PreMainMessageLoopRun();
   void PostMainMessageLoopRun();
@@ -73,6 +77,8 @@ class XWalkRunner {
   scoped_ptr<content::ContentBrowserClient> content_browser_client_;
   scoped_ptr<RuntimeContext> runtime_context_;
   scoped_ptr<application::ApplicationSystem> app_system_;
+
+  bool is_running_as_service_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

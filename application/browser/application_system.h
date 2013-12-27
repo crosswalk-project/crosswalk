@@ -80,10 +80,6 @@ class ApplicationSystem {
   bool LaunchFromCommandLine(const CommandLine& cmd_line, const GURL& url,
                              bool* run_default_message_loop_);
 
-  // Return true if the application system is running in service mode,
-  // i.e. taking requests from native IPC mechanism to launch applications.
-  virtual bool IsRunningAsService() const;
-
   void CreateExtensions(content::RenderProcessHost* host,
                         extensions::XWalkExtensionVector* extensions);
 

@@ -154,10 +154,6 @@ void ApplicationSystem::SendOnLaunchedEvent() {
       application_service_->GetActiveApplication()->id(), event);
 }
 
-bool ApplicationSystem::IsRunningAsService() const {
-  return false;
-}
-
 void ApplicationSystem::CreateExtensions(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
