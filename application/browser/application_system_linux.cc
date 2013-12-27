@@ -8,7 +8,7 @@
 #include "dbus/bus.h"
 #include "xwalk/application/browser/application_service_provider_linux.h"
 #include "xwalk/dbus/dbus_manager.h"
-#include "xwalk/runtime/common/xwalk_switches.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace xwalk {
 namespace application {
@@ -16,7 +16,7 @@ namespace application {
 ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
     : ApplicationSystem(runtime_context) {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkRunAsService)) {
+  if (XWalkRunner::GetInstance()->is_running_as_service()) {
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
                                             application_storage(),
@@ -25,10 +25,6 @@ ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
 }
 
 ApplicationSystemLinux::~ApplicationSystemLinux() {}
-
-bool ApplicationSystemLinux::IsRunningAsService() const {
-  return service_provider_;
-}
 
 DBusManager& ApplicationSystemLinux::dbus_manager() {
   if (!dbus_manager_)

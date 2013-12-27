@@ -24,9 +24,6 @@ class ApplicationSystemLinux : public ApplicationSystem {
   DBusManager& dbus_manager();
 
  private:
-  // ApplicationSystem implementation.
-  virtual bool IsRunningAsService() const OVERRIDE;
-
   scoped_ptr<ApplicationServiceProviderLinux> service_provider_;
   scoped_ptr<DBusManager> dbus_manager_;
 
