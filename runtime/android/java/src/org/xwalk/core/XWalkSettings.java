@@ -83,7 +83,11 @@ public class XWalkSettings {
         private Handler mHandler;
 
         EventHandler() {
-            mHandler = new Handler(Looper.getMainLooper()) {
+        }
+
+        void bindUiThread() {
+            if (mHandler != null) return;
+            mHandler = new Handler(ThreadUtils.getUiThreadLooper()) {
                     @Override
                     public void handleMessage(Message msg) {
                         switch (msg.what) {
@@ -108,7 +112,8 @@ public class XWalkSettings {
         private void updateWebkitPreferencesLocked() {
             assert Thread.holdsLock(mXWalkSettingsLock);
             if (mNativeXWalkSettings == 0) return;
-            if (Looper.myLooper() == mHandler.getLooper()) {
+            if (mHandler == null) return;
+            if (ThreadUtils.runningOnUiThread()) {
                 updateWebkitPreferencesOnUiThread();
             } else {
                 // We're being called on a background thread, so post a message.
@@ -136,8 +141,6 @@ public class XWalkSettings {
                 android.Manifest.permission.INTERNET,
                 Process.myPid(),
                 Process.myUid()) != PackageManager.PERMISSION_GRANTED;
-        mNativeXWalkSettings = nativeInit(nativeWebContents);
-        assert mNativeXWalkSettings != 0;
 
         if (isAccessFromFileURLsGrantedByDefault) {
             mAllowUniversalAccessFromFileURLs = true;
@@ -147,18 +150,28 @@ public class XWalkSettings {
         mUserAgent = LazyDefaultUserAgent.sInstance;
 
         mEventHandler = new EventHandler();
-        nativeUpdateEverything(mNativeXWalkSettings);
+
+        setWebContents(nativeWebContents);
     }
 
-    public void destroy() {
-        nativeDestroy(mNativeXWalkSettings);
-        mNativeXWalkSettings = 0;
-    }
-
-    public void setWebContents(int nativeWebContents) {
+    void setWebContents(int nativeWebContents) {
         synchronized (mXWalkSettingsLock) {
-            nativeSetWebContents(mNativeXWalkSettings, nativeWebContents);
+            if (mNativeXWalkSettings != 0) {
+                nativeDestroy(mNativeXWalkSettings);
+                assert mNativeXWalkSettings == 0;
+            }
+            if (nativeWebContents != 0) {
+                mEventHandler.bindUiThread();
+                mNativeXWalkSettings = nativeInit(nativeWebContents);
+                nativeUpdateEverythingLocked(mNativeXWalkSettings);
+            }
         }
+    }
+
+    @CalledByNative
+    private void nativeXWalkSettingsGone(int nativeXWalkSettings) {
+        assert mNativeXWalkSettings != 0 && mNativeXWalkSettings == nativeXWalkSettings;
+        mNativeXWalkSettings = 0;
     }
 
     /**
@@ -617,6 +630,13 @@ public class XWalkSettings {
         }
     }
 
+    @CalledByNative
+    private void updateEverything() {
+        synchronized (mXWalkSettingsLock) {
+            nativeUpdateEverythingLocked(mNativeXWalkSettings);
+        }
+    }
+
     private void updateWebkitPreferencesOnUiThread() {
         if (mNativeXWalkSettings != 0) {
             ThreadUtils.assertOnUiThread();
@@ -630,9 +650,7 @@ public class XWalkSettings {
 
     private static native String nativeGetDefaultUserAgent();
 
-    private native void nativeSetWebContents(int nativeXWalkSettings, int nativeWebContents);
-
-    private native void nativeUpdateEverything(int nativeXWalkSettings);
+    private native void nativeUpdateEverythingLocked(int nativeXWalkSettings);
 
     private native void nativeUpdateUserAgent(int nativeXWalkSettings);
 

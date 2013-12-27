@@ -18,14 +18,13 @@ class XWalkRenderViewHostExt;
 
 class XWalkSettings : public content::WebContentsObserver {
  public:
-  XWalkSettings(JNIEnv* env, jobject obj);
+  XWalkSettings(JNIEnv* env, jobject obj, jint web_contents);
   virtual ~XWalkSettings();
 
   // Called from Java.
   void Destroy(JNIEnv* env, jobject obj);
   void ResetScrollAndScaleState(JNIEnv* env, jobject obj);
-  void SetWebContents(JNIEnv* env, jobject obj, jint web_contents);
-  void UpdateEverything(JNIEnv* env, jobject obj);
+  void UpdateEverythingLocked(JNIEnv* env, jobject obj);
   void UpdateInitialPageScale(JNIEnv* env, jobject obj);
   void UpdateUserAgent(JNIEnv* env, jobject obj);
   void UpdateWebkitPreferences(JNIEnv* env, jobject obj);
