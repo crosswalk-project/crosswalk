@@ -31,6 +31,8 @@
         '../../../..',
       ],
       'sources': [
+        'dbus_connection.h',
+        'dbus_connection.cc',
         'xwalk_tizen_user.h',
         'xwalk_tizen_user.cc',
         'xwalkctl_main.cc',
@@ -44,6 +46,8 @@
         '../../../..',
       ],
       'sources': [
+        'dbus_connection.h',
+        'dbus_connection.cc',
         'xwalk_tizen_user.h',
         'xwalk_tizen_user.cc',
         'xwalk_launcher_main.cc',
