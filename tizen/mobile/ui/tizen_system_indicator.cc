@@ -5,7 +5,6 @@
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 
 #include "ui/gfx/canvas.h"
-#include "content/public/browser/browser_thread.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_watcher.h"
 
 #include "ui/views/widget/native_widget.h"
@@ -20,7 +19,8 @@ SkColor kBGColor = SkColorSetARGB(255, 52, 52, 50);
 
 namespace xwalk {
 
-TizenSystemIndicator::TizenSystemIndicator() {
+TizenSystemIndicator::TizenSystemIndicator()
+  : watcher_(NULL) {
   set_background(views::Background::CreateSolidBackground(kBGColor));
 }
 
@@ -29,6 +29,10 @@ TizenSystemIndicator::~TizenSystemIndicator() {
 
 bool TizenSystemIndicator::IsConnected() const {
   return watcher_;
+}
+
+void TizenSystemIndicator::SetWatcher(TizenSystemIndicatorWatcher* watcher) {
+  watcher_ = watcher;
 }
 
 gfx::Size TizenSystemIndicator::GetPreferredSize() {
@@ -113,23 +117,6 @@ void TizenSystemIndicator::OnMouseMoved(const ui::MouseEvent& event) {
     return;
   const gfx::Point position = event.location();
   watcher_->OnMouseMove(position.x(), position.y());
-}
-
-void TizenSystemIndicator::SetDisplay(const gfx::Display& display) {
-  SetImage(0);
-
-  // TODO(ricardotk): Add overlaying layout and event support to landscape mode.
-  watcher_.reset(new TizenSystemIndicatorWatcher(this, display));
-
-  if (!watcher_->Connect()) {
-    watcher_.reset();
-    return;
-  }
-
-  content::BrowserThread::PostTask(
-      content::BrowserThread::IO, FROM_HERE,
-      base::Bind(&TizenSystemIndicatorWatcher::StartWatching,
-                 base::Unretained(watcher_.get())));
 }
 
 }  // namespace xwalk
