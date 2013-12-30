@@ -1,6 +1,6 @@
-#nH!/usr/bin/env python
+#!/usr/bin/env python
 
-# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Copyright (c) 2013, 2014 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -16,6 +16,7 @@ python manifest_json_parser.py --jsonfile=/path/to/manifest.json
 import json
 import optparse
 import os
+import re
 import sys
 
 def HandlePermissionList(permission_list):
@@ -29,14 +30,13 @@ def HandlePermissionList(permission_list):
     The string of permissions with ':' as separator.
     e.g. "permission1:permission2".
   """
-  permissions = permission_list
-  if len(permission_list) > 1:
-    permissions = permission_list[0]
-    index = 1
-    while index < len(permission_list):
-      permissions = permissions + ":" + permission_list[index]
-      index += 1
-  return permissions
+  permissions = list(permission_list)
+  reg_permission = re.compile(r'^[a-zA-Z\.]*$')
+  for permission in permissions:
+    if not reg_permission.match(permission):
+      print '\'Permissions\' field error, only alphabets and \'.\' are allowed.'
+      sys.exit(1)
+  return ':'.join(permissions)
 
 
 class ManifestJsonParser(object):
@@ -198,7 +198,7 @@ class ManifestJsonParser(object):
     return self.ret_dict['fullscreen']
 
 
-def main():
+def main(argv):
   """Respond to command mode and show the processed field values."""
   parser = optparse.OptionParser()
   info = ('The input json-format file name. Such as: '
@@ -206,10 +206,13 @@ def main():
   parser.add_option('-j', '--jsonfile', action='store', dest='jsonfile',
                     help=info)
   opts, _ = parser.parse_args()
+  if len(argv) == 1:
+    parser.print_help()
+    return 0
   json_parser = ManifestJsonParser(opts.jsonfile)
   json_parser.ShowItems()
   return 0
 
 
 if __name__ == '__main__':
-  sys.exit(main())
+  sys.exit(main(sys.argv))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Copyright (c) 2013, 2014 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -195,14 +195,14 @@ class TestMakeApk(unittest.TestCase):
 
   def testPermissions(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
-           '--package=org.xwalk.example', '--permissions="geolocation"',
+           '--package=org.xwalk.example', '--permissions=geolocation',
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
-    self.assertTrue(content.find('LOCATION_HARDWARE') != -1)
+    self.assertTrue(content.find('ACCESS_FINE_LOCATION') != -1)
     self.checkApks('Example')
     Clean('Example')
 
@@ -334,6 +334,14 @@ class TestMakeApk(unittest.TestCase):
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
     self.assertTrue(content.find('Fullscreen') != -1)
+    self.assertTrue(content.find('android.permission.READ_CONTACTS') != -1)
+    self.assertTrue(content.find('android.permission.WRITE_CONTACTS') != -1)
+    self.assertTrue(
+        content.find('android.permission.ACCESS_FINE_LOCATION') != -1)
+    self.assertTrue(content.find('android.permission.READ_SMS') != -1)
+    self.assertTrue(content.find('android.permission.RECEIVE_SMS') != -1)
+    self.assertTrue(content.find('android.permission.SEND_SMS') != -1)
+    self.assertTrue(content.find('android.permission.WRITE_SMS') != -1)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example')
     Clean('Example')
@@ -370,13 +378,30 @@ class TestMakeApk(unittest.TestCase):
     out, _ = proc.communicate()
     self.assertTrue(out.find('no \'version\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
-                                 'manifest_permissions_error.json')
+                                 'manifest_permissions_format_error.json')
     proc = subprocess.Popen(['python', 'make_apk.py',
                              '--manifest=%s' % manifest_path,
                              self._mode],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = proc.communicate()
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_permissions_field_error.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(out.find('\'Permissions\' field error') != -1)
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_not_supported_permission.json')
+    proc = subprocess.Popen(['python', 'make_apk.py',
+                             '--manifest=%s' % manifest_path,
+                             self._mode],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out, _ = proc.communicate()
+    self.assertTrue(
+        out.find('\'Telephony\' related API is not supported') != -1)
 
   def testExtensionsWithOneExtension(self):
     # Test with an existed extension.
@@ -502,7 +527,7 @@ class TestMakeApk(unittest.TestCase):
            '--name=Example',
            '--orientation=landscape',
            '--package=org.xwalk.example',
-           '--permissions="geolocation"']
+           '--permissions=geolocation']
     RunCommand(cmd)
     activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
     with open(activity, 'r') as content_file:
@@ -518,7 +543,7 @@ class TestMakeApk(unittest.TestCase):
     # Test fullscreen option.
     self.assertTrue(content.find('Fullscreen') != -1)
     # Test permission option.
-    self.assertTrue(content.find('LOCATION_HARDWARE') != -1)
+    self.assertTrue(content.find('ACCESS_FINE_LOCATION') != -1)
     # Test description option.
     self.assertTrue(content.find('description') != -1)
     # Test app version option.
