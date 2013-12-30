@@ -5,11 +5,14 @@
 #include "xwalk/application/browser/application_protocols.h"
 
 #include <algorithm>
+#include <map>
 #include <string>
 #include <vector>
 
 #include "base/files/file_path.h"
 #include "base/memory/weak_ptr.h"
+#include "base/strings/stringprintf.h"
+#include "base/strings/string_util.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/threading/worker_pool.h"
 #include "base/threading/sequenced_worker_pool.h"
@@ -27,16 +30,19 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 
 using content::ResourceRequestInfo;
 using xwalk::application::ApplicationData;
+using xwalk::application::CSPInfo;
 using xwalk::application::MainDocumentInfo;
 namespace keys = xwalk::application_manifest_keys;
 
 namespace {
 
 net::HttpResponseHeaders* BuildHttpHeaders(
+    const std::string& content_security_policy,
     const std::string& mime_type, const std::string& method,
     const base::FilePath& file_path, const base::FilePath& relative_path,
     bool is_authority_match) {
@@ -52,6 +58,12 @@ net::HttpResponseHeaders* BuildHttpHeaders(
       raw_headers.append("HTTP/1.1 200 OK");
   } else {
     raw_headers.append("HTTP/1.1 501 Not Implemented");
+  }
+
+  if (!content_security_policy.empty()) {
+    raw_headers.append(1, '\0');
+    raw_headers.append("Content-Security-Policy: ");
+    raw_headers.append(content_security_policy);
   }
 
   raw_headers.append(1, '\0');
@@ -73,11 +85,13 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate,
       const base::FilePath& relative_path,
-      const scoped_refptr<const ApplicationData> application)
+      const scoped_refptr<const ApplicationData> application,
+      const std::string& content_security_policy)
     : net::URLRequestSimpleJob(request, network_delegate),
       application_(application),
       mime_type_("text/html"),
-      relative_path_(relative_path) {
+      relative_path_(relative_path),
+      content_security_policy_(content_security_policy) {
   }
 
   // Overridden from URLRequestSimpleJob:
@@ -101,8 +115,9 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
   }
 
   virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
-    response_info_.headers = BuildHttpHeaders(mime_type_, "GET", relative_path_,
-        relative_path_, true);
+    response_info_.headers = BuildHttpHeaders(content_security_policy_,
+                                              mime_type_, "GET", relative_path_,
+                                              relative_path_, true);
     *info = response_info_;
   }
 
@@ -113,6 +128,7 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
   const std::string mime_type_;
   const base::FilePath relative_path_;
   net::HttpResponseInfo response_info_;
+  std::string content_security_policy_;
 };
 
 void ReadResourceFilePath(
@@ -130,10 +146,12 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       const std::string& application_id,
       const base::FilePath& directory_path,
       const base::FilePath& relative_path,
+      const std::string& content_security_policy,
       bool is_authority_match)
       : net::URLRequestFileJob(
           request, network_delegate, base::FilePath(), file_task_runner),
         relative_path_(relative_path),
+        content_security_policy_(content_security_policy),
         is_authority_match_(is_authority_match),
         resource_(application_id, directory_path, relative_path),
         weak_factory_(this) {
@@ -143,7 +161,8 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
     std::string mime_type;
     GetMimeType(&mime_type);
     std::string method = request()->method();
-    response_info_.headers = BuildHttpHeaders(mime_type, method, file_path_,
+    response_info_.headers = BuildHttpHeaders(
+        content_security_policy_, mime_type, method, file_path_,
         relative_path_, is_authority_match_);
     *info = response_info_;
   }
@@ -175,6 +194,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
 
   net::HttpResponseInfo response_info_;
   base::FilePath relative_path_;
+  std::string content_security_policy_;
   bool is_authority_match_;
   xwalk::application::ApplicationResource resource_;
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
@@ -211,12 +231,26 @@ ApplicationProtocolHandler::MaybeCreateJob(
   if (is_authority_match)
     directory_path = application_->Path();
 
+  std::string content_security_policy;
+  const CSPInfo* csp_info = static_cast<CSPInfo*>(
+      application_->GetManifestData(keys::kCSPKey));
+  if (csp_info) {
+    const std::map<std::string, std::vector<std::string> >& policies =
+        csp_info->GetDirectives();
+    for (std::map<std::string, std::vector<std::string> >::const_iterator it =
+             policies.begin(); it != policies.end(); ++it) {
+      content_security_policy += base::StringPrintf(
+          "%s %s;", (it->first).c_str(), JoinString(it->second, ' ').c_str());
+    }
+  }
+
   std::string path = request->url().path();
   if (is_authority_match &&
       path.size() > 1 &&
       path.substr(1) == xwalk::application::kGeneratedMainDocumentFilename) {
     return new GeneratedMainDocumentJob(request, network_delegate,
-        relative_path, application_);
+                                        relative_path, application_,
+                                        content_security_policy);
   }
 
   return new URLRequestApplicationJob(
@@ -228,6 +262,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
       application_id,
       directory_path,
       relative_path,
+      content_security_policy,
       is_authority_match);
 }
 
