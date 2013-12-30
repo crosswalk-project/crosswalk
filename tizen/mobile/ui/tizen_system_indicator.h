@@ -8,15 +8,15 @@
 #include "ui/gfx/display.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/views/controls/image_view.h"
+#include "xwalk/tizen/mobile/ui/tizen_system_indicator_watcher.h"
 
 namespace xwalk {
-
-class TizenSystemIndicatorWatcher;
 
 // This view paints the Tizen Mobile system indicator provided by the system.
 // We get to it by using the Elementary "Plug" system from EFL, reading the
 // image from a shared memory area.
-class TizenSystemIndicator : public views::ImageView {
+class TizenSystemIndicator : public views::ImageView,
+                             public TizenSystemIndicatorWatcher::WatcherClient {
  public:
   TizenSystemIndicator();
   virtual ~TizenSystemIndicator();
@@ -29,6 +29,12 @@ class TizenSystemIndicator : public views::ImageView {
   // views::View implementation.
   gfx::Size GetPreferredSize() OVERRIDE;
 
+  // TizenSystemIndicatorWatcher::WatcherClient implementation.
+  virtual void OnImageUpdated(const gfx::ImageSkia& img_skia) OVERRIDE {
+    SetImage(img_skia);
+    PreferredSizeChanged();
+  }
+
  private:
   virtual bool OnMousePressed(const ui::MouseEvent& event) OVERRIDE;
   virtual void OnMouseReleased(const ui::MouseEvent& event) OVERRIDE;
@@ -36,7 +42,6 @@ class TizenSystemIndicator : public views::ImageView {
   virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
 
   scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
-  friend class TizenSystemIndicatorWatcher;
 };
 
 }  // namespace xwalk
