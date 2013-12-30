@@ -27,7 +27,7 @@ public class XWalkClientForTest extends XWalkDefaultClient {
             String description, String failingUrl) {
         if (mCallbackForTest != null) {
             try {
-                Class objectClass = mCallbackForTest.getClass();
+                Class<?> objectClass = mCallbackForTest.getClass();
                 Method onReceivedError = objectClass.getMethod(
                         "onReceivedError", int.class, String.class, String.class);
                 onReceivedError.invoke(mCallbackForTest, errorCode, description, failingUrl);
@@ -42,7 +42,7 @@ public class XWalkClientForTest extends XWalkDefaultClient {
             SslError error) {
         if (mCallbackForTest != null) {
             try {
-                Class objectClass = mCallbackForTest.getClass();
+                Class<?> objectClass = mCallbackForTest.getClass();
                 Method onReceivedSslError = objectClass.getMethod(
                         "onReceivedSslError", SslErrorHandler.class, SslError.class);
                 onReceivedSslError.invoke(mCallbackForTest, handler, error);
@@ -56,7 +56,7 @@ public class XWalkClientForTest extends XWalkDefaultClient {
     public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
         if (mCallbackForTest != null) {
             try {
-                Class objectClass = mCallbackForTest.getClass();
+                Class<?> objectClass = mCallbackForTest.getClass();
                 Method onPageStarted = objectClass.getMethod("onPageStarted", String.class);
                 onPageStarted.invoke(mCallbackForTest, url);
             } catch (Exception e) {
@@ -69,7 +69,7 @@ public class XWalkClientForTest extends XWalkDefaultClient {
     public void onPageFinished(XWalkView view, String url) {
         if (mCallbackForTest != null) {
             try {
-                Class objectClass = mCallbackForTest.getClass();
+                Class<?> objectClass = mCallbackForTest.getClass();
                 Method onPageStarted = objectClass.getMethod("onPageFinished", String.class);
                 onPageStarted.invoke(mCallbackForTest, url);
             } catch (Exception e) {
