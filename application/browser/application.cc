@@ -58,13 +58,79 @@ Application::Application(
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      observer_(observer) {
+      observer_(observer),
+      entry_points_(Default) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
 }
 
 Application::~Application() {
+}
+
+template<>
+bool Application::TryLaunchAt<Application::AppMainKey>() {
+  const MainDocumentInfo* main_info =
+      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
+  if (!main_info || !main_info->GetMainURL().is_valid())
+    return false;
+
+  main_runtime_ = Runtime::Create(runtime_context_, this);
+  main_runtime_->LoadURL(main_info->GetMainURL());
+
+  ApplicationEventManager* event_manager =
+      XWalkRunner::GetInstance()->app_system()->event_manager();
+  event_manager->OnMainDocumentCreated(
+      application_data_->ID(), main_runtime_->web_contents());
+  return true;
+}
+
+template<>
+bool Application::TryLaunchAt<Application::LaunchLocalPathKey>() {
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string entry_page;
+  if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
+        &entry_page) && !entry_page.empty()) {
+    GURL url = application_data_->GetResourceURL(entry_page);
+    if (url.is_empty()) {
+      LOG(WARNING) << "Can't find a valid local path URL for app.";
+      return false;
+    }
+
+    // main_runtime_ should be initialized before 'LoadURL' call,
+    // so that it is in place already when application extensions
+    // are created.
+    main_runtime_= Runtime::Create(runtime_context_, this);
+    main_runtime_->LoadURL(url);
+    main_runtime_->AttachDefaultWindow();
+    return true;
+  }
+
+  return false;
+}
+
+template<>
+bool Application::TryLaunchAt<Application::LaunchWebURLKey>() {
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string url_string;
+  if (manifest->GetString(application_manifest_keys::kLaunchWebURLKey,
+      &url_string)) {
+    GURL url(url_string);
+    if (!url.is_valid()) {
+      LOG(WARNING) << "Can't find a valid URL for app.";
+      return false;
+    }
+
+    // main_runtime_ should be initialized before 'LoadURL' call,
+    // so that it is in place already when application extensions
+    // are created.
+    main_runtime_= Runtime::Create(runtime_context_, this);
+    main_runtime_->LoadURL(url);
+    main_runtime_->AttachDefaultWindow();
+    return true;
+  }
+
+  return false;
 }
 
 bool Application::Launch() {
@@ -74,11 +140,18 @@ bool Application::Launch() {
     return false;
   }
 
-  if (HasMainDocument())
-    return RunMainDocument();
-  // NOTE: For now we allow launching a web app from a local path. This may go
-  // away at some point.
-  return RunFromLocalPath();
+  if ((entry_points_ & AppMainKey) && TryLaunchAt<AppMainKey>())
+    return true;
+  if ((entry_points_ & LaunchLocalPathKey) && TryLaunchAt<LaunchLocalPathKey>())
+    return true;
+  if ((entry_points_ & LaunchWebURLKey) && TryLaunchAt<LaunchWebURLKey>())
+    return true;
+
+  return false;
+}
+
+void Application::set_entry_points(LaunchEntryPoints entry_points) {
+  entry_points_ = entry_points;
 }
 
 void Application::Close() {
@@ -129,23 +202,6 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   }
 }
 
-bool Application::RunMainDocument() {
-  const MainDocumentInfo* main_info =
-      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  DCHECK(main_info);
-  if (!main_info->GetMainURL().is_valid())
-    return false;
-
-  main_runtime_ = Runtime::Create(runtime_context_, this);
-  main_runtime_->LoadURL(main_info->GetMainURL());
-
-  ApplicationEventManager* event_manager =
-      XWalkRunner::GetInstance()->app_system()->event_manager();
-  event_manager->OnMainDocumentCreated(
-      application_data_->ID(), main_runtime_->web_contents());
-  return true;
-}
-
 void Application::CloseMainDocument() {
   DCHECK(main_runtime_);
 
@@ -161,28 +217,6 @@ Runtime* Application::GetMainDocumentRuntime() const {
 int Application::GetRenderProcessHostID() const {
   return main_runtime_->web_contents()->
           GetRenderProcessHost()->GetID();
-}
-
-bool Application::RunFromLocalPath() {
-  const Manifest* manifest = application_data_->GetManifest();
-  std::string entry_page;
-  if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
-        &entry_page) && !entry_page.empty()) {
-    GURL url = application_data_->GetResourceURL(entry_page);
-    if (url.is_empty()) {
-      LOG(WARNING) << "Can't find a valid local path URL for app.";
-      return false;
-    }
-    // main_runtime_ should be initialized before 'LoadURL' call,
-    // so that it is in place already when application extensions
-    // are created.
-    main_runtime_= Runtime::Create(runtime_context_, this);
-    main_runtime_->LoadURL(url);
-    main_runtime_->AttachDefaultWindow();
-    return true;
-  }
-
-  return false;
 }
 
 bool Application::IsOnSuspendHandlerRegistered(

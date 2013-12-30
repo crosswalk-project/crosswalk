@@ -118,41 +118,48 @@ bool ApplicationSystem::LaunchWithCommandLineParam(const T& param) {
   return false;
 }
 
+template <>
+bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(const GURL& url) {
+  return !!application_service_->Launch(url);
+}
+
 bool ApplicationSystem::LaunchFromCommandLine(
     const CommandLine& cmd_line, const GURL& url,
-    bool* run_default_message_loop) {
+    bool& run_default_message_loop) {
   // On Tizen, applications are launched by a symbolic link named like the
   // application ID.
   // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
 #if defined(OS_TIZEN_MOBILE)
   std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
   if (ApplicationData::IsIDValid(command_name)) {
-    *run_default_message_loop = LaunchWithCommandLineParam(command_name);
+    run_default_message_loop = LaunchWithCommandLineParam(command_name);
     return true;
   }
 #endif
-
-  if (!url.SchemeIsFile())
-    return false;
 
   // Handles raw app_id passed as first non-switch argument.
   const CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (ApplicationData::IsIDValid(app_id)) {
-      *run_default_message_loop = LaunchWithCommandLineParam(app_id);
+      run_default_message_loop = LaunchWithCommandLineParam(app_id);
       return true;
     }
   }
 
-  // Handles local directory.
+  if (!url.is_valid())
+    return false;
+
   base::FilePath path;
-  if (net::FileURLToFilePath(url, &path) && base::DirectoryExists(path)) {
-    *run_default_message_loop = LaunchWithCommandLineParam(path);
-    return true;
+  if (url.SchemeIsFile() &&
+      net::FileURLToFilePath(url, &path) &&
+      base::DirectoryExists(path)) {  // Handles local directory.
+    run_default_message_loop = LaunchWithCommandLineParam(path);
+  } else {  // Handles external URL.
+    run_default_message_loop = LaunchWithCommandLineParam(url);
   }
 
-  return false;
+  return true;
 }
 
 void ApplicationSystem::CreateExtensions(

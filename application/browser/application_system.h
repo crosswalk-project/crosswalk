@@ -77,8 +77,9 @@ class ApplicationSystem {
   //
   // A return value of true indicates that ApplicationSystem handled the command
   // line, so the caller shouldn't try to load the url by itself.
-  bool LaunchFromCommandLine(const CommandLine& cmd_line, const GURL& url,
-                             bool* run_default_message_loop_);
+  bool LaunchFromCommandLine(const CommandLine& cmd_line,
+                             const GURL& url,
+                             bool& run_default_message_loop_);
 
   void CreateExtensions(content::RenderProcessHost* host,
                         extensions::XWalkExtensionVector* extensions);

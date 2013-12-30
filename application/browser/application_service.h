@@ -44,8 +44,15 @@ class ApplicationService : public Application::Observer {
 
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
+  // Launch an installed application using application id.
   Application* Launch(const std::string& id);
+  // Launch an unpacked application using path to a local directory which
+  // contains manifest file.
   Application* Launch(const base::FilePath& path);
+  // Launch an application created from arbitrary url.
+  // FIXME: This application should have the same strict permissions
+  // as common browser apps.
+  Application* Launch(const GURL& url);
 
   Application* GetApplicationByRenderHostID(int id) const;
 
@@ -63,7 +70,8 @@ class ApplicationService : public Application::Observer {
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
-  Application* Launch(scoped_refptr<ApplicationData> application_data);
+  Application* Launch(scoped_refptr<ApplicationData> application_data,
+                      Application::LaunchEntryPoints = Application::Default);
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;

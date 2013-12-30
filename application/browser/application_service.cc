@@ -18,7 +18,9 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
+#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/event_names.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -319,11 +321,39 @@ Application* ApplicationService::Launch(const base::FilePath& path) {
       LoadApplication(path, Manifest::COMMAND_LINE, &error);
 
   if (!application_data) {
-    LOG(ERROR) << "Error during launch application: " << error;
+    LOG(ERROR) << "Error occurred while trying to launch application: "
+               << error;
     return NULL;
   }
 
   return Launch(application_data);
+}
+
+Application* ApplicationService::Launch(const GURL& url) {
+  namespace keys = xwalk::application_manifest_keys;
+
+  const std::string& url_spec = url.spec();
+  DCHECK(!url_spec.empty());
+  const std::string& app_id = GenerateId(url_spec);
+  // FIXME: we need to handle hash collisions.
+  DCHECK(!application_storage_->GetApplicationData(app_id));
+
+  base::DictionaryValue manifest;
+  // FIXME: define permissions!
+  manifest.SetString(keys::kLaunchWebURLKey, url_spec);
+  manifest.SetString(keys::kNameKey, "XWalk Browser");
+  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetInteger(keys::kManifestVersionKey, 1);
+  std::string error;
+  scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
+            base::FilePath(), Manifest::COMMAND_LINE, manifest, app_id, &error);
+  if (!application_data) {
+    LOG(ERROR) << "Error occurred while trying to launch application: "
+               << error;
+    return NULL;
+  }
+
+  return Launch(application_data, Application::LaunchWebURLKey);
 }
 
 Application* ApplicationService::GetActiveApplication() const {
@@ -374,12 +404,14 @@ void ApplicationService::OnApplicationTerminated(
 }
 
 Application* ApplicationService::Launch(
-    scoped_refptr<ApplicationData> application_data) {
+    scoped_refptr<ApplicationData> application_data,
+    Application::LaunchEntryPoints entry_points) {
   event_manager_->OnAppLoaded(application_data->ID());
 
   Application* application(new Application(application_data,
                                            runtime_context_,
                                            this));
+  application->set_entry_points(entry_points);
   applications_.push_back(application);
   if (!application->Launch()) {
     applications_.get().pop_back();

@@ -224,8 +224,12 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (!app_system->LaunchFromCommandLine(*command_line, startup_url_,
-                                        &run_default_message_loop_)) {
+  if (!app_system->LaunchFromCommandLine(
+      *command_line, startup_url_,
+      run_default_message_loop_)) {
+    // VLOG(1) << "Crosswalk has failed to launch from command line. Exiting."
+    // FIXME(Mikhail): We should just return here, but browser tests atm need
+    // runtime running even without any meaningful command line argument.
     RunAsBrowser(runtime_context_, startup_url_);
   }
 
