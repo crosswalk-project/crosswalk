@@ -62,7 +62,7 @@ TEST_F(TopViewLayoutTest, BothViews) {
   host_->AddChildView(content);
   layout_->set_content_view(content);
 
-  View* top_view = new ViewWithPreferredSize(gfx::Size(20, 20));
+  View* top_view = new ViewWithPreferredSize(gfx::Size(200, 20));
   host_->AddChildView(top_view);
   layout_->set_top_view(top_view);
 
@@ -74,7 +74,7 @@ TEST_F(TopViewLayoutTest, BothViews) {
   host_->SetSize(gfx::Size(300, 400));
   layout_->Layout(host_.get());
   EXPECT_EQ(gfx::Rect(0, 20, 300, 380), content->bounds());
-  EXPECT_EQ(gfx::Rect(0, 0, 300, 20), top_view->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 200, 20), top_view->bounds());
 }
 
 TEST_F(TopViewLayoutTest, ChangingTopViewHeight) {
@@ -85,7 +85,7 @@ TEST_F(TopViewLayoutTest, ChangingTopViewHeight) {
   layout_->set_content_view(content);
 
   ViewWithPreferredSize* top_view =
-      new ViewWithPreferredSize(gfx::Size(20, 20));
+      new ViewWithPreferredSize(gfx::Size(200, 20));
   host_->AddChildView(top_view);
   layout_->set_top_view(top_view);
 
@@ -97,15 +97,40 @@ TEST_F(TopViewLayoutTest, ChangingTopViewHeight) {
   top_view->set_preferred_size(gfx::Size(100, 100));
   layout_->Layout(host_.get());
   EXPECT_EQ(gfx::Rect(0, 100, 200, 50), content->bounds());
-  EXPECT_EQ(gfx::Rect(0, 0, 200, 100), top_view->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 100, 100), top_view->bounds());
 
   host_->SetSize(gfx::Size(300, 400));
   layout_->Layout(host_.get());
   EXPECT_EQ(gfx::Rect(0, 100, 300, 300), content->bounds());
-  EXPECT_EQ(gfx::Rect(0, 0, 300, 100), top_view->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 100, 100), top_view->bounds());
 
-  top_view->set_preferred_size(gfx::Size(20, 20));
+  top_view->set_preferred_size(gfx::Size(200, 20));
   layout_->Layout(host_.get());
   EXPECT_EQ(gfx::Rect(0, 20, 300, 380), content->bounds());
-  EXPECT_EQ(gfx::Rect(0, 0, 300, 20), top_view->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 200, 20), top_view->bounds());
+}
+
+TEST_F(TopViewLayoutTest, ChangingTopViewOverlay) {
+  layout_.reset(new TopViewLayout);
+
+  View* content = new View();
+  host_->AddChildView(content);
+  layout_->set_content_view(content);
+
+  View* top_view = new ViewWithPreferredSize(gfx::Size(200, 20));
+  host_->AddChildView(top_view);
+  layout_->set_top_view(top_view);
+
+  host_->SetSize(gfx::Size(200, 150));
+  layout_->Layout(host_.get());
+  EXPECT_EQ(gfx::Rect(0, 20, 200, 130), content->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 200, 20), top_view->bounds());
+
+  EXPECT_FALSE(layout_->IsUsingOverlay());
+  layout_->SetUseOverlay(true);
+  EXPECT_TRUE(layout_->IsUsingOverlay());
+
+  layout_->Layout(host_.get());
+  EXPECT_EQ(gfx::Rect(0, 0, 200, 150), content->bounds());
+  EXPECT_EQ(gfx::Rect(0, 0, 200, 20), top_view->bounds());
 }

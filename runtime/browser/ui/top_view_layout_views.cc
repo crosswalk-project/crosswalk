@@ -10,9 +10,20 @@ namespace xwalk {
 
 TopViewLayout::TopViewLayout()
     : top_view_(NULL),
-      content_view_(NULL) {}
+      content_view_(NULL),
+      overlay_(false) {}
 
 TopViewLayout::~TopViewLayout() {}
+
+void TopViewLayout::SetUseOverlay(bool enable) {
+  if (overlay_ == enable)
+    return;
+  overlay_ = enable;
+}
+
+bool TopViewLayout::IsUsingOverlay() const {
+  return overlay_;
+}
 
 void TopViewLayout::Layout(views::View* host) {
   if (!host->has_children())
@@ -29,11 +40,15 @@ void TopViewLayout::Layout(views::View* host) {
   CHECK_EQ(host, content_view_->parent());
 
   gfx::Rect top_view_bounds = host->GetLocalBounds();
+  top_view_bounds.set_width(top_view_->GetPreferredSize().width());
   top_view_bounds.set_height(top_view_->GetPreferredSize().height());
   top_view_->SetBoundsRect(top_view_bounds);
 
   gfx::Rect content_view_bounds = host->GetLocalBounds();
-  content_view_bounds.Inset(0, top_view_bounds.height(), 0, 0);
+  if (overlay_)
+    content_view_bounds.Inset(0, 0, 0, 0);
+  else
+    content_view_bounds.Inset(0, top_view_bounds.height(), 0, 0);
   content_view_->SetBoundsRect(content_view_bounds);
 }
 

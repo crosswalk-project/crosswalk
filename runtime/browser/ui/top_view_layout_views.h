@@ -36,6 +36,11 @@ class TopViewLayout : public views::LayoutManager {
 
   views::View* top_view() const { return top_view_; }
 
+  // Set or check if the top_view_ is in overlay mode. It means that in overlay
+  // mode the top_view_ will be over the content_view_.
+  void SetUseOverlay(bool enable);
+  bool IsUsingOverlay() const;
+
   // views::LayoutManager implementation.
   virtual void Layout(views::View* host) OVERRIDE;
   virtual gfx::Size GetPreferredSize(views::View* host) OVERRIDE;
@@ -43,6 +48,7 @@ class TopViewLayout : public views::LayoutManager {
  private:
   views::View* top_view_;
   views::View* content_view_;
+  bool overlay_;
 
   DISALLOW_COPY_AND_ASSIGN(TopViewLayout);
 };
