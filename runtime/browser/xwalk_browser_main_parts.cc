@@ -67,12 +67,12 @@ void RunAsBrowser(xwalk::RuntimeContext* runtime_context,
     class Observer : public Runtime::Observer {
         virtual ~Observer() {}
 
-        void OnRuntimeAdded(Runtime* runtime) {
+        virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {
           DCHECK(runtime);
           runtimes_.insert(runtime);
         }
 
-        void OnRuntimeRemoved(Runtime* runtime) {
+        virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {
           DCHECK(runtime);
           runtimes_.erase(runtime);
 

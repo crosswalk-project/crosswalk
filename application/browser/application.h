@@ -35,7 +35,7 @@ class Manifest;
 // and the render process.
 class Application : public Runtime::Observer {
  public:
-  ~Application();
+  virtual ~Application();
   // Returns the unique application id which is used to distinguish the
   // application amoung both running applications and installed ones
   // (ApplicationData objects).

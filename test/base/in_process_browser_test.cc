@@ -63,12 +63,12 @@ class RuntimeRegistry : public Runtime::Observer {
   const RuntimeList& runtimes() const { return runtimes_; }
 
  private:
-  void OnRuntimeAdded(Runtime* runtime) {
+  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {
     DCHECK(runtime);
     runtimes_.push_back(runtime);
   }
 
-  void OnRuntimeRemoved(Runtime* runtime) {
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {
     DCHECK(runtime);
     RuntimeList::iterator it =
          std::find(runtimes_.begin(), runtimes_.end(), runtime);
