@@ -85,11 +85,19 @@ struct XWalkSettings::FieldIds {
   jfieldID default_video_poster_url;
 };
 
-XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj)
-    : xwalk_settings_(env, obj) {
+XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj, jint web_contents)
+    : WebContentsObserver(
+          reinterpret_cast<content::WebContents*>(web_contents)),
+      xwalk_settings_(env, obj) {
 }
 
 XWalkSettings::~XWalkSettings() {
+    JNIEnv* env = base::android::AttachCurrentThread();
+    ScopedJavaLocalRef<jobject> scoped_obj = xwalk_settings_.get(env);
+    jobject obj = scoped_obj.obj();
+    if (!obj) return;
+    Java_XWalkSettings_nativeXWalkSettingsGone(env, obj,
+                                               reinterpret_cast<jint>(this));
 }
 
 void XWalkSettings::Destroy(JNIEnv* env, jobject obj) {
@@ -103,26 +111,17 @@ XWalkRenderViewHostExt* XWalkSettings::GetXWalkRenderViewHostExt() {
   return contents->render_view_host_ext();
 }
 
-void XWalkSettings::SetWebContents(JNIEnv* env,
-                                   jobject obj,
-                                   jint jweb_contents) {
-  content::WebContents* web_contents =
-      reinterpret_cast<content::WebContents*>(jweb_contents);
-  Observe(web_contents);
-
-  UpdateEverything(env, obj);
-}
-
 void XWalkSettings::UpdateEverything() {
   JNIEnv* env = base::android::AttachCurrentThread();
   CHECK(env);
   ScopedJavaLocalRef<jobject> scoped_obj = xwalk_settings_.get(env);
   jobject obj = scoped_obj.obj();
   if (!obj) return;
-  UpdateEverything(env, obj);
+
+  Java_XWalkSettings_updateEverything(env, obj);
 }
 
-void XWalkSettings::UpdateEverything(JNIEnv* env, jobject obj) {
+void XWalkSettings::UpdateEverythingLocked(JNIEnv* env, jobject obj) {
   UpdateWebkitPreferences(env, obj);
   UpdateUserAgent(env, obj);
 }
@@ -223,8 +222,7 @@ void XWalkSettings::RenderViewCreated(
 static jint Init(JNIEnv* env,
                  jobject obj,
                  jint web_contents) {
-  XWalkSettings* settings = new XWalkSettings(env, obj);
-  settings->SetWebContents(env, obj, web_contents);
+  XWalkSettings* settings = new XWalkSettings(env, obj, web_contents);
   return reinterpret_cast<jint>(settings);
 }
 
