@@ -155,16 +155,14 @@ if __name__ == '__main__':
   args.extend(['-I' + i for i in additional_include_files(args)])
 
   # There shouldn't be a circular dependency relationship between .gyp files,
-  # but in Chromium's .gyp files, on non-Mac platforms, circular relationships
-  # currently exist.  The check for circular dependencies is currently
-  # bypassed on other platforms, but is left enabled on the Mac, where a
-  # violation of the rule causes Xcode to misbehave badly.
+  # but in Chromium's .gyp files, circular relationships currently exist.
   # TODO(mark): Find and kill remaining circular dependencies, and remove this
   # option.  http://crbug.com/35878.
   # TODO(tc): Fix circular dependencies in ChromiumOS then add linux2 to the
   # list.
-  if sys.platform not in ('darwin',):
-    args.append('--no-circular-check')
+  # TODO(tmpsantos): Make runtime a proper module and enable the circular check
+  # back for Mac.
+  args.append('--no-circular-check')
 
   # If CHROMIUM_GYP_SYNTAX_CHECK is set to 1, it will invoke gyp with --check
   # to enfore syntax checking.
