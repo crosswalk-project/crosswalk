@@ -30,10 +30,10 @@ class InterceptedRequestData;
 // obtain a new instance of the class rather than holding on to one for
 // prolonged periods of time (see note for more details).
 //
-// Note: The native AwContentsIoThreadClient instance has a Global ref to
-// the Java object. By keeping the native AwContentsIoThreadClient
+// Note: The native XWalkContentsIoThreadClient instance has a Global ref to
+// the Java object. By keeping the native XWalkContentsIoThreadClient
 // instance alive you're also prolonging the lifetime of the Java instance, so
-// don't keep a AwContentsIoThreadClient if you don't need to.
+// don't keep a XWalkContentsIoThreadClient if you don't need to.
 class XWalkContentsIoThreadClient {
  public:
   // Corresponds to WebSettings cache mode constants.
@@ -51,7 +51,7 @@ class XWalkContentsIoThreadClient {
   // with the java counter part.
   virtual bool PendingAssociation() const = 0;
 
-  // Retrieve CacheMode setting value of this AwContents.
+  // Retrieve CacheMode setting value of this XWalkContent.
   // This method is called on the IO thread only.
   virtual CacheMode GetCacheMode() const = 0;
 
@@ -67,15 +67,15 @@ class XWalkContentsIoThreadClient {
       const GURL& location,
       const net::URLRequest* request) = 0;
 
-  // Retrieve the AllowContentAccess setting value of this AwContents.
+  // Retrieve the AllowContentAccess setting value of this XWalkContent.
   // This method is called on the IO thread only.
   virtual bool ShouldBlockContentUrls() const = 0;
 
-  // Retrieve the AllowFileAccess setting value of this AwContents.
+  // Retrieve the AllowFileAccess setting value of this XWalkContent.
   // This method is called on the IO thread only.
   virtual bool ShouldBlockFileUrls() const = 0;
 
-  // Retrieve the BlockNetworkLoads setting value of this AwContents.
+  // Retrieve the BlockNetworkLoads setting value of this XWalkContent.
   // This method is called on the IO thread only.
   virtual bool ShouldBlockNetworkLoads() const = 0;
 

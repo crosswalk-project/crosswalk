@@ -30,7 +30,7 @@ class InterceptedRequestData;
 
 class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
  public:
-  // Called when AwContents is created before there is a Java client.
+  // Called when XWalkContent is created before there is a Java client.
   static void RegisterPendingContents(content::WebContents* web_contents);
 
   // Associates the |jclient| instance (which must implement the
@@ -46,7 +46,7 @@ class XWalkContentsIoThreadClientImpl : public XWalkContentsIoThreadClient {
       const base::android::JavaRef<jobject>& jclient);
   virtual ~XWalkContentsIoThreadClientImpl() OVERRIDE;
 
-  // Implementation of AwContentsIoThreadClient.
+  // Implementation of XWalkContentsIoThreadClient.
   virtual bool PendingAssociation() const OVERRIDE;
   virtual CacheMode GetCacheMode() const OVERRIDE;
   virtual scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
