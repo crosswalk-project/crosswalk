@@ -94,6 +94,8 @@ def ParseManifest(options):
     options.name = parser.GetAppName()
   if not options.app_version:
     options.app_version = parser.GetVersion()
+  if not options.app_versionCode and not options.app_versionCodeBase:
+    options.app_versionCode = 1
   if parser.GetDescription():
     options.description = parser.GetDescription()
   if parser.GetPermissions():
@@ -157,6 +159,29 @@ def FindExtensionJars(root_path):
         extension_jars.append(extension_jar)
   return extension_jars
 
+# Follows the recommendation from
+# http://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-
+# your-apps-on-google-play-for-x86-based-android-devices-using
+def MakeVersionCode(options):
+  ''' Construct a version code'''
+  if options.app_versionCode:
+    return '--app-versionCode=%s' % options.app_versionCode
+
+  # First digit is ABI, ARM=2, x86=6
+  abi = '0'
+  if options.arch == 'arm':
+    abi = '2'
+  if options.arch == 'x86':
+    abi = '6'
+  b = '0'
+  if options.app_versionCodeBase:
+    b = str(options.app_versionCodeBase)
+    if len(b) > 7:
+      print('Version code base must be 7 digits or less: versionCodeBase=%s' % (b))
+      sys.exit(12)
+  # zero pad to 7 digits, middle digits can be used for other
+  # features, according to recommendation in URL
+  return '--app-versionCode=%s%s' % (abi, b.zfill(7))
 
 def Customize(options):
   package = '--package=org.xwalk.app.template'
@@ -168,6 +193,7 @@ def Customize(options):
   app_version = '--app-version=1.0.0'
   if options.app_version:
     app_version = '--app-version=%s' % options.app_version
+  app_versionCode = MakeVersionCode(options)
   description = ''
   if options.description:
     description = '--description=%s' % options.description
@@ -199,8 +225,8 @@ def Customize(options):
   if options.orientation:
     orientation = '--orientation=%s' % options.orientation
   cmd = ['python', 'customize.py', package,
-          name, app_version, description, icon, permissions, app_url,
-          remote_debugging, app_root, app_local_path, fullscreen_flag,
+          name, app_version, app_versionCode, description, icon, permissions, 
+          app_url, remote_debugging, app_root, app_local_path, fullscreen_flag,
           extensions_list, orientation]
   RunCommand(cmd)
 
@@ -563,6 +589,13 @@ def main(argv):
   info = ('The version name of the application. '
           'For example, --app-version=1.0.0')
   group.add_option('--app-version', help=info)
+  info = ('The version code of the application. '
+          'For example, --app-versionCode=24')
+  group.add_option('--app-versionCode', type='int', help=info)
+  info = ('The version code base of the application. Version code will '
+          'be made by adding a prefix based on architecture to the version '
+          'code base. For example, --app-versionCodeBase=24')
+  group.add_option('--app-versionCodeBase', type='int', help=info)
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
@@ -630,7 +663,7 @@ def main(argv):
       parser.error('The package name is required! '
                    'Please use "--package" option.')
     if not options.name:
-      parser.error('The APK name is required! Pleaes use "--name" option.')
+      parser.error('The APK name is required! Please use "--name" option.')
     if not ((options.app_url and not options.app_root
         and not options.app_local_path) or ((not options.app_url)
             and options.app_root and options.app_local_path)):
