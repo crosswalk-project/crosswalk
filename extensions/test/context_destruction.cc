@@ -31,7 +31,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
       : answered_(false) {
   }
 
-  ~OnceExtensionInstance() {
+  virtual ~OnceExtensionInstance() {
     base::AutoLock lock(g_contexts_destroyed_lock);
     g_contexts_destroyed++;
   }
@@ -64,7 +64,7 @@ class OnceExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     g_contexts_created++;
     return new OnceExtensionInstance();
   }

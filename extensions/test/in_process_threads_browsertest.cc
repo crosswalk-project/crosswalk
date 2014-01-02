@@ -58,7 +58,7 @@ class InProcessExtension : public XWalkExtension {
       "};");
   }
 
-  XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new InProcessExtensionInstance();
   }
 };
