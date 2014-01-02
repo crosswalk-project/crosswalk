@@ -95,6 +95,7 @@
       'application/test/application_testapi.cc',
       'application/test/application_testapi.h',
       'application/test/application_testapi_test.cc',
+      'runtime/browser/ui/taskbar_util_browsertest_win.cc',
       'runtime/browser/xwalk_download_browsertest.cc',
       'runtime/browser/xwalk_form_input_browsertest.cc',
       'runtime/browser/xwalk_runtime_browsertest.cc',
@@ -108,11 +109,6 @@
           '../base/allocator/allocator.gyp:allocator',
         ],
       }],
-      ['OS=="win"', {
-        'sources': [
-          'runtime/browser/ui/taskbar_util_browsertest.cc',
-        ],
-      }],  # OS=="win"
     ],
   }], # xwalk_browser_tests target
 }
