@@ -24,33 +24,22 @@
 #include "base/task_runner_util.h"
 #include "base/threading/thread.h"
 #include "ipc/ipc_sync_channel.h"
-#include "v8/include/v8.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
-#include "xwalk/extensions/renderer/xwalk_extension_client.h"
-#include "xwalk/extensions/renderer/xwalk_extension_module.h"
-#include "xwalk/extensions/renderer/xwalk_module_system.h"
-#include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
 #include "xwalk/extensions/xesh/xesh_v8_runner.h"
 
 
-using xwalk::extensions::XWalkExtensionClient;
 using xwalk::extensions::XWalkExtensionServer;
-using xwalk::extensions::XWalkExtensionModule;
-using xwalk::extensions::XWalkModuleSystem;
-using xwalk::extensions::XWalkNativeModule;
-using xwalk::extensions::XWalkV8ToolsModule;
 
 // Specifies which file XESh will use as input.
 const char kInputFilePath[] = "input-file";
-
 
 namespace {
 
 inline void PrintInitialInfo() {
   fprintf(stderr, "\n---- XESh: XWalk Extensions Shell ----");
   fprintf(stderr, "\nCrosswalk Version: %s\nv8 Version: %s\n", XWALK_VERSION,
-      v8::V8::GetVersion());
+      XEShV8Runner::GetV8Version());
 }
 
 inline void PrintPromptLine() {
@@ -149,9 +138,9 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
   DISALLOW_COPY_AND_ASSIGN(InputWatcher);
 };
 
-// Creates and manages the lifetime of the XWalkExtension's Framework.
-// That includes managing XWalkExtensionServer, XWalkExtensionClient,
-// XWalkModuleSystem and the IPC-related objects.
+// Creates and manages the lifetime of the native side of XWalkExtension's
+// Framework. That means managing XWalkExtensionServer and its IPC-related
+// objects.
 class ExtensionManager {
  public:
   ExtensionManager()
@@ -176,59 +165,22 @@ class ExtensionManager {
   }
 
   void Initialize(base::MessageLoopProxy* io_message_loop_proxy) {
-    IPC::ChannelHandle handle(IPC::Channel::GenerateVerifiedChannelID(
-      std::string()));
+    handle_ = IPC::Channel::GenerateVerifiedChannelID(std::string());
 
-    server_channel_.reset(new IPC::SyncChannel(handle,
+    server_channel_.reset(new IPC::SyncChannel(handle_,
         IPC::Channel::MODE_SERVER, &server_, io_message_loop_proxy, true,
         &shutdown_event_));
 
     server_.Initialize(server_channel_.get());
-
-    client_channel_.reset(new IPC::SyncChannel(handle,
-        IPC::Channel::MODE_CLIENT, &client_, io_message_loop_proxy, true,
-        &shutdown_event_));
-
-    client_.Initialize(client_channel_.get());
   }
 
-  void CreateModuleSystem(v8::Handle<v8::Context> context) {
-    XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
-    XWalkModuleSystem::SetModuleSystemInContext(
-        scoped_ptr<XWalkModuleSystem>(module_system), context);
-
-    // FIXME(jeez): Register the 'internal' native module.
-    // FIXME(jeez): Register the 'window' module (for setTimeout(), etc).
-    module_system->RegisterNativeModule("v8tools",
-        scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
-
-    CreateExtensionModules(module_system);
-    module_system->Initialize();
-  }
+  const IPC::ChannelHandle& ipc_channel_handle() { return handle_; }
 
  private:
-  void CreateExtensionModules(XWalkModuleSystem* module_system) {
-    const XWalkExtensionClient::ExtensionAPIMap& extensions =
-        client_.extension_apis();
-    XWalkExtensionClient::ExtensionAPIMap::const_iterator it =
-        extensions.begin();
-    for (; it != extensions.end(); ++it) {
-      XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
-      if (codepoint->api.empty())
-        continue;
-      scoped_ptr<XWalkExtensionModule> module(
-          new XWalkExtensionModule(&client_, module_system, it->first,
-                                   codepoint->api));
-      module_system->RegisterExtensionModule(module.Pass(),
-                                             codepoint->entry_points);
-    }
-  }
-
+  IPC::ChannelHandle handle_;
   base::WaitableEvent shutdown_event_;
   XWalkExtensionServer server_;
-  XWalkExtensionClient client_;
   scoped_ptr<IPC::SyncChannel> server_channel_;
-  scoped_ptr<IPC::SyncChannel> client_channel_;
 };
 }  // namespace
 
@@ -249,33 +201,20 @@ int main(int argc, char* argv[]) {
   extension_manager.LoadExtensions();
   extension_manager.Initialize(io_thread.message_loop_proxy());
 
-  v8::V8::InitializeICU();
-  v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
-  v8::Isolate* isolate = v8::Isolate::GetCurrent();
-  {
-    v8::HandleScope handle_scope(isolate);
-    v8::Handle<v8::Context> context = v8::Context::New(isolate);
-    if (context.IsEmpty()) {
-      fprintf(stderr, "Error creating v8::context.\n");
-      return 1;
-    }
-    v8::Context::Scope context_scope(context);
-    XEShV8Runner v8_runner(context);
+  XEShV8Runner v8_runner;
+  v8_runner.Initialize(argc, argv, io_thread.message_loop_proxy(),
+      extension_manager.ipc_channel_handle());
 
-    extension_manager.CreateModuleSystem(context);
+  InputWatcher input_watcher(&v8_runner, &main_message_loop);
+  static_cast<base::MessageLoopForIO*>(io_thread.message_loop())->PostTask(
+      FROM_HERE, base::Bind(&InputWatcher::StartWatching,
+      base::Unretained(&input_watcher)));
 
-    InputWatcher input_watcher(&v8_runner, &main_message_loop);
+  PrintPromptLine();
+  base::RunLoop run_loop;
+  run_loop.Run();
 
-    static_cast<base::MessageLoopForIO*>(io_thread.message_loop())->PostTask(
-        FROM_HERE, base::Bind(&InputWatcher::StartWatching,
-        base::Unretained(&input_watcher)));
-
-    PrintPromptLine();
-    base::RunLoop run_loop;
-    run_loop.Run();
-  }
-
-  v8::V8::Dispose();
+  v8_runner.Shutdown();
   io_thread.Stop();
   return 0;
 }
