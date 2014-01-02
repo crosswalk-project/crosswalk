@@ -48,7 +48,13 @@ RunningApplicationObject::RunningApplicationObject(
     : bus_(bus),
       launcher_name_(launcher_name),
       application_(application),
-      dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)) {
+      dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)),
+      watching_launcher_(true) {
+  bus_->ListenForServiceOwnerChange(
+      launcher_name_,
+      base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
+                 base::Unretained(this)));
+
   properties()->Set(
       kRunningApplicationDBusInterface, "AppID",
       scoped_ptr<base::Value>(base::Value::CreateStringValue(app_id)));
@@ -62,10 +68,17 @@ RunningApplicationObject::RunningApplicationObject(
 }
 
 RunningApplicationObject::~RunningApplicationObject() {
-  CloseApplication();
+  if (watching_launcher_)
+    CloseApplication();
 }
 
 void RunningApplicationObject::CloseApplication() {
+  bus_->UnlistenForServiceOwnerChange(
+      launcher_name_,
+      base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
+                 base::Unretained(this)));
+  watching_launcher_ = false;
+
   application_->Close();
 }
 
@@ -87,6 +100,19 @@ void RunningApplicationObject::OnTerminate(
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
   response_sender.Run(response.Pass());
+}
+
+void RunningApplicationObject::OnNameOwnerChanged(
+    const std::string& service_owner) {
+  if (service_owner.empty()) {
+    // The process that sent the 'Launch' message has exited the session bus,
+    // we should kill the Running Application.
+    OnLauncherDisappeared();
+  }
+}
+
+void RunningApplicationObject::OnLauncherDisappeared() {
+  CloseApplication();
 }
 
 }  // namespace application

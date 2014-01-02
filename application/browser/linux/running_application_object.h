@@ -37,9 +37,14 @@ class RunningApplicationObject : public dbus::ManagedObject {
   void OnTerminate(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
+  void OnNameOwnerChanged(const std::string& service_owner);
+
+  void OnLauncherDisappeared();
+
   scoped_refptr<dbus::Bus> bus_;
   std::string launcher_name_;
   Application* application_;
+  bool watching_launcher_;
 };
 
 }  // namespace application
