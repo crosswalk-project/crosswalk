@@ -8,6 +8,8 @@ Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}.tar
 Source1:        xwalk
+Source2:        org.crosswalkproject.Runtime1.service
+Source3:        xwalk.service
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
@@ -89,6 +91,8 @@ This package contains additional support files that are needed for running Cross
 
 %define _manifestdir /usr/share/packages
 %define _desktop_icondir /usr/share/icons/default/small
+%define _dbusservicedir /usr/share/dbus-1/services
+%define _systemduserservicedir /usr/lib/systemd/user
 
 %prep
 %setup -q -n crosswalk
@@ -191,6 +195,8 @@ cd src
 
 # Binaries.
 install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
+install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
+install -p -D %{SOURCE3} %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
@@ -217,6 +223,8 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %{_libdir}/xwalk/xwalk.pak
 %{_manifestdir}/%{name}.xml
 %{_desktop_icondir}/%{name}.png
+%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
+%{_systemduserservicedir}/xwalk.service
 
 %files emulator-support
 %{_libdir}/xwalk/libosmesa.so

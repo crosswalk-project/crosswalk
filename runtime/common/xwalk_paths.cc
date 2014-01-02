@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
@@ -30,7 +31,11 @@ base::FilePath GetConfigPath() {
 #endif
 
 bool GetXWalkDataPath(base::FilePath* path) {
-  base::FilePath::StringType xwalk_suffix = FILE_PATH_LITERAL("xwalk");
+  base::FilePath::StringType xwalk_suffix;
+  if (XWalkRunner::GetInstance()->is_running_as_service())
+    xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
+  else
+    xwalk_suffix = FILE_PATH_LITERAL("xwalk");
   base::FilePath cur;
 
 #if defined(OS_WIN)
@@ -38,7 +43,10 @@ bool GetXWalkDataPath(base::FilePath* path) {
   cur = cur.Append(xwalk_suffix);
 
 #elif defined(OS_TIZEN_MOBILE)
-  cur = base::FilePath("/opt/usr/apps");
+  if (XWalkRunner::GetInstance()->is_running_as_service())
+    cur = GetConfigPath().Append(xwalk_suffix);
+  else
+    cur = base::FilePath("/opt/usr/apps");
 
 #elif defined(OS_LINUX)
   cur = GetConfigPath().Append(xwalk_suffix);
