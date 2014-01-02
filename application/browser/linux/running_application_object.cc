@@ -95,6 +95,16 @@ void RunningApplicationObject::OnExported(const std::string& interface_name,
 void RunningApplicationObject::OnTerminate(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
+  // We only allow the caller of Launch() to call Terminate().
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+
   CloseApplication();
 
   scoped_ptr<dbus::Response> response =
