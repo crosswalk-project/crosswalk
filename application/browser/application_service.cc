@@ -123,8 +123,8 @@ void WaitForFinishLoad(
     xwalk::application::ApplicationEventManager* event_manager_;
   };
 
-  CloseAfterLoadObserver* observer =
-      new CloseAfterLoadObserver(application, event_manager, contents);
+  // This object is self-destroyed when an event occurs.
+  new CloseAfterLoadObserver(application, event_manager, contents);
 }
 
 #if defined(OS_TIZEN_MOBILE)
