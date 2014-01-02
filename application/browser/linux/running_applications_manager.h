@@ -15,6 +15,11 @@
 namespace xwalk {
 namespace application {
 
+class RunningApplicationObject;
+class Application;
+
+dbus::ObjectPath GetRunningPathForAppID(const std::string& app_id);
+
 // Holds the D-Bus representation of the set of installed applications. This is
 // the entry point for launching applications and listing currently running
 // applications.
@@ -22,7 +27,7 @@ namespace application {
 // The exported object implements org.freedesktop.DBus.ObjectManager, and the
 // interface org.crosswalkproject.Installed.Manager1 (see .cc file for
 // description).
-class RunningApplicationsManager {
+class RunningApplicationsManager : public ApplicationService::Observer {
  public:
   RunningApplicationsManager(scoped_refptr<dbus::Bus> bus,
                              ApplicationService* service);
@@ -33,16 +38,15 @@ class RunningApplicationsManager {
   void OnLaunch(dbus::MethodCall* method_call,
                 dbus::ExportedObject::ResponseSender response_sender);
 
-  // org.crosswalkproject.Running.Application1 interface.
-  void OnTerminate(dbus::ManagedObject* object,
-                   dbus::MethodCall* method_call,
-                   dbus::ExportedObject::ResponseSender response_sender);
-
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
 
-  void AddObject(const std::string& app_id);
+  void WillDestroyApplication(Application* app);
+
+  dbus::ObjectPath AddObject(const std::string& app_id,
+                             const std::string& launcher_name,
+                             Application* application);
 
   base::WeakPtrFactory<RunningApplicationsManager> weak_factory_;
   ApplicationService* application_service_;
