@@ -7,7 +7,8 @@
 
 // This is the XWalk Extensions Shell. It implements a simple javascript shell,
 // based on V8, that can load XWalk Extensions for testing purposes.
-// It is a single process application which runs with two threads (main and IO).
+// It is a single process application which runs with three threads (main, IO
+// and v8).
 // The overall implementation started upon v8/samples/shell.cc .
 
 #include <unistd.h>
@@ -77,10 +78,10 @@ std::string ReadLine() {
 // and then it will start listening to stdin again.
 class InputWatcher : public base::MessagePumpLibevent::Watcher {
  public:
-  InputWatcher(XEShV8Runner* v8_runner, base::MessageLoop* main_loop)
+  InputWatcher(XEShV8Runner* v8_runner, base::MessageLoop* v8_loop)
     : is_waiting_v8_runner_(false),
       v8_runner_(v8_runner),
-      main_message_loop_(main_loop) {}
+      v8_message_loop_(v8_loop) {}
 
   virtual ~InputWatcher() {}
 
@@ -116,7 +117,7 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
   void CallV8ExecuteString(std::string statement) {
     is_waiting_v8_runner_ = true;
 
-    PostTaskAndReplyWithResult(main_message_loop_->message_loop_proxy(),
+    PostTaskAndReplyWithResult(v8_message_loop_->message_loop_proxy(),
         FROM_HERE,
         base::Bind(&XEShV8Runner::ExecuteString, base::Unretained(v8_runner_),
             statement),
@@ -132,7 +133,7 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
 
   bool is_waiting_v8_runner_;
   XEShV8Runner* v8_runner_;
-  base::MessageLoop* main_message_loop_;
+  base::MessageLoop* v8_message_loop_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
 
   DISALLOW_COPY_AND_ASSIGN(InputWatcher);
@@ -197,15 +198,22 @@ int main(int argc, char* argv[]) {
   io_thread.StartWithOptions(base::Thread::Options(base::MessageLoop::TYPE_IO,
       0));
 
+  base::Thread v8_thread("XESh_V8Thread");
+  v8_thread.StartWithOptions(base::Thread::Options(
+      base::MessageLoop::TYPE_DEFAULT, 0));
+
   ExtensionManager extension_manager;
   extension_manager.LoadExtensions();
   extension_manager.Initialize(io_thread.message_loop_proxy());
 
   XEShV8Runner v8_runner;
-  v8_runner.Initialize(argc, argv, io_thread.message_loop_proxy(),
-      extension_manager.ipc_channel_handle());
+  static_cast<base::MessageLoopForIO*>(v8_thread.message_loop())->PostTask(
+      FROM_HERE, base::Bind(&XEShV8Runner::Initialize,
+      base::Unretained(&v8_runner), argc, argv, io_thread.message_loop_proxy(),
+      extension_manager.ipc_channel_handle()));
 
-  InputWatcher input_watcher(&v8_runner, &main_message_loop);
+  InputWatcher input_watcher(&v8_runner, v8_thread.message_loop());
+
   static_cast<base::MessageLoopForIO*>(io_thread.message_loop())->PostTask(
       FROM_HERE, base::Bind(&InputWatcher::StartWatching,
       base::Unretained(&input_watcher)));
@@ -214,7 +222,11 @@ int main(int argc, char* argv[]) {
   base::RunLoop run_loop;
   run_loop.Run();
 
-  v8_runner.Shutdown();
+  static_cast<base::MessageLoopForIO*>(v8_thread.message_loop())->PostTask(
+      FROM_HERE, base::Bind(&XEShV8Runner::Shutdown,
+      base::Unretained(&v8_runner)));
+
   io_thread.Stop();
+  v8_thread.Stop();
   return 0;
 }

@@ -29,6 +29,7 @@ using xwalk::extensions::XWalkModuleSystem;
 // Creates and manages the lifetime of the JS side of XWalkExtension's
 // Framework and all v8 related entities. That means managing
 // XWalkExtensionClient, XWalkModuleSystem and the v8::Context.
+// This class will live on the v8 thread.
 class XEShV8Runner {
  public:
   XEShV8Runner();
