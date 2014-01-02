@@ -303,7 +303,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
 
 Application* ApplicationService::Launch(const std::string& id) {
   scoped_refptr<ApplicationData> application_data =
-          application_storage_->GetApplicationData(id);
+    application_storage_->GetApplicationData(id);
   if (!application_data) {
     LOG(ERROR) << "Application with id " << id << " is not installed.";
     return NULL;
@@ -367,9 +367,18 @@ namespace {
 struct ApplicationRenderHostIDComparator {
     explicit ApplicationRenderHostIDComparator(int id) : id(id) { }
     bool operator() (Application* application) {
-       return id == application->GetRenderProcessHostID();
+      return id == application->GetRenderProcessHostID();
     }
     int id;
+};
+
+struct ApplicationIDComparator {
+    explicit ApplicationIDComparator(const std::string& app_id)
+      : app_id(app_id) { }
+    bool operator() (Application* application) {
+      return app_id == application->id();
+    }
+    std::string app_id;
 };
 
 }  // namespace
@@ -377,7 +386,17 @@ struct ApplicationRenderHostIDComparator {
 Application* ApplicationService::GetApplicationByRenderHostID(int id) const {
   ApplicationRenderHostIDComparator comparator(id);
   ScopedVector<Application>::const_iterator found = std::find_if(
-                applications_.begin(), applications_.end(), comparator);
+      applications_.begin(), applications_.end(), comparator);
+  if (found != applications_.end())
+    return *found;
+  return NULL;
+}
+
+Application* ApplicationService::GetApplicationByID(
+    const std::string& app_id) const {
+  ApplicationIDComparator comparator(app_id);
+  ScopedVector<Application>::const_iterator found = std::find_if(
+      applications_.begin(), applications_.end(), comparator);
   if (found != applications_.end())
     return *found;
   return NULL;
@@ -394,7 +413,7 @@ void ApplicationService::RemoveObserver(Observer* observer) {
 void ApplicationService::OnApplicationTerminated(
                                       Application* application) {
   ScopedVector<Application>::iterator found = std::find(
-            applications_.begin(), applications_.end(), application);
+      applications_.begin(), applications_.end(), application);
   CHECK(found != applications_.end());
   FOR_EACH_OBSERVER(Observer, observers_,
                     WillDestroyApplication(application));

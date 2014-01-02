@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/files/file_path.h"
@@ -25,6 +26,7 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -33,11 +35,14 @@
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 
+using content::BrowserThread;
 using content::ResourceRequestInfo;
-using xwalk::application::ApplicationData;
-using xwalk::application::CSPInfo;
-using xwalk::application::MainDocumentInfo;
-namespace keys = xwalk::application_manifest_keys;
+
+namespace xwalk {
+
+namespace keys = application_manifest_keys;
+
+namespace application {
 
 namespace {
 
@@ -132,7 +137,7 @@ class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
 };
 
 void ReadResourceFilePath(
-    const xwalk::application::ApplicationResource& resource,
+    const ApplicationResource& resource,
     base::FilePath* file_path) {
   *file_path = resource.GetFilePath();
 }
@@ -196,16 +201,52 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   base::FilePath relative_path_;
   std::string content_security_policy_;
   bool is_authority_match_;
-  xwalk::application::ApplicationResource resource_;
+  ApplicationResource resource_;
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
+};
+
+// This class is a thread-safe cache of active application's data.
+// This class is used by ApplicationProtocolHandler as it lives on IO thread
+// and hence cannot access ApplicationService directly.
+class ApplicationDataCache : public ApplicationService::Observer {
+ public:
+  scoped_refptr<ApplicationData> GetApplicationData(
+      const std::string& application_id) const {
+    base::AutoLock lock(lock_);
+    ApplicationData::ApplicationDataMap::const_iterator it =
+        cache_.find(application_id);
+    if (it != cache_.end()) {
+      return it->second;
+    }
+    return NULL;
+  }
+
+  virtual void DidLaunchApplication(Application* app) OVERRIDE {
+    base::AutoLock lock(lock_);
+    cache_.insert(std::pair<std::string, scoped_refptr<ApplicationData> >(
+        app->id(), app->data()));
+  }
+
+  virtual void WillDestroyApplication(Application* app) OVERRIDE {
+    base::AutoLock lock(lock_);
+    cache_.erase(app->id());
+  }
+
+ private:
+  ApplicationData::ApplicationDataMap cache_;
+  mutable base::Lock lock_;
 };
 
 class ApplicationProtocolHandler
     : public net::URLRequestJobFactory::ProtocolHandler {
  public:
-  explicit ApplicationProtocolHandler(const ApplicationData* application)
-    : application_(application) {
-    CHECK(application_);
+  explicit ApplicationProtocolHandler(ApplicationService* service) {
+    DCHECK(service);
+    DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+    // ApplicationProtocolHandler lives longer than ApplicationService,
+    // so we do not need to remove cache_ from ApplicationService
+    // observers list.
+    service->AddObserver(&cache_);
   }
 
   virtual ~ApplicationProtocolHandler() {}
@@ -215,41 +256,43 @@ class ApplicationProtocolHandler
       net::NetworkDelegate* network_delegate) const OVERRIDE;
 
  private:
-  const ApplicationData* application_;
+  ApplicationDataCache cache_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationProtocolHandler);
 };
 
 net::URLRequestJob*
 ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
-  std::string application_id = request->url().host();
-
-  bool is_authority_match = application_id == application_->ID();
+  const std::string& application_id = request->url().host();
+  scoped_refptr<ApplicationData> application =
+      cache_.GetApplicationData(application_id);
   base::FilePath relative_path =
-      xwalk::application::ApplicationURLToRelativeFilePath(request->url());
+      ApplicationURLToRelativeFilePath(request->url());
   base::FilePath directory_path;
-  if (is_authority_match)
-    directory_path = application_->Path();
-
   std::string content_security_policy;
-  const CSPInfo* csp_info = static_cast<CSPInfo*>(
-      application_->GetManifestData(keys::kCSPKey));
-  if (csp_info) {
-    const std::map<std::string, std::vector<std::string> >& policies =
-        csp_info->GetDirectives();
-    for (std::map<std::string, std::vector<std::string> >::const_iterator it =
-             policies.begin(); it != policies.end(); ++it) {
-      content_security_policy += base::StringPrintf(
-          "%s %s;", (it->first).c_str(), JoinString(it->second, ' ').c_str());
+  if (application) {
+    directory_path = application->Path();
+
+    const CSPInfo* csp_info = static_cast<CSPInfo*>(
+      application->GetManifestData(keys::kCSPKey));
+    if (csp_info) {
+      const std::map<std::string, std::vector<std::string> >& policies =
+          csp_info->GetDirectives();
+      std::map<std::string, std::vector<std::string> >::const_iterator it =
+          policies.begin();
+      for (; it != policies.end(); ++it) {
+        content_security_policy.append(
+            it->first + ' ' + JoinString(it->second, ' ') + ';');
+      }
     }
   }
 
-  std::string path = request->url().path();
-  if (is_authority_match &&
+  const std::string& path = request->url().path();
+  if (application &&
       path.size() > 1 &&
-      path.substr(1) == xwalk::application::kGeneratedMainDocumentFilename) {
+      path.substr(1) == kGeneratedMainDocumentFilename) {
     return new GeneratedMainDocumentJob(request, network_delegate,
-                                        relative_path, application_,
+                                        relative_path, application,
                                         content_security_policy);
   }
 
@@ -263,13 +306,16 @@ ApplicationProtocolHandler::MaybeCreateJob(
       directory_path,
       relative_path,
       content_security_policy,
-      is_authority_match);
+      application);
 }
 
 }  // namespace
 
 linked_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateApplicationProtocolHandler(const ApplicationData* application) {
-  return  linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new ApplicationProtocolHandler(application));
+CreateApplicationProtocolHandler(ApplicationService* service) {
+  return linked_ptr<net::URLRequestJobFactory::ProtocolHandler>(
+      new ApplicationProtocolHandler(service));
 }
+
+}  // namespace application
+}  // namespace xwalk
