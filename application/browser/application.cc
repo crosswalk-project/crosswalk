@@ -8,6 +8,8 @@
 
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
@@ -72,8 +74,8 @@ bool Application::Launch() {
     return false;
   }
 
-  if (RunMainDocument())
-    return true;
+  if (HasMainDocument())
+    return RunMainDocument();
   // NOTE: For now we allow launching a web app from a local path. This may go
   // away at some point.
   return RunFromLocalPath();
@@ -83,7 +85,7 @@ void Application::Close() {
   std::set<Runtime*> cached(runtimes_);
   std::set<Runtime*>::iterator it = cached.begin();
   for (; it!= cached.end(); ++it)
-    if (main_runtime_ != *it)
+    if (!HasMainDocument() || main_runtime_ != *it)
       (*it)->Close();
 }
 
@@ -101,7 +103,7 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
     return;
   }
 
-  if (runtimes_.size() == 1 &&
+  if (runtimes_.size() == 1 && HasMainDocument() &&
       ContainsKey(runtimes_, main_runtime_)) {
     ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
     ApplicationEventManager* event_manager = system->event_manager();
@@ -130,11 +132,13 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
 bool Application::RunMainDocument() {
   const MainDocumentInfo* main_info =
       ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info || !main_info->GetMainURL().is_valid())
+  DCHECK(main_info);
+  if (!main_info->GetMainURL().is_valid())
     return false;
 
-  main_runtime_ = Runtime::Create(runtime_context_,
-                                  main_info->GetMainURL(), this);
+  main_runtime_ = Runtime::Create(runtime_context_, this);
+  main_runtime_->LoadURL(main_info->GetMainURL());
+
   ApplicationEventManager* event_manager =
       XWalkRunner::GetInstance()->app_system()->event_manager();
   event_manager->OnMainDocumentCreated(
@@ -150,6 +154,15 @@ void Application::CloseMainDocument() {
   main_runtime_ = NULL;
 }
 
+Runtime* Application::GetMainDocumentRuntime() const {
+  return HasMainDocument() ? main_runtime_ : NULL;
+}
+
+int Application::GetRenderProcessHostID() const {
+  return main_runtime_->web_contents()->
+          GetRenderProcessHost()->GetID();
+}
+
 bool Application::RunFromLocalPath() {
   const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
@@ -160,8 +173,12 @@ bool Application::RunFromLocalPath() {
       LOG(WARNING) << "Can't find a valid local path URL for app.";
       return false;
     }
-
-    Runtime::CreateWithDefaultWindow(runtime_context_, url, this);
+    // main_runtime_ should be initialized before 'LoadURL' call,
+    // so that it is in place already when application extensions
+    // are created.
+    main_runtime_= Runtime::Create(runtime_context_, this);
+    main_runtime_->LoadURL(url);
+    main_runtime_->AttachDefaultWindow();
     return true;
   }
 

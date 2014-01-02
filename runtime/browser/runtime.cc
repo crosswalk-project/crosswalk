@@ -65,6 +65,16 @@ Runtime* Runtime::CreateWithDefaultWindow(
 }
 
 // static
+Runtime* Runtime::Create(
+    RuntimeContext* runtime_context, Observer* observer) {
+  WebContents::CreateParams params(runtime_context, NULL);
+  params.routing_id = MSG_ROUTING_NONE;
+  WebContents* web_contents = WebContents::Create(params);
+
+  return new Runtime(web_contents, observer);
+}
+
+// static
 void Runtime::SetGlobalObserverForTesting(Observer* observer) {
   g_observer_for_testing = observer;
 }

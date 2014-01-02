@@ -31,15 +31,12 @@ class Manifest;
 // Application instances are owned by ApplicationService.
 // ApplicationService will delete an Application instance when it is
 // terminated.
-// FIXME(Mikhail): Add information about the relationship of the Application
-// and the render process.
+// There's one-to-one correspondence between Application and Render Process
+// Host, obtained from its "runtimes" (pages).
 class Application : public Runtime::Observer {
  public:
   virtual ~Application();
-  // Returns the unique application id which is used to distinguish the
-  // application amoung both running applications and installed ones
-  // (ApplicationData objects).
-  std::string id() const { return application_data_->ID(); }
+
   class Observer {
    public:
     // Invoked when application is terminated - all its pages (runtimes)
@@ -59,9 +56,16 @@ class Application : public Runtime::Observer {
   // if application has different entry point (local path manifest key).
   // See http://anssiko.github.io/runtime/app-lifecycle.html#dfn-main-document
   // The main document never has a visible window on its own.
-  Runtime* GetMainDocumentRuntime() const { return main_runtime_; }
+  Runtime* GetMainDocumentRuntime() const;
 
   const std::set<Runtime*>& runtimes() const { return runtimes_; }
+
+  // Returns the unique application id which is used to distinguish the
+  // application amoung both running applications and installed ones
+  // (ApplicationData objects).
+  std::string id() const { return application_data_->ID(); }
+  bool HasMainDocument() const { return application_data_->HasMainDocument(); }
+  int GetRenderProcessHostID() const;
 
   const ApplicationData* data() const { return application_data_; }
   ApplicationData* data() { return application_data_; }

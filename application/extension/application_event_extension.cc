@@ -14,10 +14,7 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
-#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 
@@ -25,40 +22,37 @@ namespace xwalk {
 namespace application {
 
 ApplicationEventExtension::ApplicationEventExtension(
-    ApplicationSystem* system)
-  : application_system_(system) {
+    ApplicationEventManager* event_manager,
+    ApplicationStorage* app_storage,
+    Application* app)
+  : event_manager_(event_manager),
+    app_storage_(app_storage),
+    application_(app) {
   set_name("xwalk.app.events");
   set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
       IDR_XWALK_APPLICATION_EVENT_API).as_string());
 }
 
 XWalkExtensionInstance* ApplicationEventExtension::CreateInstance() {
-  ApplicationService* service = application_system_->application_service();
-
   int main_routing_id = MSG_ROUTING_NONE;
-  // FIXME: return corresponding application info after shared runtime process
-  // model is enabled.
-  const Application* app = service->GetActiveApplication();
-  CHECK(app);
 
-  if (Runtime* runtime = app->GetMainDocumentRuntime())
+  if (Runtime* runtime = application_->GetMainDocumentRuntime())
     main_routing_id = runtime->web_contents()->GetRoutingID();
 
-  return new AppEventExtensionInstance(
-      application_system_,
-      app->id(), main_routing_id);
+  return new AppEventExtensionInstance(event_manager_, app_storage_,
+                                       application_, main_routing_id);
 }
 
 AppEventExtensionInstance::AppEventExtensionInstance(
-    ApplicationSystem* system,
-    const std::string& app_id,
+    ApplicationEventManager* event_manager,
+    ApplicationStorage* app_storage,
+    Application* app,
     int main_routing_id)
-  : EventObserver(system ? system->event_manager(): NULL),
-    app_system_(system),
-    app_id_(app_id),
+  : EventObserver(event_manager),
+    app_storage_(app_storage),
+    application_(app),
     main_routing_id_(main_routing_id),
     handler_(this) {
-  DCHECK(app_system_);
   handler_.Register("registerEvent",
                     base::Bind(&AppEventExtensionInstance::OnRegisterEvent,
                     base::Unretained(this)));
@@ -93,25 +87,24 @@ void AppEventExtensionInstance::OnRegisterEvent(
   if (!ContainsKey(registered_events_, event_name)) {
     registered_events_.insert(
         std::make_pair(event_name, info->post_result_cb()));
-    event_manager_->AttachObserver(app_id_, event_name, this);
+    event_manager_->AttachObserver(application_->id(), event_name, this);
 
     if (routing_id != main_routing_id_)
       return;
 
-    // If the event is from main document, add it into system database.
-    application::ApplicationStorage* app_storage =
-        app_system_->application_storage();
-    scoped_refptr<application::ApplicationData> app_data =
-        app_storage->GetApplicationData(app_id_);
+    // Check that application is present in the storage (installed app).
+    scoped_refptr<ApplicationData> app_data =
+        app_storage_->GetApplicationData(application_->id());
     if (!app_data)
       return;
 
+    // If the event is from main document, add it into system database.
     std::set<std::string> events = app_data->GetEvents();
     if (ContainsKey(events, event_name))
       return;
     events.insert(event_name);
     app_data->SetEvents(events);
-    app_storage->UpdateApplication(app_data);
+    app_storage_->UpdateApplication(app_data);
   }
 }
 
@@ -128,14 +121,12 @@ void AppEventExtensionInstance::OnUnregisterEvent(
     return;
 
   registered_events_.erase(event_name);
-  event_manager_->DetachObserver(app_id_, event_name, this);
+  event_manager_->DetachObserver(application_->id(), event_name, this);
 
   // If the event is from main document, remove it from system database.
   if (routing_id == main_routing_id_) {
-    application::ApplicationStorage* app_storage =
-        app_system_->application_storage();
-    scoped_refptr<application::ApplicationData> app_data =
-        app_storage->GetApplicationData(app_id_);
+    scoped_refptr<ApplicationData> app_data =
+        app_storage_->GetApplicationData(application_->id());
     if (!app_data)
       return;
 
@@ -144,7 +135,7 @@ void AppEventExtensionInstance::OnUnregisterEvent(
       return;
     events.erase(event_name);
     app_data->SetEvents(events);
-    app_storage->UpdateApplication(app_data);
+    app_storage_->UpdateApplication(app_data);
   }
 }
 
@@ -159,12 +150,12 @@ void AppEventExtensionInstance::OnDispatchEventFinish(
   args->AppendString(event_name);
   scoped_refptr<Event> event = Event::CreateEvent(
       kOnJavaScriptEventAck, args.Pass());
-  event_manager_->SendEvent(app_id_, event);
+  event_manager_->SendEvent(application_->id(), event);
 }
 
 void AppEventExtensionInstance::Observe(
     const std::string& app_id, scoped_refptr<Event> event) {
-  DCHECK(app_id_ == app_id);
+  DCHECK(application_->id() == app_id);
   EventCallbackMap::iterator it = registered_events_.find(event->name());
   if (it == registered_events_.end())
     return;
