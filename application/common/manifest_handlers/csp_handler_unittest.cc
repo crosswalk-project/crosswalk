@@ -38,7 +38,9 @@ class CSPHandlerTest: public testing::Test {
   base::DictionaryValue manifest;
 };
 
-TEST_F(CSPHandlerTest, NoCSP) {
+// FIXME: the default CSP policy settings in CSP manifest handler
+// are temporally removed, since they had affected some tests and legacy apps.
+TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 2);
