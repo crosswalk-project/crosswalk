@@ -47,6 +47,17 @@ class Application : public Runtime::Observer {
     virtual ~Observer() {}
   };
 
+  // Manifest keys that can be used as application entry points.
+  enum LaunchEntryPoint {
+    AppMainKey = 1 << 0,  // app.main
+    LaunchLocalPathKey = 1 << 1,  // app.launch.local_path
+    LaunchWebURLKey = 1 << 2,  // app.launch.web_url
+    Default = AppMainKey | LaunchLocalPathKey
+  };
+  typedef unsigned LaunchEntryPoints;
+
+  LaunchEntryPoints entry_points() const { return entry_points_; }
+
   // Closes all the application's runtimes (application pages).
   void Close();
 
@@ -82,9 +93,11 @@ class Application : public Runtime::Observer {
               Observer* observer);
   bool Launch();
 
+  template<LaunchEntryPoint>
+  bool TryLaunchAt();
+  void set_entry_points(LaunchEntryPoints entry_points);
+
   friend class FinishEventObserver;
-  bool RunMainDocument();
-  bool RunFromLocalPath();
   void CloseMainDocument();
   bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
 
@@ -94,6 +107,7 @@ class Application : public Runtime::Observer {
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
+  LaunchEntryPoints entry_points_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };
