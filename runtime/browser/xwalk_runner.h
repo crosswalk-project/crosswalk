@@ -32,7 +32,10 @@ class XWalkExtensionService;
 // subsystems of Crosswalk.
 class XWalkRunner {
  public:
+  // Read the comments below before using this. Relying too much on this
+  // accessor makes the code harder to change and harder to reason about.
   static XWalkRunner* GetInstance();
+
   virtual ~XWalkRunner();
 
   // All sub objects should have their dependencies passed during their
