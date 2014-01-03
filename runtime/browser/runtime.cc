@@ -14,7 +14,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/ui/color_chooser.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "content/public/browser/navigation_entry.h"
@@ -350,8 +350,7 @@ void Runtime::RequestMediaAccessPermission(
 void Runtime::RenderProcessGone(base::TerminationStatus status) {
   content::RenderProcessHost* rph = web_contents_->GetRenderProcessHost();
   VLOG(1) << "RenderProcess id: " << rph->GetID() << " is gone!";
-
-  XWalkContentBrowserClient::Get()->RenderProcessHostGone(rph);
+  XWalkRunner::GetInstance()->OnRenderProcessHostGone(rph);
 }
 
 

@@ -67,9 +67,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
   void UnregisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
 #endif
-  extensions::XWalkExtensionService* extension_service() {
-    return extension_service_.get();
-  }
 
  protected:
   void RegisterExternalExtensions();
@@ -78,7 +75,7 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
 
   RuntimeContext* runtime_context_;
 
-  scoped_ptr<extensions::XWalkExtensionService> extension_service_;
+  extensions::XWalkExtensionService* extension_service_;
   scoped_ptr<sysapps::SysAppsManager> sysapps_manager_;
 
   // Should be about:blank If no URL is specified in command line arguments.

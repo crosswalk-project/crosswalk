@@ -9,6 +9,7 @@
 
 namespace content {
 class ContentBrowserClient;
+class RenderProcessHost;
 }
 
 class XWalkTestSuiteInitializer;
@@ -16,10 +17,15 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class RuntimeContext;
+class XWalkContentBrowserClient;
 
 namespace application {
 class ApplicationSystem;
 }
+
+namespace extensions {
+class XWalkExtensionService;
+};
 
 // Main object for the Browser Process execution in Crosswalk. It is created and
 // owned by XWalkMainDelegate. It's role is to own, setup and teardown all the
@@ -49,6 +55,9 @@ class XWalkRunner {
   //   need to reach them some way.
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
   application::ApplicationSystem* app_system() { return app_system_.get(); }
+  extensions::XWalkExtensionService* extension_service() {
+    return extension_service_.get();
+  }
 
   // Return true if Crosswalk is running in service mode, i.e. taking
   // requests from native IPC mechanism to launch applications.
@@ -65,6 +74,19 @@ class XWalkRunner {
   friend class XWalkMainDelegate;
   friend class ::XWalkTestSuiteInitializer;
 
+  // To track OnRenderProcessHostGone.
+  friend class Runtime;
+
+  // This class acts as an "arm" of XWalkRunner to fulfill Content API needs,
+  // it may call us back in some situations where the a more wider view of the
+  // objects is necessary, e.g. during render process lifecycle callbacks.
+  friend class XWalkContentBrowserClient;
+
+  // We track the render process lifecycle to register Crosswalk
+  // extensions. Some subsystems are mostly implemented using extensions.
+  void OnRenderProcessHostCreated(content::RenderProcessHost* host);
+  void OnRenderProcessHostGone(content::RenderProcessHost* host);
+
   // Create the XWalkRunner object. We use a factory function so that we can
   // switch the concrete class on compile time based on the platform, separating
   // the per-platform behavior and data in the subclasses.
@@ -74,9 +96,10 @@ class XWalkRunner {
   // rely directly on this object.
   content::ContentBrowserClient* GetContentBrowserClient();
 
-  scoped_ptr<content::ContentBrowserClient> content_browser_client_;
+  scoped_ptr<XWalkContentBrowserClient> content_browser_client_;
   scoped_ptr<RuntimeContext> runtime_context_;
   scoped_ptr<application::ApplicationSystem> app_system_;
+  scoped_ptr<extensions::XWalkExtensionService> extension_service_;
 
   bool is_running_as_service_;
 

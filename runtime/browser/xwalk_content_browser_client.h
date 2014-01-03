@@ -26,14 +26,15 @@ class URLRequestContextGetter;
 
 namespace xwalk {
 
-class XWalkBrowserMainParts;
 class RuntimeContext;
+class XWalkBrowserMainParts;
+class XWalkRunner;
 
 class XWalkContentBrowserClient : public content::ContentBrowserClient {
  public:
   static XWalkContentBrowserClient* Get();
 
-  XWalkContentBrowserClient();
+  explicit XWalkContentBrowserClient(XWalkRunner* xwalk_runner);
   virtual ~XWalkContentBrowserClient();
 
   // ContentBrowserClient overrides.
@@ -58,8 +59,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* host) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
 
-  void RenderProcessHostGone(content::RenderProcessHost* host);
-
   virtual bool AllowGetCookie(const GURL& url,
                               const GURL& first_party,
                               const net::CookieList& cookie_list,
@@ -83,11 +82,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int child_process_id,
       std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
   virtual void ResourceDispatcherHostCreated();
-
-  XWalkBrowserMainParts* main_parts() { return main_parts_; }
 #endif
+  XWalkBrowserMainParts* main_parts() { return main_parts_; }
 
  private:
+  XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
   XWalkBrowserMainParts* main_parts_;
 
