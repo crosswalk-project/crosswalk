@@ -18,6 +18,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..',
                              'tools', 'checkdeps'))
 
+import builddeps
 import checkdeps
 import results
 
@@ -29,9 +30,9 @@ def AddTreeToGitSourceDirectories(deps_checker, root_dir):
     # Add the directory as well as all the parent directories. Use
     # forward slashes and lower case to normalize paths.
     while dir_name != root_dir:
-      deps_checker.git_source_directories.add(checkdeps.NormalizePath(dir_name))
+      deps_checker.git_source_directories.add(builddeps.NormalizePath(dir_name))
       dir_name = os.path.dirname(dir_name)
-  deps_checker.git_source_directories.add(checkdeps.NormalizePath(root_dir))
+  deps_checker.git_source_directories.add(builddeps.NormalizePath(root_dir))
 
 def main():
   option_parser = optparse.OptionParser()
