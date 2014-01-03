@@ -8,7 +8,7 @@
 #include "base/logging.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "xwalk/grit/xwalk_extensions_resources.h"
+#include "grit/xwalk_extensions_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/test/test.h"
 #include "xwalk/extensions/test/xwalk_extensions_test_base.h"
