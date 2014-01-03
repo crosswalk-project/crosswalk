@@ -43,25 +43,19 @@ public class ContactEventListener extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
-        if (!mIsListening) {
-            return;
-        }
+        if (!mIsListening) return;
         notifyChanges(false);
     }
 
     protected void startListening() {
-        if (mIsListening) {
-            return;
-        }
+        if (mIsListening) return;
         mIsListening = true;
         mContactIDs = getAllContactIDs();
         readAllRawContactInfo();
     }
 
     protected void onResume() {
-        if (!mIsListening) {
-            return;
-        }
+        if (!mIsListening) return;
         notifyChanges(true);
     }
 
@@ -95,21 +89,19 @@ public class ContactEventListener extends ContentObserver {
             mContactIDs = contactIDs;
             readAllRawContactInfo();
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "notifyChanges: " + e.toString());
         }
     }
 
     private void notifyContactChanged(JSONObject outObject) {
-        if (outObject == null || outObject.length() == 0) {
-            return;
-        }
+        if (outObject == null || outObject.length() == 0) return;
         try {
             JSONObject jsonOutput = new JSONObject();
             jsonOutput.put("reply", "contactschange");
             jsonOutput.put("data", outObject);
             mContacts.broadcastMessage(jsonOutput.toString());
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "notifyContactChanged: " + e.toString());
         }
     }
 
@@ -123,16 +115,20 @@ public class ContactEventListener extends ContentObserver {
     }
 
     private HashSet<String> getAllContactIDs() {
-        HashSet<String> contactIDs = new HashSet<String>();
-        Cursor c = mResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+            HashSet<String> contactIDs = new HashSet<String>();
             while (c.moveToNext()) {
                 String contactID = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
                 contactIDs.add(contactID);
             }
             return contactIDs;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getAllContactIDs: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 
@@ -151,10 +147,11 @@ public class ContactEventListener extends ContentObserver {
     }
 
     private void readAllRawContactInfo() {
-        mRawID2ContactIDMaps = new HashMap<String, String>();
-        mRawID2VersionMaps = new HashMap<String, String>();
-        Cursor c = mResolver.query(RawContacts.CONTENT_URI, null, null, null, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI, null, null, null, null);
+            mRawID2ContactIDMaps = new HashMap<String, String>();
+            mRawID2VersionMaps = new HashMap<String, String>();
             while (c.moveToNext()) {
                 String contactID = c.getString(c.getColumnIndex(RawContacts.CONTACT_ID));
                 String rawContactID = c.getString(c.getColumnIndex(RawContacts._ID));
@@ -162,23 +159,31 @@ public class ContactEventListener extends ContentObserver {
                 mRawID2ContactIDMaps.put(rawContactID, contactID);
                 mRawID2VersionMaps.put(rawContactID, version);
             }
+        } catch (SecurityException e) {
+            Log.e(TAG, "readAllRawContactInfo: " + e.toString());
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 
     private HashSet<String> compareAllRawContactInfo(HashSet<String> commonSet) {
-        HashSet<String> contactIDs = new HashSet<String>();
-        HashMap<String, String> compareMaps = new HashMap<String, String>();
-        Cursor c = mResolver.query(RawContacts.CONTENT_URI, null, null, null, null);
+        HashSet<String> contactIDs = null;
+        HashMap<String, String> compareMaps = null;
+        Cursor c = null;
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI, null, null, null, null);
+            contactIDs = new HashSet<String>();
+            compareMaps = new HashMap<String, String>();
             while (c.moveToNext()) {
                 String rawContactID = c.getString(c.getColumnIndex(RawContacts._ID));
                 String version = c.getString(c.getColumnIndex(RawContacts.VERSION));
                 compareMaps.put(rawContactID, version);
             }
+        } catch (SecurityException e) {
+            Log.e(TAG, "compareAllRawContactInfo: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
 
         Iterator<String> iterator = compareMaps.keySet().iterator();

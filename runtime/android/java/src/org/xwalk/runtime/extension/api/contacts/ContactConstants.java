@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class contains most contant variables that required by other Contacts classes.
+ * This class contains most constant variables that required by other Contacts classes.
  */
 public class ContactConstants {
     public static final String CUSTOM_MIMETYPE_LASTUPDATED =
