@@ -27,13 +27,12 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  gst-plugins-atomisp-devel
-BuildRequires:  libasound-devel
 BuildRequires:  libcap-devel
-BuildRequires:  pkgmgr-info-parser-devel
 BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
 BuildRequires:  which
+BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
 BuildRequires:  pkgconfig(appcore-efl)
 BuildRequires:  pkgconfig(aul)
