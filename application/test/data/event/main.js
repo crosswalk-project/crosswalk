@@ -1,6 +1,11 @@
 var EventTest = function(resolve) {
   xwalk.app.runtime.onLaunched.addListener(function() {
+    window.open("index.html");
     resolve();
+  });
+
+  xwalk.app.runtime.onSuspend.addListener(function() {
+      xwalk.app.test.notifyPass();
   });
 
   xwalk.app.runtime.onInstalled.addListener(function() {

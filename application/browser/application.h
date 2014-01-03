@@ -99,7 +99,7 @@ class Application : public Runtime::Observer {
 
   friend class FinishEventObserver;
   void CloseMainDocument();
-  bool IsOnSuspendHandlerRegistered(const std::string& app_id) const;
+  bool IsOnSuspendHandlerRegistered() const;
 
   RuntimeContext* runtime_context_;
   scoped_refptr<ApplicationData> application_data_;

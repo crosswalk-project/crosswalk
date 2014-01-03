@@ -9,6 +9,8 @@
 #include "url/gurl.h"
 #include "xwalk/application/test/application_apitest.h"
 #include "xwalk/application/test/application_testapi.h"
+#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -54,7 +56,17 @@ class ApplicationOnInstalledEventTest : public ApplicationApiTest {
   base::FilePath app_data_path_;
 };
 
-IN_PROC_BROWSER_TEST_F(ApplicationEventTest, EventTest) {
+IN_PROC_BROWSER_TEST_F(ApplicationEventTest, OnLaunchedEventTest) {
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
+}
+
+IN_PROC_BROWSER_TEST_F(ApplicationEventTest, OnSuspendEventTest) {
+  ASSERT_GE(GetRuntimeCount(), 1);
+  GURL url(test_server()->GetURL("test.html"));
+  WaitForRuntimes(2);
+
+  runtimes()[1]->Close();
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }

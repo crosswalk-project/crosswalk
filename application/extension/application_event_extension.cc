@@ -92,13 +92,14 @@ void AppEventExtensionInstance::OnRegisterEvent(
     if (routing_id != main_routing_id_)
       return;
 
-    // Check that application is present in the storage (installed app).
-    scoped_refptr<ApplicationData> app_data =
-        app_storage_->GetApplicationData(application_->id());
+    ApplicationData* app_data = application_->data();
     if (!app_data)
       return;
 
     // If the event is from main document, add it into system database.
+    // If Crosswalk application is launched from unpacked path without
+    // installation, the registered events information will be saved in
+    // ApplicationData, no copy of it in ApplicationStorage.
     std::set<std::string> events = app_data->GetEvents();
     if (ContainsKey(events, event_name))
       return;
@@ -125,8 +126,7 @@ void AppEventExtensionInstance::OnUnregisterEvent(
 
   // If the event is from main document, remove it from system database.
   if (routing_id == main_routing_id_) {
-    scoped_refptr<ApplicationData> app_data =
-        app_storage_->GetApplicationData(application_->id());
+    ApplicationData* app_data = application_->data();
     if (!app_data)
       return;
 

@@ -48,9 +48,11 @@ class ApplicationEventApiTest : public ApplicationApiTest {
         new MockFinishObserver(event_manager_, app_id_));
   }
 
-  // FIXME(xiang): we need to destruct the observer early, because when
-  // ApplicationEventManager::DetachObserver called from test case destruction
-  // the check for running on UI thread will fail even it runs on UI thread.
+  // ApplicationEventManager is intialized after MockFinishObserver by default,
+  // as a result, ApplicationEventManager is destroyed before the observer in
+  // ApplicationEventApiTest destructor by default. This will cause crash inside
+  // destructor of MockFinishObserver. A solution is to initialize
+  // MockFinishObserver later and destroy earlier than ApplicationEventManager.
   void CloseFinishObserver() {
     MockFinishObserver* observer = event_finish_observer_.release();
   }
