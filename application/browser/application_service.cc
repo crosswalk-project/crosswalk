@@ -396,6 +396,8 @@ void ApplicationService::OnApplicationTerminated(
   ScopedVector<Application>::iterator found = std::find(
             applications_.begin(), applications_.end(), application);
   CHECK(found != applications_.end());
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    WillDestroyApplication(application));
   applications_.erase(found);
   if (applications_.empty()) {
     base::MessageLoop::current()->PostTask(
@@ -417,6 +419,9 @@ Application* ApplicationService::Launch(
     applications_.get().pop_back();
     delete application;
     application = NULL;
+  } else {
+    FOR_EACH_OBSERVER(Observer, observers_,
+                      DidLaunchApplication(application));
   }
 
   return application;
