@@ -26,7 +26,7 @@ public class XWalkWebChromeClientForTest extends XWalkDefaultWebChromeClient{
     public void onReceivedTitle(XWalkView view, String title) {
         if (mCallbackForTest != null) {
             try {
-                Class objectClass = mCallbackForTest.getClass();
+                Class<?> objectClass = mCallbackForTest.getClass();
                 Method onReceivedTitle = objectClass.getMethod("onReceivedTitle", String.class);
                 onReceivedTitle.invoke(mCallbackForTest, title);
             } catch (Exception e) {
