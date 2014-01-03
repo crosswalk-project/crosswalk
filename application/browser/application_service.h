@@ -33,6 +33,9 @@ class ApplicationService : public Application::Observer {
    public:
     virtual void OnApplicationInstalled(const std::string& app_id) {}
     virtual void OnApplicationUninstalled(const std::string& app_id) {}
+
+    virtual void DidLaunchApplication(Application* app) {}
+    virtual void WillDestroyApplication(Application* app) {}
    protected:
     virtual ~Observer() {}
   };
