@@ -1,3 +1,15 @@
 include_rules = [
+  # Extension system doesn't depend on the other parts of Crosswalk.
+  "-xwalk",
+  "+xwalk/extensions",
+
+  # Android.
+  "+jni",
+
+  # FIXME(cmarcelo): These are here for Android bindings. See
+  # https://crosswalk-project.org/jira/browse/XWALK-749, should be removed.
+  "!xwalk/runtime/browser/xwalk_browser_main_parts_android.h",
+  "!xwalk/runtime/browser/xwalk_content_browser_client.h",
+
   "+grit/xwalk_extensions_resources.h"
 ]
