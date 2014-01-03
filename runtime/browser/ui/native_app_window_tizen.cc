@@ -19,8 +19,9 @@ namespace xwalk {
 NativeAppWindowTizen::NativeAppWindowTizen(
     const NativeAppWindow::CreateParams& create_params)
     : NativeAppWindowViews(create_params),
-      indicator_(new TizenSystemIndicator()),
+      indicator_widget_(new TizenSystemIndicatorWidget()),
       allowed_orientations_(ANY) {
+  indicator_container_.reset(new WidgetContainerView(indicator_widget_.get()));
 }
 
 void NativeAppWindowTizen::Initialize() {
@@ -56,9 +57,9 @@ void NativeAppWindowTizen::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
     NativeAppWindowViews::ViewHierarchyChanged(details);
-
-    AddChildView(indicator_.get());
-    top_view_layout()->set_top_view(indicator_.get());
+    indicator_widget_->Initialize(GetNativeWindow());
+    top_view_layout()->set_top_view(indicator_container_.get());
+    AddChildView(indicator_container_.get());
   }
 }
 
@@ -129,6 +130,11 @@ unsigned rotl4(unsigned value, int shift) {
   return res;
 }
 
+bool IsLandscapeOrientation(const gfx::Display::Rotation& rotation) {
+  return rotation == gfx::Display::ROTATE_90 ||
+         rotation == gfx::Display::ROTATE_270;
+}
+
 }  // namespace.
 
 gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
@@ -186,13 +192,18 @@ void NativeAppWindowTizen::OnRotationChanged(
   ApplyDisplayRotation();
 }
 
+void NativeAppWindowTizen::UpdateTopViewOverlay() {
+  top_view_layout()->SetUseOverlay(
+      IsLandscapeOrientation(display_.rotation()));
+}
+
 void NativeAppWindowTizen::ApplyDisplayRotation() {
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   if (!root_window->IsVisible())
     return;
-
+  UpdateTopViewOverlay();
+  indicator_widget_->SetDisplay(display_);
   root_window->SetTransform(GetRotationTransform());
-  indicator_->SetDisplay(display_);
 }
 
 }  // namespace xwalk

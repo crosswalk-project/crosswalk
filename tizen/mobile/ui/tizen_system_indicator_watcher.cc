@@ -11,6 +11,7 @@
 
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/message_loop/message_loop.h"
 #include "content/public/browser/browser_thread.h"
 #include "ipc/unix_domain_socket_util.h"
 #include "base/strings/string_tokenizer.h"
@@ -62,9 +63,9 @@ enum PlugOperation {
 namespace xwalk {
 
 TizenSystemIndicatorWatcher::TizenSystemIndicatorWatcher(
-    TizenSystemIndicator* indicator,
+    WatcherClient* client,
     const gfx::Display& display)
-  : indicator_(indicator),
+  : client_(client),
     display_(display),
     writer_(&fd_),
     fd_(-1),
@@ -504,7 +505,7 @@ void TizenSystemIndicatorWatcher::UpdateIndicatorImage() {
   gfx::ImageSkia img_skia;
   img_skia.AddRepresentation(gfx::ImageSkiaRep(bitmap,
       display_.device_scale_factor()));
-  indicator_->SetImage(img_skia);
+  client_->OnImageUpdated(img_skia);
 }
 
 void TizenSystemIndicatorWatcher::SetSizeFromEnvVar() {
@@ -531,7 +532,6 @@ void TizenSystemIndicatorWatcher::SetSizeFromEnvVar() {
 
 void TizenSystemIndicatorWatcher::ResizeIndicator() {
   UpdateIndicatorImage();
-  indicator_->PreferredSizeChanged();
 }
 
 }  // namespace xwalk

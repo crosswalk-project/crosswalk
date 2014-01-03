@@ -5,13 +5,11 @@
 #ifndef XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_H_
 #define XWALK_TIZEN_MOBILE_UI_TIZEN_SYSTEM_INDICATOR_H_
 
-#include "ui/gfx/display.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/views/controls/image_view.h"
+#include "xwalk/tizen/mobile/ui/tizen_system_indicator_watcher.h"
 
 namespace xwalk {
-
-class TizenSystemIndicatorWatcher;
 
 // This view paints the Tizen Mobile system indicator provided by the system.
 // We get to it by using the Elementary "Plug" system from EFL, reading the
@@ -23,8 +21,7 @@ class TizenSystemIndicator : public views::ImageView {
 
   bool IsConnected() const;
 
-  // Apply new display configuration.
-  void SetDisplay(const gfx::Display& display);
+  void SetWatcher(TizenSystemIndicatorWatcher* watcher);
 
   // views::View implementation.
   gfx::Size GetPreferredSize() OVERRIDE;
@@ -35,8 +32,8 @@ class TizenSystemIndicator : public views::ImageView {
   virtual void OnMouseMoved(const ui::MouseEvent& event) OVERRIDE;
   virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
 
-  scoped_ptr<TizenSystemIndicatorWatcher> watcher_;
-  friend class TizenSystemIndicatorWatcher;
+  TizenSystemIndicatorWatcher* watcher_;
+  friend class TizenSystemIndicatorWidget;
 };
 
 }  // namespace xwalk

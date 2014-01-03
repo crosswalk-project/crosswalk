@@ -13,20 +13,26 @@
 #include "base/memory/weak_ptr.h"
 #include "base/message_loop/message_pump_libevent.h"
 #include "ui/gfx/display.h"
+#include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/size.h"
-#include "xwalk/tizen/mobile/ui/tizen_system_indicator.h"
 #include "xwalk/tizen/mobile/ui/tizen_plug_message_writer.h"
 
 namespace xwalk {
-
-class TizenSystemIndicator;
 
 // Implementation of the socket protocol for sharing memory used by Elementary
 // "Plugs" in EFL. This class implements the low level protocol and is used by
 // TizenSystemIndicator to update its image.
 class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
  public:
-  TizenSystemIndicatorWatcher(TizenSystemIndicator* indicator,
+  class WatcherClient {
+   public:
+    virtual void OnImageUpdated(const gfx::ImageSkia& img_skia) = 0;
+
+   protected:
+    virtual ~WatcherClient() {}
+  };
+
+  TizenSystemIndicatorWatcher(WatcherClient* client,
                               const gfx::Display& display);
   virtual ~TizenSystemIndicatorWatcher();
 
@@ -59,7 +65,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   void SetSizeFromEnvVar();
   void ResizeIndicator();
 
-  TizenSystemIndicator* indicator_;
+  WatcherClient* client_;
   gfx::Display display_;
 
   TizenPlugMessageWriter writer_;
