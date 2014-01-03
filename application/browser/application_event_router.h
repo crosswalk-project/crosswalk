@@ -80,11 +80,11 @@ class ApplicationEventRouter : public content::WebContentsObserver {
   // loaded.
   EventSet main_events_;
 
-  // True when application's main document or entry page is finished loading.
-  bool application_launched_;
-
   ApplicationSystem* system_;
   std::string app_id_;
+
+  // True when application's main document or entry page is finished loading.
+  bool application_launched_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationEventRouter);
 };
