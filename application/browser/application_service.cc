@@ -143,7 +143,7 @@ bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
       xwalk::application::PackageInstaller::Create(service, storage,
                                                    app_id, data_dir);
   if (!installer || !installer->Install()) {
-    LOG(ERROR) << "[ERR] An error occurred during installing on Tizen.";
+    LOG(ERROR) << "An error occurred during installation on Tizen.";
     return false;
   }
   return true;
@@ -162,7 +162,7 @@ bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
       xwalk::application::PackageInstaller::Create(service, storage,
                                                    app_id, data_dir);
   if (!installer || !installer->Uninstall()) {
-    LOG(ERROR) << "[ERR] An error occurred during uninstalling on Tizen.";
+    LOG(ERROR) << "An error occurred during uninstallation on Tizen.";
     return false;
   }
   return true;
@@ -305,7 +305,7 @@ Application* ApplicationService::Launch(const std::string& id) {
   scoped_refptr<ApplicationData> application_data =
           application_storage_->GetApplicationData(id);
   if (!application_data) {
-    LOG(ERROR) << "Application with id " << id << " haven't installed.";
+    LOG(ERROR) << "Application with id " << id << " is not installed.";
     return NULL;
   }
 
