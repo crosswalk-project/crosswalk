@@ -55,7 +55,7 @@
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
-        'experimental/experimental_resources.gyp:xwalk_experimental_resources',
+        'experimental/experimental.gyp:xwalk_dialog',
         'extensions/extensions.gyp:xwalk_extensions',
         'sysapps/sysapps.gyp:sysapps',
       ],
@@ -230,7 +230,6 @@
         'runtime/renderer/xwalk_content_renderer_client.h',
       ],
       'includes': [
-        'experimental/dialog/dialog.gypi',
         'xwalk_jsapi.gypi',
       ],
       'msvs_settings': {
