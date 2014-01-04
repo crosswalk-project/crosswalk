@@ -8,6 +8,13 @@
     'common/event_target.h',
     'common/sysapps_manager.cc',
     'common/sysapps_manager.h',
+    'common/sysapps_manager_android.cc',
+    'common/sysapps_manager_linux.cc',
+    'common/sysapps_manager_mac.cc',
+    'common/sysapps_manager_win.cc',
+    'device_capabilities_new/av_codecs_provider.h',
+    'device_capabilities_new/av_codecs_provider_android.cc',
+    'device_capabilities_new/av_codecs_provider_android.h',
     'device_capabilities_new/cpu_info_provider.cc',
     'device_capabilities_new/cpu_info_provider.h',
     'device_capabilities_new/cpu_info_provider_android.cc',
@@ -37,5 +44,16 @@
   ],
   'dependencies': [
     'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
+  ],
+  'conditions': [
+    ['OS!="android"', {
+      'dependencies': [
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+      ],
+      'sources': [
+        'device_capabilities_new/av_codecs_provider_ffmpeg.cc',
+        'device_capabilities_new/av_codecs_provider_ffmpeg.h',
+      ],
+    }],
   ],
 }
