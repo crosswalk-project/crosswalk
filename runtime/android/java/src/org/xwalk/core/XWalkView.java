@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
@@ -228,8 +229,9 @@ public class XWalkView extends FrameLayout {
 
     public void disableRemoteDebugging() {
         checkThreadSafety();
+        Log.e("XWalkView.java", "disableRemoteDebugging mDevToolsServer=" + mDevToolsServer);
         if (mDevToolsServer ==  null) return;
-
+        Log.e("XWalkView.java", "disableRemoteDebugging isRemoteDebuggingEnabled=" + mDevToolsServer.isRemoteDebuggingEnabled());
         if (mDevToolsServer.isRemoteDebuggingEnabled()) {
             mDevToolsServer.setRemoteDebuggingEnabled(false);
         }
