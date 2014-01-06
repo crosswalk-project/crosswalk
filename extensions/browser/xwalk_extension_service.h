@@ -40,6 +40,8 @@ class XWalkExtensionService : public content::NotificationObserver,
    public:
     virtual void CheckAPIAccessControl(std::string extension_name,
         std::string api_name, const PermissionCallback& callback) {}
+    virtual bool RegisterPermissions(std::string extension_name,
+            std::string perm_table) {return false;}
 
    protected:
     ~Delegate() {}
@@ -84,6 +86,8 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   virtual void OnCheckAPIAccessControl(std::string extension_name,
       std::string api_name, const PermissionCallback& callback) OVERRIDE;
+  virtual bool OnRegisterPermissions(std::string extension_name,
+        std::string perm_table) OVERRIDE;
 
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,

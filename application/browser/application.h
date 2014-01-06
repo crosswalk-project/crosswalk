@@ -100,6 +100,8 @@ class Application : public Runtime::Observer {
   // "bluetooth" -> "bluetooth.read, bluetooth.write, bluetooth.management"
   // Whenever there comes a API permission request, we can tell whether
   // this API is registered, if yes, return the according permission name.
+  bool RegisterPermissions(const std::string& extension_name,
+                           const std::string& perm_table);
   std::string GetRegisteredPermissionName(const std::string& extension_name,
                                           const std::string& api_name) const;
 

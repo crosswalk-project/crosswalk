@@ -21,7 +21,8 @@ StoredPermission PermissionPolicyManager::FilterPermission(
   return ALLOW;
 }
 
-bool PermissionPolicyManager::InitApplicationPermission(ApplicationData* app_data) {
+bool PermissionPolicyManager::InitApplicationPermission(
+    ApplicationData* app_data) {
   app_data->ClearPermissions();
   PermissionSet permissions = app_data->GetManifestPermissions();
   if (permissions.empty())

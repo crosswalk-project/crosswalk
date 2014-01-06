@@ -239,7 +239,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
   }
-  if (!permission_policy_manager_->InitApplicationPermission(application_data.get())) {
+  if (!permission_policy_manager_->InitApplicationPermission(
+      application_data.get())) {
     LOG(ERROR) << "Application permission data is invalid";
     return false;
   }
@@ -557,6 +558,24 @@ void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
     return;
   }
   NOTREACHED();
+}
+
+bool ApplicationService::RegisterPermissions(const std::string& app_id,
+    const std::string& extension_name,
+    const std::string& perm_table) {
+  Application* app = GetApplicationByID(app_id);
+  if (!app) {
+    LOG(ERROR) << "No running application found with ID: "
+      << app_id;
+    return false;
+  }
+  if (!app->ContainsExtension(extension_name)) {
+    LOG(ERROR) << "Can not find extension: "
+      << extension_name << " of Application with ID: "
+      << app_id;
+    return false;
+  }
+  return app->RegisterPermissions(extension_name, perm_table);
 }
 
 }  // namespace application

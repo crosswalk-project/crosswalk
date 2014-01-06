@@ -92,7 +92,7 @@ bool XWalkExtensionProcess::CheckAPIAccessControl(std::string extension_name,
   RuntimePermission result = INVALID_RUNTIME_PERM;
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
-        extension_name, api_name, &result));
+          extension_name, api_name, &result));
   LOG(INFO) << extension_name << "." << api_name << "() --> " << result;
   if (result == ALLOW_ONCE
       || result == ALLOW_SESSION
@@ -100,6 +100,15 @@ bool XWalkExtensionProcess::CheckAPIAccessControl(std::string extension_name,
     return true;
   else
     return false;
+}
+
+bool XWalkExtensionProcess::RegisterPermissions(std::string extension_name,
+    std::string perm_table) {
+  bool result;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_RegisterPermissions(
+          extension_name, perm_table, &result));
+  return result;
 }
 
 }  // namespace extensions

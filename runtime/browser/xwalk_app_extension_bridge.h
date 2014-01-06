@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_APP_EXTENSION_BRIDGE_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_APP_EXTENSION_BRIDGE_H_
 
+#include <string>
+
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_permission_types.h"
@@ -29,6 +31,8 @@ class XWalkAppExtensionBridge
   virtual void CheckAPIAccessControl(std::string extension_name,
       std::string api_name,
       const extensions::PermissionCallback& callback) OVERRIDE;
+  virtual bool RegisterPermissions(std::string extension_name,
+              std::string perm_table) OVERRIDE;
 
  private:
   application::ApplicationSystem* app_system_;

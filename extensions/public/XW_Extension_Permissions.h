@@ -28,6 +28,7 @@ extern "C" {
 
 struct XW_Internal_PermissionsInterface_1 {
   int (*CheckAPIAccessControl)(XW_Extension extension, const char* api_name);
+  int (*RegisterPermissions)(XW_Extension extension, const char* perm_table);
 };
 
 typedef struct XW_Internal_PermissionsInterface_1

@@ -109,6 +109,8 @@ class XWalkExternalAdapter {
   // XW_Internal_PermissionsInterface_1 from XW_Extension_Permissions.h
   static int PermissionsCheckAPIAccessControl(XW_Extension xw,
       const char* api_name);
+  static int PermissionsRegisterPermissions(XW_Extension xw,
+      const char* perm_table);
 
   // XW_MessagingInterface_1 from XW_Extension.h.
   DEFINE_FUNCTION_1(Extension, Messaging, Register, XW_HandleMessageCallback);

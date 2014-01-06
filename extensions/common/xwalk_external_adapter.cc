@@ -97,7 +97,8 @@ const void* XWalkExternalAdapter::GetInterface(const char* name) {
 
   if (!strcmp(name, XW_INTERNAL_PERMISSIONS_INTERFACE_1)) {
     static const XW_Internal_PermissionsInterface_1 permissionsInterface1 = {
-      PermissionsCheckAPIAccessControl
+      PermissionsCheckAPIAccessControl,
+      PermissionsRegisterPermissions
     };
     return &permissionsInterface1;
   }
@@ -149,6 +150,17 @@ int XWalkExternalAdapter::PermissionsCheckAPIAccessControl(XW_Extension xw,
   }
   bool allowed = ptr->CheckAPIAccessControl(api_name);
   return allowed? 1 : 0;
+}
+
+int XWalkExternalAdapter::PermissionsRegisterPermissions(XW_Extension xw,
+    const char* perm_table) {
+  XWalkExtension* ptr = GetExtension(xw);
+  if (!ptr) {
+    LogInvalidCall(xw, "Extension", "Permissions", "RegisterPermissions");
+    return 0;
+  }
+  bool succeeded = ptr->RegisterPermissions(perm_table);
+  return succeeded? 1 : 0;
 }
 
 }  // namespace extensions
