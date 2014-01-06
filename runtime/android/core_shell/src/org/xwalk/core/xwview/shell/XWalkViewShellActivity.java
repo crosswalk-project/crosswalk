@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.Context;
 import android.graphics.drawable.ClipDrawable;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -22,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import org.chromium.content.app.LibraryLoader;
+import org.chromium.content.browser.TracingControllerAndroid;
 import org.chromium.content.common.CommandLine;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
@@ -40,6 +44,7 @@ public class XWalkViewShellActivity extends Activity {
     private ImageButton mReloadButton;
     private ClipDrawable mProgressDrawable;
     private XWalkView mView;
+    private TracingControllerAndroid mTracingController;
 
     private Runnable mClearProgressRunnable = new Runnable() {
         @Override
@@ -48,9 +53,43 @@ public class XWalkViewShellActivity extends Activity {
         }
     };
 
+    TracingControllerAndroid getTracingController() {
+        if (mTracingController == null) {
+            mTracingController = new TracingControllerAndroid(this);
+        }
+        return mTracingController;
+    }
+
+    private void registerTracingReceiverWhenIdle() {
+        // Delay tracing receiver registration until the main loop is idle.
+        Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+            @Override
+            public boolean queueIdle() {
+                // Will retry if the native library is not initialized yet.
+                if (!LibraryLoader.isInitialized()) return true;
+                try {
+                    getTracingController().registerReceiver(XWalkViewShellActivity.this);
+                } catch (SecurityException e) {
+                    Log.w(TAG, "failed to register tracing receiver: " + e.getMessage());
+                }
+                return false;
+            }
+        });
+    }
+
+    private void unregisterTracingReceiver() {
+        try {
+            getTracingController().unregisterReceiver(this);
+        } catch (SecurityException e) {
+            Log.w(TAG, "failed to unregister tracing receiver: " + e.getMessage());
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        registerTracingReceiverWhenIdle();
 
         if (!CommandLine.isInitialized()) {
             CommandLine.initFromFile(COMMAND_LINE_FILE);
@@ -90,6 +129,7 @@ public class XWalkViewShellActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unregisterTracingReceiver();
         mView.onDestroy();
     }
 
