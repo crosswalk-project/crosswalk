@@ -19,10 +19,18 @@ const base::ListValue& XWalkExtension::entry_points() const {
   return entry_points_;
 }
 
-bool XWalkExtension::CheckAPIAccessControl(const char* api_name) {
+bool XWalkExtension::CheckAPIAccessControl(const char* api_name) const {
   if (!permissions_delegate_)
     return false;
-  return permissions_delegate_->CheckAPIAccessControl(this->name(), api_name);
+
+  return permissions_delegate_->CheckAPIAccessControl(name(), api_name);
+}
+
+bool XWalkExtension::RegisterPermissions(const char* perm_table) const {
+  if (!permissions_delegate_)
+    return false;
+
+  return permissions_delegate_->RegisterPermissions(name(), perm_table);
 }
 
 XWalkExtensionInstance::XWalkExtensionInstance() {}

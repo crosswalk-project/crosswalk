@@ -42,11 +42,15 @@ IPC_SYNC_MESSAGE_CONTROL0_1(XWalkExtensionProcessHostMsg_GetExtensionProcessChan
 
 // Message from Extension Process to Browser Process
 IPC_ENUM_TRAITS_MAX_VALUE(xwalk::extensions::RuntimePermission,
-                          xwalk::extensions::INVALID_RUNTIME_PERM)
+                          xwalk::extensions::UNDEFINED_RUNTIME_PERM)
 IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionProcessHostMsg_CheckAPIAccessControl, // NOLINT(*)
                             std::string,
                             std::string,
                             xwalk::extensions::RuntimePermission)
+IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionProcessHostMsg_RegisterPermissions, // NOLINT(*)
+                            std::string,
+                            std::string,
+                            bool)
 
 // We use a separated message class for Client<->Server communication
 // to ease filtering.

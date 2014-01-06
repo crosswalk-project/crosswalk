@@ -95,13 +95,10 @@ void XWalkExtensionServer::OnPostMessageToNative(int64_t instance_id,
   data.instance->HandleMessage(value.Pass());
 }
 
-void XWalkExtensionServer::Initialize(IPC::Sender* sender,
-    XWalkExtension::PermissionsDelegate* delegate) {
+void XWalkExtensionServer::Initialize(IPC::Sender* sender) {
   base::AutoLock l(sender_lock_);
   DCHECK(!sender_);
-  DCHECK(!permissions_delegate_);
   sender_ = sender;
-  permissions_delegate_ = delegate;
 }
 
 bool XWalkExtensionServer::Send(IPC::Message* msg) {

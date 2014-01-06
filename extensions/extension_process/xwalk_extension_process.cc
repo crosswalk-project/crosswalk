@@ -24,6 +24,7 @@ XWalkExtensionProcess::XWalkExtensionProcess()
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
 
+  extensions_server_.set_permissions_delegate(this);
   CreateBrowserProcessChannel();
 }
 
@@ -103,27 +104,35 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
           true);
 #endif
 
-  extensions_server_.Initialize(render_process_channel_.get(), this);
+  extensions_server_.Initialize(render_process_channel_.get());
 
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
           rp_channel_handle_));
 }
 
-bool XWalkExtensionProcess::CheckAPIAccessControl(std::string extension_name,
-    std::string api_name) {
+bool XWalkExtensionProcess::CheckAPIAccessControl(
+    const std::string& extension_name,
+    const std::string& api_name) {
   // TODO(Bai): Implement cache here.
-  RuntimePermission result = INVALID_RUNTIME_PERM;
+  RuntimePermission result = UNDEFINED_RUNTIME_PERM;
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
-        extension_name, api_name, &result));
-  LOG(INFO) << extension_name << "." << api_name << "() --> " << result;
-  if (result == ALLOW_ONCE
-      || result == ALLOW_SESSION
-      || result == ALLOW_FOREVER)
-    return true;
-  else
-    return false;
+          extension_name, api_name, &result));
+  DLOG(INFO) << extension_name << "." << api_name << "() --> " << result;
+  return (result == ALLOW_ONCE ||
+          result == ALLOW_SESSION ||
+          result == ALLOW_ALWAYS);
+}
+
+bool XWalkExtensionProcess::RegisterPermissions(
+    const std::string& extension_name,
+    const std::string& perm_table) {
+  bool result;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_RegisterPermissions(
+          extension_name, perm_table, &result));
+  return result;
 }
 
 }  // namespace extensions

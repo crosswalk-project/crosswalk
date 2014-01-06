@@ -446,10 +446,18 @@ void XWalkExtensionService::OnRenderProcessDied(
 }
 
 void XWalkExtensionService::OnCheckAPIAccessControl(
-    std::string extension_name, std::string api_name,
+    const std::string& extension_name,
+    const std::string& api_name,
     const PermissionCallback& callback) {
   CHECK(delegate_);
   delegate_->CheckAPIAccessControl(extension_name, api_name, callback);
+}
+
+bool XWalkExtensionService::OnRegisterPermissions(
+    const std::string& extension_name,
+    const std::string& perm_table) {
+  CHECK(delegate_);
+  return delegate_->RegisterPermissions(extension_name, perm_table);
 }
 
 }  // namespace extensions

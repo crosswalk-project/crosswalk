@@ -53,11 +53,10 @@ class XWalkExtensionServer : public IPC::Listener {
   // Different types of ExtensionServers are initialized with different
   // permission delegates: For out-of-process extensions the extension
   // process act as the delegate and dispatch permission request through
-  // IPC; For in-process extensions running in extension thread, we will\
+  // IPC; For in-process extensions running in extension thread, we will
   // give a delegate that will do an async method call and for UI thread
   // extensions, doing synchronous request is not allowed.
-  void Initialize(IPC::Sender* sender,
-      XWalkExtension::PermissionsDelegate* delegate = NULL);
+  void Initialize(IPC::Sender* sender);
   bool Send(IPC::Message* msg);
 
   bool RegisterExtension(scoped_ptr<XWalkExtension> extension);
@@ -65,6 +64,9 @@ class XWalkExtensionServer : public IPC::Listener {
 
   void Invalidate();
 
+  void set_permissions_delegate(XWalkExtension::PermissionsDelegate* delegate) {
+    permissions_delegate_ = delegate;
+  }
   XWalkExtension::PermissionsDelegate* permissions_delegate() {
     return permissions_delegate_;
   }

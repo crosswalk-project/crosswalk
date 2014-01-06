@@ -703,5 +703,22 @@ void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
   NOTREACHED();
 }
 
+bool ApplicationService::RegisterPermissions(const std::string& app_id,
+    const std::string& extension_name,
+    const std::string& perm_table) {
+  Application* app = GetApplicationByID(app_id);
+  if (!app) {
+    LOG(ERROR) << "No running application found with ID: " << app_id;
+    return false;
+  }
+  if (!app->UseExtension(extension_name)) {
+    LOG(ERROR) << "Can not find extension: "
+               << extension_name << " of Application with ID: "
+               << app_id;
+    return false;
+  }
+  return app->RegisterPermissions(extension_name, perm_table);
+}
+
 }  // namespace application
 }  // namespace xwalk

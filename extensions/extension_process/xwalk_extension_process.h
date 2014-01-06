@@ -36,12 +36,15 @@ class XWalkExtensionRunner;
 // It will be responsible for handling the native side (instances) of
 // External extensions through its XWalkExtensionServer.
 class XWalkExtensionProcess : public IPC::Listener,
-    public XWalkExtension::PermissionsDelegate {
+                              public XWalkExtension::PermissionsDelegate {
  public:
   XWalkExtensionProcess();
   virtual ~XWalkExtensionProcess();
-  virtual bool CheckAPIAccessControl(std::string extension_name,
-      std::string api_name);
+  virtual bool CheckAPIAccessControl(const std::string& extension_name,
+      const std::string& api_name);
+  virtual bool RegisterPermissions(const std::string& extension_name,
+      const std::string& perm_table);
+
  private:
   // IPC::Listener implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;

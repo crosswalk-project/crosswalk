@@ -33,14 +33,15 @@ class XWalkExtensionInstance;
 class XWalkExtension {
  public:
   class PermissionsDelegate {
-    public:
-      // The delegate is responsible for caching the requests for the sake of
-      // performance.
-      virtual bool CheckAPIAccessControl(std::string extension_name,
-          std::string api_name) { return false; }
+   public:
+    // The delegate is responsible for caching the requests for the sake of
+    // performance.
+    virtual bool CheckAPIAccessControl(const std::string& extension_name,
+        const std::string& api_name) { return false; }
+    virtual bool RegisterPermissions(const std::string& extension_name,
+        const std::string& perm_table) { return false; }
 
-    protected:
-      ~PermissionsDelegate() {}
+    ~PermissionsDelegate() {}
   };
 
   virtual ~XWalkExtension();
@@ -55,12 +56,12 @@ class XWalkExtension {
   // objects outside the namespace that is implicitly created using its name.
   virtual const base::ListValue& entry_points() const;
 
-  void set_permissions_delegate(
-      XWalkExtension::PermissionsDelegate* delegate) {
+  void set_permissions_delegate(XWalkExtension::PermissionsDelegate* delegate) {
     permissions_delegate_ = delegate;
   }
 
-  bool CheckAPIAccessControl(const char* api_name);
+  bool CheckAPIAccessControl(const char* api_name) const;
+  bool RegisterPermissions(const char* perm_table) const;
 
  protected:
   XWalkExtension();

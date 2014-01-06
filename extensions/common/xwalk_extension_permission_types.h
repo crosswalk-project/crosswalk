@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -15,11 +15,11 @@ namespace extensions {
 enum RuntimePermission {
   ALLOW_ONCE = 0,
   ALLOW_SESSION,
-  ALLOW_FOREVER,
+  ALLOW_ALWAYS,
   DENY_ONCE,
   DENY_SESSION,
-  DENY_FOREVER,
-  INVALID_RUNTIME_PERM,
+  DENY_ALWAYS,
+  UNDEFINED_RUNTIME_PERM,
 };
 
 typedef base::Callback<void(RuntimePermission)> PermissionCallback;

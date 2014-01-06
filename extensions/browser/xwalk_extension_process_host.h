@@ -35,9 +35,11 @@ class XWalkExtensionProcessHost
   class Delegate {
    public:
     virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
-      int render_process_id) {}
-    virtual void OnCheckAPIAccessControl(std::string extension_name,
-      std::string api_name, const PermissionCallback& callback) {}
+        int render_process_id) {}
+    virtual void OnCheckAPIAccessControl(const std::string& extension_name,
+        const std::string& api_name, const PermissionCallback& callback) {}
+    virtual bool OnRegisterPermissions(const std::string& extension_name,
+        const std::string& perm_table) { return false; }
 
    protected:
     ~Delegate() {}
@@ -72,10 +74,12 @@ class XWalkExtensionProcessHost
 
   void ReplyChannelHandleToRenderProcess();
 
-  void OnCheckAPIAccessControl(std::string extension_name,
-      std::string api_name, IPC::Message* reply_msg);
+  void OnCheckAPIAccessControl(const std::string& extension_name,
+      const std::string& api_name, IPC::Message* reply_msg);
   void ReplyAccessControlToExtension(IPC::Message* reply_msg,
       RuntimePermission perm);
+  void OnRegisterPermissions(const std::string& extension_name,
+      const std::string& perm_table, bool* result);
 
   scoped_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;

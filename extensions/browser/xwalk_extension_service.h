@@ -39,8 +39,10 @@ class XWalkExtensionService : public content::NotificationObserver,
  public:
   class Delegate {
    public:
-    virtual void CheckAPIAccessControl(std::string extension_name,
-        std::string api_name, const PermissionCallback& callback) {}
+    virtual void CheckAPIAccessControl(const std::string& extension_name,
+        const std::string& api_name, const PermissionCallback& callback) {}
+    virtual bool RegisterPermissions(const std::string& extension_name,
+        const std::string& perm_table) { return false; }
 
    protected:
     ~Delegate() {}
@@ -90,8 +92,10 @@ class XWalkExtensionService : public content::NotificationObserver,
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
 
-  virtual void OnCheckAPIAccessControl(std::string extension_name,
-      std::string api_name, const PermissionCallback& callback) OVERRIDE;
+  virtual void OnCheckAPIAccessControl(const std::string& extension_name,
+      const std::string& api_name, const PermissionCallback& callback) OVERRIDE;
+  virtual bool OnRegisterPermissions(const std::string& extension_name,
+      const std::string& perm_table) OVERRIDE;
 
   // NotificationObserver implementation.
   virtual void Observe(int type, const content::NotificationSource& source,

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,9 +17,9 @@ extern "C" {
 #endif
 
 #define XW_INTERNAL_PERMISSIONS_INTERFACE_1 \
-  "XW_Internal_PermissionsInterface_1"
+    "XW_Internal_PermissionsInterface_1"
 #define XW_INTERNAL_PERMISSIONS_INTERFACE \
-  XW_INTERNAL_PERMISSIONS_INTERFACE_1
+    XW_INTERNAL_PERMISSIONS_INTERFACE_1
 
 //
 // XW_INTERNAL_PERMISSIONS_INTERFACE: provides a way for extensions
@@ -28,6 +28,7 @@ extern "C" {
 
 struct XW_Internal_PermissionsInterface_1 {
   int (*CheckAPIAccessControl)(XW_Extension extension, const char* api_name);
+  int (*RegisterPermissions)(XW_Extension extension, const char* perm_table);
 };
 
 typedef struct XW_Internal_PermissionsInterface_1

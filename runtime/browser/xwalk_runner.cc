@@ -69,16 +69,15 @@ application::ApplicationSystem* XWalkRunner::app_system() {
 
 void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
-
+  app_extension_bridge_.reset(new XWalkAppExtensionBridge());
   // FIXME(cmarcelo): Remove this check once we remove the --uninstall
   // command line.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kUninstall))
     extension_service_.reset(new extensions::XWalkExtensionService(
         app_extension_bridge_.get()));
-  app_extension_bridge_.reset(new XWalkAppExtensionBridge(
-      app_component_->app_system()));
   CreateComponents();
+  app_extension_bridge_->SetApplicationSystem(app_component_->app_system());
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {

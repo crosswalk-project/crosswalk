@@ -10,8 +10,8 @@
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 #include "xwalk/extensions/public/XW_Extension_EntryPoints.h"
-#include "xwalk/extensions/public/XW_Extension_Runtime.h"
 #include "xwalk/extensions/public/XW_Extension_Permissions.h"
+#include "xwalk/extensions/public/XW_Extension_Runtime.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
@@ -119,6 +119,8 @@ class XWalkExternalAdapter {
   // XW_Internal_PermissionsInterface_1 from XW_Extension_Permissions.h
   static int PermissionsCheckAPIAccessControl(XW_Extension xw,
       const char* api_name);
+  static int PermissionsRegisterPermissions(XW_Extension xw,
+      const char* perm_table);
 
   // XW_MessagingInterface_1 from XW_Extension.h.
   DEFINE_FUNCTION_1(Extension, Messaging, Register, XW_HandleMessageCallback);
