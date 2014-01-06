@@ -6,8 +6,8 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "content/public/test/test_utils.h"
+#include "grit/xwalk_application_resources.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "xwalk/grit/xwalk_application_resources.h"
 
 using content::BrowserThread;
 

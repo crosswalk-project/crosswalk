@@ -23,6 +23,7 @@
 
         'dependencies': [
           'extensions/external_extension_sample.gyp:*',
+          'extensions/extensions_resources.gyp:xwalk_extensions_resources',
         ],
       }
     ]
