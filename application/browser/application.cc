@@ -220,9 +220,6 @@ int Application::GetRenderProcessHostID() const {
 }
 
 bool Application::IsOnSuspendHandlerRegistered() const {
-  ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
-  ApplicationStorage* storage = system->application_storage();
-
   const std::set<std::string>& events = data()->GetEvents();
   if (events.find(kOnSuspend) == events.end())
     return false;
