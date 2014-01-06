@@ -5,12 +5,11 @@
 #include "xwalk/application/browser/linux/running_applications_manager.h"
 
 #include <string>
-
-#include "xwalk/application/browser/application.h"
-
 #include "base/bind.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
+
+#include "xwalk/application/browser/linux/running_application_object.h"
 
 namespace {
 
@@ -28,38 +27,23 @@ const char kRunningManagerDBusError[] =
 
 const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 
-// D-Bus Interface implemented by objects that represent running
-// applications.
-//
-// Methods:
-//
-//   Terminate()
-//     Will terminate the running application. This object will be unregistered
-//     from D-Bus.
-//
-// Properties:
-//
-//   readonly string AppID
-const char kRunningApplicationDBusInterface[] =
-    "org.crosswalkproject.Running.Application1";
-
-const char kRunningApplicationDBusError[] =
-    "org.crosswalkproject.Running.Application.Error";
-
-dbus::ObjectPath GetRunningPathForAppID(const std::string& app_id) {
-  return dbus::ObjectPath(kRunningManagerDBusPath.value() + "/" + app_id);
-}
 
 }  // namespace
 
 namespace xwalk {
 namespace application {
 
+dbus::ObjectPath GetRunningPathForAppID(const std::string& app_id) {
+  return dbus::ObjectPath(kRunningManagerDBusPath.value() + "/" + app_id);
+}
+
 RunningApplicationsManager::RunningApplicationsManager(
     scoped_refptr<dbus::Bus> bus, ApplicationService* service)
     : weak_factory_(this),
       application_service_(service),
       adaptor_(bus, kRunningManagerDBusPath) {
+  application_service_->AddObserver(this);
+
   adaptor_.manager_object()->ExportMethod(
       kRunningManagerDBusInterface, "Launch",
       base::Bind(&RunningApplicationsManager::OnLaunch,
@@ -96,7 +80,8 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
-  if (!application_service_->Launch(app_id)) {
+  Application* application = application_service_->Launch(app_id);
+  if (!application) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
                     "Error launching application with id " + app_id);
@@ -104,30 +89,16 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
-  // FIXME(cmarcelo): ApplicationService should tell us when new applications
-  // appear and we create new managed objects in D-Bus based on that. See
-  // InstalledApplicationManager for an example. We also have to store the
-  // response_sender associated with that app_id.
-  AddObject(app_id);
+  // FIXME(cmarcelo): ApplicationService will tell us when new applications
+  // appear (with DidLaunchApplication()) and we create new managed objects
+  // in D-Bus based on that.
+  dbus::ObjectPath path = AddObject(app_id, method_call->GetSender(),
+                                    application);
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
   dbus::MessageWriter writer(response.get());
-  writer.AppendObjectPath(GetRunningPathForAppID(app_id));
-  response_sender.Run(response.Pass());
-}
-
-void RunningApplicationsManager::OnTerminate(
-    dbus::ManagedObject* object, dbus::MethodCall* method_call,
-    dbus::ExportedObject::ResponseSender response_sender) {
-
-  if (Application* application = application_service_->GetActiveApplication())
-    application->Close();
-
-  adaptor_.RemoveManagedObject(object->path());
-
-  scoped_ptr<dbus::Response> response =
-      dbus::Response::FromMethodCall(method_call);
+  writer.AppendObjectPath(path);
   response_sender.Run(response.Pass());
 }
 
@@ -142,22 +113,24 @@ void RunningApplicationsManager::OnExported(
   }
 }
 
-void RunningApplicationsManager::AddObject(const std::string& app_id) {
-  scoped_ptr<dbus::ManagedObject> object(
-      new dbus::ManagedObject(adaptor_.bus(), GetRunningPathForAppID(app_id)));
-  object->dbus_object()->ExportMethod(
-      kRunningApplicationDBusInterface, "Terminate",
-      base::Bind(&RunningApplicationsManager::OnTerminate,
-                 weak_factory_.GetWeakPtr(),
-                 base::Unretained(object.get())),
-      base::Bind(&RunningApplicationsManager::OnExported,
-                 weak_factory_.GetWeakPtr()));
+void RunningApplicationsManager::WillDestroyApplication(Application* app) {
+  dbus::ObjectPath path = GetRunningPathForAppID(app->id());
 
-  object->properties()->Set(
-      kRunningApplicationDBusInterface, "AppID",
-      scoped_ptr<base::Value>(base::Value::CreateStringValue(app_id)));
-  dbus::ObjectPath path = object->path();
-  adaptor_.AddManagedObject(object.Pass());
+  adaptor_.RemoveManagedObject(path);
+}
+
+dbus::ObjectPath RunningApplicationsManager::AddObject(
+    const std::string& app_id, const std::string& launcher_name,
+    Application* application) {
+  scoped_ptr<RunningApplicationObject> running_application(
+      new RunningApplicationObject(adaptor_.bus(), app_id,
+                                   launcher_name, application));
+
+  dbus::ObjectPath path = running_application->path();
+
+  adaptor_.AddManagedObject(running_application.PassAs<dbus::ManagedObject>());
+
+  return path;
 }
 
 }  // namespace application
