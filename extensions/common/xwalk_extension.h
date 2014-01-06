@@ -38,6 +38,8 @@ class XWalkExtension {
       // performance.
       virtual bool CheckAPIAccessControl(std::string extension_name,
           std::string api_name) { return false; }
+      virtual bool RegisterPermissions(std::string extension_name,
+          std::string perm_table) { return false; }
 
     protected:
       ~PermissionsDelegate() {}
@@ -61,6 +63,7 @@ class XWalkExtension {
   }
 
   bool CheckAPIAccessControl(const char* api_name);
+  bool RegisterPermissions(const char* perm_table);
 
  protected:
   XWalkExtension();

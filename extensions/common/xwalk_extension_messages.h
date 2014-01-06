@@ -46,6 +46,10 @@ IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionProcessHostMsg_CheckAPIAccessControl, 
                             std::string,
                             std::string,
                             xwalk::extensions::RuntimePermission)
+IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionProcessHostMsg_RegisterPermissions, // NOLINT(*)
+                            std::string,
+                            std::string,
+                            bool)
 
 // We use a separated message class for Client<->Server communication
 // to ease filtering.

@@ -232,6 +232,13 @@ bool Application::ContainsExtension(const std::string& extension_name) const {
   return true;
 }
 
+bool Application::RegisterPermissions(const std::string& extension_name,
+                           const std::string& perm_table) {
+  // TODO(Bai): Parse the permission table and fill in the name_perm_map_
+  LOG(INFO) << extension_name << " registered: " << perm_table;
+  return true;
+}
+
 std::string Application::GetRegisteredPermissionName(
     const std::string& extension_name,
     const std::string& api_name) const {

@@ -23,6 +23,13 @@ bool XWalkExtension::CheckAPIAccessControl(const char* api_name) {
   return permissions_delegate_->CheckAPIAccessControl(this->name(), api_name);
 }
 
+bool XWalkExtension::RegisterPermissions(const char* perm_table) {
+  if (!permissions_delegate_)
+    return false;
+  return permissions_delegate_->RegisterPermissions(
+      this->name(), perm_table);
+}
+
 XWalkExtensionInstance::XWalkExtensionInstance() {}
 
 XWalkExtensionInstance::~XWalkExtensionInstance() {}

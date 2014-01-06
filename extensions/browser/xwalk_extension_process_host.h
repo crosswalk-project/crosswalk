@@ -37,6 +37,8 @@ class XWalkExtensionProcessHost
       int render_process_id) {}
     virtual void OnCheckAPIAccessControl(std::string extension_name,
       std::string api_name, const PermissionCallback& callback) {}
+    virtual bool OnRegisterPermissions(std::string extension_name,
+      std::string perm_table) {return false;}
 
    protected:
     ~Delegate() {}
@@ -74,6 +76,8 @@ class XWalkExtensionProcessHost
       std::string api_name, IPC::Message* reply_msg);
   void ReplyAccessControlToExtension(IPC::Message* reply_msg,
       RuntimePermission perm);
+  void OnRegisterPermissions(std::string extension_name,
+      std::string perm_table, bool* result);
 
   scoped_ptr<content::BrowserChildProcessHost> process_;
   IPC::ChannelHandle ep_rp_channel_handle_;

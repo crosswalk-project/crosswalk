@@ -71,6 +71,14 @@ class ApplicationService : public Application::Observer {
   void CheckAPIAccessControl(const std::string& app_id,
       const std::string& extension_name,
       const std::string& api_name, const PermissionCallback& callback);
+  // Register APIs implemented by extension. This method will be called
+  // when application register extensions.
+  // Parameter perm_table is a string which is a map between extension
+  // and it includes APIs. For example perm_table is like '{"bluetooth":
+  // ["read", "write", "management"]}'.
+  bool RegisterPermissions(const std::string& app_id,
+      const std::string& extension_name,
+      const std::string& perm_table);
 
  private:
   // Implementation of Application::Observer.

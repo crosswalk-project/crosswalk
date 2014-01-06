@@ -432,5 +432,11 @@ void XWalkExtensionService::OnCheckAPIAccessControl(
   delegate_->CheckAPIAccessControl(extension_name, api_name, callback);
 }
 
+bool XWalkExtensionService::OnRegisterPermissions(
+    std::string extension_name, std::string perm_table) {
+  CHECK(delegate_);
+  return delegate_->RegisterPermissions(extension_name, perm_table);
+}
+
 }  // namespace extensions
 }  // namespace xwalk
