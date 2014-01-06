@@ -39,10 +39,13 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
   // XWalkBrowserMainParts so they get correctly registered on-demand
   // by XWalkExtensionService each time a in_process Server is created.
   void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
-  void UnregisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
+
+  // Lookup the extension with the given name from the extension list that is
+  // already registered. Returns NULL if no such extension exists.
+  extensions::XWalkExtension* LookupExtension(const std::string& name);
 
  private:
-  ScopedVector<extensions::XWalkExtension> extensions_;
+  extensions::XWalkExtensionVector extensions_;
   scoped_refptr<net::CookieStore> cookie_store_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsAndroid);

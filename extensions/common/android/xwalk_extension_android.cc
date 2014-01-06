@@ -30,12 +30,9 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
 }
 
 XWalkExtensionAndroid::~XWalkExtensionAndroid() {
-  //  Clear its all instances.
-  for (InstanceMap::iterator it = instances_.begin();
-       it != instances_.end(); ++it) {
-    XWalkExtensionInstance* instance = it->second;
-    delete instance;
-  }
+  // The |instances_| holds references to the instances created from this
+  // extension, but it doesn't own the object. The instance deletion is
+  // transferred to XWalkExtensionServer.
   instances_.clear();
 }
 
@@ -75,13 +72,12 @@ void XWalkExtensionAndroid::BroadcastMessage(JNIEnv* env, jobject obj,
 }
 
 void XWalkExtensionAndroid::DestroyExtension(JNIEnv* env, jobject obj) {
-    // Instead of using 'delete' to destroy the extension object, here we
-    // reply on the method of UnregisterExtension to delete it since it will
-    // remove a scoped_ptr of XWalkExtensionAndroid object from a
-    // ScopedVector object. Otherwise, the 'delete' operation would be
-    // called recursively.
-    ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
-        UnregisterExtension(scoped_ptr<XWalkExtension>(this));
+  // Since XWalkExtensionServer owns this native object, and it won't be deleted
+  // at this point even if the corresponding Java-side object is destroyed.
+  // Instead, we only reset the java reference to the Java-side object and id
+  // counter. See comments in xwalk_extension_android.h.
+  java_ref_.reset();
+  next_instance_id_ = 1;
 }
 
 XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
@@ -96,6 +92,11 @@ XWalkExtensionInstance* XWalkExtensionAndroid::CreateInstance() {
   instances_[next_instance_id_] = instance;
 
   next_instance_id_++;
+
+  // Here we return the raw pointer to its caller XWalkExtensionServer. Since
+  // XWalkExtensionServer has a map to maintain all instances created, the
+  // ownership is also transferred to XWalkExtensionServer so that the instance
+  // should be deleted by XWalkExtensionServer.
   return instance;
 }
 
@@ -113,6 +114,11 @@ void XWalkExtensionAndroid::RemoveInstance(int instance) {
   }
 
   instances_.erase(instance);
+}
+
+void XWalkExtensionAndroid::BindToJavaObject(JNIEnv* env, jobject obj) {
+  JavaObjectWeakGlobalRef ref(env, obj);
+  java_ref_ = ref;
 }
 
 XWalkExtensionAndroidInstance::XWalkExtensionAndroidInstance(
@@ -140,6 +146,7 @@ void XWalkExtensionAndroidInstance::HandleMessage(
   jstring buffer = env->NewStringUTF(value.c_str());
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
+    LOG(ERROR) << "No valid Java object is referenced for message routing";
     return;
   }
 
@@ -159,6 +166,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   JNIEnv* env = base::android::AttachCurrentThread();
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
+    LOG(ERROR) << "No valid Java object is referenced for sync message routing";
     SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
     return;
   }
@@ -175,13 +183,22 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
 }
 
-static jint CreateExtension(JNIEnv* env, jobject obj,
-                            jstring name, jstring js_api) {
-  XWalkExtensionAndroid* extension =
-      new XWalkExtensionAndroid(env, obj, name, js_api);
+static jint GetOrCreateExtension(JNIEnv* env, jobject obj,
+                                 jstring name, jstring js_api) {
+  xwalk::XWalkBrowserMainPartsAndroid* main_parts =
+      ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
 
-  ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts())->
-      RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+  const char *str = env->GetStringUTFChars(name, 0);
+  XWalkExtension* extension = main_parts->LookupExtension(str);
+  env->ReleaseStringUTFChars(name, str);
+
+  // Create a new extension object if no existing one is found.
+  if (!extension) {
+    extension = new XWalkExtensionAndroid(env, obj, name, js_api);
+    main_parts->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
+  } else {
+    static_cast<XWalkExtensionAndroid*>(extension)->BindToJavaObject(env, obj);
+  }
 
   return reinterpret_cast<jint>(extension);
 }
