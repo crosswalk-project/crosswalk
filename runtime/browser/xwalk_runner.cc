@@ -11,6 +11,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -86,6 +87,9 @@ void XWalkRunner::CreateComponents() {
   // XWalkRunner::app_system().
   app_component_ = app_component.get();
   AddComponent(app_component.PassAs<XWalkComponent>());
+
+  if (XWalkRuntimeFeatures::isSysAppsEnabled())
+    AddComponent(CreateSysAppsComponent().PassAs<XWalkComponent>());
 }
 
 void XWalkRunner::DestroyComponents() {
@@ -103,6 +107,10 @@ void XWalkRunner::AddComponent(scoped_ptr<XWalkComponent> component) {
 
 scoped_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
   return make_scoped_ptr(new ApplicationComponent(runtime_context_.get()));
+}
+
+scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
+  return make_scoped_ptr(new SysAppsComponent());
 }
 
 void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {

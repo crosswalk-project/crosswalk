@@ -23,6 +23,10 @@ class XWalkRunnerTizen : public XWalkRunner {
  private:
   friend class XWalkRunner;
   XWalkRunnerTizen();
+
+  // XWalkRunner implementation.
+  virtual void CreateComponents() OVERRIDE;
+  virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent() OVERRIDE;
 };
 
 }  // namespace xwalk

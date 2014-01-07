@@ -35,7 +35,6 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
-#include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
 namespace {
 
@@ -162,16 +161,6 @@ void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
   ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     extensions->push_back(*it);
-
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
-    extensions->push_back(new sysapps::RawSocketExtension());
-}
-
-void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForUIThread(
-    content::RenderProcessHost* host,
-    extensions::XWalkExtensionVector* extensions) {
-  // This override prevents the SysAppsManager for creating UI thread
-  // extensions as they are not used on Android yet.
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(

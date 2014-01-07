@@ -163,6 +163,8 @@
         'runtime/browser/runtime_url_request_context_getter.h',
         'runtime/browser/speech/speech_recognition_manager_delegate.cc',
         'runtime/browser/speech/speech_recognition_manager_delegate.h',
+        'runtime/browser/sysapps_component.cc',
+        'runtime/browser/sysapps_component.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
         'runtime/browser/ui/color_chooser_android.cc',

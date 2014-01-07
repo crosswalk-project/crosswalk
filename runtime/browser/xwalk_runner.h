@@ -19,6 +19,7 @@ namespace xwalk {
 
 class RuntimeContext;
 class ApplicationComponent;
+class SysAppsComponent;
 class XWalkComponent;
 class XWalkContentBrowserClient;
 
@@ -87,6 +88,7 @@ class XWalkRunner {
   // These specific factory functions are used to allow ports to customize
   // components.
   virtual scoped_ptr<ApplicationComponent> CreateAppComponent();
+  virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent();
 
  private:
   friend class XWalkMainDelegate;
