@@ -26,7 +26,6 @@ BuildRequires:  bzip2-devel
 BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
-BuildRequires:  gst-plugins-atomisp-devel
 BuildRequires:  libcap-devel
 BuildRequires:  python
 BuildRequires:  python-xml
@@ -58,8 +57,6 @@ BuildRequires:  pkgconfig(pango)
 BuildRequires:  pkgconfig(pkgmgr-info)
 BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(nspr)
-BuildRequires:  pkgconfig(openssl)
-BuildRequires:  pkgconfig(scim)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(x11)
@@ -74,6 +71,31 @@ BuildRequires:  pkgconfig(xrender)
 BuildRequires:  pkgconfig(xscrnsaver)
 BuildRequires:  pkgconfig(xt)
 BuildRequires:  pkgconfig(xtst)
+
+# Depending on the Tizen version and profile we are building for, we have
+# different dependencies, patches and gyp options to pass. Checking for
+# specific profiles is not very future-proof. We therefore try to check for
+# either specific features that may be enabled in the current profile (such as
+# Wayland support) or for a certain Tizen major version (the differences betwen
+# Tizen 2 and Tizen 3 are big enough that we need completely different patches
+# and build dependencies, for example).
+%bcond_with wayland
+
+%if "%{tizen}" < "3.0"
+BuildRequires:  gst-plugins-atomisp-devel
+BuildRequires:  pkgconfig(openssl)
+%else
+BuildRequires:  pkgconfig(nss)
+%endif
+
+%if %{with wayland}
+BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  pkgconfig(wayland-cursor)
+BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(xkbcommon)
+%else
+BuildRequires:  pkgconfig(scim)
+%endif
 
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
@@ -107,12 +129,15 @@ cp -a src/xwalk/AUTHORS AUTHORS.xwalk
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
+%patch7
+
+%if "%{tizen}" < "3.0"
 %patch2
 %patch3
 %patch4
 %patch5 -p1
 %patch6 -p1
-%patch7
+%endif
 
 %build
 
@@ -149,18 +174,27 @@ else
    GYP_EXTRA_FLAGS="--depth=. --generator-output=${BUILDDIR_NAME}"
 fi
 
+# Tizen 2's NSS is too old for Chromium, so we have to use the OpenSSL backend.
+%if "%{tizen}" < "3.0"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dtizen_mobile=1 -Duse_openssl=1"
+%endif
+
+%if %{with wayland}
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ash=1 -Duse_ozone=1"
+%endif
+
 # Change src/ so that we can pass "." to --depth below, otherwise we would need
 # to pass "src" to it, but this confuses the gyp make generator, that expects
 # to be called from the root source directory.
 cd src
 
-# Use openssl instead of nss, until Tizen gets nss >= 3.14.3
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='make'
 ./xwalk/gyp_xwalk xwalk/xwalk.gyp \
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
+-Dchromeos=0 \
 -Ddisable_nacl=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
@@ -173,9 +207,7 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Denable_xi21_mt=1 \
--Duse_xi2_mt=0 \
--Dtizen_mobile=1 \
--Duse_openssl=1
+-Duse_xi2_mt=0
 
 make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
