@@ -56,63 +56,74 @@ public class ContactUtils {
     }
 
     public boolean hasID(String id) {
-        if (id == null) {
-            return false;
-        }
-
-        final Cursor c = mResolver.query(
-                ContactsContract.Contacts.CONTENT_URI,
-                null, ContactsContract.Contacts._ID + " = ?", new String[]{id}, null);
+        if (id == null) return false;
+        Cursor c = null;
         try {
+            c = mResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                                null, ContactsContract.Contacts._ID + " = ?",
+                                new String[]{id}, null);
             return (c.getCount() != 0);
+        } catch (SecurityException e) {
+            Log.e(TAG, "hasID: " + e.toString());
+            return false;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 
     public String getRawId(String id) {
-        String rawContactId = null;
-        Cursor c = mResolver.query(
-                RawContacts.CONTENT_URI, new String[]{RawContacts._ID},
-                RawContacts.CONTACT_ID + "=?", new String[]{id}, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI, new String[]{RawContacts._ID},
+                                RawContacts.CONTACT_ID + "=?", new String[]{id}, null);
             if (c.moveToFirst()) {
                 // Actually it is possible that for one contact id there are multiple rawIds.
-                rawContactId = c.getString(0);
+                return c.getString(0);
+            } else {
+                return null;
             }
-            return rawContactId;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getRawId: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 
     public String getId(String rawId) {
-        String contactId = null;
-        Cursor c = mResolver.query(
-                RawContacts.CONTENT_URI, new String[]{RawContacts.CONTACT_ID},
-                RawContacts._ID + "=?", new String[]{rawId}, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI, new String[]{RawContacts.CONTACT_ID},
+                                RawContacts._ID + "=?", new String[]{rawId}, null);
             if (c.moveToFirst()) {
-                contactId = c.getString(0);
+                return c.getString(0);
+            } else {
+                return null;
             }
-            return contactId;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getId: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 
     public Set<String> getCurrentRawIds() {
-        Set<String> rawIds = new HashSet<String>();
-        Cursor c = mResolver.query(
-                RawContacts.CONTENT_URI, new String[]{RawContacts._ID}, null, null, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI,
+                                new String[]{RawContacts._ID}, null, null, null);
+            Set<String> rawIds = new HashSet<String>();
             while (c.moveToNext()) {
                 rawIds.add(c.getString(0));
             }
+            return rawIds;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getCurrentRawIds: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
-        return rawIds;
     }
 
     public String[] getDefaultAccountNameAndType() {
@@ -125,10 +136,15 @@ public class ContactUtils {
         ContentProviderResult[] results = null;
         try {
             results = mResolver.applyBatch(ContactsContract.AUTHORITY, ops);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getDefaultAccountNameAndType - Failed to apply batch: " + e.toString());
-        } catch (OperationApplicationException e) {
-            Log.e(TAG, "getDefaultAccountNameAndType - Failed to apply batch: " + e.toString());
+        } catch (Exception e) {
+            if (e instanceof RemoteException ||
+                e instanceof OperationApplicationException ||
+                e instanceof SecurityException) {
+                Log.e(TAG, "getDefaultAccountNameAndType - Failed to apply batch: " + e.toString());
+                return null;
+            } else {
+                throw new RuntimeException(e);
+            }
         }
 
         Uri rawContactUri = null;
@@ -138,24 +154,25 @@ public class ContactUtils {
             rawContactId = ContentUris.parseId(rawContactUri);
         }
 
-        Cursor c = mResolver.query(
-                RawContacts.CONTENT_URI
-                , new String[] {RawContacts.ACCOUNT_TYPE, RawContacts.ACCOUNT_NAME}
-                , RawContacts._ID+"=?"
-                , new String[] {String.valueOf(rawContactId)}
-                , null);
-
+        Cursor c = null;
         String accountType = "";
         String accountName = "";
         try {
+            c = mResolver.query(RawContacts.CONTENT_URI,
+                                new String[] {RawContacts.ACCOUNT_TYPE, RawContacts.ACCOUNT_NAME},
+                                RawContacts._ID + "=?",
+                                new String[] {String.valueOf(rawContactId)}, null);
             if (c.moveToFirst()) {
                 if (!c.isAfterLast()) {
                     accountType = c.getString(c.getColumnIndex(RawContacts.ACCOUNT_TYPE));
                     accountName = c.getString(c.getColumnIndex(RawContacts.ACCOUNT_NAME));
                 }
             }
+        } catch (SecurityException e) {
+            Log.e(TAG, "getDefaultAccountNameAndType: " + e.toString());
+            return null;
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
 
         mResolver.delete(rawContactUri, null, null);
@@ -165,39 +182,45 @@ public class ContactUtils {
 
     public String getGroupId(String groupTitle) {
         final String selection = Groups.DELETED + "=? and " + Groups.GROUP_VISIBLE + "=?";
-        Cursor cursor = mResolver.query(
-                Groups.CONTENT_URI, null, selection, new String[]{"0", "1"}, null);
+        Cursor c = null;
         try {
-            cursor.moveToFirst();
-            for (int i = 0; i < cursor.getCount(); i++) {
-                final String title = cursor.getString(cursor.getColumnIndex(Groups.TITLE));
+            c = mResolver.query(Groups.CONTENT_URI, null, selection, new String[]{"0", "1"}, null);
+            c.moveToFirst();
+            for (int i = 0; i < c.getCount(); i++) {
+                final String title = c.getString(c.getColumnIndex(Groups.TITLE));
                 if (title.equals(groupTitle)) {
-                    return cursor.getString(cursor.getColumnIndex(Groups._ID));
+                    return c.getString(c.getColumnIndex(Groups._ID));
                 }
-                cursor.moveToNext();
+                c.moveToNext();
             }
             return null;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getGroupId: " + e.toString());
+            return null;
         } finally {
-            cursor.close();
+            if (c != null) c.close();
         }
     }
 
     public String getGroupTitle(String groupId) {
         final String selection = Groups.DELETED + "=? and " + Groups.GROUP_VISIBLE + "=?";
-        Cursor cursor = mResolver.query(
-                Groups.CONTENT_URI, null, selection, new String[]{"0", "1"}, null);
+        Cursor c = null;
         try {
-            cursor.moveToFirst();
-            for (int i = 0; i < cursor.getCount(); i++) {
-                final String id = cursor.getString(cursor.getColumnIndex(Groups._ID));
+            c = mResolver.query(Groups.CONTENT_URI, null, selection, new String[]{"0", "1"}, null);
+            c.moveToFirst();
+            for (int i = 0; i < c.getCount(); i++) {
+                final String id = c.getString(c.getColumnIndex(Groups._ID));
                 if (id.equals(groupId)) {
-                    return cursor.getString(cursor.getColumnIndex(Groups.TITLE));
+                    return c.getString(c.getColumnIndex(Groups.TITLE));
                 }
-                cursor.moveToNext();
+                c.moveToNext();
             }
             return null;
+        } catch (SecurityException e) {
+            Log.e(TAG, "getGroupTitle: " + e.toString());
+            return null;
         } finally {
-            cursor.close();
+            if (c != null) c.close();
         }
     }
 
@@ -206,9 +229,7 @@ public class ContactUtils {
         if (groupId == null) {
             newGroup(groupTitle);
             groupId = getGroupId(groupTitle);
-            if (groupId == null) {
-                return null;
-            }
+            if (groupId == null) return null;
         }
         return groupId;
     }
@@ -224,15 +245,19 @@ public class ContactUtils {
                 .build());
         try {
             mResolver.applyBatch(ContactsContract.AUTHORITY, o);
-        } catch (RemoteException e) {
-            Log.e(TAG, "newGroup - Failed to create new contact group: " + e.toString());
-        } catch (OperationApplicationException e) {
-            Log.e(TAG, "newGroup - Failed to create new contact group: " + e.toString());
+        } catch (Exception e) {
+            if (e instanceof RemoteException ||
+                e instanceof OperationApplicationException ||
+                e instanceof SecurityException) {
+                Log.e(TAG, "newGroup - Failed to create new contact group: " + e.toString());
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public void cleanByMimeType(String id, String mimeType) {
-        mResolver.delete(Data.CONTENT_URI, 
+        mResolver.delete(Data.CONTENT_URI,
                          String.format("%s = ? AND %s = ?", Data.CONTACT_ID, Data.MIMETYPE),
                          new String[] {id, mimeType});
     }

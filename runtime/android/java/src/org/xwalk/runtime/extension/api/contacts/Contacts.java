@@ -42,9 +42,7 @@ public class Contacts extends XWalkExtension {
 
     @Override
     public void onMessage(int instanceID, String message) {
-        if (message.isEmpty()) {
-            return;
-        }
+        if (message.isEmpty()) return;
         try {
             JSONObject jsonInput = new JSONObject(message);
             String cmd = jsonInput.getString("cmd");
@@ -61,9 +59,6 @@ public class Contacts extends XWalkExtension {
                 ContactFinder finder = new ContactFinder(mResolver);
                 String options = jsonInput.has("options") ? jsonInput.getString("options") : null;
                 JSONArray results = finder.find(options);
-                if (results == null) {
-                    results = new JSONArray(); // return an empty array if nothing found.
-                }
                 jsonOutput.put("data", results);
             } else if (cmd.equals("remove")) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
@@ -72,10 +67,15 @@ public class Contacts extends XWalkExtension {
                         .withSelection(RawContacts.CONTACT_ID + "=?", args).build());
                 try {
                     mResolver.applyBatch(ContactsContract.AUTHORITY, ops);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to apply batch to delete contacts: " + e.toString());
-                } catch (OperationApplicationException e) {
-                    Log.e(TAG, "Failed to apply batch to delete contacts: " + e.toString());
+                } catch (Exception e) {
+                    if (e instanceof RemoteException ||
+                        e instanceof OperationApplicationException ||
+                        e instanceof SecurityException) {
+                        Log.e(TAG, "onMessage - Failed to apply batch: " + e.toString());
+                        return;
+                    } else {
+                        throw new RuntimeException(e);
+                    }
                 }
             } else if (cmd.equals("clear")) {
                 handleClear();
@@ -107,15 +107,18 @@ public class Contacts extends XWalkExtension {
 
     // Remove all contacts.
     private void handleClear() {
-        Cursor c = mResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        Cursor c = null;
         try {
+            c = mResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             while (c.moveToNext()) {
                 String key = c.getString(c.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
                 Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key);
                 mResolver.delete(uri, null, null);
             }
+        } catch (SecurityException e) {
+            Log.e(TAG, "handleClear - failed to query: " + e.toString());
         } finally {
-            c.close();
+            if (c != null) c.close();
         }
     }
 }

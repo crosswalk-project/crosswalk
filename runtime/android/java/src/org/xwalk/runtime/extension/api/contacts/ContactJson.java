@@ -26,9 +26,7 @@ public class ContactJson {
 
     public ContactJson(String init) {
         try {
-            if (init == null) {
-                return;
-            }
+            if (init == null) return;
             mObject = new JSONObject(init);
         } catch (JSONException e) {
             Log.e(TAG, "Init JSON by " + init + " failed: " + e.toString());

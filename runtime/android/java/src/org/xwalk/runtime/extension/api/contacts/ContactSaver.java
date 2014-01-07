@@ -121,9 +121,7 @@ public class ContactSaver {
                     final Integer iType = contactMap.mTypeValueMap.get(type);
 
                     Builder builder = newInsertContactOrFieldBuilder(contactMap.mMimeType);
-                    if (builder == null) {
-                        return;
-                    }
+                    if (builder == null) return;
 
                     if (json.getBoolean("preferred")) {
                         builder.withValue(contactMap.mTypeMap.get("isPrimary"), 1);
@@ -137,9 +135,7 @@ public class ContactSaver {
                         if (contactMap.mName.equals("impp")) {
                             int colonIdx = value.indexOf(':');
                             // An impp must indicate its protocol type by ':'
-                            if (-1 == colonIdx) {
-                                continue;
-                            }
+                            if (-1 == colonIdx) continue;
                             String protocol = value.substring(0, colonIdx);
                             builder.withValue(Im.PROTOCOL,
                                     ContactConstants.imProtocolMap.get(protocol));
@@ -162,9 +158,7 @@ public class ContactSaver {
         }
         for (String entry : dataEntries) {
             Builder builder = newInsertContactOrFieldBuilder(mimeType);
-            if (builder == null) {
-                return;
-            }
+            if (builder == null) return;
             builder.withValue(data, entry);
             mOps.add(builder.build());
         }
@@ -181,17 +175,13 @@ public class ContactSaver {
     }
 
     private void buildByDate(String name, String mimeType, String data, String type, int dateType) {
-        if (!mContact.has(name)) {
-            return;
-        }
+        if (!mContact.has(name)) return;
 
         final String fullDateString = mJson.getString(name);
         final String dateString = mUtils.dateTrim(fullDateString);
         Builder builder = newBuilder(mimeType);
         builder.withValue(data, dateString);
-        if (type != null) {
-            builder.withValue(type, dateType);
-        }
+        if (type != null) builder.withValue(type, dateType);
         mOps.add(builder.build());
     }
 
@@ -205,16 +195,13 @@ public class ContactSaver {
                 buildByArray(contactMap);
             } else { // Field that contains no type.
                 buildByArray(contactMap, contactMap.mDataMap.get("data"),
-                        mJson.getStringArray(contactMap.mName));
+                             mJson.getStringArray(contactMap.mName));
             }
         }
     }
 
     private void PutToContact(String id) {
-        if (id == null) {
-            return;
-        }
-
+        if (id == null) return;
         try {
             mContact.put("id", id);
         } catch (JSONException e) {
@@ -303,18 +290,24 @@ public class ContactSaver {
         // Perform the operation batch
         try {
             mUtils.mResolver.applyBatch(ContactsContract.AUTHORITY, mOps);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Failed to apply batch: " + e.toString());
-        } catch (OperationApplicationException e) {
-            Log.e(TAG, "Failed to apply batch: " + e.toString());
+        } catch (Exception e) {
+            if (e instanceof RemoteException ||
+                e instanceof OperationApplicationException ||
+                e instanceof SecurityException) {
+                Log.e(TAG, "Failed to apply batch: " + e.toString());
+                return new JSONObject();
+            } else {
+                throw new RuntimeException(e);
+            }
         }
 
         // If it is a new contact, need to get and return its auto-generated id.
         if (!mIsUpdate) {
             Set<String> newRawIds = mUtils.getCurrentRawIds();
+            if (newRawIds == null) return new JSONObject();
             newRawIds.removeAll(oldRawIds);
             if (newRawIds.size() != 1) {
-                Log.e(TAG, "build() - Something wrong after batch applied,"
+                Log.e(TAG, "Something wrong after batch applied, "
                         + "new raw ids are: " + newRawIds.toString());
                 return mContact;
             }
