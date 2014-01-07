@@ -45,7 +45,7 @@ class CounterExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new CounterExtensionContext();
   }
 };

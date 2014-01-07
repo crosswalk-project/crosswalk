@@ -36,7 +36,7 @@ class TestV8ToolsExtension : public XWalkExtension {
         "};");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new TestV8ToolsExtensionInstance();
   }
 };

@@ -29,7 +29,7 @@ class TestExportObjectExtension : public XWalkExtension {
         "exports.data = 54321");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new TestExportObjectExtensionInstance();
   }
 };
@@ -46,7 +46,7 @@ class TestExportCustomObjectExtension : public XWalkExtension {
         "exports = new ExportObject(12345)");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new TestExportObjectExtensionInstance();
   }
 };

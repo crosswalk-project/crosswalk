@@ -16,7 +16,7 @@
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/glue/webkit_glue.gyp:glue',
         '../webkit/glue/webkit_glue.gyp:glue_child',
-        'extensions/extensions.gypi:xwalk_extensions_lib',
+        'extensions/extensions.gyp:xwalk_extensions',
       ],
       'include_dirs': [
         '../../..',

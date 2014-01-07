@@ -5,9 +5,12 @@
 #include "xwalk/sysapps/common/sysapps_manager.h"
 
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/path_service.h"
 #include "base/stl_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -23,6 +26,21 @@ namespace {
 const char kEnableSysAppsSwitch[] = "--enable-sysapps";
 const char kDisableSysAppsSwitch[] = "--disable-sysapps";
 
+class XWalkSysAppsManagerTest : public ::testing::Test {
+ protected:
+  static void SetUpTestCase() {
+    // We need to make sure the resource bundle is up because
+    // the extensions we instantiate on this test depend on it.
+    base::FilePath pak_dir;
+    PathService::Get(base::DIR_MODULE, &pak_dir);
+
+    ASSERT_FALSE(pak_dir.empty());
+
+    base::FilePath pak_file = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
+    ui::ResourceBundle::InitSharedInstanceWithPakPath(pak_file);
+  }
+};
+
 class DummyExtension : public XWalkExtension {
  public:
   DummyExtension() {}
@@ -34,7 +52,7 @@ class DummyExtension : public XWalkExtension {
 
 }  // namespace
 
-TEST(XWalkSysAppsManager, DisableSysAppsFlag) {
+TEST_F(XWalkSysAppsManagerTest, DisableSysAppsFlag) {
   CommandLine cmd(CommandLine::NO_PROGRAM);
   cmd.AppendSwitch(kDisableSysAppsSwitch);
   xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
@@ -49,7 +67,7 @@ TEST(XWalkSysAppsManager, DisableSysAppsFlag) {
   EXPECT_TRUE(extensions.empty());
 }
 
-TEST(XWalkSysAppsManager, DoesNotReplaceExtensions) {
+TEST_F(XWalkSysAppsManagerTest, DoesNotReplaceExtensions) {
   CommandLine cmd(CommandLine::NO_PROGRAM);
   cmd.AppendSwitch(kEnableSysAppsSwitch);
   xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
@@ -71,7 +89,7 @@ TEST(XWalkSysAppsManager, DoesNotReplaceExtensions) {
   STLDeleteElements(&extensions);
 }
 
-TEST(XWalkSysAppsManager, GetCPUProvider) {
+TEST_F(XWalkSysAppsManagerTest, GetCPUProvider) {
   xwalk::sysapps::SysAppsManager manager;
 
   CPUInfoProvider* provider(manager.GetCPUInfoProvider());

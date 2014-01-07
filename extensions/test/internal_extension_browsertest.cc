@@ -53,6 +53,8 @@ TestExtensionInstance::TestExtensionInstance() : counter_(0), handler_(this) {
                  base::Unretained(this)));
 }
 
+TestExtensionInstance::~TestExtensionInstance() {}
+
 void TestExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass());
 }

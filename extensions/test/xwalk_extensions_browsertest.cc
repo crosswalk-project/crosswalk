@@ -70,7 +70,7 @@ class EchoExtension : public XWalkExtension {
     set_javascript_api(kEchoAPI);
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     s_instance_was_created = true;
     return new EchoContext();
   }
@@ -87,7 +87,7 @@ class DelayedEchoExtension : public XWalkExtension {
     set_javascript_api(kEchoAPI);
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     return new DelayedEchoContext();
   }
 };
@@ -98,7 +98,7 @@ class ExtensionWithInvalidName : public XWalkExtension {
     set_name("invalid name with spaces");
   }
 
-  virtual XWalkExtensionInstance* CreateInstance() {
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
     s_instance_was_created = true;
     return NULL;
   }
