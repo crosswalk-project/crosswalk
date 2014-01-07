@@ -306,6 +306,20 @@ public class XWalkWebChromeClient {
     }
 
     /**
+     * Tell the client to toggle fullscreen mode.
+     * @param enterFullscreen Whether enter or cancel fullscreen.
+     */
+    public void onToggleFullscreen(boolean enterFullscreen) {}
+
+    /**
+     * Query the fullscreen status of the client.
+     * @return boolean Whether the client is fullscreen.
+     */
+    public boolean isFullscreen() {
+        return false;
+    }
+
+    /**
      * Report a JavaScript error message to the host application. The ChromeClient
      * should override this to process the log message as they see fit.
      * @param message The error message to report.

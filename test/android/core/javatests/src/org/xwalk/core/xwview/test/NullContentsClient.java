@@ -186,6 +186,15 @@ public class NullContentsClient extends XWalkContentsClient {
     }
 
     @Override
+    public void onToggleFullscreen(boolean enterFullscreen) {
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        return false;
+    }
+
+    @Override
     public void onRendererResponsive() {
     }
 

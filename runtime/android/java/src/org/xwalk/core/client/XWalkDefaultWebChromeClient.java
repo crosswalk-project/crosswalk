@@ -45,6 +45,7 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     private XWalkView mView;
     private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private boolean mOriginalFullscreen;
+    private boolean mIsFullscreen = false;
 
     public XWalkDefaultWebChromeClient(Context context, XWalkView view) {
         mContext = context;
@@ -148,19 +149,7 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
         mCustomView = view;
         mCustomViewCallback = callback;
 
-        if ((activity.getWindow().getAttributes().flags &
-                WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
-            mOriginalFullscreen = true;
-        } else {
-            mOriginalFullscreen = false;
-        }
-
-        // Set the activity to be fullscreen first.
-        if (!mOriginalFullscreen) {
-            activity.getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        onToggleFullscreen(true);
 
         // Add the video view to the activity's ContentView.
         activity.getWindow().addContentView(view,
@@ -176,10 +165,7 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
 
         if (mCustomView == null || activity == null) return;
 
-        // Clear the activity fullscreen flag.
-        if (!mOriginalFullscreen) {
-            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        onToggleFullscreen(false);
 
         // Remove video view from activity's ContentView.
         FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
@@ -196,5 +182,34 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
         // Allow all origins for geolocation requests here for Crosswalk.
         // TODO(yongsheng): Need to define a UI prompt?
         callback.invoke(origin, true, true);
+    }
+
+    @Override
+    public void onToggleFullscreen(boolean enterFullscreen) {
+        Activity activity = mView.getActivity();
+        if (enterFullscreen) {
+            if ((activity.getWindow().getAttributes().flags &
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
+                mOriginalFullscreen = true;
+            } else {
+                mOriginalFullscreen = false;
+            }
+            if (!mOriginalFullscreen) {
+                activity.getWindow().setFlags(
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        } else {
+            // Clear the activity fullscreen flag.
+            if (!mOriginalFullscreen) {
+                activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        }
+        mIsFullscreen = enterFullscreen;
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        return mIsFullscreen;
     }
 }

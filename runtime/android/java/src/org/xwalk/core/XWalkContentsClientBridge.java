@@ -323,6 +323,20 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onToggleFullscreen(boolean enterFullscreen) {
+        if (mXWalkWebChromeClient != null) {
+            mXWalkWebChromeClient.onToggleFullscreen(enterFullscreen);
+        }
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        if (mXWalkWebChromeClient != null) return mXWalkWebChromeClient.isFullscreen();
+
+        return false;
+    }
+
+    @Override
     public ContentVideoViewClient getContentVideoViewClient() {
         return new XWalkContentVideoViewClient(this, mXWalkView.getActivity());
     }

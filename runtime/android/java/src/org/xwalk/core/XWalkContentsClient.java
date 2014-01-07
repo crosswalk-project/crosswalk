@@ -170,6 +170,10 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onTitleChanged(String title);
 
+    public abstract void onToggleFullscreen(boolean enterFullscreen);
+
+    public abstract boolean isFullscreen();
+
     // TODO (michaelbai): Remove this method once the same method remove from
     // XWalkContentsClientAdapter.
     public void onShowCustomView(View view,

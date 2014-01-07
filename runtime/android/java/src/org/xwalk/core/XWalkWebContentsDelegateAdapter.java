@@ -16,8 +16,7 @@ public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void onLoadProgressChanged(int progress) {
-        if (mXWalkContentsClient != null)
-            mXWalkContentsClient.onProgressChanged(progress);
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onProgressChanged(progress);
     }
 
     @Override
@@ -28,8 +27,7 @@ public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void closeContents() {
-        if (mXWalkContentsClient != null)
-            mXWalkContentsClient.onCloseWindow();
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onCloseWindow();
     }
 
     @Override
@@ -39,13 +37,23 @@ public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void rendererUnresponsive() {
-        if (mXWalkContentsClient != null)
-            mXWalkContentsClient.onRendererUnresponsive();
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onRendererUnresponsive();
     }
 
     @Override
     public void rendererResponsive() {
-        if (mXWalkContentsClient != null)
-            mXWalkContentsClient.onRendererResponsive();
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onRendererResponsive();
+    }
+
+    @Override
+    public void toggleFullscreen(boolean enterFullscreen) {
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onToggleFullscreen(enterFullscreen);
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        if (mXWalkContentsClient != null) return mXWalkContentsClient.isFullscreen();
+
+        return false;
     }
 }
