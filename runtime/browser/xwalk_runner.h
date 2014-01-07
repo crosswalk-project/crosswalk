@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_XWALK_RUNNER_H_
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/scoped_vector.h"
 
 namespace content {
 class ContentBrowserClient;
@@ -17,6 +18,7 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class RuntimeContext;
+class XWalkComponent;
 class XWalkContentBrowserClient;
 
 namespace application {
@@ -103,6 +105,11 @@ class XWalkRunner {
   scoped_ptr<RuntimeContext> runtime_context_;
   scoped_ptr<application::ApplicationSystem> app_system_;
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
+
+  // XWalkRunner uses the XWalkComponent interface to be able to handle
+  // different subsystems and call them in specific situations, e.g. when
+  // extensions need to be created.
+  ScopedVector<XWalkComponent> components_;
 
   bool is_running_as_service_;
 

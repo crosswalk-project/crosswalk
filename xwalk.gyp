@@ -191,6 +191,7 @@
         'runtime/browser/xwalk_browser_main_parts_mac.mm',
         'runtime/browser/xwalk_browser_main_parts_tizen.cc',
         'runtime/browser/xwalk_browser_main_parts_tizen.h',
+        'runtime/browser/xwalk_component.h',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
         'runtime/browser/xwalk_runner.cc',

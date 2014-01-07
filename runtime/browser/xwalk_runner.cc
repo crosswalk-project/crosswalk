@@ -10,6 +10,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -78,13 +79,22 @@ void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
 
-  // TODO(cmarcelo): Move Create*Extensions*() functions to XWalkRunner.
-  XWalkBrowserMainParts* main_parts = content_browser_client_->main_parts();
   std::vector<extensions::XWalkExtension*> ui_thread_extensions;
+  std::vector<extensions::XWalkExtension*> extension_thread_extensions;
+
+  ScopedVector<XWalkComponent>::iterator it = components_.begin();
+  for (; it != components_.end(); ++it) {
+    XWalkComponent* component = *it;
+    component->CreateUIThreadExtensions(host, &ui_thread_extensions);
+    component->CreateExtensionThreadExtensions(
+        host, &extension_thread_extensions);
+  }
+
+  // TODO(cmarcelo): Once functionality is moved to components, remove
+  // CreateInternalExtensions*() functions from XWalkBrowserMainParts.
+  XWalkBrowserMainParts* main_parts = content_browser_client_->main_parts();
   main_parts->CreateInternalExtensionsForUIThread(
       host, &ui_thread_extensions);
-
-  std::vector<extensions::XWalkExtension*> extension_thread_extensions;
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 
