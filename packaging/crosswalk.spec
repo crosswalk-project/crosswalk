@@ -121,6 +121,13 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
+# Building the RPM in the GBS chroot fails with errors such as
+#   /usr/lib/gcc/i586-tizen-linux/4.7/../../../../i586-tizen-linux/bin/ld:
+#       failed to set dynamic section sizes: Memory exhausted
+# For now, work around it by passing a GNU ld-specific flag that optimizes the
+# linker for memory usage.
+export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory"
+
 # Support building in a non-standard directory, possibly outside %{_builddir}.
 # Since the build root is erased every time a new build is performed, one way
 # to avoid losing the build directory is to specify a location outside the
