@@ -260,7 +260,6 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  xwalk_runner_->app_system()->CreateExtensions(host, extensions);
   if (sysapps_manager_)
     sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }

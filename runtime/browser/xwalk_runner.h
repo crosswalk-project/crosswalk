@@ -18,6 +18,7 @@ class XWalkTestSuiteInitializer;
 namespace xwalk {
 
 class RuntimeContext;
+class ApplicationComponent;
 class XWalkComponent;
 class XWalkContentBrowserClient;
 
@@ -59,7 +60,7 @@ class XWalkRunner {
   //   object. Certain APIs doesn't allow us to pass the dependencies, so we
   //   need to reach them some way.
   RuntimeContext* runtime_context() { return runtime_context_.get(); }
-  application::ApplicationSystem* app_system() { return app_system_.get(); }
+  application::ApplicationSystem* app_system();
   extensions::XWalkExtensionService* extension_service() {
     return extension_service_.get();
   }
@@ -74,6 +75,18 @@ class XWalkRunner {
 
  protected:
   XWalkRunner();
+
+  // These two hooks should be used to add new port specific
+  // components. Subclasses *must* call the base class implementation.
+  virtual void CreateComponents();
+  virtual void DestroyComponents();
+
+  // Should be used by CreateComponents() implementations.
+  void AddComponent(scoped_ptr<XWalkComponent> component);
+
+  // These specific factory functions are used to allow ports to customize
+  // components.
+  virtual scoped_ptr<ApplicationComponent> CreateAppComponent();
 
  private:
   friend class XWalkMainDelegate;
@@ -103,13 +116,14 @@ class XWalkRunner {
 
   scoped_ptr<XWalkContentBrowserClient> content_browser_client_;
   scoped_ptr<RuntimeContext> runtime_context_;
-  scoped_ptr<application::ApplicationSystem> app_system_;
   scoped_ptr<extensions::XWalkExtensionService> extension_service_;
 
   // XWalkRunner uses the XWalkComponent interface to be able to handle
   // different subsystems and call them in specific situations, e.g. when
   // extensions need to be created.
   ScopedVector<XWalkComponent> components_;
+
+  ApplicationComponent* app_component_;
 
   bool is_running_as_service_;
 

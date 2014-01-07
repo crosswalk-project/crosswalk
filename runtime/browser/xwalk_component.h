@@ -5,6 +5,12 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_COMPONENT_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_COMPONENT_H_
 
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
+
+namespace content {
+class RenderProcessHost;
+}
+
 namespace xwalk {
 
 // Base class for subsystems of Crosswalk to hook into important
