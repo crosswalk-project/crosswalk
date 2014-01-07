@@ -15,7 +15,6 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
-#include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 
@@ -24,11 +23,9 @@ using xwalk::sysapps::CPUInfoProvider;
 using xwalk::sysapps::SysAppsManager;
 using xwalk::extensions::XWalkExtension;
 using xwalk::extensions::XWalkExtensionInstance;
+using xwalk::extensions::XWalkExtensionVector;
 
 namespace {
-
-const char kEnableSysAppsSwitch[] = "--enable-sysapps";
-const char kDisableSysAppsSwitch[] = "--disable-sysapps";
 
 class XWalkSysAppsManagerTest : public ::testing::Test {
  protected:
@@ -62,34 +59,39 @@ class DummyExtension : public XWalkExtension {
   }
 };
 
+int CountExtensions(SysAppsManager* manager) {
+  XWalkExtensionVector extensions;
+  STLElementDeleter<XWalkExtensionVector> deleter(&extensions);
+  manager->CreateExtensionsForExtensionThread(&extensions);
+  manager->CreateExtensionsForUIThread(&extensions);
+  return extensions.size();
+}
+
 }  // namespace
 
-TEST_F(XWalkSysAppsManagerTest, DisableSysAppsFlag) {
-  CommandLine cmd(CommandLine::NO_PROGRAM);
-  cmd.AppendSwitch(kDisableSysAppsSwitch);
-  xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
+TEST_F(XWalkSysAppsManagerTest, DisableDeviceCapabilities) {
+  SysAppsManager manager;
+  int count_before_disable = CountExtensions(&manager);
+  manager.DisableDeviceCapabilities();
+  int count_after_disable = CountExtensions(&manager);
+  EXPECT_EQ(count_before_disable, count_after_disable + 1);
+}
 
-  xwalk::extensions::XWalkExtensionVector extensions;
-
-  xwalk::sysapps::SysAppsManager manager;
-  manager.CreateExtensionsForExtensionThread(&extensions);
-  EXPECT_TRUE(extensions.empty());
-
-  manager.CreateExtensionsForUIThread(&extensions);
-  EXPECT_TRUE(extensions.empty());
+TEST_F(XWalkSysAppsManagerTest, DisableRawSockets) {
+  SysAppsManager manager;
+  int count_before_disable = CountExtensions(&manager);
+  manager.DisableRawSockets();
+  int count_after_disable = CountExtensions(&manager);
+  EXPECT_EQ(count_before_disable, count_after_disable + 1);
 }
 
 TEST_F(XWalkSysAppsManagerTest, DoesNotReplaceExtensions) {
-  CommandLine cmd(CommandLine::NO_PROGRAM);
-  cmd.AppendSwitch(kEnableSysAppsSwitch);
-  xwalk::XWalkRuntimeFeatures::GetInstance()->Initialize(&cmd);
-
   XWalkExtension* extension_ptr(new DummyExtension);
 
-  xwalk::extensions::XWalkExtensionVector extensions;
+  XWalkExtensionVector extensions;
   extensions.push_back(extension_ptr);
 
-  xwalk::sysapps::SysAppsManager manager;
+  SysAppsManager manager;
   manager.CreateExtensionsForExtensionThread(&extensions);
   EXPECT_GE(extensions.size(), 1u);
 
@@ -102,7 +104,7 @@ TEST_F(XWalkSysAppsManagerTest, DoesNotReplaceExtensions) {
 }
 
 TEST_F(XWalkSysAppsManagerTest, GetAVCodecsProvider) {
-  xwalk::sysapps::SysAppsManager manager;
+  SysAppsManager manager;
 
   AVCodecsProvider* provider(manager.GetAVCodecsProvider());
   EXPECT_TRUE(provider != NULL);
@@ -114,7 +116,7 @@ TEST_F(XWalkSysAppsManagerTest, GetAVCodecsProvider) {
 }
 
 TEST_F(XWalkSysAppsManagerTest, GetCPUProvider) {
-  xwalk::sysapps::SysAppsManager manager;
+  SysAppsManager manager;
 
   CPUInfoProvider* provider(manager.GetCPUInfoProvider());
   EXPECT_TRUE(provider != NULL);

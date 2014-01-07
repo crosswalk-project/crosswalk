@@ -3,9 +3,6 @@
     {
       'target_name': 'sysapps',
       'type': 'static_library',
-      # FIXME(tmpsantos): In theory we depend on the whole runtime because
-      # of the XWalkRuntimeFeatures and this is a layer violation that must
-      # be fixed.
       'dependencies': [
         '../../base/base.gyp:base',
         '../../net/net.gyp:net',

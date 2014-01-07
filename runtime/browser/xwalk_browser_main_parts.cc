@@ -184,7 +184,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   extension_service_ = xwalk_runner_->extension_service();
 
   if (extension_service_) {
-    sysapps_manager_.reset(new sysapps::SysAppsManager());
+    if (XWalkRuntimeFeatures::isSysAppsEnabled()) {
+      sysapps_manager_.reset(new sysapps::SysAppsManager());
+      if (!XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled())
+        sysapps_manager_->DisableDeviceCapabilities();
+      if (!XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
+        sysapps_manager_->DisableRawSockets();
+    }
     RegisterExternalExtensions();
   }
 
@@ -255,7 +261,8 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
   xwalk_runner_->app_system()->CreateExtensions(host, extensions);
-  sysapps_manager_->CreateExtensionsForUIThread(extensions);
+  if (sysapps_manager_)
+    sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }
 
 void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
@@ -267,7 +274,8 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
   extensions->push_back(
       new experimental::DialogExtension(app_system));
 
-  sysapps_manager_->CreateExtensionsForExtensionThread(extensions);
+  if (sysapps_manager_)
+    sysapps_manager_->CreateExtensionsForExtensionThread(extensions);
 }
 
 }  // namespace xwalk

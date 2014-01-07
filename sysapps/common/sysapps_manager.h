@@ -25,12 +25,19 @@ class SysAppsManager {
   SysAppsManager();
   ~SysAppsManager();
 
+  void DisableDeviceCapabilities();
+  void DisableRawSockets();
+
   void CreateExtensionsForUIThread(XWalkExtensionVector* extensions);
   void CreateExtensionsForExtensionThread(XWalkExtensionVector* extensions);
 
   static AVCodecsProvider* GetAVCodecsProvider();
   static CPUInfoProvider* GetCPUInfoProvider();
   static MemoryInfoProvider* GetMemoryInfoProvider();
+
+ private:
+  bool device_capabilities_enabled_;
+  bool raw_sockets_enabled_;
 };
 
 }  // namespace sysapps
