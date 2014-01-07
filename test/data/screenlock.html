@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<meta name="viewport" content="width=device-width">
+<title>lockOrientation</title>
+<script>
+function apply(lock) {
+  var orientations = [];
+
+  con = document.getElementById("console");
+  con.innerHTML = "";
+
+  var entries = document.getElementsByTagName("input");
+  for (i = 0; i < entries.length; ++i) {
+    if (entries[i].checked)
+      orientations.push(entries[i].id);
+  }
+
+  if (!lock) {
+    if (!screen.unlockOrientation) {
+       con.innerHTML = "[]<br><br>unlockOrientation is not supported!<br><br>" + JSON.stringify(screen);
+       return;
+    }
+    screen.unlockOrientation();
+    con.innerHTML = "[]";
+    return;
+  }
+
+  con.innerHTML = JSON.stringify(orientations);
+
+  if (!screen.lockOrientation) {
+    con.innerHTML += "<br><br>lockOrientation is not supported!<br><br>" + JSON.stringify(screen);
+    return;
+  }
+  screen.lockOrientation(orientations);
+}
+</script>
+</head>
+<body>
+<br><br>
+<div style="width: 180px; margin: auto">
+<input type="checkbox" id="portrait-primary">Portrait (primary)<br>
+<input type="checkbox" id="portrait-secondary">Portrait (secondary)<br>
+<input type="checkbox" id="landscape-primary">Landscape (primary)<br>
+<input type="checkbox" id="landscape-secondary">Landscape (secondary)<br>
+<br>
+  <center><button onclick="apply(true)">Lock</button><button onclick="apply(false)">Unlock</button></center>
+  </div>
+<br><br>
+  Allowed orientations: <div id="console">[]</div>
+</body>
+</html>
