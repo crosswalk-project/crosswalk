@@ -18,6 +18,11 @@ class RuntimeContext;
 }
 
 namespace xwalk {
+
+namespace extensions {
+class XWalkExtensionServer;
+}
+
 namespace application {
 
 class ApplicationEventManager;
@@ -78,6 +83,8 @@ class ApplicationSystem {
   // Return true if the application system is running in service mode,
   // i.e. taking requests from native IPC mechanism to launch applications.
   virtual bool IsRunningAsService() const;
+
+  void RegisterExtensions(extensions::XWalkExtensionServer* server);
 
  protected:
   explicit ApplicationSystem(RuntimeContext* runtime_context);
