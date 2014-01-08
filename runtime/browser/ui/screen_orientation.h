@@ -18,17 +18,13 @@ LANDSCAPE_SECONDARY = 1 << 3,
 PORTRAIT            = PORTRAIT_PRIMARY | PORTRAIT_SECONDARY,
 LANDSCAPE           = LANDSCAPE_PRIMARY | LANDSCAPE_SECONDARY,
 ANY                 = PORTRAIT | LANDSCAPE,
-
-// Special
-UA_DEFAULTS         = 0
 };
 
 typedef unsigned OrientationMask;
 
-class ScreenOrientationAPISupplement {
+class MultiOrientationScreen {
  public:
-  virtual ~ScreenOrientationAPISupplement() {}
-  virtual OrientationMask GetAllowedUAOrientations() const = 0;
+  virtual ~MultiOrientationScreen() {}
   virtual void OnAllowedOrientationsChanged(OrientationMask orientations) = 0;
 };
 

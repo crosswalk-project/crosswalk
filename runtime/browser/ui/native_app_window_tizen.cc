@@ -13,6 +13,7 @@
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 
 namespace xwalk {
 
@@ -35,7 +36,10 @@ void NativeAppWindowTizen::Initialize() {
   DCHECK(root_window);
   root_window->AddObserver(this);
 
-  OnAllowedOrientationsChanged(GetAllowedUAOrientations());
+  OrientationMask ua_default =
+      XWalkBrowserMainPartsTizen::GetAllowedUAOrientations();
+  OnAllowedOrientationsChanged(ua_default);
+
   if (SensorProvider* sensor = SensorProvider::GetInstance()) {
     gfx::Display::Rotation rotation
       = GetClosestAllowedRotation(sensor->GetCurrentRotation());
@@ -110,16 +114,6 @@ gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
   return rotate;
 }
 
-OrientationMask NativeAppWindowTizen::GetAllowedUAOrientations() const {
-  char* env = getenv("TIZEN_ALLOWED_ORIENTATIONS");
-  int value = env ? atoi(env) : 0;
-  if (value > 0 && value < (1 << 4))
-    return static_cast<OrientationMask>(value);
-
-  // Tizen mobile supports all orientations by default.
-  return ANY;
-}
-
 namespace {
 
 // Rotates a binary mask of 4 positions to the left.
@@ -167,8 +161,7 @@ gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
 
 void NativeAppWindowTizen::OnAllowedOrientationsChanged(
     OrientationMask orientations) {
-  allowed_orientations_ = (orientations == UA_DEFAULTS)
-      ? GetAllowedUAOrientations() : orientations;
+  allowed_orientations_ = orientations;
 
   gfx::Display::Rotation rotation
       = GetClosestAllowedRotation(display_.rotation());
