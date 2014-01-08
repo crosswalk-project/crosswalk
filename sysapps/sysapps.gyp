@@ -64,6 +64,8 @@
       'conditions': [
         ['OS!="android"', {
           'dependencies': [
+            '../../content/content.gyp:content_common',
+            '../../media/media.gyp:media',
             '../../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
           'sources': [
