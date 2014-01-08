@@ -19,6 +19,7 @@ var DeviceCapabilities = function() {
 
   internal.postMessage("deviceCapabilitiesConstructor", [this._id]);
 
+  this._addMethodWithPromise("getAVCodecs", Promise);
   this._addMethodWithPromise("getCPUInfo", Promise);
   this._addMethodWithPromise("getMemoryInfo", Promise);
 };

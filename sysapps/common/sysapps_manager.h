@@ -12,6 +12,7 @@ namespace sysapps {
 
 using extensions::XWalkExtensionVector;
 
+class AVCodecsProvider;
 class CPUInfoProvider;
 class MemoryInfoProvider;
 
@@ -27,6 +28,7 @@ class SysAppsManager {
   void CreateExtensionsForUIThread(XWalkExtensionVector* extensions);
   void CreateExtensionsForExtensionThread(XWalkExtensionVector* extensions);
 
+  static AVCodecsProvider* GetAVCodecsProvider();
   static CPUInfoProvider* GetCPUInfoProvider();
   static MemoryInfoProvider* GetMemoryInfoProvider();
 };

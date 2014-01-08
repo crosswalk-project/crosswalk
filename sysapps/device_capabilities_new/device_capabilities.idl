@@ -4,6 +4,21 @@
 
 // Device Capabilities API
 namespace device_capabilities {
+  dictionary AudioCodec {
+    DOMString format;
+  };
+
+  dictionary VideoCodec {
+    DOMString format;
+    boolean hwAccel;
+    boolean encode;
+  };
+
+  dictionary SystemAVCodecs {
+    AudioCodec[] audioCodecs;
+    VideoCodec[] videoCodecs;
+  };
+
   dictionary SystemCPU {
     long numOfProcessors;
     DOMString archName;
@@ -16,10 +31,12 @@ namespace device_capabilities {
     double availCapacity;
   };
 
+  callback SystemAVCodecsPromise = void (SystemAVCodecs info, DOMString error);
   callback SystemCPUPromise = void (SystemCPU info, DOMString error);
   callback SystemMemoryPromise = void (SystemMemory info, DOMString error);
 
   interface Functions {
+    static void getAVCodecs(SystemAVCodecsPromise promise);
     static void getCPUInfo(SystemCPUPromise promise);
     static void getMemoryInfo(SystemMemoryPromise promise);
 

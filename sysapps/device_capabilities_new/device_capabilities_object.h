@@ -16,6 +16,7 @@ class DeviceCapabilitiesObject : public BindingObject {
   virtual ~DeviceCapabilitiesObject();
 
  private:
+  void OnGetAVCodecs(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetCPUInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetMemoryInfo(scoped_ptr<XWalkExtensionFunctionInfo> info);
 };
