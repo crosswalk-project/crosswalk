@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/ui/screen_orientation.h"
 
 namespace xwalk {
 
@@ -25,6 +26,8 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
   virtual void CreateInternalExtensionsForUIThread(
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions) OVERRIDE;
+
+  static OrientationMask GetAllowedUAOrientations();
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);
 };

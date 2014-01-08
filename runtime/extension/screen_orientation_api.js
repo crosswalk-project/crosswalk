@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// var uaDefault is set externally.
+
 var internal = requireNative("internal");
 internal.setupInternalExtension(extension);
 
@@ -14,7 +16,6 @@ var LANDSCAPE_SECONDARY = 1 << 3;
 var PORTRAIT            = PORTRAIT_PRIMARY | PORTRAIT_SECONDARY;
 var LANDSCAPE           = LANDSCAPE_PRIMARY | LANDSCAPE_SECONDARY;
 var ANY                 = PORTRAIT | LANDSCAPE;
-var UA_DEFAULTS         = 0;
 
 window.screen.lockOrientation = function(orientations) {
   if (!Array.isArray(orientations)) {
@@ -48,11 +49,15 @@ window.screen.lockOrientation = function(orientations) {
         console.error("Invalid screen orientation");
         return false;
     }
+    // If the orientations aren't all part of the default allowed
+    // orientations, the steps must stop here and return false.
+    if ((uaDefault & value) != value)
+      return false;
   }
   internal.postMessage('lock', [value], null);
   return true;
 };
 
 window.screen.unlockOrientation = function() {
-  internal.postMessage('lock', [UA_DEFAULTS], null);
+  internal.postMessage('lock', [uaDefault], null);
 };

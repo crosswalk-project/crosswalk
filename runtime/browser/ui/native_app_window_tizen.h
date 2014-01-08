@@ -20,7 +20,7 @@ class NativeAppWindowTizen
     : public aura::WindowObserver,
       public NativeAppWindowViews,
       public SensorProvider::Observer,
-      public ScreenOrientationAPISupplement {
+      public MultiOrientationScreen {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
@@ -50,7 +50,6 @@ class NativeAppWindowTizen
   void UpdateTopViewOverlay();
 
   // ScreenOrientationAPISupplement overrides:
-  virtual OrientationMask GetAllowedUAOrientations() const OVERRIDE;
   virtual void OnAllowedOrientationsChanged(
       OrientationMask orientations) OVERRIDE;
 

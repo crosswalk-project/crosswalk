@@ -6,6 +6,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "content/public/browser/browser_thread.h"
@@ -22,17 +23,48 @@ namespace xwalk {
 
 using application::Application;
 
-ScreenOrientationExtension::ScreenOrientationExtension(Application* app)
+namespace {
+
+MultiOrientationScreen* GetMultiOrientationScreen(Application* app) {
+  // FIXME(Mikhail): handle multi-windowed applications properly.
+  // At the moment app has two runtimes: main (without window)
+  // and a runtime with window.
+  NativeAppWindowTizen* window = NULL;
+  const std::set<Runtime*>& runtimes = app->runtimes();
+  std::set<Runtime*>::const_iterator it = runtimes.begin();
+  for (; it != runtimes.end(); ++it) {
+    if (NativeAppWindow* native_window = (*it)->window()) {
+      // FIXME: Let NativeAppWindow inherit the interface.
+      window = static_cast<NativeAppWindowTizen*>(native_window);
+      break;
+    }
+  }
+
+  DCHECK(window);
+  return static_cast<MultiOrientationScreen*>(window);
+}
+
+}  // namespace.
+
+ScreenOrientationExtension::ScreenOrientationExtension(
+    Application* app, OrientationMask ua_default)
   : application_(app) {
   DCHECK(application_);
+
   std::vector<std::string> entry_points;
   entry_points.push_back("screen.lockOrientation");
   entry_points.push_back("screen.unlockOrientation");
-
   set_name("xwalk.screen");
   set_entry_points(entry_points);
-  set_javascript_api(ResourceBundle::GetSharedInstance().GetRawDataResource(
-      IDR_XWALK_SCREEN_ORIENTATION_API).as_string());
+
+  std::ostringstream js_source;
+  js_source << "var uaDefault = ";
+  js_source << ua_default;
+  js_source << ";\n";
+  js_source << ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_XWALK_SCREEN_ORIENTATION_API).as_string();
+
+  set_javascript_api(js_source.str());
 }
 
 ScreenOrientationExtension::~ScreenOrientationExtension() {
@@ -43,29 +75,12 @@ XWalkExtensionInstance* ScreenOrientationExtension::CreateInstance() {
 }
 
 ScreenOrientationInstance::ScreenOrientationInstance(Application* app)
-  : handler_(this),
-  application_(app) {
-  // FIXME(Mikhail): handle multi-windowed applications properly.
-  // At the moment app has two runtimes: main (without window)
-  // and a runtime with window.
-  NativeAppWindowTizen* window = NULL;
-  const std::set<Runtime*>& runtimes = application_->runtimes();
-  std::set<Runtime*>::const_iterator it = runtimes.begin();
-  for (; it != runtimes.end(); ++it) {
-    if (NativeAppWindow* native_window = (*it)->window()) {
-      // FIXME: Let NativeAppWindow inherit the interface.
-      window = static_cast<NativeAppWindowTizen*>(native_window);
-      break;
-    }
-  }
-  DCHECK(window);
-  supplement_ = static_cast<ScreenOrientationAPISupplement*>(window);
-
+  : handler_(this)
+  , screen_(GetMultiOrientationScreen(app))
+  , application_(app) {
   handler_.Register("lock",
       base::Bind(&ScreenOrientationInstance::OnAllowedOrientationsChanged,
       base::Unretained(this)));
-
-  // FIXME: Send UA supported orientations.
 }
 
 ScreenOrientationInstance::~ScreenOrientationInstance() {
@@ -84,7 +99,7 @@ void ScreenOrientationInstance::OnAllowedOrientationsChanged(
   }
 
   OrientationMask orientations = static_cast<OrientationMask>(value);
-  supplement_->OnAllowedOrientationsChanged(orientations);
+  screen_->OnAllowedOrientationsChanged(orientations);
 }
 
 }  // namespace xwalk

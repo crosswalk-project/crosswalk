@@ -77,14 +77,27 @@ void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
     extensions->push_back(new sysapps::RawSocketExtension);
 }
 
+// static.
+OrientationMask XWalkBrowserMainPartsTizen::GetAllowedUAOrientations() {
+  char* env = getenv("TIZEN_ALLOWED_ORIENTATIONS");
+  int value = env ? atoi(env) : 0;
+  if (value > 0 && value < (1 << 4))
+    return static_cast<OrientationMask>(value);
+
+  // Tizen mobile supports all orientations by default.
+  return ANY;
+}
+
 void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
   application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   application::ApplicationService* app_service
       = app_system->application_service();
-  if (Application* application = app_service->GetActiveApplication())
-    extensions->push_back(new ScreenOrientationExtension(application));
+  if (Application* application = app_service->GetActiveApplication()) {
+    extensions->push_back(new ScreenOrientationExtension(
+        application, GetAllowedUAOrientations()));
+  }
 }
 
 }  // namespace xwalk

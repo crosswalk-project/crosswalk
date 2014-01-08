@@ -28,7 +28,8 @@ using extensions::XWalkExtensionInstance;
 
 class ScreenOrientationExtension : public XWalkExtension {
  public:
-  explicit ScreenOrientationExtension(application::Application* app);
+  explicit ScreenOrientationExtension(
+      application::Application* app, OrientationMask ua_default);
   virtual ~ScreenOrientationExtension();
 
  private:
@@ -50,8 +51,8 @@ class ScreenOrientationInstance : public XWalkExtensionInstance {
   void OnAllowedOrientationsChanged(
       scoped_ptr<XWalkExtensionFunctionInfo> info);
 
-  ScreenOrientationAPISupplement* supplement_;
   XWalkExtensionFunctionHandler handler_;
+  MultiOrientationScreen* screen_;
 
   application::Application* application_;
 };
