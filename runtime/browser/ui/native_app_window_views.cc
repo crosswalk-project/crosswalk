@@ -67,7 +67,7 @@ void NativeAppWindowViews::Initialize() {
 #if defined(OS_TIZEN_MOBILE)
   // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
-#else
+#elif !defined(USE_OZONE)
   window_->CenterWindow(create_params_.bounds.size());
 #endif
 
