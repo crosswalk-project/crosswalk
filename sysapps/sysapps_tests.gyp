@@ -6,6 +6,7 @@
       'dependencies': [
         '../../base/base.gyp:base',
         '../../base/base.gyp:run_all_unittests',
+        '../../content/content.gyp:content_common',
         '../../testing/gtest.gyp:gtest',
         '../../ui/ui.gyp:ui',
         '../extensions/extensions.gyp:xwalk_extensions',
