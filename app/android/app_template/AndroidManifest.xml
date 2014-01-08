@@ -7,7 +7,8 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.xwalk.app.template">
+    package="org.xwalk.app.template"
+    android:installLocation="auto">
 
     <application android:name="android.app.Application"
         android:label="XWalkAppTemplate" android:hardwareAccelerated="true"
