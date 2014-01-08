@@ -10,7 +10,6 @@
         '../../testing/gtest.gyp:gtest',
         '../../ui/ui.gyp:ui',
         '../extensions/extensions.gyp:xwalk_extensions',
-        '../xwalk.gyp:xwalk_runtime',
         'sysapps.gyp:sysapps',
       ],
       'sources': [
