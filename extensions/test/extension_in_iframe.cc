@@ -109,3 +109,19 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
   }
 }
 
+// We can keep references to a function that uses one of our APIs from inside an
+// iframe. After the iframe is destroyed, we don't expect these functions to
+// work, but they also should not crash the Render Process. See
+// iframe_keep_reference.html for more details.
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsIFrameTest,
+                       KeepingReferenceToFunctionFromDestroyedIFrame) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII("iframe_keep_reference.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+  ASSERT_EQ(g_count, 1);
+}
