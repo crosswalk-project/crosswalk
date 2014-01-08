@@ -91,6 +91,9 @@ OrientationMask XWalkBrowserMainPartsTizen::GetAllowedUAOrientations() {
 void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
+  XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
+      host, extensions);
+
   application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   application::ApplicationService* app_service
       = app_system->application_service();
