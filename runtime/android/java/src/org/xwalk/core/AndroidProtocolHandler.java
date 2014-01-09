@@ -59,8 +59,9 @@ public class AndroidProtocolHandler {
         } else if (uri.getScheme().equals(CONTENT_SCHEME)) {
             return openContent(context, uri);
         } else if (uri.getScheme().equals(APP_SCHEME)) {
-            // Use package name as the host.
-            if (!uri.getHost().equals(context.getPackageName())) return null;
+            // The host should be the same as the lower case of the package
+            // name, otherwise the resource request should be rejected.
+            if (!uri.getHost().equals(context.getPackageName().toLowerCase())) return null;
 
             // path == "/" or path == ""
             if (path.length() <= 1) return null;
