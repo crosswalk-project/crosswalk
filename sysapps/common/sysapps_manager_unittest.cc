@@ -10,7 +10,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
 #include "base/stl_util.h"
-#include "content/public/common/content_paths.h"
+#include "media/base/media.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -30,13 +30,7 @@ namespace {
 class XWalkSysAppsManagerTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
-    // Ensure the content::RegisterPathProvider() is called, but
-    // test first to make sure it is not registered twice. The ffmpeg
-    // codec provider needs it.
-    base::FilePath media_path;
-    PathService::Get(content::DIR_MEDIA_LIBS, &media_path);
-    if (media_path.empty())
-      content::RegisterPathProvider();
+    media::InitializeMediaLibraryForTesting();
 
     // We need to make sure the resource bundle is up because
     // the extensions we instantiate on this test depend on it.
