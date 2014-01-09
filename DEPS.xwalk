@@ -23,6 +23,9 @@ deps_xwalk = {
   'src/tools/gyp': 'http://gyp.googlecode.com/svn/trunk@1797',
 
   'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
+
+  # Ozone-Wayland is required for Wayland support in Chromium.
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@0c4f175c51277c482f3e50d86860ccf75a97ba16',
 }
 vars_xwalk = {
 }
