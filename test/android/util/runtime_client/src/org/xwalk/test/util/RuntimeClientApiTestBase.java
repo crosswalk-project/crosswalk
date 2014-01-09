@@ -178,6 +178,12 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         mTestCase.assertEquals("Pass", title);
     }
 
+    // For internal extension implementation of ScreenOrientation.
+    public void testScreenOrientation() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("screen_orientation.html");
+        mTestCase.assertEquals("Pass", title);
+    }
+
     // For internal extension implementation of Presentation.
     public void testPresentationDisplayAvailable() throws Throwable {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("displayAvailableTest.html");

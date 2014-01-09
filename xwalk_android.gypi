@@ -196,6 +196,7 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
         'asset_location': '<(ant_build_out)/xwalk_runtime_lib/assets',
@@ -227,6 +228,7 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
             'experimental/presentation/presentation_api.js',
+            'experimental/screen_orientation/screen_orientation_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/contacts/contacts_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/device_capabilities/device_capabilities_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/messaging/messaging_api.js',

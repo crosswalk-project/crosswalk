@@ -1,0 +1,29 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+  try {
+    var result = true;
+    if (typeof window.screen.lockOrientation != "function") {
+      console.log("window.screen.lockOrientation is not a function");
+      result = false;
+    }
+    if (typeof window.screen.unlockOrientation != "function") {
+      console.log("window.screen.unlockOrientation is not a function");
+      result = false;
+    }
+
+    if (result) {
+      document.title = "Pass";
+    } else {
+      document.title = "Fail";
+    }
+  } catch(e) {
+      document.title = "Fail";
+  }
+</script>
+Screen Orientation API Test.
+</body>
+</html>
