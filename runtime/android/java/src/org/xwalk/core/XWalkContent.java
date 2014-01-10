@@ -315,6 +315,17 @@ public class XWalkContent extends FrameLayout {
         return result ? copyBackForwardList() : null;
     }
 
+    public boolean maybeExitFullscreen() {
+        if (mWebContents != 0 &&
+                getXWalkWebChromeClient() != null &&
+                getXWalkWebChromeClient().isFullscreen()) {
+            mContentsClientBridge.exitFullscreen(mWebContents);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {

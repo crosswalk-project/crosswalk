@@ -399,6 +399,11 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
         nativeCancelJsResult(mNativeContentsClientBridge, id);
     }
 
+    void exitFullscreen(int nativeWebContents) {
+        if (mNativeContentsClientBridge == 0) return;
+        nativeExitFullscreen(mNativeContentsClientBridge, nativeWebContents);
+    }
+
     void setDownloadListener(DownloadListener listener) {
         mDownloadListener = listener;
     }
@@ -427,4 +432,5 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeConfirmJsResult(int nativeXWalkContentsClientBridge, int id,
             String prompt);
     private native void nativeCancelJsResult(int nativeXWalkContentsClientBridge, int id);
+    private native void nativeExitFullscreen(int nativeXWalkContentsClientBridge, int nativeWebContents);
 }

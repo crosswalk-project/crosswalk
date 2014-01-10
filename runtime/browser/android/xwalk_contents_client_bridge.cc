@@ -11,6 +11,8 @@
 #include "base/android/jni_string.h"
 #include "base/callback.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_view_host.h"
+#include "content/public/browser/web_contents.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "net/cert/x509_certificate.h"
 #include "url/gurl.h"
@@ -22,6 +24,8 @@ using base::android::ConvertUTF16ToJavaString;
 using base::android::JavaRef;
 using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
+using content::RenderViewHost;
+using content::WebContents;
 
 namespace xwalk {
 
@@ -195,6 +199,17 @@ void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   if (callback)
     callback->Run(false, string16());
   pending_js_dialog_callbacks_.Remove(id);
+}
+
+void XWalkContentsClientBridge::ExitFullscreen(
+    JNIEnv*, jobject, jint j_web_contents) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
+  if (web_contents) {
+    RenderViewHost* rvh = web_contents->GetRenderViewHost();
+    if (rvh)
+      rvh->ExitFullscreen();
+  }
 }
 
 bool RegisterXWalkContentsClientBridge(JNIEnv* env) {

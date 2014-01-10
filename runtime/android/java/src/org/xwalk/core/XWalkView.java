@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
@@ -243,6 +244,21 @@ public class XWalkView extends FrameLayout {
 
     public void onResume() {
         mContent.onResume();
+    }
+
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // If there's navigation happens when app is fullscreen,
+            // the content will still be fullscreen after navigation.
+            // In such case, the back key will exit fullscreen first.
+            if (mContent.maybeExitFullscreen()) {
+                return true;
+            } else if (canGoBack()) {
+                goBack();
+                return true;
+            }
+        }
+        return false;
     }
 
     public void onDestroy() {

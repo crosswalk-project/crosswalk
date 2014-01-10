@@ -134,11 +134,6 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && mXwalkView.canGoBack()) {
-            mXwalkView.goBack();
-            return true;
-        }
-
-        return false;
+        return mXwalkView.onKeyUp(keyCode, event);
     }
 }

@@ -60,6 +60,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
   void CancelJsResult(JNIEnv*, jobject, int id);
+  void ExitFullscreen(JNIEnv*, jobject, jint web_contents);
 
  private:
   JavaObjectWeakGlobalRef java_ref_;

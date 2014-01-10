@@ -100,12 +100,7 @@ public class XWalkViewShellActivity extends Activity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && mView.canGoBack()) {
-            mView.goBack();
-            return true;
-        }
-
-        return super.onKeyUp(keyCode, event);
+        return mView.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
     }
 
     private void waitForDebuggerIfNeeded() {
