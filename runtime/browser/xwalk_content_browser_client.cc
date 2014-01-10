@@ -10,6 +10,13 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
+#include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/resource_context.h"
+#include "content/public/browser/web_contents.h"
+#include "content/public/common/main_function_params.h"
+#include "content/public/common/show_desktop_notification_params.h"
+#include "net/url_request/url_request_context_getter.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
@@ -18,11 +25,6 @@
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
-#include "content/public/browser/browser_main_parts.h"
-#include "content/public/browser/render_process_host.h"
-#include "content/public/browser/web_contents.h"
-#include "content/public/common/main_function_params.h"
-#include "net/url_request/url_request_context_getter.h"
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
@@ -183,6 +185,34 @@ bool XWalkContentBrowserClient::AllowSetCookie(
 #else
   return true;
 #endif
+}
+
+void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
+    const GURL& source_origin,
+    int callback_context,
+    int render_process_id,
+    int render_view_id) {
+}
+
+blink::WebNotificationPresenter::Permission
+XWalkContentBrowserClient::CheckDesktopNotificationPermission(
+    const GURL& source_url,
+    content::ResourceContext* context,
+    int render_process_id) {
+  return blink::WebNotificationPresenter::PermissionNotAllowed;
+}
+
+void XWalkContentBrowserClient::ShowDesktopNotification(
+    const content::ShowDesktopNotificationHostMsgParams& params,
+    int render_process_id,
+    int render_view_id,
+    bool worker) {
+}
+
+void XWalkContentBrowserClient::CancelDesktopNotification(
+    int render_process_id,
+    int render_view_id,
+    int notification_id) {
 }
 
 #if defined(OS_ANDROID)
