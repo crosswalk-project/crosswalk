@@ -52,8 +52,14 @@ ScreenOrientationExtension::ScreenOrientationExtension(
   DCHECK(application_);
 
   std::vector<std::string> entry_points;
-  entry_points.push_back("screen.lockOrientation");
-  entry_points.push_back("screen.unlockOrientation");
+
+  // FIXME: The on demand loading doesn't work:
+  // Test case: http://jsbin.com/IJapIVE/6
+  entry_points.push_back("screen");
+  //entry_points.push_back("screen.lockOrientation");
+  //entry_points.push_back("screen.unlockOrientation");
+  //entry_points.push_back("screen.onorientationchange");
+
   set_name("xwalk.screen");
   set_entry_points(entry_points);
 
@@ -78,12 +84,20 @@ ScreenOrientationInstance::ScreenOrientationInstance(Application* app)
   : handler_(this)
   , screen_(GetMultiOrientationScreen(app))
   , application_(app) {
+
+  screen_->SetObserver(this);
+
   handler_.Register("lock",
       base::Bind(&ScreenOrientationInstance::OnAllowedOrientationsChanged,
       base::Unretained(this)));
 }
 
 ScreenOrientationInstance::~ScreenOrientationInstance() {
+}
+
+void ScreenOrientationInstance::OnOrientationChanged(Orientation orientation) {
+  PostMessageToJS(scoped_ptr<base::Value>(
+      base::Value::CreateIntegerValue(orientation)));
 }
 
 void ScreenOrientationInstance::HandleMessage(scoped_ptr<base::Value> msg) {

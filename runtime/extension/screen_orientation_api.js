@@ -61,3 +61,26 @@ window.screen.lockOrientation = function(orientations) {
 window.screen.unlockOrientation = function() {
   internal.postMessage('lock', [uaDefault], null);
 };
+
+var orientationchangeCallback = null;
+
+Object.defineProperty(window.screen, "onorientationchange", {
+  configurable: false,
+  enumerable: true,
+  get: function() { return orientationchangeCallback; },
+  set: function(callback) {
+    if (callback === null || callback instanceof Function)
+      orientationchangeCallback = callback;
+  }
+});
+
+extension.setMessageListener(function (value) {
+  var event = new Event("orientationchange");
+  if (screen.onorientationchange) {
+    try {
+      screen.onorientationchange.call(window.screen, event);
+    } catch (e) {
+      // Discard exceptions: http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+    }
+  }
+});

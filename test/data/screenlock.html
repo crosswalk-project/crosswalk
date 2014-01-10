@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width">
 <title>lockOrientation</title>
 <script>
+count = 0;
+
+screen.onorientationchange = function() {
+   count += 1;
+   ocon = document.getElementById("orientationconsole");
+   ocon.innerHTML = "unknown (Changed " + count + ") times";
+}
+
 function apply(lock) {
   var orientations = [];
 
@@ -47,7 +55,8 @@ function apply(lock) {
 <br>
   <center><button onclick="apply(true)">Lock</button><button onclick="apply(false)">Unlock</button></center>
   </div>
-<br><br>
+<br>
   Allowed orientations: <div id="console">[]</div>
+  Current orientation: <div id="orientationconsole">unknown</div>
 </body>
 </html>
