@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_SCREEN_ORIENTATION_H_
 #define XWALK_RUNTIME_BROWSER_UI_SCREEN_ORIENTATION_H_
 
+#include "base/memory/scoped_ptr.h"
+
 namespace xwalk {
 
 enum Orientation {
@@ -25,7 +27,21 @@ typedef unsigned OrientationMask;
 class MultiOrientationScreen {
  public:
   virtual ~MultiOrientationScreen() {}
+
+  class Observer {
+   public:
+    virtual void OnOrientationChanged(Orientation orientation) = 0;
+  };
+
+  void SetObserver(Observer* observer) {
+    observer_.reset(observer);
+  }
+  Observer* observer() const { return observer_.get(); }
+
   virtual void OnAllowedOrientationsChanged(OrientationMask orientations) = 0;
+
+ private:
+  scoped_ptr<Observer> observer_;
 };
 
 }  // namespace xwalk

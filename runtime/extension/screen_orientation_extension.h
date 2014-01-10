@@ -39,7 +39,8 @@ class ScreenOrientationExtension : public XWalkExtension {
   application::Application* application_;
 };
 
-class ScreenOrientationInstance : public XWalkExtensionInstance {
+class ScreenOrientationInstance : public XWalkExtensionInstance,
+                                  public MultiOrientationScreen::Observer {
  public:
   explicit ScreenOrientationInstance(application::Application* app);
   virtual ~ScreenOrientationInstance();
@@ -47,6 +48,9 @@ class ScreenOrientationInstance : public XWalkExtensionInstance {
  private:
   // XWalkExtensionInstance overrides:
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+
+  // MultiOrientationScreen::Observer overrides:
+  virtual void OnOrientationChanged(Orientation orientation) OVERRIDE;
 
   void OnAllowedOrientationsChanged(
       scoped_ptr<XWalkExtensionFunctionInfo> info);
