@@ -323,6 +323,20 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onToggleFullscreen(boolean enterFullscreen) {
+        if (mXWalkWebChromeClient != null) {
+            mXWalkWebChromeClient.onToggleFullscreen(enterFullscreen);
+        }
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        if (mXWalkWebChromeClient != null) return mXWalkWebChromeClient.isFullscreen();
+
+        return false;
+    }
+
+    @Override
     public ContentVideoViewClient getContentVideoViewClient() {
         return new XWalkContentVideoViewClient(this, mXWalkView.getActivity());
     }
@@ -385,6 +399,11 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
         nativeCancelJsResult(mNativeContentsClientBridge, id);
     }
 
+    void exitFullscreen(int nativeWebContents) {
+        if (mNativeContentsClientBridge == 0) return;
+        nativeExitFullscreen(mNativeContentsClientBridge, nativeWebContents);
+    }
+
     void setDownloadListener(DownloadListener listener) {
         mDownloadListener = listener;
     }
@@ -413,4 +432,5 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     private native void nativeConfirmJsResult(int nativeXWalkContentsClientBridge, int id,
             String prompt);
     private native void nativeCancelJsResult(int nativeXWalkContentsClientBridge, int id);
+    private native void nativeExitFullscreen(int nativeXWalkContentsClientBridge, int nativeWebContents);
 }

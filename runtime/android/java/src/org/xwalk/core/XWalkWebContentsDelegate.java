@@ -28,4 +28,13 @@ public abstract class XWalkWebContentsDelegate extends WebContentsDelegateAndroi
     @CalledByNative
     public void updatePreferredSize(int widthCss, int heightCss) {
     }
+
+    @CalledByNative
+    public void toggleFullscreen(boolean enterFullscreen) {
+    }
+
+    @CalledByNative
+    public boolean isFullscreen() {
+        return false;
+    }
 }

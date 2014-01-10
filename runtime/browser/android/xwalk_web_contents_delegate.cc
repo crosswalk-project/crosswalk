@@ -113,6 +113,26 @@ void XWalkWebContentsDelegate::RendererResponsive(WebContents* source) {
   Java_XWalkWebContentsDelegate_rendererResponsive(env, obj.obj());
 }
 
+void XWalkWebContentsDelegate::ToggleFullscreenModeForTab(
+    content::WebContents* web_contents,
+    bool enter_fullscreen) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkWebContentsDelegate_toggleFullscreen(
+      env, obj.obj(), enter_fullscreen);
+}
+
+bool XWalkWebContentsDelegate::IsFullscreenForTabOrPending(
+    const content::WebContents* web_contents) const {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return false;
+  return Java_XWalkWebContentsDelegate_isFullscreen(env, obj.obj());
+}
+
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {
   return RegisterNativesImpl(env);
 }
