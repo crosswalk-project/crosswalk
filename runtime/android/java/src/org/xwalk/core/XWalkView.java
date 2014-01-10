@@ -220,7 +220,7 @@ public class XWalkView extends FrameLayout {
         // to identify a debugging page
         final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
         if (mDevToolsServer == null) {
-            mDevToolsServer = new XWalkDevToolsServer(socketName);
+            mDevToolsServer = XWalkDevToolsServer.getInstance(socketName);
             mDevToolsServer.setRemoteDebuggingEnabled(true);
         }
         // devtools/page is hardcoded in devtools_http_handler_impl.cc (kPageUrlPrefix)
@@ -234,7 +234,6 @@ public class XWalkView extends FrameLayout {
         if (mDevToolsServer.isRemoteDebuggingEnabled()) {
             mDevToolsServer.setRemoteDebuggingEnabled(false);
         }
-        mDevToolsServer.destroy();
         mDevToolsServer = null;
     }
 
