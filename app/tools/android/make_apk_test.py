@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import unittest
+import warnings
 
 def Clean(name):
   if os.path.exists(name):
@@ -34,9 +35,13 @@ def RunCommand(command):
 class TestMakeApk(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
-    target_dir = os.path.join(options.build_dir,
-                              options.target,
-                              'xwalk_app_template')
+    cls._original_dir = os.getcwd()
+    if options.tool_path:
+      target_dir = os.path.expanduser(options.tool_path)
+    elif options.build_dir and options.target:
+      target_dir = os.path.join(options.build_dir,
+                                options.target,
+                                'xwalk_app_template')
     if os.path.exists(target_dir):
       # Prepare the test data.
       test_src_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -58,13 +63,18 @@ class TestMakeApk(unittest.TestCase):
   @classmethod
   def tearDownClass(cls):
     # Clean the test data.
-    test_data_dir = os.path.join(options.build_dir,
-                                 options.target,
-                                 'xwalk_app_template',
-                                 'test_data')
+    if options.tool_path:
+      test_data_dir = os.path.join(os.path.expanduser(options.tool_path),
+                                   'test_data')
+    elif options.build_dir and options.target:
+      test_data_dir = os.path.join(options.build_dir,
+                                   options.target,
+                                   'xwalk_app_template',
+                                   'test_data')
     if os.path.exists(test_data_dir):
       shutil.rmtree(test_data_dir)
     cls.restoreNativeLibrary()
+    os.chdir(cls._original_dir)
 
   @staticmethod
   def fakeNativeLibrary():
@@ -87,9 +97,10 @@ class TestMakeApk(unittest.TestCase):
   def restoreNativeLibrary():
     # Restore the original native library for embedded mode.
     if options.mode == 'embedded':
-      native_library_dir = os.path.join('native_libs')
-      native_library_temp_dir = os.path.join('temp')
-      shutil.rmtree(native_library_dir)
+      native_library_dir = 'native_libs'
+      native_library_temp_dir = 'temp'
+      if os.path.exists(native_library_dir):
+        shutil.rmtree(native_library_dir)
       shutil.move(native_library_temp_dir, native_library_dir)
 
   @staticmethod
@@ -579,6 +590,8 @@ if __name__ == '__main__':
   info = ('The build target for xwalk.'
           'Such as: --target=Release')
   parser.add_option('--target', help=info)
+  info = ('The path of package tool.')
+  parser.add_option('--tool-path', help=info)
   info = ('The packaging mode for xwalk. Such as: --mode=embedded.'
           'Please refer the detail to the option of make_apk.py.')
   parser.add_option('--mode', help=info)
@@ -591,6 +604,10 @@ if __name__ == '__main__':
   mode_suite = SuiteWithModeOption()
   empty_mode_suite = SuiteWithEmptyModeOption()
   runner = unittest.TextTestRunner(verbosity=2)
+  if options.build_dir or options.target:
+    warnings.warn(('"--build-dir" and "--target" will be deprecated soon, '
+                   'please leverage "--tool-path" instead.'),
+                  Warning)
   if options.mode:
     runner.run(mode_suite)
   else:
