@@ -15,6 +15,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/message_loop/message_loop_proxy.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/task_runner.h"
 #include "base/threading/sequenced_worker_pool.h"
 #include "base/threading/thread.h"
@@ -136,20 +137,29 @@ void AndroidStreamReaderURLRequestJob::Start() {
   GURL url = request()->url();
   // Generate the HTTP header response for app scheme.
   if (url.SchemeIs(xwalk::kAppScheme)) {
+    // Once the unpermitted request was received, the job should be marked
+    // as complete, and the function should return, so that the request task
+    // won't be posted.
     if (request()->method() != "GET") {
       HeadersComplete(kHTTPNotImplemented, kHTTPNotImplementedText);
+      return;
     } else if (url.path().empty()) {
       HeadersComplete(kHTTPBadRequest, kHTTPBadRequestText);
+      return;
     } else {
       JNIEnv* env = AttachCurrentThread();
       DCHECK(env);
       std::string package_name;
       delegate_->GetPackageName(env, &package_name);
 
+      // The host should be the same as the lower case of the package
+      // name, otherwise the resource request should be rejected.
       // TODO(Xingnan): More permission control policy will be added here,
       // if it's needed.
-      if (request()->url().host() != package_name)
+      if (request()->url().host() != StringToLowerASCII(package_name)) {
         HeadersComplete(kHTTPForbidden, kHTTPForbiddenText);
+        return;
+      }
     }
   }
 
