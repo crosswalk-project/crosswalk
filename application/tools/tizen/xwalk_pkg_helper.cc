@@ -139,6 +139,14 @@ int main(int argc, char *argv[]) {
   if (argc <= 2)
     return usage(argv[0]);
 
+  // When installing an application on Tizen, the libraries used require
+  // some steps to be run as root (UID 0) and fail otherwise, so we force
+  // this tool to assume the root UID.
+  if (setuid(0)) {
+    fprintf(stderr, "Make sure '%s' is set-user-ID-root\n", argv[0]);
+    return 1;;
+  }
+
   if (!strcmp(argv[1], "--install")) {
     if (argc != 5)
       return usage(argv[0]);
