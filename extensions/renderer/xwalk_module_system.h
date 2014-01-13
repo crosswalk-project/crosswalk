@@ -93,6 +93,9 @@ class XWalkModuleSystem {
   void MarkModulesWithTrampoline();
   void DeleteExtensionModules();
 
+  void EnsureExtensionNamespaceIsReadOnly(v8::Handle<v8::Context> context,
+                                          const std::string& extension_name);
+
   typedef std::vector<ExtensionModuleEntry> ExtensionModules;
   ExtensionModules extension_modules_;
 

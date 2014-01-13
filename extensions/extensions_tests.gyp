@@ -52,6 +52,7 @@
         'test/internal_extension_browsertest.cc',
         'test/internal_extension_browsertest.h',
         'test/nested_namespace.cc',
+        'test/namespace_read_only.cc',
         'test/test.idl',
         'test/v8tools_module.cc',
         'test/xwalk_extensions_browsertest.cc',
