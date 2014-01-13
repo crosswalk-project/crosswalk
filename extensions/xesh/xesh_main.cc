@@ -48,8 +48,6 @@ inline void PrintPromptLine() {
 }
 
 std::string ReadLine() {
-  PrintPromptLine();
-
   std::string result;
   static const size_t kBufferSize = 256;
   char buffer[kBufferSize];
@@ -128,7 +126,8 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
   void OnFinishedV8Execution(const std::string& result) {
     is_waiting_v8_runner_ = false;
 
-    fprintf(stderr, "%s", result.c_str());
+    fprintf(stderr, "%s\n", result.c_str());
+    PrintPromptLine();
   }
 
   bool is_waiting_v8_runner_;
