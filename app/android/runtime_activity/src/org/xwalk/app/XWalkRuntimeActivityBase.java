@@ -41,6 +41,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     @Override
     public void onCreate(Bundle savedInstanceState) {
         IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE");
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
