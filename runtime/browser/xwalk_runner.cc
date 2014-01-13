@@ -9,7 +9,10 @@
 #include "base/logging.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/sysapps_component.h"
+#include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -56,35 +59,80 @@ XWalkRunner* XWalkRunner::GetInstance() {
   return g_xwalk_runner;
 }
 
+application::ApplicationSystem* XWalkRunner::app_system() {
+  return app_component_ ? app_component_->app_system() : NULL;
+}
+
 void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
-  app_system_ =
-      application::ApplicationSystem::Create(runtime_context_.get());
 
   // FIXME(cmarcelo): Remove this check once we remove the --uninstall
   // command line.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kUninstall))
     extension_service_.reset(new extensions::XWalkExtensionService);
+
+  CreateComponents();
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {
+  DestroyComponents();
   extension_service_.reset();
-  app_system_.reset();
   runtime_context_.reset();
+}
+
+void XWalkRunner::CreateComponents() {
+  scoped_ptr<ApplicationComponent> app_component(CreateAppComponent());
+  // Keep a reference as some code still needs to call
+  // XWalkRunner::app_system().
+  app_component_ = app_component.get();
+  AddComponent(app_component.PassAs<XWalkComponent>());
+
+  if (XWalkRuntimeFeatures::isSysAppsEnabled())
+    AddComponent(CreateSysAppsComponent().PassAs<XWalkComponent>());
+}
+
+void XWalkRunner::DestroyComponents() {
+  // The ScopedVector takes care of deleting all the components. Ensure that
+  // components are deleted before their dependencies by reversing the order.
+  std::reverse(components_.begin(), components_.end());
+  components_.clear();
+
+  app_component_ = NULL;
+}
+
+void XWalkRunner::AddComponent(scoped_ptr<XWalkComponent> component) {
+  components_.push_back(component.release());
+}
+
+scoped_ptr<ApplicationComponent> XWalkRunner::CreateAppComponent() {
+  return make_scoped_ptr(new ApplicationComponent(runtime_context_.get()));
+}
+
+scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
+  return make_scoped_ptr(new SysAppsComponent());
 }
 
 void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
 
-  // TODO(cmarcelo): Move Create*Extensions*() functions to XWalkRunner.
-  XWalkBrowserMainParts* main_parts = content_browser_client_->main_parts();
   std::vector<extensions::XWalkExtension*> ui_thread_extensions;
+  std::vector<extensions::XWalkExtension*> extension_thread_extensions;
+
+  ScopedVector<XWalkComponent>::iterator it = components_.begin();
+  for (; it != components_.end(); ++it) {
+    XWalkComponent* component = *it;
+    component->CreateUIThreadExtensions(host, &ui_thread_extensions);
+    component->CreateExtensionThreadExtensions(
+        host, &extension_thread_extensions);
+  }
+
+  // TODO(cmarcelo): Once functionality is moved to components, remove
+  // CreateInternalExtensions*() functions from XWalkBrowserMainParts.
+  XWalkBrowserMainParts* main_parts = content_browser_client_->main_parts();
   main_parts->CreateInternalExtensionsForUIThread(
       host, &ui_thread_extensions);
-
-  std::vector<extensions::XWalkExtension*> extension_thread_extensions;
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 

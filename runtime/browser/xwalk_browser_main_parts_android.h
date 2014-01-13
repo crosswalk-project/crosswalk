@@ -31,10 +31,6 @@ class XWalkBrowserMainPartsAndroid : public XWalkBrowserMainParts {
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions) OVERRIDE;
 
-  virtual void CreateInternalExtensionsForUIThread(
-      content::RenderProcessHost* host,
-      extensions::XWalkExtensionVector* extensions) OVERRIDE;
-
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand
   // by XWalkExtensionService each time a in_process Server is created.

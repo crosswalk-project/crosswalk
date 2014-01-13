@@ -27,7 +27,6 @@
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
@@ -36,7 +35,6 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
-#include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
 namespace {
 
@@ -163,21 +161,6 @@ void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
   ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     extensions->push_back(*it);
-
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
-    extensions->push_back(new sysapps::RawSocketExtension());
-}
-
-void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForUIThread(
-    content::RenderProcessHost* host,
-    extensions::XWalkExtensionVector* extensions) {
-  // This empty function overrides the implementation in the class
-  // XWalkBrowserMainParts. It's because application runtime and event related
-  // extensions are not ready for Android port. Need to re-design these 2
-  // mechanisms on Android. Please see JIRA issue:
-  // https://crosswalk-project.org/jira/browse/XWALK-674
-  // TODO(yongsheng): Remove this implementation once above 2 features
-  // are ready for Android.
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(

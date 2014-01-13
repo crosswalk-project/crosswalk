@@ -26,7 +26,6 @@
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/extension/runtime_extension.h"
-#include "xwalk/sysapps/common/sysapps_manager.h"
 #include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -183,16 +182,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   runtime_context_ = xwalk_runner_->runtime_context();
   extension_service_ = xwalk_runner_->extension_service();
 
-  if (extension_service_) {
-    if (XWalkRuntimeFeatures::isSysAppsEnabled()) {
-      sysapps_manager_.reset(new sysapps::SysAppsManager());
-      if (!XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled())
-        sysapps_manager_->DisableDeviceCapabilities();
-      if (!XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
-        sysapps_manager_->DisableRawSockets();
-    }
+  if (extension_service_)
     RegisterExternalExtensions();
-  }
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {
@@ -260,22 +251,18 @@ void XWalkBrowserMainParts::PostMainMessageLoopRun() {
 void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  xwalk_runner_->app_system()->CreateExtensions(host, extensions);
-  if (sysapps_manager_)
-    sysapps_manager_->CreateExtensionsForUIThread(extensions);
 }
 
 void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
+  // FIXME(cmarcelo): Create components for those extensions and
+  // remove CreateInternalExtensions*() functions from XWalkBrowserMainParts.
   application::ApplicationSystem* app_system
         = xwalk_runner_->app_system();
   extensions->push_back(new RuntimeExtension);
   extensions->push_back(
       new experimental::DialogExtension(app_system));
-
-  if (sysapps_manager_)
-    sysapps_manager_->CreateExtensionsForExtensionThread(extensions);
 }
 
 }  // namespace xwalk

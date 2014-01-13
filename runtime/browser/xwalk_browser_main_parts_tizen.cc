@@ -68,13 +68,8 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
 void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  if (XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled()) {
-    extensions->push_back(
-        new sysapps::DeviceCapabilitiesExtension());
-  }
-
-  if (XWalkRuntimeFeatures::isRawSocketsAPIEnabled())
-    extensions->push_back(new sysapps::RawSocketExtension);
+  // This override prevents RuntimeExtension and DialogExtension to be
+  // created in Tizen.
 }
 
 // static.
