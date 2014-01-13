@@ -3,6 +3,7 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+#include "xwalk/extensions/xesh/xesh_v8_runner.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -10,7 +11,13 @@
 #include <stdlib.h>
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
-#include "xwalk/extensions/xesh/xesh_v8_runner.h"
+#include "xwalk/extensions/renderer/xwalk_extension_module.h"
+#include "xwalk/extensions/renderer/xwalk_module_system.h"
+#include "xwalk/extensions/renderer/xwalk_v8tools_module.h"
+
+using xwalk::extensions::XWalkExtensionModule;
+using xwalk::extensions::XWalkNativeModule;
+using xwalk::extensions::XWalkV8ToolsModule;
 
 namespace {
 // Extracts a C string from a V8 Utf8Value.
@@ -19,13 +26,55 @@ const char* ToCString(const v8::String::Utf8Value& value) {
 }
 }  // namespace
 
-XEShV8Runner::XEShV8Runner(v8::Handle<v8::Context> context) {
-  RegisterAccessors(context);
+XEShV8Runner::XEShV8Runner()
+    : shutdown_event_(false, false) {
+}
+
+XEShV8Runner::~XEShV8Runner() {
+  shutdown_event_.Signal();
+}
+
+void XEShV8Runner::Shutdown() {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = GetV8Context();
+
+  context->Exit();
+  v8_context_.Dispose();
+  v8::V8::Dispose();
+}
+
+void XEShV8Runner::Initialize(int argc, char** argv,
+    base::MessageLoopProxy* io_loop_proxy, const IPC::ChannelHandle& handle) {
+  client_channel_.reset(new IPC::SyncChannel(handle, IPC::Channel::MODE_CLIENT,
+    &client_, io_loop_proxy, true, &shutdown_event_));
+
+  client_.Initialize(client_channel_.get());
+
+  v8::V8::Initialize();
+  v8::V8::InitializeICU();
+  v8::V8::SetFlagsFromCommandLine(&argc, argv, true);
+
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+
+  v8_context_.Reset(isolate, v8::Context::New(isolate));
+  if (v8_context_.IsEmpty()) {
+    fprintf(stderr, "Error creating v8::Context.\n");
+    exit(1);
+  }
+
+  v8::Local<v8::Context> context = GetV8Context();
+  context->Enter();
+
+  CreateModuleSystem();
+  RegisterAccessors();
 }
 
 std::string XEShV8Runner::ExecuteString(std::string statement) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
+
   v8::TryCatch try_catch;
   v8::Handle<v8::Script> script = v8::Script::Compile(
       v8::String::NewFromUtf8(isolate, statement.c_str()),
@@ -94,8 +143,12 @@ std::string XEShV8Runner::ReportException(v8::TryCatch* try_catch) {
   return result;
 }
 
-void XEShV8Runner::RegisterAccessors(v8::Handle<v8::Context> context) {
+void XEShV8Runner::RegisterAccessors() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+
+  v8::Local<v8::Context> context = GetV8Context();
+
   context->Global()->Set(
       v8::String::NewFromUtf8(isolate, "print"),
       v8::FunctionTemplate::New(PrintCallback)->GetFunction());
@@ -130,5 +183,41 @@ void XEShV8Runner::QuitCallback(v8::Local<v8::String> property,
   fflush(stdout);
   fflush(stderr);
   exit(0);
+}
+
+void XEShV8Runner::CreateModuleSystem() {
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = GetV8Context();
+
+  XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
+  XWalkModuleSystem::SetModuleSystemInContext(
+      scoped_ptr<XWalkModuleSystem>(module_system),
+      context);
+
+  // FIXME(jeez): Register the 'internal' native module.
+  // FIXME(jeez): Register the 'window' module (for setTimeout(), etc).
+  module_system->RegisterNativeModule("v8tools",
+      scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+
+  CreateExtensionModules(module_system);
+  module_system->Initialize();
+}
+
+void XEShV8Runner::CreateExtensionModules(XWalkModuleSystem* module_system) {
+  const XWalkExtensionClient::ExtensionAPIMap& extensions =
+      client_.extension_apis();
+  XWalkExtensionClient::ExtensionAPIMap::const_iterator it =
+      extensions.begin();
+  for (; it != extensions.end(); ++it) {
+    XWalkExtensionClient::ExtensionCodePoints* codepoint = it->second;
+    if (codepoint->api.empty())
+      continue;
+    scoped_ptr<XWalkExtensionModule> module(
+        new XWalkExtensionModule(&client_, module_system, it->first,
+                                 codepoint->api));
+    module_system->RegisterExtensionModule(module.Pass(),
+                                           codepoint->entry_points);
+  }
 }
 
