@@ -28,6 +28,7 @@
 
 #if defined(OS_TIZEN_MOBILE)
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
+#include "xwalk/application/browser/installer/tizen/service_package_installer.h"
 #endif
 
 using xwalk::RuntimeContext;
@@ -133,16 +134,15 @@ void WaitForFinishLoad(
 #if defined(OS_TIZEN_MOBILE)
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
                            xwalk::application::ApplicationStorage* storage,
-                           const std::string& app_id,
+                           xwalk::application::ApplicationData* application,
                            const base::FilePath& data_dir) {
-  // FIXME(cmarcelo): The Tizen-specific steps of installation in
-  // service mode are not supported yet. Remove when this is fixed.
-  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service())
-    return true;
+  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service()) {
+    return InstallApplicationForTizen(application, data_dir);
+  }
 
   scoped_ptr<xwalk::application::PackageInstaller> installer =
       xwalk::application::PackageInstaller::Create(service, storage,
-                                                   app_id, data_dir);
+                                                   application->ID(), data_dir);
   if (!installer || !installer->Install()) {
     LOG(ERROR) << "An error occurred during installation on Tizen.";
     return false;
@@ -152,16 +152,15 @@ bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
 
 bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
                              xwalk::application::ApplicationStorage* storage,
-                             const std::string& app_id,
+                             xwalk::application::ApplicationData* application,
                              const base::FilePath& data_dir) {
-  // FIXME(cmarcelo): The Tizen-specific steps of installation in
-  // service mode are not supported yet. Remove when this is fixed.
-  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service())
-    return true;
+  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service()) {
+    return UninstallApplicationForTizen(application, data_dir);
+  }
 
   scoped_ptr<xwalk::application::PackageInstaller> installer =
       xwalk::application::PackageInstaller::Create(service, storage,
-                                                   app_id, data_dir);
+                                                   application->ID(), data_dir);
   if (!installer || !installer->Uninstall()) {
     LOG(ERROR) << "An error occurred during uninstallation on Tizen.";
     return false;
@@ -270,9 +269,11 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
 
 #if defined(OS_TIZEN_MOBILE)
   if (!InstallPackageOnTizen(this, application_storage_,
-                             application_data->ID(),
-                             runtime_context_->GetPath()))
+                             application_data.get(),
+                             runtime_context_->GetPath())) {
+    application_storage_->RemoveApplication(application_data->ID());
     return false;
+  }
 #endif
 
   LOG(INFO) << "Application be installed in: " << app_dir.MaybeAsASCII();
@@ -296,16 +297,26 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
 }
 
 bool ApplicationService::Uninstall(const std::string& id) {
-#if defined(OS_TIZEN_MOBILE)
-  if (!UninstallPackageOnTizen(this, application_storage_, id,
-                               runtime_context_->GetPath()))
+  bool result = true;
+
+  scoped_refptr<ApplicationData> application =
+      application_storage_->GetApplicationData(id);
+  if (!application) {
+    LOG(ERROR) << "Cannot uninstall application with id " << id
+               << "; invalid application id";
     return false;
+  }
+
+#if defined(OS_TIZEN_MOBILE)
+  if (!UninstallPackageOnTizen(this, application_storage_, application.get(),
+                               runtime_context_->GetPath()))
+    result = false;
 #endif
 
   if (!application_storage_->RemoveApplication(id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << id
                << "; application is not installed.";
-    return false;
+    result = false;
   }
 
   const base::FilePath resources =
@@ -314,12 +325,12 @@ bool ApplicationService::Uninstall(const std::string& id) {
       !base::DeleteFile(resources, true)) {
     LOG(ERROR) << "Error occurred while trying to remove application with id "
                << id << "; Cannot remove all resources.";
-    return false;
+    result = false;
   }
 
   FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
 
-  return true;
+  return result;
 }
 
 Application* ApplicationService::Launch(const std::string& id) {
