@@ -88,6 +88,13 @@ class XWalkModuleSystem {
   static void TrampolineCallback(
       v8::Local<v8::String> property,
       const v8::PropertyCallbackInfo<v8::Value>& info);
+  static void TrampolineSetterCallback(
+      v8::Local<v8::String> property,
+      v8::Local<v8::Value> value,
+      const v8::PropertyCallbackInfo<void>& info);
+  static void LoadExtensionForTrampoline(
+      v8::Isolate* isolate,
+      v8::Local<v8::Value> data);
 
   bool ContainsEntryPoint(const std::string& entry_point);
   void MarkModulesWithTrampoline();

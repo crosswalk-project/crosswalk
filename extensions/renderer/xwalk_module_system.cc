@@ -234,7 +234,7 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
   // FIXME(cmarcelo): ensure that trampoline is readonly.
   value.As<v8::Object>()->SetAccessor(
       v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()),
-      TrampolineCallback, 0, user_data);
+      TrampolineCallback, TrampolineSetterCallback, user_data);
   return true;
 }
 
@@ -344,16 +344,15 @@ void XWalkModuleSystem::DeleteExtensionModules() {
 }
 
 // static
-void XWalkModuleSystem::TrampolineCallback(
-    v8::Local<v8::String> property,
-    const v8::PropertyCallbackInfo<v8::Value>& info) {
-  void* ptr = info.Data().As<v8::External>()->Value();
+void XWalkModuleSystem::LoadExtensionForTrampoline(
+    v8::Isolate* isolate,
+    v8::Local<v8::Value> data) {
+  void* ptr = data.As<v8::External>()->Value();
   ExtensionModuleEntry* entry = static_cast<ExtensionModuleEntry*>(ptr);
 
   if (!entry)
     return;
 
-  v8::Isolate* isolate = info.GetIsolate();
   v8::Handle<v8::Context> context = isolate->GetCurrentContext();
 
   DeleteAccessorForEntryPoint(context, entry->name);
@@ -373,9 +372,24 @@ void XWalkModuleSystem::TrampolineCallback(
   module->LoadExtensionCode(module_system->GetV8Context(),
                             require_native_template->GetFunction());
 
-  v8::Handle<v8::Object> holder = info.Holder();
   module_system->EnsureExtensionNamespaceIsReadOnly(context, entry->name);
-  info.GetReturnValue().Set(holder->Get(property));
+}
+
+// static
+void XWalkModuleSystem::TrampolineCallback(
+    v8::Local<v8::String> property,
+    const v8::PropertyCallbackInfo<v8::Value>& info) {
+  XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
+  info.GetReturnValue().Set(info.Holder()->Get(property));
+}
+
+// static
+void XWalkModuleSystem::TrampolineSetterCallback(
+    v8::Local<v8::String> property,
+    v8::Local<v8::Value> value,
+    const v8::PropertyCallbackInfo<void>& info) {
+  XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
+  info.Holder()->Set(property, value);
 }
 
 XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
