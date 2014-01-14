@@ -1,0 +1,21 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  // Should exist is an entry point of xwalk.sample extension.
+  var my_should_exist = should_exist;
+  if (xwalk.sample.also_should_exist && my_should_exist) {
+    xwalk.sample = "dummyValue";
+    if (typeof xwalk.sample === 'object')
+      document.title = "Pass";
+  }
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>

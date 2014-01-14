@@ -311,6 +311,7 @@ void XWalkModuleSystem::Initialize() {
     if (it->use_trampoline && InstallTrampoline(context, &*it))
       continue;
     it->module->LoadExtensionCode(context, require_native);
+    EnsureExtensionNamespaceIsReadOnly(context, it->name);
   }
 }
 
@@ -373,6 +374,7 @@ void XWalkModuleSystem::TrampolineCallback(
                             require_native_template->GetFunction());
 
   v8::Handle<v8::Object> holder = info.Holder();
+  module_system->EnsureExtensionNamespaceIsReadOnly(context, entry->name);
   info.GetReturnValue().Set(holder->Get(property));
 }
 
@@ -418,6 +420,29 @@ void XWalkModuleSystem::MarkModulesWithTrampoline() {
     it->use_trampoline = false;
     ++it;
   }
+}
+
+void XWalkModuleSystem::EnsureExtensionNamespaceIsReadOnly(
+    v8::Handle<v8::Context> context,
+    const std::string& extension_name) {
+  std::vector<std::string> path;
+  base::SplitString(extension_name, '.', &path);
+  std::string basename = path.back();
+  path.pop_back();
+
+  std::string error;
+  v8::Handle<v8::Value> value = GetObjectForPath(context, path, &error);
+  if (value->IsUndefined()) {
+    LOG(WARNING) << "Error retrieving object for " << extension_name
+                 << ": " << error << ".";
+    return;
+  }
+
+  v8::Handle<v8::String> v8_extension_name(
+      v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()));
+  value.As<v8::Object>()->ForceSet(
+      v8_extension_name, value.As<v8::Object>()->Get(v8_extension_name),
+      v8::ReadOnly);
 }
 
 }  // namespace extensions

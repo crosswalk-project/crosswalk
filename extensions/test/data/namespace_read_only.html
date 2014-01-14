@@ -1,0 +1,17 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  xwalk.sample = "dummyValue";
+  if (typeof xwalk.sample === 'object' && xwalk.sample.also_should_exist)
+    document.title = "Pass";
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>
