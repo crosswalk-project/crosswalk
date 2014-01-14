@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width">
 <title>lockOrientation</title>
 <script>
-count = 0;
 
-screen.onorientationchange = function() {
-   count += 1;
+function handleorientationchange() {
+   if (!handleorientationchange.count)
+     handleorientationchange.count = 0;
    ocon = document.getElementById("orientationconsole");
-   ocon.innerHTML = "unknown (Changed " + count + ") times";
+   ocon.innerHTML = screen.orientation + "<br>(Changed " + handleorientationchange.count + " times)";
+   handleorientationchange.count += 1;
 }
+
+screen.onorientationchange = handleorientationchange;
 
 function apply(lock) {
   var orientations = [];
@@ -45,8 +48,11 @@ function apply(lock) {
 }
 </script>
 </head>
-<body>
-<br><br>
+<body onload="handleorientationchange()">
+<br>
+  Allowed orientations: <div id="console">[]</div><br>
+  Current orientation: <div id="orientationconsole">unknown</div>
+<br>
 <div style="width: 180px; margin: auto">
 <input type="checkbox" id="portrait-primary">Portrait (primary)<br>
 <input type="checkbox" id="portrait-secondary">Portrait (secondary)<br>
@@ -56,7 +62,5 @@ function apply(lock) {
   <center><button onclick="apply(true)">Lock</button><button onclick="apply(false)">Unlock</button></center>
   </div>
 <br>
-  Allowed orientations: <div id="console">[]</div>
-  Current orientation: <div id="orientationconsole">unknown</div>
 </body>
 </html>

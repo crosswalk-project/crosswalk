@@ -39,6 +39,7 @@ class MultiOrientationScreen {
   Observer* observer() const { return observer_.get(); }
 
   virtual void OnAllowedOrientationsChanged(OrientationMask orientations) = 0;
+  virtual Orientation GetCurrentOrientation() const = 0;
 
  private:
   scoped_ptr<Observer> observer_;

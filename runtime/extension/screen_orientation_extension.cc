@@ -56,9 +56,9 @@ ScreenOrientationExtension::ScreenOrientationExtension(
   // FIXME: The on demand loading doesn't work:
   // Test case: http://jsbin.com/IJapIVE/6
   entry_points.push_back("screen");
-  //entry_points.push_back("screen.lockOrientation");
-  //entry_points.push_back("screen.unlockOrientation");
-  //entry_points.push_back("screen.onorientationchange");
+  // entry_points.push_back("screen.lockOrientation");
+  // entry_points.push_back("screen.unlockOrientation");
+  // entry_points.push_back("screen.onorientationchange");
 
   set_name("xwalk.screen");
   set_entry_points(entry_points);
@@ -84,12 +84,18 @@ ScreenOrientationInstance::ScreenOrientationInstance(Application* app)
   : handler_(this)
   , screen_(GetMultiOrientationScreen(app))
   , application_(app) {
-
   screen_->SetObserver(this);
 
   handler_.Register("lock",
       base::Bind(&ScreenOrientationInstance::OnAllowedOrientationsChanged,
       base::Unretained(this)));
+
+  // If the orientation property is not queried immediately after loading
+  // we can avoid querying it synchronously.
+  // FIXME: Make sure the .orientation property is 100% correct when queried.
+  content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
+    base::Bind(&ScreenOrientationInstance::OnOrientationChanged,
+        base::Unretained(this), screen_->GetCurrentOrientation()));
 }
 
 ScreenOrientationInstance::~ScreenOrientationInstance() {

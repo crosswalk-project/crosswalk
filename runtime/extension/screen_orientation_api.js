@@ -74,13 +74,47 @@ Object.defineProperty(window.screen, "onorientationchange", {
   }
 });
 
-extension.setMessageListener(function (value) {
-  var event = new Event("orientationchange");
-  if (screen.onorientationchange) {
-    try {
-      screen.onorientationchange.call(window.screen, event);
-    } catch (e) {
-      // Discard exceptions: http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+var orientationValue = "portrait-primary";
+
+Object.defineProperty(window.screen, "orientation", {
+  configurable: false,
+  enumerable: true,
+ get: function() { return orientationValue; }
+});
+
+function handleOrientationChange(newOrientation) {
+  switch (newOrientation) {
+    case PORTRAIT_PRIMARY:
+      orientationValue = "portrait-primary";
+      break;
+    case PORTRAIT_SECONDARY:
+      orientationValue = "portrait-secondary";
+      break;
+    case LANDSCAPE_PRIMARY:
+      orientationValue = "landscape-primary";
+      break;
+    case LANDSCAPE_SECONDARY:
+      orientationValue = "landscape-secondary";
+      break;
+    default:
+      console.error("Received unknown value for current orientation.");
+      return;
+  }
+
+  // The first time the listener is called it is to set the current
+  // orientation, so do not dispatch the orientationchange in that case.
+  if (handleOrientationChange.shouldDispatchEvent) {
+    var event = new Event("orientationchange");
+    if (screen.onorientationchange) {
+      try {
+        screen.onorientationchange.call(window.screen, event);
+      } catch (e) {
+        // Discard exceptions: http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+      }
     }
   }
-});
+
+  handleOrientationChange.shouldDispatchEvent = true;
+}
+
+extension.setMessageListener(handleOrientationChange);
