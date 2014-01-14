@@ -341,7 +341,7 @@ Application* ApplicationService::Launch(const std::string& id) {
     return NULL;
   }
 
-  return Launch(application_data);
+  return Launch(application_data, Application::LaunchParams());
 }
 
 Application* ApplicationService::Launch(const base::FilePath& path) {
@@ -358,7 +358,7 @@ Application* ApplicationService::Launch(const base::FilePath& path) {
     return NULL;
   }
 
-  return Launch(application_data);
+  return Launch(application_data, Application::LaunchParams());
 }
 
 Application* ApplicationService::Launch(const GURL& url) {
@@ -385,7 +385,9 @@ Application* ApplicationService::Launch(const GURL& url) {
     return NULL;
   }
 
-  return Launch(application_data, Application::URLKey);
+  Application::LaunchParams launch_params;
+  launch_params.entry_points = Application::URLKey;
+  return Launch(application_data, launch_params);
 }
 
 namespace {
@@ -452,7 +454,7 @@ void ApplicationService::OnApplicationTerminated(
 
 Application* ApplicationService::Launch(
     scoped_refptr<ApplicationData> application_data,
-    Application::LaunchEntryPoints entry_points) {
+    const Application::LaunchParams& launch_params) {
   if (GetApplicationByID(application_data->ID()) != NULL) {
     LOG(INFO) << "Application with id: " << application_data->ID()
               << " is already running.";
@@ -465,11 +467,10 @@ Application* ApplicationService::Launch(
   Application* application(new Application(application_data,
                                            runtime_context_,
                                            this));
-  application->set_entry_points(entry_points);
   ScopedVector<Application>::iterator app_iter =
       applications_.insert(applications_.end(), application);
 
-  if (!application->Launch()) {
+  if (!application->Launch(launch_params)) {
     event_manager_->RemoveEventRouterForApp(application_data);
     applications_.erase(app_iter);
     return NULL;

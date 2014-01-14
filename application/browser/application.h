@@ -60,7 +60,12 @@ class Application : public Runtime::Observer {
   };
   typedef unsigned LaunchEntryPoints;
 
-  LaunchEntryPoints entry_points() const { return entry_points_; }
+  struct LaunchParams {
+    LaunchParams() :
+        entry_points(Default) {}
+
+    LaunchEntryPoints entry_points;
+  };
 
   // Closes all the application's runtimes (application pages).
   void Close();
@@ -95,11 +100,10 @@ class Application : public Runtime::Observer {
   Application(scoped_refptr<ApplicationData> data,
               RuntimeContext* context,
               Observer* observer);
-  bool Launch();
+  bool Launch(const LaunchParams& launch_params);
 
   template<LaunchEntryPoint>
   bool TryLaunchAt();
-  void set_entry_points(LaunchEntryPoints entry_points);
 
   friend class FinishEventObserver;
   void CloseMainDocument();
@@ -111,7 +115,6 @@ class Application : public Runtime::Observer {
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
-  LaunchEntryPoints entry_points_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };
