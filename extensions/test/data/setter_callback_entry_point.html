@@ -1,0 +1,24 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  window.onsomething = function() { return true; };
+
+  if (typeof xwalk.sample === 'object'
+      && typeof window.onsomething === 'function'
+      && window.onsomething()
+      && xwalk.sample.also_should_exist) {
+    document.title = "Pass";
+  } else {
+    document.title = "Fail";
+  }
+} catch(e) {
+    console.log(e);
+    document.title = "Fail";
+}
+</script>
+</body>
+</html>
