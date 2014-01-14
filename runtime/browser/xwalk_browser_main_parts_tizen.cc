@@ -13,7 +13,6 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
-#include "xwalk/runtime/extension/runtime_extension.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 #include "ui/gl/gl_switches.h"
 #include "ui/gfx/switches.h"
@@ -63,13 +62,6 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
   }
 
   XWalkBrowserMainParts::PreMainMessageLoopRun();
-}
-
-void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForExtensionThread(
-    content::RenderProcessHost* host,
-    extensions::XWalkExtensionVector* extensions) {
-  // This override prevents RuntimeExtension and DialogExtension to be
-  // created in Tizen.
 }
 
 // static.

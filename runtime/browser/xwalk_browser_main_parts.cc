@@ -16,7 +16,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/experimental/dialog/dialog_extension.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
@@ -25,7 +24,6 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
-#include "xwalk/runtime/extension/runtime_extension.h"
 #include "cc/base/switches.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -256,13 +254,6 @@ void XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
 void XWalkBrowserMainParts::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  // FIXME(cmarcelo): Create components for those extensions and
-  // remove CreateInternalExtensions*() functions from XWalkBrowserMainParts.
-  application::ApplicationSystem* app_system
-        = xwalk_runner_->app_system();
-  extensions->push_back(new RuntimeExtension);
-  extensions->push_back(
-      new experimental::DialogExtension(app_system));
 }
 
 }  // namespace xwalk
