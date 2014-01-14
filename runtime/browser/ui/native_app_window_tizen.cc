@@ -159,6 +159,22 @@ gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
   return rotation;
 }
 
+Orientation NativeAppWindowTizen::GetCurrentOrientation() const {
+  switch (display_.rotation()) {
+    case gfx::Display::ROTATE_0:
+      return PORTRAIT_PRIMARY;
+    case gfx::Display::ROTATE_90:
+      return LANDSCAPE_PRIMARY;
+    case gfx::Display::ROTATE_180:
+      return PORTRAIT_SECONDARY;
+    case gfx::Display::ROTATE_270:
+      return LANDSCAPE_SECONDARY;
+    default:
+      NOTREACHED();
+      return PORTRAIT_PRIMARY;
+  }
+}
+
 void NativeAppWindowTizen::OnAllowedOrientationsChanged(
     OrientationMask orientations) {
   allowed_orientations_ = orientations;
@@ -183,25 +199,6 @@ void NativeAppWindowTizen::OnRotationChanged(
 
   display_.set_rotation(rotation);
 
-  if (observer()) {
-    Orientation orientation;
-    switch (rotation) {
-      case gfx::Display::ROTATE_0:
-        orientation = PORTRAIT_PRIMARY;
-        break;
-      case gfx::Display::ROTATE_90:
-        orientation = LANDSCAPE_PRIMARY;
-        break;
-      case gfx::Display::ROTATE_180:
-        orientation = PORTRAIT_SECONDARY;
-        break;
-      case gfx::Display::ROTATE_270:
-        orientation = LANDSCAPE_SECONDARY;
-        break;
-    }
-    observer()->OnOrientationChanged(orientation);
-  }
-
   ApplyDisplayRotation();
 }
 
@@ -211,6 +208,9 @@ void NativeAppWindowTizen::UpdateTopViewOverlay() {
 }
 
 void NativeAppWindowTizen::ApplyDisplayRotation() {
+  if (observer())
+    observer()->OnOrientationChanged(GetCurrentOrientation());
+
   aura::Window* root_window = GetNativeWindow()->GetRootWindow();
   if (!root_window->IsVisible())
     return;

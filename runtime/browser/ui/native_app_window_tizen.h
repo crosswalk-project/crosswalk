@@ -49,7 +49,8 @@ class NativeAppWindowTizen
 
   void UpdateTopViewOverlay();
 
-  // ScreenOrientationAPISupplement overrides:
+  // MultiOrientationScreen overrides:
+  virtual Orientation GetCurrentOrientation() const OVERRIDE;
   virtual void OnAllowedOrientationsChanged(
       OrientationMask orientations) OVERRIDE;
 
