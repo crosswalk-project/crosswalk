@@ -45,7 +45,7 @@ errorMessageMap = {
 
 
 def HandleError(err_code):
-  print 'Error: %s' % errorMessageMap[err_code]
+  print('Error: %s' % errorMessageMap[err_code])
   sys.exit(err_code)
 
 
@@ -110,7 +110,7 @@ def main():
       ExtractXPKContent(xpk_file, zip_path)
       VerifySignature(pubkey, signature, zip_path)
       zipfile.ZipFile(zip_path).extractall(opts.out)
-    except SystemExit, ec:
+    except SystemExit as ec:
       return ec.code
     except IOError:
       HandleError(EXIT_CODE_XPK_FILE_IO_ERROR)

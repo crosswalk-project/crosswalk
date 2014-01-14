@@ -19,7 +19,8 @@ def Find(name, path):
 
 
 def AddExeExtensions(name):
-  exts = filter(None, os.environ.get('PATHEXT', '').lower().split(os.pathsep))
+  exts_str = os.environ.get('PATHEXT', '').lower()
+  exts = [_f for _f in exts_str.split(os.pathsep) if _f]
   result = []
   result.append(name)
   for e in exts:

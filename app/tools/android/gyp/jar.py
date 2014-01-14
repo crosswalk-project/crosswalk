@@ -17,8 +17,7 @@ from util import md5_check
 def DoJar(options):
   class_files = build_utils.FindInDirectory(options.classes_dir, '*.class')
   for exclude in options.excluded_classes.split():
-    class_files = filter(
-        lambda f: not fnmatch.fnmatch(f, exclude), class_files)
+    class_files = [f for f in class_files if not fnmatch.fnmatch(f, exclude)]
 
   jar_path = os.path.abspath(options.jar_path)
 

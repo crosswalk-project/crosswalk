@@ -20,7 +20,6 @@ def PrepareFromChromium(target_dir):
   if not os.path.exists(gyp_dir):
     os.makedirs(gyp_dir)
   shutil.copytree('../build/android/gyp/util', os.path.join(gyp_dir, 'util'))
-  shutil.copy('../build/android/gyp/ant.py', gyp_dir)
 
 
 def PrepareFromXwalk(src_dir, target_dir):
@@ -102,9 +101,12 @@ def PrepareFromXwalk(src_dir, target_dir):
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),
      os.path.join(target_dir, 'app_src')),
 
-    # Copy below 5 files to overwrite the existing ones from Chromium.
+    # Copy below 7 files to overwrite the existing ones from Chromium.
     (os.path.join(gyp_src_dir, 'util/build_utils.py'),
      os.path.join(gyp_target_dir, 'util')),
+    (os.path.join(gyp_src_dir, 'util/md5_check.py'),
+     os.path.join(gyp_target_dir, 'util')),
+    (os.path.join(gyp_src_dir, 'ant.py'), gyp_target_dir),
     (os.path.join(gyp_src_dir, 'dex.py'), gyp_target_dir),
     (os.path.join(gyp_src_dir, 'finalize_apk.py'), gyp_target_dir),
     (os.path.join(gyp_src_dir, 'jar.py'), gyp_target_dir),
