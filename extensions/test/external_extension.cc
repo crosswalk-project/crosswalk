@@ -27,7 +27,7 @@ class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
  public:
   virtual void SetUp() OVERRIDE {
     XWalkExtensionService::SetExternalExtensionsPathForTesting(
-        GetExternalExtensionTestPath(FILE_PATH_LITERAL("mutiple_extension")));
+        GetExternalExtensionTestPath(FILE_PATH_LITERAL("multiple_extension")));
     XWalkExtensionsTestBase::SetUp();
   }
 };
@@ -67,8 +67,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
 
-IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension,
-                       DISABLED_MultipleEntryPoints) {
+IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, MultipleEntryPoints) {
   content::RunAllPendingInMessageLoop();
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
