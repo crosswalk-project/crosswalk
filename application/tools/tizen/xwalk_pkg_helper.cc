@@ -33,6 +33,7 @@ namespace {
 const base::FilePath kIconDir("/opt/share/icons/default/small/");
 const base::FilePath kXmlDir("/opt/share/packages/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
+const std::string kServicePrefix("xwalk-service.");
 
 class FileDeleter {
  public:
@@ -59,9 +60,10 @@ class FileDeleter {
 bool InstallApplication(const char* appid, const char* xmlpath,
                         const char* iconpath) {
   base::FilePath icon_src(iconpath);
-  // icon_dst == /opt/share/icons/default/small/<appid>.png
+  // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(std::string(appid) + ".png");
+  base::FilePath icon_dst = kIconDir.Append(
+      kServicePrefix + std::string(appid) + ".png");
   if (!base::CopyFile(icon_src, icon_dst)) {
     fprintf(stdout, "Couldn't copy application icon to '%s'\n",
             icon_dst.value().c_str());
@@ -71,7 +73,8 @@ bool InstallApplication(const char* appid, const char* xmlpath,
   FileDeleter icon_cleaner(icon_dst, false);
 
   base::FilePath xml_src(xmlpath);
-  base::FilePath xml_dst = kXmlDir.Append(std::string(appid) + ".xml");
+  base::FilePath xml_dst = kXmlDir.Append(
+      kServicePrefix + std::string(appid) + ".xml");
   if (!base::CopyFile(xml_src, xml_dst)) {
     fprintf(stdout, "Couldn't copy application XML metadata to '%s'\n",
             xml_dst.value().c_str());
@@ -96,14 +99,15 @@ bool UninstallApplication(const char* appid) {
   char iconname[PATH_MAX];
 
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(std::string(appid) + ".png");
+  base::FilePath icon_dst = kIconDir.Append(
+      kServicePrefix + std::string(appid) + ".png");
   if (!base::DeleteFile(icon_dst, false)) {
     fprintf(stdout, "Couldn't delete '%s'\n", icon_dst.value().c_str());
     result = false;
   }
 
   base::FilePath xmlpath(kXmlDir);
-  xmlpath = xmlpath.Append(std::string(appid) + ".xml");
+  xmlpath = xmlpath.Append(kServicePrefix + std::string(appid) + ".xml");
 
   int ret = pkgmgr_parser_parse_manifest_for_uninstallation(
       xmlpath.value().c_str(), NULL);

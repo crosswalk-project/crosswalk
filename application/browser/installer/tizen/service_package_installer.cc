@@ -29,6 +29,8 @@ const base::FilePath kPkgHelper("/usr/bin/xwalk-pkg-helper");
 
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 
+const std::string kServicePrefix("xwalk-service.");
+
 class FileDeleter {
  public:
   FileDeleter(const base::FilePath& path, bool recursive)
@@ -79,8 +81,8 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.WriteElement("description", application->Description());
 
   xml_writer.StartElement("ui-application");
-  xml_writer.AddAttribute("appid",
-                          package_id + info::kSeparator + stripped_name);
+  xml_writer.AddAttribute(
+      "appid", kServicePrefix + package_id + info::kSeparator + stripped_name);
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "c++app");
   xml_writer.AddAttribute("taskmanage", "true");
@@ -89,7 +91,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   if (icon_name.empty())
     xml_writer.WriteElement("icon", info::kDefaultIconName);
   else
-    xml_writer.WriteElement("icon", package_id + ".png");
+    xml_writer.WriteElement("icon", kServicePrefix + package_id + ".png");
   xml_writer.EndElement();  // Ends "ui-application"
 
   xml_writer.EndElement();  // Ends "manifest" element.
