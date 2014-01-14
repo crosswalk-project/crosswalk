@@ -9,6 +9,7 @@
         getAVCodecs,
         getCPUInfo,
         getMemoryInfo,
+        getStorageInfo,
         endTest
       ];
 
@@ -111,6 +112,41 @@
         };
 
         api.getMemoryInfo().then(checkMemoryInfo, reportFail);
+      };
+
+      function getStorageInfo() {
+        function checkStorageInfo(info) {
+          if (!info.storages)
+            reportFail("We must have at least 1 storage device.");
+
+          for (var i = 0; i < info.storages.length; ++i) {
+            if (typeof info.storages[i].id != "string")
+              reportFail("Storage id is not a string.");
+
+            if (info.storages[i].id.length == 0)
+              reportFail("Storage id can't be empty.");
+
+            if (typeof info.storages[i].name != "string")
+              reportFail("Storage name is not a string.");
+
+            if (typeof info.storages[i].type != "string")
+              reportFail("Storage type is not a string.");
+
+            if (info.storages[i].type.length == 0)
+              reportFail("Storage type can't be empty.");
+
+            if (typeof info.storages[i].capacity != "number")
+              reportFail("Storage capacity must be a number.");
+
+            if (info.storages[i].capacty <= 0)
+              reportFail("Storage has to be able to store something.");
+          }
+
+          if (document.title != "Fail")
+            runNextTest();
+        };
+
+        api.getStorageInfo().then(checkStorageInfo);
       };
 
       runNextTest();
