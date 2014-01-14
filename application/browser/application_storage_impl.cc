@@ -198,8 +198,11 @@ bool ApplicationStorageImpl::GetInstalledApplications(
     int error_code;
     std::string manifest_str = smt.ColumnString(1);
     JSONStringValueSerializer serializer(&manifest_str);
-    base::Value* manifest = serializer.Deserialize(&error_code, &error_msg);
-    if (manifest == NULL) {
+    scoped_ptr<base::DictionaryValue> manifest(
+        static_cast<base::DictionaryValue*>(
+            serializer.Deserialize(&error_code, &error_msg)));
+
+    if (!manifest) {
       LOG(ERROR) << "An error occured when deserializing the manifest, "
                     "the error message is: "
                  << error_msg;
@@ -215,7 +218,7 @@ bool ApplicationStorageImpl::GetInstalledApplications(
         ApplicationData::Create(
             base::FilePath::FromUTF8Unsafe(path),
             Manifest::INTERNAL,
-            *(static_cast<base::DictionaryValue*>(manifest)),
+            *manifest,
             id,
             &error);
     if (!application) {
