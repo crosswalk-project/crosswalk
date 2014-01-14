@@ -58,6 +58,7 @@ class ApplicationService : public Application::Observer {
   Application* Launch(const GURL& url);
 
   Application* GetApplicationByRenderHostID(int id) const;
+  Application* GetApplicationByID(const std::string& app_id) const;
 
   const ScopedVector<Application>& active_applications() const {
       return applications_; }

@@ -167,14 +167,10 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 
   application::ApplicationService* service =
       XWalkRunner::GetInstance()->app_system()->application_service();
-  const application::Application* running_app =
-      service->GetActiveApplication();
-  if (running_app) {
-    protocol_handlers->insert(std::pair<std::string,
+  protocol_handlers->insert(std::pair<std::string,
         linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
           application::kApplicationScheme,
-          CreateApplicationProtocolHandler(running_app->data())));
-  }
+          application::CreateApplicationProtocolHandler(service)));
 
   url_request_getter_ = new RuntimeURLRequestContextGetter(
       false, /* ignore_certificate_error = false */

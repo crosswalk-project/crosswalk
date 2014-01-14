@@ -102,7 +102,7 @@ class Application : public Runtime::Observer {
   bool IsOnSuspendHandlerRegistered() const;
 
   RuntimeContext* runtime_context_;
-  scoped_refptr<ApplicationData> application_data_;
+  const scoped_refptr<ApplicationData> application_data_;
   Runtime* main_runtime_;
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
