@@ -29,6 +29,9 @@ const base::FilePath kPkgHelper("/usr/bin/xwalk-pkg-helper");
 
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 
+const base::FilePath kDefaultIcon(
+    "/usr/share/icons/default/small/crosswalk.png");
+
 const std::string kServicePrefix("xwalk-service.");
 
 class FileDeleter {
@@ -149,7 +152,11 @@ bool InstallApplicationForTizen(
     return false;
   }
 
-  base::FilePath icon = app_dir.AppendASCII(icon_name);
+  base::FilePath icon;
+  if (icon_name.empty())
+    icon = kDefaultIcon;
+  else
+    icon = app_dir.AppendASCII(icon_name);
 
   CommandLine cmdline(kPkgHelper);
   cmdline.AppendSwitch("--install");
