@@ -67,6 +67,11 @@ class ApplicationService : public Application::Observer {
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
+  // Check whether application has permission to access API of extension.
+  void CheckAPIAccessControl(const std::string& app_id,
+      const std::string& extension_name,
+      const std::string& api_name, const PermissionCallback& callback);
+
  private:
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
