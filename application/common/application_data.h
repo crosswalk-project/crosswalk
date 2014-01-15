@@ -17,12 +17,13 @@
 #include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/strings/string_util.h"
 #include "base/synchronization/lock.h"
-#include "base/time/time.h"
 #include "base/threading/thread_checker.h"
-#include "xwalk/application/common/manifest.h"
-#include "xwalk/application/common/install_warning.h"
+#include "base/time/time.h"
 #include "url/gurl.h"
+#include "xwalk/application/common/install_warning.h"
+#include "xwalk/application/common/manifest.h"
 
 namespace base {
 class DictionaryValue;
@@ -43,12 +44,18 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
  public:
   struct ManifestData;
 
+  struct ApplicationIdCompare {
+    bool operator()(const std::string& s1, const std::string& s2) const {
+      return base::strcasecmp(s1.c_str(), s2.c_str()) < 0;
+    }
+  };
+
   typedef std::map<const std::string, linked_ptr<ManifestData> >
       ManifestDataMap;
-  typedef std::map<std::string, scoped_refptr<ApplicationData> >
-      ApplicationDataMap;
-  typedef std::map<std::string, scoped_refptr<ApplicationData> >::iterator
-      ApplicationDataMapIterator;
+  typedef std::map<std::string,
+      scoped_refptr<ApplicationData>, ApplicationIdCompare>
+        ApplicationDataMap;
+  typedef ApplicationDataMap::iterator ApplicationDataMapIterator;
 
   // A base class for parsed manifest data that APIs want to store on
   // the application. Related to base::SupportsUserData, but with an immutable
