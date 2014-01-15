@@ -488,5 +488,76 @@ Application* ApplicationService::Launch(
   return application;
 }
 
+void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
+    const std::string& extension_name,
+    const std::string& api_name, const PermissionCallback& callback) {
+  Application* app = GetApplicationByID(app_id);
+  if (!app) {
+    LOG(ERROR) << "No running application found with ID: "
+      << app_id;
+    callback.Run(INVALID_RUNTIME_PERM);
+    return;
+  }
+  if (!app->ContainsExtension(extension_name)) {
+    LOG(ERROR) << "Can not find extension: "
+      << extension_name << " of Application with ID: "
+      << app_id;
+    callback.Run(INVALID_RUNTIME_PERM);
+    return;
+  }
+  // Permission name should have been registered at extension initialization.
+  std::string permission_name =
+      app->GetRegisteredPermissionName(extension_name, api_name);
+  if (permission_name.size() == 0) {
+    LOG(ERROR) << "API: " << api_name << " of extension: "
+      << extension_name << " not registered!";
+    callback.Run(INVALID_RUNTIME_PERM);
+    return;
+  }
+  // Okay, since we have the permission name, let's get down to the policies.
+  // First, find out whether the permission is stored for the current session.
+  StoredPermission perm = app->GetPermission(
+      SESSION_PERMISSION, permission_name);
+  if (perm != INVALID_STORED_PERM) {
+    // "PROMPT" should not be in the session storage.
+    DCHECK(perm != PROMPT);
+    if (perm == ALLOW) {
+      callback.Run(ALLOW_SESSION);
+      return;
+    }
+    if (perm == DENY) {
+      callback.Run(DENY_SESSION);
+      return;
+    }
+    NOTREACHED();
+  }
+  // Then, consult the persistent policy storage.
+  perm = app->GetPermission(PERSISTENT_PERMISSION, permission_name);
+  // Permission not found in persistent permission table, normally this should
+  // not happen because all the permission needed by the application should be
+  // contained in its manifest, so it also means that the application is asking
+  // for something wasn't allowed.
+  if (perm == INVALID_STORED_PERM) {
+    callback.Run(INVALID_RUNTIME_PERM);
+    return;
+  }
+  if (perm == PROMPT) {
+    // TODO(Bai): We needed to pop-up a dialog asking user to chose one from
+    // either allow/deny for session/one shot/forever. Then, we need to update
+    // the session and persistent policy accordingly.
+    callback.Run(INVALID_RUNTIME_PERM);
+    return;
+  }
+  if (perm == ALLOW) {
+    callback.Run(ALLOW_FOREVER);
+    return;
+  }
+  if (perm == DENY) {
+    callback.Run(DENY_FOREVER);
+    return;
+  }
+  NOTREACHED();
+}
+
 }  // namespace application
 }  // namespace xwalk
