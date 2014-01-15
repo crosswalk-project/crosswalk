@@ -31,6 +31,10 @@ static void ConvertHexadecimalToIDAlphabet(std::string* id) {
 // First 16 bytes of SHA256 hashed public key.
 const size_t kIdSize = 16;
 
+#if defined(OS_TIZEN)
+const size_t kLegacyTizenIdSize = 10;
+#endif
+
 std::string GenerateId(const std::string& input) {
   uint8 hash[kIdSize];
   crypto::SHA256HashString(input, hash, sizeof(hash));

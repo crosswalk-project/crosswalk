@@ -17,6 +17,11 @@ namespace application {
 // The number of bytes in a legal id.
 extern const size_t kIdSize;
 
+#if defined(OS_TIZEN)
+// The number of bytes in a legal legacy Tizen id.
+extern const size_t kLegacyTizenIdSize;
+#endif
+
 // Generates an application ID from arbitrary input. The same input string will
 // always generate the same output ID.
 std::string GenerateId(const std::string& input);

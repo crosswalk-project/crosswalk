@@ -78,13 +78,28 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
 
 // static
 bool ApplicationData::IsIDValid(const std::string& id) {
+  std::string temp = StringToLowerASCII(id);
+
+#if defined(OS_TIZEN)
+  // An ID with 10 characters is most likely a legacy Tizen ID.
+  if (temp.size() == kLegacyTizenIdSize) {
+    for (size_t i = 0; i < kLegacyTizenIdSize; ++i) {
+      const char c = temp[i];
+      const bool valid = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z');
+      if (!valid)
+        return false;
+    }
+
+    return true;
+  }
+#endif
+
   // Verify that the id is legal.
-  if (id.size() != (kIdSize * 2))
+  if (temp.size() != (kIdSize * 2))
     return false;
 
   // We only support lowercase IDs, because IDs can be used as URL components
   // (where GURL will lowercase it).
-  std::string temp = StringToLowerASCII(id);
   for (size_t i = 0; i < temp.size(); ++i)
     if (temp[i] < 'a' || temp[i] > 'p')
       return false;
