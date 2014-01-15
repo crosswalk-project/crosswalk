@@ -130,6 +130,21 @@ void WaitForFinishLoad(
   new CloseAfterLoadObserver(application, event_manager, contents);
 }
 
+void SaveSystemEventsInfo(
+    xwalk::application::ApplicationService* application_service,
+    scoped_refptr<xwalk::application::ApplicationData> application_data,
+    xwalk::application::ApplicationEventManager* event_manager) {
+  // We need to run main document after installation in order to
+  // register system events.
+  if (application_data->HasMainDocument()) {
+    if (xwalk::application::Application* application =
+        application_service->Launch(application_data->ID())) {
+      WaitForFinishLoad(application->data(), event_manager,
+                        application->GetMainDocumentRuntime()->web_contents());
+    }
+  }
+}
+
 #if defined(OS_TIZEN_MOBILE)
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
                            xwalk::application::ApplicationStorage* storage,
@@ -260,17 +275,10 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
             << " successfully.";
   *id = application_data->ID();
 
+  SaveSystemEventsInfo(this, application_data, event_manager_);
+
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationInstalled(application_data->ID()));
-
-  // We need to run main document after installation in order to
-  // register system events.
-  if (application_data->HasMainDocument()) {
-    if (Application* application = Launch(application_data->ID())) {
-      WaitForFinishLoad(application->data(), event_manager_,
-          application->GetMainDocumentRuntime()->web_contents());
-    }
-  }
 
   return true;
 }
@@ -382,14 +390,7 @@ bool ApplicationService::Update(const std::string& id,
 #endif
   base::DeleteFile(tmp_dir, true);
 
-  // We need to run main document after installation in order to
-  // register system events.
-  if (new_application->HasMainDocument()) {
-    if (Application* application = Launch(app_id)) {
-      WaitForFinishLoad(application->data(), event_manager_,
-                        application->GetMainDocumentRuntime()->web_contents());
-    }
-  }
+  SaveSystemEventsInfo(this, new_application, event_manager_);
 
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationUpdated(app_id));
