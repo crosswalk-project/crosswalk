@@ -12,6 +12,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "third_party/jsoncpp/source/include/json/json.h"
 
 #include "xwalk/application/browser/application.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -103,8 +104,25 @@ void ScreenOrientationInstance::OnOrientationChanged(Orientation orientation) {
       base::Value::CreateIntegerValue(orientation)));
 }
 
-void ScreenOrientationInstance::HandleMessage(scoped_ptr<base::Value> msg) {
+void ScreenOrientationInstance::HandleMessage(
+    scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass());
+}
+
+void ScreenOrientationInstance::HandleSyncMessage(
+    scoped_ptr<base::Value> msg) {
+  std::string message;
+  msg->GetAsString(&message);
+
+  Json::Value input;
+  Json::Reader reader;
+  if (!reader.parse(message, input))
+    LOG(ERROR) << "Failed to parse message: " << message;
+  else if (input["cmd"].asString() != "GetScreenOrientation")
+    LOG(ERROR) << "Got unknown command: " << input["cmd"].asString();
+
+  SendSyncReplyToJS(scoped_ptr<base::Value>(
+      base::Value::CreateIntegerValue(screen_->GetCurrentOrientation())));
 }
 
 void ScreenOrientationInstance::OnAllowedOrientationsChanged(

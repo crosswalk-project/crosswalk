@@ -74,14 +74,6 @@ Object.defineProperty(window.screen, "onorientationchange", {
   }
 });
 
-var orientationValue = "portrait-primary";
-
-Object.defineProperty(window.screen, "orientation", {
-  configurable: false,
-  enumerable: true,
- get: function() { return orientationValue; }
-});
-
 function handleOrientationChange(newOrientation) {
   switch (newOrientation) {
     case PORTRAIT_PRIMARY:
@@ -116,5 +108,20 @@ function handleOrientationChange(newOrientation) {
 
   handleOrientationChange.shouldDispatchEvent = true;
 }
+
+var orientationValue = undefined;
+
+Object.defineProperty(window.screen, "orientation", {
+  configurable: false,
+  enumerable: true,
+  get: function() {
+    if (typeof orientationValue == 'undefined') {
+      var msg = JSON.stringify({'cmd' : 'GetScreenOrientation'});
+      var newOrientation = extension.internal.sendSyncMessage(msg);
+      handleOrientationChange(newOrientation);
+    }
+    return orientationValue;
+  }
+});
 
 extension.setMessageListener(handleOrientationChange);
