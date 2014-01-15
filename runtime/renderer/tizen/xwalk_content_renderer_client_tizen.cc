@@ -32,6 +32,14 @@ size_t GetRootPathLength(const GURL& first_party_for_cookies) {
   return path.rfind('/');
 }
 
+bool URLHasAppOrFileScheme(const GURL& url) {
+  if (url.SchemeIs("app"))
+    return true;
+  if (url.SchemeIsFile())
+    return true;
+  return false;
+}
+
 };  // namespace
 
 bool XWalkContentRendererClientTizen::WillSendRequest(
@@ -39,7 +47,7 @@ bool XWalkContentRendererClientTizen::WillSendRequest(
     const GURL& first_party_for_cookies, GURL* new_url) {
   DCHECK(new_url);
 
-  if (!first_party_for_cookies.SchemeIsFile())
+  if (!URLHasAppOrFileScheme(first_party_for_cookies))
     return false;
 
   const size_t root_path_length = GetRootPathLength(first_party_for_cookies);
