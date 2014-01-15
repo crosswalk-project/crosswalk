@@ -99,6 +99,10 @@ class ManifestJsonParser(object):
         self.data_src['app'].has_key('launch') and
             self.data_src['app']['launch'].has_key('local_path')):
       app_url = self.data_src['app']['launch']['local_path']
+    elif (self.data_src.has_key('app') and
+        self.data_src['app'].has_key('launch') and
+            self.data_src['app']['launch'].has_key('web_url')):
+      app_url = self.data_src['app']['launch']['web_url']
     else:
       app_url = ''
     if app_url.lower().startswith(('http', 'https')):

@@ -1,7 +1,11 @@
 {
   "name": "Example",
   "version": "1.0.0",
-  "launch_path": "http://www.intel.com",
+  "app": {
+      "launch": {
+          "web_url": "http://www.intel.com"
+      }
+  },
   "description": "a sample description",
   "origin": "app://app.id",
   "icons": {

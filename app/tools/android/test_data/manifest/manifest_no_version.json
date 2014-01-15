@@ -1,9 +1,8 @@
 {
   "name": "Example",
-  "launch_path": "http://www.intel.com",
   "app": {
       "launch": {
-          "local_path": "http://www.intel.com"
+          "web_url": "http://www.intel.com"
       }
   },
   "description": "a sample description",
