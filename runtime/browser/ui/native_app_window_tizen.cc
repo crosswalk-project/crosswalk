@@ -179,8 +179,13 @@ void NativeAppWindowTizen::OnAllowedOrientationsChanged(
     OrientationMask orientations) {
   allowed_orientations_ = orientations;
 
-  gfx::Display::Rotation rotation
-      = GetClosestAllowedRotation(display_.rotation());
+  // As we might have been locked before our current orientation
+  // might not fit with the sensor orienation.
+  gfx::Display::Rotation rotation = display_.rotation();
+  if (SensorProvider* sensor = SensorProvider::GetInstance())
+    rotation = sensor->GetCurrentRotation();
+
+  rotation = GetClosestAllowedRotation(rotation);
   if (display_.rotation() == rotation)
     return;
 
