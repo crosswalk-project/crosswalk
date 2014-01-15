@@ -52,13 +52,10 @@ ScreenOrientationExtension::ScreenOrientationExtension(
   DCHECK(application_);
 
   std::vector<std::string> entry_points;
-
-  // FIXME: The on demand loading doesn't work:
-  // Test case: http://jsbin.com/IJapIVE/6
-  entry_points.push_back("screen");
-  // entry_points.push_back("screen.lockOrientation");
-  // entry_points.push_back("screen.unlockOrientation");
-  // entry_points.push_back("screen.onorientationchange");
+  entry_points.push_back("screen.orientation");
+  entry_points.push_back("screen.lockOrientation");
+  entry_points.push_back("screen.unlockOrientation");
+  entry_points.push_back("screen.onorientationchange");
 
   set_name("xwalk.screen");
   set_entry_points(entry_points);
