@@ -48,6 +48,7 @@ class ScreenOrientationInstance : public XWalkExtensionInstance,
  private:
   // XWalkExtensionInstance overrides:
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
   // MultiOrientationScreen::Observer overrides:
   virtual void OnOrientationChanged(Orientation orientation) OVERRIDE;
