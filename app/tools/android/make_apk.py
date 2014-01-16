@@ -616,6 +616,12 @@ def main(argv):
     xpk_temp_dir = xpk_name + '_xpk'
     ParseXPK(options, xpk_temp_dir)
 
+  if options.app_root and not options.manifest:
+    manifest_path = os.path.join(options.app_root, 'manifest.json')
+    if os.path.exists(manifest_path):
+      print('Using manifest.json distributed with the application.')
+      options.manifest = manifest_path
+
   if not options.manifest:
     if not options.package:
       parser.error('The package name is required! '
