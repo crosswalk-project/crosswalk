@@ -6,6 +6,7 @@
 
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/common/content_switches.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
