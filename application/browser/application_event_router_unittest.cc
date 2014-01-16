@@ -50,7 +50,7 @@ class ApplicationEventRouterTest : public testing::Test {
   virtual void SetUp() OVERRIDE {
     runtime_context_.reset(new xwalk::RuntimeContext);
     system_ = ApplicationSystem::Create(runtime_context_.get());
-    router_.reset(new ApplicationEventRouter(system_.get(), kMockAppId0));
+    router_.reset(new ApplicationEventRouter(kMockAppId0));
     event_manager_ = system_->event_manager();
   }
 

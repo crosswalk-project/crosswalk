@@ -14,20 +14,10 @@
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
-using xwalk::application::ApplicationData;
+using xwalk::application::Application;
 
 class ApplicationMainDocumentBrowserTest: public ApplicationBrowserTest {
- public:
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE;
 };
-
-void ApplicationMainDocumentBrowserTest::SetUpCommandLine(
-    CommandLine* command_line) {
-  ApplicationBrowserTest::SetUpCommandLine(command_line);
-  GURL url = net::FilePathToFileURL(test_data_dir_.Append(
-        FILE_PATH_LITERAL("main_document")));
-  command_line->AppendArg(url.spec());
-}
 
 // Verifies the runtime creation when main document is used.
 IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
@@ -35,17 +25,21 @@ IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
   // At least the main document's runtime exist after launch.
   ASSERT_GE(GetRuntimeCount(), 1);
 
-  xwalk::Runtime* main_runtime = runtimes()[0];
   xwalk::application::ApplicationService* service =
       xwalk::XWalkRunner::GetInstance()->app_system()->application_service();
-  const ApplicationData* app_data = service->GetActiveApplication()->data();
-  GURL generated_url =
-  app_data->GetResourceURL(xwalk::application::kGeneratedMainDocumentFilename);
-  // Check main document URL.
-  ASSERT_EQ(main_runtime->web_contents()->GetURL(), generated_url);
-  ASSERT_TRUE(!main_runtime->window());
-
+  Application* app = service->Launch(
+      test_data_dir_.Append(FILE_PATH_LITERAL("main_document")));
+  ASSERT_TRUE(app);
   // There should exist 2 runtimes(one for generated main document, one for the
   // window created by main document).
   WaitForRuntimes(2);
+
+  GURL generated_url =
+      app->data()->GetResourceURL(
+          xwalk::application::kGeneratedMainDocumentFilename);
+  xwalk::Runtime* main_runtime = app->GetMainDocumentRuntime();
+  ASSERT_TRUE(main_runtime);
+  // Check main document URL.
+  ASSERT_EQ(main_runtime->web_contents()->GetURL(), generated_url);
+  ASSERT_TRUE(!main_runtime->window());
 }

@@ -136,10 +136,6 @@ void InProcessBrowserTest::PrepareTestCommandLine(CommandLine* command_line) {
   xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
 }
 
-void InProcessBrowserTest::TearDown() {
-  BrowserTestBase::TearDown();
-}
-
 const InProcessBrowserTest::RuntimeList& InProcessBrowserTest::runtimes()
                                                                const {
   return g_runtime_registry->runtimes();

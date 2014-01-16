@@ -18,9 +18,6 @@ bool WaitForRuntimeCountCallback(int* count) {
 }  // namespace
 
 ApplicationBrowserTest::ApplicationBrowserTest() {
-}
-
-void ApplicationBrowserTest::SetUpCommandLine(CommandLine* commond_line) {
   PathService::Get(base::DIR_SOURCE_ROOT, &test_data_dir_);
   test_data_dir_ = test_data_dir_
     .Append(FILE_PATH_LITERAL("xwalk"))

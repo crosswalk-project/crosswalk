@@ -27,13 +27,11 @@ class WebContents;
 namespace xwalk {
 namespace application {
 
-class ApplicationSystem;
-
 // Per application event router. It will created when the application is loaded,
 // and destructed when the applicaiton is unloaded.
 class ApplicationEventRouter : public content::WebContentsObserver {
  public:
-  ApplicationEventRouter(ApplicationSystem* system, const std::string& app_id);
+  explicit ApplicationEventRouter(const std::string& app_id);
   virtual ~ApplicationEventRouter();
 
   // Implement content::WebContentsObserver.
@@ -42,10 +40,10 @@ class ApplicationEventRouter : public content::WebContentsObserver {
   virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
 
   void ObserveMainDocument(content::WebContents* contents);
-
+  // FIXME: do we still need it here (SetMainEvents)?
   void SetMainEvents(const std::set<std::string>& events);
   bool ContainsMainEvent(const std::string& event) const;
-
+  // FIXME: the methods below should return a boolean.
   void AttachObserver(const std::string& event_name, EventObserver* observer);
   void DetachObserver(const std::string& event_name, EventObserver* observer);
   void DetachObserver(EventObserver* observer);
@@ -80,11 +78,10 @@ class ApplicationEventRouter : public content::WebContentsObserver {
   // loaded.
   EventSet main_events_;
 
-  ApplicationSystem* system_;
   std::string app_id_;
 
   // True when application's main document or entry page is finished loading.
-  bool application_launched_;
+  bool main_document_loaded_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationEventRouter);
 };

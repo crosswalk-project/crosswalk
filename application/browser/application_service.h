@@ -63,10 +63,6 @@ class ApplicationService : public Application::Observer {
   const ScopedVector<Application>& active_applications() const {
       return applications_; }
 
-  // FIXME: This method should go away when multiple applications
-  // running is supported.
-  Application* GetActiveApplication() const;
-
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 

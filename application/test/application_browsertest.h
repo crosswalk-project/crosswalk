@@ -6,20 +6,16 @@
 #define XWALK_APPLICATION_TEST_APPLICATION_BROWSERTEST_H_
 
 #include "base/command_line.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 
 // Base class for application browser test.
-// TODO(xiang): Currently we don't support shared browser process model then
-// every time we test an app we need pass its path in command line. Should
-// provide load/unload, install/uninstall, launch support when shared browser
-// process model is supported.
 class ApplicationBrowserTest: public InProcessBrowserTest {
  protected:
   ApplicationBrowserTest();
   virtual ~ApplicationBrowserTest() {}
-
-  // InProcessBrowserTest implementation.
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE;
 
   // Wait for Runtime number in RuntimeRegistry becomes |runtime_count|.
   void WaitForRuntimes(int runtime_count);

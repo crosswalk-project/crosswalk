@@ -18,7 +18,6 @@ class ApplicationApiTest : public ApplicationBrowserTest {
 
  protected:
   virtual void SetUp() OVERRIDE;
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE;
 
   scoped_ptr<ApiTestRunner> test_runner_;
 

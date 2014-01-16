@@ -8,8 +8,6 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_router.h"
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_storage.h"
-#include "xwalk/application/browser/application_system.h"
 
 using content::BrowserThread;
 
@@ -31,30 +29,27 @@ Event::Event(const std::string& event_name,
 Event::~Event() {
 }
 
-ApplicationEventManager::ApplicationEventManager(ApplicationSystem* system)
-  : system_(system) {
+ApplicationEventManager::ApplicationEventManager() {
 }
 
 ApplicationEventManager::~ApplicationEventManager() {
 }
 
-void ApplicationEventManager::OnAppLoaded(const std::string& app_id) {
-  scoped_refptr<const ApplicationData> app_data =
-      system_->application_storage()->GetApplicationData(app_id);
-  std::set<std::string> events;
-  if (app_data)
-    events = app_data->GetEvents();
+void ApplicationEventManager::AddEventRouterForApp(
+    scoped_refptr<ApplicationData> app_data) {
+  std::set<std::string> events = app_data->GetEvents();
 
   linked_ptr<ApplicationEventRouter> router(
-      new ApplicationEventRouter(system_, app_id));
+      new ApplicationEventRouter(app_data->ID()));
   router->SetMainEvents(events);
 
-  app_routers_.insert(std::make_pair(app_id, router));
+  app_routers_.insert(std::make_pair(app_data->ID(), router));
 }
 
-void ApplicationEventManager::OnAppUnloaded(const std::string& app_id) {
-  DCHECK(app_routers_.find(app_id) != app_routers_.end());
-  app_routers_.erase(app_id);
+void ApplicationEventManager::RemoveEventRouterForApp(
+    scoped_refptr<ApplicationData> app_data) {
+  DCHECK(app_routers_.find(app_data->ID()) != app_routers_.end());
+  app_routers_.erase(app_data->ID());
 }
 
 void ApplicationEventManager::SendEvent(const std::string& app_id,
@@ -87,12 +82,16 @@ void ApplicationEventManager::DetachObserver(EventObserver* observer) {
     it->second->DetachObserver(observer);
 }
 
-void ApplicationEventManager::OnMainDocumentCreated(
-    const std::string& app_id, content::WebContents* contents) {
-  if (ApplicationEventRouter* app_router = GetAppRouter(app_id)) {
-    DCHECK(app_router);
-    app_router->ObserveMainDocument(contents);
+void ApplicationEventManager::DidLaunchApplication(Application* app) {
+  if (Runtime* runtime = app->GetMainDocumentRuntime()) {
+    ApplicationEventRouter* app_router = GetAppRouter(app->id());
+    CHECK(app_router);
+    app_router->ObserveMainDocument(runtime->web_contents());
   }
+}
+
+void ApplicationEventManager::WillDestroyApplication(Application* app) {
+  RemoveEventRouterForApp(app->data());
 }
 
 ApplicationEventRouter* ApplicationEventManager::GetAppRouter(

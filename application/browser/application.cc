@@ -72,16 +72,14 @@ template<>
 bool Application::TryLaunchAt<Application::AppMainKey>() {
   const MainDocumentInfo* main_info =
       ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info || !main_info->GetMainURL().is_valid())
+  if (!main_info || !main_info->GetMainURL().is_valid()) {
+    LOG(WARNING) << "Can't find a valid main document URL for app.";
     return false;
+  }
 
+  DCHECK(HasMainDocument());
   main_runtime_ = Runtime::Create(runtime_context_, this);
   main_runtime_->LoadURL(main_info->GetMainURL());
-
-  ApplicationEventManager* event_manager =
-      XWalkRunner::GetInstance()->app_system()->event_manager();
-  event_manager->OnMainDocumentCreated(
-      application_data_->ID(), main_runtime_->web_contents());
   return true;
 }
 
