@@ -182,7 +182,9 @@ ApplicationService::ApplicationService(RuntimeContext* runtime_context,
                                        ApplicationEventManager* event_manager)
     : runtime_context_(runtime_context),
       application_storage_(app_storage),
-      event_manager_(event_manager) {}
+      event_manager_(event_manager) {
+  AddObserver(event_manager);
+}
 
 ApplicationService::~ApplicationService() {
 }
@@ -356,12 +358,6 @@ Application* ApplicationService::Launch(const GURL& url) {
   return Launch(application_data, Application::LaunchWebURLKey);
 }
 
-Application* ApplicationService::GetActiveApplication() const {
-  if (applications_.empty())
-    return NULL;
-  return applications_[0];  // Return the first item in the list.
-}
-
 namespace {
 
 struct ApplicationRenderHostIDComparator {
@@ -427,21 +423,30 @@ void ApplicationService::OnApplicationTerminated(
 Application* ApplicationService::Launch(
     scoped_refptr<ApplicationData> application_data,
     Application::LaunchEntryPoints entry_points) {
-  event_manager_->OnAppLoaded(application_data->ID());
+  if (GetApplicationByID(application_data->ID()) != NULL) {
+    LOG(INFO) << "Application with id: " << application_data->ID()
+              << " is already running.";
+    // FIXME: we need to notify application that it had been attempted
+    // to invoke and let the application to define the further behavior.
+    return NULL;
+  }
 
+  event_manager_->AddEventRouterForApp(application_data);
   Application* application(new Application(application_data,
                                            runtime_context_,
                                            this));
   application->set_entry_points(entry_points);
-  applications_.push_back(application);
+  ScopedVector<Application>::iterator app_iter =
+      applications_.insert(applications_.end(), application);
+
   if (!application->Launch()) {
-    applications_.get().pop_back();
-    delete application;
-    application = NULL;
-  } else {
-    FOR_EACH_OBSERVER(Observer, observers_,
-                      DidLaunchApplication(application));
+    event_manager_->RemoveEventRouterForApp(application_data);
+    applications_.erase(app_iter);
+    return NULL;
   }
+
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    DidLaunchApplication(application));
 
   return application;
 }

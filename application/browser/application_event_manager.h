@@ -14,6 +14,7 @@
 #include "base/memory/linked_ptr.h"
 #include "base/memory/ref_counted.h"
 #include "base/values.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/event_observer.h"
 
 namespace content {
@@ -24,7 +25,6 @@ namespace xwalk {
 namespace application {
 
 class ApplicationEventRouter;
-class ApplicationSystem;
 
 class Event : public base::RefCounted<Event> {
  public:
@@ -46,15 +46,15 @@ class Event : public base::RefCounted<Event> {
 };
 
 // This's the service class manages all application event routers.
-class ApplicationEventManager {
+class ApplicationEventManager : public ApplicationService::Observer {
  public:
-  explicit ApplicationEventManager(ApplicationSystem* system);
+  ApplicationEventManager();
   ~ApplicationEventManager();
 
   // Create app router when app is loaded.
-  void OnAppLoaded(const std::string& app_id);
+  void AddEventRouterForApp(scoped_refptr<ApplicationData> app_data);
   // Destroy app router when app is unloaded.
-  void OnAppUnloaded(const std::string& app_id);
+  void RemoveEventRouterForApp(scoped_refptr<ApplicationData> app_data);
 
   void SendEvent(const std::string& app_id,
                  scoped_refptr<Event> event);
@@ -69,17 +69,16 @@ class ApplicationEventManager {
                       EventObserver* observer);
   void DetachObserver(EventObserver* observer);
 
-  void OnMainDocumentCreated(const std::string& app_id,
-                             content::WebContents* contents);
-
  private:
+  // Implementation of ApplicationService::Observer.
+  virtual void DidLaunchApplication(Application* app) OVERRIDE;
+  virtual void WillDestroyApplication(Application* app) OVERRIDE;
+
   ApplicationEventRouter* GetAppRouter(const std::string& app_id);
 
   typedef std::map<std::string, linked_ptr<ApplicationEventRouter> >
       AppRouterMap;
   AppRouterMap app_routers_;
-
-  ApplicationSystem* system_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationEventManager);
 };

@@ -18,11 +18,9 @@
 namespace xwalk {
 namespace application {
 
-ApplicationEventRouter::ApplicationEventRouter(
-    ApplicationSystem* system, const std::string& app_id)
-    : system_(system),
-      app_id_(app_id),
-      application_launched_(false) {
+ApplicationEventRouter::ApplicationEventRouter(const std::string& app_id)
+    : app_id_(app_id),
+      main_document_loaded_(false) {
 }
 
 ApplicationEventRouter::~ApplicationEventRouter() {
@@ -31,13 +29,13 @@ ApplicationEventRouter::~ApplicationEventRouter() {
 
 void ApplicationEventRouter::DidStopLoading(
     content::RenderViewHost* render_view_host) {
-  application_launched_ = true;
+  main_document_loaded_ = true;
   ProcessLazyEvents();
 }
 
 void ApplicationEventRouter::RenderProcessGone(
     base::TerminationStatus status) {
-  application_launched_ = false;
+  main_document_loaded_ = false;
   DetachAllObservers();
 }
 
@@ -83,17 +81,8 @@ void ApplicationEventRouter::DetachObserver(EventObserver* observer) {
 void ApplicationEventRouter::DispatchEvent(scoped_refptr<Event> event) {
   const std::string& event_name = event->name();
 
-  if (main_events_.find(event_name) != main_events_.end() ||
-      event_name == kOnLaunched) {
-    if (!application_launched_) {
-        lazy_events_.push_back(event);
-      return;
-    }
-  }
-
-  if (!application_launched_) {
-    LOG(WARNING) << "Ignore event: " << event_name
-                 << " send to terminated application:" << app_id_;
+  if (!main_document_loaded_) {
+    lazy_events_.push_back(event);
     return;
   }
 

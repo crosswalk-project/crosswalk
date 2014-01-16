@@ -47,9 +47,6 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   // BrowserMain. BrowserMain ends up invoking RunTestOnMainThreadLoop.
   virtual void SetUp() OVERRIDE;
 
-  // Restores state configured in SetUp.
-  virtual void TearDown() OVERRIDE;
-
  protected:
   // Returns the runtime instance created by CreateRuntime.
   xwalk::Runtime* runtime() const { return runtime_; }

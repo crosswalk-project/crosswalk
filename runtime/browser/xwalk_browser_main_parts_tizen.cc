@@ -80,14 +80,16 @@ void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
     extensions::XWalkExtensionVector* extensions) {
   XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
       host, extensions);
-
+  // FIXME(Mikhail): move this code to a dedicated XWalkComponent.
   application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   application::ApplicationService* app_service
       = app_system->application_service();
-  if (Application* application = app_service->GetActiveApplication()) {
-    extensions->push_back(new ScreenOrientationExtension(
+  Application* application =
+      app_service->GetApplicationByRenderHostID(host->GetID());
+  if (!application)
+    return;
+  extensions->push_back(new ScreenOrientationExtension(
         application, GetAllowedUAOrientations()));
-  }
 }
 
 }  // namespace xwalk

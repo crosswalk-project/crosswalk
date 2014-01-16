@@ -14,6 +14,7 @@
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+using xwalk::application::Application;
 using xwalk::application::ApplicationEventManager;
 using xwalk::application::Event;
 using xwalk::application::kOnJavaScriptEventAck;
@@ -22,55 +23,17 @@ namespace {
 
 const char kMockEvent[] = "onMockEvent";
 
+scoped_refptr<Event> CreateMockEvent() {
+  scoped_ptr<base::ListValue> args(new base::ListValue());
+  args->AppendInteger(1234);
+  args->AppendBoolean(false);
+  return Event::CreateEvent(kMockEvent, args.Pass());
+}
+
 }  // namespace
 
 class ApplicationEventApiTest : public ApplicationApiTest {
- public:
-  ApplicationEventApiTest()
-    : event_manager_(NULL) {
-  }
-
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
-    ApplicationBrowserTest::SetUpCommandLine(command_line);
-    GURL url = net::FilePathToFileURL(test_data_dir_.Append(
-          FILE_PATH_LITERAL("eventapi")));
-    command_line->AppendArg(url.spec());
-  }
-
-  void PrepareFinishObserver() {
-    xwalk::application::ApplicationSystem* system =
-        xwalk::XWalkRunner::GetInstance()->app_system();
-    DCHECK(system->application_service()->GetActiveApplication());
-
-    app_id_ = system->application_service()->GetActiveApplication()->id();
-    event_manager_ = system->event_manager();
-    event_finish_observer_.reset(
-        new MockFinishObserver(event_manager_, app_id_));
-  }
-
-  // ApplicationEventManager is intialized after MockFinishObserver by default,
-  // as a result, ApplicationEventManager is destroyed before the observer in
-  // ApplicationEventApiTest destructor by default. This will cause crash inside
-  // destructor of MockFinishObserver. A solution is to initialize
-  // MockFinishObserver later and destroy earlier than ApplicationEventManager.
-  void CloseFinishObserver() {
-    MockFinishObserver* observer = event_finish_observer_.release();
-  }
-
-  void SendEvent() {
-    DCHECK(event_manager_);
-    scoped_ptr<base::ListValue> args(new base::ListValue());
-    args->AppendInteger(1234);
-    args->AppendBoolean(false);
-    scoped_refptr<Event> event = Event::CreateEvent(kMockEvent, args.Pass());
-    event_manager_->SendEvent(app_id_, event);
-  }
-
-  bool EventFinishObserverNotified() {
-    return event_finish_observer_->has_been_notified_;
-  }
-
- private:
+ protected:
   class MockFinishObserver : public xwalk::application::EventObserver {
    public:
     MockFinishObserver(
@@ -92,21 +55,23 @@ class ApplicationEventApiTest : public ApplicationApiTest {
 
     bool has_been_notified_;
   };
-
-  std::string app_id_;
-  ApplicationEventManager* event_manager_;
-  scoped_ptr<MockFinishObserver> event_finish_observer_;
 };
 
 IN_PROC_BROWSER_TEST_F(ApplicationEventApiTest, EventApiTest) {
-  test_runner_->WaitForTestNotification();
-  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
+  xwalk::application::ApplicationSystem* system =
+      xwalk::XWalkRunner::GetInstance()->app_system();
+  Application* app = system->application_service()->Launch(
+      test_data_dir_.Append(FILE_PATH_LITERAL("eventapi")));
+  ASSERT_TRUE(app);
 
-  test_runner_->PostResultToNotificationCallback();
-  PrepareFinishObserver();
-  SendEvent();
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
-  EXPECT_TRUE(EventFinishObserverNotified());
-  CloseFinishObserver();
+  test_runner_->PostResultToNotificationCallback();
+  scoped_ptr<MockFinishObserver> event_finish_observer(
+      new MockFinishObserver(system->event_manager(), app->id()));
+
+  system->event_manager()->SendEvent(app->id(), CreateMockEvent());
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
+  EXPECT_TRUE(event_finish_observer->has_been_notified_);
 }

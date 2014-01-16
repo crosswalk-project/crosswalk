@@ -7,10 +7,14 @@
 #include <vector>
 #include "content/public/test/browser_test_utils.h"
 #include "net/base/net_util.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 
+using xwalk::application::Application;
 using namespace xwalk::extensions;  // NOLINT
 
 ApplicationApiTest::ApplicationApiTest()
@@ -27,13 +31,6 @@ void ApplicationApiTest::SetUp() {
   ApplicationBrowserTest::SetUp();
 }
 
-void ApplicationApiTest::SetUpCommandLine(CommandLine* command_line) {
-  ApplicationBrowserTest::SetUpCommandLine(command_line);
-  GURL url = net::FilePathToFileURL(test_data_dir_.Append(
-        FILE_PATH_LITERAL("api")));
-  command_line->AppendArg(url.spec());
-}
-
 void ApplicationApiTest::CreateExtensions(XWalkExtensionVector* extensions) {
   ApiTestExtension* extension = new ApiTestExtension;
   extension->SetObserver(test_runner_.get());
@@ -41,6 +38,11 @@ void ApplicationApiTest::CreateExtensions(XWalkExtensionVector* extensions) {
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationApiTest, ApiTest) {
+  xwalk::application::ApplicationService* service =
+      xwalk::XWalkRunner::GetInstance()->app_system()->application_service();
+  Application* app = service->Launch(
+      test_data_dir_.Append(FILE_PATH_LITERAL("api")));
+  ASSERT_TRUE(app);
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }

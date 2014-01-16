@@ -29,7 +29,7 @@ namespace application {
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
     application_storage_(new ApplicationStorage(runtime_context->GetPath())),
-    event_manager_(new ApplicationEventManager(this)),
+    event_manager_(new ApplicationEventManager()),
     application_service_(new ApplicationService(
         runtime_context,
         application_storage_.get(),
