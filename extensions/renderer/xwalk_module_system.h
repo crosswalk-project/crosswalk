@@ -95,6 +95,9 @@ class XWalkModuleSystem {
   static void LoadExtensionForTrampoline(
       v8::Isolate* isolate,
       v8::Local<v8::Value> data);
+  static v8::Handle<v8::Value> RefetchHolder(
+    v8::Isolate* isolate,
+    v8::Local<v8::Value> data);
 
   bool ContainsEntryPoint(const std::string& entry_point);
   void MarkModulesWithTrampoline();

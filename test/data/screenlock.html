@@ -15,8 +15,6 @@ function handleorientationchange() {
 }
 
 screen.onorientationchange = handleorientationchange;
-// FIXME: Doesn't work first time as the object gets replaced.
-screen.onorientationchange = handleorientationchange;
 
 function apply(lock) {
   var orientations = [];

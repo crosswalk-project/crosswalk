@@ -231,10 +231,15 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
     return false;
   }
 
+  v8::Local<v8::Array> params = v8::Array::New();
+  v8::Local<v8::String> entry = v8::String::New(entry_point.c_str());
+  params->Set(v8::Integer::New(0), user_data);
+  params->Set(v8::Integer::New(1), entry);
+
   // FIXME(cmarcelo): ensure that trampoline is readonly.
   value.As<v8::Object>()->SetAccessor(
       v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()),
-      TrampolineCallback, TrampolineSetterCallback, user_data);
+      TrampolineCallback, TrampolineSetterCallback, params);
   return true;
 }
 
@@ -347,7 +352,9 @@ void XWalkModuleSystem::DeleteExtensionModules() {
 void XWalkModuleSystem::LoadExtensionForTrampoline(
     v8::Isolate* isolate,
     v8::Local<v8::Value> data) {
-  void* ptr = data.As<v8::External>()->Value();
+  v8::Local<v8::Array> params = data.As<v8::Array>();
+  void* ptr = params->Get(v8::Integer::New(0)).As<v8::External>()->Value();
+
   ExtensionModuleEntry* entry = static_cast<ExtensionModuleEntry*>(ptr);
 
   if (!entry)
@@ -376,11 +383,31 @@ void XWalkModuleSystem::LoadExtensionForTrampoline(
 }
 
 // static
+v8::Handle<v8::Value> XWalkModuleSystem::RefetchHolder(
+    v8::Isolate* isolate,
+    v8::Local<v8::Value> data) {
+  v8::Local<v8::Array> params = data.As<v8::Array>();
+  const std::string entry_point = *v8::String::Utf8Value(
+      params->Get(v8::Integer::New(1)).As<v8::String>());
+
+  std::vector<std::string> path;
+  base::SplitString(entry_point, '.', &path);
+  path.pop_back();
+
+  std::string error;
+  return GetObjectForPath(isolate->GetCurrentContext(), path, &error);
+}
+
+// static
 void XWalkModuleSystem::TrampolineCallback(
     v8::Local<v8::String> property,
     const v8::PropertyCallbackInfo<v8::Value>& info) {
   XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
-  info.GetReturnValue().Set(info.Holder()->Get(property));
+  v8::Handle<v8::Value> holder = RefetchHolder(info.GetIsolate(), info.Data());
+  if (holder->IsUndefined())
+    return;
+
+  info.GetReturnValue().Set(holder.As<v8::Object>()->Get(property));
 }
 
 // static
@@ -389,7 +416,11 @@ void XWalkModuleSystem::TrampolineSetterCallback(
     v8::Local<v8::Value> value,
     const v8::PropertyCallbackInfo<void>& info) {
   XWalkModuleSystem::LoadExtensionForTrampoline(info.GetIsolate(), info.Data());
-  info.Holder()->Set(property, value);
+  v8::Handle<v8::Value> holder = RefetchHolder(info.GetIsolate(), info.Data());
+  if (holder->IsUndefined())
+    return;
+
+  holder.As<v8::Object>()->Set(property, value);
 }
 
 XWalkModuleSystem::ExtensionModuleEntry::ExtensionModuleEntry(
