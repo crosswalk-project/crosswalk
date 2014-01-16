@@ -33,6 +33,10 @@ void EventTarget::DispatchEvent(const std::string& type,
   it->second.Run(data.Pass());
 }
 
+bool EventTarget::IsEventActive(const std::string& type) const {
+  return events_.find(type) != events_.end();
+}
+
 void EventTarget::OnAddEventListener(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
   scoped_ptr<AddEventListener::Params>

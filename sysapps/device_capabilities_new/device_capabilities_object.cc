@@ -10,6 +10,7 @@
 #include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
+#include "xwalk/sysapps/device_capabilities_new/storage_info_provider.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -26,9 +27,39 @@ DeviceCapabilitiesObject::DeviceCapabilitiesObject() {
   handler_.Register("getMemoryInfo",
                     base::Bind(&DeviceCapabilitiesObject::OnGetMemoryInfo,
                                base::Unretained(this)));
+  handler_.Register("getStorageInfo",
+                    base::Bind(&DeviceCapabilitiesObject::OnGetStorageInfo,
+                               base::Unretained(this)));
 }
 
-DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {}
+DeviceCapabilitiesObject::~DeviceCapabilitiesObject() {
+  if (SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
+    SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+}
+
+void DeviceCapabilitiesObject::StartEvent(const std::string& type) {
+  if (!SysAppsManager::GetStorageInfoProvider()->HasObserver(this))
+    SysAppsManager::GetStorageInfoProvider()->AddObserver(this);
+}
+
+void DeviceCapabilitiesObject::StopEvent(const std::string& type) {
+  if (!IsEventActive("storageattach") && !IsEventActive("storagedetach"))
+    SysAppsManager::GetStorageInfoProvider()->RemoveObserver(this);
+}
+
+void DeviceCapabilitiesObject::OnStorageAttached(const StorageUnit& storage) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(storage.ToValue().release());
+
+  DispatchEvent("storageattach", eventData.Pass());
+}
+
+void DeviceCapabilitiesObject::OnStorageDetached(const StorageUnit& storage) {
+  scoped_ptr<base::ListValue> eventData(new base::ListValue);
+  eventData->Append(storage.ToValue().release());
+
+  DispatchEvent("storagedetach", eventData.Pass());
+}
 
 void DeviceCapabilitiesObject::OnGetAVCodecs(
     scoped_ptr<XWalkExtensionFunctionInfo> info) {
@@ -49,6 +80,24 @@ void DeviceCapabilitiesObject::OnGetMemoryInfo(
   scoped_ptr<SystemMemory> memory_info(
       SysAppsManager::GetMemoryInfoProvider()->memory_info());
   info->PostResult(GetMemoryInfo::Results::Create(*memory_info, std::string()));
+}
+
+void DeviceCapabilitiesObject::OnGetStorageInfo(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  StorageInfoProvider* provider(SysAppsManager::GetStorageInfoProvider());
+
+  // Queue the message if the backend is not initialized yet.
+  if (!provider->IsInitialized()) {
+    provider->AddOnInitCallback(
+        base::Bind(&DeviceCapabilitiesObject::OnGetStorageInfo,
+                   base::Unretained(this),
+                   base::Passed(&info)));
+    return;
+  }
+
+  scoped_ptr<SystemStorage> storage_info(provider->storage_info());
+  info->PostResult(GetStorageInfo::Results::Create(
+      *storage_info, std::string()));
 }
 
 }  // namespace sysapps
