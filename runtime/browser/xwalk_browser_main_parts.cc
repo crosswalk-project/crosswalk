@@ -152,8 +152,25 @@ int XWalkBrowserMainParts::PreCreateThreads() {
 
 void XWalkBrowserMainParts::RegisterExternalExtensions() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+
+#if defined(OS_TIZEN)
+  static const std::string tec_path = "/usr/lib/tizen-extensions-crosswalk";
+  std::string value = cmd_line->GetSwitchValueASCII(
+      switches::kXWalkExternalExtensionsPath);
+
+  if (value.empty())
+    cmd_line->AppendSwitchASCII(switches::kXWalkExternalExtensionsPath,
+        tec_path);
+  else if (value != tec_path)
+    VLOG(0) << "Loading Tizen extensions from " << value << " rather than " <<
+        tec_path;
+
+  cmd_line->AppendSwitch(
+        switches::kXWalkAllowExternalExtensionsForRemoteSources);
+#else
   if (!cmd_line->HasSwitch(switches::kXWalkExternalExtensionsPath))
     return;
+#endif
 
   if (!cmd_line->HasSwitch(
           switches::kXWalkAllowExternalExtensionsForRemoteSources) &&
