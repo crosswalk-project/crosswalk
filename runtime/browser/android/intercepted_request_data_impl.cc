@@ -9,10 +9,15 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "jni/InterceptedRequestData_jni.h"
+#include "net/base/escape.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
+#include "xwalk/runtime/browser/android/net/android_protocol_handler.h"
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
+#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 using base::android::ScopedJavaLocalRef;
 
@@ -117,8 +122,19 @@ net::URLRequestJob* InterceptedRequestDataImpl::CreateJobFor(
     net::NetworkDelegate* network_delegate) const {
   scoped_ptr<AndroidStreamReaderURLRequestJob::Delegate>
       stream_reader_job_delegate_impl(new StreamReaderJobDelegateImpl(this));
+
+  base::FilePath relative_path = base::FilePath(
+      net::UnescapeURLComponent(request->url().path(),
+          net::UnescapeRule::SPACES | net::UnescapeRule::URL_SPECIAL_CHARS));
+
+  xwalk::XWalkBrowserMainParts* main_parts =
+          xwalk::XWalkContentBrowserClient::Get()->main_parts();
+  xwalk::RuntimeContext* runtime_context = main_parts->runtime_context();
+  std::string content_security_policy = runtime_context->GetCSPString();
+
   return new AndroidStreamReaderURLRequestJob(
-      request, network_delegate, stream_reader_job_delegate_impl.Pass());
+      request, network_delegate, stream_reader_job_delegate_impl.Pass(),
+      relative_path, content_security_policy);
 }
 
 }  // namespace xwalk
