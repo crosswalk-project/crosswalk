@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Copyright (c) 2013, 2014 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 # pylint: disable=F0401
@@ -16,6 +16,7 @@ import sys
 sys.path.append('scripts/gyp')
 from customize import ReplaceInvalidChars
 from dex import AddExeExtensions
+from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
@@ -584,7 +585,7 @@ def main(argv):
           'activity-element.html#screen')
   group.add_option('--orientation', help=info)
   info = ('The list of permissions to be used by web application. For example, '
-          '--permissions=\'geolocation:webgl\'')
+          '--permissions=geolocation:webgl')
   group.add_option('--permissions', help=info)
   parser.add_option_group(group)
   group = optparse.OptionGroup(parser, 'Keystore Options',
@@ -637,7 +638,13 @@ def main(argv):
                    '"--app-local-path" options together!')
     if options.permissions:
       permission_list = options.permissions.split(':')
-      options.permissions = HandlePermissionList(permission_list)
+    else:
+      print ('Warning: all supported permissions on Android port are added. '
+             'Refer to https://github.com/crosswalk-project/'
+             'crosswalk-website/wiki/Crosswalk-manifest')
+      permission_list = permission_mapping_table.keys()
+    options.permissions = HandlePermissionList(permission_list)
+
   else:
     try:
       ParseManifest(options)

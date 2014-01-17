@@ -10,6 +10,13 @@ import os
 import re
 import shutil
 import sys
+
+from handle_xml import AddElementAttribute
+from handle_xml import AddElementAttributeAndText
+from handle_xml import AddThemeStyle
+from handle_xml import EditElementAttribute
+from handle_xml import RemoveThemeStyle
+from handle_permissions import HandlePermissions
 from xml.dom import minidom
 
 def ReplaceInvalidChars(value, mode='default'):
@@ -54,43 +61,6 @@ def Prepare(options, sanitized_name):
     shutil.copytree(options.app_root, app_src_path)
 
 
-def EditElementAttribute(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
-  if item.hasAttribute(name):
-    item.attributes[name].value = value
-  else:
-    item.setAttribute(name, value)
-
-
-def AddElementAttribute(doc, node, name, value):
-  root = doc.documentElement
-  item = doc.createElement(node)
-  item.setAttribute(name, value)
-  root.appendChild(item)
-
-
-def AddElementAttributeAndText(doc, node, name, value, data):
-  root = doc.documentElement
-  item = doc.createElement(node)
-  item.setAttribute(name, value)
-  text = doc.createTextNode(data)
-  item.appendChild(text)
-  root.appendChild(item)
-
-
-def AddThemeStyle(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
-  src_str = item.attributes[name].value
-  src_str = src_str + '.' + value
-  item.attributes[name].value = src_str
-
-
-def RemoveThemeStyle(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
-  dest_str = item.attributes[name].value.replace('.' + value, '')
-  item.attributes[name].value = dest_str
-
-
 def CustomizeStringXML(options, sanitized_name):
   strings_path = os.path.join(sanitized_name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
@@ -123,12 +93,7 @@ def CustomizeXML(options, sanitized_name):
   if options.description:
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
-  # TODO: Update the permission list after the permission
-  # specification is defined.
-  if options.permissions:
-    if 'geolocation' in options.permissions:
-      AddElementAttribute(xmldoc, 'uses-permission', 'android:name',
-                          'android.permission.LOCATION_HARDWARE')
+  HandlePermissions(options, xmldoc)
   EditElementAttribute(xmldoc, 'application', 'android:label', options.name)
   activity_name = options.package + '.' + sanitized_name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
