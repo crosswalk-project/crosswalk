@@ -1,0 +1,11 @@
+{
+  "name": "CSP Test",
+  "version": "1.0.0",
+  "description": "CSP test with self script-src",
+  "content_security_policy": "object-src 'self'; script-src 'self'",
+  "app": {
+    "launch": {
+      "local_path": "csp.html"
+    }
+  }
+}

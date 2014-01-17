@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.chromium.content.browser.test.util.Criteria;
+import org.chromium.content.browser.test.util.CriteriaHelper;
 /**
  * Test helper for Runtime client APIs.
  */
@@ -162,6 +164,50 @@ public class RuntimeClientApiTestBase<T extends Activity> {
             public void run() {
                 String title = mTestUtil.getTestedView().getTitleForTest();
                 mTestCase.assertEquals(expectedTitle, title);
+            }
+        });
+    }
+
+   // For testCSP.
+    public void testCSP() throws Throwable {
+        final String originalTitle = "Original Title";
+        final String newTitle = "New Title";
+        final String host = mTestCase.getActivity().getPackageName();
+        mTestUtil.loadManifestSync("file:///android_asset/www/manifest_self.json");
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(originalTitle, title);
+            }
+        });
+
+        mTestUtil.loadManifestSync("app://" + host + "/manifest_self.json");
+        Thread.sleep(2000);
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(originalTitle, title);
+            }
+        });
+
+        mTestUtil.loadManifestSync("file:///android_asset/www/manifest_inline_script.json");
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(newTitle, title);
+            }
+        });
+
+        mTestUtil.loadManifestSync("app://" + host + "/manifest_inline_script.json");
+        Thread.sleep(2000);
+        mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                String title = mTestUtil.getTestedView().getTitleForTest();
+                mTestCase.assertEquals(newTitle, title);
             }
         });
     }

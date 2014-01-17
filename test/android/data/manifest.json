@@ -1,5 +1,7 @@
 {
   "name": "loadAppFromManifest Test",
+  "version": "1.0.0",
+  "description": "Test for loadAppFromManifest",
   "app": {
     "launch": {
       "local_path": "index.html"
