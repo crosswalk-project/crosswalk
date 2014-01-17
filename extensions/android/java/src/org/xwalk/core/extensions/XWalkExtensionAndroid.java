@@ -21,7 +21,11 @@ public abstract class XWalkExtensionAndroid {
     private int mXWalkExtension;
 
     public XWalkExtensionAndroid(String name, String jsApi) {
-        mXWalkExtension = nativeGetOrCreateExtension(name, jsApi);
+        mXWalkExtension = nativeGetOrCreateExtension(name, jsApi, null);
+    }
+
+    public XWalkExtensionAndroid(String name, String jsApi, String[] entryPoints) {
+        mXWalkExtension = nativeGetOrCreateExtension(name, jsApi, entryPoints);
     }
 
     protected void destroyExtension() {
@@ -58,7 +62,7 @@ public abstract class XWalkExtensionAndroid {
     @CalledByNative
     public abstract String handleSyncMessage(int instanceID, String message);
 
-    private native int nativeGetOrCreateExtension(String name, String jsApi);
+    private native int nativeGetOrCreateExtension(String name, String jsApi, String[] entryPoints);
     private native void nativePostMessage(int nativeXWalkExtensionAndroid, int instanceID, String message);
     private native void nativeBroadcastMessage(int nativeXWalkExtensionAndroid, String message);
     private native void nativeDestroyExtension(int nativeXWalkExtensionAndroid);

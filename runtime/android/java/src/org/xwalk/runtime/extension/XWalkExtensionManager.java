@@ -149,14 +149,12 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         }
 
         {
-            String jsApiContent = "var is_android_platform = true;\n";
-            jsApiContent += "var uaDefault = ";
-            jsApiContent += ScreenOrientationExtension.ANY;
-            jsApiContent += ";\n";
+            String jsApiContent = ScreenOrientationExtension.getInsertedString();
             try {
                 jsApiContent += getAssetsFileContent(mContext.getAssets(),
                                                      ScreenOrientationExtension.JS_API_PATH);
-                new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent, this);
+                new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent,
+                                               ScreenOrientationExtension.JS_ENTRY_POINTS, this);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
             }

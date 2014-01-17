@@ -46,7 +46,8 @@ class XWalkExtensionAndroidInstance;
 // created for the same extension identified the extension name.
 class XWalkExtensionAndroid : public XWalkExtension {
  public:
-  XWalkExtensionAndroid(JNIEnv* env, jobject obj, jstring name, jstring js_api);
+  XWalkExtensionAndroid(JNIEnv* env, jobject obj, jstring name,
+                        jstring js_api, jobjectArray js_entry_ports);
   virtual ~XWalkExtensionAndroid();
 
   // JNI interface to post message from Java to JS

@@ -20,6 +20,10 @@ public abstract class XWalkExtension {
     // The JavaScript code stub. Will be injected to JS engine.
     protected String mJsApi;
 
+    // The entry points are used when extension needs to have objects outside
+    // the namespace that is implicitly created using its name.
+    protected String[] mEntryPoints;
+
     // The context used by extensions.
     protected XWalkExtensionContext mExtensionContext;
 
@@ -33,6 +37,23 @@ public abstract class XWalkExtension {
     public XWalkExtension(String name, String jsApi, XWalkExtensionContext context) {
         mName = name;
         mJsApi = jsApi;
+        mEntryPoints = null;
+        mExtensionContext = context;
+        mExtensionContext.registerExtension(this);
+    }
+
+    /**
+     * Constructor with the information of an extension.
+     * @param name the extension name.
+     * @param apiVersion the version of API.
+     * @param jsApi the code stub of JavaScript for this extension.
+     * @param entryPoints the entry points of JavaScript for this extension.
+     * @param context the extension context.
+     */
+    public XWalkExtension(String name, String jsApi, String[] entryPoints, XWalkExtensionContext context) {
+        mName = name;
+        mJsApi = jsApi;
+        mEntryPoints = entryPoints;
         mExtensionContext = context;
         mExtensionContext.registerExtension(this);
     }
@@ -51,6 +72,14 @@ public abstract class XWalkExtension {
      */
     public String getJsApi() {
         return mJsApi;
+    }
+
+    /**
+     * Get the entry points of extension.
+     * @return the entry points.
+     */
+    public String[] getEntryPoints() {
+        return mEntryPoints;
     }
 
     /**
