@@ -21,6 +21,11 @@ namespace application_manifest_keys {
   extern const char kPermissionsKey[];
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
+
+#if defined(OS_TIZEN)
+  extern const char kTizenAppIdKey[];
+  extern const char kIcon128Key[];
+#endif
 }  // namespace application_manifest_keys
 
 namespace application_manifest_errors {

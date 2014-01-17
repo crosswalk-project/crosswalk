@@ -9,8 +9,10 @@ namespace application {
 
 // TODO(xiang): might rename this according to the spec.
 const char kApplicationScheme[] = "app";
-const base::FilePath::CharType kManifestFilename[] =
+const base::FilePath::CharType kManifestXpkFilename[] =
     FILE_PATH_LITERAL("manifest.json");
+const base::FilePath::CharType kManifestWgtFilename[] =
+    FILE_PATH_LITERAL("config.xml");
 const base::FilePath::CharType kMessagesFilename[] =
     FILE_PATH_LITERAL("messages.json");
 const char kGeneratedMainDocumentFilename[] =
