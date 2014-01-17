@@ -228,10 +228,10 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
             'experimental/presentation/presentation_api.js',
-            'experimental/screen_orientation/screen_orientation_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/contacts/contacts_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/device_capabilities/device_capabilities_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/messaging/messaging_api.js',
+            'runtime/extension/screen_orientation_api.js',
           ],
         },
       ],
