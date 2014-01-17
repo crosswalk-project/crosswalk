@@ -8,6 +8,7 @@
       var test_list = [
         getAVCodecs,
         getCPUInfo,
+        getDisplayInfo,
         getMemoryInfo,
         getStorageInfo,
         endTest
@@ -94,6 +95,50 @@
 
         for (var i = 0; i < call_max; ++i)
           api.getCPUInfo().then(checkCPUInfo, reportFail);
+      };
+
+      function getDisplayInfo() {
+        function checkDisplayInfo(info) {
+          for (var i = 0; i < info.displays.length; ++i) {
+            if (typeof info.displays[i].id != "string")
+              reportFail("Display id is not a string.");
+
+            if (info.displays[i].id.length == 0)
+              reportFail("Display id can't be empty.");
+
+            if (typeof info.displays[i].name != "string")
+              reportFail("Display name is not a string.");
+
+            if (typeof info.displays[i].isPrimary != "boolean")
+              reportFail("Display type is not a boolean.");
+
+            if (typeof info.displays[i].isInternal != "boolean")
+              reportFail("Display type is not a boolean.");
+
+            if (typeof info.displays[i].dpiX != "number")
+              reportFail("Display dpiX must be a number.");
+
+            if (typeof info.displays[i].dpiY != "number")
+              reportFail("Display dpiY must be a number.");
+
+            if (typeof info.displays[i].width != "number")
+              reportFail("Display width must be a number.");
+
+            if (typeof info.displays[i].height != "number")
+              reportFail("Display height must be a number.");
+
+            if (typeof info.displays[i].availWidth != "number")
+              reportFail("Display availWidth must be a number.");
+
+            if (typeof info.displays[i].availHeight != "number")
+              reportFail("Display availHeight must be a number.");
+          }
+
+          if (document.title != "Fail")
+            runNextTest();
+        };
+
+        api.getDisplayInfo().then(checkDisplayInfo);
       };
 
       function getMemoryInfo() {
