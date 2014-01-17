@@ -154,29 +154,35 @@ void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {
 void XWalkBrowserMainPartsAndroid::CreateInternalExtensionsForExtensionThread(
     content::RenderProcessHost* host,
     extensions::XWalkExtensionVector* extensions) {
-  // FIXME(cmarcelo): Android port keeps the ownership of extensions
-  // here in the XWalkBrowserMainParts for some reason, this is incorrect use
-  // of extensions system.
-  ScopedVector<XWalkExtension>::const_iterator it = extensions_.begin();
+  // On Android part, the ownership of each extension object will be transferred
+  // to XWalkExtensionServer after this method is called. It is a rule enforced
+  // by extension system that XWalkExtensionServer must own the extension
+  // objects and extension instances.
+  extensions::XWalkExtensionVector::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it)
     extensions->push_back(*it);
 }
 
 void XWalkBrowserMainPartsAndroid::RegisterExtension(
     scoped_ptr<XWalkExtension> extension) {
+  // Since the creation of extension object is driven by Java side, and each
+  // Java extension is backed by a native extension object. However, the Java
+  // object may be destroyed by Android lifecycle management without destroying
+  // the native side object. We keep the reference to native extension object
+  // to make sure we can reuse the native object if Java extension is re-created
+  // on resuming.
   extensions_.push_back(extension.release());
 }
 
-void XWalkBrowserMainPartsAndroid::UnregisterExtension(
-    scoped_ptr<XWalkExtension> extension) {
-  ScopedVector<XWalkExtension>::iterator it = extensions_.begin();
+XWalkExtension* XWalkBrowserMainPartsAndroid::LookupExtension(
+    const std::string& name) {
+  extensions::XWalkExtensionVector::const_iterator it = extensions_.begin();
   for (; it != extensions_.end(); ++it) {
-    // FIXME: how is that possible we have 2 scoped_ptrs to the same pointer?
-    if (*it == extension.release()) break;
+    XWalkExtension* extension = *it;
+    if (name == extension->name()) return extension;
   }
 
-  if (it != extensions_.end())
-    extensions_.erase(it);
+  return NULL;
 }
 
 }  // namespace xwalk
