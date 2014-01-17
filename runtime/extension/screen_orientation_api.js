@@ -17,9 +17,23 @@ var PORTRAIT            = PORTRAIT_PRIMARY | PORTRAIT_SECONDARY;
 var LANDSCAPE           = LANDSCAPE_PRIMARY | LANDSCAPE_SECONDARY;
 var ANY                 = PORTRAIT | LANDSCAPE;
 
+function postMessage(command, value) {
+  // Currently, internal.postMessage can't work on android platform.
+  // Please see: https://crosswalk-project.org/jira/browse/XWALK-855
+  if (typeof is_android_platform == "boolean" && is_android_platform) {
+    var message = {
+      'cmd' : command,
+      'value' : value.toString()
+    };
+    extension.postMessage(JSON.stringify(message));
+  } else {
+    internal.postMessage(command, value, null);
+  }        
+}
+
 window.screen.lockOrientation = function(orientations) {
   if (!Array.isArray(orientations)) {
-    if (typeof(orientations) != "string")
+    if (typeof orientations != "string")
       return false;
     orientations = [orientations];
   }
@@ -54,12 +68,12 @@ window.screen.lockOrientation = function(orientations) {
     if ((uaDefault & value) != value)
       return false;
   }
-  internal.postMessage('lock', [value], null);
+  postMessage('lock', [value]);
   return true;
 };
 
 window.screen.unlockOrientation = function() {
-  internal.postMessage('lock', [uaDefault], null);
+  postMessage('lock', [uaDefault]);
 };
 
 var orientationchangeCallback = null;

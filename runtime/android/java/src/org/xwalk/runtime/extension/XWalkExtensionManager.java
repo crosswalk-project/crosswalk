@@ -25,6 +25,7 @@ import org.xwalk.runtime.extension.api.contacts.Contacts;
 import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.runtime.extension.api.messaging.Messaging;
 import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
+import org.xwalk.runtime.extension.api.screenorientation.ScreenOrientationExtension;
 
 /**
  * This internal class acts a manager to manage extensions.
@@ -144,6 +145,20 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 new PresentationExtension(PresentationExtension.NAME, jsApiContent, this);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
+            }
+        }
+
+        {
+            String jsApiContent = "var is_android_platform = true;\n";
+            jsApiContent += "var uaDefault = ";
+            jsApiContent += ScreenOrientationExtension.ANY;
+            jsApiContent += ";\n";
+            try {
+                jsApiContent += getAssetsFileContent(mContext.getAssets(),
+                                                     ScreenOrientationExtension.JS_API_PATH);
+                new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent, this);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
             }
         }
 
