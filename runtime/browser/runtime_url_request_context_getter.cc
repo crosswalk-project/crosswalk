@@ -187,13 +187,6 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
                 base::SequencedWorkerPool::SKIP_ON_SHUTDOWN)));
     DCHECK(set_protocol);
 
-#if defined(OS_ANDROID)
-    set_protocol = job_factory_impl->SetProtocolHandler(
-        xwalk::kAppScheme,
-        CreateAppSchemeProtocolHandler().release());
-    DCHECK(set_protocol);
-#endif
-
     // Step 3:
     // Add the scheme interceptors.
     // Create a chain of URLRequestJobFactories. The handlers will be invoked
@@ -207,6 +200,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         CreateContentSchemeProtocolHandler().release());
     protocol_interceptors.push_back(
         CreateAssetFileProtocolHandler().release());
+    protocol_interceptors.push_back(
+        CreateAppSchemeProtocolHandler().release());
     // The XWalkRequestInterceptor must come after the content and asset
     // file job factories. This for WebViewClassic compatibility where it
     // was not possible to intercept resource loads to resolvable content://
