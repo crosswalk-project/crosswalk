@@ -1,5 +1,46 @@
 <manifest>
+ <define>
+    <domain name="crosswalk" />
+    <provide>
+       <label name="crosswalk::renderer" />
+       <label name="crosswalk::ep" />
+    </provide>
+    <request>
+       <smack request="crosswalk::renderer" type="rwx" />
+       <smack request="crosswalk::ep" type="rw" />
+       <smack request="system::share" type="rwx" />
+       <smack request="system::homedir" type="rwx" />
+       <smack request="system::use_internet" type="rw" />
+       <smack request="org.tizen.indicator" type="rwx" />
+       <smack request="dbus" type="rwx" />
+       <smack request="system::vconf" type="rwx" />
+       <smack request="isf" type="rwx" />
+       <smack request="svi-data" type="x" />
+       <smack request="sdbd" type="r" />
+       <smack request="pulseaudio" type="rwx" />
+       <smack request="ail::db" type="rw" />
+    </request>
+    <permit>
+       <smack permit="crosswalk::renderer" type="rw" />
+       <smack permit="crosswalk::renderer" to="crosswalk::ep" type="rw" />
+       <smack permit="crosswalk::ep" type="rw" />
+       <smack permit="crosswalk::ep" to="crosswalk::renderer" type="rw" />
+       <smack permit="system::use_internet" type="w" />
+       <smack permit="org.tizen.indicator" type="w" />
+       <smack permit="dbus" type="rwx" />
+       <smack permit="isf" type="w" />
+       <smack permit="org.tizen.menu-screen" type="r" />
+    </permit>
+ </define>
+ <assign>
+    <filesystem path="/usr/bin/xwalk" label="_" />
+    <filesystem path="/usr/bin/xwalkctl" label="_" />
+    <filesystem path="/usr/lib/xwalk" label="_" />
+    <filesystem path="/usr/lib/xwalk/libffmpegsumo.so" label="_" />
+    <filesystem path="/usr/lib/xwalk/xwalk" label="_" />
+    <filesystem path="/usr/lib/xwalk/xwalk.pak" label="_" />
+ </assign>
  <request>
-    <domain name="_"/>
+    <domain name="crosswalk" />
  </request>
 </manifest>

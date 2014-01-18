@@ -93,7 +93,8 @@ class ExtensionSandboxedProcessLauncherDelegate
 XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
-    XWalkExtensionProcessHost::Delegate* delegate)
+    XWalkExtensionProcessHost::Delegate* delegate,
+    std::string app_id)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
@@ -103,7 +104,7 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
   render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
-      base::Unretained(this)));
+      base::Unretained(this), app_id));
 }
 
 XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
@@ -112,7 +113,7 @@ XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
   StopProcess();
 }
 
-void XWalkExtensionProcessHost::StartProcess() {
+void XWalkExtensionProcessHost::StartProcess(std::string app_id) {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   CHECK(!process_);
 
@@ -128,6 +129,8 @@ void XWalkExtensionProcessHost::StartProcess() {
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                               switches::kXWalkExtensionProcess);
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);
+  cmd_line->AppendSwitchASCII(switches::kXWalkWebAppID, app_id);
+
   process_->Launch(
 #if defined(OS_WIN)
       new ExtensionSandboxedProcessLauncherDelegate(),

@@ -244,6 +244,7 @@
             'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
+            'build/system.gyp:tizen_smack',
           ],
           'includes': [
             'sysapps/device_capabilities/device_capabilities.gypi',

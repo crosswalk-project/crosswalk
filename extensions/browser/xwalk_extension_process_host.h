@@ -5,6 +5,8 @@
 #ifndef XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 #define XWALK_EXTENSIONS_BROWSER_XWALK_EXTENSION_PROCESS_HOST_H_
 
+#include <string>
+
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
@@ -37,13 +39,14 @@ class XWalkExtensionProcessHost
 
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
                             const base::FilePath& external_extensions_path,
-                            XWalkExtensionProcessHost::Delegate* delegate);
+                            XWalkExtensionProcessHost::Delegate* delegate,
+                            std::string app_id = "0");
   virtual ~XWalkExtensionProcessHost();
 
  private:
   class RenderProcessMessageFilter;
 
-  void StartProcess();
+  void StartProcess(std::string app_id);
   void StopProcess();
 
   // Handler for message from Render Process host, it is a synchronous message,

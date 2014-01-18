@@ -4,6 +4,11 @@
 
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#if defined(USE_SMACK)
+#include <sys/capability.h>
+#include <sys/smack.h>
+#endif
+
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_thread.h"
 #include "grit/xwalk_sysapps_resources.h"
@@ -42,6 +47,18 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
+#if defined(USE_SMACK)
+  CHECK_EQ(smack_set_label_for_self("crosswalk::renderer"), 0);
+
+  cap_t ep_caps = cap_get_proc();
+  cap_value_t mac_admin = CAP_MAC_ADMIN;
+
+  CHECK(ep_caps);
+  CHECK_EQ(cap_set_flag(ep_caps, CAP_EFFECTIVE, 1, &mac_admin, CAP_CLEAR), 0);
+  CHECK_EQ(cap_set_flag(ep_caps, CAP_PERMITTED, 1, &mac_admin, CAP_CLEAR), 0);
+  CHECK_EQ(cap_set_proc(ep_caps), 0);
+#endif
+
   extension_controller_.reset(
       new extensions::XWalkExtensionRendererController(this));
 
