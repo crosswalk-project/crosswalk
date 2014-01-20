@@ -19,6 +19,7 @@ namespace application_manifest_keys {
   extern const char kManifestVersionKey[];
   extern const char kNameKey[];
   extern const char kPermissionsKey[];
+  extern const char kURLKey[];
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
 

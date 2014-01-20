@@ -51,7 +51,11 @@ class Application : public Runtime::Observer {
   enum LaunchEntryPoint {
     AppMainKey = 1 << 0,  // app.main
     LaunchLocalPathKey = 1 << 1,  // app.launch.local_path
-    LaunchWebURLKey = 1 << 2,  // app.launch.web_url
+    // NOTE: The following key is only used for "dummy" hosted apps,
+    // which can be using any arbitrary URL, incl. remote ones.
+    // For now this should be disabled for all other cases as this will
+    // require special care with permissions etc.
+    URLKey = 1 << 2,  // url
     Default = AppMainKey | LaunchLocalPathKey
   };
   typedef unsigned LaunchEntryPoints;

@@ -108,10 +108,10 @@ bool Application::TryLaunchAt<Application::LaunchLocalPathKey>() {
 }
 
 template<>
-bool Application::TryLaunchAt<Application::LaunchWebURLKey>() {
+bool Application::TryLaunchAt<Application::URLKey>() {
   const Manifest* manifest = application_data_->GetManifest();
   std::string url_string;
-  if (manifest->GetString(application_manifest_keys::kLaunchWebURLKey,
+  if (manifest->GetString(application_manifest_keys::kURLKey,
       &url_string)) {
     GURL url(url_string);
     if (!url.is_valid()) {
@@ -142,7 +142,7 @@ bool Application::Launch() {
     return true;
   if ((entry_points_ & LaunchLocalPathKey) && TryLaunchAt<LaunchLocalPathKey>())
     return true;
-  if ((entry_points_ & LaunchWebURLKey) && TryLaunchAt<LaunchWebURLKey>())
+  if ((entry_points_ & URLKey) && TryLaunchAt<URLKey>())
     return true;
 
   return false;

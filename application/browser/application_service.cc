@@ -485,7 +485,7 @@ Application* ApplicationService::Launch(const GURL& url) {
 
   base::DictionaryValue manifest;
   // FIXME: define permissions!
-  manifest.SetString(keys::kLaunchWebURLKey, url_spec);
+  manifest.SetString(keys::kURLKey, url_spec);
   manifest.SetString(keys::kNameKey, "XWalk Browser");
   manifest.SetString(keys::kVersionKey, "0");
   manifest.SetInteger(keys::kManifestVersionKey, 1);
@@ -498,7 +498,7 @@ Application* ApplicationService::Launch(const GURL& url) {
     return NULL;
   }
 
-  return Launch(application_data, Application::LaunchWebURLKey);
+  return Launch(application_data, Application::URLKey);
 }
 
 namespace {
