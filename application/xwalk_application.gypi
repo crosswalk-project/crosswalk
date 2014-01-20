@@ -109,6 +109,8 @@
             'browser/installer/tizen/packageinfo_constants.h',
             'browser/installer/tizen/package_installer.cc',
             'browser/installer/tizen/package_installer.h',
+            'browser/installer/tizen/service_package_installer.cc',
+            'browser/installer/tizen/service_package_installer.h',
           ],
         }],
       ],

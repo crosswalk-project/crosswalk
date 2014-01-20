@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #if defined(OS_TIZEN_MOBILE)
 #include <appcore/appcore-common.h>
 #endif
@@ -56,7 +57,11 @@ static const char* event2str(enum app_event event) {
 }
 
 static void application_event_cb(enum app_event event, void* data, bundle* b) {
-  fprintf(stderr, "event %s\n", event2str(event));
+  fprintf(stderr, "event '%s'\n", event2str(event));
+
+  if (event == AE_TERMINATE) {
+    exit(0);
+  }
 }
 
 int xwalk_appcore_init(int argc, char** argv, const char* name) {

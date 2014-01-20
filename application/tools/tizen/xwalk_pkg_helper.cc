@@ -32,8 +32,8 @@ namespace {
 
 const base::FilePath kIconDir("/opt/share/icons/default/small/");
 const base::FilePath kXmlDir("/opt/share/packages/");
-const base::FilePath kApplicationsDir("/opt/usr/apps/applications/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
+const std::string kServicePrefix("xwalk-service.");
 
 class FileDeleter {
  public:
@@ -60,11 +60,12 @@ class FileDeleter {
 bool InstallApplication(const char* appid, const char* xmlpath,
                         const char* iconpath) {
   base::FilePath icon_src(iconpath);
-  // icon_dst == /opt/share/icons/default/small/<appid>.png
+  // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(std::string(appid) + ".png");
+  base::FilePath icon_dst = kIconDir.Append(
+      kServicePrefix + std::string(appid) + ".png");
   if (!base::CopyFile(icon_src, icon_dst)) {
-    fprintf(stderr, "Couldn't copy application icon to '%s'\n",
+    fprintf(stdout, "Couldn't copy application icon to '%s'\n",
             icon_dst.value().c_str());
     return false;
   }
@@ -72,39 +73,23 @@ bool InstallApplication(const char* appid, const char* xmlpath,
   FileDeleter icon_cleaner(icon_dst, false);
 
   base::FilePath xml_src(xmlpath);
-  base::FilePath xml_dst = kXmlDir.Append(std::string(appid) + ".xml");
+  base::FilePath xml_dst = kXmlDir.Append(
+      kServicePrefix + std::string(appid) + ".xml");
   if (!base::CopyFile(xml_src, xml_dst)) {
-    fprintf(stderr, "Couldn't copy application XML metadata to '%s'\n",
+    fprintf(stdout, "Couldn't copy application XML metadata to '%s'\n",
             xml_dst.value().c_str());
     return false;
   }
 
   FileDeleter xml_cleaner(xml_dst, false);
 
-  base::FilePath appdir = kApplicationsDir.Append(appid);
-  if (!file_util::CreateDirectoryAndGetError(appdir, NULL)) {
-    fprintf(stderr, "Couldn't create application directory '%s'\n",
-            appdir.value().c_str());
-    return false;
-  }
-
-  FileDeleter appdir_cleaner(appdir, true);
-
-  base::FilePath applink = appdir.Append("/bin");
-  if (!file_util::CreateSymbolicLink(kXWalkLauncherBinary, applink)) {
-    fprintf(stderr, "Couldn't create link to Crosswalk '%s'\n",
-            applink.value().c_str());
-    return false;
-  }
-
   if (pkgmgr_parser_parse_manifest_for_installation(xmlpath, NULL)) {
-    fprintf(stderr, "Couldn't parse manifest XML '%s'\n", xmlpath);
+    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath);
     return false;
   }
 
   icon_cleaner.Dismiss();
   xml_cleaner.Dismiss();
-  appdir_cleaner.Dismiss();
 
   return true;
 }
@@ -114,31 +99,26 @@ bool UninstallApplication(const char* appid) {
   char iconname[PATH_MAX];
 
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(std::string(appid) + ".png");
+  base::FilePath icon_dst = kIconDir.Append(
+      kServicePrefix + std::string(appid) + ".png");
   if (!base::DeleteFile(icon_dst, false)) {
-    fprintf(stderr, "Couldn't delete '%s'\n", icon_dst.value().c_str());
+    fprintf(stdout, "Couldn't delete '%s'\n", icon_dst.value().c_str());
     result = false;
   }
 
   base::FilePath xmlpath(kXmlDir);
-  xmlpath = xmlpath.Append(std::string(appid) + ".xml");
+  xmlpath = xmlpath.Append(kServicePrefix + std::string(appid) + ".xml");
 
-  result = pkgmgr_parser_parse_manifest_for_uninstallation(
+  int ret = pkgmgr_parser_parse_manifest_for_uninstallation(
       xmlpath.value().c_str(), NULL);
-  if (result) {
-    fprintf(stderr, "Couldn't parse manifest XML '%s'\n",
+  if (ret) {
+    fprintf(stdout, "Couldn't parse manifest XML '%s'\n",
             xmlpath.value().c_str());
     result = false;
   }
 
   if (!base::DeleteFile(xmlpath, false)) {
-    fprintf(stderr, "Couldn't delete '%s'\n", xmlpath.value().c_str());
-    result = false;
-  }
-
-  base::FilePath appdir = kApplicationsDir.Append(appid);
-  if (!base::DeleteFile(appdir, true)) {
-    fprintf(stderr, "Couldn't delete '%s'\n", appdir.value().c_str());
+    fprintf(stdout, "Couldn't delete '%s'\n", xmlpath.value().c_str());
     result = false;
   }
 
@@ -150,7 +130,7 @@ int usage(const char* program) {
           basename(program));
   fprintf(stdout, "Usage: \n"
           "\t%s --install <appid> <xml> <icon>\n"
-          "\t%s --uinstall <appid>\n",
+          "\t%s --uninstall <appid>\n",
           program, program);
   return 1;
 }
@@ -162,6 +142,14 @@ int main(int argc, char *argv[]) {
 
   if (argc <= 2)
     return usage(argv[0]);
+
+  // When installing an application on Tizen, the libraries used require
+  // some steps to be run as root (UID 0) and fail otherwise, so we force
+  // this tool to assume the root UID.
+  if (setuid(0)) {
+    fprintf(stderr, "Make sure '%s' is set-user-ID-root\n", argv[0]);
+    return 1;;
+  }
 
   if (!strcmp(argv[1], "--install")) {
     if (argc != 5)
