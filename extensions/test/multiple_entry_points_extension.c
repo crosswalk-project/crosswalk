@@ -20,8 +20,14 @@ int32_t XW_Initialize(XW_Extension extension, XW_GetInterface get_interface) {
   static const char* kAPI =
       "window.should_exist = true;"
       "exports.also_should_exist = true;"
-      "window.onsomething = {}";
-  static const char* entry_points[] = { "should_exist", "onsomething", NULL };
+      "window.onsomething = {};"
+      "function ReplacementScreen() {};"
+      "window.screen = new ReplacementScreen();"
+      "Object.defineProperty(window.screen, 'height', {"
+      "get: function() { return window.screen instanceof ReplacementScreen; }"
+      "});";
+  static const char* entry_points[] = {
+      "should_exist", "onsomething", "screen.height", NULL };
 
   g_extension = extension;
   g_core = get_interface(XW_CORE_INTERFACE);

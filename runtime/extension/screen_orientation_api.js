@@ -17,6 +17,28 @@ var PORTRAIT            = PORTRAIT_PRIMARY | PORTRAIT_SECONDARY;
 var LANDSCAPE           = LANDSCAPE_PRIMARY | LANDSCAPE_SECONDARY;
 var ANY                 = PORTRAIT | LANDSCAPE;
 
+// Store the real Screen object.
+var realScreen = window.screen;
+
+// Create replacement Screen.
+function Screen() {}
+
+// Make it an EventTarget.
+Screen.prototype = window.__proto__.__proto__;
+
+// Replace it.
+window.screen = new Screen();
+
+function handleScreenChange() {
+  var props = Object.getOwnPropertyNames(realScreen);
+  props.forEach(function(item) {
+    window.screen[item] = realScreen[item];
+  });
+}
+
+// Add or replace value properties.
+handleScreenChange();
+
 function postMessage(command, value) {
   // Currently, internal.postMessage can't work on android platform.
   // Please see: https://crosswalk-project.org/jira/browse/XWALK-855
@@ -28,7 +50,7 @@ function postMessage(command, value) {
     extension.postMessage(JSON.stringify(message));
   } else {
     internal.postMessage(command, value, null);
-  }        
+  }
 }
 
 window.screen.lockOrientation = function(orientations) {
@@ -76,15 +98,57 @@ window.screen.unlockOrientation = function() {
   postMessage('lock', [uaDefault]);
 };
 
+// Create a HTMLUnknownElement and do not attach it to the DOM.
+var dispatcher = document.createElement("xwalk-EventDispatcher");
+
+// Implement EventTarget interface on object.
+Object.defineProperty(window.screen, "addEventListener", {
+  value: function(type, callback, capture) {
+    dispatcher.addEventListener(type, callback, capture);
+  }
+});
+
+Object.defineProperty(window.screen, "removeEventListener", {
+  value: function(type, callback, capture) {
+    dispatcher.removeEventListener(type, callback, capture);
+  }
+});
+
+Object.defineProperty(window.screen, "dispatchEvent", {
+  value: function(e) {
+    dispatcher.dispatchEvent(e);
+  }
+});
+
 var orientationchangeCallback = null;
+var orientationchangeCallbackWrapper = null;
 
 Object.defineProperty(window.screen, "onorientationchange", {
   configurable: false,
   enumerable: true,
   get: function() { return orientationchangeCallback; },
   set: function(callback) {
-    if (callback === null || callback instanceof Function)
+    // We must add the on* event as an event listener so that
+    // it is called at the right point between potential
+    // event listeners, but it cannot be the exact method
+    // as that would allow removeEventListener to remove it.
+
+    // Remove existing (wrapped) listener.
+    window.screen.removeEventListener("orientationchange",
+        orientationchangeCallbackWrapper);
+
+    // If valid, store and add a wrapped version as listener.
+    if (callback instanceof Function) {
       orientationchangeCallback = callback;
+      orientationchangeCallbackWrapper = function() { callback(); };
+      window.screen.addEventListener("orientationchange",
+          orientationchangeCallbackWrapper);
+    }
+    // If not valid, reset to null.
+    else {
+      orientationchangeCallback = null;
+      orientationchangeCallbackWrapper = null;
+    }
   }
 });
 
@@ -111,13 +175,7 @@ function handleOrientationChange(newOrientation) {
   // orientation, so do not dispatch the orientationchange in that case.
   if (handleOrientationChange.shouldDispatchEvent) {
     var event = new Event("orientationchange");
-    if (screen.onorientationchange) {
-      try {
-        screen.onorientationchange.call(window.screen, event);
-      } catch (e) {
-        // Discard exceptions: http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
-      }
-    }
+    dispatcher.dispatchEvent(event);
   }
 
   handleOrientationChange.shouldDispatchEvent = true;
@@ -138,4 +196,5 @@ Object.defineProperty(window.screen, "orientation", {
   }
 });
 
+// FIXME: Extend message listener to handle screen changes.
 extension.setMessageListener(handleOrientationChange);

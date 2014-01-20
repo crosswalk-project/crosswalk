@@ -88,3 +88,15 @@ IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, SetterLoadsExtension) {
   xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }
+
+IN_PROC_BROWSER_TEST_F(MultipleEntryPointsExtension, ReplacementObjectIsUsed) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII(
+          "lazy_loaded_extension_overrides_object.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
