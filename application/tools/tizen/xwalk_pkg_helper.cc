@@ -96,7 +96,6 @@ bool InstallApplication(const char* appid, const char* xmlpath,
 
 bool UninstallApplication(const char* appid) {
   bool result = true;
-  char iconname[PATH_MAX];
 
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath icon_dst = kIconDir.Append(
