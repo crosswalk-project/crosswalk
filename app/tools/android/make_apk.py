@@ -88,6 +88,12 @@ def GetVersion(path):
 
 def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
+  if parser.GetAppRoot():
+    options.app_root = parser.GetAppRoot()
+  else:
+    print 'Error: can not resolve root directory of the application.'
+    sys.exit(9)
+
   if not options.package:
     options.package = 'org.xwalk.' + parser.GetAppName().lower()
   if not options.name:
@@ -105,7 +111,8 @@ def ParseManifest(options):
   else:
     print 'Error: there is no app launch path defined in manifest.json.'
     sys.exit(9)
-  if parser.GetAppRoot():
+
+  if parser.GetIcons():
     options.app_root = parser.GetAppRoot()
     temp_dict = parser.GetIcons()
     try:
