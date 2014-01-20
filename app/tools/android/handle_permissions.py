@@ -38,7 +38,8 @@ permission_mapping_table = {
   'devicecapabilities' : [],
   'fullscreen' : [],
   'presentation' : [],
-  'rawsockets' : []
+  'rawsockets' : [],
+  'screenorientation' : []
 }
 
 
