@@ -91,6 +91,7 @@
         'application/test/application_event_test.cc',
         'application/test/application_eventapi_test.cc',
         'application/test/application_main_document_browsertest.cc',
+        'application/test/application_multi_app_test.cc',
         'application/test/application_testapi.cc',
         'application/test/application_testapi.h',
         'application/test/application_testapi_test.cc',

@@ -153,11 +153,16 @@ void Application::set_entry_points(LaunchEntryPoints entry_points) {
 }
 
 void Application::Close() {
-  std::set<Runtime*> cached(runtimes_);
-  std::set<Runtime*>::iterator it = cached.begin();
-  for (; it!= cached.end(); ++it)
-    if (!HasMainDocument() || main_runtime_ != *it)
-      (*it)->Close();
+  std::set<Runtime*> to_be_closed(runtimes_);
+  if (HasMainDocument() && to_be_closed.size() > 1) {
+    // The main document runtime is closed separately
+    // (needs some extra logic) in Application::OnRuntimeRemoved.
+    to_be_closed.erase(main_runtime_);
+  }
+
+  std::set<Runtime*>::iterator it = to_be_closed.begin();
+  for (; it!= to_be_closed.end(); ++it)
+    (*it)->Close();
 }
 
 void Application::OnRuntimeAdded(Runtime* runtime) {
@@ -213,6 +218,7 @@ Runtime* Application::GetMainDocumentRuntime() const {
 }
 
 int Application::GetRenderProcessHostID() const {
+  DCHECK(main_runtime_);
   return main_runtime_->web_contents()->
           GetRenderProcessHost()->GetID();
 }
