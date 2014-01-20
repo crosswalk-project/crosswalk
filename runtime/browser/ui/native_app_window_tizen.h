@@ -39,6 +39,7 @@ class NativeAppWindowTizen
   virtual void OnWindowBoundsChanged(aura::Window* window,
                                      const gfx::Rect& old_bounds,
                                      const gfx::Rect& new_bounds) OVERRIDE;
+  virtual void OnWindowDestroying(aura::Window* window) OVERRIDE;
 
   // views::View overrides:
   virtual void ViewHierarchyChanged(
