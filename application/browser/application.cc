@@ -58,8 +58,7 @@ Application::Application(
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      observer_(observer),
-      entry_points_(Default) {
+      observer_(observer) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
@@ -131,25 +130,22 @@ bool Application::TryLaunchAt<Application::URLKey>() {
   return false;
 }
 
-bool Application::Launch() {
+bool Application::Launch(const LaunchParams& launch_params) {
   if (!runtimes_.empty()) {
     LOG(ERROR) << "Attempt to launch app: " << id()
                << " that was already launched.";
     return false;
   }
 
-  if ((entry_points_ & AppMainKey) && TryLaunchAt<AppMainKey>())
+  if ((launch_params.entry_points & AppMainKey) && TryLaunchAt<AppMainKey>())
     return true;
-  if ((entry_points_ & LaunchLocalPathKey) && TryLaunchAt<LaunchLocalPathKey>())
+  if ((launch_params.entry_points & LaunchLocalPathKey)
+      && TryLaunchAt<LaunchLocalPathKey>())
     return true;
-  if ((entry_points_ & URLKey) && TryLaunchAt<URLKey>())
+  if ((launch_params.entry_points & URLKey) && TryLaunchAt<URLKey>())
     return true;
 
   return false;
-}
-
-void Application::set_entry_points(LaunchEntryPoints entry_points) {
-  entry_points_ = entry_points;
 }
 
 void Application::Close() {

@@ -71,7 +71,7 @@ class ApplicationService : public Application::Observer {
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
-                      Application::LaunchEntryPoints = Application::Default);
+                      const Application::LaunchParams& launch_params);
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
