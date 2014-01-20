@@ -62,7 +62,8 @@ class NativeAppWindowTizen
   // content, regular views do not support this. We add it to the container,
   // that is a view that doesn't draw anything, just passes the bounds
   // information to the topview layout.
-  scoped_ptr<TizenSystemIndicatorWidget> indicator_widget_;
+  // The |indicator_widget_| is owned by the WidgetContainerView.
+  TizenSystemIndicatorWidget* indicator_widget_;
   scoped_ptr<WidgetContainerView> indicator_container_;
   gfx::Display display_;
   OrientationMask allowed_orientations_;

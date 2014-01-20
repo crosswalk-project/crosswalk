@@ -22,7 +22,7 @@ NativeAppWindowTizen::NativeAppWindowTizen(
     : NativeAppWindowViews(create_params),
       indicator_widget_(new TizenSystemIndicatorWidget()),
       allowed_orientations_(ANY) {
-  indicator_container_.reset(new WidgetContainerView(indicator_widget_.get()));
+  indicator_container_.reset(new WidgetContainerView(indicator_widget_));
 }
 
 void NativeAppWindowTizen::Initialize() {
