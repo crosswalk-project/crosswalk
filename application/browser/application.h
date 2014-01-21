@@ -68,7 +68,9 @@ class Application : public Runtime::Observer {
   };
 
   // Closes all the application's runtimes (application pages).
-  void Close();
+  // NOTE: ApplicationService deletes an Application instance
+  // immediately after its termination.
+  void Terminate();
 
   // Returns Runtime (application page) containing the application's
   // 'main document'. The main document is the main entry point of

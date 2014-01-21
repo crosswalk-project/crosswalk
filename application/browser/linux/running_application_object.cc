@@ -69,17 +69,17 @@ RunningApplicationObject::RunningApplicationObject(
 
 RunningApplicationObject::~RunningApplicationObject() {
   if (watching_launcher_)
-    CloseApplication();
+    TerminateApplication();
 }
 
-void RunningApplicationObject::CloseApplication() {
+void RunningApplicationObject::TerminateApplication() {
   bus_->UnlistenForServiceOwnerChange(
       launcher_name_,
       base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
                  base::Unretained(this)));
   watching_launcher_ = false;
 
-  application_->Close();
+  application_->Terminate();
 }
 
 void RunningApplicationObject::OnExported(const std::string& interface_name,
@@ -105,7 +105,7 @@ void RunningApplicationObject::OnTerminate(
     return;
   }
 
-  CloseApplication();
+  TerminateApplication();
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
@@ -122,7 +122,7 @@ void RunningApplicationObject::OnNameOwnerChanged(
 }
 
 void RunningApplicationObject::OnLauncherDisappeared() {
-  CloseApplication();
+  TerminateApplication();
 }
 
 }  // namespace application

@@ -148,7 +148,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
   return false;
 }
 
-void Application::Close() {
+void Application::Terminate() {
   std::set<Runtime*> to_be_closed(runtimes_);
   if (HasMainDocument() && to_be_closed.size() > 1) {
     // The main document runtime is closed separately

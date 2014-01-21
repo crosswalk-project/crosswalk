@@ -28,7 +28,7 @@ class RunningApplicationObject : public dbus::ManagedObject {
   ~RunningApplicationObject();
 
  private:
-  void CloseApplication();
+  void TerminateApplication();
 
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
