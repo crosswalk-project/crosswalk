@@ -9,7 +9,6 @@
         '../../dbus/dbus.gyp:dbus',
       ],
       'sources': [
-        'dbus_manager.cc',
         'dbus_manager.h',
         'object_manager_adaptor.cc',
         'object_manager_adaptor.h',
@@ -18,6 +17,17 @@
         'xwalk_service_name.cc',
         'xwalk_service_name.h',
       ],
+      'conditions': [
+        [ 'tizen_mobile == 1', {
+          'sources': [
+            'dbus_manager_tizen.cc',
+          ],
+        }, { # tizen_mobile == 0
+          'sources': [
+            'dbus_manager.cc',
+          ],
+        }],
+      ]
     },
     {
       'target_name': 'xwalk_dbus_unittests',
