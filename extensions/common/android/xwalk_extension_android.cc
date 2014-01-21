@@ -4,7 +4,10 @@
 
 #include "xwalk/extensions/common/android/xwalk_extension_android.h"
 
+#include <vector>
+
 #include "base/android/jni_android.h"
+#include "base/android/jni_array.h"
 #include "base/bind.h"
 #include "base/logging.h"
 #include "jni/XWalkExtensionAndroid_jni.h"
@@ -16,7 +19,8 @@ namespace xwalk {
 namespace extensions {
 
 XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
-                                             jstring name, jstring js_api)
+                                             jstring name, jstring js_api,
+                                             jobjectArray js_entry_points)
     : XWalkExtension(),
       java_ref_(env, obj),
       next_instance_id_(1) {
@@ -27,6 +31,15 @@ XWalkExtensionAndroid::XWalkExtensionAndroid(JNIEnv* env, jobject obj,
   str = env->GetStringUTFChars(js_api, 0);
   set_javascript_api(str);
   env->ReleaseStringUTFChars(js_api, str);
+
+  std::vector<std::string> entry_points;
+  base::android::AppendJavaStringArrayToStringVector(
+      env, js_entry_points, &entry_points);
+
+  if (!entry_points.size())
+    return;
+
+  set_entry_points(entry_points);
 }
 
 XWalkExtensionAndroid::~XWalkExtensionAndroid() {
@@ -183,8 +196,8 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
 }
 
-static jint GetOrCreateExtension(JNIEnv* env, jobject obj,
-                                 jstring name, jstring js_api) {
+static jint GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
+                                 jstring js_api, jobjectArray js_entry_points) {
   xwalk::XWalkBrowserMainPartsAndroid* main_parts =
       ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
 
@@ -194,7 +207,8 @@ static jint GetOrCreateExtension(JNIEnv* env, jobject obj,
 
   // Create a new extension object if no existing one is found.
   if (!extension) {
-    extension = new XWalkExtensionAndroid(env, obj, name, js_api);
+    extension = new XWalkExtensionAndroid(env, obj, name,
+                                          js_api, js_entry_points);
     main_parts->RegisterExtension(scoped_ptr<XWalkExtension>(extension));
   } else {
     static_cast<XWalkExtensionAndroid*>(extension)->BindToJavaObject(env, obj);

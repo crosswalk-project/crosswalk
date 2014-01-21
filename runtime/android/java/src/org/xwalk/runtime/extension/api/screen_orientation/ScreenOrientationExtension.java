@@ -20,6 +20,10 @@ public class ScreenOrientationExtension extends XWalkExtension {
     public final static String NAME = "xwalk.screen";
     public final static String JS_API_PATH = "jsapi/screen_orientation_api.js";
     public final static String JS_VALUE_TYPE = "value";
+    public final static String[] JS_ENTRY_POINTS = {
+        "window.screen.lockOrientation",
+        "window.screen.unlockOrientation"
+    };
     public final static int PORTRAIT_PRIMARY = 1 << 0;
     public final static int LANDSCAPE_PRIMARY = 1 << 1;
     public final static int PORTRAIT_SECONDARY  = 1 << 2;
@@ -42,8 +46,17 @@ public class ScreenOrientationExtension extends XWalkExtension {
         }
     }
 
-    public ScreenOrientationExtension(String name, String jsApi, XWalkExtensionContext context) {
-        super(name, jsApi, context);
+    public static String getInsertedString() {
+        String insertedString = "var is_android_platform = true;\n";
+        insertedString += "var uaDefault = ";
+        insertedString += ANY;
+        insertedString += ";\n";
+
+        return insertedString;
+    }
+
+    public ScreenOrientationExtension(String name, String jsApi, String[] entryPoints, XWalkExtensionContext context) {
+        super(name, jsApi, entryPoints, context);
     }
 
     @Override

@@ -16,9 +16,8 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  * Test suite for W3C Screen Orientation API.
  */
 public class ScreenOrientationTest extends XWalkRuntimeClientTestBase {
-    // @SmallTest
-    // @Feature({"ScreenOrientationTest"})
-    @DisabledTest
+    @SmallTest
+    @Feature({"ScreenOrientationTest"})
     public void testScreenOrientation() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientEmbeddedShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientEmbeddedShellActivity>(

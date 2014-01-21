@@ -19,7 +19,7 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid implements XWalkExt
     private XWalkExtension mExtension;
 
     public XWalkCoreExtensionBridge(XWalkExtension extension) {
-        super(extension.getExtensionName(), extension.getJsApi());
+        super(extension.getExtensionName(), extension.getJsApi(), extension.getEntryPoints());
         mExtension = extension;
     }
 
