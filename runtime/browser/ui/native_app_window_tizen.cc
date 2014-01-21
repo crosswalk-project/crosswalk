@@ -52,9 +52,6 @@ void NativeAppWindowTizen::Initialize() {
 NativeAppWindowTizen::~NativeAppWindowTizen() {
   if (SensorProvider::GetInstance())
     SensorProvider::GetInstance()->RemoveObserver(this);
-  aura::Window* root_window = GetNativeWindow()->GetRootWindow();
-  DCHECK(root_window);
-  root_window->RemoveObserver(this);
 }
 
 void NativeAppWindowTizen::ViewHierarchyChanged(
@@ -79,6 +76,12 @@ void NativeAppWindowTizen::OnWindowBoundsChanged(
   GetNativeWindow()->SetBounds(new_bounds);
 
   GetWidget()->GetRootView()->SetSize(new_bounds.size());
+}
+
+void NativeAppWindowTizen::OnWindowDestroying(aura::Window* window) {
+  // Must be removed here and not in the destructor, as the aura::Window is
+  // already destroyed when our destructor runs.
+  window->RemoveObserver(this);
 }
 
 void NativeAppWindowTizen::OnWindowVisibilityChanging(
