@@ -24,8 +24,8 @@ class ApplicationSystemLinux : public ApplicationSystem {
   DBusManager& dbus_manager();
 
  private:
-  scoped_ptr<ApplicationServiceProviderLinux> service_provider_;
   scoped_ptr<DBusManager> dbus_manager_;
+  scoped_ptr<ApplicationServiceProviderLinux> service_provider_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystemLinux);
 };
