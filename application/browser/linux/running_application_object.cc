@@ -48,12 +48,8 @@ RunningApplicationObject::RunningApplicationObject(
     : bus_(bus),
       launcher_name_(launcher_name),
       application_(application),
-      dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)),
-      watching_launcher_(true) {
-  bus_->ListenForServiceOwnerChange(
-      launcher_name_,
-      base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
-                 base::Unretained(this)));
+      dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)) {
+  ListenForOwnerChange();
 
   properties()->Set(
       kRunningApplicationDBusInterface, "AppID",
@@ -68,17 +64,11 @@ RunningApplicationObject::RunningApplicationObject(
 }
 
 RunningApplicationObject::~RunningApplicationObject() {
-  if (watching_launcher_)
-    TerminateApplication();
+  UnlistenForOwnerChange();
 }
 
 void RunningApplicationObject::TerminateApplication() {
-  bus_->UnlistenForServiceOwnerChange(
-      launcher_name_,
-      base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
-                 base::Unretained(this)));
-  watching_launcher_ = false;
-
+  UnlistenForOwnerChange();
   application_->Terminate();
 }
 
@@ -110,6 +100,20 @@ void RunningApplicationObject::OnTerminate(
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
   response_sender.Run(response.Pass());
+}
+
+void RunningApplicationObject::ListenForOwnerChange() {
+  owner_change_callback_ =
+      base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
+                 base::Unretained(this));
+  bus_->ListenForServiceOwnerChange(launcher_name_, owner_change_callback_);
+}
+
+void RunningApplicationObject::UnlistenForOwnerChange() {
+  if (owner_change_callback_.is_null())
+    return;
+  bus_->UnlistenForServiceOwnerChange(launcher_name_, owner_change_callback_);
+  owner_change_callback_.Reset();
 }
 
 void RunningApplicationObject::OnNameOwnerChanged(
