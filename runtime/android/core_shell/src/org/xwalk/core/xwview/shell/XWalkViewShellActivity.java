@@ -5,8 +5,10 @@
 package org.xwalk.core.xwview.shell;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.graphics.drawable.ClipDrawable;
 import android.os.Bundle;
 import android.os.Looper;
@@ -35,6 +37,7 @@ public class XWalkViewShellActivity extends Activity {
     private static final String TAG = XWalkViewShellActivity.class.getName();
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
     private static final long COMPLETED_PROGRESS_TIMEOUT_MS = 200;
+    private static final String ACTION_LAUNCH_URL = "org.xwalk.core.xwview.shell.launch";
 
     private LinearLayout mToolbar;
     private EditText mUrlTextView;
@@ -45,6 +48,7 @@ public class XWalkViewShellActivity extends Activity {
     private ClipDrawable mProgressDrawable;
     private XWalkView mView;
     private TracingControllerAndroid mTracingController;
+    private BroadcastReceiver mReceiver;
 
     private Runnable mClearProgressRunnable = new Runnable() {
         @Override
@@ -111,6 +115,21 @@ public class XWalkViewShellActivity extends Activity {
         initializeButtons();
         initializeXWalkViewClients();
 
+        IntentFilter intentFilter = new IntentFilter(ACTION_LAUNCH_URL);
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null)
+                    return;
+
+                if (bundle.containsKey("url")) {
+                    String extra = bundle.getString("url");
+                    mView.loadUrl(sanitizeUrl(extra));
+                }
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
         mView.enableRemoteDebugging();
     }
 
@@ -129,6 +148,7 @@ public class XWalkViewShellActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(mReceiver);
         unregisterTracingReceiver();
         mView.onDestroy();
     }
