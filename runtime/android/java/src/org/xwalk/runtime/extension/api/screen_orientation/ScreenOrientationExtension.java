@@ -47,7 +47,7 @@ public class ScreenOrientationExtension extends XWalkExtension {
     }
 
     public static String getInsertedString() {
-        String insertedString = "var is_android_platform = true;\n";
+        String insertedString = "var isAndroid = true;\n";
         insertedString += "var uaDefault = ";
         insertedString += ANY;
         insertedString += ";\n";
