@@ -237,18 +237,20 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       !file_util::CreateDirectory(data_dir))
     return false;
 
+  std::string app_id;
   base::FilePath unpacked_dir;
   scoped_ptr<Package> package;
   if (!base::DirectoryExists(path)) {
     package = Package::Create(path);
     package->Extract(&unpacked_dir);
+    app_id = package->Id();
   } else {
     unpacked_dir = path;
   }
 
   std::string error;
   scoped_refptr<ApplicationData> application_data = LoadApplication(
-                      unpacked_dir, Manifest::COMMAND_LINE, &error);
+      unpacked_dir, app_id, Manifest::COMMAND_LINE, &error);
   if (!application_data) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
@@ -256,7 +258,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
 
   if (application_storage_->Contains(application_data->ID())) {
     *id = application_data->ID();
-    LOG(INFO) << "Already installed: " << id;
+    LOG(INFO) << "Already installed: " << *id;
     return false;
   }
 
