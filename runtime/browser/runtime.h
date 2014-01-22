@@ -146,6 +146,8 @@ class Runtime : public content::WebContentsDelegate,
   // NativeAppWindowDelegate implementation.
   virtual void OnWindowDestroyed() OVERRIDE;
 
+  void ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params);
+
   // The browsing context.
   xwalk::RuntimeContext* runtime_context_;
 
