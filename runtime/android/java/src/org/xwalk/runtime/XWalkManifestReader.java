@@ -10,6 +10,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * This internal class parses manifest.json of current app.
@@ -17,6 +19,8 @@ import java.io.InputStream;
 public class XWalkManifestReader {
     private final static String TAG = "XWalkManifestReader";
     private final static String ASSETS_FILE_PATH = "file:///android_asset/";
+    private final static String WWW_FOLDER = "www";
+    private final static String APP_SCHEME = "app";
 
     private Activity mActivity;
 
@@ -25,7 +29,7 @@ public class XWalkManifestReader {
     }
 
     public String read(String manifestPath) {
-        manifestPath = deletePrefix(manifestPath, ASSETS_FILE_PATH);
+        manifestPath = getAssetsPath(manifestPath);
 
         String manifestString = null;
         try {
@@ -53,11 +57,27 @@ public class XWalkManifestReader {
         return result;
     }
 
-    private String deletePrefix(String str, String prefix) {
-        String result = str;
-        if (str != null && prefix != null && str.startsWith(prefix)) {
-            result = str.substring(prefix.length());
+    private String getAssetsPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return null;
         }
-        return result;
+
+        String assetsPath;
+        URI uri = null;
+        try {
+            uri = new URI(path);
+        } catch (URISyntaxException e) {
+            Log.e(TAG, "Invalid manifest URI: " + path, e);
+        }
+
+        if (uri.getScheme().equals(APP_SCHEME)) {
+            assetsPath = WWW_FOLDER + uri.getPath();
+        } else if (path.startsWith(ASSETS_FILE_PATH)) {
+            assetsPath = path.substring(ASSETS_FILE_PATH.length());
+        } else {
+            assetsPath = null;
+        }
+
+        return assetsPath;
     }
 }
