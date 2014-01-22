@@ -55,8 +55,6 @@ class Runtime : public content::WebContentsDelegate,
 
   void SetObserver(Observer* observer) { observer_ = observer; }
 
-  // Create a new Runtime instance with the given browsing context and URL.
-  static Runtime* Create(RuntimeContext*, const GURL&, Observer* = NULL);
   // Create a new Runtime instance which binds to a default app window.
   static Runtime* CreateWithDefaultWindow(RuntimeContext*,
                                           const GURL&, Observer* = NULL);

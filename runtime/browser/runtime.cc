@@ -45,21 +45,10 @@ static Runtime::Observer* g_observer_for_testing;
 }  // namespace
 
 // static
-Runtime* Runtime::Create(
-        RuntimeContext* runtime_context, const GURL& url, Observer* observer) {
-  WebContents::CreateParams params(runtime_context, NULL);
-  params.routing_id = MSG_ROUTING_NONE;
-  WebContents* web_contents = WebContents::Create(params);
-
-  Runtime* runtime = new Runtime(web_contents, observer);
-  runtime->LoadURL(url);
-  return runtime;
-}
-
-// static
 Runtime* Runtime::CreateWithDefaultWindow(
     RuntimeContext* runtime_context, const GURL& url, Observer* observer) {
-  Runtime* runtime = Runtime::Create(runtime_context, url, observer);
+  Runtime* runtime = Runtime::Create(runtime_context, observer);
+  runtime->LoadURL(url);
   runtime->AttachDefaultWindow();
   return runtime;
 }
