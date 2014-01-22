@@ -67,69 +67,6 @@ Application::Application(
 Application::~Application() {
 }
 
-template<>
-bool Application::TryLaunchAt<Application::AppMainKey>() {
-  const MainDocumentInfo* main_info =
-      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info || !main_info->GetMainURL().is_valid()) {
-    LOG(WARNING) << "Can't find a valid main document URL for app.";
-    return false;
-  }
-
-  DCHECK(HasMainDocument());
-  main_runtime_ = Runtime::Create(runtime_context_, this);
-  main_runtime_->LoadURL(main_info->GetMainURL());
-  return true;
-}
-
-template<>
-bool Application::TryLaunchAt<Application::LaunchLocalPathKey>() {
-  const Manifest* manifest = application_data_->GetManifest();
-  std::string entry_page;
-  if (manifest->GetString(application_manifest_keys::kLaunchLocalPathKey,
-        &entry_page) && !entry_page.empty()) {
-    GURL url = application_data_->GetResourceURL(entry_page);
-    if (url.is_empty()) {
-      LOG(WARNING) << "Can't find a valid local path URL for app.";
-      return false;
-    }
-
-    // main_runtime_ should be initialized before 'LoadURL' call,
-    // so that it is in place already when application extensions
-    // are created.
-    main_runtime_= Runtime::Create(runtime_context_, this);
-    main_runtime_->LoadURL(url);
-    main_runtime_->AttachDefaultWindow();
-    return true;
-  }
-
-  return false;
-}
-
-template<>
-bool Application::TryLaunchAt<Application::URLKey>() {
-  const Manifest* manifest = application_data_->GetManifest();
-  std::string url_string;
-  if (manifest->GetString(application_manifest_keys::kURLKey,
-      &url_string)) {
-    GURL url(url_string);
-    if (!url.is_valid()) {
-      LOG(WARNING) << "Can't find a valid URL for app.";
-      return false;
-    }
-
-    // main_runtime_ should be initialized before 'LoadURL' call,
-    // so that it is in place already when application extensions
-    // are created.
-    main_runtime_= Runtime::Create(runtime_context_, this);
-    main_runtime_->LoadURL(url);
-    main_runtime_->AttachDefaultWindow();
-    return true;
-  }
-
-  return false;
-}
-
 bool Application::Launch(const LaunchParams& launch_params) {
   if (!runtimes_.empty()) {
     LOG(ERROR) << "Attempt to launch app: " << id()
@@ -137,15 +74,83 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
   }
 
-  if ((launch_params.entry_points & AppMainKey) && TryLaunchAt<AppMainKey>())
-    return true;
-  if ((launch_params.entry_points & LaunchLocalPathKey)
-      && TryLaunchAt<LaunchLocalPathKey>())
-    return true;
-  if ((launch_params.entry_points & URLKey) && TryLaunchAt<URLKey>())
-    return true;
+  LaunchEntryPoint entry_point_used;
+  GURL url = GetURLForLaunch(launch_params, &entry_point_used);
+  if (!url.is_valid())
+    return false;
 
-  return false;
+  main_runtime_ = Runtime::Create(runtime_context_, this);
+  main_runtime_->LoadURL(url);
+  if (entry_point_used != AppMainKey)
+    main_runtime_->AttachDefaultWindow();
+
+  return true;
+}
+
+GURL Application::GetURLForLaunch(const LaunchParams& params,
+                                  LaunchEntryPoint* used) {
+  if (params.entry_points & AppMainKey) {
+    GURL url = GetURLFromAppMainKey();
+    if (url.is_valid()) {
+      *used = AppMainKey;
+      return url;
+    }
+  }
+
+  if (params.entry_points & LaunchLocalPathKey) {
+    GURL url = GetURLFromLocalPathKey();
+    if (url.is_valid()) {
+      *used = LaunchLocalPathKey;
+      return url;
+    }
+  }
+
+  if (params.entry_points & URLKey) {
+    GURL url = GetURLFromURLKey();
+    if (url.is_valid()) {
+      *used = URLKey;
+      return url;
+    }
+  }
+
+  return GURL();
+}
+
+GURL Application::GetURLFromAppMainKey() {
+  const MainDocumentInfo* main_info =
+      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
+  if (!main_info || !main_info->GetMainURL().is_valid()) {
+    LOG(WARNING) << "Can't find a valid main document URL for app.";
+    return GURL();
+  }
+
+  DCHECK(HasMainDocument());
+  return main_info->GetMainURL();
+}
+
+GURL Application::GetURLFromLocalPathKey() {
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string entry_page;
+  if (!manifest->GetString(keys::kLaunchLocalPathKey, &entry_page)
+      || entry_page.empty())
+    return GURL();
+
+  GURL url = application_data_->GetResourceURL(entry_page);
+  if (url.is_empty())
+    LOG(WARNING) << "Can't find a valid local path URL for app.";
+  return url;
+}
+
+GURL Application::GetURLFromURLKey() {
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string url_string;
+  if (!manifest->GetString(keys::kURLKey, &url_string))
+    return GURL();
+
+  GURL url(url_string);
+  if (!url.is_valid())
+    LOG(WARNING) << "Can't find a valid URL for app.";
+  return url;
 }
 
 void Application::Terminate() {

@@ -104,8 +104,13 @@ class Application : public Runtime::Observer {
               Observer* observer);
   bool Launch(const LaunchParams& launch_params);
 
-  template<LaunchEntryPoint>
-  bool TryLaunchAt();
+  // Try to extract the URL from different possible keys for entry points in the
+  // manifest, returns it and the entry point used.
+  GURL GetURLForLaunch(const LaunchParams& params, LaunchEntryPoint* used);
+
+  GURL GetURLFromAppMainKey();
+  GURL GetURLFromLocalPathKey();
+  GURL GetURLFromURLKey();
 
   friend class FinishEventObserver;
   void CloseMainDocument();
