@@ -52,21 +52,14 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
   if (microphone_requested || webcam_requested) {
     switch (request.request_type) {
       case content::MEDIA_OPEN_DEVICE:
-        // FIXME.
-        // // For open device request pick the desired device or fall back to the
-        // // first available of the given type.
-        // XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-        //     request.requested_device_id,
-        //     microphone_requested,
-        //     webcam_requested,
-        //     &devices);
-        // break;
       case content::MEDIA_DEVICE_ACCESS:
       case content::MEDIA_GENERATE_STREAM:
       case content::MEDIA_ENUMERATE_DEVICES:
-        // Get the default devices for the request.
+        // Get the exact audio and video devices if id is specified.
+        // Or get the default devices when requested device id is empty.
         XWalkMediaCaptureDevicesDispatcher::GetInstance()->GetRequestedDevice(
-            "",
+            request.requested_audio_device_id,
+            request.requested_video_device_id,
             microphone_requested,
             webcam_requested,
             &devices);
@@ -113,7 +106,8 @@ XWalkMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
 }
 
 void XWalkMediaCaptureDevicesDispatcher::GetRequestedDevice(
-    const std::string& requested_device_id,
+    const std::string& requested_audio_device_id,
+    const std::string& requested_video_device_id,
     bool audio,
     bool video,
     content::MediaStreamDevices* devices) {
@@ -123,14 +117,14 @@ void XWalkMediaCaptureDevicesDispatcher::GetRequestedDevice(
   if (audio) {
     const content::MediaStreamDevices& audio_devices = GetAudioCaptureDevices();
     const content::MediaStreamDevice* const device =
-        FindDefaultDeviceWithId(audio_devices, requested_device_id);
+        FindDefaultDeviceWithId(audio_devices, requested_audio_device_id);
     if (device)
       devices->push_back(*device);
   }
   if (video) {
     const content::MediaStreamDevices& video_devices = GetVideoCaptureDevices();
     const content::MediaStreamDevice* const device =
-        FindDefaultDeviceWithId(video_devices, requested_device_id);
+        FindDefaultDeviceWithId(video_devices, requested_video_device_id);
     if (device)
       devices->push_back(*device);
   }
