@@ -101,14 +101,6 @@ Runtime::~Runtime() {
 
 void Runtime::AttachDefaultWindow() {
   NativeAppWindow::CreateParams params;
-  params.delegate = this;
-  params.web_contents = web_contents_.get();
-  params.bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kFullscreen)) {
-    params.state = ui::SHOW_STATE_FULLSCREEN;
-    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
-  }
   AttachWindow(params);
 }
 
@@ -117,6 +109,9 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
   NOTIMPLEMENTED();
 #else
   CHECK(!window_);
+  NativeAppWindow::CreateParams effective_params(params);
+  ApplyWindowDefaultParams(&effective_params);
+
   // Set the app icon if it is passed from command line.
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kAppIcon)) {
@@ -133,7 +128,7 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
         content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
         content::Source<content::WebContents>(web_contents_.get()));
 
-  window_ = NativeAppWindow::Create(params);
+  window_ = NativeAppWindow::Create(effective_params);
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
   window_->Show();
@@ -342,5 +337,21 @@ void Runtime::RenderProcessGone(base::TerminationStatus status) {
   XWalkRunner::GetInstance()->OnRenderProcessHostGone(rph);
 }
 
+void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
+  if (!params->delegate)
+    params->delegate = this;
+  if (!params->web_contents)
+    params->web_contents = web_contents_.get();
+  if (params->bounds.IsEmpty())
+    params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
+
+  // TODO(cmarcelo): This is policy that probably should be moved to outside
+  // Runtime class.
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kFullscreen)) {
+    params->state = ui::SHOW_STATE_FULLSCREEN;
+    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
+  }
+}
 
 }  // namespace xwalk
