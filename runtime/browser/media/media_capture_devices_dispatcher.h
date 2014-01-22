@@ -61,7 +61,8 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   // If the device requested is not available it will revert to using the first
   // available one instead or will return an empty list if no devices of the
   // requested kind are present.
-  void GetRequestedDevice(const std::string& requested_device_id,
+  void GetRequestedDevice(const std::string& requested_audio_device_id,
+                          const std::string& requested_video_device_id,
                           bool audio,
                           bool video,
                           content::MediaStreamDevices* devices);
