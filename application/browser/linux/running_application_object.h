@@ -7,17 +7,20 @@
 
 #include <string>
 #include "base/memory/ref_counted.h"
+#include "dbus/bus.h"
 #include "xwalk/dbus/object_manager_adaptor.h"
-
-namespace dbus {
-class Bus;
-}
 
 namespace xwalk {
 namespace application {
 
 class Application;
 
+// Represents the running application inside D-Bus hierarchy of
+// RunningApplicationsManager.
+//
+// Watches for the D-Bus presence of the launcher, when it disappears (e.g. the
+// launcher was ended by a task manager) will terminate the corresponding
+// application in Crosswalk.
 class RunningApplicationObject : public dbus::ManagedObject {
  public:
   RunningApplicationObject(scoped_refptr<dbus::Bus> bus,
@@ -37,14 +40,16 @@ class RunningApplicationObject : public dbus::ManagedObject {
   void OnTerminate(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
+  void ListenForOwnerChange();
+  void UnlistenForOwnerChange();
   void OnNameOwnerChanged(const std::string& service_owner);
 
   void OnLauncherDisappeared();
 
   scoped_refptr<dbus::Bus> bus_;
   std::string launcher_name_;
+  dbus::Bus::GetServiceOwnerCallback owner_change_callback_;
   Application* application_;
-  bool watching_launcher_;
 };
 
 }  // namespace application
