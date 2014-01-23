@@ -465,7 +465,8 @@ bool ApplicationService::Uninstall(const std::string& id) {
   return result;
 }
 
-Application* ApplicationService::Launch(const std::string& id) {
+Application* ApplicationService::Launch(
+    const std::string& id, const Application::LaunchParams& params) {
   scoped_refptr<ApplicationData> application_data =
     application_storage_->GetApplicationData(id);
   if (!application_data) {
@@ -473,7 +474,7 @@ Application* ApplicationService::Launch(const std::string& id) {
     return NULL;
   }
 
-  return Launch(application_data, Application::LaunchParams());
+  return Launch(application_data, params);
 }
 
 Application* ApplicationService::Launch(const base::FilePath& path) {

@@ -50,7 +50,9 @@ class ApplicationService : public Application::Observer {
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
   // Launch an installed application using application id.
-  Application* Launch(const std::string& id);
+  Application* Launch(
+      const std::string& id,
+      const Application::LaunchParams& params = Application::LaunchParams());
   // Launch an unpacked application using path to a local directory which
   // contains manifest file.
   Application* Launch(const base::FilePath& path);

@@ -61,6 +61,7 @@ void NativeAppWindowViews::Initialize() {
   params.type = views::Widget::InitParams::TYPE_WINDOW;
   params.bounds = create_params_.bounds;
 #endif
+  params.net_wm_pid = create_params_.net_wm_pid;
 
   window_->Init(params);
 
