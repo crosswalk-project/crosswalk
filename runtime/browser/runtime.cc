@@ -132,6 +132,8 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
   window_->Show();
+
+  FOR_EACH_RUNTIME_OBSERVER(OnRuntimeWindowAttached(this));
 #endif
 }
 

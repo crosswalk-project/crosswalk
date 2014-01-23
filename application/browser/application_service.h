@@ -51,6 +51,8 @@ class ApplicationService : public Application::Observer {
   bool Update(const std::string& id, const base::FilePath& path);
   // Launch an installed application using application id.
   Application* Launch(const std::string& id);
+  // Launch with application id the launcher pid in service mode.
+  Application* Launch(const std::string& id, base::ProcessId launcher_pid);
   // Launch an unpacked application using path to a local directory which
   // contains manifest file.
   Application* Launch(const base::FilePath& path);

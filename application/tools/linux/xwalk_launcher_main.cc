@@ -124,10 +124,11 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  GVariant* result = g_dbus_proxy_call_sync(running_proxy, "Launch",
-                                            g_variant_new("(s)", appid),
-                                            G_DBUS_CALL_FLAGS_NONE,
-                                            -1, NULL, &error);
+  GVariant* result = g_dbus_proxy_call_sync(
+      running_proxy, "Launch",
+      g_variant_new("(si)", appid, getpid()),
+      G_DBUS_CALL_FLAGS_NONE,
+      -1, NULL, &error);
   if (!result) {
     fprintf(stderr, "Couldn't call 'Launch' method: %s\n", error->message);
     exit(1);

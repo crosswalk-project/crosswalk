@@ -80,7 +80,19 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
+#if defined(OS_TIZEN_MOBILE)
+  pid_t launcher_pid;
+  if (!reader.PopInt32(&launcher_pid)) {
+    scoped_ptr<dbus::Response> response =
+        CreateError(method_call,
+                    "Error parsing message. Missing launcher_pid argument.");
+    response_sender.Run(response.Pass());
+    return;
+  }
+  Application* application = application_service_->Launch(app_id, launcher_pid);
+#else
   Application* application = application_service_->Launch(app_id);
+#endif
   if (!application) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,

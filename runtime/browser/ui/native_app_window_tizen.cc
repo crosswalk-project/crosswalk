@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/aura/root_window.h"
+#include "ui/base/x/x11_util.h"
 #include "ui/gfx/transform.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/screen.h"
@@ -52,6 +53,16 @@ void NativeAppWindowTizen::Initialize() {
 NativeAppWindowTizen::~NativeAppWindowTizen() {
   if (SensorProvider::GetInstance())
     SensorProvider::GetInstance()->RemoveObserver(this);
+}
+
+void NativeAppWindowTizen::UpdateXWindowPid(base::ProcessId pid) {
+  XID xid = GetNativeWindow()->GetDispatcher()->GetAcceleratedWidget();
+  base::ProcessId curr_pid;
+  if (!ui::GetIntProperty(xid, "_NET_WM_PID", &curr_pid) ||
+      curr_pid == pid)
+    return;
+
+  ui::SetIntProperty(xid, "_NET_WM_PID", "CARDINAL", pid);
 }
 
 void NativeAppWindowTizen::ViewHierarchyChanged(

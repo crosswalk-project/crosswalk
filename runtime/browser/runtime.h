@@ -49,6 +49,9 @@ class Runtime : public content::WebContentsDelegate,
       // Called when a Runtime instance is removed.
       virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
 
+      // Called when a Runtime attached to a window.
+      virtual void OnRuntimeWindowAttached(Runtime* runtime) {}
+
     protected:
       virtual ~Observer() {}
   };
