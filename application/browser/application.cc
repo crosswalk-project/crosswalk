@@ -112,17 +112,15 @@ GURL Application::GetURLForLaunch(const LaunchParams& params,
       return url;
     }
   }
-
+  LOG(WARNING) << "Failed to find a valid launch URL for the app.";
   return GURL();
 }
 
 GURL Application::GetURLFromAppMainKey() {
-  const MainDocumentInfo* main_info =
-      ToMainDocumentInfo(application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info || !main_info->GetMainURL().is_valid()) {
-    LOG(WARNING) << "Can't find a valid main document URL for app.";
+  MainDocumentInfo* main_info = ToMainDocumentInfo(
+    application_data_->GetManifestData(keys::kAppMainKey));
+  if (!main_info)
     return GURL();
-  }
 
   DCHECK(HasMainDocument());
   return main_info->GetMainURL();
@@ -135,10 +133,7 @@ GURL Application::GetURLFromLocalPathKey() {
       || entry_page.empty())
     return GURL();
 
-  GURL url = application_data_->GetResourceURL(entry_page);
-  if (url.is_empty())
-    LOG(WARNING) << "Can't find a valid local path URL for app.";
-  return url;
+  return application_data_->GetResourceURL(entry_page);
 }
 
 GURL Application::GetURLFromURLKey() {
@@ -147,10 +142,7 @@ GURL Application::GetURLFromURLKey() {
   if (!manifest->GetString(keys::kURLKey, &url_string))
     return GURL();
 
-  GURL url(url_string);
-  if (!url.is_valid())
-    LOG(WARNING) << "Can't find a valid URL for app.";
-  return url;
+  return GURL(url_string);
 }
 
 void Application::Terminate() {
