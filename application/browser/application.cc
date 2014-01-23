@@ -58,7 +58,8 @@ Application::Application(
     : runtime_context_(runtime_context),
       application_data_(data),
       main_runtime_(NULL),
-      observer_(observer) {
+      observer_(observer),
+      entry_point_used_(Default) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
@@ -74,14 +75,13 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
   }
 
-  LaunchEntryPoint entry_point_used;
-  GURL url = GetURLForLaunch(launch_params, &entry_point_used);
+  GURL url = GetURLForLaunch(launch_params, &entry_point_used_);
   if (!url.is_valid())
     return false;
 
   main_runtime_ = Runtime::Create(runtime_context_, this);
   main_runtime_->LoadURL(url);
-  if (entry_point_used != AppMainKey)
+  if (entry_point_used_ != AppMainKey)
     main_runtime_->AttachDefaultWindow();
 
   return true;
@@ -122,7 +122,7 @@ GURL Application::GetURLFromAppMainKey() {
   if (!main_info)
     return GURL();
 
-  DCHECK(HasMainDocument());
+  DCHECK(application_data_->HasMainDocument());
   return main_info->GetMainURL();
 }
 
@@ -156,6 +156,20 @@ void Application::Terminate() {
   std::set<Runtime*>::iterator it = to_be_closed.begin();
   for (; it!= to_be_closed.end(); ++it)
     (*it)->Close();
+}
+
+Runtime* Application::GetMainDocumentRuntime() const {
+  return HasMainDocument() ? main_runtime_ : NULL;
+}
+
+int Application::GetRenderProcessHostID() const {
+  DCHECK(main_runtime_);
+  return main_runtime_->web_contents()->
+          GetRenderProcessHost()->GetID();
+}
+
+bool Application::HasMainDocument() const {
+  return entry_point_used_ == AppMainKey;
 }
 
 void Application::OnRuntimeAdded(Runtime* runtime) {
@@ -204,16 +218,6 @@ void Application::CloseMainDocument() {
   finish_observer_.reset();
   main_runtime_->Close();
   main_runtime_ = NULL;
-}
-
-Runtime* Application::GetMainDocumentRuntime() const {
-  return HasMainDocument() ? main_runtime_ : NULL;
-}
-
-int Application::GetRenderProcessHostID() const {
-  DCHECK(main_runtime_);
-  return main_runtime_->web_contents()->
-          GetRenderProcessHost()->GetID();
 }
 
 bool Application::IsOnSuspendHandlerRegistered() const {
