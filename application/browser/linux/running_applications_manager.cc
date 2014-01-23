@@ -80,7 +80,9 @@ void RunningApplicationsManager::OnLaunch(
     return;
   }
 
-  Application* application = application_service_->Launch(app_id);
+  Application::LaunchParams params;
+  // TODO(cmarcelo): Set params.launcher_pid.
+  Application* application = application_service_->Launch(app_id, params);
   if (!application) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,

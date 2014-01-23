@@ -81,8 +81,11 @@ bool Application::Launch(const LaunchParams& launch_params) {
 
   main_runtime_ = Runtime::Create(runtime_context_, this);
   main_runtime_->LoadURL(url);
-  if (entry_point_used_ != AppMainKey)
-    main_runtime_->AttachDefaultWindow();
+  if (entry_point_used_ != AppMainKey) {
+    NativeAppWindow::CreateParams params;
+    params.net_wm_pid = launch_params.launcher_pid;
+    main_runtime_->AttachWindow(params);
+  }
 
   return true;
 }
