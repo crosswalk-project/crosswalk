@@ -28,6 +28,7 @@
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
+#include "ui/gfx/native_widget_types.h"
 
 using content::FaviconURL;
 using content::WebContents;
@@ -60,7 +61,12 @@ Runtime* Runtime::Create(
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 
-  return new Runtime(web_contents, observer);
+  Runtime* runtime = new Runtime(web_contents, observer);
+#if defined(OS_TIZEN_MOBILE)
+  runtime->InitRootWindow();
+#endif
+
+  return runtime;
 }
 
 // static
@@ -87,6 +93,9 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),
        content::NotificationService::NoDetails());
+#if defined(OS_TIZEN_MOBILE)
+  root_window_ = NULL;
+#endif
 
   FOR_EACH_RUNTIME_OBSERVER(OnRuntimeAdded(this));
 }
@@ -132,6 +141,10 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
   window_->Show();
+#if defined(OS_TIZEN_MOBILE)
+  if (root_window_)
+    root_window_->Show();
+#endif
 #endif
 }
 
@@ -224,6 +237,9 @@ void Runtime::WebContentsCreated(
     const GURL& target_url,
     content::WebContents* new_contents) {
   Runtime* new_runtime = new Runtime(new_contents, observer_);
+#if defined(OS_TIZEN_MOBILE)
+  new_runtime->SetRootWindow(root_window_);
+#endif
   new_runtime->AttachDefaultWindow();
 }
 
@@ -344,7 +360,15 @@ void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
     params->web_contents = web_contents_.get();
   if (params->bounds.IsEmpty())
     params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
+#if defined(OS_TIZEN_MOBILE)
+  if (root_window_)
+    params->parent = root_window_->GetNativeWindow();
+#endif
+  ApplyFullScreenParam(params);
+}
 
+void Runtime::ApplyFullScreenParam(NativeAppWindow::CreateParams* params) {
+  DCHECK(params);
   // TODO(cmarcelo): This is policy that probably should be moved to outside
   // Runtime class.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
@@ -354,4 +378,34 @@ void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
   }
 }
 
+#if defined(OS_TIZEN_MOBILE)
+void Runtime::CloseRootWindow() {
+  if (root_window_) {
+    root_window_->Close();
+    root_window_ = NULL;
+  }
+}
+
+void Runtime::ApplyRootWindowParams(NativeAppWindow::CreateParams* params) {
+  if (!params->delegate)
+    params->delegate = this;
+  if (params->bounds.IsEmpty())
+    params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
+  ApplyFullScreenParam(params);
+}
+
+void Runtime::InitRootWindow() {
+  if (root_window_)
+    return;
+
+  NativeAppWindow::CreateParams params;
+  ApplyRootWindowParams(&params);
+  root_window_ = NativeAppWindow::Create(params);
+}
+
+void Runtime::SetRootWindow(NativeAppWindow* window) {
+  root_window_= window;
+}
+
+#endif
 }  // namespace xwalk
