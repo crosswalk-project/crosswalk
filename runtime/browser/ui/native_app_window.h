@@ -49,6 +49,8 @@ class NativeAppWindow {
     ui::WindowShowState state;
     // True if the window can be resized.
     bool resizable;
+    // Used only by X11. Specifies the PID set in _NET_WM_PID window property.
+    int32 net_wm_pid;
   };
 
   // Do one time initialization at application startup.

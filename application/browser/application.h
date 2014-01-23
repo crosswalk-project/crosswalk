@@ -62,9 +62,14 @@ class Application : public Runtime::Observer {
 
   struct LaunchParams {
     LaunchParams() :
-        entry_points(Default) {}
+        entry_points(Default),
+        launcher_pid(0) {}
 
     LaunchEntryPoints entry_points;
+
+    // Used only when running as service. Specifies the PID of the launcher
+    // process.
+    int32 launcher_pid;
   };
 
   // Closes all the application's runtimes (application pages).
