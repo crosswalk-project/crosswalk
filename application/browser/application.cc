@@ -23,6 +23,10 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
+#endif
+
 namespace xwalk {
 
 namespace keys = application_manifest_keys;
@@ -83,6 +87,8 @@ bool Application::Launch(const LaunchParams& launch_params) {
   main_runtime_->LoadURL(url);
   if (entry_point_used != AppMainKey)
     main_runtime_->AttachDefaultWindow();
+
+  launcher_pid_ = launch_params.launcher_pid;
 
   return true;
 }
@@ -196,6 +202,17 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
         xwalk::application::kOnSuspend, event_args.Pass());
     event_manager->SendEvent(application_data_->ID(), event);
   }
+}
+
+void Application::OnRuntimeWindowAttached(Runtime* runtime) {
+#if defined(OS_TIZEN_MOBILE)
+  CHECK_GE(launcher_pid_, 2);
+  if (runtime->window()) {
+    NativeAppWindowTizen* window =
+        static_cast<NativeAppWindowTizen*>(runtime->window());
+    window->UpdateXWindowPid(launcher_pid_);
+  }
+#endif
 }
 
 void Application::CloseMainDocument() {

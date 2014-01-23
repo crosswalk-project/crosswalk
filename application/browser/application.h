@@ -62,9 +62,11 @@ class Application : public Runtime::Observer {
 
   struct LaunchParams {
     LaunchParams() :
-        entry_points(Default) {}
+        entry_points(Default),
+        launcher_pid(-1) {}
 
     LaunchEntryPoints entry_points;
+    base::ProcessId launcher_pid;
   };
 
   // Closes all the application's runtimes (application pages).
@@ -96,6 +98,7 @@ class Application : public Runtime::Observer {
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeWindowAttached(Runtime* runtime) OVERRIDE;
 
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
@@ -122,6 +125,7 @@ class Application : public Runtime::Observer {
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
+  base::ProcessId launcher_pid_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

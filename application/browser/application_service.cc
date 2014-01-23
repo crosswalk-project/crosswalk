@@ -476,6 +476,25 @@ Application* ApplicationService::Launch(const std::string& id) {
   return Launch(application_data, Application::LaunchParams());
 }
 
+Application* ApplicationService::Launch(const std::string& id,
+                                        base::ProcessId launcher_pid) {
+  if (launcher_pid <= 1) {
+    LOG(ERROR) << "App-launcher pid is invalid.";
+    return NULL;
+  }
+
+  scoped_refptr<ApplicationData> application_data =
+    application_storage_->GetApplicationData(id);
+  if (!application_data) {
+    LOG(ERROR) << "Application with id " << id << " is not installed.";
+    return NULL;
+  }
+
+  Application::LaunchParams params;
+  params.launcher_pid = launcher_pid;
+  return Launch(application_data, params);
+}
+
 Application* ApplicationService::Launch(const base::FilePath& path) {
   if (!base::DirectoryExists(path))
     return NULL;

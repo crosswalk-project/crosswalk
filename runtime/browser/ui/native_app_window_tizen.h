@@ -25,6 +25,7 @@ class NativeAppWindowTizen
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
 
+  void UpdateXWindowPid(pid_t pid);
 
  private:
   gfx::Transform GetRotationTransform() const;
