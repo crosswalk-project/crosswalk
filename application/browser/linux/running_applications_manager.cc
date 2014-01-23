@@ -72,16 +72,19 @@ void RunningApplicationsManager::OnLaunch(
 
   dbus::MessageReader reader(method_call);
   std::string app_id;
-  if (!reader.PopString(&app_id)) {
+  unsigned int launcher_pid;
+  if (!reader.PopString(&app_id) ||
+      !reader.PopUint32(&launcher_pid)) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
-                    "Error parsing message. Missing app_id argument.");
+                    "Error parsing message. Missing arguments.");
     response_sender.Run(response.Pass());
     return;
   }
 
   Application::LaunchParams params;
-  // TODO(cmarcelo): Set params.launcher_pid.
+  params.launcher_pid = launcher_pid;
+
   Application* application = application_service_->Launch(app_id, params);
   if (!application) {
     scoped_ptr<dbus::Response> response =
@@ -137,4 +140,3 @@ dbus::ObjectPath RunningApplicationsManager::AddObject(
 
 }  // namespace application
 }  // namespace xwalk
-
