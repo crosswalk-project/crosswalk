@@ -12,6 +12,7 @@
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
+#include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
@@ -65,14 +66,15 @@ application::ApplicationSystem* XWalkRunner::app_system() {
 
 void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
-
   // FIXME(cmarcelo): Remove this check once we remove the --uninstall
   // command line.
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kUninstall))
-    extension_service_.reset(new extensions::XWalkExtensionService);
-
+    extension_service_.reset(new extensions::XWalkExtensionService(
+        app_extension_bridge_.get()));
   CreateComponents();
+  app_extension_bridge_.reset(new XWalkAppExtensionBridge(
+      app_component_->app_system()));
 }
 
 void XWalkRunner::PostMainMessageLoopRun() {

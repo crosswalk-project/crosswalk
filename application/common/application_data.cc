@@ -27,6 +27,8 @@
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
+#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
+#include "xwalk/application/common/permission_policy_manager.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -313,6 +315,39 @@ void ApplicationData::SetEvents(const std::set<std::string>& events) {
 
 const std::set<std::string>& ApplicationData::GetEvents() const {
   return events_;
+}
+
+StoredPermission ApplicationData::GetPermission(
+    const std::string& permission_name) const {
+  StoredPermissionMap::const_iterator iter =
+      permission_map_.find(permission_name);
+  if (iter == permission_map_.end())
+    return INVALID_STORED_PERM;
+  return iter->second;
+}
+
+bool ApplicationData::SetPermission(const std::string& permission_name,
+                                    const StoredPermission& perm) {
+  if (perm != INVALID_STORED_PERM) {
+    permission_map_[permission_name] = perm;
+    is_dirty_ = true;
+    return true;
+  }
+  return false;
+}
+
+void ApplicationData::ClearPermissions() {
+  permission_map_.clear();
+}
+
+PermissionSet ApplicationData::GetManifestPermissions() const {
+  PermissionSet permissions;
+  if (manifest_->value()->HasKey(keys::kPermissionsKey)) {
+    const PermissionsInfo* perm_info = static_cast<PermissionsInfo*>(
+                           GetManifestData(keys::kPermissionsKey));
+    permissions = perm_info->GetAPIPermissions();
+  }
+  return permissions;
 }
 
 }   // namespace application

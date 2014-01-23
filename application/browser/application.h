@@ -92,6 +92,25 @@ class Application : public Runtime::Observer {
   const ApplicationData* data() const { return application_data_; }
   ApplicationData* data() { return application_data_; }
 
+  // Tells whether the application contains the specified extension.
+  bool ContainsExtension(const std::string& extension_name) const;
+
+  // The runtime permission mapping is registered by extension which
+  // implements some specific API, for example:
+  // "bluetooth" -> "bluetooth.read, bluetooth.write, bluetooth.management"
+  // Whenever there comes a API permission request, we can tell whether
+  // this API is registered, if yes, return the according permission name.
+  bool RegisterPermissions(const std::string& extension_name,
+                           const std::string& perm_table);
+  std::string GetRegisteredPermissionName(const std::string& extension_name,
+                                          const std::string& api_name) const;
+
+  StoredPermission GetPermission(const PermissionType type,
+                                 const std::string& permission_name) const;
+  bool SetPermission(const PermissionType type,
+                     const std::string& permission_name,
+                     const StoredPermission perm);
+
  private:
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
@@ -122,6 +141,9 @@ class Application : public Runtime::Observer {
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
+  std::map<std::string, std::string> name_perm_map_;
+  // Application's session permissions.
+  StoredPermissionMap permission_map_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

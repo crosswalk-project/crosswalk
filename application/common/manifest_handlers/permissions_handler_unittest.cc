@@ -15,7 +15,7 @@ namespace application {
 
 namespace {
 
-const std::vector<std::string>& GetAPIPermissionsInfo(
+const PermissionSet& GetAPIPermissionsInfo(
     scoped_refptr<const ApplicationData> application) {
   PermissionsInfo* info = static_cast<PermissionsInfo*>(
       application->GetManifestData(keys::kPermissionsKey));
@@ -75,10 +75,10 @@ TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
       "",
       &error);
   EXPECT_TRUE(application.get());
-  const std::vector<std::string>& permission_list =
+  const PermissionSet& permission_list =
       GetAPIPermissionsInfo(application);
   EXPECT_EQ(permission_list.size(), 1);
-  EXPECT_STREQ(permission_list[0].c_str(), "geolocation");
+  EXPECT_STREQ((*(permission_list.begin())).c_str(), "geolocation");
 }
 
 }  // namespace application

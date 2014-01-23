@@ -200,8 +200,9 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
   std::set<int64_t> extension_thread_instances_ids_;
 };
 
-XWalkExtensionService::XWalkExtensionService()
-    : extension_thread_("XWalkExtensionThread") {
+XWalkExtensionService::XWalkExtensionService(Delegate* delegate)
+    : extension_thread_("XWalkExtensionThread"),
+      delegate_(delegate) {
   if (!g_external_extensions_path_for_testing_.empty())
     external_extensions_path_ = g_external_extensions_path_for_testing_;
   registrar_.Add(this, content::NOTIFICATION_RENDERER_PROCESS_TERMINATED,
@@ -422,6 +423,19 @@ void XWalkExtensionService::OnRenderProcessDied(
 
   extension_data_map_.erase(it);
   delete data;
+}
+
+void XWalkExtensionService::OnCheckAPIAccessControl(
+    std::string extension_name, std::string api_name,
+    const PermissionCallback& callback) {
+  CHECK(delegate_);
+  delegate_->CheckAPIAccessControl(extension_name, api_name, callback);
+}
+
+bool XWalkExtensionService::OnRegisterPermissions(
+    std::string extension_name, std::string perm_table) {
+  CHECK(delegate_);
+  return delegate_->RegisterPermissions(extension_name, perm_table);
 }
 
 }  // namespace extensions

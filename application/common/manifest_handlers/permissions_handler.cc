@@ -13,13 +13,6 @@ namespace keys = application_manifest_keys;
 
 namespace application {
 
-namespace {
-inline bool IsAPIPermission(const std::string& permission) {
-  // FIXME: Need to check from global API permissions set.
-  return true;
-}
-}  // namespace
-
 PermissionsInfo::PermissionsInfo() {
 }
 
@@ -47,7 +40,7 @@ bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
   }
 
   scoped_ptr<PermissionsInfo> permissions_info(new PermissionsInfo);
-  std::vector<std::string> api_permissions;
+  PermissionSet api_permissions;
   for (size_t i = 0; i < permissions->GetSize(); ++i) {
     std::string permission;
     if (!permissions->GetString(i, &permission)) {
@@ -55,9 +48,12 @@ bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
           "An error occurred when parsing permission string.");
       return false;
     }
-
-    if (IsAPIPermission(permission))
-      api_permissions.push_back(permission);
+    if (api_permissions.find(permission) != api_permissions.end()) {
+      *error = ASCIIToUTF16(
+          "Duplicated permission names found.");
+      return false;
+    }
+    api_permissions.insert(permission);
   }
   permissions_info->SetAPIPermissions(api_permissions);
   application->SetManifestData(keys::kPermissionsKey,

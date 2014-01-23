@@ -12,6 +12,8 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/main_function_params.h"
 #include "url/gurl.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
 
 namespace content {

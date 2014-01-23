@@ -11,6 +11,7 @@
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
 #include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
@@ -68,6 +69,19 @@ class ApplicationService : public Application::Observer {
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
+  // Check whether application has permission to access API of extension.
+  void CheckAPIAccessControl(const std::string& app_id,
+      const std::string& extension_name,
+      const std::string& api_name, const PermissionCallback& callback);
+  // Register APIs implemented by extension. This method will be called
+  // when application register extensions.
+  // Parameter perm_table is a string which is a map between extension
+  // and it includes APIs. For example perm_table is like '{"bluetooth":
+  // ["read", "write", "management"]}'.
+  bool RegisterPermissions(const std::string& app_id,
+      const std::string& extension_name,
+      const std::string& perm_table);
+
  private:
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
@@ -80,6 +94,7 @@ class ApplicationService : public Application::Observer {
   ApplicationEventManager* event_manager_;
   ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
+  scoped_ptr<PermissionPolicyManager> permission_policy_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
 };
