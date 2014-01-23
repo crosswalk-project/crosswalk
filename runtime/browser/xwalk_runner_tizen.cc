@@ -6,6 +6,7 @@
 
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
+#include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 
 namespace xwalk {
@@ -39,7 +40,9 @@ class DeviceCapabilitiesComponent : public XWalkComponent {
 
 void XWalkRunnerTizen::CreateComponents() {
   XWalkRunner::CreateComponents();
-  AddComponent(scoped_ptr<XWalkComponent>(new DeviceCapabilitiesComponent));
+  if (XWalkRuntimeFeatures::isDeviceCapabilitiesAPIEnabled()) {
+    AddComponent(scoped_ptr<XWalkComponent>(new DeviceCapabilitiesComponent));
+  }
 }
 
 scoped_ptr<SysAppsComponent> XWalkRunnerTizen::CreateSysAppsComponent() {
