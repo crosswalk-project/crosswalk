@@ -68,6 +68,10 @@ class Application : public Runtime::Observer {
   };
 
   // Closes all the application's runtimes (application pages).
+  // NOTE: Application is terminated asynchronously.
+  // Please use ApplicationService::Observer::WillDestroyApplication()
+  // interface to be notified about actual app termination.
+  //
   // NOTE: ApplicationService deletes an Application instance
   // immediately after its termination.
   void Terminate();
@@ -114,6 +118,7 @@ class Application : public Runtime::Observer {
 
   friend class FinishEventObserver;
   void CloseMainDocument();
+  void NotifyTermination();
   bool IsOnSuspendHandlerRegistered() const;
 
   RuntimeContext* runtime_context_;
@@ -124,6 +129,7 @@ class Application : public Runtime::Observer {
   Observer* observer_;
   // The entry point used as part of Launch().
   LaunchEntryPoint entry_point_used_;
+  base::WeakPtrFactory<Application> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

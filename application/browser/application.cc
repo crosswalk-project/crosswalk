@@ -59,7 +59,8 @@ Application::Application(
       application_data_(data),
       main_runtime_(NULL),
       observer_(observer),
-      entry_point_used_(Default) {
+      entry_point_used_(Default),
+      weak_factory_(this) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
@@ -182,7 +183,9 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   runtimes_.erase(runtime);
 
   if (runtimes_.empty()) {
-    observer_->OnApplicationTerminated(this);
+    base::MessageLoop::current()->PostTask(FROM_HERE,
+        base::Bind(&Application::NotifyTermination,
+                   weak_factory_.GetWeakPtr()));
     return;
   }
 
@@ -218,6 +221,10 @@ void Application::CloseMainDocument() {
   finish_observer_.reset();
   main_runtime_->Close();
   main_runtime_ = NULL;
+}
+
+void Application::NotifyTermination() {
+  observer_->OnApplicationTerminated(this);
 }
 
 bool Application::IsOnSuspendHandlerRegistered() const {
