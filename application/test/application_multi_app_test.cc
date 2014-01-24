@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "content/public/test/browser_test_utils.h"
+#include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -62,14 +63,11 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   EXPECT_EQ(service->GetApplicationByID(app1->id()), app1);
   EXPECT_EQ(service->GetApplicationByID(app2->id()), app2);
 
-  // As we do not have subscription to "onsuspend" event, the app
-  // closing should be sync.
-  // FIXME: Closing of a runtime having a window causes tcmalloc exception
-  // on Linux debug bots and the test cannot complete.
-  // Below should be uncommented, when the issue is treated.
-  // app1->Close();
-  // EXPECT_EQ(service->active_applications().size(), 1);
+  app1->Terminate();
+  content::RunAllPendingInMessageLoop();
+  EXPECT_EQ(service->active_applications().size(), 1);
 
-  // app2->Close();
-  // EXPECT_EQ(service->active_applications().size(), 0);
+  app2->Terminate();
+  content::RunAllPendingInMessageLoop();
+  EXPECT_EQ(service->active_applications().size(), 0);
 }
