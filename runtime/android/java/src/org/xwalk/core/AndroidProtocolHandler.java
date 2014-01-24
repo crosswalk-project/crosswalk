@@ -34,6 +34,7 @@ public class AndroidProtocolHandler {
     private static final String CONTENT_SCHEME = "content";
     private static final String APP_SCHEME = "app";
     private static final String APP_SRC = "www";
+    private static final String SCHEME_SEPARATOR = "//";
 
     /**
      * Open an InputStream for an Android resource.
@@ -78,7 +79,7 @@ public class AndroidProtocolHandler {
         assert(uri.getPath() != null);
 
         try {
-            URI fileUri = new URI(FILE_SCHEME,
+            URI fileUri = new URI(FILE_SCHEME, SCHEME_SEPARATOR +
                 nativeGetAndroidAssetPath() + APP_SRC + uri.getPath(), null);
             return Uri.parse(fileUri.normalize().toString());
         } catch (URISyntaxException e) {
