@@ -86,7 +86,7 @@ std::string CodeToEnsureNamespace(const std::string& extension_name) {
   while (true) {
     pos = extension_name.find('.', pos);
     if (pos == std::string::npos) {
-      result += extension_name + " = {};";
+      result += extension_name + " = " + extension_name + " || {};";
       break;
     }
     std::string ns = extension_name.substr(0, pos);
@@ -106,9 +106,10 @@ std::string WrapAPICode(const std::string& extension_code,
       "extension.internal = {};"
       "extension.internal.sendSyncMessage = extension.sendSyncMessage;"
       "delete extension.sendSyncMessage;"
-      "var exports = {}; (function() {'use strict'; %s\n})();"
+      "var exports = %s || {}; (function() {'use strict'; %s\n})();"
       "%s = exports; });",
       CodeToEnsureNamespace(extension_name).c_str(),
+      extension_name.c_str(),
       extension_code.c_str(),
       extension_name.c_str());
 }
