@@ -43,7 +43,8 @@ class XWalkExtensionProcess : public IPC::Listener {
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
   // Handlers for IPC messages from XWalkExtensionProcessHost.
-  void OnRegisterExtensions(const base::FilePath& extension_path);
+  void OnRegisterExtensions(const base::FilePath& extension_path,
+                            const base::ListValue& browser_variables);
 
   void CreateBrowserProcessChannel();
   void CreateRenderProcessChannel();

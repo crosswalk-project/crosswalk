@@ -7,6 +7,7 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
+#include "base/values.h"
 
 namespace content {
 class ContentBrowserClient;
@@ -128,6 +129,12 @@ class XWalkRunner {
   ApplicationComponent* app_component_;
 
   bool is_running_as_service_;
+
+  // These variables are used to export some values from the browser process
+  // side to the extension side, such as application IDs and whatnot.
+  void InitializeRuntimeVariablesForExtensions(
+      const content::RenderProcessHost* host,
+      base::ValueMap& runtime_variables);
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

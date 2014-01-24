@@ -227,7 +227,8 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
 void XWalkExtensionService::OnRenderProcessHostCreated(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
-    XWalkExtensionVector* extension_thread_extensions) {
+    XWalkExtensionVector* extension_thread_extensions,
+    const base::ValueMap& runtime_variables) {
   CHECK(host);
 
   XWalkExtensionData* data = new XWalkExtensionData;
@@ -238,11 +239,11 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
-    CreateExtensionProcessHost(host, data);
+    CreateExtensionProcessHost(host, data, runtime_variables);
   else if (!external_extensions_path_.empty()) {
     RegisterExternalExtensionsInDirectory(
         data->in_process_ui_thread_server(),
-        external_extensions_path_);
+        external_extensions_path_, runtime_variables);
   }
 
   extension_data_map_[host->GetID()] = data;
@@ -375,9 +376,11 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 }
 
 void XWalkExtensionService::CreateExtensionProcessHost(
-    content::RenderProcessHost* host, XWalkExtensionData* data) {
+    content::RenderProcessHost* host, XWalkExtensionData* data,
+    const base::ValueMap& runtime_variables) {
   data->set_extension_process_host(make_scoped_ptr(
-      new XWalkExtensionProcessHost(host, external_extensions_path_, this)));
+      new XWalkExtensionProcessHost(host, external_extensions_path_, this,
+                                    runtime_variables)));
 }
 
 void XWalkExtensionService::OnExtensionProcessDied(

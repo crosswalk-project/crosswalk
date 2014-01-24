@@ -7,13 +7,16 @@
 #include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "content/public/browser/render_process_host.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
-#include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -113,6 +116,16 @@ scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
   return make_scoped_ptr(new SysAppsComponent());
 }
 
+void XWalkRunner::InitializeRuntimeVariablesForExtensions(
+    const content::RenderProcessHost* host,
+    base::ValueMap& variables) {
+  application::Application* app = app_system()->application_service()->
+      GetApplicationByRenderHostID(host->GetID());
+
+  if (app)
+    variables["app_id"] = base::Value::CreateStringValue(app->id());
+}
+
 void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
@@ -136,8 +149,11 @@ void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 
+  base::ValueMap runtime_variables;
+  InitializeRuntimeVariablesForExtensions(host, runtime_variables);
   extension_service_->OnRenderProcessHostCreated(
-      host, &ui_thread_extensions, &extension_thread_extensions);
+      host, &ui_thread_extensions, &extension_thread_extensions,
+      runtime_variables);
 }
 
 void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
