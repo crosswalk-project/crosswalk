@@ -3,7 +3,7 @@
   "launch_path": "http://www.intel.com",
   "app": {
       "launch": {
-          "local_path": "http://www.intel.com"
+          "local_path": "index.html"
       }
   },
   "description": "a sample description",
