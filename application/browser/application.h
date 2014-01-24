@@ -62,9 +62,14 @@ class Application : public Runtime::Observer {
 
   struct LaunchParams {
     LaunchParams() :
-        entry_points(Default) {}
+        entry_points(Default),
+        launcher_pid(0) {}
 
     LaunchEntryPoints entry_points;
+
+    // Used only when running as service. Specifies the PID of the launcher
+    // process.
+    int32 launcher_pid;
   };
 
   // Closes all the application's runtimes (application pages).
@@ -86,13 +91,13 @@ class Application : public Runtime::Observer {
   // application amoung both running applications and installed ones
   // (ApplicationData objects).
   std::string id() const { return application_data_->ID(); }
-  bool HasMainDocument() const { return application_data_->HasMainDocument(); }
   int GetRenderProcessHostID() const;
 
   const ApplicationData* data() const { return application_data_; }
   ApplicationData* data() { return application_data_; }
 
  private:
+  bool HasMainDocument() const;
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
@@ -104,8 +109,13 @@ class Application : public Runtime::Observer {
               Observer* observer);
   bool Launch(const LaunchParams& launch_params);
 
-  template<LaunchEntryPoint>
-  bool TryLaunchAt();
+  // Try to extract the URL from different possible keys for entry points in the
+  // manifest, returns it and the entry point used.
+  GURL GetURLForLaunch(const LaunchParams& params, LaunchEntryPoint* used);
+
+  GURL GetURLFromAppMainKey();
+  GURL GetURLFromLocalPathKey();
+  GURL GetURLFromURLKey();
 
   friend class FinishEventObserver;
   void CloseMainDocument();
@@ -117,6 +127,8 @@ class Application : public Runtime::Observer {
   std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
+  // The entry point used as part of Launch().
+  LaunchEntryPoint entry_point_used_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

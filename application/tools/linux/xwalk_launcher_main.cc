@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <pwd.h>
 #include <libgen.h>
 
@@ -124,8 +125,11 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  unsigned int launcher_pid = getpid();
+
   GVariant* result = g_dbus_proxy_call_sync(running_proxy, "Launch",
-                                            g_variant_new("(s)", appid),
+                                            g_variant_new("(su)", appid,
+                                                          launcher_pid),
                                             G_DBUS_CALL_FLAGS_NONE,
                                             -1, NULL, &error);
   if (!result) {
