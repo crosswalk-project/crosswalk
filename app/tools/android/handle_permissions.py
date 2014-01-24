@@ -39,7 +39,8 @@ permission_mapping_table = {
   'fullscreen' : [],
   'presentation' : [],
   'rawsockets' : [],
-  'screenorientation' : []
+  'screenorientation' : [],
+  'vibration' : ['android.permission.VIBRATE']
 }
 
 
