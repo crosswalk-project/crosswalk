@@ -194,6 +194,67 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example')
     Clean('Example')
 
+  def testAppVersionCode(self):
+    cmd = ['python', 'make_apk.py', '--name=Example',
+           '--package=org.xwalk.example', '--app-version=1.0.0',
+           '--description=a sample application',
+           '--app-versionCode=3',
+           '--app-url=http://www.intel.com', self._mode]
+    RunCommand(cmd)
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('versionCode="3"') != -1)
+    self.checkApks('Example')
+    Clean('Example')
+
+  def testAppVersionCodeBase(self):
+    # Arch option only works for embedded mode,
+    # so only test it for embedded mode.
+    if self._mode.find('embedded') == -1:
+      return
+    if 'x86' in self.archs():
+      arch = '--arch=x86'
+      versionCode = 'versionCode="60000003"'
+    else:
+      arch = '--arch=arm'
+      versionCode = 'versionCode="20000003"'
+    cmd = ['python', 'make_apk.py', '--name=Example',
+           '--package=org.xwalk.example', '--app-version=1.0.0',
+           '--description=a sample application',
+           '--app-versionCodeBase=3',
+           arch,
+           '--app-url=http://www.intel.com', self._mode]
+    RunCommand(cmd)
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find(versionCode) != -1)
+    self.checkApks('Example')
+    Clean('Example')
+
+  def testAppBigVersionCodeBase(self):
+    # Arch option only works for embedded mode,
+    # so only test it for embedded mode.
+    if self._mode.find('embedded') == -1:
+      return
+    if 'x86' in self.archs():
+      arch = '--arch=x86'
+    else:
+      arch = '--arch=arm'
+    cmd = ['python', 'make_apk.py', '--name=Example',
+           '--package=org.xwalk.example', '--app-version=1.0.0',
+           '--description=a sample application',
+           '--app-versionCodeBase=30000000',
+           arch,
+           '--app-url=http://www.intel.com', self._mode]
+    RunCommand(cmd)
+    manifest = 'Example/AndroidManifest.xml'
+    self.assertFalse(os.path.exists(manifest))
+    Clean('Example')
+
   def testPermissions(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--permissions=geolocation',
@@ -578,6 +639,9 @@ class TestMakeApk(unittest.TestCase):
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
   test_suite = unittest.TestSuite()
+  test_suite.addTest(TestMakeApk('testAppBigVersionCodeBase'))
+  test_suite.addTest(TestMakeApk('testAppVersionCode'))
+  test_suite.addTest(TestMakeApk('testAppVersionCodeBase'))
   test_suite.addTest(TestMakeApk('testAppDescriptionAndVersion'))
   test_suite.addTest(TestMakeApk('testArch'))
   test_suite.addTest(TestMakeApk('testEnableRemoteDebugging'))

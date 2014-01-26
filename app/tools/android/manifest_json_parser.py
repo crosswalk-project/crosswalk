@@ -111,7 +111,7 @@ class ManifestJsonParser(object):
     if 'icons' in self.data_src:
       ret_dict['icons'] = self.data_src['icons']
     else:
-      ret_dict['icons'] = ''
+      ret_dict['icons'] = {}
     app_root = file_path_prefix
     ret_dict['description'] = ''
     if 'description' in self.data_src:
