@@ -32,7 +32,7 @@ def RunCommand(command, shell=False):
   if not shell:
     output = proc.communicate()[0]
     result = proc.returncode
-    print output
+    print(output.decode("utf-8"))
     if result != 0:
       print ('Command "%s" exited with non-zero exit code %d'
              % (' '.join(command), result))
@@ -42,7 +42,7 @@ def RunCommand(command, shell=False):
 def Which(name):
   """Search PATH for executable files with the given name."""
   result = []
-  exts = filter(None, os.environ.get('PATHEXT', '').split(os.pathsep))
+  exts = [_f for _f in os.environ.get('PATHEXT', '').split(os.pathsep) if _f]
   path = os.environ.get('PATH', None)
   if path is None:
     return []
@@ -72,7 +72,7 @@ def Find(name, path):
         result[key] = 0
   if not result:
     raise Exception()
-  return max(result.iteritems(), key=operator.itemgetter(1))[0]
+  return max(iter(result.items()), key=operator.itemgetter(1))[0]
 
 
 def GetVersion(path):
@@ -103,18 +103,18 @@ def ParseManifest(options):
   elif parser.GetAppLocalPath():
     options.app_local_path = parser.GetAppLocalPath()
   else:
-    print 'Error: there is no app launch path defined in manifest.json.'
+    print('Error: there is no app launch path defined in manifest.json.')
     sys.exit(9)
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
     temp_dict = parser.GetIcons()
     try:
-      icon_dict = dict((int(k), v) for k, v in temp_dict.iteritems())
+      icon_dict = dict((int(k), v) for k, v in temp_dict.items())
     except ValueError:
-      print 'The key of icon in the manifest file should be a number.'
+      print('The key of icon in the manifest file should be a number.')
     # TODO(junmin): add multiple icons support.
     if icon_dict:
-      icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
+      icon_file = max(iter(icon_dict.items()), key=operator.itemgetter(0))[1]
       options.icon = os.path.join(options.app_root, icon_file)
   options.enable_remote_debugging = False
   if parser.GetFullScreenFlag().lower() == 'true':
@@ -137,7 +137,7 @@ def ParseXPK(options, out_dir):
   if os.path.isfile(os.path.join(out_dir, 'manifest.json')):
     options.manifest = os.path.join(out_dir, 'manifest.json')
   else:
-    print 'XPK doesn\'t contain manifest file.'
+    print('XPK doesn\'t contain manifest file.')
     sys.exit(8)
 
 
@@ -206,7 +206,7 @@ def Customize(options):
 def Execution(options, sanitized_name):
   android_path_array = Which('android')
   if not android_path_array:
-    print 'Please install Android SDK first.'
+    print('Please install Android SDK first.')
     sys.exit(1)
 
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
@@ -214,13 +214,13 @@ def Execution(options, sanitized_name):
   try:
     sdk_jar_path = Find('android.jar', os.path.join(sdk_root_path, 'platforms'))
   except Exception:
-    print 'Your Android SDK may be ruined, please reinstall it.'
+    print('Your Android SDK may be ruined, please reinstall it.')
     sys.exit(2)
 
   level_string = os.path.basename(os.path.dirname(sdk_jar_path))
   api_level = int(re.search(r'\d+', level_string).group())
   if api_level < 14:
-    print 'Please install Android API level (>=14) first.'
+    print('Please install Android API level (>=14) first.')
     sys.exit(3)
 
   if options.keystore_path:
@@ -228,12 +228,12 @@ def Execution(options, sanitized_name):
     if options.keystore_alias:
       key_alias = options.keystore_alias
     else:
-      print 'Please provide an alias name of the developer key.'
+      print('Please provide an alias name of the developer key.')
       sys.exit(6)
     if options.keystore_passcode:
       key_code = options.keystore_passcode
     else:
-      print 'Please provide the passcode of the developer key.'
+      print('Please provide the passcode of the developer key.')
       sys.exit(6)
   else:
     print ('Use xwalk\'s keystore by default for debugging. '
@@ -258,12 +258,12 @@ def Execution(options, sanitized_name):
   for aapt_str in AddExeExtensions('aapt'):
     try:
       aapt_path = Find(aapt_str, sdk_root_path)
-      print 'Use %s in %s.' % (aapt_str, sdk_root_path)
+      print('Use %s in %s.' % (aapt_str, sdk_root_path))
       break
     except Exception:
-      print 'There doesn\'t exist %s in %s.' % (aapt_str, sdk_root_path)
+      print('There doesn\'t exist %s in %s.' % (aapt_str, sdk_root_path))
   if not aapt_path:
-    print 'Your Android SDK may be ruined, please reinstall it.'
+    print('Your Android SDK may be ruined, please reinstall it.')
     sys.exit(2)
 
   # Check whether ant is installed.
@@ -271,7 +271,7 @@ def Execution(options, sanitized_name):
     cmd = ['ant', '-version']
     RunCommand(cmd, True)
   except EnvironmentError:
-    print 'Please install ant first.'
+    print('Please install ant first.')
     sys.exit(4)
 
   res_dirs = '-DADDITIONAL_RES_DIRS=\'\''
@@ -338,7 +338,7 @@ def Execution(options, sanitized_name):
     cmd = ['java', '-version']
     RunCommand(cmd, True)
   except EnvironmentError:
-    print 'Please install Oracle JDK first.'
+    print('Please install Oracle JDK first.')
     sys.exit(5)
 
   # Compile App source code with app runtime code.
@@ -412,7 +412,7 @@ def Execution(options, sanitized_name):
       if os.path.isfile(x86_native_lib_path):
         native_lib_path += os.path.join('native_libs', 'x86', 'libs')
       else:
-        print 'Missing x86 native library for Crosswalk embedded APK. Abort!'
+        print('Missing x86 native library for Crosswalk embedded APK. Abort!')
         sys.exit(10)
     elif options.arch == 'arm':
       arm_native_lib_path = os.path.join('native_libs', 'armeabi-v7a', 'libs',
@@ -420,7 +420,7 @@ def Execution(options, sanitized_name):
       if os.path.isfile(arm_native_lib_path):
         native_lib_path += os.path.join('native_libs', 'armeabi-v7a', 'libs')
       else:
-        print 'Missing ARM native library for Crosswalk embedded APK. Abort!'
+        print('Missing ARM native library for Crosswalk embedded APK. Abort!')
         sys.exit(10)
   # A space is needed for Windows.
   native_lib_path += ' '
@@ -503,7 +503,7 @@ def MakeApk(options, sanitized_name):
                'platform %s was generated successfully at %s.'
                % (sanitized_name, platform_str, apk_str))
   else:
-    print 'Unknown mode for packaging the application. Abort!'
+    print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
 
@@ -606,7 +606,7 @@ def main(argv):
 
   if options.version:
     if os.path.isfile('VERSION'):
-      print GetVersion('VERSION')
+      print(GetVersion('VERSION'))
       return 0
     else:
       parser.error('Can\'t get version due to the VERSION file missing!')
@@ -648,7 +648,7 @@ def main(argv):
   else:
     try:
       ParseManifest(options)
-    except SystemExit, ec:
+    except SystemExit as ec:
       return ec.code
 
   options.name = ReplaceInvalidChars(options.name, 'apkname')
@@ -657,7 +657,7 @@ def main(argv):
 
   try:
     MakeApk(options, sanitized_name)
-  except SystemExit, ec:
+  except SystemExit as ec:
     CleanDir(sanitized_name)
     CleanDir('out')
     if os.path.exists(xpk_temp_dir):

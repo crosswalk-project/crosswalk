@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+from __future__ import print_function
 import fnmatch
 import os
 import pipes
@@ -64,23 +65,23 @@ def CheckCallDie(args, suppress_output=False, cwd=None):
 
   if child.returncode:
     stacktrace = traceback.extract_stack()
-    print >> sys.stderr, ''.join(traceback.format_list(stacktrace))
+    print(''.join(traceback.format_list(stacktrace)), file=sys.stderr)
     # A user should be able to simply copy and paste the command that failed
     # into their shell.
     copyable_command = ' '.join(map(pipes.quote, args))
     copyable_command = ('( cd ' + os.path.abspath(cwd) + '; '
         + copyable_command + ' )')
-    print >> sys.stderr, 'Command failed:', copyable_command, '\n'
+    print('Command failed:', copyable_command, '\n', file=sys.stderr)
 
     if stdout:
-      print stdout
+      print(stdout)
 
     # Directly exit to avoid printing stacktrace.
     sys.exit(child.returncode)
 
   else:
     if stdout and not suppress_output:
-      print stdout
+      print(stdout)
     return stdout
 
 

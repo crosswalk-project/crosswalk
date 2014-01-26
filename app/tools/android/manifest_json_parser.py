@@ -34,7 +34,8 @@ def HandlePermissionList(permission_list):
   reg_permission = re.compile(r'^[a-zA-Z\.]*$')
   for permission in permissions:
     if not reg_permission.match(permission):
-      print '\'Permissions\' field error, only alphabets and \'.\' are allowed.'
+      print('\'Permissions\' field error, only alphabets and '
+            '\'.\' are allowed.')
       sys.exit(1)
   return ':'.join(permissions)
 
@@ -48,16 +49,16 @@ class ManifestJsonParser(object):
   """
   def __init__(self, input_path):
     self.input_path = input_path
-    input_file = file(self.input_path)
+    input_file = open(self.input_path)
     try:
       input_src = input_file.read()
       self.data_src = json.JSONDecoder().decode(input_src)
       self.ret_dict = self._output_items()
     except (TypeError, ValueError, IOError):
-      print 'There is a parser error in manifest.json file.'
+      print('There is a parser error in manifest.json file.')
       sys.exit(1)
     except KeyError:
-      print 'There is a field error in manifest.json file.'
+      print('There is a field error in manifest.json file.')
       sys.exit(1)
     finally:
       input_file.close()
@@ -85,19 +86,19 @@ class ManifestJsonParser(object):
     fullscreen:       The fullscreen flag of the application.
     """
     ret_dict = {}
-    if not self.data_src.has_key('name'):
-      print 'Error: no \'name\' field in manifest.json file.'
+    if 'name' not in self.data_src:
+      print('Error: no \'name\' field in manifest.json file.')
       sys.exit(1)
     ret_dict['app_name'] = self.data_src['name']
-    if not self.data_src.has_key('version'):
-      print 'Error: no \'version\' field in manifest.json file.'
+    if 'version' not in self.data_src:
+      print('Error: no \'version\' field in manifest.json file.')
       sys.exit(1)
     ret_dict['version'] = self.data_src['version']
-    if self.data_src.has_key('launch_path'):
+    if 'launch_path' in self.data_src:
       app_url = self.data_src['launch_path']
-    elif (self.data_src.has_key('app') and
-        self.data_src['app'].has_key('launch') and
-            self.data_src['app']['launch'].has_key('local_path')):
+    elif ('app' in self.data_src and
+        'launch' in self.data_src['app'] and
+            'local_path' in self.data_src['app']['launch']):
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
@@ -107,32 +108,32 @@ class ManifestJsonParser(object):
       app_local_path = app_url
       app_url = ''
     file_path_prefix = os.path.split(self.input_path)[0]
-    if self.data_src.has_key('icons'):
+    if 'icons' in self.data_src:
       ret_dict['icons'] = self.data_src['icons']
     else:
       ret_dict['icons'] = ''
     app_root = file_path_prefix
     ret_dict['description'] = ''
-    if self.data_src.has_key('description'):
+    if 'description' in self.data_src:
       ret_dict['description'] = self.data_src['description']
     ret_dict['app_url'] = app_url
     ret_dict['app_root'] = app_root
     ret_dict['app_local_path'] = app_local_path
     ret_dict['permissions'] = ''
-    if self.data_src.has_key('permissions'):
+    if 'permissions' in self.data_src:
       try:
         permission_list = self.data_src['permissions']
         ret_dict['permissions'] = HandlePermissionList(permission_list)
       except (TypeError, ValueError, IOError):
-        print '\'Permissions\' field error in manifest.json file.'
+        print('\'Permissions\' field error in manifest.json file.')
         sys.exit(1)
     ret_dict['required_version'] = ''
-    if self.data_src.has_key('required_version'):
+    if 'required_version' in self.data_src:
       ret_dict['required_version'] = self.data_src['required_version']
     ret_dict['plugin'] = ''
-    if self.data_src.has_key('plugin'):
+    if 'plugin' in self.data_src:
       ret_dict['plugin'] = self.data_src['plugin']
-    if self.data_src.has_key('fullscreen'):
+    if 'fullscreen' in self.data_src:
       ret_dict['fullscreen'] = self.data_src['fullscreen']
     else:
       ret_dict['fullscreen'] = 'False'
@@ -141,17 +142,17 @@ class ManifestJsonParser(object):
   def ShowItems(self):
     """Show the processed results, it is used for command-line
     internal debugging."""
-    print "app_name: %s" % self.GetAppName()
-    print "version: %s" % self.GetVersion()
-    print "description: %s" % self.GetDescription()
-    print "icons: %s" % self.GetIcons()
-    print "app_url: %s" % self.GetAppUrl()
-    print "app_root: %s" % self.GetAppRoot()
-    print "app_local_path: %s" % self.GetAppLocalPath()
-    print "permissions: %s" % self.GetPermissions()
-    print "required_version: %s" % self.GetRequiredVersion()
-    print "plugins: %s" % self.GetPlugins()
-    print "fullscreen: %s" % self.GetFullScreenFlag()
+    print("app_name: %s" % self.GetAppName())
+    print("version: %s" % self.GetVersion())
+    print("description: %s" % self.GetDescription())
+    print("icons: %s" % self.GetIcons())
+    print("app_url: %s" % self.GetAppUrl())
+    print("app_root: %s" % self.GetAppRoot())
+    print("app_local_path: %s" % self.GetAppLocalPath())
+    print("permissions: %s" % self.GetPermissions())
+    print("required_version: %s" % self.GetRequiredVersion())
+    print("plugins: %s" % self.GetPlugins())
+    print("fullscreen: %s" % self.GetFullScreenFlag())
 
   def GetAppName(self):
     """Return the application name."""

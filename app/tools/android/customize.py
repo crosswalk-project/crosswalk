@@ -31,7 +31,7 @@ def ReplaceInvalidChars(value, mode='default'):
     invalid_chars = '\/:.*?"<>|- '
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
-      print "Illegal character: '%s' is replaced with '_'" % c
+      print("Illegal character: '%s' is replaced with '_'" % c)
     value = value.replace(c,'_')
   return value
 
@@ -72,7 +72,7 @@ def CustomizeStringXML(options, sanitized_name):
     xmldoc = minidom.parse(strings_path)
     AddElementAttributeAndText(xmldoc, 'string', 'name', 'description',
                                options.description)
-    strings_file = open(strings_path, 'wb')
+    strings_file = open(strings_path, 'w')
     xmldoc.writexml(strings_file)
     strings_file.close()
 
@@ -119,7 +119,7 @@ def CustomizeXML(options, sanitized_name):
     print ('Please make sure the icon file does exist!')
     sys.exit(6)
 
-  file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'wb')
+  file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle)
   file_handle.close()
 
@@ -183,8 +183,8 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   dest_extension_path = os.path.join(dest_path, extension_name)
   if os.path.exists(dest_extension_path):
     # TODO: Refine it by renaming it internally.
-    print ('Error: duplicated extension names "%s" are found. Please rename it.'
-           % extension_name)
+    print('Error: duplicated extension names "%s" are found. Please rename it.'
+          % extension_name)
     sys.exit(9)
   else:
     os.mkdir(dest_extension_path)
@@ -194,7 +194,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   dest_file = os.path.join(dest_extension_path, file_name)
   if not os.path.isfile(src_file):
     sys.exit(9)
-    print 'Error: %s is not found in %s.' % (file_name, src_path)
+    print('Error: %s is not found in %s.' % (file_name, src_path))
   else:
     shutil.copyfile(src_file, dest_file)
 
@@ -234,7 +234,7 @@ def CustomizeExtensions(options, sanitized_name):
   extension_json_list = []
   for source_path in extension_paths:
     if not os.path.exists(source_path):
-      print 'Error: can\'t find the extension directory \'%s\'.' % source_path
+      print('Error: can\'t find the extension directory \'%s\'.' % source_path)
       sys.exit(9)
     # Remove redundant separators to avoid empty basename.
     source_path = os.path.normpath(source_path)
@@ -250,7 +250,7 @@ def CustomizeExtensions(options, sanitized_name):
     file_name = extension_name + '.json'
     src_file = os.path.join(source_path, file_name)
     if not os.path.isfile(src_file):
-      print 'Error: %s is not found in %s.' % (file_name, source_path)
+      print('Error: %s is not found in %s.' % (file_name, source_path))
       sys.exit(9)
     else:
       src_file_handle = file(src_file)
@@ -286,7 +286,7 @@ def CustomizeExtensions(options, sanitized_name):
           existingList.append(p)
 
         # Write to the manifest file to save the update.
-        file_handle = open(manifest_path, 'wb')
+        file_handle = open(manifest_path, 'w')
         xmldoc.writexml(file_handle)
         file_handle.close()
 
@@ -351,8 +351,8 @@ def main():
     CustomizeXML(options, sanitized_name)
     CustomizeJava(options, sanitized_name)
     CustomizeExtensions(options, sanitized_name)
-  except SystemExit, ec:
-    print 'Exiting with error code: %d' % ec.code
+  except SystemExit as ec:
+    print('Exiting with error code: %d' % ec.code)
     return ec.code
   return 0
 
