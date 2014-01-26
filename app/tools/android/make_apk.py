@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
+import compress_js_and_css
 import operator
 import optparse
 import os
@@ -175,7 +176,8 @@ def MakeVersionCode(options):
   if options.app_versionCodeBase:
     b = str(options.app_versionCodeBase)
     if len(b) > 7:
-      print('Version code base must be 7 digits or less: versionCodeBase=%s' % (b))
+      print('Version code base must be 7 digits or less: '
+            'versionCodeBase=%s' % (b))
       sys.exit(12)
   # zero pad to 7 digits, middle digits can be used for other
   # features, according to recommendation in URL
@@ -532,6 +534,17 @@ def MakeApk(options, sanitized_name):
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
+def parse_optional_arg(default_value):
+  def func(option, value, values, parser):
+    del value
+    del values
+    if parser.rargs and not parser.rargs[0].startswith('-'):
+      val = parser.rargs[0]
+      parser.rargs.pop(0)
+    else:
+      val = default_value
+    setattr(parser.values, option.dest, val)
+  return func
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -631,6 +644,12 @@ def main(argv):
   group.add_option('--keystore-alias', help=info)
   info = ('The passcode of keystore. For example, --keystore-passcode=code')
   group.add_option('--keystore-passcode', help=info)
+  info = ('Minify and obfuscate javascript and css.'
+          '--compressor: compress javascript and css.'
+          '--compressor=js: compress javascript.'
+          '--compressor=css: compress css.')
+  group.add_option('--compressor', dest='compressor', action='callback',
+                   callback=parse_optional_arg('all'), help=info)
   parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -689,6 +708,14 @@ def main(argv):
   sanitized_name = ReplaceInvalidChars(options.name)
 
   try:
+    compress = compress_js_and_css.CompressJsAndCss(options.app_root)
+    if options.compressor == 'all':
+      compress.CompressJavaScript()
+      compress.CompressCss()
+    elif options.compressor == 'js':
+      compress.CompressJavaScript()
+    elif options.compressor == 'css':
+      compress.CompressCss()
     MakeApk(options, sanitized_name)
   except SystemExit as ec:
     CleanDir(sanitized_name)

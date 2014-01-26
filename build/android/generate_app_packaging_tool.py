@@ -26,6 +26,9 @@ def PrepareFromXwalk(src_dir, target_dir):
   '''Prepare different files for app packaging tools. All resources are used by
   make_apk.py.
   '''
+  # The version of yui compressor.
+  yui_compressor_version = '2.4.8'
+
   # Get the dir of source code from src_dir: ../../.
   source_code_dir = os.path.dirname(os.path.dirname(src_dir))
 
@@ -47,6 +50,11 @@ def PrepareFromXwalk(src_dir, target_dir):
   # The source file/directory list to be copied and the target directory list.
   source_target_list = [
     (os.path.join(source_code_dir, 'xwalk/VERSION'), target_dir),
+
+    # This jar is needed for minifying and obfuscating the javascript and css.
+    (os.path.join(tools_src_dir,
+      'libs/yuicompressor-' + yui_compressor_version + '.jar'),
+        jar_target_dir),
 
     # This jar is needed for 'javac' compile.
     (os.path.join(jar_src_dir, 'xwalk_app_runtime_java.jar'), jar_target_dir),
@@ -115,6 +123,7 @@ def PrepareFromXwalk(src_dir, target_dir):
     # Build and python tools.
     (os.path.join(tools_src_dir, 'ant'),
      os.path.join(target_dir, 'scripts/ant')),
+    (os.path.join(tools_src_dir, 'compress_js_and_css.py'), target_dir),
     (os.path.join(tools_src_dir, 'customize.py'), target_dir),
     (os.path.join(tools_src_dir, 'handle_permissions.py'), target_dir),
     (os.path.join(tools_src_dir, 'handle_xml.py'), target_dir),
