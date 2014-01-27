@@ -125,6 +125,7 @@ class Application : public Runtime::Observer {
   void CloseMainDocument();
   void NotifyTermination();
   bool IsOnSuspendHandlerRegistered() const;
+  bool IsTerminating() const { return finish_observer_; }
 
   RuntimeContext* runtime_context_;
   const scoped_refptr<ApplicationData> application_data_;
