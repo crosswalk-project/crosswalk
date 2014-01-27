@@ -150,6 +150,12 @@ GURL Application::GetURLFromURLKey() {
 }
 
 void Application::Terminate() {
+  if (IsTerminating()) {
+    LOG(ERROR) << "Attempt to Terminate app: " << id()
+               << ", which is already in the process of being terminated.";
+    return;
+  }
+
   std::set<Runtime*> to_be_closed(runtimes_);
   if (HasMainDocument() && to_be_closed.size() > 1) {
     // The main document runtime is closed separately
@@ -157,9 +163,8 @@ void Application::Terminate() {
     to_be_closed.erase(main_runtime_);
   }
 
-  std::set<Runtime*>::iterator it = to_be_closed.begin();
-  for (; it!= to_be_closed.end(); ++it)
-    (*it)->Close();
+  std::for_each(to_be_closed.begin(), to_be_closed.end(),
+                std::mem_fun(&Runtime::Close));
 }
 
 Runtime* Application::GetMainDocumentRuntime() const {
