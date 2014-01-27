@@ -25,7 +25,7 @@ deps_xwalk = {
   'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
 
   # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@0c4f175c51277c482f3e50d86860ccf75a97ba16',
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@d140a7894187fa454422813d1c2fa3aca481d1bc',
 }
 vars_xwalk = {
 }
