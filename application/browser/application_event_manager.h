@@ -49,7 +49,7 @@ class Event : public base::RefCounted<Event> {
 class ApplicationEventManager : public ApplicationService::Observer {
  public:
   ApplicationEventManager();
-  ~ApplicationEventManager();
+  virtual ~ApplicationEventManager();
 
   // Create app router when app is loaded.
   void AddEventRouterForApp(scoped_refptr<ApplicationData> app_data);
