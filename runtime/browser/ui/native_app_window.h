@@ -51,6 +51,8 @@ class NativeAppWindow {
     bool resizable;
     // Used only by X11. Specifies the PID set in _NET_WM_PID window property.
     int32 net_wm_pid;
+    // The parent view which this window belongs to. NULL if it is root window.
+    gfx::NativeView parent;
   };
 
   // Do one time initialization at application startup.

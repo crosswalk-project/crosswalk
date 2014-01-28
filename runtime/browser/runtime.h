@@ -76,6 +76,10 @@ class Runtime : public content::WebContentsDelegate,
 
   static void SetGlobalObserverForTesting(Observer* observer);
 
+#if defined(OS_TIZEN_MOBILE)
+  void CloseRootWindow();
+#endif
+
  protected:
   Runtime(content::WebContents* web_contents, Observer* observer);
   virtual ~Runtime();
@@ -147,6 +151,13 @@ class Runtime : public content::WebContentsDelegate,
   virtual void OnWindowDestroyed() OVERRIDE;
 
   void ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params);
+  void ApplyFullScreenParam(NativeAppWindow::CreateParams* params);
+
+#if defined(OS_TIZEN_MOBILE)
+  void ApplyRootWindowParams(NativeAppWindow::CreateParams* params);
+  void SetRootWindow(NativeAppWindow* window);
+  void InitRootWindow();
+#endif
 
   // The browsing context.
   xwalk::RuntimeContext* runtime_context_;
@@ -158,6 +169,10 @@ class Runtime : public content::WebContentsDelegate,
   scoped_ptr<content::WebContents> web_contents_;
 
   NativeAppWindow* window_;
+
+#if defined(OS_TIZEN_MOBILE)
+  NativeAppWindow* root_window_;
+#endif
 
   gfx::Image app_icon_;
 

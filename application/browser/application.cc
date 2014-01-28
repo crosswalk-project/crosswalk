@@ -191,6 +191,9 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   runtimes_.erase(runtime);
 
   if (runtimes_.empty()) {
+#if defined(OS_TIZEN_MOBILE)
+    runtime->CloseRootWindow();
+#endif
     base::MessageLoop::current()->PostTask(FROM_HERE,
         base::Bind(&Application::NotifyTermination,
                    weak_factory_.GetWeakPtr()));

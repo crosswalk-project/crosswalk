@@ -51,6 +51,7 @@ void NativeAppWindowViews::Initialize() {
   params.use_system_default_icon = true;
   params.top_level = true;
   params.show_state = create_params_.state;
+  params.parent = create_params_.parent;
 #if defined(OS_TIZEN_MOBILE)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   // On Tizen apps are sized to the work area.
