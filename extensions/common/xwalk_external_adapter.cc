@@ -95,6 +95,13 @@ const void* XWalkExternalAdapter::GetInterface(const char* name) {
     return &entryPointsInterface1;
   }
 
+  if (!strcmp(name, XW_INTERNAL_RUNTIME_INTERFACE_1)) {
+    static const XW_Internal_RuntimeInterface_1 runtimeInterface1 = {
+      RuntimeGetStringVariable
+    };
+    return &runtimeInterface1;
+  }
+
   LOG(WARNING) << "Interface '" << name << "' is not supported.";
   return NULL;
 }

@@ -6,9 +6,11 @@
 
 #include <string>
 #include <vector>
-#include "base/logging.h"
 #include "base/files/file_path.h"
+#include "base/json/json_writer.h"
 #include "base/lazy_instance.h"
+#include "base/logging.h"
+#include "base/values.h"
 #include "xwalk/extensions/common/xwalk_external_adapter.h"
 
 namespace xwalk {
@@ -126,6 +128,18 @@ void XWalkExternalExtension::EntryPointsSetExtraJSEntryPoints(
     entries.push_back(std::string(entry_points[i]));
 
   set_entry_points(entries);
+}
+
+void XWalkExternalExtension::RuntimeGetStringVariable(const char* key,
+    char* value, size_t value_len) {
+  const base::ValueMap::const_iterator it = runtime_variables_.find(key);
+  if (it != runtime_variables_.end()) {
+    std::string json;
+    base::JSONWriter::Write(it->second, &json);
+    strncpy(value, json.c_str(), value_len);
+  } else {
+    strncpy(value, "", 1);
+  }
 }
 
 }  // namespace extensions
