@@ -30,7 +30,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     private ActivityInstrumentationTestCase2<T> mTestCase;
     private Timer mTimer = new Timer();
     private String mSocketName;
-    private String mUrl = "http://www.bing.com";
+    private String mUrl = "file:///android_asset/index.html";
     enum Relation {
         EQUAL,
         GREATERTHAN,
