@@ -30,6 +30,7 @@ class MultiOrientationScreen {
 
   class Observer {
    public:
+    virtual ~Observer() {}
     virtual void OnOrientationChanged(Orientation orientation) = 0;
   };
 
