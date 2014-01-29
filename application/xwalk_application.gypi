@@ -68,6 +68,7 @@
         'common/manifest_handlers/main_document_handler.h',
         'common/manifest_handlers/permissions_handler.cc',
         'common/manifest_handlers/permissions_handler.h',
+        'common/permission_types.h',
 
         'extension/application_event_extension.cc',
         'extension/application_event_extension.h',
