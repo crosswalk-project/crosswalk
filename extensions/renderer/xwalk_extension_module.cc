@@ -37,22 +37,22 @@ XWalkExtensionModule::XWalkExtensionModule(XWalkExtensionClient* client,
       instance_id_(0) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::Object> function_data = v8::Object::New();
+  v8::Handle<v8::Object> function_data = v8::Object::New(isolate);
   function_data->Set(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule),
-                     v8::External::New(this));
+                     v8::External::New(isolate, this));
 
-  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
+  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New(isolate);
   // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
   // update the Chromium (and V8) version.
   object_template->Set(
       v8::String::NewFromUtf8(isolate, "postMessage"),
-      v8::FunctionTemplate::New(PostMessageCallback, function_data));
+      v8::FunctionTemplate::New(isolate, PostMessageCallback, function_data));
   object_template->Set(
       v8::String::NewFromUtf8(isolate, "sendSyncMessage"),
-      v8::FunctionTemplate::New(SendSyncMessageCallback, function_data));
+      v8::FunctionTemplate::New(isolate, SendSyncMessageCallback, function_data));
   object_template->Set(
       v8::String::NewFromUtf8(isolate, "setMessageListener"),
-      v8::FunctionTemplate::New(SetMessageListenerCallback, function_data));
+      v8::FunctionTemplate::New(isolate, SetMessageListenerCallback, function_data));
 
   function_data_.Reset(isolate, function_data);
   object_template_.Reset(isolate, object_template);
@@ -67,8 +67,8 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   // this object (getting references from inside an iframe and then destroying
   // the iframe), even if we destroy the references we have.
   v8::Handle<v8::Object> function_data =
-      v8::Handle<v8::Object>::New(isolate, function_data_);
-  function_data->Delete(v8::String::New(kXWalkExtensionModule));
+      v8::Local<v8::Object>::New(isolate, function_data_);
+  function_data->Delete(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule));
 
   object_template_.Reset();
   function_data_.Reset();
@@ -120,11 +120,11 @@ v8::Handle<v8::Value> RunString(const std::string& code,
   v8::Handle<v8::String> v8_code(
       v8::String::NewFromUtf8(isolate, code.c_str()));
 
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
 
-  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty()));
+  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty(isolate)));
   if (try_catch.HasCaught()) {
     *exception = ExceptionToString(try_catch);
     return handle_scope.Escape(
@@ -160,7 +160,7 @@ void XWalkExtensionModule::LoadExtensionCode(
   v8::Handle<v8::Function> callable_api_code =
       v8::Handle<v8::Function>::Cast(result);
   v8::Handle<v8::ObjectTemplate> object_template =
-      v8::Handle<v8::ObjectTemplate>::New(context->GetIsolate(),
+      v8::Local<v8::ObjectTemplate>::New(context->GetIsolate(),
                                           object_template_);
 
   const int argc = 2;
@@ -169,7 +169,7 @@ void XWalkExtensionModule::LoadExtensionCode(
     requireNative
   };
 
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
   callable_api_code->Call(context->Global(), argc, argv);
@@ -190,9 +190,9 @@ void XWalkExtensionModule::HandleMessageFromNative(const base::Value& msg) {
 
   v8::Handle<v8::Value> v8_value(converter_->ToV8Value(&msg, context));
   v8::Handle<v8::Function> message_listener =
-      v8::Handle<v8::Function>::New(isolate, message_listener_);;
+      v8::Local<v8::Function>::New(isolate, message_listener_);;
 
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   message_listener->Call(context->Global(), 1, &v8_value);
   if (try_catch.HasCaught())

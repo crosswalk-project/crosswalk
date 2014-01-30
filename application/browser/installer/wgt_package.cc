@@ -18,7 +18,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(
-        new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
+        new ScopedStdioHandle(base::OpenFile(path, "rb")));
 
   file_ = file.Pass();
 }

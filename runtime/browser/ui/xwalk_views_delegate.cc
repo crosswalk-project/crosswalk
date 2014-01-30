@@ -40,8 +40,11 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
 HICON XWalkViewsDelegate::GetDefaultWindowIcon() const {
   return LoadIcon(NULL, MAKEINTRESOURCE(IDR_XWALK_ICON_48));
 }
+#elif defined(OS_LINUX) && !defined(OS_CHROMEOS)
+gfx::ImageSkia* XWalkViewsDelegate::GetDefaultWindowIcon() const {
+  return NULL;
+}
 #endif
-
 }  // namespace xwalk
 
 #endif  // defined(USE_AURA)

@@ -23,7 +23,7 @@ class ManifestHandler {
   // Returns false in case of failure and sets writes error message
   // in |error| if present.
   virtual bool Parse(scoped_refptr<ApplicationData> application,
-                     string16* error) = 0;
+                     base::string16* error) = 0;
 
   // Returns false in case of failure and sets writes error message
   // in |error| if present.
@@ -57,7 +57,7 @@ class ManifestHandlerRegistry {
   static ManifestHandlerRegistry* GetInstance();
 
   bool ParseAppManifest(
-       scoped_refptr<ApplicationData> application, string16* error);
+       scoped_refptr<ApplicationData> application, base::string16* error);
   bool ValidateAppManifest(scoped_refptr<const ApplicationData> application,
                            std::string* error,
                            std::vector<InstallWarning>* warnings);

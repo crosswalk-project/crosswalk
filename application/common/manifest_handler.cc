@@ -73,7 +73,7 @@ void ManifestHandlerRegistry::Register(ManifestHandler* handler) {
 }
 
 bool ManifestHandlerRegistry::ParseAppManifest(
-    scoped_refptr<ApplicationData> application, string16* error) {
+    scoped_refptr<ApplicationData> application, base::string16* error) {
   std::map<int, ManifestHandler*> handlers_by_order;
   for (ManifestHandlerMap::iterator iter = handlers_.begin();
        iter != handlers_.end(); ++iter) {

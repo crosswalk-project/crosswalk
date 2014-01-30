@@ -51,7 +51,7 @@
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
-        '../webkit/glue/webkit_glue.gyp:glue_child',
+        '../webkit/child/webkit_child.gyp:webkit_child',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
@@ -303,7 +303,7 @@
             '../ui/views/controls/webview/webview.gyp:webview',
             '../ui/views/views.gyp:views',
             '../ui/views/views.gyp:views_test_support',
-            '../ui/ui.gyp:ui_resources',
+            '../ui/resources/ui_resources.gyp:ui_resources',
           ],
         }],  # toolkit_views==1
         ['use_aura==1', {
@@ -360,7 +360,7 @@
       'type': 'none',
       'dependencies': [
         '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
-        '<(DEPTH)/ui/ui.gyp:ui_resources',
+        '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
         'xwalk_resources',
       ],
       'conditions': [

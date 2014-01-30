@@ -82,7 +82,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionMultiProcessTest,
   EXPECT_EQ(1, CountRegisterExtensions());
 
   SimulateMouseClick(runtime()->web_contents(), 0,
-      WebKit::WebMouseEvent::ButtonLeft);
+      blink::WebMouseEvent::ButtonLeft);
   content::RunAllPendingInMessageLoop();
   Runtime* second = WaitForSingleNewRuntime();
   EXPECT_TRUE(NULL != second);
@@ -104,7 +104,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionMultiProcessTest,
   EXPECT_EQ(1, CountRegisterExtensions());
 
   SimulateMouseClick(runtime()->web_contents(), 0,
-      WebKit::WebMouseEvent::ButtonLeft);
+      blink::WebMouseEvent::ButtonLeft);
   content::RunAllPendingInMessageLoop();
   Runtime* second = WaitForSingleNewRuntime();
   EXPECT_TRUE(NULL != second);

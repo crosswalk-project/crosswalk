@@ -33,7 +33,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
   virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
-  virtual void UpdateTitle(const string16& title) OVERRIDE;
+  virtual void UpdateTitle(const base::string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
   virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
@@ -64,7 +64,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   // WidgetDelegate implementation.
   virtual views::View* GetInitiallyFocusedView() OVERRIDE;
   virtual views::View* GetContentsView() OVERRIDE;
-  virtual string16 GetWindowTitle() const OVERRIDE;
+  virtual base::string16 GetWindowTitle() const OVERRIDE;
   virtual void DeleteDelegate() OVERRIDE;
   virtual gfx::ImageSkia GetWindowAppIcon() OVERRIDE;
   virtual gfx::ImageSkia GetWindowIcon() OVERRIDE;
@@ -100,7 +100,7 @@ class NativeAppWindowViews : public NativeAppWindow,
 
   views::WebView* web_view_;
   views::Widget* window_;
-  string16 title_;
+  base::string16 title_;
   gfx::Image icon_;
 
   bool is_fullscreen_;

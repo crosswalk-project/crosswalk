@@ -337,11 +337,11 @@ void XWalkExtensionServer::Invalidate() {
 namespace {
 base::FilePath::StringType GetNativeLibraryPattern() {
   const base::string16 library_pattern = base::GetNativeLibraryName(
-      UTF8ToUTF16("*"));
+      base::UTF8ToUTF16("*"));
 #if defined(OS_WIN)
   return library_pattern;
 #else
-  return UTF16ToUTF8(library_pattern);
+  return base::UTF16ToUTF8(library_pattern);
 #endif
 }
 }  // namespace

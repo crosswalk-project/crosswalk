@@ -71,7 +71,7 @@ bool RuntimeDownloadManagerDelegate::DetermineDownloadTarget(
   base::FilePath generated_name = net::GenerateFileName(
       download->GetURL(),
       download->GetContentDisposition(),
-      EmptyString(),
+      base::EmptyString(),
       download->GetSuggestedFilename(),
       download->GetMimeType(),
       "download");
@@ -105,7 +105,7 @@ void RuntimeDownloadManagerDelegate::GenerateFilename(
     const base::FilePath& suggested_directory) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::FILE));
   if (!base::PathExists(suggested_directory))
-    file_util::CreateDirectory(suggested_directory);
+    base::CreateDirectory(suggested_directory);
 
   base::FilePath suggested_path(suggested_directory.Append(generated_name));
   BrowserThread::PostTask(

@@ -94,7 +94,7 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         new net::DefaultServerBoundCertStore(NULL),
         base::WorkerPool::GetTaskRunner(true)));
     storage_->set_http_user_agent_settings(
-        new net::StaticHttpUserAgentSettings("en-us,en", EmptyString()));
+        new net::StaticHttpUserAgentSettings("en-us,en", base::EmptyString()));
 
     scoped_ptr<net::HostResolver> host_resolver(
         net::HostResolver::CreateDefaultResolver(NULL));
@@ -176,11 +176,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // Step 2:
     // Add new basic schemes.
     set_protocol = job_factory_impl->SetProtocolHandler(
-        chrome::kDataScheme,
+        content::kDataScheme,
         new net::DataProtocolHandler);
     DCHECK(set_protocol);
     set_protocol = job_factory_impl->SetProtocolHandler(
-        chrome::kFileScheme,
+        content::kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
             GetTaskRunnerWithShutdownBehavior(

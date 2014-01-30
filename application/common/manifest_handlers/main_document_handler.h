@@ -46,17 +46,17 @@ class MainDocumentHandler : public ManifestHandler {
   virtual ~MainDocumentHandler();
 
   virtual bool Parse(scoped_refptr<ApplicationData> application,
-                     string16* error) OVERRIDE;
+                     base::string16* error) OVERRIDE;
   virtual std::vector<std::string> Keys() const OVERRIDE;
 
  private:
   bool ParseMainSource(MainDocumentInfo* info,
                        const ApplicationData* manifest,
-                       string16* error);
+                       base::string16* error);
 
   bool ParseMainScripts(MainDocumentInfo* info,
                         const ApplicationData* manifest,
-                        string16* error);
+                        base::string16* error);
 
   DISALLOW_COPY_AND_ASSIGN(MainDocumentHandler);
 };

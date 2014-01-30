@@ -234,7 +234,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   // the installation will always fail because of moving application
   // resources into an invalid directory.
   if (!base::DirectoryExists(data_dir) &&
-      !file_util::CreateDirectory(data_dir))
+      !base::CreateDirectory(data_dir))
     return false;
 
   std::string app_id;
@@ -268,7 +268,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
       return false;
   }
   if (!package) {
-    if (!file_util::CreateDirectory(app_dir))
+    if (!base::CreateDirectory(app_dir))
       return false;
     if (!CopyDirectoryContents(unpacked_dir, app_dir))
       return false;

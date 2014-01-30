@@ -38,7 +38,7 @@ std::string XWalkContentClient::GetUserAgent() const {
   return webkit_glue::BuildUserAgentFromProduct(product);
 }
 
-string16 XWalkContentClient::GetLocalizedString(int message_id) const {
+base::string16 XWalkContentClient::GetLocalizedString(int message_id) const {
   return l10n_util::GetStringUTF16(message_id);
 }
 

@@ -146,21 +146,21 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   static bool InitApplicationID(Manifest* manifest,
                               const base::FilePath& path,
                               const std::string& explicit_id,
-                              string16* error);
+                              base::string16* error);
 
   ApplicationData(const base::FilePath& path,
             scoped_ptr<Manifest> manifest);
   virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
-  bool Init(string16* error);
+  bool Init(base::string16* error);
 
   // The following are helpers for InitFromValue to load various features of the
   // application from the manifest.
-  bool LoadName(string16* error);
-  bool LoadVersion(string16* error);
-  bool LoadDescription(string16* error);
-  bool LoadManifestVersion(string16* error);
+  bool LoadName(base::string16* error);
+  bool LoadVersion(base::string16* error);
+  bool LoadDescription(base::string16* error);
+  bool LoadManifestVersion(base::string16* error);
 
   // The application's human-readable name. Name is used for display purpose. It
   // might be wrapped with unicode bidi control characters so that it is

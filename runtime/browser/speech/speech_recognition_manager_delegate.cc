@@ -32,7 +32,7 @@ void XWalkSpeechRecognitionManagerDelegate::GetDiagnosticInformation(
     std::string* hardware_info) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   *can_report_metrics = true;
-  string16 device_model =
+  base::string16 device_model =
       SpeechRecognitionManager::GetInstance()->GetAudioInputDeviceModel();
   *hardware_info = UTF16ToUTF8(device_model);
 }

@@ -20,7 +20,7 @@ class XWalkContentClient : public content::ContentClient {
 
   virtual std::string GetProduct() const OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
-  virtual string16 GetLocalizedString(int message_id) const OVERRIDE;
+  virtual base::string16 GetLocalizedString(int message_id) const OVERRIDE;
   virtual base::StringPiece GetDataResource(
       int resource_id,
       ui::ScaleFactor scale_factor) const OVERRIDE;

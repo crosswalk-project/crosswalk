@@ -33,7 +33,7 @@ IN_PROC_BROWSER_TEST_F(XWalkDevToolsTest, RemoteDebugging) {
   Runtime* debugging_host = Runtime::CreateWithDefaultWindow(
       runtime()->runtime_context(), localhost_url);
   content::WaitForLoadStop(debugging_host->web_contents());
-  string16 real_title = debugging_host->web_contents()->GetTitle();
-  string16 expected_title = ASCIIToUTF16("XWalk Remote Debugging");
+  base::string16 real_title = debugging_host->web_contents()->GetTitle();
+  base::string16 expected_title = base::ASCIIToUTF16("XWalk Remote Debugging");
   EXPECT_EQ(expected_title, real_title);
 }

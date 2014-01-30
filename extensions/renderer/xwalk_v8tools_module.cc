@@ -13,8 +13,8 @@
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 using content::RenderView;
-using WebKit::WebFrame;
-using WebKit::WebView;
+using blink::WebFrame;
+using blink::WebView;
 
 namespace xwalk {
 namespace extensions {
@@ -31,13 +31,12 @@ void ForceSetPropertyCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   info[0].As<v8::Object>()->ForceSet(info[1], info[2]);
 }
 
-void LifecycleTrackerCleanup(v8::Isolate* isolate,
-                             v8::Persistent<v8::Object>* tracker,
-                             void*) {
+void LifecycleTrackerCleanup(const v8::WeakCallbackData<v8::Object, void>& data) {
+  v8::Isolate* isolate = data.GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
   v8::Local<v8::Object> local_tracker =
-      v8::Local<v8::Object>::New(isolate, *tracker);
+      v8::Local<v8::Object>::New(isolate, tracker);
   v8::Handle<v8::Value> function =
       local_tracker->Get(v8::String::NewFromUtf8(isolate, "destructor"));
 
@@ -48,7 +47,7 @@ void LifecycleTrackerCleanup(v8::Isolate* isolate,
   }
 
   v8::Handle<v8::Context> context = v8::Context::New(isolate);
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
 
   v8::TryCatch try_catch;
   v8::Handle<v8::Function>::Cast(function)->Call(context->Global(), 0, NULL);
@@ -63,8 +62,8 @@ void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Persistent<v8::Object> tracker(isolate, v8::Object::New());
-  tracker.MakeWeak<void>(NULL, &LifecycleTrackerCleanup);
+  v8::Persistent<v8::Object> tracker(isolate, v8::Object::New(isolate));
+  tracker.SetWeak<void>(NULL, &LifecycleTrackerCleanup);
 
   info.GetReturnValue().Set(tracker);
 }
@@ -122,12 +121,12 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
   // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
   // update the Chromium (and V8) version.
   object_template->Set(v8::String::NewFromUtf8(isolate, "forceSetProperty"),
-                       v8::FunctionTemplate::New(ForceSetPropertyCallback));
+                       v8::FunctionTemplate::New(isolate, ForceSetPropertyCallback));
   object_template->Set(v8::String::NewFromUtf8(isolate, "lifecycleTracker"),
-                       v8::FunctionTemplate::New(LifecycleTracker));
+                       v8::FunctionTemplate::New(isolate, LifecycleTracker));
 
   object_template->Set(v8::String::NewFromUtf8(isolate, "getWindowObject"),
-                       v8::FunctionTemplate::New(GetWindowObject));
+                       v8::FunctionTemplate::New(isolate, GetWindowObject));
 
   object_template_.Reset(isolate, object_template);
 }
@@ -140,7 +139,7 @@ v8::Handle<v8::Object> XWalkV8ToolsModule::NewInstance() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::EscapableHandleScope handle_scope(isolate);
   v8::Handle<v8::ObjectTemplate> object_template =
-      v8::Handle<v8::ObjectTemplate>::New(isolate, object_template_);
+      v8::Local<v8::ObjectTemplate>::New(isolate, object_template_);
   return handle_scope.Escape(object_template->NewInstance());
 }
 

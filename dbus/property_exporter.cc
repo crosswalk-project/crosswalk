@@ -54,7 +54,7 @@ void PropertyExporter::Set(const std::string& interface,
   if (it != interfaces_.end()) {
     dict = it->second;
   } else {
-    dict = new DictionaryValue;
+    dict = new base::DictionaryValue;
     interfaces_[interface] = dict;
   }
 
@@ -154,7 +154,7 @@ void PropertyExporter::OnGet(
     return;
   }
 
-  const DictionaryValue* dict = it->second;
+  const base::DictionaryValue* dict = it->second;
   const base::Value* value = NULL;
   if (!dict->Get(property, &value)) {
     scoped_ptr<ErrorResponse> error_response = ErrorResponse::FromMethodCall(
