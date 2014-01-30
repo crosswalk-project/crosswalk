@@ -137,7 +137,7 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch3
 %patch4
 %patch5 -p1
-%patch6 -p1
+%patch6
 %endif
 
 %if %{with wayland}

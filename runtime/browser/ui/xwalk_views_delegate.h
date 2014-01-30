@@ -54,6 +54,9 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
 #if defined(OS_WIN)
   // Retrieves the default window icon to use for windows if none is specified.
   virtual HICON GetDefaultWindowIcon() const OVERRIDE;
+  virtual bool IsWindowInMetro(gfx::NativeWindow window) const OVERRIDE {
+    return false;
+  }
 #endif
 
  private:
