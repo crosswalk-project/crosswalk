@@ -31,18 +31,19 @@ void ForceSetPropertyCallback(const v8::FunctionCallbackInfo<v8::Value>& info) {
   info[0].As<v8::Object>()->ForceSet(info[1], info[2]);
 }
 
-void LifecycleTrackerCleanup(const v8::WeakCallbackData<v8::Object, void>& data) {
+void LifecycleTrackerCleanup(
+    const v8::WeakCallbackData<v8::Object, v8::Persistent<v8::Object> >& data) {
   v8::Isolate* isolate = data.GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Local<v8::Object> local_tracker =
-      v8::Local<v8::Object>::New(isolate, tracker);
+  v8::Local<v8::Object> tracker = data.GetValue();
   v8::Handle<v8::Value> function =
-      local_tracker->Get(v8::String::NewFromUtf8(isolate, "destructor"));
+      tracker->Get(v8::String::NewFromUtf8(isolate, "destructor"));
 
   if (function.IsEmpty() || !function->IsFunction()) {
     DLOG(WARNING) << "Destructor function not set for LifecycleTracker.";
-    tracker->Reset();
+    data.GetParameter()->Reset();
+    delete data.GetParameter();
     return;
   }
 
@@ -55,17 +56,19 @@ void LifecycleTrackerCleanup(const v8::WeakCallbackData<v8::Object, void>& data)
     LOG(WARNING) << "Exception when running LifecycleTracker destructor: "
         << ExceptionToString(try_catch);
 
-  tracker->Reset();
+  data.GetParameter()->Reset();
+  delete data.GetParameter();
 }
 
 void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Persistent<v8::Object> tracker(isolate, v8::Object::New(isolate));
-  tracker.SetWeak<void>(NULL, &LifecycleTrackerCleanup);
+  v8::Persistent<v8::Object>* tracker =
+      new v8::Persistent<v8::Object>(isolate, v8::Object::New(isolate));
+  tracker->SetWeak(tracker, &LifecycleTrackerCleanup);
 
-  info.GetReturnValue().Set(tracker);
+  info.GetReturnValue().Set(*tracker);
 }
 
 RenderView* GetCurrentRenderView() {
