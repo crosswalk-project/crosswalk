@@ -39,7 +39,6 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
                                      bool has_submenu) OVERRIDE {}
   virtual views::NonClientFrameView* CreateDefaultNonClientFrameView(
       views::Widget* widget) OVERRIDE { return NULL; }
-  virtual bool UseTransparentWindows() const OVERRIDE { return false; }
   virtual void AddRef() OVERRIDE {}
   virtual void ReleaseRef() OVERRIDE {}
   virtual content::WebContents* CreateWebContents(
