@@ -53,7 +53,7 @@ void ApplicationEventRouter::AttachObserver(const std::string& event_name,
                                             EventObserver* observer) {
   if (!ContainsKey(observers_, event_name)) {
     observers_.insert(std::make_pair(
-          event_name, new ObserverList<EventObserver>()));
+          event_name, make_linked_ptr(new ObserverList<EventObserver>())));
   }
   observers_[event_name]->AddObserver(observer);
 }
