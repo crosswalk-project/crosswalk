@@ -28,7 +28,7 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
       const views::Widget* widget,
       const std::string& window_name,
       gfx::Rect* bounds,
-      ui::WindowShowState* show_state) const OVERRIDE { return false; }
+      ui::WindowShowState* show_state) const OVERRIDE;
   virtual void NotifyAccessibilityEvent(
       views::View* view,
       ui::AccessibilityTypes::Event event_type) OVERRIDE {}
@@ -38,18 +38,16 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
                                      int item_count,
                                      bool has_submenu) OVERRIDE {}
   virtual views::NonClientFrameView* CreateDefaultNonClientFrameView(
-      views::Widget* widget) OVERRIDE { return NULL; }
+      views::Widget* widget) OVERRIDE;
   virtual void AddRef() OVERRIDE {}
   virtual void ReleaseRef() OVERRIDE {}
   virtual content::WebContents* CreateWebContents(
       content::BrowserContext* browser_context,
-      content::SiteInstance* site_instance) OVERRIDE { return NULL; }
+      content::SiteInstance* site_instance) OVERRIDE;
   virtual void OnBeforeWidgetInit(
       views::Widget::InitParams* params,
       views::internal::NativeWidgetDelegate* delegate) OVERRIDE;
-  virtual base::TimeDelta GetDefaultTextfieldObscuredRevealDuration() OVERRIDE {
-    return base::TimeDelta();
-  }
+  virtual base::TimeDelta GetDefaultTextfieldObscuredRevealDuration() OVERRIDE;
 #if defined(OS_WIN)
   // Retrieves the default window icon to use for windows if none is specified.
   virtual HICON GetDefaultWindowIcon() const OVERRIDE;

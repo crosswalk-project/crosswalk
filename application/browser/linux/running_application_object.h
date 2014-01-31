@@ -28,7 +28,7 @@ class RunningApplicationObject : public dbus::ManagedObject {
                            const std::string& launcher_name,
                            Application* application);
 
-  ~RunningApplicationObject();
+  virtual ~RunningApplicationObject();
 
  private:
   void TerminateApplication();

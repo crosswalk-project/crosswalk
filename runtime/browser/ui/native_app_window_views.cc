@@ -267,6 +267,14 @@ void NativeAppWindowViews::OnFocus() {
   web_view_->RequestFocus();
 }
 
+gfx::Size NativeAppWindowViews::GetMaximumSize() {
+  return maximum_size_;
+}
+
+gfx::Size NativeAppWindowViews::GetMinimumSize() {
+  return minimum_size_;
+}
+
 ////////////////////////////////////////////////////////////
 // views::WidgetObserver implementation
 ////////////////////////////////////////////////////////////

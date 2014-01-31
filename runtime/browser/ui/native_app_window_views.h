@@ -70,7 +70,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   virtual gfx::ImageSkia GetWindowIcon() OVERRIDE;
   virtual bool ShouldShowWindowTitle() const OVERRIDE;
   virtual void SaveWindowPlacement(
-      const gfx::Rect& bounds, ui::WindowShowState show_state);
+      const gfx::Rect& bounds, ui::WindowShowState show_state) OVERRIDE;
   virtual bool GetSavedWindowPlacement(const views::Widget* widget,
       gfx::Rect* bounds, ui::WindowShowState* show_state) const OVERRIDE;
   virtual bool CanResize() const OVERRIDE;
@@ -82,8 +82,8 @@ class NativeAppWindowViews : public NativeAppWindow,
   // views::View implementation.
   virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
-  virtual gfx::Size GetMaximumSize() OVERRIDE { return maximum_size_; }
-  virtual gfx::Size GetMinimumSize() OVERRIDE { return minimum_size_; }
+  virtual gfx::Size GetMaximumSize() OVERRIDE;
+  virtual gfx::Size GetMinimumSize() OVERRIDE;
 
   // views::WidgetObserver implementation.
   virtual void OnWidgetClosing(views::Widget* widget) OVERRIDE;

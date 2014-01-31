@@ -17,6 +17,28 @@ XWalkViewsDelegate::XWalkViewsDelegate() {}
 
 XWalkViewsDelegate::~XWalkViewsDelegate() {}
 
+bool XWalkViewsDelegate::GetSavedWindowPlacement(
+    const views::Widget* widget, const std::string& window_name,
+    gfx::Rect* bounds, ui::WindowShowState* show_state) const {
+  return false;
+}
+
+views::NonClientFrameView* XWalkViewsDelegate::CreateDefaultNonClientFrameView(
+    views::Widget* widget) {
+  return NULL;
+}
+
+content::WebContents* XWalkViewsDelegate::CreateWebContents(
+    content::BrowserContext* browser_context,
+    content::SiteInstance* site_instance) {
+  return NULL;
+}
+
+base::TimeDelta
+XWalkViewsDelegate::GetDefaultTextfieldObscuredRevealDuration() {
+    return base::TimeDelta();
+}
+
 void XWalkViewsDelegate::OnBeforeWidgetInit(
     views::Widget::InitParams* params,
     views::internal::NativeWidgetDelegate* delegate) {
