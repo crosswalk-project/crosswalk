@@ -35,7 +35,6 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
       delegate_(delegate) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
-
   IPC::SyncChannel* browser_channel = thread->GetChannel();
   SetupBrowserProcessClient(browser_channel);
 

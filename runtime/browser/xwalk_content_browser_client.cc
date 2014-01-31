@@ -134,9 +134,9 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
   return NULL;
 }
 
-void XWalkContentBrowserClient::RenderProcessHostCreated(
+void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
-  xwalk_runner_->OnRenderProcessHostCreated(host);
+  xwalk_runner_->OnRenderProcessWillLaunch(host);
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {

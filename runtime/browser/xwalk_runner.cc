@@ -113,7 +113,7 @@ scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
   return make_scoped_ptr(new SysAppsComponent());
 }
 
-void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
+void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
 
@@ -136,7 +136,7 @@ void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 
-  extension_service_->OnRenderProcessHostCreated(
+  extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions);
 }
 

@@ -224,7 +224,7 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   external_extensions_path_ = path;
 }
 
-void XWalkExtensionService::OnRenderProcessHostCreated(
+void XWalkExtensionService::OnRenderProcessWillLaunch(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions) {
