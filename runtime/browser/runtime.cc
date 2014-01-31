@@ -261,7 +261,8 @@ void Runtime::DeactivateContents(content::WebContents* contents) {
 
 content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
-    SkColor initial_color) {
+    SkColor initial_color,
+    const std::vector<content::ColorSuggestion>& suggestions) {
   return xwalk::ShowColorChooser(web_contents, initial_color);
 }
 
