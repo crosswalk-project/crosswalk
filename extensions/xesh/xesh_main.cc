@@ -144,7 +144,9 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
 class ExtensionManager {
  public:
   ExtensionManager()
-    : shutdown_event_(false, false) {}
+    : shutdown_event_(false, false) {
+    runtime_variables_["app_id"] = base::Value::CreateStringValue("xesh");
+  }
 
   ~ExtensionManager() {
     shutdown_event_.Signal();
@@ -156,7 +158,8 @@ class ExtensionManager {
             switches::kXWalkExternalExtensionsPath);
 
     std::vector<std::string> extensions =
-        RegisterExternalExtensionsInDirectory(&server_, extensions_dir);
+        RegisterExternalExtensionsInDirectory(&server_, extensions_dir,
+            runtime_variables_);
 
     fprintf(stderr, "\nExtensions Loaded:\n");
     std::vector<std::string>::const_iterator it = extensions.begin();
@@ -181,6 +184,7 @@ class ExtensionManager {
   base::WaitableEvent shutdown_event_;
   XWalkExtensionServer server_;
   scoped_ptr<IPC::SyncChannel> server_channel_;
+  base::ValueMap runtime_variables_;
 };
 }  // namespace
 
