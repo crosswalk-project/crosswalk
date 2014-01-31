@@ -23,6 +23,16 @@ class ExternalExtensionTest : public XWalkExtensionsTestBase {
   }
 };
 
+class RuntimeInterfaceTest : public XWalkExtensionsTestBase {
+ public:
+  virtual void SetUp() OVERRIDE {
+    XWalkExtensionService::SetExternalExtensionsPathForTesting(
+        GetExternalExtensionTestPath(
+            FILE_PATH_LITERAL("get_runtime_variable")));
+    XWalkExtensionsTestBase::SetUp();
+  }
+};
+
 class MultipleEntryPointsExtension : public XWalkExtensionsTestBase {
  public:
   virtual void SetUp() OVERRIDE {
@@ -61,6 +71,17 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionTest, ExternalExtensionSync) {
   GURL url = GetExtensionsTestURL(
       base::FilePath(),
       base::FilePath().AppendASCII("sync_echo.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(RuntimeInterfaceTest, GetRuntimeVariable) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(
+      base::FilePath(),
+      base::FilePath().AppendASCII("get_runtime_variable.html"));
   content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);

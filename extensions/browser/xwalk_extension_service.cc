@@ -224,13 +224,11 @@ void XWalkExtensionService::RegisterExternalExtensionsForPath(
   external_extensions_path_ = path;
 }
 
-void XWalkExtensionService::OnRenderProcessHostCreated(
+void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
     const base::ValueMap& runtime_variables) {
-  CHECK(host);
-
   XWalkExtensionData* data = new XWalkExtensionData;
   data->set_render_process_host(host);
 
@@ -247,6 +245,25 @@ void XWalkExtensionService::OnRenderProcessHostCreated(
   }
 
   extension_data_map_[host->GetID()] = data;
+}
+
+void XWalkExtensionService::OnRenderProcessHostCreated(
+    content::RenderProcessHost* host,
+    XWalkExtensionVector* ui_thread_extensions,
+    XWalkExtensionVector* extension_thread_extensions,
+    const base::ValueMap& runtime_variables) {
+  CHECK(host);
+
+  if (!g_external_extensions_path_for_testing_.empty()) {
+    base::ValueMap test_variables;
+    test_variables["runtime_name"] = base::Value::CreateStringValue("xwalk");
+    OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
+        extension_thread_extensions, test_variables);
+    return;
+  }
+
+  OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
+      extension_thread_extensions, runtime_variables);
 }
 
 // static

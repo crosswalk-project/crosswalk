@@ -71,6 +71,12 @@ class XWalkExtensionService : public content::NotificationObserver,
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
 
  private:
+  void OnRenderProcessHostCreatedInternal(
+      content::RenderProcessHost* host,
+      XWalkExtensionVector* ui_thread_extensions,
+      XWalkExtensionVector* extension_thread_extensions,
+      const base::ValueMap& runtime_variables);
+
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
