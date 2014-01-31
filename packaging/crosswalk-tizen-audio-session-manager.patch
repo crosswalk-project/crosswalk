@@ -16,7 +16,7 @@ To prevent the problem, we load the audio-session-manager dynamically in
 the Browser process.
 
 diff --git src/build/linux/system.gyp src/build/linux/system.gyp
-index 68e4d36..3ae6ab3 100644
+index 4a7e857..f89d256 100644
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
 @@ -892,5 +892,19 @@
@@ -40,7 +40,7 @@ index 68e4d36..3ae6ab3 100644
    ],
  }
 diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/content/browser/renderer_host/render_view_host_impl.cc
-index 68204fb..a3e654b 100644
+index 0912144..adf0a1b 100644
 --- src/content/browser/renderer_host/render_view_host_impl.cc
 +++ src/content/browser/renderer_host/render_view_host_impl.cc
 @@ -83,6 +83,8 @@
@@ -49,10 +49,10 @@ index 68204fb..a3e654b 100644
  #include "content/browser/media/android/browser_media_player_manager.h"
 +#elif defined(OS_TIZEN_MOBILE)
 +#include "xwalk/tizen/browser/browser_mediaplayer_manager.h"
+ #elif defined(OS_WIN)
+ #include "base/win/win_util.h"
  #endif
-
- using base::TimeDelta;
-@@ -208,6 +210,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+@@ -210,6 +212,8 @@ RenderViewHostImpl::RenderViewHostImpl(
 
  #if defined(OS_ANDROID)
    media_player_manager_.reset(BrowserMediaPlayerManager::Create(this));
@@ -60,9 +60,9 @@ index 68204fb..a3e654b 100644
 +  media_player_manager_.reset(tizen::BrowserMediaPlayerManager::Create(this));
  #endif
  }
- 
+
 diff --git src/content/browser/renderer_host/render_view_host_impl.h src/content/browser/renderer_host/render_view_host_impl.h
-index c4bfb78..cc060bb 100644
+index d63bae3..d0602c7 100644
 --- src/content/browser/renderer_host/render_view_host_impl.h
 +++ src/content/browser/renderer_host/render_view_host_impl.h
 @@ -43,6 +43,12 @@ struct ViewMsg_Navigate_Params;
@@ -78,7 +78,7 @@ index c4bfb78..cc060bb 100644
  namespace base {
  class ListValue;
  }
-@@ -715,6 +721,8 @@ class CONTENT_EXPORT RenderViewHostImpl
+@@ -716,6 +722,8 @@ class CONTENT_EXPORT RenderViewHostImpl
  #if defined(OS_ANDROID)
    // Manages all the android mediaplayer objects and handling IPCs for video.
    scoped_ptr<BrowserMediaPlayerManager> media_player_manager_;
@@ -88,7 +88,7 @@ index c4bfb78..cc060bb 100644
 
    DISALLOW_COPY_AND_ASSIGN(RenderViewHostImpl);
 diff --git src/content/common/content_message_generator.h src/content/common/content_message_generator.h
-index b0af11d..54106a2 100644
+index 78e7c53..a3cda01 100644
 --- src/content/common/content_message_generator.h
 +++ src/content/common/content_message_generator.h
 @@ -56,3 +56,6 @@
@@ -99,10 +99,10 @@ index b0af11d..54106a2 100644
 +#include "xwalk/tizen/common/media_player_messages.h"
 +#endif
 diff --git src/content/content_browser.gypi src/content/content_browser.gypi
-index 1e3485c..6336e49 100644
+index 6570d15..d47cee2 100644
 --- src/content/content_browser.gypi
 +++ src/content/content_browser.gypi
-@@ -1558,5 +1558,69 @@
+@@ -1561,5 +1561,69 @@
          '../third_party/speex/speex.gyp:libspeex',
        ],
      }],
@@ -173,23 +173,24 @@ index 1e3485c..6336e49 100644
    ],
  }
 diff --git src/content/content_common.gypi src/content/content_common.gypi
-index 8c45574..10b0e2b 100644
+index 1bfcccd..46db168 100644
 --- src/content/content_common.gypi
 +++ src/content/content_common.gypi
-@@ -590,5 +590,10 @@
-       },
-      ]
+@@ -592,6 +592,11 @@
+         '<(DEPTH)/third_party/khronos',
+       ],
      }],
 +    ['tizen_mobile == 1', {
 +      'sources': [
 +        '<(DEPTH)/xwalk/tizen/common/media_player_messages.h',
 +      ],
 +    }],
-   ],
- }
+     ['OS=="win" and directxsdk_exists=="True"', {
+       'actions': [
+       {
 diff --git src/content/content_renderer.gypi src/content/content_renderer.gypi
-index 46b7468..4cab17f 100644
---- /src/content/content_renderer.gypi
+index 1e72a81..3bceb70 100644
+--- src/content/content_renderer.gypi
 +++ src/content/content_renderer.gypi
 @@ -722,6 +722,14 @@
          }],
@@ -207,7 +208,7 @@ index 46b7468..4cab17f 100644
    'target_conditions': [
      ['OS=="android"', {
 diff --git src/content/renderer/render_view_impl.cc src/content/renderer/render_view_impl.cc
-index 6827468..549c8fb 100644
+index c5a7059..cd42b4c 100644
 --- src/content/renderer/render_view_impl.cc
 +++ src/content/renderer/render_view_impl.cc
 @@ -255,6 +255,11 @@
@@ -240,22 +241,22 @@ index 6827468..549c8fb 100644
  #endif
 
    // The next group of objects all implement RenderViewObserver, so are deleted
-@@ -3163,6 +3172,13 @@ WebMediaPlayer* RenderViewImpl::createMediaPlayer(
+@@ -3170,6 +3179,13 @@ WebMediaPlayer* RenderViewImpl::createMediaPlayer(
        sink,
        RenderThreadImpl::current()->GetGpuFactories(),
        new RenderMediaLog());
 +
 +#if defined(OS_TIZEN_MOBILE)
 +  tizen::MediaPlayerImpl* media_player = new tizen::MediaPlayerImpl(
-+      frame, client, AsWeakPtr(), media_player_manager_, params);
++      this, frame, client, AsWeakPtr(), media_player_manager_, params);
 +  return media_player;
 +#endif
 +
-   return new WebMediaPlayerImpl(frame, client, AsWeakPtr(), params);
+   return new WebMediaPlayerImpl(this, frame, client, AsWeakPtr(), params);
  }
 
 diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h
-index 2b18b3c..314a1c0 100644
+index ccfd1b5..8949cd0 100644
 --- src/content/renderer/render_view_impl.h
 +++ src/content/renderer/render_view_impl.h
 @@ -129,6 +129,12 @@ namespace webkit_glue {
