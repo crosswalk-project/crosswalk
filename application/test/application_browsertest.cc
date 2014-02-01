@@ -5,19 +5,21 @@
 #include "base/path_service.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
+#include "net/base/net_util.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/test/application_browsertest.h"
-#include "xwalk/runtime/common/xwalk_notification_types.h"
+#include "xwalk/application/test/application_testapi.h"
+#include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
-namespace {
+using xwalk::application::Application;
+using xwalk::application::ApplicationService;
+using namespace xwalk::extensions;  // NOLINT
 
-bool WaitForRuntimeCountCallback(int* count) {
-  --(*count);
-  return *count == 0;
-}
-
-}  // namespace
-
-ApplicationBrowserTest::ApplicationBrowserTest() {
+ApplicationBrowserTest::ApplicationBrowserTest()
+  : test_runner_(new ApiTestRunner()) {
   PathService::Get(base::DIR_SOURCE_ROOT, &test_data_dir_);
   test_data_dir_ = test_data_dir_
     .Append(FILE_PATH_LITERAL("xwalk"))
@@ -26,22 +28,32 @@ ApplicationBrowserTest::ApplicationBrowserTest() {
     .Append(FILE_PATH_LITERAL("data"));
 }
 
-void ApplicationBrowserTest::WaitForRuntimes(int runtime_count) {
-  int count = runtime_count - GetRuntimeCount();
-  if (count > 0) {
-    content::WindowedNotificationObserver(
-        xwalk::NOTIFICATION_RUNTIME_OPENED,
-        base::Bind(&WaitForRuntimeCountCallback, &count)).Wait();
-  } else if (count < 0) {
-    count = -count;
-    content::WindowedNotificationObserver(
-        xwalk::NOTIFICATION_RUNTIME_CLOSED,
-        base::Bind(&WaitForRuntimeCountCallback, &count)).Wait();
-  }
-
-  ASSERT_EQ(GetRuntimeCount(), runtime_count);
+ApplicationBrowserTest::~ApplicationBrowserTest() {
 }
 
-int ApplicationBrowserTest::GetRuntimeCount() const {
-  return runtimes().size();
+void ApplicationBrowserTest::SetUp() {
+  XWalkExtensionService::SetCreateUIThreadExtensionsCallbackForTesting(
+      base::Bind(&ApplicationBrowserTest::CreateExtensions,
+                 base::Unretained(this)));
+  InProcessBrowserTest::SetUp();
+}
+
+ApplicationService* ApplicationBrowserTest::application_sevice() const {
+  return xwalk::XWalkRunner::GetInstance()->app_system()
+      ->application_service();
+}
+
+void ApplicationBrowserTest::CreateExtensions(
+     XWalkExtensionVector* extensions) {
+  ApiTestExtension* extension = new ApiTestExtension;
+  extension->SetObserver(test_runner_.get());
+  extensions->push_back(extension);
+}
+
+IN_PROC_BROWSER_TEST_F(ApplicationBrowserTest, ApiTest) {
+  Application* app = application_sevice()->Launch(
+      test_data_dir_.Append(FILE_PATH_LITERAL("api")));
+  ASSERT_TRUE(app);
+  test_runner_->WaitForTestNotification();
+  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }

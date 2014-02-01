@@ -41,8 +41,6 @@ namespace {
 const int kDefaultWidth = 840;
 const int kDefaultHeight = 600;
 
-static Runtime::Observer* g_observer_for_testing;
-
 }  // namespace
 
 // static
@@ -69,17 +67,6 @@ Runtime* Runtime::Create(
   return runtime;
 }
 
-// static
-void Runtime::SetGlobalObserverForTesting(Observer* observer) {
-  g_observer_for_testing = observer;
-}
-
-#define FOR_EACH_RUNTIME_OBSERVER(method) \
-  if (observer_)                          \
-    observer_->method;                    \
-  if (g_observer_for_testing)             \
-    g_observer_for_testing->method
-
 Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
     : WebContentsObserver(web_contents),
       web_contents_(web_contents),
@@ -96,8 +83,8 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
 #if defined(OS_TIZEN_MOBILE)
   root_window_ = NULL;
 #endif
-
-  FOR_EACH_RUNTIME_OBSERVER(OnRuntimeAdded(this));
+  if (observer_)
+    observer_->OnRuntimeAdded(this);
 }
 
 Runtime::~Runtime() {
@@ -105,7 +92,8 @@ Runtime::~Runtime() {
           xwalk::NOTIFICATION_RUNTIME_CLOSED,
           content::Source<Runtime>(this),
           content::NotificationService::NoDetails());
-  FOR_EACH_RUNTIME_OBSERVER(OnRuntimeRemoved(this));
+  if (observer_)
+    observer_->OnRuntimeRemoved(this);
 }
 
 void Runtime::AttachDefaultWindow() {

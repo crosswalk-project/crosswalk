@@ -15,10 +15,7 @@
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_base.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-namespace xwalk {
-class Runtime;
-}
+#include "xwalk/runtime/browser/runtime.h"
 
 class CommandLine;
 
@@ -30,6 +27,22 @@ namespace net {
 class RuleBasedHostResolverProc;
 }
 
+class RuntimeRegistry : public xwalk::Runtime::Observer {
+ public:
+  typedef std::vector<xwalk::Runtime*> RuntimeList;
+
+  virtual ~RuntimeRegistry();
+
+  void CloseAll();
+  const RuntimeList& runtimes() const { return runtimes_; }
+
+ private:
+  virtual void OnRuntimeAdded(xwalk::Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeRemoved(xwalk::Runtime* runtime) OVERRIDE;
+
+  RuntimeList runtimes_;
+};
+
 // Base class for tests wanting to bring up a runtime (aka. browser) in the
 // unit test process.
 //
@@ -38,7 +51,7 @@ class RuleBasedHostResolverProc;
 //
 class InProcessBrowserTest : public content::BrowserTestBase {
  public:
-  typedef std::vector<xwalk::Runtime*> RuntimeList;
+  typedef RuntimeRegistry::RuntimeList RuntimeList;
 
   InProcessBrowserTest();
   virtual ~InProcessBrowserTest();
@@ -48,9 +61,12 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   virtual void SetUp() OVERRIDE;
 
  protected:
-  // Returns the runtime instance created by CreateRuntime.
+  // FIXME : Two following methods should be removed!
   xwalk::Runtime* runtime() const { return runtime_; }
   const RuntimeList& runtimes() const;
+  // Use this as an observer when create a 'Runtime' instance within a test.
+  RuntimeRegistry* runtime_registry() const {
+      return runtime_registry_.get(); }
 
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.
@@ -68,14 +84,12 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   // data path. Return true if success.
   bool CreateDataPathDir();
 
-  // Quits all open runtimes and waits until there are no more runtimes.
-  void QuitAllRuntimes();
-
   // Prepare command line that will be used to launch the child browser process
   // with an in-process test.
   void PrepareTestCommandLine(CommandLine* command_line);
 
-  // Browser created from CreateBrowser.
+  scoped_ptr<RuntimeRegistry> runtime_registry_;
+  // FIXME : Should be removed.
   xwalk::Runtime* runtime_;
 
   // Temporary data path directory. Used only when a data path directory is not

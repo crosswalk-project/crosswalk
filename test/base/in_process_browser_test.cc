@@ -24,7 +24,7 @@
 #include "content/public/test/test_navigation_observer.h"
 #include "content/public/test/test_utils.h"
 #include "net/test/spawned_test_server/spawned_test_server.h"
-#include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
@@ -35,8 +35,9 @@
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
-using xwalk::XWalkContentRendererClient;
 using xwalk::Runtime;
+using xwalk::XWalkContentRendererClient;
+using xwalk::XWalkRunner;
 
 namespace {
 
@@ -49,47 +50,37 @@ base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #endif
 
-class RuntimeRegistry : public Runtime::Observer {
- public:
-  typedef InProcessBrowserTest::RuntimeList RuntimeList;
-
-  void CloseAll() {
-    RuntimeList cached(runtimes_);
-    std::for_each(cached.begin(), cached.end(), std::mem_fun(&Runtime::Close));
-
-    DCHECK(runtimes_.empty()) << runtimes_.size();
-  }
-
-  const RuntimeList& runtimes() const { return runtimes_; }
-
- private:
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {
-    DCHECK(runtime);
-    runtimes_.push_back(runtime);
-  }
-
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {
-    DCHECK(runtime);
-    RuntimeList::iterator it =
-         std::find(runtimes_.begin(), runtimes_.end(), runtime);
-    if (it != runtimes_.end()) {
-      runtimes_.erase(it);
-
-      if (runtimes_.empty())
-        base::MessageLoop::current()->PostTask(
-              FROM_HERE, base::MessageLoop::QuitClosure());
-    }
-  }
-
-  RuntimeList runtimes_;
-};
-
-RuntimeRegistry* g_runtime_registry;
-
 }  // namespace
 
+RuntimeRegistry::~RuntimeRegistry() {
+}
+
+void RuntimeRegistry::CloseAll() {
+  RuntimeList cached(runtimes_);
+  std::for_each(cached.begin(), cached.end(), std::mem_fun(&Runtime::Close));
+  DCHECK(runtimes_.empty()) << runtimes_.size();
+}
+
+void RuntimeRegistry::OnRuntimeAdded(Runtime* runtime) {
+  DCHECK(runtime);
+  runtimes_.push_back(runtime);
+}
+
+void RuntimeRegistry::OnRuntimeRemoved(Runtime* runtime) {
+  DCHECK(runtime);
+  RuntimeList::iterator it =
+       std::find(runtimes_.begin(), runtimes_.end(), runtime);
+  DCHECK(it != runtimes_.end());
+  runtimes_.erase(it);
+
+  if (runtimes_.empty())
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
+}
+
 InProcessBrowserTest::InProcessBrowserTest()
-    : runtime_(NULL) {
+    : runtime_registry_(new RuntimeRegistry),
+      runtime_(NULL) {
   CreateTestServer(base::FilePath(FILE_PATH_LITERAL("xwalk/test/data")));
 }
 
@@ -123,11 +114,6 @@ void InProcessBrowserTest::SetUp() {
         &g_xwalk_content_renderer_client.Get());
   }
 
-  if (!g_runtime_registry) {
-    g_runtime_registry = new RuntimeRegistry;
-    Runtime::SetGlobalObserverForTesting(g_runtime_registry);
-  }
-
   BrowserTestBase::SetUp();
 }
 
@@ -138,19 +124,20 @@ void InProcessBrowserTest::PrepareTestCommandLine(CommandLine* command_line) {
 
 const InProcessBrowserTest::RuntimeList& InProcessBrowserTest::runtimes()
                                                                const {
-  return g_runtime_registry->runtimes();
+  return runtime_registry_->runtimes();
 }
 
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // Pump startup related events.
   content::RunAllPendingInMessageLoop();
-
-  const RuntimeList& runtimes = g_runtime_registry->runtimes();
-  if (!runtimes.empty()) {
-    runtime_ = runtimes.at(0);
-    content::WaitForLoadStop(runtime_->web_contents());
-  }
-
+  // FIXME : Unfortunately too many tests now rely on the 'runtime()'
+  // method, instead they should just create runtimes themselves
+  // when needed and thus the 'runtime()' method should be removed
+  // as well as 'runtime_' initialization below.
+  runtime_ = Runtime::CreateWithDefaultWindow(
+      XWalkRunner::GetInstance()->runtime_context(),
+          GURL(), runtime_registry_.get());
+  content::WaitForLoadStop(runtime_->web_contents());
   content::RunAllPendingInMessageLoop();
 
   SetUpOnMainThread();
@@ -165,7 +152,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // run all pending messages here to avoid preempting the QuitBrowsers tasks.
   content::RunAllPendingInMessageLoop();
 
-  QuitAllRuntimes();
+  runtime_registry_->CloseAll();
 }
 
 bool InProcessBrowserTest::CreateDataPathDir() {
@@ -183,8 +170,4 @@ bool InProcessBrowserTest::CreateDataPathDir() {
     }
   }
   return xwalk_test_utils::OverrideDataPathDir(data_path_dir);
-}
-
-void InProcessBrowserTest::QuitAllRuntimes() {
-  g_runtime_registry->CloseAll();
 }

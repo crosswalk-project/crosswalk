@@ -11,6 +11,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/test/application_browsertest.h"
+#include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
@@ -21,18 +22,13 @@ class ApplicationMainDocumentBrowserTest: public ApplicationBrowserTest {
 
 // Verifies the runtime creation when main document is used.
 IN_PROC_BROWSER_TEST_F(ApplicationMainDocumentBrowserTest, MainDocument) {
-  content::RunAllPendingInMessageLoop();
-  // At least the main document's runtime exist after launch.
-  ASSERT_GE(GetRuntimeCount(), 1);
-
   xwalk::application::ApplicationService* service =
       xwalk::XWalkRunner::GetInstance()->app_system()->application_service();
   Application* app = service->Launch(
       test_data_dir_.Append(FILE_PATH_LITERAL("main_document")));
   ASSERT_TRUE(app);
-  // There should exist 2 runtimes(one for generated main document, one for the
-  // window created by main document).
-  WaitForRuntimes(2);
+  // Wait for app is fully loaded.
+  test_runner_->WaitForTestNotification();
 
   GURL generated_url =
       app->data()->GetResourceURL(

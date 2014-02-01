@@ -8,21 +8,25 @@
 #include "base/command_line.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/extensions/common/xwalk_extension_vector.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 
+class ApiTestRunner;
 // Base class for application browser test.
 class ApplicationBrowserTest: public InProcessBrowserTest {
  protected:
   ApplicationBrowserTest();
-  virtual ~ApplicationBrowserTest() {}
+  virtual ~ApplicationBrowserTest();
 
-  // Wait for Runtime number in RuntimeRegistry becomes |runtime_count|.
-  void WaitForRuntimes(int runtime_count);
+  virtual void SetUp() OVERRIDE;
 
-  int GetRuntimeCount() const;
+  xwalk::application::ApplicationService* application_sevice() const;
 
+  scoped_ptr<ApiTestRunner> test_runner_;
   base::FilePath test_data_dir_;
+
+ private:
+  void CreateExtensions(xwalk::extensions::XWalkExtensionVector* extensions);
 };
 
 #endif  // XWALK_APPLICATION_TEST_APPLICATION_BROWSERTEST_H_

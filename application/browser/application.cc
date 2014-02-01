@@ -60,6 +60,7 @@ Application::Application(
       main_runtime_(NULL),
       observer_(observer),
       entry_point_used_(Default),
+      termination_mode_used_(Normal),
       weak_factory_(this) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
@@ -67,6 +68,7 @@ Application::Application(
 }
 
 Application::~Application() {
+  Terminate(Immediate);
 }
 
 bool Application::Launch(const LaunchParams& launch_params) {
@@ -149,10 +151,14 @@ GURL Application::GetURLFromURLKey() {
   return GURL(url_string);
 }
 
-void Application::Terminate() {
+void Application::Terminate(TerminationMode mode) {
+  termination_mode_used_ = mode;
   if (IsTerminating()) {
-    LOG(ERROR) << "Attempt to Terminate app: " << id()
-               << ", which is already in the process of being terminated.";
+    LOG(WARNING) << "Attempt to Terminate app: " << id()
+                 << ", which is already in the process of being terminated.";
+    if (mode == Immediate)
+      CloseMainDocument();
+
     return;
   }
 
@@ -207,7 +213,8 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
 
     // If onSuspend is not registered in main document,
     // we close the main document immediately.
-    if (!IsOnSuspendHandlerRegistered()) {
+    if (!IsOnSuspendHandlerRegistered() ||
+        termination_mode_used_ == Immediate) {
       CloseMainDocument();
       return;
     }

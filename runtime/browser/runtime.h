@@ -74,8 +74,6 @@ class Runtime : public content::WebContentsDelegate,
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
-  static void SetGlobalObserverForTesting(Observer* observer);
-
 #if defined(OS_TIZEN_MOBILE)
   void CloseRootWindow();
 #endif
