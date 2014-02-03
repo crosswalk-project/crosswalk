@@ -85,7 +85,7 @@ gfx::NativeWindow NativeAppWindowMac::GetNativeWindow() const {
 void NativeAppWindowMac::UpdateIcon(const gfx::Image&) {
 }
 
-void NativeAppWindowMac::UpdateTitle(const string16& title) {
+void NativeAppWindowMac::UpdateTitle(const base::string16& title) {
   [window_ setTitle:base::SysUTF16ToNSString(title)];
 }
 
