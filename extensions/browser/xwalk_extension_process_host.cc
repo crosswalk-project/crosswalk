@@ -93,13 +93,15 @@ class ExtensionSandboxedProcessLauncherDelegate
 XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
-    XWalkExtensionProcessHost::Delegate* delegate)
+    XWalkExtensionProcessHost::Delegate* delegate,
+    const base::ValueMap& runtime_variables)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
       external_extensions_path_(external_extensions_path),
       is_extension_process_channel_ready_(false),
-      delegate_(delegate) {
+      delegate_(delegate),
+      runtime_variables_(runtime_variables) {
   render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
@@ -111,6 +113,20 @@ XWalkExtensionProcessHost::~XWalkExtensionProcessHost() {
   render_process_message_filter_->Invalidate();
   StopProcess();
 }
+
+namespace {
+
+void ToListValue(base::ValueMap* vm, base::ListValue* lv) {
+  lv->Clear();
+
+  for (base::ValueMap::iterator it = vm->begin(); it != vm->end(); it++) {
+    DictionaryValue* dv = new DictionaryValue();
+    dv->Set(it->first, it->second);
+    lv->Append(dv);
+  }
+}
+
+}  // namespace
 
 void XWalkExtensionProcessHost::StartProcess() {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
@@ -136,8 +152,11 @@ void XWalkExtensionProcessHost::StartProcess() {
 #endif
     cmd_line.release());
 
+  base::ListValue runtime_variables_lv;
+  ToListValue(&const_cast<base::ValueMap&>(runtime_variables_),
+      &runtime_variables_lv);
   process_->GetHost()->Send(new XWalkExtensionProcessMsg_RegisterExtensions(
-      external_extensions_path_));
+      external_extensions_path_, runtime_variables_lv));
 }
 
 void XWalkExtensionProcessHost::StopProcess() {

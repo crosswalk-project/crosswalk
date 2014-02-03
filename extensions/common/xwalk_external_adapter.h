@@ -10,6 +10,7 @@
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
 #include "xwalk/extensions/public/XW_Extension_EntryPoints.h"
+#include "xwalk/extensions/public/XW_Extension_Runtime.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
 #include "xwalk/extensions/common/xwalk_external_instance.h"
 
@@ -33,6 +34,15 @@
       LogInvalidCall(xw, #TYPE, #INTERFACE, #NAME);                      \
     else                                                                 \
       ptr->INTERFACE ## NAME(arg1, arg2);                                \
+  }
+
+#define DEFINE_FUNCTION_3(TYPE, INTERFACE, NAME, A1, A2, A3)           \
+  static void INTERFACE ## NAME(XW_ ## TYPE xw, A1 a1, A2 a2, A3 a3) { \
+    XWalkExternal ## TYPE * ptr = Get ## TYPE(xw);                     \
+    if (ptr)                                                           \
+      ptr->INTERFACE ## NAME(a1, a2, a3);                              \
+    else                                                               \
+      LogInvalidCall(xw, #TYPE, #INTERFACE, #NAME);                    \
   }
 
 #define DEFINE_RET_FUNCTION_0(TYPE, INTERFACE, NAME, RET_ARG)   \
@@ -113,6 +123,10 @@ class XWalkExternalAdapter {
   DEFINE_FUNCTION_1(Extension, SyncMessaging, Register,
                     XW_HandleSyncMessageCallback);
   DEFINE_FUNCTION_1(Instance, SyncMessaging, SetSyncReply, const char*);
+
+  // XW_Internal_Runtime_1 from XW_Extension_Runtime.h
+  DEFINE_FUNCTION_3(Extension, Runtime, GetStringVariable, const char *,
+                    char*, size_t);
 
   typedef std::map<XW_Extension, XWalkExternalExtension*> ExtensionMap;
   ExtensionMap extension_map_;

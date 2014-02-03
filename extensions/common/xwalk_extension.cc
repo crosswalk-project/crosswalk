@@ -4,6 +4,8 @@
 
 #include "xwalk/extensions/common/xwalk_extension.h"
 
+#include <string.h>
+
 #include "base/logging.h"
 
 namespace xwalk {

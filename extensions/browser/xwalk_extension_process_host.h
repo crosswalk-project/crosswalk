@@ -8,6 +8,7 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/values.h"
 #include "content/public/browser/browser_child_process_host_delegate.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_channel_proxy.h"
@@ -37,7 +38,8 @@ class XWalkExtensionProcessHost
 
   XWalkExtensionProcessHost(content::RenderProcessHost* render_process_host,
                             const base::FilePath& external_extensions_path,
-                            XWalkExtensionProcessHost::Delegate* delegate);
+                            XWalkExtensionProcessHost::Delegate* delegate,
+                            const base::ValueMap& runtime_variables);
   virtual ~XWalkExtensionProcessHost();
 
  private:
@@ -78,6 +80,8 @@ class XWalkExtensionProcessHost
   bool is_extension_process_channel_ready_;
 
   XWalkExtensionProcessHost::Delegate* delegate_;
+
+  base::ValueMap runtime_variables_;
 };
 
 }  // namespace extensions

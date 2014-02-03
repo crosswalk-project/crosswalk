@@ -1,0 +1,20 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+try {
+  var app_id = runtime.getVariable('runtime_name');
+  if (typeof(app_id) !== 'string')
+     throw 'runtime_name is not a string';
+  if (app_id !== "xwalk")
+     throw 'runtime_name is not xwalk';
+  document.title = 'Pass';
+} catch (e) {
+  console.log(e);
+  document.title = 'Fail';
+}
+</script>
+</body>
+</html>

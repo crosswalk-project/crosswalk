@@ -6,6 +6,7 @@
 #define XWALK_EXTENSIONS_COMMON_XWALK_EXTERNAL_EXTENSION_H_
 
 #include <string>
+#include "base/values.h"
 #include "base/scoped_native_library.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/public/XW_Extension.h"
@@ -36,9 +37,17 @@ class XWalkExternalExtension : public XWalkExtension {
 
   bool is_valid();
 
+  void set_runtime_variables(const base::ValueMap& runtime_variables) {
+    runtime_variables_ = runtime_variables;
+  }
+
  private:
   friend class XWalkExternalAdapter;
   friend class XWalkExternalInstance;
+
+  // Variables from the browser process. Usually things like currently-running
+  // application ID.
+  base::ValueMap runtime_variables_;
 
   // XWalkExtension implementation.
   virtual XWalkExtensionInstance* CreateInstance() OVERRIDE;
@@ -57,6 +66,9 @@ class XWalkExternalExtension : public XWalkExtension {
 
   // XW_Internal_SyncMessagingInterface_1 (from XW_Extension.h) implementation.
   void SyncMessagingRegister(XW_HandleSyncMessageCallback callback);
+
+  // XW_Internal_BrowserInterface_1 (from XW_Browser.h) implementation.
+  void RuntimeGetStringVariable(const char* key, char* value, size_t value_len);
 
   base::ScopedNativeLibrary library_;
   XW_Extension xw_extension_;

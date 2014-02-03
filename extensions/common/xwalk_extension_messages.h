@@ -24,8 +24,9 @@ enum {
 
 #define IPC_MESSAGE_START XWalkExtensionMsgStart
 
-IPC_MESSAGE_CONTROL1(XWalkExtensionProcessMsg_RegisterExtensions,  // NOLINT(*)
-                     base::FilePath /* extensions path */)
+IPC_MESSAGE_CONTROL2(XWalkExtensionProcessMsg_RegisterExtensions,  // NOLINT(*)
+                     base::FilePath /* extensions path */,
+                     base::ListValue /* browser variables */)
 
 // This implies that extensions are all loaded and Extension Process
 // is ready to be used.

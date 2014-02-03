@@ -45,10 +45,33 @@ bool XWalkExtensionProcess::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
+namespace {
+
+void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
+  vm->clear();
+
+  for (base::ListValue::iterator it = lv->begin(); it != lv->end(); it++) {
+    DictionaryValue* dv;
+    if (!(*it)->GetAsDictionary(&dv))
+      continue;
+    for (DictionaryValue::Iterator dit(*dv); !dit.IsAtEnd(); dit.Advance())
+      (*vm)[dit.key()] = dit.value().DeepCopy();
+  }
+}
+
+}  // namespace
+
 void XWalkExtensionProcess::OnRegisterExtensions(
-    const base::FilePath& path) {
-  if (!path.empty())
-    RegisterExternalExtensionsInDirectory(&extensions_server_, path);
+    const base::FilePath& path, const base::ListValue& browser_variables_lv) {
+  if (!path.empty()) {
+    base::ValueMap browser_variables;
+
+    ToValueMap(&const_cast<base::ListValue&>(browser_variables_lv),
+          &browser_variables);
+
+    RegisterExternalExtensionsInDirectory(&extensions_server_, path,
+                                          browser_variables);
+  }
   CreateRenderProcessChannel();
 }
 

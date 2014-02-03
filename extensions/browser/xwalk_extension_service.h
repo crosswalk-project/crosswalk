@@ -14,6 +14,7 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/threading/thread.h"
+#include "base/values.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
@@ -51,7 +52,8 @@ class XWalkExtensionService : public content::NotificationObserver,
   void OnRenderProcessHostCreated(
       content::RenderProcessHost* host,
       XWalkExtensionVector* ui_thread_extensions,
-      XWalkExtensionVector* extension_thread_extensions);
+      XWalkExtensionVector* extension_thread_extensions,
+      const base::ValueMap& runtime_variables);
 
   // To be called when a RenderProcess died, so we can gracefully shutdown the
   // associated ExtensionProcess. See Runtime::RenderProcessGone() and
@@ -69,6 +71,12 @@ class XWalkExtensionService : public content::NotificationObserver,
   static void SetExternalExtensionsPathForTesting(const base::FilePath& path);
 
  private:
+  void OnRenderProcessHostCreatedInternal(
+      content::RenderProcessHost* host,
+      XWalkExtensionVector* ui_thread_extensions,
+      XWalkExtensionVector* extension_thread_extensions,
+      const base::ValueMap& runtime_variables);
+
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
@@ -86,7 +94,7 @@ class XWalkExtensionService : public content::NotificationObserver,
       XWalkExtensionVector* extension_thread_extensions);
 
   void CreateExtensionProcessHost(content::RenderProcessHost* host,
-      XWalkExtensionData* data);
+      XWalkExtensionData* data, const base::ValueMap& runtime_variables);
 
   // The server that handles in process extensions will live in the
   // extension_thread_.

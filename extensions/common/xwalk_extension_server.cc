@@ -347,7 +347,8 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 }  // namespace
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
-    XWalkExtensionServer* server, const base::FilePath& dir) {
+    XWalkExtensionServer* server, const base::FilePath& dir,
+    const base::ValueMap& runtime_variables) {
   CHECK(server);
 
   std::vector<std::string> registered_extensions;
@@ -367,6 +368,7 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
         new XWalkExternalExtension(extension_path));
     if (extension->is_valid()) {
       registered_extensions.push_back(extension->name());
+      extension->set_runtime_variables(runtime_variables);
       server->RegisterExtension(extension.PassAs<XWalkExtension>());
     }
   }

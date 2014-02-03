@@ -43,6 +43,23 @@
       ],
     },
     {
+      'target_name': 'get_runtime_variable',
+      'type': 'loadable_module',
+      'variables': {
+        'mac_strip': 0,
+      },
+      'sources': [
+        'test/get_runtime_variable.c',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'product_dir': '<(PRODUCT_DIR)\\tests\\extension\\get_runtime_variable\\'
+        }, {
+          'product_dir': '<(PRODUCT_DIR)/tests/extension/get_runtime_variable/'
+        }],
+      ],
+    },
+    {
       'target_name': 'multiple_entry_points_extension',
       'type': 'loadable_module',
       'variables': {
