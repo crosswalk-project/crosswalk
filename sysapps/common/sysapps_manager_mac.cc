@@ -5,8 +5,8 @@
 #include "xwalk/sysapps/common/sysapps_manager.h"
 
 #include "base/basictypes.h"
-#include "xwalk/sysapps/device_capabilities_new/av_codecs_provider_ffmpeg.h"
-#include "xwalk/sysapps/device_capabilities_new/storage_info_provider_chromium.h"
+#include "xwalk/sysapps/device_capabilities/av_codecs_provider_ffmpeg.h"
+#include "xwalk/sysapps/device_capabilities/storage_info_provider_chromium.h"
 
 namespace xwalk {
 namespace sysapps {

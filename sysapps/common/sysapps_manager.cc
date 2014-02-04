@@ -5,10 +5,10 @@
 #include "xwalk/sysapps/common/sysapps_manager.h"
 
 #include "base/basictypes.h"
-#include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
-#include "xwalk/sysapps/device_capabilities_new/device_capabilities_extension_new.h"
-#include "xwalk/sysapps/device_capabilities_new/display_info_provider.h"
-#include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
+#include "xwalk/sysapps/device_capabilities/cpu_info_provider.h"
+#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
+#include "xwalk/sysapps/device_capabilities/display_info_provider.h"
+#include "xwalk/sysapps/device_capabilities/memory_info_provider.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
 namespace xwalk {

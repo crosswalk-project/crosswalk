@@ -18,11 +18,11 @@
         'common/binding_object_store_unittest.cc',
         'common/event_target_unittest.cc',
         'common/sysapps_manager_unittest.cc',
-        'device_capabilities_new/av_codecs_provider_unittest.cc',
-        'device_capabilities_new/cpu_info_provider_unittest.cc',
-        'device_capabilities_new/display_info_provider_unittest.cc',
-        'device_capabilities_new/memory_info_provider_unittest.cc',
-        'device_capabilities_new/storage_info_provider_unittest.cc',
+        'device_capabilities/av_codecs_provider_unittest.cc',
+        'device_capabilities/cpu_info_provider_unittest.cc',
+        'device_capabilities/display_info_provider_unittest.cc',
+        'device_capabilities/memory_info_provider_unittest.cc',
+        'device_capabilities/storage_info_provider_unittest.cc',
       ],
       'conditions': [
         ['os_posix==1 and OS!="mac" and linux_use_tcmalloc==1', {
@@ -52,7 +52,7 @@
       'sources': [
         'common/common_api_browsertest.cc',
         'common/common_api_browsertest.h',
-        'device_capabilities_new/device_capabilities_api_browsertest.cc',
+        'device_capabilities/device_capabilities_api_browsertest.cc',
         'raw_socket/raw_socket_api_browsertest.cc'
       ],
     },

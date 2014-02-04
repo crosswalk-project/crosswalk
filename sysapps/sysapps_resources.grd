@@ -13,7 +13,6 @@
       <include name="IDR_XWALK_SYSAPPS_COMMON_API" file="common/common_api.js" type="BINDATA" />
       <include name="IDR_XWALK_SYSAPPS_COMMON_PROMISE_API" file="common/common_promise_api.js" type="BINDATA" />
       <include name="IDR_XWALK_SYSAPPS_DEVICE_CAPABILITIES_API" file="device_capabilities/device_capabilities_api.js" type="BINDATA" />
-      <include name="IDR_XWALK_SYSAPPS_DEVICE_CAPABILITIES_NEW_API" file="device_capabilities_new/device_capabilities_api.js" type="BINDATA" />
       <include name="IDR_XWALK_SYSAPPS_RAW_SOCKET_API" file="raw_socket/raw_socket_api.js" type="BINDATA" />
     </includes>
   </release>
