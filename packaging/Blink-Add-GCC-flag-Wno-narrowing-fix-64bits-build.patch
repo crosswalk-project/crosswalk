@@ -1,0 +1,25 @@
+From: Yannick GICQUEL <yannick.gicquel@open.eurogiciel.org>
+Date: Wed, 29 Jan 2014 11:20:11 +0100
+
+Build is broken on x86_64 due to narrowing warning treated as an error.
+This patch is a workaround to avoid this warning. Correction should be
+placed in generated code V8DOMConfiguration::ConstantConfiguration::value
+
+BUG=https://crosswalk-project.org/jira/browse/XWALK-917
+
+Signed-off-by: Yannick GICQUEL <yannick.gicquel@open.eurogiciel.org>
+--- src/third_party/WebKit/Source/config.gyp
++++ src/third_party/WebKit/Source/config.gyp
+@@ -84,6 +84,11 @@
+           # nullptr) conflict with upcoming c++0x types.
+           'cflags_cc': ['-Wno-c++0x-compat'],
+         }],
++        ['gcc_version>=47', {
++          # Disable warnings about narrowing conversion due to C++11 std.
++          # Jira: https://crosswalk-project.org/jira/browse/XWALK-917
++          'cflags_cc': ['-Wno-narrowing'],
++        }],
+         ['OS=="linux" and target_arch=="arm"', {
+           # Due to a bug in gcc arm, we get warnings about uninitialized
+           # timesNewRoman.unstatic.3258 and colorTransparent.unstatic.4879.
+
