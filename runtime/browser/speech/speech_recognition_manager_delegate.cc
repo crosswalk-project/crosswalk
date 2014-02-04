@@ -34,7 +34,7 @@ void XWalkSpeechRecognitionManagerDelegate::GetDiagnosticInformation(
   *can_report_metrics = true;
   base::string16 device_model =
       SpeechRecognitionManager::GetInstance()->GetAudioInputDeviceModel();
-  *hardware_info = UTF16ToUTF8(device_model);
+  *hardware_info = base::UTF16ToUTF8(device_model);
 }
 
 void XWalkSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(

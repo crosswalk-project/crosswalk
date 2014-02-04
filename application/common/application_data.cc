@@ -258,7 +258,7 @@ bool ApplicationData::LoadName(base::string16* error) {
     *error = base::ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
-  non_localized_name_ = UTF16ToUTF8(localized_name);
+  non_localized_name_ = base::UTF16ToUTF8(localized_name);
   base::i18n::AdjustStringForLocaleDirection(&localized_name);
   name_ = base::UTF16ToUTF8(localized_name);
   return true;
