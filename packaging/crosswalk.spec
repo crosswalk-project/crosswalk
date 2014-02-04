@@ -21,6 +21,7 @@ Patch5:         Chromium-Fix-gcc-4.5.3-uninitialized-warnings.patch
 Patch6:         Blink-Fix-gcc-4.5.3-uninitialized-warnings.patch
 Patch7:         %{name}-tizen-audio-session-manager.patch
 Patch8:         %{name}-mesa-ozone-typedefs.patch
+Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -143,6 +144,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %if %{with wayland}
 %patch8
 %endif
+
+%patch9
 
 %build
 
