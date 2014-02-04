@@ -57,35 +57,6 @@ GURL GetURLFromCommandLine(const CommandLine& command_line) {
   return net::FilePathToFileURL(path);
 }
 
-void RunAsBrowser(xwalk::RuntimeContext* runtime_context,
-                  const GURL& startup_url) {
-    using xwalk::Runtime;
-
-    class Observer : public Runtime::Observer {
-        virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE {
-          DCHECK(runtime);
-          runtimes_.insert(runtime);
-        }
-
-        virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE {
-          DCHECK(runtime);
-          runtimes_.erase(runtime);
-
-          if (runtimes_.empty()) {
-              base::MessageLoop::current()->PostTask(
-                      FROM_HERE, base::MessageLoop::QuitClosure());
-              delete this;
-          }
-        }
-
-        std::set<Runtime*> runtimes_;
-    };
-
-    // The new created Runtime instance will be managed by RuntimeRegistry.
-    Runtime::CreateWithDefaultWindow(runtime_context,
-                                     startup_url, new Observer);
-}
-
 }  // namespace
 
 namespace xswitches {
@@ -235,13 +206,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (!app_system->LaunchFromCommandLine(
-      *command_line, startup_url_,
+  if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
       run_default_message_loop_)) {
-    // VLOG(1) << "Crosswalk has failed to launch from command line. Exiting."
-    // FIXME(Mikhail): We should just return here, but browser tests atm need
-    // runtime running even without any meaningful command line argument.
-    RunAsBrowser(runtime_context_, startup_url_);
+    return;
   }
 
   // If the |ui_task| is specified in main function parameter, it indicates

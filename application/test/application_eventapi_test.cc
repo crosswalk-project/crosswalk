@@ -10,7 +10,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/event_names.h"
-#include "xwalk/application/test/application_apitest.h"
+#include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
@@ -32,7 +32,7 @@ scoped_refptr<Event> CreateMockEvent() {
 
 }  // namespace
 
-class ApplicationEventApiTest : public ApplicationApiTest {
+class ApplicationEventApiTest : public ApplicationBrowserTest {
  protected:
   class MockFinishObserver : public xwalk::application::EventObserver {
    public:
@@ -74,4 +74,6 @@ IN_PROC_BROWSER_TEST_F(ApplicationEventApiTest, EventApiTest) {
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
   EXPECT_TRUE(event_finish_observer->has_been_notified_);
+  app->Terminate();
+  content::RunAllPendingInMessageLoop();
 }

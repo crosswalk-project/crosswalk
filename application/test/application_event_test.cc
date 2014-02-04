@@ -4,17 +4,20 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
 #include "net/base/net_util.h"
 #include "url/gurl.h"
-#include "xwalk/application/test/application_apitest.h"
+#include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
-class ApplicationEventTest : public ApplicationApiTest {
+using xwalk::application::Application;
+
+class ApplicationEventTest : public ApplicationBrowserTest {
  public:
   virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE {
     ApplicationBrowserTest::SetUpCommandLine(command_line);
@@ -24,7 +27,7 @@ class ApplicationEventTest : public ApplicationApiTest {
   }
 };
 
-class ApplicationOnInstalledEventTest : public ApplicationApiTest {
+class ApplicationOnInstalledEventTest : public ApplicationBrowserTest {
  public:
   ApplicationOnInstalledEventTest() {
     PathService::Get(xwalk::DIR_TEST_DATA, &app_data_path_);
@@ -56,24 +59,24 @@ class ApplicationOnInstalledEventTest : public ApplicationApiTest {
   base::FilePath app_data_path_;
 };
 
-IN_PROC_BROWSER_TEST_F(ApplicationEventTest, OnLaunchedEventTest) {
+IN_PROC_BROWSER_TEST_F(ApplicationEventTest, OnLaunchAndSuspendEventTest) {
+  // Wait for 'OnLaunch' event notification.
   test_runner_->WaitForTestNotification();
-  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
-}
+  EXPECT_EQ(ApiTestRunner::PASS, test_runner_->GetTestsResult());
 
-IN_PROC_BROWSER_TEST_F(ApplicationEventTest, OnSuspendEventTest) {
-  ASSERT_GE(GetRuntimeCount(), 1);
-  GURL url(test_server()->GetURL("test.html"));
-  WaitForRuntimes(2);
-
-  runtimes()[1]->Close();
+  EXPECT_EQ(application_sevice()->active_applications().size(), 1);
+  Application* app =
+      application_sevice()->active_applications()[0];
+  test_runner_->PostResultToNotificationCallback();
+  app->Terminate();
+  // Wait for 'OnSuspend' event notification.
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationOnInstalledEventTest, OnInstalledEventTest) {
   test_runner_->WaitForTestNotification();
-  EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
+  EXPECT_EQ(ApiTestRunner::PASS, test_runner_->GetTestsResult());
 
   DeleteApplicationDataPath();
 }

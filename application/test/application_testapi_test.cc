@@ -4,22 +4,18 @@
 
 #include "content/public/test/browser_test_utils.h"
 #include "net/base/net_util.h"
-#include "xwalk/application/test/application_apitest.h"
+#include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 
-class ApplicationTestApiTest : public ApplicationApiTest {
- public:
-  virtual void SetUpCommandLine(CommandLine* command_line) OVERRIDE;
+using xwalk::application::Application;
+
+class ApplicationTestApiTest : public ApplicationBrowserTest {
 };
 
-void ApplicationTestApiTest::SetUpCommandLine(CommandLine* command_line) {
-  ApplicationBrowserTest::SetUpCommandLine(command_line);
-  GURL url = net::FilePathToFileURL(test_data_dir_.Append(
-        FILE_PATH_LITERAL("testapi")));
-  command_line->AppendArg(url.spec());
-}
-
 IN_PROC_BROWSER_TEST_F(ApplicationTestApiTest, TestApiTest) {
+  Application* app = application_sevice()->Launch(
+      test_data_dir_.Append(FILE_PATH_LITERAL("testapi")));
+  ASSERT_TRUE(app);
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::FAILURE);
 

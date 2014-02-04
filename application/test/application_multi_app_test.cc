@@ -8,20 +8,18 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/test/application_apitest.h"
+#include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 using xwalk::application::Application;
+using xwalk::application::ApplicationService;
 
-class ApplicationMultiAppTest : public ApplicationApiTest {
+class ApplicationMultiAppTest : public ApplicationBrowserTest {
 };
 
 IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
-  xwalk::application::ApplicationSystem* system =
-      xwalk::XWalkRunner::GetInstance()->app_system();
-  xwalk::application::ApplicationService* service =
-      system->application_service();
+  ApplicationService* service = application_sevice();
   // Launch the first app.
   Application* app1 = service->Launch(
       test_data_dir_.Append(FILE_PATH_LITERAL("dummy_app1")));

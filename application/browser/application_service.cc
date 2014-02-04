@@ -506,7 +506,7 @@ Application* ApplicationService::Launch(const GURL& url) {
   base::DictionaryValue manifest;
   // FIXME: define permissions!
   manifest.SetString(keys::kURLKey, url_spec);
-  manifest.SetString(keys::kNameKey, "XWalk Browser");
+  manifest.SetString(keys::kNameKey, "XWalk Dummy App");
   manifest.SetString(keys::kVersionKey, "0");
   manifest.SetInteger(keys::kManifestVersionKey, 1);
   std::string error;

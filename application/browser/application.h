@@ -79,7 +79,11 @@ class Application : public Runtime::Observer {
   //
   // NOTE: ApplicationService deletes an Application instance
   // immediately after its termination.
-  void Terminate();
+  enum TerminationMode {
+    Normal,
+    Immediate  // Ignore OnSuspend event handler.
+  };
+  void Terminate(TerminationMode = Normal);
 
   // Returns Runtime (application page) containing the application's
   // 'main document'. The main document is the main entry point of
@@ -135,6 +139,7 @@ class Application : public Runtime::Observer {
   Observer* observer_;
   // The entry point used as part of Launch().
   LaunchEntryPoint entry_point_used_;
+  TerminationMode termination_mode_used_;
   base::WeakPtrFactory<Application> weak_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);

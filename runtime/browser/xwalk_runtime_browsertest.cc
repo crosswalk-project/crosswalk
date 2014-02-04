@@ -110,7 +110,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
   // Create a new Runtime instance.
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url);
+      runtime()->runtime_context(), url, runtime_registry());
   EXPECT_TRUE(url == new_runtime->web_contents()->GetURL());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   content::RunAllPendingInMessageLoop();
@@ -136,7 +136,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url);
+      runtime()->runtime_context(), url, runtime_registry());
   size_t len = runtimes().size();
   new_runtime->window()->Close();
   content::RunAllPendingInMessageLoop();
@@ -159,7 +159,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   FullscreenNotificationObserver fullscreen_observer;
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url);
+      runtime()->runtime_context(), url, runtime_registry());
   content::RunAllPendingInMessageLoop();
   EXPECT_EQ(len + 1, runtimes().size());
   fullscreen_observer.Wait();

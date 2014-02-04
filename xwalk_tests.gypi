@@ -84,8 +84,6 @@
         'HAS_OUT_OF_PROC_TEST_RUNNER',
       ],
       'sources': [
-        'application/test/application_apitest.cc',
-        'application/test/application_apitest.h',
         'application/test/application_browsertest.cc',
         'application/test/application_browsertest.h',
         'application/test/application_event_test.cc',
