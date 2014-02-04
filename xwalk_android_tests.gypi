@@ -43,7 +43,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
-        'asset_location': '<(ant_build_out)/xwalk_xwview/assets',
+        'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
       },
       'copies': [
         {
@@ -103,7 +103,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/navigator.online.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/renderHung.html',
         ],
-        'asset_location': '<(ant_build_out)/xwalk_xwview_test/assets',
+        'asset_location': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
       },
       'copies': [
         {
@@ -192,7 +192,7 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime/assets/xwalk.pak',
         ],
-        'asset_location': '<(ant_build_out)/xwalk_runtime/assets',
+        'asset_location': '<(PRODUCT_DIR)/xwalk_runtime/assets',
       },
       'includes': [ '../build/java_apk.gypi' ],
     },
@@ -238,7 +238,7 @@
           '<(PRODUCT_DIR)/runtime_client_shell/assets/myextension/myextension.js',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/sampapp-icon-helloworld.png',
         ],
-        'asset_location': '<(ant_build_out)/runtime_client_shell/assets',
+        'asset_location': '<(PRODUCT_DIR)/runtime_client_shell/assets',
       },
       'copies': [
         {
@@ -292,7 +292,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk.pak',
         ],
-        'asset_location': '<(ant_build_out)/runtime_client_embedded_shell/assets',
+        'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
       },
       'copies': [
         {
@@ -378,7 +378,7 @@
           '<(PRODUCT_DIR)/runtime_client_test/assets/screen_orientation.html',
           '<(PRODUCT_DIR)/runtime_client_test/assets/timer.html',
         ],
-        'asset_location': '<(ant_build_out)/runtime_client_test/assets',
+        'asset_location': '<(PRODUCT_DIR)/runtime_client_test/assets',
       },
       'copies': [
         {
@@ -431,7 +431,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/screen_orientation.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_test/assets/timer.html',
         ],
-        'asset_location': '<(ant_build_out)/runtime_client_embedded_test/assets',
+        'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_test/assets',
       },
       'copies': [
         {

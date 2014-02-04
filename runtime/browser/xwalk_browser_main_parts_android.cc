@@ -13,6 +13,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/sys_info.h"
 #include "base/threading/sequenced_worker_pool.h"
+#include "base/threading/sequenced_worker_pool.h"
 #include "cc/base/switches.h"
 #include "content/public/browser/android/compositor.h"
 #include "content/public/browser/browser_thread.h"
@@ -24,6 +25,7 @@
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
+#include "net/cookies/cookie_store.h"
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -91,11 +93,11 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 
-  if (!command_line->HasSwitch(cc::switches::kNumRasterThreads)) {
+  if (!command_line->HasSwitch(switches::kNumRasterThreads)) {
     // Enable multiple threads for rasterization to take advantage of multi CPU
     // cores. Only valid when ImplSidePainting is enabled.
     const int num_of_cpu_cores = base::SysInfo::NumberOfProcessors();
-    command_line->AppendSwitchASCII(cc::switches::kNumRasterThreads,
+    command_line->AppendSwitchASCII(switches::kNumRasterThreads,
                                     base::IntToString(num_of_cpu_cores));
   }
 
@@ -133,16 +135,13 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
       BrowserThread::GetBlockingPool()->GetSequencedTaskRunner(
           BrowserThread::GetBlockingPool()->GetSequenceToken());
 
-  cookie_store_ = content::CreatePersistentCookieStore(
+  content::CookieStoreConfig cookie_config(
       cookie_store_path,
-      true,
-      NULL,
-      NULL,
-      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO),
-      background_task_runner);
-
-  cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
-  SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
+      content::CookieStoreConfig::RESTORED_SESSION_COOKIES,
+      NULL, NULL);
+  cookie_config.client_task_runner = BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+  cookie_config.background_task_runner = background_task_runner;
+  net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {

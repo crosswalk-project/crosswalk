@@ -286,7 +286,7 @@ void CookieManager::HasCookiesCompleted(base::WaitableEvent* completion,
 }
 
 bool CookieManager::AllowFileSchemeCookies() {
-  return cookie_monster_->IsCookieableScheme(chrome::kFileScheme);
+  return cookie_monster_->IsCookieableScheme(content::kFileScheme);
 }
 
 void CookieManager::SetAcceptFileSchemeCookies(bool accept) {

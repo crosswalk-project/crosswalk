@@ -97,8 +97,8 @@ void XWalkContentsClientBridge::ProceedSslError(JNIEnv* env, jobject obj,
 void XWalkContentsClientBridge::RunJavaScriptDialog(
     content::JavaScriptMessageType message_type,
     const GURL& origin_url,
-    const string16& message_text,
-    const string16& default_prompt_text,
+    const base::string16& message_text,
+    const base::string16& default_prompt_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -141,7 +141,7 @@ void XWalkContentsClientBridge::RunJavaScriptDialog(
 
 void XWalkContentsClientBridge::RunBeforeUnloadDialog(
     const GURL& origin_url,
-    const string16& message_text,
+    const base::string16& message_text,
     const content::JavaScriptDialogManager::DialogClosedCallback& callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
@@ -183,7 +183,7 @@ void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   content::JavaScriptDialogManager::DialogClosedCallback* callback =
       pending_js_dialog_callbacks_.Lookup(id);
-  string16 prompt_text;
+  base::string16 prompt_text;
   if (prompt) {
     prompt_text = ConvertJavaStringToUTF16(env, prompt);
   }
@@ -197,7 +197,7 @@ void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
   content::JavaScriptDialogManager::DialogClosedCallback* callback =
       pending_js_dialog_callbacks_.Lookup(id);
   if (callback)
-    callback->Run(false, string16());
+    callback->Run(false, base::string16());
   pending_js_dialog_callbacks_.Remove(id);
 }
 

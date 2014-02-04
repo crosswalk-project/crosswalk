@@ -10,7 +10,7 @@
 #include "content/public/renderer/render_view_observer.h"
 #include "third_party/WebKit/public/web/WebPermissionClient.h"
 
-namespace WebKit {
+namespace blink {
 
 class WebNode;
 class WebURL;
@@ -22,8 +22,7 @@ namespace xwalk {
 // Render process side of XWalkRenderViewHostExt, this provides cross-process
 // implementation of miscellaneous WebView functions that we need to poke
 // WebKit directly to implement (and that aren't needed in the chrome app).
-class XWalkRenderViewExt : public content::RenderViewObserver,
-                        public WebKit::WebPermissionClient {
+class XWalkRenderViewExt : public content::RenderViewObserver {
  public:
   static void RenderViewCreated(content::RenderView* render_view);
 
@@ -33,9 +32,9 @@ class XWalkRenderViewExt : public content::RenderViewObserver,
 
   // RenderView::Observer:
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual void DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+  virtual void DidCommitProvisionalLoad(blink::WebFrame* frame,
                                         bool is_new_navigation) OVERRIDE;
-  virtual void FocusedNodeChanged(const WebKit::WebNode& node) OVERRIDE;
+  virtual void FocusedNodeChanged(const blink::WebNode& node) OVERRIDE;
   virtual void DidCommitCompositorFrame() OVERRIDE;
 
   void OnDocumentHasImagesRequest(int id);
@@ -49,11 +48,6 @@ class XWalkRenderViewExt : public content::RenderViewObserver,
   void OnSetInitialPageScale(double page_scale_factor);
 
   void UpdatePageScaleFactor();
-
-  // WebKit::WebPermissionClient implementation.
-  virtual bool allowImage(WebKit::WebFrame* frame,
-                          bool enabledPerSettings,
-                          const WebKit::WebURL& imageURL) OVERRIDE;
 
   bool capture_picture_enabled_;
 

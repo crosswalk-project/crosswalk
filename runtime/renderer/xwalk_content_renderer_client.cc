@@ -14,6 +14,7 @@
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 
 #if defined(OS_ANDROID)
+#include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #endif
@@ -55,6 +56,11 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
 #endif
+}
+
+void XWalkContentRendererClient::RenderFrameCreated(
+    content::RenderFrame* render_frame) {
+  new XWalkPermissionClient(render_frame);
 }
 
 void XWalkContentRendererClient::RenderViewCreated(

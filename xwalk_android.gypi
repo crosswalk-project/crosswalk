@@ -36,7 +36,7 @@
         '../components/components.gyp:navigation_interception_java',
         '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
-        '../ui/ui.gyp:ui_java',
+        '../ui/android/ui_android.gyp:ui_java',
         'xwalk_core_extensions_java',
       ],
       'variables': {
@@ -199,7 +199,7 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
-        'asset_location': '<(ant_build_out)/xwalk_runtime_lib/assets',
+        'asset_location': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
         'app_manifest_version_name': '<(xwalk_version)',
         'app_manifest_version_code': '<(xwalk_version_code)',
       },

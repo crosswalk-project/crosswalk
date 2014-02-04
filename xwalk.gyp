@@ -223,6 +223,8 @@
         'runtime/common/xwalk_switches.h',
         'runtime/renderer/android/xwalk_render_process_observer.cc',
         'runtime/renderer/android/xwalk_render_process_observer.h',
+        'runtime/renderer/android/xwalk_permission_client.cc',
+        'runtime/renderer/android/xwalk_permission_client.h',
         'runtime/renderer/android/xwalk_render_view_ext.cc',
         'runtime/renderer/android/xwalk_render_view_ext.h',
         'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.cc',
@@ -771,12 +773,20 @@
         'xwalk_version_code': '<!(python tools/build/android/generate_version_code.py -f VERSION -s <(version_code_shift))',
       },
       'includes': [
-        '../build/all_android.gyp',
         'xwalk_android.gypi',
         'xwalk_android_tests.gypi',
         'xwalk_android_app.gypi',
         'xwalk_core_library_android.gypi',
       ],
+      'targets': [
+      {
+        'target_name': 'All',
+        'type': 'none',
+        'dependencies': [
+          'xwalk',
+        ],
+      }, # target_name: All
+    ],  # targets
     }], # OS=="android"
   ]
 }

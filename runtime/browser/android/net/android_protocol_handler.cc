@@ -255,10 +255,10 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
 // AssetFileProtocolHandler ---------------------------------------------------
 
 AssetFileProtocolHandler::AssetFileProtocolHandler()
-    : asset_prefix_(std::string(chrome::kFileScheme) +
+    : asset_prefix_(std::string(content::kFileScheme) +
                     std::string(content::kStandardSchemeSeparator) +
                     xwalk::kAndroidAssetPath),
-      resource_prefix_(std::string(chrome::kFileScheme) +
+      resource_prefix_(std::string(content::kFileScheme) +
                        std::string(content::kStandardSchemeSeparator) +
                        xwalk::kAndroidResourcePath) {
 }

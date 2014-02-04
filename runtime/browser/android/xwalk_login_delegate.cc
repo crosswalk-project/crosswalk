@@ -40,7 +40,7 @@ XWalkLoginDelegate::XWalkLoginDelegate(net::AuthChallengeInfo* auth_info,
       request_(request),
       render_process_id_(0),
       render_view_id_(0) {
-    ResourceRequestInfo::GetRenderViewForRequest(
+    ResourceRequestInfo::GetRenderFrameForRequest(
         request, &render_process_id_, &render_view_id_);
 
     UrlRequestAuthAttemptsData* count =
@@ -64,8 +64,8 @@ XWalkLoginDelegate::~XWalkLoginDelegate() {
   DCHECK(xwalk_http_auth_handler_ == NULL);
 }
 
-void XWalkLoginDelegate::Proceed(const string16& user,
-                                 const string16& password) {
+void XWalkLoginDelegate::Proceed(const base::string16& user,
+                                 const base::string16& password) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkLoginDelegate::ProceedOnIOThread,
@@ -110,8 +110,8 @@ void XWalkLoginDelegate::CancelOnIOThread() {
   DeleteAuthHandlerSoon();
 }
 
-void XWalkLoginDelegate::ProceedOnIOThread(const string16& user,
-                                           const string16& password) {
+void XWalkLoginDelegate::ProceedOnIOThread(const base::string16& user,
+                                           const base::string16& password) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   if (request_) {
     request_->SetAuth(net::AuthCredentials(user, password));

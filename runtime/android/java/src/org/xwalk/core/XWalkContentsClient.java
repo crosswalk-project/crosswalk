@@ -204,22 +204,4 @@ public abstract class XWalkContentsClient extends ContentViewClient {
      * @param picture New picture.
      */
     public abstract void onNewPicture(Picture picture);
-
-    //--------------------------------------------------------------------------------------------
-    //             Stuff that we ignore since it only makes sense for Chrome browser
-    //--------------------------------------------------------------------------------------------
-    //
-
-    @Override
-    final public boolean shouldOverrideScroll(float dx, float dy, float scrollX, float scrollY) {
-        return false;
-    }
-
-    @Override
-    final public void onContextualActionBarShown() {
-    }
-
-    @Override
-    final public void onContextualActionBarHidden() {
-    }
 }
