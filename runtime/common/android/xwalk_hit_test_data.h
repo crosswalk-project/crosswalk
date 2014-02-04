@@ -66,8 +66,8 @@ struct XWalkHitTestData {
   // Java.
   int type;  // Only values from enum Type above.
   std::string extra_data_for_type;
-  string16 href;
-  string16 anchor_text;
+  base::string16 href;
+  base::string16 anchor_text;
   GURL img_src;
 
   XWalkHitTestData();

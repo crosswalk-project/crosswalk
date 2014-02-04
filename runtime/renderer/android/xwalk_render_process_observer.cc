@@ -35,12 +35,12 @@ void XWalkRenderProcessObserver::WebKitInitialized() {
 
 void XWalkRenderProcessObserver::OnSetJsOnlineProperty(bool network_up) {
   if (webkit_initialized_)
-    WebKit::WebNetworkStateNotifier::setOnLine(network_up);
+    blink::WebNetworkStateNotifier::setOnLine(network_up);
 }
 
 void XWalkRenderProcessObserver::OnClearCache() {
   if (webkit_initialized_)
-    WebKit::WebCache::clear();
+    blink::WebCache::clear();
 }
 
 }  // namespace xwalk

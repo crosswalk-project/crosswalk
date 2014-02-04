@@ -47,13 +47,13 @@ class XWalkContentsClientBridgeBase {
   virtual void RunJavaScriptDialog(
       content::JavaScriptMessageType message_type,
       const GURL& origin_url,
-      const string16& message_text,
-      const string16& default_prompt_text,
+      const base::string16& message_text,
+      const base::string16& default_prompt_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       = 0;
   virtual void RunBeforeUnloadDialog(
       const GURL& origin_url,
-      const string16& message_text,
+      const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
       = 0;
 };

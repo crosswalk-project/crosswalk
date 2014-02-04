@@ -65,7 +65,7 @@
           '<(PRODUCT_DIR)/app_hello_world/assets/www/index.html',
           '<(PRODUCT_DIR)/app_hello_world/assets/www/sampapp-icon-helloworld.png',
         ],
-        'asset_location': '<(ant_build_out)/app_hello_world/assets',
+        'asset_location': '<(PRODUCT_DIR)/app_hello_world/assets',
         'app_manifest_version_code': '<(xwalk_version_code)',
         'app_manifest_version_name': '<(xwalk_version)',
       },
@@ -94,7 +94,7 @@
           '<(PRODUCT_DIR)/app_template/assets/www/index.html',
           '<(PRODUCT_DIR)/app_template/assets/www/sampapp-icon-helloworld.png',
         ],
-        'asset_location': '<(ant_build_out)/app_template/assets',
+        'asset_location': '<(PRODUCT_DIR)/app_template/assets',
       },
       'copies': [
         {

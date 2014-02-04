@@ -28,6 +28,7 @@ class XWalkContentRendererClient
 
   // ContentRendererClient implementation.
   virtual void RenderThreadStarted() OVERRIDE;
+  virtual void RenderFrameCreated(content::RenderFrame* render_frame) OVERRIDE;
   virtual void RenderViewCreated(content::RenderView* render_view) OVERRIDE;
   virtual void DidCreateScriptContext(
       blink::WebFrame* frame, v8::Handle<v8::Context> context,

@@ -60,7 +60,7 @@ XWalkRequestInterceptor::QueryForInterceptedRequestData(
     net::URLRequest* request) const {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   int render_process_id, render_view_id;
-  if (!ResourceRequestInfo::GetRenderViewForRequest(
+  if (!ResourceRequestInfo::GetRenderFrameForRequest(
       request, &render_process_id, &render_view_id))
     return scoped_ptr<InterceptedRequestData>();
 
