@@ -13,7 +13,7 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
  public:
   XWalkContentRendererClientTizen() : XWalkContentRendererClient() {}
 
-  virtual bool WillSendRequest(WebKit::WebFrame* frame,
+  virtual bool WillSendRequest(blink::WebFrame* frame,
                                content::PageTransition transition_type,
                                const GURL& url,
                                const GURL& first_party_for_cookies,
