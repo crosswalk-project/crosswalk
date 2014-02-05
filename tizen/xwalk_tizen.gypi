@@ -34,5 +34,30 @@
       'browser/vibration/vibration_provider_tizen.cc',
       'browser/vibration/vibration_provider_tizen.h',
     ],
+  },
+  {
+    'target_name': 'dialog-launcher',
+    'type': 'executable',
+    'dependencies': [
+      '../build/system.gyp:tizen_dialog_launcher',
+    ],
+    'include_dirs': [
+      '../dialog_launcher',
+    ],
+    'sources': [
+      'dialog_launcher/date_time_dialog.c',
+      'dialog_launcher/date_time_dialog.h',
+      'dialog_launcher/dialog_launcher.c',
+      'dialog_launcher/dialog_launcher.h',
+      'dialog_launcher/main.c'
+    ],
+    'copies': [
+      {
+        'destination': '<(PRODUCT_DIR)',
+        'files': [
+          'dialog_launcher/org.crosswalkproject.DialogLauncher.service',
+        ],
+      },
+    ],
   }],
 }

@@ -249,6 +249,10 @@ install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-launcher %{buildroot}%{_bindir}
 # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
 install -m 06755 -p -D ${BUILDDIR_NAME}/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
 
+# Dialog launcher.
+install -p -D ${BUILDDIR_NAME}/out/Release/dialog-launcher %{buildroot}%{_bindir}/dialog-launcher
+install -p -D ${BUILDDIR_NAME}/out/Release/org.crosswalkproject.DialogLauncher.service %{buildroot}%{_dbusservicedir}/org.crosswalkproject.DialogLauncher.service
+
 # Supporting libraries and resources.
 install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D ${BUILDDIR_NAME}/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
@@ -261,6 +265,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %files
 %manifest %{name}.manifest
 # %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
+%{_bindir}/dialog-launcher
 %{_bindir}/xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
@@ -270,6 +275,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %{_libdir}/xwalk/xwalk.pak
 %{_manifestdir}/%{name}.xml
 %{_desktop_icondir}/%{name}.png
+%{_dbusservicedir}/org.crosswalkproject.DialogLauncher.service
 %{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 %{_systemduserservicedir}/xwalk.service
 

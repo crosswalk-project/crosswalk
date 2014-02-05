@@ -1,0 +1,11 @@
+The Tizen Dialog launcher is a UI service that provides DBUS interfaces for
+launching EFL-based dialogs and returning results to the caller.
+
+Crosswalk requires several dialogs that should behave and look consistently
+with the host platform, and this service provides that for Tizen.
+
+Supported dialogs are listed below:
+ * Color chooser
+ * Date/Time chooser
+ * File chooser
+ * Item selector (element)
