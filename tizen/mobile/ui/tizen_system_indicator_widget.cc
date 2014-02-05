@@ -5,6 +5,7 @@
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_widget.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "ui/views/background.h"
 
 namespace {
 

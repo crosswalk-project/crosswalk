@@ -83,10 +83,10 @@ bool PackageInstaller::Init() {
 bool PackageInstaller::GeneratePkgInfoXml() {
   base::FilePath dir_xml(xml_path_.DirName());
   if (!base::PathExists(dir_xml) &&
-      !file_util::CreateDirectory(dir_xml))
+      !base::CreateDirectory(dir_xml))
     return false;
 
-  FILE* file = file_util::OpenFile(xml_path_, "w");
+  FILE* file = base::OpenFile(xml_path_, "w");
   XmlWriter xml_writer;
   xml_writer.StartWriting();
   xml_writer.StartElement("manifest");
@@ -117,7 +117,7 @@ bool PackageInstaller::GeneratePkgInfoXml() {
   file_util::WriteFile(xml_path_,
                        xml_writer.GetWrittenString().c_str(),
                        xml_writer.GetWrittenString().size());
-  file_util::CloseFile(file);
+  base::CloseFile(file);
   LOG(INFO) << "Converting manifest.json into "
             << xml_path_.BaseName().MaybeAsASCII()
             << " for installation. [DONE]";
@@ -132,9 +132,9 @@ bool PackageInstaller::CopyOrLinkResources() {
   base::FilePath xwalk_path(info::kXwalkPath);
   base::FilePath dir_exec(execute_path_.DirName());
   if (!base::PathExists(dir_exec))
-    file_util::CreateDirectory(dir_exec);
+    base::CreateDirectory(dir_exec);
 
-  file_util::CreateSymbolicLink(xwalk_path, execute_path_);
+  base::CreateSymbolicLink(xwalk_path, execute_path_);
   LOG(INFO) << "Copying and linking files into correct locations. [DONE]";
   return true;
 }

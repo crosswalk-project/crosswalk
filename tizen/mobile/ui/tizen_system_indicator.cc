@@ -7,6 +7,7 @@
 #include "ui/gfx/canvas.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_watcher.h"
 
+#include "ui/views/background.h"
 #include "ui/views/widget/native_widget.h"
 #include "ui/views/widget/root_view.h"
 #include "ui/aura/root_window.h"
