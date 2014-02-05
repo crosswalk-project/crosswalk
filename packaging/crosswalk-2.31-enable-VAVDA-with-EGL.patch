@@ -20,32 +20,31 @@ So, the upstream no plan to lerage VAVDA with EGL graphic
 ===========================================
 That's why we enable specific EGL for VAVDA in tizen port.
 ---
- .../gpu/media/gpu_video_decode_accelerator.cc      |    8 +
- .../media/vaapi_video_decode_accelerator_tizen.cc  |  908 ++++++++++++++++++++
- .../media/vaapi_video_decode_accelerator_tizen.h   |  273 ++++++
- content/content_common.gypi                        |   26 +
- content/gpu/gpu_main.cc                            |    6 +-
- 5 files changed, 1219 insertions(+), 2 deletions(-)
+ .../gpu/media/gpu_video_decode_accelerator.cc      |   8 +
+ .../media/vaapi_video_decode_accelerator_tizen.cc  | 908 +++++++++++++++++++++
+ .../media/vaapi_video_decode_accelerator_tizen.h   | 273 +++++++
+ content/content_common.gypi                        |  26 +
+ 4 files changed, 1215 insertions(+)
  create mode 100644 content/common/gpu/media/vaapi_video_decode_accelerator_tizen.cc
  create mode 100644 content/common/gpu/media/vaapi_video_decode_accelerator_tizen.h
 
 diff --git a/content/common/gpu/media/gpu_video_decode_accelerator.cc b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-index c5de2df..04f804a 100644
+index bd1dc5f..c5a6df2 100644
 --- a/content/common/gpu/media/gpu_video_decode_accelerator.cc
 +++ b/content/common/gpu/media/gpu_video_decode_accelerator.cc
-@@ -29,6 +29,8 @@
- #elif defined(OS_CHROMEOS) && defined(ARCH_CPU_X86_FAMILY) && defined(USE_X11)
- #include "ui/gl/gl_context_glx.h"
+@@ -32,6 +32,8 @@
  #include "content/common/gpu/media/vaapi_video_decode_accelerator.h"
+ #include "ui/gl/gl_context_glx.h"
+ #include "ui/gl/gl_implementation.h"
 +#elif defined(OS_TIZEN_MOBILE) && defined(ARCH_CPU_X86_FAMILY)
 +#include "content/common/gpu/media/vaapi_video_decode_accelerator_tizen.h"
  #elif defined(OS_ANDROID)
  #include "content/common/gpu/media/android_video_decode_accelerator.h"
  #endif
-@@ -242,6 +244,12 @@ void GpuVideoDecodeAccelerator::Initialize(
+@@ -296,6 +298,12 @@ void GpuVideoDecodeAccelerator::Initialize(
+       static_cast<gfx::GLContextGLX*>(stub_->decoder()->GetGLContext());
    video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
-       glx_context->display(), glx_context_handle, this,
-       make_context_current_));
+       glx_context->display(), this, make_context_current_));
 +#elif defined(OS_TIZEN_MOBILE) && defined(ARCH_CPU_X86_FAMILY)
 +  video_decode_accelerator_.reset(new VaapiVideoDecodeAccelerator(
 +      gfx::GLSurfaceEGL::GetHardwareDisplay(),
@@ -57,7 +56,7 @@ index c5de2df..04f804a 100644
        this,
 diff --git a/content/common/gpu/media/vaapi_video_decode_accelerator_tizen.cc b/content/common/gpu/media/vaapi_video_decode_accelerator_tizen.cc
 new file mode 100644
-index 0000000..8ca18b2
+index 0000000..cfff457
 --- /dev/null
 +++ b/content/common/gpu/media/vaapi_video_decode_accelerator_tizen.cc
 @@ -0,0 +1,908 @@
@@ -75,7 +74,7 @@ index 0000000..8ca18b2
 +#include "content/child/child_thread.h"
 +#include "content/common/gpu/gpu_channel.h"
 +#include "content/common/gpu/media/vaapi_video_decode_accelerator_tizen.h"
-+#include "media/base/bind_to_loop.h"
++#include "media/base/bind_to_current_loop.h"
 +#include "media/video/picture.h"
 +#include "ui/gl/gl_bindings.h"
 +#include "ui/gl/scoped_binders.h"
@@ -360,7 +359,7 @@ index 0000000..8ca18b2
 +  decoder_.reset(
 +      new VaapiH264Decoder(
 +          vaapi_wrapper_.get(),
-+          media::BindToLoop(message_loop_->message_loop_proxy(), base::Bind(
++          media::BindToCurrentLoop(base::Bind(
 +              &VaapiVideoDecodeAccelerator::SurfaceReady, weak_this_)),
 +          base::Bind(&ReportToUMA)));
 +
@@ -550,7 +549,7 @@ index 0000000..8ca18b2
 +    return false;
 +
 +  VASurface::ReleaseCB va_surface_release_cb =
-+      media::BindToLoop(message_loop_->message_loop_proxy(), base::Bind(
++      media::BindToCurrentLoop(base::Bind(
 +          &VaapiVideoDecodeAccelerator::RecycleVASurfaceID, weak_this_));
 +
 +  while (!available_va_surfaces_.empty()) {
@@ -1249,10 +1248,10 @@ index 0000000..d41cf38
 +
 +#endif  // CONTENT_COMMON_GPU_MEDIA_VAAPI_VIDEO_DECODE_ACCELERATOR_H_
 diff --git a/content/content_common.gypi b/content/content_common.gypi
-index 8c45574..7345d9b 100644
+index 9d6cb61..3f53dd5 100644
 --- a/content/content_common.gypi
 +++ b/content/content_common.gypi
-@@ -537,6 +537,32 @@
+@@ -583,6 +583,32 @@
          '<(DEPTH)/third_party/libva',
        ],
      }],
@@ -1310,5 +1309,5 @@ index 9e29e03..2c04d40 100644
  #endif
  
 -- 
-1.7.9.5
+1.8.3.2
 
