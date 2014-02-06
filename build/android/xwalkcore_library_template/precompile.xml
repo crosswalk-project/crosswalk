@@ -52,7 +52,7 @@
       <exec executable="python${pythonExt}" failonerror="true">
         <arg line="prepare_r_java.py --app-package ${project.app.package}" />
         <arg line="--packages ${project.additional.packages}" />
-        <arg line="--gen-path ${gen.absolute.dir}" />
+        <arg line="--gen-path '${gen.absolute.dir}'" />
       </exec>
   </target>
 </project>
