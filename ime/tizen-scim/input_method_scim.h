@@ -14,7 +14,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "ui/base/ime/input_method.h"
 #include "ui/base/ime/input_method_observer.h"
-#include "ui/base/ui_export.h"
+#include "ui/base/ui_base_export.h"
 
 namespace ui {
 
@@ -24,7 +24,7 @@ class TextInputClient;
 class SCIMBridge;
 
 // SCIM InputMethod implementation for minimum input support.
-class UI_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
+class UI_BASE_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
  public:
   explicit InputMethodSCIM(internal::InputMethodDelegate* delegate);
   virtual ~InputMethodSCIM();
@@ -38,18 +38,18 @@ class UI_EXPORT InputMethodSCIM : NON_EXPORTED_BASE(public InputMethod) {
                                         NativeEventResult* result) OVERRIDE;
   virtual void SetFocusedTextInputClient(TextInputClient* client) OVERRIDE;
   virtual TextInputClient* GetTextInputClient() const OVERRIDE;
-  virtual bool DispatchKeyEvent(const base::NativeEvent& native_event) OVERRIDE;
+  virtual bool DispatchKeyEvent(const ui::KeyEvent& event) OVERRIDE;
   virtual bool DispatchFabricatedKeyEvent(const ui::KeyEvent& event) OVERRIDE;
   virtual void OnTextInputTypeChanged(const TextInputClient* client) OVERRIDE;
   virtual void OnCaretBoundsChanged(const TextInputClient* client) OVERRIDE;
   virtual void CancelComposition(const TextInputClient* client) OVERRIDE;
   virtual void OnInputLocaleChanged() OVERRIDE;
   virtual std::string GetInputLocale() OVERRIDE;
-  virtual base::i18n::TextDirection GetInputTextDirection() OVERRIDE;
   virtual bool IsActive() OVERRIDE;
   virtual ui::TextInputType GetTextInputType() const OVERRIDE;
   virtual bool CanComposeInline() const OVERRIDE;
   virtual bool IsCandidatePopupOpen() const OVERRIDE;
+  virtual void ShowImeIfNeeded() OVERRIDE;
   virtual void AddObserver(InputMethodObserver* observer) OVERRIDE;
   virtual void RemoveObserver(InputMethodObserver* observer) OVERRIDE;
 
