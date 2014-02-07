@@ -28,6 +28,7 @@ import org.chromium.content.browser.ContentViewRenderView;
 import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
+import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.WindowAndroid;
 
 @JNINamespace("xwalk")
@@ -112,6 +113,9 @@ public class XWalkContent extends FrameLayout {
 
         SharedPreferences sharedPreferences = new InMemorySharedPreferences();
         mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
+
+        MediaPlayerBridge.setResourceLoadingFilter(
+                new XWalkMediaPlayerResourceLoadingFilter());
     }
 
     void doLoadUrl(String url) {

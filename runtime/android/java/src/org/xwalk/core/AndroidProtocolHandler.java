@@ -30,9 +30,9 @@ public class AndroidProtocolHandler {
 
     // Supported URL schemes. This needs to be kept in sync with
     // clank/native/framework/chrome/url_request_android_job.cc.
-    private static final String FILE_SCHEME = "file";
+    public static final String FILE_SCHEME = "file";
     private static final String CONTENT_SCHEME = "content";
-    private static final String APP_SCHEME = "app";
+    public static final String APP_SCHEME = "app";
     private static final String APP_SRC = "www";
 
     /**
@@ -72,8 +72,19 @@ public class AndroidProtocolHandler {
         return null;
     }
 
+    // Get the asset path of file:///android_asset/* url.
+    public static String getAssetPath(Uri uri) {
+        assert(uri.getScheme().equals(FILE_SCHEME));
+        assert(uri.getPath() != null);
+        assert(uri.getPath().startsWith(nativeGetAndroidAssetPath()));
+        String path = uri.getPath();
+        // Remove duplicate slashes and normalize the URL.
+        path = (new java.io.File(path)).getAbsolutePath();
+        return path.replaceFirst(nativeGetAndroidAssetPath(), "");
+    }
+
     // Convert app uri to file uri to access the actual files in assets.
-    private static Uri appUriToFileUri(Uri uri) {
+    public static Uri appUriToFileUri(Uri uri) {
         assert(uri.getScheme().equals(APP_SCHEME));
         assert(uri.getPath() != null);
 
@@ -151,16 +162,9 @@ public class AndroidProtocolHandler {
     }
 
     private static InputStream openAsset(Context context, Uri uri) {
-        assert(uri.getScheme().equals(FILE_SCHEME));
-        assert(uri.getPath() != null);
-        assert(uri.getPath().startsWith(nativeGetAndroidAssetPath()));
-        String path = uri.getPath();
-        // Remove duplicate slashes and normalize the URL.
-        path = (new java.io.File(path)).getAbsolutePath();
-        path = path.replaceFirst(nativeGetAndroidAssetPath(), "");
         try {
             AssetManager assets = context.getAssets();
-            return assets.open(path, AssetManager.ACCESS_STREAMING);
+            return assets.open(getAssetPath(uri), AssetManager.ACCESS_STREAMING);
         } catch (IOException e) {
             Log.e(TAG, "Unable to open asset URL: " + uri);
             return null;
