@@ -223,18 +223,26 @@ public class XWalkView extends FrameLayout {
     }
 
     // Enables remote debugging and returns the URL at which the dev tools server is listening
-    // for commands.
-    public String enableRemoteDebugging() {
+    // for commands. The allowedUid argument can be used to specify the uid of the process that is
+    // permitted to connect.
+    public String enableRemoteDebugging(int allowedUid) {
         checkThreadSafety();
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
         final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
         if (mDevToolsServer == null) {
             mDevToolsServer = new XWalkDevToolsServer(socketName);
+            mDevToolsServer.allowConnectionFromUid(allowedUid);
             mDevToolsServer.setRemoteDebuggingEnabled(true);
         }
         // devtools/page is hardcoded in devtools_http_handler_impl.cc (kPageUrlPrefix)
         return "ws://" + socketName + "/devtools/page/" + mContent.devToolsAgentId();
+    }
+
+    // Enables remote debugging and returns the URL at which the dev tools server is listening
+    // for commands. Only the current process is allowed to connect to the server.
+    public String enableRemoteDebugging() {
+        return enableRemoteDebugging(mContext.getApplicationInfo().uid);
     }
 
     public void disableRemoteDebugging() {
