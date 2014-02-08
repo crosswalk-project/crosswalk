@@ -141,7 +141,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
       NULL, NULL);
   cookie_config.client_task_runner = BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
   cookie_config.background_task_runner = background_task_runner;
-  net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
+  content::CreateCookieStore(cookie_config);
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {

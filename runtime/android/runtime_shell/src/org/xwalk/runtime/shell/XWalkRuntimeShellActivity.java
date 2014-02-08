@@ -20,7 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import org.chromium.content.common.CommandLine;
+import org.chromium.base.CommandLine;
+import org.chromium.base.BaseSwitches;
 import org.xwalk.runtime.XWalkRuntimeView;
 
 public class XWalkRuntimeShellActivity extends Activity {
@@ -83,7 +84,7 @@ public class XWalkRuntimeShellActivity extends Activity {
     }
 
     private void waitForDebuggerIfNeeded() {
-        if (CommandLine.getInstance().hasSwitch(CommandLine.WAIT_FOR_JAVA_DEBUGGER)) {
+        if (CommandLine.getInstance().hasSwitch(BaseSwitches.WAIT_FOR_JAVA_DEBUGGER)) {
             Log.e(TAG, "Waiting for Java debugger to connect...");
             android.os.Debug.waitForDebugger();
             Log.e(TAG, "Java debugger connected. Resuming execution.");
