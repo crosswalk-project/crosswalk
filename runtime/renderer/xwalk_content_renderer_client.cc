@@ -60,7 +60,9 @@ void XWalkContentRendererClient::RenderThreadStarted() {
 
 void XWalkContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
+#if defined(OS_ANDROID)
   new XWalkPermissionClient(render_frame);
+#endif
 }
 
 void XWalkContentRendererClient::RenderViewCreated(
