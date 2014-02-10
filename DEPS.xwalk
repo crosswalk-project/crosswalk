@@ -13,6 +13,10 @@ deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
 
+  # llvm.googlesource.com is banned for PRC, so use repo from llvm.org
+  'src/third_party/libc++/trunk': 'https://llvm.org/git/libcxx.git@8f48c23568a122de6088455700e9d197b79bd8f8',
+  'src/third_party/libc++abi/trunk': 'https://llvm.org/git/libcxxabi.git@753a30dd68ae008948d48f16bc942d5963fe65a1',
+  
   # Ozone-Wayland is required for Wayland support in Chromium.
   'src/ozone': 'https://github.com/01org/ozone-wayland.git@d140a7894187fa454422813d1c2fa3aca481d1bc',
 }
