@@ -12,6 +12,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/version.h"
+#include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application_event_manager.h"
@@ -461,6 +462,15 @@ bool ApplicationService::Uninstall(const std::string& id) {
                << id << "; Cannot remove all resources.";
     result = false;
   }
+
+  content::StoragePartition* partition =
+      content::BrowserContext::GetStoragePartitionForSite(
+          runtime_context_, application->GetBaseURLFromApplicationId(id));
+  partition->ClearDataForOrigin(
+      content::StoragePartition::REMOVE_DATA_MASK_ALL,
+      content::StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL,
+      application->URL(),
+      partition->GetURLRequestContext());
 
   FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
 
