@@ -13,7 +13,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/sys_info.h"
 #include "base/threading/sequenced_worker_pool.h"
-#include "base/threading/sequenced_worker_pool.h"
 #include "cc/base/switches.h"
 #include "content/public/browser/android/compositor.h"
 #include "content/public/browser/browser_thread.h"
@@ -25,6 +24,7 @@
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
+#include "net/cookies/cookie_monster.h"
 #include "net/cookies/cookie_store.h"
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
@@ -139,9 +139,12 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
       cookie_store_path,
       content::CookieStoreConfig::RESTORED_SESSION_COOKIES,
       NULL, NULL);
-  cookie_config.client_task_runner = BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
+  cookie_config.client_task_runner =
+      BrowserThread::GetMessageLoopProxyForThread(BrowserThread::IO);
   cookie_config.background_task_runner = background_task_runner;
-  content::CreateCookieStore(cookie_config);
+  cookie_store_ = content::CreateCookieStore(cookie_config);
+  cookie_store_->GetCookieMonster()->SetPersistSessionCookies(true);
+  SetCookieMonsterOnNetworkStackInit(cookie_store_->GetCookieMonster());
 }
 
 void XWalkBrowserMainPartsAndroid::PostMainMessageLoopRun() {
