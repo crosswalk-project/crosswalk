@@ -11,6 +11,7 @@
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
 #include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
@@ -82,6 +83,7 @@ class ApplicationService : public Application::Observer {
   ApplicationEventManager* event_manager_;
   ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
+  scoped_ptr<PermissionPolicyManager> permission_policy_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
 };
