@@ -62,6 +62,9 @@ public class XWalkContent extends FrameLayout {
             mContentsClientBridge);
         mIoThreadClient = new XWalkIoThreadClientImpl();
 
+        // Initialize mWindow which is needed by content
+        mWindow = new WindowAndroid(xwView.getActivity().getApplicationContext());
+
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
             protected void onReadyToRender() {
@@ -81,9 +84,6 @@ public class XWalkContent extends FrameLayout {
         mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
         mWebContents = nativeGetWebContents(mXWalkContent, mIoThreadClient,
                 mContentsClientBridge.getInterceptNavigationDelegate());
-
-        // Initialize mWindow which is needed by content
-        mWindow = new WindowAndroid(xwView.getActivity());
 
         // Initialize ContentView.
         mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
