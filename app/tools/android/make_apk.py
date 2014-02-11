@@ -102,14 +102,17 @@ def ParseManifest(options):
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
     temp_dict = parser.GetIcons()
-    try:
-      icon_dict = dict((int(k), v) for k, v in temp_dict.iteritems())
-    except ValueError:
-      print 'The key of icon in the manifest file should be a number.'
-    # TODO(junmin): add multiple icons support.
-    if icon_dict:
-      icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
-      options.icon = os.path.join(options.app_root, icon_file)
+    if temp_dict:
+      try:
+        icon_dict = dict((int(k), v) for k, v in temp_dict.iteritems())
+      except ValueError:
+        print ('\'icon\' object in manifest.json contains pair-members, which '
+               'consists of a number-string and a value representing an image. '
+               'And the number-string should be valid.')
+      # TODO(junmin): add multiple icons support.
+      if icon_dict:
+        icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
+        options.icon = os.path.join(options.app_root, icon_file)
   if parser.GetAppLocalPath():
     options.app_local_path = parser.GetAppLocalPath()
   options.enable_remote_debugging = False
