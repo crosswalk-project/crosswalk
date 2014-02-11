@@ -19,7 +19,7 @@ diff --git src/build/linux/system.gyp src/build/linux/system.gyp
 index 68e4d36..3ae6ab3 100644
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
-@@ -892,5 +892,19 @@
+@@ -874,5 +874,19 @@
          }],
        ],
      },
@@ -43,16 +43,16 @@ diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/conten
 index 68204fb..a3e654b 100644
 --- src/content/browser/renderer_host/render_view_host_impl.cc
 +++ src/content/browser/renderer_host/render_view_host_impl.cc
-@@ -83,6 +83,8 @@
- #include "content/browser/renderer_host/popup_menu_helper_mac.h"
- #elif defined(OS_ANDROID)
+@@ -89,6 +89,8 @@
  #include "content/browser/media/android/browser_media_player_manager.h"
+ #elif defined(OS_WIN)
+ #include "base/win/win_util.h"
 +#elif defined(OS_TIZEN_MOBILE)
 +#include "xwalk/tizen/browser/browser_mediaplayer_manager.h"
  #endif
 
  using base::TimeDelta;
-@@ -208,6 +210,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+@@ -223,6 +225,8 @@ RenderViewHostImpl::RenderViewHostImpl(
 
  #if defined(OS_ANDROID)
    media_player_manager_.reset(BrowserMediaPlayerManager::Create(this));
@@ -60,14 +60,14 @@ index 68204fb..a3e654b 100644
 +  media_player_manager_.reset(tizen::BrowserMediaPlayerManager::Create(this));
  #endif
  }
- 
+
 diff --git src/content/browser/renderer_host/render_view_host_impl.h src/content/browser/renderer_host/render_view_host_impl.h
 index c4bfb78..cc060bb 100644
 --- src/content/browser/renderer_host/render_view_host_impl.h
 +++ src/content/browser/renderer_host/render_view_host_impl.h
-@@ -43,6 +43,12 @@ struct ViewMsg_Navigate_Params;
+@@ -42,6 +42,12 @@ struct ViewHostMsg_ShowPopup_Params;
+ struct ViewMsg_Navigate_Params;
  struct ViewMsg_PostMessage_Params;
- struct ViewMsg_StopFinding_Params;
 
 +#if defined(OS_TIZEN_MOBILE)
 +namespace tizen {
@@ -78,7 +78,7 @@ index c4bfb78..cc060bb 100644
  namespace base {
  class ListValue;
  }
-@@ -715,6 +721,8 @@ class CONTENT_EXPORT RenderViewHostImpl
+@@ -704,6 +710,8 @@ class CONTENT_EXPORT RenderViewHostImpl
  #if defined(OS_ANDROID)
    // Manages all the android mediaplayer objects and handling IPCs for video.
    scoped_ptr<BrowserMediaPlayerManager> media_player_manager_;
@@ -91,7 +91,7 @@ diff --git src/content/common/content_message_generator.h src/content/common/con
 index b0af11d..54106a2 100644
 --- src/content/common/content_message_generator.h
 +++ src/content/common/content_message_generator.h
-@@ -56,3 +56,6 @@
+@@ -57,3 +57,6 @@
  #include "content/common/view_messages.h"
  #include "content/common/websocket_messages.h"
  #include "content/common/worker_messages.h"
@@ -102,8 +102,8 @@ diff --git src/content/content_browser.gypi src/content/content_browser.gypi
 index 1e3485c..6336e49 100644
 --- src/content/content_browser.gypi
 +++ src/content/content_browser.gypi
-@@ -1558,5 +1558,69 @@
-         '../third_party/speex/speex.gyp:libspeex',
+@@ -1641,5 +1641,69 @@
+         'browser/geolocation/wifi_data_provider_linux.cc',
        ],
      }],
 +    ['tizen_mobile == 1', {
@@ -176,9 +176,9 @@ diff --git src/content/content_common.gypi src/content/content_common.gypi
 index 8c45574..10b0e2b 100644
 --- src/content/content_common.gypi
 +++ src/content/content_common.gypi
-@@ -590,5 +590,10 @@
-       },
-      ]
+@@ -656,5 +656,10 @@
+     }, {
+       'defines': ['USE_SECCOMP_BPF'],
      }],
 +    ['tizen_mobile == 1', {
 +      'sources': [
@@ -191,7 +191,7 @@ diff --git src/content/content_renderer.gypi src/content/content_renderer.gypi
 index 46b7468..4cab17f 100644
 --- /src/content/content_renderer.gypi
 +++ src/content/content_renderer.gypi
-@@ -722,6 +722,14 @@
+@@ -752,6 +752,14 @@
          }],
        ],
      }],
@@ -210,7 +210,7 @@ diff --git src/content/renderer/render_view_impl.cc src/content/renderer/render_
 index 6827468..549c8fb 100644
 --- src/content/renderer/render_view_impl.cc
 +++ src/content/renderer/render_view_impl.cc
-@@ -255,6 +255,11 @@
+@@ -245,6 +245,11 @@
  #include "content/renderer/media/rtc_peer_connection_handler.h"
  #endif
 
@@ -219,10 +219,10 @@ index 6827468..549c8fb 100644
 +#include "xwalk/tizen/renderer/renderer_mediaplayer_manager.h"
 +#endif
 +
- using WebKit::WebAXObject;
- using WebKit::WebApplicationCacheHost;
- using WebKit::WebApplicationCacheHostClient;
-@@ -865,6 +870,8 @@ RenderViewImpl::RenderViewImpl(RenderViewImplParams* params)
+ using blink::WebAXObject;
+ using blink::WebApplicationCacheHost;
+ using blink::WebApplicationCacheHostClient;
+@@ -844,6 +849,8 @@ RenderViewImpl::RenderViewImpl(RenderViewImplParams* params)
        body_background_color_(SK_ColorWHITE),
        expected_content_intent_id_(0),
        media_player_manager_(NULL),
@@ -231,7 +231,7 @@ index 6827468..549c8fb 100644
  #endif
  #if defined(OS_WIN)
        focused_plugin_id_(-1),
-@@ -986,6 +993,8 @@ void RenderViewImpl::Initialize(RenderViewImplParams* params) {
+@@ -967,6 +974,8 @@ void RenderViewImpl::Initialize(RenderViewImplParams* params) {
  #if defined(OS_ANDROID)
    media_player_manager_ = new RendererMediaPlayerManager(this);
    new JavaBridgeDispatcher(this);
@@ -240,25 +240,25 @@ index 6827468..549c8fb 100644
  #endif
 
    // The next group of objects all implement RenderViewObserver, so are deleted
-@@ -3163,6 +3172,13 @@ WebMediaPlayer* RenderViewImpl::createMediaPlayer(
-       sink,
-       RenderThreadImpl::current()->GetGpuFactories(),
-       new RenderMediaLog());
+@@ -3044,6 +3053,13 @@ blink::WebMediaPlayer* RenderViewImpl::CreateMediaPlayer(
+                  base::Unretained(GetContentClient()->renderer()),
+                  static_cast<RenderFrame*>(render_frame)),
+       sink);
 +
 +#if defined(OS_TIZEN_MOBILE)
 +  tizen::MediaPlayerImpl* media_player = new tizen::MediaPlayerImpl(
-+      frame, client, AsWeakPtr(), media_player_manager_, params);
++      this, frame, client, AsWeakPtr(), media_player_manager_, params);
 +  return media_player;
 +#endif
 +
-   return new WebMediaPlayerImpl(frame, client, AsWeakPtr(), params);
+   return new WebMediaPlayerImpl(this, frame, client, AsWeakPtr(), params);
+ #endif  // defined(OS_ANDROID)
  }
-
 diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h
 index 2b18b3c..314a1c0 100644
 --- src/content/renderer/render_view_impl.h
 +++ src/content/renderer/render_view_impl.h
-@@ -129,6 +129,12 @@ namespace webkit_glue {
+@@ -128,6 +128,12 @@ namespace webkit_glue {
  class WebURLResponseExtraDataImpl;
  }
 
@@ -271,7 +271,7 @@ index 2b18b3c..314a1c0 100644
  namespace content {
  class BrowserPluginManager;
  class DeviceOrientationDispatcher;
-@@ -1431,6 +1437,10 @@ class CONTENT_EXPORT RenderViewImpl
+@@ -1403,6 +1409,10 @@ class CONTENT_EXPORT RenderViewImpl
 
    // A date/time picker object for date and time related input elements.
    scoped_ptr<RendererDateTimePicker> date_time_picker_client_;

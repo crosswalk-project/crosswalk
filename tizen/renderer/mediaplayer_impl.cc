@@ -11,12 +11,13 @@
 namespace tizen {
 
 MediaPlayerImpl::MediaPlayerImpl(
-    WebKit::WebFrame* frame,
-    WebKit::WebMediaPlayerClient* client,
+    content::RenderView* render_view,
+    blink::WebFrame* frame,
+    blink::WebMediaPlayerClient* client,
     base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
     const content::WebMediaPlayerParams& params)
-    : WebMediaPlayerImpl(frame, client, delegate, params),
+    : WebMediaPlayerImpl(render_view, frame, client, delegate, params),
       manager_(manager) {
   DCHECK(manager_);
 
@@ -40,13 +41,13 @@ void MediaPlayerImpl::Detach() {
   manager_ = NULL;
 }
 
-void MediaPlayerImpl::load(LoadType load_type, const WebKit::WebURL& url,
+void MediaPlayerImpl::load(LoadType load_type, const blink::WebURL& url,
                            CORSMode cors_mode) {
   InitializeMediaPlayer(url);
   WebMediaPlayerImpl::load(load_type, url, cors_mode);
 }
 
-void MediaPlayerImpl::InitializeMediaPlayer(const WebKit::WebURL& url) {
+void MediaPlayerImpl::InitializeMediaPlayer(const blink::WebURL& url) {
   if (manager_)
     manager_->Initialize(player_id_, getpid(), url);
 }

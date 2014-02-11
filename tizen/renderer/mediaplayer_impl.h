@@ -18,8 +18,9 @@ namespace tizen {
 class MediaPlayerImpl : public content::WebMediaPlayerImpl {
  public:
   MediaPlayerImpl(
-      WebKit::WebFrame* frame,
-      WebKit::WebMediaPlayerClient* client,
+      content::RenderView* render_view,
+      blink::WebFrame* frame,
+      blink::WebMediaPlayerClient* client,
       base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
       RendererMediaPlayerManager* manager,
       const content::WebMediaPlayerParams& params);
@@ -27,7 +28,7 @@ class MediaPlayerImpl : public content::WebMediaPlayerImpl {
 
   // WebMediaPlayerImpl method.
   virtual void load(LoadType load_type,
-                    const WebKit::WebURL& url,
+                    const blink::WebURL& url,
                     CORSMode cors_mode) OVERRIDE;
 
   // Playback controls.
@@ -43,7 +44,7 @@ class MediaPlayerImpl : public content::WebMediaPlayerImpl {
   void Detach();
 
  private:
-  void InitializeMediaPlayer(const WebKit::WebURL& url);
+  void InitializeMediaPlayer(const blink::WebURL& url);
 
   // Manager for managing this object and for delegating method calls on
   // Render Thread.
