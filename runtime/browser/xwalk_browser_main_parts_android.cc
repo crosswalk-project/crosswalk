@@ -81,8 +81,12 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // External extensions will run in the BrowserProcess (in process mode).
   command_line->AppendSwitch(switches::kXWalkDisableExtensionProcess);
 
-  // Enable WebGL for Android.
+  // Only force to enable WebGL for Android for IA platforms because
+  // we've tested the WebGL conformance test. For other platforms, just
+  // follow up the behavior defined by Chromium upstream.
+#if defined(ARCH_CPU_X86)
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
+#endif
 
   // Disable HW encoding/decoding acceleration for WebRTC on Android.
   // FIXME: Remove these switches for Android when Android OS is removed from
