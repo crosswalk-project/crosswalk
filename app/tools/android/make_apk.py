@@ -119,7 +119,6 @@ def ParseManifest(options):
       if icon_dict:
         icon_file = max(icon_dict.iteritems(), key=operator.itemgetter(0))[1]
         options.icon = os.path.join(options.app_root, icon_file)
-  options.enable_remote_debugging = False
   if parser.GetFullScreenFlag().lower() == 'true':
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
