@@ -28,7 +28,7 @@ enum RuntimePermission {
   ALLOW_ALWAYS,
   DENY_ONCE,
   DENY_SESSION,
-  DENY_FOREVER,
+  DENY_ALWAYS,
   UNDEFINED_RUNTIME_PERM,
 };
 
@@ -38,7 +38,7 @@ enum StoredPermission {
   ALLOW = 0,
   DENY,
   PROMPT,
-  INVALID_STORED_PERM,
+  UNDEFINED_STORED_PERM,
 };
 
 typedef std::map<std::string, StoredPermission> StoredPermissionMap;

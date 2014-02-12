@@ -253,5 +253,50 @@ bool Application::IsOnSuspendHandlerRegistered() const {
   return true;
 }
 
+bool Application::UseExtension(const std::string& extension_name) const {
+  // TODO(Bai): Tells whether the application contains the specified extension
+  return true;
+}
+
+std::string Application::GetRegisteredPermissionName(
+    const std::string& extension_name,
+    const std::string& api_name) const {
+  std::map<std::string, std::string>::const_iterator iter =
+      name_perm_map_.find(api_name);
+  if (iter == name_perm_map_.end())
+    return std::string("");
+  return iter->second;
+}
+
+StoredPermission Application::GetPermission(PermissionType type,
+                               std::string& permission_name) const {
+  if (type == SESSION_PERMISSION) {
+    StoredPermissionMap::const_iterator iter =
+        permission_map_.find(permission_name);
+    if (iter == permission_map_.end())
+      return UNDEFINED_STORED_PERM;
+    return iter->second;
+  }
+  if (type == PERSISTENT_PERMISSION) {
+    return application_data_->GetPermission(permission_name);
+  }
+  NOTREACHED();
+  return UNDEFINED_STORED_PERM;
+}
+
+bool Application::SetPermission(PermissionType type,
+                                const std::string& permission_name,
+                                StoredPermission perm) {
+  if (type == SESSION_PERMISSION) {
+    permission_map_[permission_name] = perm;
+    return true;
+  }
+  if (type == PERSISTENT_PERMISSION)
+    return application_data_->SetPermission(permission_name, perm);
+
+  NOTREACHED();
+  return false;
+}
+
 }  // namespace application
 }  // namespace xwalk

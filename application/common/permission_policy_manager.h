@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/permission_types.h"
 
 namespace xwalk {
@@ -26,10 +27,17 @@ class PermissionPolicyManager {
  public:
   PermissionPolicyManager();
   ~PermissionPolicyManager();
-  StoredPermission GetPermission(const std::string& app_id,
-                                 const std::string& permission_name) const;
+  // Permissions listed in manifest would be a little different from what
+  // stored in database. In manifest we have permissions stored in a JSON
+  // array, like ["bluetooth","contacts"], but in database, key-value pairs
+  // are used, like "bluetooth:ALLOW; contacts:PROMPT". A policy based
+  // conversion should be done during installation, and this also means that
+  // the function would only be used during installation.
+  bool InitApplicationPermission(ApplicationData* app_data);
 
  private:
+  StoredPermission GetPermission(const std::string& app_id,
+                                 const std::string& permission_name) const;
   DISALLOW_COPY_AND_ASSIGN(PermissionPolicyManager);
 };
 
