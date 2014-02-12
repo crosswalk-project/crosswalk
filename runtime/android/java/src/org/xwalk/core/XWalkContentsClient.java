@@ -58,7 +58,17 @@ public abstract class XWalkContentsClient extends ContentViewClient {
         @Override
         public void didFailLoad(boolean isProvisionalLoad,
                 boolean isMainFrame, int errorCode, String description, String failingUrl) {
-            // TODO(yongsheng): Implement this.
+            if (errorCode == NetError.ERR_ABORTED || !isMainFrame) {
+                // This error code is generated for the following reasons:
+                // - XWalkView.stopLoading is called,
+                // - the navigation is intercepted by the embedder via shouldOverrideNavigation.
+                //
+                // The XWalkView does not notify the embedder of these situations using this
+                // error code with the XWalkClient.onReceivedError callback. What's more,
+                // the XWalkView does not notify the embedder of sub-frame failures.
+                return;
+            }
+            onReceivedError(errorCode, description, failingUrl);
         }
 
         @Override
