@@ -194,6 +194,7 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/contacts_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/screen_orientation_api.js',
@@ -227,6 +228,7 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi',
           'files': [
+            'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/contacts/contacts_api.js',
             'runtime/android/java/src/org/xwalk/runtime/extension/api/device_capabilities/device_capabilities_api.js',

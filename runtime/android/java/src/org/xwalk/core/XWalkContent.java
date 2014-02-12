@@ -46,6 +46,7 @@ public class XWalkContent extends FrameLayout {
     private XWalkWebContentsDelegateAdapter mXWalkContentsDelegateAdapter;
     private XWalkSettings mSettings;
     private XWalkGeolocationPermissions mGeolocationPermissions;
+    private XWalkLaunchScreenManager mLaunchScreenManager;
 
     int mXWalkContent;
     int mWebContents;
@@ -73,6 +74,8 @@ public class XWalkContent extends FrameLayout {
                 mReadyToLoad = true;
             }
         };
+        mLaunchScreenManager = new XWalkLaunchScreenManager(context, mXWalkView);
+        mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
         addView(mContentViewRenderView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
@@ -331,6 +334,14 @@ public class XWalkContent extends FrameLayout {
         if (url != null && !url.isEmpty()) {
             loadUrl(url);
         }
+    }
+
+    @CalledByNative
+    public void onGetUrlAndLaunchScreenFromManifest(String url, String readyWhen) {
+        if (url == null || url.isEmpty()) return;
+        mLaunchScreenManager.displayLaunchScreen(readyWhen);
+        mContentsClientBridge.registerPageLoadListener(mLaunchScreenManager);
+        loadUrl(url);
     }
 
     public void destroy() {

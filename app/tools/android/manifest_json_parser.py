@@ -84,6 +84,7 @@ class ManifestJsonParser(object):
     required_version: The required crosswalk runtime version.
     plugin:           The plug-in information.
     fullscreen:       The fullscreen flag of the application.
+    launch_screen:    The launch screen configuration.
     """
     ret_dict = {}
     if 'name' not in self.data_src:
@@ -137,6 +138,16 @@ class ManifestJsonParser(object):
       ret_dict['fullscreen'] = self.data_src['fullscreen']
     else:
       ret_dict['fullscreen'] = 'False'
+    ret_dict['launch_screen_img'] = ''
+    if 'launch_screen' in self.data_src:
+      if 'default' not in self.data_src['launch_screen']:
+        print 'Error: no \'default\' field for \'launch_screen\'.'
+        sys.exit(1)
+      default = self.data_src['launch_screen']['default']
+      if 'image' not in default:
+        print 'Error: no \'image\' field for \'launch_screen.default\'.'
+        sys.exit(1)
+      ret_dict['launch_screen_img'] = default['image']
     return ret_dict
 
   def ShowItems(self):
@@ -153,6 +164,8 @@ class ManifestJsonParser(object):
     print("required_version: %s" % self.GetRequiredVersion())
     print("plugins: %s" % self.GetPlugins())
     print("fullscreen: %s" % self.GetFullScreenFlag())
+    print 'launch_screen.default.image: %s' % self.GetLaunchScreenImg()
+
 
   def GetAppName(self):
     """Return the application name."""
@@ -197,6 +210,10 @@ class ManifestJsonParser(object):
   def GetFullScreenFlag(self):
     """Return the set fullscreen flag of the application."""
     return self.ret_dict['fullscreen']
+
+  def GetLaunchScreenImg(self):
+    """Return the default img for launch_screen."""
+    return self.ret_dict['launch_screen_img']
 
 
 def main(argv):

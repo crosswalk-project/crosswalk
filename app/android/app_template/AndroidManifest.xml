@@ -14,7 +14,7 @@
         android:label="XWalkAppTemplate" android:hardwareAccelerated="true"
         android:icon="@drawable/crosswalk">
         <activity android:name="org.xwalk.app.template.AppTemplateActivity"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:theme="@style/AppTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
             android:label="XWalkAppTemplate">
           <intent-filter>

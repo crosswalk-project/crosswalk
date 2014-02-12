@@ -13,9 +13,8 @@ import sys
 
 from handle_xml import AddElementAttribute
 from handle_xml import AddElementAttributeAndText
-from handle_xml import AddThemeStyle
 from handle_xml import EditElementAttribute
-from handle_xml import RemoveThemeStyle
+from handle_xml import EditElementValueByNodeName
 from handle_permissions import HandlePermissions
 from xml.dom import minidom
 
@@ -77,6 +76,43 @@ def CustomizeStringXML(options, sanitized_name):
     strings_file.close()
 
 
+def CustomizeThemeXML(options, sanitized_name):
+  theme_path = os.path.join(sanitized_name, 'res', 'values', 'theme.xml')
+  if not os.path.isfile(theme_path):
+    print('Error: theme.xml is missing in the build tool.')
+    sys.exit(6)
+
+  xmldoc = minidom.parse(theme_path)
+  if options.fullscreen:
+    EditElementValueByNodeName(xmldoc, 'item',
+                               'android:windowFullscreen', 'true')
+  if options.launch_screen_img:
+    EditElementValueByNodeName(xmldoc, 'item',
+                               'android:windowBackground',
+                               '@drawable/launchscreen')
+    default_image = options.launch_screen_img
+    if os.path.isfile(default_image):
+      drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
+      if not os.path.exists(drawable_path):
+        os.makedirs(drawable_path)
+      # Get the extension of default_image.
+      # Need to take care of special case, such as 'img.9.png'
+      name = os.path.basename(default_image)
+      extlist = name.split('.')
+      # Remove the file name from the list.
+      extlist.pop(0)
+      ext = '.' + '.'.join(extlist)
+      final_launch_screen_path = os.path.join(drawable_path,
+                                              'launchscreen' + ext)
+      shutil.copyfile(default_image, final_launch_screen_path)
+    else:
+      print('Error: Please make sure \"' + default_image + '\" exists!')
+      sys.exit(6)
+  theme_file = open(theme_path, 'wb')
+  xmldoc.writexml(theme_file)
+  theme_file.close()
+
+
 def CustomizeXML(options, sanitized_name):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
@@ -85,6 +121,7 @@ def CustomizeXML(options, sanitized_name):
     sys.exit(6)
 
   CustomizeStringXML(options, sanitized_name)
+  CustomizeThemeXML(options, sanitized_name)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', options.package)
   if options.app_versionCode:
@@ -104,10 +141,6 @@ def CustomizeXML(options, sanitized_name):
   if options.orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          options.orientation)
-  if options.fullscreen:
-    AddThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
-  else:
-    RemoveThemeStyle(xmldoc, 'activity', 'android:theme', 'Fullscreen')
   if options.icon and os.path.isfile(options.icon):
     drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
@@ -349,6 +382,8 @@ def main():
           'http://developer.android.com/guide/topics/manifest/'
           'activity-element.html#screen')
   parser.add_option('--orientation', help=info)
+  parser.add_option('--launch-screen-img',
+                    help='The fallback image for launch_screen')
   options, _ = parser.parse_args()
   sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
   try:

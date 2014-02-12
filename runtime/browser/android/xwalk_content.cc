@@ -231,10 +231,25 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     manifest.GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
   }
-
-  ScopedJavaLocalRef<jstring> buffer =
+  ScopedJavaLocalRef<jstring> url_buffer =
       base::android::ConvertUTF8ToJavaString(env, url);
-  Java_XWalkContent_onGetUrlFromManifest(env, obj, buffer.obj());
+
+  // Check whether need to display launch screen. (Read from manifest.json)
+  if (manifest.HasPath(
+          xwalk::application_manifest_keys::kLaunchScreen)) {
+    std::string ready_when;
+    // Get the value of 'ready_when' from manifest.json and callback
+    // to Java side.
+    manifest.GetString(
+        xwalk::application_manifest_keys::kLaunchScreenReadyWhen, &ready_when);
+    ScopedJavaLocalRef<jstring> ready_when_buffer =
+        base::android::ConvertUTF8ToJavaString(env, ready_when);
+    Java_XWalkContent_onGetUrlAndLaunchScreenFromManifest(
+        env, obj, url_buffer.obj(), ready_when_buffer.obj());
+  } else {
+    // No need to display launch screen, load the url directly.
+    Java_XWalkContent_onGetUrlFromManifest(env, obj, url_buffer.obj());
+  }
   return true;
 }
 

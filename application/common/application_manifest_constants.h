@@ -15,6 +15,8 @@ namespace application_manifest_keys {
   extern const char kCSPKey[];
   extern const char kDescriptionKey[];
   extern const char kLaunchLocalPathKey[];
+  extern const char kLaunchScreen[];
+  extern const char kLaunchScreenReadyWhen[];
   extern const char kLaunchWebURLKey[];
   extern const char kManifestVersionKey[];
   extern const char kNameKey[];

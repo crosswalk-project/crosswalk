@@ -37,6 +37,7 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
     private Bitmap mFavicon;
     private DownloadListener mDownloadListener;
     private InterceptNavigationDelegate mInterceptNavigationDelegate;
+    private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
 
     // The native peer of the object
@@ -84,6 +85,10 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     public void setNavigationHandler(XWalkNavigationHandler handler) {
         mNavigationHandler = handler;
+    }
+
+    void registerPageLoadListener(PageLoadListener listener) {
+        mPageLoadListener = listener;
     }
 
     public InterceptNavigationDelegate getInterceptNavigationDelegate() {
@@ -211,6 +216,7 @@ public class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onPageFinished(String url) {
+        if (mPageLoadListener != null) mPageLoadListener.onPageFinished(url);
         if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onPageFinished(mXWalkView, url);
         }
