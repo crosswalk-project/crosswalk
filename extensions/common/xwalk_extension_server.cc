@@ -365,10 +365,9 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
   for (base::FilePath extension_path = libraries.Next();
         !extension_path.empty(); extension_path = libraries.Next()) {
     scoped_ptr<XWalkExternalExtension> extension(
-        new XWalkExternalExtension(extension_path));
+        new XWalkExternalExtension(extension_path, runtime_variables));
     if (extension->is_valid()) {
       registered_extensions.push_back(extension->name());
-      extension->set_runtime_variables(runtime_variables);
       server->RegisterExtension(extension.PassAs<XWalkExtension>());
     }
   }
