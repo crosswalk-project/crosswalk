@@ -156,4 +156,11 @@ public class XWalkDefaultClient extends XWalkClient {
             showHttpAuthDialog(handler, host, realm);
         }
     }
+
+    @Override
+    public void onCloseWindow(XWalkView view) {
+        if (view != null && view.getActivity() != null) {
+            view.getActivity().finish();
+        }
+    }
 }

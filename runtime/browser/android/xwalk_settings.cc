@@ -44,6 +44,8 @@ struct XWalkSettings::FieldIds {
     // FIXME: we should be using a new GetFieldIDFromClassName() with caching.
     ScopedJavaLocalRef<jclass> clazz(
         GetClass(env, "org/xwalk/core/XWalkSettings"));
+    allow_scripts_to_close_windows =
+        GetFieldID(env, clazz, "mAllowScriptsToCloseWindows", "Z");
     load_images_automatically =
         GetFieldID(env, clazz, "mLoadsImagesAutomatically", "Z");
     images_enabled =
@@ -71,6 +73,7 @@ struct XWalkSettings::FieldIds {
   }
 
   // Field ids
+  jfieldID allow_scripts_to_close_windows;
   jfieldID load_images_automatically;
   jfieldID images_enabled;
   jfieldID java_script_enabled;
@@ -156,6 +159,9 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
       web_contents()->GetRenderViewHost();
   if (!render_view_host) return;
   WebPreferences prefs = render_view_host->GetWebkitPreferences();
+
+  prefs.allow_scripts_to_close_windows =
+      env->GetBooleanField(obj, field_ids_->allow_scripts_to_close_windows);
 
   prefs.loads_images_automatically =
       env->GetBooleanField(obj, field_ids_->load_images_automatically);
