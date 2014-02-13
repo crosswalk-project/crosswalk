@@ -30,6 +30,7 @@ public class XWalkSettings {
 
     private final Context mContext;
 
+    private boolean mAllowScriptsToCloseWindows = true;
     private boolean mLoadsImagesAutomatically = true;
     private boolean mImagesEnabled = true;
     private boolean mJavaScriptEnabled = true;
@@ -172,6 +173,20 @@ public class XWalkSettings {
     private void nativeXWalkSettingsGone(int nativeXWalkSettings) {
         assert mNativeXWalkSettings != 0 && mNativeXWalkSettings == nativeXWalkSettings;
         mNativeXWalkSettings = 0;
+    }
+
+    public void setAllowScriptsToCloseWindows(boolean allow) {
+        synchronized (mXWalkSettingsLock) {
+            if (mAllowScriptsToCloseWindows != allow) {
+                mAllowScriptsToCloseWindows = allow;
+            }
+        }
+    }
+
+    public boolean getAllowScriptsToCloseWindows() {
+        synchronized (mXWalkSettingsLock) {
+            return mAllowScriptsToCloseWindows;
+        }
     }
 
     /**
