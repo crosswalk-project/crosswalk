@@ -127,7 +127,6 @@ sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
 
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
-cp -a src/xwalk/AUTHORS AUTHORS.xwalk
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
@@ -260,7 +259,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %files
 %manifest %{name}.manifest
-# %license AUTHORS.chromium AUTHORS.xwalk LICENSE.chromium LICENSE.xwalk
+# %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
