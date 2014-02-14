@@ -176,7 +176,7 @@ function _addEventListener(isOn, eventName, callback) {
   return listener_id;
 }
 
-exports.addEventListener = function(eventName, callback) {
+exports.sms.addEventListener = function(eventName, callback) {
   return _addEventListener(false, eventName, callback);
 }
 

@@ -82,18 +82,21 @@ public class MessagingSmsManager {
         intentSmsSent.putExtra(EXTRA_MSGID, promise_id);
         intentSmsSent.putExtra(EXTRA_MSGTEXT, smsMessage);
         intentSmsSent.putExtra(EXTRA_MSGTO, phone);
-        intentSmsSent.putExtra(EXTRA_MSGINSTANCEID, Integer.toString(instanceID));
+        String instanceIDString = Integer.toString(instanceID);
+        intentSmsSent.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
+        int promiseIdInt = Integer.valueOf(promise_id);
         PendingIntent piSent = PendingIntent.getBroadcast(mMainActivity, 
-                                                          PendingIntent.FLAG_ONE_SHOT, 
+                                                          promiseIdInt, 
                                                           intentSmsSent, 
                                                           PendingIntent.FLAG_ONE_SHOT);
         Intent intentSmsDelivered = new Intent("SMS_DELIVERED");
         intentSmsDelivered.putExtra(EXTRA_MSGID, promise_id);
-        intentSmsSent.putExtra(EXTRA_MSGTEXT, smsMessage);
+        intentSmsDelivered.putExtra(EXTRA_MSGTEXT, smsMessage);
+        intentSmsDelivered.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
         PendingIntent piDelivered = PendingIntent.getBroadcast(mMainActivity, 
-                                                               0, 
-                                                               intentSmsDelivered, 
-                                                               0);
+                                                               -promiseIdInt, 
+                                                               intentSmsDelivered,
+                                                               PendingIntent.FLAG_ONE_SHOT);
         sms.sendTextMessage(phone, null, smsMessage, piSent, piDelivered);
     }
 

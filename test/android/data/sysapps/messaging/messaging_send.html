@@ -23,6 +23,7 @@ window.onload = function() {
 
   var successCount = 0;
   function onSuccess() {
+    document.getElementById("case_index").innerHTML = successCount;
     ++successCount;
     // Features to test:
     // 1.send sms message
@@ -50,17 +51,17 @@ window.onload = function() {
       JSON.stringify(object, undefined, 2);
   }
 
-  messaging.sms.onsent = function(evt) {
+  messaging.sms.addEventListener('sent', function(evt) {
     printJson("onsent", evt);
-  };
+  });
 
-  messaging.sms.ondeliverysuccess = function(evt) {
+  messaging.sms.addEventListener('deliverysuccess',  function(evt) {
     printJson("ondeliverysuccess", evt);
-  };
+  });
 
-  messaging.sms.ondeliveryerror = function(evt) {
+  messaging.sms.addEventListener('deliveryerror', function(evt) {
     printJson("ondeliveryerror", evt);
-  };
+  });
 
   var sendSmsCallback = function(msg) {
     printJson('send', msg);
@@ -110,16 +111,16 @@ window.onload = function() {
   var testNumber = "5556"; // this number is just for testing.
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-        .then(sendSmsCallback, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(sendSmsCallback, errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
     for (var serviceID in messaging.sms.serviceIDs) {
-      messaging.sms.clear(serviceID)
-          .then(clearSmsCallback, errorCallback) 
+      messaging.sms.clear(serviceID).
+          then(clearSmsCallback, errorCallback);
     };
     
   } catch(e) {
@@ -131,12 +132,12 @@ window.onload = function() {
     msg += "a";
   };
   try {
-    messaging.sms.segmentInfo(msg)
-        .then(segmentInfoCallback, errorCallback) 
+    messaging.sms.segmentInfo(msg).
+        then(segmentInfoCallback, errorCallback);
   } catch(e) {
     console.log(e);
   }
-  
+
   var filter = {
     type: "sms",
   }
@@ -146,74 +147,120 @@ window.onload = function() {
     limit: 3
   }
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(findMessagesCallback, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(findMessagesCallback, errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(function(msg) {
-        if (msg.element.length > 0) {
-          messaging.getMessage("sms", msg.element[0].messageID)
-              .then(getMessageCallback, errorCallback) 
-        }
-      }, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(
+                      function(msg) {
+                        if (msg.element.length > 0) {
+                          messaging.getMessage(
+                              "sms",
+                              msg.element[0].messageID).
+                              then(getMessageCallback, errorCallback);
+                        }
+                      },
+                      errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(function(msg) {
-        if (msg.element.length > 0) {
-          messaging.deleteMessage("sms", msg.element[0].messageID)
-              .then(deleteMessageCallback, errorCallback) 
-        }
-      }, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(
+                      function(msg) {
+                        if (msg.element.length > 0) {
+                          messaging.deleteMessage(
+                              "sms",
+                              msg.element[0].messageID).
+                              then(deleteMessageCallback, errorCallback);
+                        }
+                      },
+                      errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(function(msg) {
-        if (msg.element.length > 0) {
-          messaging.deleteConversation("sms", msg.element[0].conversationID)
-              .then(deleteConversationCallback, errorCallback) 
-        }
-      }, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(
+                      function(msg) {
+                        if (msg.element.length > 0) {
+                            messaging.deleteConversation(
+                                "sms",
+                                msg.element[0].conversationID).
+                                then(deleteConversationCallback, errorCallback);
+                        }
+                      },
+                      errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(function(msg) {
-        if (msg.element.length > 0) {
-          messaging.markMessageRead("sms", msg.element[0].messageID, false)
-              .then(markMessageReadCallback, errorCallback) 
-        }
-      }, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(
+                      function(msg) {
+                        if (msg.element.length > 0) {
+                          messaging.markMessageRead(
+                              "sms",
+                              msg.element[0].messageID,
+                              false).
+                              then(markMessageReadCallback, errorCallback);
+                        }
+                      },
+                      errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
 
   try {
-    messaging.sms.send(testNumber, "Hello Xwalk!")
-    messaging.findMessages(filter, filterOption)
-        .then(function(msg) {
-        if (msg.element.length > 0) {
-          messaging.markConversationRead("sms", msg.element[0].conversationID, false)
-              .then(markConversationReadCallback, errorCallback) 
-        }
-      }, errorCallback) 
+    messaging.sms.send(testNumber, "Hello Xwalk!").
+        then(
+            function() {
+              messaging.findMessages(filter, filterOption).
+                  then(
+                      function(msg) {
+                        if (msg.element.length > 0) {
+                            messaging.markConversationRead(
+                                "sms",
+                                msg.element[0].conversationID,
+                                false).
+                                then(markConversationReadCallback, errorCallback);
+                        }
+                      },
+                      errorCallback);
+            },
+            errorCallback);
   } catch(e) {
     console.log(e);
   }
@@ -221,6 +268,7 @@ window.onload = function() {
 
 </script>
 <div class="title pass" id="pass"></div>
+<div class="title pass" id="case_index"></div>
 
 <div class="title center">Messaging API Example</div>
 
