@@ -31,8 +31,13 @@ public class XWalkDevToolsServer {
         nativeSetRemoteDebuggingEnabled(mNativeDevToolsServer, enabled);
     }
 
+    public void allowConnectionFromUid(int uid) {
+        nativeAllowConnectionFromUid(mNativeDevToolsServer, uid);
+    }
+
     private native int nativeInitRemoteDebugging(String socketName);
     private native void nativeDestroyRemoteDebugging(int devToolsServer);
     private native boolean nativeIsRemoteDebuggingEnabled(int devToolsServer);
     private native void nativeSetRemoteDebuggingEnabled(int devToolsServer, boolean enabled);
+    private native void nativeAllowConnectionFromUid(int devToolsServer, int uid);
 }

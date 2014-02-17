@@ -29,9 +29,14 @@ class XWalkDevToolsServer {
 
   bool IsStarted() const;
 
+  void AllowConnectionFromUid(uid_t uid);
+
  private:
+  bool CanUserConnectToDevTools(uid_t uid, gid_t gid);
+
   std::string socket_name_;
   content::DevToolsHttpHandler* protocol_handler_;
+  uid_t allowed_uid_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsServer);
 };

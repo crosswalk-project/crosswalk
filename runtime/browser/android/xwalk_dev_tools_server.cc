@@ -138,27 +138,28 @@ class XWalkDevToolsServerDelegate
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsServerDelegate);
 };
 
-// Allow connection from same uid to devtools server.
-// This supports the XDK usage: debug bridge wrapper connects to the devtools
-// server.
-static bool CanUserConnectToDevTools(uid_t uid, gid_t gid) {
-  if (uid == getuid())
-    return true;
-
-  return content::CanUserConnectToDevTools(uid, gid);
-}
-
 }  // namespace
 
 namespace xwalk {
 
 XWalkDevToolsServer::XWalkDevToolsServer(const std::string& socket_name)
     : socket_name_(socket_name),
-      protocol_handler_(NULL) {
+      protocol_handler_(NULL),
+      allowed_uid_(0) {
 }
 
 XWalkDevToolsServer::~XWalkDevToolsServer() {
   Stop();
+}
+
+// Allow connection from uid specified using AllowConnectionFromUid to devtools
+// server. This supports the XDK usage: debug bridge wrapper runs in a separate
+// process and connects to the devtools server.
+bool XWalkDevToolsServer::CanUserConnectToDevTools(uid_t uid, gid_t gid) {
+  if (uid == allowed_uid_)
+    return true;
+
+  return content::CanUserConnectToDevTools(uid, gid);
 }
 
 void XWalkDevToolsServer::Start() {
@@ -169,7 +170,8 @@ void XWalkDevToolsServer::Start() {
       new net::UnixDomainSocketWithAbstractNamespaceFactory(
           socket_name_,
           "",  // fallback socket name
-          base::Bind(&CanUserConnectToDevTools)),
+          base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
+              base::Unretained(this))),
       base::StringPrintf(kFrontEndURL,
                          webkit_glue::GetWebKitRevision().c_str()),
       new XWalkDevToolsServerDelegate());
@@ -186,6 +188,10 @@ void XWalkDevToolsServer::Stop() {
 
 bool XWalkDevToolsServer::IsStarted() const {
   return protocol_handler_;
+}
+
+void XWalkDevToolsServer::AllowConnectionFromUid(uid_t uid) {
+  allowed_uid_ = uid;
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {
@@ -221,6 +227,15 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
   } else {
     devtools_server->Stop();
   }
+}
+
+static void AllowConnectionFromUid(JNIEnv* env,
+                                    jobject obj,
+                                    jint server,
+                                    jint uid) {
+  XWalkDevToolsServer* devtools_server =
+      reinterpret_cast<XWalkDevToolsServer*>(server);
+  devtools_server->AllowConnectionFromUid((uid_t) uid);
 }
 
 }  // namespace xwalk
