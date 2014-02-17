@@ -148,6 +148,16 @@ public class XWalkView extends FrameLayout {
         mContent.goForward();
     }
 
+    public boolean isFullscreen() {
+        checkThreadSafety();
+        return mContent.isFullscreen();
+    }
+
+    public void exitFullscreen() {
+        checkThreadSafety();
+        mContent.exitFullscreen();
+    }
+
     public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
         checkThreadSafety();
         return false;
@@ -251,7 +261,8 @@ public class XWalkView extends FrameLayout {
             // If there's navigation happens when app is fullscreen,
             // the content will still be fullscreen after navigation.
             // In such case, the back key will exit fullscreen first.
-            if (mContent.maybeExitFullscreen()) {
+            if (isFullscreen()) {
+                exitFullscreen();
                 return true;
             } else if (canGoBack()) {
                 goBack();
