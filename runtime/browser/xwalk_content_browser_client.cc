@@ -37,7 +37,7 @@
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_mac.h"
 #endif
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
 
@@ -75,7 +75,7 @@ content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
   main_parts_ = new XWalkBrowserMainPartsMac(parameters);
 #elif defined(OS_ANDROID)
   main_parts_ = new XWalkBrowserMainPartsAndroid(parameters);
-#elif defined(OS_TIZEN_MOBILE)
+#elif defined(OS_TIZEN)
   main_parts_ = new XWalkBrowserMainPartsTizen(parameters);
 #else
   main_parts_ = new XWalkBrowserMainParts(parameters);

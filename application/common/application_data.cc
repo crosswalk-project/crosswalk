@@ -33,7 +33,7 @@
 #include "url/url_util.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 #include "xwalk/tizen/appcore_context.h"
 #endif
 
@@ -247,7 +247,7 @@ bool ApplicationData::Init(base::string16* error) {
     return false;
 
   finished_parsing_manifest_ = true;
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   appcore_context_ = tizen::AppcoreContext::Create();
 #endif
   return true;

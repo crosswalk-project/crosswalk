@@ -32,7 +32,7 @@ class ListValue;
 class Version;
 }
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 namespace tizen {
 class AppcoreContext;
 }
@@ -223,7 +223,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // Application's persistent permissions.
   StoredPermissionMap permission_map_;
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   scoped_ptr<tizen::AppcoreContext> appcore_context_;
 #endif
 

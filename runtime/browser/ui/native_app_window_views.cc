@@ -52,7 +52,7 @@ void NativeAppWindowViews::Initialize() {
   params.top_level = true;
   params.show_state = create_params_.state;
   params.parent = create_params_.parent;
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   params.type = views::Widget::InitParams::TYPE_WINDOW_FRAMELESS;
   // On Tizen apps are sized to the work area.
   gfx::Rect bounds =
@@ -66,7 +66,7 @@ void NativeAppWindowViews::Initialize() {
 
   window_->Init(params);
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   // Set the bounds manually to avoid inset.
   window_->SetBounds(bounds);
 #elif !defined(USE_OZONE)

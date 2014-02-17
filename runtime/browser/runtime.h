@@ -74,7 +74,7 @@ class Runtime : public content::WebContentsDelegate,
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   void CloseRootWindow();
 #endif
 
@@ -152,7 +152,7 @@ class Runtime : public content::WebContentsDelegate,
   void ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params);
   void ApplyFullScreenParam(NativeAppWindow::CreateParams* params);
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   void ApplyRootWindowParams(NativeAppWindow::CreateParams* params);
   void SetRootWindow(NativeAppWindow* window);
   void InitRootWindow();
@@ -169,7 +169,7 @@ class Runtime : public content::WebContentsDelegate,
 
   NativeAppWindow* window_;
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   NativeAppWindow* root_window_;
 #endif
 

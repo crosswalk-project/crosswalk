@@ -9,7 +9,7 @@
 // that required 'root' access are done by a small code base.
 
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 #include <pkgmgr/pkgmgr_parser.h>
 #else
 // So we can compile this on Linux Desktop

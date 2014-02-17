@@ -135,7 +135,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   // On Tizen, applications are launched by a symbolic link named like the
   // application ID.
   // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
   if (ApplicationData::IsIDValid(command_name)) {
     run_default_message_loop = LaunchWithCommandLineParam(command_name);

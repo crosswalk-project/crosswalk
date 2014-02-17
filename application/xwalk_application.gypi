@@ -102,7 +102,7 @@
             'browser/linux/running_applications_manager.h',
           ],
         }],
-        [ 'tizen_mobile == 1', {
+        [ 'tizen == 1 or tizen_mobile == 1', {
           'dependencies': [
             'build/system.gyp:tizen',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',

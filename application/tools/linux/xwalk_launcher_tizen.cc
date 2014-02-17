@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 #include <appcore/appcore-common.h>
 #endif
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"

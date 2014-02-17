@@ -185,6 +185,7 @@ export GYP_GENERATORS='make'
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
 -Ddisable_nacl=1 \
+-Dtizen=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
 -Duse_cups=0 \

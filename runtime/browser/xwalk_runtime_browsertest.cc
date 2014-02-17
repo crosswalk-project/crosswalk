@@ -232,7 +232,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   EXPECT_EQ(len + 1, runtimes().size());
 }
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadTizenWebUiFwFile) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("tizenwebuifw.html"));
