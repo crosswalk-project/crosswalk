@@ -87,6 +87,11 @@ class XWalkCoreProviderImpl extends XWalkRuntimeViewProviderBase {
     }
 
     @Override
+    public boolean onNewIntent(Intent intent) {
+        return mXwalkView.onNewIntent(intent);
+    }
+
+    @Override
     public String enableRemoteDebugging(String frontEndUrl, String socketName) {
         // TODO(yongsheng): Enable two parameters once they're supported in XWalkView.
         return mXwalkView.enableRemoteDebugging();

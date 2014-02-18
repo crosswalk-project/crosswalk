@@ -136,6 +136,16 @@ public class XWalkRuntimeView extends FrameLayout {
     }
 
     /**
+     * Tell runtime that the activity receive a new Intent to start it. It may contains
+     * data that runtime want to deal with.
+     * @param intent the new coming Intent.
+     * @return boolean whether runtime consumed it. 
+     */
+    public boolean onNewIntent(Intent intent) {
+        return mProvider.onNewIntent(intent);
+    }
+
+    /**
      * Enable remote debugging for the loaded web application. The caller
      * can set the url of debugging url. Besides, the socket name for remote
      * debugging has to be unique so typically the string can be appended

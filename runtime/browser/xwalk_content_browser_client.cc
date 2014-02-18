@@ -30,6 +30,7 @@
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
@@ -199,7 +200,11 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
     const GURL& source_url,
     content::ResourceContext* context,
     int render_process_id) {
+#if defined(OS_ANDROID)
+  return blink::WebNotificationPresenter::PermissionAllowed;
+#else
   return blink::WebNotificationPresenter::PermissionNotAllowed;
+#endif
 }
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
@@ -207,12 +212,23 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
     int render_process_id,
     int render_view_id,
     bool worker) {
+#if defined(OS_ANDROID)
+  XWalkContentsClientBridgeBase* bridge =
+      XWalkContentsClientBridgeBase::FromID(render_process_id, render_view_id);
+  bridge->ShowNotification(params, worker, render_process_id, render_view_id);
+#endif
 }
 
 void XWalkContentBrowserClient::CancelDesktopNotification(
     int render_process_id,
     int render_view_id,
     int notification_id) {
+#if defined(OS_ANDROID)
+  XWalkContentsClientBridgeBase* bridge =
+      XWalkContentsClientBridgeBase::FromID(render_process_id, render_view_id);
+  bridge->CancelNotification(
+      notification_id, render_process_id, render_view_id);
+#endif
 }
 
 #if defined(OS_ANDROID)

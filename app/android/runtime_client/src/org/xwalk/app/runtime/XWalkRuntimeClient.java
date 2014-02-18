@@ -34,6 +34,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mOnPause;
     private Method mOnDestroy;
     private Method mOnActivityResult;
+    private Method mOnNewIntent;
     private Method mEnableRemoteDebugging;
     private Method mDisableRemoteDebugging;
     private Method mOnKeyUp;
@@ -63,6 +64,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mOnPause = lookupMethod("onPause");
         mOnDestroy = lookupMethod("onDestroy");
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
+        mOnNewIntent = lookupMethod("onNewIntent", Intent.class);
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
         mOnKeyUp = lookupMethod("onKeyUp", int.class, KeyEvent.class);
@@ -218,6 +220,18 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         invokeMethod(mOnActivityResult, mInstance, requestCode, resultCode, data);
+    }
+
+    /**
+     * Tell runtime that the activity receive a new Intent. The Intent may contain
+     * data that runtime wants to deal with.
+     * @param intent the new coming Intent.
+     * @return boolean whether runtime consumed it. 
+     */
+    public boolean onNewIntent(Intent intent) {
+        Boolean handled = (Boolean) invokeMethod(mOnNewIntent, mInstance, intent);
+        if (handled != null) return handled;
+        return false;
     }
 
     /**
