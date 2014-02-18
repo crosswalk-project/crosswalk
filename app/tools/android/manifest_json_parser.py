@@ -103,7 +103,7 @@ class ManifestJsonParser(object):
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
-    if app_url.lower().startswith(('http', 'https')):
+    if app_url.lower().startswith(('http://', 'https://')):
       app_local_path = ''
     else:
       app_local_path = app_url

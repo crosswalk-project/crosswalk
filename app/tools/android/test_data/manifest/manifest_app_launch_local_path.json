@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "app": {
       "launch": {
-          "local_path": "abc.html"
+          "local_path": "http.html"
       }
   },
   "description": "a sample description",
