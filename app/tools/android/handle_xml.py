@@ -24,6 +24,14 @@ def EditElementAttribute(doc, node, name, value):
     item.setAttribute(name, value)
 
 
+def EditElementValueByNodeName(doc, node, name, value):
+  items = doc.getElementsByTagName(node)
+  for item in items:
+    if item.attributes['name'].value == name:
+      item.firstChild.data = value
+      break
+
+
 def AddElementAttributeAndText(doc, node, name, value, data):
   root = doc.documentElement
   item = doc.createElement(node)
@@ -31,16 +39,3 @@ def AddElementAttributeAndText(doc, node, name, value, data):
   text = doc.createTextNode(data)
   item.appendChild(text)
   root.appendChild(item)
-
-
-def AddThemeStyle(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
-  src_str = item.attributes[name].value
-  src_str = src_str + '.' + value
-  item.attributes[name].value = src_str
-
-
-def RemoveThemeStyle(doc, node, name, value):
-  item = doc.getElementsByTagName(node)[0]
-  dest_str = item.attributes[name].value.replace('.' + value, '')
-  item.attributes[name].value = dest_str

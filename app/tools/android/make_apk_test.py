@@ -139,9 +139,10 @@ class TestMakeApk(unittest.TestCase):
       self.assertTrue(out.find(res_file) != -1)
     if self._mode.find('embedded') != -1:
       embedded_related_files = ['xwalk.pak',
+                                'device_capabilities_api.js',
+                                'launch_screen_api.js',
                                 'presentation_api.js',
-                                'screen_orientation_api.js',
-                                'device_capabilities_api.js']
+                                'screen_orientation_api.js']
       for res_file in embedded_related_files:
         self.assertTrue(out.find(res_file) != -1)
     if arch == 'x86':

@@ -285,6 +285,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
@@ -311,6 +312,7 @@
         {
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi',
           'files': [
+            'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
             'sysapps/device_capabilities/device_capabilities_api.js',
             'runtime/extension/screen_orientation_api.js',

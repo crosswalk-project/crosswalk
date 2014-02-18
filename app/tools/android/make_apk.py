@@ -123,6 +123,10 @@ def ParseManifest(options):
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
     options.fullscreen = False
+  options.launch_screen_img = ''
+  if parser.GetLaunchScreenImg():
+    options.launch_screen_img  = os.path.join(options.app_root,
+                                              parser.GetLaunchScreenImg())
 
 
 def ParseXPK(options, out_dir):
@@ -223,10 +227,13 @@ def Customize(options):
   orientation = '--orientation=unspecified'
   if options.orientation:
     orientation = '--orientation=%s' % options.orientation
+  default_image = ''
+  if options.launch_screen_img:
+    default_image = '--launch-screen-img=' + options.launch_screen_img
   cmd = ['python', 'customize.py', package,
           name, app_version, app_versionCode, description, icon, permissions,
           app_url, remote_debugging, app_root, app_local_path, fullscreen_flag,
-          extensions_list, orientation]
+          extensions_list, orientation, default_image]
   RunCommand(cmd)
 
 

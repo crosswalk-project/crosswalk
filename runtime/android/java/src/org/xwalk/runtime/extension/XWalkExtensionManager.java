@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.runtime.extension.api.contacts.Contacts;
 import org.xwalk.runtime.extension.api.device_capabilities.DeviceCapabilities;
+import org.xwalk.runtime.extension.api.launchscreen.LaunchScreenExtension;
 import org.xwalk.runtime.extension.api.messaging.Messaging;
 import org.xwalk.runtime.extension.api.presentation.PresentationExtension;
 import org.xwalk.runtime.extension.api.screenorientation.ScreenOrientationExtension;
@@ -157,6 +158,19 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                                                ScreenOrientationExtension.JS_ENTRY_POINTS, this);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
+            }
+        }
+
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getAssetsFileContent(mContext.getAssets(),
+                                                    LaunchScreenExtension.JS_API_PATH);
+                // Load LaunchscreenExtension as an internal extension.
+                new LaunchScreenExtension(LaunchScreenExtension.NAME, jsApiContent,
+                                          LaunchScreenExtension.JS_ENTRY_POINTS, this);
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
             }
         }
 
