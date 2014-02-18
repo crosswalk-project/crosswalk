@@ -138,6 +138,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   PermissionSet GetManifestPermissions() const;
 
   bool HasMainDocument() const;
+  Manifest::PackageType GetPackageType() const;
 
  private:
   friend class base::RefCountedThreadSafe<ApplicationData>;

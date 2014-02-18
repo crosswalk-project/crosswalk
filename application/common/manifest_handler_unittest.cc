@@ -31,12 +31,15 @@ class ScopedTestingManifestHandlerRegistry {
       const std::vector<ManifestHandler*>& handlers)
       : registry_(
           new ManifestHandlerRegistry(handlers)),
-        prev_registry_(ManifestHandlerRegistry::GetInstance()) {
-    ManifestHandlerRegistry::SetInstanceForTesting(registry_.get());
+        prev_registry_(
+          ManifestHandlerRegistry::GetInstance(Manifest::TYPE_XPK)) {
+    ManifestHandlerRegistry::SetInstanceForTesting(
+        registry_.get(), Manifest::TYPE_XPK);
   }
 
   ~ScopedTestingManifestHandlerRegistry() {
-    ManifestHandlerRegistry::SetInstanceForTesting(prev_registry_);
+    ManifestHandlerRegistry::SetInstanceForTesting(
+        prev_registry_, Manifest::TYPE_XPK);
   }
 
   scoped_ptr<ManifestHandlerRegistry> registry_;
@@ -91,7 +94,8 @@ class ManifestHandlerTest : public testing::Test {
     virtual ~TestManifestHandler() {}
 
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application,
+        base::string16* error) OVERRIDE {
       watcher_->Record(name_);
       return true;
     }
@@ -120,7 +124,8 @@ class ManifestHandlerTest : public testing::Test {
         : TestManifestHandler(name, keys, prereqs, watcher) {
     }
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application,
+        base::string16* error) OVERRIDE {
       *error = base::ASCIIToUTF16(name_);
       return false;
     }
@@ -151,7 +156,8 @@ class ManifestHandlerTest : public testing::Test {
     }
 
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application,
+        base::string16* error) OVERRIDE {
       return true;
     }
 

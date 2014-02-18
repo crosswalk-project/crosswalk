@@ -28,6 +28,7 @@
 namespace xwalk {
 
 namespace keys = application_manifest_keys;
+namespace widget_keys = application_widget_keys;
 
 namespace application {
 
@@ -137,7 +138,10 @@ GURL Application::GetURLFromAppMainKey() {
 GURL Application::GetURLFromLocalPathKey() {
   const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
-  if (!manifest->GetString(keys::kLaunchLocalPathKey, &entry_page)
+  std::string key(GetLaunchLocalPathKey(
+      application_data_->GetPackageType()));
+
+  if (!manifest->GetString(key, &entry_page)
       || entry_page.empty())
     return GURL();
 

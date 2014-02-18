@@ -5,6 +5,7 @@
 #ifndef XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
 #define XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
 
+#include "xwalk/application/common/manifest.h"
 // Keys used in JSON representation of applications.
 namespace xwalk {
 namespace application_manifest_keys {
@@ -31,6 +32,18 @@ namespace application_manifest_keys {
 #endif
 }  // namespace application_manifest_keys
 
+namespace application_widget_keys {
+  extern const char kNameKey[];
+  extern const char kLaunchLocalPathKey[];
+  extern const char kWebURLsKey[];
+  extern const char kWidgetKey[];
+  extern const char kVersionKey[];
+#if defined(OS_TIZEN)
+  extern const char kTizenAppIdKey[];
+  extern const char kIcon128Key[];
+#endif
+}  // namespace application_widget_keys
+
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];
   extern const char kInvalidKey[];
@@ -41,6 +54,19 @@ namespace application_manifest_errors {
   extern const char kManifestUnreadable[];
   extern const char kPlatformAppNeedsManifestVersion2[];
 }  // namespace application_manifest_errors
+
+namespace application {
+
+typedef application::Manifest Manifest;
+const char* GetNameKey(Manifest::PackageType type);
+const char* GetVersionKey(Manifest::PackageType type);
+const char* GetWebURLsKey(Manifest::PackageType type);
+const char* GetLaunchLocalPathKey(Manifest::PackageType type);
+#if defined(OS_TIZEN)
+const char* GetTizenAppIdKey(Manifest::PackageType type);
+const char* GetIcon128Key(Manifest::PackageType type);
+#endif
+}  // namespace application
 }  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
