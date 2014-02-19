@@ -7,8 +7,10 @@
 
 #include <X11/X.h>
 
+#include "base/event_types.h"
 #include "base/logging.h"
 #include "ui/aura/root_window.h"
+#include "ui/aura/window.h"
 #include "ui/base/ime/input_method_delegate.h"
 #include "ui/base/ime/text_input_client.h"
 #include "ui/events/event_utils.h"
@@ -51,7 +53,7 @@ void InputMethodSCIM::SetFocusedTextInputClient(TextInputClient* client) {
     aura::Window* rw = client->GetAttachedWindow()->GetRootWindow();
       if (rw) {
         scim_bridge_->SetFocusedWindow(
-            rw->GetDispatcher()->GetAcceleratedWidget());
+            rw->GetDispatcher()->host()->GetAcceleratedWidget());
         scim_bridge_->Init();
       }
   }
@@ -65,8 +67,9 @@ TextInputClient* InputMethodSCIM::GetTextInputClient() const {
   return text_input_client_;
 }
 
-bool InputMethodSCIM::DispatchKeyEvent(const base::NativeEvent& native_event) {
+bool InputMethodSCIM::DispatchKeyEvent(const ui::KeyEvent& event) {
   bool handled = false;
+  const base::NativeEvent& native_event = event.native_event();
   DCHECK(native_event);
   if (native_event->type == KeyRelease) {
     // On key release, just dispatch it.
@@ -126,17 +129,16 @@ std::string InputMethodSCIM::GetInputLocale() {
   return "";
 }
 
-base::i18n::TextDirection InputMethodSCIM::GetInputTextDirection() {
-  // TODO(alexshalamov): Fetch input text direction from SCIM.
-  return base::i18n::UNKNOWN_DIRECTION;
-}
-
 bool InputMethodSCIM::IsActive() {
   return true;
 }
 
 bool InputMethodSCIM::IsCandidatePopupOpen() const {
   return false;
+}
+
+void InputMethodSCIM::ShowImeIfNeeded() {
+  // TODO(alexshalamov): Implement it.
 }
 
 ui::TextInputType InputMethodSCIM::GetTextInputType() const {

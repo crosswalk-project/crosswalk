@@ -21,7 +21,7 @@ class NativeAppWindowMac : public NativeAppWindow {
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
   virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
-  virtual void UpdateTitle(const string16& title) OVERRIDE;
+  virtual void UpdateTitle(const base::string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
   virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
@@ -43,7 +43,7 @@ class NativeAppWindowMac : public NativeAppWindow {
   content::WebContents* web_contents_;
 
   NSWindow* window_;
-  string16 title_;
+  base::string16 title_;
 
   bool is_fullscreen_;
   gfx::Size minimum_size_;

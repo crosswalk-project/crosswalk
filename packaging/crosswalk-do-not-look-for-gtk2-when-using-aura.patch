@@ -11,10 +11,10 @@ Upstream patch: https://codereview.chromium.org/19531008
 Depends on:     https://code.google.com/p/chromium/issues/detail?id=247213
 --- src/build/linux/system.gyp
 +++ src/build/linux/system.gyp
-@@ -29,7 +29,7 @@
-         'use_system_ssl%': 1,
-       },
-     }],
+@@ -18,7 +18,7 @@
+     'linux_link_libbrlapi%': 0,
+   },
+   'conditions': [
 -    [ 'chromeos==0', {
 +    [ 'chromeos==0 and toolkit_uses_gtk==1', {
        # Hide GTK and related dependencies for Chrome OS, so they won't get

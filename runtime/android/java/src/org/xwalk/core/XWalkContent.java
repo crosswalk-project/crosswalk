@@ -29,7 +29,7 @@ import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.media.MediaPlayerBridge;
-import org.chromium.ui.WindowAndroid;
+import org.chromium.ui.base.WindowAndroid;
 
 @JNINamespace("xwalk")
 /**
@@ -64,8 +64,11 @@ public class XWalkContent extends FrameLayout {
             mContentsClientBridge);
         mIoThreadClient = new XWalkIoThreadClientImpl();
 
+        // Initialize mWindow which is needed by content
+        mWindow = new WindowAndroid(xwView.getActivity().getApplicationContext());
+
         // Initialize ContentViewRenderView
-        mContentViewRenderView = new ContentViewRenderView(context) {
+        mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
             protected void onReadyToRender() {
                 if (mPendingUrl != null) {
                     doLoadUrl(mPendingUrl);
@@ -86,9 +89,6 @@ public class XWalkContent extends FrameLayout {
         mWebContents = nativeGetWebContents(mXWalkContent, mIoThreadClient,
                 mContentsClientBridge.getInterceptNavigationDelegate());
 
-        // Initialize mWindow which is needed by content
-        mWindow = new WindowAndroid(xwView.getActivity());
-
         // Initialize ContentView.
         mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
         addView(mContentView,
@@ -103,7 +103,7 @@ public class XWalkContent extends FrameLayout {
         mContentViewCore = mContentView.getContentViewCore();
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
-        mContentView.setDownloadDelegate(mContentsClientBridge);
+        mContentView.getContentViewCore().setDownloadDelegate(mContentsClientBridge);
 
         // Set the third argument isAccessFromFileURLsGrantedByDefault to false, so that
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
@@ -125,7 +125,7 @@ public class XWalkContent extends FrameLayout {
         //TODO(Xingnan): Configure appropriate parameters here.
         // Handle the same url loading by parameters.
         if (TextUtils.equals(url, mContentView.getUrl())) {
-            mContentView.reload();
+            mContentView.getContentViewCore().reload(true);
         } else {
             LoadUrlParams params = new LoadUrlParams(url);
             params.setOverrideUserAgent(LoadUrlParams.UA_OVERRIDE_TRUE);
@@ -147,7 +147,7 @@ public class XWalkContent extends FrameLayout {
 
     public void reload() {
         if (mReadyToLoad) {
-            mContentView.reload();
+            mContentView.getContentViewCore().reload(true);
         }
     }
 
@@ -205,7 +205,7 @@ public class XWalkContent extends FrameLayout {
     }
 
     public void clearHistory() {
-        mContentView.clearHistory();
+        mContentView.getContentViewCore().clearHistory();
     }
 
     public boolean canGoBack() {
@@ -225,7 +225,7 @@ public class XWalkContent extends FrameLayout {
     }
 
     public void stopLoading() {
-        mContentView.stopLoading();
+        mContentView.getContentViewCore().stopLoading();
     }
 
     // TODO(Guangzhen): ContentViewStatics will be removed in upstream,

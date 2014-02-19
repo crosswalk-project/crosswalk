@@ -126,7 +126,7 @@ void XWalkRunner::InitializeRuntimeVariablesForExtensions(
     variables["app_id"] = base::Value::CreateStringValue(app->id());
 }
 
-void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
+void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
 
@@ -151,7 +151,7 @@ void XWalkRunner::OnRenderProcessHostCreated(content::RenderProcessHost* host) {
 
   base::ValueMap runtime_variables;
   InitializeRuntimeVariablesForExtensions(host, runtime_variables);
-  extension_service_->OnRenderProcessHostCreated(
+  extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,
       runtime_variables);
 }

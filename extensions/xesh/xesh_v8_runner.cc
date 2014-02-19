@@ -40,7 +40,7 @@ void XEShV8Runner::Shutdown() {
   v8::Local<v8::Context> context = GetV8Context();
 
   context->Exit();
-  v8_context_.Dispose();
+  v8_context_.Reset();
   v8::V8::Dispose();
 }
 
@@ -151,7 +151,7 @@ void XEShV8Runner::RegisterAccessors() {
 
   context->Global()->Set(
       v8::String::NewFromUtf8(isolate, "print"),
-      v8::FunctionTemplate::New(PrintCallback)->GetFunction());
+      v8::FunctionTemplate::New(isolate, PrintCallback)->GetFunction());
   context->Global()->SetAccessor(
       v8::String::NewFromUtf8(isolate, "quit"),
       QuitCallback);

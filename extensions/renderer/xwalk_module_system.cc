@@ -72,11 +72,11 @@ XWalkModuleSystem::XWalkModuleSystem(v8::Handle<v8::Context> context) {
   v8_context_.Reset(isolate, context);
 
   v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::Object> function_data = v8::Object::New();
+  v8::Handle<v8::Object> function_data = v8::Object::New(isolate);
   function_data->Set(v8::String::NewFromUtf8(isolate, kXWalkModuleSystem),
-                     v8::External::New(this));
+                     v8::External::New(isolate, this));
   v8::Handle<v8::FunctionTemplate> require_native_template =
-      v8::FunctionTemplate::New(RequireNativeCallback, function_data);
+      v8::FunctionTemplate::New(isolate, RequireNativeCallback, function_data);
 
   function_data_.Reset(isolate, function_data);
   require_native_template_.Reset(isolate, require_native_template);
@@ -165,15 +165,16 @@ v8::Handle<v8::Value> EnsureTargetObjectForTrampoline(
     v8::Handle<v8::Context> context, const std::vector<std::string>& path,
     std::string* error) {
   v8::Handle<v8::Object> object = context->Global();
+  v8::Isolate* isolate = context->GetIsolate();
 
   std::vector<std::string>::const_iterator it = path.begin();
   for (; it != path.end(); ++it) {
     v8::Handle<v8::String> part =
-        v8::String::NewFromUtf8(context->GetIsolate(), it->c_str());
+        v8::String::NewFromUtf8(isolate, it->c_str());
     v8::Handle<v8::Value> value = object->Get(part);
 
     if (value->IsUndefined()) {
-      v8::Handle<v8::Object> next_object = v8::Object::New();
+      v8::Handle<v8::Object> next_object = v8::Object::New(isolate);
       object->Set(part, next_object);
       object = next_object;
       continue;
@@ -181,7 +182,7 @@ v8::Handle<v8::Value> EnsureTargetObjectForTrampoline(
 
     if (!value->IsObject()) {
       *error = "the property '" + *it + "' in the path is undefined";
-      return v8::Undefined();
+      return v8::Undefined(isolate);
     }
 
     object = value.As<v8::Object>();
@@ -193,16 +194,17 @@ v8::Handle<v8::Value> GetObjectForPath(v8::Handle<v8::Context> context,
                                        const std::vector<std::string>& path,
                                        std::string* error) {
   v8::Handle<v8::Object> object = context->Global();
+  v8::Isolate* isolate = context->GetIsolate();
 
   std::vector<std::string>::const_iterator it = path.begin();
   for (; it != path.end(); ++it) {
     v8::Handle<v8::String> part =
-        v8::String::NewFromUtf8(context->GetIsolate(), it->c_str());
+        v8::String::NewFromUtf8(isolate, it->c_str());
     v8::Handle<v8::Value> value = object->Get(part);
 
     if (!value->IsObject()) {
       *error = "the property '" + *it + "' in the path is undefined";
-      return v8::Undefined();
+      return v8::Undefined(isolate);
     }
 
     object = value.As<v8::Object>();
@@ -231,14 +233,15 @@ bool XWalkModuleSystem::SetTrampolineAccessorForEntryPoint(
     return false;
   }
 
-  v8::Local<v8::Array> params = v8::Array::New();
-  v8::Local<v8::String> entry = v8::String::New(entry_point.c_str());
-  params->Set(v8::Integer::New(0), user_data);
-  params->Set(v8::Integer::New(1), entry);
+  v8::Isolate* isolate = context->GetIsolate();
+  v8::Local<v8::Array> params = v8::Array::New(isolate);
+  v8::Local<v8::String> entry = v8::String::NewFromUtf8(isolate, entry_point.c_str());
+  params->Set(v8::Integer::New(isolate, 0), user_data);
+  params->Set(v8::Integer::New(isolate, 1), entry);
 
   // FIXME(cmarcelo): ensure that trampoline is readonly.
   value.As<v8::Object>()->SetAccessor(
-      v8::String::NewFromUtf8(context->GetIsolate(), basename.c_str()),
+      v8::String::NewFromUtf8(isolate, basename.c_str()),
       TrampolineCallback, TrampolineSetterCallback, params);
   return true;
 }
@@ -267,7 +270,7 @@ bool XWalkModuleSystem::DeleteAccessorForEntryPoint(
 
 bool XWalkModuleSystem::InstallTrampoline(v8::Handle<v8::Context> context,
                                           ExtensionModuleEntry* entry) {
-  v8::Local<v8::External> entry_ptr = v8::External::New(entry);
+  v8::Local<v8::External> entry_ptr = v8::External::New(context->GetIsolate(), entry);
   bool ret;
 
   ret = SetTrampolineAccessorForEntryPoint(context, entry->name, entry_ptr);
@@ -305,7 +308,7 @@ void XWalkModuleSystem::Initialize() {
 
   v8::Handle<v8::Context> context = GetV8Context();
   v8::Handle<v8::FunctionTemplate> require_native_template =
-      v8::Handle<v8::FunctionTemplate>::New(isolate, require_native_template_);
+      v8::Local<v8::FunctionTemplate>::New(isolate, require_native_template_);
   v8::Handle<v8::Function> require_native =
       require_native_template->GetFunction();
 
@@ -321,7 +324,7 @@ void XWalkModuleSystem::Initialize() {
 }
 
 v8::Handle<v8::Context> XWalkModuleSystem::GetV8Context() {
-  return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
+  return v8::Local<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
 }
 
 bool XWalkModuleSystem::ContainsEntryPoint(
@@ -353,7 +356,7 @@ void XWalkModuleSystem::LoadExtensionForTrampoline(
     v8::Isolate* isolate,
     v8::Local<v8::Value> data) {
   v8::Local<v8::Array> params = data.As<v8::Array>();
-  void* ptr = params->Get(v8::Integer::New(0)).As<v8::External>()->Value();
+  void* ptr = params->Get(v8::Integer::New(isolate, 0)).As<v8::External>()->Value();
 
   ExtensionModuleEntry* entry = static_cast<ExtensionModuleEntry*>(ptr);
 
@@ -371,7 +374,7 @@ void XWalkModuleSystem::LoadExtensionForTrampoline(
 
   XWalkModuleSystem* module_system = GetModuleSystemFromContext(context);
   v8::Handle<v8::FunctionTemplate> require_native_template =
-        v8::Handle<v8::FunctionTemplate>::New(
+        v8::Local<v8::FunctionTemplate>::New(
             isolate,
             module_system->require_native_template_);
 
@@ -388,7 +391,7 @@ v8::Handle<v8::Value> XWalkModuleSystem::RefetchHolder(
     v8::Local<v8::Value> data) {
   v8::Local<v8::Array> params = data.As<v8::Array>();
   const std::string entry_point = *v8::String::Utf8Value(
-      params->Get(v8::Integer::New(1)).As<v8::String>());
+      params->Get(v8::Integer::New(isolate, 1)).As<v8::String>());
 
   std::vector<std::string> path;
   base::SplitString(entry_point, '.', &path);

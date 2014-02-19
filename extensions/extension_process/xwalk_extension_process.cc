@@ -51,10 +51,10 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
   vm->clear();
 
   for (base::ListValue::iterator it = lv->begin(); it != lv->end(); it++) {
-    DictionaryValue* dv;
+    base::DictionaryValue* dv;
     if (!(*it)->GetAsDictionary(&dv))
       continue;
-    for (DictionaryValue::Iterator dit(*dv); !dit.IsAtEnd(); dit.Advance())
+    for (base::DictionaryValue::Iterator dit(*dv); !dit.IsAtEnd(); dit.Advance())
       (*vm)[dit.key()] = dit.value().DeepCopy();
   }
 }

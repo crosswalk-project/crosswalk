@@ -26,8 +26,8 @@ void RuntimeJavaScriptDialogManager::RunJavaScriptDialog(
     const GURL& origin_url,
     const std::string& accept_lang,
     content::JavaScriptMessageType javascript_message_type,
-    const string16& message_text,
-    const string16& default_prompt_text,
+    const base::string16& message_text,
+    const base::string16& default_prompt_text,
     const DialogClosedCallback& callback,
     bool* did_suppress_message) {
 #if defined(OS_ANDROID)
@@ -45,7 +45,7 @@ void RuntimeJavaScriptDialogManager::RunJavaScriptDialog(
 
 void RuntimeJavaScriptDialogManager::RunBeforeUnloadDialog(
     content::WebContents* web_contents,
-    const string16& message_text,
+    const base::string16& message_text,
     bool is_reload,
     const DialogClosedCallback& callback) {
 #if defined(OS_ANDROID)

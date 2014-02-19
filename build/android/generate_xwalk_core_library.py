@@ -129,16 +129,18 @@ def CopyGeneratedSources(out_directory):
 
   print 'Copying generated source files...'
   generated_srcs_to_copy = [
-      'org/chromium/content/common/ResultCodes.java',
-      'org/chromium/net/NetError.java',
+      'org/chromium/content/app/NativeLibraries.java',
+      'org/chromium/content/browser/input/PopupItemType.java',
       'org/chromium/content/browser/PageTransitionTypes.java',
       'org/chromium/content/browser/SpeechRecognitionError.java',
-      'org/chromium/net/PrivateKeyType.java',
-      'org/chromium/net/CertVerifyResultAndroid.java',
-      'org/chromium/net/CertificateMimeType.java',
-      'org/chromium/base/ActivityState.java',
-      'org/chromium/base/MemoryPressureLevelList.java',
+      'org/chromium/content/common/ResultCodes.java',
+      'org/chromium/content/common/TopControlsState.java',
       'org/chromium/media/ImageFormat.java',
+      'org/chromium/net/CertificateMimeType.java',
+      'org/chromium/net/CertVerifyStatusAndroid.java',
+      'org/chromium/net/NetError.java',
+      'org/chromium/net/PrivateKeyType.java',
+      'org/chromium/ui/WindowOpenDisposition.java'
   ]
 
   for source in generated_srcs_to_copy:

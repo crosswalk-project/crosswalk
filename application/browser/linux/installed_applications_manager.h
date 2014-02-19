@@ -28,12 +28,12 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
   InstalledApplicationsManager(scoped_refptr<dbus::Bus> bus,
                                ApplicationService* service,
                                ApplicationStorage* app_storage);
-  ~InstalledApplicationsManager();
+  virtual ~InstalledApplicationsManager();
 
  private:
   // ApplicationService::Observer implementation.
-  void OnApplicationInstalled(const std::string& app_id);
-  void OnApplicationUninstalled(const std::string& app_id);
+  void virtual OnApplicationInstalled(const std::string& app_id) OVERRIDE;
+  void virtual OnApplicationUninstalled(const std::string& app_id) OVERRIDE;
 
   void AddInitialObjects();
   void AddObject(scoped_refptr<const ApplicationData> app);

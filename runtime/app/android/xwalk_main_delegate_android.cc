@@ -11,6 +11,7 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
+#include "base/platform_file.h"
 #include "base/posix/global_descriptors.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -54,9 +55,9 @@ void XWalkMainDelegateAndroid::InitResourceBundle() {
   int pak_fd =
       base::GlobalDescriptors::GetInstance()->MaybeGet(kXWalkPakDescriptor);
   if (pak_fd != base::kInvalidPlatformFileValue) {
-    ui::ResourceBundle::InitSharedInstanceWithPakFile(pak_fd, false);
+    ui::ResourceBundle::InitSharedInstanceWithPakFile(base::File(pak_fd), false);
     ResourceBundle::GetSharedInstance().AddDataPackFromFile(
-        pak_fd, ui::SCALE_FACTOR_100P);
+        base::File(pak_fd), ui::SCALE_FACTOR_100P);
     return;
   }
   base::FilePath pak_file;

@@ -54,8 +54,8 @@ class SysAppsRawSocketTest : public InProcessBrowserTest {
 }  // namespace
 
 IN_PROC_BROWSER_TEST_F(SysAppsRawSocketTest, SysAppsRawSocket) {
-  const string16 passString = ASCIIToUTF16("Pass");
-  const string16 failString = ASCIIToUTF16("Fail");
+  const base::string16 passString = base::ASCIIToUTF16("Pass");
+  const base::string16 failString = base::ASCIIToUTF16("Fail");
 
   content::RunAllPendingInMessageLoop();
   content::TitleWatcher title_watcher(runtime()->web_contents(), passString);

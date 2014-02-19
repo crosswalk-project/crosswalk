@@ -154,6 +154,7 @@ void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
     int render_view_id,
     int page_request_id,
+    const GURL& security_origin,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
@@ -161,8 +162,8 @@ void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
           &XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread,
-          base::Unretained(this), render_process_id, render_view_id, device,
-          state));
+          base::Unretained(this), render_process_id, render_view_id,
+          security_origin, device, state));
 }
 
 void XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
@@ -186,6 +187,7 @@ void XWalkMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
 void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
     int render_process_id,
     int render_view_id,
+    const GURL& security_origin,
     const content::MediaStreamDevice& device,
     content::MediaRequestState state) {
   FOR_EACH_OBSERVER(Observer, observers_,

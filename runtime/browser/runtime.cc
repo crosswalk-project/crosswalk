@@ -221,7 +221,7 @@ void Runtime::HandleKeyboardEvent(
 void Runtime::WebContentsCreated(
     content::WebContents* source_contents,
     int64 source_frame_id,
-    const string16& frame_name,
+    const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
   Runtime* new_runtime = new Runtime(new_contents, observer_);
@@ -249,7 +249,8 @@ void Runtime::DeactivateContents(content::WebContents* contents) {
 
 content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
-    SkColor initial_color) {
+    SkColor initial_color,
+    const std::vector<content::ColorSuggestion>& suggestions) {
   return xwalk::ShowColorChooser(web_contents, initial_color);
 }
 
@@ -317,7 +318,7 @@ void Runtime::Observe(int type,
             details).ptr();
 
     if (title->first) {
-      string16 text = title->first->GetTitle();
+      base::string16 text = title->first->GetTitle();
       window_->UpdateTitle(text);
     }
   }

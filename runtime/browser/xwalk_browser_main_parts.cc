@@ -73,6 +73,17 @@ XWalkBrowserMainParts::XWalkBrowserMainParts(
       startup_url_(content::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
+#if defined(OS_LINUX)
+  // FIXME: We disable the setuid sandbox on Linux because we don't ship
+  // the setuid binary. It is important to remember that the seccomp-bpf
+  // sandbox is still fully operational if supported by the kernel. See
+  // issue #496.
+  //
+  // switches::kDisableSetuidSandbox is not being used here because it
+  // doesn't have the CONTENT_EXPORT macro despite the fact it is exposed by
+  // content_switches.h.
+  CommandLine::ForCurrentProcess()->AppendSwitch("disable-setuid-sandbox");
+#endif
 }
 
 XWalkBrowserMainParts::~XWalkBrowserMainParts() {
@@ -103,17 +114,6 @@ void XWalkBrowserMainParts::PostMainMessageLoopStart() {
 void XWalkBrowserMainParts::PreEarlyInitialization() {
 #if defined(USE_AURA) && defined(USE_X11)
     ui::InitializeInputMethodForTesting();
-#endif
-#if defined(OS_LINUX)
-  // FIXME: We disable the setuid sandbox on Linux because we don't ship
-  // the setuid binary. It is important to remember that the seccomp-bpf
-  // sandbox is still fully operational if supported by the kernel. See
-  // issue #496.
-  //
-  // switches::kDisableSetuidSandbox is not being used here because it
-  // doesn't have the CONTENT_EXPORT macro despite the fact it is exposed by
-  // content_switches.h.
-  CommandLine::ForCurrentProcess()->AppendSwitch("disable-setuid-sandbox");
 #endif
 }
 

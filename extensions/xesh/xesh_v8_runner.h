@@ -49,7 +49,7 @@ class XEShV8Runner {
 
  private:
   v8::Handle<v8::Context> GetV8Context() {
-    return v8::Handle<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
+    return v8::Local<v8::Context>::New(v8::Isolate::GetCurrent(), v8_context_);
   }
 
   void CreateModuleSystem();

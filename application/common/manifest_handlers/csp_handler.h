@@ -36,7 +36,7 @@ class CSPHandler : public ManifestHandler {
   virtual ~CSPHandler();
 
   virtual bool Parse(scoped_refptr<ApplicationData> application,
-                     string16* error) OVERRIDE;
+                     base::string16* error) OVERRIDE;
   virtual bool AlwaysParseForType(Manifest::Type type) const OVERRIDE;
   virtual std::vector<std::string> Keys() const OVERRIDE;
 

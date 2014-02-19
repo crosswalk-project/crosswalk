@@ -24,7 +24,7 @@ class XWalkLoginDelegate
   XWalkLoginDelegate(net::AuthChallengeInfo* auth_info,
                      net::URLRequest* request);
 
-  virtual void Proceed(const string16& user, const string16& password);
+  virtual void Proceed(const base::string16& user, const base::string16& password);
   virtual void Cancel();
 
   // from ResourceDispatcherHostLoginDelegate
@@ -34,7 +34,7 @@ class XWalkLoginDelegate
   virtual ~XWalkLoginDelegate();
   void HandleHttpAuthRequestOnUIThread(bool first_auth_attempt);
   void CancelOnIOThread();
-  void ProceedOnIOThread(const string16& user, const string16& password);
+  void ProceedOnIOThread(const base::string16& user, const base::string16& password);
   void DeleteAuthHandlerSoon();
 
   scoped_ptr<XWalkHttpAuthHandlerBase> xwalk_http_auth_handler_;

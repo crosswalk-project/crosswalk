@@ -84,7 +84,7 @@ bool Manifest::GetString(
 }
 
 bool Manifest::GetString(
-    const std::string& path, string16* out_value) const {
+    const std::string& path, base::string16* out_value) const {
   return CanAccessPath(path) && data_->GetString(path, out_value);
 }
 

@@ -105,7 +105,7 @@ class XWalkRunner {
 
   // We track the render process lifecycle to register Crosswalk
   // extensions. Some subsystems are mostly implemented using extensions.
-  void OnRenderProcessHostCreated(content::RenderProcessHost* host);
+  void OnRenderProcessWillLaunch(content::RenderProcessHost* host);
   void OnRenderProcessHostGone(content::RenderProcessHost* host);
 
   // Create the XWalkRunner object. We use a factory function so that we can

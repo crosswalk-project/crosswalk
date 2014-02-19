@@ -22,10 +22,11 @@ const char* kApplicationNativeModule = "kApplicationNativeModule";
 
 ApplicationNativeModule* GetNativeModule(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
-  v8::HandleScope handle_scope(info.GetIsolate());
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::HandleScope handle_scope(isolate);
   v8::Handle<v8::Object> data = info.Data().As<v8::Object>();
   v8::Handle<v8::Value> module_value =
-    data->Get(v8::String::New(kApplicationNativeModule));
+    data->Get(v8::String::NewFromUtf8(isolate, kApplicationNativeModule));
   CHECK(*module_value && module_value->IsExternal());
   ApplicationNativeModule* module = static_cast<ApplicationNativeModule*>(
       module_value.As<v8::External>()->Value());
@@ -46,7 +47,7 @@ void ApplicationNativeModule::GetViewByIDCallback(
   if (!render_view)
     return;
 
-  WebKit::WebView* webview = render_view->GetWebView();
+  blink::WebView* webview = render_view->GetWebView();
   v8::Handle<v8::Context> context =
     webview->mainFrame()->mainWorldScriptContext();
   v8::Handle<v8::Value> window = context->Global();
@@ -55,10 +56,10 @@ void ApplicationNativeModule::GetViewByIDCallback(
 
 void ApplicationNativeModule::GetCurrentRoutingIDCallback(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
-  WebKit::WebFrame* webframe = WebKit::WebFrame::frameForCurrentContext();
+  blink::WebFrame* webframe = blink::WebFrame::frameForCurrentContext();
   DCHECK(webframe);
 
-  WebKit::WebView* webview = webframe->view();
+  blink::WebView* webview = webframe->view();
   DCHECK(webview);
 
   content::RenderView* render_view = content::RenderView::FromWebView(webview);
@@ -68,19 +69,24 @@ void ApplicationNativeModule::GetCurrentRoutingIDCallback(
 ApplicationNativeModule::ApplicationNativeModule() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::HandleScope handle_scope(isolate);
-  v8::Handle<v8::Object> function_data = v8::Object::New();
+  v8::Handle<v8::Object> function_data = v8::Object::New(isolate);
   function_data->Set(
-      v8::String::New(kApplicationNativeModule), v8::External::New(this));
+      v8::String::NewFromUtf8(isolate, kApplicationNativeModule),
+      v8::External::New(isolate, this));
 
   // Register native function templates to object template here.
   v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New();
   object_template->Set(
+      isolate,
       "getViewByID",
-      v8::FunctionTemplate::New(&ApplicationNativeModule::GetViewByIDCallback,
+      v8::FunctionTemplate::New(isolate,
+                                &ApplicationNativeModule::GetViewByIDCallback,
                                 function_data));
   object_template->Set(
+      isolate,
       "getCurrentRoutingID",
       v8::FunctionTemplate::New(
+          isolate,
           &ApplicationNativeModule::GetCurrentRoutingIDCallback,
           function_data));
 
@@ -89,17 +95,15 @@ ApplicationNativeModule::ApplicationNativeModule() {
 }
 
 ApplicationNativeModule::~ApplicationNativeModule() {
-  object_template_.Dispose();
-  object_template_.Clear();
-  function_data_.Dispose();
-  function_data_.Clear();
+  object_template_.Reset();
+  function_data_.Reset();
 }
 
 v8::Handle<v8::Object> ApplicationNativeModule::NewInstance() {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::EscapableHandleScope handle_scope(isolate);
   v8::Handle<v8::ObjectTemplate> object_template =
-      v8::Handle<v8::ObjectTemplate>::New(isolate, object_template_);
+      v8::Local<v8::ObjectTemplate>::New(isolate, object_template_);
   return handle_scope.Escape(object_template->NewInstance());
 }
 

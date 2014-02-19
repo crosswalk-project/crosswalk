@@ -14,6 +14,7 @@
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 
 #if defined(OS_ANDROID)
+#include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #endif
@@ -45,15 +46,22 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   extension_controller_.reset(
       new extensions::XWalkExtensionRendererController(this));
 
-  WebKit::WebString application_scheme(
-      ASCIIToUTF16(application::kApplicationScheme));
-  WebKit::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
-  WebKit::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
+  blink::WebString application_scheme(
+      base::ASCIIToUTF16(application::kApplicationScheme));
+  blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
+  blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
 
 #if defined(OS_ANDROID)
   content::RenderThread* thread = content::RenderThread::Get();
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
+#endif
+}
+
+void XWalkContentRendererClient::RenderFrameCreated(
+    content::RenderFrame* render_frame) {
+#if defined(OS_ANDROID)
+  new XWalkPermissionClient(render_frame);
 #endif
 }
 
@@ -65,13 +73,13 @@ void XWalkContentRendererClient::RenderViewCreated(
 }
 
 void XWalkContentRendererClient::DidCreateScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context,
+    blink::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
   extension_controller_->DidCreateScriptContext(frame, context);
 }
 
 void XWalkContentRendererClient::WillReleaseScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
+    blink::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
   extension_controller_->WillReleaseScriptContext(frame, context);
 }
 

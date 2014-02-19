@@ -61,7 +61,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
                         const base::FilePath& app_dir,
                         const base::FilePath& xml_path) {
   if (!base::PathExists(app_dir) &&
-      !file_util::CreateDirectory(app_dir))
+      !base::CreateDirectory(app_dir))
     return false;
 
   std::string package_id = application->ID();
@@ -72,7 +72,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
       std::remove_if(stripped_name.begin(), stripped_name.end(), ::isspace),
       stripped_name.end());
 
-  FILE* file = file_util::OpenFile(xml_path, "w");
+  FILE* file = base::OpenFile(xml_path, "w");
 
   XmlWriter xml_writer;
   xml_writer.StartWriting();
@@ -104,7 +104,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
                        xml_writer.GetWrittenString().c_str(),
                        xml_writer.GetWrittenString().size());
 
-  file_util::CloseFile(file);
+  base::CloseFile(file);
   LOG(INFO) << "Converting manifest.json into "
             << xml_path.BaseName().MaybeAsASCII()
             << " for installation. [DONE]";
@@ -140,13 +140,13 @@ bool InstallApplicationForTizen(
   base::FilePath execute_path =
       app_dir.AppendASCII("bin/").AppendASCII(package_id);
 
-  if (!file_util::CreateDirectory(execute_path.DirName())) {
+  if (!base::CreateDirectory(execute_path.DirName())) {
     LOG(ERROR) << "Could not create directory '"
                << execute_path.DirName().value() << "'.";
     return false;
   }
 
-  if (!file_util::CreateSymbolicLink(kXWalkLauncherBinary, execute_path)) {
+  if (!base::CreateSymbolicLink(kXWalkLauncherBinary, execute_path)) {
     LOG(ERROR) << "Could not create symbolic link to launcher from '"
                << execute_path.value() << "'.";
     return false;

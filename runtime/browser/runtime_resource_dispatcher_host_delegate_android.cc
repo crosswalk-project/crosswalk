@@ -20,6 +20,7 @@
 #include "content/public/browser/resource_throttle.h"
 #include "content/public/common/url_constants.h"
 #include "net/base/load_flags.h"
+#include "net/base/net_errors.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
@@ -46,7 +47,7 @@ void SetCacheControlFlag(
   int load_flags = request->load_flags();
   load_flags &= ~all_cache_control_flags;
   load_flags |= flag;
-  request->set_load_flags(load_flags);
+  request->SetLoadFlags(load_flags);
 }
 }  // namespace
 
@@ -67,6 +68,7 @@ class IoThreadClientThrottle : public content::ResourceThrottle {
   // From content::ResourceThrottle
   virtual void WillStartRequest(bool* defer) OVERRIDE;
   virtual void WillRedirectRequest(const GURL& new_url, bool* defer) OVERRIDE;
+  virtual const char* GetNameForLogging() const OVERRIDE;
 
   bool MaybeDeferRequest(bool* defer);
   void OnIoThreadClientReady(int new_child_id, int new_route_id);
@@ -109,6 +111,10 @@ void IoThreadClientThrottle::WillStartRequest(bool* defer) {
 void IoThreadClientThrottle::WillRedirectRequest(const GURL& new_url,
                                                  bool* defer) {
   WillStartRequest(defer);
+}
+
+const char* IoThreadClientThrottle::GetNameForLogging() const {
+  return "IoThreadClientThrottle";
 }
 
 bool IoThreadClientThrottle::MaybeDeferRequest(bool* defer) {
@@ -167,7 +173,7 @@ bool IoThreadClientThrottle::ShouldBlockRequest() {
   }
 
   if (io_client->ShouldBlockNetworkLoads()) {
-    if (request_->url().SchemeIs(chrome::kFtpScheme)) {
+    if (request_->url().SchemeIs(content::kFtpScheme)) {
       return true;
     }
     SetCacheControlFlag(request_, net::LOAD_ONLY_FROM_CACHE);
@@ -285,26 +291,6 @@ void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
                            mime_type,
                            content_length);
   }
-}
-
-bool RuntimeResourceDispatcherHostDelegateAndroid::AcceptAuthRequest(
-    net::URLRequest* request,
-    net::AuthChallengeInfo* auth_info) {
-  return true;
-}
-
-bool RuntimeResourceDispatcherHostDelegateAndroid::
-AcceptSSLClientCertificateRequest(
-    net::URLRequest* request,
-    net::SSLCertRequestInfo* cert_info) {
-  // View does not support client certificate selection, however it does
-  // send a no-certificate response to the server to allow it decide how to
-  // proceed. The base class returns false here, which causes the entire
-  // resource request to be abort. We don't want that, so we must return true
-  // here (and subsequently complete the request in
-  // XWalkContentBrowserClient::SelectClientCertificate) to get the intended
-  // behavior.
-  return true;
 }
 
 content::ResourceDispatcherHostLoginDelegate*

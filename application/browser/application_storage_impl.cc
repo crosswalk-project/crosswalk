@@ -136,7 +136,7 @@ ApplicationStorageImpl::ApplicationStorageImpl(const base::FilePath& path)
       db_initialized_(false) {
   // Ensure the parent directory for database file is created before reading
   // from it.
-  if (!base::PathExists(path) && !file_util::CreateDirectory(path))
+  if (!base::PathExists(path) && !base::CreateDirectory(path))
     return;
 }
 

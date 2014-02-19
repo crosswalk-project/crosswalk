@@ -97,7 +97,7 @@ class Runtime : public content::WebContentsDelegate,
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
                                   int64 source_frame_id,
-                                  const string16& frame_name,
+                                  const base::string16& frame_name,
                                   const GURL& target_url,
                                   content::WebContents* new_contents) OVERRIDE;
   virtual void DidNavigateMainFramePostCommit(
@@ -116,7 +116,8 @@ class Runtime : public content::WebContentsDelegate,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
   virtual content::ColorChooser* OpenColorChooser(
       content::WebContents* web_contents,
-      SkColor initial_color) OVERRIDE;
+      SkColor initial_color,
+      const std::vector<content::ColorSuggestion>& suggestions) OVERRIDE;
   virtual void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) OVERRIDE;

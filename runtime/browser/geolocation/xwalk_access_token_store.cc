@@ -31,5 +31,5 @@ void XWalkAccessTokenStore::DidLoadAccessTokens(
 }
 
 void XWalkAccessTokenStore::SaveAccessToken(
-    const GURL& server_url, const string16& access_token) {
+    const GURL& server_url, const base::string16& access_token) {
 }

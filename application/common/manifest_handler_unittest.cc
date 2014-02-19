@@ -91,7 +91,7 @@ class ManifestHandlerTest : public testing::Test {
     virtual ~TestManifestHandler() {}
 
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
       watcher_->Record(name_);
       return true;
     }
@@ -120,8 +120,8 @@ class ManifestHandlerTest : public testing::Test {
         : TestManifestHandler(name, keys, prereqs, watcher) {
     }
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
-      *error = ASCIIToUTF16(name_);
+        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
+      *error = base::ASCIIToUTF16(name_);
       return false;
     }
   };
@@ -151,7 +151,7 @@ class ManifestHandlerTest : public testing::Test {
     }
 
     virtual bool Parse(
-        scoped_refptr<ApplicationData> application, string16* error) OVERRIDE {
+        scoped_refptr<ApplicationData> application, base::string16* error) OVERRIDE {
       return true;
     }
 

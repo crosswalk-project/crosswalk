@@ -33,7 +33,7 @@ class NativeAppWindowViews : public NativeAppWindow,
   // NativeAppWindow implementation.
   virtual gfx::NativeWindow GetNativeWindow() const OVERRIDE;
   virtual void UpdateIcon(const gfx::Image& icon) OVERRIDE;
-  virtual void UpdateTitle(const string16& title) OVERRIDE;
+  virtual void UpdateTitle(const base::string16& title) OVERRIDE;
   virtual gfx::Rect GetRestoredBounds() const OVERRIDE;
   virtual gfx::Rect GetBounds() const OVERRIDE;
   virtual void SetBounds(const gfx::Rect& bounds) OVERRIDE;
@@ -64,13 +64,13 @@ class NativeAppWindowViews : public NativeAppWindow,
   // WidgetDelegate implementation.
   virtual views::View* GetInitiallyFocusedView() OVERRIDE;
   virtual views::View* GetContentsView() OVERRIDE;
-  virtual string16 GetWindowTitle() const OVERRIDE;
+  virtual base::string16 GetWindowTitle() const OVERRIDE;
   virtual void DeleteDelegate() OVERRIDE;
   virtual gfx::ImageSkia GetWindowAppIcon() OVERRIDE;
   virtual gfx::ImageSkia GetWindowIcon() OVERRIDE;
   virtual bool ShouldShowWindowTitle() const OVERRIDE;
   virtual void SaveWindowPlacement(
-      const gfx::Rect& bounds, ui::WindowShowState show_state);
+      const gfx::Rect& bounds, ui::WindowShowState show_state) OVERRIDE;
   virtual bool GetSavedWindowPlacement(const views::Widget* widget,
       gfx::Rect* bounds, ui::WindowShowState* show_state) const OVERRIDE;
   virtual bool CanResize() const OVERRIDE;
@@ -82,8 +82,8 @@ class NativeAppWindowViews : public NativeAppWindow,
   // views::View implementation.
   virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
-  virtual gfx::Size GetMaximumSize() OVERRIDE { return maximum_size_; }
-  virtual gfx::Size GetMinimumSize() OVERRIDE { return minimum_size_; }
+  virtual gfx::Size GetMaximumSize() OVERRIDE;
+  virtual gfx::Size GetMinimumSize() OVERRIDE;
 
   // views::WidgetObserver implementation.
   virtual void OnWidgetClosing(views::Widget* widget) OVERRIDE;
@@ -100,7 +100,7 @@ class NativeAppWindowViews : public NativeAppWindow,
 
   views::WebView* web_view_;
   views::Widget* window_;
-  string16 title_;
+  base::string16 title_;
   gfx::Image icon_;
 
   bool is_fullscreen_;

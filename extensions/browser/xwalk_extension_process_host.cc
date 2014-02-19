@@ -120,7 +120,7 @@ void ToListValue(base::ValueMap* vm, base::ListValue* lv) {
   lv->Clear();
 
   for (base::ValueMap::iterator it = vm->begin(); it != vm->end(); it++) {
-    DictionaryValue* dv = new DictionaryValue();
+    base::DictionaryValue* dv = new base::DictionaryValue();
     dv->Set(it->first, it->second);
     lv->Append(dv);
   }

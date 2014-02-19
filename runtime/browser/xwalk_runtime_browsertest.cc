@@ -180,8 +180,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
 
   FullscreenNotificationObserver enter_observer;
   runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
-      string16(),
-      ASCIIToUTF16("doFullscreenClick();"));
+      base::string16(),
+      base::ASCIIToUTF16("doFullscreenClick();"));
   content::RunAllPendingInMessageLoop();
   enter_observer.Wait();
   // Calling doFullscreenClick defined in fullscreen.html leads to enter into
@@ -190,8 +190,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
 
   FullscreenNotificationObserver exit_observer;
   runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
-      string16(),
-      ASCIIToUTF16("doExitFullscreenClick();"));
+      base::string16(),
+      base::ASCIIToUTF16("doExitFullscreenClick();"));
   content::RunAllPendingInMessageLoop();
   exit_observer.Wait();
   // Calling doExitFullscreenClick defined in fullscreen.html leads to exit
@@ -204,13 +204,13 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, GetWindowTitle) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("title.html"));
-  string16 title = ASCIIToUTF16("Dummy Title");
+  base::string16 title = base::ASCIIToUTF16("Dummy Title");
   content::TitleWatcher title_watcher(runtime()->web_contents(), title);
   xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
 
   NativeAppWindow* window = runtime()->window();
-  string16 window_title = window->GetNativeWindow()->title();
+  base::string16 window_title = window->GetNativeWindow()->title();
   EXPECT_EQ(title, window_title);
 }
 #endif
@@ -221,8 +221,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
       base::FilePath(), base::FilePath().AppendASCII("new_target.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
   runtime()->web_contents()->GetRenderViewHost()->ExecuteJavascriptInWebFrame(
-      string16(),
-      ASCIIToUTF16("doClick();"));
+      base::string16(),
+      base::ASCIIToUTF16("doClick();"));
   content::RunAllPendingInMessageLoop();
   // Calling doClick defined in new_target.html leads to open a href in a new
   // target window, and so it is expected to create a new Runtime instance.
@@ -236,7 +236,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadTizenWebUiFwFile) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("tizenwebuifw.html"));
-  string16 title = ASCIIToUTF16("Pass");
+  base::string16 title = base::ASCIIToUTF16("Pass");
   content::TitleWatcher title_watcher(runtime()->web_contents(), title);
   xwalk_test_utils::NavigateToURL(runtime(), url);
   EXPECT_EQ(title, title_watcher.WaitAndGetTitle());
