@@ -41,7 +41,11 @@ sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'liblouis'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
     'Source', 'build', 'scripts'))
 
-import find_depot_tools
+# FIXME(rakuco,joone): This is a workaround to allow the Tizen build to
+# proceed, as we use make there and GN isn't involved in this case (otherwise
+# we run into problems like GN always looking for GTK+ dependencies).
+if os.environ.get('GYP_GENERATORS') != 'make':
+  import find_depot_tools
 
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
