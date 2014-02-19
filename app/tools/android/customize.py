@@ -28,7 +28,7 @@ def ReplaceInvalidChars(value, mode='default'):
   if mode == 'default':
     invalid_chars = '\/:*?"<>|- '
   elif mode == 'apkname':
-    invalid_chars = '\/:.*?"<>|- '
+    invalid_chars = '\/:.*?"<>|-'
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
       print "Illegal character: '%s' is replaced with '_'" % c
@@ -303,7 +303,7 @@ def main():
   info = ('The package name. Such as: '
           '--package=com.example.YourPackage')
   parser.add_option('--package', help=info)
-  info = ('The apk name. Such as: --name=YourApplicationName')
+  info = ('The apk name. Such as: --name="Your Application Name"')
   parser.add_option('--name', help=info)
   info = ('The version of the app. Such as: --app-version=TheVersionNumber')
   parser.add_option('--app-version', help=info)
