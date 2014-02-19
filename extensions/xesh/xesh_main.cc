@@ -84,14 +84,14 @@ class InputWatcher : public base::MessagePumpLibevent::Watcher {
   virtual ~InputWatcher() {}
 
   // base::MessagePumpLibevent::Watcher implementation.
-  void OnFileCanReadWithoutBlocking(int fd) OVERRIDE {
+  void virtual OnFileCanReadWithoutBlocking(int fd) OVERRIDE {
     if (is_waiting_v8_runner_)
       return;
 
     CallV8ExecuteString(ReadLine());
   }
 
-  void OnFileCanWriteWithoutBlocking(int fd) OVERRIDE {}
+  void virtual OnFileCanWriteWithoutBlocking(int fd) OVERRIDE {}
 
   void StartWatching() {
     CommandLine* cmd_line = CommandLine::ForCurrentProcess();

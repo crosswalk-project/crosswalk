@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "ui/aura/root_window.h"
+#include "ui/aura/window.h"
 #include "ui/gfx/transform.h"
 #include "ui/gfx/rect.h"
 #include "ui/gfx/screen.h"

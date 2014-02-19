@@ -17,6 +17,28 @@ XWalkViewsDelegate::XWalkViewsDelegate() {}
 
 XWalkViewsDelegate::~XWalkViewsDelegate() {}
 
+bool XWalkViewsDelegate::GetSavedWindowPlacement(
+    const views::Widget* widget, const std::string& window_name,
+    gfx::Rect* bounds, ui::WindowShowState* show_state) const {
+  return false;
+}
+
+views::NonClientFrameView* XWalkViewsDelegate::CreateDefaultNonClientFrameView(
+    views::Widget* widget) {
+  return NULL;
+}
+
+content::WebContents* XWalkViewsDelegate::CreateWebContents(
+    content::BrowserContext* browser_context,
+    content::SiteInstance* site_instance) {
+  return NULL;
+}
+
+base::TimeDelta
+XWalkViewsDelegate::GetDefaultTextfieldObscuredRevealDuration() {
+    return base::TimeDelta();
+}
+
 void XWalkViewsDelegate::OnBeforeWidgetInit(
     views::Widget::InitParams* params,
     views::internal::NativeWidgetDelegate* delegate) {
@@ -40,8 +62,11 @@ void XWalkViewsDelegate::OnBeforeWidgetInit(
 HICON XWalkViewsDelegate::GetDefaultWindowIcon() const {
   return LoadIcon(NULL, MAKEINTRESOURCE(IDR_XWALK_ICON_48));
 }
+#elif defined(OS_LINUX) && !defined(OS_CHROMEOS)
+gfx::ImageSkia* XWalkViewsDelegate::GetDefaultWindowIcon() const {
+  return NULL;
+}
 #endif
-
 }  // namespace xwalk
 
 #endif  // defined(USE_AURA)

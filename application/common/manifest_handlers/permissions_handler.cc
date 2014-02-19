@@ -26,7 +26,7 @@ PermissionsHandler::~PermissionsHandler() {
 }
 
 bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
-                               string16* error) {
+                               base::string16* error) {
   if (!application->GetManifest()->HasKey(keys::kPermissionsKey)) {
     application->SetManifestData(keys::kPermissionsKey, new PermissionsInfo);
     return true;
@@ -35,7 +35,7 @@ bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
   const base::ListValue* permissions = NULL;
   if (!application->GetManifest()->GetList(
           keys::kPermissionsKey, &permissions) || !permissions) {
-    *error = ASCIIToUTF16("Invalid value of permissions.");
+    *error = base::ASCIIToUTF16("Invalid value of permissions.");
     return false;
   }
 
@@ -44,12 +44,12 @@ bool PermissionsHandler::Parse(scoped_refptr<ApplicationData> application,
   for (size_t i = 0; i < permissions->GetSize(); ++i) {
     std::string permission;
     if (!permissions->GetString(i, &permission)) {
-      *error = ASCIIToUTF16(
+      *error = base::ASCIIToUTF16(
           "An error occurred when parsing permission string.");
       return false;
     }
     if (api_permissions.find(permission) != api_permissions.end()) {
-      *error = ASCIIToUTF16(
+      *error = base::ASCIIToUTF16(
           "Duplicated permission names found.");
       return false;
     }

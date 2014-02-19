@@ -66,7 +66,7 @@ void RuntimeNetworkDelegate::OnURLRequestDestroyed(net::URLRequest* request) {
 }
 
 void RuntimeNetworkDelegate::OnPACScriptError(int line_number,
-                                              const string16& error) {
+                                              const base::string16& error) {
 }
 
 RuntimeNetworkDelegate::AuthRequiredResponse
@@ -115,11 +115,6 @@ int RuntimeNetworkDelegate::OnBeforeSocketStreamConnect(
     net::SocketStream* socket,
     const net::CompletionCallback& callback) {
   return net::OK;
-}
-
-void RuntimeNetworkDelegate::OnRequestWaitStateChange(
-    const net::URLRequest& request,
-    RequestWaitState waiting) {
 }
 
 }  // namespace xwalk

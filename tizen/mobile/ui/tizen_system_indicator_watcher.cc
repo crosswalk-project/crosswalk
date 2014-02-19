@@ -119,7 +119,7 @@ void TizenSystemIndicatorWatcher::StopWatching() {
 }
 
 bool TizenSystemIndicatorWatcher::Connect() {
-  base::FilePath path(file_util::GetHomeDir()
+  base::FilePath path(base::GetHomeDir()
                       .Append(".ecore")
                       .Append(service_name_)
                       .Append(kServiceNumber));

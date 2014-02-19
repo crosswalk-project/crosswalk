@@ -59,7 +59,7 @@ void SetTaskbarGroupIdForProcess() {
   if (url.is_valid() && url.has_scheme()) {
     std::string appid;
     GenerateId(url.spec(), &appid);
-    ::SetCurrentProcessExplicitAppUserModelID(ASCIIToWide(appid).c_str());
+    ::SetCurrentProcessExplicitAppUserModelID(base::ASCIIToWide(appid).c_str());
   }
 }
 

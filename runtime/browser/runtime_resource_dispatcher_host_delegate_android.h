@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "base/lazy_instance.h"
+#include "content/public/browser/content_browser_client.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
 
 namespace content {
@@ -49,11 +50,6 @@ class RuntimeResourceDispatcherHostDelegateAndroid
       bool is_content_initiated,
       bool must_download,
       ScopedVector<content::ResourceThrottle>* throttles) OVERRIDE;
-  virtual bool AcceptAuthRequest(net::URLRequest* request,
-                                 net::AuthChallengeInfo* auth_info) OVERRIDE;
-  virtual bool AcceptSSLClientCertificateRequest(
-      net::URLRequest* request,
-      net::SSLCertRequestInfo* cert_info) OVERRIDE;
   virtual content::ResourceDispatcherHostLoginDelegate* CreateLoginDelegate(
       net::AuthChallengeInfo* auth_info,
       net::URLRequest* request) OVERRIDE;

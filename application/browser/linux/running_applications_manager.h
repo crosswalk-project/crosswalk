@@ -31,7 +31,7 @@ class RunningApplicationsManager : public ApplicationService::Observer {
  public:
   RunningApplicationsManager(scoped_refptr<dbus::Bus> bus,
                              ApplicationService* service);
-  ~RunningApplicationsManager();
+  virtual ~RunningApplicationsManager();
 
  private:
   // org.crosswalkproject.Running.Manager1 interface.
@@ -42,7 +42,7 @@ class RunningApplicationsManager : public ApplicationService::Observer {
                   const std::string& method_name,
                   bool success);
 
-  void WillDestroyApplication(Application* app);
+  void virtual WillDestroyApplication(Application* app) OVERRIDE;
 
   dbus::ObjectPath AddObject(const std::string& app_id,
                              const std::string& launcher_name,

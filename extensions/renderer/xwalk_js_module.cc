@@ -41,9 +41,9 @@ v8::Handle<v8::Object> XWalkJSModule::NewInstance() {
   }
 
   v8::Handle<v8::Script> script =
-      v8::Handle<v8::Script>::New(isolate, compiled_script_);
+      v8::Local<v8::Script>::New(isolate, compiled_script_);
 
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
   v8::Local<v8::Value> result = script->Run();
   if (try_catch.HasCaught()) {
@@ -63,9 +63,9 @@ bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {
   v8::Handle<v8::String> v8_code(
       v8::String::NewFromUtf8(isolate, wrapped_js_code.c_str()));
 
-  WebKit::WebScopedMicrotaskSuppression suppression;
+  blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
-  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty()));
+  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty(isolate)));
   if (try_catch.HasCaught()) {
     *error = "Error compiling JS module: " + ExceptionToString(try_catch);
     return false;

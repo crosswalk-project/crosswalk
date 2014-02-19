@@ -27,12 +27,12 @@ CSPHandler::~CSPHandler() {
 }
 
 bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
-                       string16* error) {
+                       base::string16* error) {
   scoped_ptr<CSPInfo> csp_info(new CSPInfo);
   std::string policies_str;
   if (application->GetManifest()->HasKey(keys::kCSPKey) &&
       !application->GetManifest()->GetString(keys::kCSPKey, &policies_str)) {
-    *error = ASCIIToUTF16("Invalid value of Content Security Policy (CSP).");
+    *error = base::ASCIIToUTF16("Invalid value of Content Security Policy (CSP).");
     return false;
   }
 
@@ -41,7 +41,7 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
   for (size_t i = 0; i < policies.size(); ++i) {
     size_t found = policies[i].find(' ');
     if (found == std::string::npos) {
-      *error = ASCIIToUTF16("Invalid value of directive: " + policies[i]);
+      *error = base::ASCIIToUTF16("Invalid value of directive: " + policies[i]);
       return false;
     }
     const std::string& directive_name = policies[i].substr(0, found);

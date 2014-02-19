@@ -55,7 +55,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual content::AccessTokenStore* CreateAccessTokenStore() OVERRIDE;
   virtual content::WebContentsViewDelegate* GetWebContentsViewDelegate(
       content::WebContents* web_contents) OVERRIDE;
-  virtual void RenderProcessHostCreated(
+  virtual void RenderProcessWillLaunch(
       content::RenderProcessHost* host) OVERRIDE;
   virtual content::MediaObserver* GetMediaObserver() OVERRIDE;
 

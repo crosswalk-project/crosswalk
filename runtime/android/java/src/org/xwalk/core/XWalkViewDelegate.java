@@ -9,13 +9,13 @@ import android.content.Context;
 import android.os.Build;
 
 import org.chromium.base.ActivityStatus;
+import org.chromium.base.CommandLine;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
 import org.chromium.content.app.LibraryLoader;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
-import org.chromium.content.common.CommandLine;
 import org.chromium.content.common.ProcessInitException;
 
 class XWalkViewDelegate {
@@ -91,9 +91,11 @@ class XWalkViewDelegate {
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
-                if (!BrowserStartupController.get(context).startBrowserProcessesSync(
-                            BrowserStartupController.MAX_RENDERERS_SINGLE_PROCESS)) {
-                    throw new RuntimeException("Cannot initialize Crosswalk Core");
+                try {
+                    BrowserStartupController.get(context).startBrowserProcessesSync(
+                        BrowserStartupController.MAX_RENDERERS_SINGLE_PROCESS);
+                } catch (ProcessInitException e) {
+                    throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
             }
         });

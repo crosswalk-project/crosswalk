@@ -33,30 +33,30 @@ namespace xwalk {
 
 namespace {
 
-GURL GetAbsoluteUrl(const WebKit::WebNode& node, const string16& url_fragment) {
+GURL GetAbsoluteUrl(const blink::WebNode& node, const base::string16& url_fragment) {
   return GURL(node.document().completeURL(url_fragment));
 }
 
-string16 GetHref(const WebKit::WebElement& element) {
+base::string16 GetHref(const blink::WebElement& element) {
   // Get the actual 'href' attribute, which might relative if valid or can
   // possibly contain garbage otherwise, so not using absoluteLinkURL here.
   return element.getAttribute("href");
 }
 
-GURL GetAbsoluteSrcUrl(const WebKit::WebElement& element) {
+GURL GetAbsoluteSrcUrl(const blink::WebElement& element) {
   if (element.isNull())
     return GURL();
   return GetAbsoluteUrl(element, element.getAttribute("src"));
 }
 
-WebKit::WebNode GetImgChild(const WebKit::WebNode& node) {
+blink::WebNode GetImgChild(const blink::WebNode& node) {
   // This implementation is incomplete (for example if is an area tag) but
   // matches the original WebViewClassic implementation.
 
-  WebKit::WebNodeList list = node.getElementsByTagName("img");
+  blink::WebNodeList list = node.getElementsByTagName("img");
   if (list.length() > 0)
     return list.item(0);
-  return WebKit::WebNode();
+  return blink::WebNode();
 }
 
 bool RemovePrefixAndAssignIfMatches(const base::StringPiece& prefix,
@@ -127,7 +127,6 @@ void PopulateHitTestData(const GURL& absolute_link_url,
 
 XWalkRenderViewExt::XWalkRenderViewExt(content::RenderView* render_view)
     : content::RenderViewObserver(render_view), page_scale_factor_(0.0f) {
-  render_view->GetWebView()->setPermissionClient(this);
 }
 
 XWalkRenderViewExt::~XWalkRenderViewExt() {
@@ -156,9 +155,9 @@ bool XWalkRenderViewExt::OnMessageReceived(const IPC::Message& message) {
 void XWalkRenderViewExt::OnDocumentHasImagesRequest(int id) {
   bool hasImages = false;
   if (render_view()) {
-    WebKit::WebView* webview = render_view()->GetWebView();
+    blink::WebView* webview = render_view()->GetWebView();
     if (webview) {
-      WebKit::WebVector<WebKit::WebElement> images;
+      blink::WebVector<blink::WebElement> images;
       webview->mainFrame()->document().images(images);
       hasImages = !images.isEmpty();
     }
@@ -167,27 +166,12 @@ void XWalkRenderViewExt::OnDocumentHasImagesRequest(int id) {
                                                    hasImages));
 }
 
-bool XWalkRenderViewExt::allowImage(WebKit::WebFrame* frame,
-                                 bool enabled_per_settings,
-                                 const WebKit::WebURL& image_url) {
-  // Implementing setBlockNetworkImages, so allow local scheme images to be
-  // loaded.
-  if (enabled_per_settings)
-    return true;
-
-  // For compatibility, only blacklist network schemes instead of whitelisting.
-  const GURL url(image_url);
-  return !(url.SchemeIs(content::kHttpScheme) ||
-           url.SchemeIs(content::kHttpsScheme) ||
-           url.SchemeIs(chrome::kFtpScheme));
-}
-
-void XWalkRenderViewExt::DidCommitProvisionalLoad(WebKit::WebFrame* frame,
+void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebFrame* frame,
                                                bool is_new_navigation) {
   content::DocumentState* document_state =
       content::DocumentState::FromDataSource(frame->dataSource());
   if (document_state->can_load_local_resources()) {
-    WebKit::WebSecurityOrigin origin = frame->document().securityOrigin();
+    blink::WebSecurityOrigin origin = frame->document().securityOrigin();
     origin.grantLoadLocalResources();
   }
 }
@@ -204,12 +188,12 @@ void XWalkRenderViewExt::UpdatePageScaleFactor() {
   }
 }
 
-void XWalkRenderViewExt::FocusedNodeChanged(const WebKit::WebNode& node) {
+void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
   if (node.isNull() || !node.isElementNode() || !render_view())
     return;
 
   // Note: element is not const due to innerText() is not const.
-  WebKit::WebElement element = node.toConst<WebKit::WebElement>();
+  blink::WebElement element = node.toConst<blink::WebElement>();
   XWalkHitTestData data;
 
   data.href = GetHref(element);
@@ -220,10 +204,10 @@ void XWalkRenderViewExt::FocusedNodeChanged(const WebKit::WebNode& node) {
     absolute_link_url = GetAbsoluteUrl(node, data.href);
 
   GURL absolute_image_url;
-  const WebKit::WebNode child_img = GetImgChild(node);
+  const blink::WebNode child_img = GetImgChild(node);
   if (!child_img.isNull() && child_img.isElementNode()) {
     absolute_image_url =
-        GetAbsoluteSrcUrl(child_img.toConst<WebKit::WebElement>());
+        GetAbsoluteSrcUrl(child_img.toConst<blink::WebElement>());
   }
 
   PopulateHitTestData(absolute_link_url,
@@ -237,9 +221,9 @@ void XWalkRenderViewExt::OnDoHitTest(int view_x, int view_y) {
   if (!render_view() || !render_view()->GetWebView())
     return;
 
-  const WebKit::WebHitTestResult result =
+  const blink::WebHitTestResult result =
       render_view()->GetWebView()->hitTestResultAt(
-          WebKit::WebPoint(view_x, view_y));
+          blink::WebPoint(view_x, view_y));
   XWalkHitTestData data;
 
   if (!result.urlElement().isNull()) {

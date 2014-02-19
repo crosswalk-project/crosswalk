@@ -27,11 +27,11 @@ MainDocumentHandler::~MainDocumentHandler() {
 }
 
 bool MainDocumentHandler::Parse(scoped_refptr<ApplicationData> application,
-                                string16* error) {
+                                base::string16* error) {
   const Manifest* manifest = application->GetManifest();
   const base::DictionaryValue* dict = NULL;
   if (!manifest->GetDictionary(keys::kAppMainKey, &dict)) {
-    *error = ASCIIToUTF16("Invalid value of app.main.");
+    *error = base::ASCIIToUTF16("Invalid value of app.main.");
     return false;
   }
 
@@ -40,7 +40,7 @@ bool MainDocumentHandler::Parse(scoped_refptr<ApplicationData> application,
       !ParseMainSource(main_doc_info.get(), application, error))
     return false;
   if (!main_doc_info->GetMainURL().is_valid()) {
-    *error = ASCIIToUTF16("app.main doesn't contain a valid main document.");
+    *error = base::ASCIIToUTF16("app.main doesn't contain a valid main document.");
     return false;
   }
 
@@ -54,12 +54,12 @@ std::vector<std::string> MainDocumentHandler::Keys() const {
 
 bool MainDocumentHandler::ParseMainSource(MainDocumentInfo* info,
                                           const ApplicationData* application,
-                                          string16* error) {
+                                          base::string16* error) {
   const Manifest* manifest = application->GetManifest();
   std::string main_source;
   if (manifest->HasPath(keys::kAppMainSourceKey) &&
       !manifest->GetString(keys::kAppMainSourceKey, &main_source)) {
-    *error = ASCIIToUTF16("Invalid value of app.main.source");
+    *error = base::ASCIIToUTF16("Invalid value of app.main.source");
     return false;
   }
 
@@ -73,12 +73,12 @@ bool MainDocumentHandler::ParseMainSource(MainDocumentInfo* info,
 
 bool MainDocumentHandler::ParseMainScripts(MainDocumentInfo* info,
                                            const ApplicationData* application,
-                                           string16* error) {
+                                           base::string16* error) {
   const Manifest* manifest = application->GetManifest();
   const base::ListValue* main_scripts = NULL;
   if (manifest->HasPath(keys::kAppMainScriptsKey) &&
       !manifest->GetList(keys::kAppMainScriptsKey, &main_scripts)) {
-    *error = ASCIIToUTF16("Invalid value of app.main.scripts");
+    *error = base::ASCIIToUTF16("Invalid value of app.main.scripts");
     return false;
   }
 
@@ -87,7 +87,7 @@ bool MainDocumentHandler::ParseMainScripts(MainDocumentInfo* info,
     for (size_t i = 0; i < main_scripts->GetSize(); ++i) {
       std::string script;
       if (!main_scripts->GetString(i, &script)) {
-        *error = ASCIIToUTF16("Invalid value of app.main.scripts list");
+        *error = base::ASCIIToUTF16("Invalid value of app.main.scripts list");
         return false;
       }
       scripts.push_back(script);

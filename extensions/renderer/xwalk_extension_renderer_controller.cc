@@ -35,7 +35,6 @@ XWalkExtensionRendererController::XWalkExtensionRendererController(
       delegate_(delegate) {
   content::RenderThread* thread = content::RenderThread::Get();
   thread->AddObserver(this);
-
   IPC::SyncChannel* browser_channel = thread->GetChannel();
   SetupBrowserProcessClient(browser_channel);
 
@@ -74,7 +73,7 @@ void CreateExtensionModules(XWalkExtensionClient* client,
 }  // namespace
 
 void XWalkExtensionRendererController::DidCreateScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+    blink::WebFrame* frame, v8::Handle<v8::Context> context) {
   XWalkModuleSystem* module_system = new XWalkModuleSystem(context);
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
@@ -99,7 +98,7 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
-    WebKit::WebFrame* frame, v8::Handle<v8::Context> context) {
+    blink::WebFrame* frame, v8::Handle<v8::Context> context) {
   v8::Context::Scope contextScope(context);
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }

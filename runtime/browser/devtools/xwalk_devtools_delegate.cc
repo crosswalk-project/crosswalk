@@ -63,7 +63,7 @@ Target::Target(WebContents* web_contents) {
   agent_host_ =
       DevToolsAgentHost::GetOrCreateFor(web_contents->GetRenderViewHost());
   id_ = agent_host_->GetId();
-  title_ = UTF16ToUTF8(web_contents->GetTitle());
+  title_ = base::UTF16ToUTF8(web_contents->GetTitle());
   url_ = web_contents->GetURL();
   content::NavigationController& controller = web_contents->GetController();
   content::NavigationEntry* entry = controller.GetActiveEntry();

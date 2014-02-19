@@ -26,7 +26,7 @@ XPKPackage::XPKPackage(const base::FilePath& path)
   if (!base::PathExists(path))
     return;
   scoped_ptr<ScopedStdioHandle> file(
-      new ScopedStdioHandle(file_util::OpenFile(path, "rb")));
+      new ScopedStdioHandle(base::OpenFile(path, "rb")));
   file_ = file.Pass();
   size_t len = fread(&header_, 1, sizeof(header_), file_->get());
   is_valid_ = false;

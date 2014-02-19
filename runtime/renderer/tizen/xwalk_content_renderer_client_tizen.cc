@@ -43,7 +43,7 @@ bool URLHasAppOrFileScheme(const GURL& url) {
 };  // namespace
 
 bool XWalkContentRendererClientTizen::WillSendRequest(
-    WebKit::WebFrame*, content::PageTransition, const GURL& url,
+    blink::WebFrame*, content::PageTransition, const GURL& url,
     const GURL& first_party_for_cookies, GURL* new_url) {
   DCHECK(new_url);
 

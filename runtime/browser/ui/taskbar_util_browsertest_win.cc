@@ -23,7 +23,7 @@ class XWalkTaskbarGroupingTest : public InProcessBrowserTest {
 #if defined(OS_WIN)
     PWSTR user_model_id;
     ::GetCurrentProcessExplicitAppUserModelID(&user_model_id);
-    result = (ASCIIToWide(expected_id) == user_model_id);
+    result = (base::ASCIIToWide(expected_id) == user_model_id);
     CoTaskMemFree(user_model_id);
 #endif
 

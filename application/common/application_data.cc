@@ -47,17 +47,17 @@ namespace application {
 scoped_refptr<ApplicationData> ApplicationData::Create(
                                            const base::FilePath& path,
                                            Manifest::SourceType source_type,
-                                           const DictionaryValue& manifest_data,
+                                           const base::DictionaryValue& manifest_data,
                                            const std::string& explicit_id,
                                            std::string* error_message) {
   DCHECK(error_message);
-  string16 error;
+  base::string16 error;
   scoped_ptr<xwalk::application::Manifest> manifest(
       new xwalk::application::Manifest(source_type,
-                 scoped_ptr<DictionaryValue>(manifest_data.DeepCopy())));
+                 scoped_ptr<base::DictionaryValue>(manifest_data.DeepCopy())));
 
   if (!InitApplicationID(manifest.get(), path, explicit_id, &error)) {
-    *error_message = UTF16ToUTF8(error);
+    *error_message = base::UTF16ToUTF8(error);
     return NULL;
   }
 
@@ -71,7 +71,7 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
   application->install_warnings_.swap(install_warnings);
 
   if (!application->Init(&error)) {
-    *error_message = UTF16ToUTF8(error);
+    *error_message = base::UTF16ToUTF8(error);
     return NULL;
   }
 
@@ -162,7 +162,7 @@ bool ApplicationData::HasMainDocument() const {
 bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
                                 const base::FilePath& path,
                                 const std::string& explicit_id,
-                                string16* error) {
+                                base::string16* error) {
   std::string application_id;
 #if defined(OS_TIZEN)
   if (manifest->HasKey(keys::kTizenAppIdKey)) {
@@ -229,7 +229,7 @@ Manifest::Type ApplicationData::GetType() const {
   return manifest_->GetType();
 }
 
-bool ApplicationData::Init(string16* error) {
+bool ApplicationData::Init(base::string16* error) {
   DCHECK(error);
 
   if (!LoadName(error))
@@ -253,45 +253,45 @@ bool ApplicationData::Init(string16* error) {
   return true;
 }
 
-bool ApplicationData::LoadName(string16* error) {
+bool ApplicationData::LoadName(base::string16* error) {
   DCHECK(error);
-  string16 localized_name;
+  base::string16 localized_name;
   if (!manifest_->GetString(keys::kNameKey, &localized_name)) {
-    *error = ASCIIToUTF16(errors::kInvalidName);
+    *error = base::ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
-  non_localized_name_ = UTF16ToUTF8(localized_name);
+  non_localized_name_ = base::UTF16ToUTF8(localized_name);
   base::i18n::AdjustStringForLocaleDirection(&localized_name);
-  name_ = UTF16ToUTF8(localized_name);
+  name_ = base::UTF16ToUTF8(localized_name);
   return true;
 }
 
-bool ApplicationData::LoadVersion(string16* error) {
+bool ApplicationData::LoadVersion(base::string16* error) {
   DCHECK(error);
   std::string version_str;
   if (!manifest_->GetString(keys::kVersionKey, &version_str)) {
-    *error = ASCIIToUTF16(errors::kInvalidVersion);
+    *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
   version_.reset(new base::Version(version_str));
   if (!version_->IsValid() || version_->components().size() > 4) {
-    *error = ASCIIToUTF16(errors::kInvalidVersion);
+    *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
   return true;
 }
 
-bool ApplicationData::LoadDescription(string16* error) {
+bool ApplicationData::LoadDescription(base::string16* error) {
   DCHECK(error);
   if (manifest_->HasKey(keys::kDescriptionKey) &&
       !manifest_->GetString(keys::kDescriptionKey, &description_)) {
-    *error = ASCIIToUTF16(errors::kInvalidDescription);
+    *error = base::ASCIIToUTF16(errors::kInvalidDescription);
     return false;
   }
   return true;
 }
 
-bool ApplicationData::LoadManifestVersion(string16* error) {
+bool ApplicationData::LoadManifestVersion(base::string16* error) {
   DCHECK(error);
   // Get the original value out of the dictionary so that we can validate it
   // more strictly.
@@ -299,7 +299,7 @@ bool ApplicationData::LoadManifestVersion(string16* error) {
     int manifest_version = 1;
     if (!manifest_->GetInteger(keys::kManifestVersionKey, &manifest_version) ||
         manifest_version < 1) {
-      *error = ASCIIToUTF16(errors::kInvalidManifestVersion);
+      *error = base::ASCIIToUTF16(errors::kInvalidManifestVersion);
       return false;
     }
   }

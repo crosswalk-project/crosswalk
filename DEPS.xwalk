@@ -6,26 +6,15 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '32.0.1700.102'
-chromium_crosswalk_point = '5d18596e85a4bb96531c0290c95887ca24129939'
-blink_crosswalk_point = 'b00d5cd307239b282e959838c1ed4d239c80ad90'
+chromium_version = '34.0.1809.2'
+chromium_crosswalk_point = 'f25efe5364e190490fdb90deebe53baf46e0688d'
+blink_crosswalk_point = '26982f43d2966dcb4e070dc63364b568f16829a3'
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
 
-  # Required until chromium-crosswalk gets past Chromium r234545 ("Rolling
-  # grit-i18n to latest version"). This is used for incremental Tizen builds to
-  # work.
-  'src/tools/grit': 'http://grit-i18n.googlecode.com/svn/trunk@138',
-
-  # Required until chromium-crosswalk tracks gyp r1797 or later.
-  # Needed for incremental Tizen builds after M32. See XWALK-454.
-  'src/tools/gyp': 'http://gyp.googlecode.com/svn/trunk@1797',
-
-  'src/third_party/openmax_dl': 'http://webrtc.googlecode.com/svn/deps/third_party/openmax@5124',
-
   # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@d140a7894187fa454422813d1c2fa3aca481d1bc',
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@b2e17c52db443468a42a168dc91d873c7e707fca',
 }
 vars_xwalk = {
 }

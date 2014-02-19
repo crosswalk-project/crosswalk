@@ -26,7 +26,7 @@ GURL GetExtensionsTestURL(const base::FilePath& dir,
 base::FilePath GetExternalExtensionTestPath(
     const base::FilePath::CharType test[]);
 
-const string16 kPassString = ASCIIToUTF16("Pass");
-const string16 kFailString = ASCIIToUTF16("Fail");
+const base::string16 kPassString = base::ASCIIToUTF16("Pass");
+const base::string16 kFailString = base::ASCIIToUTF16("Fail");
 
 #endif  // XWALK_EXTENSIONS_TEST_XWALK_EXTENSIONS_TEST_BASE_H_

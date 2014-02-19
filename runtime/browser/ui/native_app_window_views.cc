@@ -89,7 +89,7 @@ void NativeAppWindowViews::UpdateIcon(const gfx::Image& icon) {
   window_->UpdateWindowIcon();
 }
 
-void NativeAppWindowViews::UpdateTitle(const string16& title) {
+void NativeAppWindowViews::UpdateTitle(const base::string16& title) {
   title_ = title;
   window_->UpdateWindowTitle();
 }
@@ -189,7 +189,7 @@ const views::Widget* NativeAppWindowViews::GetWidget() const {
   return window_;
 }
 
-string16 NativeAppWindowViews::GetWindowTitle() const {
+base::string16 NativeAppWindowViews::GetWindowTitle() const {
   return title_;
 }
 
@@ -265,6 +265,14 @@ void NativeAppWindowViews::ViewHierarchyChanged(
 
 void NativeAppWindowViews::OnFocus() {
   web_view_->RequestFocus();
+}
+
+gfx::Size NativeAppWindowViews::GetMaximumSize() {
+  return maximum_size_;
+}
+
+gfx::Size NativeAppWindowViews::GetMinimumSize() {
+  return minimum_size_;
 }
 
 ////////////////////////////////////////////////////////////

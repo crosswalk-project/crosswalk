@@ -67,7 +67,7 @@ class NativeAppWindow {
   // Called when the icon of the window changes.
   virtual void UpdateIcon(const gfx::Image& icon) = 0;
   // Called when the title of the window changes.
-  virtual void UpdateTitle(const string16& title) = 0;
+  virtual void UpdateTitle(const base::string16& title) = 0;
   // Returns the nonmaximized bounds of the window (even if the window is
   // currently maximized or minimized) in terms of the screen coordinates.
   virtual gfx::Rect GetRestoredBounds() const = 0;

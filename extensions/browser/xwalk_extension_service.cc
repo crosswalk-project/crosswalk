@@ -247,7 +247,7 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
   extension_data_map_[host->GetID()] = data;
 }
 
-void XWalkExtensionService::OnRenderProcessHostCreated(
+void XWalkExtensionService::OnRenderProcessWillLaunch(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,

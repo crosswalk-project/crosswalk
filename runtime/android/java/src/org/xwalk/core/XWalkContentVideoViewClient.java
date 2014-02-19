@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.WindowManager;
 
 import org.chromium.content.browser.ContentVideoViewClient;
-import org.chromium.content.browser.ContentVideoViewControls;
 import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
 public class XWalkContentVideoViewClient implements ContentVideoViewClient {
@@ -40,10 +39,5 @@ public class XWalkContentVideoViewClient implements ContentVideoViewClient {
     @Override
     public View getVideoLoadingProgressView() {
         return mContentsClient.getVideoLoadingProgressView();
-    }
-
-    @Override
-    public ContentVideoViewControls createControls() {
-        return null;
     }
 }

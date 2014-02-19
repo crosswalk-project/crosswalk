@@ -44,12 +44,12 @@ class XWalkExtensionService : public content::NotificationObserver,
 
   // To be called when a new RenderProcessHost is created, will plug the
   // extension system to that render process. See
-  // XWalkContentBrowserClient::RenderProcessHostCreated().
+  // XWalkContentBrowserClient::RenderProcessWillLaunch().
   //
   // The vectors contain the extensions to be used for this render process,
   // ownership of these extensions is taken by the XWalkExtensionService. The
   // vectors will be empty after the call.
-  void OnRenderProcessHostCreated(
+  void OnRenderProcessWillLaunch(
       content::RenderProcessHost* host,
       XWalkExtensionVector* ui_thread_extensions,
       XWalkExtensionVector* extension_thread_extensions,

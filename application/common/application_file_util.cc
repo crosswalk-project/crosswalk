@@ -47,7 +47,7 @@ scoped_refptr<ApplicationData> LoadApplication(
     const std::string& application_id,
     Manifest::SourceType source_type,
     std::string* error) {
-  scoped_ptr<DictionaryValue> manifest(LoadManifest(application_path, error));
+  scoped_ptr<base::DictionaryValue> manifest(LoadManifest(application_path, error));
   if (!manifest.get())
     return NULL;
 
@@ -72,10 +72,10 @@ scoped_refptr<ApplicationData> LoadApplication(
   return application;
 }
 
-static DictionaryValue* LoadManifestXpk(const base::FilePath& manifest_path,
+static base::DictionaryValue* LoadManifestXpk(const base::FilePath& manifest_path,
       std::string* error) {
   JSONFileValueSerializer serializer(manifest_path);
-  scoped_ptr<Value> root(serializer.Deserialize(NULL, error));
+  scoped_ptr<base::Value> root(serializer.Deserialize(NULL, error));
   if (!root.get()) {
     if (error->empty()) {
       // If |error| is empty, than the file could not be read.
@@ -91,12 +91,12 @@ static DictionaryValue* LoadManifestXpk(const base::FilePath& manifest_path,
     return NULL;
   }
 
-  if (!root->IsType(Value::TYPE_DICTIONARY)) {
+  if (!root->IsType(base::Value::TYPE_DICTIONARY)) {
     *error = base::StringPrintf("%s", errors::kManifestUnreadable);
     return NULL;
   }
 
-  DictionaryValue* dv = static_cast<DictionaryValue*>(root.release());
+  base::DictionaryValue* dv = static_cast<base::DictionaryValue*>(root.release());
 #if defined(OS_TIZEN)
   // Ignore any Tizen application ID, as this is automatically generated.
   dv->Remove(keys::kTizenAppIdKey, NULL);
@@ -105,7 +105,7 @@ static DictionaryValue* LoadManifestXpk(const base::FilePath& manifest_path,
   return dv;
 }
 
-static DictionaryValue* LoadManifestWgt(const base::FilePath& manifest_path,
+static base::DictionaryValue* LoadManifestWgt(const base::FilePath& manifest_path,
       std::string* error) {
   XmlReader xml;
 
@@ -153,7 +153,7 @@ static DictionaryValue* LoadManifestWgt(const base::FilePath& manifest_path,
   return dv.release();
 }
 
-DictionaryValue* LoadManifest(const base::FilePath& application_path,
+base::DictionaryValue* LoadManifest(const base::FilePath& application_path,
       std::string* error) {
   base::FilePath manifest_path;
 
@@ -185,7 +185,7 @@ base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {
 #if defined(OS_POSIX)
     base::FilePath(file_path);
 #elif defined(OS_WIN)
-    base::FilePath(UTF8ToWide(file_path));
+    base::FilePath(base::UTF8ToWide(file_path));
 #else
     base::FilePath();
     NOTIMPLEMENTED();
