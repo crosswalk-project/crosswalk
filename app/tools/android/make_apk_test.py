@@ -698,6 +698,11 @@ def SuiteWithEmptyModeOption():
   return test_suite
 
 
+def TestSuiteRun(test_runner, suite):
+  results = test_runner.run(suite)
+  return results.wasSuccessful()
+
+
 if __name__ == '__main__':
   parser = optparse.OptionParser()
   info = ('The build directory for xwalk.'
@@ -724,16 +729,19 @@ if __name__ == '__main__':
     warnings.warn(('"--build-dir" and "--target" will be deprecated soon, '
                    'please leverage "--tool-path" instead.'),
                   Warning)
+  test_result = True
   if options.mode:
-    runner.run(mode_suite)
+    test_result = TestSuiteRun(runner, mode_suite)
   else:
     # Run tests in both embedded and shared mode
     # when the mode option isn't specified.
     options.mode = 'embedded'
     print 'Run tests in embedded mode.'
-    runner.run(mode_suite)
+    test_result = TestSuiteRun(runner, mode_suite)
     options.mode = 'shared'
     print 'Run tests in shared mode.'
-    runner.run(mode_suite)
+    test_result = TestSuiteRun(runner, mode_suite) and test_result
     print 'Run test without \'--mode\' option.'
-    runner.run(empty_mode_suite)
+    test_result = TestSuiteRun(runner, empty_mode_suite) and test_result
+  if not test_result:
+    sys.exit(1)
