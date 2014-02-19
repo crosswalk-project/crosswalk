@@ -8,12 +8,11 @@
 #include <string>
 #include "base/memory/ref_counted.h"
 #include "dbus/bus.h"
+#include "xwalk/application/browser/application.h"
 #include "xwalk/dbus/object_manager_adaptor.h"
 
 namespace xwalk {
 namespace application {
-
-class Application;
 
 // Represents the running application inside D-Bus hierarchy of
 // RunningApplicationsManager.
@@ -31,13 +30,14 @@ class RunningApplicationObject : public dbus::ManagedObject {
   ~RunningApplicationObject();
 
  private:
-  void TerminateApplication();
+  void TerminateApplication(Application::TerminationMode mode);
 
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
 
-  void OnTerminate(dbus::MethodCall* method_call,
+  void OnTerminate(Application::TerminationMode termination_mode,
+                   dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
   void ListenForOwnerChange();
