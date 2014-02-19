@@ -349,11 +349,13 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '-f', self._mode]
     RunCommand(cmd)
-    manifest = 'Example/AndroidManifest.xml'
-    with open(manifest, 'r') as content_file:
+    theme = 'Example/res/values/theme.xml'
+    with open(theme, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(os.path.exists(manifest))
-    self.assertTrue(content.find('Fullscreen') != -1)
+    self.assertTrue(os.path.exists(theme))
+    self.assertTrue(
+        content.find(
+            '<item name="android:windowFullscreen">true</item>') != -1)
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
 
@@ -407,7 +409,6 @@ class TestMakeApk(unittest.TestCase):
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
-    self.assertTrue(content.find('Fullscreen') != -1)
     self.assertTrue(content.find('android.permission.READ_CONTACTS') != -1)
     self.assertTrue(content.find('android.permission.WRITE_CONTACTS') != -1)
     self.assertTrue(
@@ -416,6 +417,13 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('android.permission.RECEIVE_SMS') != -1)
     self.assertTrue(content.find('android.permission.SEND_SMS') != -1)
     self.assertTrue(content.find('android.permission.WRITE_SMS') != -1)
+    theme = 'Example/res/values/theme.xml'
+    with open(theme, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(theme))
+    self.assertTrue(
+        content.find(
+            '<item name="android:windowFullscreen">true</item>') != -1)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
@@ -614,8 +622,6 @@ class TestMakeApk(unittest.TestCase):
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
-    # Test fullscreen option.
-    self.assertTrue(content.find('Fullscreen') != -1)
     # Test permission option.
     self.assertTrue(content.find('ACCESS_FINE_LOCATION') != -1)
     # Test description option.
@@ -626,6 +632,14 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('landscape') != -1)
     # Test icon option.
     self.assertTrue(os.path.exists('Example/res/drawable'))
+    # Test fullscreen option
+    theme = 'Example/res/values/theme.xml'
+    with open(theme, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(theme))
+    self.assertTrue(
+        content.find(
+            '<item name="android:windowFullscreen">true</item>') != -1)
     # Test extensions option.
     extensions_config_json = 'Example/assets/extensions-config.json'
     self.assertTrue(os.path.exists(extensions_config_json))

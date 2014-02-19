@@ -123,7 +123,6 @@ def ParseManifest(options):
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
     options.fullscreen = False
-  options.launch_screen_img = ''
   if parser.GetLaunchScreenImg():
     options.launch_screen_img  = os.path.join(options.app_root,
                                               parser.GetLaunchScreenImg())
@@ -666,6 +665,10 @@ def main(argv):
   if len(argv) == 1:
     parser.print_help()
     return 0
+
+  # This option will not export to users.
+  # Initialize here and will be read from manifest.json.
+  options.launch_screen_img = ''
 
   if options.version:
     if os.path.isfile('VERSION'):
