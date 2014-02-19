@@ -599,7 +599,7 @@ def main(argv):
   group = optparse.OptionGroup(parser, 'Mandatory arguments',
       'They are used for describing the APK information through '
       'command line options.')
-  info = ('The apk name. For example, --name=YourApplicationName')
+  info = ('The apk name. For example, --name="Your Application Name"')
   group.add_option('--name', help=info)
   info = ('The package name. For example, '
           '--package=com.example.YourPackage')
@@ -720,7 +720,7 @@ def main(argv):
 
   options.name = ReplaceInvalidChars(options.name, 'apkname')
   options.package = ReplaceInvalidChars(options.package)
-  sanitized_name = ReplaceInvalidChars(options.name)
+  sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
 
   try:
     compress = compress_js_and_css.CompressJsAndCss(options.app_root)
