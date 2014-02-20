@@ -36,10 +36,13 @@ const char kCreatePermissionTableOp[] =
     "ON DELETE CASCADE)";
 
 const char kGetAllRowsFromAppEventTableOp[] =
-    "SELECT A.id, A.manifest, A.path, A.install_time, B.event_names "
+    "SELECT A.id, A.manifest, A.path, A.install_time, "
+    "B.event_names, C.permission_names "
     "FROM applications as A "
     "LEFT JOIN registered_events as B "
-    "ON A.id = B.id";
+    "ON A.id = B.id "
+    "LEFT JOIN stored_permissions as C "
+    "ON A.id = C.id";
 
 const char kSetApplicationWithBindOp[] =
     "INSERT INTO applications (manifest, path, install_time, id) "

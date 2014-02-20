@@ -13,6 +13,7 @@
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 namespace xwalk {
 namespace extensions {
@@ -23,6 +24,7 @@ XWalkExtensionProcess::XWalkExtensionProcess()
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
 
+  extensions_server_.set_permissions_delegate(this);
   CreateBrowserProcessChannel();
 }
 
@@ -107,6 +109,30 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_RenderProcessChannelCreated(
           rp_channel_handle_));
+}
+
+bool XWalkExtensionProcess::CheckAPIAccessControl(
+    const std::string& extension_name,
+    const std::string& api_name) {
+  // TODO(Bai): Implement cache here.
+  RuntimePermission result = UNDEFINED_RUNTIME_PERM;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
+          extension_name, api_name, &result));
+  DLOG(INFO) << extension_name << "." << api_name << "() --> " << result;
+  return (result == ALLOW_ONCE ||
+          result == ALLOW_SESSION ||
+          result == ALLOW_ALWAYS);
+}
+
+bool XWalkExtensionProcess::RegisterPermissions(
+    const std::string& extension_name,
+    const std::string& perm_table) {
+  bool result;
+  browser_process_channel_->Send(
+      new XWalkExtensionProcessHostMsg_RegisterPermissions(
+          extension_name, perm_table, &result));
+  return result;
 }
 
 }  // namespace extensions

@@ -6,8 +6,10 @@
 
 #include <string>
 
+#include "base/json/json_reader.h"
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
+#include "base/values.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
@@ -255,6 +257,50 @@ bool Application::IsOnSuspendHandlerRegistered() const {
 
 bool Application::UseExtension(const std::string& extension_name) const {
   // TODO(Bai): Tells whether the application contains the specified extension
+  return true;
+}
+
+bool Application::RegisterPermissions(const std::string& extension_name,
+                                      const std::string& perm_table) {
+  // TODO(Bai): Parse the permission table and fill in the name_perm_map_
+  // The perm_table format is a simple JSON string, like
+  // [{"permission_name":"echo","apis":["add","remove","get"]}]
+  scoped_ptr<Value> root;
+  root.reset(base::JSONReader().ReadToValue(perm_table));
+  if (root.get() == NULL || !root->IsType(Value::TYPE_LIST))
+    return false;
+
+  ListValue* permission_list = static_cast<ListValue*>(root.get());
+  if (permission_list->GetSize() == 0)
+    return false;
+
+  for (ListValue::const_iterator iter = permission_list->begin();
+      iter != permission_list->end(); ++iter) {
+    if (!(*iter)->IsType(Value::TYPE_DICTIONARY))
+        return false;
+
+    DictionaryValue* dict_val = static_cast<DictionaryValue*>(*iter);
+    std::string permission_name;
+    if (!dict_val->GetString("permission_name", &permission_name))
+      return false;
+
+    ListValue* api_list = NULL;
+    if (!dict_val->GetList("apis", &api_list))
+      return false;
+
+    for (ListValue::const_iterator api_iter = api_list->begin();
+        api_iter != api_list->end(); ++api_iter) {
+      std::string api;
+      if (!((*api_iter)->IsType(Value::TYPE_STRING)
+          && (*api_iter)->GetAsString(&api)))
+        return false;
+      // register the permission and api
+      name_perm_map_[api] = permission_name;
+      DLOG(INFO) << "Permission Registered [PERM] " << permission_name
+                 << " [API] " << api;
+    }
+  }
+
   return true;
 }
 

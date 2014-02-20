@@ -176,6 +176,12 @@ bool XWalkExtensionProcessHost::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(
         XWalkExtensionProcessHostMsg_RenderProcessChannelCreated,
         OnRenderChannelCreated)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(
+        XWalkExtensionProcessHostMsg_CheckAPIAccessControl,
+        OnCheckAPIAccessControl)
+    IPC_MESSAGE_HANDLER(
+        XWalkExtensionProcessHostMsg_RegisterPermissions,
+        OnRegisterPermissions)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -223,6 +229,34 @@ void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
   render_process_host_->Send(pending_reply_for_render_process_.release());
 }
 
+void XWalkExtensionProcessHost::ReplyAccessControlToExtension(
+    IPC::Message* reply_msg,
+    RuntimePermission perm) {
+  XWalkExtensionProcessHostMsg_CheckAPIAccessControl
+      ::WriteReplyParams(reply_msg, perm);
+  Send(reply_msg);
+}
+
+void XWalkExtensionProcessHost::OnCheckAPIAccessControl(
+    const std::string& extension_name,
+    const std::string& api_name, IPC::Message* reply_msg) {
+  CHECK(delegate_);
+  delegate_->OnCheckAPIAccessControl(extension_name, api_name,
+      base::Bind(&XWalkExtensionProcessHost::ReplyAccessControlToExtension,
+                 base::Unretained(this),
+                 reply_msg));
+}
+
+void XWalkExtensionProcessHost::OnRegisterPermissions(
+    const std::string& extension_name,
+    const std::string& perm_table, bool* result) {
+  CHECK(delegate_);
+  *result = delegate_->OnRegisterPermissions(extension_name, perm_table);
+}
+
+bool XWalkExtensionProcessHost::Send(IPC::Message* msg) {
+  return process_->GetHost()->Send(msg);
+}
 
 }  // namespace extensions
 }  // namespace xwalk

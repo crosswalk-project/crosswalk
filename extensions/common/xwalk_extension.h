@@ -32,6 +32,18 @@ class XWalkExtensionInstance;
 // XWalkExtensionInstance.
 class XWalkExtension {
  public:
+  class PermissionsDelegate {
+   public:
+    // The delegate is responsible for caching the requests for the sake of
+    // performance.
+    virtual bool CheckAPIAccessControl(const std::string& extension_name,
+        const std::string& api_name) { return false; }
+    virtual bool RegisterPermissions(const std::string& extension_name,
+        const std::string& perm_table) { return false; }
+
+    ~PermissionsDelegate() {}
+  };
+
   virtual ~XWalkExtension();
 
   virtual XWalkExtensionInstance* CreateInstance() = 0;
@@ -43,6 +55,13 @@ class XWalkExtension {
   // when accessed. Entry points are used when the extension needs to have
   // objects outside the namespace that is implicitly created using its name.
   virtual const base::ListValue& entry_points() const;
+
+  void set_permissions_delegate(XWalkExtension::PermissionsDelegate* delegate) {
+    permissions_delegate_ = delegate;
+  }
+
+  bool CheckAPIAccessControl(const char* api_name) const;
+  bool RegisterPermissions(const char* perm_table) const;
 
  protected:
   XWalkExtension();
@@ -66,6 +85,9 @@ class XWalkExtension {
   // FIXME(jeez): convert this to std::vector<std::string> to avoid
   // extra conversions later on.
   base::ListValue entry_points_;
+
+  // Permission check delegate for both in and out of process extensions.
+  PermissionsDelegate* permissions_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtension);
 };
