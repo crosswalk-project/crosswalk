@@ -9,6 +9,7 @@
 #include "base/bind.h"
 #include "base/message_loop/message_loop.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "ui/base/layout.h"
 #include "ui/gfx/screen.h"
 #include "xwalk/sysapps/common/sysapps_manager.h"
 #include "xwalk/sysapps/device_capabilities_new/device_capabilities.h"
@@ -39,6 +40,10 @@ TEST(XWalkSysAppsDeviceCapabilitiesTest, DisplayInfoProvider) {
   base::MessageLoop message_loop(base::MessageLoop::TYPE_UI);
 
 #if defined(USE_AURA)
+  std::vector<ui::ScaleFactor> supported_scale_factors;
+  supported_scale_factors.push_back(ui::SCALE_FACTOR_200P);
+  ui::SetSupportedScaleFactors(supported_scale_factors);
+
   gfx::Screen::SetScreenInstance(
       gfx::SCREEN_TYPE_NATIVE, views::CreateDesktopScreen());
 #endif
