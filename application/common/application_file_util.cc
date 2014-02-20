@@ -146,6 +146,9 @@ static base::DictionaryValue* LoadManifestWgt(const base::FilePath& manifest_pat
     } else if (node_name == "application") {
       if (xml.NodeAttribute("package", &value))
         dv->SetString(keys::kTizenAppIdKey, value);
+    } else if (node_name == "content-security-policy") {
+      if (xml.ReadElementContent(&value))
+        dv->SetString(keys::kCSPKey, value);
 #endif
     }
   }
