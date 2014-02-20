@@ -265,33 +265,34 @@ bool Application::RegisterPermissions(const std::string& extension_name,
   // TODO(Bai): Parse the permission table and fill in the name_perm_map_
   // The perm_table format is a simple JSON string, like
   // [{"permission_name":"echo","apis":["add","remove","get"]}]
-  scoped_ptr<Value> root;
+  scoped_ptr<base::Value> root;
   root.reset(base::JSONReader().ReadToValue(perm_table));
-  if (root.get() == NULL || !root->IsType(Value::TYPE_LIST))
+  if (root.get() == NULL || !root->IsType(base::Value::TYPE_LIST))
     return false;
 
-  ListValue* permission_list = static_cast<ListValue*>(root.get());
+  base::ListValue* permission_list = static_cast<base::ListValue*>(root.get());
   if (permission_list->GetSize() == 0)
     return false;
 
-  for (ListValue::const_iterator iter = permission_list->begin();
+  for (base::ListValue::const_iterator iter = permission_list->begin();
       iter != permission_list->end(); ++iter) {
-    if (!(*iter)->IsType(Value::TYPE_DICTIONARY))
+    if (!(*iter)->IsType(base::Value::TYPE_DICTIONARY))
         return false;
 
-    DictionaryValue* dict_val = static_cast<DictionaryValue*>(*iter);
+    base::DictionaryValue* dict_val =
+        static_cast<base::DictionaryValue*>(*iter);
     std::string permission_name;
     if (!dict_val->GetString("permission_name", &permission_name))
       return false;
 
-    ListValue* api_list = NULL;
+    base::ListValue* api_list = NULL;
     if (!dict_val->GetList("apis", &api_list))
       return false;
 
-    for (ListValue::const_iterator api_iter = api_list->begin();
+    for (base::ListValue::const_iterator api_iter = api_list->begin();
         api_iter != api_list->end(); ++api_iter) {
       std::string api;
-      if (!((*api_iter)->IsType(Value::TYPE_STRING)
+      if (!((*api_iter)->IsType(base::Value::TYPE_STRING)
           && (*api_iter)->GetAsString(&api)))
         return false;
       // register the permission and api
