@@ -93,7 +93,7 @@ void RunningApplicationsManager::OnLaunch(
     response_sender.Run(response.Pass());
     return;
   }
-
+  CHECK(app_id == application->id());
   // FIXME(cmarcelo): ApplicationService will tell us when new applications
   // appear (with DidLaunchApplication()) and we create new managed objects
   // in D-Bus based on that.
