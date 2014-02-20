@@ -86,6 +86,7 @@ def CopyJavaSources(project_source, out_directory):
       # Chromium java sources.
       'base/android/java/src/org/chromium/base',
       'content/public/android/java/src/org/chromium/content',
+      'content/public/android/java/src/org/chromium/content_public',
       'media/base/android/java/src/org/chromium/media',
       'net/android/java/src/org/chromium/net',
       'ui/android/java/src/org/chromium/ui',
@@ -129,6 +130,8 @@ def CopyGeneratedSources(out_directory):
 
   print 'Copying generated source files...'
   generated_srcs_to_copy = [
+      'org/chromium/base/ActivityState.java',
+      'org/chromium/base/MemoryPressureLevelList.java',
       'org/chromium/content/app/NativeLibraries.java',
       'org/chromium/content/browser/input/PopupItemType.java',
       'org/chromium/content/browser/PageTransitionTypes.java',
