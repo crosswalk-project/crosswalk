@@ -56,11 +56,16 @@ class XWalkContentsIoThreadClient {
   virtual CacheMode GetCacheMode() const = 0;
 
   // This will attempt to fetch the XWalkContentsIoThreadClient for the given
-  // |render_process_id|, |render_view_id| pair.
+  // |render_process_id|, |render_frame_id| pair.
   // This method can be called from any thread.
   // An empty scoped_ptr is a valid return value.
   static scoped_ptr<XWalkContentsIoThreadClient> FromID(int render_process_id,
-                                                        int render_view_id);
+                                                        int render_frame_id);
+
+  // Called on the IO thread when a subframe is created.
+  static void SubFrameCreated(int render_process_id,
+                              int parent_render_frame_id,
+                              int child_render_frame_id);
 
   // This method is called on the IO thread only.
   virtual scoped_ptr<InterceptedRequestData> ShouldInterceptRequest(
