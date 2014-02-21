@@ -10,8 +10,6 @@
 #include "base/file_util.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
-#include "base/strings/string_number_conversions.h"
-#include "base/sys_info.h"
 #include "base/threading/sequenced_worker_pool.h"
 #include "cc/base/switches.h"
 #include "content/public/browser/android/compositor.h"
@@ -96,14 +94,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // blacklist.
   command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
-
-  if (!command_line->HasSwitch(switches::kNumRasterThreads)) {
-    // Enable multiple threads for rasterization to take advantage of multi CPU
-    // cores. Only valid when ImplSidePainting is enabled.
-    const int num_of_cpu_cores = base::SysInfo::NumberOfProcessors();
-    command_line->AppendSwitchASCII(switches::kNumRasterThreads,
-                                    base::IntToString(num_of_cpu_cores));
-  }
 
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 
