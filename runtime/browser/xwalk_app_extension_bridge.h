@@ -30,10 +30,14 @@ class XWalkAppExtensionBridge
     app_system_ = app_system;
   }
   // XWalkExtensionService::Delegate implementation
-  virtual void CheckAPIAccessControl(const std::string& extension_name,
+  virtual void CheckAPIAccessControl(
+      int render_process_id,
+      const std::string& extension_name,
       const std::string& api_name,
       const extensions::PermissionCallback& callback) OVERRIDE;
-  virtual bool RegisterPermissions(const std::string& extension_name,
+  virtual bool RegisterPermissions(
+      int render_process_id,
+      const std::string& extension_name,
       const std::string& perm_table) OVERRIDE;
 
  private:

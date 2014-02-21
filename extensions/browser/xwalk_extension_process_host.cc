@@ -91,7 +91,9 @@ class ExtensionSandboxedProcessLauncherDelegate
 #endif
 
 bool XWalkExtensionProcessHost::Delegate::OnRegisterPermissions(
-    const std::string& extension_name, const std::string& perm_table) {
+    int render_process_id,
+    const std::string& extension_name,
+    const std::string& perm_table) {
   return false;
 }
 
@@ -246,7 +248,8 @@ void XWalkExtensionProcessHost::OnCheckAPIAccessControl(
     const std::string& extension_name,
     const std::string& api_name, IPC::Message* reply_msg) {
   CHECK(delegate_);
-  delegate_->OnCheckAPIAccessControl(extension_name, api_name,
+  delegate_->OnCheckAPIAccessControl(render_process_host_->GetID(),
+                                     extension_name, api_name,
       base::Bind(&XWalkExtensionProcessHost::ReplyAccessControlToExtension,
                  base::Unretained(this),
                  reply_msg));
@@ -256,7 +259,8 @@ void XWalkExtensionProcessHost::OnRegisterPermissions(
     const std::string& extension_name,
     const std::string& perm_table, bool* result) {
   CHECK(delegate_);
-  *result = delegate_->OnRegisterPermissions(extension_name, perm_table);
+  *result = delegate_->OnRegisterPermissions(
+      render_process_host_->GetID(), extension_name, perm_table);
 }
 
 bool XWalkExtensionProcessHost::Send(IPC::Message* msg) {
