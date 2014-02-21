@@ -13,7 +13,6 @@
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_sync_channel.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
-#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 
 namespace xwalk {
 namespace extensions {
@@ -56,7 +55,8 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
     base::DictionaryValue* dv;
     if (!(*it)->GetAsDictionary(&dv))
       continue;
-    for (base::DictionaryValue::Iterator dit(*dv); !dit.IsAtEnd(); dit.Advance())
+    for (base::DictionaryValue::Iterator dit(*dv);
+        !dit.IsAtEnd(); dit.Advance())
       (*vm)[dit.key()] = dit.value().DeepCopy();
   }
 }
@@ -114,15 +114,26 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
 bool XWalkExtensionProcess::CheckAPIAccessControl(
     const std::string& extension_name,
     const std::string& api_name) {
-  // TODO(Bai): Implement cache here.
+  PermissionCacheType::iterator iter =
+      permission_cache_.find(extension_name + api_name);
+  if (iter != permission_cache_.end())
+    return iter->second;
+
   RuntimePermission result = UNDEFINED_RUNTIME_PERM;
   browser_process_channel_->Send(
       new XWalkExtensionProcessHostMsg_CheckAPIAccessControl(
           extension_name, api_name, &result));
   DLOG(INFO) << extension_name << "." << api_name << "() --> " << result;
-  return (result == ALLOW_ONCE ||
-          result == ALLOW_SESSION ||
-          result == ALLOW_ALWAYS);
+  if (result == ALLOW_SESSION ||
+      result == ALLOW_ALWAYS ||
+      result == DENY_SESSION ||
+      result == DENY_ALWAYS) {
+    permission_cache_[extension_name+api_name] = result;
+    return (result == ALLOW_SESSION || result == ALLOW_ALWAYS);
+  }
+
+  // Could be allow/deny once or undefined here.
+  return (result == ALLOW_ONCE);
 }
 
 bool XWalkExtensionProcess::RegisterPermissions(
