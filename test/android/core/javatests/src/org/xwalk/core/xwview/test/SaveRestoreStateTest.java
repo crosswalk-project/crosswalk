@@ -16,6 +16,7 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.NavigationEntry;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.net.test.util.TestWebServer;
+import org.xwalk.core.xwview.test.util.CommonResources;
 import org.xwalk.core.WebBackForwardList;
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkContent;
