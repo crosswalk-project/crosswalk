@@ -196,7 +196,8 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Denable_xi21_mt=1 \
--Duse_xi2_mt=0
+-Duse_xi2_mt=0 \
+-Denable_hidpi=1
 
 make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
