@@ -382,9 +382,8 @@ int AndroidStreamReaderURLRequestJob::GetResponseCode() const {
 void AndroidStreamReaderURLRequestJob::GetResponseInfo(
     net::HttpResponseInfo* info) {
   if (response_info_) {
-    response_info_->headers = xwalk::application::BuildHttpHeaders(
-        content_security_policy_, mime_type_, "GET", relative_path_,
-        relative_path_, true);
+    // TODO(gaochun): Enable CSP when http status code issue was fixed.
+    // Bug: https://crosswalk-project.org/jira/browse/XWALK-1022
     *info = *response_info_;
   }
 }
