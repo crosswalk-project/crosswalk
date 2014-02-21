@@ -176,11 +176,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
-    const char* loopback_ip = "127.0.0.1";
+    const char* local_ip = "0.0.0.0";
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       remote_debugging_server_.reset(
           new RemoteDebuggingServer(runtime_context_,
-              loopback_ip, port, std::string()));
+              local_ip, port, std::string()));
     }
   }
 
