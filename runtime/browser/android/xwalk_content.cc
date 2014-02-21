@@ -231,6 +231,17 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     manifest.GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
   }
+
+  std::string csp;
+  manifest.GetString(
+      xwalk::application_manifest_keys::kCSPKey, &csp);
+  XWalkBrowserMainParts* main_parts =
+          XWalkContentBrowserClient::Get()->main_parts();
+  CHECK(main_parts);
+  RuntimeContext* runtime_context = main_parts->runtime_context();
+  CHECK(runtime_context);
+  runtime_context->SetCSPString(csp);
+
   ScopedJavaLocalRef<jstring> url_buffer =
       base::android::ConvertUTF8ToJavaString(env, url);
 

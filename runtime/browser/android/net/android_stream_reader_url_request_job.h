@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/android/scoped_java_ref.h"
+#include "base/files/file_path.h"
 #include "base/location.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
@@ -76,7 +77,9 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
   AndroidStreamReaderURLRequestJob(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate,
-      scoped_ptr<Delegate> delegate);
+      scoped_ptr<Delegate> delegate,
+      const base::FilePath& relative_path,
+      const std::string& content_security_policy);
 
   // URLRequestJob:
   virtual void Start() OVERRIDE;
@@ -115,6 +118,9 @@ class AndroidStreamReaderURLRequestJob : public net::URLRequestJob {
   net::HttpByteRange byte_range_;
   scoped_ptr<net::HttpResponseInfo> response_info_;
   scoped_ptr<Delegate> delegate_;
+  const std::string mime_type_;
+  base::FilePath relative_path_;
+  std::string content_security_policy_;
   scoped_refptr<InputStreamReaderWrapper> input_stream_reader_wrapper_;
   base::WeakPtrFactory<AndroidStreamReaderURLRequestJob> weak_factory_;
   base::ThreadChecker thread_checker_;

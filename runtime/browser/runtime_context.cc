@@ -6,6 +6,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -26,6 +27,10 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
+
+#if defined(OS_ANDROID)
+#include "base/strings/string_split.h"
+#endif
 
 using content::BrowserThread;
 using content::DownloadManager;
@@ -205,5 +210,25 @@ net::URLRequestContextGetter*
         content::ProtocolHandlerMap* protocol_handlers) {
   return NULL;
 }
+
+#if defined(OS_ANDROID)
+void RuntimeContext::SetCSPString(const std::string& csp) {
+  // Check format of csp string.
+  std::vector<std::string> policies;
+  base::SplitString(csp, ';', &policies);
+  for (size_t i = 0; i < policies.size(); ++i) {
+    size_t found = policies[i].find(' ');
+    if (found == std::string::npos) {
+      LOG(INFO) << "Invalid value of directive: " << policies[i];
+      return;
+    }
+  }
+  csp_ = csp;
+}
+
+std::string RuntimeContext::GetCSPString() const {
+  return csp_;
+}
+#endif
 
 }  // namespace xwalk

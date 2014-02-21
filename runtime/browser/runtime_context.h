@@ -5,6 +5,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_CONTEXT_H_
 
+#if defined(OS_ANDROID)
+#include <string>
+#endif
+
 #include "base/compiler_specific.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -81,6 +85,10 @@ class RuntimeContext : public content::BrowserContext {
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers);
+#if defined(OS_ANDROID)
+  void SetCSPString(const std::string& csp);
+  std::string GetCSPString() const;
+#endif
 
  private:
   class RuntimeResourceContext;
@@ -94,7 +102,9 @@ class RuntimeContext : public content::BrowserContext {
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
   scoped_refptr<content::GeolocationPermissionContext>
        geolocation_permission_context_;
-
+#if defined(OS_ANDROID)
+  std::string csp_;
+#endif
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
 };
 

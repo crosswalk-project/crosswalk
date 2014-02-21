@@ -23,6 +23,9 @@
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
+#include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ClearException;
@@ -246,10 +249,21 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
   scoped_ptr<AndroidStreamReaderURLRequestJobDelegateImpl> reader_delegate(
       new AndroidStreamReaderURLRequestJobDelegateImpl());
 
+  base::FilePath relative_path = base::FilePath(
+      net::UnescapeURLComponent(request->url().path(),
+          net::UnescapeRule::SPACES | net::UnescapeRule::URL_SPECIAL_CHARS));
+
+  xwalk::XWalkBrowserMainParts* main_parts =
+          xwalk::XWalkContentBrowserClient::Get()->main_parts();
+  xwalk::RuntimeContext* runtime_context = main_parts->runtime_context();
+  std::string content_security_policy = runtime_context->GetCSPString();
+
   return new AndroidStreamReaderURLRequestJob(
       request,
       network_delegate,
-      reader_delegate.PassAs<AndroidStreamReaderURLRequestJob::Delegate>());
+      reader_delegate.PassAs<AndroidStreamReaderURLRequestJob::Delegate>(),
+      relative_path,
+      content_security_policy);
 }
 
 // AssetFileProtocolHandler ---------------------------------------------------
