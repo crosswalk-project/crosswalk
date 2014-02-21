@@ -44,7 +44,7 @@ GURL GetURLFromCommandLine(const CommandLine& command_line) {
   const CommandLine::StringVector& args = command_line.GetArgs();
 
   if (args.empty())
-    return GURL();
+    return GURL(content::kAboutBlankURL);
 
   GURL url(args[0]);
   if (url.is_valid() && url.has_scheme())
