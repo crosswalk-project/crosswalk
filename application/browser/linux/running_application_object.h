@@ -15,6 +15,9 @@ namespace application {
 
 class Application;
 
+extern const char kRunningApplicationDBusInterface[];
+extern const char kRunningApplicationDBusError[];
+
 // Represents the running application inside D-Bus hierarchy of
 // RunningApplicationsManager.
 //
@@ -30,12 +33,13 @@ class RunningApplicationObject : public dbus::ManagedObject {
 
   ~RunningApplicationObject();
 
- private:
-  void TerminateApplication();
-
+ protected:
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
+
+ private:
+  void TerminateApplication();
 
   void OnTerminate(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);

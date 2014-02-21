@@ -11,6 +11,10 @@
 
 #include "xwalk/application/browser/linux/running_application_object.h"
 
+#if defined(OS_TIZEN_MOBILE)
+#include "xwalk/application/browser/linux/running_application_object_tizen.h"
+#endif
+
 namespace {
 
 // D-Bus Interface implemented by the manager object of running applications.
@@ -128,13 +132,16 @@ dbus::ObjectPath RunningApplicationsManager::AddObject(
     const std::string& app_id, const std::string& launcher_name,
     Application* application) {
   scoped_ptr<RunningApplicationObject> running_application(
+#if defined(OS_TIZEN_MOBILE)
       new RunningApplicationObject(adaptor_.bus(), app_id,
                                    launcher_name, application));
+#else
+      new TizenRunningApplicationObject(adaptor_.bus(), app_id,
+                                        launcher_name, application));
+#endif
 
   dbus::ObjectPath path = running_application->path();
-
   adaptor_.AddManagedObject(running_application.PassAs<dbus::ManagedObject>());
-
   return path;
 }
 

@@ -61,7 +61,7 @@
         ['tizen_mobile==1', {
           'dependencies': [
             'gio',
-            '../../../build/system.gyp:tizen_appcore_common'
+            '../../../build/system.gyp:tizen_appcore_common',
           ],
           'sources': [
             'xwalk_launcher_tizen.cc',

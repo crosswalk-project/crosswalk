@@ -37,6 +37,7 @@
               'appcore-efl',
               'aul',
               'capi-appfw-application',
+              'capi-appfw-app-manager',
               'sensor',
               'vconf',
             ],

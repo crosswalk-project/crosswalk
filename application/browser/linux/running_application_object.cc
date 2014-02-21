@@ -13,8 +13,10 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/linux/running_applications_manager.h"
 
+#include "base/message_loop/message_loop.h"
 
-namespace {
+namespace xwalk {
+namespace application {
 
 // D-Bus Interface implemented by objects that represent running
 // applications.
@@ -33,12 +35,6 @@ const char kRunningApplicationDBusInterface[] =
 
 const char kRunningApplicationDBusError[] =
     "org.crosswalkproject.Running.Application.Error";
-
-
-}  // namespace
-
-namespace xwalk {
-namespace application {
 
 RunningApplicationObject::RunningApplicationObject(
     scoped_refptr<dbus::Bus> bus,

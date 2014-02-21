@@ -158,6 +158,11 @@ int main(int argc, char** argv) {
   mainloop = g_main_loop_new(NULL, FALSE);
 
 #if defined(OS_TIZEN_MOBILE)
+  if (xwalk_init_cmd_receiver(connection, application_object_path, app_proxy)) {
+    fprintf(stderr, "Failed to intialize app cmd receiver.");
+    exit(1);
+  }
+
   char name[128];
   snprintf(name, sizeof(name), "xwalk-%s", appid);
 
@@ -168,6 +173,5 @@ int main(int argc, char** argv) {
 #endif
 
   g_main_loop_run(mainloop);
-
   return 0;
 }
