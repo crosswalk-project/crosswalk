@@ -12,7 +12,7 @@
 #include <pwd.h>
 
 int xwalk_tizen_set_home_for_user_app(void) {
-#if !defined(OS_TIZEN_MOBILE)
+#if !defined(OS_TIZEN)
   return 0;
 #endif
 

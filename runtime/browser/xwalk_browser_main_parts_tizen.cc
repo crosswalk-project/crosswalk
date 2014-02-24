@@ -46,10 +46,6 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
     gl_name = gfx::kGLImplementationEGLName;
   command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
 
-  // Workaround to provide viewport meta tag proper behavior on Tizen.
-  // FIXME: Must be removed when Chromium r235967 is in place.
-  command_line->AppendSwitchASCII(switches::kForceDeviceScaleFactor, "2.0");
-
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 }
 

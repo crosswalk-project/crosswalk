@@ -243,7 +243,7 @@
         },
       },
       'conditions': [
-        [ 'tizen_mobile == 1', {
+        [ 'tizen == 1 or tizen_mobile == 1', {
           'dependencies': [
             'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',

@@ -27,7 +27,7 @@ std::string XWalkContentClient::GetProduct() const {
 
 std::string XWalkContentClient::GetUserAgent() const {
   std::string product = "Chrome/" CHROME_VERSION;
-#if (defined(OS_TIZEN_MOBILE) || defined(OS_ANDROID))
+#if (defined(OS_TIZEN) || defined(OS_ANDROID))
   product += " Mobile Crosswalk/" XWALK_VERSION;
 #else
   product += " Crosswalk/" XWALK_VERSION;

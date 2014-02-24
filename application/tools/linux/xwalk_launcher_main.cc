@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
 
   mainloop = g_main_loop_new(NULL, FALSE);
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
   char name[128];
   snprintf(name, sizeof(name), "xwalk-%s", appid);
 

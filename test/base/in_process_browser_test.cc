@@ -31,7 +31,7 @@
 #include "xwalk/test/base/xwalk_test_suite.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
 
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
@@ -42,7 +42,7 @@ using xwalk::XWalkRunner;
 namespace {
 
 // Used when running in single-process mode.
-#if defined(OS_TIZEN_MOBILE)
+#if defined(OS_TIZEN)
 base::LazyInstance<XWalkContentRendererClientTizen>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #else

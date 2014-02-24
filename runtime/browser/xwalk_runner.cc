@@ -24,7 +24,7 @@
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/browser/xwalk_runner_android.h"
-#elif defined(OS_TIZEN_MOBILE)
+#elif defined(OS_TIZEN)
 #include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 #endif
 
@@ -169,7 +169,7 @@ scoped_ptr<XWalkRunner> XWalkRunner::Create() {
   XWalkRunner* runner = NULL;
 #if defined(OS_ANDROID)
   runner = new XWalkRunnerAndroid;
-#elif defined(OS_TIZEN_MOBILE)
+#elif defined(OS_TIZEN)
   runner = new XWalkRunnerTizen;
 #else
   runner = new XWalkRunner;
