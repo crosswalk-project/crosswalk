@@ -102,7 +102,6 @@ AndroidStreamReaderURLRequestJob::AndroidStreamReaderURLRequestJob(
     const std::string& content_security_policy)
     : URLRequestJob(request, network_delegate),
       delegate_(delegate.Pass()),
-      mime_type_("text/html"),
       relative_path_(relative_path),
       content_security_policy_(content_security_policy),
       weak_factory_(this) {
@@ -382,8 +381,10 @@ int AndroidStreamReaderURLRequestJob::GetResponseCode() const {
 void AndroidStreamReaderURLRequestJob::GetResponseInfo(
     net::HttpResponseInfo* info) {
   if (response_info_) {
+    std::string mime_type;
+    GetMimeType(&mime_type);
     response_info_->headers = xwalk::application::BuildHttpHeaders(
-        content_security_policy_, mime_type_, "GET", relative_path_,
+        content_security_policy_, mime_type, "GET", relative_path_,
         relative_path_, true);
     *info = *response_info_;
   }
