@@ -40,6 +40,8 @@ class Package {
   base::FilePath source_path_;
   // Temporary directory for unpacking.
   base::ScopedTempDir temp_dir_;
+  // Represent if the package has been extracted.
+  bool is_extracted_;
 };
 
 }  // namespace application
