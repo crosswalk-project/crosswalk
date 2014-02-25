@@ -9,7 +9,6 @@
 #include "xwalk/sysapps/device_capabilities_new/device_capabilities_extension_new.h"
 #include "xwalk/sysapps/device_capabilities_new/display_info_provider.h"
 #include "xwalk/sysapps/device_capabilities_new/memory_info_provider.h"
-#include "xwalk/sysapps/device_capabilities_new/storage_info_provider_mock.h"
 #include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 
 namespace xwalk {
@@ -62,13 +61,6 @@ DisplayInfoProvider* SysAppsManager::GetDisplayInfoProvider() {
 // static
 MemoryInfoProvider* SysAppsManager::GetMemoryInfoProvider() {
   CR_DEFINE_STATIC_LOCAL(MemoryInfoProvider, provider, ());
-
-  return &provider;
-}
-
-// static
-StorageInfoProvider* SysAppsManager::GetStorageInfoProvider() {
-  CR_DEFINE_STATIC_LOCAL(StorageInfoProviderMock, provider, ());
 
   return &provider;
 }
