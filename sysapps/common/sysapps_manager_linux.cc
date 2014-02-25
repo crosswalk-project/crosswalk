@@ -6,6 +6,7 @@
 
 #include "base/basictypes.h"
 #include "xwalk/sysapps/device_capabilities_new/av_codecs_provider_ffmpeg.h"
+#include "xwalk/sysapps/device_capabilities_new/storage_info_provider_chromium.h"
 
 namespace xwalk {
 namespace sysapps {
@@ -13,6 +14,13 @@ namespace sysapps {
 // static
 AVCodecsProvider* SysAppsManager::GetAVCodecsProvider() {
   CR_DEFINE_STATIC_LOCAL(AVCodecsProviderFFmpeg, provider, ());
+
+  return &provider;
+}
+
+// static
+StorageInfoProvider* SysAppsManager::GetStorageInfoProvider() {
+  CR_DEFINE_STATIC_LOCAL(StorageInfoProviderChromium, provider, ());
 
   return &provider;
 }

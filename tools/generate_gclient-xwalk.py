@@ -79,7 +79,6 @@ class GClientFileGenerator(object):
                  'src/chrome/tools/test/reference_build/chrome_linux',
                  'src/chrome/tools/test/reference_build/chrome_mac',
                  'src/third_party/chromite',
-                 'src/third_party/cros_system_api',
                  'src/third_party/hunspell_dictionaries',
                  'src/third_party/pyelftools']
     else:

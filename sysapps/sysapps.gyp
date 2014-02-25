@@ -53,8 +53,8 @@
         'device_capabilities_new/memory_info_provider.h',
         'device_capabilities_new/storage_info_provider.cc',
         'device_capabilities_new/storage_info_provider.h',
-        'device_capabilities_new/storage_info_provider_mock.cc',
-        'device_capabilities_new/storage_info_provider_mock.h',
+        'device_capabilities_new/storage_info_provider_android.cc',
+        'device_capabilities_new/storage_info_provider_android.h',
         'raw_socket/raw_socket.idl',
         'raw_socket/raw_socket_extension.cc',
         'raw_socket/raw_socket_extension.h',
@@ -70,6 +70,7 @@
       'conditions': [
         ['OS!="android"', {
           'dependencies': [
+            '../../components/components.gyp:storage_monitor',
             '../../content/content.gyp:content_common',
             '../../media/media.gyp:media',
             '../../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
@@ -77,6 +78,8 @@
           'sources': [
             'device_capabilities_new/av_codecs_provider_ffmpeg.cc',
             'device_capabilities_new/av_codecs_provider_ffmpeg.h',
+            'device_capabilities_new/storage_info_provider_chromium.cc',
+            'device_capabilities_new/storage_info_provider_chromium.h',
           ],
         }],
       ],
