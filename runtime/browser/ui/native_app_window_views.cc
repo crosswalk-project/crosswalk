@@ -127,6 +127,8 @@ void NativeAppWindowViews::Minimize() {
 }
 
 void NativeAppWindowViews::SetFullscreen(bool fullscreen) {
+  views::ViewsDelegate::views_delegate->SetShouldShowTitleBar(!fullscreen);
+
   if (is_fullscreen_ == fullscreen)
     return;
   is_fullscreen_ = fullscreen;
