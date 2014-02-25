@@ -25,7 +25,7 @@ static GDBusConnection* g_connection;
 
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
-    "Path of the application to be installed", "PATH" },
+    "Path of the application to be installed/updated", "PATH" },
   { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_appid,
     "Uninstall the application with this appid", "APPID" },
   { NULL }
@@ -63,7 +63,7 @@ static bool install_application(const char* path) {
   const char* object_path;
 
   g_variant_get(result, "(o)", &object_path);
-  g_print("Application installed with path '%s'\n", object_path);
+  g_print("Application installed/updated with path '%s'\n", object_path);
   g_variant_unref(result);
 
   ret = true;
