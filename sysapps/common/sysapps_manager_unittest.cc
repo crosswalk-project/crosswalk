@@ -15,8 +15,8 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
-#include "xwalk/sysapps/device_capabilities_new/av_codecs_provider.h"
-#include "xwalk/sysapps/device_capabilities_new/cpu_info_provider.h"
+#include "xwalk/sysapps/device_capabilities/av_codecs_provider.h"
+#include "xwalk/sysapps/device_capabilities/cpu_info_provider.h"
 
 using xwalk::sysapps::AVCodecsProvider;
 using xwalk::sysapps::CPUInfoProvider;

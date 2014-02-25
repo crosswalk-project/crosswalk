@@ -14,14 +14,12 @@
 #include "xwalk/extensions/common/xwalk_extension.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
-#include "xwalk/sysapps/raw_socket/raw_socket_extension.h"
 #include "ui/gl/gl_switches.h"
 #include "ui/gfx/switches.h"
 
 #include "content/browser/device_orientation/device_inertial_sensor_service.h"
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/runtime/extension/screen_orientation_extension.h"
-#include "xwalk/sysapps/device_capabilities/device_capabilities_extension.h"
 #include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 
 namespace xwalk {
