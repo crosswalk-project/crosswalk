@@ -8,6 +8,7 @@ package org.xwalk.core.xwview.test;
 import android.app.Activity;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import org.xwalk.core.XWalkWebChromeClient;
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
     protected final static int WAIT_TIMEOUT_SECONDS = 15;
+    private final static String TAG = "XWalkViewTestBase";
     private XWalkView mXWalkView;
     final TestXWalkViewContentsClient mTestContentsClient = new TestXWalkViewContentsClient();
 
@@ -98,6 +100,14 @@ public class XWalkViewTestBase
                 }
             }
         });
+    }
+
+    protected void loadJavaScriptUrl(final String url) throws Exception {
+        if (!url.startsWith("javascript:")) {
+            Log.w(TAG, "loadJavascriptUrl only accepts javascript: url");
+            return;
+        }
+        loadUrlAsync(url);
     }
 
     protected void loadUrlSync(final String url) throws Exception {

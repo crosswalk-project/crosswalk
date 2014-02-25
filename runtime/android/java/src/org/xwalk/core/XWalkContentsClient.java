@@ -78,9 +78,12 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
         @Override
         public void didFinishLoad(long frameId, String validatedUrl, boolean isMainFrame) {
-            if (isMainFrame) {
-                onPageFinished(validatedUrl);
-            }
+            // Both didStopLoading and didFinishLoad will be called once a page is finished
+            // to load, but didStopLoading will also be called when user clicks "X" button
+            // on browser UI to stop loading page.
+            //
+            // So it is safe for Crosswalk to rely on didStopLoading to ensure onPageFinished
+            // can be called.
         }
     }
 

@@ -133,7 +133,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
                 "document.cookie='" + name + "=" + value +
                         "; expires=' + expirationDate.toUTCString();" +
                 "})())";
-        loadUrlSync(jsCommand);
+        loadJavaScriptUrl(jsCommand);
     }
 
     private void waitForCookie(final String url) throws InterruptedException {
