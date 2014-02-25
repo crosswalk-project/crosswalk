@@ -17,7 +17,8 @@ namespace xwalk {
 namespace application {
 
 Package::Package(const base::FilePath& source_path)
-  : source_path_(source_path) {
+    : source_path_(source_path),
+      is_extracted_(false) {
 }
 
 Package::~Package() {
@@ -40,6 +41,11 @@ scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
 }
 
 bool Package::Extract(base::FilePath* target_path) {
+  if (is_extracted_) {
+    *target_path = temp_dir_.path();
+    return true;
+  }
+
   if (!IsValid()) {
     LOG(ERROR) << "XPK/WGT file is not valid.";
     return false;
@@ -55,6 +61,8 @@ bool Package::Extract(base::FilePath* target_path) {
     LOG(ERROR) << "An error occurred during package extraction";
     return false;
   }
+
+  is_extracted_ = true;
 
   *target_path = temp_dir_.path();
   return true;
