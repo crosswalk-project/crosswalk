@@ -67,6 +67,10 @@ public class XWalkView extends FrameLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        // Initialize chromium resources. Assign them the correct ids in
+        // xwalk core.
+        XWalkInternalResources.resetIds(context);
+
         // Intialize library, paks and others.
         XWalkViewDelegate.init(this);
 
