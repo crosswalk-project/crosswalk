@@ -45,10 +45,6 @@ def CopyProjectFiles(project_source, out_directory):
       'project.properties',
       # Ant build file.
       'build.xml',
-      # Customized Ant build file.
-      'precompile.xml',
-      # Python script to copy R.java.
-      'prepare_r_java.py',
       # Ant properties file.
       'ant.properties',
   ]
@@ -86,6 +82,10 @@ def CopyJavaSources(project_source, out_directory):
       'components/web_contents_delegate_android/android/java/'
           'src/org/chromium/components/web_contents_delegate_android',
 
+      # R.javas
+      'content/public/android/java/resource_map/org/chromium/content/R.java',
+      'ui/android/java/resource_map/org/chromium/ui/R.java',
+
       # XWalk java sources.
       'xwalk/runtime/android/java/src/org/xwalk/core',
       'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
@@ -96,11 +96,11 @@ def CopyJavaSources(project_source, out_directory):
 
   for source in java_srcs_to_copy:
     # find the src/org in the path
-    src_slash_org_pos = source.find(r'src/org')
-    if src_slash_org_pos < 0:
+    slash_org_pos = source.find(r'/org/')
+    if slash_org_pos < 0:
       raise Exception('Invalid java source path: %s' % source)
     source_path = os.path.join(project_source, source)
-    package_path = source[src_slash_org_pos+4:]
+    package_path = source[slash_org_pos+1:]
     target_path = os.path.join(target_source_directory, package_path)
     if os.path.isfile(source_path):
       if not os.path.isdir(os.path.dirname(target_path)):
