@@ -16,8 +16,10 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
-    : xw_extension_(0),
+XWalkExternalExtension::XWalkExternalExtension(
+    const base::FilePath& path, const base::ValueMap& runtime_variables)
+    : runtime_variables_(runtime_variables),
+      xw_extension_(0),
       created_instance_callback_(NULL),
       destroyed_instance_callback_(NULL),
       shutdown_callback_(NULL),
