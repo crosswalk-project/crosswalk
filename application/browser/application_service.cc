@@ -343,7 +343,7 @@ bool ApplicationService::Update(const std::string& id,
     return false;
   }
 
-  if (id.empty() &&
+  if (id.empty() ||
       id.compare(app_id) != 0) {
     LOG(ERROR) << "The XPK/WGT file is not the same as expecting.";
     return false;
