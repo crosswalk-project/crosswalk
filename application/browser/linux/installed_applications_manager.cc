@@ -130,10 +130,12 @@ void InstalledApplicationsManager::OnInstall(
   }
 
   std::string app_id;
-  if (!application_service_->Install(file_path, &app_id)) {
+  if (!application_service_->Install(file_path, &app_id) &&
+      (app_id.empty() || !application_service_->Update(app_id, file_path))) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
-                    "Error installing application with path: " + file_path_str);
+                    "Error installing/updating application with path: "
+                    + file_path_str);
     response_sender.Run(response.Pass());
     return;
   }
