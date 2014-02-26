@@ -31,6 +31,20 @@ const char kIcon128Key[] = "icons.128";
 
 }  // namespace application_manifest_keys
 
+// manifest keys for widget applications.
+namespace application_widget_keys {
+const char kNameKey[] = "widget.name.#text";
+const char kVersionKey[] = "widget.@version";
+const char kWidgetKey[] = "widget";
+const char kLaunchLocalPathKey[] = "widget.content.@src";
+const char kWebURLsKey[] = "widget.@id";
+
+#if defined(OS_TIZEN)
+const char kIcon128Key = "widget.icon.@src";
+const char kTizenAppIdKey[] = "widget.application.@package";
+#endif
+}  // namespace application_widget_keys
+
 namespace application_manifest_errors {
 const char kInvalidDescription[] =
     "Invalid value for 'description'.";
@@ -52,4 +66,49 @@ const char kPlatformAppNeedsManifestVersion2[] =
     "Packaged apps need manifest_version set to >= 2";
 }  // namespace application_manifest_errors
 
+namespace application {
+
+const char* GetNameKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kNameKey;
+
+  return application_manifest_keys::kNameKey;
+}
+
+const char* GetVersionKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kVersionKey;
+
+  return application_manifest_keys::kVersionKey;
+}
+
+const char* GetWebURLsKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kWebURLsKey;
+
+  return application_manifest_keys::kWebURLsKey;
+}
+
+const char* GetLaunchLocalPathKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kLaunchLocalPathKey;
+
+  return application_manifest_keys::kLaunchLocalPathKey;
+}
+#if defined(OS_TIZEN)
+const char* GetTizenAppIdKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kTizenAppIdKey;
+
+  return application_manifest_keys::kTizenAppIdKey;
+}
+
+const char* GetIcon128Key(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kIcon128Key;
+
+  return application_manifest_keys::kIcon128Key;
+}
+#endif
+}  // namespace application
 }  // namespace xwalk

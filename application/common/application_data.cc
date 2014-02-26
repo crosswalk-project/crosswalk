@@ -38,6 +38,7 @@
 #endif
 
 namespace keys = xwalk::application_manifest_keys;
+namespace widget_keys = xwalk::application_widget_keys;
 namespace errors = xwalk::application_manifest_errors;
 
 namespace xwalk {
@@ -45,11 +46,11 @@ namespace application {
 
 // static
 scoped_refptr<ApplicationData> ApplicationData::Create(
-                                           const base::FilePath& path,
-                                           Manifest::SourceType source_type,
-                                           const base::DictionaryValue& manifest_data,
-                                           const std::string& explicit_id,
-                                           std::string* error_message) {
+    const base::FilePath& path,
+    Manifest::SourceType source_type,
+    const base::DictionaryValue& manifest_data,
+    const std::string& explicit_id,
+    std::string* error_message) {
   DCHECK(error_message);
   base::string16 error;
   scoped_ptr<xwalk::application::Manifest> manifest(
@@ -151,6 +152,10 @@ bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
 }
 
+Manifest::PackageType ApplicationData::GetPackageType() const {
+  return manifest_->GetPackageType();
+}
+
 bool ApplicationData::HasMainDocument() const {
   MainDocumentInfo* main_info = ToMainDocumentInfo(
       GetManifestData(application_manifest_keys::kAppMainKey));
@@ -243,7 +248,9 @@ bool ApplicationData::Init(base::string16* error) {
 
   application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
 
-  if (!ManifestHandlerRegistry::GetInstance()->ParseAppManifest(this, error))
+  ManifestHandlerRegistry* registry =
+      ManifestHandlerRegistry::GetInstance(GetPackageType());
+  if (!registry->ParseAppManifest(this, error))
     return false;
 
   finished_parsing_manifest_ = true;
@@ -256,7 +263,9 @@ bool ApplicationData::Init(base::string16* error) {
 bool ApplicationData::LoadName(base::string16* error) {
   DCHECK(error);
   base::string16 localized_name;
-  if (!manifest_->GetString(keys::kNameKey, &localized_name)) {
+  std::string name_key(GetNameKey(GetPackageType()));
+
+  if (!manifest_->GetString(name_key, &localized_name)) {
     *error = base::ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
@@ -269,7 +278,9 @@ bool ApplicationData::LoadName(base::string16* error) {
 bool ApplicationData::LoadVersion(base::string16* error) {
   DCHECK(error);
   std::string version_str;
-  if (!manifest_->GetString(keys::kVersionKey, &version_str)) {
+  std::string version_key(GetVersionKey(GetPackageType()));
+
+  if (!manifest_->GetString(version_key, &version_str)) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }

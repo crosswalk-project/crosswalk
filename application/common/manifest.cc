@@ -14,6 +14,7 @@
 
 namespace errors = xwalk::application_manifest_errors;
 namespace keys   = xwalk::application_manifest_keys;
+namespace widget_keys = xwalk::application_widget_keys;
 
 namespace xwalk {
 namespace application {
@@ -32,6 +33,12 @@ Manifest::Manifest(SourceType source_type,
       type_ = TYPE_PACKAGED_APP;
     }
   }
+
+  if (data_->HasKey(widget_keys::kWidgetKey) &&
+      data_->Get(widget_keys::kWidgetKey, NULL))
+    package_type_ = TYPE_WGT;
+  else
+    package_type_ = TYPE_XPK;
 }
 
 Manifest::~Manifest() {

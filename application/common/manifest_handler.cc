@@ -35,7 +35,8 @@ std::vector<std::string> ManifestHandler::PrerequisiteKeys() const {
   return std::vector<std::string>();
 }
 
-ManifestHandlerRegistry* ManifestHandlerRegistry::registry_ = NULL;
+ManifestHandlerRegistry* ManifestHandlerRegistry::xpk_registry_ = NULL;
+ManifestHandlerRegistry* ManifestHandlerRegistry::widget_registry_ = NULL;
 
 ManifestHandlerRegistry::ManifestHandlerRegistry(
     const std::vector<ManifestHandler*>& handlers) {
@@ -50,19 +51,37 @@ ManifestHandlerRegistry::ManifestHandlerRegistry(
 ManifestHandlerRegistry::~ManifestHandlerRegistry() {
 }
 
-// static
-ManifestHandlerRegistry* ManifestHandlerRegistry::GetInstance() {
-  if (!registry_) {
-    std::vector<ManifestHandler*> handlers;
-    // FIXME: Add manifest handlers here like this:
-    // handlers.push_back(new xxxHandler);
-    handlers.push_back(new CSPHandler);
-    handlers.push_back(new MainDocumentHandler);
-    handlers.push_back(new PermissionsHandler);
+ManifestHandlerRegistry*
+ManifestHandlerRegistry::GetInstance(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return GetInstanceForWGT();
+  return GetInstanceForXPK();
+}
 
-    registry_ = new ManifestHandlerRegistry(handlers);
-  }
-  return registry_;
+ManifestHandlerRegistry*
+ManifestHandlerRegistry::GetInstanceForWGT() {
+  if (widget_registry_)
+    return widget_registry_;
+
+  std::vector<ManifestHandler*> handlers;
+  // We can put WGT specific manifest handlers here.
+  widget_registry_ = new ManifestHandlerRegistry(handlers);
+  return widget_registry_;
+}
+
+ManifestHandlerRegistry*
+ManifestHandlerRegistry::GetInstanceForXPK() {
+  if (xpk_registry_)
+    return xpk_registry_;
+
+  std::vector<ManifestHandler*> handlers;
+  // FIXME: Add manifest handlers here like this:
+  // handlers.push_back(new xxxHandler);
+  handlers.push_back(new CSPHandler);
+  handlers.push_back(new MainDocumentHandler);
+  handlers.push_back(new PermissionsHandler);
+  xpk_registry_ = new ManifestHandlerRegistry(handlers);
+  return xpk_registry_;
 }
 
 void ManifestHandlerRegistry::Register(ManifestHandler* handler) {
@@ -109,8 +128,13 @@ bool ManifestHandlerRegistry::ValidateAppManifest(
 
 // static
 void ManifestHandlerRegistry::SetInstanceForTesting(
-    ManifestHandlerRegistry* registry) {
-    registry_ = registry;
+    ManifestHandlerRegistry* registry, Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT) {
+    widget_registry_ = registry;
+    return;
+  }
+
+  xpk_registry_ = registry;
 }
 
 void ManifestHandlerRegistry::ReorderHandlersGivenDependencies() {

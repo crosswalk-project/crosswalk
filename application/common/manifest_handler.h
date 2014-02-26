@@ -12,6 +12,7 @@
 #include "base/memory/linked_ptr.h"
 #include "base/strings/string16.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/manifest.h"
 
 namespace xwalk {
 namespace application {
@@ -54,7 +55,8 @@ class ManifestHandlerRegistry {
  public:
   ~ManifestHandlerRegistry();
 
-  static ManifestHandlerRegistry* GetInstance();
+  static ManifestHandlerRegistry* GetInstance(
+      Manifest::PackageType package_type);
 
   bool ParseAppManifest(
        scoped_refptr<ApplicationData> application, base::string16* error);
@@ -74,7 +76,11 @@ class ManifestHandlerRegistry {
   void ReorderHandlersGivenDependencies();
 
   // Sets a new global registry, for testing purposes.
-  static void SetInstanceForTesting(ManifestHandlerRegistry* registry);
+  static void SetInstanceForTesting(ManifestHandlerRegistry* registry,
+                                    Manifest::PackageType package_type);
+
+  static ManifestHandlerRegistry* GetInstanceForWGT();
+  static ManifestHandlerRegistry* GetInstanceForXPK();
 
   typedef std::map<std::string, ManifestHandler*> ManifestHandlerMap;
   typedef std::map<ManifestHandler*, int> ManifestHandlerOrderMap;
@@ -84,7 +90,8 @@ class ManifestHandlerRegistry {
   // Handlers are executed in order; lowest order first.
   ManifestHandlerOrderMap order_map_;
 
-  static ManifestHandlerRegistry* registry_;
+  static ManifestHandlerRegistry* xpk_registry_;
+  static ManifestHandlerRegistry* widget_registry_;
 };
 
 }  // namespace application

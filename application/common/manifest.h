@@ -38,6 +38,12 @@ class Manifest {
     TYPE_PACKAGED_APP
   };
 
+  enum PackageType {
+    TYPE_WGT = 0,
+    TYPE_XPK
+  };
+
+
   Manifest(SourceType source_type, scoped_ptr<base::DictionaryValue> value);
   virtual ~Manifest();
 
@@ -63,6 +69,8 @@ class Manifest {
 
   bool IsPackaged() const { return type_ == TYPE_PACKAGED_APP; }
   bool IsHosted() const { return type_ == TYPE_HOSTED_APP; }
+
+  PackageType GetPackageType() const { return package_type_; }
 
   // These access the wrapped manifest value, returning false when the property
   // does not exist or if the manifest type can't access it.
@@ -107,6 +115,8 @@ class Manifest {
   scoped_ptr<base::DictionaryValue> data_;
 
   Type type_;
+
+  PackageType package_type_;
 
   DISALLOW_COPY_AND_ASSIGN(Manifest);
 };
