@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.View;
@@ -41,7 +43,9 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     private Context mContext;
     private AlertDialog mDialog;
     private EditText mPromptText;
+    private int mSystemUiFlag;
     private View mCustomView;
+    private View mDecorView;
     private XWalkView mView;
     private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private boolean mOriginalFullscreen;
@@ -49,6 +53,12 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
 
     public XWalkDefaultWebChromeClient(Context context, XWalkView view) {
         mContext = context;
+        mDecorView = view.getActivity().getWindow().getDecorView();
+        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+            mSystemUiFlag = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        }
         mView = view;
         initResources(context);
     }
@@ -188,21 +198,36 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     public void onToggleFullscreen(boolean enterFullscreen) {
         Activity activity = mView.getActivity();
         if (enterFullscreen) {
-            if ((activity.getWindow().getAttributes().flags &
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
-                mOriginalFullscreen = true;
+            if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+                mSystemUiFlag = mDecorView.getSystemUiVisibility();
+                mDecorView.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
             } else {
-                mOriginalFullscreen = false;
-            }
-            if (!mOriginalFullscreen) {
-                activity.getWindow().setFlags(
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                if ((activity.getWindow().getAttributes().flags &
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
+                    mOriginalFullscreen = true;
+                } else {
+                    mOriginalFullscreen = false;
+                }
+                if (!mOriginalFullscreen) {
+                    activity.getWindow().setFlags(
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                }
             }
         } else {
-            // Clear the activity fullscreen flag.
-            if (!mOriginalFullscreen) {
-                activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+                mDecorView.setSystemUiVisibility(mSystemUiFlag);
+            } else {
+                // Clear the activity fullscreen flag.
+                if (!mOriginalFullscreen) {
+                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                }
             }
         }
         mIsFullscreen = enterFullscreen;
