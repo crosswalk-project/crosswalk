@@ -25,9 +25,14 @@ def AddGeneratorOptions(option_parser):
 
 
 def CleanLibraryProject(out_directory):
-  out_project_path = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src')
+  out_project_path = os.path.join(out_directory, LIBRARY_PROJECT_NAME)
   if os.path.exists(out_project_path):
-    shutil.rmtree(out_project_path)
+    for item in os.listdir(out_project_path):
+      sub_path = os.path.join(out_project_path, item)
+      if os.path.isdir(sub_path):
+        shutil.rmtree(sub_path)
+      elif os.path.isfile(sub_path):
+        os.remove(sub_path)
 
 
 def CopyProjectFiles(project_source, out_directory):
