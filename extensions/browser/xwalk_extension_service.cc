@@ -200,6 +200,11 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
   std::set<int64_t> extension_thread_instances_ids_;
 };
 
+bool XWalkExtensionService::Delegate::RegisterPermissions(
+    const std::string& extension_name, const std::string& perm_table) {
+  return false;
+}
+
 XWalkExtensionService::XWalkExtensionService(Delegate* delegate)
     : extension_thread_("XWalkExtensionThread"),
       delegate_(delegate) {

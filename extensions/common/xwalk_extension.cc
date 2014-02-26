@@ -11,6 +11,16 @@
 namespace xwalk {
 namespace extensions {
 
+bool XWalkExtension::PermissionsDelegate::CheckAPIAccessControl(
+    const std::string& extension_name, const std::string& api_name) {
+  return false;
+}
+
+bool XWalkExtension::PermissionsDelegate::RegisterPermissions(
+    const std::string& extension_name, const std::string& perm_table) {
+  return false;
+}
+
 XWalkExtension::XWalkExtension() : permissions_delegate_(NULL) {}
 
 XWalkExtension::~XWalkExtension() {}

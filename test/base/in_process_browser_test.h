@@ -30,7 +30,7 @@ class RuleBasedHostResolverProc;
 class RuntimeRegistry : public xwalk::Runtime::Observer {
  public:
   typedef std::vector<xwalk::Runtime*> RuntimeList;
-
+  RuntimeRegistry();
   virtual ~RuntimeRegistry();
 
   void CloseAll();

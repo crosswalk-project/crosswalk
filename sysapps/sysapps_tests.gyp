@@ -8,9 +8,6 @@
         '../../base/base.gyp:run_all_unittests',
         '../../content/content_shell_and_tests.gyp:test_support_content',
         '../../testing/gtest.gyp:gtest',
-        '../../ui/ui.gyp:ui',
-        '../../ui/views/views.gyp:views',
-        '../../webkit/child/webkit_child.gyp:webkit_child',
         '../extensions/extensions.gyp:xwalk_extensions',
         'sysapps.gyp:sysapps',
       ],
@@ -28,6 +25,11 @@
         ['os_posix==1 and OS!="mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             '../../base/allocator/allocator.gyp:allocator',
+          ],
+        }],
+        ['use_aura==1', {
+          'dependencies': [
+          '../../ui/views/views.gyp:views',
           ],
         }],
       ],

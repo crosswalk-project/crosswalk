@@ -39,7 +39,7 @@ class XWalkExtensionProcessHost
     virtual void OnCheckAPIAccessControl(const std::string& extension_name,
         const std::string& api_name, const PermissionCallback& callback) {}
     virtual bool OnRegisterPermissions(const std::string& extension_name,
-        const std::string& perm_table) { return false; }
+        const std::string& perm_table);
 
    protected:
     ~Delegate() {}
