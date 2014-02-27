@@ -16,7 +16,6 @@ namespace tcp_socket {
     static void ondrain();
     static void onopen();
     static void onclose();
-    static void onhalfclose();
     static void onerror();
     static void ondata();
   };

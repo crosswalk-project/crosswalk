@@ -73,7 +73,6 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
   this._addEvent("drain");
   this._addEvent("open");
   this._addEvent("close");
-  this._addEvent("halfclose");
   this._addEvent("error");
   this._addEvent("data");
 
