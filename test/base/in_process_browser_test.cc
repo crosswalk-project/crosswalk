@@ -36,7 +36,13 @@
 #endif
 
 using xwalk::Runtime;
+
+#if defined(OS_TIZEN)
+using xwalk::XWalkContentRendererClientTizen;
+#else
 using xwalk::XWalkContentRendererClient;
+#endif
+
 using xwalk::XWalkRunner;
 
 namespace {
