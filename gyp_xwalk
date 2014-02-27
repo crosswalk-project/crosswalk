@@ -413,8 +413,9 @@ if __name__ == '__main__':
   # option.  http://crbug.com/35878.
   # TODO(tc): Fix circular dependencies in ChromiumOS then add linux2 to the
   # list.
-  if sys.platform not in ('darwin',):
-    args.append('--no-circular-check')
+  # TODO(tmpsantos): Make runtime a proper module and enable the circular check
+  # back for Mac.
+  args.append('--no-circular-check')
 
   # Default to ninja on linux and windows, but only if no generator has
   # explicitly been set.
