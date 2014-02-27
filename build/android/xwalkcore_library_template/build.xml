@@ -24,8 +24,6 @@ found in the LICENSE file.
 
 	<import file="custom_rules.xml" optional="true" />
 
-	<import file="precompile.xml" />
-
 	<!-- version-tag: custom -->
 	<import file="${sdk.dir}/tools/ant/build.xml" />
 </project>

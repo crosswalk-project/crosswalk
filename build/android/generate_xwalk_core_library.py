@@ -25,9 +25,14 @@ def AddGeneratorOptions(option_parser):
 
 
 def CleanLibraryProject(out_directory):
-  out_project_path = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src')
+  out_project_path = os.path.join(out_directory, LIBRARY_PROJECT_NAME)
   if os.path.exists(out_project_path):
-    shutil.rmtree(out_project_path)
+    for item in os.listdir(out_project_path):
+      sub_path = os.path.join(out_project_path, item)
+      if os.path.isdir(sub_path):
+        shutil.rmtree(sub_path)
+      elif os.path.isfile(sub_path):
+        os.remove(sub_path)
 
 
 def CopyProjectFiles(project_source, out_directory):
@@ -45,25 +50,12 @@ def CopyProjectFiles(project_source, out_directory):
       'project.properties',
       # Ant build file.
       'build.xml',
-      # Customized Ant build file.
-      'precompile.xml',
-      # Python script to copy R.java.
-      'prepare_r_java.py',
       # Ant properties file.
       'ant.properties',
-      # Eclipse project file and builders.
-      '.project',
-      '.classpath',
-      '.externalToolBuilders/prepare_r_java.launch'
   ]
   for f in files_to_copy:
     source_file = os.path.join(template_folder, f)
     target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, f)
-
-    target_dir = os.path.dirname(target_file)
-
-    if not os.path.isdir(target_dir):
-      os.makedirs(target_dir)
 
     shutil.copy2(source_file, target_file)
 
@@ -95,6 +87,10 @@ def CopyJavaSources(project_source, out_directory):
       'components/web_contents_delegate_android/android/java/'
           'src/org/chromium/components/web_contents_delegate_android',
 
+      # R.javas
+      'content/public/android/java/resource_map/org/chromium/content/R.java',
+      'ui/android/java/resource_map/org/chromium/ui/R.java',
+
       # XWalk java sources.
       'xwalk/runtime/android/java/src/org/xwalk/core',
       'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
@@ -105,11 +101,11 @@ def CopyJavaSources(project_source, out_directory):
 
   for source in java_srcs_to_copy:
     # find the src/org in the path
-    src_slash_org_pos = source.find(r'src/org')
-    if src_slash_org_pos < 0:
+    slash_org_pos = source.find(r'/org/')
+    if slash_org_pos < 0:
       raise Exception('Invalid java source path: %s' % source)
     source_path = os.path.join(project_source, source)
-    package_path = source[src_slash_org_pos+4:]
+    package_path = source[slash_org_pos+1:]
     target_path = os.path.join(target_source_directory, package_path)
     if os.path.isfile(source_path):
       if not os.path.isdir(os.path.dirname(target_path)):
