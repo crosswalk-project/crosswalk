@@ -65,7 +65,7 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
     options.useSecureTransport = false;
 
   this._addMethod("_close");
-  this._addMethod("halfclose");
+  this._addMethod("_halfclose");
   this._addMethod("suspend");
   this._addMethod("resume");
   this._addMethod("_sendString");
@@ -95,6 +95,14 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
     this._close();
   };
 
+  function halfcloseWrapper(data) {
+    if (this._readyStateObserver.readyState == "closed")
+      return;
+
+    this._readyStateObserver.readyState = "halfclosed";
+    this._halfclose();
+  };
+
   Object.defineProperties(this, {
     "_readyStateObserver": {
       value: new ReadyStateObserver(
@@ -109,6 +117,10 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
     },
     "close": {
       value: closeWrapper,
+      enumerable: true,
+    },
+    "halfclose": {
+      value: halfcloseWrapper,
       enumerable: true,
     },
     "remoteAddress": {
