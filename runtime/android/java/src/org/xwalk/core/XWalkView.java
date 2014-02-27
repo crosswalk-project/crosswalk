@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import org.xwalk.core.client.XWalkDefaultClient;
 import org.xwalk.core.client.XWalkDefaultDownloadListener;
 import org.xwalk.core.client.XWalkDefaultNavigationHandler;
+import org.xwalk.core.client.XWalkDefaultNotificationService;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 
 public class XWalkView extends FrameLayout {
@@ -87,6 +88,7 @@ public class XWalkView extends FrameLayout {
         setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(context, this));
         setDownloadListener(new XWalkDefaultDownloadListener(context));
         setNavigationHandler(new XWalkDefaultNavigationHandler(context));
+        setNotificationService(new XWalkDefaultNotificationService(context, this));
     }
 
     public void loadUrl(String url) {
@@ -222,6 +224,11 @@ public class XWalkView extends FrameLayout {
         mContent.setNavigationHandler(handler);
     }
 
+    public void setNotificationService(XWalkNotificationService service) {
+        checkThreadSafety();
+        mContent.setNotificationService(service);
+    }
+
     // Enables remote debugging and returns the URL at which the dev tools server is listening
     // for commands. The allowedUid argument can be used to specify the uid of the process that is
     // permitted to connect.
@@ -291,6 +298,10 @@ public class XWalkView extends FrameLayout {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mContent.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public boolean onNewIntent(Intent intent) {
+        return mContent.onNewIntent(intent);
     }
 
     public String getVersion() {

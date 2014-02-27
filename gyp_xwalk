@@ -360,6 +360,9 @@ if __name__ == '__main__':
   if landmine_utils.platform() != 'android' and landmine_utils.platform() != 'mac':
     args.append('-Duse_aura=1')
 
+  if landmine_utils.platform() == 'android':
+    args.append('-Dnotifications=1')
+
   # Use the Psyco JIT if available.
   if psyco:
     psyco.profile()

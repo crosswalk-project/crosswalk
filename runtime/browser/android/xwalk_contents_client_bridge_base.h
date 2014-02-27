@@ -10,8 +10,10 @@
 #include "content/public/browser/javascript_dialog_manager.h"
 
 class GURL;
+class SkBitmap;
 
 namespace content {
+struct ShowDesktopNotificationHostMsgParams;
 class WebContents;
 }
 
@@ -55,6 +57,21 @@ class XWalkContentsClientBridgeBase {
       const GURL& origin_url,
       const base::string16& message_text,
       const content::JavaScriptDialogManager::DialogClosedCallback& callback)
+      = 0;
+  virtual void ShowNotification(
+      const content::ShowDesktopNotificationHostMsgParams& params,
+      bool worker,
+      int process_id,
+      int route_id)
+      = 0;
+  virtual void UpdateNotificationIcon(
+      int notification_id,
+      const SkBitmap& icon)
+      = 0;
+  virtual void CancelNotification(
+      int notification_id,
+      int process_id,
+      int route_id)
       = 0;
 };
 

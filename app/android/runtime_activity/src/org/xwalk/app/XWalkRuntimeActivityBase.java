@@ -93,6 +93,11 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+    	if (!mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         mRuntimeView.onActivityResult(requestCode, resultCode, data);

@@ -1,0 +1,38 @@
+<html>
+<head>
+<script>
+var latest_notification;
+function notify() {
+  document.title = 'notify called';
+  var havePermission = window.Notification.permission;
+  if (havePermission == "granted") {
+    var notification = new window.Notification(
+      'Crosswalk notification!', {
+        body: 'This is a notification from a Crosswalk based test app.',
+        tag: 'test',
+      }
+    );
+
+    notification.onclick = function () {
+      document.title = 'notification clicked';
+      notification.close();
+    };
+    notification.onshow = function () {
+      document.title = 'notification shown';
+    };
+    notification.onclose = function (e) {
+      document.title = 'notification closed';
+    };
+    latest_notification = notification;
+  } else {
+    window.webkitNotification.requestPermission();
+  }
+  return "notified";
+}
+function dismiss() {
+  latest_notification.close();
+  return "dismissed";
+}
+</script>
+</head>
+</html>
