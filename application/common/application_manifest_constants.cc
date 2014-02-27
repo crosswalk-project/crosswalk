@@ -40,7 +40,7 @@ const char kLaunchLocalPathKey[] = "widget.content.@src";
 const char kWebURLsKey[] = "widget.@id";
 
 #if defined(OS_TIZEN)
-const char kIcon128Key = "widget.icon.@src";
+const char kIcon128Key[] = "widget.icon.@src";
 const char kTizenAppIdKey[] = "widget.application.@package";
 #endif
 }  // namespace application_widget_keys
