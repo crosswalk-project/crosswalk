@@ -54,7 +54,7 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
   options = options || {};
 
   if (!options.localAddress)
-    options.localAddress = "127.0.0.1";
+    options.localAddress = "0.0.0.0";
   if (!options.localPort)
     options.localPort = 0;
   if (!options.addressReuse)
@@ -98,7 +98,7 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
   Object.defineProperties(this, {
     "_readyStateObserver": {
       value: new ReadyStateObserver(
-          this._id, object_id ? "open" : "connecting"),
+          this._id, object_id ? "open" : "opening"),
     },
     "_readyStateObserverDeleter": {
       value: v8tools.lifecycleTracker(),
@@ -120,14 +120,22 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
       enumerable: true,
     },
     "localAddress": {
-      value: "127.0.0.1",
+      value: options.localAddress,
       enumerable: true,
     },
     "localPort": {
-      value: 0,
+      value: options.localPort,
       enumerable: true,
     },
-    "bufferAmount": {
+    "noDelay": {
+      value: options.noDelay,
+      enumerable: true,
+    },
+    "addressReuse": {
+      value: options.addressReuse,
+      enumerable: true,
+    },
+    "bufferedAmount": {
       value: 0,
       enumerable: true,
     },
@@ -169,7 +177,7 @@ var TCPServerSocket = function(options) {
   options = options || {};
 
   if (!options.localAddress)
-    options.localAddress = "127.0.0.1";
+    options.localAddress = "0.0.0.0";
   if (!options.localPort)
     options.localPort = 1234;
   if (!options.addressReuse)
