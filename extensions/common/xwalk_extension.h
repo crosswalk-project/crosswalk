@@ -37,9 +37,9 @@ class XWalkExtension {
     // The delegate is responsible for caching the requests for the sake of
     // performance.
     virtual bool CheckAPIAccessControl(const std::string& extension_name,
-        const std::string& api_name) { return false; }
+        const std::string& api_name);
     virtual bool RegisterPermissions(const std::string& extension_name,
-        const std::string& perm_table) { return false; }
+        const std::string& perm_table);
 
     ~PermissionsDelegate() {}
   };

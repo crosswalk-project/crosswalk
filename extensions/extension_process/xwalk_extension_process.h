@@ -41,9 +41,9 @@ class XWalkExtensionProcess : public IPC::Listener,
   XWalkExtensionProcess();
   virtual ~XWalkExtensionProcess();
   virtual bool CheckAPIAccessControl(const std::string& extension_name,
-      const std::string& api_name);
+      const std::string& api_name) OVERRIDE;
   virtual bool RegisterPermissions(const std::string& extension_name,
-      const std::string& perm_table);
+      const std::string& perm_table) OVERRIDE;
 
  private:
   // IPC::Listener implementation.

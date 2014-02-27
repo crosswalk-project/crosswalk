@@ -90,6 +90,11 @@ class ExtensionSandboxedProcessLauncherDelegate
 };
 #endif
 
+bool XWalkExtensionProcessHost::Delegate::OnRegisterPermissions(
+    const std::string& extension_name, const std::string& perm_table) {
+  return false;
+}
+
 XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,

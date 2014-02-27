@@ -17,7 +17,7 @@ class StorageInfoProviderChromium : public StorageInfoProvider,
   StorageInfoProviderChromium();
   virtual ~StorageInfoProviderChromium();
 
-  virtual scoped_ptr<SystemStorage> storage_info() const;
+  virtual scoped_ptr<SystemStorage> storage_info() const OVERRIDE;
 
   // RemovableStorageObserver implementation.
   virtual void OnRemovableStorageAttached(const StorageInfo& info) OVERRIDE;

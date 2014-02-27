@@ -52,6 +52,9 @@ base::LazyInstance<XWalkContentRendererClient>::Leaky
 
 }  // namespace
 
+RuntimeRegistry::RuntimeRegistry() {
+}
+
 RuntimeRegistry::~RuntimeRegistry() {
 }
 
