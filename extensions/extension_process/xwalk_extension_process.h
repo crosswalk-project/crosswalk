@@ -5,6 +5,7 @@
 #ifndef XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 #define XWALK_EXTENSIONS_EXTENSION_PROCESS_XWALK_EXTENSION_PROCESS_H_
 
+#include <map>
 #include <string>
 
 #include "base/values.h"
@@ -12,6 +13,7 @@
 #include "base/threading/thread.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_listener.h"
+#include "xwalk/extensions/common/xwalk_extension_permission_types.h"
 #include "xwalk/extensions/common/xwalk_extension_server.h"
 
 namespace base {
@@ -62,6 +64,8 @@ class XWalkExtensionProcess : public IPC::Listener,
   XWalkExtensionServer extensions_server_;
   scoped_ptr<IPC::SyncChannel> render_process_channel_;
   IPC::ChannelHandle rp_channel_handle_;
+  typedef std::map<std::string, RuntimePermission> PermissionCacheType;
+  PermissionCacheType permission_cache_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkExtensionProcess);
 };
