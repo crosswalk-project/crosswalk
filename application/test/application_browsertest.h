@@ -20,6 +20,8 @@ class ApplicationBrowserTest: public InProcessBrowserTest {
 
   virtual void SetUp() OVERRIDE;
 
+  virtual void ProperMainThreadCleanup() OVERRIDE;
+
   xwalk::application::ApplicationService* application_sevice() const;
 
   scoped_ptr<ApiTestRunner> test_runner_;

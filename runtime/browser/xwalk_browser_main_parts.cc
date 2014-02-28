@@ -186,13 +186,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   NativeAppWindow::Initialize();
 
-  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
-  if (app_system->HandleApplicationManagementCommands(
-      *command_line, startup_url_,
-      run_default_message_loop_)) {
-    return;
-  }
-
   if (command_line->HasSwitch(switches::kListFeaturesFlags)) {
     XWalkRuntimeFeatures::GetInstance()->DumpFeaturesFlags();
     run_default_message_loop_ = false;
@@ -206,9 +199,11 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (app_system->LaunchFromCommandLine(*command_line, startup_url_,
-      run_default_message_loop_)) {
-    return;
+  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
+  if (!app_system->HandleApplicationManagementCommands(*command_line,
+      startup_url_, run_default_message_loop_)) {
+    app_system->LaunchFromCommandLine(*command_line, startup_url_,
+                                      run_default_message_loop_);
   }
 
   // If the |ui_task| is specified in main function parameter, it indicates

@@ -38,6 +38,15 @@ void ApplicationBrowserTest::SetUp() {
   InProcessBrowserTest::SetUp();
 }
 
+void ApplicationBrowserTest::ProperMainThreadCleanup() {
+  const ScopedVector<Application>& apps =
+    application_sevice()->active_applications();
+
+  std::for_each(apps.begin(), apps.end(),
+    std::bind2nd(std::mem_fun(&Application::Terminate),
+                              Application::Immediate));
+}
+
 ApplicationService* ApplicationBrowserTest::application_sevice() const {
   return xwalk::XWalkRunner::GetInstance()->app_system()
       ->application_service();

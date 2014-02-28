@@ -70,7 +70,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
 
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.
-  virtual void CleanUpOnMainThread() {}
+  virtual void ProperMainThreadCleanup() {}
 
   // BrowserTestBase:
   virtual void RunTestOnMainThreadLoop() OVERRIDE;
