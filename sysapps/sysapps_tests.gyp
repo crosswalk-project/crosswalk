@@ -7,8 +7,6 @@
         '../../base/base.gyp:base',
         '../../base/base.gyp:run_all_unittests',
         '../../testing/gtest.gyp:gtest',
-        '../../ui/ui.gyp:ui',
-        '../../ui/views/views.gyp:views',
         '../extensions/extensions.gyp:xwalk_extensions',
         'sysapps.gyp:sysapps',
       ],
@@ -21,6 +19,13 @@
         'device_capabilities_new/display_info_provider_unittest.cc',
         'device_capabilities_new/memory_info_provider_unittest.cc',
         'device_capabilities_new/storage_info_provider_unittest.cc',
+      ],
+      'conditions': [
+        ['use_aura==1', {
+          'dependencies': [
+          '../../ui/views/views.gyp:views',
+          ],
+        }],
       ],
     },
     {

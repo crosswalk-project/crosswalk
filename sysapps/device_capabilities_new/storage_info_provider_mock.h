@@ -16,7 +16,7 @@ class StorageInfoProviderMock : public StorageInfoProvider {
   StorageInfoProviderMock();
   virtual ~StorageInfoProviderMock();
 
-  virtual scoped_ptr<SystemStorage> storage_info() const;
+  virtual scoped_ptr<SystemStorage> storage_info() const OVERRIDE;
 
  private:
   // StorageInfoProvider implementation.
