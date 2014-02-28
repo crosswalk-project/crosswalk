@@ -31,15 +31,12 @@ class XWalkExternalInstance;
 // library.
 class XWalkExternalExtension : public XWalkExtension {
  public:
-  explicit XWalkExternalExtension(const base::FilePath& path);
+  XWalkExternalExtension(
+      const base::FilePath& path, const base::ValueMap& runtime_variables);
 
   virtual ~XWalkExternalExtension();
 
   bool is_valid();
-
-  void set_runtime_variables(const base::ValueMap& runtime_variables) {
-    runtime_variables_ = runtime_variables;
-  }
 
  private:
   friend class XWalkExternalAdapter;
