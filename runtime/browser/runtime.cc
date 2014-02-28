@@ -60,7 +60,7 @@ Runtime* Runtime::Create(
   WebContents* web_contents = WebContents::Create(params);
 
   Runtime* runtime = new Runtime(web_contents, observer);
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   runtime->InitRootWindow();
 #endif
 
@@ -80,7 +80,7 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),
        content::NotificationService::NoDetails());
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   root_window_ = NULL;
 #endif
   if (observer_)
@@ -129,7 +129,7 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
   if (!app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
   window_->Show();
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (root_window_)
     root_window_->Show();
 #endif
@@ -231,7 +231,7 @@ void Runtime::WebContentsCreated(
     const GURL& target_url,
     content::WebContents* new_contents) {
   Runtime* new_runtime = new Runtime(new_contents, observer_);
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   new_runtime->SetRootWindow(root_window_);
 #endif
   new_runtime->AttachDefaultWindow();
@@ -357,7 +357,7 @@ void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
     params->web_contents = web_contents_.get();
   if (params->bounds.IsEmpty())
     params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (root_window_)
     params->parent = root_window_->GetNativeWindow();
 #endif
@@ -375,7 +375,7 @@ void Runtime::ApplyFullScreenParam(NativeAppWindow::CreateParams* params) {
   }
 }
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
 void Runtime::CloseRootWindow() {
   if (root_window_) {
     root_window_->Close();
