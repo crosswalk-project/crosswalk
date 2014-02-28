@@ -86,9 +86,9 @@ class DeviceCapabilitiesStorage {
             StatFs stat = new StatFs(mPath);
             // FIXME(halton): After API level 18, use getTotalBytes() and
             // getAvailableBytes() instead
-            long blockSize = stat.getBlockSize();
-            mCapacity = blockSize * stat.getBlockCount();
-            mAvailCapacity = blockSize * stat.getAvailableBlocks();
+            long blockSize = stat.getBlockSizeLong();
+            mCapacity = blockSize * stat.getBlockCountLong();
+            mAvailCapacity = blockSize * stat.getAvailableBlocksLong();
         }
 
         public JSONObject convertToJSON() {

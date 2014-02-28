@@ -239,6 +239,12 @@ public class XWalkWebChromeClient {
     */
     // Note that the callback must always be executed at some point to ensure
     // that the sleeping WebCore thread is woken up.
+    // Since the parameter type WebStorage.QuotaUpdater and this API are
+    // deprecated in Android 4.4, while this parameter type and this API
+    // are still used before Android 4.4, no other API and parameter are
+    // to replace them, suppress the compiling warnings for Android 4.4
+    // due to deprecation.
+    @SuppressWarnings("deprecation")
     public void onExceededDatabaseQuota(String url, String databaseIdentifier,
             long quota, long estimatedDatabaseSize, long totalQuota,
             WebStorage.QuotaUpdater quotaUpdater) {
@@ -264,6 +270,12 @@ public class XWalkWebChromeClient {
     */
     // Note that the callback must always be executed at some point to ensure
     // that the sleeping WebCore thread is woken up.
+    // Since the parameter type WebStorage.QuotaUpdater and this API are
+    // deprecated in Android 4.4, while this parameter type and this API
+    // are still used before Android 4.4, no other API and parameter are
+    // to replace them, suppress the compiling warnings for Android 4.4
+    // due to deprecation.
+    @SuppressWarnings("deprecation")
     public void onReachedMaxAppCacheSize(long requiredStorage, long quota,
             WebStorage.QuotaUpdater quotaUpdater) {
         quotaUpdater.updateQuota(quota);
