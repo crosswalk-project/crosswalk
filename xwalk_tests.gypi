@@ -26,6 +26,7 @@
         '../base/base.gyp:base',
         '../content/content.gyp:content_common',
         '../content/content_shell_and_tests.gyp:test_support_content',
+        '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
         '../ui/ui.gyp:ui',
         'test/base/base.gyp:xwalk_test_base',
