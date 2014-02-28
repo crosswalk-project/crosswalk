@@ -46,8 +46,6 @@ class XWalkExtension {
 
   virtual ~XWalkExtension();
 
-  virtual bool Initialize();
-
   virtual XWalkExtensionInstance* CreateInstance() = 0;
 
   std::string name() const { return name_; }
