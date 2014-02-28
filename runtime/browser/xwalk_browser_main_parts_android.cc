@@ -95,6 +95,14 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 
+  // WebAudio is disabled on android x86 platform, and only enabled on android
+  // ARM platform by default, we must enable it explicitly on x86 platform.
+  // TODO(liyin): Remove enable webaudio switch when it is enabled by default.
+#if defined(ARCH_CPU_X86)
+  if (!command_line->HasSwitch(switches::kEnableWebAudio))
+    command_line->AppendSwitch(switches::kEnableWebAudio);
+#endif
+
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 
   startup_url_ = GURL();
