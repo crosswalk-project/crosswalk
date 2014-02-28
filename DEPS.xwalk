@@ -14,7 +14,7 @@ deps_xwalk = {
   'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
 
   # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@b2e17c52db443468a42a168dc91d873c7e707fca',
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@aea2c94041dd0fbf386182e66fd173b87a7862e6',
 }
 vars_xwalk = {
 }
