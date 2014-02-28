@@ -425,7 +425,7 @@ def Execution(options, sanitized_name):
   input_jars = []
   if options.mode == 'embedded':
     input_jars.append(os.path.join(os.getcwd(), 'libs',
-                                   'xwalk_core_embedded.dex.jar'))
+                                   'xwalk_runtime_embedded.dex.jar'))
   dex_command_list = ['python', os.path.join('scripts', 'gyp', 'dex.py'),
                       dex_path,
                       '--android-sdk-root=%s' % sdk_root_path,

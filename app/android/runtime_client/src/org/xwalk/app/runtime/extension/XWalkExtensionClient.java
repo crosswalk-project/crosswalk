@@ -25,7 +25,7 @@ import org.xwalk.app.runtime.CrossPackageWrapper;
  */
 public class XWalkExtensionClient extends CrossPackageWrapper {
 
-    private final static String EXTENSION_CLASS_NAME = "org.xwalk.runtime.extension.XWalkExtensionClientImpl";
+    private final static String EXTENSION_CLASS_NAME = "org.xwalk.core.extension.XWalkExtensionClientImpl";
     private Object mInstance;
     private Method mGetExtensionName;
     private Method mGetJsApi;
