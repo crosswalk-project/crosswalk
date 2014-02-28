@@ -201,7 +201,9 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
 };
 
 bool XWalkExtensionService::Delegate::RegisterPermissions(
-    const std::string& extension_name, const std::string& perm_table) {
+    int render_process_id,
+    const std::string& extension_name,
+    const std::string& perm_table) {
   return false;
 }
 
@@ -451,18 +453,22 @@ void XWalkExtensionService::OnRenderProcessDied(
 }
 
 void XWalkExtensionService::OnCheckAPIAccessControl(
+    int render_process_id,
     const std::string& extension_name,
     const std::string& api_name,
     const PermissionCallback& callback) {
   CHECK(delegate_);
-  delegate_->CheckAPIAccessControl(extension_name, api_name, callback);
+  delegate_->CheckAPIAccessControl(render_process_id, extension_name,
+                                   api_name, callback);
 }
 
 bool XWalkExtensionService::OnRegisterPermissions(
+    int render_process_id,
     const std::string& extension_name,
     const std::string& perm_table) {
   CHECK(delegate_);
-  return delegate_->RegisterPermissions(extension_name, perm_table);
+  return delegate_->RegisterPermissions(render_process_id,
+                                        extension_name, perm_table);
 }
 
 }  // namespace extensions

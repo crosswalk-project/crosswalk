@@ -36,10 +36,13 @@ class XWalkExtensionProcessHost
    public:
     virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
         int render_process_id) {}
-    virtual void OnCheckAPIAccessControl(const std::string& extension_name,
-        const std::string& api_name, const PermissionCallback& callback) {}
-    virtual bool OnRegisterPermissions(const std::string& extension_name,
-        const std::string& perm_table);
+    virtual void OnCheckAPIAccessControl(int render_process_id,
+                                         const std::string& extension_name,
+                                         const std::string& api_name,
+                                         const PermissionCallback& callback) {}
+    virtual bool OnRegisterPermissions(int render_process_id,
+                                       const std::string& extension_name,
+                                       const std::string& perm_table);
 
    protected:
     ~Delegate() {}
