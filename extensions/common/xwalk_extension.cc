@@ -25,6 +25,10 @@ XWalkExtension::XWalkExtension() : permissions_delegate_(NULL) {}
 
 XWalkExtension::~XWalkExtension() {}
 
+bool XWalkExtension::Initialize() {
+  return false;
+}
+
 const base::ListValue& XWalkExtension::entry_points() const {
   return entry_points_;
 }

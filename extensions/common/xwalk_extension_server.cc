@@ -366,12 +366,15 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
         !extension_path.empty(); extension_path = libraries.Next()) {
     scoped_ptr<XWalkExternalExtension> extension(
         new XWalkExternalExtension(extension_path));
-    if (extension->is_valid()) {
+    extension->set_runtime_variables(runtime_variables);
+    if (server->permissions_delegate())
+      extension->set_permissions_delegate(server->permissions_delegate());
+    if (extension->Initialize()) {
       registered_extensions.push_back(extension->name());
-      extension->set_runtime_variables(runtime_variables);
-      if (server->permissions_delegate())
-        extension->set_permissions_delegate(server->permissions_delegate());
       server->RegisterExtension(extension.PassAs<XWalkExtension>());
+    } else {
+      LOG(WARNING) << "Failed to initialize extension: "
+                   << extension_path.AsUTF8Unsafe();
     }
   }
 
