@@ -15,6 +15,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/lock.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/resource_request_info.h"
@@ -31,7 +32,7 @@ using base::android::JavaRef;
 using base::android::ScopedJavaLocalRef;
 using base::LazyInstance;
 using content::BrowserThread;
-using content::RenderViewHost;
+using content::RenderFrameHost;
 using content::WebContents;
 using std::map;
 using std::pair;
@@ -50,56 +51,56 @@ struct IoThreadClientData {
 IoThreadClientData::IoThreadClientData() : pending_association(false) {}
 
 typedef map<pair<int, int>, IoThreadClientData>
-    RenderViewHostToIoThreadClientType;
+    RenderFrameHostToIoThreadClientType;
 
-static pair<int, int> GetRenderViewHostIdPair(RenderViewHost* rvh) {
-  return pair<int, int>(rvh->GetProcess()->GetID(), rvh->GetRoutingID());
+static pair<int, int> GetRenderFrameHostIdPair(RenderFrameHost* rfh) {
+  return pair<int, int>(rfh->GetProcess()->GetID(), rfh->GetRoutingID());
 }
 
-// RvhToIoThreadClientMap -----------------------------------------------------
-class RvhToIoThreadClientMap {
+// RfhToIoThreadClientMap -----------------------------------------------------
+class RfhToIoThreadClientMap {
  public:
-  static RvhToIoThreadClientMap* GetInstance();
-  void Set(pair<int, int> rvh_id, const IoThreadClientData& client);
-  bool Get(pair<int, int> rvh_id, IoThreadClientData* client);
-  void Erase(pair<int, int> rvh_id);
+  static RfhToIoThreadClientMap* GetInstance();
+  void Set(pair<int, int> rfh_id, const IoThreadClientData& client);
+  bool Get(pair<int, int> rfh_id, IoThreadClientData* client);
+  void Erase(pair<int, int> rfh_id);
 
  private:
-  static LazyInstance<RvhToIoThreadClientMap> g_instance_;
+  static LazyInstance<RfhToIoThreadClientMap> g_instance_;
   base::Lock map_lock_;
-  RenderViewHostToIoThreadClientType rvh_to_io_thread_client_;
+  RenderFrameHostToIoThreadClientType rfh_to_io_thread_client_;
 };
 
 // static
-LazyInstance<RvhToIoThreadClientMap> RvhToIoThreadClientMap::g_instance_ =
+LazyInstance<RfhToIoThreadClientMap> RfhToIoThreadClientMap::g_instance_ =
     LAZY_INSTANCE_INITIALIZER;
 
 // static
-RvhToIoThreadClientMap* RvhToIoThreadClientMap::GetInstance() {
+RfhToIoThreadClientMap* RfhToIoThreadClientMap::GetInstance() {
   return g_instance_.Pointer();
 }
 
-void RvhToIoThreadClientMap::Set(pair<int, int> rvh_id,
+void RfhToIoThreadClientMap::Set(pair<int, int> rfh_id,
                                  const IoThreadClientData& client) {
   base::AutoLock lock(map_lock_);
-  rvh_to_io_thread_client_[rvh_id] = client;
+  rfh_to_io_thread_client_[rfh_id] = client;
 }
 
-bool RvhToIoThreadClientMap::Get(
-    pair<int, int> rvh_id, IoThreadClientData* client) {
+bool RfhToIoThreadClientMap::Get(
+    pair<int, int> rfh_id, IoThreadClientData* client) {
   base::AutoLock lock(map_lock_);
-  RenderViewHostToIoThreadClientType::iterator iterator =
-      rvh_to_io_thread_client_.find(rvh_id);
-  if (iterator == rvh_to_io_thread_client_.end())
+  RenderFrameHostToIoThreadClientType::iterator iterator =
+      rfh_to_io_thread_client_.find(rfh_id);
+  if (iterator == rfh_to_io_thread_client_.end())
     return false;
 
   *client = iterator->second;
   return true;
 }
 
-void RvhToIoThreadClientMap::Erase(pair<int, int> rvh_id) {
+void RfhToIoThreadClientMap::Erase(pair<int, int> rfh_id) {
   base::AutoLock lock(map_lock_);
-  rvh_to_io_thread_client_.erase(rvh_id);
+  rfh_to_io_thread_client_.erase(rfh_id);
 }
 
 // ClientMapEntryUpdater ------------------------------------------------------
@@ -109,8 +110,8 @@ class ClientMapEntryUpdater : public content::WebContentsObserver {
   ClientMapEntryUpdater(JNIEnv* env, WebContents* web_contents,
                         jobject jdelegate);
 
-  virtual void RenderViewCreated(RenderViewHost* render_view_host) OVERRIDE;
-  virtual void RenderViewDeleted(RenderViewHost* render_view_host) OVERRIDE;
+  virtual void RenderFrameCreated(RenderFrameHost* render_frame_host) OVERRIDE;
+  virtual void RenderFrameDeleted(RenderFrameHost* render_frame_host) OVERRIDE;
   virtual void WebContentsDestroyed(WebContents* web_contents) OVERRIDE;
 
  private:
@@ -125,21 +126,21 @@ ClientMapEntryUpdater::ClientMapEntryUpdater(JNIEnv* env,
   DCHECK(web_contents);
   DCHECK(jdelegate);
 
-  if (web_contents->GetRenderViewHost())
-    RenderViewCreated(web_contents->GetRenderViewHost());
+  if (web_contents->GetMainFrame())
+    RenderFrameCreated(web_contents->GetMainFrame());
 }
 
-void ClientMapEntryUpdater::RenderViewCreated(RenderViewHost* rvh) {
+void ClientMapEntryUpdater::RenderFrameCreated(RenderFrameHost* rfh) {
   IoThreadClientData client_data;
   client_data.io_thread_client = jdelegate_;
   client_data.pending_association = false;
-  RvhToIoThreadClientMap::GetInstance()->Set(
-      GetRenderViewHostIdPair(rvh), client_data);
+  RfhToIoThreadClientMap::GetInstance()->Set(
+      GetRenderFrameHostIdPair(rfh), client_data);
 }
 
 
-void ClientMapEntryUpdater::RenderViewDeleted(RenderViewHost* rvh) {
-  RvhToIoThreadClientMap::GetInstance()->Erase(GetRenderViewHostIdPair(rvh));
+void ClientMapEntryUpdater::RenderFrameDeleted(RenderFrameHost* rfh) {
+  RfhToIoThreadClientMap::GetInstance()->Erase(GetRenderFrameHostIdPair(rfh));
 }
 
 void ClientMapEntryUpdater::WebContentsDestroyed(WebContents* web_contents) {
@@ -152,10 +153,11 @@ void ClientMapEntryUpdater::WebContentsDestroyed(WebContents* web_contents) {
 
 // static
 scoped_ptr<XWalkContentsIoThreadClient>
-XWalkContentsIoThreadClient::FromID(int render_process_id, int render_view_id) {
-  pair<int, int> rvh_id(render_process_id, render_view_id);
+XWalkContentsIoThreadClient::FromID(int render_process_id,
+                                    int render_frame_id) {
+  pair<int, int> rfh_id(render_process_id, render_frame_id);
   IoThreadClientData client_data;
-  if (!RvhToIoThreadClientMap::GetInstance()->Get(rvh_id, &client_data))
+  if (!RfhToIoThreadClientMap::GetInstance()->Get(rfh_id, &client_data))
     return scoped_ptr<XWalkContentsIoThreadClient>();
 
   JNIEnv* env = AttachCurrentThread();
@@ -168,12 +170,29 @@ XWalkContentsIoThreadClient::FromID(int render_process_id, int render_view_id) {
 }
 
 // static
+void XWalkContentsIoThreadClient::SubFrameCreated(int render_process_id,
+                                                  int parent_render_frame_id,
+                                                  int child_render_frame_id) {
+  pair<int, int> parent_rfh_id(render_process_id, parent_render_frame_id);
+  pair<int, int> child_rfh_id(render_process_id, child_render_frame_id);
+  IoThreadClientData client_data;
+  if (!RfhToIoThreadClientMap::GetInstance()->Get(parent_rfh_id,
+                                                  &client_data)) {
+    NOTREACHED();
+    return;
+  }
+
+  RfhToIoThreadClientMap::GetInstance()->Set(child_rfh_id, client_data);
+}
+
+
+// static
 void XWalkContentsIoThreadClientImpl::RegisterPendingContents(
     WebContents* web_contents) {
   IoThreadClientData client_data;
   client_data.pending_association = true;
-  RvhToIoThreadClientMap::GetInstance()->Set(
-      GetRenderViewHostIdPair(web_contents->GetRenderViewHost()), client_data);
+  RfhToIoThreadClientMap::GetInstance()->Set(
+      GetRenderFrameHostIdPair(web_contents->GetMainFrame()), client_data);
 }
 
 // static
