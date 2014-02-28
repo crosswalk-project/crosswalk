@@ -23,35 +23,8 @@ XWalkExternalExtension::XWalkExternalExtension(const base::FilePath& path)
       shutdown_callback_(NULL),
       handle_msg_callback_(NULL),
       handle_sync_msg_callback_(NULL),
-      initialized_(false) {
-  std::string error;
-  base::ScopedNativeLibrary library(base::LoadNativeLibrary(path, &error));
-  if (!library.is_valid()) {
-    LOG(WARNING) << "Error loading extension '" << path.AsUTF8Unsafe() << "': "
-                 << error;
-    return;
-  }
-
-  XW_Initialize_Func initialize = reinterpret_cast<XW_Initialize_Func>(
-      library.GetFunctionPointer("XW_Initialize"));
-  if (!initialize) {
-    LOG(WARNING) << "Error loading extension '" << path.AsUTF8Unsafe() << "': "
-                 << "couldn't get XW_Initialize function.";
-    return;
-  }
-
-  XWalkExternalAdapter* external_adapter = XWalkExternalAdapter::GetInstance();
-  xw_extension_ = external_adapter->GetNextXWExtension();
-  external_adapter->RegisterExtension(this);
-  int ret = initialize(xw_extension_, XWalkExternalAdapter::GetInterface);
-  if (ret != XW_OK) {
-    LOG(WARNING) << "Error loading extension '" << path.AsUTF8Unsafe() << "': "
-                 << "XW_Initialize function returned error value.";
-    return;
-  }
-
-  library_.Reset(library.Release());
-  initialized_ = true;
+      initialized_(false),
+      library_path_(path) {
 }
 
 XWalkExternalExtension::~XWalkExternalExtension() {
@@ -63,8 +36,43 @@ XWalkExternalExtension::~XWalkExternalExtension() {
   XWalkExternalAdapter::GetInstance()->UnregisterExtension(this);
 }
 
-bool XWalkExternalExtension::is_valid() {
-  return initialized_;
+bool XWalkExternalExtension::Initialize() {
+  if (initialized_)
+    return true;
+
+  std::string error;
+  base::ScopedNativeLibrary library(
+      base::LoadNativeLibrary(library_path_, &error));
+  if (!library.is_valid()) {
+    LOG(WARNING) << "Error loading extension '"
+                 << library_path_.AsUTF8Unsafe()
+                 << "': "
+                 << error;
+    return false;
+  }
+
+  XW_Initialize_Func initialize = reinterpret_cast<XW_Initialize_Func>(
+      library.GetFunctionPointer("XW_Initialize"));
+  if (!initialize) {
+    LOG(WARNING) << "Error loading extension '"
+                 << library_path_.AsUTF8Unsafe() << "': "
+                 << "couldn't get XW_Initialize function.";
+    return false;
+  }
+
+  XWalkExternalAdapter* external_adapter = XWalkExternalAdapter::GetInstance();
+  xw_extension_ = external_adapter->GetNextXWExtension();
+  external_adapter->RegisterExtension(this);
+  int ret = initialize(xw_extension_, XWalkExternalAdapter::GetInterface);
+  if (ret != XW_OK) {
+    LOG(WARNING) << "Error loading extension '"
+                 << library_path_.AsUTF8Unsafe() << "': "
+                 << "XW_Initialize function returned error value.";
+    return false;
+  }
+  library_.Reset(library.Release());
+  initialized_ = true;
+  return true;
 }
 
 XWalkExtensionInstance* XWalkExternalExtension::CreateInstance() {
