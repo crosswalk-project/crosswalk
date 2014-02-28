@@ -39,6 +39,8 @@ public class XWalkInternalResources {
                     }
                     Field[] fields = innerClazz.getFields();
                     for (Field field : fields) {
+                        // It's final means we are probably not used as library project.
+                        if (!field.isAccessible()) continue;
                         try {
                             int value = generatedInnerClazz.getField(field.getName()).getInt(null);
                             field.setInt(null, value);
