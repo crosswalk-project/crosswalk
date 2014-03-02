@@ -143,9 +143,9 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
             }
             builder.setLargeIcon(
                     Bitmap.createScaledBitmap(icon, targetWidth, targetHeight, true));
-            Notification notification = builder.getNotification();
+            Notification notification = builder.build();
             doShowNotification(notificationId, notification);
-            mExistNotificationIds.put(notificationId, builder);            
+            mExistNotificationIds.put(notificationId, builder);
         }
     }
 
@@ -181,13 +181,13 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
                          .setContentTitle(title)
                          .setSmallIcon(iconRes)
                          .setAutoCancel(true);
-        Notification notification = builder.getNotification();
+        Notification notification = builder.build();
         doShowNotification(notificationId, notification);
         mExistNotificationIds.put(notificationId, builder);
         notificationChanged();
         onNotificationShown(notificationId, processId, routeId);
     }
-    
+
     @Override
     public void cancelNotification(int notificationId, int processId, int routeId) {
         mNotificationManager.cancel(notificationId);
@@ -210,7 +210,7 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
             notificationChanged();
             if (mBridge != null) {
                 mBridge.notificationClicked(notificationId, processId, routeId);
-            } 
+            }
         }
     }
 
