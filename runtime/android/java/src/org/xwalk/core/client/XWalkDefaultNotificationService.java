@@ -14,6 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
 
@@ -123,6 +125,7 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void updateNotificationIcon(int notificationId, Bitmap icon) {
         Notification.Builder builder = mExistNotificationIds.get(notificationId);
         if (builder != null) {
@@ -143,13 +146,19 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
             }
             builder.setLargeIcon(
                     Bitmap.createScaledBitmap(icon, targetWidth, targetHeight, true));
-            Notification notification = builder.build();
+            Notification notification;
+            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+                notification = builder.build();
+            } else {
+                notification = builder.getNotification();
+            }
             doShowNotification(notificationId, notification);
             mExistNotificationIds.put(notificationId, builder);
         }
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void showNotification(String title, String message,
             int notificationId, int processId, int routeId) {
         Context activity = mView.getActivity();
@@ -181,7 +190,12 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
                          .setContentTitle(title)
                          .setSmallIcon(iconRes)
                          .setAutoCancel(true);
-        Notification notification = builder.build();
+        Notification notification;
+        if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN) {
+            notification = builder.build();
+        } else {
+            notification = builder.getNotification();
+        }
         doShowNotification(notificationId, notification);
         mExistNotificationIds.put(notificationId, builder);
         notificationChanged();
