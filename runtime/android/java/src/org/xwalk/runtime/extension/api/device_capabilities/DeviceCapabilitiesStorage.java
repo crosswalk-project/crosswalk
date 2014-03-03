@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
@@ -78,6 +80,7 @@ class DeviceCapabilitiesStorage {
             return file.canRead();
         }
 
+        @SuppressWarnings("deprecation")
         public void updateCapacity() {
             if (!isValid()) {
                 return;
@@ -86,9 +89,16 @@ class DeviceCapabilitiesStorage {
             StatFs stat = new StatFs(mPath);
             // FIXME(halton): After API level 18, use getTotalBytes() and
             // getAvailableBytes() instead
-            long blockSize = stat.getBlockSizeLong();
-            mCapacity = blockSize * stat.getBlockCountLong();
-            mAvailCapacity = blockSize * stat.getAvailableBlocksLong();
+            long blockSize;
+            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
+                blockSize = stat.getBlockSizeLong();
+                mCapacity = blockSize * stat.getBlockCountLong();
+                mAvailCapacity = blockSize * stat.getAvailableBlocksLong();
+            } else {
+                blockSize = stat.getBlockSize();
+                mCapacity = blockSize * stat.getBlockCount();
+                mAvailCapacity = blockSize * stat.getAvailableBlocks();
+            }
         }
 
         public JSONObject convertToJSON() {
