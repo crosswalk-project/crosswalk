@@ -10,6 +10,7 @@
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
@@ -19,6 +20,8 @@
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
+#else
+#include "third_party/WebKit/public/web/WebFrame.h"
 #endif
 
 #if defined(OS_TIZEN_MOBILE)
@@ -53,10 +56,10 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
 
-#if defined(OS_ANDROID)
   content::RenderThread* thread = content::RenderThread::Get();
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
+#if defined(OS_ANDROID)
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
   thread->AddObserver(visited_link_slave_.get());
 #endif
@@ -80,6 +83,10 @@ void XWalkContentRendererClient::DidCreateScriptContext(
     blink::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
   extension_controller_->DidCreateScriptContext(frame, context);
+#if !defined(OS_ANDROID)
+  xwalk_render_process_observer_->DidCreateScriptContext(
+      frame, context, extension_group, world_id);
+#endif
 }
 
 void XWalkContentRendererClient::WillReleaseScriptContext(
@@ -113,4 +120,26 @@ bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
 }
 #endif
 
+bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
+                     content::PageTransition transition_type,
+                     const GURL& url,
+                     const GURL& first_party_for_cookies,
+                     GURL* new_url) {
+#if defined(OS_ANDROID)
+  return false;
+#else
+  if (!xwalk_render_process_observer_->IsWarpMode())
+    return false;
+  GURL origin_url(frame->document().url());
+  if (origin_url.spec().empty() ||
+     frame->document().securityOrigin().canRequest(url)) {
+    LOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
+    return false;
+  }
+
+  LOG(INFO) << "[BLOCK] " << origin_url.spec() << " request " << url.spec();
+  *new_url = GURL();
+  return true;
+#endif
+}
 }  // namespace xwalk

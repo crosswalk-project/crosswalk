@@ -22,10 +22,12 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
+#include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_common_messages.h"
 
 namespace xwalk {
 
@@ -39,6 +41,11 @@ const char* kDefaultWidgetEntryPage[] = {
 "index.svg",
 "index.xhtml",
 "index.xht"};
+
+content::RenderProcessHost* GetHost(Runtime* runtime) {
+  DCHECK(runtime);
+  return runtime->web_contents()->GetRenderProcessHost();
+}
 }  // namespace
 
 namespace application {
@@ -97,6 +104,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
 
   main_runtime_ = Runtime::Create(runtime_context_, this);
+  InitSecurityPolicy();
   main_runtime_->LoadURL(url);
   if (entry_point_used_ != AppMainKey) {
     NativeAppWindow::CreateParams params;
@@ -380,6 +388,47 @@ bool Application::SetPermission(PermissionType type,
 
   NOTREACHED();
   return false;
+}
+
+void Application::InitSecurityPolicy() {
+  if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
+    return;
+  const WARPInfo* info = static_cast<WARPInfo*>(
+      application_data_->GetManifestData(widget_keys::kAccessKey));
+  if (!info
+#if defined(OS_TIZEN)
+      // On Tizen, CSP mode has higher priority, and WARP will be disabled
+      // if the application is under CSP mode.
+      || application_data_->GetManifest()->HasPath(widget_keys::kCSPKey)
+#endif
+      )
+    return;
+  GURL app_url = application_data_->URL();
+  const base::ListValue* whitelist = info->GetWARP();
+  bool enable_warp_mode = true;
+  for (base::ListValue::const_iterator it = whitelist->begin();
+       it != whitelist->end(); ++it) {
+    base::DictionaryValue* value = NULL;
+    (*it)->GetAsDictionary(&value);
+    std::string dest;
+    if (!value || !value->GetString(widget_keys::kAccessOriginKey, &dest) ||
+        dest.empty())
+      continue;
+    if (dest == "*") {
+      enable_warp_mode = false;
+      break;
+    }
+
+    GURL dest_url(dest);
+    // The default subdomains attrubute should be "false".
+    std::string subdomains = "false";
+    value->GetString(widget_keys::kAccessSubdomainsKey, &subdomains);
+    GetHost(main_runtime_)->Send(
+        new ViewMsg_SetAccessWhiteList(
+            app_url, dest_url, (subdomains == "true")));
+  }
+  if (enable_warp_mode)
+    GetHost(main_runtime_)->Send(new ViewMsg_EnableWarpMode());
 }
 
 }  // namespace application

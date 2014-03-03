@@ -8,8 +8,14 @@
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/platform_file.h"
+#include "content/public/common/page_transition_types.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
+#else
+#include "xwalk/runtime/renderer/xwalk_render_process_observer_generic.h"
+#endif
 
 namespace visitedlink {
 class VisitedLinkSlave;
@@ -46,6 +52,12 @@ class XWalkContentRendererClient
   virtual bool IsLinkVisited(unsigned long long link_hash) OVERRIDE;
 #endif
 
+  virtual bool WillSendRequest(blink::WebFrame* frame,
+                               content::PageTransition transition_type,
+                               const GURL& url,
+                               const GURL& first_party_for_cookies,
+                               GURL* new_url) OVERRIDE;
+
  private:
   // XWalkExtensionRendererController::Delegate implementation.
   virtual void DidCreateModuleSystem(
@@ -54,8 +66,8 @@ class XWalkContentRendererClient
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
-#if defined(OS_ANDROID)
   scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+#if defined(OS_ANDROID)
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
 
