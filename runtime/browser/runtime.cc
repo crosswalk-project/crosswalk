@@ -146,6 +146,12 @@ void Runtime::LoadURL(const GURL& url) {
 }
 
 void Runtime::Close() {
+  if (window_) {
+    window_->Close();
+    return;
+  }
+  // Runtime should not free itself on Close but be owned
+  // by Application.
   delete this;
 }
 
@@ -325,7 +331,9 @@ void Runtime::Observe(int type,
 }
 
 void Runtime::OnWindowDestroyed() {
-  Close();
+  // Runtime should not free itself on Close but be owned
+  // by Application.
+  delete this;
 }
 
 void Runtime::RequestMediaAccessPermission(

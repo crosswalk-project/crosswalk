@@ -59,8 +59,13 @@ RuntimeRegistry::~RuntimeRegistry() {
 }
 
 void RuntimeRegistry::CloseAll() {
+  if (runtimes_.empty())
+    return;
+
   RuntimeList cached(runtimes_);
   std::for_each(cached.begin(), cached.end(), std::mem_fun(&Runtime::Close));
+  // Wait until all windows are closed.
+  content::RunAllPendingInMessageLoop();
   DCHECK(runtimes_.empty()) << runtimes_.size();
 }
 
@@ -150,10 +155,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 
   // Invoke cleanup and quit even if there are failures. This is similar to
   // gtest in that it invokes TearDown even if Setup fails.
-  CleanUpOnMainThread();
-  // Sometimes tests leave Quit tasks in the MessageLoop (for shame), so let's
-  // run all pending messages here to avoid preempting the QuitBrowsers tasks.
-  content::RunAllPendingInMessageLoop();
+  ProperMainThreadCleanup();
 
   runtime_registry_->CloseAll();
 }
