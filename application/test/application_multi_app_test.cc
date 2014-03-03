@@ -20,6 +20,7 @@ class ApplicationMultiAppTest : public ApplicationBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   ApplicationService* service = application_sevice();
+  const size_t currently_running_count = service->active_applications().size();
   // Launch the first app.
   Application* app1 = service->Launch(
       test_data_dir_.Append(FILE_PATH_LITERAL("dummy_app1")));
@@ -31,7 +32,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   EXPECT_EQ(app1->runtimes().size(), 2);
   ASSERT_TRUE(app1->GetMainDocumentRuntime());
 
-  EXPECT_EQ(service->active_applications().size(), 1);
+  EXPECT_EQ(service->active_applications().size(), currently_running_count + 1);
   EXPECT_EQ(service->GetApplicationByID(app1->id()), app1);
 
   // Verify that no new App instance was created, if one exists
@@ -57,15 +58,15 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   EXPECT_NE(app1->id(), app2->id());
   EXPECT_NE(app1->GetRenderProcessHostID(), app2->GetRenderProcessHostID());
 
-  EXPECT_EQ(service->active_applications().size(), 2);
+  EXPECT_EQ(service->active_applications().size(), currently_running_count + 2);
   EXPECT_EQ(service->GetApplicationByID(app1->id()), app1);
   EXPECT_EQ(service->GetApplicationByID(app2->id()), app2);
 
   app1->Terminate();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(service->active_applications().size(), 1);
+  EXPECT_EQ(service->active_applications().size(), currently_running_count + 1);
 
   app2->Terminate();
   content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(service->active_applications().size(), 0);
+  EXPECT_EQ(service->active_applications().size(), currently_running_count);
 }
