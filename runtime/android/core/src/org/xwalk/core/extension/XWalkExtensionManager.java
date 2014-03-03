@@ -8,13 +8,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.Class;
 import java.util.HashMap;
 
@@ -132,7 +134,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         // The following sample shows how to create an extension that named Device:
         //    String jsApiContent = "";
         //    try {
-        //        jsApiContent = getAssetsFileContent(mContext.getAssets(), Device.JS_API_PATH);
+        //        jsApiContent = getExtensionJSFileContent(mContext, Device.JS_API_PATH, true);
         //        new Device(jsApiContent, mExtensionContextImpl);
         //    } catch(IOException e) {
         //        Log.e(TAG, "Failed to read js API file of internal extension: Device");
@@ -140,8 +142,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = "";
             try {
-                jsApiContent = getAssetsFileContent(mContext.getAssets(),
-                                                    PresentationExtension.JS_API_PATH);
+                jsApiContent = getExtensionJSFileContent(
+                        mContext, PresentationExtension.JS_API_PATH, true);
                 // Load PresentationExtension as an internal extension.
                 new PresentationExtension(PresentationExtension.NAME, jsApiContent, this);
             } catch (IOException e) {
@@ -152,8 +154,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = ScreenOrientationExtension.getInsertedString();
             try {
-                jsApiContent += getAssetsFileContent(mContext.getAssets(),
-                                                     ScreenOrientationExtension.JS_API_PATH);
+                jsApiContent += getExtensionJSFileContent(
+                        mContext, ScreenOrientationExtension.JS_API_PATH, true);
                 new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent,
                                                ScreenOrientationExtension.JS_ENTRY_POINTS, this);
             } catch (IOException e) {
@@ -164,8 +166,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = "";
             try {
-                jsApiContent = getAssetsFileContent(mContext.getAssets(),
-                                                    LaunchScreenExtension.JS_API_PATH);
+                jsApiContent = getExtensionJSFileContent(
+                        mContext, LaunchScreenExtension.JS_API_PATH, true);
                 // Load LaunchscreenExtension as an internal extension.
                 new LaunchScreenExtension(LaunchScreenExtension.NAME, jsApiContent,
                                           LaunchScreenExtension.JS_ENTRY_POINTS, this);
@@ -177,8 +179,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = "";
             try {
-                jsApiContent = getAssetsFileContent(mContext.getAssets(),
-                                                    Contacts.JS_API_PATH);
+                jsApiContent = getExtensionJSFileContent(
+                        mContext, Contacts.JS_API_PATH, true);
                 new Contacts(jsApiContent, this);
             } catch(IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + Contacts.JS_API_PATH);
@@ -188,8 +190,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = "";
             try {
-                jsApiContent = getAssetsFileContent(mContext.getAssets(),
-                                                    DeviceCapabilities.JS_API_PATH);
+                jsApiContent = getExtensionJSFileContent(
+                        mContext, DeviceCapabilities.JS_API_PATH, true);
                 new DeviceCapabilities(jsApiContent, this);
             } catch(IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
@@ -198,8 +200,8 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         {
             String jsApiContent = "";
             try {
-                jsApiContent = getAssetsFileContent(mContext.getAssets(),
-                                                    Messaging.JS_API_PATH);
+                jsApiContent = getExtensionJSFileContent(
+                        mContext, Messaging.JS_API_PATH, true);
                 new Messaging(jsApiContent, this);
             } catch(IOException e) {
                 Log.e(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
@@ -213,7 +215,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         // Read extensions-config.json and create external extensions.
         String configFileContent;
         try {
-            configFileContent = getAssetsFileContent(mActivity.getAssets(), EXTENSION_CONFIG_FILE);
+            configFileContent = getExtensionJSFileContent(mActivity, EXTENSION_CONFIG_FILE, false);
         } catch (IOException e) {
             Log.e(TAG, "Failed to read extensions-config.json");
             return;
@@ -236,7 +238,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 // Load the content of the JavaScript file.
                 String jsApi;
                 try {
-                    jsApi = getAssetsFileContent(mActivity.getAssets(), jsApiFile);
+                    jsApi = getExtensionJSFileContent(mActivity, jsApiFile, false);
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to read the file " + jsApiFile);
                     return;
@@ -251,11 +253,30 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         }
     }
 
-    private String getAssetsFileContent(AssetManager assetManager, String fileName) throws IOException {
+    private String getExtensionJSFileContent(Context context, String fileName, boolean fromRaw)
+            throws IOException {
         String result = "";
         InputStream inputStream = null;
         try {
-            inputStream = assetManager.open(fileName);
+            if (fromRaw) {
+                // If fromRaw is true, Try to find js file in res/raw first.
+                // And then try to get it from assets if failed.
+                Resources resource = context.getResources();
+                String resName = (new File(fileName).getName().split("\\."))[0];
+                int resId = resource.getIdentifier(resName, "raw", context.getPackageName());
+                if (resId > 0) {
+                    try {
+                        inputStream = resource.openRawResource(resId);
+                    } catch (NotFoundException e) {
+                        Log.w(TAG, "Inputstream failed to open for R.raw." + resName +
+                                   ", try to find it in assets");
+                    }
+                }
+            }
+            if (inputStream == null) {
+                AssetManager assetManager = context.getAssets();
+                inputStream = assetManager.open(fileName);
+            }
             int size = inputStream.available();
             byte[] buffer = new byte[size];
             inputStream.read(buffer);
