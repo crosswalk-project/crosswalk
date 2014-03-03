@@ -14,7 +14,7 @@
             android:authorities="org.xwalk.core.xwview.test.TestContentProvider" />
     </application>
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
     <instrumentation android:name="android.test.InstrumentationTestRunner"
         android:targetPackage="org.xwalk.core.xwview.shell"
         android:label="Test for org.xwalk.core.xwview" />

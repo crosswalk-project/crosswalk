@@ -13,5 +13,5 @@
         android:label="XWalkRuntimeLib" android:hardwareAccelerated="true" android:icon="@drawable/crosswalk">
     </application>
 
-  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
+  <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
 </manifest>
