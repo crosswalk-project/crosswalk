@@ -129,7 +129,7 @@
       'dependencies': [
         'xwalk_app_runtime_java',
         'xwalk_app_template_apk',
-        'xwalk_core_embedded',
+        'xwalk_runtime_embedded',
         'xwalk_runtime_lib_apk',
       ],
       'actions': [

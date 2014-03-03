@@ -23,7 +23,7 @@ import org.xwalk.app.runtime.CrossPackageWrapper;
  */
 public final class XWalkExtensionContextClient extends CrossPackageWrapper {
     private final static String EXTENSION_CLASS_NAME =
-            "org.xwalk.runtime.extension.XWalkExtensionContextWrapper";
+            "org.xwalk.core.extension.XWalkExtensionContextWrapper";
     private Object mInstance;
     private Method mGetContext;
     private Method mGetActivity;

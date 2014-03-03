@@ -92,11 +92,8 @@ def CopyJavaSources(project_source, out_directory):
       'ui/android/java/resource_map/org/chromium/ui/R.java',
 
       # XWalk java sources.
-      'xwalk/runtime/android/java/src/org/xwalk/core',
+      'xwalk/runtime/android/core/src/org/xwalk/core',
       'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
-      'xwalk/runtime/android/java/src/org/xwalk/runtime/extension',
-      'xwalk/runtime/android/java/'
-          'src/org/xwalk/core/XWalkCookieManager.java',
   ]
 
   for source in java_srcs_to_copy:

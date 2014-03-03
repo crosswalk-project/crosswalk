@@ -58,7 +58,8 @@ def PrepareFromXwalk(src_dir, target_dir):
 
     # This jar is needed for 'javac' compile.
     (os.path.join(jar_src_dir, 'xwalk_app_runtime_java.jar'), jar_target_dir),
-    (os.path.join(jar_src_dir, 'xwalk_core_embedded.dex.jar'), jar_target_dir),
+    (os.path.join(jar_src_dir, 'xwalk_runtime_embedded.dex.jar'),
+      jar_target_dir),
 
     # Native library, like libxwalkcore.so.
     (os.path.join(src_dir, 'xwalk_runtime_lib_apk/libs/x86'),
@@ -75,7 +76,7 @@ def PrepareFromXwalk(src_dir, target_dir):
      os.path.join(target_dir, 'libs_res/content')),
     (os.path.join(source_code_dir, 'ui/android/java/res'),
      os.path.join(target_dir, 'libs_res/ui')),
-    (os.path.join(source_code_dir, 'xwalk/runtime/android/java/res'),
+    (os.path.join(source_code_dir, 'xwalk/runtime/android/core/res'),
      os.path.join(target_dir, 'libs_res/runtime')),
 
     (os.path.join(gen_res_src_dir, 'ui_java/java_R'),
