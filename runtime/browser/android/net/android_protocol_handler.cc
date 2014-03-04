@@ -24,8 +24,7 @@
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ClearException;
@@ -249,9 +248,8 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
   scoped_ptr<AndroidStreamReaderURLRequestJobDelegateImpl> reader_delegate(
       new AndroidStreamReaderURLRequestJobDelegateImpl());
 
-  xwalk::XWalkBrowserMainParts* main_parts =
-          xwalk::XWalkContentBrowserClient::Get()->main_parts();
-  xwalk::RuntimeContext* runtime_context = main_parts->runtime_context();
+  xwalk::RuntimeContext* runtime_context =
+      xwalk::XWalkRunner::GetInstance()->runtime_context();
   std::string content_security_policy = runtime_context->GetCSPString();
 
   return new AndroidStreamReaderURLRequestJob(

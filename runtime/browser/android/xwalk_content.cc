@@ -35,8 +35,7 @@
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "jni/XWalkContent_jni.h"
 
 using base::android::AttachCurrentThread;
@@ -120,11 +119,8 @@ content::WebContents* XWalkContent::CreateWebContents(
     JNIEnv* env, jobject io_thread_client,
     jobject intercept_navigation_delegate) {
 
-  XWalkBrowserMainParts* main_parts =
-          XWalkContentBrowserClient::Get()->main_parts();
-  CHECK(main_parts);
-  // FIXME : need a better way to get context.
-  RuntimeContext* runtime_context = main_parts->runtime_context();
+  RuntimeContext* runtime_context =
+      XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
 
   content::WebContents* web_contents = content::WebContents::Create(
@@ -235,10 +231,8 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string csp;
   manifest.GetString(
       xwalk::application_manifest_keys::kCSPKey, &csp);
-  XWalkBrowserMainParts* main_parts =
-          XWalkContentBrowserClient::Get()->main_parts();
-  CHECK(main_parts);
-  RuntimeContext* runtime_context = main_parts->runtime_context();
+  RuntimeContext* runtime_context =
+      XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
   runtime_context->SetCSPString(csp);
 

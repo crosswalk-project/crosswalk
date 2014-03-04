@@ -122,7 +122,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
 
   xwalk_runner_->PreMainMessageLoopRun();
 
-  runtime_context_ = xwalk_runner_->runtime_context();
   extension_service_ = xwalk_runner_->extension_service();
 
   // Prepare the cookie store.

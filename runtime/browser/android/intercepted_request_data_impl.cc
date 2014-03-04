@@ -15,8 +15,7 @@
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
-#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 using base::android::ScopedJavaLocalRef;
 
@@ -122,9 +121,8 @@ net::URLRequestJob* InterceptedRequestDataImpl::CreateJobFor(
   scoped_ptr<AndroidStreamReaderURLRequestJob::Delegate>
       stream_reader_job_delegate_impl(new StreamReaderJobDelegateImpl(this));
 
-  xwalk::XWalkBrowserMainParts* main_parts =
-          xwalk::XWalkContentBrowserClient::Get()->main_parts();
-  xwalk::RuntimeContext* runtime_context = main_parts->runtime_context();
+  RuntimeContext* runtime_context =
+      XWalkRunner::GetInstance()->runtime_context();
   std::string content_security_policy = runtime_context->GetCSPString();
 
   return new AndroidStreamReaderURLRequestJob(

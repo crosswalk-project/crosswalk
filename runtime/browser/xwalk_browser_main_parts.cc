@@ -165,7 +165,6 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 void XWalkBrowserMainParts::PreMainMessageLoopRun() {
   xwalk_runner_->PreMainMessageLoopRun();
 
-  runtime_context_ = xwalk_runner_->runtime_context();
   extension_service_ = xwalk_runner_->extension_service();
 
   if (extension_service_)
@@ -179,7 +178,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     const char* local_ip = "0.0.0.0";
     if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
       remote_debugging_server_.reset(
-          new RemoteDebuggingServer(runtime_context_,
+          new RemoteDebuggingServer(xwalk_runner_->runtime_context(),
               local_ip, port, std::string()));
     }
   }
