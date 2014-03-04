@@ -6,7 +6,6 @@
 package org.xwalk.runtime.client.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
-import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.runtime.client.shell.XWalkRuntimeClientShellActivity;
 import org.xwalk.test.util.RuntimeClientApiTestBase;
@@ -16,11 +15,8 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  */
 public class CSPTest extends XWalkRuntimeClientTestBase {
 
-    // TODO(gaochun): Enable the test when the issue was fixed:
-    // Bug: https://crosswalk-project.org/jira/browse/XWALK-1022
-    // @SmallTest
-    // @Feature({"CSP"})
-    @DisabledTest
+    @SmallTest
+    @Feature({"CSP"})
     public void testCSP() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
