@@ -66,11 +66,8 @@ void NavigateToURL(xwalk::Runtime* runtime, const GURL& url) {
   if (runtime->web_contents()->IsLoading())
     content::WaitForLoadStop(runtime->web_contents());
 
-  TestNavigationObserver navigation_observer(runtime->web_contents(), 1);
   runtime->LoadURL(url);
-
-  base::RunLoop run_loop;
-  navigation_observer.Wait();
+  content::WaitForLoadStop(runtime->web_contents());
 }
 
 }  // namespace xwalk_test_utils
