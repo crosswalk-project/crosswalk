@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+<script src='test.js'></script>
+<script src='add_cookie.js'></script>
+<script>
+
+// Run with --enable-file-cookies.
+
+/**
+* Return the value of the cookie with the given name.
+*
+* If there are two or more cookies with the same name but in different domains
+* or paths, return the one that appears first in document.cookie.
+* If there is no such cookie, throw an error.
+*
+* @param {!string} name Name of the cookie.
+* @return {string} The cookie value.
+*/
+function getCookieValue(name) {
+  var cookies = document.cookie.split(';');
+  for (var i = 0; i < cookies.length; ++i) {
+    var cookie = cookies[i].replace(/^\s+|\s+$/g, '');
+    var cookieName = cookie.substr(0, cookie.indexOf('='));
+    if (cookieName == name)
+      return unescape(cookie.substr(cookie.indexOf('=') + 1));
+  }
+  throw new Error('cookie not found:' + name);
+}
+
+/**
+* Create and return a cookie object. The cookie follows the specification in
+* https://code.google.com/p/selenium/wiki/JsonWireProtocol#Cookie_JSON_Object.
+*
+* The cookie has the following field value:
+* <ul>
+*   <li>name: 'dummyname' + id
+*   <li>value: 'dummyvalue' + id
+*   <li>path: '/'
+*   <li>domain: document.domain
+*   <li>secure: false
+*   <li>expiry: three days after creation
+* </ul>
+*
+* @param {!number} id The id to append to the name and value of the cookie.
+* @return {*} An object representing a cookie.
+*/
+function createDummyCookie(id) {
+  var cookie = {};
+  cookie['name'] = 'dummyname' + id;
+  cookie['value'] = 'dummyvalue' + id;
+  cookie['path'] = '/';
+  cookie['domain'] = document.domain;
+  var expiredDate = new Date();
+  expiredDate.setDate(expiredDate.getDate() + 3);
+  cookie['expiry'] = parseInt(expiredDate.getTime() / 1000);
+  cookie['secure'] = false;
+  return cookie;
+}
+
+function assertAddCookieFailed(cookie, code) {
+  try {
+    addCookie(cookie);
+    assert(false);
+  } catch (error) {
+    if (code)
+      assertEquals(code, error.code);
+  }
+}
+
+function testMissingName() {
+  var cookie = createDummyCookie(1);
+  delete cookie['name'];
+  assertAddCookieFailed(cookie);
+}
+
+function testInvalidName() {
+  var cookie = createDummyCookie(2);
+  var invalidNames = [
+    '', ' a', '\ta', 'a ', 'a\t', 'a;b', 'a=b', 'a\nb', 'a\rb', 'a\0b'
+  ];
+  for (var i = 0; i < invalidNames.length; i++) {
+    cookie['name'] = invalidNames[i];
+    assertAddCookieFailed(cookie);
+  }
+}
+
+function testDomainTooManyColons() {
+  var cookie = createDummyCookie(3);
+  cookie['domain'] = 'domain.name:1:2';
+  assertAddCookieFailed(cookie);
+}
+
+function testInvalidDomain() {
+  var cookie = createDummyCookie(4);
+  var invalidDomains = [
+    ' a', '\ta', 'a ', 'a\t', 'a\nb', 'a\rb', 'a\0b', 'bad.domain'
+  ];
+  for (var i = 0; i < invalidDomains.length; i++) {
+    cookie['domain'] = invalidDomains[i];
+    assertAddCookieFailed(cookie, 24);
+  }
+}
+
+function testMissingPath() {
+  var cookie = createDummyCookie(5);
+  delete cookie['path'];
+  addCookie(cookie);
+  assertEquals(cookie['value'], getCookieValue(cookie['name']));
+}
+
+function testMissingDomain() {
+  var cookie = createDummyCookie(6);
+  delete cookie['domain'];
+  addCookie(cookie);
+  assertEquals(cookie['value'], getCookieValue(cookie['name']));
+}
+
+function testNormal() {
+  var cookie = createDummyCookie(7);
+  addCookie(cookie);
+  assertEquals(cookie['value'], getCookieValue(cookie['name']));
+}
+
+</script>
+<body>
+</body>
+</html>
