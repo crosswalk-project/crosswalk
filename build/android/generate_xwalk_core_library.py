@@ -157,8 +157,8 @@ def CopyJSBindingFiles(project_source, out_directory):
   print 'Copying js binding files...'
   jsapi_directory = os.path.join(out_directory,
                                  LIBRARY_PROJECT_NAME,
-                                 'assets',
-                                 'jsapi')
+                                 'res',
+                                 'raw')
   if not os.path.exists(jsapi_directory):
     os.makedirs(jsapi_directory)
 
