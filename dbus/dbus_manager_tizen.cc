@@ -31,12 +31,6 @@ scoped_refptr<dbus::Bus> DBusManager::session_bus() {
     dbus::Bus::Options options;
     options.dbus_task_runner = dbus_thread_->message_loop_proxy();
 
-    // On Tizen 2.x DBUS_SESSION_ADDRESS points to a wrong path, so we set
-    // the correct one here.
-    options.bus_type = dbus::Bus::CUSTOM_ADDRESS;
-    options.address = base::StringPrintf(
-        "unix:path=/run/user/%s/dbus/user_bus_socket", g_get_user_name());
-
     session_bus_ = new dbus::Bus(options);
   }
 
