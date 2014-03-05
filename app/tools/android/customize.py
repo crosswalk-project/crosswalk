@@ -72,7 +72,7 @@ def CustomizeStringXML(options, sanitized_name):
     AddElementAttributeAndText(xmldoc, 'string', 'name', 'description',
                                options.description)
     strings_file = open(strings_path, 'w')
-    xmldoc.writexml(strings_file)
+    xmldoc.writexml(strings_file, encoding='utf-8')
     strings_file.close()
 
 
@@ -108,8 +108,8 @@ def CustomizeThemeXML(options, sanitized_name):
     else:
       print('Error: Please make sure \"' + default_image + '\" exists!')
       sys.exit(6)
-  theme_file = open(theme_path, 'wb')
-  xmldoc.writexml(theme_file)
+  theme_file = open(theme_path, 'w')
+  xmldoc.writexml(theme_file, encoding='utf-8')
   theme_file.close()
 
 
@@ -156,7 +156,7 @@ def CustomizeXML(options, sanitized_name):
     sys.exit(6)
 
   file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'w')
-  xmldoc.writexml(file_handle)
+  xmldoc.writexml(file_handle, encoding='utf-8')
   file_handle.close()
 
 
