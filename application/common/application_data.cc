@@ -265,7 +265,8 @@ bool ApplicationData::LoadName(base::string16* error) {
   base::string16 localized_name;
   std::string name_key(GetNameKey(GetPackageType()));
 
-  if (!manifest_->GetString(name_key, &localized_name)) {
+  if (!manifest_->GetString(name_key, &localized_name) &&
+      manifest_->IsXPKPackaged()) {
     *error = base::ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
@@ -280,12 +281,14 @@ bool ApplicationData::LoadVersion(base::string16* error) {
   std::string version_str;
   std::string version_key(GetVersionKey(GetPackageType()));
 
-  if (!manifest_->GetString(version_key, &version_str)) {
+  if (!manifest_->GetString(version_key, &version_str) &&
+      manifest_->IsXPKPackaged()) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
   version_.reset(new base::Version(version_str));
-  if (!version_->IsValid() || version_->components().size() > 4) {
+  if (manifest_->IsXPKPackaged() &&
+      (!version_->IsValid() || version_->components().size() > 4)) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
@@ -295,7 +298,8 @@ bool ApplicationData::LoadVersion(base::string16* error) {
 bool ApplicationData::LoadDescription(base::string16* error) {
   DCHECK(error);
   if (manifest_->HasKey(keys::kDescriptionKey) &&
-      !manifest_->GetString(keys::kDescriptionKey, &description_)) {
+      !manifest_->GetString(keys::kDescriptionKey, &description_) &&
+      manifest_->IsXPKPackaged()) {
     *error = base::ASCIIToUTF16(errors::kInvalidDescription);
     return false;
   }
@@ -310,8 +314,10 @@ bool ApplicationData::LoadManifestVersion(base::string16* error) {
     int manifest_version = 1;
     if (!manifest_->GetInteger(keys::kManifestVersionKey, &manifest_version) ||
         manifest_version < 1) {
-      *error = base::ASCIIToUTF16(errors::kInvalidManifestVersion);
-      return false;
+      if (manifest_->IsXPKPackaged()) {
+        *error = base::ASCIIToUTF16(errors::kInvalidManifestVersion);
+        return false;
+      }
     }
   }
 

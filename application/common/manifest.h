@@ -71,6 +71,7 @@ class Manifest {
   bool IsHosted() const { return type_ == TYPE_HOSTED_APP; }
 
   PackageType GetPackageType() const { return package_type_; }
+  bool IsXPKPackaged() const { return package_type_ == TYPE_XPK; }
 
   // These access the wrapped manifest value, returning false when the property
   // does not exist or if the manifest type can't access it.
