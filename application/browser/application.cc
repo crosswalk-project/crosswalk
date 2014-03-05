@@ -6,7 +6,9 @@
 
 #include <string>
 
+#include "base/files/file_enumerator.h"
 #include "base/json/json_reader.h"
+#include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/values.h"
@@ -29,6 +31,16 @@ namespace xwalk {
 
 namespace keys = application_manifest_keys;
 namespace widget_keys = application_widget_keys;
+
+namespace {
+const char* kDefaultWidgetEntryPage[] = {
+"index.html",
+"index.htm",
+"index.svg",
+"index.xhtml",
+"index.xht"};
+const char kWidgetEntryPagePattern[] = "index.*";
+}  // namespace
 
 namespace application {
 
@@ -142,8 +154,28 @@ GURL Application::GetURLFromLocalPathKey() {
       application_data_->GetPackageType()));
 
   if (!manifest->GetString(key, &entry_page)
-      || entry_page.empty())
-    return GURL();
+      || entry_page.empty()) {
+    if (application_data_->GetPackageType() == Manifest::TYPE_XPK)
+      return GURL();
+
+    base::FileEnumerator iter(application_data_->Path(), true,
+                              base::FileEnumerator::FILES,
+                              FILE_PATH_LITERAL(kWidgetEntryPagePattern));
+    int priority = arraysize(kDefaultWidgetEntryPage);
+
+    for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
+      for (int i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
+        if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
+            i < priority) {
+          entry_page = kDefaultWidgetEntryPage[i];
+          priority = i;
+        }
+      }
+    }
+
+    if (entry_page.empty())
+      return GURL();
+  }
 
   return application_data_->GetResourceURL(entry_page);
 }
