@@ -42,7 +42,7 @@ bool GetXWalkDataPath(base::FilePath* path) {
   CHECK(PathService::Get(base::DIR_LOCAL_APP_DATA, &cur));
   cur = cur.Append(xwalk_suffix);
 
-#elif defined(OS_TIZEN)
+#elif defined(OS_TIZEN_MOBILE)
   if (XWalkRunner::GetInstance()->is_running_as_service())
     cur = GetConfigPath().Append(xwalk_suffix);
   else

@@ -29,7 +29,7 @@
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
 #include "xwalk/application/browser/installer/tizen/package_installer.h"
 #include "xwalk/application/browser/installer/tizen/service_package_installer.h"
 #endif
@@ -149,7 +149,7 @@ void SaveSystemEventsInfo(
   }
 }
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
 bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
                            xwalk::application::ApplicationStorage* storage,
                            xwalk::application::ApplicationData* application,
@@ -185,7 +185,7 @@ bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
   }
   return true;
 }
-#endif  // OS_TIZEN
+#endif  // OS_TIZEN_MOBILE
 
 bool CopyDirectoryContents(const base::FilePath& from,
     const base::FilePath& to) {
@@ -293,7 +293,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (!InstallPackageOnTizen(this, application_storage_,
                              application_data.get(),
                              runtime_context_->GetPath())) {
@@ -402,7 +402,7 @@ bool ApplicationService::Update(const std::string& id,
     return false;
   }
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (!UninstallPackageOnTizen(this, application_storage_,
                                old_application.get(),
                                runtime_context_->GetPath())) {
@@ -416,14 +416,14 @@ bool ApplicationService::Update(const std::string& id,
     LOG(ERROR) << "An Error occurred when updating the application.";
     base::DeleteFile(app_dir, true);
     base::Move(tmp_dir, app_dir);
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
     InstallPackageOnTizen(this, application_storage_,
                           old_application.get(),
                           runtime_context_->GetPath());
 #endif
     return false;
   }
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (!InstallPackageOnTizen(this, application_storage_,
                              new_application.get(),
                              runtime_context_->GetPath()))
@@ -455,7 +455,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
     app->Terminate(Application::Immediate);
   }
 
-#if defined(OS_TIZEN)
+#if defined(OS_TIZEN_MOBILE)
   if (!UninstallPackageOnTizen(this, application_storage_, application.get(),
                                runtime_context_->GetPath()))
     result = false;
