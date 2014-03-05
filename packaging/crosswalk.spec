@@ -5,8 +5,7 @@ Name:           crosswalk
 Version:        5.34.96.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
-# License:        (BSD-3-Clause and LGPL-2.1+)
-License:        BSD-3-Clause
+License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}.tar
@@ -86,8 +85,7 @@ Crosswalk is an app runtime based on Chromium. It is an open source project star
 
 %package emulator-support
 Summary:        Support files necessary for running Crosswalk on the Tizen emulator
-# License:        (BSD-3-Clause and LGPL-2.1+)
-License:        BSD-3-Clause
+License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 
@@ -239,7 +237,7 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %files
 %manifest %{name}.manifest
-# %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
+%license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
