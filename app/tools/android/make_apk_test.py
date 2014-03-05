@@ -441,48 +441,39 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_app_launch_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no app launch path') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_name.json')
-    proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--manifest=%s' % manifest_path,
-                             self._mode],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
+    out = RunCommand(cmd)
     self.assertTrue(out.find('no \'name\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_version.json')
-    proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--manifest=%s' % manifest_path,
-                             self._mode],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
+    out = RunCommand(cmd)
     self.assertTrue(out.find('no \'version\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_format_error.json')
-    proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--manifest=%s' % manifest_path,
-                             self._mode],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
+    out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_field_error.json')
-    proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--manifest=%s' % manifest_path,
-                             self._mode],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
+    out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_not_supported_permission.json')
-    proc = subprocess.Popen(['python', 'make_apk.py',
-                             '--manifest=%s' % manifest_path,
-                             self._mode],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, _ = proc.communicate()
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--verbose', self._mode]
+    out = RunCommand(cmd)
     self.assertTrue(
         out.find('\'Telephony\' related API is not supported') != -1)
 
@@ -512,7 +503,7 @@ class TestMakeApk(unittest.TestCase):
     extension_path = 'test_data/extensions/myextension'
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
-           '--extensions=%s1' % extension_path, self._mode]
+           '--extensions=%s1' % extension_path, self._mode, '--verbose']
     out = RunCommand(cmd)
     error_msg = 'Error: can\'t find the extension directory'
     self.assertTrue(out.find(error_msg) != -1)
@@ -593,6 +584,20 @@ class TestMakeApk(unittest.TestCase):
         self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
       Clean('Example', '1.0.0')
+
+
+  def testVerbose(self):
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+           '--verbose', self._mode]
+    result = RunCommand(cmd)
+    self.assertTrue(result.find('aapt') != -1)
+    self.assertTrue(result.find('crunch') != -1)
+    self.assertTrue(result.find('apkbuilder') != -1)
+    self.assertTrue(os.path.exists('Example'))
+    self.checkApks('Example', '1.0.0')
+    Clean('Example', '1.0.0')
+
 
   def testEmptyMode(self):
     # Test all of supported options with empty 'mode' option.
@@ -696,6 +701,7 @@ def SuiteWithEmptyModeOption():
   test_suite = unittest.TestSuite()
   test_suite.addTest(TestMakeApk('testEmptyMode'))
   test_suite.addTest(TestMakeApk('testToolVersion'))
+  test_suite.addTest(TestMakeApk('testVerbose'))
   return test_suite
 
 
