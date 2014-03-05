@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/adb_impl.h"
+#include "xwalk/test/chromedriver/chrome/adb_impl.h"
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
@@ -17,8 +17,8 @@
 #include "base/strings/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/time/time.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/net/adb_client_socket.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/net/adb_client_socket.h"
 
 namespace {
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/keycode_text_conversion.h"
+#include "xwalk/test/chromedriver/keycode_text_conversion.h"
 
 #import <Carbon/Carbon.h>
 
@@ -10,7 +10,7 @@
 
 #include "base/mac/scoped_cftyperef.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
 #include "ui/events/keycodes/keyboard_code_conversion_mac.h"
 
 bool ConvertKeyCodeToText(

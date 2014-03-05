@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/test_util.h"
+#include "xwalk/test/chromedriver/test_util.h"
 
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"

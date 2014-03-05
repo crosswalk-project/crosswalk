@@ -10,7 +10,7 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
+#include "xwalk/test/chromedriver/chrome/devtools_event_listener.h"
 
 namespace base {
 class DictionaryValue;

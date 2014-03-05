@@ -7,7 +7,7 @@
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
-#include "chrome/test/chromedriver/chrome/chrome_finder.h"
+#include "xwalk/test/chromedriver/chrome/chrome_finder.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

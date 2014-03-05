@@ -14,8 +14,8 @@
 #include "base/compiler_specific.h"
 #include "base/memory/linked_ptr.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/net/sync_websocket_factory.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/net/sync_websocket_factory.h"
 #include "url/gurl.h"
 
 namespace base {

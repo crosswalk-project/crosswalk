@@ -11,7 +11,7 @@
 #include "base/callback.h"
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
 
 namespace base {
 class DictionaryValue;

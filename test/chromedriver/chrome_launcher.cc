@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome_launcher.h"
+#include "xwalk/test/chromedriver/chrome_launcher.h"
 
 #include <algorithm>
 #include <vector>
@@ -25,20 +25,20 @@
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/chrome_android_impl.h"
-#include "chrome/test/chromedriver/chrome/chrome_desktop_impl.h"
-#include "chrome/test/chromedriver/chrome/chrome_existing_impl.h"
-#include "chrome/test/chromedriver/chrome/chrome_finder.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
-#include "chrome/test/chromedriver/chrome/devtools_http_client.h"
-#include "chrome/test/chromedriver/chrome/embedded_automation_extension.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/user_data_dir.h"
-#include "chrome/test/chromedriver/chrome/version.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/chrome/zip.h"
-#include "chrome/test/chromedriver/net/port_server.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/chrome/chrome_android_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_desktop_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_existing_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_finder.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
+#include "xwalk/test/chromedriver/chrome/embedded_automation_extension.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/user_data_dir.h"
+#include "xwalk/test/chromedriver/chrome/version.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/chrome/zip.h"
+#include "xwalk/test/chromedriver/net/port_server.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
 #include "crypto/sha2.h"
 
 #if defined(OS_POSIX)

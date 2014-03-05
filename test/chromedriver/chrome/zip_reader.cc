@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/zip_reader.h"
+#include "xwalk/test/chromedriver/chrome/zip_reader.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/test/chromedriver/chrome/zip_internal.h"
+#include "xwalk/test/chromedriver/chrome/zip_internal.h"
 #include "net/base/file_stream.h"
 
 #if defined(USE_SYSTEM_MINIZIP)

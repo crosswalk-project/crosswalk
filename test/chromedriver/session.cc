@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/session.h"
 
 #include <list>
 
 #include "base/lazy_instance.h"
 #include "base/threading/thread_local.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/version.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/logging.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/version.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/logging.h"
 
 namespace {
 

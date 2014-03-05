@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/window_commands.h"
+#include "xwalk/test/chromedriver/window_commands.h"
 
 #include <list>
 #include <string>
@@ -13,20 +13,20 @@
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/basic_types.h"
-#include "chrome/test/chromedriver/chrome/automation_extension.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
-#include "chrome/test/chromedriver/chrome/chrome_desktop_impl.h"
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/chrome/geoposition.h"
-#include "chrome/test/chromedriver/chrome/javascript_dialog_manager.h"
-#include "chrome/test/chromedriver/chrome/js.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/element_util.h"
-#include "chrome/test/chromedriver/session.h"
-#include "chrome/test/chromedriver/util.h"
+#include "xwalk/test/chromedriver/basic_types.h"
+#include "xwalk/test/chromedriver/chrome/automation_extension.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/chrome_desktop_impl.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/geoposition.h"
+#include "xwalk/test/chromedriver/chrome/javascript_dialog_manager.h"
+#include "xwalk/test/chromedriver/chrome/js.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/element_util.h"
+#include "xwalk/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/util.h"
 
 namespace {
 

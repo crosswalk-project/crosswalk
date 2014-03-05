@@ -11,7 +11,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
 
 struct Capabilities;
 class DevToolsEventListener;

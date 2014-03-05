@@ -14,8 +14,8 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/strings/string16.h"
-#include "chrome/test/chromedriver/chrome/log.h"
-#include "chrome/test/chromedriver/net/net_util.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/net/net_util.h"
 
 namespace base {
 class DictionaryValue;

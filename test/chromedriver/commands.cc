@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/commands.h"
+#include "xwalk/test/chromedriver/commands.h"
 
 #include <algorithm>
 #include <list>
@@ -18,13 +18,13 @@
 #include "base/strings/stringprintf.h"
 #include "base/sys_info.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/capabilities.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/logging.h"
-#include "chrome/test/chromedriver/session.h"
-#include "chrome/test/chromedriver/session_thread_map.h"
-#include "chrome/test/chromedriver/util.h"
+#include "xwalk/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/logging.h"
+#include "xwalk/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/session_thread_map.h"
+#include "xwalk/test/chromedriver/util.h"
 
 void ExecuteGetStatus(
     const base::DictionaryValue& params,

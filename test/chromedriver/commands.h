@@ -10,8 +10,8 @@
 #include "base/callback_forward.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/command.h"
-#include "chrome/test/chromedriver/session_thread_map.h"
+#include "xwalk/test/chromedriver/command.h"
+#include "xwalk/test/chromedriver/session_thread_map.h"
 
 namespace base {
 class DictionaryValue;

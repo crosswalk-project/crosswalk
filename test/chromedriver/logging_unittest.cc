@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 #include "base/values.h"
-#include "chrome/test/chromedriver/capabilities.h"
-#include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
-#include "chrome/test/chromedriver/chrome/log.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/logging.h"
+#include "xwalk/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/chrome/devtools_event_listener.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/logging.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

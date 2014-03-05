@@ -10,7 +10,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/ref_counted.h"
-#include "chrome/test/chromedriver/chrome/adb.h"
+#include "xwalk/test/chromedriver/chrome/adb.h"
 
 namespace base {
 class SingleThreadTaskRunner;

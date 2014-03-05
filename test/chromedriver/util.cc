@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/util.h"
+#include "xwalk/test/chromedriver/util.h"
 
 #include "base/base64.h"
 #include "base/file_util.h"
@@ -15,11 +15,11 @@
 #include "base/strings/stringprintf.h"
 #include "base/third_party/icu/icu_utf.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/chrome/zip.h"
-#include "chrome/test/chromedriver/key_converter.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/chrome/zip.h"
+#include "xwalk/test/chromedriver/key_converter.h"
 
 std::string GenerateId() {
   uint64 msb = base::RandUint64();

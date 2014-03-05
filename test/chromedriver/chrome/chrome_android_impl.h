@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/chrome/chrome_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_impl.h"
 
 class Device;
 class DevToolsHttpClient;

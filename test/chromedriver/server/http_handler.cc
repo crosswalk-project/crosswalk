@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/server/http_handler.h"
+#include "xwalk/test/chromedriver/server/http_handler.h"
 
 #include "base/bind.h"
 #include "base/callback.h"
@@ -17,16 +17,16 @@
 #include "base/strings/stringprintf.h"
 #include "base/sys_info.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/alert_commands.h"
-#include "chrome/test/chromedriver/chrome/adb_impl.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/net/port_server.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
-#include "chrome/test/chromedriver/session.h"
-#include "chrome/test/chromedriver/session_thread_map.h"
-#include "chrome/test/chromedriver/util.h"
-#include "chrome/test/chromedriver/version.h"
+#include "xwalk/test/chromedriver/alert_commands.h"
+#include "xwalk/test/chromedriver/chrome/adb_impl.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/net/port_server.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/session_thread_map.h"
+#include "xwalk/test/chromedriver/util.h"
+#include "xwalk/test/chromedriver/version.h"
 #include "net/server/http_server_request_info.h"
 #include "net/server/http_server_response_info.h"
 

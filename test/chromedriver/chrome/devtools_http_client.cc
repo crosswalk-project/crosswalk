@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/devtools_http_client.h"
+#include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
 
 #include "base/bind.h"
 #include "base/bind_helpers.h"
@@ -13,13 +13,13 @@
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/devtools_client_impl.h"
-#include "chrome/test/chromedriver/chrome/log.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/version.h"
-#include "chrome/test/chromedriver/chrome/web_view_impl.h"
-#include "chrome/test/chromedriver/net/net_util.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client_impl.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/version.h"
+#include "xwalk/test/chromedriver/chrome/web_view_impl.h"
+#include "xwalk/test/chromedriver/net/net_util.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
 
 namespace {
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/session_commands.h"
+#include "xwalk/test/chromedriver/session_commands.h"
 
 #include <list>
 
@@ -15,23 +15,23 @@
 #include "base/synchronization/lock.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/basic_types.h"
-#include "chrome/test/chromedriver/capabilities.h"
-#include "chrome/test/chromedriver/chrome/automation_extension.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
-#include "chrome/test/chromedriver/chrome/chrome_android_impl.h"
-#include "chrome/test/chromedriver/chrome/chrome_desktop_impl.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
-#include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
-#include "chrome/test/chromedriver/chrome/geoposition.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/chrome_launcher.h"
-#include "chrome/test/chromedriver/logging.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
-#include "chrome/test/chromedriver/session.h"
-#include "chrome/test/chromedriver/util.h"
-#include "chrome/test/chromedriver/version.h"
+#include "xwalk/test/chromedriver/basic_types.h"
+#include "xwalk/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/chrome/automation_extension.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/chrome_android_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_desktop_impl.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/devtools_event_listener.h"
+#include "xwalk/test/chromedriver/chrome/geoposition.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/chrome_launcher.h"
+#include "xwalk/test/chromedriver/logging.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/util.h"
+#include "xwalk/test/chromedriver/version.h"
 
 namespace {
 

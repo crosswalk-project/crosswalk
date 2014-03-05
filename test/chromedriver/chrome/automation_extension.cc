@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/automation_extension.h"
+#include "xwalk/test/chromedriver/chrome/automation_extension.h"
 
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
 
 AutomationExtension::AutomationExtension(scoped_ptr<WebView> web_view)
     : web_view_(web_view.Pass()) {}

@@ -6,8 +6,8 @@
 
 #include "base/compiler_specific.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/devtools_http_client.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

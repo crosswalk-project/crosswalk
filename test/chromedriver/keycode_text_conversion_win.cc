@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/keycode_text_conversion.h"
+#include "xwalk/test/chromedriver/keycode_text_conversion.h"
 
 #include <windows.h>
 
 #include <cctype>
 
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
 
 bool ConvertKeyCodeToText(
     ui::KeyboardCode key_code, int modifiers, std::string* text,

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/capabilities.h"
 
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/log.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(Switches, Empty) {

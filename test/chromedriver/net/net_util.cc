@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/net/net_util.h"
+#include "xwalk/test/chromedriver/net/net_util.h"
 
 #include "base/basictypes.h"
 #include "base/bind.h"
@@ -12,7 +12,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/stringprintf.h"
 #include "base/synchronization/waitable_event.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
 #include "net/url_request/url_fetcher.h"
 #include "net/url_request/url_fetcher_delegate.h"
 #include "url/gurl.h"

@@ -10,7 +10,7 @@
 
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/net/sync_websocket_factory.h"
+#include "xwalk/test/chromedriver/net/sync_websocket_factory.h"
 
 namespace base {
 class TimeDelta;

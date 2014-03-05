@@ -8,7 +8,7 @@
 #include <list>
 
 #include "base/compiler_specific.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
 
 class Status;
 class WebView;

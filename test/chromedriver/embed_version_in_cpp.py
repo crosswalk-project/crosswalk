@@ -33,7 +33,7 @@ def main():
       'kChromeDriverVersion': version
   }
   cpp_source.WriteSource('version',
-                         'chrome/test/chromedriver',
+                         'xwalk/test/chromedriver',
                          options.directory, global_string_map)
 
 

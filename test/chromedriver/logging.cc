@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/logging.h"
+#include "xwalk/test/chromedriver/logging.h"
 
 #include <stdio.h>
 
@@ -12,11 +12,11 @@
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "base/time/time.h"
-#include "chrome/test/chromedriver/capabilities.h"
-#include "chrome/test/chromedriver/chrome/console_logger.h"
-#include "chrome/test/chromedriver/chrome/performance_logger.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/chrome/console_logger.h"
+#include "xwalk/test/chromedriver/chrome/performance_logger.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/session.h"
 
 #if defined(OS_POSIX)
 #include <fcntl.h>

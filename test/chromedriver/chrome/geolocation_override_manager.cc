@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/geolocation_override_manager.h"
+#include "xwalk/test/chromedriver/chrome/geolocation_override_manager.h"
 
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/chrome/geoposition.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/geoposition.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 
 GeolocationOverrideManager::GeolocationOverrideManager(DevToolsClient* client)
     : client_(client) {

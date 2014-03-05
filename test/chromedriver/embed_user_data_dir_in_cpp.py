@@ -27,7 +27,7 @@ def main():
       contents = f.read()
     global_string_map[var_name] = contents
 
-  cpp_source.WriteSource('user_data_dir', 'chrome/test/chromedriver/chrome',
+  cpp_source.WriteSource('user_data_dir', 'xwalk/test/chromedriver/chrome',
                          options.directory, global_string_map)
 
 

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/stub_devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/stub_devtools_client.h"
 
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 
 StubDevToolsClient::StubDevToolsClient() : id_("stub-id") {}
 

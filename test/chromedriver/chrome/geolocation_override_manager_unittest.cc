@@ -7,10 +7,10 @@
 
 #include "base/compiler_specific.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/geolocation_override_manager.h"
-#include "chrome/test/chromedriver/chrome/geoposition.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/stub_devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/geolocation_override_manager.h"
+#include "xwalk/test/chromedriver/chrome/geoposition.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/stub_devtools_client.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

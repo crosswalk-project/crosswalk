@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
 
 #include <algorithm>
 #include <vector>
@@ -13,8 +13,8 @@
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
-#include "chrome/test/chromedriver/chrome/adb.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/adb.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 
 Device::Device(
     const std::string& device_serial, Adb* adb,

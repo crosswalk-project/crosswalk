@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/basic_types.h"
+#include "xwalk/test/chromedriver/basic_types.h"
 
 WebPoint::WebPoint() : x(0), y(0) {}
 

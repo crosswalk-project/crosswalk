@@ -13,8 +13,8 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/time/time.h"
-#include "chrome/test/chromedriver/basic_types.h"
-#include "chrome/test/chromedriver/chrome/geoposition.h"
+#include "xwalk/test/chromedriver/basic_types.h"
+#include "xwalk/test/chromedriver/chrome/geoposition.h"
 
 namespace base {
 class DictionaryValue;

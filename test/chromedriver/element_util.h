@@ -8,7 +8,7 @@
 #include <string>
 
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/basic_types.h"
+#include "xwalk/test/chromedriver/basic_types.h"
 
 namespace base {
 class DictionaryValue;

@@ -7,10 +7,10 @@
 
 #include "base/strings/string16.h"
 #include "base/strings/utf_string_conversions.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
-#include "chrome/test/chromedriver/key_converter.h"
-#include "chrome/test/chromedriver/test_util.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/key_converter.h"
+#include "xwalk/test/chromedriver/test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

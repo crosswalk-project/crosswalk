@@ -13,8 +13,8 @@
 #include "base/path_service.h"
 #include "base/strings/string_split.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome_launcher.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome_launcher.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(ProcessExtensions, NoExtension) {
@@ -34,7 +34,7 @@ bool AddExtensionForInstall(const std::string& relative_path,
   base::FilePath source_root;
   PathService::Get(base::DIR_SOURCE_ROOT, &source_root);
   base::FilePath crx_file_path = source_root.AppendASCII(
-      "chrome/test/data/chromedriver/" + relative_path);
+      "xwalk/test/data/chromedriver/" + relative_path);
   std::string crx_contents;
   if (!base::ReadFileToString(crx_file_path, &crx_contents))
     return false;

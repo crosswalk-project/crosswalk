@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/chrome_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_impl.h"
 
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
-#include "chrome/test/chromedriver/chrome/devtools_http_client.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/web_view_impl.h"
-#include "chrome/test/chromedriver/net/port_server.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/devtools_event_listener.h"
+#include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/web_view_impl.h"
+#include "xwalk/test/chromedriver/net/port_server.h"
 
 ChromeImpl::~ChromeImpl() {
   if (!quit_)

@@ -11,8 +11,8 @@
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
-#include "chrome/test/chromedriver/capabilities.h"
-#include "chrome/test/chromedriver/net/sync_websocket_factory.h"
+#include "xwalk/test/chromedriver/capabilities.h"
+#include "xwalk/test/chromedriver/net/sync_websocket_factory.h"
 
 class CommandLine;
 class DevToolsEventListener;

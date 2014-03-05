@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/web_view_impl.h"
+#include "xwalk/test/chromedriver/chrome/web_view_impl.h"
 
 #include "base/bind.h"
 #include "base/files/file_path.h"
@@ -13,17 +13,17 @@
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/debugger_tracker.h"
-#include "chrome/test/chromedriver/chrome/devtools_client_impl.h"
-#include "chrome/test/chromedriver/chrome/dom_tracker.h"
-#include "chrome/test/chromedriver/chrome/frame_tracker.h"
-#include "chrome/test/chromedriver/chrome/geolocation_override_manager.h"
-#include "chrome/test/chromedriver/chrome/heap_snapshot_taker.h"
-#include "chrome/test/chromedriver/chrome/javascript_dialog_manager.h"
-#include "chrome/test/chromedriver/chrome/js.h"
-#include "chrome/test/chromedriver/chrome/navigation_tracker.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/ui_events.h"
+#include "xwalk/test/chromedriver/chrome/debugger_tracker.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client_impl.h"
+#include "xwalk/test/chromedriver/chrome/dom_tracker.h"
+#include "xwalk/test/chromedriver/chrome/frame_tracker.h"
+#include "xwalk/test/chromedriver/chrome/geolocation_override_manager.h"
+#include "xwalk/test/chromedriver/chrome/heap_snapshot_taker.h"
+#include "xwalk/test/chromedriver/chrome/javascript_dialog_manager.h"
+#include "xwalk/test/chromedriver/chrome/js.h"
+#include "xwalk/test/chromedriver/chrome/navigation_tracker.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/ui_events.h"
 
 namespace {
 

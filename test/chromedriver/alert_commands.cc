@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/alert_commands.h"
+#include "xwalk/test/chromedriver/alert_commands.h"
 
 #include "base/callback.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/chrome.h"
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/chrome/javascript_dialog_manager.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/web_view.h"
-#include "chrome/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/chrome/chrome.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/javascript_dialog_manager.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/web_view.h"
+#include "xwalk/test/chromedriver/session.h"
 
 Status ExecuteAlertCommand(
      const AlertCommand& alert_command,

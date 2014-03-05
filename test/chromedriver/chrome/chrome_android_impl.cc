@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/chrome_android_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_android_impl.h"
 
-#include "chrome/test/chromedriver/chrome/device_manager.h"
-#include "chrome/test/chromedriver/chrome/devtools_http_client.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/net/port_server.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/net/port_server.h"
 
 ChromeAndroidImpl::ChromeAndroidImpl(
     scoped_ptr<DevToolsHttpClient> client,

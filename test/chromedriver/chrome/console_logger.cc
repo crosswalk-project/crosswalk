@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/chrome/console_logger.h"
+#include "xwalk/test/chromedriver/chrome/console_logger.h"
 
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/devtools_client.h"
-#include "chrome/test/chromedriver/chrome/log.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/log.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 
 namespace {
 

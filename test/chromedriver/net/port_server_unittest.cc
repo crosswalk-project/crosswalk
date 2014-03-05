@@ -12,8 +12,8 @@
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread.h"
 #include "base/time/time.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/net/port_server.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/net/port_server.h"
 #include "net/base/sys_addrinfo.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

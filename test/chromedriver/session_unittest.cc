@@ -6,10 +6,10 @@
 #include <string>
 
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/stub_chrome.h"
-#include "chrome/test/chromedriver/chrome/stub_web_view.h"
-#include "chrome/test/chromedriver/session.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/stub_chrome.h"
+#include "xwalk/test/chromedriver/chrome/stub_web_view.h"
+#include "xwalk/test/chromedriver/session.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

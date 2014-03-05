@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/test/chromedriver/net/sync_websocket_factory.h"
+#include "xwalk/test/chromedriver/net/sync_websocket_factory.h"
 
 #include "base/bind.h"
 #include "base/memory/ref_counted.h"
-#include "chrome/test/chromedriver/net/sync_websocket_impl.h"
-#include "chrome/test/chromedriver/net/url_request_context_getter.h"
+#include "xwalk/test/chromedriver/net/sync_websocket_impl.h"
+#include "xwalk/test/chromedriver/net/url_request_context_getter.h"
 
 namespace {
 

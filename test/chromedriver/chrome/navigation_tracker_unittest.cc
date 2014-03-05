@@ -7,9 +7,9 @@
 #include "base/compiler_specific.h"
 #include "base/json/json_reader.h"
 #include "base/values.h"
-#include "chrome/test/chromedriver/chrome/navigation_tracker.h"
-#include "chrome/test/chromedriver/chrome/status.h"
-#include "chrome/test/chromedriver/chrome/stub_devtools_client.h"
+#include "xwalk/test/chromedriver/chrome/navigation_tracker.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/stub_devtools_client.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

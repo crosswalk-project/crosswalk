@@ -12,7 +12,7 @@
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/process/process.h"
-#include "chrome/test/chromedriver/chrome/chrome_impl.h"
+#include "xwalk/test/chromedriver/chrome/chrome_impl.h"
 
 namespace base {
 class TimeDelta;

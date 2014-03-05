@@ -14,8 +14,8 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/condition_variable.h"
 #include "base/synchronization/lock.h"
-#include "chrome/test/chromedriver/net/sync_websocket.h"
-#include "chrome/test/chromedriver/net/websocket.h"
+#include "xwalk/test/chromedriver/net/sync_websocket.h"
+#include "xwalk/test/chromedriver/net/websocket.h"
 #include "net/base/completion_callback.h"
 #include "net/socket_stream/socket_stream.h"
 

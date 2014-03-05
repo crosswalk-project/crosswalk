@@ -7,9 +7,9 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "chrome/test/chromedriver/chrome/adb.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
-#include "chrome/test/chromedriver/chrome/status.h"
+#include "xwalk/test/chromedriver/chrome/adb.h"
+#include "xwalk/test/chromedriver/chrome/device_manager.h"
+#include "xwalk/test/chromedriver/chrome/status.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
