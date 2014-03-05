@@ -10,9 +10,9 @@ License:        BSD-3-Clause
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
 Source:         %{name}.tar
-Source1:        xwalk
+Source1:        xwalk.in
 Source2:        org.crosswalkproject.Runtime1.service
-Source3:        xwalk.service
+Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
@@ -105,10 +105,14 @@ This package contains additional support files that are needed for running Cross
 %prep
 %setup -q -n crosswalk
 
+cp %{SOURCE1} .
+cp %{SOURCE3} .
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
 sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
+sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.in > xwalk
+sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.service.in > xwalk.service
 
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
@@ -221,9 +225,9 @@ fi
 cd src
 
 # Binaries.
-install -p -D %{SOURCE1} %{buildroot}%{_bindir}/xwalk
+install -p -D ../xwalk %{buildroot}%{_bindir}/xwalk
 install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
-install -p -D %{SOURCE3} %{buildroot}%{_systemduserservicedir}/xwalk.service
+install -p -D ../xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
