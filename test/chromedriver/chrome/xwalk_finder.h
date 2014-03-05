@@ -13,8 +13,8 @@ namespace base {
 class FilePath;
 }
 
-// Gets the path to the default Chrome executable. Returns true on success.
-bool FindChrome(base::FilePath* browser_exe);
+// Gets the path to the default xwalk executable. Returns true on success.
+bool FindXwalk(base::FilePath* browser_exe);
 
 namespace internal {
 

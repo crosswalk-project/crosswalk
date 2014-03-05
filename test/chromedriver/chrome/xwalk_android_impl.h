@@ -14,19 +14,19 @@
 class Device;
 class DevToolsHttpClient;
 
-class ChromeAndroidImpl : public ChromeImpl {
+class XwalkAndroidImpl : public ChromeImpl {
  public:
-  ChromeAndroidImpl(
+  XwalkAndroidImpl(
       scoped_ptr<DevToolsHttpClient> client,
       ScopedVector<DevToolsEventListener>& devtools_event_listeners,
       scoped_ptr<PortReservation> port_reservation,
       scoped_ptr<Device> device);
-  virtual ~ChromeAndroidImpl();
+  virtual ~XwalkAndroidImpl();
 
-  // Overridden from Chrome:
+  // Overridden from Xwalk
   virtual std::string GetOperatingSystemName() OVERRIDE;
 
-  // Overridden from ChromeImpl:
+  // Overridden from XwalkImpl:
   virtual Status QuitImpl() OVERRIDE;
 
  private:

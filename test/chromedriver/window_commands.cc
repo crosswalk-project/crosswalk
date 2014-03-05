@@ -16,7 +16,7 @@
 #include "xwalk/test/chromedriver/basic_types.h"
 #include "xwalk/test/chromedriver/chrome/automation_extension.h"
 #include "xwalk/test/chromedriver/chrome/chrome.h"
-#include "xwalk/test/chromedriver/chrome/chrome_desktop_impl.h"
+#include "xwalk/test/chromedriver/chrome/xwalk_desktop_impl.h"
 #include "xwalk/test/chromedriver/chrome/devtools_client.h"
 #include "xwalk/test/chromedriver/chrome/geoposition.h"
 #include "xwalk/test/chromedriver/chrome/javascript_dialog_manager.h"

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/test/chromedriver/chrome/chrome_finder.h"
+#include "xwalk/test/chromedriver/chrome/xwalk_finder.h"
 
 #include <string>
 #include <vector>
@@ -15,36 +15,11 @@
 #include "base/path_service.h"
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
-#include "base/base_paths_win.h"
-#include "base/win/windows_version.h"
-#endif
-
 namespace {
 
-#if defined(OS_WIN)
+#if defined(OS_LINUX)
 void GetApplicationDirs(std::vector<base::FilePath>* locations) {
-  std::vector<base::FilePath> installation_locations;
-  base::FilePath local_app_data, program_files, program_files_x86;
-  if (PathService::Get(base::DIR_LOCAL_APP_DATA, &local_app_data))
-    installation_locations.push_back(local_app_data);
-  if (PathService::Get(base::DIR_PROGRAM_FILES, &program_files))
-    installation_locations.push_back(program_files);
-  if (PathService::Get(base::DIR_PROGRAM_FILESX86, &program_files_x86))
-    installation_locations.push_back(program_files_x86);
-
-  for (size_t i = 0; i < installation_locations.size(); ++i) {
-    locations->push_back(
-        installation_locations[i].Append(L"Google\\Chrome\\Application"));
-  }
-  for (size_t i = 0; i < installation_locations.size(); ++i) {
-    locations->push_back(
-        installation_locations[i].Append(L"Chromium\\Application"));
-  }
-}
-#elif defined(OS_LINUX)
-void GetApplicationDirs(std::vector<base::FilePath>* locations) {
-  locations->push_back(base::FilePath("/opt/google/chrome"));
+  locations->push_back(base::FilePath("/opt/crosswalk"));
   locations->push_back(base::FilePath("/usr/local/bin"));
   locations->push_back(base::FilePath("/usr/local/sbin"));
   locations->push_back(base::FilePath("/usr/bin"));
@@ -77,26 +52,10 @@ bool FindExe(
 
 }  // namespace internal
 
-#if defined(OS_MACOSX)
-void GetApplicationDirs(std::vector<base::FilePath>* locations);
-#endif
-
-bool FindChrome(base::FilePath* browser_exe) {
-#if defined(OS_WIN)
+bool FindXwalk(base::FilePath* browser_exe) {
+#if defined(OS_LINUX)
   base::FilePath browser_exes_array[] = {
-      base::FilePath(L"chrome.exe")
-  };
-#elif defined(OS_MACOSX)
-  base::FilePath browser_exes_array[] = {
-      base::FilePath("Google Chrome.app/Contents/MacOS/Google Chrome"),
-      base::FilePath("Chromium.app/Contents/MacOS/Chromium")
-  };
-#elif defined(OS_LINUX)
-  base::FilePath browser_exes_array[] = {
-      base::FilePath("google-chrome"),
-      base::FilePath("chrome"),
-      base::FilePath("chromium"),
-      base::FilePath("chromium-browser")
+      base::FilePath("xwalk")
   };
 #endif
   std::vector<base::FilePath> browser_exes(

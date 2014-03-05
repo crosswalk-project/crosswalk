@@ -19,14 +19,14 @@
 #include "xwalk/test/chromedriver/capabilities.h"
 #include "xwalk/test/chromedriver/chrome/automation_extension.h"
 #include "xwalk/test/chromedriver/chrome/chrome.h"
-#include "xwalk/test/chromedriver/chrome/chrome_android_impl.h"
-#include "xwalk/test/chromedriver/chrome/chrome_desktop_impl.h"
+#include "xwalk/test/chromedriver/chrome/xwalk_android_impl.h"
+#include "xwalk/test/chromedriver/chrome/xwalk_desktop_impl.h"
 #include "xwalk/test/chromedriver/chrome/device_manager.h"
 #include "xwalk/test/chromedriver/chrome/devtools_event_listener.h"
 #include "xwalk/test/chromedriver/chrome/geoposition.h"
 #include "xwalk/test/chromedriver/chrome/status.h"
 #include "xwalk/test/chromedriver/chrome/web_view.h"
-#include "xwalk/test/chromedriver/chrome_launcher.h"
+#include "xwalk/test/chromedriver/xwalk_launcher.h"
 #include "xwalk/test/chromedriver/logging.h"
 #include "xwalk/test/chromedriver/net/url_request_context_getter.h"
 #include "xwalk/test/chromedriver/session.h"
@@ -129,7 +129,7 @@ Status InitSessionHelper(
   if (status.IsError())
     return status;
 
-  status = LaunchChrome(bound_params.context_getter.get(),
+  status = LaunchXwalk(bound_params.context_getter.get(),
                         bound_params.socket_factory,
                         bound_params.device_manager,
                         bound_params.port_server,
@@ -422,7 +422,7 @@ Status ExecuteGetWindowPosition(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  ChromeDesktopImpl* desktop = session->chrome->GetAsDesktop();
+  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
   if (!desktop) {
     return Status(
         kUnknownError,
@@ -454,7 +454,7 @@ Status ExecuteSetWindowPosition(
   if (!params.GetDouble("x", &x) || !params.GetDouble("y", &y))
     return Status(kUnknownError, "missing or invalid 'x' or 'y'");
 
-  ChromeDesktopImpl* desktop = session->chrome->GetAsDesktop();
+  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
   if (!desktop) {
     return Status(
         kUnknownError,
@@ -473,7 +473,7 @@ Status ExecuteGetWindowSize(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  ChromeDesktopImpl* desktop = session->chrome->GetAsDesktop();
+  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
   if (!desktop) {
     return Status(
         kUnknownError,
@@ -506,7 +506,7 @@ Status ExecuteSetWindowSize(
       !params.GetDouble("height", &height))
     return Status(kUnknownError, "missing or invalid 'width' or 'height'");
 
-  ChromeDesktopImpl* desktop = session->chrome->GetAsDesktop();
+  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
   if (!desktop) {
     return Status(
         kUnknownError,
@@ -526,7 +526,7 @@ Status ExecuteMaximizeWindow(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  ChromeDesktopImpl* desktop = session->chrome->GetAsDesktop();
+  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
   if (!desktop) {
     return Status(
         kUnknownError,

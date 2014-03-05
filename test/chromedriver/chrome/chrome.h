@@ -8,7 +8,7 @@
 #include <list>
 #include <string>
 
-class ChromeDesktopImpl;
+class XwalkDesktopImpl;
 class Status;
 class WebView;
 
@@ -16,7 +16,7 @@ class Chrome {
  public:
   virtual ~Chrome() {}
 
-  virtual ChromeDesktopImpl* GetAsDesktop() = 0;
+  virtual XwalkDesktopImpl* GetAsDesktop() = 0;
 
   virtual std::string GetVersion() = 0;
 

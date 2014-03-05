@@ -10,7 +10,7 @@ StubChrome::StubChrome() {}
 
 StubChrome::~StubChrome() {}
 
-ChromeDesktopImpl* StubChrome::GetAsDesktop() {
+XwalkDesktopImpl* StubChrome::GetAsDesktop() {
   return NULL;
 }
 

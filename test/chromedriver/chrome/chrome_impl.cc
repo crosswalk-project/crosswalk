@@ -16,7 +16,7 @@ ChromeImpl::~ChromeImpl() {
     port_reservation_->Leak();
 }
 
-ChromeDesktopImpl* ChromeImpl::GetAsDesktop() {
+XwalkDesktopImpl* ChromeImpl::GetAsDesktop() {
   return NULL;
 }
 

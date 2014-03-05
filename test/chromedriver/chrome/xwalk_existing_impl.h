@@ -13,17 +13,17 @@
 
 class DevToolsHttpClient;
 
-class ChromeExistingImpl : public ChromeImpl {
+class XwalkExistingImpl : public ChromeImpl {
  public:
-  ChromeExistingImpl(
+  XwalkExistingImpl(
       scoped_ptr<DevToolsHttpClient> client,
       ScopedVector<DevToolsEventListener>& devtools_event_listeners);
-  virtual ~ChromeExistingImpl();
+  virtual ~XwalkExistingImpl();
 
-  // Overridden from Chrome.
+  // Overridden from Xwalk.
   virtual std::string GetOperatingSystemName() OVERRIDE;
 
-  // Overridden from ChromeImpl.
+  // Overridden from XwalkImpl.
   virtual Status QuitImpl() OVERRIDE;
 };
 

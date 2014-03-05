@@ -14,7 +14,7 @@
 #include "base/strings/string_split.h"
 #include "base/values.h"
 #include "xwalk/test/chromedriver/chrome/status.h"
-#include "xwalk/test/chromedriver/chrome_launcher.h"
+#include "xwalk/test/chromedriver/xwalk_launcher.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(ProcessExtensions, NoExtension) {

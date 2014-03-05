@@ -29,7 +29,7 @@ class PortServer;
 class Status;
 class URLRequestContextGetter;
 
-Status LaunchChrome(
+Status LaunchXwalk(
     URLRequestContextGetter* context_getter,
     const SyncWebSocketFactory& socket_factory,
     DeviceManager* device_manager,

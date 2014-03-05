@@ -18,22 +18,20 @@ namespace base {
 class TimeDelta;
 }
 
-class AutomationExtension;
 class DevToolsHttpClient;
 class Status;
 class WebView;
 
-class ChromeDesktopImpl : public ChromeImpl {
+class XwalkDesktopImpl : public ChromeImpl {
  public:
-  ChromeDesktopImpl(
+  XwalkDesktopImpl(
       scoped_ptr<DevToolsHttpClient> client,
       ScopedVector<DevToolsEventListener>& devtools_event_listeners,
       scoped_ptr<PortReservation> port_reservation,
       base::ProcessHandle process,
       const CommandLine& command,
-      base::ScopedTempDir* user_data_dir,
       base::ScopedTempDir* extension_dir);
-  virtual ~ChromeDesktopImpl();
+  virtual ~XwalkDesktopImpl();
 
   // Waits for a page with the given URL to appear and finish loading.
   // Returns an error if the timeout is exceeded.
@@ -41,12 +39,12 @@ class ChromeDesktopImpl : public ChromeImpl {
                            const base::TimeDelta& timeout,
                            scoped_ptr<WebView>* web_view);
 
-  // Gets the installed automation extension.
-  Status GetAutomationExtension(AutomationExtension** extension);
-
-  // Overridden from Chrome:
-  virtual ChromeDesktopImpl* GetAsDesktop() OVERRIDE;
+  // Overridden from Xwalk
+  virtual XwalkDesktopImpl* GetAsDesktop() OVERRIDE;
   virtual std::string GetOperatingSystemName() OVERRIDE;
+
+  // TODO(Peter Wang): a useless stub, will be removed in next commit
+  Status GetAutomationExtension(AutomationExtension** extension);
 
   // Overridden from ChromeImpl:
   virtual Status QuitImpl() OVERRIDE;
@@ -56,11 +54,7 @@ class ChromeDesktopImpl : public ChromeImpl {
  private:
   base::ProcessHandle process_;
   CommandLine command_;
-  base::ScopedTempDir user_data_dir_;
   base::ScopedTempDir extension_dir_;
-
-  // Lazily initialized, may be null.
-  scoped_ptr<AutomationExtension> automation_extension_;
 };
 
 #endif  // CHROME_TEST_CHROMEDRIVER_CHROME_CHROME_DESKTOP_IMPL_H_

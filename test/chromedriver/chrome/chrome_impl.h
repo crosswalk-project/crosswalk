@@ -29,7 +29,7 @@ class ChromeImpl : public Chrome {
 
   // Overridden from Chrome:
   virtual std::string GetVersion() OVERRIDE;
-  virtual ChromeDesktopImpl* GetAsDesktop() OVERRIDE;
+  virtual XwalkDesktopImpl* GetAsDesktop() OVERRIDE;
   virtual int GetBuildNo() OVERRIDE;
   virtual bool HasCrashedWebView() OVERRIDE;
   virtual Status GetWebViewIds(std::list<std::string>* web_view_ids) OVERRIDE;
