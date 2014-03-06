@@ -118,14 +118,14 @@ def CopyGeneratedSources(out_directory):
      cp out/Release/xwalk_core_shell_apk/
             native_libraries_java/NativeLibraries.java
         out/Release/xwalk_core_library/src/org/
-            chromium/content/app/NativeLibraries.java
+            chromium/base/library_loader/NativeLibraries.java
   """
 
   print 'Copying generated source files...'
   generated_srcs_to_copy = [
       'org/chromium/base/ActivityState.java',
       'org/chromium/base/MemoryPressureLevelList.java',
-      'org/chromium/content/app/NativeLibraries.java',
+      'org/chromium/base/library_loader/NativeLibraries.java',
       'org/chromium/content/browser/input/PopupItemType.java',
       'org/chromium/content/browser/PageTransitionTypes.java',
       'org/chromium/content/browser/SpeechRecognitionError.java',
@@ -149,8 +149,8 @@ def CopyGeneratedSources(out_directory):
                              'native_libraries_java',
                              'NativeLibraries.java')
   target_file = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'src', 'org',
-                             'chromium', 'content',
-                             'app', 'NativeLibraries.java')
+                             'chromium', 'base', 'library_loader',
+                             'NativeLibraries.java')
   shutil.copyfile(source_file, target_file)
 
 def CopyJSBindingFiles(project_source, out_directory):

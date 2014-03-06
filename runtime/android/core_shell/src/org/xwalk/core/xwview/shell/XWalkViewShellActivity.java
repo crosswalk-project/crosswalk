@@ -28,7 +28,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import org.chromium.base.BaseSwitches;
 import org.chromium.base.CommandLine;
-import org.chromium.content.app.LibraryLoader;
+import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
