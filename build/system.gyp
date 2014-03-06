@@ -52,13 +52,10 @@
           },
         },
         {
-          'target_name': 'tizen_appcore',
+          'target_name': 'tizen_sensor',
           'type': 'none',
           'variables': {
             'packages': [
-              'appcore-efl',
-              'aul',
-              'capi-appfw-application',
               'sensor',
               'vconf',
             ],

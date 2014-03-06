@@ -33,11 +33,8 @@ BuildRequires:  perl
 BuildRequires:  which
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
-BuildRequires:  pkgconfig(appcore-efl)
-BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(audio-session-mgr)
 BuildRequires:  pkgconfig(cairo)
-BuildRequires:  pkgconfig(capi-appfw-application)
 BuildRequires:  pkgconfig(capi-location-manager)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)

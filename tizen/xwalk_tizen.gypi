@@ -5,15 +5,13 @@
     'type': 'static_library',
     'dependencies': [
       '../../skia/skia.gyp:skia',
-      '../build/system.gyp:tizen_appcore',
+      '../build/system.gyp:tizen_sensor',
       '../build/system.gyp:tizen_vibration',
     ],
     'include_dirs': [
       '../..',
     ],
     'sources': [
-      'appcore_context.cc',
-      'appcore_context.h',
       'mobile/sensor/sensor_provider.cc',
       'mobile/sensor/sensor_provider.h',
       'mobile/sensor/tizen_data_fetcher_shared_memory.cc',
