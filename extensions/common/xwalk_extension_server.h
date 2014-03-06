@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/values.h"
 #include "ipc/ipc_channel_proxy.h"
@@ -42,7 +43,8 @@ class XWalkExtensionInstance;
 //
 // This class is used both by in-process extensions running in the Browser
 // Process, and by the external extensions running in the Extension Process.
-class XWalkExtensionServer : public IPC::Listener {
+class XWalkExtensionServer : public IPC::Listener,
+    public base::SupportsWeakPtr<XWalkExtensionServer> {
  public:
   XWalkExtensionServer();
   virtual ~XWalkExtensionServer();
