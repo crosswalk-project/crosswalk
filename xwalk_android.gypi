@@ -148,6 +148,7 @@
       'type': 'none',
       'variables': {
         'jni_gen_package': 'xwalk',
+        'jni_generator_ptr_type': 'int',
       },
       'sources': [
         'runtime/android/core/src/org/xwalk/core/AndroidProtocolHandler.java',
@@ -182,6 +183,7 @@
       'type': 'none',
       'variables': {
         'jni_gen_package': 'xwalk',
+        'jni_generator_ptr_type': 'int',
       },
       'sources': [
         'extensions/android/java/src/org/xwalk/core/extensions/XWalkExtensionAndroid.java',

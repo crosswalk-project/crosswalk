@@ -6,7 +6,7 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.MediumTest;
 
-import static org.chromium.base.test.util.ScalableTimeout.ScaleTimeout;
+import static org.chromium.base.test.util.ScalableTimeout.scaleTimeout;
 
 import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * Tests for the XWalkClient.onPageFinished() method.
  */
 public class XWalkClientOnPageFinishedTest extends XWalkViewTestBase {
-    private static final long WAIT_TIMEOUT_MS = ScaleTimeout(2000);
+    private static final long WAIT_TIMEOUT_MS = scaleTimeout(2000);
 
     @Override
     public void setUp() throws Exception {

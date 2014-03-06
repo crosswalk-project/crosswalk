@@ -248,11 +248,11 @@ index c5a7059..cd42b4c 100644
 +
 +#if defined(OS_TIZEN_MOBILE)
 +  tizen::MediaPlayerImpl* media_player = new tizen::MediaPlayerImpl(
-+      this, frame, client, AsWeakPtr(), media_player_manager_, params);
++      frame, client, AsWeakPtr(), media_player_manager_, params);
 +  return media_player;
 +#endif
 +
-   return new WebMediaPlayerImpl(this, frame, client, AsWeakPtr(), params);
+   return new WebMediaPlayerImpl(frame, client, AsWeakPtr(), params);
  #endif  // defined(OS_ANDROID)
  }
 diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h

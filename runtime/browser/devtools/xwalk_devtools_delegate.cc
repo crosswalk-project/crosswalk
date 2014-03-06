@@ -69,7 +69,7 @@ Target::Target(WebContents* web_contents) {
   content::NavigationEntry* entry = controller.GetActiveEntry();
   if (entry != NULL && entry->GetURL().is_valid())
     favicon_url_ = entry->GetFavicon().url;
-  last_activity_time_ = web_contents->GetLastSelectedTime();
+  last_activity_time_ = web_contents->GetLastActiveTime();
 }
 
 bool Target::Activate() const {

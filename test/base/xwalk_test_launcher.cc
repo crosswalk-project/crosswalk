@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <stack>
-
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
@@ -20,10 +18,6 @@
 #include "content/public/test/test_launcher.h"
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "xwalk/test/base/xwalk_test_suite.h"
-
-#if defined(TOOLKIT_VIEWS)
-#include "ui/views/focus/accelerator_handler.h"
-#endif
 
 class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
  public:
@@ -53,26 +47,6 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
     return true;
   }
 
-  virtual void PreRunMessageLoop(base::RunLoop* run_loop) OVERRIDE {
-#if defined(TOOLKIT_VIEWS)
-    if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
-      linked_ptr<views::AcceleratorHandler> handler(
-          new views::AcceleratorHandler);
-      handlers_.push(handler);
-      run_loop->set_dispatcher(handler.get());
-    }
-#endif
-  }
-
-  virtual void PostRunMessageLoop() OVERRIDE {
-#if defined(TOOLKIT_VIEWS)
-    if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
-      DCHECK_EQ(handlers_.empty(), false);
-      handlers_.pop();
-    }
-#endif
-  }
-
  protected:
   virtual content::ContentMainDelegate* CreateContentMainDelegate() OVERRIDE {
 #if defined(OS_WIN) || defined (OS_LINUX)
@@ -86,10 +60,6 @@ class XWalkTestLauncherDelegate : public content::TestLauncherDelegate {
   }
 
  private:
-#if defined(TOOLKIT_VIEWS)
-  std::stack<linked_ptr<views::AcceleratorHandler> > handlers_;
-#endif
-
   DISALLOW_COPY_AND_ASSIGN(XWalkTestLauncherDelegate);
 };
 

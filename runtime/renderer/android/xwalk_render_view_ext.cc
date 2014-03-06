@@ -19,6 +19,7 @@
 #include "third_party/WebKit/public/web/WebDataSource.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
+#include "third_party/WebKit/public/web/WebElementCollection.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebHitTestResult.h"
 #include "third_party/WebKit/public/web/WebNode.h"
@@ -53,9 +54,9 @@ blink::WebNode GetImgChild(const blink::WebNode& node) {
   // This implementation is incomplete (for example if is an area tag) but
   // matches the original WebViewClassic implementation.
 
-  blink::WebNodeList list = node.getElementsByTagName("img");
+  blink::WebElementCollection list = node.getElementsByTagName("img");
   if (list.length() > 0)
-    return list.item(0);
+    return list.firstItem();
   return blink::WebNode();
 }
 

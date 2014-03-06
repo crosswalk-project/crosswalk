@@ -22,6 +22,11 @@
         'device_capabilities/storage_info_provider_unittest.cc',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../../dbus/dbus.gyp:dbus',
+          ],
+        }],
         ['os_posix==1 and OS!="mac" and linux_use_tcmalloc==1', {
           'dependencies': [
             '../../base/allocator/allocator.gyp:allocator',

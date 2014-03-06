@@ -4,6 +4,7 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_registrar.h"
+#include "base/android/library_loader/library_loader_hooks.h"
 #include "content/public/app/android_library_loader_hooks.h"
 #include "content/public/app/content_main.h"
 #include "content/public/app/content_main_delegate.h"
@@ -12,9 +13,11 @@
 
 // This is called by the VM when the shared library is first loaded.
 JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+  base::android::SetLibraryLoadedHook(&content::LibraryLoaded);
+
   base::android::InitVM(vm);
   JNIEnv* env = base::android::AttachCurrentThread();
-  if (!content::RegisterLibraryLoaderEntryHook(env))
+  if (!base::android::RegisterLibraryLoaderEntryHook(env))
     return -1;
 
   if (!xwalk::RegisterJni(env))

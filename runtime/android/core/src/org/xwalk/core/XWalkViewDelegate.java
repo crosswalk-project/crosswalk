@@ -17,12 +17,12 @@ import org.chromium.base.ActivityStatus;
 import org.chromium.base.CommandLine;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
-import org.chromium.content.app.LibraryLoader;
+import org.chromium.base.library_loader.LibraryLoader;
+import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
 import org.chromium.content.browser.ResourceExtractor.ResourceIntercepter;
-import org.chromium.content.common.ProcessInitException;
 
 class XWalkViewDelegate {
     private static boolean sInitialized = false;
