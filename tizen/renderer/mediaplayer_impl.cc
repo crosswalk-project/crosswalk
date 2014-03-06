@@ -11,13 +11,12 @@
 namespace tizen {
 
 MediaPlayerImpl::MediaPlayerImpl(
-    content::RenderView* render_view,
     blink::WebFrame* frame,
     blink::WebMediaPlayerClient* client,
     base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
     const content::WebMediaPlayerParams& params)
-    : WebMediaPlayerImpl(render_view, frame, client, delegate, params),
+    : WebMediaPlayerImpl(frame, client, delegate, params),
       manager_(manager) {
   DCHECK(manager_);
 

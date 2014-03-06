@@ -18,7 +18,6 @@ namespace tizen {
 class MediaPlayerImpl : public content::WebMediaPlayerImpl {
  public:
   MediaPlayerImpl(
-      content::RenderView* render_view,
       blink::WebFrame* frame,
       blink::WebMediaPlayerClient* client,
       base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
