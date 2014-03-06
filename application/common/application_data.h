@@ -32,12 +32,6 @@ class ListValue;
 class Version;
 }
 
-#if defined(OS_TIZEN)
-namespace tizen {
-class AppcoreContext;
-}
-#endif
-
 namespace xwalk {
 namespace application {
 
@@ -223,10 +217,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Application's persistent permissions.
   StoredPermissionMap permission_map_;
-
-#if defined(OS_TIZEN)
-  scoped_ptr<tizen::AppcoreContext> appcore_context_;
-#endif
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };
