@@ -11,6 +11,7 @@ import os
 import shutil
 import sys
 from common_function import RemoveUnusedFilesInReleaseMode
+from xml.dom.minidom import Document
 
 LIBRARY_PROJECT_NAME = 'xwalk_core_library'
 XWALK_CORE_SHELL_APK = 'xwalk_core_shell_apk'
@@ -177,7 +178,7 @@ def CopyJSBindingFiles(project_source, out_directory):
 
 
 def CopyBinaries(out_directory):
-  """cp out/Release/<asset> out/Release/xwalk_core_library/assets/<asset>
+  """cp out/Release/<pak> out/Release/xwalk_core_library/res/raw/<pak>
      cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
      cp out/Release/xwalk_core_shell_apk/libs/*
         out/Release/xwalk_core_library/libs
@@ -185,18 +186,36 @@ def CopyBinaries(out_directory):
 
   print 'Copying binaries...'
   # Copy assets.
-  asset_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'assets')
-  if not os.path.exists(asset_directory):
-    os.mkdir(asset_directory)
+  res_raw_directory = os.path.join(
+      out_directory, LIBRARY_PROJECT_NAME, 'res', 'raw')
+  res_value_directory = os.path.join(
+      out_directory, LIBRARY_PROJECT_NAME, 'res', 'values')
+  if not os.path.exists(res_raw_directory):
+    os.mkdir(res_raw_directory)
+  if not os.path.exists(res_value_directory):
+    os.mkdir(res_value_directory)
 
-  assets_to_copy = [
+  paks_to_copy = [
       'xwalk.pak',
   ]
 
-  for asset in assets_to_copy:
-    source_file = os.path.join(out_directory, asset)
-    target_file = os.path.join(asset_directory, asset)
+  pak_list_xml = Document()
+  resources_node = pak_list_xml.createElement('resources')
+  string_array_node = pak_list_xml.createElement('string-array')
+  string_array_node.setAttribute('name', 'xwalk_resources_list')
+  pak_list_xml.appendChild(resources_node)
+  resources_node.appendChild(string_array_node)
+  for pak in paks_to_copy:
+    source_file = os.path.join(out_directory, pak)
+    target_file = os.path.join(res_raw_directory, pak)
     shutil.copyfile(source_file, target_file)
+    item_node = pak_list_xml.createElement('item')
+    item_node.appendChild(pak_list_xml.createTextNode(pak))
+    string_array_node.appendChild(item_node)
+  pak_list_file = open(os.path.join(res_value_directory,
+                                    'xwalk_resources_list.xml'), 'w')
+  pak_list_xml.writexml(pak_list_file, newl='\n', encoding='utf-8')
+  pak_list_file.close()
 
   # Copy jar files to libs.
   libs_directory = os.path.join(out_directory, LIBRARY_PROJECT_NAME, 'libs')
@@ -306,8 +325,8 @@ def main(argv):
   CopyJavaSources(options.source, out_directory)
   CopyGeneratedSources(out_directory)
   # Copy binaries and resuorces.
-  CopyBinaries(out_directory)
   CopyResources(options.source, out_directory)
+  CopyBinaries(out_directory)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_directory)
   # Post copy library project.
