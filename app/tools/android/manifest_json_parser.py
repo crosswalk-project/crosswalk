@@ -141,11 +141,11 @@ class ManifestJsonParser(object):
     ret_dict['launch_screen_img'] = ''
     if 'launch_screen' in self.data_src:
       if 'default' not in self.data_src['launch_screen']:
-        print 'Error: no \'default\' field for \'launch_screen\'.'
+        print('Error: no \'default\' field for \'launch_screen\'.')
         sys.exit(1)
       default = self.data_src['launch_screen']['default']
       if 'image' not in default:
-        print 'Error: no \'image\' field for \'launch_screen.default\'.'
+        print('Error: no \'image\' field for \'launch_screen.default\'.')
         sys.exit(1)
       ret_dict['launch_screen_img'] = default['image']
     return ret_dict
@@ -164,7 +164,7 @@ class ManifestJsonParser(object):
     print("required_version: %s" % self.GetRequiredVersion())
     print("plugins: %s" % self.GetPlugins())
     print("fullscreen: %s" % self.GetFullScreenFlag())
-    print 'launch_screen.default.image: %s' % self.GetLaunchScreenImg()
+    print('launch_screen.default.image: %s' % self.GetLaunchScreenImg())
 
 
   def GetAppName(self):
