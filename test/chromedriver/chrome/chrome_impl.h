@@ -14,7 +14,6 @@
 #include "base/memory/scoped_vector.h"
 #include "xwalk/test/chromedriver/chrome/chrome.h"
 
-class AutomationExtension;
 class DevToolsEventListener;
 class DevToolsHttpClient;
 class JavaScriptDialogManager;

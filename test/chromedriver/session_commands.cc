@@ -17,7 +17,6 @@
 #include "base/values.h"
 #include "xwalk/test/chromedriver/basic_types.h"
 #include "xwalk/test/chromedriver/capabilities.h"
-#include "xwalk/test/chromedriver/chrome/automation_extension.h"
 #include "xwalk/test/chromedriver/chrome/chrome.h"
 #include "xwalk/test/chromedriver/chrome/xwalk_android_impl.h"
 #include "xwalk/test/chromedriver/chrome/xwalk_desktop_impl.h"
@@ -422,27 +421,12 @@ Status ExecuteGetWindowPosition(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
-  if (!desktop) {
-    return Status(
-        kUnknownError,
-        "command only supported for desktop Chrome without debuggerAddress");
-  }
+  (void) session;
+  (void) params;
+  (void) value;
 
-  AutomationExtension* extension = NULL;
-  Status status = desktop->GetAutomationExtension(&extension);
-  if (status.IsError())
-    return status;
+  // TODO(Peter Wang): Implement "get position" of xwalk window.
 
-  int x, y;
-  status = extension->GetWindowPosition(&x, &y);
-  if (status.IsError())
-    return status;
-
-  base::DictionaryValue position;
-  position.SetInteger("x", x);
-  position.SetInteger("y", y);
-  value->reset(position.DeepCopy());
   return Status(kOk);
 }
 
@@ -450,50 +434,25 @@ Status ExecuteSetWindowPosition(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  double x, y;
-  if (!params.GetDouble("x", &x) || !params.GetDouble("y", &y))
-    return Status(kUnknownError, "missing or invalid 'x' or 'y'");
+  (void) session;
+  (void) params;
+  (void) value;
 
-  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
-  if (!desktop) {
-    return Status(
-        kUnknownError,
-        "command only supported for desktop Chrome without debuggerAddress");
-  }
+  // TODO(Peter Wang): Implement "set position" of xwalk window.
 
-  AutomationExtension* extension = NULL;
-  Status status = desktop->GetAutomationExtension(&extension);
-  if (status.IsError())
-    return status;
-
-  return extension->SetWindowPosition(static_cast<int>(x), static_cast<int>(y));
+  return Status(kOk);
 }
 
 Status ExecuteGetWindowSize(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
-  if (!desktop) {
-    return Status(
-        kUnknownError,
-        "command only supported for desktop Chrome without debuggerAddress");
-  }
+  (void) session;
+  (void) params;
+  (void) value;
 
-  AutomationExtension* extension = NULL;
-  Status status = desktop->GetAutomationExtension(&extension);
-  if (status.IsError())
-    return status;
+  // TODO(Peter Wang): Implement "get size" of xwalk window.
 
-  int width, height;
-  status = extension->GetWindowSize(&width, &height);
-  if (status.IsError())
-    return status;
-
-  base::DictionaryValue size;
-  size.SetInteger("width", width);
-  size.SetInteger("height", height);
-  value->reset(size.DeepCopy());
   return Status(kOk);
 }
 
@@ -501,44 +460,26 @@ Status ExecuteSetWindowSize(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  double width, height;
-  if (!params.GetDouble("width", &width) ||
-      !params.GetDouble("height", &height))
-    return Status(kUnknownError, "missing or invalid 'width' or 'height'");
+  (void) session;
+  (void) params;
+  (void) value;
 
-  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
-  if (!desktop) {
-    return Status(
-        kUnknownError,
-        "command only supported for desktop Chrome without debuggerAddress");
-  }
+  // TODO(Peter Wang): Implement "set size" of xwalk window.
 
-  AutomationExtension* extension = NULL;
-  Status status = desktop->GetAutomationExtension(&extension);
-  if (status.IsError())
-    return status;
-
-  return extension->SetWindowSize(
-      static_cast<int>(width), static_cast<int>(height));
+  return Status(kOk);
 }
 
 Status ExecuteMaximizeWindow(
     Session* session,
     const base::DictionaryValue& params,
     scoped_ptr<base::Value>* value) {
-  XwalkDesktopImpl* desktop = session->chrome->GetAsDesktop();
-  if (!desktop) {
-    return Status(
-        kUnknownError,
-        "command only supported for desktop Chrome without debuggerAddress");
-  }
+  (void) session;
+  (void) params;
+  (void) value;
 
-  AutomationExtension* extension = NULL;
-  Status status = desktop->GetAutomationExtension(&extension);
-  if (status.IsError())
-    return status;
+  // TODO(Peter Wang): Implement maximization of xwalk window.
 
-  return extension->MaximizeWindow();
+  return Status(kOk);
 }
 
 Status ExecuteGetAvailableLogTypes(

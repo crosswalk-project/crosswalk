@@ -113,14 +113,6 @@ Status XwalkDesktopImpl::WaitForPageToLoad(const std::string& url,
   return status;
 }
 
-// TODO(Peter Wang): a useless stub, will be removed in next commit
-Status XwalkDesktopImpl::GetAutomationExtension(
-    AutomationExtension** extension) {
-  (void) extension;
-  return Status(kOk);
-}
-
-
 XwalkDesktopImpl* XwalkDesktopImpl::GetAsDesktop() {
   return this;
 }

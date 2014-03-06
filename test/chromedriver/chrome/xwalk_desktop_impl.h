@@ -43,9 +43,6 @@ class XwalkDesktopImpl : public ChromeImpl {
   virtual XwalkDesktopImpl* GetAsDesktop() OVERRIDE;
   virtual std::string GetOperatingSystemName() OVERRIDE;
 
-  // TODO(Peter Wang): a useless stub, will be removed in next commit
-  Status GetAutomationExtension(AutomationExtension** extension);
-
   // Overridden from ChromeImpl:
   virtual Status QuitImpl() OVERRIDE;
 

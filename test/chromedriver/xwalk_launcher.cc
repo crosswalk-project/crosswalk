@@ -31,7 +31,6 @@
 #include "xwalk/test/chromedriver/chrome/xwalk_finder.h"
 #include "xwalk/test/chromedriver/chrome/device_manager.h"
 #include "xwalk/test/chromedriver/chrome/devtools_http_client.h"
-#include "xwalk/test/chromedriver/chrome/embedded_automation_extension.h"
 #include "xwalk/test/chromedriver/chrome/status.h"
 #include "xwalk/test/chromedriver/chrome/user_data_dir.h"
 #include "xwalk/test/chromedriver/chrome/version.h"

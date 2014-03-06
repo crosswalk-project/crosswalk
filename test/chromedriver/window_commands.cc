@@ -14,7 +14,6 @@
 #include "base/time/time.h"
 #include "base/values.h"
 #include "xwalk/test/chromedriver/basic_types.h"
-#include "xwalk/test/chromedriver/chrome/automation_extension.h"
 #include "xwalk/test/chromedriver/chrome/chrome.h"
 #include "xwalk/test/chromedriver/chrome/xwalk_desktop_impl.h"
 #include "xwalk/test/chromedriver/chrome/devtools_client.h"
@@ -739,24 +738,8 @@ Status ExecuteScreenshot(
   if (status.IsError())
     return status;
 
-  std::string screenshot;
-  if (session->chrome->GetAsDesktop() && !session->force_devtools_screenshot) {
-    AutomationExtension* extension = NULL;
-    status =
-        session->chrome->GetAsDesktop()->GetAutomationExtension(&extension);
-    if (status.IsError())
-      return status;
-    status = extension->CaptureScreenshot(&screenshot);
-    // If the screenshot was forbidden, fallback to DevTools.
-    if (status.code() == kForbidden)
-      status = web_view->CaptureScreenshot(&screenshot);
-  } else {
-    status = web_view->CaptureScreenshot(&screenshot);
-  }
-  if (status.IsError())
-    return status;
+  // TODO(Peter Wang): need to implement xwalk extension to support it.
 
-  value->reset(new base::StringValue(screenshot));
   return Status(kOk);
 }
 
