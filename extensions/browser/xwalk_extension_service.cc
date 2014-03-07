@@ -115,7 +115,7 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
     base::Closure closure = base::Bind(
         base::IgnoreResult(&XWalkExtensionServer::OnMessageReceived),
-        base::Unretained(server), message);
+        server->AsWeakPtr(), message);
 
     task_runner->PostTask(FROM_HERE, closure);
   }
@@ -138,7 +138,7 @@ class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
     base::Closure closure = base::Bind(
         base::IgnoreResult(&XWalkExtensionServer::OnCreateInstance),
-        base::Unretained(server), instance_id, name);
+        server->AsWeakPtr(), instance_id, name);
 
     task_runner->PostTask(FROM_HERE, closure);
   }
