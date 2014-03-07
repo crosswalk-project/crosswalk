@@ -26,14 +26,15 @@ def CleanDir(path):
     shutil.rmtree(path)
 
 
-def RunCommand(command, shell=False):
+def RunCommand(command, verbose=False, shell=False):
   """Runs the command list, print the output, and propagate its result."""
   proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT, shell=shell)
   if not shell:
     output = proc.communicate()[0]
     result = proc.returncode
-    print(output.decode("utf-8"))
+    if verbose:
+      print(output.decode("utf-8").strip())
     if result != 0:
       print ('Command "%s" exited with non-zero exit code %d'
              % (' '.join(command), result))
@@ -185,6 +186,7 @@ def MakeVersionCode(options):
   # features, according to recommendation in URL
   return '--app-versionCode=%s%s' % (abi, b.zfill(7))
 
+
 def Customize(options):
   package = '--package=org.xwalk.app.template'
   if options.package:
@@ -233,7 +235,7 @@ def Customize(options):
           name, app_version, app_versionCode, description, icon, permissions,
           app_url, remote_debugging, app_root, app_local_path, fullscreen_flag,
           extensions_list, orientation, default_image]
-  RunCommand(cmd)
+  RunCommand(cmd, options.verbose)
 
 
 def Execution(options, sanitized_name):
@@ -302,7 +304,7 @@ def Execution(options, sanitized_name):
   # Check whether ant is installed.
   try:
     cmd = ['ant', '-version']
-    RunCommand(cmd, True)
+    RunCommand(cmd, shell=True)
   except EnvironmentError:
     print('Please install ant first.')
     sys.exit(4)
@@ -364,12 +366,12 @@ def Execution(options, sanitized_name):
          '-Dbasedir=.',
          '-buildfile',
          os.path.join('scripts', 'ant', 'apk-codegen.xml')]
-  RunCommand(cmd)
+  RunCommand(cmd, options.verbose)
 
   # Check whether java is installed.
   try:
     cmd = ['java', '-version']
-    RunCommand(cmd, True)
+    RunCommand(cmd, shell=True)
   except EnvironmentError:
     print('Please install Oracle JDK first.')
     sys.exit(5)
@@ -412,7 +414,7 @@ def Execution(options, sanitized_name):
          '-Dbasedir=.',
          '-buildfile',
          xml_path]
-  RunCommand(cmd)
+  RunCommand(cmd, options.verbose)
 
   dex_path = '--dex-path=' + os.path.join(os.getcwd(), 'out', 'classes.dex')
   app_runtime_jar = os.path.join(os.getcwd(),
@@ -469,7 +471,7 @@ def Execution(options, sanitized_name):
          '-Dbasedir=.',
          '-buildfile',
          'scripts/ant/apk-package.xml']
-  RunCommand(cmd)
+  RunCommand(cmd, options.verbose)
 
   apk_path = '--unsigned-apk-path=' + os.path.join('out', 'app-unsigned.apk')
   final_apk_path = '--final-apk-path=' + \
@@ -562,6 +564,9 @@ def main(argv):
   parser.add_option('-v', '--version', action='store_true',
                     dest='version', default=False,
                     help='The version of this python tool.')
+  parser.add_option('--verbose', action="store_true",
+                    dest='verbose', default=False,
+                    help='Print debug messages.')
   info = ('The packaging mode of the web application. The value \'shared\' '
           'means that the runtime is shared across multiple application '
           'instances and that the runtime needs to be distributed separately. '
