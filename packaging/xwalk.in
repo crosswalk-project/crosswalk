@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec @LIB_INSTALL_DIR@/xwalk/xwalk $@
