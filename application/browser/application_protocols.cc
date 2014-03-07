@@ -44,6 +44,8 @@ namespace keys = application_manifest_keys;
 
 namespace application {
 
+namespace {
+
 net::HttpResponseHeaders* BuildHttpHeaders(
     const std::string& content_security_policy,
     const std::string& mime_type, const std::string& method,
@@ -81,8 +83,6 @@ net::HttpResponseHeaders* BuildHttpHeaders(
   raw_headers.append(2, '\0');
   return new net::HttpResponseHeaders(raw_headers);
 }
-
-namespace {
 
 class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
  public:

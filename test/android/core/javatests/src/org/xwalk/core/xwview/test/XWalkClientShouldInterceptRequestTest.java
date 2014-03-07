@@ -318,10 +318,8 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
         }
     }
 
-    //@SmallTest
-    //@Feature({"XWalkClientShouldInterceptRequest"})
-    // TODO(gaochun): Enable it once the issue XWALK-1022 gets resolved.
-    @DisabledTest
+    @SmallTest
+    @Feature({"XWalkClientShouldInterceptRequest"})
     public void testHttpStatusField() throws Throwable {
         final String syncGetUrl = mWebServer.getResponseUrl("/intercept_me");
         final String syncGetJs =

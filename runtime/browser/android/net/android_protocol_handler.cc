@@ -249,10 +249,6 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
   scoped_ptr<AndroidStreamReaderURLRequestJobDelegateImpl> reader_delegate(
       new AndroidStreamReaderURLRequestJobDelegateImpl());
 
-  base::FilePath relative_path = base::FilePath(
-      net::UnescapeURLComponent(request->url().path(),
-          net::UnescapeRule::SPACES | net::UnescapeRule::URL_SPECIAL_CHARS));
-
   xwalk::XWalkBrowserMainParts* main_parts =
           xwalk::XWalkContentBrowserClient::Get()->main_parts();
   xwalk::RuntimeContext* runtime_context = main_parts->runtime_context();
@@ -262,7 +258,6 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
       request,
       network_delegate,
       reader_delegate.PassAs<AndroidStreamReaderURLRequestJob::Delegate>(),
-      relative_path,
       content_security_policy);
 }
 

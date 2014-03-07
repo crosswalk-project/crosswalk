@@ -29,7 +29,6 @@
 #include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job_manager.h"
-#include "xwalk/application/browser/application_protocols.h"
 #include "xwalk/runtime/browser/android/net/input_stream.h"
 #include "xwalk/runtime/browser/android/net/input_stream_reader.h"
 #include "xwalk/runtime/browser/android/net/url_constants.h"
@@ -98,12 +97,9 @@ AndroidStreamReaderURLRequestJob::AndroidStreamReaderURLRequestJob(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate,
     scoped_ptr<Delegate> delegate,
-    const base::FilePath& relative_path,
     const std::string& content_security_policy)
     : URLRequestJob(request, network_delegate),
       delegate_(delegate.Pass()),
-      mime_type_("text/html"),
-      relative_path_(relative_path),
       content_security_policy_(content_security_policy),
       weak_factory_(this) {
   DCHECK(delegate_);
@@ -365,6 +361,12 @@ void AndroidStreamReaderURLRequestJob::HeadersComplete(
       content_type_header.append(mime_type);
       headers->AddHeader(content_type_header);
     }
+
+    if (!content_security_policy_.empty()) {
+      std::string content_security_policy("Content-Security-Policy: ");
+      content_security_policy.append(content_security_policy_);
+      headers->AddHeader(content_security_policy);
+    }
   }
 
   response_info_.reset(new net::HttpResponseInfo());
@@ -381,11 +383,8 @@ int AndroidStreamReaderURLRequestJob::GetResponseCode() const {
 
 void AndroidStreamReaderURLRequestJob::GetResponseInfo(
     net::HttpResponseInfo* info) {
-  if (response_info_) {
-    // TODO(gaochun): Enable CSP when http status code issue was fixed.
-    // Bug: https://crosswalk-project.org/jira/browse/XWALK-1022
+  if (response_info_)
     *info = *response_info_;
-  }
 }
 
 void AndroidStreamReaderURLRequestJob::SetExtraRequestHeaders(
