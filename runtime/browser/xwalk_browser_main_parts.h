@@ -22,7 +22,6 @@ class RenderProcessHost;
 
 namespace xwalk {
 
-class RuntimeContext;
 class RemoteDebuggingServer;
 class XWalkRunner;
 
@@ -57,8 +56,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
       extensions::XWalkExtensionVector* extensions);
 
 #if defined(OS_ANDROID)
-  RuntimeContext* runtime_context() { return runtime_context_; }
-
   // XWalkExtensionAndroid needs to register its extensions on
   // XWalkBrowserMainParts so they get correctly registered on-demand
   // by XWalkExtensionService each time a in_process Server is created.
@@ -70,8 +67,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
   void RegisterExternalExtensions();
 
   XWalkRunner* xwalk_runner_;
-
-  RuntimeContext* runtime_context_;
 
   extensions::XWalkExtensionService* extension_service_;
 
