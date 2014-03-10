@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--  Copyright (c) 2013 Intel Corporation. All rights reserved.
+<!--  Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 
   Use of this source code is governed by a BSD-style license that can be
   found in the LICENSE file.
@@ -12,7 +12,7 @@
     <application android:name="android.app.Application"
         android:label="XWalkCoreShell" android:hardwareAccelerated="true">
         <activity android:name="org.xwalk.core.xwview.shell.XWalkViewShellActivity"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:theme="@android:style/Theme.Holo.Light"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize"
             android:label="XWalkCoreShell">
           <intent-filter>

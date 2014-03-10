@@ -1,10 +1,14 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 package org.xwalk.core.xwview.shell;
 
-import android.app.Activity;
+import java.util.HashMap;
+
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.Context;
@@ -13,6 +17,8 @@ import android.graphics.drawable.ClipDrawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,7 +39,8 @@ import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.core.client.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
 
-public class XWalkViewShellActivity extends Activity {
+public class XWalkViewShellActivity extends FragmentActivity
+        implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener{
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
     private static final String TAG = XWalkViewShellActivity.class.getName();
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
@@ -47,9 +54,13 @@ public class XWalkViewShellActivity extends Activity {
     private ImageButton mStopButton;
     private ImageButton mReloadButton;
     private ClipDrawable mProgressDrawable;
-    private XWalkView mView;
+    private XWalkView mActiveView;
     private TracingControllerAndroid mTracingController;
     private BroadcastReceiver mReceiver;
+    private ActionBar mActionBar;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
+    private HashMap<XWalkView, Integer> mProgressMap;
 
     private Runnable mClearProgressRunnable = new Runnable() {
         @Override
@@ -108,13 +119,32 @@ public class XWalkViewShellActivity extends Activity {
 
         setContentView(R.layout.testshell_activity);
 
-        mView = (XWalkView) findViewById(R.id.content_container);
+        mActionBar = getActionBar();
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(), mActionBar);
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                mActionBar.setSelectedNavigationItem(position);
+            }
+        });
+
+        mProgressMap = new HashMap<XWalkView, Integer>();
+        // Add two tabs.
+        mActionBar.addTab(
+                mActionBar.newTab()
+                        .setText(mSectionsPagerAdapter.getPageTitle(0))
+                        .setTabListener(this));
+        mActionBar.addTab(
+                mActionBar.newTab()
+                        .setText(mSectionsPagerAdapter.getPageTitle(1))
+                        .setTabListener(this));
+
         mToolbar = (LinearLayout) findViewById(R.id.toolbar);
         mProgressDrawable = (ClipDrawable) findViewById(R.id.toolbar).getBackground();
-
-        initializeUrlField();
-        initializeButtons();
-        initializeXWalkViewClients();
 
         IntentFilter intentFilter = new IntentFilter(ACTION_LAUNCH_URL);
         mReceiver = new BroadcastReceiver() {
@@ -126,24 +156,24 @@ public class XWalkViewShellActivity extends Activity {
 
                 if (bundle.containsKey("url")) {
                     String extra = bundle.getString("url");
-                    mView.loadUrl(sanitizeUrl(extra));
+                    if (mActiveView != null)
+                        mActiveView.loadUrl(sanitizeUrl(extra));
                 }
             }
         };
         registerReceiver(mReceiver, intentFilter);
-        mView.enableRemoteDebugging();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mView.onPause();
+        mSectionsPagerAdapter.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mView.onResume();
+        mSectionsPagerAdapter.onResume();
     }
 
     @Override
@@ -151,22 +181,27 @@ public class XWalkViewShellActivity extends Activity {
         super.onDestroy();
         unregisterReceiver(mReceiver);
         unregisterTracingReceiver();
-        mView.onDestroy();
+        mSectionsPagerAdapter.onDestroy();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mView.onActivityResult(requestCode, resultCode, data);
+        if (mActiveView != null) mActiveView.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mView.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
+        if (mActiveView != null) {
+            return mActiveView.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public void onNewIntent(Intent intent) {
-        if (!mView.onNewIntent(intent)) super.onNewIntent(intent);
+        if (mActiveView != null) {
+            if (!mActiveView.onNewIntent(intent)) super.onNewIntent(intent);
+        }
     }
 
     private void waitForDebuggerIfNeeded() {
@@ -198,7 +233,8 @@ public class XWalkViewShellActivity extends Activity {
                     return false;
                 }
 
-                mView.loadUrl(sanitizeUrl(mUrlTextView.getText().toString()));
+                if (mActiveView == null) return true;
+                mActiveView.loadUrl(sanitizeUrl(mUrlTextView.getText().toString()));
                 mUrlTextView.clearFocus();
                 setKeyboardVisibilityForUrl(false);
                 return true;
@@ -213,11 +249,11 @@ public class XWalkViewShellActivity extends Activity {
                 mStopButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 mReloadButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 if (!hasFocus) {
-                    mUrlTextView.setText(mView.getUrl());
+                    if (mActiveView == null) return;
+                    mUrlTextView.setText(mActiveView.getUrl());
                 }
             }
         });
-
     }
 
     private void initializeButtons() {
@@ -225,7 +261,8 @@ public class XWalkViewShellActivity extends Activity {
         mPrevButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mView.canGoBack()) mView.goBack();
+                if (mActiveView == null) return;
+                if (mActiveView.canGoBack()) mActiveView.goBack();
             }
         });
 
@@ -233,7 +270,8 @@ public class XWalkViewShellActivity extends Activity {
         mNextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mView.canGoForward()) mView.goForward();
+                if (mActiveView == null) return;
+                if (mActiveView.canGoForward()) mActiveView.goForward();
             }
         });
 
@@ -241,7 +279,8 @@ public class XWalkViewShellActivity extends Activity {
         mStopButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mView.stopLoading();
+                if (mActiveView == null) return;
+                mActiveView.stopLoading();
             }
         });
 
@@ -249,23 +288,32 @@ public class XWalkViewShellActivity extends Activity {
         mReloadButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mView.reload();
+                if (mActiveView == null) return;
+                mActiveView.reload();
             }
         });
     }
 
-    private void initializeXWalkViewClients() {
-        mView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this, mView) {
+    private void initializeXWalkViewClients(XWalkView xwalkView) {
+        xwalkView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this, xwalkView) {
             public void onProgressChanged(XWalkView view, int newProgress) {
+                if (view != mActiveView) return;
                 mToolbar.removeCallbacks(mClearProgressRunnable);
 
                 mProgressDrawable.setLevel((int) (100.0 * newProgress));
-                if (newProgress == 100)
+                mProgressMap.put(view, (int) (100.0 * newProgress));
+                if (newProgress == 100) {
                     mToolbar.postDelayed(mClearProgressRunnable, COMPLETED_PROGRESS_TIMEOUT_MS);
-                    mUrlTextView.setText(mView.getUrl());
+                    mProgressMap.put(view, 0);
+                }
+                mUrlTextView.setText(mActiveView.getUrl());
+            }
+            public void onReceivedTitle(XWalkView view, String title) {
+                mSectionsPagerAdapter.setPageTitle(view, title);
             }
         });
     }
+
     private void setKeyboardVisibilityForUrl(boolean visible) {
         InputMethodManager imm = (InputMethodManager) getSystemService(
                 Context.INPUT_METHOD_SERVICE);
@@ -274,5 +322,48 @@ public class XWalkViewShellActivity extends Activity {
         } else {
             imm.hideSoftInputFromWindow(mUrlTextView.getWindowToken(), 0);
         }
+    }
+
+    @Override
+    public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        // Do nothing here currently, just make compiler happy.
+    }
+
+    @Override
+    public void onTabSelected(Tab tab, FragmentTransaction ft) {
+        mViewPager.setCurrentItem(tab.getPosition());
+        android.support.v4.app.Fragment fragment = mSectionsPagerAdapter.getItem(tab.getPosition());
+        if (fragment!= null && fragment instanceof XWalkViewSectionFragment) {
+            mActiveView = ((XWalkViewSectionFragment)fragment).getXWalkView();
+        } else {
+            mActiveView = null;
+        }
+        if (mActiveView != null) {
+            mUrlTextView.setText(mActiveView.getUrl());
+            if (mProgressMap.containsKey(mActiveView)) {
+                mProgressDrawable.setLevel(mProgressMap.get(mActiveView));
+            } else {
+                mProgressDrawable.setLevel(0);
+            }
+        }
+    }
+
+    @Override
+    public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        // Do nothing here currently, just make compiler happy.
+    }
+
+    @Override
+    public void onXWalkViewCreated(XWalkView view) {
+        if (mActiveView == null) {
+            mActiveView = view;
+            initializeUrlField();
+            initializeButtons();
+            mUrlTextView.setText("");
+            mProgressDrawable.setLevel(0);
+        }
+        initializeXWalkViewClients(view);
+        mProgressMap.put(view, 0);
+        view.enableRemoteDebugging();
     }
 }
