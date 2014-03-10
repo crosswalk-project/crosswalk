@@ -75,6 +75,13 @@ bool Manifest::Get(
   return CanAccessPath(path) && data_->Get(path, out_value);
 }
 
+bool Manifest::Get(
+    const std::string& path, base::Value** out_value) const {
+  return this->Get(
+      path,
+      const_cast<const base::Value**>(out_value));
+}
+
 bool Manifest::GetBoolean(
     const std::string& path, bool* out_value) const {
   return CanAccessPath(path) && data_->GetBoolean(path, out_value);

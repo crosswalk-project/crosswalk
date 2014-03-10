@@ -10,6 +10,7 @@
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
+#include "xwalk/application/common/manifest_handlers/widget_handler.h"
 
 namespace xwalk {
 namespace application {
@@ -65,6 +66,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
 
   std::vector<ManifestHandler*> handlers;
   // We can put WGT specific manifest handlers here.
+  handlers.push_back(new WidgetHandler);
   widget_registry_ = new ManifestHandlerRegistry(handlers);
   return widget_registry_;
 }

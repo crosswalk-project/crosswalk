@@ -78,6 +78,7 @@ class Manifest {
   bool HasKey(const std::string& key) const;
   bool HasPath(const std::string& path) const;
   bool Get(const std::string& path, const base::Value** out_value) const;
+  bool Get(const std::string& path, base::Value** out_value) const;
   bool GetBoolean(const std::string& path, bool* out_value) const;
   bool GetInteger(const std::string& path, int* out_value) const;
   bool GetString(const std::string& path, std::string* out_value) const;

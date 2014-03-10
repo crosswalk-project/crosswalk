@@ -38,6 +38,18 @@ namespace application_widget_keys {
   extern const char kWebURLsKey[];
   extern const char kWidgetKey[];
   extern const char kVersionKey[];
+  extern const char kAuthorKey[];
+  extern const char kDescriptionKey[];
+  extern const char kShortNameKey[];
+  extern const char kIDKey[];
+  extern const char kAuthorEmailKey[];
+  extern const char kAuthorHrefKey[];
+  extern const char kHeightKey[];
+  extern const char kWidthKey[];
+  extern const char kPreferencesKey[];
+  extern const char kPreferencesNameKey[];
+  extern const char kPreferencesValueKey[];
+  extern const char kPreferencesReadonlyKey[];
 #if defined(OS_TIZEN)
   extern const char kTizenAppIdKey[];
   extern const char kIcon128Key[];
