@@ -79,6 +79,8 @@
         'extension/application_event_extension.h',
         'extension/application_runtime_extension.cc',
         'extension/application_runtime_extension.h',
+        'extension/application_widget_extension.cc',
+        'extension/application_widget_extension.h',
 
         'renderer/application_native_module.cc',
         'renderer/application_native_module.h',
