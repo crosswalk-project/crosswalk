@@ -270,6 +270,138 @@ var TCPServerSocket = function(options) {
 TCPServerSocket.prototype = new common.EventTargetPrototype();
 TCPServerSocket.prototype.constructor = TCPServerSocket;
 
+// UDPSocket interface.
+//
+// TODO(tmpsantos): We are currently not throwing any exceptions
+// neither validating the input parameters.
+//
+var UDPSocket = function(options) {
+  common.BindingObject.call(this, common.getUniqueId());
+  common.EventTarget.call(this);
+
+  internal.postMessage("UDPSocketConstructor", [this._id]);
+
+  var options = options || {};
+
+  if (!options.localAddress)
+    options.localAddress = "";
+  if (!options.localPort)
+    options.localPort = 0;
+  if (!options.remoteAddress)
+    options.remoteAddress = "";
+  if (!options.remotePort)
+    options.remotePort = 0;
+  if (!options.addressReuse)
+    options.addressReuse = true;
+  if (!options.loopback)
+    options.loopback = false;
+
+  this._addMethod("_close");
+  this._addMethod("suspend");
+  this._addMethod("resume");
+  this._addMethod("joinMulticast");
+  this._addMethod("leaveMulticast");
+  this._addMethod("_sendString");
+
+  function MessageEvent(type, data) {
+    this.type = type;
+    this.data = data.data;
+    this.remotePort = data.remotePort;
+    this.remoteAddress = data.remoteAddress;
+  }
+
+  this._addEvent("open");
+  this._addEvent("drain");
+  this._addEvent("error");
+  this._addEvent("message", MessageEvent);
+
+  function sendWrapper(data, remoteAddress, remotePort) {
+    this._sendString(data, remoteAddress, remotePort);
+
+    // FIXME(tmpsantos): The spec says that send() should always
+    // return if you can keep sending data. This can only be
+    // verified in the native implementation, which makes this
+    // call sync. We are returning always true here to keep the
+    // implementation async.
+    return true;
+  };
+
+  function closeWrapper(data) {
+    if (this._readyStateObserver.readyState == "closed")
+      return;
+
+    this._readyStateObserver.readyState = "closing";
+    this._close();
+  };
+
+  Object.defineProperties(this, {
+    "_readyStateObserver": {
+      value: new ReadyStateObserver(this._id, "opening"),
+    },
+    "_readyStateObserverDeleter": {
+      value: v8tools.lifecycleTracker(),
+    },
+    "send": {
+      value: sendWrapper,
+      enumerable: true,
+    },
+    "close": {
+      value: closeWrapper,
+      enumerable: true,
+    },
+    "remoteAddress": {
+      value: options.remoteAddress,
+      enumerable: true,
+    },
+    "remotePort": {
+      value: options.remotePort,
+      enumerable: true,
+    },
+    "localAddress": {
+      value: options.localAddress,
+      enumerable: true,
+    },
+    "localPort": {
+      value: options.localPort,
+      enumerable: true,
+    },
+    "addressReuse": {
+      value: options.addressReuse,
+      enumerable: true,
+    },
+    "loopback": {
+      value: options.loopback,
+      enumerable: true,
+    },
+    "bufferedAmount": {
+      value: 0,
+      enumerable: true,
+    },
+    "readyState": {
+      get: function() { return this._readyStateObserver.readyState; },
+      enumerable: true,
+    },
+  });
+
+  var watcher = this._readyStateObserver;
+  this._readyStateObserverDeleter.destructor = function() {
+    watcher.destructor();
+  };
+
+  // This is needed, otherwise events like "error" can get fired before
+  // we give the user a chance to register a listener.
+  function delayedInitialization(obj) {
+    obj._postMessage("init", [options]);
+  };
+
+  this._registerLifecycleTracker();
+  setTimeout(delayedInitialization, 0, this);
+};
+
+UDPSocket.prototype = new common.EventTargetPrototype();
+UDPSocket.prototype.constructor = UDPSocket;
+
 // Exported API.
 exports.TCPSocket = TCPSocket;
 exports.TCPServerSocket = TCPServerSocket;
+exports.UDPSocket = UDPSocket;
