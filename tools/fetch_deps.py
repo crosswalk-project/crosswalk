@@ -28,9 +28,6 @@ except ImportError:
   sys.stderr.write("Can't find gclient_utils, please add your depot_tools "\
                    "to PATH or PYTHONPATH\n")
 
-class FetchingError(Exception):
-  pass
-
 class DepsFetcher(object):
   def __init__(self, options):
     self._options = options
@@ -45,12 +42,6 @@ class DepsFetcher(object):
     if not os.path.isfile(self._new_gclient_file):
       raise IOError('%s was not found. Run generate_gclient-xwalk.py.' %
                     self._new_gclient_file)
-
-  @property
-  # pylint: disable=R0201
-  def requirements(self):
-    # No requirements at all
-    return set()
 
   def DoGclientSyncForChromium(self):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
