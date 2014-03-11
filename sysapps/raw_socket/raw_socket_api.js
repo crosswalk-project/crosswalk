@@ -54,7 +54,7 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
   options = options || {};
 
   if (!options.localAddress)
-    options.localAddress = "127.0.0.1";
+    options.localAddress = "0.0.0.0";
   if (!options.localPort)
     options.localPort = 0;
   if (!options.addressReuse)
@@ -65,7 +65,7 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
     options.useSecureTransport = false;
 
   this._addMethod("_close");
-  this._addMethod("halfclose");
+  this._addMethod("_halfclose");
   this._addMethod("suspend");
   this._addMethod("resume");
   this._addMethod("_sendString");
@@ -73,7 +73,6 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
   this._addEvent("drain");
   this._addEvent("open");
   this._addEvent("close");
-  this._addEvent("halfclose");
   this._addEvent("error");
   this._addEvent("data");
 
@@ -96,10 +95,18 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
     this._close();
   };
 
+  function halfcloseWrapper(data) {
+    if (this._readyStateObserver.readyState == "closed")
+      return;
+
+    this._readyStateObserver.readyState = "halfclosed";
+    this._halfclose();
+  };
+
   Object.defineProperties(this, {
     "_readyStateObserver": {
       value: new ReadyStateObserver(
-          this._id, object_id ? "open" : "connecting"),
+          this._id, object_id ? "open" : "opening"),
     },
     "_readyStateObserverDeleter": {
       value: v8tools.lifecycleTracker(),
@@ -112,6 +119,10 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
       value: closeWrapper,
       enumerable: true,
     },
+    "halfclose": {
+      value: halfcloseWrapper,
+      enumerable: true,
+    },
     "remoteAddress": {
       value: remoteAddress,
       enumerable: true,
@@ -121,14 +132,22 @@ var TCPSocket = function(remoteAddress, remotePort, options, object_id) {
       enumerable: true,
     },
     "localAddress": {
-      value: "127.0.0.1",
+      value: options.localAddress,
       enumerable: true,
     },
     "localPort": {
-      value: 0,
+      value: options.localPort,
       enumerable: true,
     },
-    "bufferAmount": {
+    "noDelay": {
+      value: options.noDelay,
+      enumerable: true,
+    },
+    "addressReuse": {
+      value: options.addressReuse,
+      enumerable: true,
+    },
+    "bufferedAmount": {
       value: 0,
       enumerable: true,
     },
@@ -170,7 +189,7 @@ var TCPServerSocket = function(options) {
   options = options || {};
 
   if (!options.localAddress)
-    options.localAddress = "127.0.0.1";
+    options.localAddress = "0.0.0.0";
   if (!options.localPort)
     options.localPort = 1234;
   if (!options.addressReuse)

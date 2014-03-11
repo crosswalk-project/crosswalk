@@ -50,7 +50,7 @@ void TCPSocketObject::RegisterHandlers() {
       base::Bind(&TCPSocketObject::OnInit, base::Unretained(this)));
   handler_.Register("_close",
       base::Bind(&TCPSocketObject::OnClose, base::Unretained(this)));
-  handler_.Register("halfclose",
+  handler_.Register("_halfclose",
       base::Bind(&TCPSocketObject::OnHalfClose, base::Unretained(this)));
   handler_.Register("suspend",
       base::Bind(&TCPSocketObject::OnSuspend, base::Unretained(this)));
