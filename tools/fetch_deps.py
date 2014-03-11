@@ -51,9 +51,6 @@ class DepsFetcher(object):
                        os.path.basename(self._new_gclient_file))
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
         always=self._options.verbose, cwd=self._root_dir)
-    # CheckCallAndFilterAndHeader will raise exception if return
-    # value is not 0. So we can easily return 0 here.
-    return 0
 
 def main():
   option_parser = optparse.OptionParser()
@@ -76,7 +73,9 @@ def main():
     return 1
 
   deps_fetcher = DepsFetcher(options)
-  sys.exit(deps_fetcher.DoGclientSyncForChromium())
+  deps_fetcher.DoGclientSyncForChromium()
+
+  return 0
 
 if __name__ == '__main__':
-  main()
+  sys.exit(main())
