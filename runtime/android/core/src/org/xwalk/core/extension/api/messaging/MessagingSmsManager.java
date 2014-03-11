@@ -61,7 +61,6 @@ public class MessagingSmsManager {
     public void onSmsSend(int instanceID, JSONObject jsonMsg) {
         if (!checkService(DEFAULT_SERVICE_ID)) {
             Log.e(TAG, "No Sim Card");
-            return;
         }
         String promise_id = null;
         JSONObject eventBody = null;
@@ -232,7 +231,7 @@ public class MessagingSmsManager {
                     jsSentMsg.put("to", to);
                     jsSentMsg.put("body", smsMessage);
                     jsSentMsg.put("messageClass", "class1");
-                    jsSentMsg.put("state", "sending");
+                    jsSentMsg.put("state", error ? "failed" : "sending");
                     jsSentMsg.put("deliveryStatus", error ? "error" : "pending");
 
                     JSONObject jsonMsgPromise = new JSONObject();
