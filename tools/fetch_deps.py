@@ -31,8 +31,8 @@ except ImportError:
 class DepsFetcher(object):
   def __init__(self, options):
     self._options = options
-    self._xwalk_dir = os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__)))
+    self._tools_dir = os.path.dirname(os.path.abspath(__file__))
+    self._xwalk_dir = os.path.dirname(self._tools_dir)
     # self should be at src/xwalk/tools/fetch_deps.py
     # so src is at self/../../../
     self._src_dir = os.path.dirname(self._xwalk_dir)
@@ -51,6 +51,20 @@ class DepsFetcher(object):
                        os.path.basename(self._new_gclient_file))
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
         always=self._options.verbose, cwd=self._root_dir)
+
+  def RemoveOldSCMCheckouts(self):
+    cmd = ('gclient', 'recurse', '--no-progress', '-j1',
+           '--gclientfile=%s' % os.path.basename(self._new_gclient_file),
+           os.path.join(self._tools_dir, 'scm-remove-wrong-checkout.py'))
+
+    def _FilterSkippedDependencyMessage(line):
+      if line.startswith('Skipped omitted dependency'):
+        return
+      print line
+    gclient_utils.CheckCallAndFilterAndHeader(cmd,
+      always=self._options.verbose, print_stdout=False,
+      cwd=self._root_dir, filter_fn=_FilterSkippedDependencyMessage)
+
 
 def main():
   option_parser = optparse.OptionParser()
@@ -73,6 +87,7 @@ def main():
     return 1
 
   deps_fetcher = DepsFetcher(options)
+  deps_fetcher.RemoveOldSCMCheckouts()
   deps_fetcher.DoGclientSyncForChromium()
 
   return 0
