@@ -39,7 +39,6 @@ const char* kDefaultWidgetEntryPage[] = {
 "index.svg",
 "index.xhtml",
 "index.xht"};
-const char kWidgetEntryPagePattern[] = "index.*";
 }  // namespace
 
 namespace application {
@@ -160,7 +159,7 @@ GURL Application::GetURLFromLocalPathKey() {
 
     base::FileEnumerator iter(application_data_->Path(), true,
                               base::FileEnumerator::FILES,
-                              FILE_PATH_LITERAL(kWidgetEntryPagePattern));
+                              FILE_PATH_LITERAL("index.*"));
     int priority = arraysize(kDefaultWidgetEntryPage);
 
     for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
