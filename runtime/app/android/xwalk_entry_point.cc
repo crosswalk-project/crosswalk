@@ -13,6 +13,8 @@
 
 // This is called by the VM when the shared library is first loaded.
 JNI_EXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+  base::android::SetLibraryLoadedHook(&content::LibraryLoaded);
+
   base::android::InitVM(vm);
   JNIEnv* env = base::android::AttachCurrentThread();
   if (!base::android::RegisterLibraryLoaderEntryHook(env))
