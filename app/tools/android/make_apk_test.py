@@ -668,6 +668,26 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example', '1.0.0')
 
 
+  def testTargetDir(self):
+    test_option = ['./', '../', '~/']
+    for option in test_option:
+      cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+             '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+             '--target-dir=%s' % option, self._mode]
+      RunCommand(cmd)
+      if self._mode.find('shared') != -1:
+        apk_path = os.path.expanduser('%sExample_1.0.0.apk' % option)
+        self.assertTrue(os.path.exists(apk_path))
+        self.checkApk(apk_path, '')
+      elif self._mode.find('embedded') != -1:
+        for arch in self.archs():
+          apk_path = os.path.expanduser('%sExample_1.0.0_%s.apk'
+                                        % (option, arch))
+          self.assertTrue(os.path.exists(apk_path))
+          self.checkApk(apk_path, arch)
+      Clean(os.path.expanduser('%sExample' % option), '1.0.0')
+
+
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
   test_suite = unittest.TestSuite()
@@ -693,6 +713,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testPermissions'))
   test_suite.addTest(TestMakeApk('testXPK'))
   test_suite.addTest(TestMakeApk('testXPKWithError'))
+  test_suite.addTest(TestMakeApk('testTargetDir'))
   return test_suite
 
 

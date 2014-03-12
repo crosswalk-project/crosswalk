@@ -490,28 +490,29 @@ def Execution(options, sanitized_name):
   if options.app_version:
     package_name += ('_' + options.app_version)
   if options.mode == 'shared':
-    dst_file = '%s.apk' % package_name
+    dst_file = os.path.join(options.target_dir, '%s.apk' % package_name)
   elif options.mode == 'embedded':
-    dst_file = '%s_%s.apk' % (package_name, options.arch)
+    dst_file = os.path.join(options.target_dir,
+                            '%s_%s.apk' % (package_name, options.arch))
   shutil.copyfile(src_file, dst_file)
   CleanDir('out')
   if options.mode == 'embedded':
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(app_name, app_version, arch = ''):
-  package_name_version = app_name
+def PrintPackageInfo(target_dir, app_name, app_version, arch = ''):
+  package_name_version = os.path.join(target_dir, app_name)
   if app_version != '':
     package_name_version += ('_' + app_version)
   if arch == '':
     print ('A non-platform specific APK for the web application "%s" was '
-           'generated successfully at %s.apk. It requires a shared Crosswalk '
+           'generated successfully at\n%s.apk. It requires a shared Crosswalk '
            'Runtime to be present.'
            % (app_name, package_name_version))
   else:
     print ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
-           'found at %s_%s.apk.'
+           'found at\n%s_%s.apk.'
            % (app_name, arch, package_name_version, arch))
 
 
@@ -522,11 +523,12 @@ def MakeApk(options, sanitized_name):
     app_version = options.app_version
   if options.mode == 'shared':
     Execution(options, sanitized_name)
-    PrintPackageInfo(sanitized_name, app_version)
+    PrintPackageInfo(options.target_dir, sanitized_name, app_version)
   elif options.mode == 'embedded':
     if options.arch:
       Execution(options, sanitized_name)
-      PrintPackageInfo(sanitized_name, app_version, options.arch)
+      PrintPackageInfo(options.target_dir, sanitized_name,
+                       app_version, options.arch)
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
@@ -542,7 +544,8 @@ def MakeApk(options, sanitized_name):
           Execution(options, sanitized_name)
           packaged_archs.append(options.arch)
       for arch in packaged_archs:
-        PrintPackageInfo(sanitized_name, app_version, arch)
+        PrintPackageInfo(options.target_dir, sanitized_name,
+                         app_version, arch)
   else:
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
@@ -649,6 +652,8 @@ def main(argv):
   info = ('The list of permissions to be used by web application. For example, '
           '--permissions=geolocation:webgl')
   group.add_option('--permissions', help=info)
+  info = ('Packaging tool will move the output APKS to the target directory')
+  group.add_option('--target-dir', default=os.getcwd(), help=info)
   parser.add_option_group(group)
   group = optparse.OptionGroup(parser, 'Keystore Options',
       'The keystore is a signature from web developer, it\'s used when '
@@ -726,6 +731,12 @@ def main(argv):
   options.name = ReplaceInvalidChars(options.name, 'apkname')
   options.package = ReplaceInvalidChars(options.package)
   sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
+
+  if options.target_dir:
+    target_dir = os.path.abspath(os.path.expanduser(options.target_dir))
+    options.target_dir = target_dir
+    if not os.path.isdir(target_dir):
+      os.makedirs(target_dir)
 
   try:
     compress = compress_js_and_css.CompressJsAndCss(options.app_root)
