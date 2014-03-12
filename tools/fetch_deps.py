@@ -28,14 +28,11 @@ except ImportError:
   sys.stderr.write("Can't find gclient_utils, please add your depot_tools "\
                    "to PATH or PYTHONPATH\n")
 
-class FetchingError(Exception):
-  pass
-
 class DepsFetcher(object):
   def __init__(self, options):
     self._options = options
-    self._xwalk_dir = os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__)))
+    self._tools_dir = os.path.dirname(os.path.abspath(__file__))
+    self._xwalk_dir = os.path.dirname(self._tools_dir)
     # self should be at src/xwalk/tools/fetch_deps.py
     # so src is at self/../../../
     self._src_dir = os.path.dirname(self._xwalk_dir)
@@ -46,12 +43,6 @@ class DepsFetcher(object):
       raise IOError('%s was not found. Run generate_gclient-xwalk.py.' %
                     self._new_gclient_file)
 
-  @property
-  # pylint: disable=R0201
-  def requirements(self):
-    # No requirements at all
-    return set()
-
   def DoGclientSyncForChromium(self):
     gclient_cmd = ['gclient', 'sync', '--verbose', '--reset',
                    '--force', '--with_branch_heads',
@@ -60,9 +51,20 @@ class DepsFetcher(object):
                        os.path.basename(self._new_gclient_file))
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
         always=self._options.verbose, cwd=self._root_dir)
-    # CheckCallAndFilterAndHeader will raise exception if return
-    # value is not 0. So we can easily return 0 here.
-    return 0
+
+  def RemoveOldSCMCheckouts(self):
+    cmd = ('gclient', 'recurse', '--no-progress', '-j1',
+           '--gclientfile=%s' % os.path.basename(self._new_gclient_file),
+           os.path.join(self._tools_dir, 'scm-remove-wrong-checkout.py'))
+
+    def _FilterSkippedDependencyMessage(line):
+      if line.startswith('Skipped omitted dependency'):
+        return
+      print line
+    gclient_utils.CheckCallAndFilterAndHeader(cmd,
+      always=self._options.verbose, print_stdout=False,
+      cwd=self._root_dir, filter_fn=_FilterSkippedDependencyMessage)
+
 
 def main():
   option_parser = optparse.OptionParser()
@@ -85,7 +87,10 @@ def main():
     return 1
 
   deps_fetcher = DepsFetcher(options)
-  sys.exit(deps_fetcher.DoGclientSyncForChromium())
+  deps_fetcher.RemoveOldSCMCheckouts()
+  deps_fetcher.DoGclientSyncForChromium()
+
+  return 0
 
 if __name__ == '__main__':
-  main()
+  sys.exit(main())
