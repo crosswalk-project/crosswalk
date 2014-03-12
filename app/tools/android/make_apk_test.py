@@ -585,7 +585,6 @@ class TestMakeApk(unittest.TestCase):
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
       Clean('Example', '1.0.0')
 
-
   def testVerbose(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
@@ -598,15 +597,17 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
 
-
-  def testEmptyMode(self):
+  def executeCommandAndVerifyResult(self, exec_file):
     # Test all of supported options with empty 'mode' option.
     icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
     extension_path = 'test_data/extensions/myextension'
-    cmd = ['python', 'make_apk.py',
+    arch = ''
+    if exec_file.find("make_apk.py") != -1:
+      arch = '--arch=x86'
+    cmd = ['python', '%s' % exec_file,
            '--app-version=1.0.0',
            '--app-url=http://www.intel.com',
-           '--arch=x86',
+           '%s' % arch,
            '--description=a sample application',
            '--enable-remote-debugging',
            '--extensions=%s' % extension_path,
@@ -667,6 +668,24 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.isfile('Example_1.0.0_arm.apk'))
     Clean('Example', '1.0.0')
 
+  def testEmptyMode(self):
+    self.executeCommandAndVerifyResult('make_apk.py')
+
+  def testCustomizeFile(self):
+    cmd = ['python', 'make_apk.py',
+           '--app-url=http://www.intel.com',
+           '--app-version=1.0.0',
+           '--name=Example',
+           '--package=org.xwalk.example',
+           '--verbose']
+    RunCommand(cmd)
+    manifest = 'Example/AndroidManifest.xml'
+    if not os.path.exists(manifest):
+      print 'The \'%s\' was not generated, please check it.' % manifest
+      sys.exit(1)
+
+    self.executeCommandAndVerifyResult('customize.py')
+
 
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
@@ -699,6 +718,7 @@ def SuiteWithModeOption():
 def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
+  test_suite.addTest(TestMakeApk('testCustomizeFile'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
   test_suite.addTest(TestMakeApk('testToolVersion'))
   test_suite.addTest(TestMakeApk('testVerbose'))
