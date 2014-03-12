@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <libgen.h>
+#include <pwd.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <pwd.h>
-#include <libgen.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -71,36 +71,8 @@ static void on_app_properties_changed(GDBusProxy* proxy,
   }
 }
 
-int main(int argc, char** argv) {
+static void connect_app_manager(GDBusConnection* connection) {
   GError* error = NULL;
-  char* appid;
-
-#if !GLIB_CHECK_VERSION(2, 36, 0)
-  // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
-  g_type_init();
-#endif
-
-  if (xwalk_tizen_set_home_for_user_app())
-    exit(1);
-
-  if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
-    if (argc < 2) {
-      fprintf(stderr, "No AppID informed, nothing to do\n");
-      exit(1);
-    }
-
-    appid = argv[1];
-  } else {
-    appid = strdup(basename(argv[0]));
-  }
-
-  GDBusConnection* connection = get_session_bus_connection(&error);
-  if (!connection) {
-    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
-            error->message);
-    exit(1);
-  }
-
   GDBusObjectManager* running_apps_om = g_dbus_object_manager_client_new_sync(
       connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
       xwalk_service_name, xwalk_running_path,
@@ -108,12 +80,16 @@ int main(int argc, char** argv) {
   if (!running_apps_om) {
     fprintf(stderr, "Service '%s' does could not be reached: %s\n",
             xwalk_service_name, error->message);
+    g_error_free(error);
     exit(1);
   }
 
   g_signal_connect(running_apps_om, "object-removed",
                    G_CALLBACK(object_removed), NULL);
+}
 
+static void launch_app(GDBusConnection* connection, const char* appid) {
+  GError* error = NULL;
   GDBusProxy* running_proxy = g_dbus_proxy_new_sync(
       connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
@@ -154,6 +130,54 @@ int main(int argc, char** argv) {
 
   g_signal_connect(app_proxy, "g-properties-changed",
                    G_CALLBACK(on_app_properties_changed), NULL);
+}
+
+int main(int argc, char** argv) {
+  GError* error = NULL;
+  char* appid;
+
+#if !GLIB_CHECK_VERSION(2, 36, 0)
+  // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
+  g_type_init();
+#endif
+
+  if (xwalk_tizen_set_home_for_user_app())
+    exit(1);
+
+  if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
+    if (argc < 2) {
+      fprintf(stderr, "No AppID informed, nothing to do\n");
+      exit(1);
+    }
+
+    appid = strdup(argv[1]);
+  } else {
+    appid = strdup(basename(argv[0]));
+#if defined(OS_TIZEN)
+    gchar** tokens;
+    tokens = g_strsplit(appid, ".", 3);
+    if (g_strv_length(tokens) != 3) {
+      fprintf(stderr, "It's an invalid Crosswalk Tizen AppID:%s\n", appid);
+      fprintf(stderr, "Fallback to launch with Crosswalk AppID.\n");
+    } else {
+      free(appid);
+      appid = strdup(tokens[1]);
+    }
+    g_strfreev(tokens);
+#endif
+  }
+
+  GDBusConnection* connection = get_session_bus_connection(&error);
+  if (!connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    g_error_free(error);
+    exit(1);
+  }
+
+  connect_app_manager(connection);
+
+  launch_app(connection, appid);
 
   mainloop = g_main_loop_new(NULL, FALSE);
 
@@ -167,6 +191,7 @@ int main(int argc, char** argv) {
   }
 #endif
 
+  free(appid);
   g_main_loop_run(mainloop);
 
   return 0;
