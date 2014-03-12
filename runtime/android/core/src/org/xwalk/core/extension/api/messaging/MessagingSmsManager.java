@@ -97,7 +97,11 @@ public class MessagingSmsManager {
                                                                -promiseIdInt, 
                                                                intentSmsDelivered,
                                                                PendingIntent.FLAG_ONE_SHOT);
-        sms.sendTextMessage(phone, null, smsMessage, piSent, piDelivered);
+        try {
+            sms.sendTextMessage(phone, null, smsMessage, piSent, piDelivered);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to send SMS message.", e);
+        }
     }
 
     public void onSmsClear(int instanceID, JSONObject jsonMsg) {
