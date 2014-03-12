@@ -4,9 +4,14 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+
 import android.content.Context;
+import android.content.res.Resources.NotFoundException;
 import android.os.Build;
+import android.util.Log;
 
 import org.chromium.base.ActivityStatus;
 import org.chromium.base.CommandLine;
@@ -16,6 +21,7 @@ import org.chromium.content.app.LibraryLoader;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
+import org.chromium.content.browser.ResourceExtractor.ResourceIntercepter;
 import org.chromium.content.common.ProcessInitException;
 
 class XWalkViewDelegate {
@@ -26,6 +32,8 @@ class XWalkViewDelegate {
     private static final String[] MANDATORY_LIBRARIES = {
             "libxwalkcore.so"
     };
+    private static final String TAG = "XWalkViewDelegate";
+    private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
 
     public static void init(XWalkView xwalkView) {
         if (sInitialized) {
@@ -36,7 +44,7 @@ class XWalkViewDelegate {
         // features such as location provider to listen to activity status.
         ActivityStatus.initialize(xwalkView.getActivity().getApplication());
 
-        Context context = xwalkView.getViewContext();
+        final Context context = xwalkView.getViewContext();
 
         // Last place to initialize CommandLine object. If you haven't initialize
         // the CommandLine object before XWalkViewContent is created, here will create
@@ -64,6 +72,40 @@ class XWalkViewDelegate {
         DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
+        final int resourcesListResId = context.getResources().getIdentifier(
+                XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
+        if (resourcesListResId != 0) {    
+            ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
+
+                @Override
+                public Set<String> getInterceptableResourceList() {        
+                    try {
+                        Set<String> resourcesList = new HashSet<String>();
+                        String[] resources = context.getResources().getStringArray(resourcesListResId);
+                        for (String resource : resources) {
+                            resourcesList.add(resource);
+                        }
+                        return resourcesList;
+                    } catch (NotFoundException e) {
+                        Log.w(TAG, "R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+                    }
+                    return null;
+                }
+
+                @Override
+                public InputStream interceptLoadingForResource(String resource) {
+                    String resourceName = resource.split("\\.")[0];
+                    int resId = context.getResources().getIdentifier(
+                            resourceName, "raw", context.getPackageName());
+                    try {
+                        if (resId != 0) return context.getResources().openRawResource(resId);
+                    } catch (NotFoundException e) {
+                        Log.w(TAG, "R.raw." + resourceName + " can't be found.");                        
+                    }
+                    return null;
+                }                
+            });
+        }
         ResourceExtractor.setExtractImplicitLocaleForTesting(false);
         // Use MixedContext to initialize the ResourceExtractor, as the pak file
         // is in the library apk if in shared apk mode.
