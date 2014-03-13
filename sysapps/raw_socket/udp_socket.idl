@@ -1,0 +1,49 @@
+// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// RawSocket API - UDPSocket
+namespace udp_socket {
+  dictionary UDPMessageEvent {
+    ArrayBuffer data;
+    DOMString remoteAddress;
+    long remotePort;
+  };
+
+  dictionary UDPOptions {
+    DOMString localAddress;
+    long localPort;
+    DOMString remoteAddress;
+    long remotePort;
+    boolean addressReuse;
+    boolean loopback;
+  };
+
+  interface Events {
+    static void ondrain();
+    static void onopen();
+    static void onerror();
+    static void onmessage();
+  };
+
+  interface Functions {
+    static void close();
+    static void suspend();
+    static void resume();
+    static void joinMulticast(DOMString multicastGroupAddress);
+    static void leaveMulticast(DOMString multicastGroupAddress);
+
+    [nocompile] static boolean send(object data, optional DOMString remoteAddress,
+        optional long remotePort);
+
+    // send() can take up to four different types of arguments. We try to
+    // detect what kind of argument we have and route to a more specialized
+    // handler.
+
+    [nodoc] static boolean sendDOMString(DOMString data,
+        optional DOMString remoteAddress, optional long remotePort);
+
+    [nodoc] static void init(optional UDPOptions options);
+    [nodoc] static void destroy();
+  };
+};
