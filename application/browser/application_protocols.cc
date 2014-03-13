@@ -273,8 +273,9 @@ ApplicationProtocolHandler::MaybeCreateJob(
   if (application) {
     directory_path = application->Path();
 
+    const char* csp_key = GetCSPKey(application->GetPackageType());
     const CSPInfo* csp_info = static_cast<CSPInfo*>(
-      application->GetManifestData(keys::kCSPKey));
+          application->GetManifestData(csp_key));
     if (csp_info) {
       const std::map<std::string, std::vector<std::string> >& policies =
           csp_info->GetDirectives();

@@ -38,6 +38,7 @@ namespace application_widget_keys {
   extern const char kWebURLsKey[];
   extern const char kWidgetKey[];
   extern const char kVersionKey[];
+  extern const char kCSPKey[];
   extern const char kAuthorKey[];
   extern const char kDescriptionKey[];
   extern const char kShortNameKey[];
@@ -74,6 +75,7 @@ const char* GetNameKey(Manifest::PackageType type);
 const char* GetVersionKey(Manifest::PackageType type);
 const char* GetWebURLsKey(Manifest::PackageType type);
 const char* GetLaunchLocalPathKey(Manifest::PackageType type);
+const char* GetCSPKey(Manifest::PackageType type);
 #if defined(OS_TIZEN)
 const char* GetTizenAppIdKey(Manifest::PackageType type);
 const char* GetIcon128Key(Manifest::PackageType type);

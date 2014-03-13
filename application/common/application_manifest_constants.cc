@@ -47,6 +47,7 @@ const char kAuthorHrefKey[] = "widget.author.@href";
 const char kHeightKey[] = "widget.@height";
 const char kWidthKey[] = "widget.@width";
 const char kPreferencesKey[] = "widget.preference";
+const char kCSPKey[] = "widget.content-security-policy.#text";
 
 // Child keys inside 'kPreferencesKey'.
 const char kPreferencesNameKey[] = "@name";
@@ -109,6 +110,14 @@ const char* GetLaunchLocalPathKey(Manifest::PackageType package_type) {
 
   return application_manifest_keys::kLaunchLocalPathKey;
 }
+
+const char* GetCSPKey(Manifest::PackageType package_type) {
+  if (package_type == Manifest::TYPE_WGT)
+    return application_widget_keys::kCSPKey;
+
+  return application_manifest_keys::kCSPKey;
+}
+
 #if defined(OS_TIZEN)
 const char* GetTizenAppIdKey(Manifest::PackageType package_type) {
   if (package_type == Manifest::TYPE_WGT)

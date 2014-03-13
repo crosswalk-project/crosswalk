@@ -67,6 +67,9 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   std::vector<ManifestHandler*> handlers;
   // We can put WGT specific manifest handlers here.
   handlers.push_back(new WidgetHandler);
+#if defined(OS_TIZEN)
+  handlers.push_back(new CSPHandler(Manifest::TYPE_WGT));
+#endif
   widget_registry_ = new ManifestHandlerRegistry(handlers);
   return widget_registry_;
 }
@@ -79,7 +82,7 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   std::vector<ManifestHandler*> handlers;
   // FIXME: Add manifest handlers here like this:
   // handlers.push_back(new xxxHandler);
-  handlers.push_back(new CSPHandler);
+  handlers.push_back(new CSPHandler(Manifest::TYPE_XPK));
   handlers.push_back(new MainDocumentHandler);
   handlers.push_back(new PermissionsHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);
