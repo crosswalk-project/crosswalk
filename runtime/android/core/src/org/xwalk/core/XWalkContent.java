@@ -29,7 +29,7 @@ import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.media.MediaPlayerBridge;
-import org.chromium.ui.base.WindowAndroid;
+import org.chromium.ui.base.ActivityWindowAndroid;
 
 @JNINamespace("xwalk")
 /**
@@ -40,7 +40,7 @@ public class XWalkContent extends FrameLayout {
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
-    private WindowAndroid mWindow;
+    private ActivityWindowAndroid mWindow;
     private XWalkView mXWalkView;
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkContentsIoThreadClient mIoThreadClient;
@@ -65,7 +65,7 @@ public class XWalkContent extends FrameLayout {
         mIoThreadClient = new XWalkIoThreadClientImpl();
 
         // Initialize mWindow which is needed by content
-        mWindow = new WindowAndroid(xwView.getActivity().getApplicationContext());
+        mWindow = new ActivityWindowAndroid(xwView.getActivity());
 
         // Initialize ContentViewRenderView
         mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
