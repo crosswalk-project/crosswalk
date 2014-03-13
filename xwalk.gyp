@@ -491,11 +491,6 @@
           ],
         }],  # OS=="win"
         ['OS == "linux"', {
-          'dependencies': [
-            # Build osmesa to workaround egl backend issue on Tizen 2.1 emulator
-            # TODO: remove this once hardware backend works.
-            '../third_party/mesa/mesa.gyp:osmesa',
-          ],
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)',
