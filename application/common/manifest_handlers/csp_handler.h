@@ -32,7 +32,7 @@ class CSPInfo : public ApplicationData::ManifestData {
 
 class CSPHandler : public ManifestHandler {
  public:
-  CSPHandler();
+  explicit CSPHandler(Manifest::PackageType type);
   virtual ~CSPHandler();
 
   virtual bool Parse(scoped_refptr<ApplicationData> application,
@@ -41,6 +41,8 @@ class CSPHandler : public ManifestHandler {
   virtual std::vector<std::string> Keys() const OVERRIDE;
 
  private:
+  Manifest::PackageType package_type_;
+
   DISALLOW_COPY_AND_ASSIGN(CSPHandler);
 };
 
