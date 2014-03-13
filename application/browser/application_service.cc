@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
+#include "base/path_service.h"
 #include "base/version.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
@@ -26,6 +27,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
 #include "xwalk/application/browser/installer/tizen/service_package_installer.h"
@@ -185,6 +187,16 @@ bool CopyDirectoryContents(const base::FilePath& from,
   }
 
   return true;
+}
+
+void RemoveWidgetStorageFiles(const base::FilePath& storage_path,
+                              const std::string& app_id) {
+  base::FileEnumerator iter(storage_path, true,
+                            base::FileEnumerator::FILES);
+  for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
+    if (file.MaybeAsASCII().find(app_id) != std::string::npos)
+      base::DeleteFile(file, false);
+  }
 }
 
 }  // namespace
@@ -461,6 +473,10 @@ bool ApplicationService::Uninstall(const std::string& id) {
       content::StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL,
       application->URL(),
       partition->GetURLRequestContext());
+
+  base::FilePath path;
+  PathService::Get(xwalk::DIR_WGT_STORAGE_PATH, &path);
+  RemoveWidgetStorageFiles(path, id);
 
   FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
 

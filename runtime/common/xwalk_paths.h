@@ -15,6 +15,7 @@ enum {
   DIR_DATA_PATH = PATH_START,  // Directory where the cache and local storage
                                // data resides.
   DIR_TEST_DATA,               // Directory where unit test data resides.
+  DIR_WGT_STORAGE_PATH,        // Directory where widget storage data resides.
   PATH_END
 };
 

@@ -6,6 +6,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/renderer/render_thread.h"
+#include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
@@ -93,6 +94,9 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   module_system->RegisterNativeModule("sysapps_promise",
       extensions::CreateJSModuleFromResource(
           IDR_XWALK_SYSAPPS_COMMON_PROMISE_API));
+  module_system->RegisterNativeModule("widget_common",
+      extensions::CreateJSModuleFromResource(
+          IDR_XWALK_APPLICATION_WIDGET_COMMON_API));
 }
 
 }  // namespace xwalk

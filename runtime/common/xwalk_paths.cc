@@ -78,6 +78,11 @@ bool PathProvider(int key, base::FilePath* path) {
       cur = cur.Append(FILE_PATH_LITERAL("test"));
       cur = cur.Append(FILE_PATH_LITERAL("data"));
       break;
+    case xwalk::DIR_WGT_STORAGE_PATH:
+      if (!GetXWalkDataPath(&cur))
+        return false;
+      cur = cur.Append(FILE_PATH_LITERAL("Widget Storage"));
+      break;
     default:
       return false;
   }
