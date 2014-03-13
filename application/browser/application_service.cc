@@ -29,12 +29,12 @@
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
-#if defined(OS_TIZEN_MOBILE)
-#include "xwalk/application/browser/installer/tizen/package_installer.h"
+#if defined(OS_TIZEN)
 #include "xwalk/application/browser/installer/tizen/service_package_installer.h"
 #endif
 
-using xwalk::RuntimeContext;
+namespace xwalk {
+namespace application {
 
 namespace {
 
@@ -46,18 +46,18 @@ void CloseMessageLoop() {
 
 void WaitForEventAndClose(
     const std::string& app_id, const std::string& event_name,
-    xwalk::application::ApplicationEventManager* event_manager) {
-  class CloseOnEventArrived : public xwalk::application::EventObserver {
+    ApplicationEventManager* event_manager) {
+  class CloseOnEventArrived : public EventObserver {
    public:
     static CloseOnEventArrived* Create(const std::string& event_name,
-        xwalk::application::ApplicationEventManager* event_manager) {
+        ApplicationEventManager* event_manager) {
       return new CloseOnEventArrived(event_name, event_manager);
     }
 
     virtual void Observe(
         const std::string& app_id,
-        scoped_refptr<xwalk::application::Event> event) OVERRIDE {
-      DCHECK(xwalk::application::kOnJavaScriptEventAck == event->name());
+        scoped_refptr<Event> event) OVERRIDE {
+      DCHECK(kOnJavaScriptEventAck == event->name());
       std::string ack_event_name;
       event->args()->GetString(0, &ack_event_name);
       if (ack_event_name != event_name_)
@@ -69,8 +69,8 @@ void WaitForEventAndClose(
    private:
     CloseOnEventArrived(
         const std::string& event_name,
-        xwalk::application::ApplicationEventManager* event_manager)
-        : xwalk::application::EventObserver(event_manager),
+        ApplicationEventManager* event_manager)
+        : EventObserver(event_manager),
           event_name_(event_name) {}
 
     std::string event_name_;
@@ -80,18 +80,18 @@ void WaitForEventAndClose(
   CloseOnEventArrived* observer =
       CloseOnEventArrived::Create(event_name, event_manager);
   event_manager->AttachObserver(app_id,
-      xwalk::application::kOnJavaScriptEventAck, observer);
+      kOnJavaScriptEventAck, observer);
 }
 
 void WaitForFinishLoad(
-    scoped_refptr<xwalk::application::ApplicationData> application,
-    xwalk::application::ApplicationEventManager* event_manager,
+    scoped_refptr<ApplicationData> application,
+    ApplicationEventManager* event_manager,
     content::WebContents* contents) {
   class CloseAfterLoadObserver : public content::WebContentsObserver {
    public:
     CloseAfterLoadObserver(
-        scoped_refptr<xwalk::application::ApplicationData> application,
-        xwalk::application::ApplicationEventManager* event_manager,
+        scoped_refptr<ApplicationData> application,
+        ApplicationEventManager* event_manager,
         content::WebContents* contents)
         : content::WebContentsObserver(contents),
           application_(application),
@@ -105,13 +105,13 @@ void WaitForFinishLoad(
         const GURL& validate_url,
         bool is_main_frame,
         content::RenderViewHost* render_view_host) OVERRIDE {
-      if (!IsEventHandlerRegistered(xwalk::application::kOnInstalled)) {
+      if (!IsEventHandlerRegistered(kOnInstalled)) {
         CloseMessageLoop();
       } else {
         scoped_ptr<base::ListValue> event_args(new base::ListValue);
-        scoped_refptr<xwalk::application::Event> event =
-            xwalk::application::Event::CreateEvent(
-                xwalk::application::kOnInstalled, event_args.Pass());
+        scoped_refptr<Event> event =
+            Event::CreateEvent(
+                kOnInstalled, event_args.Pass());
         event_manager_->SendEvent(application_->ID(), event);
 
         WaitForEventAndClose(
@@ -126,8 +126,8 @@ void WaitForFinishLoad(
       return events.find(event_name) != events.end();
     }
 
-    scoped_refptr<xwalk::application::ApplicationData> application_;
-    xwalk::application::ApplicationEventManager* event_manager_;
+    scoped_refptr<ApplicationData> application_;
+    ApplicationEventManager* event_manager_;
   };
 
   // This object is self-destroyed when an event occurs.
@@ -135,13 +135,13 @@ void WaitForFinishLoad(
 }
 
 void SaveSystemEventsInfo(
-    xwalk::application::ApplicationService* application_service,
-    scoped_refptr<xwalk::application::ApplicationData> application_data,
-    xwalk::application::ApplicationEventManager* event_manager) {
+    ApplicationService* application_service,
+    scoped_refptr<ApplicationData> application_data,
+    ApplicationEventManager* event_manager) {
   // We need to run main document after installation in order to
   // register system events.
   if (application_data->HasMainDocument()) {
-    if (xwalk::application::Application* application =
+    if (Application* application =
         application_service->Launch(application_data->ID())) {
       WaitForFinishLoad(application->data(), event_manager,
                         application->GetMainDocumentRuntime()->web_contents());
@@ -149,43 +149,29 @@ void SaveSystemEventsInfo(
   }
 }
 
-#if defined(OS_TIZEN_MOBILE)
-bool InstallPackageOnTizen(xwalk::application::ApplicationService* service,
-                           xwalk::application::ApplicationStorage* storage,
-                           xwalk::application::ApplicationData* application,
+#if defined(OS_TIZEN)
+bool InstallPackageOnTizen(ApplicationData* application_data,
                            const base::FilePath& data_dir) {
-  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service()) {
-    return InstallApplicationForTizen(application, data_dir);
-  }
-
-  scoped_ptr<xwalk::application::PackageInstaller> installer =
-      xwalk::application::PackageInstaller::Create(service, storage,
-                                                   application->ID(), data_dir);
-  if (!installer || !installer->Install()) {
-    LOG(ERROR) << "An error occurred during installation on Tizen.";
+  if (!XWalkRunner::GetInstance()->is_running_as_service()) {
+    LOG(ERROR) << "Installation on Tizen is only possible in"
+               << "service mode via 'xwalkctl' utility.";
     return false;
   }
-  return true;
+
+  return InstallApplicationForTizen(application_data, data_dir);
 }
 
-bool UninstallPackageOnTizen(xwalk::application::ApplicationService* service,
-                             xwalk::application::ApplicationStorage* storage,
-                             xwalk::application::ApplicationData* application,
+bool UninstallPackageOnTizen(ApplicationData* application_data,
                              const base::FilePath& data_dir) {
-  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service()) {
-    return UninstallApplicationForTizen(application, data_dir);
-  }
-
-  scoped_ptr<xwalk::application::PackageInstaller> installer =
-      xwalk::application::PackageInstaller::Create(service, storage,
-                                                   application->ID(), data_dir);
-  if (!installer || !installer->Uninstall()) {
-    LOG(ERROR) << "An error occurred during uninstallation on Tizen.";
+  if (!XWalkRunner::GetInstance()->is_running_as_service()) {
+    LOG(ERROR) << "Uninstallation on Tizen is only possible in"
+               << "service mode using 'xwalkctl' utility.";
     return false;
   }
-  return true;
+
+  return UninstallApplicationForTizen(application_data, data_dir);
 }
-#endif  // OS_TIZEN_MOBILE
+#endif  // OS_TIZEN
 
 bool CopyDirectoryContents(const base::FilePath& from,
     const base::FilePath& to) {
@@ -204,9 +190,6 @@ bool CopyDirectoryContents(const base::FilePath& from,
 }
 
 }  // namespace
-
-namespace xwalk {
-namespace application {
 
 const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
@@ -293,9 +276,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-#if defined(OS_TIZEN_MOBILE)
-  if (!InstallPackageOnTizen(this, application_storage_,
-                             application_data.get(),
+#if defined(OS_TIZEN)
+  if (!InstallPackageOnTizen(application_data,
                              runtime_context_->GetPath())) {
     application_storage_->RemoveApplication(application_data->ID());
     return false;
@@ -402,9 +384,8 @@ bool ApplicationService::Update(const std::string& id,
     return false;
   }
 
-#if defined(OS_TIZEN_MOBILE)
-  if (!UninstallPackageOnTizen(this, application_storage_,
-                               old_application.get(),
+#if defined(OS_TIZEN)
+  if (!UninstallPackageOnTizen(old_application,
                                runtime_context_->GetPath())) {
     base::DeleteFile(app_dir, true);
     base::Move(tmp_dir, app_dir);
@@ -416,16 +397,14 @@ bool ApplicationService::Update(const std::string& id,
     LOG(ERROR) << "An Error occurred when updating the application.";
     base::DeleteFile(app_dir, true);
     base::Move(tmp_dir, app_dir);
-#if defined(OS_TIZEN_MOBILE)
-    InstallPackageOnTizen(this, application_storage_,
-                          old_application.get(),
+#if defined(OS_TIZEN)
+    InstallPackageOnTizen(old_application,
                           runtime_context_->GetPath());
 #endif
     return false;
   }
-#if defined(OS_TIZEN_MOBILE)
-  if (!InstallPackageOnTizen(this, application_storage_,
-                             new_application.get(),
+#if defined(OS_TIZEN)
+  if (!InstallPackageOnTizen(new_application,
                              runtime_context_->GetPath()))
     return false;
 #endif
@@ -455,8 +434,8 @@ bool ApplicationService::Uninstall(const std::string& id) {
     app->Terminate(Application::Immediate);
   }
 
-#if defined(OS_TIZEN_MOBILE)
-  if (!UninstallPackageOnTizen(this, application_storage_, application.get(),
+#if defined(OS_TIZEN)
+  if (!UninstallPackageOnTizen(application,
                                runtime_context_->GetPath()))
     result = false;
 #endif
