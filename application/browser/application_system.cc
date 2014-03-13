@@ -16,6 +16,7 @@
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
+#include "xwalk/application/extension/application_widget_extension.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 
@@ -179,6 +180,7 @@ void ApplicationSystem::CreateExtensions(
   extensions->push_back(new ApplicationRuntimeExtension(application));
   extensions->push_back(new ApplicationEventExtension(
               event_manager_.get(), application_storage_.get(), application));
+  extensions->push_back(new ApplicationWidgetExtension(application));
 }
 
 }  // namespace application

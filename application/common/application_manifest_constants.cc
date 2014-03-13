@@ -38,6 +38,20 @@ const char kVersionKey[] = "widget.@version";
 const char kWidgetKey[] = "widget";
 const char kLaunchLocalPathKey[] = "widget.content.@src";
 const char kWebURLsKey[] = "widget.@id";
+const char kAuthorKey[] = "widget.author.#text";
+const char kDescriptionKey[] = "widget.description.#text";
+const char kShortNameKey[] = "widget.name.@short";
+const char kIDKey[] = "widget.@id";
+const char kAuthorEmailKey[] = "widget.author.@email";
+const char kAuthorHrefKey[] = "widget.author.@href";
+const char kHeightKey[] = "widget.@height";
+const char kWidthKey[] = "widget.@width";
+const char kPreferencesKey[] = "widget.preference";
+
+// Child keys inside 'kPreferencesKey'.
+const char kPreferencesNameKey[] = "@name";
+const char kPreferencesValueKey[] = "@value";
+const char kPreferencesReadonlyKey[] = "@readonly";
 
 #if defined(OS_TIZEN)
 const char kIcon128Key[] = "widget.icon.@src";
