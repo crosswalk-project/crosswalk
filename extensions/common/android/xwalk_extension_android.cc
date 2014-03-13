@@ -156,14 +156,15 @@ void XWalkExtensionAndroidInstance::HandleMessage(
   }
 
   JNIEnv* env = base::android::AttachCurrentThread();
-  jstring buffer = env->NewStringUTF(value.c_str());
+  ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for message routing";
     return;
   }
 
-  Java_XWalkExtensionAndroid_handleMessage(env, obj.obj(), getID(), buffer);
+  Java_XWalkExtensionAndroid_handleMessage(
+      env, obj.obj(), getID(), buffer.obj());
 }
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
@@ -184,10 +185,10 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
     return;
   }
 
-  jstring buffer = env->NewStringUTF(value.c_str());
+  ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
   ScopedJavaLocalRef<jstring> ret =
       Java_XWalkExtensionAndroid_handleSyncMessage(
-              env, obj.obj(), getID(), buffer);
+              env, obj.obj(), getID(), buffer.obj());
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
   ret_val = base::Value::CreateStringValue(str);
