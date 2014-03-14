@@ -48,11 +48,16 @@ const char kHeightKey[] = "widget.@height";
 const char kWidthKey[] = "widget.@width";
 const char kPreferencesKey[] = "widget.preference";
 const char kCSPKey[] = "widget.content-security-policy.#text";
+const char kAccessKey[] = "widget.access";
 
 // Child keys inside 'kPreferencesKey'.
 const char kPreferencesNameKey[] = "@name";
 const char kPreferencesValueKey[] = "@value";
 const char kPreferencesReadonlyKey[] = "@readonly";
+
+// Child keys inside 'kAccessKey'.
+const char kAccessOriginKey[] = "@origin";
+const char kAccessSubdomainsKey[] = "@subdomains";
 
 #if defined(OS_TIZEN)
 const char kIcon128Key[] = "widget.icon.@src";

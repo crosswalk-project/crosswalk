@@ -42,6 +42,7 @@
         'application/common/manifest_handlers/csp_handler_unittest.cc',
         'application/common/manifest_handlers/main_document_handler_unittest.cc',
         'application/common/manifest_handlers/permissions_handler_unittest.cc',
+        'application/common/manifest_handlers/warp_handler_unittest.cc',
         'application/common/manifest_handler_unittest.cc',
         'application/common/manifest_unittest.cc',
         'runtime/common/xwalk_content_client_unittest.cc',

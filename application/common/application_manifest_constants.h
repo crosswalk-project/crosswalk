@@ -38,6 +38,9 @@ namespace application_widget_keys {
   extern const char kWebURLsKey[];
   extern const char kWidgetKey[];
   extern const char kVersionKey[];
+  extern const char kAccessKey[];
+  extern const char kAccessOriginKey[];
+  extern const char kAccessSubdomainsKey[];
   extern const char kCSPKey[];
   extern const char kAuthorKey[];
   extern const char kDescriptionKey[];
