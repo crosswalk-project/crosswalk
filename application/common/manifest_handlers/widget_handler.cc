@@ -110,7 +110,7 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
     widget_info->SetString(iter->second, string);
   }
 
-  base::Value* pref_value;
+  base::Value* pref_value = NULL;
   manifest->Get(keys::kPreferencesKey, &pref_value);
 
   if (pref_value && pref_value->IsType(base::Value::TYPE_DICTIONARY)) {
