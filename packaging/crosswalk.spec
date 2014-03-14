@@ -83,15 +83,6 @@ BuildRequires:  pkgconfig(scim)
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
-%package emulator-support
-Summary:        Support files necessary for running Crosswalk on the Tizen emulator
-License:        (BSD-3-Clause and LGPL-2.1+)
-Group:          Web Framework/Web Run Time
-Url:            https://github.com/otcshare/crosswalk
-
-%description emulator-support
-This package contains additional support files that are needed for running Crosswalk on the Tizen emulator.
-
 %define _manifestdir /usr/share/packages
 %define _desktop_icondir /usr/share/icons/default/small
 %define _dbusservicedir /usr/share/dbus-1/services
@@ -232,7 +223,6 @@ install -m 06755 -p -D ${BUILDDIR_NAME}/out/Release/xwalk-pkg-helper %{buildroot
 # Supporting libraries and resources.
 install -p -D ${BUILDDIR_NAME}/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
 install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D ${BUILDDIR_NAME}/out/Release/libosmesa.so %{buildroot}%{_libdir}/xwalk/libosmesa.so
 install -p -D ${BUILDDIR_NAME}/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 # Register xwalk to the package manager.
@@ -254,6 +244,3 @@ install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 %{_desktop_icondir}/%{name}.png
 %{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 %{_systemduserservicedir}/xwalk.service
-
-%files emulator-support
-%{_libdir}/xwalk/libosmesa.so
