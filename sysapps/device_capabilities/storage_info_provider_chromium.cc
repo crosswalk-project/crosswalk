@@ -39,6 +39,9 @@ namespace xwalk {
 namespace sysapps {
 
 StorageInfoProviderChromium::StorageInfoProviderChromium() {
+  if (!StorageMonitor::GetInstance())
+    StorageMonitor::Create();
+
   StorageMonitor* monitor = StorageMonitor::GetInstance();
 
   monitor->EnsureInitialized(

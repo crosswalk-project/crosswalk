@@ -6,10 +6,10 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '34.0.1809.2'
-chromium_crosswalk_point = '15cca626e89f5bf95ed8b188611c9e3391072a97'
-blink_crosswalk_point = '23bf1559a940e70973171b227f281a70387eb09d'
-v8_crosswalk_point = 'fa1156fbdad63372079f9c14bd52e96159ada37f'
+chromium_version = '34.0.1847.45'
+chromium_crosswalk_point = 'cb7bc58aa1239e2fa92d692e81ccd06fa6c82722'
+blink_crosswalk_point = '6f18c5b9b87216a3125e62573699115b9da852dd'
+v8_crosswalk_point = '702dcf9c6e58d90e85594fbe54579ade631fe3b5'
 
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
@@ -17,7 +17,7 @@ deps_xwalk = {
   'src/v8': 'https://github.com/crosswalk-project/v8-crosswalk.git@%s' % v8_crosswalk_point,
 
   # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@aea2c94041dd0fbf386182e66fd173b87a7862e6',
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@39d93a66777395d5c9ca11da95c436b9192d9725',
 }
 vars_xwalk = {
 }
