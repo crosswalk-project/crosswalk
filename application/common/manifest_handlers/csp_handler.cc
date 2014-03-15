@@ -35,9 +35,10 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
   scoped_ptr<CSPInfo> csp_info(new CSPInfo);
   std::string policies_str;
   const char* csp_key = GetCSPKey(package_type_);
-  if (application->GetManifest()->HasKey(csp_key) &&
+  if (application->GetManifest()->HasPath(csp_key) &&
       !application->GetManifest()->GetString(csp_key, &policies_str)) {
-    *error = base::ASCIIToUTF16("Invalid value of Content Security Policy (CSP).");
+    *error = base::ASCIIToUTF16(
+        "Invalid value of Content Security Policy (CSP).");
     return false;
   }
 
