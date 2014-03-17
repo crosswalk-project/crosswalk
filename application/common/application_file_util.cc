@@ -126,7 +126,6 @@ base::DictionaryValue* LoadXMLNode(xmlNode* root) {
       base::ListValue* list;
       temp->GetAsList(&list);
       list->Append(sub_value);
-      value->Set(sub_node_name, list);
     } else {
       DCHECK(temp->IsType(base::Value::TYPE_DICTIONARY));
       base::DictionaryValue* dict;
