@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  * runtime to runtime client. The objects of class 'XWalkExtensionClient' in runtime
  * client side will be passed into this class because we need to call its methods.
  */
-public class XWalkExtensionClientImpl extends XWalkExtension {
+class XWalkExtensionClientImpl extends XWalkExtension {
 
     private static final String TAG = XWalkExtensionClientImpl.class.getName();
     private Object mExtensionClient;

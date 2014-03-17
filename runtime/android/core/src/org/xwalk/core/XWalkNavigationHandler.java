@@ -6,7 +6,7 @@ package org.xwalk.core;
 
 import org.chromium.components.navigation_interception.NavigationParams;
 
-public interface XWalkNavigationHandler {
+interface XWalkNavigationHandler {
 
     /**
      * Handles the navigation request.

@@ -31,6 +31,8 @@ import android.widget.LinearLayout;
 
 import org.chromium.content.browser.ContentViewRenderView.FirstRenderedFrameListener;
 
+// Provisionally set it as public due to the use of launch screen extension.
+// TODO(yongsheng): remove public modifier.
 public class XWalkLaunchScreenManager
         implements FirstRenderedFrameListener, DialogInterface.OnShowListener, PageLoadListener {
     // This string will be initialized before extension initialized,

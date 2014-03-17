@@ -4,7 +4,7 @@
 
 package org.xwalk.core;
 
-public interface PageLoadListener {
+interface PageLoadListener {
 
     public void onPageFinished(String url);
 }

@@ -15,7 +15,7 @@ import android.view.View;
  * real implementation like runtime core.
  *
  */
-public interface XWalkRuntimeViewProvider {
+interface XWalkRuntimeViewProvider {
     // For handling life cycle and activity result.
     public void onCreate();
     public void onResume();

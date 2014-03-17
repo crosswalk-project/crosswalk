@@ -25,7 +25,7 @@ import org.chromium.base.JNINamespace;
  * See android_protocol_handler.cc.
  */
 @JNINamespace("xwalk")
-public class AndroidProtocolHandler {
+class AndroidProtocolHandler {
     private static final String TAG = "AndroidProtocolHandler";
 
     // Supported URL schemes. This needs to be kept in sync with

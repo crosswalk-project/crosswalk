@@ -12,6 +12,7 @@ import org.chromium.base.JNINamespace;
  * Methods in this class are thread safe.
  */
 @JNINamespace("xwalk")
+// TODO(yongsheng): remove public modifier.
 public final class XWalkCookieManager {
     /**
      * Control whether cookie is enabled or disabled

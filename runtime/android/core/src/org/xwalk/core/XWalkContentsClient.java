@@ -35,6 +35,7 @@ import org.chromium.net.NetError;
  * new abstract methods that the our own client must implement.
  * i.e.: all methods in this class should either be final, or abstract.
  */
+// TODO(yongsheng): remove public modifier.
 public abstract class XWalkContentsClient extends ContentViewClient {
 
     private static final String TAG = "XWalkContentsClient";

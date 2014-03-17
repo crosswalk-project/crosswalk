@@ -8,10 +8,10 @@ import android.content.Context;
 
 import java.lang.reflect.Method;
 
-import org.xwalk.core.client.XWalkDefaultWebChromeClient;
+import org.xwalk.core.XWalkDefaultWebChromeClient;
 import org.xwalk.core.XWalkView;
 
-public class XWalkWebChromeClientForTest extends XWalkDefaultWebChromeClient{
+class XWalkWebChromeClientForTest extends XWalkDefaultWebChromeClient{
     private Object mCallbackForTest;
 
     public XWalkWebChromeClientForTest(Context context, XWalkView view) {

@@ -16,11 +16,11 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
-import org.xwalk.core.client.XWalkDefaultClient;
-import org.xwalk.core.client.XWalkDefaultDownloadListener;
-import org.xwalk.core.client.XWalkDefaultNavigationHandler;
-import org.xwalk.core.client.XWalkDefaultNotificationService;
-import org.xwalk.core.client.XWalkDefaultWebChromeClient;
+import org.xwalk.core.XWalkDefaultClient;
+import org.xwalk.core.XWalkDefaultDownloadListener;
+import org.xwalk.core.XWalkDefaultNavigationHandler;
+import org.xwalk.core.XWalkDefaultNotificationService;
+import org.xwalk.core.XWalkDefaultWebChromeClient;
 import org.xwalk.core.extension.XWalkExtensionManager;
 
 public class XWalkView extends FrameLayout {

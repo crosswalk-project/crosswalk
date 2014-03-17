@@ -10,12 +10,11 @@ import android.net.http.SslError;
 
 import java.lang.reflect.Method;
 
-import org.xwalk.core.client.XWalkDefaultClient;
+import org.xwalk.core.XWalkDefaultClient;
 import org.xwalk.core.SslErrorHandler;
-import org.xwalk.core.XWalkHttpAuthHandler;
 import org.xwalk.core.XWalkView;
 
-public class XWalkClientForTest extends XWalkDefaultClient {
+class XWalkClientForTest extends XWalkDefaultClient {
     private Object mCallbackForTest;
 
     public XWalkClientForTest(Context context, XWalkView view) {

@@ -9,7 +9,7 @@ import android.content.Intent;
 /**
  * Interface for bridging XWalkExtension functionalities to its backend implementation.
  */
-public interface XWalkExtensionBridge {
+interface XWalkExtensionBridge {
     /**
      * Post a message from native to a specific receiver on JavaScript side.
      *

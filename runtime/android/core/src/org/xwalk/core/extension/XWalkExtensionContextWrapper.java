@@ -11,7 +11,7 @@ import android.content.Context;
  * This is a public class to provide context for extensions.
  * It'll be shared by all external extensions.
  */
-public class XWalkExtensionContextWrapper implements XWalkExtensionContext {
+class XWalkExtensionContextWrapper implements XWalkExtensionContext {
     private XWalkExtensionContext mOriginContext;
 
     public XWalkExtensionContextWrapper(XWalkExtensionContext context) {

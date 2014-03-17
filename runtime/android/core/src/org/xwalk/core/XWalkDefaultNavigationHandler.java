@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.client;
+package org.xwalk.core;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -15,6 +15,7 @@ import org.chromium.components.navigation_interception.NavigationParams;
 
 import org.xwalk.core.XWalkNavigationHandler;
 
+// TODO(yongsheng): remove public modifier.
 public class XWalkDefaultNavigationHandler implements XWalkNavigationHandler {
     private static final String TAG = "XWalkDefaultNavigationHandler";
 

@@ -20,7 +20,7 @@ import java.util.List;
  * customize the resource loading process in xwalk.
  */
 
-public class XWalkMediaPlayerResourceLoadingFilter extends
+class XWalkMediaPlayerResourceLoadingFilter extends
         MediaPlayerBridge.ResourceLoadingFilter {
     @Override
     public boolean shouldOverrideResourceLoading(MediaPlayer mediaPlayer,

@@ -17,7 +17,7 @@ import android.content.ServiceConnection;
  * get both the application's context and the library itself's context.
  *
  */
-public class MixedContext extends ContextWrapper {
+class MixedContext extends ContextWrapper {
     private Context mActivityCtx;
 
     public MixedContext(Context base, Context activity) {
