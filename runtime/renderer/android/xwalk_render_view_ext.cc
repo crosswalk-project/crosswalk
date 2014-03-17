@@ -34,7 +34,8 @@ namespace xwalk {
 
 namespace {
 
-GURL GetAbsoluteUrl(const blink::WebNode& node, const base::string16& url_fragment) {
+GURL GetAbsoluteUrl(const blink::WebNode& node,
+                    const base::string16& url_fragment) {
   return GURL(node.document().completeURL(url_fragment));
 }
 

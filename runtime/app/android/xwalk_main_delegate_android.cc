@@ -57,7 +57,8 @@ void XWalkMainDelegateAndroid::InitResourceBundle() {
   int pak_fd =
       base::GlobalDescriptors::GetInstance()->MaybeGet(kXWalkPakDescriptor);
   if (pak_fd != base::kInvalidPlatformFileValue) {
-    ui::ResourceBundle::InitSharedInstanceWithPakFile(base::File(pak_fd), false);
+    ui::ResourceBundle::InitSharedInstanceWithPakFile(
+        base::File(pak_fd), false);
     ResourceBundle::GetSharedInstance().AddDataPackFromFile(
         base::File(pak_fd), ui::SCALE_FACTOR_100P);
     return;
