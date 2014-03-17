@@ -21,7 +21,7 @@ XwalkTizenImpl::XwalkTizenImpl(
 XwalkTizenImpl::~XwalkTizenImpl() {}
 
 std::string XwalkTizenImpl::GetOperatingSystemName() {
-  return "TIZEN";
+  return "Tizen";
 }
 
 Status XwalkTizenImpl::QuitImpl() {
