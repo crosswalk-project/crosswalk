@@ -53,6 +53,13 @@ class DepsFetcher(object):
         always=self._options.verbose, cwd=self._root_dir)
 
   def RemoveOldSCMCheckouts(self):
+    gclient_entries = os.path.join(self._root_dir, '.gclient_entries')
+    if not os.path.isfile(gclient_entries):
+      # This is the first time gclient sync is being called (ie. this is a new
+      # checkout), so skip this step since `gclient recurse' requires
+      # .gclient_entries to be present, even if it does not use it.
+      return
+
     cmd = ('gclient', 'recurse', '--no-progress', '-j1',
            '--gclientfile=%s' % os.path.basename(self._new_gclient_file),
            os.path.join(self._tools_dir, 'scm-remove-wrong-checkout.py'))
