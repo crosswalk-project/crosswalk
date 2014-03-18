@@ -35,7 +35,7 @@ def ReplaceInvalidChars(value, mode='default'):
   return value
 
 
-def Prepare(options, sanitized_name):
+def Prepare(sanitized_name, package, app_root):
   if os.path.exists(sanitized_name):
     shutil.rmtree(sanitized_name)
   shutil.copytree('app_src', sanitized_name)
@@ -47,50 +47,50 @@ def Prepare(options, sanitized_name):
            ' of activity does exist.')
     sys.exit(7)
   root_path =  os.path.join(sanitized_name, 'src',
-                            options.package.replace('.', os.path.sep))
+                            package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
   dest_activity = sanitized_name + 'Activity.java'
   shutil.copyfile(src_activity, os.path.join(root_path, dest_activity))
-  if options.app_root:
+  if app_root:
     assets_path = os.path.join(sanitized_name, 'assets')
     shutil.rmtree(assets_path)
     os.makedirs(assets_path)
     app_src_path = os.path.join(assets_path, 'www')
-    shutil.copytree(options.app_root, app_src_path)
+    shutil.copytree(app_root, app_src_path)
 
 
-def CustomizeStringXML(options, sanitized_name):
+def CustomizeStringXML(sanitized_name, description):
   strings_path = os.path.join(sanitized_name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
     print ('Please make sure strings_xml'
            ' exists under app_src folder.')
     sys.exit(6)
 
-  if options.description:
+  if description:
     xmldoc = minidom.parse(strings_path)
     AddElementAttributeAndText(xmldoc, 'string', 'name', 'description',
-                               options.description)
+                               description)
     strings_file = open(strings_path, 'w')
     xmldoc.writexml(strings_file, encoding='utf-8')
     strings_file.close()
 
 
-def CustomizeThemeXML(options, sanitized_name):
+def CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img):
   theme_path = os.path.join(sanitized_name, 'res', 'values', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
 
   xmldoc = minidom.parse(theme_path)
-  if options.fullscreen:
+  if fullscreen:
     EditElementValueByNodeName(xmldoc, 'item',
                                'android:windowFullscreen', 'true')
-  if options.launch_screen_img:
+  if launch_screen_img:
     EditElementValueByNodeName(xmldoc, 'item',
                                'android:windowBackground',
                                '@drawable/launchscreen')
-    default_image = options.launch_screen_img
+    default_image = launch_screen_img
     if os.path.isfile(default_image):
       drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
       if not os.path.exists(drawable_path):
@@ -113,45 +113,47 @@ def CustomizeThemeXML(options, sanitized_name):
   theme_file.close()
 
 
-def CustomizeXML(options, sanitized_name):
+def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
+                 description, name, orientation, icon, fullscreen,
+                 launch_screen_img, permissions):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
            ' exists under app_src folder.')
     sys.exit(6)
 
-  CustomizeStringXML(options, sanitized_name)
-  CustomizeThemeXML(options, sanitized_name)
+  CustomizeStringXML(sanitized_name, description)
+  CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img)
   xmldoc = minidom.parse(manifest_path)
-  EditElementAttribute(xmldoc, 'manifest', 'package', options.package)
-  if options.app_versionCode:
+  EditElementAttribute(xmldoc, 'manifest', 'package', package)
+  if app_versionCode:
     EditElementAttribute(xmldoc, 'manifest', 'android:versionCode',
-                         str(options.app_versionCode))
-  if options.app_version:
+                         str(app_versionCode))
+  if app_version:
     EditElementAttribute(xmldoc, 'manifest', 'android:versionName',
-                         options.app_version)
-  if options.description:
+                         app_version)
+  if description:
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
-  HandlePermissions(options, xmldoc)
-  EditElementAttribute(xmldoc, 'application', 'android:label', options.name)
-  activity_name = options.package + '.' + sanitized_name + 'Activity'
+  HandlePermissions(permissions, xmldoc)
+  EditElementAttribute(xmldoc, 'application', 'android:label', name)
+  activity_name = package + '.' + sanitized_name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
-  EditElementAttribute(xmldoc, 'activity', 'android:label', options.name)
-  if options.orientation:
+  EditElementAttribute(xmldoc, 'activity', 'android:label', name)
+  if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
-                         options.orientation)
-  if options.icon and os.path.isfile(options.icon):
+                         orientation)
+  if icon and os.path.isfile(icon):
     drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
-    icon_file = os.path.basename(options.icon)
+    icon_file = os.path.basename(icon)
     icon_file = ReplaceInvalidChars(icon_file)
-    shutil.copyfile(options.icon, os.path.join(drawable_path, icon_file))
+    shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
     icon_name = os.path.splitext(icon_file)[0]
     EditElementAttribute(xmldoc, 'application',
                          'android:icon', '@drawable/%s' % icon_name)
-  elif options.icon and (not os.path.isfile(options.icon)):
+  elif icon and (not os.path.isfile(icon)):
     print ('Please make sure the icon file does exist!')
     sys.exit(6)
 
@@ -183,11 +185,12 @@ def SetVariable(file_path, variable, value):
   shutil.move(temp_file_path, file_path)
 
 
-def CustomizeJava(options, sanitized_name):
+def CustomizeJava(sanitized_name, package, app_url, app_local_path,
+                  enable_remote_debugging):
   root_path =  os.path.join(sanitized_name, 'src',
-                            options.package.replace('.', os.path.sep))
+                            package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
-  ReplaceString(dest_activity, 'org.xwalk.app.template', options.package)
+  ReplaceString(dest_activity, 'org.xwalk.app.template', package)
   ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
   manifest_file = os.path.join(sanitized_name, 'assets/www', 'manifest.json')
   if os.path.isfile(manifest_file):
@@ -196,21 +199,21 @@ def CustomizeJava(options, sanitized_name):
         'loadAppFromUrl("file:///android_asset/www/index.html")',
         'loadAppFromManifest("file:///android_asset/www/manifest.json")')
   else:
-    if options.app_url:
-      if re.search(r'^http(|s)', options.app_url):
+    if app_url:
+      if re.search(r'^http(|s)', app_url):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
-                      options.app_url)
-    elif options.app_local_path:
+                      app_url)
+    elif app_local_path:
       if os.path.isfile(os.path.join(sanitized_name, 'assets/www',
-                                     options.app_local_path)):
+                                     app_local_path)):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
-                      'app://' + options.package + '/' + options.app_local_path)
+                      'app://' + package + '/' + app_local_path)
       else:
         print ('Please make sure that the relative path of entry file'
                ' is correct.')
         sys.exit(8)
 
-  if options.enable_remote_debugging:
+  if enable_remote_debugging:
     SetVariable(dest_activity, 'RemoteDebugging', 'true')
 
 
@@ -235,7 +238,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
     shutil.copyfile(src_file, dest_file)
 
 
-def CustomizeExtensions(options, sanitized_name):
+def CustomizeExtensions(sanitized_name, name, extensions):
   """Copy the files from external extensions and merge them into APK.
 
   The directory of one external extension should be like:
@@ -251,9 +254,9 @@ def CustomizeExtensions(options, sanitized_name):
   For .json files, the'll be merged into one file called
   extensions-config.json and copied into assets/.
   """
-  if not options.extensions:
+  if not extensions:
     return
-  apk_path = options.name
+  apk_path = name
   apk_assets_path = os.path.join(apk_path, 'assets')
   extensions_string = 'xwalk-extensions'
 
@@ -266,7 +269,7 @@ def CustomizeExtensions(options, sanitized_name):
                                           'extensions-config.json')
 
   # Split the paths into a list.
-  extension_paths = options.extensions.split(os.pathsep)
+  extension_paths = extensions.split(os.pathsep)
   extension_json_list = []
   for source_path in extension_paths:
     if not os.path.exists(source_path):
@@ -334,6 +337,25 @@ def CustomizeExtensions(options, sanitized_name):
     extension_json_file.close()
 
 
+def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
+                 app_root, app_local_path, enable_remote_debugging,
+                 fullscreen_flag, extensions, launch_screen_img,
+                 package='org.xwalk.app.template', name='AppTemplate',
+                 app_version='1.0.0', orientation='unspecified'):
+  sanitized_name = ReplaceInvalidChars(name, 'apkname')
+  try:
+    Prepare(sanitized_name, package, app_root)
+    CustomizeXML(sanitized_name, package, app_versionCode, app_version,
+                 description, name, orientation, icon, fullscreen_flag,
+                 launch_screen_img, permissions)
+    CustomizeJava(sanitized_name, package, app_url, app_local_path,
+                  enable_remote_debugging)
+    CustomizeExtensions(sanitized_name, name, extensions)
+  except SystemExit as ec:
+    print('Exiting with error code: %d' % ec.code)
+    sys.exit(ec.code)
+
+
 def main():
   parser = optparse.OptionParser()
   info = ('The package name. Such as: '
@@ -385,12 +407,13 @@ def main():
   parser.add_option('--launch-screen-img',
                     help='The fallback image for launch_screen')
   options, _ = parser.parse_args()
-  sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
   try:
-    Prepare(options, sanitized_name)
-    CustomizeXML(options, sanitized_name)
-    CustomizeJava(options, sanitized_name)
-    CustomizeExtensions(options, sanitized_name)
+    CustomizeAll(options.app_versionCode, options.description, options.icon,
+                 options.permissions, options.app_url, options.app_root,
+                 options.app_local_path, options.enable_remote_debugging,
+                 options.fullscreen, options.extensions,
+                 options.launch_screen_img, options.package, options.name,
+                 options.app_version, options.orientation)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code

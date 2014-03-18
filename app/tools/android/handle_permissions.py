@@ -11,7 +11,7 @@ It suppports the mapping of permission fields both defined in Crosswalk
 and supported by Android Manifest specification.
 
 Sample usage from shell script:
-python permissions_mapping.py --jsonfile=/path/to/manifest.json
+python handle_permissions.py --jsonfile=/path/to/manifest.json
 --manifest=/path/to/AndroidManifest.xml
 """
 
@@ -44,20 +44,21 @@ permission_mapping_table = {
 }
 
 
-def HandlePermissions(options, xmldoc):
+def HandlePermissions(permissions, xmldoc):
   """ Implement the mapping of permission list to the AndroidManifest.xml file.
   Args:
-    options: the parsed options with permissions.
+    permissions: the permissions defined in Crosswalk and Android Manifest
+        specification.
     xmldoc: the parsed xmldoc of the AndroidManifest.xml file, used for
         reading and writing.
   """
-  if options.permissions:
+  if permissions:
     existing_permission_list = []
     used_permissions = xmldoc.getElementsByTagName("uses-permission")
     for item in used_permissions:
       existing_permission_list.append(item.getAttribute("android:name"))
 
-    for permission in options.permissions.split(':'):
+    for permission in permissions.split(':'):
       if permission.lower() not in list(permission_mapping_table.keys()):
         print('Error: permission \'%s\' related API is not supported.'
               % permission)
@@ -101,7 +102,7 @@ def main(argv):
     return ec.code
   try:
     xmldoc = minidom.parse(options.manifest)
-    HandlePermissions(options, xmldoc)
+    HandlePermissions(options.permissions, xmldoc)
     file_handle = open(options.manifest, 'wb')
     xmldoc.writexml(file_handle)
     file_handle.close()

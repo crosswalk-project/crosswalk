@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 sys.path.append('scripts/gyp')
-from customize import ReplaceInvalidChars
+from customize import ReplaceInvalidChars, CustomizeAll
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -161,13 +161,14 @@ def FindExtensionJars(root_path):
         extension_jars.append(extension_jar)
   return extension_jars
 
+
 # Follows the recommendation from
 # http://software.intel.com/en-us/blogs/2012/11/12/how-to-publish-
 # your-apps-on-google-play-for-x86-based-android-devices-using
 def MakeVersionCode(options):
   ''' Construct a version code'''
   if options.app_versionCode:
-    return '--app-versionCode=%s' % options.app_versionCode
+    return options.app_versionCode
 
   # First digit is ABI, ARM=2, x86=6
   abi = '0'
@@ -184,58 +185,41 @@ def MakeVersionCode(options):
       sys.exit(12)
   # zero pad to 7 digits, middle digits can be used for other
   # features, according to recommendation in URL
-  return '--app-versionCode=%s%s' % (abi, b.zfill(7))
+  return '%s%s' % (abi, b.zfill(7))
 
 
 def Customize(options):
-  package = '--package=org.xwalk.app.template'
+  package = 'org.xwalk.app.template'
   if options.package:
-    package = '--package=%s' % options.package
-  name = '--name=AppTemplate'
+    package = options.package
+  name = 'AppTemplate'
   if options.name:
-    name = '--name=%s' % options.name
-  app_version = '--app-version=1.0.0'
+    name = options.name
+  app_version = '1.0.0'
   if options.app_version:
-    app_version = '--app-version=%s' % options.app_version
+    app_version = options.app_version
   app_versionCode = MakeVersionCode(options)
-  description = ''
-  if options.description:
-    description = '--description=%s' % options.description
-  permissions = ''
-  if options.permissions:
-    permissions = '--permissions=%s' % options.permissions
   icon = ''
   if options.icon:
-    icon = '--icon=%s' % os.path.expanduser(options.icon)
-  app_url =  ''
-  if options.app_url:
-    app_url = '--app-url=%s' % options.app_url
+    icon = os.path.expanduser(options.icon)
   app_root = ''
   if options.app_root:
-    app_root = '--app-root=%s' % os.path.expanduser(options.app_root)
-  app_local_path = ''
-  if options.app_local_path:
-    app_local_path = '--app-local-path=%s' % options.app_local_path
+    app_root = os.path.expanduser(options.app_root)
   remote_debugging = ''
   if options.enable_remote_debugging:
     remote_debugging = '--enable-remote-debugging'
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
-  extensions_list = ''
-  if options.extensions:
-    extensions_list = '--extensions=%s' % options.extensions
-  orientation = '--orientation=unspecified'
+  orientation = 'unspecified'
   if options.orientation:
-    orientation = '--orientation=%s' % options.orientation
-  default_image = ''
-  if options.launch_screen_img:
-    default_image = '--launch-screen-img=' + options.launch_screen_img
-  cmd = ['python', 'customize.py', package,
-          name, app_version, app_versionCode, description, icon, permissions,
-          app_url, remote_debugging, app_root, app_local_path, fullscreen_flag,
-          extensions_list, orientation, default_image]
-  RunCommand(cmd, options.verbose)
+    orientation = options.orientation
+  CustomizeAll(app_versionCode, options.description, icon,
+               options.permissions, options.app_url, app_root,
+               options.app_local_path, remote_debugging,
+               fullscreen_flag, options.extensions,
+               options.launch_screen_img, package, name, app_version,
+               orientation)
 
 
 def Execution(options, sanitized_name):
@@ -550,6 +534,7 @@ def MakeApk(options, sanitized_name):
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
+
 def parse_optional_arg(default_value):
   def func(option, value, values, parser):
     del value
@@ -561,6 +546,7 @@ def parse_optional_arg(default_value):
       val = default_value
     setattr(parser.values, option.dest, val)
   return func
+
 
 def main(argv):
   parser = optparse.OptionParser()
