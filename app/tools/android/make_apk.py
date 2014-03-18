@@ -5,7 +5,6 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
-import compress_js_and_css
 import operator
 import optparse
 import os
@@ -15,7 +14,8 @@ import subprocess
 import sys
 
 sys.path.append('scripts/gyp')
-from customize import ReplaceInvalidChars, CustomizeAll
+from customize import ReplaceInvalidChars, CustomizeAll, \
+                      ParseParameterForCompressor
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -208,7 +208,7 @@ def Customize(options):
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.keep_screen_on, options.extensions,
                options.manifest, icon, package, name, app_version,
-               orientation, options.xwalk_command_line)
+               orientation, options.xwalk_command_line, options.compressor)
 
 
 def Execution(options, sanitized_name):
@@ -550,19 +550,6 @@ def MakeApk(options, sanitized_name):
     sys.exit(11)
 
 
-def parse_optional_arg(default_value):
-  def func(option, value, values, parser):
-    del value
-    del values
-    if parser.rargs and not parser.rargs[0].startswith('-'):
-      val = parser.rargs[0]
-      parser.rargs.pop(0)
-    else:
-      val = default_value
-    setattr(parser.values, option.dest, val)
-  return func
-
-
 def main(argv):
   parser = optparse.OptionParser()
   parser.add_option('-v', '--version', action='store_true',
@@ -678,7 +665,8 @@ def main(argv):
           '--compressor=js: compress javascript.'
           '--compressor=css: compress css.')
   group.add_option('--compressor', dest='compressor', action='callback',
-                   callback=parse_optional_arg('all'), help=info)
+                   callback=ParseParameterForCompressor, type='string', nargs=0,
+                   help=info)
   parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -749,14 +737,6 @@ def main(argv):
       os.makedirs(target_dir)
 
   try:
-    compress = compress_js_and_css.CompressJsAndCss(options.app_root)
-    if options.compressor == 'all':
-      compress.CompressJavaScript()
-      compress.CompressCss()
-    elif options.compressor == 'js':
-      compress.CompressJavaScript()
-    elif options.compressor == 'css':
-      compress.CompressCss()
     MakeApk(options, sanitized_name)
   except SystemExit as ec:
     CleanDir(sanitized_name)
