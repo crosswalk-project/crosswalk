@@ -31,6 +31,7 @@
 #include "base/base_paths_android.h"
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
+#include "xwalk/runtime/browser/android/xwalk_web_contents_view_delegate.h"
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
@@ -134,7 +135,11 @@ content::AccessTokenStore* XWalkContentBrowserClient::CreateAccessTokenStore() {
 content::WebContentsViewDelegate*
 XWalkContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
+#if defined(OS_ANDROID)
+  return new XWalkWebContentsViewDelegate(web_contents);
+#else
   return NULL;
+#endif
 }
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(

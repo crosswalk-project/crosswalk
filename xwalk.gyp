@@ -116,6 +116,8 @@
         'runtime/browser/android/xwalk_settings.cc',
         'runtime/browser/android/xwalk_web_contents_delegate.cc',
         'runtime/browser/android/xwalk_web_contents_delegate.h',
+        'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
+        'runtime/browser/android/xwalk_web_contents_view_delegate.h',
         'runtime/browser/application_component.cc',
         'runtime/browser/application_component.h',
         'runtime/browser/devtools/remote_debugging_server.cc',
