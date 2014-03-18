@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.xwalk.core.XWalkWebChromeClient.CustomViewCallback;
 
-public class XWalkContentVideoViewClient implements ContentVideoViewClient {
+class XWalkContentVideoViewClient implements ContentVideoViewClient {
     private XWalkContentsClient mContentsClient;
     private Activity mActivity;
 

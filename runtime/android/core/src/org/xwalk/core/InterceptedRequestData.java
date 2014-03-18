@@ -14,7 +14,7 @@ import java.io.InputStream;
  * The response information that is to be returned for a particular resource fetch.
  */
 @JNINamespace("xwalk")
-public class InterceptedRequestData {
+class InterceptedRequestData {
     private String mMimeType;
     private String mCharset;
     private InputStream mData;

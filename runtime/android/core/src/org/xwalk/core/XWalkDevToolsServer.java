@@ -10,7 +10,7 @@ import org.chromium.base.JNINamespace;
  * Controller for Remote Web Debugging (Developer Tools).
  */
 @JNINamespace("xwalk")
-public class XWalkDevToolsServer {
+class XWalkDevToolsServer {
 
     private int mNativeDevToolsServer = 0;
 

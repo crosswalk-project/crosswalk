@@ -74,11 +74,11 @@ class XWalkViewDelegate {
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
         final int resourcesListResId = context.getResources().getIdentifier(
                 XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
-        if (resourcesListResId != 0) {    
+        if (resourcesListResId != 0) {
             ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
 
                 @Override
-                public Set<String> getInterceptableResourceList() {        
+                public Set<String> getInterceptableResourceList() {
                     try {
                         Set<String> resourcesList = new HashSet<String>();
                         String[] resources = context.getResources().getStringArray(resourcesListResId);
@@ -100,10 +100,10 @@ class XWalkViewDelegate {
                     try {
                         if (resId != 0) return context.getResources().openRawResource(resId);
                     } catch (NotFoundException e) {
-                        Log.w(TAG, "R.raw." + resourceName + " can't be found.");                        
+                        Log.w(TAG, "R.raw." + resourceName + " can't be found.");
                     }
                     return null;
-                }                
+                }
             });
         }
         ResourceExtractor.setExtractImplicitLocaleForTesting(false);

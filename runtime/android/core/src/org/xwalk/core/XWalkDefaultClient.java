@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.client;
+package org.xwalk.core;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,6 +26,7 @@ import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
 
+// TODO(yongsheng): remove public modifier.
 public class XWalkDefaultClient extends XWalkClient {
 
     // Strings for displaying Dialog.

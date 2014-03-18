@@ -6,7 +6,7 @@ package org.xwalk.core;
 
 import android.util.Log;
 
-public class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
+class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     private XWalkContentsClient mXWalkContentsClient;
 

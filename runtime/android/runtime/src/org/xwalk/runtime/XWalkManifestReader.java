@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 /**
  * This internal class parses manifest.json of current app.
  */
-public class XWalkManifestReader {
+class XWalkManifestReader {
     private final static String TAG = "XWalkManifestReader";
     private final static String ASSETS_FILE_PATH = "file:///android_asset/";
     private final static String WWW_FOLDER = "www";

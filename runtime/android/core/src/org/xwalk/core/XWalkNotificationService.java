@@ -7,7 +7,7 @@ package org.xwalk.core;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
-public interface XWalkNotificationService {
+interface XWalkNotificationService {
     public void setBridge(XWalkContentsClientBridge bridge);
     public void showNotification(
             String title, String message, int notificationId, int processId, int routeId);

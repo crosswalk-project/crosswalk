@@ -10,9 +10,9 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-public class XWalkInternalResources {
+class XWalkInternalResources {
     private static final String TAG = "XWalkInternalResources";
-    
+
     private static boolean loaded = false;
     private final static String INTERNAL_RESOURCE_CLASSES[] = {
         "org.chromium.content.R",
@@ -49,10 +49,10 @@ public class XWalkInternalResources {
                             Log.w(TAG, generatedInnerClazz.getName() + "." +
                                     field.getName() + " is not accessable.");
                         } catch (IllegalArgumentException e) {
-                            Log.w(TAG, generatedInnerClazz.getName() + "." + 
+                            Log.w(TAG, generatedInnerClazz.getName() + "." +
                                     field.getName() + " is not int.");
                         } catch (NoSuchFieldException e) {
-                            Log.w(TAG, generatedInnerClazz.getName() + "." + 
+                            Log.w(TAG, generatedInnerClazz.getName() + "." +
                                     field.getName() + " is not found.");
                         }
                     }

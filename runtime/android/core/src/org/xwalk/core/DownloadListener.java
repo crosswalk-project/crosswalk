@@ -4,7 +4,7 @@
 
 package org.xwalk.core;
 
-public interface DownloadListener {
+interface DownloadListener {
 
     public abstract void onDownloadStart(String url, String userAgent,
             String contentDisposition, String mimetype, long contentLength);

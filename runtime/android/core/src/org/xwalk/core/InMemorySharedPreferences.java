@@ -16,7 +16,7 @@ import java.util.Set;
  * <p/>
  * It keeps all state in memory, and there is no difference between apply() and commit().
  */
-public class InMemorySharedPreferences implements SharedPreferences {
+class InMemorySharedPreferences implements SharedPreferences {
 
     // Guarded on its own monitor.
     private final Map<String, Object> mData;

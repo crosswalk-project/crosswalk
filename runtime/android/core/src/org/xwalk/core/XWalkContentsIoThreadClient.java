@@ -11,7 +11,7 @@ import org.chromium.base.JNINamespace;
  * Delegate for handling callbacks. All methods are called on the IO thread.
  */
 @JNINamespace("xwalk")
-public interface XWalkContentsIoThreadClient {
+interface XWalkContentsIoThreadClient {
     @CalledByNative
     public int getCacheMode();
 

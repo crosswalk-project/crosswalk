@@ -30,7 +30,7 @@ import org.chromium.content.browser.DownloadInfo;
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
 // WebChromeClient; Also handle the JNI conmmunication logic.
 @JNINamespace("xwalk")
-public class XWalkContentsClientBridge extends XWalkContentsClient
+class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
 
     private XWalkView mXWalkView;

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.client;
+package org.xwalk.core;
 
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
@@ -26,7 +26,7 @@ import org.xwalk.core.AndroidProtocolHandler;
 import org.xwalk.core.DownloadListener;
 import org.xwalk.core.R;
 
-public class XWalkDefaultDownloadListener implements DownloadListener {
+class XWalkDefaultDownloadListener implements DownloadListener {
     private static String DOWNLOAD_START_TOAST;
     private static String DOWNLOAD_NO_PERMISSION_TOAST;
     private static String DOWNLOAD_ALREADY_EXISTS_TOAST;

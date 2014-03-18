@@ -19,7 +19,7 @@ import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
-import org.xwalk.core.client.XWalkDefaultNotificationService;
+import org.xwalk.core.XWalkDefaultNotificationService;
 
 /**
  * Test suite for web notification API.

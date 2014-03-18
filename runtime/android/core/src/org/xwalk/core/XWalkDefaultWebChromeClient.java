@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.client;
+package org.xwalk.core;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,6 +31,8 @@ import org.xwalk.core.XWalkGeolocationPermissions;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
 
+// Provisionally set it as public.
+// TODO(yongsheng): remove public modifier.
 public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
 
     // Strings for displaying Dialog.

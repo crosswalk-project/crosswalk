@@ -26,7 +26,7 @@ import android.util.Log;
  * if triggered early on (e.g. as a side effect of CookieSyncManager.createInstance() call),
  * sufficiently in advance of the first blocking usage of the API.
  */
-public class HttpAuthDatabase {
+class HttpAuthDatabase {
 
     private static final String LOGTAG = HttpAuthDatabase.class.getName();
 
