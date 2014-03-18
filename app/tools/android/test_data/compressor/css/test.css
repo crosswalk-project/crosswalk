@@ -1,0 +1,29 @@
+/*
+ * Copyright (c) 2014, Intel Corporation.
+ *
+ * This program is licensed under the terms and conditions of the
+ * Apache License, version 2.0.  The full text of the Apache License is at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+
+#body {
+    background-color: blue;
+}
+
+#div {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+h1 {
+    color:orange;
+    text-align:center;
+}
+
+p {
+    font-family:"Times New Roman";
+    font-size:50px;
+}

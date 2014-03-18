@@ -25,6 +25,32 @@ def Clean(name, app_version):
       os.remove(name + '_' + app_version + '_arm.apk')
 
 
+def CompareSizeForCompressor(mode, original, ext, name, fun):
+  size = 0
+  compressed_size = 0
+  mode_list = ['all', 'js', 'css']
+
+  www_dir = os.path.join(name, 'assets', 'www')
+  if os.path.exists(www_dir):
+    size = GetFileSize(original)
+    compressed_file = os.path.join(www_dir, ext, 'test.' + ext)
+    compressed_size = GetFileSize(compressed_file)
+
+    if mode in mode_list:
+      fun(compressed_size < size)
+    else:
+      fun(size == compressed_size)
+  else:
+    print('Error: %s is not exist.' % www_dir)
+
+
+def GetFileSize(file_path):
+  size = 0
+  if os.path.exists(file_path):
+    size = os.path.getsize(file_path)
+  return size
+
+
 def RunCommand(command):
   """Runs the command list, return the output."""
   proc = subprocess.Popen(command, stdout=subprocess.PIPE,
@@ -738,7 +764,6 @@ class TestMakeApk(unittest.TestCase):
 
     self.executeCommandAndVerifyResult('customize.py')
 
-
   def testTargetDir(self):
     test_option = ['./', '../', '~/']
     for option in test_option:
@@ -757,6 +782,62 @@ class TestMakeApk(unittest.TestCase):
                                         % (option, arch))
           self.assertTrue(os.path.exists(apk_path))
           self.checkApk(apk_path, arch)
+
+  def testCompressor(self):
+    app_root = os.path.join('test_data', 'compressor')
+    css_folder = os.path.join('test_data', 'compressor', 'css')
+    css_file = os.path.join(css_folder, 'test.css')
+    js_folder = os.path.join('test_data', 'compressor', 'js')
+    js_file = os.path.join(js_folder, 'test.js')
+    fun = self.assertTrue
+    name = 'Example'
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('all', css_file, 'css', name, fun)
+    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root,
+           '--compressor']
+    RunCommand(cmd)
+    CompareSizeForCompressor('all', css_file, 'css', name, fun)
+    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor=js',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('js', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor=css',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('css', css_file, 'css', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor(None, css_file, 'css', name, fun)
+    CompareSizeForCompressor(None, js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root,
+           '--compressor=other']
+    RunCommand(cmd)
+    CompareSizeForCompressor(None, css_file, 'css', name, fun)
+    CompareSizeForCompressor(None, js_file, 'js', name, fun)
+
+    Clean(name, '1.0.0')
 
 
 def SuiteWithModeOption():
@@ -793,6 +874,7 @@ def SuiteWithModeOption():
 def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
+  test_suite.addTest(TestMakeApk('testCompressor'))
   test_suite.addTest(TestMakeApk('testCustomizeFile'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
   test_suite.addTest(TestMakeApk('testToolVersion'))

@@ -4,11 +4,14 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import compress_js_and_css
+import fnmatch
 import json
 import optparse
 import os
 import re
 import shutil
+import stat
 import sys
 
 from customize_launch_screen import CustomizeLaunchScreen
@@ -36,7 +39,49 @@ def ReplaceInvalidChars(value, mode='default'):
   return value
 
 
-def Prepare(sanitized_name, package, app_root):
+def GetFilesByExt(path, ext, sub_dir = True):
+  if os.path.exists(path):
+    file_list = []
+    for name in os.listdir(path):
+      full_name = os.path.join(path, name)
+      st = os.lstat(full_name)
+      if stat.S_ISDIR(st.st_mode) and sub_dir:
+        file_list += GetFilesByExt(full_name, ext)
+      elif os.path.isfile(full_name):
+        if fnmatch.fnmatch(full_name, ext):
+          file_list.append(full_name)
+    return file_list
+  else:
+    return []
+
+
+def ParseParameterForCompressor(option, value, values, parser):
+  if ((not values or values.startswith('-'))
+      and value.find('--compressor') != -1):
+    values = 'all'
+  val = values
+  if parser.rargs and not parser.rargs[0].startswith('-'):
+    val = parser.rargs[0]
+    parser.rargs.pop(0)
+  setattr(parser.values, option.dest, val)
+
+
+def CompressSourceFiles(app_root, compressor):
+  js_list = []
+  css_list = []
+  js_ext = '*.js'
+  css_ext = '*.css'
+
+  if compressor == 'all' or compressor == 'js':
+    js_list = GetFilesByExt(app_root, js_ext)
+    compress_js_and_css.CompressJavaScript(js_list)
+
+  if compressor == 'all' or compressor == 'css':
+    css_list = GetFilesByExt(app_root, css_ext)
+    compress_js_and_css.CompressCss(css_list)
+
+
+def Prepare(sanitized_name, package, app_root, compressor):
   if os.path.exists(sanitized_name):
     shutil.rmtree(sanitized_name)
   shutil.copytree('app_src', sanitized_name)
@@ -59,6 +104,8 @@ def Prepare(sanitized_name, package, app_root):
     os.makedirs(assets_path)
     app_src_path = os.path.join(assets_path, 'www')
     shutil.copytree(app_root, app_src_path)
+    if compressor:
+      CompressSourceFiles(app_src_path, compressor)
 
 
 def CustomizeStringXML(sanitized_name, description):
@@ -397,10 +444,11 @@ def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
                  display_as_fullscreen, keep_screen_on, extensions,
                  app_manifest, icon, package='org.xwalk.app.template',
                  name='AppTemplate', app_version='1.0.0',
-                 orientation='unspecified', xwalk_command_line=''):
+                 orientation='unspecified', xwalk_command_line='',
+                 compressor=None):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
-    Prepare(sanitized_name, package, app_root)
+    Prepare(sanitized_name, package, app_root, compressor)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
                  description, name, orientation, icon_dict,
                  display_as_fullscreen, icon, app_manifest, permissions,
@@ -469,7 +517,13 @@ def main():
           'For example, '
           '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
   parser.add_option('--xwalk-command-line', default='', help=info)
-
+  info = ('Minify and obfuscate javascript and css.'
+          '--compressor: compress javascript and css.'
+          '--compressor=js: compress javascript.'
+          '--compressor=css: compress css.')
+  parser.add_option('--compressor', dest='compressor', action='callback',
+                    callback=ParseParameterForCompressor,
+                    type='string', nargs=0, help=info)
   options, _ = parser.parse_args()
   try:
     icon_dict = {144: 'icons/icon_144.png',
@@ -493,8 +547,7 @@ def main():
                  options.fullscreen, options.keep_screen_on, options.extensions,
                  options.manifest, icon, options.package, options.name,
                  options.app_version, options.orientation,
-                 options.xwalk_command_line)
-
+                 options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
