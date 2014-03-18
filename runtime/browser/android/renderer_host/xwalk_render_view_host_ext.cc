@@ -99,11 +99,8 @@ void XWalkRenderViewHostExt::DidNavigateAnyFrame(
     const content::FrameNavigateParams& params) {
   DCHECK(CalledOnValidThread());
 
-  // TODO(Xingnan): Add the AddVisitedURLs method
-  // in RuntimeContext.
-
-  // RuntimeContext::FromWebContents(web_contents())
-  //    ->AddVisitedURLs(params.redirects);
+  RuntimeContext::FromWebContents(web_contents())
+      ->AddVisitedURLs(params.redirects);
 }
 
 bool XWalkRenderViewHostExt::OnMessageReceived(const IPC::Message& message) {

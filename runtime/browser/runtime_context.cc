@@ -11,6 +11,7 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -68,6 +69,9 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
 RuntimeContext::RuntimeContext()
   : resource_context_(new RuntimeResourceContext) {
   InitWhileIOAllowed();
+#if defined(OS_ANDROID)
+  InitVisitedLinkMaster();
+#endif
 }
 
 RuntimeContext::~RuntimeContext() {
@@ -228,6 +232,25 @@ void RuntimeContext::SetCSPString(const std::string& csp) {
 
 std::string RuntimeContext::GetCSPString() const {
   return csp_;
+}
+
+void RuntimeContext::InitVisitedLinkMaster() {
+  visitedlink_master_.reset(
+      new visitedlink::VisitedLinkMaster(this, this, false));
+  visitedlink_master_->Init();
+}
+
+void RuntimeContext::AddVisitedURLs(const std::vector<GURL>& urls) {
+  DCHECK(visitedlink_master_);
+  visitedlink_master_->AddURLs(urls);
+}
+
+void RuntimeContext::RebuildTable(
+    const scoped_refptr<URLEnumerator>& enumerator) {
+  // XWalkView rebuilds from XWalkWebChromeClient.getVisitedHistory. The client
+  // can change in the lifetime of this XWalkView and may not yet be set here.
+  // Therefore this initialization path is not used.
+  enumerator->OnComplete(true);
 }
 #endif
 

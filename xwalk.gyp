@@ -28,6 +28,8 @@
         '../base/base.gyp:base',
         '../base/base.gyp:base_i18n',
         '../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '../components/components.gyp:visitedlink_browser',
+        '../components/components.gyp:visitedlink_renderer',
         '../content/content.gyp:content',
         '../content/content.gyp:content_app_both',
         '../content/content.gyp:content_browser',
