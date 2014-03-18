@@ -64,6 +64,7 @@
             '../../../build/system.gyp:tizen_appcore_common'
           ],
           'sources': [
+            '../tizen/dom_error.h',
             'xwalk_launcher_tizen.cc',
             'xwalk_launcher_tizen.h',
           ],

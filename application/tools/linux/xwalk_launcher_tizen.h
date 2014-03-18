@@ -5,6 +5,10 @@
 #ifndef XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_
 #define XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_
 
+#include <gio/gio.h>
+
 int xwalk_appcore_init(int argc, char** argv, const char* name);
+
+void xwalk_start_dbus_service(GDBusConnection* connection);
 
 #endif  // XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_

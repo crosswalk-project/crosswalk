@@ -177,6 +177,10 @@ int main(int argc, char** argv) {
 
   connect_app_manager(connection);
 
+#if defined(OS_TIZEN)
+  xwalk_start_dbus_service(connection);
+#endif
+
   launch_app(connection, appid);
 
   mainloop = g_main_loop_new(NULL, FALSE);
