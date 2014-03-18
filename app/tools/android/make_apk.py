@@ -111,15 +111,7 @@ def ParseManifest(options):
     sys.exit(9)
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
-    temp_dict = parser.GetIcons()
-    try:
-      icon_dict = dict((int(k), v) for k, v in temp_dict.items())
-    except ValueError:
-      print('The key of icon in the manifest file should be a number.')
-    # TODO(junmin): add multiple icons support.
-    if icon_dict:
-      icon_file = max(iter(icon_dict.items()), key=operator.itemgetter(0))[1]
-      options.icon = os.path.join(options.app_root, icon_file)
+    options.icon_dict = parser.GetIcons()
   if parser.GetFullScreenFlag().lower() == 'true':
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
@@ -199,9 +191,6 @@ def Customize(options):
   if options.app_version:
     app_version = options.app_version
   app_versionCode = MakeVersionCode(options)
-  icon = ''
-  if options.icon:
-    icon = os.path.expanduser(options.icon)
   app_root = ''
   if options.app_root:
     app_root = os.path.expanduser(options.app_root)
@@ -214,7 +203,7 @@ def Customize(options):
   orientation = 'unspecified'
   if options.orientation:
     orientation = options.orientation
-  CustomizeAll(app_versionCode, options.description, icon,
+  CustomizeAll(app_versionCode, options.description, options.icon_dict,
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
@@ -707,7 +696,7 @@ def main(argv):
              'crosswalk-website/wiki/Crosswalk-manifest')
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
-
+    options.icon_dict = {}
   else:
     try:
       ParseManifest(options)

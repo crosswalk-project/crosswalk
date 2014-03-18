@@ -332,16 +332,15 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example', '1.0.0')
 
   def testIcon(self):
-    icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
+    manifest_path = os.path.join('test_data', 'manifest', 'manifest_icon.json')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
-           '--icon=%s' % icon_path, self._mode]
+           '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(content.find('crosswalk') != -1)
-    self.assertTrue(os.path.exists('Example/res/drawable'))
+    self.assertTrue(content.find('drawable/icon') != -1)
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
 
@@ -602,8 +601,10 @@ class TestMakeApk(unittest.TestCase):
     icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
     extension_path = 'test_data/extensions/myextension'
     arch = ''
+    icon = ''
     if exec_file.find("make_apk.py") != -1:
       arch = '--arch=x86'
+      icon = '--icon=%s' % icon_path
     cmd = ['python', '%s' % exec_file,
            '--app-version=1.0.0',
            '--app-url=http://www.intel.com',
@@ -612,7 +613,7 @@ class TestMakeApk(unittest.TestCase):
            '--enable-remote-debugging',
            '--extensions=%s' % extension_path,
            '--fullscreen',
-           '--icon=%s' % icon_path,
+           '%s' % icon,
            '--name=Example',
            '--orientation=landscape',
            '--package=org.xwalk.example',
@@ -637,8 +638,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('versionName') != -1)
     # Test orientation option.
     self.assertTrue(content.find('landscape') != -1)
-    # Test icon option.
-    self.assertTrue(os.path.exists('Example/res/drawable'))
     # Test fullscreen option
     theme = 'Example/res/values/theme.xml'
     with open(theme, 'r') as content_file:
