@@ -26,6 +26,7 @@ const base::FilePath::CharType ApplicationStorageImpl::kDBFileName[] =
     FILE_PATH_LITERAL("applications.db");
 
 const char kEventSeparator = ';';
+const char kPermissionSeparator = '^';
 
 // Switching the JSON format DB(version 0) to SQLite backend version 1,
 // should migrate all data from JSON DB to SQLite applications table.
@@ -80,14 +81,14 @@ bool InitEventsTable(sql::Connection* db) {
   return transaction.Commit();
 }
 
-// Permissions are stored like "bluetooth:ALLOW;calendar:DENY;contacts:ALLOW"
+// Permissions are stored like "bluetooth^ALLOW;calendar^DENY;contacts^ALLOW"
 std::string ToString(StoredPermissionMap permissions) {
   std::string str;
   StoredPermissionMap::iterator iter;
   for (iter = permissions.begin(); iter != permissions.end(); ++iter) {
     if (!str.empty())
       str += ";";
-    str += (iter->first + ":" + ToString(iter->second));
+    str += (iter->first + kPermissionSeparator + ToString(iter->second));
   }
   return str;
 }
@@ -100,7 +101,7 @@ StoredPermissionMap ToPermissionMap(const std::string& str) {
     for (std::vector<std::string>::iterator iter = vec.begin();
         iter != vec.end(); ++iter) {
       std::vector<std::string> perm_item;
-      base::SplitString(*iter, ':', &perm_item);
+      base::SplitString(*iter, kPermissionSeparator, &perm_item);
       if (perm_item.size() != 2) {
         LOG(ERROR) << "Permission format error! Corrupted database?";
         map.clear();
