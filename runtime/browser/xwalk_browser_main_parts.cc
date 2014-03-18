@@ -105,6 +105,15 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   // FIXME: Add comment why this is needed on Android and Tizen.
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
+  // Enable SIMD.JS API by default.
+  std::string js_flags("--simd_object");
+  if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
+    js_flags += " ";
+    js_flags +=
+        command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
+  }
+  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
+
   startup_url_ = GetURLFromCommandLine(*command_line);
 }
 
