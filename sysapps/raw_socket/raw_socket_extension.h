@@ -40,6 +40,7 @@ class RawSocketInstance : public XWalkExtensionInstance {
   void OnTCPServerSocketConstructor(
       scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnTCPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
+  void OnUDPSocketConstructor(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   XWalkExtensionFunctionHandler handler_;
   BindingObjectStore store_;

@@ -9,6 +9,7 @@
 #include "xwalk/sysapps/raw_socket/raw_socket.h"
 #include "xwalk/sysapps/raw_socket/tcp_server_socket_object.h"
 #include "xwalk/sysapps/raw_socket/tcp_socket_object.h"
+#include "xwalk/sysapps/raw_socket/udp_socket_object.h"
 
 using namespace xwalk::jsapi::raw_socket; // NOLINT
 
@@ -35,6 +36,9 @@ RawSocketInstance::RawSocketInstance()
                  base::Unretained(this)));
   handler_.Register("TCPSocketConstructor",
       base::Bind(&RawSocketInstance::OnTCPSocketConstructor,
+                 base::Unretained(this)));
+  handler_.Register("UDPSocketConstructor",
+      base::Bind(&RawSocketInstance::OnUDPSocketConstructor,
                  base::Unretained(this)));
 }
 
@@ -72,6 +76,20 @@ void RawSocketInstance::OnTCPSocketConstructor(
   }
 
   scoped_ptr<BindingObject> obj(new TCPSocketObject);
+  store_.AddBindingObject(params->object_id, obj.Pass());
+}
+
+void RawSocketInstance::OnUDPSocketConstructor(
+    scoped_ptr<XWalkExtensionFunctionInfo> info) {
+  scoped_ptr<UDPSocketConstructor::Params>
+      params(UDPSocketConstructor::Params::Create(*info->arguments()));
+
+  if (!params) {
+    LOG(WARNING) << "Malformed parameters passed to " << info->name();
+    return;
+  }
+
+  scoped_ptr<BindingObject> obj(new UDPSocketObject);
   store_.AddBindingObject(params->object_id, obj.Pass());
 }
 
