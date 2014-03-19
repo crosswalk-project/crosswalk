@@ -127,6 +127,7 @@ def CopyGeneratedSources(out_dir):
       'org/chromium/base/ActivityState.java',
       'org/chromium/base/MemoryPressureLevelList.java',
       'org/chromium/base/library_loader/NativeLibraries.java',
+      'org/chromium/content/browser/GestureEventType.java',
       'org/chromium/content/browser/input/PopupItemType.java',
       'org/chromium/content/browser/PageTransitionTypes.java',
       'org/chromium/content/browser/SpeechRecognitionError.java',
@@ -294,11 +295,14 @@ def CopyResources(project_source, out_dir):
 
 def PostCopyLibraryProject(out_dir):
   print 'Post Copy Library Project...'
-  common_aidl_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src',
-                                  'org', 'chromium', 'content', 'common',
-                                  'common.aidl')
-  if os.path.exists(common_aidl_file):
-    os.remove(common_aidl_file)
+  aidls_to_remove = [
+      'org/chromium/content/common/common.aidl',
+      'org/chromium/net/IRemoteAndroidKeyStoreInterface.aidl',
+  ]
+  for aidl in aidls_to_remove:
+    aidl_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src', aidl)
+    if os.path.exists(aidl_file):
+      os.remove(aidl_file)
 
 
 def main(argv):
