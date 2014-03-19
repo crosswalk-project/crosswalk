@@ -362,6 +362,7 @@ if __name__ == '__main__':
 
   if landmine_utils.platform() == 'android':
     args.append('-Dnotifications=1')
+    args.append('-Drelease_unwind_tables=0')
 
   # Use the Psyco JIT if available.
   if psyco:
