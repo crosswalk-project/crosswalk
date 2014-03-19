@@ -134,10 +134,10 @@ class ManifestJsonParser(object):
     ret_dict['plugin'] = ''
     if 'plugin' in self.data_src:
       ret_dict['plugin'] = self.data_src['plugin']
-    if 'fullscreen' in self.data_src:
-      ret_dict['fullscreen'] = self.data_src['fullscreen']
+    if 'display' in self.data_src and 'fullscreen' in self.data_src['display']:
+      ret_dict['fullscreen'] = 'true'
     else:
-      ret_dict['fullscreen'] = 'False'
+      ret_dict['fullscreen'] = ''
     ret_dict['launch_screen_img'] = ''
     if 'launch_screen' in self.data_src:
       if 'default' not in self.data_src['launch_screen']:

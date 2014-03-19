@@ -172,21 +172,21 @@ def ReplaceString(file_path, src, dest):
   file_handle.close()
 
 
-def SetVariable(file_path, variable, value):
+def SetVariable(file_path, string_line, variable, value):
   function_string = ('%sset%s(%s);\n' %
                     ('        ', variable, value))
   temp_file_path = file_path + '.backup'
   file_handle = open(temp_file_path, 'w+')
   for line in open(file_path):
     file_handle.write(line)
-    if (line.find('public void onCreate(Bundle savedInstanceState)') >= 0):
+    if (line.find(string_line) >= 0):
       file_handle.write(function_string)
   file_handle.close()
   shutil.move(temp_file_path, file_path)
 
 
 def CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging):
+                  enable_remote_debugging, display_as_fullscreen):
   root_path =  os.path.join(sanitized_name, 'src',
                             package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
@@ -214,7 +214,13 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
         sys.exit(8)
 
   if enable_remote_debugging:
-    SetVariable(dest_activity, 'RemoteDebugging', 'true')
+    SetVariable(dest_activity,
+                'public void onCreate(Bundle savedInstanceState)',
+                'RemoteDebugging', 'true')
+  if display_as_fullscreen:
+    SetVariable(dest_activity,
+                'super.onCreate(savedInstanceState)',
+                'IsFullscreen', 'true')
 
 
 def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
@@ -339,17 +345,17 @@ def CustomizeExtensions(sanitized_name, name, extensions):
 
 def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
-                 fullscreen_flag, extensions, launch_screen_img,
+                 display_as_fullscreen, extensions, launch_screen_img,
                  package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified'):
+                 app_version='1.0.0', orientation='unspecified') :
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
-                 description, name, orientation, icon, fullscreen_flag,
+                 description, name, orientation, icon, display_as_fullscreen,
                  launch_screen_img, permissions)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging)
+                  enable_remote_debugging, display_as_fullscreen)
     CustomizeExtensions(sanitized_name, name, extensions)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
