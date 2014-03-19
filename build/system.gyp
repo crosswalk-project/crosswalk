@@ -102,6 +102,7 @@
           'variables': {
             'packages': [
               'appcore-common',
+              'capi-appfw-app-manager',
             ],
           },
           'direct_dependent_settings': {

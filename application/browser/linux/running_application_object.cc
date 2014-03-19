@@ -27,6 +27,7 @@ namespace {
 // Properties:
 //
 //   readonly string AppID
+//   readonly string LauncherName
 const char kRunningApplicationDBusInterface[] =
     "org.crosswalkproject.Running.Application1";
 
@@ -53,6 +54,12 @@ RunningApplicationObject::RunningApplicationObject(
   properties()->Set(
       kRunningApplicationDBusInterface, "AppID",
       scoped_ptr<base::Value>(base::Value::CreateStringValue(app_id)));
+
+#if defined(OS_TIZEN)
+  properties()->Set(
+      kRunningApplicationDBusInterface, "LauncherName",
+      scoped_ptr<base::Value>(base::Value::CreateStringValue(launcher_name)));
+#endif
 
   dbus_object()->ExportMethod(
       kRunningApplicationDBusInterface, "Terminate",
