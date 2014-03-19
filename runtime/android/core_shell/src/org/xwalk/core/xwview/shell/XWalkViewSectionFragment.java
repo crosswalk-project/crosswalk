@@ -5,7 +5,7 @@
 package org.xwalk.core.xwview.shell;
 
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.client.XWalkDefaultWebChromeClient;
+import org.xwalk.core.XWalkDefaultWebChromeClient;
 
 import android.app.Activity;
 import android.os.Bundle;
