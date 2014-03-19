@@ -13,7 +13,9 @@
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
+#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/event_names.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/application/extension/application_widget_extension.h"
@@ -115,41 +117,72 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
 }
 
 template <typename T>
-bool ApplicationSystem::LaunchWithCommandLineParam(const T& param) {
+bool ApplicationSystem::LaunchWithCommandLineParam(
+    const T& param, const CommandLine& cmd_line) {
   scoped_refptr<Event> event = Event::CreateEvent(
         kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-  if (Application* application = application_service_->Launch(param)) {
+
+  Application::LaunchParams launch_params;
+  if (cmd_line.HasSwitch(switches::kFullscreen))
+    launch_params.window_state = ui::SHOW_STATE_FULLSCREEN;
+
+  if (Application* application =
+      application_service_->Launch(param, launch_params)) {
     event_manager_->SendEvent(application->id(), event);
     return true;
   }
+
   return false;
 }
 
+// Launch an application created from arbitrary url.
+// FIXME: This application should have the same strict permissions
+// as common browser apps.
 template <>
-bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(const GURL& url) {
-  return !!application_service_->Launch(url);
+bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
+    const GURL& url, const CommandLine& cmd_line) {
+  namespace keys = xwalk::application_manifest_keys;
+
+  const std::string& url_spec = url.spec();
+  DCHECK(!url_spec.empty());
+  const std::string& app_id = GenerateId(url_spec);
+  // FIXME: we need to handle hash collisions.
+  DCHECK(!application_storage_->GetApplicationData(app_id));
+
+  base::DictionaryValue manifest;
+  // FIXME: define permissions!
+  manifest.SetString(keys::kURLKey, url_spec);
+  manifest.SetString(keys::kNameKey,
+      "Crosswalk Hosted App [Restricted Permissions]");
+  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetInteger(keys::kManifestVersionKey, 1);
+  std::string error;
+  scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
+            base::FilePath(), Manifest::COMMAND_LINE, manifest, app_id, &error);
+  if (!application_data) {
+    LOG(ERROR) << "Error occurred while trying to launch application: "
+               << error;
+    return NULL;
+  }
+
+  Application::LaunchParams launch_params;
+  if (cmd_line.HasSwitch(switches::kFullscreen))
+    launch_params.window_state = ui::SHOW_STATE_FULLSCREEN;
+  launch_params.entry_points = Application::URLKey;
+
+  return !!application_service_->Launch(application_data, launch_params);
 }
 
 bool ApplicationSystem::LaunchFromCommandLine(
     const CommandLine& cmd_line, const GURL& url,
     bool& run_default_message_loop) {
-  // On Tizen, applications are launched by a symbolic link named like the
-  // application ID.
-  // FIXME(cmarcelo): Remove when we move to a separate launcher on Tizen.
-#if defined(OS_TIZEN)
-  std::string command_name = cmd_line.GetProgram().BaseName().MaybeAsASCII();
-  if (ApplicationData::IsIDValid(command_name)) {
-    run_default_message_loop = LaunchWithCommandLineParam(command_name);
-    return true;
-  }
-#endif
 
   // Handles raw app_id passed as first non-switch argument.
   const CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (ApplicationData::IsIDValid(app_id)) {
-      run_default_message_loop = LaunchWithCommandLineParam(app_id);
+      run_default_message_loop = LaunchWithCommandLineParam(app_id, cmd_line);
       return true;
     }
   }
@@ -161,9 +194,9 @@ bool ApplicationSystem::LaunchFromCommandLine(
   if (url.SchemeIsFile() &&
       net::FileURLToFilePath(url, &path) &&
       base::DirectoryExists(path)) {  // Handles local directory.
-    run_default_message_loop = LaunchWithCommandLineParam(path);
+    run_default_message_loop = LaunchWithCommandLineParam(path, cmd_line);
   } else {  // Handles external URL.
-    run_default_message_loop = LaunchWithCommandLineParam(url);
+    run_default_message_loop = LaunchWithCommandLineParam(url, cmd_line);
   }
 
   return true;

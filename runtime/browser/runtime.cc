@@ -366,13 +366,10 @@ void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
 
 void Runtime::ApplyFullScreenParam(NativeAppWindow::CreateParams* params) {
   DCHECK(params);
-  // TODO(cmarcelo): This is policy that probably should be moved to outside
-  // Runtime class.
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kFullscreen)) {
-    params->state = ui::SHOW_STATE_FULLSCREEN;
+  if (params->state == ui::SHOW_STATE_FULLSCREEN)
     fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
-  }
+  else
+    fullscreen_options_ &= ~FULLSCREEN_FOR_LAUNCH;
 }
 
 #if defined(OS_TIZEN_MOBILE)

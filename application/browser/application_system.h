@@ -89,7 +89,7 @@ class ApplicationSystem {
 
  private:
   template <typename T>
-  bool LaunchWithCommandLineParam(const T& param);
+  bool LaunchWithCommandLineParam(const T& param, const CommandLine& cmd_line);
   // Note: initialization order matters.
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> application_storage_;

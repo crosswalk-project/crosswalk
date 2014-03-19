@@ -25,6 +25,8 @@ static const char* xwalk_running_manager_iface =
 static const char* xwalk_running_app_iface =
     "org.crosswalkproject.Running.Application1";
 
+static const char cmd_line_fullscreen_arg[] = "--fullscreen";
+
 static char* application_object_path;
 
 static GMainLoop* mainloop;
@@ -74,6 +76,8 @@ static void on_app_properties_changed(GDBusProxy* proxy,
 int main(int argc, char** argv) {
   GError* error = NULL;
   char* appid;
+  gboolean fullscreen = FALSE;
+
 
 #if !GLIB_CHECK_VERSION(2, 36, 0)
   // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
@@ -90,8 +94,19 @@ int main(int argc, char** argv) {
     }
 
     appid = argv[1];
+
+    if (argc > 2) {
+      if (!strcmp(basename(argv[2]), cmd_line_fullscreen_arg))
+        fullscreen = TRUE;
+    }
+
   } else {
     appid = strdup(basename(argv[0]));
+
+    if (argc > 1) {
+      if (!strcmp(basename(argv[1]), cmd_line_fullscreen_arg))
+        fullscreen = TRUE;
+    }
   }
 
   GDBusConnection* connection = get_session_bus_connection(&error);
@@ -128,8 +143,9 @@ int main(int argc, char** argv) {
   unsigned int launcher_pid = getpid();
 
   GVariant* result = g_dbus_proxy_call_sync(running_proxy, "Launch",
-                                            g_variant_new("(su)", appid,
-                                                          launcher_pid),
+                                            g_variant_new("(sub)", appid,
+                                                          launcher_pid,
+                                                          fullscreen),
                                             G_DBUS_CALL_FLAGS_NONE,
                                             -1, NULL, &error);
   if (!result) {
