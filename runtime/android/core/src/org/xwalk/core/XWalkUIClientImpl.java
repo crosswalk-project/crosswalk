@@ -8,32 +8,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.Message;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.WebStorage;
-import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 
-import org.xwalk.core.JsPromptResult;
-import org.xwalk.core.JsResult;
-import org.xwalk.core.R;
-import org.xwalk.core.XWalkGeolocationPermissions;
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
-
-// Provisionally set it as public.
-// TODO(yongsheng): remove public modifier.
-public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
+/**
+ * This is the implementation of XWalkUIClient if callers don't specify one.
+ */
+public class XWalkUIClientImpl extends XWalkUIClient {
 
     // Strings for displaying Dialog.
     private static String mJSAlertTitle;
@@ -46,14 +33,11 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     private AlertDialog mDialog;
     private EditText mPromptText;
     private int mSystemUiFlag;
-    private View mCustomView;
     private View mDecorView;
-    private XWalkView mView;
-    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
+    private XWalkView mXWalkView;
     private boolean mOriginalFullscreen;
-    private boolean mIsFullscreen = false;
 
-    public XWalkDefaultWebChromeClient(Context context, XWalkView view) {
+    public XWalkUIClientImpl(Context context, XWalkView view) {
         mContext = context;
         mDecorView = view.getActivity().getWindow().getDecorView();
         if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
@@ -61,7 +45,7 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         }
-        mView = view;
+        mXWalkView = view;
         initResources(context);
     }
 
@@ -75,17 +59,54 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     }
 
     @Override
-    public boolean onJsAlert(XWalkView view, String url, String message,
-            final JsResult result) {
+    public void onJavascriptCloseWindow(XWalkView view) {
+        if (view != null && view.getActivity() != null) {
+            view.getActivity().finish();
+        }
+    }
+
+    @Override
+    public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type, String url,
+            String message, String defaultValue, XWalkJavascriptResult result) {
+        switch(type) {
+            case JAVASCRIPT_ALERT:
+                return onJsAlert(view, url, message, result);
+            case JAVASCRIPT_CONFIRM:
+                return onJsConfirm(view, url, message, result);
+            case JAVASCRIPT_PROMPT:
+                return onJsPrompt(view, url, message, defaultValue, result);
+            case JAVASCRIPT_BEFOREUNLOAD:
+                // Reuse onJsConfirm to show the dialog.
+                return onJsConfirm(view, url, message, result);
+            default:
+                break;
+        }
+        assert(false);
+        return false;
+    }
+
+    private boolean onJsAlert(XWalkView view, String url, String message,
+            XWalkJavascriptResult result) {
+        final XWalkJavascriptResult fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
         dialogBuilder.setTitle(mJSAlertTitle)
                 .setMessage(message)
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        result.confirm();
+                        fResult.confirm();
                         dialog.dismiss();
+                    }
+                }).setOnKeyListener(new DialogInterface.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                        if (keyCode == KeyEvent.KEYCODE_BACK) {
+                            fResult.confirm();
+                            return false;
+                        } else {
+                            return true;
+                        }
                     }
                 });
         mDialog = dialogBuilder.create();
@@ -93,24 +114,35 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
         return false;
     }
 
-    @Override
-    public boolean onJsConfirm(XWalkView view, String url, String message,
-            final JsResult result) {
+    private boolean onJsConfirm(XWalkView view, String url, String message,
+            XWalkJavascriptResult result) {
+        final XWalkJavascriptResult fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
         dialogBuilder.setTitle(mJSConfirmTitle)
                 .setMessage(message)
+                .setCancelable(true)
                 .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        result.confirm();
+                        fResult.confirm();
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                .setNegativeButton(mCancelButton, null)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        result.cancel();
-                        dialog.dismiss();
+                    public void onCancel(DialogInterface dialog) {
+                        fResult.cancel();
+                    }
+                }).setOnKeyListener(new DialogInterface.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                        if (keyCode == KeyEvent.KEYCODE_BACK) {
+                            fResult.confirm();
+                            return false;
+                        } else {
+                            return true;
+                        }
                     }
                 });
         mDialog = dialogBuilder.create();
@@ -118,24 +150,24 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
         return false;
     }
 
-    @Override
-    public boolean onJsPrompt(XWalkView view, String url, String message,
-            String defaultValue, final JsPromptResult result) {
+    private boolean onJsPrompt(XWalkView view, String url, String message,
+            String defaultValue, XWalkJavascriptResult result) {
+        final XWalkJavascriptResult fResult = result;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
         dialogBuilder.setTitle(mJSPromptTitle)
                 .setMessage(message)
                 .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        result.confirm(mPromptText.getText().toString());
+                        fResult.confirmWithResult(mPromptText.getText().toString());
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                .setNegativeButton(mCancelButton, null)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        result.cancel();
-                        dialog.dismiss();
+                    public void onCancel(DialogInterface dialog) {
+                        fResult.cancel();
                     }
                 });
         mPromptText = new EditText(mContext);
@@ -150,55 +182,8 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
     }
 
     @Override
-    public void onShowCustomView(View view, CustomViewCallback callback) {
-        Activity activity = mView.getActivity();
-
-        if (mCustomView != null || activity == null) {
-            callback.onCustomViewHidden();
-            return;
-        }
-
-        mCustomView = view;
-        mCustomViewCallback = callback;
-
-        onToggleFullscreen(true);
-
-        // Add the video view to the activity's ContentView.
-        activity.getWindow().addContentView(view,
-                new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        Gravity.CENTER));
-    }
-
-    @Override
-    public void onHideCustomView() {
-        Activity activity = mView.getActivity();
-
-        if (mCustomView == null || activity == null) return;
-
-        onToggleFullscreen(false);
-
-        // Remove video view from activity's ContentView.
-        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
-        decor.removeView(mCustomView);
-        mCustomViewCallback.onCustomViewHidden();
-
-        mCustomView = null;
-        mCustomViewCallback = null;
-    }
-
-    @Override
-    public void onGeolocationPermissionsShowPrompt(String origin,
-            XWalkGeolocationPermissions.Callback callback) {
-        // Allow all origins for geolocation requests here for Crosswalk.
-        // TODO(yongsheng): Need to define a UI prompt?
-        callback.invoke(origin, true, true);
-    }
-
-    @Override
-    public void onToggleFullscreen(boolean enterFullscreen) {
-        Activity activity = mView.getActivity();
+    public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
+        Activity activity = view.getActivity();
         if (enterFullscreen) {
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
                 mSystemUiFlag = mDecorView.getSystemUiVisibility();
@@ -232,11 +217,5 @@ public class XWalkDefaultWebChromeClient extends XWalkWebChromeClient {
                 }
             }
         }
-        mIsFullscreen = enterFullscreen;
-    }
-
-    @Override
-    public boolean isFullscreen() {
-        return mIsFullscreen;
     }
 }

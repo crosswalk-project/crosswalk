@@ -1,5 +1,5 @@
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -28,12 +28,14 @@ import org.chromium.content.browser.ContentViewDownloadDelegate;
 import org.chromium.content.browser.DownloadInfo;
 
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
-// WebChromeClient; Also handle the JNI conmmunication logic.
+// XWalkWebChromeClient; Also handle the JNI conmmunication logic.
 @JNINamespace("xwalk")
 class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
 
     private XWalkView mXWalkView;
+    private XWalkUIClient mXWalkUIClient;
+    private XWalkResourceClient mXWalkResourceClient;
     private XWalkClient mXWalkClient;
     private XWalkWebChromeClient mXWalkWebChromeClient;
     private Bitmap mFavicon;
@@ -42,6 +44,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
     private XWalkNotificationService mNotificationService;
+    private boolean mIsFullscreen = false;
 
     // The native peer of the object
     private int mNativeContentsClientBridge;
@@ -74,7 +77,29 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl(this);
     }
 
+    public void setUIClient(XWalkUIClient client) {
+        // If it's null, use Crosswalk implementation.
+        if (client != null) {
+            mXWalkUIClient = client;
+            return;
+        }
+        mXWalkUIClient = new XWalkUIClientImpl(mXWalkView.getContext(), mXWalkView);
+    }
+
+    public void setResourceClient(XWalkResourceClient client) {
+        // If it's null, use Crosswalk implementation.
+        if (client != null) {
+            mXWalkResourceClient = client;
+            return;
+        }
+        mXWalkResourceClient = new XWalkResourceClientImpl(mXWalkView.getContext(), mXWalkView);
+    }
+
+
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
+        // If it's null, use Crosswalk implementation.
+        if (client == null) return;
+        client.setContentsClient(this);
         mXWalkWebChromeClient = client;
     }
 
@@ -130,21 +155,28 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onProgressChanged(int progress) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null)
-            mXWalkWebChromeClient.onProgressChanged(mXWalkView, progress);
+        mXWalkResourceClient.onProgressChanged(mXWalkView, progress);
     }
 
     @Override
     public WebResourceResponse shouldInterceptRequest(String url) {
-        if (mXWalkClient != null && mXWalkView != null)
-            return mXWalkClient.shouldInterceptRequest(mXWalkView, url);
-        return null;
+        return mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, url);
+    }
+
+    public void onResourceLoadStarted(String url) {
+        mXWalkResourceClient.onLoadStarted(mXWalkView, url);
+    }
+
+    public void onResourceLoadFinished(String url) {
+        // TODO(yongsheng): this method is never called. Where should it be hooked?
+        mXWalkResourceClient.onLoadFinished(mXWalkView, url);
     }
 
     @Override
     public void onLoadResource(String url) {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onLoadResource(mXWalkView, url);
+        }
     }
 
     @Override
@@ -154,8 +186,9 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @CalledByNative
     public void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler, String host, String realm) {
-        if (mXWalkClient != null && mXWalkView != null)
+        if (mXWalkClient != null && mXWalkView != null) {
             mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
+        }
     }
 
     @Override
@@ -185,35 +218,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void handleJsAlert(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onJsAlert(mXWalkView, url, message, result);
-        }
-    }
-
-    @Override
-    public void handleJsBeforeUnload(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onJsBeforeUnload(mXWalkView, url, message, result);
-        }
-    }
-
-    @Override
-    public void handleJsConfirm(String url, String message, JsResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onJsConfirm(mXWalkView, url, message, result);
-        }
-    }
-
-    @Override
-    public void handleJsPrompt(
-            String url, String message, String defaultValue, JsPromptResult result) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onJsPrompt(mXWalkView, url, message, defaultValue, result);
-        }
-    }
-
-    @Override
     public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches,
             boolean isDoneCounting) {
     }
@@ -225,7 +229,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public void onPageStarted(String url) {
         if (mXWalkClient != null && mXWalkView != null) {
-            mXWalkClient.onPageStarted(mXWalkView, url, mFavicon);
+            mXWalkClient.onPageStarted(mXWalkView, url);
         }
     }
 
@@ -239,9 +243,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
-        if (mXWalkClient != null && mXWalkView != null) {
-            mXWalkClient.onReceivedError(mXWalkView, errorCode, description, failingUrl);
-        }
+        mXWalkResourceClient.onReceivedLoadError(mXWalkView, errorCode, description, failingUrl);
     }
 
     @Override
@@ -277,14 +279,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onCloseWindow() {
-        if (mXWalkClient != null) {
-            mXWalkClient.onCloseWindow(mXWalkView);
-        }
+    public void onRequestFocus() {
+        mXWalkUIClient.onRequestFocus(mXWalkView);
     }
 
     @Override
-    public void onRequestFocus() {
+    public void onCloseWindow() {
+        mXWalkUIClient.onJavascriptCloseWindow(mXWalkView);
     }
 
     @Override
@@ -318,6 +319,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onScaleChangedScaled(float oldScale, float newScale) {
+        mXWalkUIClient.onScaleChanged(mXWalkView, oldScale, newScale);
     }
 
     @Override
@@ -345,16 +347,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onToggleFullscreen(boolean enterFullscreen) {
-        if (mXWalkWebChromeClient != null) {
-            mXWalkWebChromeClient.onToggleFullscreen(enterFullscreen);
-        }
+        mIsFullscreen = enterFullscreen;
+        mXWalkUIClient.onFullscreenToggled(mXWalkView, enterFullscreen);
     }
 
     @Override
-    public boolean isFullscreen() {
-        if (mXWalkWebChromeClient != null) return mXWalkWebChromeClient.isFullscreen();
-
-        return false;
+    public boolean hasEnteredFullscreen() {
+        return mIsFullscreen;
     }
 
     @Override
@@ -400,26 +399,41 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @CalledByNative
     private void handleJsAlert(String url, String message, int id) {
-        JsResultHandler handler = new JsResultHandler(this, id);
-        handleJsAlert(url, message, handler);
+        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_ALERT, url, message, "", result);
     }
 
     @CalledByNative
     private void handleJsConfirm(String url, String message, int id) {
-        JsResultHandler handler = new JsResultHandler(this, id);
-        handleJsConfirm(url, message, handler);
+        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_CONFIRM, url, message, "", result);
     }
 
     @CalledByNative
     private void handleJsPrompt(String url, String message, String defaultValue, int id) {
-        JsResultHandler handler = new JsResultHandler(this, id);
-        handleJsPrompt(url, message, defaultValue, handler);
+        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_PROMPT, url, message, defaultValue,
+                        result);
     }
 
     @CalledByNative
     private void handleJsBeforeUnload(String url, String message, int id) {
-        JsResultHandler handler = new JsResultHandler(this, id);
-        handleJsBeforeUnload(url, message, handler);
+        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD, url, message, "",
+                        result);
+    }
+
+    // @CalledByNative
+    // TODO(yongsheng): Native side should call file chooser.
+    public void runFileChooser(final int processId, final int renderId, final int mode_flags,
+            String acceptTypes, String title, String defaultFilename, boolean capture) {
+        // TODO(yongsheng): Implement it.
+        // mXWalkUIClient.openFileChooser(mXWalkView, ...);
+        // See https://crosswalk-project.org/jira/browse/XWALK-1241.
     }
 
     @CalledByNative

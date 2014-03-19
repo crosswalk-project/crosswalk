@@ -6,27 +6,28 @@ package org.xwalk.core;
 
 import org.chromium.base.ThreadUtils;
 
-class JsResultHandler implements JsResult, JsPromptResult {
+class XWalkJavascriptResultHandler implements XWalkJavascriptResult {
     private XWalkContentsClientBridge mBridge;
     private final int mId;
 
-    JsResultHandler(XWalkContentsClientBridge bridge, int id) {
+    XWalkJavascriptResultHandler(XWalkContentsClientBridge bridge, int id) {
         mBridge = bridge;
         mId = id;
     }
 
     @Override
     public void confirm() {
-        confirm(null);
+        confirmWithResult(null);
     }
 
     @Override
-    public void confirm(final String promptResult) {
+    public void confirmWithResult(final String promptResult) {
         ThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mBridge != null)
+                if (mBridge != null) {
                     mBridge.confirmJsResult(mId, promptResult);
+                }
                 mBridge = null;
             }
         });
@@ -37,8 +38,9 @@ class JsResultHandler implements JsResult, JsPromptResult {
         ThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mBridge != null)
+                if (mBridge != null) {
                     mBridge.cancelJsResult(mId);
+                }
                 mBridge = null;
             }
         });

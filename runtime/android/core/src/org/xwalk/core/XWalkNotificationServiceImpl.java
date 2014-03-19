@@ -24,8 +24,8 @@ import org.xwalk.core.XWalkNotificationService;
 import org.xwalk.core.XWalkView;
 
 // TODO(yongsheng): remove public modifier.
-public class XWalkDefaultNotificationService implements XWalkNotificationService {
-    private static final String TAG = "XWalkDefaultNotificationService";
+public class XWalkNotificationServiceImpl implements XWalkNotificationService {
+    private static final String TAG = "XWalkNotificationServiceImpl";
 
     private static final String XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX = ".notification.click";
     private static final String XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX = ".notification.close";
@@ -42,7 +42,7 @@ public class XWalkDefaultNotificationService implements XWalkNotificationService
     private IntentFilter mNotificationCloseIntentFilter;
     private HashMap<Integer, Notification.Builder> mExistNotificationIds;
 
-    public XWalkDefaultNotificationService(Context context, XWalkView view) {
+    public XWalkNotificationServiceImpl(Context context, XWalkView view) {
         mContext = context;
         mView = view;
         mNotificationManager =

@@ -21,23 +21,7 @@ public class LoadUrlTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
-
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
-            }
-        });
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     // @SmallTest

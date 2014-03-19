@@ -52,7 +52,7 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public boolean isFullscreen() {
-        if (mXWalkContentsClient != null) return mXWalkContentsClient.isFullscreen();
+        if (mXWalkContentsClient != null) return mXWalkContentsClient.hasEnteredFullscreen();
 
         return false;
     }

@@ -16,14 +16,35 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Message;
 import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+/**
+ * It's the Internal class to handle legacy resource related callbacks not
+ * handled by XWalkResourceClient.
+ */
 public class XWalkClient {
+
+    private Context mContext;
+    private AlertDialog mDialog;
+    private XWalkView mXWalkView;
+
+    public XWalkClient(Context context, XWalkView view) {
+        mContext = context;
+        mXWalkView = view;
+    }
 
     /**
      * Give the host application a chance to take over the control when a new
@@ -51,10 +72,8 @@ public class XWalkClient {
      *
      * @param view The XWalkView that is initiating the callback.
      * @param url The url to be loaded.
-     * @param favicon The favicon for this page if it already exists in the
-     *            database.
      */
-    public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
+    public void onPageStarted(XWalkView view, String url) {
     }
 
     /**
@@ -67,23 +86,6 @@ public class XWalkClient {
      * @param url The url of the page.
      */
     public void onPageFinished(XWalkView view, String url) {
-    }
-
-    /**
-     * Notify the host application that a web page is closed by calling
-     * window.close().
-     */
-    public void onCloseWindow(XWalkView view) {
-    }
-
-    /**
-     * Notify the host application that the XWalkView will load the resource
-     * specified by the given url.
-     *
-     * @param view The XWalkView that is initiating the callback.
-     * @param url The url of the resource the XWalkView will load.
-     */
-    public void onLoadResource(XWalkView view, String url) {
     }
 
     /**
@@ -103,26 +105,6 @@ public class XWalkClient {
     }
 
     /**
-     * Notify the host application of a resource request and allow the
-     * application to return the data.  If the return value is null, the XWalkView
-     * will continue to load the resource as usual.  Otherwise, the return
-     * response and data will be used.  NOTE: This method is called by the
-     * network thread so clients should exercise caution when accessing private
-     * data.
-     *
-     * @param view The {@link android.webkit.XWalkView} that is requesting the
-     *             resource.
-     * @param url The raw url of the resource.
-     * @return A {@link android.webkit.WebResourceResponse} containing the
-     *         response information or null if the XWalkView should load the
-     *         resource itself.
-     */
-    public WebResourceResponse shouldInterceptRequest(XWalkView view,
-            String url) {
-        return null;
-    }
-
-    /**
      * Notify the host application that there have been an excessive number of
      * HTTP redirects. As the host application if it would like to continue
      * trying to load the resource. The default behavior is to send the cancel
@@ -138,19 +120,6 @@ public class XWalkClient {
     public void onTooManyRedirects(XWalkView view, Message cancelMsg,
             Message continueMsg) {
         cancelMsg.sendToTarget();
-    }
-
-    /**
-     * Report an error to the host application. These errors are unrecoverable
-     * (i.e. the main resource is unavailable). The errorCode parameter
-     * corresponds to one of the ERROR_* constants.
-     * @param view The XWalkView that is initiating the callback.
-     * @param errorCode The error code corresponding to an ERROR_* value.
-     * @param description A String describing the error.
-     * @param failingUrl The url that failed to load.
-     */
-    public void onReceivedError(XWalkView view, int errorCode,
-            String description, String failingUrl) {
     }
 
     /**
@@ -193,7 +162,24 @@ public class XWalkClient {
      */
     public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback,
             SslError error) {
-        callback.onReceiveValue(true);
+        final ValueCallback<Boolean> valueCallback = callback;
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+        // Don't use setOnDismissListener as it requires API level 17.
+        dialogBuilder.setTitle(R.string.ssl_alert_title)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        valueCallback.onReceiveValue(true);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(android.R.string.cancel, null)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog) {
+                        valueCallback.onReceiveValue(false);
+                    }
+                });
+        mDialog = dialogBuilder.create();
+        mDialog.show();
     }
 
     /**
@@ -239,7 +225,37 @@ public class XWalkClient {
      */
     public void onReceivedHttpAuthRequest(XWalkView view,
             XWalkHttpAuthHandler handler, String host, String realm) {
-        handler.cancel();
+        if (view == null) return;
+
+        final XWalkHttpAuthHandler haHandler = handler;
+        LinearLayout layout = new LinearLayout(mContext);
+        final EditText userNameEditText = new EditText(mContext);
+        final EditText passwordEditText = new EditText(mContext);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPaddingRelative(10, 0, 10, 20);
+        userNameEditText.setHint(R.string.http_auth_user_name);
+        passwordEditText.setHint(R.string.http_auth_password);
+        layout.addView(userNameEditText);
+        layout.addView(passwordEditText);
+
+        final Activity curActivity = mXWalkView.getActivity();
+        AlertDialog.Builder httpAuthDialog = new AlertDialog.Builder(curActivity);
+        httpAuthDialog.setTitle(R.string.http_auth_title)
+                .setView(layout)
+                .setCancelable(false)
+                .setPositiveButton(R.string.http_auth_log_in, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String userName = userNameEditText.getText().toString();
+                        String password = passwordEditText.getText().toString();
+                        haHandler.proceed(userName, password);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(android.R.string.cancel, null)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog) {
+                        haHandler.cancel();
+                    }
+                }).create().show();
     }
 
     /**
@@ -277,17 +293,6 @@ public class XWalkClient {
     }
 
     /**
-     * Notify the host application that the scale applied to the XWalkView has
-     * changed.
-     *
-     * @param view he XWalkView that is initiating the callback.
-     * @param oldScale The old scale factor
-     * @param newScale The new scale factor
-     */
-    public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
-    }
-
-    /**
      * Notify the host application that a request to automatically log in the
      * user has been processed.
      * @param view The XWalkView requesting the login.
@@ -299,5 +304,9 @@ public class XWalkClient {
      */
     public void onReceivedLoginRequest(XWalkView view, String realm,
             String account, String args) {
+    }
+
+    // TODO(yongsheng): legacy method. Consider removing it?
+    public void onLoadResource(XWalkView view, String url) {
     }
 }

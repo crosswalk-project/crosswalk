@@ -26,62 +26,6 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
     private static final boolean ENABLED = true;
     private static final boolean DISABLED = false;
 
-    class TestXWalkViewClient extends XWalkClient {
-        TestXWalkViewContentsClient walkViewContentClient;
-
-        TestXWalkViewClient(TestXWalkViewContentsClient contentClient) {
-            walkViewContentClient = contentClient;
-        }
-
-        @Override
-        public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-            walkViewContentClient.onPageStarted(url);
-        }
-
-        @Override
-        public void onPageFinished(XWalkView view, String url) {
-            walkViewContentClient.didFinishLoad(url);
-        }
-
-        @Override
-        public WebResourceResponse shouldInterceptRequest(XWalkView view,
-                String url) {
-            return walkViewContentClient.shouldInterceptRequest(url);
-        }
-
-        @Override
-        public void onLoadResource(XWalkView view, String url) {
-            walkViewContentClient.onLoadResource(url);
-        }
-    }
-
-    class TestXWalkChromeClient extends XWalkWebChromeClient {
-        TestXWalkViewContentsClient walkViewContentClient;
-
-        TestXWalkChromeClient(TestXWalkViewContentsClient contentClient) {
-            walkViewContentClient = contentClient;
-        }
-
-        @Override
-        public void onReceivedTitle(XWalkView view, String title) {
-            walkViewContentClient.onTitleChanged(title);
-        }
-    }
-
-    protected ViewPair createViews() throws Throwable {
-        TestXWalkViewContentsClient contentClient0 = new TestXWalkViewContentsClient();
-        TestXWalkViewContentsClient contentClient1 = new TestXWalkViewContentsClient();
-        TestXWalkViewClient viewClient0 = new TestXWalkViewClient(contentClient0);
-        TestXWalkViewClient viewClient1 = new TestXWalkViewClient(contentClient1);
-        TestXWalkChromeClient chromeClient0 = new TestXWalkChromeClient(contentClient0);
-        TestXWalkChromeClient chromeClient1 = new TestXWalkChromeClient(contentClient1);
-        ViewPair viewPair =
-                createViewsOnMainSync(contentClient0, contentClient1, viewClient0,
-                        viewClient1, chromeClient0, chromeClient1, getActivity());
-
-        return viewPair;
-    }
-
     abstract class XWalkViewSettingsTestHelper<T> {
         protected final XWalkContent mXWalkContent;
         protected final XWalkSettings mXWalkSettings;
@@ -131,13 +75,13 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
     class XWalkViewSettingsDomStorageEnabledTestHelper extends XWalkViewSettingsTestHelper<Boolean> {
         private static final String NO_LOCAL_STORAGE = "No localStorage";
         private static final String HAS_LOCAL_STORAGE = "Has localStorage";
-        TestXWalkViewContentsClient client;
+        TestHelperBridge mHelperBridge;
 
         XWalkViewSettingsDomStorageEnabledTestHelper(
                 XWalkContent xWalkContent,
-                final TestXWalkViewContentsClient contentClient) throws Throwable {
+                final TestHelperBridge helperBridge) throws Throwable {
             super(xWalkContent, true);
-            client = contentClient;
+            mHelperBridge = helperBridge;
         }
 
         @Override
@@ -164,11 +108,11 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
         protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
             // It is not permitted to access localStorage from data URLs in WebKit,
             // that is why a standalone page must be used.
-            loadUrlSyncByContent(mXWalkContent, client,
+            loadUrlSyncByContent(mXWalkContent, mHelperBridge,
                     UrlUtils.getTestFileUrl("xwalkview/localStorage.html"));
             assertEquals(
                 value == ENABLED ? HAS_LOCAL_STORAGE : NO_LOCAL_STORAGE,
-                        client.getChangedTitle());
+                        mHelperBridge.getChangedTitle());
         }
     }
 

@@ -25,34 +25,10 @@ public class SetDatabaseEnabledTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
 
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-
-            @Override
-            public WebResourceResponse shouldInterceptRequest(XWalkView view,
-                    String url) {
-                return mTestContentsClient.shouldInterceptRequest(url);
-            }
-
-            @Override
-            public void onLoadResource(XWalkView view, String url) {
-                mTestContentsClient.onLoadResource(url);
-            }
-        }
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
-            }
-        });
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
+        setXWalkWebChromeClient(new XWalkViewTestBase.TestXWalkWebChromeClient());
+        setResourceClient(new XWalkViewTestBase.TestXWalkResourceClient());
     }
 
     abstract class XWalkViewSettingsTestHelper<T> {

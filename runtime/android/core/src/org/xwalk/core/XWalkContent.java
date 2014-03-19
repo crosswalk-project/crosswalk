@@ -1,5 +1,5 @@
 // Copyright 2013 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
 
@@ -36,11 +37,12 @@ import org.chromium.ui.base.ActivityWindowAndroid;
  * This class is the implementation class for XWalkView by calling internal
  * various classes.
  */
-public class XWalkContent extends FrameLayout {
+public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChangeListener {
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
     private ActivityWindowAndroid mWindow;
+    private XWalkDevToolsServer mDevToolsServer;
     private XWalkView mXWalkView;
     private XWalkContentsClientBridge mContentsClientBridge;
     private XWalkContentsIoThreadClient mIoThreadClient;
@@ -119,6 +121,8 @@ public class XWalkContent extends FrameLayout {
 
         MediaPlayerBridge.setResourceLoadingFilter(
                 new XWalkMediaPlayerResourceLoadingFilter());
+
+        XWalkPreferences.load(this);
     }
 
     void doLoadUrl(String url) {
@@ -165,6 +169,25 @@ public class XWalkContent extends FrameLayout {
 
     public void addJavascriptInterface(Object object, String name) {
         mContentViewCore.addJavascriptInterface(object, name);
+    }
+
+    public void evaluateJavascript(String script, ValueCallback<String> callback) {
+        final ValueCallback<String>  fCallback = callback;
+        ContentViewCore.JavaScriptCallback coreCallback = new ContentViewCore.JavaScriptCallback() {
+            @Override
+            public void handleJavaScriptResult(String jsonResult) {
+                fCallback.onReceiveValue(jsonResult);
+            }
+        };
+        mContentViewCore.evaluateJavaScript(script, coreCallback);
+    }
+
+    public void setUIClient(XWalkUIClient client) {
+        mContentsClientBridge.setUIClient(client);
+    }
+
+    public void setResourceClient(XWalkResourceClient client) {
+        mContentsClientBridge.setResourceClient(client);
     }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
@@ -232,6 +255,10 @@ public class XWalkContent extends FrameLayout {
         mContentView.goForward();
     }
 
+    void navigateTo(int offset)  {
+        mContentView.getContentViewCore().goToOffset(offset);
+    }
+
     public void stopLoading() {
         mContentView.getContentViewCore().stopLoading();
     }
@@ -256,7 +283,7 @@ public class XWalkContent extends FrameLayout {
         return null;
     }
 
-    public String getVersion() {
+    public String getXWalkVersion() {
         if (mXWalkContent == 0) return "";
         return nativeGetVersion(mXWalkContent);
     }
@@ -295,23 +322,23 @@ public class XWalkContent extends FrameLayout {
         }
     }
 
-    public WebBackForwardList copyBackForwardList() {
-        return new WebBackForwardList(mContentViewCore.getNavigationHistory());
+    public XWalkNavigationHistory getNavigationHistory() {
+        return new XWalkNavigationHistory(mXWalkView, mContentViewCore.getNavigationHistory());
     }
 
     public static final String SAVE_RESTORE_STATE_KEY = "XWALKVIEW_STATE";
 
-    public WebBackForwardList saveState(Bundle outState) {
+    public XWalkNavigationHistory saveState(Bundle outState) {
         if (outState == null) return null;
 
         byte[] state = nativeGetState(mXWalkContent);
         if (state == null) return null;
 
         outState.putByteArray(SAVE_RESTORE_STATE_KEY, state);
-        return copyBackForwardList();
+        return getNavigationHistory();
     }
 
-    public WebBackForwardList restoreState(Bundle inState) {
+    public XWalkNavigationHistory restoreState(Bundle inState) {
         if (inState == null) return null;
 
         byte[] state = inState.getByteArray(SAVE_RESTORE_STATE_KEY);
@@ -327,16 +354,15 @@ public class XWalkContent extends FrameLayout {
             mContentsClientBridge.onUpdateTitle(mContentViewCore.getTitle());
         }
 
-        return result ? copyBackForwardList() : null;
+        return result ? getNavigationHistory() : null;
     }
 
-    public boolean isFullscreen() {
-        return mWebContents != 0 && getXWalkWebChromeClient() != null &&
-                getXWalkWebChromeClient().isFullscreen();
+    boolean hasEnteredFullscreen() {
+        return mContentsClientBridge.hasEnteredFullscreen();
     }
 
-    public void exitFullscreen() {
-        if (isFullscreen()) {
+    void exitFullscreen() {
+        if (hasEnteredFullscreen()) {
             mContentsClientBridge.exitFullscreen(mWebContents);
         }
     }
@@ -358,7 +384,7 @@ public class XWalkContent extends FrameLayout {
 
     @CalledByNative
     public void onGetFullscreenFlagFromManifest(boolean enterFullscreen) {
-        if (enterFullscreen) getXWalkWebChromeClient().onToggleFullscreen(true);
+        if (enterFullscreen) mContentsClientBridge.onToggleFullscreen(true);
     }
 
     public void destroy() {
@@ -395,6 +421,10 @@ public class XWalkContent extends FrameLayout {
         @Override
         public InterceptedRequestData shouldInterceptRequest(final String url,
                 boolean isMainFrame) {
+
+            // Notify a resource load is started. This is not the best place to start the callback
+            // but it's a workable way.
+            mContentsClientBridge.onResourceLoadStarted(url);
 
             WebResourceResponse webResourceResponse = mContentsClientBridge.shouldInterceptRequest(url);
             InterceptedRequestData interceptedRequestData = null;
@@ -483,6 +513,43 @@ public class XWalkContent extends FrameLayout {
     @CalledByNative
     public void onGeolocationPermissionsHidePrompt() {
         mContentsClientBridge.onGeolocationPermissionsHidePrompt();
+    }
+
+    public String enableRemoteDebugging(int allowedUid) {
+        // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
+        // to identify a debugging page
+        final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
+        if (mDevToolsServer == null) {
+            mDevToolsServer = new XWalkDevToolsServer(socketName);
+            mDevToolsServer.allowConnectionFromUid(allowedUid);
+            mDevToolsServer.setRemoteDebuggingEnabled(true);
+        }
+        // devtools/page is hardcoded in devtools_http_handler_impl.cc (kPageUrlPrefix)
+        return "ws://" + socketName + "/devtools/page/" + devToolsAgentId();
+    }
+
+    // Enables remote debugging and returns the URL at which the dev tools server is listening
+    // for commands. Only the current process is allowed to connect to the server.
+    String enableRemoteDebugging() {
+        return enableRemoteDebugging(getContext().getApplicationInfo().uid);
+    }
+
+    void disableRemoteDebugging() {
+        if (mDevToolsServer ==  null) return;
+
+        if (mDevToolsServer.isRemoteDebuggingEnabled()) {
+            mDevToolsServer.setRemoteDebuggingEnabled(false);
+        }
+        mDevToolsServer.destroy();
+        mDevToolsServer = null;
+    }
+
+    @Override
+    public void onKeyValueChanged(String key, boolean value) {
+        if (key == XWalkPreferences.REMOTE_DEBUGGING) {
+            if (value) enableRemoteDebugging();
+            else disableRemoteDebugging();
+        }
     }
 
     private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,

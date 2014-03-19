@@ -88,6 +88,11 @@ public abstract class XWalkContentsClient extends ContentViewClient {
         }
     }
 
+    @Override
+    final public void onUpdateTitle(String title) {
+        onTitleChanged(title);
+    }
+
     void installWebContentsObserver(ContentViewCore contentViewCore) {
         if (mWebContentsObserver != null) {
             mWebContentsObserver.detachFromWebContents();
@@ -146,16 +151,6 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onScaleChangedScaled(float oldScale, float newScale);
 
-    protected abstract void handleJsAlert(String url, String message, JsResult result);
-
-    protected abstract void handleJsBeforeUnload(String url, String message,
-            JsResult result);
-
-    protected abstract void handleJsConfirm(String url, String message, JsResult result);
-
-    protected abstract void handleJsPrompt(String url, String message, String defaultValue,
-            JsPromptResult result);
-
     protected abstract boolean onCreateWindow(boolean isDialog, boolean isUserGesture);
 
     protected abstract void onCloseWindow();
@@ -178,15 +173,11 @@ public abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onRendererResponsive();
 
-    final public void onUpdateTitle(String title) {
-        onTitleChanged(title);
-    }
-
     public abstract void onTitleChanged(String title);
 
     public abstract void onToggleFullscreen(boolean enterFullscreen);
 
-    public abstract boolean isFullscreen();
+    public abstract boolean hasEnteredFullscreen();
 
     // TODO (michaelbai): Remove this method once the same method remove from
     // XWalkContentsClientAdapter.

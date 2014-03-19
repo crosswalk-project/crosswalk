@@ -4,9 +4,6 @@
 
 package org.xwalk.core.xwview.shell;
 
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkDefaultWebChromeClient;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.xwalk.core.XWalkView;
+
 public class XWalkViewSectionFragment extends Fragment{
     private XWalkView mXWalkView;
     private OnXWalkViewCreatedListener mListener;
-    
+
     public interface OnXWalkViewCreatedListener {
         public void onXWalkViewCreated(XWalkView view);
     }

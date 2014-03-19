@@ -14,8 +14,8 @@ import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
-import org.xwalk.core.JsPromptResult;
-import org.xwalk.core.JsResult;
+import org.xwalk.core.XWalkJavascriptResult;
+import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkContentsClient;
 import org.xwalk.core.XWalkGeolocationPermissions;
 import org.xwalk.core.XWalkHttpAuthHandler;
@@ -73,21 +73,10 @@ public class NullContentsClient extends XWalkContentsClient {
     public void onGeolocationPermissionsHidePrompt() {
     }
 
-    @Override
-    public void handleJsAlert(String url, String message, JsResult receiver) {
-    }
 
     @Override
-    public void handleJsBeforeUnload(String url, String message, JsResult receiver) {
-    }
-
-    @Override
-    public void handleJsConfirm(String url, String message, JsResult receiver) {
-    }
-
-    @Override
-    public void handleJsPrompt(
-            String url, String message, String defaultValue, JsPromptResult receiver) {
+    public boolean hasEnteredFullscreen() {
+        return false;
     }
 
     @Override
@@ -186,11 +175,6 @@ public class NullContentsClient extends XWalkContentsClient {
 
     @Override
     public void onToggleFullscreen(boolean enterFullscreen) {
-    }
-
-    @Override
-    public boolean isFullscreen() {
-        return false;
     }
 
     @Override

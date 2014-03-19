@@ -33,38 +33,8 @@ import org.xwalk.core.xwview.test.util.CommonResources;
 public class SetAppCacheEnabledTest extends XWalkViewTestBase {
     private static final long TEST_TIMEOUT = 20000L;
     private static final int CHECK_INTERVAL = 100;
-    private TestXWalkViewContentsClient mContentClient;
+    private TestHelperBridge mContentClient;
     private XWalkSettings mSettings;
-
-    class TestXWalkViewClient extends XWalkClient {
-        @Override
-        public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-            mContentClient.onPageStarted(url);
-        }
-
-        @Override
-        public void onPageFinished(XWalkView view, String url) {
-            mContentClient.didFinishLoad(url);
-        }
-
-        @Override
-        public WebResourceResponse shouldInterceptRequest(XWalkView view,
-                String url) {
-            return mContentClient.shouldInterceptRequest(url);
-        }
-
-        @Override
-        public void onLoadResource(XWalkView view, String url) {
-            mContentClient.onLoadResource(url);
-        }
-    }
-
-    class TestXWalkChromeClient extends XWalkWebChromeClient {
-        @Override
-        public void onReceivedTitle(XWalkView view, String title) {
-            mTestContentsClient.onTitleChanged(title);
-        }
-    }
 
     static class ManifestTestHelper {
         private final TestWebServer mWebServer;
@@ -118,20 +88,6 @@ public class SetAppCacheEnabledTest extends XWalkViewTestBase {
         }
     }
 
-    private ViewPair createViews() throws Throwable {
-        TestXWalkViewContentsClient contentClient0 = new TestXWalkViewContentsClient();
-        TestXWalkViewContentsClient contentClient1 = new TestXWalkViewContentsClient();
-        TestXWalkViewClient viewClient0 = new TestXWalkViewClient();
-        TestXWalkViewClient viewClient1 = new TestXWalkViewClient();
-        TestXWalkChromeClient chromeClient0 = new TestXWalkChromeClient();
-        TestXWalkChromeClient chromeClient1 = new TestXWalkChromeClient();
-        ViewPair viewPair =
-                createViewsOnMainSync(contentClient0, contentClient1, viewClient0,
-                        viewClient1, chromeClient0, chromeClient1, getActivity());
-
-        return viewPair;
-    }
-
     private XWalkSettings getXWalkSettings(final XWalkView view) {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -145,12 +101,19 @@ public class SetAppCacheEnabledTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"XWalkView", "Preferences", "AppCache"})
     public void testAppCache() throws Throwable {
-        final TestXWalkViewContentsClient contentClient =
-                new TestXWalkViewContentsClient();
-        mContentClient = contentClient;
+        final TestHelperBridge helperBridge =
+                new TestHelperBridge();
+        mContentClient = helperBridge;
+        final XWalkViewTestBase.TestXWalkClientBase client =
+                new XWalkViewTestBase.TestXWalkClientBase(helperBridge);
+        final XWalkViewTestBase.TestXWalkResourceClientBase resourceClient =
+                new XWalkViewTestBase.TestXWalkResourceClientBase(helperBridge);
+        final XWalkViewTestBase.TestXWalkWebChromeClientBase chromeClient =
+                new XWalkViewTestBase.TestXWalkWebChromeClientBase(helperBridge);
         final XWalkView xWalkView =
-                createXWalkViewContainerOnMainSync(getActivity(), contentClient,
-                        new TestXWalkViewClient(), new TestXWalkChromeClient());
+                createXWalkViewContainerOnMainSync(getActivity(), client,
+                        resourceClient, chromeClient);
+
         final XWalkContent xWalkContent = getXWalkContentOnMainSync(xWalkView);
         final XWalkSettings settings = getXWalkSettings(xWalkView);
         settings.setJavaScriptEnabled(true);

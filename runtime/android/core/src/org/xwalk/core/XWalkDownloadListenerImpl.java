@@ -26,7 +26,7 @@ import org.xwalk.core.AndroidProtocolHandler;
 import org.xwalk.core.DownloadListener;
 import org.xwalk.core.R;
 
-class XWalkDefaultDownloadListener implements DownloadListener {
+class XWalkDownloadListenerImpl implements DownloadListener {
     private static String DOWNLOAD_START_TOAST;
     private static String DOWNLOAD_NO_PERMISSION_TOAST;
     private static String DOWNLOAD_ALREADY_EXISTS_TOAST;
@@ -35,7 +35,7 @@ class XWalkDefaultDownloadListener implements DownloadListener {
 
     private Context mContext;
 
-    public XWalkDefaultDownloadListener(Context context) {
+    public XWalkDownloadListenerImpl(Context context) {
         mContext = context;
 
         DOWNLOAD_START_TOAST = mContext.getString(R.string.download_start_toast);

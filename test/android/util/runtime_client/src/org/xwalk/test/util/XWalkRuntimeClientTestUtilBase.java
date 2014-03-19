@@ -1,5 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -26,7 +26,7 @@ public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRunti
             mCallbackHelpers.didFinishLoad(url);
         }
 
-        public void onReceivedError(int errorCode, String description, String failingUrl) {
+        public void onReceivedLoadError(int errorCode, String description, String failingUrl) {
             mCallbackHelpers.onReceivedError(errorCode, description, failingUrl);
         }
 
