@@ -18,5 +18,5 @@
     "Messaging"],
   "required_version": "1.28.1.0",
   "plugin": [],
-  "fullscreen":"true"
+  "display": ["fullscreen"]
 }
