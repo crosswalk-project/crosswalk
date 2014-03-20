@@ -701,6 +701,11 @@ def main(argv):
                    '"--app-local-path" options together!')
     if options.permissions:
       permission_list = options.permissions.split(':')
+      for permission in permission_list:
+        if permission.lower() not in list(permission_mapping_table.keys()):
+          print('Error: permission \'%s\' related API is not supported.'
+                % permission)
+          sys.exit(13)
     else:
       print ('Warning: all supported permissions on Android port are added. '
              'Refer to https://github.com/crosswalk-project/'
