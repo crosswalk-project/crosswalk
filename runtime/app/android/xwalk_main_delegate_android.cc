@@ -54,15 +54,6 @@ int XWalkMainDelegateAndroid::RunProcess(
 }
 
 void XWalkMainDelegateAndroid::InitResourceBundle() {
-  int pak_fd =
-      base::GlobalDescriptors::GetInstance()->MaybeGet(kXWalkPakDescriptor);
-  if (pak_fd != base::kInvalidPlatformFileValue) {
-    ui::ResourceBundle::InitSharedInstanceWithPakFile(
-        base::File(pak_fd), false);
-    ResourceBundle::GetSharedInstance().AddDataPackFromFile(
-        base::File(pak_fd), ui::SCALE_FACTOR_100P);
-    return;
-  }
   base::FilePath pak_file;
   base::FilePath pak_dir;
   bool got_path = PathService::Get(base::DIR_ANDROID_APP_DATA, &pak_dir);

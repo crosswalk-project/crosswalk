@@ -98,10 +98,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int notification_id) OVERRIDE;
 
 #if defined(OS_ANDROID)
-  virtual void GetAdditionalMappedFilesForChildProcess(
-      const CommandLine& command_line,
-      int child_process_id,
-      std::vector<content::FileDescriptorInfo>* mappings) OVERRIDE;
   virtual void ResourceDispatcherHostCreated();
 #endif
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
