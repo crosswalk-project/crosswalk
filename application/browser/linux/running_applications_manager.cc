@@ -72,9 +72,13 @@ void RunningApplicationsManager::OnLaunch(
 
   dbus::MessageReader reader(method_call);
   std::string app_id;
+  // We might want to pass key-value pairs if have more parameters in future.
   unsigned int launcher_pid;
+  bool fullscreen;
+
   if (!reader.PopString(&app_id) ||
-      !reader.PopUint32(&launcher_pid)) {
+      !reader.PopUint32(&launcher_pid) ||
+      !reader.PopBool(&fullscreen)) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
                     "Error parsing message. Missing arguments.");
@@ -84,6 +88,8 @@ void RunningApplicationsManager::OnLaunch(
 
   Application::LaunchParams params;
   params.launcher_pid = launcher_pid;
+  if (fullscreen)
+    params.window_state = ui::SHOW_STATE_FULLSCREEN;
 
   Application* application = application_service_->Launch(app_id, params);
   if (!application) {

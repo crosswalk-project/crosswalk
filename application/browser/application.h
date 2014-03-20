@@ -14,6 +14,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
+#include "ui/base/ui_base_types.h"
 #include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -63,13 +64,17 @@ class Application : public Runtime::Observer {
   struct LaunchParams {
     LaunchParams() :
         entry_points(Default),
-        launcher_pid(0) {}
+        launcher_pid(0),
+        window_state(ui::SHOW_STATE_DEFAULT) {}
 
     LaunchEntryPoints entry_points;
 
     // Used only when running as service. Specifies the PID of the launcher
     // process.
     int32 launcher_pid;
+
+    // Sets the initial state for the application windows.
+    ui::WindowShowState window_state;
   };
 
   // Closes all the application's runtimes (application pages).

@@ -101,6 +101,8 @@ bool Application::Launch(const LaunchParams& launch_params) {
   if (entry_point_used_ != AppMainKey) {
     NativeAppWindow::CreateParams params;
     params.net_wm_pid = launch_params.launcher_pid;
+    params.state = launch_params.window_state;
+
     main_runtime_->AttachWindow(params);
   }
 

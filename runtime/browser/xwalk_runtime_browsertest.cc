@@ -145,30 +145,16 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
-  // At least one Runtime instance is created at startup.
-  size_t len = runtimes().size();
-  ASSERT_EQ(1, len);
-  // Original Runtime should has non fullscreen window.
-  EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
-
-  // Add "--fullscreen" launch argument.
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  cmd_line->AppendSwitch("fullscreen");
-
-  // Create a new Runtime instance.
-  FullscreenNotificationObserver fullscreen_observer;
   GURL url(test_server()->GetURL("test.html"));
-  Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url, runtime_registry());
-  content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len + 1, runtimes().size());
-  fullscreen_observer.Wait();
-  EXPECT_TRUE(true == new_runtime->window()->IsFullscreen());
+  Runtime* new_runtime = Runtime::Create(
+      runtime()->runtime_context(), runtime_registry());
 
-  // Close the newly created Runtime instance.
-  new_runtime->Close();
-  content::RunAllPendingInMessageLoop();
-  EXPECT_EQ(len, runtimes().size());
+  NativeAppWindow::CreateParams params;
+  params.state = ui::SHOW_STATE_FULLSCREEN;
+  new_runtime->AttachWindow(params);
+  xwalk_test_utils::NavigateToURL(new_runtime, url);
+
+  EXPECT_TRUE(new_runtime->window()->IsFullscreen());
 }
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {

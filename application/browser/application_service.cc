@@ -21,9 +21,7 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
-#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/event_names.h"
-#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -470,6 +468,36 @@ bool ApplicationService::Uninstall(const std::string& id) {
 }
 
 Application* ApplicationService::Launch(
+    scoped_refptr<ApplicationData> application_data,
+    const Application::LaunchParams& launch_params) {
+  if (GetApplicationByID(application_data->ID()) != NULL) {
+    LOG(INFO) << "Application with id: " << application_data->ID()
+              << " is already running.";
+    // FIXME: we need to notify application that it had been attempted
+    // to invoke and let the application to define the further behavior.
+    return NULL;
+  }
+
+  event_manager_->AddEventRouterForApp(application_data);
+  Application* application(new Application(application_data,
+                                           runtime_context_,
+                                           this));
+  ScopedVector<Application>::iterator app_iter =
+      applications_.insert(applications_.end(), application);
+
+  if (!application->Launch(launch_params)) {
+    event_manager_->RemoveEventRouterForApp(application_data);
+    applications_.erase(app_iter);
+    return NULL;
+  }
+
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    DidLaunchApplication(application));
+
+  return application;
+}
+
+Application* ApplicationService::Launch(
     const std::string& id, const Application::LaunchParams& params) {
   scoped_refptr<ApplicationData> application_data =
     application_storage_->GetApplicationData(id);
@@ -481,7 +509,8 @@ Application* ApplicationService::Launch(
   return Launch(application_data, params);
 }
 
-Application* ApplicationService::Launch(const base::FilePath& path) {
+Application* ApplicationService::Launch(
+    const base::FilePath& path, const Application::LaunchParams& params) {
   if (!base::DirectoryExists(path))
     return NULL;
 
@@ -495,36 +524,7 @@ Application* ApplicationService::Launch(const base::FilePath& path) {
     return NULL;
   }
 
-  return Launch(application_data, Application::LaunchParams());
-}
-
-Application* ApplicationService::Launch(const GURL& url) {
-  namespace keys = xwalk::application_manifest_keys;
-
-  const std::string& url_spec = url.spec();
-  DCHECK(!url_spec.empty());
-  const std::string& app_id = GenerateId(url_spec);
-  // FIXME: we need to handle hash collisions.
-  DCHECK(!application_storage_->GetApplicationData(app_id));
-
-  base::DictionaryValue manifest;
-  // FIXME: define permissions!
-  manifest.SetString(keys::kURLKey, url_spec);
-  manifest.SetString(keys::kNameKey, "XWalk Dummy App");
-  manifest.SetString(keys::kVersionKey, "0");
-  manifest.SetInteger(keys::kManifestVersionKey, 1);
-  std::string error;
-  scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
-            base::FilePath(), Manifest::COMMAND_LINE, manifest, app_id, &error);
-  if (!application_data) {
-    LOG(ERROR) << "Error occurred while trying to launch application: "
-               << error;
-    return NULL;
-  }
-
-  Application::LaunchParams launch_params;
-  launch_params.entry_points = Application::URLKey;
-  return Launch(application_data, launch_params);
+  return Launch(application_data, params);
 }
 
 namespace {
@@ -587,36 +587,6 @@ void ApplicationService::OnApplicationTerminated(
     base::MessageLoop::current()->PostTask(
             FROM_HERE, base::MessageLoop::QuitClosure());
   }
-}
-
-Application* ApplicationService::Launch(
-    scoped_refptr<ApplicationData> application_data,
-    const Application::LaunchParams& launch_params) {
-  if (GetApplicationByID(application_data->ID()) != NULL) {
-    LOG(INFO) << "Application with id: " << application_data->ID()
-              << " is already running.";
-    // FIXME: we need to notify application that it had been attempted
-    // to invoke and let the application to define the further behavior.
-    return NULL;
-  }
-
-  event_manager_->AddEventRouterForApp(application_data);
-  Application* application(new Application(application_data,
-                                           runtime_context_,
-                                           this));
-  ScopedVector<Application>::iterator app_iter =
-      applications_.insert(applications_.end(), application);
-
-  if (!application->Launch(launch_params)) {
-    event_manager_->RemoveEventRouterForApp(application_data);
-    applications_.erase(app_iter);
-    return NULL;
-  }
-
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    DidLaunchApplication(application));
-
-  return application;
 }
 
 void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
