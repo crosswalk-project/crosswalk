@@ -29,8 +29,9 @@ static int pkgmgr_parser_parse_manifest_for_uninstallation(
 #include "base/file_util.h"
 
 namespace {
-
+#if defined(OS_TIZEN_MOBILE)
 const base::FilePath kIconDir("/opt/share/icons/default/small/");
+#endif
 const base::FilePath kXmlDir("/opt/share/packages/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 const std::string kServicePrefix("xwalk-service.");
@@ -59,6 +60,9 @@ class FileDeleter {
 
 bool InstallApplication(const char* appid, const char* xmlpath,
                         const char* iconpath) {
+// FIXME: We need to know the appropriate place to store icons on Tizen IVI
+// and put them there.
+#if defined(OS_TIZEN_MOBILE)
   base::FilePath icon_src(iconpath);
   // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
@@ -71,6 +75,9 @@ bool InstallApplication(const char* appid, const char* xmlpath,
   }
 
   FileDeleter icon_cleaner(icon_dst, false);
+#else
+    (void)iconpath;  // Avoid compiler warnings.
+#endif
 
   base::FilePath xml_src(xmlpath);
   base::FilePath xml_dst = kXmlDir.Append(
@@ -87,8 +94,9 @@ bool InstallApplication(const char* appid, const char* xmlpath,
     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath);
     return false;
   }
-
+#if defined(OS_TIZEN_MOBILE)
   icon_cleaner.Dismiss();
+#endif
   xml_cleaner.Dismiss();
 
   return true;
@@ -96,7 +104,7 @@ bool InstallApplication(const char* appid, const char* xmlpath,
 
 bool UninstallApplication(const char* appid) {
   bool result = true;
-
+#if defined(OS_TIZEN_MOBILE)
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath icon_dst = kIconDir.Append(
       kServicePrefix + std::string(appid) + ".png");
@@ -104,7 +112,7 @@ bool UninstallApplication(const char* appid) {
     fprintf(stdout, "Couldn't delete '%s'\n", icon_dst.value().c_str());
     result = false;
   }
-
+#endif
   base::FilePath xmlpath(kXmlDir);
   xmlpath = xmlpath.Append(kServicePrefix + std::string(appid) + ".xml");
 
