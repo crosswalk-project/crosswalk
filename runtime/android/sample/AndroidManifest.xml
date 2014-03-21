@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Copyright (c) 2014 Intel Corporation. All rights reserved.
+
+  Use of this source code is governed by a BSD-style license that can be
+  found in the LICENSE file.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.xwalk.core.sample"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name="android.app.Application"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/crosswalk"
+        android:label="CrosswalkSample" >
+        <activity
+            android:name="org.xwalk.core.sample.XWalkEmbeddingAPISample"
+            android:label="Crosswalk Sample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.XWalkViewWithLayoutActivity"
+            android:label="XWalkView UI Inflation"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.MultiXWalkViewActivity"
+            android:label="Multiple XWalkView Instances"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.LoadAppFromManifestActivity"
+            android:label="Manifest"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.ResourceAndUIClientsActivity"
+            android:label="XWalkResourceClient and XWalkUIClient"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.XWalkPreferencesActivity"
+            android:label="Preferences"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.XWalkNavigationActivity"
+            android:label="Page Navigation"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.PauseTimersActivity"
+            android:label="Pause/Resume JavaScript Timers"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.xwalk.core.sample.OnHideOnShowActivity"
+            android:label="Visibility Change"
+            android:parentActivityName="org.xwalk.core.sample.XWalkEmbeddingAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
