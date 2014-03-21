@@ -11,6 +11,8 @@
 
 #if defined(OS_TIZEN)
 #include <pkgmgr/pkgmgr_parser.h>
+#include <ail.h>
+
 #else
 // So we can compile this on Linux Desktop
 static int pkgmgr_parser_parse_manifest_for_installation(
@@ -32,6 +34,7 @@ namespace {
 
 const base::FilePath kIconDir("/opt/share/icons/default/small/");
 const base::FilePath kXmlDir("/opt/share/packages/");
+const base::FilePath kDesktopDir("/opt/share/applications/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 const std::string kServicePrefix("xwalk-service.");
 
@@ -58,12 +61,14 @@ class FileDeleter {
 };
 
 bool InstallApplication(const char* appid, const char* xmlpath,
-                        const char* iconpath) {
+                        const char* iconpath, const char* label) {
   base::FilePath icon_src(iconpath);
   // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath icon_dst = kIconDir.Append(
       kServicePrefix + std::string(appid) + ".png");
+  ail_error_e ret_ail;
+
   if (!base::CopyFile(icon_src, icon_dst)) {
     fprintf(stdout, "Couldn't copy application icon to '%s'\n",
             icon_dst.value().c_str());
@@ -87,6 +92,15 @@ bool InstallApplication(const char* appid, const char* xmlpath,
     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath);
     return false;
   }
+  base::FilePath desktop_file = kDesktopDir.Append(
+      kServicePrefix + std::string(appid) + "." +
+      std::string(label) + ".desktop");
+
+  ret_ail = ail_desktop_add(desktop_file.value().c_str());
+  if (ret_ail != AIL_ERROR_OK) {
+    fprintf(stdout, "Couldn't add correctly app '%s' in app_info.db %d \n",
+      desktop_file.value().c_str(), ret_ail);
+  }
 
   icon_cleaner.Dismiss();
   xml_cleaner.Dismiss();
@@ -94,12 +108,14 @@ bool InstallApplication(const char* appid, const char* xmlpath,
   return true;
 }
 
-bool UninstallApplication(const char* appid) {
+bool UninstallApplication(const char* appid, const char* label) {
   bool result = true;
 
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath icon_dst = kIconDir.Append(
       kServicePrefix + std::string(appid) + ".png");
+  ail_error_e ret_ail;
+
   if (!base::DeleteFile(icon_dst, false)) {
     fprintf(stdout, "Couldn't delete '%s'\n", icon_dst.value().c_str());
     result = false;
@@ -120,6 +136,14 @@ bool UninstallApplication(const char* appid) {
     fprintf(stdout, "Couldn't delete '%s'\n", xmlpath.value().c_str());
     result = false;
   }
+  base::FilePath desktop_file = kDesktopDir.Append(
+    kServicePrefix + std::string(appid) +"." + std::string(label) + ".desktop");
+
+  ret_ail = ail_desktop_remove(desktop_file.value().c_str());
+  if (ret_ail != AIL_ERROR_OK) {
+    fprintf(stdout, "Couldn't remove app  correctly '%s' in app_info.db %d \n",
+      desktop_file.value().c_str(), ret_ail);
+  }
 
   return result;
 }
@@ -128,8 +152,8 @@ int usage(const char* program) {
   fprintf(stdout, "%s - Crosswalk Tizen Application Installation helper\n\n",
           basename(program));
   fprintf(stdout, "Usage: \n"
-          "\t%s --install <appid> <xml> <icon>\n"
-          "\t%s --uninstall <appid>\n",
+          "\t%s --install <appid> <xml> <icon> <label>\n"
+          "\t%s --uninstall <appid> <label>\n",
           program, program);
   return 1;
 }
@@ -139,7 +163,7 @@ int usage(const char* program) {
 int main(int argc, char *argv[]) {
   bool result = false;
 
-  if (argc <= 2)
+  if (argc <= 3)
     return usage(argv[0]);
 
   // When installing an application on Tizen, the libraries used require
@@ -151,15 +175,15 @@ int main(int argc, char *argv[]) {
   }
 
   if (!strcmp(argv[1], "--install")) {
-    if (argc != 5)
+    if (argc != 6)
       return usage(argv[0]);
 
-    result = InstallApplication(argv[2], argv[3], argv[4]);
+    result = InstallApplication(argv[2], argv[3], argv[4], argv[5]);
   } else if (!strcmp(argv[1], "--uninstall")) {
-    if (argc != 3)
+    if (argc != 4)
       return usage(argv[0]);
 
-    result = UninstallApplication(argv[2]);
+    result = UninstallApplication(argv[2], argv[3]);
   } else {
     return usage(argv[0]);
   }

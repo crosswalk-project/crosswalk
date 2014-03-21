@@ -56,6 +56,7 @@ BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(vconf)
+BuildRequires:  pkgconfig(ail)
 %if %{with x}
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
