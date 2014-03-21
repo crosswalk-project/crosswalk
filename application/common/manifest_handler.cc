@@ -9,6 +9,9 @@
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
+#if defined(OS_TIZEN)
+#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
+#endif
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
@@ -71,6 +74,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
   handlers.push_back(new CSPHandler(Manifest::TYPE_WGT));
+  handlers.push_back(new NavigationHandler);
 #endif
   widget_registry_ = new ManifestHandlerRegistry(handlers);
   return widget_registry_;

@@ -62,6 +62,7 @@ const char kAccessSubdomainsKey[] = "@subdomains";
 #if defined(OS_TIZEN)
 const char kIcon128Key[] = "widget.icon.@src";
 const char kTizenAppIdKey[] = "widget.application.@package";
+const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
 #endif
 }  // namespace application_widget_keys
 

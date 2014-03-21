@@ -57,6 +57,11 @@
             '../skia/skia.gyp:skia',
           ],
         }],
+        ['tizen == 1 or tizen_mobile == 1', {
+          'sources': [
+            'application/common/manifest_handlers/navigation_handler_unittest.cc',
+          ],
+        }],
       ],
     },
     {
