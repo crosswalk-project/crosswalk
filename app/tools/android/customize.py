@@ -25,12 +25,14 @@ def ReplaceInvalidChars(value, mode='default'):
     mode: the target usage mode of original string.
   """
   if mode == 'default':
-    invalid_chars = '\/:*?"<>|- '
+    invalid_chars = '\/:*?"<>|-'
+  elif mode == 'packagename':
+    invalid_chars = '\/:~*?"<>|- '
   elif mode == 'apkname':
-    invalid_chars = '\/:.*?"<>|-'
+    invalid_chars = '\/:^.~`&@#$%{}[](),!*?"<>|- '
   for c in invalid_chars:
-    if mode == 'apkname' and c in value:
-      print("Illegal character: '%s' is replaced with '_'" % c)
+    if mode == 'default' or mode == 'apkname' and c in value:
+      print("Illegal character: '%s' is replaced with '_' in apk." % c)
     value = value.replace(c,'_')
   return value
 
@@ -371,8 +373,8 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  display_as_fullscreen, extensions, launch_screen_img,
                  package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified') :
-  sanitized_name = ReplaceInvalidChars(name, 'apkname')
+                 sanitized_name = 'AppTemplate', app_version='1.0.0',
+                 orientation='unspecified'):
   try:
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
@@ -435,6 +437,8 @@ def main():
   parser.add_option('--launch-screen-img',
                     help='The fallback image for launch_screen')
   options, _ = parser.parse_args()
+  sanitized_name = ReplaceInvalidChars(options.name)
+  sanitized_name = ReplaceInvalidChars(sanitized_name, 'apkname')
   try:
     icon_dict = {144: 'icons/icon_144.png',
                  72: 'icons/icon_72.png',
@@ -455,7 +459,7 @@ def main():
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
                  options.launch_screen_img, options.package, options.name,
-                 options.app_version, options.orientation)
+                 sanitized_name, options.app_version, options.orientation)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
