@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 public class XWalkClient {
@@ -185,13 +186,14 @@ public class XWalkClient {
      * load.
      *
      * @param view The XWalkView that is initiating the callback.
-     * @param handler An SslErrorHandler object that will handle the user's
-     *            response.
+     * @param callback The callback class. Passing 'true' means accepting the
+     *                 ssl error and continue to load. Passing 'false' means
+     *                 forbidding to load the web page.
      * @param error The SSL error object.
      */
-    public void onReceivedSslError(XWalkView view, SslErrorHandler handler,
+    public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback,
             SslError error) {
-        handler.cancel();
+        callback.onReceiveValue(true);
     }
 
     /**

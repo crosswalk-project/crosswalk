@@ -27,7 +27,7 @@
         Finished to download file.
       </message>
       <message desc="Title for the Ssl Alert dialog [CHAR-LIMIT=32]" name="IDS_SSL_ALERT_TITLE">
-        Ssl Alert
+        Ssl Certificate Error Alert
       </message>
       <message desc="Title for the http authentication dialog [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_TITLE">
         Authentication Required
