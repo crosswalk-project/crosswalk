@@ -270,6 +270,19 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
 
+  def testPermissionsWithError(self):
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--permissions=UndefinedPermission',
+           '--app-url=http://www.intel.com', self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(out.find('related API is not supported.') != -1)
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example',
+           '--permissions=Contacts.Geolocation.Messaging',
+           '--app-url=http://www.intel.com', self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(out.find('related API is not supported.') != -1)
+
   def testPackage(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            self._mode]
@@ -730,6 +743,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testOrientation'))
   test_suite.addTest(TestMakeApk('testPackage'))
   test_suite.addTest(TestMakeApk('testPermissions'))
+  test_suite.addTest(TestMakeApk('testPermissionsWithError'))
   test_suite.addTest(TestMakeApk('testXPK'))
   test_suite.addTest(TestMakeApk('testXPKWithError'))
   test_suite.addTest(TestMakeApk('testTargetDir'))
