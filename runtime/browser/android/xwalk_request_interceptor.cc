@@ -59,13 +59,13 @@ XWalkRequestInterceptor::QueryForInterceptedRequestData(
     const GURL& location,
     net::URLRequest* request) const {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  int render_process_id, render_view_id;
+  int render_process_id, render_frame_id;
   if (!ResourceRequestInfo::GetRenderFrameForRequest(
-      request, &render_process_id, &render_view_id))
+      request, &render_process_id, &render_frame_id))
     return scoped_ptr<InterceptedRequestData>();
 
   scoped_ptr<XWalkContentsIoThreadClient> io_thread_client =
-    XWalkContentsIoThreadClient::FromID(render_process_id, render_view_id);
+    XWalkContentsIoThreadClient::FromID(render_process_id, render_frame_id);
 
   if (!io_thread_client.get())
     return scoped_ptr<InterceptedRequestData>();

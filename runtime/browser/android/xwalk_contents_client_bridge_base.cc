@@ -6,6 +6,7 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
 
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 
@@ -55,7 +56,7 @@ XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromWebContents(
 }
 
 // static
-XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromID(
+XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromRenderViewID(
     int render_process_id,
     int render_view_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -64,6 +65,19 @@ XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromID(
   if (!rvh) return NULL;
   content::WebContents* web_contents =
       content::WebContents::FromRenderViewHost(rvh);
+  return UserData::GetContents(web_contents);
+}
+
+// static
+XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromRenderFrameID(
+    int render_process_id,
+    int render_frame_id) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  content::RenderFrameHost* rfh =
+      content::RenderFrameHost::FromID(render_process_id, render_frame_id);
+  if (!rfh) return NULL;
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(rfh);
   return UserData::GetContents(web_contents);
 }
 

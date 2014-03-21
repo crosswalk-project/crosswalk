@@ -57,7 +57,7 @@ bool XWalkCookieAccessPolicy::AllowGetCookie(
     const net::CookieList& cookie_list,
     content::ResourceContext* context,
     int render_process_id,
-    int render_view_id) {
+    int render_frame_id) {
   return GetGlobalAllowAccess();
 }
 
@@ -67,7 +67,7 @@ bool XWalkCookieAccessPolicy::AllowSetCookie(
     const std::string& cookie_line,
     content::ResourceContext* context,
     int render_process_id,
-    int render_view_id,
+    int render_frame_id,
     net::CookieOptions* options) {
   return GetGlobalAllowAccess();
 }
