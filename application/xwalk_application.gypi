@@ -83,6 +83,8 @@
         'extension/application_runtime_extension.h',
         'extension/application_widget_extension.cc',
         'extension/application_widget_extension.h',
+        'extension/application_widget_storage.cc',
+        'extension/application_widget_storage.h',
 
         'renderer/application_native_module.cc',
         'renderer/application_native_module.h',

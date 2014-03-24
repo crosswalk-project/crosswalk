@@ -71,8 +71,9 @@ void ParsePreferenceItem(const base::DictionaryValue* in_value,
   if (in_value->GetString(keys::kPreferencesValueKey, &pref_value))
     out_value->SetString(kPreferencesValue, pref_value);
 
-  if (in_value->GetString(keys::kPreferencesReadonlyKey, &pref_readonly))
-    out_value->SetString(kPreferencesReadonly, pref_readonly);
+  if (in_value->GetString(keys::kPreferencesReadonlyKey, &pref_readonly)) {
+      out_value->SetBoolean(kPreferencesReadonly, pref_readonly == "true");
+  }
 }
 
 }  // namespace
