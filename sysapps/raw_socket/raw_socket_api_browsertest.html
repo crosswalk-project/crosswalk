@@ -10,8 +10,10 @@
       var current_test = 0;
       var test_list = [
         memoryManagement,
-        pingPong,
-        serverPortBusy,
+        pingPongTCP,
+        pingPongUDP,
+        serverPortBusyTCP,
+        serverPortBusyUDP,
         endTest
       ];
 
@@ -40,9 +42,16 @@
         // initialization is completed, the object will be collected if no
         // variable is keeping a reference to it.
         function runGCandCheck() {
+          // The GC is called here more than once to make sure
+          // all the dangling objects get collected. Calling the GC
+          // one time does not give a guarantee that everything that
+          // can be collected will be collected.
           gc();
-          if (garbageCollectionCount != 2)
-            reportFail("TCPSocket or TCPServerSocket is leaking.");
+          gc();
+          gc();
+
+          if (garbageCollectionCount != 3)
+            reportFail("TCPSocket, TCPServerSocket or UDPSocket is leaking.");
           else
             runNextTest();
         };
@@ -60,7 +69,7 @@
           server.onopen = null;
           server = null;
 
-          if (++eventCount == 2)
+          if (++eventCount == 3)
             setTimeout(runGCandCheck, 0);
         };
 
@@ -76,7 +85,23 @@
           client.onopen = null;
           client = null;
 
-          if (++eventCount == 2)
+          if (++eventCount == 3)
+            setTimeout(runGCandCheck, 0);
+        };
+
+        var udp = new api.UDPSocket({localAddress: "127.0.0.1", localPort: 7000});
+        udp.onerror = udp.onopen = nullifyUDP;
+        udp.tracker = v8tools.lifecycleTracker();
+        udp.tracker.destructor = function() {
+          garbageCollectionCount++;
+        };
+
+        function nullifyUDP() {
+          udp.onerror = null;
+          udp.onopen = null;
+          udp = null;
+
+          if (++eventCount == 3)
             setTimeout(runGCandCheck, 0);
         };
       };
@@ -89,7 +114,7 @@
       //
       // This is not an API conformance test, it just verifies if the basic
       // functionality works. W3C should provide the former.
-      function pingPong(serverPort) {
+      function pingPongTCP(serverPort) {
         serverPort = serverPort || 5000;
         var serverPortMax = 5020;
         var testData = "Hello World!";
@@ -101,7 +126,7 @@
           // The default port might be busy, so we try different ports
           // before reporting failure.
           if (serverPort < serverPortMax)
-            pingPong(++serverPort);
+            pingPongTCP(++serverPort);
           else
             reportFail("Not able to listen at port " + serverPort + ".");
         };
@@ -138,22 +163,72 @@
         };
       };
 
-      function serverPortBusy(serverPort) {
-        serverPort = serverPort || 7000;
-        var serverPortMax = 7020;
+      function pingPongUDP(serverPort) {
+        serverPort = serverPort || 6000;
+        var serverPortMax = 6020;
+        var testData = "Hello World!";
 
-        var server = new api.TCPServerSocket(
+        var server = new api.UDPSocket(
             {"localAddress": "127.0.0.1", "localPort": serverPort});
 
         server.onerror = function() {
+          // The default port might be busy, so we try different ports
+          // before reporting failure.
           if (serverPort < serverPortMax)
-            serverPortBusy(++serverPort);
+            pingPongUDP(++serverPort);
           else
             reportFail("Not able to listen at port " + serverPort + ".");
         };
 
         server.onopen = function() {
-          var serverShouldFail = new api.TCPServerSocket(
+          var client = new api.UDPSocket(
+              {remoteAddress: "127.0.0.1", remotePort: serverPort});
+          client.onopen = function() {
+            client.send(testData);
+          };
+
+          client.onerror = function() {
+            reportFail("Not able to connect to port " + serverPort + ".");
+          };
+
+          client.onmessage = function(event) {
+            var view = new Uint8Array(event.data);
+            var data = String.fromCharCode.apply(null, view);
+
+            if (data != testData)
+              reportFail("Invalid data received by the client socket.");
+            else
+              runNextTest();
+          };
+        };
+
+        server.onmessage = function(event) {
+          var view = new Uint8Array(event.data);
+          var data = String.fromCharCode.apply(null, view);
+
+          if (data != testData)
+            reportFail("Invalid data received by server socket.");
+          else
+            server.send(data, event.remoteAddress, event.remotePort);
+        };
+      };
+
+      function serverPortBusy(Socket, serverPort) {
+        serverPort = serverPort || 7000;
+        var serverPortMax = 7020;
+
+        var server = new Socket(
+            {"localAddress": "127.0.0.1", "localPort": serverPort});
+
+        server.onerror = function() {
+          if (serverPort < serverPortMax)
+            serverPortBusy(Socket, ++serverPort);
+          else
+            reportFail("Not able to listen at port " + serverPort + ".");
+        };
+
+        server.onopen = function() {
+          var serverShouldFail = new Socket(
               {"localAddress": "127.0.0.1", "localPort": serverPort});
 
           // Should fail, port already in use by another server.
@@ -162,6 +237,14 @@
             reportFail("Port " + serverPort + " should be busy.");
           };
         };
+      };
+
+      function serverPortBusyTCP() {
+        serverPortBusy(api.TCPServerSocket);
+      };
+
+      function serverPortBusyUDP() {
+        serverPortBusy(api.UDPSocket);
       };
 
       runNextTest();
