@@ -137,7 +137,10 @@ const std::string& ApplicationData::ID() const {
 }
 
 const std::string ApplicationData::VersionString() const {
-  return Version()->GetString();
+  if (!version_->components().empty())
+    return Version()->GetString();
+
+  return "";
 }
 
 bool ApplicationData::IsPlatformApp() const {
