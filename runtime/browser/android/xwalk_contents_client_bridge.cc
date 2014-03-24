@@ -40,7 +40,7 @@ void RunUpdateNotificationIconOnUIThread(
     int route_id,
     const SkBitmap& icon) {
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromID(process_id, route_id);
+      XWalkContentsClientBridgeBase::FromRenderViewID(process_id, route_id);
   if (bridge)
     bridge->UpdateNotificationIcon(notification_id, icon);
 }

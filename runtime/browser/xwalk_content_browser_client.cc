@@ -16,6 +16,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
+#include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
@@ -157,7 +158,7 @@ bool XWalkContentBrowserClient::AllowGetCookie(
     const net::CookieList& cookie_list,
     content::ResourceContext* context,
     int render_process_id,
-    int render_view_id) {
+    int render_frame_id) {
 #if defined(OS_ANDROID)
   return XWalkCookieAccessPolicy::GetInstance()->AllowGetCookie(
       url,
@@ -165,7 +166,7 @@ bool XWalkContentBrowserClient::AllowGetCookie(
       cookie_list,
       context,
       render_process_id,
-      render_view_id);
+      render_frame_id);
 #else
   return true;
 #endif
@@ -177,7 +178,7 @@ bool XWalkContentBrowserClient::AllowSetCookie(
     const std::string& cookie_line,
     content::ResourceContext* context,
     int render_process_id,
-    int render_view_id,
+    int render_frame_id,
     net::CookieOptions* options) {
 #if defined(OS_ANDROID)
   return XWalkCookieAccessPolicy::GetInstance()->AllowSetCookie(
@@ -186,7 +187,7 @@ bool XWalkContentBrowserClient::AllowSetCookie(
       cookie_line,
       context,
       render_process_id,
-      render_view_id,
+      render_frame_id,
       options);
 #else
   return true;
@@ -219,7 +220,8 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
     bool worker) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromID(render_process_id, render_view_id);
+      XWalkContentsClientBridgeBase::FromRenderViewID(render_process_id,
+          render_view_id);
   bridge->ShowNotification(params, worker, render_process_id, render_view_id);
 #endif
 }
@@ -230,7 +232,8 @@ void XWalkContentBrowserClient::CancelDesktopNotification(
     int notification_id) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromID(render_process_id, render_view_id);
+      XWalkContentsClientBridgeBase::FromRenderViewID(render_process_id,
+          render_view_id);
   bridge->CancelNotification(
       notification_id, render_process_id, render_view_id);
 #endif

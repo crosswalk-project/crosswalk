@@ -35,8 +35,10 @@ class XWalkContentsClientBridgeBase {
                         XWalkContentsClientBridgeBase* handler);
   static XWalkContentsClientBridgeBase* FromWebContents(
       content::WebContents* web_contents);
-  static XWalkContentsClientBridgeBase* FromID(int render_process_id,
+  static XWalkContentsClientBridgeBase* FromRenderViewID(int render_process_id,
                                             int render_view_id);
+  static XWalkContentsClientBridgeBase* FromRenderFrameID(int render_process_id,
+                                            int render_frame_id);
 
   virtual ~XWalkContentsClientBridgeBase();
 
