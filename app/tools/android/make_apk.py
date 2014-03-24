@@ -702,9 +702,9 @@ def main(argv):
     if options.permissions:
       permission_list = options.permissions.split(':')
     else:
-      print ('Warning: all supported permissions on Android port are added. '
-             'Refer to https://github.com/crosswalk-project/'
-             'crosswalk-website/wiki/Crosswalk-manifest')
+      print('Warning: all supported permissions on Android port are added. '
+            'Refer to https://github.com/crosswalk-project/'
+            'crosswalk-website/wiki/Crosswalk-manifest')
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
 
@@ -713,6 +713,12 @@ def main(argv):
       ParseManifest(options)
     except SystemExit as ec:
       return ec.code
+
+  if (options.app_root and options.app_local_path and not
+      os.path.isfile(os.path.join(options.app_root, options.app_local_path))):
+    print('Please make sure that the local path file of launching app '
+          'does exist.')
+    sys.exit(7)
 
   options.name = ReplaceInvalidChars(options.name, 'apkname')
   options.package = ReplaceInvalidChars(options.package)

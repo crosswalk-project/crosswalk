@@ -331,6 +331,13 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
+    manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    RunCommand(cmd)
+    self.assertTrue(out.find('Please make sure the local path file') != -1)
+    self.assertFalse(os.path.exists('Example.apk'))
+    Clean('Example', '1.0.0')
+
   def testIcon(self):
     icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
