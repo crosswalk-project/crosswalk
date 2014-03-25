@@ -6,6 +6,8 @@ package org.xwalk.core.extension.api.contacts;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
@@ -261,10 +263,11 @@ public class ContactFinder {
                 long id = c.getLong(c.getColumnIndex(Data.CONTACT_ID));
                 if (!dataMap.containsKey(id)) dataMap.put(id, new ContactData());
                 ContactData d = dataMap.get(id);
+                if (d.lastUpdated == null && VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR2) {
+                    d.lastUpdated = mUtils.getLastUpdated(id);
+                }
                 String mime = c.getString(c.getColumnIndex(Data.MIMETYPE));
-                if (mime.equals(ContactConstants.CUSTOM_MIMETYPE_LASTUPDATED)) {
-                    d.lastUpdated = c.getString(c.getColumnIndex(Data.DATA1));
-                } else if (mime.equals(StructuredName.CONTENT_ITEM_TYPE)) {
+                if (mime.equals(StructuredName.CONTENT_ITEM_TYPE)) {
                     d.oName = addString(d.oName, c, "displayName", StructuredName.DISPLAY_NAME);
                     d.oName = addArrayTop(d.oName, c, "honorificPrefixes", StructuredName.PREFIX);
                     d.oName = addArrayTop(d.oName, c, "givenNames", StructuredName.GIVEN_NAME);

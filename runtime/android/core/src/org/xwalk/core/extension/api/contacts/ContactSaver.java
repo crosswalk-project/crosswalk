@@ -170,10 +170,6 @@ public class ContactSaver {
         }
     }
 
-    private void buildByDate(String name, String mimeType, String data) {
-        buildByDate(name, mimeType, data, null, 0);
-    }
-
     private void buildByDate(String name, String mimeType, String data, String type, int dateType) {
         if (!mContact.has(name)) return;
 
@@ -200,12 +196,12 @@ public class ContactSaver {
         }
     }
 
-    private void PutToContact(String id) {
-        if (id == null) return;
+    private void PutToContact(String name, String value) {
+        if (name == null) return;
         try {
-            mContact.put("id", id);
+            mContact.put(name, value);
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to put id " + id + " into contact" + e.toString());
+            Log.e(TAG, "Failed to set " + name + " = " + value + " for contact" + e.toString());
         }
     }
 
@@ -281,7 +277,6 @@ public class ContactSaver {
             }
         }
 
-        buildByDate("lastUpdated", ContactConstants.CUSTOM_MIMETYPE_LASTUPDATED, Data.DATA1);
         buildByEvent("birthday", Event.TYPE_BIRTHDAY);
         buildByEvent("anniversary", Event.TYPE_ANNIVERSARY);
 
@@ -311,8 +306,11 @@ public class ContactSaver {
                         + "new raw ids are: " + newRawIds.toString());
                 return mContact;
             }
-            String id = mUtils.getId(newRawIds.iterator().next());
-            PutToContact(id);
+            mId = mUtils.getId(newRawIds.iterator().next());
+            PutToContact("id", mId);
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 ) {
+            PutToContact("lastUpdated", String.valueOf(mUtils.getLastUpdated(Long.valueOf(mId))));
         }
         return mContact;
     }

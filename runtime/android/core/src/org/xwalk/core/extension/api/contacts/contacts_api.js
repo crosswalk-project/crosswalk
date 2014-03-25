@@ -175,7 +175,7 @@ window.ContactName = function(init) {
 
 window.Contact = function(init) {
   this.id = null;
-  this.lastUpdated = null;
+  this.lastUpdated = new Date();
   this.name = init.name;
   this.emails = init.emails;
   this.photos = init.photos;

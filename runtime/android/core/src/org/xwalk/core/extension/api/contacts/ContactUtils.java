@@ -108,6 +108,29 @@ public class ContactUtils {
         }
     }
 
+    /**
+     * Get lastUpdatedTimestamp and return as JS date format
+     * @param long e.g. 987654321012
+     * @return string e.g. "2001-04-19T04:25:21.012Z"
+     */
+    @android.annotation.TargetApi(android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public String getLastUpdated(long contactId) {
+        String[] projection = new String[]{ContactsContract.Contacts.CONTACT_LAST_UPDATED_TIMESTAMP};
+
+        Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactId);
+        Cursor cursor = mResolver.query(uri, projection, null, null, null);
+        try {
+            if (cursor.moveToNext()) {
+                return timeConvertToJS(cursor.getLong(0));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
     public Set<String> getCurrentRawIds() {
         Cursor c = null;
         try {
@@ -276,5 +299,16 @@ public class ContactUtils {
             Log.e(TAG, "dateFormat - parse failed: " + e.toString());
         }
         return date;
+    }
+
+    /**
+     * Convert epoch seconds to JS date format
+     * @param long e.g. 61
+     * @return string e.g. "1969-12-31T00:01:01Z"
+     */
+    private String timeConvertToJS(long seconds) {
+        final SimpleDateFormat df =
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault());
+        return df.format(new java.util.Date(seconds));
     }
 }
