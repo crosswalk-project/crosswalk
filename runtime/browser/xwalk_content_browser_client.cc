@@ -240,28 +240,6 @@ void XWalkContentBrowserClient::CancelDesktopNotification(
 }
 
 #if defined(OS_ANDROID)
-void XWalkContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
-    const CommandLine& command_line,
-    int child_process_id,
-    std::vector<content::FileDescriptorInfo>* mappings) {
-  int flags = base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ;
-  base::FilePath pak_file;
-  bool r = PathService::Get(base::DIR_ANDROID_APP_DATA, &pak_file);
-  CHECK(r);
-  pak_file = pak_file.Append(FILE_PATH_LITERAL("paks"));
-  pak_file = pak_file.Append(FILE_PATH_LITERAL(kXWalkPakFilePath));
-
-  base::PlatformFile f =
-      base::CreatePlatformFile(pak_file, flags, NULL, NULL);
-  if (f == base::kInvalidPlatformFileValue) {
-    NOTREACHED() << "Failed to open file when creating renderer process: "
-                 << "xwalk.pak";
-  }
-  mappings->push_back(
-      content::FileDescriptorInfo(kXWalkPakDescriptor,
-                                  base::FileDescriptor(f, true)));
-}
-
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   RuntimeResourceDispatcherHostDelegateAndroid::
   ResourceDispatcherHostCreated();
