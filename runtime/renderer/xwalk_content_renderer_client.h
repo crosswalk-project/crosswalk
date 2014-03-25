@@ -11,6 +11,10 @@
 #include "content/public/renderer/content_renderer_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
 
+namespace visitedlink {
+class VisitedLinkSlave;
+}
+
 namespace xwalk {
 
 class XWalkRenderProcessObserver;
@@ -36,6 +40,11 @@ class XWalkContentRendererClient
   virtual void WillReleaseScriptContext(blink::WebFrame* frame,
                                         v8::Handle<v8::Context>,
                                         int world_id) OVERRIDE;
+#if defined(OS_ANDROID)
+  virtual unsigned long long VisitedLinkHash(const char* canonical_url,
+                                             size_t length) OVERRIDE;
+  virtual bool IsLinkVisited(unsigned long long link_hash) OVERRIDE;
+#endif
 
  private:
   // XWalkExtensionRendererController::Delegate implementation.
@@ -47,6 +56,7 @@ class XWalkContentRendererClient
 
 #if defined(OS_ANDROID)
   scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+  scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);

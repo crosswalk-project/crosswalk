@@ -5,6 +5,7 @@
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "content/public/renderer/render_thread.h"
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
@@ -56,6 +57,8 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   content::RenderThread* thread = content::RenderThread::Get();
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
+  visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
+  thread->AddObserver(visited_link_slave_.get());
 #endif
 }
 
@@ -98,5 +101,16 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
       extensions::CreateJSModuleFromResource(
           IDR_XWALK_APPLICATION_WIDGET_COMMON_API));
 }
+
+#if defined(OS_ANDROID)
+unsigned long long XWalkContentRendererClient::VisitedLinkHash(
+    const char* canonical_url, size_t length) {
+  return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
+}
+
+bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
+  return visited_link_slave_->IsVisited(link_hash);
+}
+#endif
 
 }  // namespace xwalk
