@@ -281,6 +281,13 @@ public class XWalkContent extends FrameLayout {
         return nativeDevToolsAgentId(mXWalkContent);
     }
 
+    public void setSettingEnabled(String name, boolean value) {
+        // Expose more setttings here if needed.
+        if (name.equals("AllowUniversalAccessFromFileURLs")) {
+            mSettings.setAllowUniversalAccessFromFileURLs(value);
+        }
+    }
+
     public XWalkSettings getSettings() {
         return mSettings;
     }

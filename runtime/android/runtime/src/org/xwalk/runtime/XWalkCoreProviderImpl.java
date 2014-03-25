@@ -103,6 +103,11 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
         return mXwalkView;
     }
 
+    @Override
+    public void setSettingEnabled(String name, boolean value) {
+        mXwalkView.setSettingEnabled(name, value);
+    }
+
     // For instrumentation test.
     @Override
     public String getTitleForTest() {

@@ -186,7 +186,7 @@ def SetVariable(file_path, variable, value):
 
 
 def CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging):
+                  enable_remote_debugging, universal_file_access):
   root_path =  os.path.join(sanitized_name, 'src',
                             package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
@@ -206,8 +206,12 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
     elif app_local_path:
       if os.path.isfile(os.path.join(sanitized_name, 'assets/www',
                                      app_local_path)):
+        # TODO(xingnan): Fall back to use file scheme because the app scheme
+        # has not been recogized as a local scheme in blink and it will block
+        # the usage of flag "--allow-universal-access-from-file-urls".
+        # Will change back to app scheme after fix in blink.
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
-                      'app://' + package + '/' + app_local_path)
+                      'file:///android_asset/www/' + app_local_path)
       else:
         print ('Please make sure that the relative path of entry file'
                ' is correct.')
@@ -215,6 +219,9 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
 
   if enable_remote_debugging:
     SetVariable(dest_activity, 'RemoteDebugging', 'true')
+
+  if universal_file_access:
+    SetVariable(dest_activity, 'AllowUniversalAccessFromFileURLs', 'true')
 
 
 def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
@@ -341,7 +348,8 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  fullscreen_flag, extensions, launch_screen_img,
                  package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified'):
+                 app_version='1.0.0', orientation='unspecified',
+                 universal_file_access=False):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
     Prepare(sanitized_name, package, app_root)
@@ -349,7 +357,7 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  description, name, orientation, icon, fullscreen_flag,
                  launch_screen_img, permissions)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging)
+                  enable_remote_debugging, universal_file_access)
     CustomizeExtensions(sanitized_name, name, extensions)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
@@ -406,6 +414,11 @@ def main():
   parser.add_option('--orientation', help=info)
   parser.add_option('--launch-screen-img',
                     help='The fallback image for launch_screen')
+  info = ('Allow JavaScript running in the context of a file scheme '
+          'URL to access content from any origin.')
+  parser.add_option('--allow-universal-access-from-file-urls',
+                    dest='allow_universal_access_from_file_urls',
+                    action='store_true', default=False, help = info)
   options, _ = parser.parse_args()
   try:
     CustomizeAll(options.app_versionCode, options.description, options.icon,
@@ -413,7 +426,8 @@ def main():
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
                  options.launch_screen_img, options.package, options.name,
-                 options.app_version, options.orientation)
+                 options.app_version, options.orientation,
+                 options.allow_universal_access_from_file_urls)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
