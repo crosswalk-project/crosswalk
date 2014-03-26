@@ -13,7 +13,7 @@
         '../../../net/net.gyp:net',
         '../../../skia/skia.gyp:skia',
         '../../../testing/gtest.gyp:gtest',
-        '../../../ui/ui.gyp:ui',
+        '../../../ui/base/ui_base.gyp:ui_base',
         '../../../url/url.gyp:url_lib',
       ],
       'sources': [
