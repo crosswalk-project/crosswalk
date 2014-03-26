@@ -65,7 +65,7 @@ bool XWalkJSModule::Compile(v8::Isolate* isolate, std::string* error) {
 
   blink::WebScopedMicrotaskSuppression suppression;
   v8::TryCatch try_catch;
-  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty(isolate)));
+  v8::Handle<v8::Script> script(v8::Script::Compile(v8_code));
   if (try_catch.HasCaught()) {
     *error = "Error compiling JS module: " + ExceptionToString(try_catch);
     return false;

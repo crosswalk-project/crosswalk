@@ -1,8 +1,8 @@
 {
   'variables': {
     'xwalk_product_name': 'XWalk',
-    'xwalk_version': '<!(python ../chrome/tools/build/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
-    'chrome_version': '<!(python ../chrome/tools/build/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
+    'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
+    'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'conditions': [
       ['OS=="linux"', {
        'use_custom_freetype%': 1,
@@ -48,14 +48,13 @@
         '../net/net.gyp:net_resources',
         '../skia/skia.gyp:skia',
         '../third_party/WebKit/public/blink.gyp:blink',
+        '../ui/base/ui_base.gyp:ui_base',
         '../ui/gl/gl.gyp:gl',
         '../ui/shell_dialogs/shell_dialogs.gyp:shell_dialogs',
-        '../ui/ui.gyp:ui',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
-        '../webkit/common/webkit_common.gyp:webkit_common',
-        '../webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
         '../webkit/child/webkit_child.gyp:webkit_child',
+        '../webkit/common/webkit_common.gyp:webkit_common',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
@@ -683,6 +682,11 @@
                     ],
                   }],
                 }],
+              ],
+            }],
+            ['icu_use_data_file_flag==1', {
+              'mac_bundle_resources': [
+                '<(PRODUCT_DIR)/icudtl.dat',
               ],
             }],
           ],

@@ -36,7 +36,10 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   loggingSettings.logging_dest = logging::LOG_TO_SYSTEM_DEBUG_LOG;
   logging::InitLogging(loggingSettings);
   SetContentClient(content_client_.get());
-#if defined(OS_WIN)
+#if defined(OS_MACOSX)
+  OverrideFrameworkBundlePath();
+  OverrideChildProcessPath();
+#elif defined(OS_WIN)
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   std::string process_type =
           command_line->GetSwitchValueASCII(switches::kProcessType);
@@ -48,11 +51,6 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
 }
 
 void XWalkMainDelegate::PreSandboxStartup() {
-#if defined(OS_MACOSX)
-  OverrideFrameworkBundlePath();
-  OverrideChildProcessPath();
-#endif  // OS_MACOSX
-
   RegisterPathProvider();
   InitializeResourceBundle();
 }

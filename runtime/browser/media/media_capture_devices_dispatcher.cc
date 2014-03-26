@@ -5,11 +5,12 @@
 
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 
+#include "content/public/browser/media_capture_devices.h"
 #include "content/public/browser/browser_thread.h"
-#include "content/public/browser/media_devices_monitor.h"
 #include "content/public/common/media_stream_request.h"
 
 using content::BrowserThread;
+using content::MediaCaptureDevices;
 using content::MediaStreamDevices;
 
 namespace {
@@ -42,7 +43,6 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
-
   content::MediaStreamDevices devices;
   // Based on chrome/browser/media/media_stream_devices_controller.cc.
   bool microphone_requested =
@@ -66,11 +66,12 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
         break;
     }
   }
-  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
+  callback.Run(devices,
+               content::MEDIA_DEVICE_OK,
+               scoped_ptr<content::MediaStreamUI>());
 }
 
-XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher()
-    : devices_enumerated_(false) {}
+XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher() {}
 
 XWalkMediaCaptureDevicesDispatcher::~XWalkMediaCaptureDevicesDispatcher() {}
 
@@ -88,21 +89,19 @@ void XWalkMediaCaptureDevicesDispatcher::RemoveObserver(Observer* observer) {
 const MediaStreamDevices&
 XWalkMediaCaptureDevicesDispatcher::GetAudioCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  if (!devices_enumerated_) {
-    content::EnsureMonitorCaptureDevices();
-    devices_enumerated_ = true;
-  }
-  return audio_devices_;
+  if (!test_audio_devices_.empty())
+    return test_audio_devices_;
+
+  return MediaCaptureDevices::GetInstance()->GetAudioCaptureDevices();
 }
 
 const MediaStreamDevices&
 XWalkMediaCaptureDevicesDispatcher::GetVideoCaptureDevices() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  if (!devices_enumerated_) {
-    content::EnsureMonitorCaptureDevices();
-    devices_enumerated_ = true;
-  }
-  return video_devices_;
+  if (!test_video_devices_.empty())
+    return test_video_devices_;
+
+  return MediaCaptureDevices::GetInstance()->GetVideoCaptureDevices();
 }
 
 void XWalkMediaCaptureDevicesDispatcher::GetRequestedDevice(
@@ -130,24 +129,22 @@ void XWalkMediaCaptureDevicesDispatcher::GetRequestedDevice(
   }
 }
 
-void XWalkMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged(
-    const content::MediaStreamDevices& devices) {
+void XWalkMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread,
-          base::Unretained(this), devices));
+          &XWalkMediaCaptureDevicesDispatcher::NotifyAudioDevicesChangedOnUIThread, // NOLINT
+          base::Unretained(this)));
 }
 
-void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged(
-    const content::MediaStreamDevices& devices) {
+void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &XWalkMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread,
-          base::Unretained(this), devices));
+          &XWalkMediaCaptureDevicesDispatcher::NotifyVideoDevicesChangedOnUIThread, // NOLINT
+          base::Unretained(this)));
 }
 
 void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
@@ -166,22 +163,16 @@ void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
           security_origin, device, state));
 }
 
-void XWalkMediaCaptureDevicesDispatcher::UpdateAudioDevicesOnUIThread(
-    const content::MediaStreamDevices& devices) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  devices_enumerated_ = true;
-  audio_devices_ = devices;
+void XWalkMediaCaptureDevicesDispatcher::NotifyAudioDevicesChangedOnUIThread() {
+  MediaStreamDevices devices = GetAudioCaptureDevices();
   FOR_EACH_OBSERVER(Observer, observers_,
-                    OnUpdateAudioDevices(audio_devices_));
+                    OnUpdateAudioDevices(devices));
 }
 
-void XWalkMediaCaptureDevicesDispatcher::UpdateVideoDevicesOnUIThread(
-    const content::MediaStreamDevices& devices) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  devices_enumerated_ = true;
-  video_devices_ = devices;
+void XWalkMediaCaptureDevicesDispatcher::NotifyVideoDevicesChangedOnUIThread() {
+  MediaStreamDevices devices = GetVideoCaptureDevices();
   FOR_EACH_OBSERVER(Observer, observers_,
-                    OnUpdateVideoDevices(video_devices_));
+                    OnUpdateVideoDevices(devices));
 }
 
 void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
@@ -195,4 +186,15 @@ void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
                                     render_view_id,
                                     device,
                                     state));
+}
+
+
+void XWalkMediaCaptureDevicesDispatcher::SetTestAudioCaptureDevices(
+    const MediaStreamDevices& devices) {
+  test_audio_devices_ = devices;
+}
+
+void XWalkMediaCaptureDevicesDispatcher::SetTestVideoCaptureDevices(
+    const MediaStreamDevices& devices) {
+  test_video_devices_ = devices;
 }

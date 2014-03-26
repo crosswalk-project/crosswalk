@@ -15,9 +15,7 @@
 #include "content/public/common/child_process_host.h"
 #include "content/public/common/process_type.h"
 #include "content/public/common/content_switches.h"
-#if defined(OS_WIN)
 #include "content/public/common/sandboxed_process_launcher_delegate.h"
-#endif
 #include "ipc/ipc_message.h"
 #include "ipc/ipc_switches.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
@@ -75,21 +73,33 @@ class XWalkExtensionProcessHost::RenderProcessMessageFilter
   XWalkExtensionProcessHost* eph_;
 };
 
-#if defined(OS_WIN)
 class ExtensionSandboxedProcessLauncherDelegate
     : public content::SandboxedProcessLauncherDelegate {
  public:
-  ExtensionSandboxedProcessLauncherDelegate() {}
+  explicit ExtensionSandboxedProcessLauncherDelegate(
+      content::ChildProcessHost* host)
+#if defined(OS_POSIX)
+      : ipc_fd_(host->TakeClientFileDescriptor()) {}
+#endif
   virtual ~ExtensionSandboxedProcessLauncherDelegate() {}
 
+#if defined(OS_WIN)
   virtual void ShouldSandbox(bool* in_sandbox) OVERRIDE {
     *in_sandbox = false;
   }
+#elif defined(OS_POSIX)
+  virtual int GetIpcFd() OVERRIDE {
+    return ipc_fd_;
+  }
+#endif
 
  private:
+#if defined(OS_POSIX)
+  int ipc_fd_;
+#endif
+
   DISALLOW_COPY_AND_ASSIGN(ExtensionSandboxedProcessLauncherDelegate);
 };
-#endif
 
 bool XWalkExtensionProcessHost::Delegate::OnRegisterPermissions(
     int render_process_id,
@@ -194,11 +204,7 @@ void XWalkExtensionProcessHost::StartProcess() {
       cmd_line->PrependWrapper(extension_cmd_prefix);
 
     process_->Launch(
-#if defined(OS_WIN)
-        new ExtensionSandboxedProcessLauncherDelegate(),
-#elif defined(OS_POSIX)
-        false, base::EnvironmentMap(),
-#endif
+        new ExtensionSandboxedProcessLauncherDelegate(process_->GetHost()),
         cmd_line.release());
   }
 

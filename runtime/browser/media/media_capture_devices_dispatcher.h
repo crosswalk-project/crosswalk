@@ -68,10 +68,8 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
                           content::MediaStreamDevices* devices);
 
   // Overridden from content::MediaObserver:
-  virtual void OnAudioCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE;
-  virtual void OnVideoCaptureDevicesChanged(
-      const content::MediaStreamDevices& devices) OVERRIDE;
+  virtual void OnAudioCaptureDevicesChanged() OVERRIDE;
+  virtual void OnVideoCaptureDevicesChanged() OVERRIDE;
   virtual void OnMediaRequestStateChanged(
       int render_process_id,
       int render_view_id,
@@ -79,15 +77,21 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
       const GURL& security_origin,
       const content::MediaStreamDevice& device,
       content::MediaRequestState state) OVERRIDE;
-  virtual void OnAudioStreamPlayingChanged(
-      int render_process_id,
-      int render_view_id,
-      int stream_id,
-      bool is_playing,
-      float power_dbfs,
-      bool clipped) OVERRIDE {}
   virtual void OnCreatingAudioStream(int render_process_id,
                                      int render_view_id) OVERRIDE {}
+  virtual void OnAudioStreamPlaying(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id,
+      const ReadPowerAndClipCallback& power_read_callback) OVERRIDE {}
+  virtual void OnAudioStreamStopped(
+      int render_process_id,
+      int render_frame_id,
+      int stream_id) OVERRIDE {}
+
+  // Only for testing.
+  void SetTestAudioCaptureDevices(const content::MediaStreamDevices& devices);
+  void SetTestVideoCaptureDevices(const content::MediaStreamDevices& devices);
 
  private:
   friend struct DefaultSingletonTraits<XWalkMediaCaptureDevicesDispatcher>;
@@ -96,8 +100,8 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
   virtual ~XWalkMediaCaptureDevicesDispatcher();
 
   // Called by the MediaObserver() functions, executed on UI thread.
-  void UpdateAudioDevicesOnUIThread(const content::MediaStreamDevices& devices);
-  void UpdateVideoDevicesOnUIThread(const content::MediaStreamDevices& devices);
+  void NotifyAudioDevicesChangedOnUIThread();
+  void NotifyVideoDevicesChangedOnUIThread();
   void UpdateMediaReqStateOnUIThread(
       int render_process_id,
       int render_view_id,
@@ -105,18 +109,14 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
       const content::MediaStreamDevice& device,
       content::MediaRequestState state);
 
-  // A list of cached audio capture devices.
-  content::MediaStreamDevices audio_devices_;
+  // Only for testing, a list of cached audio capture devices.
+  content::MediaStreamDevices test_audio_devices_;
 
-  // A list of cached video capture devices.
-  content::MediaStreamDevices video_devices_;
+  // Only for testing, a list of video audio capture devices.
+  content::MediaStreamDevices test_video_devices_;
 
   // A list of observers for the device update notifications.
   ObserverList<Observer> observers_;
-
-  // Flag to indicate if device enumeration has been done/doing.
-  // Only accessed on UI thread.
-  bool devices_enumerated_;
 };
 
 #endif  // XWALK_RUNTIME_BROWSER_MEDIA_MEDIA_CAPTURE_DEVICES_DISPATCHER_H_

@@ -31,7 +31,7 @@ class XWalkViewsDelegate : public views::ViewsDelegate {
       ui::WindowShowState* show_state) const OVERRIDE;
   virtual void NotifyAccessibilityEvent(
       views::View* view,
-      ui::AccessibilityTypes::Event event_type) OVERRIDE {}
+      ui::AXEvent event_type) OVERRIDE {}
   virtual void NotifyMenuItemFocused(const base::string16& menu_name,
                                      const base::string16& menu_item_name,
                                      int item_index,

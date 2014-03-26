@@ -43,12 +43,14 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const content::MainFunctionParams& parameters) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
-      content::ProtocolHandlerMap* protocol_handlers) OVERRIDE;
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
   virtual content::QuotaPermissionContext*
@@ -83,7 +85,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       ResourceType::Type resource_type,
       bool overridable,
       bool strict_enforcement,
-      const base::Callback<void(bool)>& callback,
+      const base::Callback<void(bool)>& callback, // NOLINT
       content::CertificateRequestResultType* result) OVERRIDE;
 
   virtual content::SpeechRecognitionManagerDelegate*

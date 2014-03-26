@@ -13,7 +13,8 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import org.chromium.base.ActivityStatus;
+import org.chromium.base.ApplicationStatus;
+import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
@@ -28,7 +29,10 @@ class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String[] MANDATORY_PAKS = {
-            "xwalk.pak", "en-US.pak" };
+            "xwalk.pak",
+            "en-US.pak",
+            "icudtl.dat"
+    };
     private static final String[] MANDATORY_LIBRARIES = {
             "libxwalkcore.so"
     };
@@ -42,7 +46,11 @@ class XWalkViewDelegate {
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
-        ActivityStatus.initialize(xwalkView.getActivity().getApplication());
+        ApplicationStatusManager.init(xwalkView.getActivity().getApplication());
+
+        // We will miss activity onCreate() status in ApplicationStatusManager,
+        // informActivityStarted() will simulate these callbacks.
+        ApplicationStatusManager.informActivityStarted(xwalkView.getActivity());
 
         final Context context = xwalkView.getViewContext();
 
@@ -50,8 +58,9 @@ class XWalkViewDelegate {
         // the CommandLine object before XWalkViewContent is created, here will create
         // the object to guarantee the CommandLine object is not null and the
         // consequent prodedure does not crash.
-        if (!CommandLine.isInitialized())
+        if (!CommandLine.isInitialized()) {
             CommandLine.init(null);
+        }
 
         // If context's applicationContext is not the same package with itself,
         // It's a cross package invoking, load core library from library apk.
@@ -68,7 +77,7 @@ class XWalkViewDelegate {
                 throw new RuntimeException("Cannot initialize Crosswalk Core", e);
             }
         }
-        loadLibrary();
+        loadLibrary(context);
         DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
@@ -115,10 +124,10 @@ class XWalkViewDelegate {
         sInitialized = true;
     }
 
-    private static void loadLibrary() {
+    private static void loadLibrary(Context context) {
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
-            LibraryLoader.loadNow();
+            LibraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
             throw new RuntimeException("Cannot load Crosswalk Core", e);
         }

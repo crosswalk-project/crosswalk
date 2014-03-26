@@ -17,7 +17,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "xwalk/runtime/browser/runtime.h"
 
+namespace base {
 class CommandLine;
+}
 
 namespace content {
 class ContentRendererClient;
@@ -77,7 +79,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
 
   // Return a CommandLine object that is used to relaunch the browser_test
   // binary as a browser process.
-  CommandLine GetCommandLineForRelaunch();
+  base::CommandLine GetCommandLineForRelaunch();
 
  private:
   // Create data path directory for this test to avoid pollution in default
@@ -86,7 +88,7 @@ class InProcessBrowserTest : public content::BrowserTestBase {
 
   // Prepare command line that will be used to launch the child browser process
   // with an in-process test.
-  void PrepareTestCommandLine(CommandLine* command_line);
+  void PrepareTestCommandLine(base::CommandLine* command_line);
 
   scoped_ptr<RuntimeRegistry> runtime_registry_;
   // FIXME : Should be removed.
