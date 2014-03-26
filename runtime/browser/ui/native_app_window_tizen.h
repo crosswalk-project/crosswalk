@@ -58,6 +58,7 @@ class NativeAppWindowTizen
   gfx::Display::Rotation GetClosestAllowedRotation(
       gfx::Display::Rotation) const;
 
+#if defined(OS_TIZEN_MOBILE)
   // The system indicator is implemented as a widget because it needs to
   // receive events and may also be an overlay on top of the rest of the
   // content, regular views do not support this. We add it to the container,
@@ -66,6 +67,8 @@ class NativeAppWindowTizen
   // The |indicator_widget_| is owned by the WidgetContainerView.
   TizenSystemIndicatorWidget* indicator_widget_;
   scoped_ptr<WidgetContainerView> indicator_container_;
+#endif
+
   gfx::Display display_;
   OrientationMask allowed_orientations_;
 
