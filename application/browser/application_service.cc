@@ -515,6 +515,7 @@ Application* ApplicationService::Launch(
 
 Application* ApplicationService::Launch(
     const std::string& id, const Application::LaunchParams& params) {
+  Application* application = NULL;
   scoped_refptr<ApplicationData> application_data =
     application_storage_->GetApplicationData(id);
   if (!application_data) {
@@ -522,7 +523,12 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  return Launch(application_data, params);
+  if (application = Launch(application_data, params)) {
+    scoped_refptr<Event> event = Event::CreateEvent(
+        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
+    event_manager_->SendEvent(application->id(), event);
+  }
+  return application;
 }
 
 Application* ApplicationService::Launch(
