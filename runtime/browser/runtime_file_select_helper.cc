@@ -488,7 +488,7 @@ bool RuntimeFileSelectHelper::IsAcceptTypeValid(
   std::string unused;
   if (accept_type.length() <= 1 ||
       StringToLowerASCII(accept_type) != accept_type ||
-      TrimWhitespaceASCII(accept_type, TRIM_ALL, &unused) != TRIM_NONE) {
+      base::TrimWhitespaceASCII(accept_type, base::TRIM_ALL, &unused) != base::TRIM_NONE) {
     return false;
   }
   return true;
