@@ -52,7 +52,6 @@
         '../ui/shell_dialogs/shell_dialogs.gyp:shell_dialogs',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
-        '../webkit/common/user_agent/webkit_user_agent.gyp:user_agent',
         '../webkit/child/webkit_child.gyp:webkit_child',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',

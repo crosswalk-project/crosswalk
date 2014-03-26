@@ -26,11 +26,11 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/user_agent.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/common/user_agent/user_agent_util.h"
 
 using content::DevToolsAgentHost;
 using content::RenderViewHost;
@@ -172,8 +172,7 @@ void XWalkDevToolsServer::Start() {
           "",  // fallback socket name
           base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
               base::Unretained(this))),
-      base::StringPrintf(kFrontEndURL,
-                         webkit_glue::GetWebKitRevision().c_str()),
+      base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
       new XWalkDevToolsServerDelegate());
 }
 
