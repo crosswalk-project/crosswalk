@@ -8,7 +8,7 @@
         '../crypto/crypto.gyp:crypto',
         '../ipc/ipc.gyp:ipc',
         '../sql/sql.gyp:sql',
-        '../ui/ui.gyp:ui',
+        '../ui/base/ui_base.gyp:ui_base',
         '../url/url.gyp:url_lib',
         '../third_party/WebKit/public/blink.gyp:blink',
         '../third_party/zlib/google/zip.gyp:zip',
