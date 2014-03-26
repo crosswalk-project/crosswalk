@@ -6,9 +6,9 @@
       'dependencies': [
         '../../base/base.gyp:base',
         '../../net/net.gyp:net',
+        '../../ui/base/ui_base.gyp:ui_base',
         '../../ui/gfx/gfx.gyp:gfx',
         '../../ui/gfx/gfx.gyp:gfx_geometry',
-        '../../ui/ui.gyp:ui',
         '../extensions/extensions.gyp:xwalk_extensions',
         'sysapps_resources.gyp:xwalk_sysapps_resources',
       ],

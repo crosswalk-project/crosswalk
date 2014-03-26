@@ -24,7 +24,7 @@
     'conditions': [
       [ 'tizen_mobile == 1', {
         'dependencies': [
-          '../../ui/ui.gyp:ui',
+          '../../ui/base/ui_base.gyp:ui_base',
         ],
         'sources': [
           'mobile/ui/tizen_plug_message_writer.cc',
