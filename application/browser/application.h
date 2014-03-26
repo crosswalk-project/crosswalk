@@ -155,6 +155,8 @@ class Application : public Runtime::Observer {
   bool IsOnSuspendHandlerRegistered() const;
   bool IsTerminating() const { return finish_observer_; }
 
+  void InitSecurityPolicy();
+
   RuntimeContext* runtime_context_;
   const scoped_refptr<ApplicationData> application_data_;
   Runtime* main_runtime_;
