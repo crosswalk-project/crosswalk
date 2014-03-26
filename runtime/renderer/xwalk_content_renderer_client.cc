@@ -5,6 +5,7 @@
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
 #include "base/strings/utf_string_conversions.h"
+#include "components/nacl/renderer/ppb_nacl_private_impl.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_frame_observer.h"
@@ -20,6 +21,7 @@
 #include "xwalk/application/renderer/application_native_module.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 #include "xwalk/runtime/common/xwalk_localized_error.h"
+#include "xwalk/runtime/renderer/pepper/pepper_helper.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
@@ -111,6 +113,10 @@ void XWalkContentRendererClient::RenderFrameCreated(
 #if defined(OS_ANDROID)
   new XWalkPermissionClient(render_frame);
 #endif
+
+#if defined(ENABLE_PLUGINS)
+  new PepperHelper(render_frame);
+#endif
 }
 
 void XWalkContentRendererClient::RenderViewCreated(
@@ -145,6 +151,23 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   module_system->RegisterNativeModule("widget_common",
       extensions::CreateJSModuleFromResource(
           IDR_XWALK_APPLICATION_WIDGET_COMMON_API));
+}
+
+const void* XWalkContentRendererClient::CreatePPAPIInterface(
+    const std::string& interface_name) {
+#if defined(ENABLE_PLUGINS) && !defined(DISABLE_NACL)
+  if (interface_name == PPB_NACL_PRIVATE_INTERFACE)
+    return nacl::GetNaClPrivateInterface();
+#endif
+  return NULL;
+}
+
+bool XWalkContentRendererClient::IsExternalPepperPlugin(
+    const std::string& module_name) {
+  // TODO(bbudge) remove this when the trusted NaCl plugin has been removed.
+  // We must defer certain plugin events for NaCl instances since we switch
+  // from the in-process to the out-of-process proxy after instantiating them.
+  return module_name == "Native Client";
 }
 
 #if defined(OS_ANDROID)

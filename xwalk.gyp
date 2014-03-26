@@ -139,6 +139,8 @@
         'runtime/browser/image_util.h',
         'runtime/browser/media/media_capture_devices_dispatcher.cc',
         'runtime/browser/media/media_capture_devices_dispatcher.h',
+        'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.cc',
+        'runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h',
         'runtime/browser/runtime.cc',
         'runtime/browser/runtime.h',
         'runtime/browser/runtime_context.cc',
@@ -247,6 +249,12 @@
         'runtime/renderer/android/xwalk_permission_client.h',
         'runtime/renderer/android/xwalk_render_view_ext.cc',
         'runtime/renderer/android/xwalk_render_view_ext.h',
+        'runtime/renderer/pepper/pepper_helper.cc',
+        'runtime/renderer/pepper/pepper_helper.h',
+        'runtime/renderer/pepper/pepper_uma_host.cc',
+        'runtime/renderer/pepper/pepper_uma_host.h',
+        'runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.cc',
+        'runtime/renderer/pepper/xwalk_renderer_pepper_host_factory.h',
         'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.cc',
         'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h',
         'runtime/renderer/tizen/xwalk_render_view_ext_tizen.cc',
@@ -345,6 +353,33 @@
         }, {  # use_aura==0
           'sources/': [
             ['exclude', '_aura\\.cc$'],
+          ],
+        }],
+        ['disable_nacl==0', {
+          'sources': [
+            'runtime/browser/nacl_host/nacl_browser_delegate_impl.cc',
+            'runtime/browser/nacl_host/nacl_browser_delegate_impl.h',
+          ],
+          'dependencies': [
+            '../components/nacl.gyp:nacl',
+            '../components/nacl.gyp:nacl_browser',
+            '../components/nacl.gyp:nacl_common',
+            '../components/nacl.gyp:nacl_renderer',
+            '../components/nacl.gyp:nacl_helper',
+            '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
+          ],
+        }],
+        ['enable_plugins==1', {
+          'dependencies': [
+            '../ppapi/ppapi_internal.gyp:ppapi_host',
+            '../ppapi/ppapi_internal.gyp:ppapi_proxy',
+            '../ppapi/ppapi_internal.gyp:ppapi_ipc',
+            '../ppapi/ppapi_internal.gyp:ppapi_shared',
+          ],
+        }, {  # enable_plugins==0
+          'sources/': [
+            ['exclude', '^runtime/browser/renderer_host/pepper/'],
+            ['exclude', '^runtime/renderer/pepper/'],
           ],
         }],
       ],

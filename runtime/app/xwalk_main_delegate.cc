@@ -19,6 +19,11 @@
 #include "xwalk/runtime/common/xwalk_paths.h"
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#if !defined(DISABLE_NACL) && defined(OS_LINUX)
+#include "components/nacl/common/nacl_paths.h"
+#include "components/nacl/zygote/nacl_fork_delegate_linux.h"
+#endif
+
 #if defined(OS_TIZEN)
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
@@ -47,6 +52,11 @@ bool XWalkMainDelegate::BasicStartupComplete(int* exit_code) {
   if (process_type.empty())
     SetTaskbarGroupIdForProcess();
 #endif
+
+#if !defined(DISABLE_NACL) && defined(OS_LINUX)
+  nacl::RegisterPathProvider();
+#endif
+
   return false;
 }
 
@@ -62,6 +72,17 @@ int XWalkMainDelegate::RunProcess(const std::string& process_type,
   // Tell content to use default process main entries by returning -1.
   return -1;
 }
+
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+content::ZygoteForkDelegate* XWalkMainDelegate::ZygoteStarting() {
+#if defined(DISABLE_NACL)
+  return NULL;
+#else
+  return new NaClForkDelegate();
+#endif
+}
+
+#endif  // defined(OS_POSIX) && !defined(OS_ANDROID)
 
 // static
 void XWalkMainDelegate::InitializeResourceBundle() {

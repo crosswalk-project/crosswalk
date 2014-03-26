@@ -115,6 +115,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::RenderProcessHost* process_host, const GURL& url) OVERRIDE;
 #endif
 
+  virtual void DidCreatePpapiPlugin(
+      content::BrowserPpapiHost* browser_host) OVERRIDE;
+  virtual content::BrowserPpapiHost* GetExternalBrowserPpapiHost(
+      int plugin_process_id) OVERRIDE;
+
 #if defined(OS_ANDROID)
   virtual void ResourceDispatcherHostCreated();
 #endif

@@ -6,21 +6,26 @@
 
 namespace switches {
 
-// Specifies the data path directory, which XWalk runtime will look for its
-// state, e.g. cache, localStorage etc.
-const char kXWalkDataPath[] = "data-path";
-
 // Specifies the icon file for the app window.
 const char kAppIcon[] = "app-icon";
+
+// Disables the usage of Portable Native Client.
+const char kDisablePnacl[] = "disable-pnacl";
+
+// Enable all the experimental features in XWalk.
+const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";
 
+// Specifies install an application.
+const char kInstall[] = "install";
+
 // Specifies list all installed applications.
 const char kListApplications[] = "list-apps";
 
-// Specifies install an application.
-const char kInstall[] = "install";
+// List the command lines feature flags.
+const char kListFeaturesFlags[] = "list-features-flags";
 
 // Specifies uninstall an application from runtime.
 const char kUninstall[] = "uninstall";
@@ -33,10 +38,8 @@ const char kXWalkAllowExternalExtensionsForRemoteSources[] =
 // issue these requests is platform-specific.
 const char kXWalkRunAsService[] = "run-as-service";
 
-// List the command lines feature flags.
-const char kListFeaturesFlags[] = "list-features-flags";
-
-// Enable all the experimental features in XWalk.
-const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
+// Specifies the data path directory, which XWalk runtime will look for its
+// state, e.g. cache, localStorage etc.
+const char kXWalkDataPath[] = "data-path";
 
 }  // namespace switches
