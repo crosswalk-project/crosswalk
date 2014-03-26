@@ -21,9 +21,11 @@ namespace xwalk {
 NativeAppWindowTizen::NativeAppWindowTizen(
     const NativeAppWindow::CreateParams& create_params)
     : NativeAppWindowViews(create_params),
+#if defined(OS_TIZEN_MOBILE)
       indicator_widget_(new TizenSystemIndicatorWidget()),
+      indicator_container_(new WidgetContainerView(indicator_widget_)),
+#endif
       allowed_orientations_(ANY) {
-  indicator_container_.reset(new WidgetContainerView(indicator_widget_));
 }
 
 void NativeAppWindowTizen::Initialize() {
@@ -59,9 +61,11 @@ void NativeAppWindowTizen::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
     NativeAppWindowViews::ViewHierarchyChanged(details);
+#if defined(OS_TIZEN_MOBILE)
     indicator_widget_->Initialize(GetNativeWindow());
     top_view_layout()->set_top_view(indicator_container_.get());
     AddChildView(indicator_container_.get());
+#endif
   }
 }
 
@@ -224,7 +228,10 @@ void NativeAppWindowTizen::ApplyDisplayRotation() {
   if (!root_window->IsVisible())
     return;
   UpdateTopViewOverlay();
+
+#if defined(OS_TIZEN_MOBILE)
   indicator_widget_->SetDisplay(display_);
+#endif
   root_window->SetTransform(GetRotationTransform());
 }
 
