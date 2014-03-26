@@ -30,7 +30,7 @@ using content::WebContents;
 
 namespace xwalk_test_utils {
 
-void PrepareBrowserCommandLineForTests(CommandLine* command_line) {
+void PrepareBrowserCommandLineForTests(base::CommandLine* command_line) {
   // Enable info level logging by default so that we can see when bad
   // stuff happens, but honor the flags specified from the command line.
   if (!command_line->HasSwitch(switches::kEnableLogging))
