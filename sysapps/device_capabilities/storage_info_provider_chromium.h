@@ -8,11 +8,16 @@
 #include "components/storage_monitor/removable_storage_observer.h"
 #include "xwalk/sysapps/device_capabilities/storage_info_provider.h"
 
+namespace storage_monitor {
+class RemovableStorageObserver;
+class StorageInfo;
+}
+
 namespace xwalk {
 namespace sysapps {
 
 class StorageInfoProviderChromium : public StorageInfoProvider,
-                                    public RemovableStorageObserver {
+                                    public storage_monitor::RemovableStorageObserver {
  public:
   StorageInfoProviderChromium();
   virtual ~StorageInfoProviderChromium();
@@ -20,8 +25,10 @@ class StorageInfoProviderChromium : public StorageInfoProvider,
   virtual scoped_ptr<SystemStorage> storage_info() const OVERRIDE;
 
   // RemovableStorageObserver implementation.
-  virtual void OnRemovableStorageAttached(const StorageInfo& info) OVERRIDE;
-  virtual void OnRemovableStorageDetached(const StorageInfo& info) OVERRIDE;
+  virtual void OnRemovableStorageAttached(
+      const storage_monitor::StorageInfo& info) OVERRIDE;
+  virtual void OnRemovableStorageDetached(
+      const storage_monitor::StorageInfo& info) OVERRIDE;
 
  private:
   // StorageInfoProvider implementation.
