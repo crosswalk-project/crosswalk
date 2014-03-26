@@ -17,7 +17,6 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
 Patch7:         %{name}-tizen-audio-session-manager.patch
-Patch8:         %{name}-mesa-ozone-typedefs.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
@@ -115,10 +114,6 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch4
 %patch5 -p1
 %patch6
-%endif
-
-%if %{with wayland}
-%patch8
 %endif
 
 %patch9
