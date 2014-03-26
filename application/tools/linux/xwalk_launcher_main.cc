@@ -25,11 +25,26 @@ static const char* xwalk_running_manager_iface =
 static const char* xwalk_running_app_iface =
     "org.crosswalkproject.Running.Application1";
 
-static const char cmd_line_fullscreen_arg[] = "--fullscreen";
-
 static char* application_object_path;
 
 static GMainLoop* mainloop;
+static GDBusConnection* g_connection;
+
+static int g_argc;
+static char** g_argv;
+static gboolean query_running = FALSE;
+static gboolean fullscreen = FALSE;
+static gchar** cmd_appid;
+
+static GOptionEntry entries[] = {
+  { "running", 'r', 0, G_OPTION_ARG_NONE, &query_running,
+    "Check whether the application is running", NULL },
+  { "fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen,
+    "Run the application as fullscreen", NULL },
+  { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &cmd_appid,
+    "ID of the application to be launched", NULL },
+  { NULL }
+};
 
 static void object_removed(GDBusObjectManager* manager, GDBusObject* object,
                            gpointer user_data) {
@@ -73,64 +88,52 @@ static void on_app_properties_changed(GDBusProxy* proxy,
   }
 }
 
-int main(int argc, char** argv) {
+static void query_application_running(GDBusObjectManager* running_om,
+                                      const char* app_id) {
+  GList* objects = g_dbus_object_manager_get_objects(running_om);
+  GList* it;
+  bool is_running = FALSE;
+
+  for (it = objects; it; it = it->next) {
+    GDBusObject* object = reinterpret_cast<GDBusObject*>(it->data);
+    GDBusInterface* iface = g_dbus_object_get_interface(
+        object,
+        xwalk_running_app_iface);
+    if (!iface)
+      continue;
+
+    GDBusProxy* proxy = G_DBUS_PROXY(iface);
+    GVariant* id_variant;
+    id_variant = g_dbus_proxy_get_cached_property(proxy, "AppID");
+    if (!id_variant) {
+      g_object_unref(iface);
+      continue;
+    }
+
+    const gchar* id;
+    g_variant_get(id_variant, "s", &id);
+    if (!strcmp(app_id, id)) {
+      is_running = TRUE;
+      break;
+    }
+
+    g_object_unref(iface);
+  }
+  const char* str = is_running ? "running" : "not running";
+  g_print("Application %s is %s.\n", app_id, str);
+
+  g_list_free_full(objects, g_object_unref);
+}
+
+static void launch_application(GDBusObjectManager* running_apps_manager,
+                               const char* appid,
+                               gboolean fullscreen) {
   GError* error = NULL;
-  char* appid;
-  gboolean fullscreen = FALSE;
-
-
-#if !GLIB_CHECK_VERSION(2, 36, 0)
-  // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
-  g_type_init();
-#endif
-
-  if (xwalk_tizen_set_home_for_user_app())
-    exit(1);
-
-  if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
-    if (argc < 2) {
-      fprintf(stderr, "No AppID informed, nothing to do\n");
-      exit(1);
-    }
-
-    appid = argv[1];
-
-    if (argc > 2) {
-      if (!strcmp(basename(argv[2]), cmd_line_fullscreen_arg))
-        fullscreen = TRUE;
-    }
-
-  } else {
-    appid = strdup(basename(argv[0]));
-
-    if (argc > 1) {
-      if (!strcmp(basename(argv[1]), cmd_line_fullscreen_arg))
-        fullscreen = TRUE;
-    }
-  }
-
-  GDBusConnection* connection = get_session_bus_connection(&error);
-  if (!connection) {
-    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
-            error->message);
-    exit(1);
-  }
-
-  GDBusObjectManager* running_apps_om = g_dbus_object_manager_client_new_sync(
-      connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-      xwalk_service_name, xwalk_running_path,
-      NULL, NULL, NULL, NULL, &error);
-  if (!running_apps_om) {
-    fprintf(stderr, "Service '%s' does could not be reached: %s\n",
-            xwalk_service_name, error->message);
-    exit(1);
-  }
-
-  g_signal_connect(running_apps_om, "object-removed",
+  g_signal_connect(running_apps_manager, "object-removed",
                    G_CALLBACK(object_removed), NULL);
 
   GDBusProxy* running_proxy = g_dbus_proxy_new_sync(
-      connection,
+      g_connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
       xwalk_running_path, xwalk_running_manager_iface, NULL, &error);
   if (!running_proxy) {
@@ -142,12 +145,9 @@ int main(int argc, char** argv) {
 
   unsigned int launcher_pid = getpid();
 
-  GVariant* result = g_dbus_proxy_call_sync(running_proxy, "Launch",
-                                            g_variant_new("(sub)", appid,
-                                                          launcher_pid,
-                                                          fullscreen),
-                                            G_DBUS_CALL_FLAGS_NONE,
-                                            -1, NULL, &error);
+  GVariant* result  = g_dbus_proxy_call_sync(running_proxy, "Launch",
+      g_variant_new("(sub)", appid, launcher_pid, fullscreen),
+      G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
   if (!result) {
     fprintf(stderr, "Couldn't call 'Launch' method: %s\n", error->message);
     exit(1);
@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
           application_object_path);
 
   GDBusProxy* app_proxy = g_dbus_proxy_new_sync(
-      connection,
+      g_connection,
       G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
       application_object_path, xwalk_running_app_iface, NULL, &error);
   if (!app_proxy) {
@@ -177,13 +177,71 @@ int main(int argc, char** argv) {
   char name[128];
   snprintf(name, sizeof(name), "xwalk-%s", appid);
 
-  if (xwalk_appcore_init(argc, argv, name)) {
+  if (xwalk_appcore_init(g_argc, g_argv, name)) {
     fprintf(stderr, "Failed to initialize appcore");
     exit(1);
   }
 #endif
 
   g_main_loop_run(mainloop);
+}
+
+int main(int argc, char** argv) {
+  GError* error = NULL;
+  char* appid;
+
+  g_argc = argc;
+  g_argv = argv;
+
+#if !GLIB_CHECK_VERSION(2, 36, 0)
+  // g_type_init() is deprecated on GLib since 2.36.
+  g_type_init();
+#endif
+
+  if (xwalk_tizen_set_home_for_user_app())
+    exit(1);
+
+  GOptionContext* context =
+      g_option_context_new("- Crosswalk Application Launcher");
+  g_option_context_add_main_entries(context, entries, NULL);
+  if (!g_option_context_parse(context, &argc, &argv, &error)) {
+    fprintf(stderr, "Option parsing failed: %s\n", error->message);
+    exit(1);
+  }
+
+  if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
+    if (cmd_appid == NULL) {
+      fprintf(stderr, "No AppID informed, nothing to do.\n");
+      return 0;
+    }
+    appid = cmd_appid[0];
+  } else {
+    appid = strdup(basename(argv[0]));
+  }
+
+  g_connection = get_session_bus_connection(&error);
+  if (!g_connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    exit(1);
+  }
+
+  GDBusObjectManager* running_apps_manager =
+      g_dbus_object_manager_client_new_sync(
+          g_connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+          xwalk_service_name, xwalk_running_path,
+          NULL, NULL, NULL, NULL, &error);
+  if (!running_apps_manager) {
+    fprintf(stderr, "Service '%s' does could not be reached: %s\n",
+            xwalk_service_name, error->message);
+    exit(1);
+  }
+
+  if (query_running) {
+    query_application_running(running_apps_manager, appid);
+  } else {
+    launch_application(running_apps_manager, appid, fullscreen);
+  }
 
   return 0;
 }
