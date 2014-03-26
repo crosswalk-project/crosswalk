@@ -124,7 +124,7 @@ v8::Handle<v8::Value> RunString(const std::string& code,
   v8::TryCatch try_catch;
   try_catch.SetVerbose(true);
 
-  v8::Handle<v8::Script> script(v8::Script::New(v8_code, v8::String::Empty(isolate)));
+  v8::Handle<v8::Script> script(v8::Script::Compile(v8_code));
   if (try_catch.HasCaught()) {
     *exception = ExceptionToString(try_catch);
     return handle_scope.Escape(
