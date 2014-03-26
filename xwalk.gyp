@@ -270,6 +270,10 @@
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
           ],
+          'sources!':[
+            'runtime/renderer/xwalk_render_process_observer_generic.cc',
+            'runtime/renderer/xwalk_render_process_observer_generic.h',
+          ],
         }],
         ['OS=="win" and win_use_allocator_shim==1', {
           'dependencies': [
