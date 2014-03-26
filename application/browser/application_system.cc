@@ -126,9 +126,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam(
   if (cmd_line.HasSwitch(switches::kFullscreen))
     launch_params.window_state = ui::SHOW_STATE_FULLSCREEN;
 
-  if (Application* application =
-      application_service_->Launch(param, launch_params)) {
-    event_manager_->SendEvent(application->id(), event);
+  if (application_service_->Launch(param, launch_params)) {
     return true;
   }
 
