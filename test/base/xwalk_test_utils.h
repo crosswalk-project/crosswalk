@@ -11,18 +11,20 @@
 #include "base/files/file_path.h"
 #include "url/gurl.h"
 
+namespace base {
+class CommandLine;
+}
+
 namespace xwalk {
 class Runtime;
 }
-
-class CommandLine;
 
 // A set of utilities for test code that launches separate processes.
 namespace xwalk_test_utils {
 
 // Appends browser switches to provided |command_line| to be used
 // when running under tests.
-void PrepareBrowserCommandLineForTests(CommandLine* command_line);
+void PrepareBrowserCommandLineForTests(base::CommandLine* command_line);
 
 // Override the data path for testing.
 bool OverrideDataPathDir(const base::FilePath& data_path_dir);

@@ -54,7 +54,7 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
 }
 
 bool ApplicationSystem::HandleApplicationManagementCommands(
-    const CommandLine& cmd_line, const GURL& url,
+    const base::CommandLine& cmd_line, const GURL& url,
     bool& run_default_message_loop) {
   run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
@@ -70,7 +70,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
   }
 
   if (cmd_line.HasSwitch(switches::kUninstall)) {
-    const CommandLine::StringVector& args = cmd_line.GetArgs();
+    const base::CommandLine::StringVector& args = cmd_line.GetArgs();
     if (args.empty())
       return false;
 
@@ -118,7 +118,7 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
 
 template <typename T>
 bool ApplicationSystem::LaunchWithCommandLineParam(
-    const T& param, const CommandLine& cmd_line) {
+    const T& param, const base::CommandLine& cmd_line) {
   scoped_refptr<Event> event = Event::CreateEvent(
         kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
 
@@ -138,7 +138,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam(
 // as common browser apps.
 template <>
 bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
-    const GURL& url, const CommandLine& cmd_line) {
+    const GURL& url, const base::CommandLine& cmd_line) {
   namespace keys = xwalk::application_manifest_keys;
 
   const std::string& url_spec = url.spec();
@@ -172,11 +172,11 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
 }
 
 bool ApplicationSystem::LaunchFromCommandLine(
-    const CommandLine& cmd_line, const GURL& url,
+    const base::CommandLine& cmd_line, const GURL& url,
     bool& run_default_message_loop) {
 
   // Handles raw app_id passed as first non-switch argument.
-  const CommandLine::StringVector& args = cmd_line.GetArgs();
+  const base::CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (ApplicationData::IsIDValid(app_id)) {

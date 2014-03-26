@@ -147,7 +147,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 
   base::FilePath exe_path = content::ChildProcessHost::GetChildPath(
       content::ChildProcessHost::CHILD_NORMAL);
-  scoped_ptr<CommandLine> cmd_line(new CommandLine(exe_path));
+  scoped_ptr<base::CommandLine> cmd_line(new base::CommandLine(exe_path));
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                               switches::kXWalkExtensionProcess);
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);

@@ -95,13 +95,14 @@ InProcessBrowserTest::InProcessBrowserTest()
 InProcessBrowserTest::~InProcessBrowserTest() {
 }
 
-CommandLine InProcessBrowserTest::GetCommandLineForRelaunch() {
-  CommandLine new_command_line(CommandLine::ForCurrentProcess()->GetProgram());
+base::CommandLine InProcessBrowserTest::GetCommandLineForRelaunch() {
+  base::CommandLine new_command_line(
+      base::CommandLine::ForCurrentProcess()->GetProgram());
   CommandLine::SwitchMap switches =
       CommandLine::ForCurrentProcess()->GetSwitches();
   new_command_line.AppendSwitch(content::kLaunchAsBrowser);
 
-  for (CommandLine::SwitchMap::const_iterator iter = switches.begin();
+  for (base::CommandLine::SwitchMap::const_iterator iter = switches.begin();
         iter != switches.end(); ++iter) {
     new_command_line.AppendSwitchNative((*iter).first, (*iter).second);
   }
@@ -109,7 +110,7 @@ CommandLine InProcessBrowserTest::GetCommandLineForRelaunch() {
 }
 
 void InProcessBrowserTest::SetUp() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   // Allow subclasses to change the command line before running any tests.
   SetUpCommandLine(command_line);
   // Add command line arguments that are used by all InProcessBrowserTests.
@@ -125,7 +126,8 @@ void InProcessBrowserTest::SetUp() {
   BrowserTestBase::SetUp();
 }
 
-void InProcessBrowserTest::PrepareTestCommandLine(CommandLine* command_line) {
+void InProcessBrowserTest::PrepareTestCommandLine(
+    base::CommandLine* command_line) {
   // Propagate commandline settings from test_launcher_utils.
   xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
 }
@@ -161,7 +163,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 }
 
 bool InProcessBrowserTest::CreateDataPathDir() {
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   base::FilePath data_path_dir =
       command_line->GetSwitchValuePath(switches::kXWalkDataPath);
   if (data_path_dir.empty()) {
