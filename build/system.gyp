@@ -35,6 +35,7 @@
             'packages': [
               'pkgmgr-parser',
               'pkgmgr-info',
+              'ail',
             ],
           },
           'direct_dependent_settings': {

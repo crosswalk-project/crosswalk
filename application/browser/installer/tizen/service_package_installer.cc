@@ -119,6 +119,7 @@ namespace application {
 bool InstallApplicationForTizen(
     ApplicationData* application, const base::FilePath& data_dir) {
   std::string package_id = application->ID();
+  std::string label = application->Name();
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(package_id);
   base::FilePath xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
@@ -163,6 +164,7 @@ bool InstallApplicationForTizen(
   cmdline.AppendArg(package_id);
   cmdline.AppendArgPath(xml_path);
   cmdline.AppendArgPath(icon);
+  cmdline.AppendArg(label);
 
   int exit_code;
   std::string output;
@@ -186,11 +188,13 @@ bool InstallApplicationForTizen(
 bool UninstallApplicationForTizen(ApplicationData* application,
                                   const base::FilePath& data_dir) {
   std::string package_id = application->ID();
+  std::string label = application->Name();
   bool result = true;
 
   CommandLine cmdline(kPkgHelper);
   cmdline.AppendSwitch("--uninstall");
   cmdline.AppendArg(package_id);
+  cmdline.AppendArg(label);
 
   int exit_code;
   std::string output;
