@@ -11,8 +11,11 @@
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/extensions/common/xwalk_extension_vector.h"
 
-class CommandLine;
 class GURL;
+
+namespace base {
+class CommandLine;
+}
 
 namespace content {
 class RenderProcessHost;
@@ -60,7 +63,7 @@ class ApplicationSystem {
   //
   // The parameter `url` contains the current URL Crosswalk is considering to
   // load.
-  bool HandleApplicationManagementCommands(const CommandLine& cmd_line,
+  bool HandleApplicationManagementCommands(const base::CommandLine& cmd_line,
                                            const GURL& url,
                                            bool& run_default_message_loop);
 
@@ -77,7 +80,7 @@ class ApplicationSystem {
   //
   // A return value of true indicates that ApplicationSystem handled the command
   // line, so the caller shouldn't try to load the url by itself.
-  bool LaunchFromCommandLine(const CommandLine& cmd_line,
+  bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
                              const GURL& url,
                              bool& run_default_message_loop_);
 
@@ -89,7 +92,8 @@ class ApplicationSystem {
 
  private:
   template <typename T>
-  bool LaunchWithCommandLineParam(const T& param, const CommandLine& cmd_line);
+  bool LaunchWithCommandLineParam(const T& param,
+                                  const base::CommandLine& cmd_line);
   // Note: initialization order matters.
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> application_storage_;
