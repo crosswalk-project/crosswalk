@@ -12,6 +12,8 @@
 #include "base/strings/utf_string_conversions.h"
 #include "components/storage_monitor/storage_monitor.h"
 
+using storage_monitor::StorageInfo;
+using storage_monitor::StorageMonitor;
 using namespace xwalk::jsapi::device_capabilities; // NOLINT
 
 namespace {
