@@ -15,17 +15,7 @@
 
 namespace xwalk {
 
-XWalkContentClient::XWalkContentClient() {
-}
-
-XWalkContentClient::~XWalkContentClient() {
-}
-
-std::string XWalkContentClient::GetProduct() const {
-  return std::string("Version/4.0");
-}
-
-std::string XWalkContentClient::GetUserAgent() const {
+std::string GetUserAgent() {
   std::string product = "Chrome/" CHROME_VERSION;
 #if (defined(OS_TIZEN) || defined(OS_ANDROID))
   product += " Mobile Crosswalk/" XWALK_VERSION;
@@ -36,6 +26,21 @@ std::string XWalkContentClient::GetUserAgent() const {
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
   return content::BuildUserAgentFromProduct(product);
+}
+
+XWalkContentClient::XWalkContentClient() {
+}
+
+XWalkContentClient::~XWalkContentClient() {
+  xwalk::GetUserAgent();
+}
+
+std::string XWalkContentClient::GetProduct() const {
+  return std::string("Version/4.0");
+}
+
+std::string XWalkContentClient::GetUserAgent() const {
+  return xwalk::GetUserAgent();
 }
 
 base::string16 XWalkContentClient::GetLocalizedString(int message_id) const {
