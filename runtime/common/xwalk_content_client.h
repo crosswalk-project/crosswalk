@@ -13,6 +13,8 @@
 
 namespace xwalk {
 
+std::string GetUserAgent();
+
 class XWalkContentClient : public content::ContentClient {
  public:
   XWalkContentClient();
