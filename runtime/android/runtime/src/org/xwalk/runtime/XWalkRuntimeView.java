@@ -180,6 +180,10 @@ public class XWalkRuntimeView extends FrameLayout {
         return super.onKeyUp(keyCode, event);
     }
 
+    public void setSettingEnabled(String name, boolean value) {
+        mProvider.setSettingEnabled(name, value);
+    }
+
     // For instrumentation test.
     public String getTitleForTest() {
         return mProvider.getTitleForTest();

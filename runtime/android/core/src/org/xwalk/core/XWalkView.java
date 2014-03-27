@@ -181,6 +181,11 @@ public class XWalkView extends FrameLayout {
         super.setLayoutParams(params);
     }
 
+    public void setSettingEnabled(String name, boolean value) {
+        checkThreadSafety();
+        mContent.setSettingEnabled(name, value);
+    }
+
     public XWalkSettings getSettings() {
         checkThreadSafety();
         return mContent.getSettings();

@@ -195,6 +195,9 @@ def Customize(options):
   name = 'AppTemplate'
   if options.name:
     name = options.name
+  universal_file_access = ''
+  if options.allow_universal_access_from_file_urls:
+    universal_file_access = '--allow-universal-access-from-file-urls'
   app_version = '1.0.0'
   if options.app_version:
     app_version = options.app_version
@@ -219,7 +222,7 @@ def Customize(options):
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
                options.launch_screen_img, package, name, app_version,
-               orientation)
+               orientation, universal_file_access)
 
 
 def Execution(options, sanitized_name):
@@ -602,6 +605,11 @@ def main(argv):
   group = optparse.OptionGroup(parser, 'Optional arguments',
       'They are used for various settings for applications through '
       'command line options.')
+  info = ('Allow JavaScript running in the context of a file scheme '
+          'URL to access content from any origin.')
+  group.add_option('--allow-universal-access-from-file-urls',
+                   dest='allow_universal_access_from_file_urls',
+                   action='store_true', default=False, help = info)
   info = ('The version name of the application. '
           'For example, --app-version=1.0.0')
   group.add_option('--app-version', help=info)

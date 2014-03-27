@@ -38,6 +38,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mEnableRemoteDebugging;
     private Method mDisableRemoteDebugging;
     private Method mOnKeyUp;
+    private Method mSetSettingEnabled;
 
     // For instrumentation test.
     private Method mGetTitleForTest;
@@ -68,6 +69,7 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mEnableRemoteDebugging = lookupMethod("enableRemoteDebugging", String.class, String.class);
         mDisableRemoteDebugging = lookupMethod("disableRemoteDebugging");
         mOnKeyUp = lookupMethod("onKeyUp", int.class, KeyEvent.class);
+        mSetSettingEnabled = lookupMethod("setSettingEnabled", String.class, boolean.class);
     }
 
     /**
@@ -269,6 +271,13 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         Boolean handled = (Boolean) invokeMethod(mOnKeyUp, mInstance, keyCode, event);
         if (handled != null) return handled;
         return false;
+    }
+
+    /**
+     * Evaluate the setting via the pair of name and value.
+     */
+    public void setSettingEnabled(String name, boolean value) {
+        invokeMethod(mSetSettingEnabled, mInstance, name, value);
     }
 
     // The following functions just for instrumentation test.

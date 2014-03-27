@@ -34,6 +34,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     private boolean mRemoteDebugging = false;
 
+    private boolean mAllowUniversalAccessFromFileURLs = false;
+
     private AlertDialog mLibraryNotFoundDialog = null;
 
     private XWalkMixedResources mMixedResources = null;
@@ -135,6 +137,10 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                 String result = mRuntimeView.enableRemoteDebugging("", mPackageName);
             } else {
                 mRuntimeView.disableRemoteDebugging();
+            }
+
+            if (mAllowUniversalAccessFromFileURLs) {
+                mRuntimeView.setSettingEnabled("AllowUniversalAccessFromFileURLs", true);
             }
 
             didTryLoadRuntimeView(mRuntimeView.get());
@@ -265,6 +271,10 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
 
     public void setRemoteDebugging(boolean value) {
         mRemoteDebugging = value;
+    }
+
+    public void setAllowUniversalAccessFromFileURLs(boolean value) {
+        mAllowUniversalAccessFromFileURLs = value;
     }
 
 }

@@ -32,6 +32,7 @@ interface XWalkRuntimeViewProvider {
     public String enableRemoteDebugging(String frontEndUrl, String socketName);
     public void disableRemoteDebugging();
     public boolean onKeyUp(int KeyCode, KeyEvent event);
+    public void setSettingEnabled(String name, boolean value);
 
     // For instrumentation test.
     public String getTitleForTest();
