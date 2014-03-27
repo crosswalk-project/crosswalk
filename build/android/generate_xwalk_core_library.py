@@ -124,7 +124,7 @@ def CopyGeneratedSources(out_dir):
 
   print 'Copying generated source files...'
   generated_srcs_to_copy = [
-      'org/chromium/base/ActivityState.java',
+      'org/chromium/base/ApplicationStatus.java',
       'org/chromium/base/MemoryPressureLevelList.java',
       'org/chromium/base/library_loader/NativeLibraries.java',
       'org/chromium/content/browser/GestureEventType.java',

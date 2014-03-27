@@ -13,7 +13,7 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import org.chromium.base.ActivityStatus;
+import org.chromium.base.ApplicationStatus;
 import org.chromium.base.CommandLine;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
@@ -42,7 +42,7 @@ class XWalkViewDelegate {
 
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
-        ActivityStatus.initialize(xwalkView.getActivity().getApplication());
+        ApplicationStatus.initialize(xwalkView.getActivity().getApplication());
 
         final Context context = xwalkView.getViewContext();
 
