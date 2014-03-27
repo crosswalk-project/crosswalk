@@ -7,11 +7,11 @@ package org.xwalk.runtime;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.webkit.ValueCallback;
 
 import java.lang.reflect.Method;
 
 import org.xwalk.core.XWalkDefaultClient;
-import org.xwalk.core.SslErrorHandler;
 import org.xwalk.core.XWalkView;
 
 class XWalkClientForTest extends XWalkDefaultClient {
@@ -37,14 +37,14 @@ class XWalkClientForTest extends XWalkDefaultClient {
     }
 
     @Override
-    public void onReceivedSslError(XWalkView view, SslErrorHandler handler,
+    public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback,
             SslError error) {
         if (mCallbackForTest != null) {
             try {
                 Class<?> objectClass = mCallbackForTest.getClass();
                 Method onReceivedSslError = objectClass.getMethod(
-                        "onReceivedSslError", SslErrorHandler.class, SslError.class);
-                onReceivedSslError.invoke(mCallbackForTest, handler, error);
+                        "onReceivedSslError", ValueCallback.class, SslError.class);
+                onReceivedSslError.invoke(mCallbackForTest, callback, error);
             } catch (Exception e) {
                 e.printStackTrace();
             }

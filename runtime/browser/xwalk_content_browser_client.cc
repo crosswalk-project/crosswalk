@@ -194,6 +194,35 @@ bool XWalkContentBrowserClient::AllowSetCookie(
 #endif
 }
 
+void XWalkContentBrowserClient::AllowCertificateError(
+    int render_process_id,
+    int render_frame_id,
+    int cert_error,
+    const net::SSLInfo& ssl_info,
+    const GURL& request_url,
+    ResourceType::Type resource_type,
+    bool overridable,
+    bool strict_enforcement,
+    const base::Callback<void(bool)>& callback,
+    content::CertificateRequestResultType* result) {
+  // Currently only Android handles it.
+  // TODO(yongsheng): applies it for other platforms?
+#if defined(OS_ANDROID)
+  XWalkContentsClientBridgeBase* client =
+      XWalkContentsClientBridgeBase::FromRenderFrameID(render_process_id,
+          render_frame_id);
+  bool cancel_request = true;
+  if (client)
+    client->AllowCertificateError(cert_error,
+                                  ssl_info.cert.get(),
+                                  request_url,
+                                  callback,
+                                  &cancel_request);
+  if (cancel_request)
+    *result = content::CERTIFICATE_REQUEST_RESULT_TYPE_DENY;
+#endif
+}
+
 void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
     const GURL& source_origin,
     int callback_context,
