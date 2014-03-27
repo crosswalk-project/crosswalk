@@ -126,7 +126,7 @@ public abstract class XWalkContentsClient extends ContentViewClient {
     public abstract void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler,
             String host, String realm);
 
-    public abstract void onReceivedSslError(SslErrorHandler handler, SslError error);
+    public abstract void onReceivedSslError(ValueCallback<Boolean> callback, SslError error);
 
     public abstract void onReceivedLoginRequest(String realm, String account, String args);
 

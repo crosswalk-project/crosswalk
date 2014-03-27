@@ -157,10 +157,12 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (mXWalkClient != null && mXWalkView != null)
             mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
     }
+
     @Override
-    public void onReceivedSslError(SslErrorHandler handler, SslError error) {
-        if (mXWalkClient != null && mXWalkView != null)
-            mXWalkClient.onReceivedSslError(mXWalkView, handler, error);
+    public void onReceivedSslError(ValueCallback<Boolean> callback, SslError error) {
+        if (mXWalkClient != null && mXWalkView != null) {
+            mXWalkClient.onReceivedSslError(mXWalkView, callback, error);
+        }
     }
 
     @Override
@@ -375,8 +377,20 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @CalledByNative
     private boolean allowCertificateError(int certError, byte[] derBytes, final String url,
             final int id) {
-        // TODO(yongsheng): Implement this.
-        return false;
+        final SslCertificate cert = SslUtil.getCertificateFromDerBytes(derBytes);
+        if (cert == null) {
+            // if the certificate or the client is null, cancel the request
+            return false;
+        }
+        final SslError sslError = SslUtil.sslErrorFromNetErrorCode(certError, cert, url);
+        ValueCallback<Boolean> callback = new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean value) {
+                proceedSslError(value.booleanValue(), id);
+            }
+        };
+        onReceivedSslError(callback, sslError);
+        return true;
     }
 
     private void proceedSslError(boolean proceed, int id) {

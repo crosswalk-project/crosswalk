@@ -74,6 +74,18 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                               int render_frame_id,
                               net::CookieOptions* options) OVERRIDE;
 
+  virtual void AllowCertificateError(
+      int render_process_id,
+      int render_frame_id,
+      int cert_error,
+      const net::SSLInfo& ssl_info,
+      const GURL& request_url,
+      ResourceType::Type resource_type,
+      bool overridable,
+      bool strict_enforcement,
+      const base::Callback<void(bool)>& callback,
+      content::CertificateRequestResultType* result) OVERRIDE;
+
   virtual content::SpeechRecognitionManagerDelegate*
       GetSpeechRecognitionManagerDelegate() OVERRIDE;
 

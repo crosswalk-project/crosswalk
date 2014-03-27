@@ -14,17 +14,11 @@ import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.xwalk.core.HttpAuthDatabase;
-import org.xwalk.core.XWalkHttpAuthHandler;
-import org.xwalk.core.R;
-import org.xwalk.core.SslErrorHandler;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkView;
 
 // TODO(yongsheng): remove public modifier.
 public class XWalkDefaultClient extends XWalkClient {
@@ -78,23 +72,22 @@ public class XWalkDefaultClient extends XWalkClient {
     }
 
     @Override
-    public void onReceivedSslError(XWalkView view, SslErrorHandler handler,
+    public void onReceivedSslError(XWalkView view, ValueCallback<Boolean> callback,
             SslError error) {
-        final SslErrorHandler sslHandler = handler;
+        final ValueCallback<Boolean> valueCallback = callback;
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+        // Don't use setOnDismissListener because it's supported since API level 17.
         dialogBuilder.setTitle(R.string.ssl_alert_title)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sslHandler.proceed();
+                        valueCallback.onReceiveValue(true);
                         dialog.dismiss();
                     }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sslHandler.cancel();
-                        dialog.cancel();
+                }).setNegativeButton(android.R.string.cancel, null)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    public void onCancel(DialogInterface dialog) {
+                        valueCallback.onReceiveValue(false);
                     }
                 });
         mDialog = dialogBuilder.create();
