@@ -47,8 +47,22 @@ namespace raw_socket {
     ReadyState readyState;
   };
 
+  // Events and functions are defined at
+  // udp_socket.idl
+  dictionary UDPSocket {
+    DOMString localAddress;
+    long localPort;
+    DOMString remoteAddress;
+    long remotePort;
+    boolean addressReuse;
+    boolean loopback;
+    long bufferedAmount;
+    ReadyState readyState;
+  };
+
   interface Functions {
     [nodoc] static TCPSocket TCPSocketConstructor(DOMString objectId);
     [nodoc] static TCPServerSocket TCPServerSocketConstructor(DOMString objectId);
+    [nodoc] static UDPSocket UDPSocketConstructor(DOMString objectId);
   };
 };

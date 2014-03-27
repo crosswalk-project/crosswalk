@@ -66,6 +66,9 @@
         'raw_socket/tcp_socket.idl',
         'raw_socket/tcp_socket_object.cc',
         'raw_socket/tcp_socket_object.h',
+        'raw_socket/udp_socket.idl',
+        'raw_socket/udp_socket_object.cc',
+        'raw_socket/udp_socket_object.h',
       ],
       'conditions': [
         ['OS!="android"', {
