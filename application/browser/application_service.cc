@@ -533,6 +533,7 @@ Application* ApplicationService::Launch(
 
 Application* ApplicationService::Launch(
     const base::FilePath& path, const Application::LaunchParams& params) {
+  Application* application = NULL;
   if (!base::DirectoryExists(path))
     return NULL;
 
@@ -546,7 +547,12 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  return Launch(application_data, params);
+  if (application = Launch(application_data, params)) {
+    scoped_refptr<Event> event = Event::CreateEvent(
+        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
+    event_manager_->SendEvent(application->id(), event);
+  }
+  return application;
 }
 
 namespace {
