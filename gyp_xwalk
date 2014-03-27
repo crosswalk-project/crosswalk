@@ -41,12 +41,6 @@ sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'liblouis'))
 sys.path.insert(1, os.path.join(chrome_src, 'third_party', 'WebKit',
     'Source', 'build', 'scripts'))
 
-# FIXME(rakuco,joone): This is a workaround to allow the Tizen build to
-# proceed, as we use make there and GN isn't involved in this case (otherwise
-# we run into problems like GN always looking for GTK+ dependencies).
-if os.environ.get('GYP_GENERATORS') != 'make':
-  import find_depot_tools
-
 # On Windows, Psyco shortens warm runs of build/gyp_chromium by about
 # 20 seconds on a z600 machine with 12 GB of RAM, from 90 down to 70
 # seconds.  Conversely, memory usage of build/gyp_chromium with Psyco
@@ -373,6 +367,7 @@ if __name__ == '__main__':
   # TODO(bradnelson): take this out once this issue is fixed:
   #    http://code.google.com/p/gyp/issues/detail?id=177
   if sys.platform == 'cygwin':
+    import find_depot_tools
     depot_tools_path = find_depot_tools.add_depot_tools_to_path()
     python_dir = sorted(glob.glob(os.path.join(depot_tools_path,
                                                'python2*_bin')))[-1]
@@ -436,6 +431,7 @@ if __name__ == '__main__':
   # by depot_tools, then use it.
   if (sys.platform in ('win32', 'cygwin') and
       os.environ.get('GYP_GENERATORS') == 'ninja'):
+    import find_depot_tools
     depot_tools_path = find_depot_tools.add_depot_tools_to_path()
     toolchain = os.path.normpath(os.path.join(
         depot_tools_path, 'win_toolchain', 'vs2013_files'))
