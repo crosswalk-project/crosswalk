@@ -14,10 +14,9 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/common/content_client.h"
 #include "jni/XWalkSettings_jni.h"
-#include "webkit/common/user_agent/user_agent.h"
 #include "webkit/common/webpreferences.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
 
@@ -234,7 +233,7 @@ static jint Init(JNIEnv* env,
 
 static jstring GetDefaultUserAgent(JNIEnv* env, jclass clazz) {
   return base::android::ConvertUTF8ToJavaString(
-      env, content::GetUserAgent(GURL())).Release();
+      env, GetUserAgent()).Release();
 }
 
 bool RegisterXWalkSettings(JNIEnv* env) {
