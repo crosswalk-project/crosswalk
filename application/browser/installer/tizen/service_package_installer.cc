@@ -100,9 +100,9 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.EndElement();  // Ends "manifest" element.
   xml_writer.StopWriting();
 
-  file_util::WriteFile(xml_path,
-                       xml_writer.GetWrittenString().c_str(),
-                       xml_writer.GetWrittenString().size());
+  base::WriteFile(xml_path,
+                  xml_writer.GetWrittenString().c_str(),
+                  xml_writer.GetWrittenString().size());
 
   base::CloseFile(file);
   LOG(INFO) << "Converting manifest.json into "
