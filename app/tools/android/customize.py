@@ -332,6 +332,14 @@ def CustomizeExtensions(sanitized_name, name, extensions):
     extension_json_file.write(extensions_string)
     extension_json_file.close()
 
+def GenerateCommandLineFile(sanitized_name, xwalk_command_line):
+  if xwalk_command_line == '':
+    return
+  assets_path = os.path.join(sanitized_name, 'assets')
+  file_path = os.path.join(assets_path, 'xwalk-command-line')
+  command_line_file = open(file_path, 'w')
+  command_line_file.write('xwalk ' + xwalk_command_line)
+
 
 def CustomizeIcon(sanitized_name, app_root, icon_dict):
   icon_exist = False
@@ -371,7 +379,8 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  display_as_fullscreen, extensions, launch_screen_img,
                  package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified') :
+                 app_version='1.0.0', orientation='unspecified',
+                 xwalk_command_line=''):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
     Prepare(sanitized_name, package, app_root)
@@ -381,6 +390,7 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
                   enable_remote_debugging, display_as_fullscreen)
     CustomizeExtensions(sanitized_name, name, extensions)
+    GenerateCommandLineFile(sanitized_name, xwalk_command_line)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     sys.exit(ec.code)
@@ -434,6 +444,11 @@ def main():
   parser.add_option('--orientation', help=info)
   parser.add_option('--launch-screen-img',
                     help='The fallback image for launch_screen')
+  info = ('Use command lines.'
+          'Crosswalk is powered by Chromium and supports Chromium command line.'
+          'For example, '
+          '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
+  parser.add_option('--xwalk-command-line', default='', help=info)
   options, _ = parser.parse_args()
   try:
     icon_dict = {144: 'icons/icon_144.png',
@@ -455,7 +470,8 @@ def main():
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
                  options.launch_screen_img, options.package, options.name,
-                 options.app_version, options.orientation)
+                 options.app_version, options.orientation,
+                 options.xwalk_command_line)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
