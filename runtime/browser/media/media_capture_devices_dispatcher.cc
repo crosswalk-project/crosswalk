@@ -43,7 +43,6 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
     content::WebContents* web_contents,
     const content::MediaStreamRequest& request,
     const content::MediaResponseCallback& callback) {
-
   content::MediaStreamDevices devices;
   // Based on chrome/browser/media/media_stream_devices_controller.cc.
   bool microphone_requested =
@@ -67,7 +66,9 @@ void XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
         break;
     }
   }
-  callback.Run(devices, scoped_ptr<content::MediaStreamUI>());
+  callback.Run(devices,
+               content::MEDIA_DEVICE_OK,
+               scoped_ptr<content::MediaStreamUI>());
 }
 
 XWalkMediaCaptureDevicesDispatcher::XWalkMediaCaptureDevicesDispatcher() {}
