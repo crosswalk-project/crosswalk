@@ -126,7 +126,7 @@ TEST_F(ApplicationFileUtilTest, ValidateThemeUTF8) {
   std::string non_ascii_file = "\xC3\xA0\xC3\xA8\xC3\xB2.png";
   base::FilePath non_ascii_path =
       temp.path().Append(base::FilePath::FromUTF8Unsafe(non_ascii_file));
-  file_util::WriteFile(non_ascii_path, "", 0);
+  base::WriteFile(non_ascii_path, "", 0);
 
   std::string kManifest =
       base::StringPrintf(
