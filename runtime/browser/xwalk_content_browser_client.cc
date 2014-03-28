@@ -107,7 +107,7 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     content::ProtocolHandlerScopedVector protocol_interceptors) {
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
-          partition_path, in_memory, protocol_handlers);
+          partition_path, in_memory, protocol_handlers, protocol_interceptors.Pass());
 }
 
 // This allow us to append extra command line switches to the child
