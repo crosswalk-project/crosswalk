@@ -160,7 +160,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
   if (!application_data) {
     LOG(ERROR) << "Error occurred while trying to launch application: "
                << error;
-    return NULL;
+    return false;
   }
 
   Application::LaunchParams launch_params;
