@@ -187,7 +187,8 @@ void RuntimeContext::CancelProtectedMediaIdentifierPermissionRequests(
 }
 
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   DCHECK(!url_request_getter_);
 
   application::ApplicationService* service =
@@ -202,7 +203,7 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
       GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers);
+      protocol_handlers, protocol_interceptors.Pass());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -211,7 +212,8 @@ net::URLRequestContextGetter*
     RuntimeContext::CreateRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory,
-        content::ProtocolHandlerMap* protocol_handlers) {
+        content::ProtocolHandlerMap* protocol_handlers,
+        content::ProtocolHandlerScopedVector protocol_interceptors) {
   return NULL;
 }
 
