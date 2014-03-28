@@ -83,7 +83,7 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
       int render_process_id,
       int render_frame_id,
       int stream_id,
-      const ReadPowerAndClipCallback& power_read_callback) {}
+      const ReadPowerAndClipCallback& power_read_callback) OVERRIDE {}
   virtual void OnAudioStreamStopped(
       int render_process_id,
       int render_frame_id,
