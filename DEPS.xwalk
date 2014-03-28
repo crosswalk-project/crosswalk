@@ -7,7 +7,7 @@
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '35.0.1908.4'
-chromium_crosswalk_point = '4bd4eb6889f73a2e8777bf93876245a8c0cd4ec1'
+chromium_crosswalk_point = 'e5653bcf10e4a4cb051f290b18ae59fb651a36a1'
 blink_crosswalk_point = 'a5313280c9a99a374087d191590a65c8b01aface'
 v8_crosswalk_point = 'fa0c3c69b9d632e5730bdd9c745c375beef5e54d'
 ozone_wayland_point = '41ff0158af5671e637096e0896fad8fc02e3f6ce'
