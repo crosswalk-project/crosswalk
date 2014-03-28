@@ -523,7 +523,7 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  if (application = Launch(application_data, params)) {
+  if ((application = Launch(application_data, params))) {
     scoped_refptr<Event> event = Event::CreateEvent(
         kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
     event_manager_->SendEvent(application->id(), event);
@@ -547,7 +547,7 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  if (application = Launch(application_data, params)) {
+  if ((application = Launch(application_data, params))) {
     scoped_refptr<Event> event = Event::CreateEvent(
         kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
     event_manager_->SendEvent(application->id(), event);

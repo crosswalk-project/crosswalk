@@ -33,6 +33,7 @@ class ApplicationWidgetExtension : public XWalkExtension {
 class AppWidgetExtensionInstance : public XWalkExtensionInstance {
  public:
   explicit AppWidgetExtensionInstance(Application* application);
+  virtual ~AppWidgetExtensionInstance();
 
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
   virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;

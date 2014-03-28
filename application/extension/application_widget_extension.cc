@@ -61,6 +61,8 @@ AppWidgetExtensionInstance::AppWidgetExtensionInstance(
   widget_storage_.reset(new AppWidgetStorage(application_, path));
 }
 
+AppWidgetExtensionInstance::~AppWidgetExtensionInstance() {}
+
 void AppWidgetExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   handler_.HandleMessage(msg.Pass());
 }

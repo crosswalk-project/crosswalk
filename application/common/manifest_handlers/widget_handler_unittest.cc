@@ -82,7 +82,7 @@ class WidgetHandlerTest: public testing::Test {
       preferences->SetString(kWidgetPreferencesValue,
                              preferencesValue[id]);
       preferences->SetBoolean(kWidgetPreferencesReadonly,
-                              preferencesReadonly[id] == "true");
+                              strncmp(preferencesReadonly[id], "true", 4) == 0);
     }
     return preferences;
   }
