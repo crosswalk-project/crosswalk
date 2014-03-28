@@ -344,10 +344,11 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
-    manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_app_launch_local_path.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
-    RunCommand(cmd)
-    self.assertTrue(out.find('Please make sure the local path file') != -1)
+    out = RunCommand(cmd)
+    self.assertTrue(out.find('Please make sure that the local path file') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
