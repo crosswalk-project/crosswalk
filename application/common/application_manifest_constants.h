@@ -58,6 +58,7 @@ namespace application_widget_keys {
   extern const char kTizenAppIdKey[];
   extern const char kIcon128Key[];
   extern const char kAllowNavigationKey[];
+  extern const char kCSPReportOnlyKey[];
 #endif
 }  // namespace application_widget_keys
 

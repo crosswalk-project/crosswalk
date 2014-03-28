@@ -134,6 +134,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool HasMainDocument() const;
   Manifest::PackageType GetPackageType() const;
 
+#if defined(OS_TIZEN)
+  bool HasCSPDefined() const;
+#endif
+
  private:
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;
