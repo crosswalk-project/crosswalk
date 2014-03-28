@@ -61,7 +61,6 @@ GURL GetURLFromCommandLine(const CommandLine& command_line) {
 
 namespace xswitches {
 // Redefine settings not exposed by content module.
-const char kEnableViewport[] = "enable-viewport";
 const char kEnableOverlayScrollbars[] = "enable-overlay-scrollbars";
 }
 
@@ -91,7 +90,8 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
-  command_line->AppendSwitch(xswitches::kEnableViewport);
+  command_line->AppendSwitch(switches::kEnableViewport);
+  command_line->AppendSwitch(switches::kEnableViewportMeta);
 
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
 
