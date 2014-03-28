@@ -91,9 +91,10 @@ content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
 
 net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   url_request_context_getter_ = static_cast<RuntimeContext*>(browser_context)->
-      CreateRequestContext(protocol_handlers);
+      CreateRequestContext(protocol_handlers, protocol_interceptors.Pass());
   return url_request_context_getter_;
 }
 
@@ -102,7 +103,8 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     content::BrowserContext* browser_context,
     const base::FilePath& partition_path,
     bool in_memory,
-    content::ProtocolHandlerMap* protocol_handlers) {
+    content::ProtocolHandlerMap* protocol_handlers,
+    content::ProtocolHandlerScopedVector protocol_interceptors) {
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers);
