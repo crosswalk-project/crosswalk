@@ -9,7 +9,7 @@
 chromium_version = '34.0.1847.45'
 chromium_crosswalk_point = 'cb7bc58aa1239e2fa92d692e81ccd06fa6c82722'
 blink_crosswalk_point = 'e8b6b995b38b422c2b4d58fa5201599f1e510537'
-v8_crosswalk_point = 'ffe72f9229923611866423ced472b1dff97abdfe'
+v8_crosswalk_point = 'd54ab7faeadc81a6ce7a28949b56adebd17a0011'
 
 deps_xwalk = {
   'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
