@@ -89,11 +89,6 @@ void XWalkContentRendererClient::DidCreateScriptContext(
 #endif
 }
 
-void XWalkContentRendererClient::WillReleaseScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
-  extension_controller_->WillReleaseScriptContext(frame, context);
-}
-
 void XWalkContentRendererClient::DidCreateModuleSystem(
     extensions::XWalkModuleSystem* module_system) {
   scoped_ptr<extensions::XWalkNativeModule> app_module(
