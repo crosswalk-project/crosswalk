@@ -35,7 +35,8 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
       const base::FilePath& base_path,
       base::MessageLoop* io_loop,
       base::MessageLoop* file_loop,
-      content::ProtocolHandlerMap* protocol_handlers);
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors);
 
   // net::URLRequestContextGetter implementation.
   virtual net::URLRequestContext* GetURLRequestContext() OVERRIDE;
@@ -57,6 +58,7 @@ class RuntimeURLRequestContextGetter : public net::URLRequestContextGetter {
   scoped_ptr<net::URLRequestContextStorage> storage_;
   scoped_ptr<net::URLRequestContext> url_request_context_;
   content::ProtocolHandlerMap protocol_handlers_;
+  content::ProtocolHandlerScopedVector protocol_interceptors_;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeURLRequestContextGetter);
 };
