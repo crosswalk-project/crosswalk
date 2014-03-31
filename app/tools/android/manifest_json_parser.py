@@ -138,17 +138,27 @@ class ManifestJsonParser(object):
       ret_dict['fullscreen'] = 'true'
     else:
       ret_dict['fullscreen'] = ''
-    ret_dict['launch_screen_img'] = ''
     if 'launch_screen' in self.data_src:
-      if 'default' not in self.data_src['launch_screen']:
-        print('Error: no \'default\' field for \'launch_screen\'.')
-        sys.exit(1)
-      default = self.data_src['launch_screen']['default']
-      if 'image' not in default:
-        print('Error: no \'image\' field for \'launch_screen.default\'.')
-        sys.exit(1)
-      ret_dict['launch_screen_img'] = default['image']
+      self.ParseLaunchScreen(ret_dict, 'default')
+      self.ParseLaunchScreen(ret_dict, 'portrait')
+      self.ParseLaunchScreen(ret_dict, 'landscape')
     return ret_dict
+
+  def ParseLaunchScreen(self, ret_dict, orientation):
+    if orientation in self.data_src['launch_screen']:
+      sub_dict = self.data_src['launch_screen'][orientation]
+      if 'background_color' in sub_dict:
+        ret_dict['launch_screen_background_color_' + orientation] = (
+            sub_dict['background_color'])
+      if 'background_image' in sub_dict:
+        ret_dict['launch_screen_background_image_' + orientation] = (
+            sub_dict['background_image'])
+      if 'image' in sub_dict:
+        ret_dict['launch_screen_image_' + orientation] = (
+            sub_dict['image'])
+      if 'image_border' in sub_dict:
+        ret_dict['launch_screen_image_border_' + orientation] = (
+            sub_dict['image_border'])
 
   def ShowItems(self):
     """Show the processed results, it is used for command-line
@@ -164,7 +174,30 @@ class ManifestJsonParser(object):
     print("required_version: %s" % self.GetRequiredVersion())
     print("plugins: %s" % self.GetPlugins())
     print("fullscreen: %s" % self.GetFullScreenFlag())
-    print('launch_screen.default.image: %s' % self.GetLaunchScreenImg())
+    print('launch_screen.default.background_color: %s' %
+        self.GetLaunchScreenBackgroundColor('default'))
+    print('launch_screen.default.background_image: %s' %
+        self.GetLaunchScreenBackgroundImage('default'))
+    print('launch_screen.default.image: %s' %
+        self.GetLaunchScreenImage('default'))
+    print('launch_screen.default.image_border: %s' %
+        self.GetLaunchScreenImageBorder('default'))
+    print('launch_screen.portrait.background_color: %s' %
+        self.GetLaunchScreenBackgroundColor('portrait'))
+    print('launch_screen.portrait.background_image: %s' %
+        self.GetLaunchScreenBackgroundImage('portrait'))
+    print('launch_screen.portrait.image: %s' %
+        self.GetLaunchScreenImage('portrait'))
+    print('launch_screen.portrait.image_border: %s' %
+        self.GetLaunchScreenImageBorder('portrait'))
+    print('launch_screen.landscape.background_color: %s' %
+        self.GetLaunchScreenBackgroundColor('landscape'))
+    print('launch_screen.landscape.background_image: %s' %
+        self.GetLaunchScreenBackgroundImage('landscape'))
+    print('launch_screen.landscape.image: %s' %
+        self.GetLaunchScreenImage('landscape'))
+    print('launch_screen.landscape.image_border: %s' %
+        self.GetLaunchScreenImageBorder('landscape'))
 
 
   def GetAppName(self):
@@ -211,9 +244,33 @@ class ManifestJsonParser(object):
     """Return the set fullscreen flag of the application."""
     return self.ret_dict['fullscreen']
 
-  def GetLaunchScreenImg(self):
-    """Return the default img for launch_screen."""
-    return self.ret_dict['launch_screen_img']
+  def GetLaunchScreenBackgroundColor(self, orientation):
+    """Return the background color for launch_screen."""
+    if 'launch_screen_background_color_' + orientation in self.ret_dict:
+      return self.ret_dict['launch_screen_background_color_' + orientation]
+    else:
+      return ''
+
+  def GetLaunchScreenBackgroundImage(self, orientation):
+    """Return the background image for launch_screen."""
+    if 'launch_screen_background_image_' + orientation in self.ret_dict:
+      return self.ret_dict['launch_screen_background_image_' + orientation]
+    else:
+      return ''
+
+  def GetLaunchScreenImage(self, orientation):
+    """Return the image for launch_screen."""
+    if 'launch_screen_image_' + orientation in self.ret_dict:
+      return self.ret_dict['launch_screen_image_' + orientation]
+    else:
+      return ''
+
+  def GetLaunchScreenImageBorder(self, orientation):
+    """Return the image border for launch_screen."""
+    if 'launch_screen_image_border_' + orientation in self.ret_dict:
+      return self.ret_dict['launch_screen_image_border_' + orientation]
+    else:
+      return ''
 
 
 def main(argv):

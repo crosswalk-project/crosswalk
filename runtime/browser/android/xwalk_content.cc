@@ -47,6 +47,8 @@ using content::WebContents;
 using navigation_interception::InterceptNavigationDelegate;
 using xwalk::application_manifest_keys::kDisplay;
 
+namespace keys = xwalk::application_manifest_keys;
+
 namespace xwalk {
 
 namespace {
@@ -213,8 +215,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       manifest_dictionary_ptr.Pass());
 
   std::string url;
-  if (manifest.GetString(
-          xwalk::application_manifest_keys::kLaunchLocalPathKey, &url)) {
+  if (manifest.GetString(keys::kLaunchLocalPathKey, &url)) {
     // According to original proposal for "app:launch:local_path", the "http"
     // and "https" schemes are supported. So |url| should do nothing when it
     // already has "http" or "https" scheme.
@@ -222,8 +223,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     if (scheme != content::kHttpScheme && scheme != content::kHttpsScheme)
       url = path_str + url;
   } else {
-    manifest.GetString(
-        xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
+    manifest.GetString(keys::kLaunchWebURLKey, &url);
   }
 
   std::string match_patterns;
@@ -235,8 +235,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
-  manifest.GetString(
-      xwalk::application_manifest_keys::kCSPKey, &csp);
+  manifest.GetString(keys::kCSPKey, &csp);
   RuntimeContext* runtime_context =
       XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
@@ -257,17 +256,51 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   }
 
   // Check whether need to display launch screen. (Read from manifest.json)
-  if (manifest.HasPath(
-          xwalk::application_manifest_keys::kLaunchScreen)) {
+  if (manifest.HasPath(keys::kLaunchScreen)) {
     std::string ready_when;
-    // Get the value of 'ready_when' from manifest.json and callback
-    // to Java side.
-    manifest.GetString(
-        xwalk::application_manifest_keys::kLaunchScreenReadyWhen, &ready_when);
+    // Get the value of 'ready_when' from manifest.json
+    manifest.GetString(keys::kLaunchScreenReadyWhen, &ready_when);
     ScopedJavaLocalRef<jstring> ready_when_buffer =
         base::android::ConvertUTF8ToJavaString(env, ready_when);
+
+    // Get the value of 'image_border'
+    // 1. When 'launch_screen.[orientation]' was defined, but no 'image_border'
+    //    The value of 'image_border' will be set as 'empty'.
+    // 2. Otherwise, there is no 'launch_screen.[orientation]' defined,
+    //    The value of 'image_border' will be empty.
+    const char empty[] = "empty";
+    std::string image_border_default;
+    manifest.GetString(keys::kLaunchScreenImageBorderDefault,
+                       &image_border_default);
+    if (image_border_default.empty() && manifest.HasPath(
+        keys::kLaunchScreenDefault)) {
+      image_border_default = empty;
+    }
+
+    std::string image_border_landscape;
+    manifest.GetString(keys::kLaunchScreenImageBorderLandscape,
+                       &image_border_landscape);
+    if (image_border_landscape.empty() && manifest.HasPath(
+        keys::kLaunchScreenLandscape)) {
+      image_border_landscape = empty;
+    }
+
+    std::string image_border_portrait;
+    manifest.GetString(keys::kLaunchScreenImageBorderPortrait,
+                       &image_border_portrait);
+    if (image_border_portrait.empty() && manifest.HasPath(
+        keys::kLaunchScreenPortrait)) {
+      image_border_portrait = empty;
+    }
+
+    std::string image_border = image_border_default + ';' +
+        image_border_landscape  + ';' + image_border_portrait;
+    ScopedJavaLocalRef<jstring> image_border_buffer =
+        base::android::ConvertUTF8ToJavaString(env, image_border);
+
     Java_XWalkContent_onGetUrlAndLaunchScreenFromManifest(
-        env, obj, url_buffer.obj(), ready_when_buffer.obj());
+        env, obj, url_buffer.obj(), ready_when_buffer.obj(),
+        image_border_buffer.obj());
   } else {
     // No need to display launch screen, load the url directly.
     Java_XWalkContent_onGetUrlFromManifest(env, obj, url_buffer.obj());
