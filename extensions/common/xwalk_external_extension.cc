@@ -40,14 +40,14 @@ bool XWalkExternalExtension::Initialize() {
   if (initialized_)
     return true;
 
-  std::string error;
+  base::NativeLibraryLoadError error;
   base::ScopedNativeLibrary library(
       base::LoadNativeLibrary(library_path_, &error));
   if (!library.is_valid()) {
     LOG(WARNING) << "Error loading extension '"
                  << library_path_.AsUTF8Unsafe()
                  << "': "
-                 << error;
+                 << error.ToString();
     return false;
   }
 
