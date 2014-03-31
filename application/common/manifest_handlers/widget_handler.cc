@@ -4,6 +4,7 @@
 
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
 
+#include <regex.h>
 #include <map>
 #include <utility>
 #include <vector>
@@ -16,6 +17,7 @@
 namespace xwalk {
 
 namespace keys = application_widget_keys;
+namespace patterns = application_widget_patterns;
 
 namespace {
 // Below key names are readable from Javascript widget interface.
@@ -53,6 +55,22 @@ const KeyMap& GetWidgetKeyPairs() {
     map.insert(KeyPair(keys::kAuthorHrefKey, kAuthorHref));
     map.insert(KeyPair(keys::kHeightKey, kHeight));
     map.insert(KeyPair(keys::kWidthKey, kWidth));
+  }
+
+  return map;
+}
+
+const KeyMap& GetWidgetKeyPatternPairs() {
+  static KeyMap map;
+  if (map.empty()) {
+#if defined(OS_TIZEN)
+    map.insert(KeyPair(keys::kTizenWidgetNamespaceKey,
+                       patterns::kTizenWidgetNamespacePattern));
+    map.insert(KeyPair(keys::kTizenAppCompleteIdKey,
+                       patterns::kTizenAppCompleteIdPattern));
+    map.insert(KeyPair(keys::kTizenAppIdKey,
+                       patterns::kTizenAppIdPattern));
+#endif
   }
 
   return map;
@@ -137,6 +155,65 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   }
 
   application->SetManifestData(keys::kWidgetKey, widget_info.release());
+  return true;
+}
+
+bool WidgetHandler::Validate(scoped_refptr<const ApplicationData> application,
+                             std::string* error,
+                             std::vector<InstallWarning>* warnings) const {
+  const Manifest* manifest = application->GetManifest();
+  DCHECK(manifest);
+
+  const KeyMap& map = GetWidgetKeyPatternPairs();
+
+  for (KeyMapIterator iter = map.begin(); iter != map.end(); ++iter) {
+    std::string value;
+    manifest->GetString(iter->first, &value);
+
+    int err;
+    regex_t re;
+    regmatch_t pmatch;
+    err = regcomp(&re, iter->second.c_str(), REG_EXTENDED);
+    DCHECK_EQ(err, 0);
+
+    err = regexec(&re, value.c_str(), 1, &pmatch, 0);
+    regfree(&re);
+
+    if (err == 0 && pmatch.rm_so == 0 && pmatch.rm_eo == value.length())
+      continue;  // Match success
+
+    *error = base::StringPrintf(
+                 "%s don't match the format\n",
+                 iter->first.c_str());
+    return false;
+  }
+
+#if defined(OS_TIZEN)
+  std::string tizenAppCompleteId;
+  std::string tizenAppId;
+  manifest->GetString(keys::kTizenAppCompleteIdKey, &tizenAppCompleteId);
+  manifest->GetString(keys::kTizenAppIdKey, &tizenAppId);
+
+  if (tizenAppCompleteId.find(tizenAppId) != 0) {
+    *error = base::StringPrintf(
+                 "The <tizen:application> property id"
+                 "does not start with package.\n");
+    return false;
+  }
+
+  std::string tizenAppRequiredVersion;
+  manifest->GetString(keys::kTizenAppRequiredVersionKey,
+                      &tizenAppRequiredVersion);
+  // TODO(hongzhang): We need a version map (Tizen API version
+  // to Crosswalk API version) for checking required_version
+  if (tizenAppRequiredVersion.empty()) {
+    *error = base::StringPrintf(
+                 "The <tizen:application> property required_version"
+                 "does not exist.\n");
+    return false;
+  }
+#endif
+
   return true;
 }
 

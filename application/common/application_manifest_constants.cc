@@ -60,11 +60,23 @@ const char kAccessOriginKey[] = "@origin";
 const char kAccessSubdomainsKey[] = "@subdomains";
 
 #if defined(OS_TIZEN)
-const char kIcon128Key[] = "widget.icon.@src";
+const char kTizenWidgetNamespaceKey[] = "widget.application.@namespace";
+const char kTizenAppCompleteIdKey[] = "widget.application.@id";
 const char kTizenAppIdKey[] = "widget.application.@package";
+const char kTizenAppRequiredVersionKey[] =
+    "widget.application.@required_version";
+const char kIcon128Key[] = "widget.icon.@src";
 const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
 #endif
 }  // namespace application_widget_keys
+
+namespace application_widget_patterns {
+#if defined(OS_TIZEN)
+const char kTizenWidgetNamespacePattern[] = "http://tizen.org/ns/widgets";
+const char kTizenAppCompleteIdPattern[] = "[0-9a-zA-Z]{10}[.][0-9a-zA-Z]{1,52}";
+const char kTizenAppIdPattern[] = "[0-9a-zA-Z]{10}";
+#endif
+}  // namespace application_widget_patterns
 
 namespace application_manifest_errors {
 const char kInvalidDescription[] =
