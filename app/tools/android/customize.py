@@ -114,8 +114,8 @@ def CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img):
 
 
 def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
-                 description, name, orientation, icon, fullscreen,
-                 launch_screen_img, permissions):
+                 description, name, orientation, icon_dict, fullscreen,
+                 launch_screen_img, permissions, app_root):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
@@ -143,19 +143,9 @@ def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  if icon and os.path.isfile(icon):
-    drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
-    if not os.path.exists(drawable_path):
-      os.makedirs(drawable_path)
-    icon_file = os.path.basename(icon)
-    icon_file = ReplaceInvalidChars(icon_file)
-    shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
-    icon_name = os.path.splitext(icon_file)[0]
-    EditElementAttribute(xmldoc, 'application',
-                         'android:icon', '@drawable/%s' % icon_name)
-  elif icon and (not os.path.isfile(icon)):
-    print ('Please make sure the icon file does exist!')
-    sys.exit(6)
+  if CustomizeIcon(sanitized_name, app_root, icon_dict):
+    EditElementAttribute(xmldoc, 'application', 'android:icon',
+                         '@drawable/icon')
 
   file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle, encoding='utf-8')
@@ -337,6 +327,40 @@ def CustomizeExtensions(sanitized_name, name, extensions):
     extension_json_file.close()
 
 
+def CustomizeIcon(sanitized_name, app_root, icon_dict):
+  icon_exist = False
+  drawable_dict = {'ldpi':[1, 37], 'mdpi':[37, 72], 'hdpi':[72, 96],
+                   'xhdpi':[96, 120], 'xxhdpi':[120, 144]}
+  if not icon_dict:
+    return icon_exist
+
+  try:
+    icon_dict = dict((int(k), v) for k, v in icon_dict.items())
+  except ValueError:
+    print('The key of icon in the manifest file should be a number.')
+
+  if len(icon_dict) > 0:
+    icon_list = sorted(icon_dict.iteritems(), key = lambda d:d[0])
+    for kd, vd in drawable_dict.iteritems():
+      for item in icon_list:
+        if item[0] >= vd[0] and item[0] < vd[1]:
+          drawable_path = os.path.join(sanitized_name, 'res', 'drawable-' + kd)
+          if not os.path.exists(drawable_path):
+            os.makedirs(drawable_path)
+          icon = os.path.join(app_root, item[1])
+          if icon and os.path.isfile(icon):
+            icon_name = os.path.basename(icon)
+            icon_suffix = icon_name.split('.')[-1]
+            shutil.copyfile(icon, os.path.join(drawable_path,
+                                               'icon.' + icon_suffix))
+            icon_exist = True
+          elif icon and (not os.path.isfile(icon)):
+            print ('Error: Please make sure \"' + icon + '\" does exist!')
+            sys.exit(6)
+          break
+  return icon_exist
+
+
 def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  fullscreen_flag, extensions, launch_screen_img,
@@ -347,7 +371,7 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
                  description, name, orientation, icon, fullscreen_flag,
-                 launch_screen_img, permissions)
+                 launch_screen_img, permissions, app_root)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
                   enable_remote_debugging)
     CustomizeExtensions(sanitized_name, name, extensions)
@@ -370,8 +394,6 @@ def main():
   info = ('The application description. Such as:'
           '--description=YourApplicationdDescription')
   parser.add_option('--description', help=info)
-  info = ('The path of icon. Such as: --icon=/path/to/your/customized/icon')
-  parser.add_option('--icon', help=info)
   info = ('The permission list. Such as: --permissions="geolocation"'
           'For more permissions, such as:'
           '--permissions="geolocation:permission2"')
@@ -408,7 +430,21 @@ def main():
                     help='The fallback image for launch_screen')
   options, _ = parser.parse_args()
   try:
-    CustomizeAll(options.app_versionCode, options.description, options.icon,
+    icon_dict = {144: 'icons/icon_144.png',
+                 72: 'icons/icon_72.png',
+                 96: 'icons/icon_96.png',
+                 48: 'icons/icon_48.png'}
+    if options.name == None:
+      options.name = 'Example'
+    if options.app_root == None:
+      options.app_root = os.path.join('test_data', 'manifest')
+    if options.package == None:
+      options.package = 'org.xwalk.app.template'
+    if options.orientation == None:
+      options.orientation = 'unspecified'
+    if options.app_version == None:
+      options.app_version = '1.0.0'
+    CustomizeAll(options.app_versionCode, options.description, icon_dict,
                  options.permissions, options.app_url, options.app_root,
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
