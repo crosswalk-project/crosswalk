@@ -187,7 +187,7 @@ def Customize(options):
   name = 'AppTemplate'
   if options.name:
     name = options.name
-  app_version = '1.0.0'
+  app_version = ''
   if options.app_version:
     app_version = options.app_version
   app_versionCode = MakeVersionCode(options)
