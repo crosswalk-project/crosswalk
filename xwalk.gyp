@@ -226,6 +226,8 @@
         'runtime/common/xwalk_common_message_generator.h',
         'runtime/common/xwalk_content_client.cc',
         'runtime/common/xwalk_content_client.h',
+        'runtime/common/xwalk_localized_error.cc',
+        'runtime/common/xwalk_localized_error.h',
         'runtime/common/xwalk_paths.cc',
         'runtime/common/xwalk_paths.h',
         'runtime/common/xwalk_runtime_features.cc',

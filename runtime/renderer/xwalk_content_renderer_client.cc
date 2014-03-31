@@ -13,11 +13,13 @@
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
 #include "third_party/WebKit/public/platform/WebString.h"
+#include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
+#include "xwalk/runtime/common/xwalk_localized_error.h"
 
 #if defined(OS_ANDROID)
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
@@ -168,4 +170,21 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
   return true;
 #endif
 }
+
+void XWalkContentRendererClient::GetNavigationErrorStrings(
+    content::RenderView* render_view,
+    blink::WebFrame* frame,
+    const blink::WebURLRequest& failed_request,
+    const blink::WebURLError& error,
+    std::string* error_html,
+    base::string16* error_description) {
+  bool is_post = EqualsASCII(failed_request.httpMethod(), "POST");
+
+  // TODO(guangzhen): Check whether error_html is needed in xwalk runtime.
+
+  if (error_description) {
+    *error_description = LocalizedError::GetErrorDetails(error, is_post);
+  }
+}
+
 }  // namespace xwalk

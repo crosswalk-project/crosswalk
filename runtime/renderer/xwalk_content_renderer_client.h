@@ -5,9 +5,12 @@
 #ifndef XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 #define XWALK_RUNTIME_RENDERER_XWALK_CONTENT_RENDERER_CLIENT_H_
 
+#include <string>
+
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/platform_file.h"
+#include "base/strings/string16.h"
 #include "content/public/common/page_transition_types.h"
 #include "content/public/renderer/content_renderer_client.h"
 #include "xwalk/extensions/renderer/xwalk_extension_renderer_controller.h"
@@ -67,6 +70,14 @@ class XWalkContentRendererClient
 #if defined(OS_ANDROID)
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
+
+  void GetNavigationErrorStrings(
+      content::RenderView* render_view,
+      blink::WebFrame* frame,
+      const blink::WebURLRequest& failed_request,
+      const blink::WebURLError& error,
+      std::string* error_html,
+      base::string16* error_description) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClient);
 };
