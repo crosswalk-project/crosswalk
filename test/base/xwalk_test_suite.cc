@@ -86,6 +86,10 @@ void XWalkTestSuite::Initialize() {
   base::FilePath resources_pack_path;
   resources_pack_path = pak_dir.Append(FILE_PATH_LITERAL("xwalk.pak"));
   ui::ResourceBundle::InitSharedInstanceWithPakPath(resources_pack_path);
+  {
+    xwalk::XWalkContentClient client;
+    content::ContentTestSuiteBase::RegisterContentSchemes(&client);
+  }
 
   stats_filename_ = base::StringPrintf("unit_tests-%d",
                                        base::GetCurrentProcId());
@@ -96,10 +100,6 @@ void XWalkTestSuite::Initialize() {
   testing::TestEventListeners& listeners =
       testing::UnitTest::GetInstance()->listeners();
   listeners.Append(new XWalkTestSuiteInitializer);
-}
-
-content::ContentClient* XWalkTestSuite::CreateClientForInitialization() {
-  return new xwalk::XWalkContentClient();
 }
 
 void XWalkTestSuite::Shutdown() {
