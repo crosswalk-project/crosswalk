@@ -96,7 +96,7 @@ class Runtime : public content::WebContentsDelegate,
                                   bool last_unlocked_by_target) OVERRIDE;
   virtual void CloseContents(content::WebContents* source) OVERRIDE;
   virtual void WebContentsCreated(content::WebContents* source_contents,
-                                  int64 source_frame_id,
+                                  int opener_render_frame_id,
                                   const base::string16& frame_name,
                                   const GURL& target_url,
                                   content::WebContents* new_contents) OVERRIDE;
