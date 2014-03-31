@@ -143,34 +143,20 @@ export LDFLAGS="${LDFLAGS} -Wl,--no-keep-memory"
 # build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
 # (remember all paths are still inside the chroot):
 #    gbs build --define 'BUILDDIR_NAME /some/path'
-#
-# The --depth and --generator-output combo is used to put all the Makefiles
-# inside the build directory, and (this is the important part) keep file lists
-# (generatedwith <|() in gyp) in the build directory as well, otherwise they
-# will be in the source directory, erased every time and trigger an almost full
-# Blink rebuild (among other smaller targets).
-# We cannot always pass those flags, though, because gyp's make generator does
-# not work if the --generator-output is the top-level source directory.
 BUILDDIR_NAME="%{?BUILDDIR_NAME}"
-if [ -z "${BUILDDIR_NAME}" ]; then
-   BUILDDIR_NAME="."
-else
-   GYP_EXTRA_FLAGS="--depth=. --generator-output=${BUILDDIR_NAME}"
+if [ -n "${BUILDDIR_NAME}" ]; then
+   mkdir -p "${BUILDDIR_NAME}"
+   ln -s "${BUILDDIR_NAME}" src/out
 fi
 
 %if %{with wayland}
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ash=1 -Duse_ozone=1"
 %endif
 
-# Change src/ so that we can pass "." to --depth below, otherwise we would need
-# to pass "src" to it, but this confuses the gyp make generator, that expects
-# to be called from the root source directory.
-cd src
-
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='make'
-./xwalk/gyp_xwalk xwalk/xwalk.gyp \
+./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
@@ -188,47 +174,27 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_nspr=1 \
 -Denable_hidpi=1
 
-make %{?_smp_mflags} -C "${BUILDDIR_NAME}" BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
 %install
-# Support building in a non-standard directory, possibly outside %{_builddir}.
-# Since the build root is erased every time a new build is performed, one way
-# to avoid losing the build directory is to specify a location outside the
-# build root to the BUILDDIR_NAME definition, such as "/var/tmp/xwalk-build"
-# (remember all paths are still inside the chroot):
-#    gbs build --define 'BUILDDIR_NAME /some/path'
-BUILDDIR_NAME="%{?BUILDDIR_NAME}"
-if [ -z "${BUILDDIR_NAME}" ]; then
-   BUILDDIR_NAME="."
-fi
-
-# Since BUILDDIR_NAME can be either a relative path or an absolute one, we need
-# to cd into src/ so that it means the same thing in the build and install
-# stages: during the former, a relative location refers to a place inside src/,
-# whereas during the latter a relative location by default would refer to a
-# place one directory above src/. If BUILDDIR_NAME is an absolute path, this is
-# irrelevant anyway.
-cd src
-
 # Binaries.
-install -p -D ../xwalk %{buildroot}%{_bindir}/xwalk
+install -p -D xwalk %{buildroot}%{_bindir}/xwalk
 install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
-install -p -D ../xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
-install -p -D ${BUILDDIR_NAME}/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
-install -p -D ${BUILDDIR_NAME}/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
-install -p -D ${BUILDDIR_NAME}/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
+install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
+install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
+install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
 # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
-install -m 06755 -p -D ${BUILDDIR_NAME}/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
+install -m 06755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
 
 # Supporting libraries and resources.
-install -p -D ${BUILDDIR_NAME}/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
-install -p -D ${BUILDDIR_NAME}/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D ${BUILDDIR_NAME}/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
+install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
 # Register xwalk to the package manager.
-install -p -D ../%{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
-install -p -D ../%{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
-
+install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
+install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %post
 mkdir -p %{_desktop_icondir_ro}
