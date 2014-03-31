@@ -5,15 +5,7 @@
 #ifndef XWALK_TEST_BASE_XWALK_TEST_SUITE_H_
 #define XWALK_TEST_BASE_XWALK_TEST_SUITE_H_
 
-#include <string>
-
-#include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
 #include "content/public/test/content_test_suite_base.h"
-
-namespace base {
-class StatsTable;
-}
 
 class XWalkTestSuite : public content::ContentTestSuiteBase {
  public:
@@ -22,10 +14,6 @@ class XWalkTestSuite : public content::ContentTestSuiteBase {
 
  protected:
   virtual void Initialize() OVERRIDE;
-  virtual void Shutdown() OVERRIDE;
-
-  std::string stats_filename_;
-  scoped_ptr<base::StatsTable> stats_table_;
 };
 
 #endif  // XWALK_TEST_BASE_XWALK_TEST_SUITE_H_
