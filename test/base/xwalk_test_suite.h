@@ -24,8 +24,6 @@ class XWalkTestSuite : public content::ContentTestSuiteBase {
   virtual void Initialize() OVERRIDE;
   virtual void Shutdown() OVERRIDE;
 
-  virtual content::ContentClient* CreateClientForInitialization() OVERRIDE;
-
   std::string stats_filename_;
   scoped_ptr<base::StatsTable> stats_table_;
 };
