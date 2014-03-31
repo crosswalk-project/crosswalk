@@ -33,6 +33,7 @@ namespace application_manifest_keys {
 }  // namespace application_manifest_keys
 
 namespace application_widget_keys {
+  extern const char kNamespaceKey[];
   extern const char kNameKey[];
   extern const char kLaunchLocalPathKey[];
   extern const char kWebURLsKey[];
@@ -55,11 +56,19 @@ namespace application_widget_keys {
   extern const char kPreferencesValueKey[];
   extern const char kPreferencesReadonlyKey[];
 #if defined(OS_TIZEN)
+  extern const char kTizenApplicationKey[];
+  extern const char kTizenApplicationIdKey[];
+  extern const char kTizenApplicationPackageKey[];
+  extern const char kTizenApplicationRequiredVersionKey[];
   extern const char kTizenAppIdKey[];
   extern const char kIcon128Key[];
   extern const char kAllowNavigationKey[];
 #endif
 }  // namespace application_widget_keys
+
+#if defined(OS_TIZEN)
+extern const char kTizenNamespacePrefix[];
+#endif
 
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];

@@ -33,6 +33,7 @@ const char kIcon128Key[] = "icons.128";
 
 // manifest keys for widget applications.
 namespace application_widget_keys {
+const char kNamespaceKey[] = "@namespace";
 const char kNameKey[] = "widget.name.#text";
 const char kVersionKey[] = "widget.@version";
 const char kWidgetKey[] = "widget";
@@ -61,10 +62,20 @@ const char kAccessSubdomainsKey[] = "@subdomains";
 
 #if defined(OS_TIZEN)
 const char kIcon128Key[] = "widget.icon.@src";
+const char kTizenApplicationKey[] = "widget.application";
+// Child keys inside 'kTizenApplicationKey'
+const char kTizenApplicationIdKey[] = "@id";
+const char kTizenApplicationPackageKey[] = "@package";
+const char kTizenApplicationRequiredVersionKey[] = "@required_version";
+
 const char kTizenAppIdKey[] = "widget.application.@package";
 const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
 #endif
 }  // namespace application_widget_keys
+
+#if defined(OS_TIZEN)
+const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
+#endif
 
 namespace application_manifest_errors {
 const char kInvalidDescription[] =
