@@ -43,7 +43,8 @@ int RuntimeNetworkDelegate::OnHeadersReceived(
     net::URLRequest* request,
     const net::CompletionCallback& callback,
     const net::HttpResponseHeaders* original_response_headers,
-    scoped_refptr<net::HttpResponseHeaders>* override_response_headers) {
+    scoped_refptr<net::HttpResponseHeaders>* override_response_headers,
+    GURL* allowed_unsafe_redirect_url) {
   return net::OK;
 }
 
