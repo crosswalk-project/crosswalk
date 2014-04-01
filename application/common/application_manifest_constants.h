@@ -54,12 +54,24 @@ namespace application_widget_keys {
   extern const char kPreferencesNameKey[];
   extern const char kPreferencesValueKey[];
   extern const char kPreferencesReadonlyKey[];
+
 #if defined(OS_TIZEN)
+  extern const char kTizenWidgetNamespaceKey[];
+  extern const char kTizenAppCompleteIdKey[];
   extern const char kTizenAppIdKey[];
+  extern const char kTizenAppRequiredVersionKey[];
   extern const char kIcon128Key[];
   extern const char kAllowNavigationKey[];
 #endif
 }  // namespace application_widget_keys
+
+namespace application_widget_patterns {
+#if defined(OS_TIZEN)
+  extern const char kTizenWidgetNamespacePattern[];
+  extern const char kTizenAppCompleteIdPattern[];
+  extern const char kTizenAppIdPattern[];
+#endif
+}  // namespace application_widget_patterns
 
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];
