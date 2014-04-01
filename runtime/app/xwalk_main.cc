@@ -6,6 +6,10 @@
 #include "xwalk/runtime/app/xwalk_main_delegate.h"
 #include "content/public/app/content_main.h"
 
+#if defined(OS_MACOSX)
+#include "xwalk/runtime/app/xwalk_content_main.h"
+#endif
+
 #if defined(OS_WIN)
 #include "content/public/app/startup_helper_win.h"
 #include "sandbox/win/src/sandbox_types.h"
@@ -16,6 +20,11 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE, wchar_t*, int) {
 #else
 int main(int argc, const char** argv) {
 #endif
+#if defined(OS_MACOSX)
+    // Do the delegate work in xwalk_content_main to avoid having to export the
+  // delegate types.
+  return ::ContentMain(argc, argv);
+#else
   xwalk::XWalkMainDelegate delegate;
   content::ContentMainParams params(&delegate);
 
@@ -28,6 +37,6 @@ int main(int argc, const char** argv) {
   params.argc = argc;
   params.argv = argv;
 #endif
-
   return content::ContentMain(params);
+#endif
 }
