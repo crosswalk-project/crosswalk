@@ -16,7 +16,6 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
-Patch7:         %{name}-tizen-audio-session-manager.patch
 Patch8:         %{name}-mesa-ozone-typedefs.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
@@ -32,7 +31,6 @@ BuildRequires:  perl
 BuildRequires:  which
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
-BuildRequires:  pkgconfig(audio-session-mgr)
 BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(capi-location-manager)
 BuildRequires:  pkgconfig(dbus-1)
@@ -107,7 +105,6 @@ cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
-%patch7
 
 %if "%{tizen}" < "3.0"
 %patch2
