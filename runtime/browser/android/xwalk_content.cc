@@ -216,13 +216,9 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     // According to original proposal for "app:launch:local_path", the "http"
     // and "https" schemes are supported. So |url| should do nothing when it
     // already has "http" or "https" scheme.
-    std::string lower_url = url;
-    std::transform(lower_url.begin(), lower_url.end(),
-                   lower_url.begin(), std::tolower);
-    if (lower_url.find(content::kHttpScheme) == std::string::npos &&
-        lower_url.find(content::kHttpsScheme) == std::string::npos) {
+    std::string scheme = GURL(url).scheme();
+    if (scheme != content::kHttpScheme && scheme != content::kHttpsScheme)
       url = path_str + url;
-    }
   } else {
     manifest.GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
