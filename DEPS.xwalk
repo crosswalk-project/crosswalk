@@ -17,7 +17,7 @@ deps_xwalk = {
   'src/v8': 'https://github.com/crosswalk-project/v8-crosswalk.git@%s' % v8_crosswalk_point,
 
   # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@39d93a66777395d5c9ca11da95c436b9192d9725',
+  'src/ozone': 'https://github.com/01org/ozone-wayland.git@a4e3e96b1e1c51cecf5f7bc162b0d98064c95bc2',
 }
 vars_xwalk = {
 }
