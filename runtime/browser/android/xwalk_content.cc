@@ -44,6 +44,7 @@ using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
 using content::WebContents;
 using navigation_interception::InterceptNavigationDelegate;
+using xwalk::application_manifest_keys::kDisplay;
 
 namespace xwalk {
 
@@ -234,6 +235,17 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
 
   ScopedJavaLocalRef<jstring> url_buffer =
       base::android::ConvertUTF8ToJavaString(env, url);
+
+  if (manifest.HasPath(kDisplay)) {
+    std::string display_string;
+    manifest.GetString(kDisplay, &display_string);
+    // TODO(David): update the handling process of the display strings
+    // including fullscreen etc.
+    bool display_as_fullscreen = (
+        display_string.find("fullscreen") != std::string::npos);
+    Java_XWalkContent_onGetFullscreenFlagFromManifest(
+        env, obj, display_as_fullscreen ? JNI_TRUE : JNI_FALSE);
+  }
 
   // Check whether need to display launch screen. (Read from manifest.json)
   if (manifest.HasPath(
