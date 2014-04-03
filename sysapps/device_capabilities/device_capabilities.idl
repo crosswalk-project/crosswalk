@@ -28,14 +28,16 @@ namespace device_capabilities {
   dictionary DisplayUnit {
     DOMString id;
     DOMString name;
-    boolean isPrimary;
-    boolean isInternal;
-    long dpiX;
-    long dpiY;
+    boolean primary;
+    boolean external;
+    long deviceXDPI;
+    long deviceYDPI;
     long width;
     long height;
     long availWidth;
     long availHeight;
+    long colorDepth;
+    long pixelDepth;
   };
 
   dictionary SystemDisplay {
