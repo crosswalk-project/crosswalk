@@ -29,17 +29,22 @@ linked_ptr<DisplayUnit> makeDisplayUnit(const gfx::Display& display) {
   // FIXME(YuZhiqiangX): find which field reflects 'name'.
   display_unit->name = "unknown";
 
-  display_unit->is_primary = (display.id() == primary_display_id);
-  display_unit->is_internal = display.IsInternal();
+  display_unit->primary = (display.id() == primary_display_id);
+  display_unit->external = !display.IsInternal();
 
   const float dpi = display.device_scale_factor() * kDpi96;
-  display_unit->dpi_x = static_cast<unsigned int>(dpi);
-  display_unit->dpi_y = static_cast<unsigned int>(dpi);
+  display_unit->device_xdpi = static_cast<unsigned int>(dpi);
+  display_unit->device_ydpi = static_cast<unsigned int>(dpi);
 
   display_unit->width = display.bounds().width();
   display_unit->height = display.bounds().height();
   display_unit->avail_width = display.work_area_size().width();
   display_unit->avail_height = display.work_area_size().height();
+
+  // colorDepth and pixelDepth are constantly set as 24 refer to
+  // http://www.w3.org/TR/cssom-view/#dom-screen-colordepth
+  display_unit->color_depth = 24;
+  display_unit->pixel_depth = 24;
 
   return display_unit;
 }

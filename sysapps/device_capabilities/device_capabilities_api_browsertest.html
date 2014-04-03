@@ -109,17 +109,17 @@
             if (typeof info.displays[i].name != "string")
               reportFail("Display name is not a string.");
 
-            if (typeof info.displays[i].isPrimary != "boolean")
+            if (typeof info.displays[i].primary != "boolean")
               reportFail("Display type is not a boolean.");
 
-            if (typeof info.displays[i].isInternal != "boolean")
+            if (typeof info.displays[i].external != "boolean")
               reportFail("Display type is not a boolean.");
 
-            if (typeof info.displays[i].dpiX != "number")
-              reportFail("Display dpiX must be a number.");
+            if (typeof info.displays[i].deviceXDPI != "number")
+              reportFail("Display deviceXDPI must be a number.");
 
-            if (typeof info.displays[i].dpiY != "number")
-              reportFail("Display dpiY must be a number.");
+            if (typeof info.displays[i].deviceYDPI != "number")
+              reportFail("Display deviceYDPI must be a number.");
 
             if (typeof info.displays[i].width != "number")
               reportFail("Display width must be a number.");
@@ -132,6 +132,12 @@
 
             if (typeof info.displays[i].availHeight != "number")
               reportFail("Display availHeight must be a number.");
+
+            if (typeof info.displays[i].colorDepth != "number")
+              reportFail("Display colorDepth must be a number.");
+
+            if (typeof info.displays[i].pixelDepth != "number")
+              reportFail("Display pixelDepth must be a number.");
           }
 
           if (document.title != "Fail")
