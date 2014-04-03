@@ -115,6 +115,7 @@
           'dependencies': [
             'build/system.gyp:tizen',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
+            '../third_party/re2/re2.gyp:re2',
           ],
           'sources': [
             'browser/installer/tizen/packageinfo_constants.cc',
@@ -123,6 +124,8 @@
             'browser/installer/tizen/service_package_installer.h',
             'common/manifest_handlers/navigation_handler.cc',
             'common/manifest_handlers/navigation_handler.h',
+            'common/manifest_handlers/tizen_application_handler.cc',
+            'common/manifest_handlers/tizen_application_handler.h',
           ],
         }],
       ],
