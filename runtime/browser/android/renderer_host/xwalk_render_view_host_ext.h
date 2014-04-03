@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_ANDROID_RENDERER_HOST_XWALK_RENDER_VIEW_HOST_EXT_H_
 
 #include <map>
+#include <string>
 
 #include "base/callback_forward.h"
 #include "base/threading/non_thread_safe.h"
@@ -62,8 +63,14 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   void SetInitialPageScale(double page_scale_factor);
   void SetJsOnlineProperty(bool network_up);
 
+  // Sets the white list for Cross-Origin access.
+  void SetOriginAccessWhitelist(const std::string& base_url,
+                                const std::string& permissions);
+
  private:
   // content::WebContentsObserver implementation.
+  virtual void RenderViewCreated(
+      content::RenderViewHost* render_view_host) OVERRIDE;
   virtual void RenderViewGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidNavigateAnyFrame(
       const content::LoadCommittedDetails& details,
@@ -84,6 +91,10 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   XWalkHitTestData last_hit_test_data_;
 
   bool has_new_hit_test_data_;
+
+  std::string pending_base_url_;
+  std::string pending_match_patterns_;
+  bool is_render_view_created_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderViewHostExt);
 };

@@ -24,6 +24,7 @@ const char kPermissionsKey[] = "permissions";
 const char kURLKey[] = "url";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
+const char kXWalkHostsKey[] = "xwalk_hosts";
 
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";

@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_PROCESS_OBSERVER_H_
 #define XWALK_RUNTIME_RENDERER_ANDROID_XWALK_RENDER_PROCESS_OBSERVER_H_
 
+#include <string>
+
 #include "content/public/renderer/render_process_observer.h"
 
 #include "base/compiler_specific.h"
@@ -25,6 +27,8 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
  private:
   void OnSetJsOnlineProperty(bool network_up);
   void OnClearCache();
+  void OnSetOriginAccessWhitelist(std::string base_url,
+                                  std::string match_patterns);
 
   bool webkit_initialized_;
 };
