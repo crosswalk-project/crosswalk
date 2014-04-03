@@ -25,6 +25,7 @@ BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libcap-devel
+BuildRequires:  ninja
 BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
@@ -152,7 +153,7 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
 
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
-export GYP_GENERATORS='make'
+export GYP_GENERATORS='ninja'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
@@ -165,13 +166,12 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_gconf=0 \
 -Duse_kerberos=0 \
 -Duse_system_bzip2=1 \
--Duse_system_icu=1 \
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
 -Denable_hidpi=1
 
-make %{?_smp_mflags} -C src BUILDTYPE=Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
+ninja %{?_smp_mflags} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
 %install
 # Binaries.
