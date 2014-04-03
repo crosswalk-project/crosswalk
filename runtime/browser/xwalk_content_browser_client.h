@@ -108,6 +108,10 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int render_process_id,
       int render_view_id,
       int notification_id) OVERRIDE;
+#if defined(OS_TIZEN)
+  virtual bool CanCommitURL(
+      content::RenderProcessHost* process_host, const GURL& url) OVERRIDE;
+#endif
 
 #if defined(OS_ANDROID)
   virtual void ResourceDispatcherHostCreated();

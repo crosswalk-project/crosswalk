@@ -399,7 +399,7 @@ void Application::InitSecurityPolicy() {
 #if defined(OS_TIZEN)
       // On Tizen, CSP mode has higher priority, and WARP will be disabled
       // if the application is under CSP mode.
-      || application_data_->GetManifest()->HasPath(widget_keys::kCSPKey)
+      || application_data_->HasCSPDefined()
 #endif
       )
     return;

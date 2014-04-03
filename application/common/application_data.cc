@@ -363,5 +363,13 @@ PermissionSet ApplicationData::GetManifestPermissions() const {
   return permissions;
 }
 
+#if defined(OS_TIZEN)
+bool ApplicationData::HasCSPDefined() const {
+  return (manifest_->HasPath(widget_keys::kCSPKey) ||
+          manifest_->HasPath(widget_keys::kCSPReportOnlyKey) ||
+          manifest_->HasPath(widget_keys::kAllowNavigationKey));
+}
+#endif
+
 }   // namespace application
 }   // namespace xwalk

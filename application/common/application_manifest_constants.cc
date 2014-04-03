@@ -71,6 +71,8 @@ const char kTizenApplicationRequiredVersionKey[] = "@required_version";
 
 const char kTizenAppIdKey[] = "widget.application.@package";
 const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
+const char kCSPReportOnlyKey[] =
+    "widget.content-security-policy-report-only.#text";
 #endif
 }  // namespace application_widget_keys
 

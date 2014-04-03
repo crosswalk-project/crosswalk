@@ -43,6 +43,13 @@
 #endif
 
 #if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
+#include "xwalk/application/common/constants.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
 
@@ -279,5 +286,52 @@ content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
   return new xwalk::XWalkSpeechRecognitionManagerDelegate();
 }
+
+#if defined(OS_TIZEN)
+bool XWalkContentBrowserClient::CanCommitURL(
+    content::RenderProcessHost* process_host, const GURL& url) {
+  application::Application* app = xwalk_runner_->app_system()->
+      application_service()->GetApplicationByRenderHostID(
+          process_host->GetID());
+  DCHECK(app);
+  const application::ApplicationData* app_data =app->data();
+  if (!app_data->HasCSPDefined() ||
+      (url.SchemeIs(application::kApplicationScheme) &&
+       url.host() == app_data->ID()))
+    return true;
+
+  application::NavigationInfo* info = static_cast<application::NavigationInfo*>(
+      app_data->GetManifestData(application_widget_keys::kAllowNavigationKey));
+  if (!info || !url.SchemeIsHTTPOrHTTPS()) {
+    LOG(INFO) << "[Block] Navigation link: " << url.spec();
+    // FIXME: Blocked navigation link should be opened in system web browser,
+    // add corresponding code like this:
+    // platform_util::OpenExternal(url);
+    return false;
+  }
+
+  // Check whether the navigation url domain is listed in WGT <allow-navigation>
+  // element, if yes, display it in web application, otherwise block the
+  // request.
+  const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
+  for (std::vector<std::string>::const_iterator it = allowed_list.begin();
+       it != allowed_list.end(); ++it) {
+    if ((*it).find("*.") == 0 &&
+        url.DomainIs((*it).substr(2).c_str())) {
+      LOG(INFO) << "[Allow] Navigation link: " << url.spec();
+      return true;
+    }
+
+    if (url.host() == *it) {
+      LOG(INFO) << "[Allow] Navigation link: " << url.spec();
+      return true;
+    }
+  }
+  LOG(INFO) << "[Block] navigation link: " << url.spec();
+  // FIXME: Should open blocked link in system web browser, need to add:
+  // platform_util::OpenExternal(url);
+  return false;
+}
+#endif
 
 }  // namespace xwalk
