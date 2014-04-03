@@ -4,7 +4,6 @@
 
 #include "xwalk/dbus/dbus_manager.h"
 
-#include <glib.h>
 #include <string>
 #include "base/bind.h"
 #include "base/strings/stringprintf.h"
