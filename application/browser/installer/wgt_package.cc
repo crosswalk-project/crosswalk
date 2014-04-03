@@ -55,6 +55,8 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   if (!value.empty())
     id_ = GenerateId(value);
 
+  is_valid_ = true;
+
   scoped_ptr<ScopedStdioHandle> file(
         new ScopedStdioHandle(base::OpenFile(path, "rb")));
 
@@ -63,6 +65,3 @@ WGTPackage::WGTPackage(const base::FilePath& path)
 
 }  // namespace application
 }  // namespace xwalk
-
-
-
