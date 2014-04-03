@@ -18,6 +18,7 @@ sys.path.append('scripts/gyp')
 from customize import ReplaceInvalidChars, CustomizeAll
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
+from manifest_json_parser import CheckDefaultOrientation
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
@@ -200,15 +201,15 @@ def Customize(options):
   fullscreen_flag = ''
   if options.fullscreen:
     fullscreen_flag = '-f'
-  orientation = 'unspecified'
-  if options.orientation:
-    orientation = options.orientation
+  default_orientation = 'any'
+  if options.default_orientation:
+    default_orientation = options.default_orientation
   CustomizeAll(app_versionCode, options.description, options.icon_dict,
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
                options.launch_screen_img, package, name, app_version,
-               orientation)
+               default_orientation)
 
 
 def Execution(options, sanitized_name):
@@ -618,12 +619,12 @@ def main(argv):
   info = ('The path of application icon. '
           'Such as: --icon=/path/to/your/customized/icon')
   group.add_option('--icon', help=info)
-  info = ('The orientation of the web app\'s display on the device. '
-          'For example, --orientation=landscape. The default value is '
-          '\'unspecified\'. The permitted values are from Android: '
-          'http://developer.android.com/guide/topics/manifest/'
-          'activity-element.html#screen')
-  group.add_option('--orientation', help=info)
+  info = ('The default orientation of the web app\'s display on the device. '
+          'For example, --default-orientation=landscape. The default value is '
+          '\'any\'. The permitted values are from: '
+          'http://w3c.github.io/manifest/#default_orientation-member')
+  group.add_option('--default_orientation', dest='default_orientation',
+                   help=info)
   info = ('The list of permissions to be used by web application. For example, '
           '--permissions=geolocation:webgl')
   group.add_option('--permissions', help=info)
@@ -688,6 +689,8 @@ def main(argv):
                    'please use "--app-url" option; If the entry is local, '
                    'please use "--app-root" and '
                    '"--app-local-path" options together!')
+    if options.default_orientation:
+      CheckDefaultOrientation(options.default_orientation)
     if options.permissions:
       permission_list = options.permissions.split(':')
     else:

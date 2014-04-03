@@ -567,7 +567,7 @@ class TestMakeApk(unittest.TestCase):
   def testOrientation(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
-           '--orientation=landscape', self._mode]
+           '--default_orientation=landscape', self._mode]
     RunCommand(cmd)
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
@@ -636,7 +636,7 @@ class TestMakeApk(unittest.TestCase):
            '--fullscreen',
            '%s' % icon,
            '--name=Example',
-           '--orientation=landscape',
+           '--default_orientation=landscape',
            '--package=org.xwalk.example',
            '--permissions=geolocation']
     RunCommand(cmd)
