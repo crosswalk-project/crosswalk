@@ -87,6 +87,9 @@ def CustomizeXML(options, sanitized_name):
   CustomizeStringXML(options, sanitized_name)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', options.package)
+  if options.app_versionCode:
+    EditElementAttribute(xmldoc, 'manifest', 'android:versionCode',
+                         str(options.app_versionCode))
   if options.app_version:
     EditElementAttribute(xmldoc, 'manifest', 'android:versionName',
                          options.app_version)
@@ -307,6 +310,8 @@ def main():
   parser.add_option('--name', help=info)
   info = ('The version of the app. Such as: --app-version=TheVersionNumber')
   parser.add_option('--app-version', help=info)
+  info = ('The versionCode of the app. Such as: --app-versionCode=24')
+  parser.add_option('--app-versionCode', type='int', help=info)
   info = ('The application description. Such as:'
           '--description=YourApplicationdDescription')
   parser.add_option('--description', help=info)
