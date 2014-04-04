@@ -124,7 +124,7 @@ def CopyGeneratedSources(out_dir):
 
   print 'Copying generated source files...'
   generated_srcs_to_copy = [
-      'org/chromium/base/ApplicationStatus.java',
+      'org/chromium/base/ApplicationState.java',
       'org/chromium/base/MemoryPressureLevelList.java',
       'org/chromium/base/library_loader/NativeLibraries.java',
       'org/chromium/content/browser/GestureEventType.java',
@@ -132,12 +132,14 @@ def CopyGeneratedSources(out_dir):
       'org/chromium/content/browser/PageTransitionTypes.java',
       'org/chromium/content/browser/SpeechRecognitionError.java',
       'org/chromium/content/common/ResultCodes.java',
+      'org/chromium/content/common/ScreenOrientationValues.java',
       'org/chromium/content/common/TopControlsState.java',
       'org/chromium/media/ImageFormat.java',
       'org/chromium/net/CertificateMimeType.java',
       'org/chromium/net/CertVerifyStatusAndroid.java',
       'org/chromium/net/NetError.java',
       'org/chromium/net/PrivateKeyType.java',
+      'org/chromium/ui/gfx/BitmapFormat.java',
       'org/chromium/ui/WindowOpenDisposition.java'
   ]
 
