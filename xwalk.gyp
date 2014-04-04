@@ -260,6 +260,7 @@
             'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
+            '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
           ],
           'sources': [
             'runtime/browser/ui/screen_orientation.h',
