@@ -89,6 +89,10 @@ class ApplicationService : public Application::Observer {
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
+  // Show Permission dialog to end user
+  void ShowPermissionDialog(const std::string& app_id,
+      const std::string& permission,
+      const PermissionCallback& callback);
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
