@@ -93,10 +93,6 @@
             '--classes-dir=<(PRODUCT_DIR)/xwalk_runtime_lib_apk/classes',
             '--jar-path=<(output_dir)/xwalk_native_libraries.jar',
             '--excluded-classes=<(jar_excluded_classes)',
-
-            # TODO(newt): remove this once http://crbug.com/177552 is
-            # fixed in ninja.
-            '--ignore=>!(echo \'>(_inputs)\' | md5sum)',
           ],
         },
       ],
@@ -214,6 +210,13 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/icudtl.dat',
+            ],
+          }],
+        ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
         'app_manifest_version_name': '<(xwalk_version)',
         'app_manifest_version_code': '<(xwalk_version_code)',
@@ -231,6 +234,13 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime_lib/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
           ],
         },
       ],
