@@ -22,6 +22,13 @@ enum PermissionType {
   PERSISTENT_PERMISSION,
 };
 
+enum PromptType {
+  UNSET_PROMPT_TYPE = -1,
+  PROMPT_ONESHOT = 0,
+  PROMPT_SESSION,
+  PROMPT_BLANKET
+};
+
 enum RuntimePermission {
   ALLOW_ONCE = 0,
   ALLOW_SESSION,
