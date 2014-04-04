@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>Original Title</title>
+<script>
+window.onload = function() {
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState==4 && xhr.status==200) {
+      // The response text from test server should be "Cross-Origin XHR".
+      document.title = xhr.responseText;
+    }
+  };
+  xhr.open("GET", 'http://localhost:4444/cross_origin_xhr_test.html', true);
+  xhr.send();
+}
+</script>
+</head>
+<body>
+<h1>Test Page for Cross-Origin XHR.</hi>
+</body>
+</html>

@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
+import org.chromium.net.test.util.TestWebServer;
 /**
  * Test helper for Runtime client APIs.
  */
@@ -168,7 +169,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         });
     }
 
-   // For testCSP.
+    // For testCSP.
     public void testCSP() throws Throwable {
         final String originalTitle = "Original Title";
         final String newTitle = "New Title";
@@ -210,6 +211,70 @@ public class RuntimeClientApiTestBase<T extends Activity> {
                 mTestCase.assertEquals(newTitle, title);
             }
         });
+    }
+
+    // For Cross-Origin XHR.
+    public void testCrossOriginXhr() throws Throwable {
+        TestWebServer webServer = null;
+        try {
+            // The server will be accessed by XMLHttpRequest from js.
+            webServer = new TestWebServer(false);
+            final String path = "/cross_origin_xhr_test.html";
+            final String responseStr = "Cross-Origin XHR";
+            final String url = webServer.setResponse(path, responseStr, null);
+            mTestCase.assertEquals("http://localhost:4444/cross_origin_xhr_test.html", url);
+
+            // The original title of the cross_origin.html.
+            final String originalTitle = "Original Title";
+
+            // Test without the xwalk_hosts member.
+            mTestUtil.loadManifestSync("file:///android_asset/www/manifest_without_xwalk_hosts.json");
+            Thread.sleep(1000);
+            mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    String title = mTestUtil.getTestedView().getTitleForTest();
+                    // XHR in page should be failed, and the title should be "Original Title".
+                    mTestCase.assertEquals(originalTitle, title);
+                }
+            });
+
+            // Test with the manifest which has a xwalk_host member.
+            mTestUtil.loadManifestSync("file:///android_asset/www/manifest_xwalk_hosts.json");
+            Thread.sleep(1000);
+            mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    String title = mTestUtil.getTestedView().getTitleForTest();
+                    // XHR in page should be success, and the title should be "Cross-Origin XHR".
+                    mTestCase.assertEquals(responseStr, title);
+                }
+            });
+
+            // Retry with app:// scheme.
+            final String host = mTestCase.getActivity().getPackageName();
+            mTestUtil.loadManifestSync("app://" + host + "/manifest_without_xwalk_hosts.json");
+            Thread.sleep(1000);
+            mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    String title = mTestUtil.getTestedView().getTitleForTest();
+                    mTestCase.assertEquals(originalTitle, title);
+                }
+            });
+
+            mTestUtil.loadManifestSync("app://" + host + "/manifest_xwalk_hosts.json");
+            Thread.sleep(1000);
+            mTestCase.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    String title = mTestUtil.getTestedView().getTitleForTest();
+                    mTestCase.assertEquals(responseStr, title);
+                }
+            });
+        } finally {
+            if (webServer != null) webServer.shutdown();
+        }
     }
 
     // For internal extension implementation of Contacts.
