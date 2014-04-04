@@ -44,6 +44,13 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/xwalk_xwview/assets/icudtl.dat',
+            ],
+          }],
+        ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_xwview/assets',
       },
       'copies': [
@@ -67,6 +74,13 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
           ],
         },
       ],
@@ -194,6 +208,13 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_runtime/assets/xwalk.pak',
         ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/xwalk_runtime/assets/icudtl.dat',
+            ],
+          }],
+        ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_runtime/assets',
       },
       'includes': [ '../build/java_apk.gypi' ],
@@ -209,6 +230,13 @@
           'destination': '<(PRODUCT_DIR)/xwalk_runtime/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
           ],
         },
       ],
@@ -309,6 +337,13 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_inline_script.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/csp.html',
         ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/icudtl.dat',
+            ],
+          }],
+        ],
         'asset_location': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
       },
       'copies': [
@@ -356,6 +391,13 @@
           'destination': '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets',
           'files': [
             '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
           ],
         },
       ],

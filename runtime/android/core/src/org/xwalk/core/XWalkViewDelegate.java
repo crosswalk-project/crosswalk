@@ -29,7 +29,10 @@ class XWalkViewDelegate {
     private static boolean sInitialized = false;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String[] MANDATORY_PAKS = {
-            "xwalk.pak", "en-US.pak" };
+            "xwalk.pak",
+            "en-US.pak",
+            "icudtl.dat"
+    };
     private static final String[] MANDATORY_LIBRARIES = {
             "libxwalkcore.so"
     };
