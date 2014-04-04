@@ -2,7 +2,7 @@
 %bcond_with wayland
 
 Name:           crosswalk
-Version:        6.34.113.0
+Version:        6.34.114.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 License:        (BSD-3-Clause and LGPL-2.1+)
