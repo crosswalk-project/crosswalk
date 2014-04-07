@@ -172,7 +172,8 @@ content::WebContents* Runtime::OpenURLFromTab(
   return source;
 }
 
-void Runtime::LoadingStateChanged(content::WebContents* source) {
+void Runtime::LoadingStateChanged(content::WebContents* source,
+                                  bool to_different_document) {
 }
 
 void Runtime::ToggleFullscreenModeForTab(content::WebContents* web_contents,
