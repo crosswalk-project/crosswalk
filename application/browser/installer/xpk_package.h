@@ -30,7 +30,7 @@ class XPKPackage : public Package {
   };
   virtual ~XPKPackage();
   explicit XPKPackage(const base::FilePath& path);
-  virtual bool Extract(base::FilePath* target_path);
+  virtual bool Extract(base::FilePath* target_path) OVERRIDE;
 
  private:
   // verify the signature in the xpk package
