@@ -182,6 +182,7 @@ install -m 06755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/x
 
 # Supporting libraries and resources.
 install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
+install -p -D src/out/Release/lib/libmojo_system.so %{buildroot}%{_libdir}/xwalk/lib/libmojo_system.so
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
@@ -201,6 +202,7 @@ mkdir -p %{_manifestdir_ro}
 %{_bindir}/xwalk-launcher
 %{_bindir}/xwalk-pkg-helper
 %{_libdir}/xwalk/icudtl.dat
+%{_libdir}/xwalk/lib/libmojo_system.so
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
