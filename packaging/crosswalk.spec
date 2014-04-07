@@ -164,6 +164,7 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_aura=1 \
 -Duse_cups=0 \
 -Duse_gconf=0 \
+-Duse_gnome_keyring=0 \
 -Duse_kerberos=0 \
 -Duse_system_bzip2=1 \
 -Duse_system_libexif=1 \
