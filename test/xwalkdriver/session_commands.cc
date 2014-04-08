@@ -197,7 +197,8 @@ Status ExecuteGetCurrentWindowHandle(
   if (status.IsError())
     return status;
 
-  value->reset(new StringValue(WebViewIdToWindowHandle(web_view->GetId())));
+  value->reset(
+      new base::StringValue(WebViewIdToWindowHandle(web_view->GetId())));
   return Status(kOk);
 }
 
@@ -534,7 +535,7 @@ Status ExecuteUploadFile(
       return Status(kUnknownError, "unable to create temp dir");
   }
   base::FilePath upload_dir;
-  if (!file_util::CreateTemporaryDirInDir(
+  if (!base::CreateTemporaryDirInDir(
           session->temp_dir.path(), FILE_PATH_LITERAL("upload"), &upload_dir)) {
     return Status(kUnknownError, "unable to create temp dir");
   }

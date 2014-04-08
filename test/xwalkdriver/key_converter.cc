@@ -91,11 +91,11 @@ const ui::KeyboardCode kSpecialWebDriverKeys[] = {
     ui::VKEY_F11,
     ui::VKEY_F12};
 
-const char16 kWebDriverNullKey = 0xE000U;
-const char16 kWebDriverShiftKey = 0xE008U;
-const char16 kWebDriverControlKey = 0xE009U;
-const char16 kWebDriverAltKey = 0xE00AU;
-const char16 kWebDriverCommandKey = 0xE03DU;
+const base::char16 kWebDriverNullKey = 0xE000U;
+const base::char16 kWebDriverShiftKey = 0xE008U;
+const base::char16 kWebDriverControlKey = 0xE009U;
+const base::char16 kWebDriverAltKey = 0xE00AU;
+const base::char16 kWebDriverCommandKey = 0xE03DU;
 
 // Returns whether the given key code has a corresponding printable char.
 // Notice: The given key code should be a special WebDriver key code.
@@ -107,7 +107,7 @@ bool IsSpecialKeyPrintable(ui::KeyboardCode key_code) {
 }
 
 // Returns whether the given key is a WebDriver key modifier.
-bool IsModifierKey(char16 key) {
+bool IsModifierKey(base::char16 key) {
   switch (key) {
     case kWebDriverShiftKey:
     case kWebDriverControlKey:
@@ -122,7 +122,7 @@ bool IsModifierKey(char16 key) {
 // Gets the key code associated with |key|, if it is a special WebDriver key.
 // Returns whether |key| is a special WebDriver key. If true, |key_code| will
 // be set.
-bool KeyCodeFromSpecialWebDriverKey(char16 key, ui::KeyboardCode* key_code) {
+bool KeyCodeFromSpecialWebDriverKey(base::char16 key, ui::KeyboardCode* key_code) {
   int index = static_cast<int>(key) - 0xE000U;
   bool is_special_key = index >= 0 &&
       index < static_cast<int>(arraysize(kSpecialWebDriverKeys));
@@ -136,12 +136,12 @@ bool KeyCodeFromSpecialWebDriverKey(char16 key, ui::KeyboardCode* key_code) {
 // character, which is shorthand for the return key. Returns whether |key| is
 // a shorthand key. If true, |key_code| will be set and |client_should_skip|
 // will be set to whether the key should be skipped.
-bool KeyCodeFromShorthandKey(char16 key_utf16,
+bool KeyCodeFromShorthandKey(base::char16 key_utf16,
                              ui::KeyboardCode* key_code,
                              bool* client_should_skip) {
-  string16 key_str_utf16;
+  base::string16 key_str_utf16;
   key_str_utf16.push_back(key_utf16);
-  std::string key_str_utf8 = UTF16ToUTF8(key_str_utf16);
+  std::string key_str_utf8 = base::UTF16ToUTF8(key_str_utf16);
   if (key_str_utf8.length() != 1)
     return false;
   bool should_skip = false;
@@ -186,13 +186,13 @@ KeyEvent CreateCharEvent(const std::string& unmodified_text,
                   ui::VKEY_UNKNOWN);
 }
 
-Status ConvertKeysToKeyEvents(const string16& client_keys,
+Status ConvertKeysToKeyEvents(const base::string16& client_keys,
                               bool release_modifiers,
                               int* modifiers,
                               std::list<KeyEvent>* client_key_events) {
   std::list<KeyEvent> key_events;
 
-  string16 keys = client_keys;
+  base::string16 keys = client_keys;
   // Add an implicit NULL character to the end of the input to depress all
   // modifiers.
   if (release_modifiers)
@@ -200,7 +200,7 @@ Status ConvertKeysToKeyEvents(const string16& client_keys,
 
   int sticky_modifiers = *modifiers;
   for (size_t i = 0; i < keys.size(); ++i) {
-    char16 key = keys[i];
+    base::char16 key = keys[i];
 
     if (key == kWebDriverNullKey) {
       // Release all modifier keys and clear |stick_modifiers|.
@@ -303,8 +303,8 @@ Status ConvertKeysToKeyEvents(const string16& client_keys,
         }
       } else {
         // Do a best effort and use the raw key we were given.
-        unmodified_text = UTF16ToUTF8(keys.substr(i, 1));
-        modified_text = UTF16ToUTF8(keys.substr(i, 1));
+        unmodified_text = base::UTF16ToUTF8(keys.substr(i, 1));
+        modified_text = base::UTF16ToUTF8(keys.substr(i, 1));
       }
     }
 

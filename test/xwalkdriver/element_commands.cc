@@ -31,7 +31,7 @@ Status SendKeysToElement(
     Session* session,
     WebView* web_view,
     const std::string& element_id,
-    const ListValue* key_list) {
+    const base::ListValue* key_list) {
   bool is_displayed = false;
   bool is_focused = false;
   base::TimeTicks start_time = base::TimeTicks::Now();

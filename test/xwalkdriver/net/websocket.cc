@@ -121,7 +121,7 @@ void WebSocket::OnSocketConnect(int code) {
     return;
   }
 
-  CHECK(base::Base64Encode(base::RandBytesAsString(16), &sec_key_));
+  base::Base64Encode(base::RandBytesAsString(16), &sec_key_);
   std::string handshake = base::StringPrintf(
       "GET %s HTTP/1.1\r\n"
       "Host: %s\r\n"
@@ -210,8 +210,8 @@ void WebSocket::OnReadDuringHandshake(const char* data, int len) {
 
   const char kMagicKey[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   std::string websocket_accept;
-  CHECK(base::Base64Encode(base::SHA1HashString(sec_key_ + kMagicKey),
-                           &websocket_accept));
+  base::Base64Encode(base::SHA1HashString(sec_key_ + kMagicKey), 
+                           &websocket_accept);
   scoped_refptr<net::HttpResponseHeaders> headers(
       new net::HttpResponseHeaders(
           net::HttpUtil::AssembleRawHeaders(

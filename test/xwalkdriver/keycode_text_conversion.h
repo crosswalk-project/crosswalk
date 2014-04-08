@@ -27,7 +27,7 @@ bool ConvertKeyCodeToText(ui::KeyboardCode key_code,
 // the character using the current keyboard layout. Returns true on success.
 // If an error occurs |error_msg| will be set to the error message, otherwise
 // it will be set to the empty string.
-bool ConvertCharToKeyCode(char16 key,
+bool ConvertCharToKeyCode(base::char16 key,
                           ui::KeyboardCode* key_code,
                           int *necessary_modifiers,  // NOLINT
                           std::string* error_msg);

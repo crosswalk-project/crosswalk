@@ -39,7 +39,7 @@ ZipReader::EntryInfo::EntryInfo(const std::string& file_name_in_zip,
   is_unsafe_ = file_name_in_zip.find("..") != std::string::npos;
 
   // We also consider that the file name is unsafe, if it's invalid UTF-8.
-  string16 file_name_utf16;
+  base::string16 file_name_utf16;
   if (!UTF8ToUTF16(file_name_in_zip.data(), file_name_in_zip.size(),
                    &file_name_utf16)) {
     is_unsafe_ = true;
@@ -192,7 +192,7 @@ bool ZipReader::ExtractCurrentEntryToFilePath(
 
   // If this is a directory, just create it and return.
   if (current_entry_info()->is_directory())
-    return file_util::CreateDirectory(output_file_path);
+    return base::CreateDirectory(output_file_path);
 
   const int open_result = unzOpenCurrentFile(zip_file_);
   if (open_result != UNZ_OK)
@@ -201,7 +201,7 @@ bool ZipReader::ExtractCurrentEntryToFilePath(
   // We can't rely on parent directory entries being specified in the
   // zip, so we make sure they are created.
   base::FilePath output_dir_path = output_file_path.DirName();
-  if (!file_util::CreateDirectory(output_dir_path))
+  if (!base::CreateDirectory(output_dir_path))
     return false;
 
   net::FileStream stream(NULL);
