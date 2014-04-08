@@ -90,8 +90,6 @@ def GetVersion(path):
 
 def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
-  if not options.package:
-    options.package = 'org.xwalk.' + parser.GetAppName().lower()
   if not options.name:
     options.name = parser.GetAppName()
   if not options.app_version:
@@ -180,7 +178,7 @@ def MakeVersionCode(options):
   return '%s%s' % (abi, b.zfill(7))
 
 
-def Customize(options):
+def Customize(options, sanitized_name):
   package = 'org.xwalk.app.template'
   if options.package:
     package = options.package
@@ -207,8 +205,8 @@ def Customize(options):
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
-               options.launch_screen_img, package, name, app_version,
-               orientation)
+               options.launch_screen_img, package, name,
+               sanitized_name, app_version, orientation)
 
 
 def Execution(options, sanitized_name):
@@ -490,17 +488,17 @@ def PrintPackageInfo(target_dir, app_name, app_version, arch = ''):
 
 
 def MakeApk(options, sanitized_name):
-  Customize(options)
+  Customize(options, sanitized_name)
   app_version = ''
   if options.app_version:
     app_version = options.app_version
   if options.mode == 'shared':
     Execution(options, sanitized_name)
-    PrintPackageInfo(options.target_dir, sanitized_name, app_version)
+    PrintPackageInfo(options.target_dir, options.name, app_version)
   elif options.mode == 'embedded':
     if options.arch:
       Execution(options, sanitized_name)
-      PrintPackageInfo(options.target_dir, sanitized_name,
+      PrintPackageInfo(options.target_dir, options.name,
                        app_version, options.arch)
     else:
       # If the arch option is unspecified, all of available platform APKs
@@ -517,7 +515,7 @@ def MakeApk(options, sanitized_name):
           Execution(options, sanitized_name)
           packaged_archs.append(options.arch)
       for arch in packaged_archs:
-        PrintPackageInfo(options.target_dir, sanitized_name,
+        PrintPackageInfo(options.target_dir, options.name,
                          app_version, arch)
   else:
     print('Unknown mode for packaging the application. Abort!')
@@ -675,10 +673,13 @@ def main(argv):
       print('Using manifest.json distributed with the application.')
       options.manifest = manifest_path
 
+  if not options.package:
+    parser.error('The package name is required! '
+                 'Please use "--package" option.')
+  elif '.' not in options.package or options.package.endswith('.'):
+    parser.error('Error: no \'.\' or suffix with \'.\' in package name.')
+
   if not options.manifest:
-    if not options.package:
-      parser.error('The package name is required! '
-                   'Please use "--package" option.')
     if not options.name:
       parser.error('The APK name is required! Please use "--name" option.')
     if not ((options.app_url and not options.app_root
@@ -709,8 +710,8 @@ def main(argv):
           'does exist.')
     sys.exit(7)
 
-  options.name = ReplaceInvalidChars(options.name, 'apkname')
-  options.package = ReplaceInvalidChars(options.package)
+  options.name = ReplaceInvalidChars(options.name)
+  options.package = ReplaceInvalidChars(options.package, 'packagename')
   sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
 
   if options.target_dir:
@@ -729,6 +730,10 @@ def main(argv):
     elif options.compressor == 'css':
       compress.CompressCss()
     MakeApk(options, sanitized_name)
+    if (os.path.isdir(os.path.join(os.getcwd(), sanitized_name)) and
+        sanitized_name != options.name):
+      os.rename(sanitized_name, options.name)
+
   except SystemExit as ec:
     CleanDir(sanitized_name)
     CleanDir('out')

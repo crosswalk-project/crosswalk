@@ -166,7 +166,7 @@ class TestMakeApk(unittest.TestCase):
     # and the result of verification should be the same between shared mode
     # and embedded mode. So only do the verification in the shared mode.
     if self._mode.find('shared') != -1:
-      invalid_chars = '\/:.*?"<>|-'
+      invalid_chars = '\/:^.~`&@#$%{}[](),!*?"<>|- '
       for c in invalid_chars:
         invalid_name = '--name=Example' + c
         cmd = ['python', 'make_apk.py', invalid_name,
@@ -346,7 +346,8 @@ class TestMakeApk(unittest.TestCase):
 
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('Please make sure that the local path file') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
@@ -394,7 +395,8 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
     cmd = ['python', 'make_apk.py', '--enable-remote-debugging',
-           '--manifest=%s' % manifest_path, self._mode]
+           '--manifest=%s' % manifest_path,
+           '--package=org.xwalk.example', self._mode]
     RunCommand(cmd)
     activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
     with open(activity, 'r') as content_file:
@@ -424,7 +426,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--package=org.xwalk.example', self._mode]
     RunCommand(cmd)
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
@@ -452,7 +455,8 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithSpecificValue(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no app launch path') == -1)
     self.checkApks('Example', '1.0.0')
@@ -462,37 +466,37 @@ class TestMakeApk(unittest.TestCase):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_app_launch_path.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no app launch path') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_name.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no \'name\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_version.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no \'version\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_format_error.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_field_error.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_not_supported_permission.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+           '--package=org.xwalk.example', '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('\'Telephony\' related API is not supported') != -1)
@@ -550,7 +554,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testXPK(self):
     xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
-    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file, self._mode]
+    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file,
+           '--package=org.xwalk.example', self._mode]
     RunCommand(cmd)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
@@ -558,7 +563,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testXPKWithError(self):
     xpk_file = os.path.join('test_data', 'xpk', 'error.xpk')
-    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file, self._mode]
+    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file,
+           '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     error_msg = 'XPK doesn\'t contain manifest file'
     self.assertTrue(out.find(error_msg) != -1)
