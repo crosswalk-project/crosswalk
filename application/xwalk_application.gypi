@@ -73,6 +73,8 @@
         'common/manifest_handlers/warp_handler.h',
         'common/manifest_handlers/widget_handler.cc',
         'common/manifest_handlers/widget_handler.h',
+        'common/permission_dialog.cc',
+        'common/permission_dialog.h',
         'common/permission_policy_manager.cc',
         'common/permission_policy_manager.h',
         'common/permission_types.h',

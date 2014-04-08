@@ -13,9 +13,11 @@
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
 #include "base/version.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
+#include "ui/views/widget/widget.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_storage.h"
@@ -24,6 +26,7 @@
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/event_names.h"
 #include "xwalk/application/common/permission_policy_manager.h"
+#include "xwalk/application/common/permission_dialog.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -33,6 +36,7 @@
 #include "xwalk/application/browser/installer/tizen/service_package_installer.h"
 #endif
 
+using content::BrowserThread;
 namespace xwalk {
 namespace application {
 
@@ -674,7 +678,9 @@ void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
     // TODO(Bai): We needed to pop-up a dialog asking user to chose one from
     // either allow/deny for session/one shot/forever. Then, we need to update
     // the session and persistent policy accordingly.
-    callback.Run(UNDEFINED_RUNTIME_PERM);
+    BrowserThread::PostTask(BrowserThread::UI, FROM_HERE,
+        base::Bind(&ApplicationService::ShowPermissionDialog,
+        base::Unretained(this), app_id, permission_name, callback));
     return;
   }
   if (perm == ALLOW) {
@@ -703,6 +709,16 @@ bool ApplicationService::RegisterPermissions(const std::string& app_id,
     return false;
   }
   return app->RegisterPermissions(extension_name, perm_table);
+}
+
+void ApplicationService::ShowPermissionDialog(const std::string& app_id,
+    const std::string& permission,
+    const PermissionCallback& callback) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+
+  PermissionDialog* dialog_ = new PermissionDialog(app_id, permission);
+  dialog_->SetShowDialogCallback(callback);
+  views::Widget::CreateWindow(dialog_)->Show();
 }
 
 }  // namespace application
