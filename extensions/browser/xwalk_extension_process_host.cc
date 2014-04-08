@@ -174,6 +174,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   process_->Launch(
 #if defined(OS_WIN)
       new ExtensionSandboxedProcessLauncherDelegate(),
+      false,
 #elif defined(OS_POSIX)
     false, base::EnvironmentMap(),
 #endif
