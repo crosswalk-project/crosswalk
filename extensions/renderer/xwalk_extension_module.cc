@@ -41,7 +41,8 @@ XWalkExtensionModule::XWalkExtensionModule(XWalkExtensionClient* client,
   function_data->Set(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule),
                      v8::External::New(isolate, this));
 
-  v8::Handle<v8::ObjectTemplate> object_template = v8::ObjectTemplate::New(isolate);
+  v8::Handle<v8::ObjectTemplate> object_template =
+      v8::ObjectTemplate::New(isolate);
   // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
   // update the Chromium (and V8) version.
   object_template->Set(
@@ -49,10 +50,12 @@ XWalkExtensionModule::XWalkExtensionModule(XWalkExtensionClient* client,
       v8::FunctionTemplate::New(isolate, PostMessageCallback, function_data));
   object_template->Set(
       v8::String::NewFromUtf8(isolate, "sendSyncMessage"),
-      v8::FunctionTemplate::New(isolate, SendSyncMessageCallback, function_data));
+      v8::FunctionTemplate::New(
+          isolate, SendSyncMessageCallback, function_data));
   object_template->Set(
       v8::String::NewFromUtf8(isolate, "setMessageListener"),
-      v8::FunctionTemplate::New(isolate, SetMessageListenerCallback, function_data));
+      v8::FunctionTemplate::New(
+          isolate, SetMessageListenerCallback, function_data));
 
   function_data_.Reset(isolate, function_data);
   object_template_.Reset(isolate, object_template);
@@ -68,7 +71,8 @@ XWalkExtensionModule::~XWalkExtensionModule() {
   // the iframe), even if we destroy the references we have.
   v8::Handle<v8::Object> function_data =
       v8::Local<v8::Object>::New(isolate, function_data_);
-  function_data->Delete(v8::String::NewFromUtf8(isolate, kXWalkExtensionModule));
+  function_data->Delete(v8::String::NewFromUtf8(isolate,
+                                                kXWalkExtensionModule));
 
   object_template_.Reset();
   function_data_.Reset();
