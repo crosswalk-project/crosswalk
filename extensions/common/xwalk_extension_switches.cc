@@ -19,4 +19,8 @@ const char kXWalkExtensionProcess[] = "xwalk-extension-process";
 // Specifies where XWalk will look for external extensions.
 const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 
+// The contents of this flag are prepended to the extension command line.
+// Useful values might be "valgrind" or "xterm -e gdb --args".
+const char kXWalkExtensionCmdPrefix[] = "xwalk-extension-cmd-prefix";
+
 }  // namespace switches

@@ -145,12 +145,32 @@ void XWalkExtensionProcessHost::StartProcess() {
   std::string channel_id = process_->GetHost()->CreateChannel();
   CHECK(!channel_id.empty());
 
-  base::FilePath exe_path = content::ChildProcessHost::GetChildPath(
-      content::ChildProcessHost::CHILD_NORMAL);
+  CommandLine::StringType extension_cmd_prefix;
+#if defined(OS_POSIX)
+  const CommandLine &browser_command_line = *CommandLine::ForCurrentProcess();
+  extension_cmd_prefix = browser_command_line.GetSwitchValueNative(
+      switches::kXWalkExtensionCmdPrefix);
+#endif
+
+#if defined(OS_LINUX)
+  int flags = extension_cmd_prefix.empty() ?
+      content::ChildProcessHost::CHILD_ALLOW_SELF :
+      content::ChildProcessHost::CHILD_NORMAL;
+#else
+  int flags = content::ChildProcessHost::CHILD_NORMAL;
+#endif
+
+  base::FilePath exe_path = content::ChildProcessHost::GetChildPath(flags);
+  if (exe_path.empty())
+    return;
+
   scoped_ptr<CommandLine> cmd_line(new CommandLine(exe_path));
   cmd_line->AppendSwitchASCII(switches::kProcessType,
                               switches::kXWalkExtensionProcess);
   cmd_line->AppendSwitchASCII(switches::kProcessChannelID, channel_id);
+  if (!extension_cmd_prefix.empty())
+    cmd_line->PrependWrapper(extension_cmd_prefix);
+
   process_->Launch(
 #if defined(OS_WIN)
       new ExtensionSandboxedProcessLauncherDelegate(),
