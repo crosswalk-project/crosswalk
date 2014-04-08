@@ -27,6 +27,10 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #endif
 
+#if defined(OS_TIZEN)
+#include "xwalk/runtime/common/xwalk_common_messages.h"
+#endif
+
 #if defined(OS_TIZEN_MOBILE)
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
@@ -156,14 +160,23 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 #else
   if (!xwalk_render_process_observer_->IsWarpMode())
     return false;
+
   GURL origin_url(frame->document().url());
-  if (origin_url.spec().empty() ||
-     frame->document().securityOrigin().canRequest(url)) {
+  GURL app_url(xwalk_render_process_observer_->app_url());
+  if ((url.scheme() == app_url.scheme() &&
+       url.host() == app_url.host()) ||
+      frame->document().securityOrigin().canRequest(url)) {
     LOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
     return false;
   }
 
   LOG(INFO) << "[BLOCK] " << origin_url.spec() << " request " << url.spec();
+
+#if defined(OS_TIZEN)
+  if (origin_url.spec().empty())
+    content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
+#endif
+
   *new_url = GURL();
   return true;
 #endif

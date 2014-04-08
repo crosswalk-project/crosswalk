@@ -32,4 +32,11 @@ IPC_MESSAGE_CONTROL3(ViewMsg_SetAccessWhiteList,  // NOLINT
                      GURL /* dest */,
                      bool /* allow_subdomains */)
 
-IPC_MESSAGE_CONTROL0(ViewMsg_EnableWarpMode)  // NOLINT
+IPC_MESSAGE_CONTROL1(ViewMsg_EnableWarpMode,    // NOLINT
+                     GURL /* application url */)
+
+// These are messages sent from the renderer to the browser process.
+#if defined(OS_TIZEN)
+IPC_MESSAGE_CONTROL1(ViewMsg_OpenLinkExternal,  // NOLINT
+                     GURL /* target link */)
+#endif  // OS_TIZEN  // NOLINT

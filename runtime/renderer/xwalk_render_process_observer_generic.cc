@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "content/public/renderer/render_thread.h"
 #include "ipc/ipc_message_macros.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -88,7 +89,8 @@ void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
         AccessWhitelistItem(source, dest, allow_subdomains));
 }
 
-void XWalkRenderProcessObserver::OnEnableWarpMode() {
+void XWalkRenderProcessObserver::OnEnableWarpMode(const GURL& url) {
+  app_url_ = url;
   is_warp_mode_ = true;
 }
 
