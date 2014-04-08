@@ -48,6 +48,10 @@ class XWalkViewDelegate {
         // features such as location provider to listen to activity status.
         ApplicationStatusManager.init(xwalkView.getActivity().getApplication());
 
+        // We will miss activity onCreate() status in ApplicationStatusManager,
+        // informActivityStarted() will simulate these callbacks.
+        ApplicationStatusManager.informActivityStarted(xwalkView.getActivity());
+
         final Context context = xwalkView.getViewContext();
 
         // Last place to initialize CommandLine object. If you haven't initialize
