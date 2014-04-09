@@ -11,6 +11,7 @@
 #include "dbus/message.h"
 #include "xwalk/dbus/xwalk_service_name.h"
 #include "xwalk/application/browser/linux/installed_applications_manager.h"
+#include "xwalk/application/browser/linux/running_application_object.h"
 #include "xwalk/application/browser/linux/running_applications_manager.h"
 
 namespace xwalk {
@@ -41,6 +42,12 @@ ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
 }
 
 ApplicationServiceProviderLinux::~ApplicationServiceProviderLinux() {}
+
+RunningApplicationObject*
+ApplicationServiceProviderLinux::GetRunningApplicationObject(
+    const Application* app) {
+  return running_apps_->GetRunningApp(app->id());
+}
 
 void ApplicationServiceProviderLinux::OnServiceNameExported(
     const std::string& service_name, bool success) {

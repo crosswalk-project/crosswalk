@@ -33,6 +33,8 @@ class RunningApplicationsManager : public ApplicationService::Observer {
                              ApplicationService* service);
   virtual ~RunningApplicationsManager();
 
+  RunningApplicationObject* GetRunningApp(const std::string& app_id);
+
  private:
   // org.crosswalkproject.Running.Manager1 interface.
   void OnLaunch(dbus::MethodCall* method_call,

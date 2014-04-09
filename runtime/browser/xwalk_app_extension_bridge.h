@@ -39,6 +39,9 @@ class XWalkAppExtensionBridge
       int render_process_id,
       const std::string& extension_name,
       const std::string& perm_table) OVERRIDE;
+  virtual void ExtensionProcessCreated(
+      int render_process_id,
+      const IPC::ChannelHandle& channel_handle) OVERRIDE;
 
  private:
   application::ApplicationSystem* app_system_;

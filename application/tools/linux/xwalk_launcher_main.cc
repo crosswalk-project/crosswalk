@@ -13,10 +13,14 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include <gio/gunixfdlist.h>
 
+#include "base/message_loop/message_loop.h"
+#include "base/run_loop.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
+#include "xwalk/extensions/extension_process/xwalk_extension_process.h"
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_running_path = "/running1";
@@ -27,7 +31,6 @@ static const char* xwalk_running_app_iface =
 
 static char* application_object_path;
 
-static GMainLoop* mainloop;
 static GDBusConnection* g_connection;
 
 static int g_argc;
@@ -35,6 +38,8 @@ static char** g_argv;
 static gboolean query_running = FALSE;
 static gboolean fullscreen = FALSE;
 static gchar** cmd_appid;
+
+static xwalk::extensions::XWalkExtensionProcess* extension_process = NULL;
 
 static GOptionEntry entries[] = {
   { "running", 'r', 0, G_OPTION_ARG_NONE, &query_running,
@@ -55,7 +60,7 @@ static void object_removed(GDBusObjectManager* manager, GDBusObject* object,
 
   fprintf(stderr, "Application '%s' disappeared, exiting.\n", path);
 
-  g_main_loop_quit(mainloop);
+  base::MessageLoop::current()->Quit();
 }
 
 static void on_app_properties_changed(GDBusProxy* proxy,
@@ -85,6 +90,40 @@ static void on_app_properties_changed(GDBusProxy* proxy,
     const gchar* state = g_variant_get_string(value, NULL);
 
     fprintf(stderr, "Application state %s\n", state);
+  }
+}
+
+static void init_extension_process_channel(GDBusProxy* app_proxy) {
+  if (extension_process)
+    return;
+  // Get the client socket file descriptor from fd_list. The reply will
+  // contains an index to the list.
+  GUnixFDList* fd_list;
+  GVariant* res = g_dbus_proxy_call_with_unix_fd_list_sync(
+      app_proxy, "GetEPChannel", NULL, G_DBUS_CALL_FLAGS_NONE,
+      -1, NULL, &fd_list, NULL, NULL);
+  const gchar* channel_id =
+      g_variant_get_string(g_variant_get_child_value(res, 0), NULL);
+  if (!strlen(channel_id))
+    return;
+
+  gint32 client_fd_idx =
+      g_variant_get_handle(g_variant_get_child_value(res, 1));
+  int client_fd = g_unix_fd_list_get(fd_list, client_fd_idx, NULL);
+
+  extension_process = new xwalk::extensions::XWalkExtensionProcess(
+      IPC::ChannelHandle(channel_id, base::FileDescriptor(client_fd, true)));
+}
+
+static void on_app_signal(GDBusProxy* proxy,
+                          gchar* sender_name,
+                          gchar* signal_name,
+                          GVariant* parameters,
+                          gpointer user_data) {
+  if (!strcmp(signal_name, "EPChannelCreated")) {
+    init_extension_process_channel(proxy);
+  } else {
+    fprintf(stderr, "Unkown signal received: %s\n", signal_name);
   }
 }
 
@@ -171,7 +210,7 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   g_signal_connect(app_proxy, "g-properties-changed",
                    G_CALLBACK(on_app_properties_changed), NULL);
 
-  mainloop = g_main_loop_new(NULL, FALSE);
+  g_signal_connect(app_proxy, "g-signal", G_CALLBACK(on_app_signal), NULL);
 
 #if defined(OS_TIZEN)
   char name[128];
@@ -183,7 +222,13 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   }
 #endif
 
-  g_main_loop_run(mainloop);
+  base::MessageLoop::Type message_loop_type = base::MessageLoop::TYPE_UI;
+  base::MessageLoop main_message_loop(message_loop_type);
+  // The channel created signal might be send before we started listening to it.
+  main_message_loop.PostTask(
+      FROM_HERE, base::Bind(init_extension_process_channel, app_proxy));
+
+  main_message_loop.Run();
 }
 
 int main(int argc, char** argv) {

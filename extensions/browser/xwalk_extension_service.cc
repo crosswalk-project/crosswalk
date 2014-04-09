@@ -452,6 +452,13 @@ void XWalkExtensionService::OnRenderProcessDied(
   delete data;
 }
 
+void XWalkExtensionService::OnExtensionProcessCreated(
+      int render_process_id,
+      const IPC::ChannelHandle channel_handle) {
+  CHECK(delegate_);
+  delegate_->ExtensionProcessCreated(render_process_id, channel_handle);
+}
+
 void XWalkExtensionService::OnCheckAPIAccessControl(
     int render_process_id,
     const std::string& extension_name,

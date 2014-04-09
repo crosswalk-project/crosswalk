@@ -54,6 +54,14 @@ RunningApplicationsManager::RunningApplicationsManager(
 
 RunningApplicationsManager::~RunningApplicationsManager() {}
 
+RunningApplicationObject* RunningApplicationsManager::GetRunningApp(
+    const std::string& app_id) {
+  dbus::ManagedObject* managed_object =
+      adaptor_.GetManagedObject(GetRunningPathForAppID(app_id));
+  DCHECK(managed_object);
+  return static_cast<RunningApplicationObject*>(managed_object);
+}
+
 namespace {
 
 scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,

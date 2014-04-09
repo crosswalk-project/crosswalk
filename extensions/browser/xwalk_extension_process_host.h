@@ -36,6 +36,8 @@ class XWalkExtensionProcessHost
    public:
     virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
         int render_process_id) {}
+    virtual void OnExtensionProcessCreated(int render_process_id,
+                                           const IPC::ChannelHandle handle) {}
     virtual void OnCheckAPIAccessControl(int render_process_id,
                                          const std::string& extension_name,
                                          const std::string& api_name,
@@ -43,7 +45,6 @@ class XWalkExtensionProcessHost
     virtual bool OnRegisterPermissions(int render_process_id,
                                        const std::string& extension_name,
                                        const std::string& perm_table);
-
    protected:
     ~Delegate() {}
   };
@@ -104,6 +105,9 @@ class XWalkExtensionProcessHost
   XWalkExtensionProcessHost::Delegate* delegate_;
 
   base::ValueMap runtime_variables_;
+
+  // IPC channel for launcher to communicate with BP in service mode.
+  scoped_ptr<IPC::Channel> channel_;
 };
 
 }  // namespace extensions

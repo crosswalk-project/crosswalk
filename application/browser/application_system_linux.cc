@@ -30,5 +30,9 @@ DBusManager& ApplicationSystemLinux::dbus_manager() {
   return *dbus_manager_.get();
 }
 
+ApplicationServiceProviderLinux* ApplicationSystemLinux::service_provider() {
+  return service_provider_.get();
+}
+
 }  // namespace application
 }  // namespace xwalk

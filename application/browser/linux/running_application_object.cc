@@ -44,10 +44,10 @@ RunningApplicationObject::RunningApplicationObject(
     const std::string& app_id,
     const std::string& launcher_name,
     Application* application)
-    : bus_(bus),
+    : dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)),
+      bus_(bus),
       launcher_name_(launcher_name),
-      application_(application),
-      dbus::ManagedObject(bus, GetRunningPathForAppID(app_id)) {
+      application_(application) {
   ListenForOwnerChange();
 
   properties()->Set(
@@ -65,6 +65,13 @@ RunningApplicationObject::RunningApplicationObject(
       kRunningApplicationDBusInterface, "ForceTerminate",
       base::Bind(&RunningApplicationObject::OnTerminate,
                  base::Unretained(this), Application::Immediate),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
+
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "GetEPChannel",
+      base::Bind(&RunningApplicationObject::OnGetExtensionProcessChannel,
+                 base::Unretained(this)),
       base::Bind(&RunningApplicationObject::OnExported,
                  base::Unretained(this)));
 }
@@ -114,6 +121,20 @@ void RunningApplicationObject::OnTerminate(
   response_sender.Run(response.Pass());
 }
 
+void RunningApplicationObject::OnGetExtensionProcessChannel(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  dbus::MessageWriter writer(response.get());
+
+  writer.AppendString(ep_bp_channel_.name);
+  dbus::FileDescriptor client_fd(ep_bp_channel_.socket.fd);
+  client_fd.CheckValidity();
+  writer.AppendFileDescriptor(client_fd);
+  response_sender.Run(response.Pass());
+}
+
 void RunningApplicationObject::ListenForOwnerChange() {
   owner_change_callback_ =
       base::Bind(&RunningApplicationObject::OnNameOwnerChanged,
@@ -140,6 +161,13 @@ void RunningApplicationObject::OnNameOwnerChanged(
 void RunningApplicationObject::OnLauncherDisappeared() {
   // Do not care about 'OnSuspend' handlers if the launcher is already killed.
   TerminateApplication(Application::Immediate);
+}
+
+void RunningApplicationObject::ExtensionProcessCreated(
+    const IPC::ChannelHandle& handle) {
+  ep_bp_channel_ = handle;
+  dbus::Signal signal(kRunningApplicationDBusInterface, "EPChannelCreated");
+  dbus_object()->SendSignal(&signal);
 }
 
 }  // namespace application
