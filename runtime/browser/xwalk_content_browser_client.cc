@@ -213,7 +213,7 @@ void XWalkContentBrowserClient::AllowCertificateError(
     ResourceType::Type resource_type,
     bool overridable,
     bool strict_enforcement,
-    const base::Callback<void(bool)>& callback,
+    const base::Callback<void(bool)>& callback, // NOLINT
     content::CertificateRequestResultType* result) {
   // Currently only Android handles it.
   // TODO(yongsheng): applies it for other platforms?

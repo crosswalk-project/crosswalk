@@ -85,7 +85,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       ResourceType::Type resource_type,
       bool overridable,
       bool strict_enforcement,
-      const base::Callback<void(bool)>& callback,
+      const base::Callback<void(bool)>& callback, // NOLINT
       content::CertificateRequestResultType* result) OVERRIDE;
 
   virtual content::SpeechRecognitionManagerDelegate*

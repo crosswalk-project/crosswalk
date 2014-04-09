@@ -16,8 +16,8 @@ class StorageInfo;
 namespace xwalk {
 namespace sysapps {
 
-class StorageInfoProviderChromium :
-      public StorageInfoProvider,
+class StorageInfoProviderChromium
+    : public StorageInfoProvider,
       public storage_monitor::RemovableStorageObserver {
  public:
   StorageInfoProviderChromium();
