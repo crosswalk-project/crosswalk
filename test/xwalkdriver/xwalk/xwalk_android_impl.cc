@@ -26,6 +26,6 @@ std::string XwalkAndroidImpl::GetOperatingSystemName() {
 }
 
 Status XwalkAndroidImpl::QuitImpl() {
-  return device_->StopApp();
+  return device_->TearDown();
 }
 

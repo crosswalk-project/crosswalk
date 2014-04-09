@@ -49,6 +49,9 @@
 
 namespace {
 
+const char* kCommonSwitches[] = {
+    "ignore-certificate-errors", "metrics-recording-only"};
+
 Status PrepareCommandLine(int port,
                           const Capabilities& capabilities,
                           CommandLine* prepared_command,
@@ -248,18 +251,52 @@ Status LaunchAndroidXwalk(
     ScopedVector<DevToolsEventListener>& devtools_event_listeners,
     DeviceManager* device_manager,
     scoped_ptr<Xwalk>* xwalk) {
-    // TODO(Peter Wang): Need to implement Android xwalk.
-    (void) context_getter;
-    (void) port;
-    (void) port_reservation;
-    (void) socket_factory;
-    (void) capabilities;
-    (void) devtools_event_listeners;
-    (void) device_manager;
-    (void) xwalk;
-
-    return Status(kOk);
+  Status status(kOk);
+  scoped_ptr<Device> device;
+  if (capabilities.android_device_serial.empty()) {
+    status = device_manager->AcquireDevice(&device);
+  } else {
+    status = device_manager->AcquireSpecificDevice(
+        capabilities.android_device_serial, &device);
   }
+  if (status.IsError()) {
+    device->TearDown();
+    return status;
+  }
+
+  Switches switches(capabilities.switches);
+  for (size_t i = 0; i < arraysize(kCommonSwitches); ++i)
+    switches.SetSwitch(kCommonSwitches[i]);
+  switches.SetSwitch("disable-fre");
+  switches.SetSwitch("enable-remote-debugging");
+  status = device->SetUp(capabilities.android_package,
+                         capabilities.android_activity,
+                         capabilities.android_process,
+                         switches.ToString(),
+                         capabilities.android_use_running_app,
+                         port);
+  if (status.IsError()) {
+    device->TearDown();
+    return status;
+  }
+
+  scoped_ptr<DevToolsHttpClient> devtools_client;
+  status = WaitForDevToolsAndCheckVersion(NetAddress(port),
+                                          context_getter,
+                                          socket_factory,
+                                          &devtools_client);
+  if (status.IsError()) {
+    device->TearDown();
+    return status;
+  }
+
+  xwalk->reset(new XwalkAndroidImpl(devtools_client.Pass(),
+                                      devtools_event_listeners,
+                                      port_reservation.Pass(),
+                                      device.Pass()));
+  return Status(kOk);
+}
+
 }  // namespace
 
 Status LaunchXwalk(

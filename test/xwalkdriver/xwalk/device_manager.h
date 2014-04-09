@@ -22,12 +22,14 @@ class Device {
  public:
   ~Device();
 
-  Status StartApp(const std::string& package,
-                  const std::string& activity,
-                  const std::string& process,
-                  const std::string& args,
-                  int port);
-  Status StopApp();
+  Status SetUp(const std::string& package,
+               const std::string& activity,
+               const std::string& process,
+               const std::string& args,
+               bool use_running_app,
+               int port);
+
+  Status TearDown();
 
  private:
   friend class DeviceManager;
@@ -35,6 +37,11 @@ class Device {
   Device(const std::string& device_serial,
          Adb* adb,
          base::Callback<void()> release_callback);
+
+  Status ForwardDevtoolsPort(const std::string& package,
+                             const std::string& process,
+                             std::string& device_socket,
+                             int port);
 
   const std::string serial_;
   std::string active_package_;

@@ -79,6 +79,8 @@ struct Capabilities {
 
   std::string android_process;
 
+  bool android_use_running_app;
+
   base::FilePath binary;
 
   // If provided, the remote debugging address to connect to.
