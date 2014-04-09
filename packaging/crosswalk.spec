@@ -16,6 +16,7 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
+Patch2:         %{name}-no-fatal-ld-warnings.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
@@ -105,6 +106,11 @@ cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
+
+# Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
+%if "%{profile}" == "common" || "%{profile}" == "generic"
+%patch2
+%endif
 
 %if %{with wayland}
 %patch8
