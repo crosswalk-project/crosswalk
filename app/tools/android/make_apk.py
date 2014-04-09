@@ -291,6 +291,11 @@ def Execution(options, sanitized_name):
     pak_des_path = os.path.join(sanitized_name, 'assets', 'xwalk.pak')
     shutil.copy(pak_src_path, pak_des_path)
 
+    # Prepare the icudtl.dat for embedded mode.
+    icudtl_src_path = os.path.join('native_libs_res', 'icudtl.dat')
+    icudtl_des_path = os.path.join(sanitized_name, 'assets', 'icudtl.dat')
+    shutil.copy(icudtl_src_path, icudtl_des_path)
+
     js_src_dir = os.path.join('native_libs_res', 'jsapi')
     js_des_dir = os.path.join(sanitized_name, 'assets', 'jsapi')
     if os.path.exists(js_des_dir):

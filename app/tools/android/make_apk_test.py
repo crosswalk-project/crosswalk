@@ -138,7 +138,8 @@ class TestMakeApk(unittest.TestCase):
     for res_file in common_files:
       self.assertTrue(out.find(res_file) != -1)
     if self._mode.find('embedded') != -1:
-      embedded_related_files = ['xwalk.pak',
+      embedded_related_files = ['icudtl.dat',
+                                'xwalk.pak',
                                 'device_capabilities_api.js',
                                 'launch_screen_api.js',
                                 'presentation_api.js',
