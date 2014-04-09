@@ -134,7 +134,7 @@ void XWalkMediaCaptureDevicesDispatcher::OnAudioCaptureDevicesChanged() {
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &XWalkMediaCaptureDevicesDispatcher::NotifyAudioDevicesChangedOnUIThread,
+          &XWalkMediaCaptureDevicesDispatcher::NotifyAudioDevicesChangedOnUIThread, // NOLINT
           base::Unretained(this)));
 }
 
@@ -143,7 +143,7 @@ void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
-          &XWalkMediaCaptureDevicesDispatcher::NotifyVideoDevicesChangedOnUIThread,
+          &XWalkMediaCaptureDevicesDispatcher::NotifyVideoDevicesChangedOnUIThread, // NOLINT
           base::Unretained(this)));
 }
 

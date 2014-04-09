@@ -44,9 +44,9 @@ class XWalkContentRendererClient
       blink::WebFrame* frame, v8::Handle<v8::Context> context,
       int extension_group, int world_id) OVERRIDE;
 #if defined(OS_ANDROID)
-  virtual unsigned long long VisitedLinkHash(const char* canonical_url,
+  virtual unsigned long long VisitedLinkHash(const char* canonical_url, // NOLINT
                                              size_t length) OVERRIDE;
-  virtual bool IsLinkVisited(unsigned long long link_hash) OVERRIDE;
+  virtual bool IsLinkVisited(unsigned long long link_hash) OVERRIDE; // NOLINT
 #endif
 
   virtual bool WillSendRequest(blink::WebFrame* frame,

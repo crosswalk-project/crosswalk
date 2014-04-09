@@ -136,12 +136,12 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
 }
 
 #if defined(OS_ANDROID)
-unsigned long long XWalkContentRendererClient::VisitedLinkHash(
+unsigned long long XWalkContentRendererClient::VisitedLinkHash( // NOLINT
     const char* canonical_url, size_t length) {
   return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
 }
 
-bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
+bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) { // NOLINT
   return visited_link_slave_->IsVisited(link_hash);
 }
 #endif
