@@ -91,14 +91,18 @@ class DeviceCapabilitiesDisplay {
         try {
             out.put("id", disp.getDisplayId());
             out.put("name", disp.getName());
-            out.put("isPrimary", disp.getDisplayId() == disp.DEFAULT_DISPLAY);
-            out.put("isInternal", disp.getDisplayId() == disp.DEFAULT_DISPLAY);
-            out.put("dpiX", (int) displayMetrics.xdpi);
-            out.put("dpiY", (int) displayMetrics.ydpi);
+            out.put("primary", disp.getDisplayId() == disp.DEFAULT_DISPLAY);
+            out.put("external", disp.getDisplayId() != disp.DEFAULT_DISPLAY);
+            out.put("deviceXDPI", (int) displayMetrics.xdpi);
+            out.put("deviceYDPI", (int) displayMetrics.ydpi);
             out.put("width", realSize.x);
             out.put("height", realSize.y);
             out.put("availWidth", availSize.x);
             out.put("availHeight", availSize.y);
+            // colorDepth and pixelDepth are constantly set as 24 refer to
+            // http://www.w3.org/TR/cssom-view/
+            out.put("colorDepth", 24);
+            out.put("pixelDepth", 24);
         } catch (JSONException e) {
             return mDeviceCapabilities.setErrorMessage(e.toString());
         }
