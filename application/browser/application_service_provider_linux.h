@@ -16,9 +16,11 @@ class Bus;
 namespace xwalk {
 namespace application {
 
+class Application;
 class ApplicationService;
 class ApplicationStorage;
 class InstalledApplicationsManager;
+class RunningApplicationObject;
 class RunningApplicationsManager;
 
 // Uses a D-Bus service named "org.crosswalkproject.Runtime1" to expose
@@ -29,6 +31,8 @@ class ApplicationServiceProviderLinux {
                                   ApplicationStorage* app_storage,
                                   scoped_refptr<dbus::Bus> session_bus);
   virtual ~ApplicationServiceProviderLinux();
+
+  RunningApplicationObject* GetRunningApplicationObject(const Application* app);
 
  private:
   void OnServiceNameExported(const std::string& service_name, bool success);

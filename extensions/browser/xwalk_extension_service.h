@@ -48,6 +48,9 @@ class XWalkExtensionService : public content::NotificationObserver,
         int render_process_id,
         const std::string& extension_name,
         const std::string& perm_table);
+    virtual void ExtensionProcessCreated(
+        int render_process_id,
+        const IPC::ChannelHandle& channel_handle) {}
 
    protected:
     ~Delegate() {}
@@ -96,6 +99,10 @@ class XWalkExtensionService : public content::NotificationObserver,
   // XWalkExtensionProcessHost::Delegate implementation.
   virtual void OnExtensionProcessDied(XWalkExtensionProcessHost* eph,
       int render_process_id) OVERRIDE;
+
+  virtual void OnExtensionProcessCreated(
+      int render_process_id,
+      const IPC::ChannelHandle handle) OVERRIDE;
 
   virtual void OnCheckAPIAccessControl(
       int render_process_id,

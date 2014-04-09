@@ -40,7 +40,9 @@ class XWalkExtensionRunner;
 class XWalkExtensionProcess : public IPC::Listener,
                               public XWalkExtension::PermissionsDelegate {
  public:
-  XWalkExtensionProcess();
+  XWalkExtensionProcess(
+      const IPC::ChannelHandle& channel_handle = IPC::ChannelHandle());
+
   virtual ~XWalkExtensionProcess();
   virtual bool CheckAPIAccessControl(const std::string& extension_name,
       const std::string& api_name) OVERRIDE;
@@ -55,7 +57,8 @@ class XWalkExtensionProcess : public IPC::Listener,
   void OnRegisterExtensions(const base::FilePath& extension_path,
                             const base::ListValue& browser_variables);
 
-  void CreateBrowserProcessChannel();
+  void CreateBrowserProcessChannel(const IPC::ChannelHandle& channel_handle);
+
   void CreateRenderProcessChannel();
 
   base::WaitableEvent shutdown_event_;

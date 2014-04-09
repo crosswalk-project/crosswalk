@@ -17,14 +17,15 @@
 namespace xwalk {
 namespace extensions {
 
-XWalkExtensionProcess::XWalkExtensionProcess()
+XWalkExtensionProcess::XWalkExtensionProcess(
+    const IPC::ChannelHandle& channel_handle)
     : shutdown_event_(false, false),
       io_thread_("XWalkExtensionProcess_IOThread") {
   io_thread_.StartWithOptions(
       base::Thread::Options(base::MessageLoop::TYPE_IO, 0));
 
   extensions_server_.set_permissions_delegate(this);
-  CreateBrowserProcessChannel();
+  CreateBrowserProcessChannel(channel_handle);
 }
 
 XWalkExtensionProcess::~XWalkExtensionProcess() {
@@ -77,13 +78,22 @@ void XWalkExtensionProcess::OnRegisterExtensions(
   CreateRenderProcessChannel();
 }
 
-void XWalkExtensionProcess::CreateBrowserProcessChannel() {
-  std::string channel_id =
-      CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
-          switches::kProcessChannelID);
-  browser_process_channel_.reset(new IPC::SyncChannel(channel_id,
-      IPC::Channel::MODE_CLIENT, this, io_thread_.message_loop_proxy(),
-      true, &shutdown_event_));
+void XWalkExtensionProcess::CreateBrowserProcessChannel(
+    const IPC::ChannelHandle& channel_handle) {
+  IPC::SyncChannel* channel;
+  if (channel_handle.name.empty()) {
+    std::string channel_id =
+        CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
+            switches::kProcessChannelID);
+    channel = new IPC::SyncChannel(
+        channel_id, IPC::Channel::MODE_CLIENT, this,
+        io_thread_.message_loop_proxy(), true, &shutdown_event_);
+  } else {
+    channel = new IPC::SyncChannel(
+        channel_handle, IPC::Channel::MODE_CLIENT, this,
+        io_thread_.message_loop_proxy(), true, &shutdown_event_);
+  }
+  browser_process_channel_.reset(channel);
 }
 
 void XWalkExtensionProcess::CreateRenderProcessChannel() {

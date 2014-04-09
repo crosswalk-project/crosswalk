@@ -302,6 +302,7 @@
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:fontconfig',
+            '../build/linux/system.gyp:dbus',
           ],
         }],  # OS=="linux"
         ['os_posix==1 and OS != "mac" and linux_use_tcmalloc==1', {

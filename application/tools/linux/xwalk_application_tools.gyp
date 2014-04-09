@@ -4,7 +4,7 @@
       'target_name': 'gio',
       'type': 'none',
       'variables': {
-        'glib_packages': 'glib-2.0 gio-2.0',
+        'glib_packages': 'glib-2.0 gio-unix-2.0',
       },
       'direct_dependent_settings': {
         'cflags': [
@@ -44,6 +44,9 @@
       'product_name': 'xwalk-launcher',
       'include_dirs': [
         '../../../..',
+      ],
+      'dependencies': [
+        '../../../extensions/extensions.gyp:xwalk_extensions',
       ],
       'sources': [
         'dbus_connection.h',

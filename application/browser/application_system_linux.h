@@ -22,6 +22,7 @@ class ApplicationSystemLinux : public ApplicationSystem {
   virtual ~ApplicationSystemLinux();
 
   DBusManager& dbus_manager();
+  ApplicationServiceProviderLinux* service_provider();
 
  private:
   scoped_ptr<DBusManager> dbus_manager_;

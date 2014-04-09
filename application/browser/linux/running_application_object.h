@@ -8,6 +8,7 @@
 #include <string>
 #include "base/memory/ref_counted.h"
 #include "dbus/bus.h"
+#include "ipc/ipc_channel_handle.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/dbus/object_manager_adaptor.h"
 
@@ -29,6 +30,8 @@ class RunningApplicationObject : public dbus::ManagedObject {
 
   virtual ~RunningApplicationObject();
 
+  void ExtensionProcessCreated(const IPC::ChannelHandle& handle);
+
  private:
   void TerminateApplication(Application::TerminationMode mode);
 
@@ -40,6 +43,10 @@ class RunningApplicationObject : public dbus::ManagedObject {
                    dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
+  void OnGetExtensionProcessChannel(
+      dbus::MethodCall* method_call,
+      dbus::ExportedObject::ResponseSender response_sender);
+
   void ListenForOwnerChange();
   void UnlistenForOwnerChange();
   void OnNameOwnerChanged(const std::string& service_owner);
@@ -50,6 +57,8 @@ class RunningApplicationObject : public dbus::ManagedObject {
   std::string launcher_name_;
   dbus::Bus::GetServiceOwnerCallback owner_change_callback_;
   Application* application_;
+
+  IPC::ChannelHandle ep_bp_channel_;
 };
 
 }  // namespace application

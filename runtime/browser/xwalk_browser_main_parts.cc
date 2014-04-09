@@ -154,7 +154,7 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
 
   if (!cmd_line->HasSwitch(
           switches::kXWalkAllowExternalExtensionsForRemoteSources) &&
-      !startup_url_.SchemeIsFile()) {
+      (!startup_url_.is_empty() && !startup_url_.SchemeIsFile())) {
     VLOG(0) << "Unsupported scheme for external extensions: " <<
           startup_url_.scheme();
     return;
