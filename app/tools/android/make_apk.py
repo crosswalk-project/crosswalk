@@ -203,11 +203,14 @@ def Customize(options):
   orientation = 'unspecified'
   if options.orientation:
     orientation = options.orientation
+  icon = ''
+  if options.icon:
+    icon = '%s' % os.path.expanduser(options.icon)
   CustomizeAll(app_versionCode, options.description, options.icon_dict,
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
-               options.launch_screen_img, package, name, app_version,
+               options.launch_screen_img, icon, package, name, app_version,
                orientation, options.xwalk_command_line)
 
 

@@ -353,7 +353,20 @@ class TestMakeApk(unittest.TestCase):
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
-  def testIcon(self):
+  def testIconByOption(self):
+    icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+           '--icon=%s' % icon, self._mode]
+    RunCommand(cmd)
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(content.find('drawable/icon_96') != -1)
+    self.checkApks('Example', '1.0.0')
+    Clean('Example', '1.0.0')
+
+  def testIconByManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest_icon.json')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
@@ -743,7 +756,8 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testExtensionsWithNonExtension'))
   test_suite.addTest(TestMakeApk('testExtensionWithPermissions'))
   test_suite.addTest(TestMakeApk('testFullscreen'))
-  test_suite.addTest(TestMakeApk('testIcon'))
+  test_suite.addTest(TestMakeApk('testIconByOption'))
+  test_suite.addTest(TestMakeApk('testIconByManifest'))
   test_suite.addTest(TestMakeApk('testKeystore'))
   test_suite.addTest(TestMakeApk('testManifest'))
   test_suite.addTest(TestMakeApk('testManifestWithError'))

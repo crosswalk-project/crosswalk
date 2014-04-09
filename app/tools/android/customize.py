@@ -115,7 +115,7 @@ def CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img):
 
 def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
                  description, name, orientation, icon_dict, fullscreen,
-                 launch_screen_img, permissions, app_root):
+                 icon, launch_screen_img, permissions, app_root):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
@@ -143,9 +143,10 @@ def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  if CustomizeIcon(sanitized_name, app_root, icon_dict):
+  icon_name = CustomizeIcon(sanitized_name, app_root, icon, icon_dict)
+  if icon_name:
     EditElementAttribute(xmldoc, 'application', 'android:icon',
-                         '@drawable/icon')
+                         '@drawable/%s' % icon_name)
 
   file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle, encoding='utf-8')
@@ -332,6 +333,7 @@ def CustomizeExtensions(sanitized_name, name, extensions):
     extension_json_file.write(extensions_string)
     extension_json_file.close()
 
+
 def GenerateCommandLineFile(sanitized_name, xwalk_command_line):
   if xwalk_command_line == '':
     return
@@ -341,12 +343,12 @@ def GenerateCommandLineFile(sanitized_name, xwalk_command_line):
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
-def CustomizeIcon(sanitized_name, app_root, icon_dict):
-  icon_exist = False
+def CustomizeIconByDict(sanitized_name, app_root, icon_dict):
+  icon_name = None
   drawable_dict = {'ldpi':[1, 37], 'mdpi':[37, 72], 'hdpi':[72, 96],
-                   'xhdpi':[96, 120], 'xxhdpi':[120, 144]}
+                   'xhdpi':[96, 120], 'xxhdpi':[120, 144], 'xxxhdpi':[144, 168]}
   if not icon_dict:
-    return icon_exist
+    return icon_name
 
   try:
     icon_dict = dict((int(k), v) for k, v in icon_dict.items())
@@ -367,26 +369,51 @@ def CustomizeIcon(sanitized_name, app_root, icon_dict):
             icon_suffix = icon_name.split('.')[-1]
             shutil.copyfile(icon, os.path.join(drawable_path,
                                                'icon.' + icon_suffix))
-            icon_exist = True
+            icon_name = 'icon'
           elif icon and (not os.path.isfile(icon)):
             print ('Error: Please make sure \"' + icon + '\" does exist!')
             sys.exit(6)
           break
-  return icon_exist
+  return icon_name
 
 
-def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
+def CustomizeIconByOption(sanitized_name, icon):
+  if os.path.isfile(icon):
+    drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
+    if not os.path.exists(drawable_path):
+      os.makedirs(drawable_path)
+    icon_file = os.path.basename(icon)
+    icon_file = ReplaceInvalidChars(icon_file)
+    shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
+    icon_name = os.path.splitext(icon_file)[0]
+    return icon_name
+  else:
+    print ('Error: Please make sure \"' + icon + '\" is a file!')
+    sys.exit(6)
+
+
+def CustomizeIcon(sanitized_name, app_root, icon, icon_dict):
+  icon_name = None
+  if icon:
+    icon_name = CustomizeIconByOption(sanitized_name, icon)
+  else:
+    icon_name = CustomizeIconByDict(sanitized_name, app_root, icon_dict)
+  return icon_name
+
+
+def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  display_as_fullscreen, extensions, launch_screen_img,
-                 package='org.xwalk.app.template', name='AppTemplate',
+                 icon, package='org.xwalk.app.template', name='AppTemplate',
                  app_version='1.0.0', orientation='unspecified',
                  xwalk_command_line=''):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
-                 description, name, orientation, icon, display_as_fullscreen,
-                 launch_screen_img, permissions, app_root)
+                 description, name, orientation, icon_dict,
+                 display_as_fullscreen, icon, launch_screen_img, permissions,
+                 app_root)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
                   enable_remote_debugging, display_as_fullscreen)
     CustomizeExtensions(sanitized_name, name, extensions)
@@ -465,11 +492,12 @@ def main():
       options.orientation = 'unspecified'
     if options.app_version == None:
       options.app_version = '1.0.0'
+    icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
     CustomizeAll(options.app_versionCode, options.description, icon_dict,
                  options.permissions, options.app_url, options.app_root,
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
-                 options.launch_screen_img, options.package, options.name,
+                 options.launch_screen_img, icon, options.package, options.name,
                  options.app_version, options.orientation,
                  options.xwalk_command_line)
   except SystemExit as ec:
