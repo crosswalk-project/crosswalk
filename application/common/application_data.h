@@ -24,6 +24,7 @@
 #include "url/gurl.h"
 #include "xwalk/application/common/install_warning.h"
 #include "xwalk/application/common/manifest.h"
+#include "xwalk/application/common/manifest_i18n_data.h"
 #include "xwalk/application/common/permission_types.h"
 
 namespace base {
@@ -109,6 +110,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   const Manifest* GetManifest() const {
     return manifest_.get();
+  }
+
+  ManifestI18NData* GetManifestI18NData() {
+    return manifest_i18n_data_.get();
   }
 
   // System events
@@ -205,6 +210,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The manifest from which this application was created.
   scoped_ptr<Manifest> manifest_;
+
+  // The i18n independent manifest.
+  scoped_ptr<ManifestI18NData> manifest_i18n_data_;
 
   // Stored parsed manifest data.
   ManifestDataMap manifest_data_;

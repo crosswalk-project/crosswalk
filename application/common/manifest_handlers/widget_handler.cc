@@ -40,13 +40,18 @@ typedef std::map<std::string, std::string> KeyMap;
 typedef std::map<std::string, std::string>::const_iterator KeyMapIterator;
 typedef std::pair<std::string, std::string> KeyPair;
 
+const std::string GetKeyWithPath(const std::string& path,
+                                 const std::string& key) {
+  std::string path_key(path);
+  path_key.append(".");
+  path_key.append(key);
+  return path_key;
+}
+
 const KeyMap& GetWidgetKeyPairs() {
   static KeyMap map;
   if (map.empty()) {
     map.insert(KeyPair(keys::kAuthorKey, kAuthor));
-    map.insert(KeyPair(keys::kDescriptionKey, kDecription));
-    map.insert(KeyPair(keys::kNameKey, kName));
-    map.insert(KeyPair(keys::kShortNameKey, kShortName));
     map.insert(KeyPair(keys::kVersionKey, kVersion));
     map.insert(KeyPair(keys::kIDKey, kID));
     map.insert(KeyPair(keys::kAuthorEmailKey, kAuthorEmail));
@@ -81,7 +86,8 @@ void ParsePreferenceItem(const base::DictionaryValue* in_value,
 namespace application {
 
 WidgetInfo::WidgetInfo()
-    : value_(new base::DictionaryValue) {}
+    : value_(new base::DictionaryValue),
+      manifest_i18n_data_(NULL) {}
 
 WidgetInfo::~WidgetInfo() {}
 
@@ -93,6 +99,25 @@ void WidgetInfo::Set(const std::string& key, base::Value* value) {
   value_->Set(key, value);
 }
 
+base::DictionaryValue* WidgetInfo::GetWidgetInfo() {
+  DCHECK(manifest_i18n_data_);
+  std::string name;
+  std::string shortName;
+  std::string description;
+
+  manifest_i18n_data_->GetString(
+      GetKeyWithPath(keys::kNameKey, keys::kTextKey), &name);
+  manifest_i18n_data_->GetString(
+      GetKeyWithPath(keys::kNameKey, keys::kNameShortNameKey), &shortName);
+  manifest_i18n_data_->GetString(
+      GetKeyWithPath(keys::kDescriptionKey, keys::kTextKey), &description);
+  value_->SetString(kName, name);
+  value_->SetString(kShortName, shortName);
+  value_->SetString(kDecription, description);
+
+  return value_.get();
+}
+
 WidgetHandler::WidgetHandler() {}
 
 WidgetHandler::~WidgetHandler() {}
@@ -101,7 +126,15 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
                           base::string16* error) {
   scoped_ptr<WidgetInfo> widget_info(new WidgetInfo);
   const Manifest* manifest = application->GetManifest();
+  ManifestI18NData* manifest_i18n_data = application->GetManifestI18NData();
   DCHECK(manifest);
+  DCHECK(manifest_i18n_data);
+
+  std::string default_locale;
+  manifest->GetString(keys::kDefaultLocaleKey, &default_locale);
+  // The defaultlocale is an attribute of widget element,
+  // so only widget handler need to set defaultlocale
+  manifest_i18n_data->SetDefaultLocale(default_locale);
 
   const KeyMap& map = GetWidgetKeyPairs();
 
@@ -110,6 +143,9 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
     manifest->GetString(iter->first, &string);
     widget_info->SetString(iter->second, string);
   }
+
+  manifest_i18n_data->ParseFromPath(manifest, keys::kNameKey);
+  manifest_i18n_data->ParseFromPath(manifest, keys::kDescriptionKey);
 
   base::Value* pref_value = NULL;
   manifest->Get(keys::kPreferencesKey, &pref_value);
@@ -136,6 +172,7 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
     widget_info->Set(kPreferences, preferences);
   }
 
+  widget_info->SetManifestI18NData(manifest_i18n_data);
   application->SetManifestData(keys::kWidgetKey, widget_info.release());
   return true;
 }

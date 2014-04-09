@@ -201,6 +201,7 @@ ApplicationData::ApplicationData(const base::FilePath& path,
     : manifest_version_(0),
       is_dirty_(false),
       manifest_(manifest.release()),
+      manifest_i18n_data_(new ManifestI18NData),
       finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;

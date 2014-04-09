@@ -91,15 +91,21 @@ class WidgetHandlerTest: public testing::Test {
   void SetAllInfoToManifest(base::DictionaryValue* manifest) {
     // Insert some key-value pairs into manifest use full key
     manifest->SetString(keys::kAuthorKey,      author);
-    manifest->SetString(keys::kDescriptionKey, decription);
-    manifest->SetString(keys::kNameKey,        name);
-    manifest->SetString(keys::kShortNameKey,   shortName);
     manifest->SetString(keys::kVersionKey,     version);
     manifest->SetString(keys::kIDKey,          ID);
     manifest->SetString(keys::kAuthorEmailKey, authorEmail);
     manifest->SetString(keys::kAuthorHrefKey,  authorHref);
     manifest->SetString(keys::kHeightKey,      height);
     manifest->SetString(keys::kWidthKey,       width);
+
+    base::DictionaryValue* name_value = new base::DictionaryValue;
+    name_value->SetString(keys::kTextKey, name);
+    name_value->SetString(keys::kNameShortNameKey, shortName);
+    manifest->Set(keys::kNameKey,        name_value);
+
+    base::DictionaryValue* desc_value = new base::DictionaryValue;
+    desc_value->SetString(keys::kTextKey, decription);
+    manifest->Set(keys::kDescriptionKey, desc_value);
   }
 
   // No Preferences and full other information
@@ -120,7 +126,9 @@ class WidgetHandlerTest: public testing::Test {
 
 TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
   base::DictionaryValue manifest;
-  manifest.SetString(keys::kNameKey, "no name");
+  base::DictionaryValue* name_value = new base::DictionaryValue;
+  name_value->SetString(keys::kTextKey, "no name");
+  manifest.Set(keys::kNameKey,        name_value);
   manifest.SetString(keys::kVersionKey, "0");
 
   scoped_refptr<ApplicationData> application = CreateApplication(manifest);

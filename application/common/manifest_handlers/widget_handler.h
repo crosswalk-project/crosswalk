@@ -11,6 +11,7 @@
 #include "base/values.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/manifest_handler.h"
+#include "xwalk/application/common/manifest_i18n_data.h"
 
 namespace xwalk {
 namespace application {
@@ -22,11 +23,14 @@ class WidgetInfo : public ApplicationData::ManifestData {
   void SetString(const std::string& key, const std::string& value);
   void Set(const std::string& key, base::Value* value);
 
-  base::DictionaryValue* GetWidgetInfo() {
-    return value_.get();
+  base::DictionaryValue* GetWidgetInfo();
+
+  void SetManifestI18NData(ManifestI18NData* manifest_i18n_data) {
+    manifest_i18n_data_ = manifest_i18n_data;
   }
 
  private:
+  ManifestI18NData* manifest_i18n_data_;
   scoped_ptr<base::DictionaryValue> value_;
 };
 
