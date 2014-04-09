@@ -521,14 +521,24 @@ def MakeApk(options, sanitized_name):
       valid_archs = ['x86', 'armeabi-v7a']
       packaged_archs = []
       for arch in valid_archs:
-        if os.path.isfile(os.path.join('native_libs', arch, 'libs',
-                                       arch, 'libxwalkcore.so')):
+        lib_path = os.path.join('native_libs', arch, 'libs',
+                                arch, 'libxwalkcore.so')
+        if os.path.isfile(lib_path):
           if arch.find('x86') != -1:
             options.arch = 'x86'
           elif arch.find('arm') != -1:
             options.arch = 'arm'
           Execution(options, sanitized_name)
           packaged_archs.append(options.arch)
+        else:
+          print('Warning: failed to create package for arch "%s" '
+                'due to missing library %s' %
+                (arch, lib_path))
+
+      if len(packaged_archs) == 0:
+        print('No packages created, aborting')
+        sys.exit(13)
+
       multi_arch = False
       if len(packaged_archs) >=2:
         multi_arch = True
