@@ -68,7 +68,7 @@ class XWalkViewDelegate {
                 throw new RuntimeException("Cannot initialize Crosswalk Core", e);
             }
         }
-        loadLibrary();
+        loadLibrary(context);
         DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
@@ -115,10 +115,10 @@ class XWalkViewDelegate {
         sInitialized = true;
     }
 
-    private static void loadLibrary() {
+    private static void loadLibrary(Context context) {
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
-            LibraryLoader.loadNow();
+            LibraryLoader.loadNow(context);
         } catch (ProcessInitException e) {
             throw new RuntimeException("Cannot load Crosswalk Core", e);
         }
