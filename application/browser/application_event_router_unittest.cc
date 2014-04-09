@@ -7,8 +7,6 @@
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_event_router.h"
 #include "xwalk/application/browser/event_observer.h"
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 
 namespace xwalk {
 namespace application {
@@ -48,10 +46,8 @@ class MockEventObserver : public EventObserver {
 class ApplicationEventRouterTest : public testing::Test {
  public:
   virtual void SetUp() OVERRIDE {
-    runtime_context_.reset(new xwalk::RuntimeContext);
-    system_ = ApplicationSystem::Create(runtime_context_.get());
+    dummy_event_manager_.reset(new ApplicationEventManager());
     router_.reset(new ApplicationEventRouter(kMockAppId0));
-    event_manager_ = system_->event_manager();
   }
 
   void SendEventToApp(const std::string& event_name) {
@@ -77,18 +73,16 @@ class ApplicationEventRouterTest : public testing::Test {
   }
 
  protected:
-  ApplicationEventManager* event_manager_;
+  scoped_ptr<ApplicationEventManager> dummy_event_manager_;
   scoped_ptr<ApplicationEventRouter> router_;
 
  private:
-  scoped_ptr<xwalk::RuntimeContext> runtime_context_;
-  scoped_ptr<ApplicationSystem> system_;
   content::TestBrowserThreadBundle thread_bundle_;
 };
 
-// Disabled due to XWALK-1380.
-TEST_F(ApplicationEventRouterTest, DISABLED_AttachObserver) {
-  MockEventObserver observer(event_manager_);
+
+TEST_F(ApplicationEventRouterTest, AttachObserver) {
+  MockEventObserver observer(dummy_event_manager_.get());
 
   router_->AttachObserver(kMockEvent0, &observer);
   ASSERT_EQ(GetObserverCount(kMockEvent0), 1);
@@ -98,10 +92,9 @@ TEST_F(ApplicationEventRouterTest, DISABLED_AttachObserver) {
   ASSERT_EQ(GetObserverCount(kMockEvent1), 1);
 }
 
-// Disabled due to XWALK-1380.
-TEST_F(ApplicationEventRouterTest, DISABLED_DetachObserverFromEvent) {
-  MockEventObserver observer1(event_manager_);
-  MockEventObserver observer2(event_manager_);
+TEST_F(ApplicationEventRouterTest, DetachObserverFromEvent) {
+  MockEventObserver observer1(dummy_event_manager_.get());
+  MockEventObserver observer2(dummy_event_manager_.get());
 
   router_->AttachObserver(kMockEvent0, &observer1);
   ASSERT_EQ(GetObserverCount(kMockEvent0), 1);
@@ -120,11 +113,10 @@ TEST_F(ApplicationEventRouterTest, DISABLED_DetachObserverFromEvent) {
   ASSERT_EQ(GetRegisteredEventCount(), 0);
 }
 
-// Disabled due to XWALK-1380.
-TEST_F(ApplicationEventRouterTest, DISABLED_DetachObservers) {
-  MockEventObserver observer1(event_manager_);
-  MockEventObserver observer2(event_manager_);
-  MockEventObserver observer3(event_manager_);
+TEST_F(ApplicationEventRouterTest, DetachObservers) {
+  MockEventObserver observer1(dummy_event_manager_.get());
+  MockEventObserver observer2(dummy_event_manager_.get());
+  MockEventObserver observer3(dummy_event_manager_.get());
   router_->AttachObserver(kMockEvent0, &observer1);
   router_->AttachObserver(kMockEvent1, &observer1);
   router_->AttachObserver(kMockEvent1, &observer2);
@@ -145,11 +137,10 @@ TEST_F(ApplicationEventRouterTest, DISABLED_DetachObservers) {
 
 // Dispatch event which has multiple observers, all observers should be
 // notified.
-// Disabled due to XWALK-1380.
-TEST_F(ApplicationEventRouterTest, DISABLED_EventDispatch) {
-  MockEventObserver observer1(event_manager_);
-  MockEventObserver observer2(event_manager_);
-  MockEventObserver observer3(event_manager_);
+TEST_F(ApplicationEventRouterTest, EventDispatch) {
+  MockEventObserver observer1(dummy_event_manager_.get());
+  MockEventObserver observer2(dummy_event_manager_.get());
+  MockEventObserver observer3(dummy_event_manager_.get());
   g_call_sequence.clear();
   router_->AttachObserver(kMockEvent0, &observer1);
   router_->AttachObserver(kMockEvent0, &observer2);
