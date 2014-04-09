@@ -86,7 +86,8 @@ class ApplicationEventRouterTest : public testing::Test {
   content::TestBrowserThreadBundle thread_bundle_;
 };
 
-TEST_F(ApplicationEventRouterTest, AttachObserver) {
+// Disabled due to XWALK-1380.
+TEST_F(ApplicationEventRouterTest, DISABLED_AttachObserver) {
   MockEventObserver observer(event_manager_);
 
   router_->AttachObserver(kMockEvent0, &observer);
@@ -97,7 +98,8 @@ TEST_F(ApplicationEventRouterTest, AttachObserver) {
   ASSERT_EQ(GetObserverCount(kMockEvent1), 1);
 }
 
-TEST_F(ApplicationEventRouterTest, DetachObserverFromEvent) {
+// Disabled due to XWALK-1380.
+TEST_F(ApplicationEventRouterTest, DISABLED_DetachObserverFromEvent) {
   MockEventObserver observer1(event_manager_);
   MockEventObserver observer2(event_manager_);
 
@@ -118,7 +120,8 @@ TEST_F(ApplicationEventRouterTest, DetachObserverFromEvent) {
   ASSERT_EQ(GetRegisteredEventCount(), 0);
 }
 
-TEST_F(ApplicationEventRouterTest, DetachObservers) {
+// Disabled due to XWALK-1380.
+TEST_F(ApplicationEventRouterTest, DISABLED_DetachObservers) {
   MockEventObserver observer1(event_manager_);
   MockEventObserver observer2(event_manager_);
   MockEventObserver observer3(event_manager_);
@@ -142,7 +145,8 @@ TEST_F(ApplicationEventRouterTest, DetachObservers) {
 
 // Dispatch event which has multiple observers, all observers should be
 // notified.
-TEST_F(ApplicationEventRouterTest, EventDispatch) {
+// Disabled due to XWALK-1380.
+TEST_F(ApplicationEventRouterTest, DISABLED_EventDispatch) {
   MockEventObserver observer1(event_manager_);
   MockEventObserver observer2(event_manager_);
   MockEventObserver observer3(event_manager_);
