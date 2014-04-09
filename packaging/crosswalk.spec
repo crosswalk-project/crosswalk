@@ -2,7 +2,7 @@
 %bcond_with wayland
 
 Name:           crosswalk
-Version:        6.34.116.0
+Version:        6.35.116.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -16,7 +16,7 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
-Patch8:         %{name}-mesa-ozone-typedefs.patch
+Patch2:         %{name}-no-fatal-ld-warnings.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
@@ -107,8 +107,9 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
 
-%if %{with wayland}
-%patch8
+# Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
+%if "%{profile}" == "common" || "%{profile}" == "generic"
+%patch2
 %endif
 
 %patch9
@@ -179,6 +180,7 @@ install -m 06755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/x
 
 # Supporting libraries and resources.
 install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
+install -p -D src/out/Release/lib/libmojo_system.so %{buildroot}%{_libdir}/xwalk/lib/libmojo_system.so
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
@@ -198,6 +200,7 @@ mkdir -p %{_manifestdir_ro}
 %{_bindir}/xwalk-launcher
 %{_bindir}/xwalk-pkg-helper
 %{_libdir}/xwalk/icudtl.dat
+%{_libdir}/xwalk/lib/libmojo_system.so
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak

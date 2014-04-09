@@ -71,7 +71,7 @@ class TizenSystemIndicatorWatcher : public base::MessagePumpLibevent::Watcher {
   TizenPlugMessageWriter writer_;
 
   int fd_;
-  file_util::ScopedFD fd_closer_;
+  base::ScopedFD fd_closer_;
   base::MessagePumpLibevent::FileDescriptorWatcher fd_watcher_;
 
   scoped_ptr<base::SharedMemory> shared_memory_;

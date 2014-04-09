@@ -23,6 +23,7 @@
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_view.h"
 #include "content/public/browser/render_process_host.h"
 #include "grit/xwalk_resources.h"
@@ -171,7 +172,8 @@ content::WebContents* Runtime::OpenURLFromTab(
   return source;
 }
 
-void Runtime::LoadingStateChanged(content::WebContents* source) {
+void Runtime::LoadingStateChanged(content::WebContents* source,
+                                  bool to_different_document) {
 }
 
 void Runtime::ToggleFullscreenModeForTab(content::WebContents* web_contents,
@@ -226,7 +228,7 @@ void Runtime::HandleKeyboardEvent(
 
 void Runtime::WebContentsCreated(
     content::WebContents* source_contents,
-    int64 source_frame_id,
+    int opener_render_frame_id,
     const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {

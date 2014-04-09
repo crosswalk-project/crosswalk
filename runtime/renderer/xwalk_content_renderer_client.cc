@@ -6,6 +6,9 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
+#include "content/public/renderer/render_frame.h"
+#include "content/public/renderer/render_frame_observer.h"
+#include "content/public/renderer/render_frame_observer_tracker.h"
 #include "content/public/renderer/render_thread.h"
 #include "grit/xwalk_application_resources.h"
 #include "grit/xwalk_sysapps_resources.h"
@@ -31,8 +34,35 @@
 namespace xwalk {
 
 namespace {
-XWalkContentRendererClient* g_renderer_client;
-}
+
+xwalk::XWalkContentRendererClient* g_renderer_client;
+
+class XWalkFrameHelper
+    : public content::RenderFrameObserver,
+      public content::RenderFrameObserverTracker<XWalkFrameHelper> {
+ public:
+  XWalkFrameHelper(
+      content::RenderFrame* render_frame,
+      extensions::XWalkExtensionRendererController* extension_controller)
+      : content::RenderFrameObserver(render_frame),
+        content::RenderFrameObserverTracker<XWalkFrameHelper>(render_frame),
+        extension_controller_(extension_controller) {}
+  virtual ~XWalkFrameHelper() {}
+
+  // RenderFrameObserver implementation.
+  virtual void WillReleaseScriptContext(v8::Handle<v8::Context> context,
+                                        int world_id) OVERRIDE {
+    extension_controller_->WillReleaseScriptContext(
+        render_frame()->GetWebFrame(), context);
+  }
+
+ private:
+  extensions::XWalkExtensionRendererController* extension_controller_;
+
+  DISALLOW_COPY_AND_ASSIGN(XWalkFrameHelper);
+};
+
+}  // namespace
 
 XWalkContentRendererClient* XWalkContentRendererClient::Get() {
   return g_renderer_client;
@@ -67,6 +97,7 @@ void XWalkContentRendererClient::RenderThreadStarted() {
 
 void XWalkContentRendererClient::RenderFrameCreated(
     content::RenderFrame* render_frame) {
+  new XWalkFrameHelper(render_frame, extension_controller_.get());
 #if defined(OS_ANDROID)
   new XWalkPermissionClient(render_frame);
 #endif
@@ -89,11 +120,6 @@ void XWalkContentRendererClient::DidCreateScriptContext(
 #endif
 }
 
-void XWalkContentRendererClient::WillReleaseScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context, int world_id) {
-  extension_controller_->WillReleaseScriptContext(frame, context);
-}
-
 void XWalkContentRendererClient::DidCreateModuleSystem(
     extensions::XWalkModuleSystem* module_system) {
   scoped_ptr<extensions::XWalkNativeModule> app_module(
@@ -110,12 +136,12 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
 }
 
 #if defined(OS_ANDROID)
-unsigned long long XWalkContentRendererClient::VisitedLinkHash(
+unsigned long long XWalkContentRendererClient::VisitedLinkHash( // NOLINT
     const char* canonical_url, size_t length) {
   return visited_link_slave_->ComputeURLFingerprint(canonical_url, length);
 }
 
-bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) {
+bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) { // NOLINT
   return visited_link_slave_->IsVisited(link_hash);
 }
 #endif

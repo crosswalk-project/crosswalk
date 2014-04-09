@@ -12,6 +12,8 @@
 #include "base/strings/utf_string_conversions.h"
 #include "components/storage_monitor/storage_monitor.h"
 
+using storage_monitor::StorageInfo;
+using storage_monitor::StorageMonitor;
 using namespace xwalk::jsapi::device_capabilities; // NOLINT
 
 namespace {
@@ -20,7 +22,7 @@ linked_ptr<StorageUnit> makeStorageUnit(const StorageInfo& storage) {
   linked_ptr<StorageUnit> storage_unit(make_linked_ptr(new StorageUnit));
 
   storage_unit->id = storage.device_id();
-  storage_unit->name = base::UTF16ToUTF8(storage.name());
+  storage_unit->name = base::UTF16ToUTF8(storage.GetDisplayName(false));
   storage_unit->capacity = storage.total_size_in_bytes();
 
   if (StorageInfo::IsRemovableDevice(storage_unit->id))

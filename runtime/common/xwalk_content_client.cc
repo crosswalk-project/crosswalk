@@ -8,24 +8,14 @@
 #include "base/strings/string_piece.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/common/content_switches.h"
+#include "content/public/common/user_agent.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/common/user_agent/user_agent_util.h"
 #include "xwalk/application/common/constants.h"
 
 namespace xwalk {
 
-XWalkContentClient::XWalkContentClient() {
-}
-
-XWalkContentClient::~XWalkContentClient() {
-}
-
-std::string XWalkContentClient::GetProduct() const {
-  return std::string("Version/4.0");
-}
-
-std::string XWalkContentClient::GetUserAgent() const {
+std::string GetUserAgent() {
   std::string product = "Chrome/" CHROME_VERSION;
 #if (defined(OS_TIZEN) || defined(OS_ANDROID))
   product += " Mobile Crosswalk/" XWALK_VERSION;
@@ -35,7 +25,22 @@ std::string XWalkContentClient::GetUserAgent() const {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kUseMobileUserAgent))
     product += " Mobile";
-  return webkit_glue::BuildUserAgentFromProduct(product);
+  return content::BuildUserAgentFromProduct(product);
+}
+
+XWalkContentClient::XWalkContentClient() {
+}
+
+XWalkContentClient::~XWalkContentClient() {
+  xwalk::GetUserAgent();
+}
+
+std::string XWalkContentClient::GetProduct() const {
+  return std::string("Version/4.0");
+}
+
+std::string XWalkContentClient::GetUserAgent() const {
+  return xwalk::GetUserAgent();
 }
 
 base::string16 XWalkContentClient::GetLocalizedString(int message_id) const {
