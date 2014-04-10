@@ -19,6 +19,7 @@ import android.util.Log;
 
 import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
+import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
@@ -29,8 +30,10 @@ import org.chromium.content.browser.ResourceExtractor;
 import org.chromium.content.browser.ResourceExtractor.ResourceIntercepter;
 import org.chromium.net.NetworkChangeNotifier;
 
+@JNINamespace("xwalk")
 class XWalkViewDelegate {
     private static boolean sInitialized = false;
+    private static boolean sRunningOnIA = true;
     private static final String PRIVATE_DATA_DIRECTORY_SUFFIX = "xwalkcore";
     private static final String[] MANDATORY_PAKS = {
             "xwalk.pak",
@@ -74,7 +77,7 @@ class XWalkViewDelegate {
         }
     }
 
-    public static void init(XWalkView xwalkView) {
+    public static void init(XWalkView xwalkView) throws UnsatisfiedLinkError {
         if (sInitialized) {
             return;
         }
@@ -109,16 +112,16 @@ class XWalkViewDelegate {
         // libraries starting from 4.2 and load them automatically.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 &&
                 !context.getApplicationContext().getPackageName().equals(context.getPackageName())) {
-            try {
-                for (String library : MANDATORY_LIBRARIES) {
-                    System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
-                }
-            } catch (UnsatisfiedLinkError e) {
-                throw new RuntimeException("Cannot initialize Crosswalk Core", e);
+            for (String library : MANDATORY_LIBRARIES) {
+                System.load("/data/data/" + context.getPackageName() + "/lib/" + library);
             }
         }
         loadLibrary(context);
         DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
+
+        if (sRunningOnIA && !nativeIsLibraryBuiltForIA()) {
+            throw new UnsatisfiedLinkError();
+        }
 
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
         final int resourcesListResId = context.getResources().getIdentifier(
@@ -190,5 +193,15 @@ class XWalkViewDelegate {
                 }
             }
         });
+    }
+
+    public static boolean isRunningOnIA() {
+        return sRunningOnIA;
+    }
+
+    private static native boolean nativeIsLibraryBuiltForIA();
+
+    static {
+        sRunningOnIA = Build.CPU_ABI.equalsIgnoreCase("x86");
     }
 }

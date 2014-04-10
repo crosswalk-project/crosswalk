@@ -156,6 +156,7 @@
         'runtime/android/core/src/org/xwalk/core/XWalkCookieManager.java',
         'runtime/android/core/src/org/xwalk/core/XWalkDevToolsServer.java',
         'runtime/android/core/src/org/xwalk/core/XWalkSettings.java',
+        'runtime/android/core/src/org/xwalk/core/XWalkViewDelegate.java',
         'runtime/android/core/src/org/xwalk/core/XWalkWebContentsDelegate.java',
       ],
       'includes': ['../build/jni_generator.gypi'],
