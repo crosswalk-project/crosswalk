@@ -473,7 +473,8 @@ def Execution(options, sanitized_name):
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(target_dir, app_name, app_version, arch = ''):
+def PrintPackageInfo(target_dir, app_name, app_version,
+                     arch = '', multi_arch = False):
   package_name_version = os.path.join(target_dir, app_name)
   if app_version != '':
     package_name_version += ('_' + app_version)
@@ -487,6 +488,13 @@ def PrintPackageInfo(target_dir, app_name, app_version, arch = ''):
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
            % (app_name, arch, package_name_version, arch))
+    if multi_arch == False:
+      if arch == 'x86':
+        print ('WARNING: This APK will only work on x86 based Android devices. '
+               'Consider building for ARM as well.')
+      elif arch == 'arm':
+        print ('WARNING: This APK will only work on ARM based Android devices. '
+               'Consider building for x86 as well.')
 
 
 def MakeApk(options, sanitized_name):
@@ -516,9 +524,12 @@ def MakeApk(options, sanitized_name):
             options.arch = 'arm'
           Execution(options, sanitized_name)
           packaged_archs.append(options.arch)
+      multi_arch = False
+      if len(packaged_archs) >=2:
+        multi_arch = True
       for arch in packaged_archs:
         PrintPackageInfo(options.target_dir, sanitized_name,
-                         app_version, arch)
+                         app_version, arch, multi_arch)
   else:
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
