@@ -199,6 +199,7 @@ def CopyBinaries(out_dir):
     os.mkdir(res_value_dir)
 
   paks_to_copy = [
+      'icudtl.dat',
       'xwalk.pak',
   ]
 
