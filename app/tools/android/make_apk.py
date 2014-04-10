@@ -159,8 +159,16 @@ def FindExtensionJars(root_path):
 # your-apps-on-google-play-for-x86-based-android-devices-using
 def MakeVersionCode(options):
   ''' Construct a version code'''
-  if options.app_versionCode:
+
+  if options.app_versionCode > 0:
     return options.app_versionCode
+  elif options.app_versionCode != None:
+    print('Invalid versionCode %s' % options.app_versionCode)
+    sys.exit(14)
+
+  if options.app_versionCodeBase <= 0:
+    print('Invalid versionCodeBase %s' % options.app_versionCodeBase)
+    sys.exit(15)
 
   # First digit is ABI, ARM=2, x86=6
   abi = '0'
@@ -508,14 +516,24 @@ def MakeApk(options, sanitized_name):
       valid_archs = ['x86', 'armeabi-v7a']
       packaged_archs = []
       for arch in valid_archs:
-        if os.path.isfile(os.path.join('native_libs', arch, 'libs',
-                                       arch, 'libxwalkcore.so')):
+        lib_path = os.path.join('native_libs', arch, 'libs',
+                                arch, 'libxwalkcore.so')
+        if os.path.isfile(lib_path):
           if arch.find('x86') != -1:
             options.arch = 'x86'
           elif arch.find('arm') != -1:
             options.arch = 'arm'
           Execution(options, sanitized_name)
           packaged_archs.append(options.arch)
+        else:
+          print('Warning: failed to create package for arch "%s" '
+                'due to missing library %s' %
+                (arch, lib_path))
+
+      if len(packaged_archs) == 0:
+        print('No packages created, aborting')
+        sys.exit(13)
+
       for arch in packaged_archs:
         PrintPackageInfo(options.target_dir, sanitized_name,
                          app_version, arch)
