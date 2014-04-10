@@ -24,7 +24,44 @@ $ python
 >>> cd_server.Kill()
 
 For Android xwalk:
-It will come soon.
 
+(1) Build XwalkDriver by building the 'xwalkdriver' target and get an executable
+binary in the build folder named 'xwalkdriver'. Or download the binary from
+    https://github.com/iKevinHan/xwalkdriver_binary 
+
+
+(2) Enable remote debugging in your Android app source code, like this  
+
+    public void onCreate(Bundle savedInstanceState) {
+        ...
+        setRemoteDebugging(true); // Enable remote debugging
+        super.onCreate(savedInstanceState);
+        ...
+    }
+
+(3) Pakage your app by execute command
+    python make_apk.py --manifest=YOUR_APP_PATH/manifest.json
+
+(4) Install your apk to device.
+
+(5) Install Selienium package by executing command
+    pip install selenium
+
+(6) Run xwalkdriver binary.
+
+(7) Execute following commands to test:
+$ python
+>>> from selenium import webdriver
+>>> capabilities = {
+  'xwalkOptions': {
+    'androidPackage': 'YOUR_PACKAGE_NAME', 
+    'androidActivity': '.YOUR_ACTIVITY_NAME',
+  }
+}
+>>> driver = webdriver.Remote('http://localhost:9515', capabilities)      
+>>> driver.execute_script("alert('aaaa')")
+
+
+    
 For Tizen xwalk:
 It will come soon.
