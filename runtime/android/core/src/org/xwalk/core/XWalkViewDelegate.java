@@ -5,10 +5,14 @@
 package org.xwalk.core;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.StringBuilder;
 import java.util.HashSet;
 import java.util.Set;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
@@ -39,6 +43,37 @@ class XWalkViewDelegate {
     private static final String TAG = "XWalkViewDelegate";
     private static final String XWALK_RESOURCES_LIST_RES_NAME = "xwalk_resources_list";
 
+    private static final String COMMAND_LINE_FILE = "xwalk-command-line";
+
+    private static String[] readCommandLine(Context context) {
+        InputStreamReader reader = null;
+
+        try {
+            InputStream input =
+                    context.getAssets().open(COMMAND_LINE_FILE, AssetManager.ACCESS_BUFFER);
+            int length;
+            int size = 1024;
+            char[] buffer = new char[size];
+            StringBuilder builder = new StringBuilder();
+
+            reader = new InputStreamReader(input, "UTF-8");
+            while ((length = reader.read(buffer, 0, size)) != -1) {
+                builder.append(buffer, 0, length);
+            }
+
+            return CommandLine.tokenizeQuotedAruments(
+                    builder.toString().toCharArray());
+        } catch (IOException e) {
+            return null;
+        } finally {
+            try {
+                if (reader != null) reader.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Unable to close file reader.", e);
+            }
+        }
+    }
+
     public static void init(XWalkView xwalkView) {
         if (sInitialized) {
             return;
@@ -59,7 +94,7 @@ class XWalkViewDelegate {
         // the object to guarantee the CommandLine object is not null and the
         // consequent prodedure does not crash.
         if (!CommandLine.isInitialized()) {
-            CommandLine.init(null);
+            CommandLine.init(readCommandLine(context.getApplicationContext()));
         }
 
         // If context's applicationContext is not the same package with itself,
