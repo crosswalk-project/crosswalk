@@ -246,8 +246,8 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      *                   remote debugging.
      * @return the url of web socket for remote debugging.
      */
-    public String enableRemoteDebugging(String frontEndUrl, String socketName) {
-        return (String) invokeMethod(mEnableRemoteDebugging, mInstance, frontEndUrl, socketName);
+    public void enableRemoteDebugging(String frontEndUrl, String socketName) {
+        invokeMethod(mEnableRemoteDebugging, mInstance, frontEndUrl, socketName);
     }
 
     /**

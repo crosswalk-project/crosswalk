@@ -29,7 +29,7 @@ interface XWalkRuntimeViewProvider {
     public View getView();
     public void loadAppFromUrl(String url);
     public void loadAppFromManifest(String manifestUrl);
-    public String enableRemoteDebugging(String frontEndUrl, String socketName);
+    public void enableRemoteDebugging(String frontEndUrl, String socketName);
     public void disableRemoteDebugging();
     public boolean onKeyUp(int KeyCode, KeyEvent event);
 

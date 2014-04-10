@@ -18,28 +18,17 @@ import org.xwalk.core.XWalkView;
  * Test suite for reload().
  */
 public class ReloadTest extends XWalkViewTestBase {
-    
+
     private TestWebServer mWebServer;
-    
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
-
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
-        getXWalkView().setXWalkClient(new TestXWalkClient()); 
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         mWebServer = new TestWebServer(false);
     }
-    
+
     @Override
     public void tearDown() throws Exception {
         if (mWebServer != null) {

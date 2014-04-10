@@ -36,8 +36,11 @@ import org.chromium.base.BaseSwitches;
 import org.chromium.base.CommandLine;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
-import org.xwalk.core.XWalkDefaultWebChromeClient;
+import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkPreferences;
+import org.xwalk.core.XWalkResourceClientImpl;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.XWalkWebChromeClient;
 
 public class XWalkViewShellActivity extends FragmentActivity
         implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener{
@@ -157,7 +160,7 @@ public class XWalkViewShellActivity extends FragmentActivity
                 if (bundle.containsKey("url")) {
                     String extra = bundle.getString("url");
                     if (mActiveView != null)
-                        mActiveView.loadUrl(sanitizeUrl(extra));
+                        mActiveView.load(sanitizeUrl(extra), null);
                 }
             }
         };
@@ -234,7 +237,7 @@ public class XWalkViewShellActivity extends FragmentActivity
                 }
 
                 if (mActiveView == null) return true;
-                mActiveView.loadUrl(sanitizeUrl(mUrlTextView.getText().toString()));
+                mActiveView.load(sanitizeUrl(mUrlTextView.getText().toString()), null);
                 mUrlTextView.clearFocus();
                 setKeyboardVisibilityForUrl(false);
                 return true;
@@ -261,8 +264,11 @@ public class XWalkViewShellActivity extends FragmentActivity
         mPrevButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActiveView == null) return;
-                if (mActiveView.canGoBack()) mActiveView.goBack();
+                if (mActiveView != null &&
+                        mActiveView.getNavigationHistory().canGoBack()) {
+                    mActiveView.getNavigationHistory().navigate(
+                            XWalkNavigationHistory.Direction.BACKWARD, 1);
+                }
             }
         });
 
@@ -270,8 +276,11 @@ public class XWalkViewShellActivity extends FragmentActivity
         mNextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActiveView == null) return;
-                if (mActiveView.canGoForward()) mActiveView.goForward();
+                if (mActiveView != null &&
+                        mActiveView.getNavigationHistory().canGoForward()) {
+                    mActiveView.getNavigationHistory().navigate(
+                            XWalkNavigationHistory.Direction.FORWARD, 1);
+                }
             }
         });
 
@@ -279,8 +288,7 @@ public class XWalkViewShellActivity extends FragmentActivity
         mStopButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActiveView == null) return;
-                mActiveView.stopLoading();
+                if (mActiveView != null) mActiveView.stopLoading();
             }
         });
 
@@ -288,14 +296,14 @@ public class XWalkViewShellActivity extends FragmentActivity
         mReloadButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActiveView == null) return;
-                mActiveView.reload();
+                if (mActiveView != null) mActiveView.reload();
             }
         });
     }
 
     private void initializeXWalkViewClients(XWalkView xwalkView) {
-        xwalkView.setXWalkWebChromeClient(new XWalkDefaultWebChromeClient(this, xwalkView) {
+        xwalkView.setResourceClient(new XWalkResourceClientImpl(this, xwalkView) {
+            @Override
             public void onProgressChanged(XWalkView view, int newProgress) {
                 if (view != mActiveView) return;
                 mToolbar.removeCallbacks(mClearProgressRunnable);
@@ -308,6 +316,10 @@ public class XWalkViewShellActivity extends FragmentActivity
                 }
                 mUrlTextView.setText(mActiveView.getUrl());
             }
+        });
+
+        xwalkView.setXWalkWebChromeClient(new XWalkWebChromeClient(this, xwalkView) {
+            @Override
             public void onReceivedTitle(XWalkView view, String title) {
                 mSectionsPagerAdapter.setPageTitle(view, title);
             }
@@ -364,6 +376,6 @@ public class XWalkViewShellActivity extends FragmentActivity
         }
         initializeXWalkViewClients(view);
         mProgressMap.put(view, 0);
-        view.enableRemoteDebugging();
+        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
     }
 }

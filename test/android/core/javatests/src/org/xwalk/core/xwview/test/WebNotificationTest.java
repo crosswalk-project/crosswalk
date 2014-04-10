@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,18 +17,19 @@ import android.util.Log;
 
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkClient;
+import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
-import org.xwalk.core.XWalkDefaultNotificationService;
+import org.xwalk.core.XWalkNotificationServiceImpl;
 
 /**
  * Test suite for web notification API.
  * This test will only cover notification.show() and notification.close().
  * The event handler will be covered in runtime level test. Because that
- * will need activity to participate. 
+ * will need activity to participate.
  */
 public class WebNotificationTest extends XWalkViewTestBase {
-    class TestXWalkNotificationService extends XWalkDefaultNotificationService {
+    class TestXWalkNotificationService extends XWalkNotificationServiceImpl {
         private Notification mNotification;
 
         public TestXWalkNotificationService(Context context, XWalkView view) {
@@ -64,25 +65,15 @@ public class WebNotificationTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
 
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
                 mNotificationService = new TestXWalkNotificationService(
                         getXWalkView().getActivity(), getXWalkView());
                 getXWalkView().setNotificationService(mNotificationService);
-                getXWalkView().enableRemoteDebugging();
+                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
             }
         });
     }

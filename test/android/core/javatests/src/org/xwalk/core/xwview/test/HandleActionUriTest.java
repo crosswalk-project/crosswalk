@@ -13,26 +13,14 @@ import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkDefaultNavigationHandler;
+import org.xwalk.core.XWalkNavigationHandlerImpl;
 
 /**
  * Test suite for handling ActionUri.
  */
 public class HandleActionUriTest extends XWalkViewTestBase {
 
-    class TestXWalkClient extends XWalkClient {
-        @Override
-        public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-            mTestContentsClient.onPageStarted(url);
-        }
-
-        @Override
-        public void onPageFinished(XWalkView view, String url) {
-            mTestContentsClient.didFinishLoad(url);
-        }
-    }
-
-    class TestXWalkNavigationHandler extends XWalkDefaultNavigationHandler {
+    class TestXWalkNavigationHandler extends XWalkNavigationHandlerImpl {
         private Intent intentToStart;
 
         public TestXWalkNavigationHandler(Context context) {
@@ -58,10 +46,10 @@ public class HandleActionUriTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
                 mNavigationHandler = new TestXWalkNavigationHandler(
                         getXWalkView().getActivity());
                 getXWalkView().setNavigationHandler(mNavigationHandler);

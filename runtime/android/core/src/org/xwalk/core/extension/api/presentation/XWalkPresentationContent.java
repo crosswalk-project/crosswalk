@@ -10,7 +10,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkClient;
+import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 
 /**
  * Represents the content to be presented on the secondary display.
@@ -24,15 +25,17 @@ public class XWalkPresentationContent {
     private Activity mActivity;
     private PresentationDelegate mDelegate;
 
-    private final XWalkClient mXWalkClient = new XWalkClient() {
+    private final XWalkResourceClient mXWalkResourceClient = new XWalkResourceClient() {
         @Override
-        public void onPageFinished(XWalkView view, String url) {
+        public void onLoadFinished(XWalkView view, String url) {
             mPresentationId = mContentView.getContentID();
             onContentLoaded();
         }
+    };
 
+    private final XWalkUIClient mXWalkUIClient = new XWalkUIClient() {
         @Override
-        public void onCloseWindow(XWalkView view) {
+        public void onJavascriptCloseWindow(XWalkView view) {
             // The content was closed already. Web need to invalidate the
             // presentation id now.
             mPresentationId = INVALID_PRESENTATION_ID;
@@ -49,9 +52,9 @@ public class XWalkPresentationContent {
     public void load(final String url) {
         if (mContentView == null) {
             mContentView = new XWalkView(mContext, mActivity);
-            mContentView.setXWalkClient(mXWalkClient);
+            mContentView.setResourceClient(mXWalkResourceClient);
         }
-        mContentView.loadUrl(url);
+        mContentView.load(url, null);
     }
 
     public int getPresentationId() {
@@ -63,17 +66,19 @@ public class XWalkPresentationContent {
     }
 
     public void close() {
-        mContentView.destroy();
+        mContentView.onDestroy();
         mPresentationId = INVALID_PRESENTATION_ID;
         mContentView = null;
     }
 
     public void onPause() {
-        mContentView.onPause();
+        mContentView.pauseTimers();
+        mContentView.onHide();
     }
 
     public void onResume() {
-        mContentView.onResume();
+        mContentView.resumeTimers();
+        mContentView.onShow();
     }
 
     private void onContentLoaded() {

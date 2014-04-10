@@ -1,5 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -25,21 +25,10 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
-
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
                 getXWalkView().getSettings().setJavaScriptEnabled(true);
                 getXWalkView().getSettings().setGeolocationEnabled(true);
             }
@@ -50,6 +39,10 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     @Feature({"GeolocationPermission"})
     public void testGeolocationPermissionShowPrompt() throws Throwable {
         class TestWebChromeClient extends XWalkWebChromeClient {
+            public TestWebChromeClient() {
+                super(getXWalkView().getContext(), getXWalkView());
+            }
+
             private int mCalledCount = 0;
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
@@ -64,19 +57,13 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
                 return mCalledCount;
             }
         }
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkWebChromeClient(new TestWebChromeClient());
-            }
-        });
+        final TestWebChromeClient testWebChromeClient = new TestWebChromeClient();
+        setXWalkWebChromeClient(testWebChromeClient);
         loadAssetFile("geolocation.html");
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                TestWebChromeClient chromeClient =
-                        (TestWebChromeClient)getXWalkView().getXWalkWebChromeClientForTest();
-                assertEquals(1, chromeClient.getCalledCount());
+                assertEquals(1, testWebChromeClient.getCalledCount());
             }
         });
     }
@@ -88,17 +75,16 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     @DisabledTest
     public void testGeolocationPermissionHidePrompt() throws Throwable {
         class TestWebChromeClient extends XWalkWebChromeClient {
+            public TestWebChromeClient() {
+                super(getXWalkView().getContext(), getXWalkView());
+            }
+
             @Override
             public void onGeolocationPermissionsHidePrompt() {
                 // Do something.
             }
         }
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkWebChromeClient(new TestWebChromeClient());
-            }
-        });
+        setXWalkWebChromeClient(new TestWebChromeClient());
         loadUrlSync("http://html5demos.com/geo");
     }
 }

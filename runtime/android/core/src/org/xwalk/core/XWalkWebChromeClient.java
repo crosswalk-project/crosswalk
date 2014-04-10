@@ -16,24 +16,41 @@
 
 package org.xwalk.core;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebStorage;
 import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
+import android.widget.FrameLayout;
 
+/**
+ * It's an internal legacy class which is to handle kinds of ui related
+ * callback functions. It only handles those which are not exposed to
+ * external users compared to XWalkUIClient.
+ */
 public class XWalkWebChromeClient {
+    private Context mContext;
+    private View mCustomXWalkView;
+    private XWalkView mXWalkView;
+    private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
+    private XWalkContentsClient mContentsClient = null;
+    private long XWALK_MAX_QUOTA = 1024 * 1024 * 100;
 
-    /**
-     * Tell the host application the current progress of loading a page.
-     * @param view The XWalkView that initiated the callback.
-     * @param newProgress Current page loading progress, represented by
-     *                    an integer between 0 and 100.
-     */
-    public void onProgressChanged(XWalkView view, int newProgress) {}
+    public XWalkWebChromeClient(Context context, XWalkView view) {
+        mContext = context;
+        mXWalkView = view;
+    }
+
+    void setContentsClient(XWalkContentsClient client) {
+        mContentsClient = client;
+    }
 
     /**
      * Notify the host application of a change in the document title.
@@ -77,7 +94,28 @@ public class XWalkWebChromeClient {
      * @param callback is the callback to be invoked if and when the view
      * is dismissed.
      */
-    public void onShowCustomView(View view, CustomViewCallback callback) {};
+    public void onShowCustomView(View view, CustomViewCallback callback) {
+        Activity activity = mXWalkView.getActivity();
+
+        if (mCustomXWalkView != null || activity == null) {
+            callback.onCustomViewHidden();
+            return;
+        }
+
+        mCustomXWalkView = view;
+        mCustomViewCallback = callback;
+
+        if (mContentsClient != null) {
+            mContentsClient.onToggleFullscreen(true);
+        }
+
+        // Add the video view to the activity's ContentView.
+        activity.getWindow().addContentView(view,
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER));
+    }
 
     /**
      * Notify the host application that the current page would
@@ -95,7 +133,23 @@ public class XWalkWebChromeClient {
      * Notify the host application that the current page would
      * like to hide its custom view.
      */
-    public void onHideCustomView() {}
+    public void onHideCustomView() {
+        Activity activity = mXWalkView.getActivity();
+
+        if (mCustomXWalkView == null || activity == null) return;
+
+        if (mContentsClient != null) {
+            mContentsClient.onToggleFullscreen(true);
+        }
+
+        // Remove video view from activity's ContentView.
+        FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
+        decor.removeView(mCustomXWalkView);
+        mCustomViewCallback.onCustomViewHidden();
+
+        mCustomXWalkView = null;
+        mCustomViewCallback = null;
+    }
 
     /**
      * Request the host application to create a new window. If the host
@@ -125,96 +179,6 @@ public class XWalkWebChromeClient {
      */
     public boolean onCreateWindow(XWalkView view, boolean isDialog,
             boolean isUserGesture, Message resultMsg) {
-        return false;
-    }
-
-    /**
-     * Request display and focus for this XWalkView. This may happen due to
-     * another XWalkView opening a link in this XWalkView and requesting that this
-     * XWalkView be displayed.
-     * @param view The XWalkView that needs to be focused.
-     */
-    public void onRequestFocus(XWalkView view) {}
-
-    /**
-     * Notify the host application to close the given XWalkView and remove it
-     * from the view system if necessary. At this point, WebCore has stopped
-     * any loading in this window and has removed any cross-scripting ability
-     * in javascript.
-     * @param window The XWalkView that needs to be closed.
-     */
-    public void onCloseWindow(XWalkView window) {}
-
-    /**
-     * Tell the client to display a javascript alert dialog.  If the client
-     * returns true, XWalkView will assume that the client will handle the
-     * dialog.  If the client returns false, it will continue execution.
-     * @param view The XWalkView that initiated the callback.
-     * @param url The url of the page requesting the dialog.
-     * @param message Message to be displayed in the window.
-     * @param result A JsResult to confirm that the user hit enter.
-     * @return boolean Whether the client will handle the alert dialog.
-     */
-    public boolean onJsAlert(XWalkView view, String url, String message,
-            JsResult result) {
-        return false;
-    }
-
-    /**
-     * Tell the client to display a confirm dialog to the user. If the client
-     * returns true, XWalkView will assume that the client will handle the
-     * confirm dialog and call the appropriate JsResult method. If the
-     * client returns false, a default value of false will be returned to
-     * javascript. The default behavior is to return false.
-     * @param view The XWalkView that initiated the callback.
-     * @param url The url of the page requesting the dialog.
-     * @param message Message to be displayed in the window.
-     * @param result A JsResult used to send the user's response to
-     *               javascript.
-     * @return boolean Whether the client will handle the confirm dialog.
-     */
-    public boolean onJsConfirm(XWalkView view, String url, String message,
-            JsResult result) {
-        return false;
-    }
-
-    /**
-     * Tell the client to display a prompt dialog to the user. If the client
-     * returns true, XWalkView will assume that the client will handle the
-     * prompt dialog and call the appropriate JsPromptResult method. If the
-     * client returns false, a default value of false will be returned to to
-     * javascript. The default behavior is to return false.
-     * @param view The XWalkView that initiated the callback.
-     * @param url The url of the page requesting the dialog.
-     * @param message Message to be displayed in the window.
-     * @param defaultValue The default value displayed in the prompt dialog.
-     * @param result A JsPromptResult used to send the user's reponse to
-     *               javascript.
-     * @return boolean Whether the client will handle the prompt dialog.
-     */
-    public boolean onJsPrompt(XWalkView view, String url, String message,
-            String defaultValue, JsPromptResult result) {
-        return false;
-    }
-
-    /**
-     * Tell the client to display a dialog to confirm navigation away from the
-     * current page. This is the result of the onbeforeunload javascript event.
-     * If the client returns true, XWalkView will assume that the client will
-     * handle the confirm dialog and call the appropriate JsResult method. If
-     * the client returns false, a default value of true will be returned to
-     * javascript to accept navigation away from the current page. The default
-     * behavior is to return false. Setting the JsResult to true will navigate
-     * away from the current page, false will cancel the navigation.
-     * @param view The XWalkView that initiated the callback.
-     * @param url The url of the page requesting the dialog.
-     * @param message Message to be displayed in the window.
-     * @param result A JsResult used to send the user's response to
-     *               javascript.
-     * @return boolean Whether the client will handle the confirm dialog.
-     */
-    public boolean onJsBeforeUnload(XWalkView view, String url, String message,
-            JsResult result) {
         return false;
     }
 
@@ -250,7 +214,7 @@ public class XWalkWebChromeClient {
             WebStorage.QuotaUpdater quotaUpdater) {
         // This default implementation passes the current quota back to WebCore.
         // WebCore will interpret this that new quota was declined.
-        quotaUpdater.updateQuota(quota);
+        quotaUpdater.updateQuota(XWALK_MAX_QUOTA);
     }
 
    /**
@@ -278,7 +242,7 @@ public class XWalkWebChromeClient {
     @SuppressWarnings("deprecation")
     public void onReachedMaxAppCacheSize(long requiredStorage, long quota,
             WebStorage.QuotaUpdater quotaUpdater) {
-        quotaUpdater.updateQuota(quota);
+        quotaUpdater.updateQuota(XWALK_MAX_QUOTA);
     }
 
     /**
@@ -293,7 +257,11 @@ public class XWalkWebChromeClient {
      *                 origin.
      */
     public void onGeolocationPermissionsShowPrompt(String origin,
-            XWalkGeolocationPermissions.Callback callback) {}
+            XWalkGeolocationPermissions.Callback callback) {
+        // Allow all origins for geolocation requests here for Crosswalk.
+        // TODO(yongsheng): Need to define a UI prompt?
+        callback.invoke(origin, true, false);
+    }
 
     /**
      * Notify the host application that a request for Geolocation permissions,
@@ -315,20 +283,6 @@ public class XWalkWebChromeClient {
      */
     public boolean onJsTimeout() {
         return true;
-    }
-
-    /**
-     * Tell the client to toggle fullscreen mode.
-     * @param enterFullscreen Whether enter or cancel fullscreen.
-     */
-    public void onToggleFullscreen(boolean enterFullscreen) {}
-
-    /**
-     * Query the fullscreen status of the client.
-     * @return boolean Whether the client is fullscreen.
-     */
-    public boolean isFullscreen() {
-        return false;
     }
 
     /**
@@ -387,20 +341,6 @@ public class XWalkWebChromeClient {
     }
 
     /**
-     * Tell the client to open a file chooser.
-     * @param uploadFile A ValueCallback to set the URI of the file to upload.
-     *      onReceiveValue must be called to wake up the thread.a
-     * @param acceptType The value of the 'accept' attribute of the input tag
-     *         associated with this file picker.
-     * @param capture The value of the 'capture' attribute of the input tag
-     *         associated with this file picker.
-     * @hide
-     */
-    public void openFileChooser(ValueCallback<Uri> uploadFile, String acceptType, String capture) {
-        uploadFile.onReceiveValue(null);
-    }
-
-    /**
      * Tell the client that the page being viewed is web app capable,
      * i.e. has specified the fullscreen-web-app-capable meta tag.
      * @hide
@@ -416,5 +356,4 @@ public class XWalkWebChromeClient {
      * @hide
      */
     public void setupAutoFill(Message msg) { }
-
 }

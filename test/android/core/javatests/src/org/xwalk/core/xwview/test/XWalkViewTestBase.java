@@ -1,5 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.webkit.WebResourceResponse;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -27,6 +28,9 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEval
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkContentsClient;
+import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkResourceClientImpl;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
@@ -36,16 +40,115 @@ public class XWalkViewTestBase
     protected final static int WAIT_TIMEOUT_SECONDS = 15;
     private final static String TAG = "XWalkViewTestBase";
     private XWalkView mXWalkView;
-    final TestXWalkViewContentsClient mTestContentsClient = new TestXWalkViewContentsClient();
+    final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
+
+    class TestXWalkClientBase extends XWalkClient {
+        TestHelperBridge mInnerContentsClient;
+        public TestXWalkClientBase(TestHelperBridge client) {
+            super(getXWalkView().getContext(), getXWalkView());
+            mInnerContentsClient = client;
+        }
+
+        @Override
+        public void onPageStarted(XWalkView view, String url) {
+            mInnerContentsClient.onPageStarted(url);
+        }
+
+        @Override
+        public void onPageFinished(XWalkView view, String url) {
+            mInnerContentsClient.onPageFinished(url);
+        }
+    }
+
+    class TestXWalkClient extends TestXWalkClientBase {
+        public TestXWalkClient() {
+            super(mTestHelperBridge);
+        }
+    }
+
+    class TestXWalkWebChromeClientBase extends XWalkWebChromeClient {
+        TestHelperBridge mInnerContentsClient;
+        public TestXWalkWebChromeClientBase(TestHelperBridge client) {
+            super(getXWalkView().getContext(), getXWalkView());
+            mInnerContentsClient = client;
+        }
+
+        @Override
+        public void onReceivedTitle(XWalkView view, String title) {
+            mInnerContentsClient.onTitleChanged(title);
+        }
+    }
+
+    class TestXWalkWebChromeClient extends TestXWalkWebChromeClientBase {
+        public TestXWalkWebChromeClient() {
+            super(mTestHelperBridge);
+        }
+    }
+
+    class TestXWalkResourceClientBase extends XWalkResourceClient {
+        TestHelperBridge mInnerContentsClient;
+        public TestXWalkResourceClientBase(TestHelperBridge client) {
+            mInnerContentsClient = client;
+        }
+
+        @Override
+        public void onLoadStarted(XWalkView view, String url) {
+            mTestHelperBridge.onLoadStarted(url);
+        }
+
+        @Override
+        public void onReceivedLoadError(XWalkView view, int errorCode, String description, String failingUrl) {
+            mTestHelperBridge.onReceivedLoadError(errorCode, description, failingUrl);
+        }
+
+        @Override
+        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
+                String url) {
+            return mTestHelperBridge.shouldInterceptLoadRequest(url);
+        }
+    }
+
+    class TestXWalkResourceClient extends TestXWalkResourceClientBase {
+        public TestXWalkResourceClient() {
+            super(mTestHelperBridge);
+        }
+    }
+
+    void setXWalkClient(final XWalkClient client) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkClient(client);
+            }
+        });
+    }
+
+    void setXWalkWebChromeClient(final XWalkWebChromeClient client) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkWebChromeClient(client);
+            }
+        });
+    }
+
+    void setResourceClient(final XWalkResourceClient client) {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setResourceClient(client);
+            }
+        });
+    }
 
     static class ViewPair {
         private final XWalkContent content0;
-        private final TestXWalkViewContentsClient client0;
+        private final TestHelperBridge client0;
         private final XWalkContent content1;
-        private final TestXWalkViewContentsClient client1;
+        private final TestHelperBridge client1;
 
-        ViewPair(XWalkContent content0, TestXWalkViewContentsClient client0,
-                XWalkContent content1, TestXWalkViewContentsClient client1) {
+        ViewPair(XWalkContent content0, TestHelperBridge client0,
+                XWalkContent content1, TestHelperBridge client1) {
             this.content0 = content0;
             this.client0 = client0;
             this.content1 = content1;
@@ -56,7 +159,7 @@ public class XWalkViewTestBase
             return content0;
         }
 
-        TestXWalkViewContentsClient getClient0() {
+        TestHelperBridge getClient0() {
             return client0;
         }
 
@@ -64,7 +167,7 @@ public class XWalkViewTestBase
             return content1;
         }
 
-        TestXWalkViewContentsClient getClient1() {
+        TestHelperBridge getClient1() {
             return client1;
         }
     }
@@ -84,7 +187,7 @@ public class XWalkViewTestBase
             public void run() {
                 mXWalkView = new XWalkView(activity, activity);
                 getActivity().addView(mXWalkView);
-                mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestContentsClient);
+                // mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestHelperBridge);
             }
         });
     }
@@ -111,7 +214,7 @@ public class XWalkViewTestBase
     }
 
     protected void loadUrlSync(final String url) throws Exception {
-        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
         loadUrlAsync(url);
 
@@ -123,14 +226,14 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView.loadUrl(url);
+                mXWalkView.load(url, null);
             }
         });
     }
 
     protected void loadDataSync(final String data, final String mimeType,
             final boolean isBase64Encoded) throws Exception {
-        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
         loadDataAsync(data, mimeType, isBase64Encoded);
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
@@ -150,7 +253,7 @@ public class XWalkViewTestBase
     }
 
     protected void loadUrlSyncByContent(final XWalkContent xWalkContent,
-            final TestXWalkViewContentsClient contentsClient,
+            final TestHelperBridge contentsClient,
             final String url) throws Exception {
         CallbackHelper pageFinishedHelper = contentsClient.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
@@ -225,9 +328,9 @@ public class XWalkViewTestBase
 
     protected XWalkView createXWalkViewContainerOnMainSync(
             final Context context,
-            final XWalkContentsClient contentClient,
-            final XWalkClient xWalkClient,
-            final XWalkWebChromeClient xWlkWebChromeClient) throws Exception {
+            final XWalkClient client,
+            final XWalkResourceClient resourceClient,
+            final XWalkWebChromeClient webChromeClient) throws Exception {
         final AtomicReference<XWalkView> xWalkViewContainer =
                 new AtomicReference<XWalkView>();
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -235,9 +338,9 @@ public class XWalkViewTestBase
             public void run() {
                 xWalkViewContainer.set(new XWalkView(context, getActivity()));
                 getActivity().addView(xWalkViewContainer.get());
-                xWalkViewContainer.get().getXWalkViewContentForTest().installWebContentsObserverForTest(contentClient);
-                xWalkViewContainer.get().setXWalkClient(xWalkClient);
-                xWalkViewContainer.get().setXWalkWebChromeClient(xWlkWebChromeClient);
+                xWalkViewContainer.get().setXWalkClient(client);
+                xWalkViewContainer.get().setResourceClient(resourceClient);
+                xWalkViewContainer.get().setXWalkWebChromeClient(webChromeClient);
             }
         });
 
@@ -257,14 +360,19 @@ public class XWalkViewTestBase
         return xWalkContent.get();
     }
 
-    protected ViewPair createViewsOnMainSync(final TestXWalkViewContentsClient contentClient0,
-            final TestXWalkViewContentsClient contentClient1, final XWalkClient viewClient0,
-                    final XWalkClient viewClient1, final XWalkWebChromeClient chromeClient0,
-                            final XWalkWebChromeClient chromeClient1, final Context context) throws Throwable {
-        final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context, contentClient0,
-                viewClient0, chromeClient0);
-        final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context, contentClient1,
-                viewClient1, chromeClient1);
+    protected ViewPair createViewsOnMainSync(final TestHelperBridge helperBridge0,
+                                             final TestHelperBridge helperBridge1,
+                                             final XWalkClient client0,
+                                             final XWalkClient client1,
+                                             final XWalkResourceClient resourceClient0,
+                                             final XWalkResourceClient resourceClient1,
+                                             final XWalkWebChromeClient chromeClient0,
+                                             final XWalkWebChromeClient chromeClient1,
+                                             final Context context) throws Throwable {
+        final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context,
+                client0, resourceClient0, chromeClient0);
+        final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context,
+                client1, resourceClient1, chromeClient1);
         final AtomicReference<ViewPair> viewPair = new AtomicReference<ViewPair>();
 
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -272,7 +380,7 @@ public class XWalkViewTestBase
             public void run() {
                 XWalkContent content0 = walkView0.getXWalkViewContentForTest();
                 XWalkContent content1 = walkView1.getXWalkViewContentForTest();
-                viewPair.set(new ViewPair(content0, contentClient0, content1, contentClient1));
+                viewPair.set(new ViewPair(content0, helperBridge0, content1, helperBridge1));
             }
         });
 
@@ -285,7 +393,7 @@ public class XWalkViewTestBase
     }
 
     public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
-        CallbackHelper getTitleHelper = mTestContentsClient.getOnTitleUpdatedHelper();
+        CallbackHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
         int currentCallCount = getTitleHelper.getCallCount();
         String fileContent = getFileContent(fileName);
 
@@ -300,7 +408,7 @@ public class XWalkViewTestBase
     }
 
     protected void runTestWaitPageFinished(Runnable runnable) throws Exception{
-        CallbackHelper pageFinishedHelper = mTestContentsClient.getOnPageFinishedHelper();
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
         runnable.run();
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
@@ -328,7 +436,8 @@ public class XWalkViewTestBase
                 getInstrumentation().runOnMainSync(new Runnable() {
                     @Override
                     public void run() {
-                        mXWalkView.goBack();
+                        mXWalkView.getNavigationHistory().navigate(
+                            XWalkNavigationHistory.Direction.BACKWARD, 1);
                     }
                 });
             }
@@ -342,7 +451,8 @@ public class XWalkViewTestBase
                 getInstrumentation().runOnMainSync(new Runnable() {
                     @Override
                     public void run() {
-                        mXWalkView.goForward();
+                        mXWalkView.getNavigationHistory().navigate(
+                            XWalkNavigationHistory.Direction.FORWARD, 1);
                     }
                 });
             }
@@ -353,7 +463,7 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView.clearHistory();
+                mXWalkView.getNavigationHistory().clear();
             }
         });
     }
@@ -362,7 +472,7 @@ public class XWalkViewTestBase
         return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
             @Override
             public Boolean call() {
-                return mXWalkView.canGoBack();
+                return mXWalkView.getNavigationHistory().canGoBack();
             }
         });
     }
@@ -371,13 +481,14 @@ public class XWalkViewTestBase
         return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
             @Override
             public Boolean call() {
-                return mXWalkView.canGoForward();
+                return mXWalkView.getNavigationHistory().canGoForward();
             }
         });
     }
 
     protected String executeJavaScriptAndWaitForResult(final String code) throws Exception {
-        final OnEvaluateJavaScriptResultHelper helper = mTestContentsClient.getOnEvaluateJavaScriptResultHelper();
+        final OnEvaluateJavaScriptResultHelper helper =
+                mTestHelperBridge.getOnEvaluateJavaScriptResultHelper();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -388,5 +499,26 @@ public class XWalkViewTestBase
         helper.waitUntilHasValue();
         Assert.assertTrue("Failed to retrieve JavaScript evaluation results.", helper.hasValue());
         return helper.getJsonResultAndClear();
+    }
+
+    protected ViewPair createViews() throws Throwable {
+        TestHelperBridge helperBridge0 = new TestHelperBridge();
+        TestHelperBridge helperBridge1 = new TestHelperBridge();
+        TestXWalkClientBase viewClient0 = new TestXWalkClientBase(helperBridge0);
+        TestXWalkClientBase viewClient1 = new TestXWalkClientBase(helperBridge1);
+        TestXWalkWebChromeClientBase chromeClient0 =
+                new TestXWalkWebChromeClientBase(helperBridge0);
+        TestXWalkWebChromeClientBase chromeClient1 =
+                new TestXWalkWebChromeClientBase(helperBridge1);
+        TestXWalkResourceClientBase resourceClient0 =
+                new TestXWalkResourceClientBase(helperBridge0);
+        TestXWalkResourceClientBase resourceClient1 =
+                new TestXWalkResourceClientBase(helperBridge1);
+        ViewPair viewPair =
+                createViewsOnMainSync(helperBridge0, helperBridge1, viewClient0, viewClient1,
+                        resourceClient0, resourceClient1, chromeClient0, chromeClient1,
+                                getActivity());
+
+        return viewPair;
     }
 }

@@ -16,8 +16,8 @@ import org.chromium.components.navigation_interception.NavigationParams;
 import org.xwalk.core.XWalkNavigationHandler;
 
 // TODO(yongsheng): remove public modifier.
-public class XWalkDefaultNavigationHandler implements XWalkNavigationHandler {
-    private static final String TAG = "XWalkDefaultNavigationHandler";
+public class XWalkNavigationHandlerImpl implements XWalkNavigationHandler {
+    private static final String TAG = "XWalkNavigationHandlerImpl";
 
     // WTAI prefix.
     private static final String PROTOCOL_WTAI_PREFIX = "wtai://";
@@ -32,7 +32,7 @@ public class XWalkDefaultNavigationHandler implements XWalkNavigationHandler {
 
     private Context mContext;
 
-    public XWalkDefaultNavigationHandler(Context context) {
+    public XWalkNavigationHandlerImpl(Context context) {
         mContext = context;
     }
 

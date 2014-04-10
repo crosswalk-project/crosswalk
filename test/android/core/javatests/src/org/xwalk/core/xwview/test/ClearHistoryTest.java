@@ -21,18 +21,7 @@ public class ClearHistoryTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-                mTestContentsClient.onPageStarted(url);
-            }
-
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
-        getXWalkView().setXWalkClient(new TestXWalkClient());
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     // TODO(guangzhen): Since the device issue, it can not access the network,

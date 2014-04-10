@@ -5,11 +5,17 @@
 
 package org.xwalk.core.xwview.test;
 
-import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 import android.util.Pair;
 import android.webkit.WebResourceResponse;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.TestFileUtil;
@@ -18,128 +24,25 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnRece
 import org.chromium.net.test.util.TestWebServer;
 
 import org.xwalk.core.xwview.test.util.CommonResources;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import org.xwalk.core.XWalkResourceClient;
 
 /**
- * Test case for XWalkClient.shouldInterceptRequest callback
+ * Test case for XWalkResourceClient.shouldInterceptRequest callback
  *
  * Note the major part of this file is migrated from android_webview/.
  */
-public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
+public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
 
     /**
-     * Customized XWalkClient implementation for shouldInterceptRequest
+     * Customized XWalkResourceClient implementation for shouldInterceptRequest
      */
-    private class TestXWalkClient extends XWalkClient {
-
-        public class ShouldInterceptRequestHelper extends CallbackHelper {
-            private List<String> mShouldInterceptRequestUrls = new ArrayList<String>();
-            private ConcurrentHashMap<String, WebResourceResponse> mReturnValuesByUrls
-                = new ConcurrentHashMap<String, WebResourceResponse>();
-            // This is read from the IO thread, so needs to be marked volatile.
-            private volatile WebResourceResponse mResourceResponseReturnValue = null;
-            private String mUrlToWaitFor;
-
-            void setReturnValue(WebResourceResponse value) {
-                mResourceResponseReturnValue = value;
-            }
-
-            void setReturnValueForUrl(String url, WebResourceResponse value) {
-                mReturnValuesByUrls.put(url, value);
-            }
-
-            public void setUrlToWaitFor(String url) {
-                mUrlToWaitFor = url;
-            }
-
-            public List<String> getUrls() {
-                assert getCallCount() > 0;
-                return mShouldInterceptRequestUrls;
-            }
-
-            public WebResourceResponse getReturnValue(String url) {
-                WebResourceResponse value = mReturnValuesByUrls.get(url);
-                if (value != null) return value;
-                return mResourceResponseReturnValue;
-            }
-
-            public void notifyCalled(String url) {
-                if (mUrlToWaitFor == null || mUrlToWaitFor.equals(url)) {
-                    mShouldInterceptRequestUrls.add(url);
-                    notifyCalled();
-                }
-            }
-        }
-
-        public class OnLoadResourceHelper extends CallbackHelper {
-            private String mUrl;
-
-            public String getUrl() {
-                assert getCallCount() > 0;
-                return mUrl;
-            }
-
-            public void notifyCalled(String url) {
-                mUrl = url;
-                notifyCalled();
-            }
-        }
-
+    private class TestXWalkResourceClient1 extends XWalkViewTestBase.TestXWalkResourceClient {
         @Override
-        public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-            mTestContentsClient.onPageStarted(url);
+        public WebResourceResponse shouldInterceptLoadRequest(XWalkView view, String url) {
+            return mTestHelperBridge.shouldInterceptLoadRequest(url);
         }
 
-        @Override
-        public void onPageFinished(XWalkView view, String url) {
-            mTestContentsClient.didFinishLoad(url);
-        }
-
-        @Override
-        public void onReceivedError(XWalkView view, int errorCode,
-                String description, String failingUrl) {
-            mTestContentsClient.onReceivedError(errorCode, description, failingUrl);
-        }
-
-        @Override
-        public WebResourceResponse shouldInterceptRequest(XWalkView view, String url) {
-            WebResourceResponse response = mShouldInterceptRequestHelper.getReturnValue(url);
-            mShouldInterceptRequestHelper.notifyCalled(url);
-            return response;
-        }
-
-        @Override
-        public void onLoadResource(XWalkView view, String url) {
-            super.onLoadResource(view, url);
-            mOnLoadResourceHelper.notifyCalled(url);
-        }
-
-        private ShouldInterceptRequestHelper mShouldInterceptRequestHelper;
-        private OnLoadResourceHelper mOnLoadResourceHelper;
-
-        public TestXWalkClient() {
-            mShouldInterceptRequestHelper = new ShouldInterceptRequestHelper();
-            mOnLoadResourceHelper = new OnLoadResourceHelper();
-        }
-
-        public ShouldInterceptRequestHelper getShouldInterceptRequestHelper() {
-            return mShouldInterceptRequestHelper;
-        }
-
-        public OnLoadResourceHelper getOnLoadResourceHelper() {
-            return mOnLoadResourceHelper;
-        }
     }
 
     private String addPageToTestServer(TestWebServer webServer, String httpPath, String html) {
@@ -163,21 +66,22 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     private TestWebServer mWebServer;
-    private TestXWalkClient mTestXWalkClient;
-    private TestXWalkClient.ShouldInterceptRequestHelper mShouldInterceptRequestHelper;
-    private TestXWalkClient.OnLoadResourceHelper mOnLoadResourceHelper;
+    private TestXWalkResourceClient1 mTestXWalkResourceClient;
+    private TestHelperBridge.ShouldInterceptLoadRequestHelper mShouldInterceptLoadRequestHelper;
+    private TestHelperBridge.OnLoadStartedHelper mOnLoadStartedHelper;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mTestXWalkClient = new TestXWalkClient();
-                getXWalkView().setXWalkClient(mTestXWalkClient);
-                mShouldInterceptRequestHelper = mTestXWalkClient.getShouldInterceptRequestHelper();
-                mOnLoadResourceHelper = mTestXWalkClient.getOnLoadResourceHelper();
+                mTestXWalkResourceClient = new TestXWalkResourceClient1();
+                getXWalkView().setResourceClient(mTestXWalkResourceClient);
+                mShouldInterceptLoadRequestHelper = mTestHelperBridge.getShouldInterceptLoadRequestHelper();
+                mOnLoadStartedHelper = mTestHelperBridge.getOnLoadStartedHelper();
             }
         });
 
@@ -191,58 +95,58 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledWithCorrectUrl() throws Throwable {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
 
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
-        int onPageFinishedCallCount = mTestContentsClient.getOnPageFinishedHelper().getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
+        int onPageFinishedCallCount = mTestHelperBridge.getOnPageFinishedHelper().getCallCount();
 
         loadUrlAsync(aboutPageUrl);
 
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
-        assertEquals(1, mShouldInterceptRequestHelper.getUrls().size());
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
+        assertEquals(1, mShouldInterceptLoadRequestHelper.getUrls().size());
         assertEquals(aboutPageUrl,
-                mShouldInterceptRequestHelper.getUrls().get(0));
+                mShouldInterceptLoadRequestHelper.getUrls().get(0));
 
-        mTestContentsClient.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
+        mTestHelperBridge.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
         assertEquals(CommonResources.ABOUT_TITLE, getTitleOnUiThread());
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testOnLoadResourceCalledWithCorrectUrl() throws Throwable {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
-        int callCount = mOnLoadResourceHelper.getCallCount();
+        int callCount = mOnLoadStartedHelper.getCallCount();
 
         loadUrlAsync(aboutPageUrl);
 
-        mOnLoadResourceHelper.waitForCallback(callCount);
-        assertEquals(aboutPageUrl, mOnLoadResourceHelper.getUrl());
+        mOnLoadStartedHelper.waitForCallback(callCount);
+        assertEquals(aboutPageUrl, mOnLoadStartedHelper.getUrl());
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testDoesNotCrashOnInvalidData() throws Throwable {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse("text/html", "UTF-8", null));
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         loadUrlAsync(aboutPageUrl);
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse(null, null, new ByteArrayInputStream(new byte[0])));
-        callCount = mShouldInterceptRequestHelper.getCallCount();
+        callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         loadUrlAsync(aboutPageUrl);
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse(null, null, null));
-        callCount = mShouldInterceptRequestHelper.getCallCount();
+        callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         loadUrlAsync(aboutPageUrl);
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
     }
 
     private static class EmptyInputStream extends InputStream {
@@ -275,19 +179,19 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testDoesNotCrashOnEmptyStream() throws Throwable {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse("text/html", "UTF-8", new EmptyInputStream()));
-        int shouldInterceptRequestCallCount = mShouldInterceptRequestHelper.getCallCount();
-        int onPageFinishedCallCount = mTestContentsClient.getOnPageFinishedHelper().getCallCount();
+        int shouldInterceptRequestCallCount = mShouldInterceptLoadRequestHelper.getCallCount();
+        int onPageFinishedCallCount = mTestHelperBridge.getOnPageFinishedHelper().getCallCount();
 
         loadUrlAsync(aboutPageUrl);
 
-        mShouldInterceptRequestHelper.waitForCallback(shouldInterceptRequestCallCount);
-        mTestContentsClient.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
+        mShouldInterceptLoadRequestHelper.waitForCallback(shouldInterceptRequestCallCount);
+        mTestHelperBridge.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
     }
 
     private static class SlowWebResourceResponse extends WebResourceResponse {
@@ -319,7 +223,7 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testHttpStatusField() throws Throwable {
         final String syncGetUrl = mWebServer.getResponseUrl("/intercept_me");
         final String syncGetJs =
@@ -341,11 +245,11 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
         loadUrlSync(aboutPageUrl);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse("text/html", "UTF-8", null));
         assertEquals("404", executeJavaScriptAndWaitForResult(syncGetJs));
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse("text/html", "UTF-8", new EmptyInputStream()));
         assertEquals("200", executeJavaScriptAndWaitForResult(syncGetJs));
     }
@@ -357,12 +261,12 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCanInterceptMainFrame() throws Throwable {
-        final String expectedTitle = "testShouldInterceptRequestCanInterceptMainFrame";
+        final String expectedTitle = "testShouldInterceptLoadRequestCanInterceptMainFrame";
         final String expectedPage = makePageWithTitle(expectedTitle);
 
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 stringToWebResourceResponse(expectedPage));
 
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
@@ -374,24 +278,24 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testDoesNotChangeReportedUrl() throws Throwable {
-        mShouldInterceptRequestHelper.setReturnValue(
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 stringToWebResourceResponse(makePageWithTitle("some title")));
 
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
 
         loadUrlSync(aboutPageUrl);
 
-        assertEquals(aboutPageUrl, mTestContentsClient.getOnPageFinishedHelper().getUrl());
-        assertEquals(aboutPageUrl, mTestContentsClient.getOnPageStartedHelper().getUrl());
+        assertEquals(aboutPageUrl, mTestHelperBridge.getOnPageFinishedHelper().getUrl());
+        assertEquals(aboutPageUrl, mTestHelperBridge.getOnPageStartedHelper().getUrl());
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testNullInputStreamCausesErrorForMainFrame() throws Throwable {
-        final OnReceivedErrorHelper onReceivedErrorHelper = mTestContentsClient.getOnReceivedErrorHelper();
-        mShouldInterceptRequestHelper.setReturnValue(
+        final OnReceivedErrorHelper onReceivedErrorHelper = mTestHelperBridge.getOnReceivedErrorHelper();
+        mShouldInterceptLoadRequestHelper.setReturnValue(
                 new WebResourceResponse("text/html", "UTF-8", null));
 
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
@@ -402,7 +306,7 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForImage() throws Throwable {
         final String imagePath = "/" + CommonResources.FAVICON_FILENAME;
         mWebServer.setResponseBase64(imagePath,
@@ -411,27 +315,27 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
             addPageToTestServer(mWebServer, "/page_with_image.html",
                     CommonResources.getOnImageLoadedHtml(CommonResources.FAVICON_FILENAME));
 
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         loadUrlSync(pageWithImage);
-        mShouldInterceptRequestHelper.waitForCallback(callCount, 2);
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount, 2);
 
-        assertEquals(2, mShouldInterceptRequestHelper.getUrls().size());
-        assertTrue(mShouldInterceptRequestHelper.getUrls().get(1).endsWith(
+        assertEquals(2, mShouldInterceptLoadRequestHelper.getUrls().size());
+        assertTrue(mShouldInterceptLoadRequestHelper.getUrls().get(1).endsWith(
                 CommonResources.FAVICON_FILENAME));
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testOnReceivedErrorCallback() throws Throwable {
-        final OnReceivedErrorHelper onReceivedErrorHelper = mTestContentsClient.getOnReceivedErrorHelper();
-        mShouldInterceptRequestHelper.setReturnValue(new WebResourceResponse(null, null, null));
+        final OnReceivedErrorHelper onReceivedErrorHelper = mTestHelperBridge.getOnReceivedErrorHelper();
+        mShouldInterceptLoadRequestHelper.setReturnValue(new WebResourceResponse(null, null, null));
         int onReceivedErrorHelperCallCount = onReceivedErrorHelper.getCallCount();
         loadUrlSync("foo://bar");
         onReceivedErrorHelper.waitForCallback(onReceivedErrorHelperCallCount, 1);
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testNoOnReceivedErrorCallback() throws Throwable {
         final String imagePath = "/" + CommonResources.FAVICON_FILENAME;
         final String imageUrl = mWebServer.setResponseBase64(imagePath,
@@ -439,8 +343,8 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
         final String pageWithImage =
                 addPageToTestServer(mWebServer, "/page_with_image.html",
                         CommonResources.getOnImageLoadedHtml(CommonResources.FAVICON_FILENAME));
-        final OnReceivedErrorHelper onReceivedErrorHelper = mTestContentsClient.getOnReceivedErrorHelper();
-        mShouldInterceptRequestHelper.setReturnValueForUrl(
+        final OnReceivedErrorHelper onReceivedErrorHelper = mTestHelperBridge.getOnReceivedErrorHelper();
+        mShouldInterceptLoadRequestHelper.setReturnValueForUrl(
                 imageUrl, new WebResourceResponse(null, null, null));
         int onReceivedErrorHelperCallCount = onReceivedErrorHelper.getCallCount();
         loadUrlSync(pageWithImage);
@@ -448,58 +352,58 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForIframe() throws Throwable {
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
         final String pageWithIframe = addPageToTestServer(mWebServer, "/page_with_iframe.html",
                 CommonResources.makeHtmlPageFrom("",
                     "<iframe src=\"" + aboutPageUrl + "\"/>"));
 
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         // These callbacks can race with favicon.ico callback.
-        mShouldInterceptRequestHelper.setUrlToWaitFor(aboutPageUrl);
+        mShouldInterceptLoadRequestHelper.setUrlToWaitFor(aboutPageUrl);
         loadUrlSync(pageWithIframe);
 
-        mShouldInterceptRequestHelper.waitForCallback(callCount, 1);
-        assertEquals(1, mShouldInterceptRequestHelper.getUrls().size());
-        assertEquals(aboutPageUrl, mShouldInterceptRequestHelper.getUrls().get(0));
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount, 1);
+        assertEquals(1, mShouldInterceptLoadRequestHelper.getUrls().size());
+        assertEquals(aboutPageUrl, mShouldInterceptLoadRequestHelper.getUrls().get(0));
     }
 
     private void calledForUrlTemplate(final String url) throws Exception {
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
-        int onPageStartedCallCount = mTestContentsClient.getOnPageStartedHelper().getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
+        int onPageStartedCallCount = mTestHelperBridge.getOnPageStartedHelper().getCallCount();
         loadUrlAsync(url);
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
-        assertEquals(url, mShouldInterceptRequestHelper.getUrls().get(0));
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
+        assertEquals(url, mShouldInterceptLoadRequestHelper.getUrls().get(0));
 
-        mTestContentsClient.getOnPageStartedHelper().waitForCallback(onPageStartedCallCount);
+        mTestHelperBridge.getOnPageStartedHelper().waitForCallback(onPageStartedCallCount);
         assertEquals(onPageStartedCallCount + 1,
-                mTestContentsClient.getOnPageStartedHelper().getCallCount());
+                mTestHelperBridge.getOnPageStartedHelper().getCallCount());
     }
 
     private void notCalledForUrlTemplate(final String url) throws Exception {
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
         loadUrlSync(url);
         // The intercepting must happen before onPageFinished. Since the IPC messages from the
         // renderer should be delivered in order waiting for onPageFinished is sufficient to
         // 'flush' any pending interception messages.
-        assertEquals(callCount, mShouldInterceptRequestHelper.getCallCount());
+        assertEquals(callCount, mShouldInterceptLoadRequestHelper.getCallCount());
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForUnsupportedSchemes() throws Throwable {
         calledForUrlTemplate("foobar://resource/1");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForNonexistentFiles() throws Throwable {
         calledForUrlTemplate("file:///somewhere/something");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForExistingFiles() throws Throwable {
         final String tmpDir = getInstrumentation().getTargetContext().getCacheDir().getPath();
         final String fileName = tmpDir + "/testfile.html";
@@ -508,44 +412,44 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
         TestFileUtil.createNewHtmlFile(fileName, title, "");
         final String existingFileUrl = "file://" + fileName;
 
-        int callCount = mShouldInterceptRequestHelper.getCallCount();
-        int onPageFinishedCallCount = mTestContentsClient.getOnPageFinishedHelper().getCallCount();
+        int callCount = mShouldInterceptLoadRequestHelper.getCallCount();
+        int onPageFinishedCallCount = mTestHelperBridge.getOnPageFinishedHelper().getCallCount();
         loadUrlAsync(existingFileUrl);
-        mShouldInterceptRequestHelper.waitForCallback(callCount);
-        assertEquals(existingFileUrl, mShouldInterceptRequestHelper.getUrls().get(0));
+        mShouldInterceptLoadRequestHelper.waitForCallback(callCount);
+        assertEquals(existingFileUrl, mShouldInterceptLoadRequestHelper.getUrls().get(0));
 
-        mTestContentsClient.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
+        mTestHelperBridge.getOnPageFinishedHelper().waitForCallback(onPageFinishedCallCount);
         assertEquals(title, getTitleOnUiThread());
         assertEquals(onPageFinishedCallCount + 1,
-                mTestContentsClient.getOnPageFinishedHelper().getCallCount());
+                mTestHelperBridge.getOnPageFinishedHelper().getCallCount());
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testNotCalledForExistingResource() throws Throwable {
         notCalledForUrlTemplate("file:///android_res/raw/resource_file.html");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForNonexistentResource() throws Throwable {
         calledForUrlTemplate("file:///android_res/raw/no_file.html");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testNotCalledForExistingAsset() throws Throwable {
         notCalledForUrlTemplate("file:///android_asset/www/index.html");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForNonexistentAsset() throws Throwable {
         calledForUrlTemplate("file:///android_res/raw/no_file.html");
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testNotCalledForExistingContentUrl() throws Throwable {
         final String contentResourceName = "target";
         final String existingContentUrl = TestContentProvider.createContentUrl(contentResourceName);
@@ -560,7 +464,7 @@ public class XWalkClientShouldInterceptRequestTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkClientShouldInterceptRequest"})
+    @Feature({"ShouldInterceptLoadRequest"})
     public void testCalledForNonexistentContentUrl() throws Throwable {
         calledForUrlTemplate("content://org.xwalk.core.test.NoSuchProvider/foo");
     }

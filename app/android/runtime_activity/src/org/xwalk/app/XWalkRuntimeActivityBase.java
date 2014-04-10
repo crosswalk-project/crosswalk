@@ -132,7 +132,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             }
             if (mRemoteDebugging) {
                 String mPackageName = getApplicationContext().getPackageName();
-                String result = mRuntimeView.enableRemoteDebugging("", mPackageName);
+                mRuntimeView.enableRemoteDebugging("", mPackageName);
             } else {
                 mRuntimeView.disableRemoteDebugging();
             }

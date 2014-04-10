@@ -21,33 +21,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests for the XWalkClient.onPageFinished() method.
  */
-public class XWalkClientOnPageFinishedTest extends XWalkViewTestBase {
+public class OnPageFinishedTest extends XWalkViewTestBase {
     private static final long WAIT_TIMEOUT_MS = scaleTimeout(2000);
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
-
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkClient(new TestXWalkClient());
-            }
-        });
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
+        setResourceClient(new XWalkViewTestBase.TestXWalkResourceClient());
     }
 
     @MediumTest
-    @Feature({"XWalkClientOnPageFinishedTest"})
+    @Feature({"OnPageFinishedTest"})
     public void testOnPageFinishedPassesCorrectUrl() throws Throwable {
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
-                mTestContentsClient.getOnPageFinishedHelper();
+                mTestHelperBridge.getOnPageFinishedHelper();
 
         String html = "<html><body>Simple page.</body></html>";
         int currentCallCount = onPageFinishedHelper.getCallCount();
@@ -58,12 +47,12 @@ public class XWalkClientOnPageFinishedTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"XWalkClientOnPageFinishedTest"})
+    @Feature({"OnPageFinishedTest"})
     public void testOnPageFinishedCalledAfterError() throws Throwable {
         TestCallbackHelperContainer.OnReceivedErrorHelper onReceivedErrorHelper =
-                mTestContentsClient.getOnReceivedErrorHelper();
+                mTestHelperBridge.getOnReceivedErrorHelper();
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
-                mTestContentsClient.getOnPageFinishedHelper();
+                mTestHelperBridge.getOnPageFinishedHelper();
 
         assertEquals(0, onReceivedErrorHelper.getCallCount());
 
@@ -84,10 +73,10 @@ public class XWalkClientOnPageFinishedTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"XWalkClientOnPageFinishedTest"})
+    @Feature({"OnPageFinishedTest"})
     public void testOnPageFinishedNotCalledForValidSubresources() throws Throwable {
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
-                mTestContentsClient.getOnPageFinishedHelper();
+                mTestHelperBridge.getOnPageFinishedHelper();
 
         TestWebServer webServer = null;
         try {
@@ -124,10 +113,10 @@ public class XWalkClientOnPageFinishedTest extends XWalkViewTestBase {
     }
 
     @MediumTest
-    @Feature({"XWalkClientOnPageFinishedTest"})
+    @Feature({"OnPageFinishedTest"})
     public void testOnPageFinishedNotCalledForJavaScriptUrl() throws Throwable {
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
-                mTestContentsClient.getOnPageFinishedHelper();
+                mTestHelperBridge.getOnPageFinishedHelper();
 
         String html = "<html><body>Simple page.</body></html>";
         int currentCallCount = onPageFinishedHelper.getCallCount();

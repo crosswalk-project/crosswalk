@@ -17,7 +17,6 @@ import org.chromium.content.browser.NavigationEntry;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.xwview.test.util.CommonResources;
-import org.xwalk.core.WebBackForwardList;
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
@@ -49,20 +48,13 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        class TestXWalkClient extends XWalkClient {
-            @Override
-            public void onPageFinished(XWalkView view, String url) {
-                mTestContentsClient.didFinishLoad(url);
-            }
-        }
-
         final Activity activity = getActivity();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mXWalkView = getXWalkView();
                 mRestoreXWalkView = new XWalkView(activity, activity);
-                mXWalkView.setXWalkClient(new TestXWalkClient());
+                mXWalkView.setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
                 mXWalkContent = mXWalkView.getXWalkViewContentForTest();
             }
         });
@@ -119,8 +111,8 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
             @Override
             public void run() {
                 Bundle bundle = new Bundle();
-                WebBackForwardList list = mXWalkView.saveState(bundle);
-                list = mRestoreXWalkView.restoreState(bundle);
+                mXWalkView.saveState(bundle);
+                mRestoreXWalkView.restoreState(bundle);
             }
         });
     }
@@ -157,12 +149,7 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
         boolean result = runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                WebBackForwardList list = mXWalkView.restoreState(invalidState);
-                if (list != null) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return mXWalkView.restoreState(invalidState);
             }
         });
         assertFalse(result);
@@ -175,12 +162,7 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
         boolean result = runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                WebBackForwardList list = mXWalkView.restoreState(state);
-                if (list != null) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return mXWalkView.restoreState(state);
             }
         });
         assertFalse(result);

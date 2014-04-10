@@ -158,10 +158,10 @@ public class XWalkRuntimeView extends FrameLayout {
      *                   name will be used.
      * @return the url of web socket for remote debugging
      */
-    public String enableRemoteDebugging(String frontEndUrl, String socketName) {
+    public void enableRemoteDebugging(String frontEndUrl, String socketName) {
         // TODO(yongsheng): Figure out which parameters are needed once we
         // have a conclusion.
-        return mProvider.enableRemoteDebugging(frontEndUrl,socketName);
+        mProvider.enableRemoteDebugging(frontEndUrl,socketName);
     }
 
     /**

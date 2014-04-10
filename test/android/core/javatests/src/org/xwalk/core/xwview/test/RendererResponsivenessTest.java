@@ -44,7 +44,9 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     //@MediumTest
     @DisabledTest
     public void testRendererUnresponsive() throws Throwable {
-        getXWalkView().setXWalkClient(new ResponsivenessTestClient() {
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
+        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView().getContext(),
+                    getXWalkView()) {
             @Override
             public void onRendererUnresponsive(XWalkView view) {
                 unresponsiveHelper.notifyCalled(view);
@@ -78,7 +80,9 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     //@MediumTest
     @DisabledTest
     public void testRendererResponsiveAgain() throws Throwable {
-        getXWalkView().setXWalkClient(new ResponsivenessTestClient() {
+        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
+        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView().getContext(),
+                    getXWalkView()) {
             /**
              * Called once the renderer become responsive again.
              */
@@ -120,16 +124,4 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
             return mView;
         }
     }
-
-    private class ResponsivenessTestClient extends XWalkClient {
-        @Override
-        public void onPageStarted(XWalkView view, String url, Bitmap favicon) {
-            mTestContentsClient.onPageStarted(url);
-        }
-
-        @Override
-        public void onPageFinished(XWalkView view, String url) {
-            mTestContentsClient.didFinishLoad(url);
-        }
-    };
 }
