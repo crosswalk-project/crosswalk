@@ -19,6 +19,36 @@ import os
 import re
 import sys
 
+
+
+# The mapping table is refer to :
+# 1. W3C manifest default_orientation member.
+#    http://w3c.github.io/manifest/#default_orientation-member
+# 2. Android manifest screenorientation definition.
+#     http://developer.android.com/guide/topics/manifest/
+#     activity-element.html#screen
+# TODO: update the mapping table and add related APIs in
+#       xwalk runtime for Android.
+default_orientation_mapping_table = {
+    'any': 'unspecified',
+    'landscape': 'landscape',
+    'portrait': 'portrait'
+}
+
+
+def CheckDefaultOrientation(default_orientation):
+  """This function is used to check whether default orientation value is valid.
+
+  Args:
+    default_orientation: the default orientation string e.g.["portrait"].
+
+  """
+  if (default_orientation.lower() not in
+      list(default_orientation_mapping_table.keys())):
+    print('Error: illegal default_orientation value: %s.' % default_orientation)
+    sys.exit(1)
+
+
 def HandlePermissionList(permission_list):
   """This function is used to handle the permission list and return the string
   of permissions.
@@ -71,20 +101,21 @@ class ManifestJsonParser(object):
       A dictionary to the corresponding items. the dictionary keys are
       described as follows, the value is set to "" if the value of the
       key is not set.
-    app_name:         The application name.
-    version:          The version number.
-    icons:            An array of icons.
-    app_url:          The url of application, e.g. hosted app.
-    description:      The description of application.
-    app_root:         The root path of the web, this flag allows to package
-                      local web application as apk.
-    app_local_path:   The relative path of entry file based on app_root,
-                      this flag should work with "--app-root" together.
-    permissions:      The permission list.
-    required_version: The required crosswalk runtime version.
-    plugin:           The plug-in information.
-    fullscreen:       The fullscreen flag of the application.
-    launch_screen:    The launch screen configuration.
+    app_name:            The application name.
+    version:             The version number.
+    icons:               An array of icons.
+    app_url:             The url of application, e.g. hosted app.
+    description:         The description of application.
+    app_root:            The root path of the web, this flag allows to package
+                         local web application as apk.
+    app_local_path:      The relative path of entry file based on app_root,
+                         this flag should work with "--app-root" together.
+    permissions:         The permission list.
+    required_version:    The required crosswalk runtime version.
+    plugin:              The plug-in information.
+    fullscreen:          The fullscreen flag of the application.
+    launch_screen:       The launch screen configuration.
+    default_orientation: The default orientation of the application.
     """
     ret_dict = {}
     if 'name' not in self.data_src:
@@ -148,6 +179,11 @@ class ManifestJsonParser(object):
         print('Error: no \'image\' field for \'launch_screen.default\'.')
         sys.exit(1)
       ret_dict['launch_screen_img'] = default['image']
+    if 'default_orientation' in self.data_src:
+      CheckDefaultOrientation(self.data_src['default_orientation'])
+      ret_dict['default_orientation'] = self.data_src['default_orientation']
+    else:
+      ret_dict['default_orientation'] = ''
     return ret_dict
 
   def ShowItems(self):
@@ -165,7 +201,7 @@ class ManifestJsonParser(object):
     print("plugins: %s" % self.GetPlugins())
     print("fullscreen: %s" % self.GetFullScreenFlag())
     print('launch_screen.default.image: %s' % self.GetLaunchScreenImg())
-
+    print("default_orientation: %s" % self.GetDefaultOrientation())
 
   def GetAppName(self):
     """Return the application name."""
@@ -214,6 +250,10 @@ class ManifestJsonParser(object):
   def GetLaunchScreenImg(self):
     """Return the default img for launch_screen."""
     return self.ret_dict['launch_screen_img']
+
+  def GetDefaultOrientation(self):
+    """Return the default orientation of the application."""
+    return self.ret_dict['default_orientation']
 
 
 def main(argv):

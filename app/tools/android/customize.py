@@ -16,6 +16,7 @@ from handle_xml import AddElementAttributeAndText
 from handle_xml import EditElementAttribute
 from handle_xml import EditElementValueByNodeName
 from handle_permissions import HandlePermissions
+from manifest_json_parser import default_orientation_mapping_table
 from xml.dom import minidom
 
 def ReplaceInvalidChars(value, mode='default'):
@@ -371,8 +372,9 @@ def CustomizeAll(app_versionCode, description, icon, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  display_as_fullscreen, extensions, launch_screen_img,
                  package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified') :
+                 app_version='1.0.0', default_orientation='any') :
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
+  orientation = default_orientation_mapping_table.get(default_orientation)
   try:
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
@@ -427,11 +429,11 @@ def main():
           'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
   parser.add_option('--extensions', help=info)
   info = ('The orientation of the web app\'s display on the device. '
-          'Such as: --orientation=landscape. The default value is "unspecified"'
-          'The value options are the same as those on the Android: '
-          'http://developer.android.com/guide/topics/manifest/'
-          'activity-element.html#screen')
-  parser.add_option('--orientation', help=info)
+          'Such as: --default_orientation=landscape.'
+          'The default value is "any". The permitted values are from: '
+          'http://w3c.github.io/manifest/#default_orientation-member')
+  parser.add_option('--default_orientation', dest='default_orientation',
+                    help=info)
   parser.add_option('--launch-screen-img',
                     help='The fallback image for launch_screen')
   options, _ = parser.parse_args()
@@ -446,8 +448,8 @@ def main():
       options.app_root = os.path.join('test_data', 'manifest')
     if options.package == None:
       options.package = 'org.xwalk.app.template'
-    if options.orientation == None:
-      options.orientation = 'unspecified'
+    if options.default_orientation == None:
+      options.default_orientation = 'any'
     if options.app_version == None:
       options.app_version = '1.0.0'
     CustomizeAll(options.app_versionCode, options.description, icon_dict,
@@ -455,7 +457,7 @@ def main():
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.extensions,
                  options.launch_screen_img, options.package, options.name,
-                 options.app_version, options.orientation)
+                 options.app_version, options.default_orientation)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
