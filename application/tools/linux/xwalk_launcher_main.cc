@@ -15,12 +15,10 @@
 #include <gio/gio.h>
 #include <gio/gunixfdlist.h>
 
-#include "base/message_loop/message_loop.h"
-#include "base/run_loop.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
-#include "xwalk/application/tools/linux/xwalk_tizen_user.h"
+#include "xwalk/application/tools/linux/xwalk_extension_process_launcher.h"
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
-#include "xwalk/extensions/extension_process/xwalk_extension_process.h"
+#include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_running_path = "/running1";
@@ -31,15 +29,15 @@ static const char* xwalk_running_app_iface =
 
 static char* application_object_path;
 
+static GMainLoop* mainloop;
 static GDBusConnection* g_connection;
+static XWalkExtensionProcessLauncher* ep_launcher = NULL;
 
 static int g_argc;
 static char** g_argv;
 static gboolean query_running = FALSE;
 static gboolean fullscreen = FALSE;
 static gchar** cmd_appid;
-
-static xwalk::extensions::XWalkExtensionProcess* extension_process = NULL;
 
 static GOptionEntry entries[] = {
   { "running", 'r', 0, G_OPTION_ARG_NONE, &query_running,
@@ -60,7 +58,8 @@ static void object_removed(GDBusObjectManager* manager, GDBusObject* object,
 
   fprintf(stderr, "Application '%s' disappeared, exiting.\n", path);
 
-  base::MessageLoop::current()->Quit();
+  delete ep_launcher;
+  g_main_loop_quit(mainloop);
 }
 
 static void on_app_properties_changed(GDBusProxy* proxy,
@@ -93,9 +92,10 @@ static void on_app_properties_changed(GDBusProxy* proxy,
   }
 }
 
-static void init_extension_process_channel(GDBusProxy* app_proxy) {
-  if (extension_process)
-    return;
+static gboolean init_extension_process_channel(gpointer data) {
+  GDBusProxy* app_proxy = static_cast<GDBusProxy*>(data);
+  if (ep_launcher->is_started())
+    return TRUE;
   // Get the client socket file descriptor from fd_list. The reply will
   // contains an index to the list.
   GUnixFDList* fd_list;
@@ -105,14 +105,14 @@ static void init_extension_process_channel(GDBusProxy* app_proxy) {
   const gchar* channel_id =
       g_variant_get_string(g_variant_get_child_value(res, 0), NULL);
   if (!strlen(channel_id))
-    return;
+    return TRUE;
 
   gint32 client_fd_idx =
       g_variant_get_handle(g_variant_get_child_value(res, 1));
   int client_fd = g_unix_fd_list_get(fd_list, client_fd_idx, NULL);
 
-  extension_process = new xwalk::extensions::XWalkExtensionProcess(
-      IPC::ChannelHandle(channel_id, base::FileDescriptor(client_fd, true)));
+  ep_launcher->Launch(channel_id, client_fd);
+  return TRUE;
 }
 
 static void on_app_signal(GDBusProxy* proxy,
@@ -167,6 +167,7 @@ static void query_application_running(GDBusObjectManager* running_om,
 static void launch_application(GDBusObjectManager* running_apps_manager,
                                const char* appid,
                                gboolean fullscreen) {
+  ep_launcher = new XWalkExtensionProcessLauncher();
   GError* error = NULL;
   g_signal_connect(running_apps_manager, "object-removed",
                    G_CALLBACK(object_removed), NULL);
@@ -210,6 +211,7 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   g_signal_connect(app_proxy, "g-properties-changed",
                    G_CALLBACK(on_app_properties_changed), NULL);
 
+  mainloop = g_main_loop_new(NULL, FALSE);
   g_signal_connect(app_proxy, "g-signal", G_CALLBACK(on_app_signal), NULL);
 
 #if defined(OS_TIZEN)
@@ -222,13 +224,8 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   }
 #endif
 
-  base::MessageLoop::Type message_loop_type = base::MessageLoop::TYPE_UI;
-  base::MessageLoop main_message_loop(message_loop_type);
-  // The channel created signal might be send before we started listening to it.
-  main_message_loop.PostTask(
-      FROM_HERE, base::Bind(init_extension_process_channel, app_proxy));
-
-  main_message_loop.Run();
+  g_idle_add(init_extension_process_channel, app_proxy);
+  g_main_loop_run(mainloop);
 }
 
 int main(int argc, char** argv) {
