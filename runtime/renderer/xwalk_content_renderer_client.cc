@@ -35,6 +35,10 @@
 #include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
 #endif
 
+#if defined(OS_TIZEN)
+#include "xwalk/runtime/renderer/tizen/xwalk_render_view_ext_tizen.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -111,6 +115,8 @@ void XWalkContentRendererClient::RenderViewCreated(
     content::RenderView* render_view) {
 #if defined(OS_ANDROID)
   XWalkRenderViewExt::RenderViewCreated(render_view);
+#elif defined(OS_TIZEN)
+  XWalkRenderViewExtTizen::RenderViewCreated(render_view);
 #endif
 }
 

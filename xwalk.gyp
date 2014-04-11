@@ -243,6 +243,8 @@
         'runtime/renderer/android/xwalk_render_view_ext.h',
         'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.cc',
         'runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h',
+        'runtime/renderer/tizen/xwalk_render_view_ext_tizen.cc',
+        'runtime/renderer/tizen/xwalk_render_view_ext_tizen.h',
         'runtime/renderer/xwalk_content_renderer_client.cc',
         'runtime/renderer/xwalk_content_renderer_client.h',
         'runtime/renderer/xwalk_render_process_observer_generic.cc',
