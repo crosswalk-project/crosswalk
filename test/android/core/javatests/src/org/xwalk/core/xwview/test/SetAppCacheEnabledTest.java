@@ -117,8 +117,7 @@ public class SetAppCacheEnabledTest extends XWalkViewTestBase {
         final XWalkContent xWalkContent = getXWalkContentOnMainSync(xWalkView);
         final XWalkSettings settings = getXWalkSettings(xWalkView);
         settings.setJavaScriptEnabled(true);
-        // Note that the cache isn't actually enabled until the call to setAppCachePath.
-        settings.setAppCacheEnabled(true);
+        settings.setAppCacheEnabled(false);
 
         TestWebServer webServer = null;
         try {
@@ -134,7 +133,8 @@ public class SetAppCacheEnabledTest extends XWalkViewTestBase {
             // disabled, other than checking that it didn't try to fetch the manifest.
             Thread.sleep(1000);
             assertEquals(0, webServer.getRequestCount(helper.getManifestPath()));
-            settings.setAppCachePath("111");  // Enables AppCache.
+            // Enables AppCache. Use the default path if app cache path isn't set.
+            settings.setAppCacheEnabled(true);
             loadUrlSyncByContent(
                     xWalkContent,
                     mContentClient,

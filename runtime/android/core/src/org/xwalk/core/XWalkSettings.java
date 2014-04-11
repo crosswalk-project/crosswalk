@@ -504,14 +504,8 @@ public class XWalkSettings {
      */
     @CalledByNative
     private boolean getAppCacheEnabled() {
-        // This should only be called from UpdateWebkitPreferences, which is called
-        // either from the constructor, or with mXWalkSettingsLock being held.
-        if (!mAppCacheEnabled) {
-            return false;
-        }
-        synchronized (sGlobalContentSettingsLock) {
-            return sAppCachePathIsSet;
-        }
+        // When no app cache path is set, use chromium default cache path.
+        return mAppCacheEnabled;
     }
 
     /**
