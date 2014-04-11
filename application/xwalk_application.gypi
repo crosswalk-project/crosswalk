@@ -126,6 +126,8 @@
             'common/manifest_handlers/navigation_handler.h',
             'common/manifest_handlers/tizen_application_handler.cc',
             'common/manifest_handlers/tizen_application_handler.h',
+            'common/manifest_handlers/tizen_setting_handler.cc',
+            'common/manifest_handlers/tizen_setting_handler.h',
           ],
         }],
       ],
