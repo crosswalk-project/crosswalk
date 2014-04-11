@@ -51,6 +51,8 @@
       'sources': [
         'dbus_connection.h',
         'dbus_connection.cc',
+        'xwalk_extension_process_launcher.h',
+        'xwalk_extension_process_launcher.cc',
         'xwalk_tizen_user.h',
         'xwalk_tizen_user.cc',
         'xwalk_launcher_main.cc',
