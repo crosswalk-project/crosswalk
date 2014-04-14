@@ -1,0 +1,14 @@
+{
+  "name": "\Example",
+  "version": "1.0.0",
+  "launch_path": "http://www.intel.com",
+  "app": {
+      "launch": {
+          "local_path": "index.html"
+      }
+  },
+  "description": "a sample description",
+  "origin": "app://app.id",
+  "default_locale": "en",
+  "fullscreen":"true"
+}
