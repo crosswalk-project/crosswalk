@@ -356,6 +356,11 @@ public class XWalkContent extends FrameLayout {
         loadUrl(url);
     }
 
+    @CalledByNative
+    public void onGetFullscreenFlagFromManifest(boolean enterFullscreen) {
+        if (enterFullscreen) getXWalkWebChromeClient().onToggleFullscreen(true);
+    }
+
     public void destroy() {
         if (mXWalkContent == 0) return;
 
