@@ -54,11 +54,11 @@ class ManifestJsonParser(object):
       input_src = input_file.read()
       self.data_src = json.JSONDecoder().decode(input_src)
       self.ret_dict = self._output_items()
-    except (TypeError, ValueError, IOError):
-      print('There is a parser error in manifest.json file.')
+    except (TypeError, ValueError, IOError) as error:
+      print('There is a parser error in manifest.json file: %s' % error)
       sys.exit(1)
-    except KeyError:
-      print('There is a field error in manifest.json file.')
+    except KeyError as error:
+      print('There is a field error in manifest.json file: %s' % error)
       sys.exit(1)
     finally:
       input_file.close()
