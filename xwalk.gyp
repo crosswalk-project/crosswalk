@@ -154,6 +154,7 @@
         'runtime/browser/runtime_platform_util_aura.cc',
         'runtime/browser/runtime_platform_util_linux.cc',
         'runtime/browser/runtime_platform_util_mac.mm',
+        'runtime/browser/runtime_platform_util_tizen.cc',
         'runtime/browser/runtime_platform_util_win.cc',
         'runtime/browser/runtime_quota_permission_context.cc',
         'runtime/browser/runtime_quota_permission_context.h',
@@ -204,6 +205,8 @@
         'runtime/browser/xwalk_component.h',
         'runtime/browser/xwalk_content_browser_client.cc',
         'runtime/browser/xwalk_content_browser_client.h',
+        'runtime/browser/xwalk_render_message_filter.cc',
+        'runtime/browser/xwalk_render_message_filter.h',
         'runtime/browser/xwalk_runner.cc',
         'runtime/browser/xwalk_runner.h',
         'runtime/browser/xwalk_runner_android.cc',
@@ -265,6 +268,9 @@
             'runtime/browser/ui/screen_orientation.h',
             'runtime/extension/screen_orientation_extension.cc',
             'runtime/extension/screen_orientation_extension.h',
+          ],
+          'sources!':[
+            'runtime/browser/runtime_platform_util_linux.cc',
           ],
         }],
         ['OS=="android"',{

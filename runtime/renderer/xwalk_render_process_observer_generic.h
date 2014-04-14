@@ -37,14 +37,16 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual void OnRenderProcessShutdown() OVERRIDE;
 
   bool IsWarpMode() const { return is_warp_mode_; }
+  const GURL& app_url() const { return app_url_; }
 
  private:
   void OnSetAccessWhiteList(
       const GURL& source, const GURL& dest, bool allow_subdomains);
-  void OnEnableWarpMode();
+  void OnEnableWarpMode(const GURL& url);
 
   bool is_webkit_initialized_;
   bool is_warp_mode_;
+  GURL app_url_;
 };
 }  // namespace xwalk
 

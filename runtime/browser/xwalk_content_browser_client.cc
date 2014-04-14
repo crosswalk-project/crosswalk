@@ -25,6 +25,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
+#include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_ANDROID)
@@ -156,6 +157,7 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
   xwalk_runner_->OnRenderProcessWillLaunch(host);
+  host->AddFilter(new XWalkRenderMessageFilter);
 }
 
 content::MediaObserver* XWalkContentBrowserClient::GetMediaObserver() {

@@ -428,7 +428,10 @@ void Application::InitSecurityPolicy() {
             app_url, dest_url, (subdomains == "true")));
   }
   if (enable_warp_mode)
-    GetHost(main_runtime_)->Send(new ViewMsg_EnableWarpMode());
+    GetHost(main_runtime_)->Send(
+        new ViewMsg_EnableWarpMode(
+            ApplicationData::GetBaseURLFromApplicationId(
+                application_data_->ID())));
 }
 
 }  // namespace application

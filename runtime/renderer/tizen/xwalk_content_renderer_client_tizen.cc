@@ -9,6 +9,9 @@
 #include "base/files/file_path.h"
 #include "net/base/net_util.h"
 #include "url/gurl.h"
+#include "xwalk/application/common/constants.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebDocument.h"
 
 namespace xwalk {
 
@@ -43,9 +46,13 @@ bool URLHasAppOrFileScheme(const GURL& url) {
 };  // namespace
 
 bool XWalkContentRendererClientTizen::WillSendRequest(
-    blink::WebFrame*, content::PageTransition, const GURL& url,
-    const GURL& first_party_for_cookies, GURL* new_url) {
+    blink::WebFrame* frame, content::PageTransition transition_type,
+    const GURL& url, const GURL& first_party_for_cookies, GURL* new_url) {
   DCHECK(new_url);
+
+  if (XWalkContentRendererClient::WillSendRequest(
+          frame, transition_type, url, first_party_for_cookies, new_url))
+    return true;
 
   if (!URLHasAppOrFileScheme(first_party_for_cookies))
     return false;
