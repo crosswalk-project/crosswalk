@@ -37,6 +37,10 @@
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
+#else
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application.h"
 #endif
 
 #if defined(OS_MACOSX)
@@ -44,9 +48,6 @@
 #endif
 
 #if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/application/common/constants.h"
@@ -292,49 +293,38 @@ content::SpeechRecognitionManagerDelegate*
   return new xwalk::XWalkSpeechRecognitionManagerDelegate();
 }
 
-#if defined(OS_TIZEN)
-bool XWalkContentBrowserClient::CanCommitURL(
-    content::RenderProcessHost* process_host, const GURL& url) {
+#if !defined(OS_ANDROID)
+bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
+                             const GURL& opener_top_level_frame_url,
+                             const GURL& source_origin,
+                             WindowContainerType container_type,
+                             const GURL& target_url,
+                             const content::Referrer& referrer,
+                             WindowOpenDisposition disposition,
+                             const blink::WebWindowFeatures& features,
+                             bool user_gesture,
+                             bool opener_suppressed,
+                             content::ResourceContext* context,
+                             int render_process_id,
+                             bool is_guest,
+                             int opener_id,
+                             bool* no_javascript_access) {
+  *no_javascript_access = false;
   application::Application* app = xwalk_runner_->app_system()->
-      application_service()->GetApplicationByRenderHostID(
-          process_host->GetID());
-  DCHECK(app);
-  const application::ApplicationData* app_data =app->data();
-  if (!app_data->HasCSPDefined() ||
-      (url.SchemeIs(application::kApplicationScheme) &&
-       url.host() == app_data->ID()))
+      application_service()->GetApplicationByRenderHostID(render_process_id);
+  if (!app)
+    // If it's not a request from an application, always enable this action.
     return true;
 
-  application::NavigationInfo* info = static_cast<application::NavigationInfo*>(
-      app_data->GetManifestData(application_widget_keys::kAllowNavigationKey));
-  if (!info || !url.SchemeIsHTTPOrHTTPS()) {
-    LOG(INFO) << "[Block] Navigation link: " << url.spec();
-    // FIXME: Blocked navigation link should be opened in system web browser,
-    // add corresponding code like this:
-    // platform_util::OpenExternal(url);
-    return false;
+  if (app->CanRequestURL(target_url)) {
+    LOG(INFO) << "[ALLOW] CreateWindow: " << target_url.spec();
+    return true;
   }
 
-  // Check whether the navigation url domain is listed in WGT <allow-navigation>
-  // element, if yes, display it in web application, otherwise block the
-  // request.
-  const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
-  for (std::vector<std::string>::const_iterator it = allowed_list.begin();
-       it != allowed_list.end(); ++it) {
-    if ((*it).find("*.") == 0 &&
-        url.DomainIs((*it).substr(2).c_str())) {
-      LOG(INFO) << "[Allow] Navigation link: " << url.spec();
-      return true;
-    }
-
-    if (url.host() == *it) {
-      LOG(INFO) << "[Allow] Navigation link: " << url.spec();
-      return true;
-    }
-  }
-  LOG(INFO) << "[Block] navigation link: " << url.spec();
-  // FIXME: Should open blocked link in system web browser, need to add:
-  // platform_util::OpenExternal(url);
+  LOG(INFO) << "[BlOCK] CreateWindow: " << target_url.spec();
+#if defined(OS_TIZEN)
+  platform_util::OpenExternal(target_url);
+#endif
   return false;
 }
 #endif

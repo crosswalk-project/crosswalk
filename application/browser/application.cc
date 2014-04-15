@@ -38,6 +38,10 @@
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #endif
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
+#endif
+
 namespace xwalk {
 
 namespace keys = application_manifest_keys;
@@ -91,7 +95,8 @@ Application::Application(
       observer_(observer),
       entry_point_used_(Default),
       termination_mode_used_(Normal),
-      weak_factory_(this) {
+      weak_factory_(this),
+      is_security_mode_(false) {
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
@@ -408,19 +413,43 @@ bool Application::SetPermission(PermissionType type,
 void Application::InitSecurityPolicy() {
   if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
     return;
+
+#if defined(OS_TIZEN)
+  // On Tizen, CSP mode has higher priority, and WARP will be disabled
+  // if the application is under CSP mode.
+  if (application_data_->HasCSPDefined()) {
+    // Always enable security mode when under CSP mode.
+    is_security_mode_ = true;
+    NavigationInfo* info = static_cast<NavigationInfo*>(
+        application_data_->GetManifestData(widget_keys::kAllowNavigationKey));
+    if (info) {
+      const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
+      for (std::vector<std::string>::const_iterator it = allowed_list.begin();
+           it != allowed_list.end(); ++it) {
+        // If the policy start with "*.", like this: *.domain,
+        // means that can access to all subdomains for 'domain',
+        // otherwise, the host of request url should exactly the same
+        // as policy.
+        bool subdomains = ((*it).find("*.") == 0);
+        std::string host = subdomains ? (*it).substr(2) : (*it);
+        AddSecurityPolicy(GURL("http://" + host), subdomains);
+        AddSecurityPolicy(GURL("https://" + host), subdomains);
+      }
+    }
+    GetHost(main_runtime_)->Send(
+        new ViewMsg_EnableSecurityMode(
+            ApplicationData::GetBaseURLFromApplicationId(id()),
+            SecurityPolicy::CSP));
+    return;
+  }
+#endif
   const WARPInfo* info = static_cast<WARPInfo*>(
       application_data_->GetManifestData(widget_keys::kAccessKey));
-  if (!info
-#if defined(OS_TIZEN)
-      // On Tizen, CSP mode has higher priority, and WARP will be disabled
-      // if the application is under CSP mode.
-      || application_data_->HasCSPDefined()
-#endif
-      )
+  // FIXME(xinchao): Need to enable WARP mode by default.
+  if (!info)
     return;
-  GURL app_url = application_data_->URL();
+
   const base::ListValue* whitelist = info->GetWARP();
-  bool enable_warp_mode = true;
   for (base::ListValue::const_iterator it = whitelist->begin();
        it != whitelist->end(); ++it) {
     base::DictionaryValue* value = NULL;
@@ -430,7 +459,7 @@ void Application::InitSecurityPolicy() {
         dest.empty())
       continue;
     if (dest == "*") {
-      enable_warp_mode = false;
+      is_security_mode_ = false;
       break;
     }
 
@@ -438,16 +467,48 @@ void Application::InitSecurityPolicy() {
     // The default subdomains attrubute should be "false".
     std::string subdomains = "false";
     value->GetString(widget_keys::kAccessSubdomainsKey, &subdomains);
-    GetHost(main_runtime_)->Send(
-        new ViewMsg_SetAccessWhiteList(
-            app_url, dest_url, (subdomains == "true")));
+    AddSecurityPolicy(dest_url, (subdomains == "true"));
+    is_security_mode_ = true;
   }
-  if (enable_warp_mode)
+  if (is_security_mode_)
     GetHost(main_runtime_)->Send(
-        new ViewMsg_EnableWarpMode(
-            ApplicationData::GetBaseURLFromApplicationId(
-                application_data_->ID())));
+        new ViewMsg_EnableSecurityMode(
+            ApplicationData::GetBaseURLFromApplicationId(id()),
+            SecurityPolicy::WARP));
 }
+
+void Application::AddSecurityPolicy(const GURL& url, bool subdomains) {
+  GURL app_url = application_data_->URL();
+  GetHost(main_runtime_)->Send(
+      new ViewMsg_SetAccessWhiteList(
+          app_url, url, subdomains));
+  security_policy_.push_back(new SecurityPolicy(url, subdomains));
+}
+
+bool Application::CanRequestURL(const GURL& url) const {
+  if (!is_security_mode_)
+    return true;
+
+  // Only WGT package need to check the url request permission.
+  if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
+    return true;
+
+  // Always can request itself resources.
+  if (url.SchemeIs(application::kApplicationScheme) &&
+      url.host() == id())
+    return true;
+
+  for (int i = 0; i < security_policy_.size(); ++i) {
+    const GURL& policy = security_policy_[i]->url();
+    bool subdomains = security_policy_[i]->subdomains();
+    bool is_host_matched = subdomains ?
+        url.DomainIs(policy.host().c_str()) : url.host() == policy.host();
+    if (url.scheme() == policy.scheme() && is_host_matched)
+      return true;
+  }
+  return false;
+}
+
 #if defined(USE_OZONE) && defined(OS_TIZEN)
 base::EventStatus Application::WillProcessEvent(
     const base::NativeEvent& event) {

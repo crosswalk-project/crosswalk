@@ -8,6 +8,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "base/callback.h"
 #include "base/compiler_specific.h"
@@ -17,6 +18,7 @@
 #include "ui/base/ui_base_types.h"
 #include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/security_policy.h"
 #include "xwalk/runtime/browser/runtime.h"
 
 #if defined(USE_OZONE) && defined(OS_TIZEN)
@@ -31,6 +33,7 @@ namespace application {
 
 class ApplicationHost;
 class Manifest;
+class SecurityPolicy;
 
 // The Application class is representing an active (running) application.
 // Application instances are owned by ApplicationService.
@@ -136,6 +139,7 @@ class Application
   bool SetPermission(PermissionType type,
                      const std::string& permission_name,
                      StoredPermission perm);
+  bool CanRequestURL(const GURL& url) const;
 
  private:
   bool HasMainDocument() const;
@@ -165,6 +169,7 @@ class Application
   bool IsTerminating() const { return finish_observer_; }
 
   void InitSecurityPolicy();
+  void AddSecurityPolicy(const GURL& url, bool subdomains);
 
 #if defined(USE_OZONE) && defined(OS_TIZEN)
   virtual base::EventStatus WillProcessEvent(
@@ -185,6 +190,9 @@ class Application
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.
   StoredPermissionMap permission_map_;
+  // Security policy set.
+  ScopedVector<SecurityPolicy> security_policy_;
+  bool is_security_mode_;
 
   DISALLOW_COPY_AND_ASSIGN(Application);
 };

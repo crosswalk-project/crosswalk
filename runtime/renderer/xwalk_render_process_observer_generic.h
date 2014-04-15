@@ -11,6 +11,7 @@
 #include "content/public/renderer/render_process_observer.h"
 #include "url/gurl.h"
 #include "v8/include/v8.h"
+#include "xwalk/application/common/security_policy.h"
 
 namespace blink {
 class WebFrame;
@@ -36,16 +37,23 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual void WebKitInitialized() OVERRIDE;
   virtual void OnRenderProcessShutdown() OVERRIDE;
 
-  bool IsWarpMode() const { return is_warp_mode_; }
+  bool IsWarpMode() const {
+    return security_mode_ == application::SecurityPolicy::WARP;
+  }
+  bool IsCSPMode() const {
+    return security_mode_ == application::SecurityPolicy::CSP;
+  }
+
   const GURL& app_url() const { return app_url_; }
 
  private:
   void OnSetAccessWhiteList(
       const GURL& source, const GURL& dest, bool allow_subdomains);
-  void OnEnableWarpMode(const GURL& url);
+  void OnEnableSecurityMode(
+      const GURL& url, application::SecurityPolicy::SecurityMode mode);
 
   bool is_webkit_initialized_;
-  bool is_warp_mode_;
+  application::SecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;
 };
 }  // namespace xwalk

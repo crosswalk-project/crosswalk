@@ -76,6 +76,8 @@
         'common/permission_policy_manager.cc',
         'common/permission_policy_manager.h',
         'common/permission_types.h',
+        'common/security_policy.cc',
+        'common/security_policy.h',
 
         'extension/application_event_extension.cc',
         'extension/application_event_extension.h',
