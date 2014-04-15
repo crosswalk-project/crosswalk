@@ -219,7 +219,7 @@ def Customize(options):
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.extensions,
                options.launch_screen_img, package, name, app_version,
-               orientation)
+               orientation, options.xwalk_command_line)
 
 
 def Execution(options, sanitized_name):
@@ -612,6 +612,11 @@ def main(argv):
           'be made by adding a prefix based on architecture to the version '
           'code base. For example, --app-versionCodeBase=24')
   group.add_option('--app-versionCodeBase', type='int', help=info)
+  info = ('Use command lines.'
+          'Crosswalk is powered by Chromium and supports Chromium command line.'
+          'For example, '
+          '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
+  group.add_option('--xwalk-command-line', default='', help=info)
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
