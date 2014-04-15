@@ -256,9 +256,22 @@ int main(int argc, char** argv) {
       fprintf(stderr, "No AppID informed, nothing to do.\n");
       return 0;
     }
-    appid = cmd_appid[0];
+    appid = strdup(cmd_appid[0]);
   } else {
     appid = strdup(basename(argv[0]));
+#if defined(OS_TIZEN)
+    // The Tizen application ID will have a format like
+    // "xwalk.crosswalk_32bytes_app_id".
+    gchar** tokens;
+    tokens = g_strsplit(appid, ".", 2);
+    if (g_strv_length(tokens) != 2) {
+      fprintf(stderr, "Invalid Tizen AppID, fallback to Crosswalk AppID.\n");
+    } else {
+      free(appid);
+      appid = strdup(tokens[1]);
+    }
+    g_strfreev(tokens);
+#endif
   }
 
   g_connection = get_session_bus_connection(&error);
@@ -285,5 +298,6 @@ int main(int argc, char** argv) {
     launch_application(running_apps_manager, appid, fullscreen);
   }
 
+  free(appid);
   return 0;
 }

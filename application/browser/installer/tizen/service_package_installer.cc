@@ -33,6 +33,7 @@ const base::FilePath kDefaultIcon(
     "/usr/share/icons/default/small/crosswalk.png");
 
 const std::string kServicePrefix("xwalk-service.");
+const std::string kAppIdPrefix("xwalk.");
 
 class FileDeleter {
  public:
@@ -65,12 +66,10 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
     return false;
 
   std::string package_id = application->ID();
+  std::string tizen_app_id = kAppIdPrefix + package_id;
   base::FilePath execute_path =
-      app_dir.AppendASCII("bin/").AppendASCII(package_id);
+      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
   std::string stripped_name = application->Name();
-  stripped_name.erase(
-      std::remove_if(stripped_name.begin(), stripped_name.end(), ::isspace),
-      stripped_name.end());
 
   FILE* file = base::OpenFile(xml_path, "w");
 
@@ -84,8 +83,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.WriteElement("description", application->Description());
 
   xml_writer.StartElement("ui-application");
-  xml_writer.AddAttribute(
-      "appid", kServicePrefix + package_id + info::kSeparator + stripped_name);
+  xml_writer.AddAttribute("appid", tizen_app_id);
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "c++app");
   xml_writer.AddAttribute("taskmanage", "true");
@@ -119,6 +117,7 @@ namespace application {
 bool InstallApplicationForTizen(
     ApplicationData* application, const base::FilePath& data_dir) {
   std::string package_id = application->ID();
+  std::string tizen_app_id = kAppIdPrefix + package_id;
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(package_id);
   base::FilePath xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
@@ -138,7 +137,7 @@ bool InstallApplicationForTizen(
   }
 
   base::FilePath execute_path =
-      app_dir.AppendASCII("bin/").AppendASCII(package_id);
+      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
 
   if (!base::CreateDirectory(execute_path.DirName())) {
     LOG(ERROR) << "Could not create directory '"
