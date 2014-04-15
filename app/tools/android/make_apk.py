@@ -209,7 +209,7 @@ def Customize(options):
   CustomizeAll(app_versionCode, options.description, options.icon_dict,
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
-               fullscreen_flag, options.extensions,
+               fullscreen_flag, options.keep_screen_on, options.extensions,
                options.launch_screen_img, icon, package, name, app_version,
                orientation, options.xwalk_command_line)
 
@@ -639,6 +639,8 @@ def main(argv):
   group.add_option('-f', '--fullscreen', action='store_true',
                    dest='fullscreen', default=False,
                    help='Make application fullscreen.')
+  group.add_option('--keep-screen-on', action='store_true', default=False,
+                   help='Support keeping screen on')
   info = ('The path of application icon. '
           'Such as: --icon=/path/to/your/customized/icon')
   group.add_option('--icon', help=info)
