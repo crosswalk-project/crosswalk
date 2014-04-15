@@ -22,7 +22,6 @@ import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
-import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
@@ -549,6 +548,12 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
         if (key == XWalkPreferences.REMOTE_DEBUGGING) {
             if (value) enableRemoteDebugging();
             else disableRemoteDebugging();
+        }
+    }
+
+    public void setOverlayVideoMode(boolean enabled) {
+        if (mContentViewRenderView != null) {
+            mContentViewRenderView.setOverlayVideoMode(enabled);
         }
     }
 
