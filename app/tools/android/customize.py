@@ -177,7 +177,8 @@ def SetVariable(file_path, string_line, variable, value):
 
 
 def CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen):
+                  enable_remote_debugging, display_as_fullscreen,
+                  keep_screen_on):
   root_path =  os.path.join(sanitized_name, 'src',
                             package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
@@ -212,6 +213,12 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
     SetVariable(dest_activity,
                 'super.onCreate(savedInstanceState)',
                 'IsFullscreen', 'true')
+  if keep_screen_on:
+    ReplaceString(
+        dest_activity,
+        'super.onCreate(savedInstanceState);',
+        'super.onCreate(savedInstanceState);\n        '+
+        'getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);')
 
 
 def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
@@ -403,10 +410,10 @@ def CustomizeIcon(sanitized_name, app_root, icon, icon_dict):
 
 def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
-                 display_as_fullscreen, extensions, launch_screen_img,
-                 icon, package='org.xwalk.app.template', name='AppTemplate',
-                 app_version='1.0.0', orientation='unspecified',
-                 xwalk_command_line=''):
+                 display_as_fullscreen, keep_screen_on, extensions,
+                 launch_screen_img, icon, package='org.xwalk.app.template',
+                 name='AppTemplate', app_version='1.0.0',
+                 orientation='unspecified', xwalk_command_line=''):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
   try:
     Prepare(sanitized_name, package, app_root)
@@ -415,7 +422,8 @@ def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
                  display_as_fullscreen, icon, launch_screen_img, permissions,
                  app_root)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen)
+                  enable_remote_debugging, display_as_fullscreen,
+                  keep_screen_on)
     CustomizeExtensions(sanitized_name, name, extensions)
     GenerateCommandLineFile(sanitized_name, xwalk_command_line)
   except SystemExit as ec:
@@ -459,6 +467,8 @@ def main():
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
+  parser.add_option('--keep-screen-on', action='store_true', default=False,
+                    help='Support keeping screen on')
   info = ('The path list for external extensions separated by os separator.'
           'On Linux and Mac, the separator is ":". On Windows, it is ";".'
           'Such as: --extensions="/path/to/extension1:/path/to/extension2"')
@@ -496,7 +506,7 @@ def main():
     CustomizeAll(options.app_versionCode, options.description, icon_dict,
                  options.permissions, options.app_url, options.app_root,
                  options.app_local_path, options.enable_remote_debugging,
-                 options.fullscreen, options.extensions,
+                 options.fullscreen, options.keep_screen_on, options.extensions,
                  options.launch_screen_img, icon, options.package, options.name,
                  options.app_version, options.orientation,
                  options.xwalk_command_line)

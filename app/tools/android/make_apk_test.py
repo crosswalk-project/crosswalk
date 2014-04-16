@@ -648,6 +648,7 @@ class TestMakeApk(unittest.TestCase):
            '--enable-remote-debugging',
            '--extensions=%s' % extension_path,
            '--fullscreen',
+           '--keep-screen-on',
            '%s' % icon,
            '--name=Example',
            '--orientation=landscape',
@@ -660,6 +661,8 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(os.path.exists(activity))
     # Test remote debugging option.
     self.assertTrue(content.find('setRemoteDebugging') != -1)
+    # Test keep screen on option
+    self.assertTrue(content.find('FLAG_KEEP_SCREEN_ON') != -1)
 
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
