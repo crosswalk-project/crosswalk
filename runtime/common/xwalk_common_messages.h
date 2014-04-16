@@ -35,6 +35,8 @@ IPC_MESSAGE_CONTROL3(ViewMsg_SetAccessWhiteList,  // NOLINT
 IPC_MESSAGE_CONTROL1(ViewMsg_EnableWarpMode,    // NOLINT
                      GURL /* application url */)
 
+IPC_MESSAGE_ROUTED1(ViewMsg_HWKeyPressed, int /*keycode*/)  // NOLINT
+
 // These are messages sent from the renderer to the browser process.
 #if defined(OS_TIZEN)
 IPC_MESSAGE_CONTROL1(ViewMsg_OpenLinkExternal,  // NOLINT

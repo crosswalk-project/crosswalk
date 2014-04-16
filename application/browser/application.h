@@ -19,6 +19,10 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
 
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+#include "base/message_loop/message_pump_observer.h"
+#endif
+
 namespace xwalk {
 
 class RuntimeContext;
@@ -34,7 +38,12 @@ class Manifest;
 // terminated.
 // There's one-to-one correspondence between Application and Render Process
 // Host, obtained from its "runtimes" (pages).
-class Application : public Runtime::Observer {
+class Application
+  :
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+  public base::MessagePumpObserver,
+#endif
+  public Runtime::Observer {
  public:
   virtual ~Application();
 
@@ -156,6 +165,12 @@ class Application : public Runtime::Observer {
   bool IsTerminating() const { return finish_observer_; }
 
   void InitSecurityPolicy();
+
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+  virtual base::EventStatus WillProcessEvent(
+      const base::NativeEvent& event) OVERRIDE;
+  virtual void DidProcessEvent(const base::NativeEvent& event) OVERRIDE;
+#endif
 
   RuntimeContext* runtime_context_;
   const scoped_refptr<ApplicationData> application_data_;

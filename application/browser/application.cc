@@ -29,6 +29,15 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+#include "base/message_loop/message_pump_ozone.h"
+#include "content/public/browser/render_view_host.h"
+#include "ui/events/event.h"
+#include "ui/events/event_constants.h"
+#include "ui/events/keycodes/keyboard_codes_posix.h"
+#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
+#endif
+
 namespace xwalk {
 
 namespace keys = application_manifest_keys;
@@ -86,9 +95,15 @@ Application::Application(
   DCHECK(runtime_context_);
   DCHECK(application_data_);
   DCHECK(observer_);
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+  base::MessagePumpOzone::Current()->AddObserver(this);
+#endif
 }
 
 Application::~Application() {
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+  base::MessagePumpOzone::Current()->RemoveObserver(this);
+#endif
   Terminate(Immediate);
 }
 
@@ -433,6 +448,41 @@ void Application::InitSecurityPolicy() {
             ApplicationData::GetBaseURLFromApplicationId(
                 application_data_->ID())));
 }
+#if defined(USE_OZONE) && defined(OS_TIZEN)
+base::EventStatus Application::WillProcessEvent(
+    const base::NativeEvent& event) {
+  return base::EVENT_CONTINUE;
+}
+
+void Application::DidProcessEvent(
+    const base::NativeEvent& event) {
+  ui::Event* eve = static_cast<ui::Event*>(event);
+  if (!eve->IsKeyEvent() || eve->type() != ui::ET_KEY_PRESSED)
+    return;
+
+  ui::KeyEvent* key_event = static_cast<ui::KeyEvent*>(eve);
+
+  // FIXME: Most Wayland devices don't have similar hardware button for 'back'
+  // and 'memu' as Tizen Mobile, even that hardare buttons could be different
+  // across different kinds of Wayland platforms.
+  // Here use external keyboard button 'Backspace' & 'HOME' to emulate 'back'
+  // and 'menu' key. Should change this if there is customized key binding.
+  if (key_event->key_code() != ui::VKEY_BACK &&
+      key_event->key_code() != ui::VKEY_HOME)
+    return;
+
+  TizenSettingInfo* info = static_cast<TizenSettingInfo*>(
+      data()->GetManifestData(widget_keys::kTizenSettingKey));
+  if (info && !info->hwkey_enabled())
+    return;
+
+  for (std::set<xwalk::Runtime*>::iterator it = runtimes_.begin();
+      it != runtimes_.end(); ++it) {
+    (*it)->web_contents()->GetRenderViewHost()->Send(new ViewMsg_HWKeyPressed(
+        (*it)->web_contents()->GetRoutingID(), key_event->key_code()));
+  }
+}
+#endif
 
 }  // namespace application
 }  // namespace xwalk
