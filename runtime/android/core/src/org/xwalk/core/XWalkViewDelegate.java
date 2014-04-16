@@ -17,7 +17,6 @@ import android.content.res.Resources.NotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.PathUtils;
@@ -28,6 +27,7 @@ import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
 import org.chromium.content.browser.ResourceExtractor;
 import org.chromium.content.browser.ResourceExtractor.ResourceIntercepter;
+import org.chromium.net.NetworkChangeNotifier;
 
 class XWalkViewDelegate {
     private static boolean sInitialized = false;
@@ -82,6 +82,11 @@ class XWalkViewDelegate {
         // Initialize the ActivityStatus. This is needed and used by many internal
         // features such as location provider to listen to activity status.
         ApplicationStatusManager.init(xwalkView.getActivity().getApplication());
+
+        // Auto detect network connectivity state.
+        // setAutoDetectConnectivityState() need to be called before activity started.
+        NetworkChangeNotifier.init(xwalkView.getActivity());
+        NetworkChangeNotifier.setAutoDetectConnectivityState(true);
 
         // We will miss activity onCreate() status in ApplicationStatusManager,
         // informActivityStarted() will simulate these callbacks.
