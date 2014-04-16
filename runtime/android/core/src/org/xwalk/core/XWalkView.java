@@ -491,6 +491,10 @@ public class XWalkView extends FrameLayout {
         mContent.navigateTo(offset);
     }
 
+    public void setOverlayVideoMode(boolean enabled) {
+        mContent.setOverlayVideoMode(enabled);
+    }
+
     // Below methods are for test shell and instrumentation tests.
     public void setXWalkClient(XWalkClient client) {
         checkThreadSafety();

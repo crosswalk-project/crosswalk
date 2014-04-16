@@ -358,7 +358,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public ContentVideoViewClient getContentVideoViewClient() {
-        return new XWalkContentVideoViewClient(this, mXWalkView.getActivity());
+        return new XWalkContentVideoViewClient(this, mXWalkView.getActivity(), mXWalkView);
     }
 
     // Used by the native peer to set/reset a weak ref to the native peer.
