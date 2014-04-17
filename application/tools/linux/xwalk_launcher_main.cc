@@ -95,7 +95,7 @@ static void on_app_properties_changed(GDBusProxy* proxy,
 static gboolean init_extension_process_channel(gpointer data) {
   GDBusProxy* app_proxy = static_cast<GDBusProxy*>(data);
   if (ep_launcher->is_started())
-    return TRUE;
+    return FALSE;
   // Get the client socket file descriptor from fd_list. The reply will
   // contains an index to the list.
   GUnixFDList* fd_list;
@@ -112,7 +112,7 @@ static gboolean init_extension_process_channel(gpointer data) {
   int client_fd = g_unix_fd_list_get(fd_list, client_fd_idx, NULL);
 
   ep_launcher->Launch(channel_id, client_fd);
-  return TRUE;
+  return FALSE;
 }
 
 static void on_app_signal(GDBusProxy* proxy,

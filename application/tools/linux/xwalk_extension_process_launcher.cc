@@ -10,7 +10,7 @@ XWalkExtensionProcessLauncher::XWalkExtensionProcessLauncher()
     : base::Thread("LauncherExtensionService"),
       is_started_(false) {
   base::Thread::Options thread_options;
-  thread_options.message_loop_type = base::MessageLoop::TYPE_UI;
+  thread_options.message_loop_type = base::MessageLoop::TYPE_DEFAULT;
   StartWithOptions(thread_options);
 }
 
