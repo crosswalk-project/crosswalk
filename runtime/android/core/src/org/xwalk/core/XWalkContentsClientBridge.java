@@ -133,6 +133,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         return mInterceptNavigationDelegate;
     }
 
+    private boolean isOwnerActivityRunning() {
+        if (mXWalkView != null && mXWalkView.isOwnerActivityRunning()) {
+            return true;
+        }
+        return false;
+    }
+
     // TODO(Xingnan): All the empty functions need to be implemented.
     @Override
     public boolean shouldOverrideUrlLoading(String url) {
@@ -155,26 +162,35 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onProgressChanged(int progress) {
-        mXWalkResourceClient.onProgressChanged(mXWalkView, progress);
+        if (isOwnerActivityRunning()) {
+            mXWalkResourceClient.onProgressChanged(mXWalkView, progress);
+        }
     }
 
     @Override
     public WebResourceResponse shouldInterceptRequest(String url) {
-        return mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, url);
+        if (isOwnerActivityRunning()) {
+            return mXWalkResourceClient.shouldInterceptLoadRequest(mXWalkView, url);
+        }
+        return null;
     }
 
     public void onResourceLoadStarted(String url) {
-        mXWalkResourceClient.onLoadStarted(mXWalkView, url);
+        if (isOwnerActivityRunning()) {
+            mXWalkResourceClient.onLoadStarted(mXWalkView, url);
+        }
     }
 
     public void onResourceLoadFinished(String url) {
-        // TODO(yongsheng): this method is never called. Where should it be hooked?
-        mXWalkResourceClient.onLoadFinished(mXWalkView, url);
+        if (isOwnerActivityRunning()) {
+            // TODO(yongsheng): this method is never called. Where should it be hooked?
+            mXWalkResourceClient.onLoadFinished(mXWalkView, url);
+        }
     }
 
     @Override
     public void onLoadResource(String url) {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onLoadResource(mXWalkView, url);
         }
     }
@@ -186,14 +202,14 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @CalledByNative
     public void onReceivedHttpAuthRequest(XWalkHttpAuthHandler handler, String host, String realm) {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onReceivedHttpAuthRequest(mXWalkView, handler, host, realm);
         }
     }
 
     @Override
     public void onReceivedSslError(ValueCallback<Boolean> callback, SslError error) {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onReceivedSslError(mXWalkView, callback, error);
         }
     }
@@ -205,14 +221,14 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin,
             XWalkGeolocationPermissions.Callback callback) {
-        if (mXWalkWebChromeClient != null) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
         }
     }
 
     @Override
     public void onGeolocationPermissionsHidePrompt() {
-        if (mXWalkWebChromeClient != null) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onGeolocationPermissionsHidePrompt();
         }
     }
@@ -228,34 +244,37 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onPageStarted(String url) {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onPageStarted(mXWalkView, url);
         }
     }
 
     @Override
     public void onPageFinished(String url) {
+        if (!isOwnerActivityRunning()) return;
         if (mPageLoadListener != null) mPageLoadListener.onPageFinished(url);
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null) {
             mXWalkClient.onPageFinished(mXWalkView, url);
         }
     }
 
     @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
-        mXWalkResourceClient.onReceivedLoadError(mXWalkView, errorCode, description, failingUrl);
+        if (isOwnerActivityRunning()) {
+            mXWalkResourceClient.onReceivedLoadError(mXWalkView, errorCode, description, failingUrl);
+        }
     }
 
     @Override
     public void onRendererUnresponsive() {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onRendererUnresponsive(mXWalkView);
         }
     }
 
     @Override
     public void onRendererResponsive() {
-        if (mXWalkClient != null && mXWalkView != null) {
+        if (mXWalkClient != null && isOwnerActivityRunning()) {
             mXWalkClient.onRendererResponsive(mXWalkView);
         }
     }
@@ -280,12 +299,16 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onRequestFocus() {
-        mXWalkUIClient.onRequestFocus(mXWalkView);
+        if (isOwnerActivityRunning()) {
+            mXWalkUIClient.onRequestFocus(mXWalkView);
+        }
     }
 
     @Override
     public void onCloseWindow() {
-        mXWalkUIClient.onJavascriptCloseWindow(mXWalkView);
+        if (isOwnerActivityRunning()) {
+            mXWalkUIClient.onJavascriptCloseWindow(mXWalkView);
+        }
     }
 
     @Override
@@ -305,21 +328,23 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onShowCustomView(View view, XWalkWebChromeClient.CustomViewCallback callback) {
-        if (mXWalkWebChromeClient != null) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onShowCustomView(view, callback);
         }
     }
 
     @Override
     public void onHideCustomView() {
-        if (mXWalkWebChromeClient != null) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onHideCustomView();
         }
     }
 
     @Override
     public void onScaleChangedScaled(float oldScale, float newScale) {
-        mXWalkUIClient.onScaleChanged(mXWalkView, oldScale, newScale);
+        if (isOwnerActivityRunning()) {
+            mXWalkUIClient.onScaleChanged(mXWalkView, oldScale, newScale);
+        }
     }
 
     @Override
@@ -340,15 +365,17 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onTitleChanged(String title) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onReceivedTitle(mXWalkView, title);
         }
     }
 
     @Override
     public void onToggleFullscreen(boolean enterFullscreen) {
-        mIsFullscreen = enterFullscreen;
-        mXWalkUIClient.onFullscreenToggled(mXWalkView, enterFullscreen);
+        if (isOwnerActivityRunning()) {
+            mIsFullscreen = enterFullscreen;
+            mXWalkUIClient.onFullscreenToggled(mXWalkView, enterFullscreen);
+        }
     }
 
     @Override
@@ -399,38 +426,47 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @CalledByNative
     private void handleJsAlert(String url, String message, int id) {
-        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
-        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_ALERT, url, message, "", result);
+        if (isOwnerActivityRunning()) {
+            XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+            mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_ALERT, url, message, "", result);
+        }
     }
 
     @CalledByNative
     private void handleJsConfirm(String url, String message, int id) {
-        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
-        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_CONFIRM, url, message, "", result);
+        if (isOwnerActivityRunning()) {
+            XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+            mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_CONFIRM, url, message, "", result);
+        }
     }
 
     @CalledByNative
     private void handleJsPrompt(String url, String message, String defaultValue, int id) {
-        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
-        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_PROMPT, url, message, defaultValue,
-                        result);
+        if (isOwnerActivityRunning()) {
+            XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+            mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_PROMPT, url, message, defaultValue,
+                            result);
+        }
     }
 
     @CalledByNative
     private void handleJsBeforeUnload(String url, String message, int id) {
-        XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
-        mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                XWalkUIClient.JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD, url, message, "",
-                        result);
+        if (isOwnerActivityRunning()) {
+            XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
+            mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
+                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD, url, message, "",
+                            result);
+        }
     }
 
     // @CalledByNative
     // TODO(yongsheng): Native side should call file chooser.
     public void runFileChooser(final int processId, final int renderId, final int mode_flags,
             String acceptTypes, String title, String defaultFilename, boolean capture) {
+        if (!isOwnerActivityRunning()) return;
         // TODO(yongsheng): Implement it.
         // mXWalkUIClient.openFileChooser(mXWalkView, ...);
         // See https://crosswalk-project.org/jira/browse/XWALK-1241.
