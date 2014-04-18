@@ -155,14 +155,14 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The APK name is required!') != -1)
     Clean('Example', '1.0.0')
+    self.assertTrue(out.find('The APK name is required!') != -1)
     cmd = ['python', 'make_apk.py', '--name="Test Example"',
            '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The APK name is required!') == -1)
     Clean('Test Example', '1.0.0')
+    self.assertTrue(out.find('The APK name is required!') == -1)
     # The following invalid chars verification is too heavy for embedded mode,
     # and the result of verification should be the same between shared mode
     # and embedded mode. So only do the verification in the shared mode.
@@ -174,8 +174,8 @@ class TestMakeApk(unittest.TestCase):
                '--app-version=1.0.0', '--package=org.xwalk.example',
                '--app-url=http://www.intel.com', self._mode]
         out = RunCommand(cmd)
-        self.assertTrue(out.find('Illegal character') != -1)
         Clean('Example_', '1.0.0')
+        self.assertTrue(out.find('Illegal character') != -1)
 
   def testToolVersion(self):
     cmd = ['python', 'make_apk.py', '--version']
@@ -188,6 +188,7 @@ class TestMakeApk(unittest.TestCase):
            '--description=a sample application',
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
@@ -195,7 +196,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('description') != -1)
     self.assertTrue(content.find('versionName') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testAppVersionCode(self):
     cmd = ['python', 'make_apk.py', '--name=Example',
@@ -204,13 +204,13 @@ class TestMakeApk(unittest.TestCase):
            '--app-versionCode=3',
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
     self.assertTrue(content.find('versionCode="3"') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testAppVersionCodeBase(self):
     # Arch option only works for embedded mode,
@@ -230,13 +230,13 @@ class TestMakeApk(unittest.TestCase):
            arch,
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
     self.assertTrue(content.find(versionCode) != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testAppBigVersionCodeBase(self):
     # Arch option only works for embedded mode,
@@ -254,22 +254,22 @@ class TestMakeApk(unittest.TestCase):
            arch,
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     self.assertFalse(os.path.exists(manifest))
-    Clean('Example', '1.0.0')
 
   def testPermissions(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--permissions=geolocation',
            '--app-url=http://www.intel.com', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(manifest))
     self.assertTrue(content.find('ACCESS_FINE_LOCATION') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testPermissionsWithError(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
@@ -288,19 +288,20 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            self._mode]
     out = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('The package name is required!') != -1)
     Clean('Example', '1.0.0')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('The package name is required!') == -1)
-    Clean('Example', '1.0.0')
 
   def testEntry(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            self._mode]
     out = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('The entry is required.') == -1)
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
@@ -312,12 +313,12 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     self.assertTrue(out.find('The entry is required.') == -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testEntryWithErrors(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('The entry is required.') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
@@ -351,7 +352,6 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     self.assertTrue(out.find('Please make sure that the local path file') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
-    Clean('Example', '1.0.0')
 
   def testIconByOption(self):
     icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
@@ -359,12 +359,12 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--icon=%s' % icon, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(content.find('drawable/icon_96') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testIconByManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest_icon.json')
@@ -372,18 +372,19 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(content.find('drawable/icon') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testFullscreen(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '-f', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     theme = 'Example/res/values/theme.xml'
     with open(theme, 'r') as content_file:
       content = content_file.read()
@@ -392,13 +393,13 @@ class TestMakeApk(unittest.TestCase):
         content.find(
             '<item name="android:windowFullscreen">true</item>') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testEnableRemoteDebugging(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--enable-remote-debugging', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
     with open(activity, 'r') as content_file:
       content = content_file.read()
@@ -416,7 +417,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(os.path.exists(activity))
     self.assertTrue(content.find('setRemoteDebugging') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testKeystore(self):
     keystore_path = os.path.join('test_data', 'keystore', 'xwalk-test.keystore')
@@ -425,6 +425,7 @@ class TestMakeApk(unittest.TestCase):
            '--keystore-path=%s' % keystore_path, '--keystore-alias=xwalk-test',
            '--keystore-passcode=xwalk-test', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
     apk_list = ['Example.apk', 'Example_x86.apk', 'Example_arm.apk']
     for apk in apk_list:
@@ -434,12 +435,12 @@ class TestMakeApk(unittest.TestCase):
         out = RunCommand(cmd)
         self.assertTrue(out.find('smk') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
@@ -461,16 +462,15 @@ class TestMakeApk(unittest.TestCase):
             '<item name="android:windowFullscreen">true</item>') != -1)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testManifestWithSpecificValue(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('no app launch path') == -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',
@@ -518,6 +518,7 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--extensions=%s' % extension_path, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
     extensions_config_json = 'Example/assets/extensions-config.json'
     self.assertTrue(os.path.exists(extensions_config_json))
@@ -530,7 +531,6 @@ class TestMakeApk(unittest.TestCase):
     extension_jar = 'Example/xwalk-extensions/myextension/myextension.jar'
     self.assertTrue(os.path.exists(extension_jar))
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testExtensionsWithNonExtension(self):
     # Test with a non-existed extension.
@@ -552,6 +552,7 @@ class TestMakeApk(unittest.TestCase):
            '--app-local-path=contactextension.html',
            '--extensions=%s' % extension_path, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
@@ -560,15 +561,14 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('android.permission.WRITE_CONTACTS') != -1)
     self.assertTrue(content.find('android.permission.READ_CONTACTS') != -1)
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testXPK(self):
     xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
     cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file, self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testXPKWithError(self):
     xpk_file = os.path.join('test_data', 'xpk', 'error.xpk')
@@ -583,6 +583,7 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--orientation=landscape', self._mode]
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
     with open(manifest, 'r') as content_file:
       content = content_file.read()
@@ -590,7 +591,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('landscape') != -1)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def testArch(self):
     # Arch option only works for embedded mode,
@@ -600,6 +600,7 @@ class TestMakeApk(unittest.TestCase):
              '--package=org.xwalk.example', '--app-url=http://www.intel.com',
              '--arch=x86', self._mode]
       RunCommand(cmd)
+      self.addCleanup(Clean, 'Example', '1.0.0')
       if 'x86' in self.archs():
         self.assertTrue(os.path.isfile('Example_1.0.0_x86.apk'))
         self.checkApk('Example_1.0.0_x86.apk', 'x86')
@@ -617,19 +618,18 @@ class TestMakeApk(unittest.TestCase):
       else:
         self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
-      Clean('Example', '1.0.0')
 
   def testVerbose(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--verbose', self._mode]
     result = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(result.find('aapt') != -1)
     self.assertTrue(result.find('crunch') != -1)
     self.assertTrue(result.find('apkbuilder') != -1)
     self.assertTrue(os.path.exists('Example'))
     self.checkApks('Example', '1.0.0')
-    Clean('Example', '1.0.0')
 
   def executeCommandAndVerifyResult(self, exec_file):
     # Test all of supported options with empty 'mode' option.
@@ -655,6 +655,7 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example',
            '--permissions=geolocation']
     RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
     activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
     with open(activity, 'r') as content_file:
       content = content_file.read()
@@ -696,14 +697,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(os.path.exists(extension_js))
     extension_jar = 'Example/xwalk-extensions/myextension/myextension.jar'
     self.assertTrue(os.path.exists(extension_jar))
-    # Test arch option.
-    if 'x86' in self.archs():
-      self.assertTrue(os.path.isfile('Example_1.0.0_x86.apk'))
-      self.checkApk('Example_1.0.0_x86.apk', 'x86')
-    else:
-      self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
-    self.assertFalse(os.path.isfile('Example_1.0.0_arm.apk'))
-    Clean('Example', '1.0.0')
 
   def testEmptyMode(self):
     self.executeCommandAndVerifyResult('make_apk.py')
@@ -731,6 +724,7 @@ class TestMakeApk(unittest.TestCase):
              '--package=org.xwalk.example', '--app-url=http://www.intel.com',
              '--target-dir=%s' % option, self._mode]
       RunCommand(cmd)
+      self.addCleanup(Clean, os.path.expanduser('%sExample' % option), '1.0.0')
       if self._mode.find('shared') != -1:
         apk_path = os.path.expanduser('%sExample_1.0.0.apk' % option)
         self.assertTrue(os.path.exists(apk_path))
@@ -741,7 +735,6 @@ class TestMakeApk(unittest.TestCase):
                                         % (option, arch))
           self.assertTrue(os.path.exists(apk_path))
           self.checkApk(apk_path, arch)
-      Clean(os.path.expanduser('%sExample' % option), '1.0.0')
 
 
 def SuiteWithModeOption():
@@ -828,6 +821,7 @@ if __name__ == '__main__':
     options.mode = 'shared'
     print 'Run tests in shared mode.'
     test_result = TestSuiteRun(runner, mode_suite) and test_result
+    options.mode = ''
     print 'Run test without \'--mode\' option.'
     test_result = TestSuiteRun(runner, empty_mode_suite) and test_result
   if not test_result:
