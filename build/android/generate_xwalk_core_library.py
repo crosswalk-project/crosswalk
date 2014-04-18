@@ -76,25 +76,9 @@ def CopyJavaSources(project_source, out_dir):
   # here are all beginned with "org". If the assumption is broken in
   # future, the logic needs to be adjusted accordingly.
   java_srcs_to_copy = [
-      # Chromium java sources.
-      'base/android/java/src/org/chromium/base',
-      'content/public/android/java/src/org/chromium/content',
-      'content/public/android/java/src/org/chromium/content_public',
-      'media/base/android/java/src/org/chromium/media',
-      'net/android/java/src/org/chromium/net',
-      'ui/android/java/src/org/chromium/ui',
-      'components/navigation_interception/android/java/'
-          'src/org/chromium/components/navigation_interception',
-      'components/web_contents_delegate_android/android/java/'
-          'src/org/chromium/components/web_contents_delegate_android',
-
       # R.javas
       'content/public/android/java/resource_map/org/chromium/content/R.java',
       'ui/android/java/resource_map/org/chromium/ui/R.java',
-
-      # XWalk java sources.
-      'xwalk/runtime/android/core/src/org/xwalk/core',
-      'xwalk/extensions/android/java/src/org/xwalk/core/extensions',
   ]
 
   for source in java_srcs_to_copy:
@@ -114,40 +98,13 @@ def CopyJavaSources(project_source, out_dir):
 
 
 def CopyGeneratedSources(out_dir):
-  """cp out/Release/gen/templates/<path>
-        out/Release/xwalk_core_library/src/<path>
-     cp out/Release/xwalk_core_shell_apk/
+  """cp out/Release/xwalk_core_shell_apk/
             native_libraries_java/NativeLibraries.java
         out/Release/xwalk_core_library/src/org/
             chromium/base/library_loader/NativeLibraries.java
   """
 
   print 'Copying generated source files...'
-  generated_srcs_to_copy = [
-      'org/chromium/base/ApplicationState.java',
-      'org/chromium/base/MemoryPressureLevelList.java',
-      'org/chromium/base/library_loader/NativeLibraries.java',
-      'org/chromium/content/browser/GestureEventType.java',
-      'org/chromium/content/browser/input/PopupItemType.java',
-      'org/chromium/content/browser/PageTransitionTypes.java',
-      'org/chromium/content/browser/SpeechRecognitionError.java',
-      'org/chromium/content/common/ResultCodes.java',
-      'org/chromium/content/common/ScreenOrientationValues.java',
-      'org/chromium/content/common/TopControlsState.java',
-      'org/chromium/media/ImageFormat.java',
-      'org/chromium/net/CertificateMimeType.java',
-      'org/chromium/net/CertVerifyStatusAndroid.java',
-      'org/chromium/net/NetError.java',
-      'org/chromium/net/PrivateKeyType.java',
-      'org/chromium/ui/gfx/BitmapFormat.java',
-      'org/chromium/ui/WindowOpenDisposition.java'
-  ]
-
-  for source in generated_srcs_to_copy:
-    source_file = os.path.join(out_dir, 'gen', 'templates', source)
-    target_file = os.path.join(
-        out_dir, LIBRARY_PROJECT_NAME, 'src', source)
-    shutil.copyfile(source_file, target_file)
 
   source_file = os.path.join(out_dir, XWALK_CORE_SHELL_APK,
                              'native_libraries_java',
@@ -155,6 +112,8 @@ def CopyGeneratedSources(out_dir):
   target_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src', 'org',
                              'chromium', 'base', 'library_loader',
                              'NativeLibraries.java')
+  if not os.path.isdir(os.path.dirname(target_file)):
+    os.makedirs(os.path.dirname(target_file))
   shutil.copyfile(source_file, target_file)
 
 def CopyJSBindingFiles(project_source, out_dir):
@@ -227,9 +186,7 @@ def CopyBinaries(out_dir):
     os.mkdir(libs_dir)
 
   libs_to_copy = [
-      'eyesfree_java.jar',
-      'guava_javalib.jar',
-      'jsr_305_javalib.jar',
+      'xwalk_core_library_java.jar',
   ]
 
   for lib in libs_to_copy:
