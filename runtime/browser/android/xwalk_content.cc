@@ -14,6 +14,7 @@
 #include "base/android/jni_string.h"
 #include "base/base_paths_android.h"
 #include "base/json/json_reader.h"
+#include "base/json/json_writer.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "content/public/browser/browser_context.h"
@@ -224,6 +225,14 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     manifest.GetString(
         xwalk::application_manifest_keys::kLaunchWebURLKey, &url);
   }
+
+  std::string match_patterns;
+  const base::ListValue* xwalk_hosts = NULL;
+  if (manifest.GetList(
+          xwalk::application_manifest_keys::kXWalkHostsKey, &xwalk_hosts)) {
+      base::JSONWriter::Write(xwalk_hosts, &match_patterns);
+  }
+  render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
   manifest.GetString(

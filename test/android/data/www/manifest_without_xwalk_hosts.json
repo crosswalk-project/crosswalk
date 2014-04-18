@@ -1,0 +1,10 @@
+{
+  "name": "Cross Origin XHR Test",
+  "version": "1.0.0",
+  "description": "Test for Cross-Origin XHR without xwalk_hosts",
+  "app": {
+    "launch": {
+      "local_path": "cross_origin.html"
+    }
+  }
+}

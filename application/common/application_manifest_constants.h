@@ -26,6 +26,7 @@ namespace application_manifest_keys {
   extern const char kURLKey[];
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
+  extern const char kXWalkHostsKey[];
 
 #if defined(OS_TIZEN)
   extern const char kTizenAppIdKey[];

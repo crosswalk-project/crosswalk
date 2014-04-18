@@ -5,6 +5,7 @@
       'type': 'none',
       'dependencies': [
         '../content/content_shell_and_tests.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
       ],
       'variables': {
         'java_in_dir': 'test/android/util',
@@ -269,7 +270,10 @@
           '<(PRODUCT_DIR)/runtime_client_shell/assets/sampapp-icon-helloworld.png',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_self.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_inline_script.json',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/www/cross_origin.html',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/www/csp.html',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_without_xwalk_hosts.json',
+          '<(PRODUCT_DIR)/runtime_client_shell/assets/www/manifest_xwalk_hosts.json',
         ],
         'asset_location': '<(PRODUCT_DIR)/runtime_client_shell/assets',
       },
@@ -292,7 +296,10 @@
           'files': [
             'test/android/data/www/manifest_self.json',
             'test/android/data/www/manifest_inline_script.json',
+            'test/android/data/www/cross_origin.html',
             'test/android/data/www/csp.html',
+            'test/android/data/www/manifest_without_xwalk_hosts.json',
+            'test/android/data/www/manifest_xwalk_hosts.json',
           ],
         },
       ],
@@ -335,7 +342,10 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/xwalk.pak',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_self.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_inline_script.json',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/cross_origin.html',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/csp.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_without_xwalk_hosts.json',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_xwalk_hosts.json',
         ],
         'conditions': [
           ['icu_use_data_file_flag==1', {
@@ -374,7 +384,10 @@
           'files': [
             'test/android/data/www/manifest_self.json',
             'test/android/data/www/manifest_inline_script.json',
+            'test/android/data/www/cross_origin.html',
             'test/android/data/www/csp.html',
+            'test/android/data/www/manifest_without_xwalk_hosts.json',
+            'test/android/data/www/manifest_xwalk_hosts.json',
           ],
         },
       ],

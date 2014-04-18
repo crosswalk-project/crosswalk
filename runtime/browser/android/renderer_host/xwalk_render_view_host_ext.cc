@@ -19,7 +19,8 @@ namespace xwalk {
 
 XWalkRenderViewHostExt::XWalkRenderViewHostExt(content::WebContents* contents)
     : content::WebContentsObserver(contents),
-      has_new_hit_test_data_(false) {
+      has_new_hit_test_data_(false),
+      is_render_view_created_(false) {
 }
 
 XWalkRenderViewHostExt::~XWalkRenderViewHostExt() {}
@@ -80,6 +81,15 @@ void XWalkRenderViewHostExt::SetInitialPageScale(double page_scale_factor) {
                                          page_scale_factor));
 }
 
+void XWalkRenderViewHostExt::RenderViewCreated(
+    content::RenderViewHost* render_view_host) {
+  if (!pending_base_url_.empty()) {
+    Send(new XWalkViewMsg_SetOriginAccessWhitelist(
+        pending_base_url_, pending_match_patterns_));
+  }
+  is_render_view_created_ = true;
+}
+
 void XWalkRenderViewHostExt::SetJsOnlineProperty(bool network_up) {
   Send(new XWalkViewMsg_SetJsOnlineProperty(network_up));
 }
@@ -134,6 +144,19 @@ void XWalkRenderViewHostExt::OnUpdateHitTestData(
   DCHECK(CalledOnValidThread());
   last_hit_test_data_ = hit_test_data;
   has_new_hit_test_data_ = true;
+}
+
+void XWalkRenderViewHostExt::SetOriginAccessWhitelist(
+    const std::string& base_url,
+    const std::string& match_patterns) {
+  DCHECK(CalledOnValidThread());
+  pending_base_url_ = base_url;
+  pending_match_patterns_ = match_patterns;
+
+  if (is_render_view_created_) {
+    Send(new XWalkViewMsg_SetOriginAccessWhitelist(
+        pending_base_url_, pending_match_patterns_));
+  }
 }
 
 }  // namespace xwalk

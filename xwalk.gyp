@@ -65,6 +65,10 @@
         '..',
       ],
       'sources': [
+        '../extensions/common/constants.cc',
+        '../extensions/common/constants.h',
+        '../extensions/common/url_pattern.cc',
+        '../extensions/common/url_pattern.h',
         'runtime/app/android/xwalk_main_delegate_android.cc',
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',

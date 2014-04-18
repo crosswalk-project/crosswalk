@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 // Multiply-included file, no traditional include guard.
+#include <string>
+
 #include "xwalk/runtime/common/android/xwalk_hit_test_data.h"
 #include "content/public/common/common_param_traits.h"
 #include "ipc/ipc_channel_handle.h"
@@ -36,71 +38,76 @@ IPC_STRUCT_TRAITS_END()
 // These are messages sent from the browser to the renderer process.
 
 // Tells the renderer to drop all WebCore memory cache.
-IPC_MESSAGE_CONTROL0(XWalkViewMsg_ClearCache)
+IPC_MESSAGE_CONTROL0(XWalkViewMsg_ClearCache) // NOLINT(*)
 
 // Request for the renderer to determine if the document contains any image
 // elements.  The id should be passed in the response message so the response
 // can be associated with the request.
-IPC_MESSAGE_ROUTED1(XWalkViewMsg_DocumentHasImages,
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_DocumentHasImages, // NOLINT(*)
                     int /* id */)
 
 // Do hit test at the given webview coordinate. "Webview" coordinates are
 // physical pixel values with the 0,0 at the top left of the current displayed
 // view (ie 0,0 is not the top left of the page if the page is scrolled).
-IPC_MESSAGE_ROUTED2(XWalkViewMsg_DoHitTest,
+IPC_MESSAGE_ROUTED2(XWalkViewMsg_DoHitTest, // NOLINT(*)
                     int /* view_x */,
                     int /* view_y */)
 
 // Enables receiving pictures from the renderer on every new frame.
-IPC_MESSAGE_ROUTED1(XWalkViewMsg_EnableCapturePictureCallback,
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_EnableCapturePictureCallback, // NOLINT(*)
                     bool /* enable */)
 
 // Requests a new picture with the latest renderer contents synchronously.
 // This message blocks the browser process on the renderer until complete.
-IPC_SYNC_MESSAGE_ROUTED0_0(XWalkViewMsg_CapturePictureSync)
+IPC_SYNC_MESSAGE_ROUTED0_0(XWalkViewMsg_CapturePictureSync) // NOLINT(*)
 
 // Sets the zoom level for text only. Used in layout modes other than
 // Text Autosizing.
-IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetTextZoomLevel,
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetTextZoomLevel, // NOLINT(*)
                     double /* zoom_level */)
 
 // Resets WebKit WebView scrolling and scale state. We need to send this
 // message whenever we want to guarantee that page's scale will be
 // recalculated by WebKit.
-IPC_MESSAGE_ROUTED0(XWalkViewMsg_ResetScrollAndScaleState)
+IPC_MESSAGE_ROUTED0(XWalkViewMsg_ResetScrollAndScaleState) // NOLINT(*)
 
 // Sets the initial page scale. This overrides initial scale set by
 // the meta viewport tag.
-IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetInitialPageScale,
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetInitialPageScale, // NOLINT(*)
                     double /* page_scale_factor */)
 
 // Set the Javascript online property for network availability change.
-IPC_MESSAGE_CONTROL1(XWalkViewMsg_SetJsOnlineProperty, bool /* network_up */)
+IPC_MESSAGE_CONTROL1(XWalkViewMsg_SetJsOnlineProperty, bool /* network_up */) // NOLINT(*)
+
+// Set the white list for Cross-Origin access.
+IPC_MESSAGE_CONTROL2(XWalkViewMsg_SetOriginAccessWhitelist, // NOLINT(*)
+                     std::string /* base url */,
+                     std::string /* match pattern content*/)
 
 //-----------------------------------------------------------------------------
 // RenderView messages
 // These are messages sent from the renderer to the browser process.
 
 // Response to XWalkViewMsg_DocumentHasImages request.
-IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_DocumentHasImagesResponse,
+IPC_MESSAGE_ROUTED2(XWalkViewHostMsg_DocumentHasImagesResponse, // NOLINT(*)
                     int, /* id */
                     bool /* has_images */)
 
 // Response to XWalkViewMsg_DoHitTest.
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_UpdateHitTestData,
+IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_UpdateHitTestData, // NOLINT(*)
                     xwalk::XWalkHitTestData)
 
 // Sent whenever the page scale factor (as seen by RenderView) is changed.
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_PageScaleFactorChanged,
+IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_PageScaleFactorChanged, // NOLINT(*)
                     float /* page_scale_factor */)
 
 // Notification that a new picture becomes available. It is only sent if
 // XWalkViewMsg_EnableCapturePictureCallback was previously enabled.
-IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_PictureUpdated)
+IPC_MESSAGE_ROUTED0(XWalkViewHostMsg_PictureUpdated) // NOLINT(*)
 
 // Sent by the renderer when accelerated compositing is enabled, allowing the
 // browser to perform synchronous input event filtering.
-IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidActivateAcceleratedCompositing,
+IPC_MESSAGE_ROUTED1(XWalkViewHostMsg_DidActivateAcceleratedCompositing, // NOLINT(*)
                     int /* input_handler_id */)
 
 
