@@ -17,6 +17,9 @@ import android.webkit.WebSettings;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
+import org.chromium.base.ActivityState;
+import org.chromium.base.ApplicationStatus;
+
 import org.xwalk.core.extension.XWalkExtensionManager;
 
 /**
@@ -485,6 +488,12 @@ public class XWalkView extends FrameLayout {
                 "All XWalkView methods must be called on the UI thread. ");
             throw new RuntimeException(throwable);
         }
+    }
+
+    boolean isOwnerActivityRunning() {
+        int status = ApplicationStatus.getStateForActivity(getActivity());
+        if (status == ActivityState.DESTROYED) return false;
+        return true;
     }
 
     void navigateTo(int offset) {
