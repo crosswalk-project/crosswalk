@@ -68,6 +68,9 @@ namespace application_widget_keys {
   extern const char kCSPReportOnlyKey[];
   extern const char kTizenSettingKey[];
   extern const char kTizenHardwareKey[];
+  extern const char kTizenMetaDataKey[];
+  extern const char kTizenMetaDataNameKey[];
+  extern const char kTizenMetaDataValueKey[];
 #endif
 }  // namespace application_widget_keys
 
