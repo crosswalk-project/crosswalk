@@ -40,10 +40,11 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     public void testGeolocationPermissionShowPrompt() throws Throwable {
         class TestWebChromeClient extends XWalkWebChromeClient {
             public TestWebChromeClient() {
-                super(getXWalkView().getContext(), getXWalkView());
+                super(getXWalkView());
             }
 
             private int mCalledCount = 0;
+
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
                     XWalkGeolocationPermissions.Callback callback) {
@@ -76,7 +77,7 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     public void testGeolocationPermissionHidePrompt() throws Throwable {
         class TestWebChromeClient extends XWalkWebChromeClient {
             public TestWebChromeClient() {
-                super(getXWalkView().getContext(), getXWalkView());
+                super(getXWalkView());
             }
 
             @Override

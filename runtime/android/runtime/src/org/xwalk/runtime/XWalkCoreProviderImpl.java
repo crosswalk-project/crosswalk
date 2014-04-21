@@ -121,9 +121,7 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
 
     @Override
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
-        mXWalkView.getXWalkViewContentForTest().getContentViewCoreForTest(
-                ).loadUrl(LoadUrlParams.createLoadDataParams(
-                        data, mimeType, isBase64Encoded));
+        mXWalkView.load("", data);
     }
 
     @Override

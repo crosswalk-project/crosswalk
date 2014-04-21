@@ -12,7 +12,6 @@ import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 /**

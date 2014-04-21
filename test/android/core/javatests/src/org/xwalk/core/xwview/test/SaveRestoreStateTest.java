@@ -16,10 +16,11 @@ import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.NavigationEntry;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.net.test.util.TestWebServer;
-import org.xwalk.core.xwview.test.util.CommonResources;
+
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
+import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.xwview.test.util.CommonResources;
 
 import java.util.concurrent.Callable;
 
@@ -42,7 +43,6 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
     private String mUrls[];
     private XWalkView mXWalkView;
     private XWalkView mRestoreXWalkView;
-    private XWalkContent mXWalkContent;
 
     @Override
     public void setUp() throws Exception {
@@ -55,7 +55,6 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
                 mXWalkView = getXWalkView();
                 mRestoreXWalkView = new XWalkView(activity, activity);
                 mXWalkView.setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-                mXWalkContent = mXWalkView.getXWalkViewContentForTest();
             }
         });
 
@@ -81,28 +80,28 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
         }
     }
 
-    private NavigationHistory getNavigationHistoryOnUiThread(
-            final XWalkContent content) throws Throwable{
-        return runTestOnUiThreadAndGetResult(new Callable<NavigationHistory>() {
+    private XWalkNavigationHistory getNavigationHistoryOnUiThread(
+            final XWalkView content) throws Throwable{
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkNavigationHistory>() {
             @Override
-            public NavigationHistory call() throws Exception {
-                return content.getContentViewCoreForTest().getNavigationHistory();
+            public XWalkNavigationHistory call() throws Exception {
+                return content.getNavigationHistory();
             }
         });
     }
 
-    private void checkHistoryItemList(XWalkContent content) throws Throwable {
-        NavigationHistory history = getNavigationHistoryOnUiThread(content);
-        assertEquals(NUM_NAVIGATIONS, history.getEntryCount());
-        assertEquals(NUM_NAVIGATIONS - 1, history.getCurrentEntryIndex());
+    private void checkHistoryItemList(XWalkView content) throws Throwable {
+        XWalkNavigationHistory history = getNavigationHistoryOnUiThread(content);
+        assertEquals(NUM_NAVIGATIONS, history.size());
+        assertEquals(NUM_NAVIGATIONS - 1, history.getCurrentIndex());
 
         // Note this is not meant to be a thorough test of NavigationHistory,
         // but is only meant to test enough to make sure state is restored.
         // See NavigationHistoryTest for more thorough tests.
         for (int i = 0; i < NUM_NAVIGATIONS; ++i) {
-            assertEquals(mUrls[i], history.getEntryAtIndex(i).getOriginalUrl());
-            assertEquals(mUrls[i], history.getEntryAtIndex(i).getUrl());
-            assertEquals(TITLES[i], history.getEntryAtIndex(i).getTitle());
+            assertEquals(mUrls[i], history.getItemAt(i).getOriginalUrl());
+            assertEquals(mUrls[i], history.getItemAt(i).getUrl());
+            assertEquals(TITLES[i], history.getItemAt(i).getTitle());
         }
     }
 
@@ -126,7 +125,7 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
             @Override
             public Boolean call() throws Exception {
                 // TODO(hengzhi): add the judge about updated title.
-                return TITLES[0].equals(mXWalkContent.getContentViewCoreForTest().getTitle());
+                return TITLES[0].equals(mXWalkView.getTitle());
             }
         }));
     }
@@ -137,14 +136,16 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
     public void testSaveRestoreStateWithHistoryItemList() throws Throwable {
         setServerResponseAndLoad(NUM_NAVIGATIONS);
         saveAndRestoreStateOnUiThread();
-        checkHistoryItemList(mRestoreXWalkView.getXWalkViewContentForTest());
+        checkHistoryItemList(mRestoreXWalkView);
     }
 
     @SmallTest
     @Feature({"SaveRestoreState"})
     public void testRestoreFromInvalidStateFails() throws Throwable {
         final Bundle invalidState = new Bundle();
-        invalidState.putByteArray(mXWalkContent.SAVE_RESTORE_STATE_KEY,
+        // TODO(yongsheng): how to share this with
+        // XWalkContent.SAVE_RESTORE_STATE_KEY?
+        invalidState.putByteArray("XWALKVIEW_STATE",
                                   "invalid state".getBytes());
         boolean result = runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
             @Override

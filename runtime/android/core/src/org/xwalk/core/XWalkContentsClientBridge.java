@@ -83,7 +83,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             mXWalkUIClient = client;
             return;
         }
-        mXWalkUIClient = new XWalkUIClientImpl(mXWalkView.getContext(), mXWalkView);
+        mXWalkUIClient = new XWalkUIClient(mXWalkView);
     }
 
     public void setResourceClient(XWalkResourceClient client) {
@@ -92,7 +92,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             mXWalkResourceClient = client;
             return;
         }
-        mXWalkResourceClient = new XWalkResourceClientImpl(mXWalkView.getContext(), mXWalkView);
+        mXWalkResourceClient = new XWalkResourceClient(mXWalkView);
     }
 
 

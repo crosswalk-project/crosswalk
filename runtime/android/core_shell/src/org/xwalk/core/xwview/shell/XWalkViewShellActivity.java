@@ -38,7 +38,7 @@ import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkPreferences;
-import org.xwalk.core.XWalkResourceClientImpl;
+import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
 
@@ -302,7 +302,7 @@ public class XWalkViewShellActivity extends FragmentActivity
     }
 
     private void initializeXWalkViewClients(XWalkView xwalkView) {
-        xwalkView.setResourceClient(new XWalkResourceClientImpl(this, xwalkView) {
+        xwalkView.setResourceClient(new XWalkResourceClient(xwalkView) {
             @Override
             public void onProgressChanged(XWalkView view, int newProgress) {
                 if (view != mActiveView) return;
@@ -318,7 +318,7 @@ public class XWalkViewShellActivity extends FragmentActivity
             }
         });
 
-        xwalkView.setXWalkWebChromeClient(new XWalkWebChromeClient(this, xwalkView) {
+        xwalkView.setXWalkWebChromeClient(new XWalkWebChromeClient(xwalkView) {
             @Override
             public void onReceivedTitle(XWalkView view, String title) {
                 mSectionsPagerAdapter.setPageTitle(view, title);

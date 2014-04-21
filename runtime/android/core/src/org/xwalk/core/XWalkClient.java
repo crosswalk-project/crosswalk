@@ -41,8 +41,8 @@ public class XWalkClient {
     private AlertDialog mDialog;
     private XWalkView mXWalkView;
 
-    public XWalkClient(Context context, XWalkView view) {
-        mContext = context;
+    public XWalkClient(XWalkView view) {
+        mContext = view.getContext();
         mXWalkView = view;
     }
 

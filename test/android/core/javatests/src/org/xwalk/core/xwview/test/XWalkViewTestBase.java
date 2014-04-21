@@ -24,13 +24,9 @@ import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
-import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
-import org.xwalk.core.XWalkContentsClient;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkResourceClientImpl;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
@@ -45,7 +41,7 @@ public class XWalkViewTestBase
     class TestXWalkClientBase extends XWalkClient {
         TestHelperBridge mInnerContentsClient;
         public TestXWalkClientBase(TestHelperBridge client) {
-            super(getXWalkView().getContext(), getXWalkView());
+            super(getXWalkView());
             mInnerContentsClient = client;
         }
 
@@ -69,7 +65,7 @@ public class XWalkViewTestBase
     class TestXWalkWebChromeClientBase extends XWalkWebChromeClient {
         TestHelperBridge mInnerContentsClient;
         public TestXWalkWebChromeClientBase(TestHelperBridge client) {
-            super(getXWalkView().getContext(), getXWalkView());
+            super(getXWalkView());
             mInnerContentsClient = client;
         }
 
@@ -88,6 +84,7 @@ public class XWalkViewTestBase
     class TestXWalkResourceClientBase extends XWalkResourceClient {
         TestHelperBridge mInnerContentsClient;
         public TestXWalkResourceClientBase(TestHelperBridge client) {
+            super(mXWalkView);
             mInnerContentsClient = client;
         }
 
@@ -142,20 +139,20 @@ public class XWalkViewTestBase
     }
 
     static class ViewPair {
-        private final XWalkContent content0;
+        private final XWalkView content0;
         private final TestHelperBridge client0;
-        private final XWalkContent content1;
+        private final XWalkView content1;
         private final TestHelperBridge client1;
 
-        ViewPair(XWalkContent content0, TestHelperBridge client0,
-                XWalkContent content1, TestHelperBridge client1) {
+        ViewPair(XWalkView content0, TestHelperBridge client0,
+                XWalkView content1, TestHelperBridge client1) {
             this.content0 = content0;
             this.client0 = client0;
             this.content1 = content1;
             this.client1 = client1;
         }
 
-        XWalkContent getContent0() {
+        XWalkView getContent0() {
             return content0;
         }
 
@@ -163,7 +160,7 @@ public class XWalkViewTestBase
             return client0;
         }
 
-        XWalkContent getContent1() {
+        XWalkView getContent1() {
             return content1;
         }
 
@@ -231,28 +228,26 @@ public class XWalkViewTestBase
         });
     }
 
-    protected void loadDataSync(final String data, final String mimeType,
+    protected void loadDataSync(final String url, final String data, final String mimeType,
             final boolean isBase64Encoded) throws Exception {
         CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();
-        loadDataAsync(data, mimeType, isBase64Encoded);
+        loadDataAsync(url, data, mimeType, isBase64Encoded);
         pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
     }
 
-    protected void loadDataAsync(final String data, final String mimeType,
+    protected void loadDataAsync(final String url, final String data, final String mimeType,
              final boolean isBase64Encoded) throws Exception {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mXWalkView.getXWalkViewContentForTest().getContentViewCoreForTest(
-                        ).loadUrl(LoadUrlParams.createLoadDataParams(
-                        data, mimeType, isBase64Encoded));
+                mXWalkView.load(url, data);
             }
         });
     }
 
-    protected void loadUrlSyncByContent(final XWalkContent xWalkContent,
+    protected void loadUrlSyncByContent(final XWalkView xWalkContent,
             final TestHelperBridge contentsClient,
             final String url) throws Exception {
         CallbackHelper pageFinishedHelper = contentsClient.getOnPageFinishedHelper();
@@ -263,12 +258,12 @@ public class XWalkViewTestBase
                 TimeUnit.SECONDS);
     }
 
-    protected void loadUrlAsyncByContent(final XWalkContent xWalkContent,
+    protected void loadUrlAsyncByContent(final XWalkView xWalkContent,
             final String url) throws Exception {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                xWalkContent.loadUrl(url);
+                xWalkContent.load(url, null);
             }
         });
     }
@@ -306,18 +301,18 @@ public class XWalkViewTestBase
         }
     }
 
-    protected String getTitleOnUiThreadByContent(final XWalkContent xWalkContent) throws Exception {
+    protected String getTitleOnUiThreadByContent(final XWalkView xWalkContent) throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                String title = xWalkContent.getContentViewCoreForTest().getTitle();
+                String title = xWalkContent.getTitle();
                 return title;
             }
         });
     }
 
     protected XWalkSettings getXWalkSettingsOnUiThreadByContent(
-            final XWalkContent xwalkContent) throws Exception {
+            final XWalkView xwalkContent) throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
             @Override
             public XWalkSettings call() throws Exception {
@@ -347,19 +342,6 @@ public class XWalkViewTestBase
         return xWalkViewContainer.get();
     }
 
-    protected XWalkContent getXWalkContentOnMainSync(final XWalkView view) throws Exception {
-        final AtomicReference<XWalkContent> xWalkContent =
-                new AtomicReference<XWalkContent>();
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                xWalkContent.set(view.getXWalkViewContentForTest());
-            }
-        });
-
-        return xWalkContent.get();
-    }
-
     protected ViewPair createViewsOnMainSync(final TestHelperBridge helperBridge0,
                                              final TestHelperBridge helperBridge1,
                                              final XWalkClient client0,
@@ -378,9 +360,7 @@ public class XWalkViewTestBase
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                XWalkContent content0 = walkView0.getXWalkViewContentForTest();
-                XWalkContent content1 = walkView1.getXWalkViewContentForTest();
-                viewPair.set(new ViewPair(content0, helperBridge0, content1, helperBridge1));
+                viewPair.set(new ViewPair(walkView0, helperBridge0, walkView1, helperBridge1));
             }
         });
 
@@ -389,7 +369,7 @@ public class XWalkViewTestBase
 
     protected void loadAssetFile(String fileName) throws Exception {
         String fileContent = getFileContent(fileName);
-        loadDataSync(fileContent, "text/html", false);
+        loadDataSync(fileName, fileContent, "text/html", false);
     }
 
     public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
@@ -397,7 +377,7 @@ public class XWalkViewTestBase
         int currentCallCount = getTitleHelper.getCallCount();
         String fileContent = getFileContent(fileName);
 
-        loadDataSync(fileContent, "text/html", false);
+        loadDataSync(fileName, fileContent, "text/html", false);
 
         getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
@@ -487,13 +467,13 @@ public class XWalkViewTestBase
     }
 
     protected String executeJavaScriptAndWaitForResult(final String code) throws Exception {
-        final OnEvaluateJavaScriptResultHelper helper =
+
+        final TestHelperBridge.OnEvaluateJavaScriptResultHelper helper =
                 mTestHelperBridge.getOnEvaluateJavaScriptResultHelper();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                XWalkContent content = mXWalkView.getXWalkViewContentForTest();
-                helper.evaluateJavaScript(content.getContentViewCoreForTest(), code);
+                helper.evaluateJavascript(mXWalkView, code);
             }
         });
         helper.waitUntilHasValue();

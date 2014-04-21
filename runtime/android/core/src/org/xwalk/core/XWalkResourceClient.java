@@ -4,12 +4,25 @@
 
 package org.xwalk.core;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.view.View;
 import android.webkit.WebResourceResponse;
 
 /**
  * This interface notifies the embedder resource events/callbacks.
  */
 public class XWalkResourceClient {
+
+    /**
+     * Constructor.
+     * @param view the owner XWalkView instance.
+     */
+    public XWalkResourceClient(XWalkView view) {
+        // Keep the above parameter for future use.
+    }
+
     /**
      * Notify the client that the XWalkView will load the resource specified
      * by the given url.
@@ -64,5 +77,17 @@ public class XWalkResourceClient {
     public void onReceivedLoadError(XWalkView view, int errorCode, String description,
             String failingUrl) {
         // TODO(yongsheng): Need to define errorCode.
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(view.getContext());
+        dialogBuilder.setTitle(android.R.string.dialog_alert_title)
+                .setMessage(description)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
     }
 }

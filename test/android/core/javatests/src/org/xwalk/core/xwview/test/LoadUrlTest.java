@@ -8,10 +8,9 @@ package org.xwalk.core.xwview.test;
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkClient;
 
 /**
  * Test suite for loadUrl().

@@ -9,9 +9,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkUIClient;
+import org.xwalk.core.XWalkView;
 
 /**
  * Represents the content to be presented on the secondary display.
@@ -25,23 +25,6 @@ public class XWalkPresentationContent {
     private Activity mActivity;
     private PresentationDelegate mDelegate;
 
-    private final XWalkResourceClient mXWalkResourceClient = new XWalkResourceClient() {
-        @Override
-        public void onLoadFinished(XWalkView view, String url) {
-            mPresentationId = mContentView.getContentID();
-            onContentLoaded();
-        }
-    };
-
-    private final XWalkUIClient mXWalkUIClient = new XWalkUIClient() {
-        @Override
-        public void onJavascriptCloseWindow(XWalkView view) {
-            // The content was closed already. Web need to invalidate the
-            // presentation id now.
-            mPresentationId = INVALID_PRESENTATION_ID;
-            onContentClosed();
-        }
-    };
 
     public XWalkPresentationContent(Context context, Activity activity, PresentationDelegate delegate) {
         mContext = context;
@@ -52,7 +35,25 @@ public class XWalkPresentationContent {
     public void load(final String url) {
         if (mContentView == null) {
             mContentView = new XWalkView(mContext, mActivity);
-            mContentView.setResourceClient(mXWalkResourceClient);
+            final XWalkClient xWalkClient = new XWalkClient(mContentView) {
+                @Override
+                public void onPageFinished(XWalkView view, String url) {
+                    mPresentationId = mContentView.getContentID();
+                    onContentLoaded();
+                }
+            };
+            mContentView.setXWalkClient(xWalkClient);
+
+            final XWalkUIClient xWalkUIClient = new XWalkUIClient(mContentView) {
+                @Override
+                public void onJavascriptCloseWindow(XWalkView view) {
+                    // The content was closed already. Web need to invalidate the
+                    // presentation id now.
+                    mPresentationId = INVALID_PRESENTATION_ID;
+                    onContentClosed();
+                }
+            };
+            mContentView.setUIClient(xWalkUIClient);
         }
         mContentView.load(url, null);
     }

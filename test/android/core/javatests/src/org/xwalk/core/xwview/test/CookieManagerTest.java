@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.xwalk.core.XWalkCookieManager;
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 /**

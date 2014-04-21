@@ -13,15 +13,14 @@ import java.lang.reflect.Method;
 
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkResourceClientImpl;
 import org.xwalk.core.XWalkWebChromeClient;
 import org.xwalk.core.XWalkView;
 
 class XWalkRuntimeTestHelper {
 
-    class TestXWalkResourceClient extends XWalkResourceClientImpl {
+    class TestXWalkResourceClient extends XWalkResourceClient {
         TestXWalkResourceClient(Context context, XWalkView view) {
-            super(context, view);
+            super(view);
         }
 
         @Override
@@ -44,7 +43,7 @@ class XWalkRuntimeTestHelper {
 
     class TestXWalkClient extends XWalkClient {
         TestXWalkClient(Context context, XWalkView view) {
-            super(context, view);
+            super(view);
         }
 
         @Override
@@ -78,7 +77,7 @@ class XWalkRuntimeTestHelper {
 
     class TestXWalkWebChromeClient extends XWalkWebChromeClient {
         TestXWalkWebChromeClient(Context context, XWalkView view) {
-            super(context, view);
+            super(view);
         }
 
         @Override

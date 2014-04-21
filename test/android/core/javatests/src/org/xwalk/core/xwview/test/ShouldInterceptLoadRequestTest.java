@@ -23,9 +23,9 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 import org.chromium.net.test.util.TestWebServer;
 
-import org.xwalk.core.xwview.test.util.CommonResources;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.xwview.test.TestContentProvider;
+import org.xwalk.core.xwview.test.util.CommonResources;
 
 /**
  * Test case for XWalkResourceClient.shouldInterceptRequest callback
