@@ -408,7 +408,8 @@ std::string Switches::ToString() const {
 }
 
 Capabilities::Capabilities()
-    : detach(false),
+    : android_use_running_app(false),
+      detach(false),
       force_devtools_screenshot(false) {}
 
 Capabilities::~Capabilities() {}
