@@ -42,7 +42,7 @@ public final class XWalkPreferences {
     }
 
     /**
-     * Get a preference value into Crosswalk. An exception will be thrown if
+     * Get a preference value from Crosswalk. An exception will be thrown if
      * the key for the preference is not valid.
      * @param key the string name of the key.
      * @return true if it's enabled.

@@ -94,8 +94,10 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
         switch(direction) {
             case FORWARD:
                 mXWalkView.navigateTo(steps);
+                break;
             case BACKWARD:
                 mXWalkView.navigateTo(-steps);
+                break;
             default:
                 break;
         }
