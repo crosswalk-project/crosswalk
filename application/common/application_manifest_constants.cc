@@ -49,6 +49,8 @@ const char kNameKey[] = "widget.name.#text";
 const char kVersionKey[] = "widget.@version";
 const char kWidgetKey[] = "widget";
 const char kLaunchLocalPathKey[] = "widget.content.@src";
+const char kContentKey[] = "widget.content";
+const char kContentSrcKey[] = "@src";
 const char kWebURLsKey[] = "widget.@id";
 const char kAuthorKey[] = "widget.author.#text";
 const char kDescriptionKey[] = "widget.description.#text";
@@ -92,6 +94,7 @@ const char kTizenMetaDataValueKey[] = "@value";
 #endif
 }  // namespace application_widget_keys
 
+const char kWidgetNamespecePrefix[] = "http://www.w3.org/ns/widgets";
 #if defined(OS_TIZEN)
 const char kTizenNamespacePrefix[] = "http://tizen.org/ns/widgets";
 #endif
