@@ -395,14 +395,14 @@ public class XWalkViewTestBase
                 TimeUnit.SECONDS);
     }
 
-    protected void reloadSync() throws Exception {
+    protected void reloadSync(final XWalkView.ReloadMode mode) throws Exception {
         runTestWaitPageFinished(new Runnable(){
             @Override
             public void run() {
                 getInstrumentation().runOnMainSync(new Runnable() {
                     @Override
                     public void run() {
-                        mXWalkView.reload();
+                        mXWalkView.reload(mode);
                     }
                 });
             }
