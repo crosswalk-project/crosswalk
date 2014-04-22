@@ -7,7 +7,7 @@ package org.xwalk.core;
 import org.chromium.content.browser.NavigationEntry;
 
 /**
- * Represent a navigation item and managed in XWalkNavigationHistory.
+ * This class represents a navigation item and is managed in XWalkNavigationHistory.
  */
 public final class XWalkNavigationItem implements Cloneable {
     private NavigationEntry mEntry;

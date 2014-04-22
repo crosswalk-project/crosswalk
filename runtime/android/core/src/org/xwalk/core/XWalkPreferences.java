@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is not thread-safe and must be called on the UI thread.
+ * This class represents the preferences and could be set by callers.
+ * It is not thread-safe and must be called on the UI thread.
  * Afterwards, the preference could be read from all threads and can impact
  * all XWalkView instances.
  */

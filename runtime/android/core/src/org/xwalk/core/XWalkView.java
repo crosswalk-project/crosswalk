@@ -47,7 +47,7 @@ public class XWalkView extends android.widget.FrameLayout {
     private XWalkExtensionManager mExtensionManager;
 
     /**
-     * Constructors for inflating via XML.
+     * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
      * @param attrs    an AttributeSet passed to our parent.
      */
@@ -60,7 +60,7 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * Constructors for Crosswalk runtime. In shared mode, context isi
+     * Constructor for Crosswalk runtime. In shared mode, context isi
      * different from activity. In embedded mode, they're same.
      * @param context  a Context object used to access application assets
      * @param activity the activity for this XWalkView.
@@ -78,6 +78,8 @@ public class XWalkView extends android.widget.FrameLayout {
     /**
      * Get the current activity passed from callers. It's never null.
      * @return the activity instance passed from callers.
+     *
+     * @hide
      */
     public Activity getActivity() {
         if (mActivity != null) {
@@ -92,6 +94,9 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     // TODO(yongsheng): we should remove this since we have getContext()?
+    /**
+     * @hide
+     */
     public Context getViewContext() {
         return mContext;
     }
@@ -388,13 +393,13 @@ public class XWalkView extends android.widget.FrameLayout {
         mContent.setResourceClient(client);
     }
 
-    @Override
     /**
      * Inherit from android.view.View. This class needs to handle some keys like
      * 'BACK'.
      * @param keyCode passed from android.view.View.onKeyUp().
      * @param event passed from android.view.View.onKeyUp().
      */
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             // If there's navigation happens when app is fullscreen,
@@ -412,28 +417,42 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     // TODO(yongsheng): this is not public.
+    /**
+     * @hide
+     */
     public XWalkSettings getSettings() {
         checkThreadSafety();
         return mContent.getSettings();
     }
 
-    // TODO(yongsheng): remove this and related test cases?
+    /**
+     * This method is used by Cordova for hacking.
+     * TODO(yongsheng): remove this and related test cases?
+     *
+     * @hide
+     */
     public void setNetworkAvailable(boolean networkUp) {
         checkThreadSafety();
         mContent.setNetworkAvailable(networkUp);
     }
 
-    // Enables remote debugging and returns the URL at which the dev tools server is listening
-    // for commands. The allowedUid argument can be used to specify the uid of the process that is
-    // permitted to connect.
-    // TODO(yongsheng): how to enable this in XWalkPreferences?
+    /**
+     * Enables remote debugging and returns the URL at which the dev tools server is listening
+     * for commands. The allowedUid argument can be used to specify the uid of the process that is
+     * permitted to connect.
+     * TODO(yongsheng): how to enable this in XWalkPreferences?
+     *
+     * @hide
+     */
     public String enableRemoteDebugging(int allowedUid) {
         checkThreadSafety();
         return mContent.enableRemoteDebugging(allowedUid);
     }
 
-    // It's used by presentation API.
-    // TODO(yongsheng): how to fix it?
+    /**
+     * It's used for Presentation API.
+     * @hide
+     */
     public int getContentID() {
         return mContent.getRoutingID();
     }
@@ -500,31 +519,46 @@ public class XWalkView extends android.widget.FrameLayout {
         mContent.navigateTo(offset);
     }
 
-    public void setOverlayVideoMode(boolean enabled) {
+    void setOverlayVideoMode(boolean enabled) {
         mContent.setOverlayVideoMode(enabled);
     }
 
     // Below methods are for test shell and instrumentation tests.
+    /**
+     * @hide
+     */
     public void setXWalkClient(XWalkClient client) {
         checkThreadSafety();
         mContent.setXWalkClient(client);
     }
 
+    /**
+     * @hide
+     */
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
         checkThreadSafety();
         mContent.setXWalkWebChromeClient(client);
     }
 
+    /**
+     * @hide
+     */
     public void setDownloadListener(DownloadListener listener) {
         checkThreadSafety();
         mContent.setDownloadListener(listener);
     }
 
+    /**
+     * @hide
+     */
     public void setNavigationHandler(XWalkNavigationHandler handler) {
         checkThreadSafety();
         mContent.setNavigationHandler(handler);
     }
 
+    /**
+     * @hide
+     */
     public void setNotificationService(XWalkNotificationService service) {
         checkThreadSafety();
         mContent.setNotificationService(service);

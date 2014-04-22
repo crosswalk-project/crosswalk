@@ -11,7 +11,7 @@ import android.view.View;
 import android.webkit.WebResourceResponse;
 
 /**
- * This interface notifies the embedder resource events/callbacks.
+ * This class notifies the embedder resource events/callbacks.
  */
 public class XWalkResourceClient {
 
@@ -44,7 +44,7 @@ public class XWalkResourceClient {
     /**
      * Notify the client the progress info of loading a specific url.
      * @param view the owner XWalkView instance.
-     * @param url the loading process in percent.
+     * @param progressInPercent the loading process in percent.
      */
     public void onProgressChanged(XWalkView view, int progressInPercent) {
     }

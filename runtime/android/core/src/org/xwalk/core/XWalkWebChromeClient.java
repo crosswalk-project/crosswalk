@@ -34,6 +34,8 @@ import android.widget.FrameLayout;
  * It's an internal legacy class which is to handle kinds of ui related
  * callback functions. It only handles those which are not exposed to
  * external users compared to XWalkUIClient.
+ *
+ * @hide
  */
 public class XWalkWebChromeClient {
     private Context mContext;

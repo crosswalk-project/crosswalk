@@ -77,10 +77,12 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
     }
 
     /**
-     * The direction for navigation.
+     * The direction for web page navigation.
      */
     public enum Direction {
+        /** the backward direction for web page navigation. */
         BACKWARD,
+        /** the forward direction for web page navigation. */
         FORWARD
     }
 
