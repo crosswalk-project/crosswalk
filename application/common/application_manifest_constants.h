@@ -36,6 +36,9 @@ namespace application_manifest_keys {
 
 namespace application_widget_keys {
   extern const char kNamespaceKey[];
+  extern const char kTextKey[];
+  extern const char kXmlLangKey[];
+  extern const char kDefaultLocaleKey[];
   extern const char kNameKey[];
   extern const char kLaunchLocalPathKey[];
   extern const char kWebURLsKey[];
@@ -47,12 +50,13 @@ namespace application_widget_keys {
   extern const char kCSPKey[];
   extern const char kAuthorKey[];
   extern const char kDescriptionKey[];
-  extern const char kShortNameKey[];
   extern const char kIDKey[];
   extern const char kAuthorEmailKey[];
   extern const char kAuthorHrefKey[];
   extern const char kHeightKey[];
   extern const char kWidthKey[];
+  extern const char kNameShortNameKey[];
+
   extern const char kPreferencesKey[];
   extern const char kPreferencesNameKey[];
   extern const char kPreferencesValueKey[];

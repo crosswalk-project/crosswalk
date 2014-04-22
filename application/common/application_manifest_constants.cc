@@ -36,14 +36,16 @@ const char kIcon128Key[] = "icons.128";
 // manifest keys for widget applications.
 namespace application_widget_keys {
 const char kNamespaceKey[] = "@namespace";
-const char kNameKey[] = "widget.name.#text";
+const char kTextKey[] = "#text";
+const char kXmlLangKey[] = "@xml:lang";
+const char kDefaultLocaleKey[] = "widget.@defaultlocale";
+const char kNameKey[] = "widget.name";
 const char kVersionKey[] = "widget.@version";
 const char kWidgetKey[] = "widget";
 const char kLaunchLocalPathKey[] = "widget.content.@src";
 const char kWebURLsKey[] = "widget.@id";
 const char kAuthorKey[] = "widget.author.#text";
-const char kDescriptionKey[] = "widget.description.#text";
-const char kShortNameKey[] = "widget.name.@short";
+const char kDescriptionKey[] = "widget.description";
 const char kIDKey[] = "widget.@id";
 const char kAuthorEmailKey[] = "widget.author.@email";
 const char kAuthorHrefKey[] = "widget.author.@href";
@@ -52,6 +54,9 @@ const char kWidthKey[] = "widget.@width";
 const char kPreferencesKey[] = "widget.preference";
 const char kCSPKey[] = "widget.content-security-policy.#text";
 const char kAccessKey[] = "widget.access";
+
+// Child keys inside 'kNameKey'.
+const char kNameShortNameKey[] = "@short";
 
 // Child keys inside 'kPreferencesKey'.
 const char kPreferencesNameKey[] = "@name";

@@ -60,6 +60,8 @@
         'common/install_warning.h',
         'common/manifest.cc',
         'common/manifest.h',
+        'common/manifest_i18n_data.cc',
+        'common/manifest_i18n_data.h',
         'common/manifest_handler.cc',
         'common/manifest_handler.h',
         'common/manifest_handlers/csp_handler.cc',
