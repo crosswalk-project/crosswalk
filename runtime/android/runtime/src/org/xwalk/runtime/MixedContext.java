@@ -42,6 +42,9 @@ class MixedContext extends ContextWrapper {
 
     @Override
     public Object getSystemService(String name) {
+        if (name.equals(Context.LAYOUT_INFLATER_SERVICE)) {
+            return super.getSystemService(name);
+        }
         return mActivityCtx.getSystemService(name);
     }
 }
