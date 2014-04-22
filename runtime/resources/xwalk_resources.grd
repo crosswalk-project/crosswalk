@@ -32,6 +32,124 @@
       <message name="IDS_SELECT_COLOR_DIALOG_TITLE" desc="The default title for the Select Color color chooser dialog.">
         Select Color
       </message>
+      <!-- error messages for network errors -->
+      <message name="IDS_ERRORPAGES_DETAILS_TIMED_OUT" desc="The error message displayed when a page takes too long to load.">
+        The operation timed out.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CONNECTION_CLOSED" desc="The error message displayed when the server unexpectedly closes a connection.">
+        The server unexpectedly closed the connection.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CONNECTION_RESET" desc="The error message displayed when a connection was reset.">
+        The connection was reset.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CONNECTION_REFUSED" desc="The error message displayed when we try and connect to a server, but the server doesn't let us.">
+        The server refused the connection.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CONNECTION_FAILED" desc="The error message displayed when we can not reach the website.">
+        The attempt to connect to the server failed.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_NETWORK_CHANGED" desc="The error message displayed when a connection is interrupted because the network changed.">
+        A network change was detected.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_NAME_NOT_RESOLVED" desc="The error message displayed when a dns look up fails.">
+        Unable to resolve the server's DNS address.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_ADDRESS_UNREACHABLE" desc="The error message displayed when we can't reach a server.">
+        Unable to reach the server.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_NETWORK_ACCESS_DENIED" desc="The error message displayed when we're not being allowed to access the network.">
+        Unable to access the network.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_FILE_ACCESS_DENIED" desc="The error message displayed when we're not being allowed to access a file.">
+        Unable to access the file.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_PROXY_CONNECTION_FAILED" desc="The error message displayed when the proxy server connection failed.">
+        Proxy server connection failed.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_INTERNET_DISCONNECTED" desc="The error message displayed when we have no Internet access.">
+        The Internet connection has been lost.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CACHE_READ_FAILURE" desc="The error message displayed when we encountered an error reading from the cache.  Generally this happens when the disk cache is corrupted from improper shutdown.">
+        Error reading data from cache.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_CACHE_MISS" desc="The error message displayed when we couldn't find a resource in the cache, and cannot fall back to the network.">
+        The requested entry was not found in the cache.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_NETWORK_IO_SUSPENDED" desc="The error message displayed when a page load failed due to the computer entering sleep/suspend mode.">
+        Network IO suspended.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_FILE_NOT_FOUND" desc="The error message displayed when a local file can not be found.">
+        The file or directory could not be found.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_TOO_MANY_REDIRECTS" desc="The error message displayed when there are too many redirects.">
+        There were too many redirects.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_EMPTY_RESPONSE" desc="The error message displayed when no data is received.">
+        The server closed the connection without sending any data.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_RESPONSE_HEADERS_MULTIPLE_CONTENT_LENGTH" desc="The error message displayed when we received multiple 'Content-Length' header fields in an http response.">
+        Multiple distinct Content-Length headers received.  This is disallowed
+        to protect against HTTP response splitting attacks.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_RESPONSE_HEADERS_MULTIPLE_CONTENT_DISPOSITION" desc="The error message displayed when we received multiple 'Content-Disposition' header fields in an http response.">
+        Multiple distinct Content-Disposition headers received.  This is disallowed to
+        protect against HTTP response splitting attacks.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_RESPONSE_HEADERS_MULTIPLE_LOCATION" desc="The error message displayed when we received multiple 'Location' header fields in an http response.">
+        Multiple distinct Location headers received.  This is disallowed to protect
+        against HTTP response splitting attacks.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_DNS_PROBE_RUNNING" desc="The error message displayed when we are waiting to see whether we will run a DNS probe.">
+        Waiting for DNS probe.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_UNKNOWN" desc="The default error message displayed if we don't have a more specific error message.">
+        Unknown error.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_SSL_PROTOCOL_ERROR" desc="The error message displayed for SSL protocol errors.">
+        SSL protocol error.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_SSL_UNSAFE_NEGOTIATION" desc="The error message displayed when the SSL renegotiation extension is missing.">
+        The SSL renegotiation extension was missing from the secure handshake. For some sites, which are known to support the renegotiation extension, Chrome requires a more secure handshake to prevent a class of known attacks. The omission of this extension suggests that your connection was intercepted and manipulated in transit.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_BAD_SSL_CLIENT_AUTH_CERT" desc="The error message for SSL client certificate authentication failure.">
+        Bad SSL client authentication certificate.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_TEMPORARILY_THROTTLED" desc="The error message displayed when we temporarily stop sending requests to a server in order to avoid DDoS.">
+        Extension requests to this URL have been temporarily throttled.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_PINNING_FAILURE" desc="Description of the error page for a certificate which doesn't match the built-in pins for that name">
+        The server's certificate appears to be a forgery.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_BLOCKED" desc="The error message displayed when an extension blocks a request.">
+        Requests to the server have been blocked by an extension.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_BLOCKED_BY_ADMINISTRATOR" desc="The error message displayed when a policy blocks a request.">
+        Requests to the server have been blocked by a policy.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_FORBIDDEN" desc="Details in the error page when a server returns a 403.">
+        The server refused to fulfill the request.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_GONE" desc="Details in the error page when a server returns a 410.">
+        The requested resource no longer exists, and there is no forwarding address.  This is expected to be a permanent condition.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_INTERNAL_SERVER_ERROR" desc="The error message displayed when the server returns a 500.">
+        An unexpected condition was encountered while the server was attempting to fulfill the request.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_NOT_IMPLEMENTED" desc="The error message displayed when the server returns a 501.">
+        The server does not support the functionality required to fulfill the request.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_BAD_GATEWAY" desc="The error message displayed when the server returns a 502.">
+        The gateway or proxy server received an invalid response from an upstream server.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_SERVICE_UNAVAILABLE" desc="The error message displayed when the server returns a 503.">
+        The server is currently unable to handle the request.  This code indicates this is a temporary condition, and the server will be up again after a delay.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_GATEWAY_TIMEOUT" desc="The error message displayed when the server returns a 504.">
+        The gateway or proxy server timed out while waiting for a response from an upstream server.
+      </message>
+      <message name="IDS_ERRORPAGES_DETAILS_HTTP_VERSION_NOT_SUPPORTED" desc="The error message displayed when the server returns a 505.">
+        The server does not support the HTTP version used in the request.
+      </message>
     </messages>
   </release>
   <translations />
