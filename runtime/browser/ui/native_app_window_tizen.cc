@@ -98,6 +98,7 @@ gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
   // This method assumed a fixed portrait device. As everything
   // is calculated from the fixed position we do not update the
   // display bounds after rotation change.
+  // FIXME : Add proper support for landscape devices.
   gfx::Transform rotate;
   float one_pixel = 1.0f / display_.device_scale_factor();
   switch (display_.rotation()) {
@@ -123,51 +124,9 @@ gfx::Transform NativeAppWindowTizen::GetRotationTransform() const {
 
 namespace {
 
-// Rotates a binary mask of 4 positions to the left.
-unsigned rotl4(unsigned value, int shift) {
-  unsigned res = (value << shift);
-  if (res > (1 << 4) - 1)
-    res = res >> 4;
-  return res;
-}
-
-bool IsLandscapeOrientation(const gfx::Display::Rotation& rotation) {
-  return rotation == gfx::Display::ROTATE_90 ||
-         rotation == gfx::Display::ROTATE_270;
-}
-
-}  // namespace.
-
-gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
-    gfx::Display::Rotation rotation) const {
-
-  unsigned result = PORTRAIT_PRIMARY;
-  // gfx::Display::Rotation starts at portrait-primary and
-  // belongs to the set [0:3].
-  result = rotl4(result, rotation);
-
-  // Test current orientation
-  if (allowed_orientations_ & result)
-    return rotation;
-
-  // Test orientation right of current one.
-  if (allowed_orientations_ & rotl4(result, 1))
-    return static_cast<gfx::Display::Rotation>((rotation + 1) % 4);
-
-  // Test orientation left of current one.
-  if (allowed_orientations_ & rotl4(result, 3))
-    return static_cast<gfx::Display::Rotation>((rotation + 3) % 4);
-
-  // Test orientation opposite of current one.
-  if (allowed_orientations_ & rotl4(result, 2))
-    return static_cast<gfx::Display::Rotation>((rotation + 2) % 4);
-
-  NOTREACHED();
-  return rotation;
-}
-
-Orientation NativeAppWindowTizen::GetCurrentOrientation() const {
-  switch (display_.rotation()) {
+#if defined(OS_TIZEN_MOBILE)
+Orientation ToOrientation(const gfx::Display::Rotation& rotation) {
+  switch (rotation) {
     case gfx::Display::ROTATE_0:
       return PORTRAIT_PRIMARY;
     case gfx::Display::ROTATE_90:
@@ -178,8 +137,62 @@ Orientation NativeAppWindowTizen::GetCurrentOrientation() const {
       return LANDSCAPE_SECONDARY;
     default:
       NOTREACHED();
-      return PORTRAIT_PRIMARY;
   }
+  return PORTRAIT_PRIMARY;
+}
+#else
+Orientation ToOrientation(const gfx::Display::Rotation& rotation) {
+  switch (rotation) {
+    case gfx::Display::ROTATE_0:
+      return LANDSCAPE_PRIMARY;
+    case gfx::Display::ROTATE_90:
+      return PORTRAIT_PRIMARY;
+    case gfx::Display::ROTATE_180:
+      return LANDSCAPE_SECONDARY;
+    case gfx::Display::ROTATE_270:
+      return PORTRAIT_SECONDARY;
+    default:
+      NOTREACHED();
+  }
+  return LANDSCAPE_PRIMARY;
+}
+#endif
+
+inline gfx::Display::Rotation ToRotation(unsigned rotation) {
+  return static_cast<gfx::Display::Rotation>(rotation % 4);
+}
+
+bool IsLandscapeOrientation(const gfx::Display::Rotation& rotation) {
+  return ToOrientation(rotation) & LANDSCAPE;
+}
+
+}  // namespace.
+
+gfx::Display::Rotation NativeAppWindowTizen::GetClosestAllowedRotation(
+    gfx::Display::Rotation rotation) const {
+
+  // Test current orientation
+  if (allowed_orientations_ & ToOrientation(rotation))
+    return rotation;
+
+  // Test orientation right of current one.
+  if (allowed_orientations_ & ToOrientation(ToRotation(rotation + 1)))
+    return ToRotation(rotation + 1);
+
+  // Test orientation left of current one.
+  if (allowed_orientations_ & ToOrientation(ToRotation(rotation + 3)))
+    return ToRotation(rotation + 3);
+
+  // Test orientation opposite of current one.
+  if (allowed_orientations_ & ToOrientation(ToRotation(rotation + 1)))
+    return ToRotation(rotation + 1);
+
+  NOTREACHED();
+  return rotation;
+}
+
+Orientation NativeAppWindowTizen::GetCurrentOrientation() const {
+  return ToOrientation(display_.rotation());
 }
 
 void NativeAppWindowTizen::OnAllowedOrientationsChanged(
