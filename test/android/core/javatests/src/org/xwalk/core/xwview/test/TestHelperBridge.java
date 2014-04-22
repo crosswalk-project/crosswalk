@@ -6,6 +6,7 @@
 package org.xwalk.core.xwview.test;
 
 import android.util.Log;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import java.util.ArrayList;
@@ -13,12 +14,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
 import org.chromium.content.browser.test.util.CallbackHelper;
-import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnEvaluateJavaScriptResultHelper;
+import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageFinishedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
+
+import org.xwalk.core.XWalkView;
 
 class TestHelperBridge {
 
@@ -76,12 +80,57 @@ class TestHelperBridge {
         }
     }
 
+    class OnEvaluateJavaScriptResultHelper extends CallbackHelper {
+        private String mJsonResult;
+        public void evaluateJavascript(XWalkView xWalkView, String code) {
+            ValueCallback<String> callback =
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String jsonResult) {
+                        notifyCalled(jsonResult);
+                    }
+                };
+            xWalkView.evaluateJavascript(code, callback);
+            mJsonResult = null;
+        }
+
+        public boolean hasValue() {
+            return mJsonResult != null;
+        }
+
+        public boolean waitUntilHasValue() throws InterruptedException, TimeoutException {
+            waitUntilCriteria(getHasValueCriteria());
+            return hasValue();
+        }
+
+        public String getJsonResultAndClear() {
+            assert hasValue();
+            String result = mJsonResult;
+            mJsonResult = null;
+            return result;
+        }
+
+        public Criteria getHasValueCriteria() {
+            return new Criteria() {
+                @Override
+                public boolean isSatisfied() {
+                    return hasValue();
+                }
+            };
+        }
+
+        public void notifyCalled(String jsonResult) {
+            assert !hasValue();
+            mJsonResult = jsonResult;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
 
-    // TODO(yongsheng): write test for this.
     private final OnEvaluateJavaScriptResultHelper mOnEvaluateJavaScriptResultHelper;
 
     private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;

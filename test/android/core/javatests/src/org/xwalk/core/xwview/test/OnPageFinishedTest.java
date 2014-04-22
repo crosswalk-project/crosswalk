@@ -13,7 +13,6 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer;
 import org.chromium.net.test.util.TestWebServer;
 
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 import java.util.concurrent.TimeUnit;
@@ -40,10 +39,10 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
 
         String html = "<html><body>Simple page.</body></html>";
         int currentCallCount = onPageFinishedHelper.getCallCount();
-        loadDataAsync(html, "text/html", false);
+        loadDataAsync(null, html, "text/html", false);
 
         onPageFinishedHelper.waitForCallback(currentCallCount);
-        assertEquals("data:text/html," + html, onPageFinishedHelper.getUrl());
+        assertEquals("about:blank", onPageFinishedHelper.getUrl());
     }
 
     @MediumTest
@@ -91,7 +90,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
 
             assertEquals(0, onPageFinishedHelper.getCallCount());
             final int pageWithSubresourcesCallCount = onPageFinishedHelper.getCallCount();
-            loadDataAsync("<html><iframe src=\"" + testUrl + "\" /></html>",
+            loadDataAsync(null, "<html><iframe src=\"" + testUrl + "\" /></html>",
                           "text/html",
                           false);
 
@@ -122,11 +121,11 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
         int currentCallCount = onPageFinishedHelper.getCallCount();
         assertEquals(0, currentCallCount);
 
-        loadDataAsync(html, "text/html", false);
+        loadDataAsync(null, html, "text/html", false);
         loadJavaScriptUrl("javascript: try { console.log('foo'); } catch(e) {};");
 
         onPageFinishedHelper.waitForCallback(currentCallCount);
-        assertEquals("data:text/html," + html, onPageFinishedHelper.getUrl());
+        assertEquals("about:blank", onPageFinishedHelper.getUrl());
         // onPageFinished won't be called for javascript: url.
         assertEquals(1, onPageFinishedHelper.getCallCount());
     }

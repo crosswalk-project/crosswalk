@@ -43,8 +43,8 @@ public class XWalkWebChromeClient {
     private XWalkContentsClient mContentsClient = null;
     private long XWALK_MAX_QUOTA = 1024 * 1024 * 100;
 
-    public XWalkWebChromeClient(Context context, XWalkView view) {
-        mContext = context;
+    public XWalkWebChromeClient(XWalkView view) {
+        mContext = view.getContext();
         mXWalkView = view;
     }
 

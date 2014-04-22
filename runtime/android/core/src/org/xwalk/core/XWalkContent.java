@@ -36,7 +36,7 @@ import org.chromium.ui.base.ActivityWindowAndroid;
  * This class is the implementation class for XWalkView by calling internal
  * various classes.
  */
-public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChangeListener {
+class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChangeListener {
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
@@ -54,6 +54,7 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
     int mWebContents;
     boolean mReadyToLoad = false;
     String mPendingUrl = null;
+    String mPendingData = null;
 
     public XWalkContent(Context context, AttributeSet attrs, XWalkView xwView) {
         super(context, attrs);
@@ -72,8 +73,9 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
         mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
             protected void onReadyToRender() {
                 if (mPendingUrl != null) {
-                    doLoadUrl(mPendingUrl);
+                    doLoadUrl(mPendingUrl, mPendingData);
                     mPendingUrl = null;
+                    mPendingData = null;
                 }
 
                 mReadyToLoad = true;
@@ -124,13 +126,19 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
         XWalkPreferences.load(this);
     }
 
-    void doLoadUrl(String url) {
-        //TODO(Xingnan): Configure appropriate parameters here.
+    void doLoadUrl(String url, String content) {
         // Handle the same url loading by parameters.
-        if (TextUtils.equals(url, mContentView.getUrl())) {
+        if (url != null && !url.isEmpty() &&
+                TextUtils.equals(url, mContentView.getUrl())) {
             mContentView.getContentViewCore().reload(true);
         } else {
-            LoadUrlParams params = new LoadUrlParams(url);
+            LoadUrlParams params = null;
+            if (content == null || content.isEmpty()) {
+                params = new LoadUrlParams(url);
+            } else {
+                params = LoadUrlParams.createLoadDataParamsWithBaseUrl(
+                        content, "text/html", false, url, null);
+            }
             params.setOverrideUserAgent(LoadUrlParams.UA_OVERRIDE_TRUE);
             mContentView.loadUrl(params);
         }
@@ -138,14 +146,18 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
         mContentView.requestFocus();
     }
 
-    public void loadUrl(String url) {
-        if (url == null)
+    public void loadUrl(String url, String data) {
+        if ((url == null || url.isEmpty()) &&
+                (data == null || data.isEmpty())) {
             return;
+        }
 
-        if (mReadyToLoad)
-            doLoadUrl(url);
-        else
+        if (mReadyToLoad) {
+            doLoadUrl(url, data);
+        } else {
             mPendingUrl = url;
+            mPendingData = data;
+        }
     }
 
     public void reload() {
@@ -369,7 +381,7 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
     @CalledByNative
     public void onGetUrlFromManifest(String url) {
         if (url != null && !url.isEmpty()) {
-            loadUrl(url);
+            loadUrl(url, null);
         }
     }
 
@@ -378,7 +390,7 @@ public class XWalkContent extends FrameLayout implements XWalkPreferences.KeyVal
         if (url == null || url.isEmpty()) return;
         mLaunchScreenManager.displayLaunchScreen(readyWhen);
         mContentsClientBridge.registerPageLoadListener(mLaunchScreenManager);
-        loadUrl(url);
+        loadUrl(url, null);
     }
 
     @CalledByNative

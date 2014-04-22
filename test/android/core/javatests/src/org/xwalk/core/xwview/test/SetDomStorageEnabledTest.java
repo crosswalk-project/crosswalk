@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.UrlUtils;
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkWebChromeClient;
@@ -27,12 +26,12 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
     private static final boolean DISABLED = false;
 
     abstract class XWalkViewSettingsTestHelper<T> {
-        protected final XWalkContent mXWalkContent;
+        protected final XWalkView mXWalkView;
         protected final XWalkSettings mXWalkSettings;
 
-        XWalkViewSettingsTestHelper(XWalkContent xWalkContent,
+        XWalkViewSettingsTestHelper(XWalkView xWalkContent,
                 boolean requiresJsEnabled) throws Throwable {
-            mXWalkContent = xWalkContent;
+            mXWalkView = xWalkContent;
             mXWalkSettings = getXWalkSettingsOnUiThreadByContent(xWalkContent);
             mXWalkSettings.setDomStorageEnabled(false);
             if (requiresJsEnabled) {
@@ -78,7 +77,7 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
         TestHelperBridge mHelperBridge;
 
         XWalkViewSettingsDomStorageEnabledTestHelper(
-                XWalkContent xWalkContent,
+                XWalkView xWalkContent,
                 final TestHelperBridge helperBridge) throws Throwable {
             super(xWalkContent, true);
             mHelperBridge = helperBridge;
@@ -108,7 +107,7 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
         protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
             // It is not permitted to access localStorage from data URLs in WebKit,
             // that is why a standalone page must be used.
-            loadUrlSyncByContent(mXWalkContent, mHelperBridge,
+            loadUrlSyncByContent(mXWalkView, mHelperBridge,
                     UrlUtils.getTestFileUrl("xwalkview/localStorage.html"));
             assertEquals(
                 value == ENABLED ? HAS_LOCAL_STORAGE : NO_LOCAL_STORAGE,

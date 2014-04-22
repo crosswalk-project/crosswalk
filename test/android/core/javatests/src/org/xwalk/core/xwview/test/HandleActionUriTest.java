@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
+
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkClient;

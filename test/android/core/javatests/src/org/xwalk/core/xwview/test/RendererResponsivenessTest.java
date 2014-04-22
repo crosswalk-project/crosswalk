@@ -20,7 +20,6 @@ import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkView;
 
 /**
@@ -45,8 +44,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     @DisabledTest
     public void testRendererUnresponsive() throws Throwable {
         setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView().getContext(),
-                    getXWalkView()) {
+        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
             @Override
             public void onRendererUnresponsive(XWalkView view) {
                 unresponsiveHelper.notifyCalled(view);
@@ -56,9 +54,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
         loadAssetFile("renderHung.html");
 
         int currentCallCount = unresponsiveHelper.getCallCount();
-
-        XWalkContent content = getXWalkView().getXWalkViewContentForTest();
-        content.getContentViewCoreForTest().evaluateJavaScript("deadLoopForever();", null);
+        getXWalkView().evaluateJavascript("deadLoopForever();", null);
 
         /**
          * Send an input event to xwalk view. Internally, if no ACK message is received
@@ -81,8 +77,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     @DisabledTest
     public void testRendererResponsiveAgain() throws Throwable {
         setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView().getContext(),
-                    getXWalkView()) {
+        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
             /**
              * Called once the renderer become responsive again.
              */
@@ -95,8 +90,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
         loadAssetFile("renderHung.html");
 
         int currentCallCount = responsiveHelper.getCallCount();
-        XWalkContent content = getXWalkView().getXWalkViewContentForTest();
-        content.getContentViewCoreForTest().evaluateJavaScript("deadLoopFor40secs();", null);
+        getXWalkView().evaluateJavascript("deadLoopFor40secs();", null);
 
         /**
          * Send an input event to start the hung monitor.

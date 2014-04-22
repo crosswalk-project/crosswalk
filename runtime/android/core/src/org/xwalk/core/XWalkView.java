@@ -39,7 +39,7 @@ import org.xwalk.core.extension.XWalkExtensionManager;
  * It already includes all newly created Web APIs from Crosswalk like Presentation,
  * DeviceCapabilities, etc..
  */
-public class XWalkView extends FrameLayout {
+public class XWalkView extends android.widget.FrameLayout {
 
     private XWalkContent mContent;
     private Activity mActivity;
@@ -116,15 +116,15 @@ public class XWalkView extends FrameLayout {
 
 
         // Set default XWalkClientImpl.
-        setXWalkClient(new XWalkClient(context, this));
+        setXWalkClient(new XWalkClient(this));
         // Set default XWalkWebChromeClient and DownloadListener. The default actions
         // are provided via the following clients if special actions are not needed.
-        setXWalkWebChromeClient(new XWalkWebChromeClient(context, this));
+        setXWalkWebChromeClient(new XWalkWebChromeClient(this));
 
         // Set with internal implementation. Could be overwritten by embedders'
         // setting.
-        setUIClient(new XWalkUIClientImpl(context, this));
-        setResourceClient(new XWalkResourceClientImpl(context, this));
+        setUIClient(new XWalkUIClient(this));
+        setResourceClient(new XWalkResourceClient(this));
 
         setDownloadListener(new XWalkDownloadListenerImpl(context));
         setNavigationHandler(new XWalkNavigationHandlerImpl(context));
@@ -139,14 +139,14 @@ public class XWalkView extends FrameLayout {
     /**
      * Load a web page/app from a given base URL or a content. If content is
      * specified, load the web page/app from the content. If it's null, try to
-     * load the content from the baseUrl.
+     * load the content from the baseUrl and return "about:blank" if calling
+     * {@link XWalkView#getUrl()}.
      * @param baseUrl the base url for web page/app.
      * @param content the content for the web page/app. Could be empty.
      */
     public void load(String baseUrl, String content) {
         checkThreadSafety();
-        // TODO(yongsheng): enable to use content.
-        mContent.loadUrl(baseUrl);
+        mContent.loadUrl(baseUrl, content);
     }
 
     /**
@@ -229,7 +229,7 @@ public class XWalkView extends FrameLayout {
      * @param script the JavaScript string.
      * @param callback the callback to handle the evaluated result.
      */
-    void evaluateJavascript(String script, ValueCallback<String> callback) {
+    public void evaluateJavascript(String script, ValueCallback<String> callback) {
         checkThreadSafety();
         mContent.evaluateJavascript(script, callback);
     }
@@ -513,11 +513,6 @@ public class XWalkView extends FrameLayout {
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
         checkThreadSafety();
         mContent.setXWalkWebChromeClient(client);
-    }
-
-    public XWalkContent getXWalkViewContentForTest() {
-        checkThreadSafety();
-        return mContent;
     }
 
     public void setDownloadListener(DownloadListener listener) {

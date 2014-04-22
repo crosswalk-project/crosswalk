@@ -17,7 +17,6 @@ import org.apache.http.HttpRequest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
 import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkContent;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
 
@@ -37,7 +36,7 @@ public class UserAgentTest extends XWalkViewTestBase {
         return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
             @Override
             public XWalkSettings call() throws Exception {
-                return getXWalkView().getXWalkViewContentForTest().getSettings();
+                return getXWalkView().getSettings();
             }
         });
     }
