@@ -41,6 +41,9 @@
       <message desc="Prompt for the http authentication login [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_LOG_IN">
         Log In
       </message>
+      <message desc="Prompt for the toast of back key pressed [CHAR-LIMIT=32]" name="IDS_TOAST_BACK_PRESSED">
+        Press BACK once more to exit.
+      </message>
     </messages>
   </release>
 

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
@@ -45,6 +47,8 @@ public class XWalkView extends android.widget.FrameLayout {
     private Activity mActivity;
     private Context mContext;
     private XWalkExtensionManager mExtensionManager;
+    private boolean mBackPressedOnce = false;
+    private int mBackToastDuration = 2000;
 
     /**
      * Constructors for inflating via XML.
@@ -406,6 +410,27 @@ public class XWalkView extends android.widget.FrameLayout {
             } else if (canGoBack()) {
                 goBack();
                 return true;
+            } else {
+                if (!mBackPressedOnce) {
+                    // The first BACK pressed, show toast to notify.
+                    mBackPressedOnce = true;
+                    Toast toast = Toast.makeText(mContext,
+                            mContext.getString(R.string.toast_back_pressed), Toast.LENGTH_SHORT);
+                    toast.setDuration(mBackToastDuration);
+                    toast.show();
+                    // Set the timer for counting whether second BACK pressed.
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mBackPressedOnce = false;
+                        }
+                    }, mBackToastDuration);
+                    return true;
+                } else {
+                    // A second BACK pressed, return false to let embedder handle it.
+                    // The defaut action of embedder is exit the app.
+                    return false;
+                }
             }
         }
         return false;
