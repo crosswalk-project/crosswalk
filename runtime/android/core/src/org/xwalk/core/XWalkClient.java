@@ -34,6 +34,8 @@ import android.widget.TextView;
 /**
  * It's the Internal class to handle legacy resource related callbacks not
  * handled by XWalkResourceClient.
+ *
+ * @hide
  */
 public class XWalkClient {
 

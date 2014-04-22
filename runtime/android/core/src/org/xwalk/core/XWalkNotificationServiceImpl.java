@@ -23,7 +23,9 @@ import org.xwalk.core.XWalkContentsClientBridge;
 import org.xwalk.core.XWalkNotificationService;
 import org.xwalk.core.XWalkView;
 
-// TODO(yongsheng): remove public modifier.
+/**
+ * @hide
+ */
 public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     private static final String TAG = "XWalkNotificationServiceImpl";
 

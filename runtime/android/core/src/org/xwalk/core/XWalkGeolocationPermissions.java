@@ -17,7 +17,7 @@ import org.chromium.net.GURLUtils;
  * This class is used to manage permissions for the WebView's Geolocation JavaScript API.
  *
  * Callbacks are posted on the UI thread.
- * TODO(yongsheng): remove public modifier.
+ * @hide
  */
 public final class XWalkGeolocationPermissions {
     /**

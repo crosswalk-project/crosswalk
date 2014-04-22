@@ -10,9 +10,10 @@ import org.chromium.base.JNINamespace;
  * XWalkCookieManager manages cookies according to RFC2109 spec.
  *
  * Methods in this class are thread safe.
+ *
+ * @hide
  */
 @JNINamespace("xwalk")
-// TODO(yongsheng): remove public modifier.
 public final class XWalkCookieManager {
     /**
      * Control whether cookie is enabled or disabled

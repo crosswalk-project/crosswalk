@@ -16,6 +16,9 @@ import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
 
+/**
+ * @hide
+ */
 @JNINamespace("xwalk")
 public class XWalkSettings {
 
@@ -585,7 +588,7 @@ public class XWalkSettings {
     }
 
     /**
-     * @returns the default User-Agent used by each ContentViewCore instance, i.e. unless
+     * @return returns the default User-Agent used by each ContentViewCore instance, i.e. unless
      * overridden by {@link #setUserAgentString()}
      */
     public static String getDefaultUserAgent() {

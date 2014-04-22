@@ -37,6 +37,10 @@ public class XWalkUIClient {
     private XWalkView mXWalkView;
     private boolean mOriginalFullscreen;
 
+    /**
+     * Constructor.
+     * @param view the owner XWalkView instance.
+     */
     public XWalkUIClient(XWalkView view) {
         mContext = view.getContext();
         mDecorView = view.getActivity().getWindow().getDecorView();
@@ -79,9 +83,13 @@ public class XWalkUIClient {
      * The type of JavaScript modal dialog.
      */
     public enum JavascriptMessageType {
+        /** JavaScript alert dialog. */
         JAVASCRIPT_ALERT,
+        /** JavaScript confirm dialog. */
         JAVASCRIPT_CONFIRM,
+        /** JavaScript prompt dialog. */
         JAVASCRIPT_PROMPT,
+        /** JavaScript dialog for a window-before-unload notification. */
         JAVASCRIPT_BEFOREUNLOAD
     }
 

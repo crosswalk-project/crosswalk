@@ -15,7 +15,9 @@ import org.chromium.components.navigation_interception.NavigationParams;
 
 import org.xwalk.core.XWalkNavigationHandler;
 
-// TODO(yongsheng): remove public modifier.
+/**
+ * @hide
+ */
 public class XWalkNavigationHandlerImpl implements XWalkNavigationHandler {
     private static final String TAG = "XWalkNavigationHandlerImpl";
 

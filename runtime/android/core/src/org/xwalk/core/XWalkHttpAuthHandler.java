@@ -7,8 +7,11 @@ package org.xwalk.core;
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 
+/**
+ * It's for http auth handling.
+ * @hide
+ */
 @JNINamespace("xwalk")
-// TODO(yongsheng): remove public modifier.
 public class XWalkHttpAuthHandler {
 
     private int mNativeXWalkHttpAuthHandler;
