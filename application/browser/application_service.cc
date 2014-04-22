@@ -38,21 +38,21 @@ namespace application {
 
 namespace {
 
-void CloseMessageLoop() {
-  // FIXME: Quit message loop here at present. This should go away once
-  // we have Application in place.
-  base::MessageLoop::current()->QuitWhenIdle();
-}
-
 void WaitForEventAndClose(
-    const std::string& app_id, const std::string& event_name,
+    const std::string& app_id,
+    const std::string& event_name,
+    ApplicationService* application_service,
     ApplicationEventManager* event_manager) {
+
   class CloseOnEventArrived : public EventObserver {
    public:
-    static CloseOnEventArrived* Create(const std::string& event_name,
-        ApplicationEventManager* event_manager) {
-      return new CloseOnEventArrived(event_name, event_manager);
-    }
+    CloseOnEventArrived(
+        const std::string& event_name,
+        ApplicationService* application_service,
+        ApplicationEventManager* event_manager)
+        : EventObserver(event_manager),
+          event_name_(event_name),
+          application_service_(application_service) {}
 
     virtual void Observe(
         const std::string& app_id,
@@ -62,41 +62,42 @@ void WaitForEventAndClose(
       event->args()->GetString(0, &ack_event_name);
       if (ack_event_name != event_name_)
         return;
-      CloseMessageLoop();
+
+      if (Application* app = application_service_->GetApplicationByID(app_id))
+        app->Terminate(Application::Immediate);
+
       delete this;
     }
 
    private:
-    CloseOnEventArrived(
-        const std::string& event_name,
-        ApplicationEventManager* event_manager)
-        : EventObserver(event_manager),
-          event_name_(event_name) {}
-
     std::string event_name_;
+    ApplicationService* application_service_;
   };
 
   DCHECK(event_manager);
   CloseOnEventArrived* observer =
-      CloseOnEventArrived::Create(event_name, event_manager);
+      new CloseOnEventArrived(event_name, application_service, event_manager);
   event_manager->AttachObserver(app_id,
       kOnJavaScriptEventAck, observer);
 }
 
 void WaitForFinishLoad(
-    scoped_refptr<ApplicationData> application,
+    const std::string& app_id,
+    ApplicationService* application_service,
     ApplicationEventManager* event_manager,
     content::WebContents* contents) {
   class CloseAfterLoadObserver : public content::WebContentsObserver {
    public:
     CloseAfterLoadObserver(
-        scoped_refptr<ApplicationData> application,
+        const std::string& app_id,
+        ApplicationService* application_service,
         ApplicationEventManager* event_manager,
         content::WebContents* contents)
         : content::WebContentsObserver(contents),
-          application_(application),
+          id_(app_id),
+          application_service_(application_service),
           event_manager_(event_manager) {
-      DCHECK(application_);
+      DCHECK(application_service_);
       DCHECK(event_manager_);
     }
 
@@ -105,45 +106,53 @@ void WaitForFinishLoad(
         const GURL& validate_url,
         bool is_main_frame,
         content::RenderViewHost* render_view_host) OVERRIDE {
-      if (!IsEventHandlerRegistered(kOnInstalled)) {
-        CloseMessageLoop();
+      Application* app = application_service_->GetApplicationByID(id_);
+      if (!app) {
+        delete this;
+        return;
+      }
+
+      if (!IsEventHandlerRegistered(app->data(), kOnInstalled)) {
+          app->Terminate(Application::Immediate);
       } else {
         scoped_ptr<base::ListValue> event_args(new base::ListValue);
         scoped_refptr<Event> event =
-            Event::CreateEvent(
-                kOnInstalled, event_args.Pass());
-        event_manager_->SendEvent(application_->ID(), event);
+            Event::CreateEvent(kOnInstalled, event_args.Pass());
+        event_manager_->SendEvent(id_, event);
 
         WaitForEventAndClose(
-            application_->ID(), event->name(), event_manager_);
+            id_, event->name(), application_service_, event_manager_);
       }
       delete this;
     }
 
    private:
-    bool IsEventHandlerRegistered(const std::string& event_name) const {
-      const std::set<std::string>& events = application_->GetEvents();
+    bool IsEventHandlerRegistered(scoped_refptr<ApplicationData> app_data,
+                                  const std::string& event_name) const {
+      const std::set<std::string>& events = app_data->GetEvents();
       return events.find(event_name) != events.end();
     }
 
-    scoped_refptr<ApplicationData> application_;
+    std::string id_;
+    ApplicationService* application_service_;
     ApplicationEventManager* event_manager_;
   };
 
   // This object is self-destroyed when an event occurs.
-  new CloseAfterLoadObserver(application, event_manager, contents);
+  new CloseAfterLoadObserver(
+      app_id, application_service, event_manager, contents);
 }
 
 void SaveSystemEventsInfo(
-    ApplicationService* application_service,
     scoped_refptr<ApplicationData> application_data,
+    ApplicationService* application_service,
     ApplicationEventManager* event_manager) {
   // We need to run main document after installation in order to
   // register system events.
   if (application_data->HasMainDocument()) {
     if (Application* application =
         application_service->Launch(application_data->ID())) {
-      WaitForFinishLoad(application->data(), event_manager,
+      WaitForFinishLoad(application->id(), application_service, event_manager,
                         application->GetMainDocumentRuntime()->web_contents());
     }
   }
@@ -299,7 +308,7 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
             << " successfully.";
   *id = application_data->ID();
 
-  SaveSystemEventsInfo(this, application_data, event_manager_);
+  SaveSystemEventsInfo(application_data, this, event_manager_);
 
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationInstalled(application_data->ID()));
@@ -420,7 +429,7 @@ bool ApplicationService::Update(const std::string& id,
 #endif
   base::DeleteFile(tmp_dir, true);
 
-  SaveSystemEventsInfo(this, new_application, event_manager_);
+  SaveSystemEventsInfo(new_application, this, event_manager_);
 
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationUpdated(app_id));
