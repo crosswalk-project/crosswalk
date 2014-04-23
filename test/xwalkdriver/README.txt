@@ -44,7 +44,7 @@ binary in the build folder named 'xwalkdriver'. Or download the binary from
 
 (4) Install your apk to device.
 
-(5) Install Selienium package by executing command
+(5) Install Selenium package by executing command
     pip install selenium
 
 (6) Run xwalkdriver binary.
@@ -64,4 +64,29 @@ $ python
 
     
 For Tizen xwalk:
-It will come soon.
+(1) Install and launch the xwalk as server mode on Tizen IVI:
+su - app
+export XDG_RUNTIME_DIR="/run/user/5000"
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/5000/dbus/user_bus_socket
+systemctl --user status xwalk.servicek
+xwalkctl -i /'path'/wrt-rtbin-tizen-tests.xpk
+
+(2) Set remote debug port by insert "--remote-debugging-port='PORT'" into "/usr/lib/systemd/user/xwalk.service" on Tizen IVI.
+(3) Launch the app by typing "xwalk-launcher appid" on Tizen IVI.
+(4) If Selenium package not installed on PC. Install Selenium package by executing command
+    pip install selenium
+(5) Run xwalkdriver binary on PC.
+(6) Execute following commands to test:
+$ python
+>>> from selenium import webdriver
+>>> capabilities = {
+  'xwalkOptions': {
+    'tizenDebuggingAddress': 'hostname/ip:port',
+  }
+}
+>>> driver = webdriver.Remote('http://localhost:9515', capabilities)
+>>> driver.title
+>>> driver.quit()
+
+
+ 
