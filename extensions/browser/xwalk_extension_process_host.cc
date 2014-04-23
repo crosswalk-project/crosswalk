@@ -216,7 +216,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 }
 
 void XWalkExtensionProcessHost::StopProcess() {
-  if (process_);
+  if (process_)
     process_.reset();
   if (channel_)
     channel_.reset();
