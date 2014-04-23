@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <pkgmgr/pkgmgr_parser.h>
 #include <algorithm>
+#include <map>
 #include <string>
 #include "base/file_util.h"
 #include "base/files/file_enumerator.h"
@@ -18,12 +19,16 @@
 #include "base/process/launch.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/installer/tizen/packageinfo_constants.h"
 
 namespace info = xwalk::application_packageinfo_constants;
 
 namespace {
+
+namespace widget_keys = xwalk::application_widget_keys;
 
 const base::FilePath kPkgHelper("/usr/bin/xwalk-pkg-helper");
 
@@ -57,6 +62,22 @@ class FileDeleter {
   bool recursive_;
 };
 
+void WriteMetaDataElement(
+    XmlWriter& writer,
+    xwalk::application::TizenMetaDataInfo* info) {
+  if (!info)
+    return;
+
+  const std::map<std::string, std::string>& metadata = info->metadata();
+  std::map<std::string, std::string>::const_iterator it;
+  for (it = metadata.begin(); it != metadata.end(); ++it) {
+    writer.StartElement("metadata");
+    writer.AddAttribute("key", it->first);
+    writer.AddAttribute("value", it->second);
+    writer.EndElement();
+  }
+}
+
 bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
                         const std::string& icon_name,
                         const base::FilePath& app_dir,
@@ -88,6 +109,11 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.AddAttribute("type", "c++app");
   xml_writer.AddAttribute("taskmanage", "true");
   xml_writer.WriteElement("label", application->Name());
+
+  xwalk::application::TizenMetaDataInfo* info =
+      static_cast<xwalk::application::TizenMetaDataInfo*>(
+      application->GetManifestData(widget_keys::kTizenMetaDataKey));
+  WriteMetaDataElement(xml_writer, info);
 
   if (icon_name.empty())
     xml_writer.WriteElement("icon", info::kDefaultIconName);

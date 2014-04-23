@@ -12,6 +12,7 @@
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #endif
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
@@ -79,6 +80,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new NavigationHandler);
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenSettingHandler);
+  handlers.push_back(new TizenMetaDataHandler);
 #endif
   widget_registry_ = new ManifestHandlerRegistry(handlers);
   return widget_registry_;
