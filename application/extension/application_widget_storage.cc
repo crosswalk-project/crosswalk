@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/file_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "sql/statement.h"
 #include "sql/transaction.h"
 #include "xwalk/application/common/application_manifest_constants.h"
@@ -70,7 +71,12 @@ AppWidgetStorage::AppWidgetStorage(Application* application,
       db_initialized_(false) {
   sqlite_db_.reset(new sql::Connection);
 
-  base::FilePath name(application_->id());
+  base::FilePath name;
+#if defined(OS_WIN)
+  name = base::FilePath(base::UTF8ToWide(application_->id()));
+#else
+  name = base::FilePath(application_->id());
+#endif
   base::FilePath::StringType storage_name =
       name.value() + kWidgetStorageExtension;
   data_path_ = data_dir.Append(storage_name);

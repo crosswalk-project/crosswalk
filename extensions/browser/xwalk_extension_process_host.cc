@@ -79,13 +79,14 @@ class ExtensionSandboxedProcessLauncherDelegate
   explicit ExtensionSandboxedProcessLauncherDelegate(
       content::ChildProcessHost* host)
 #if defined(OS_POSIX)
-      : ipc_fd_(host->TakeClientFileDescriptor()) {}
+      : ipc_fd_(host->TakeClientFileDescriptor())
 #endif
+  {}
   virtual ~ExtensionSandboxedProcessLauncherDelegate() {}
 
 #if defined(OS_WIN)
-  virtual void ShouldSandbox(bool* in_sandbox) OVERRIDE {
-    *in_sandbox = false;
+  virtual bool ShouldSandbox() OVERRIDE {
+    return false;
   }
 #elif defined(OS_POSIX)
   virtual int GetIpcFd() OVERRIDE {

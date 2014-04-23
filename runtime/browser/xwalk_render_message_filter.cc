@@ -17,12 +17,16 @@ bool XWalkRenderMessageFilter::OnMessageReceived(
     const IPC::Message& message,
     bool* message_was_ok) {
   bool handled = true;
+#if !defined(OS_WIN)
   IPC_BEGIN_MESSAGE_MAP_EX(XWalkRenderMessageFilter, message, *message_was_ok)
 #if defined(OS_TIZEN)
     IPC_MESSAGE_HANDLER(ViewMsg_OpenLinkExternal, OnOpenLinkExternal)
 #endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
+#else
+  handled = false;
+#endif
 
   return handled;
 }
