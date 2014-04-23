@@ -56,4 +56,14 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
         return false;
     }
+
+    @Override
+    public boolean shouldOverrideRunFileChooser(int processId, int renderId, int mode,
+            String acceptTypes, boolean capture) {
+        if (mXWalkContentsClient != null) {
+            return mXWalkContentsClient.shouldOverrideRunFileChooser(processId, renderId, mode,
+                    acceptTypes, capture);
+        }
+        return false;
+    }
 }

@@ -166,7 +166,13 @@ public class XWalkUIClient {
     /**
      * Tell the client to open a file chooser.
      * @param view the owner XWalkView instance.
-     * @param uploadFile the callback class to handle the result from caller.
+     * @param uploadFile the callback class to handle the result from caller. It MUST
+     *        be invoked in all cases. Leave it not invoked will block all following
+     *        requests to open file chooser.
+     * @param acceptType value of the 'accept' attribute of the input tag associated
+     *        with this file picker.
+     * @param capture value of the 'capture' attribute of the input tag associated
+     *        with this file picker
      */
     public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
             String acceptType, String capture) {

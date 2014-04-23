@@ -4,17 +4,26 @@
 
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
+#include <vector>
+
+#include "base/android/jni_string.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/lazy_instance.h"
 #include "base/message_loop/message_loop.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/render_view_host.h"
+#include "content/public/common/file_chooser_params.h"
 #include "jni/XWalkWebContentsDelegate_jni.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_file_select_helper.h"
 #include "xwalk/runtime/browser/runtime_javascript_dialog_manager.h"
+#include "ui/shell_dialogs/selected_file_info.h"
 
 using base::android::AttachCurrentThread;
+using base::android::ConvertUTF16ToJavaString;
 using base::android::ScopedJavaLocalRef;
+using content::FileChooserParams;
 using content::WebContents;
 
 namespace xwalk {
@@ -78,7 +87,31 @@ void XWalkWebContentsDelegate::UpdatePreferredSize(
 void XWalkWebContentsDelegate::RunFileChooser(
     content::WebContents* web_contents,
     const content::FileChooserParams& params) {
-  RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
+  JNIEnv* env = AttachCurrentThread();
+
+  ScopedJavaLocalRef<jobject> java_delegate = GetJavaDelegate(env);
+  if (!java_delegate.obj())
+    return;
+
+  if (params.mode == FileChooserParams::Save) {
+    // Save not supported, so cancel it.
+    web_contents->GetRenderViewHost()->FilesSelectedInChooser(
+         std::vector<ui::SelectedFileInfo>(),
+         params.mode);
+    return;
+  }
+  int mode = static_cast<int>(params.mode);
+  jboolean overridden =
+      Java_XWalkWebContentsDelegate_shouldOverrideRunFileChooser(env,
+          java_delegate.obj(),
+          web_contents->GetRenderProcessHost()->GetID(),
+          web_contents->GetRenderViewHost()->GetRoutingID(),
+          mode,
+          ConvertUTF16ToJavaString(env,
+              JoinString(params.accept_types, ',')).obj(),
+          params.capture);
+  if (overridden == JNI_FALSE)
+    RuntimeFileSelectHelper::RunFileChooser(web_contents, params);
 }
 
 content::JavaScriptDialogManager*
