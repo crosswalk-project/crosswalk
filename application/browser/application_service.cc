@@ -620,7 +620,8 @@ void ApplicationService::OnApplicationTerminated(
   FOR_EACH_OBSERVER(Observer, observers_,
                     WillDestroyApplication(application));
   applications_.erase(found);
-  if (applications_.empty()) {
+  if (!XWalkRunner::GetInstance()->is_running_as_service() &&
+      applications_.empty()) {
     base::MessageLoop::current()->PostTask(
             FROM_HERE, base::MessageLoop::QuitClosure());
   }
