@@ -30,6 +30,7 @@
 #include "xwalk/test/xwalkdriver/xwalk/xwalk_desktop_impl.h"
 #include "xwalk/test/xwalkdriver/xwalk/xwalk_existing_impl.h"
 #include "xwalk/test/xwalkdriver/xwalk/xwalk_finder.h"
+#include "xwalk/test/xwalkdriver/xwalk/xwalk_tizen_impl.h"
 #include "xwalk/test/xwalkdriver/xwalk/device_manager.h"
 #include "xwalk/test/xwalkdriver/xwalk/devtools_http_client.h"
 #include "xwalk/test/xwalkdriver/xwalk/status.h"
@@ -260,7 +261,6 @@ Status LaunchAndroidXwalk(
         capabilities.android_device_serial, &device);
   }
   if (status.IsError()) {
-    device->TearDown();
     return status;
   }
 
@@ -294,6 +294,37 @@ Status LaunchAndroidXwalk(
                                       devtools_event_listeners,
                                       port_reservation.Pass(),
                                       device.Pass()));
+  return Status(kOk);
+}
+
+// This version of xwalkdriver can not launch remote Tizen IVI xwalk automatic.
+// You can launch xwalk manually in Tizen IVI with remote debug option.
+// Then use the capabilities 'tizenDebuggerAddress' in the form of
+// <hostname/ip:port>, e.g. '10.238.158.1:38947'
+
+Status LaunchTizenXwalk(
+    URLRequestContextGetter* context_getter,
+    int port,
+    scoped_ptr<PortReservation> port_reservation,
+    const SyncWebSocketFactory& socket_factory,
+    const Capabilities& capabilities,
+    ScopedVector<DevToolsEventListener>& devtools_event_listeners,
+    scoped_ptr<Xwalk>* xwalk) {
+  scoped_ptr<TizenDevice> device;
+  Status status(kOk);
+  scoped_ptr<DevToolsHttpClient> devtools_client;
+  status = WaitForDevToolsAndCheckVersion(
+      capabilities.tizen_debugger_address, context_getter, socket_factory,
+      &devtools_client);
+  if (status.IsError()) {
+    return Status(kUnknownError, "cannot connect to xwalk at " +
+                      capabilities.tizen_debugger_address.ToString(),
+                  status);
+  }
+  xwalk->reset(new XwalkTizenImpl(devtools_client.Pass(),
+                                       devtools_event_listeners,
+                                       port_reservation.Pass(),
+                                       device.Pass()));
   return Status(kOk);
 }
 
@@ -333,6 +364,14 @@ Status LaunchXwalk(
                                devtools_event_listeners,
                                device_manager,
                                xwalk);
+  } else if (capabilities.IsTizen()) {
+    return LaunchTizenXwalk(context_getter,
+                             port,
+                             port_reservation.Pass(),
+                             socket_factory,
+                             capabilities,
+                             devtools_event_listeners,
+                             xwalk);
   } else {
     return LaunchDesktopXwalk(context_getter,
                                port,

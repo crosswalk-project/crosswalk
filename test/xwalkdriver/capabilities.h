@@ -81,6 +81,17 @@ struct Capabilities {
 
   bool android_use_running_app;
 
+  // Return true if tizen package is specified.
+  bool IsTizen() const;
+
+  NetAddress tizen_debugger_address;
+
+  std::string tizen_app_id;
+
+  std::string tizen_app_name;
+
+  std::string tizen_device_serial;
+
   base::FilePath binary;
 
   // If provided, the remote debugging address to connect to.
