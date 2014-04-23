@@ -160,12 +160,22 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * Reload a web app with a given reload mode.
+     * The reload mode.
      */
-    // TODO(yongsheng): add reload modes here.
-    public void reload() {
+    public enum ReloadMode {
+        /** Normal reload as default. */
+        NORMAL,
+        /** Reload bypassing the cache. */
+        IGNORE_CACHE
+    }
+
+    /**
+     * Reload a web app with a given mode.
+     * @param the reload mode.
+     */
+    public void reload(ReloadMode mode) {
         checkThreadSafety();
-        mContent.reload();
+        mContent.reload(mode);
     }
 
     /**

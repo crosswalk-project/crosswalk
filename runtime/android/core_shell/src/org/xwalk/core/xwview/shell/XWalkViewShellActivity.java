@@ -296,7 +296,7 @@ public class XWalkViewShellActivity extends FragmentActivity
         mReloadButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mActiveView != null) mActiveView.reload();
+                if (mActiveView != null) mActiveView.reload(XWalkView.ReloadMode.NORMAL);
             }
         });
     }
