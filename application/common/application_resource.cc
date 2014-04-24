@@ -12,6 +12,10 @@
 
 namespace xwalk {
 namespace application {
+namespace {
+const base::FilePath::StringType WGT_LOCALE_DIRECTORY =
+    FILE_PATH_LITERAL("locales");
+}  // namespace
 
 ApplicationResource::ApplicationResource() : follow_symlinks_anywhere_(false) {
 }
@@ -41,6 +45,17 @@ const base::FilePath& ApplicationResource::GetFilePath() const {
   if (!full_resource_path_.empty())
     return full_resource_path_;
 
+  for (std::list<std::string>::const_iterator it = locales_.begin();
+       it != locales_.end(); ++it) {
+    full_resource_path_ = GetFilePath(
+        application_root_,
+        base::FilePath(WGT_LOCALE_DIRECTORY)
+        .AppendASCII(*it).Append(relative_path_),
+        follow_symlinks_anywhere_ ?
+        FOLLOW_SYMLINKS_ANYWHERE : SYMLINKS_MUST_RESOLVE_WITHIN_ROOT);
+    if (!full_resource_path_.empty())
+      return full_resource_path_;
+  }
   full_resource_path_ = GetFilePath(
       application_root_, relative_path_,
       follow_symlinks_anywhere_ ?

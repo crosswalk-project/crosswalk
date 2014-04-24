@@ -5,6 +5,7 @@
 #ifndef XWALK_APPLICATION_COMMON_APPLICATION_RESOURCE_H_
 #define XWALK_APPLICATION_COMMON_APPLICATION_RESOURCE_H_
 
+#include <list>
 #include <string>
 
 #include "base/files/file_path.h"
@@ -60,6 +61,12 @@ class ApplicationResource {
   const base::FilePath& application_root() const { return application_root_; }
   const base::FilePath& relative_path() const { return relative_path_; }
 
+  // Setters
+  void SetLocales(const std::list<std::string>& locales) {
+    locales_ = locales;
+    full_resource_path_.clear();
+  }
+
   bool empty() const { return application_root().empty(); }
 
   // Unit test helpers.
@@ -83,6 +90,9 @@ class ApplicationResource {
 
   // Full path to application resource. Starts empty.
   mutable base::FilePath full_resource_path_;
+
+  // The User Agent localization information.
+  std::list<std::string> locales_;
 };
 
 }  // namespace application

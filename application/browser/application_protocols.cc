@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <map>
+#include <list>
 #include <string>
 #include <utility>
 #include <vector>
@@ -152,6 +153,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       const base::FilePath& directory_path,
       const base::FilePath& relative_path,
       const std::string& content_security_policy,
+      const std::list<std::string>& locales,
       bool is_authority_match)
       : net::URLRequestFileJob(
           request, network_delegate, base::FilePath(), file_task_runner),
@@ -159,6 +161,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
         content_security_policy_(content_security_policy),
         is_authority_match_(is_authority_match),
         resource_(application_id, directory_path, relative_path),
+        locales_(locales),
         weak_factory_(this) {
   }
 
@@ -175,6 +178,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   virtual void Start() OVERRIDE {
     base::FilePath* read_file_path = new base::FilePath;
 
+    resource_.SetLocales(locales_);
     bool posted = base::WorkerPool::PostTaskAndReply(
         FROM_HERE,
         base::Bind(&ReadResourceFilePath, resource_,
@@ -202,6 +206,7 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   std::string content_security_policy_;
   bool is_authority_match_;
   ApplicationResource resource_;
+  std::list<std::string> locales_;
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
 };
 
@@ -297,6 +302,8 @@ ApplicationProtocolHandler::MaybeCreateJob(
                                         content_security_policy);
   }
 
+  std::list<std::string> locales;
+  // FIXME(Xinchao): Get the user agent locales into |locales|.
   return new URLRequestApplicationJob(
       request,
       network_delegate,
@@ -307,6 +314,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
       directory_path,
       relative_path,
       content_security_policy,
+      locales,
       application);
 }
 
