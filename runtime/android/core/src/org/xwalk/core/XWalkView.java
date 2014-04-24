@@ -210,29 +210,40 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * Load a web page/app from a given base URL or a content. If content is
-     * specified, load the web page/app from the content. If it's null, try to
-     * load the content from the baseUrl and return "about:blank" if calling
-     * {@link XWalkView#getUrl()}.
-     * @param baseUrl the base url for web page/app.
+     * Load a web page/app from a given base URL or a content.
+     * If url is null or empty and content is null or empty, then this function
+     * will do nothing.
+     * If content is not null, load the web page/app from the content.
+     * If content is not null and the url is not set, return "about:blank" ifi
+     * calling {@link XWalkView#getUrl()}.
+     * If content is null, try to load the content from the url.
+     *
+     * It supports URL schemes like 'http:', 'https:' and 'file:'.
+     * It can also load files from Android assets, e.g. 'file:///android_asset/'.
+     * @param url the url for web page/app.
      * @param content the content for the web page/app. Could be empty.
      */
-    public void load(String baseUrl, String content) {
+    public void load(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
-        mContent.loadUrl(baseUrl, content);
+        mContent.loadUrl(url, content);
     }
 
     /**
-     * Load a web app from a given manifest.json file. The content must not be
-     * empty.
-     * @param baseUrl the base url for manifest.json.
+     * Load a web app from a given manifest.json file. If content is not null,
+     * load the manifest.json from the content. If content is null, try to load
+     * the manifest.json from the url. Note that url should not be null if the
+     * launched path defined in manifest.json is relative.
+     *
+     * It supports URL schemes like 'http:', 'https:' and 'file:'.
+     * It can also load files from Android assets, e.g. 'file:///android_asset/'.
+     * @param url the url for manifest.json.
      * @param content the content for manifest.json.
      */
-    public void loadAppFromManifest(String baseUrl, String content) {
+    public void loadAppFromManifest(String url, String content) {
         if (mContent == null) return;
         checkThreadSafety();
-        mContent.loadAppFromManifest(baseUrl, content);
+        mContent.loadAppFromManifest(url, content);
     }
 
     /**

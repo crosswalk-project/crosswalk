@@ -99,6 +99,26 @@ class AndroidProtocolHandler {
         }
     }
 
+    static String getUrlContent(Context context, String url) throws IOException {
+        InputStream stream = open(context, url);
+        if (stream == null) {
+            throw new RuntimeException("Failed to open the url: " + url);
+        }
+
+        String content = "";
+        try {
+            final int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int actualSize = 0;
+            while ((actualSize = stream.read(buffer, 0, bufferSize)) > 0) {
+                content += new String(buffer, 0, actualSize);
+            }
+        } finally {
+            stream.close();
+        }
+        return content;
+    }
+
     private static int getFieldId(Context context, String assetType, String assetName)
         throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         Class<?> d = context.getClassLoader()

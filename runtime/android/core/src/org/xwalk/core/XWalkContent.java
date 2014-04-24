@@ -13,10 +13,14 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 import android.widget.FrameLayout;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
@@ -37,6 +41,7 @@ import org.chromium.ui.base.ActivityWindowAndroid;
  * various classes.
  */
 class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChangeListener {
+    private static String TAG = "XWalkContent";
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
@@ -331,13 +336,36 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         return mSettings;
     }
 
-    public void loadAppFromManifest(String path, String manifest) {
-        if (path == null || manifest == null || mXWalkContent == 0) {
+    public void loadAppFromManifest(String url, String data) {
+        if (mXWalkContent == 0 ||
+                ((url == null || url.isEmpty()) &&
+                        (data == null || data.isEmpty()))) {
             return;
         }
 
-        if (!nativeSetManifest(mXWalkContent, path, manifest)) {
-            throw new RuntimeException("Failed to parse the manifest file.");
+        String content = data;
+        // If the data of manifest.json is not set, try to load it.
+        if (data == null || data.isEmpty()) {
+            try {
+                content = AndroidProtocolHandler.getUrlContent(mXWalkView.getActivity(), url);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read the manifest: " + url);
+            }
+        }
+
+        // Calculate the base url of manifestUrl. Used by native side.
+        // TODO(yongsheng): It's from runtime side. Need to find a better way
+        // to get base url.
+        String baseUrl = url;
+        int position = url.lastIndexOf("/");
+        if (position != -1) {
+            baseUrl = url.substring(0, position + 1);
+        } else {
+            Log.w(TAG, "The url of manifest.json is probably not set correctly.");
+        }
+
+        if (!nativeSetManifest(mXWalkContent, baseUrl, content)) {
+            throw new RuntimeException("Failed to parse the manifest file: " + url);
         }
     }
 

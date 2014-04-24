@@ -43,15 +43,7 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
 
     @Override
     public void loadAppFromManifest(String manifestUrl) {
-        XWalkManifestReader manifestReader = new XWalkManifestReader(mActivity);
-        String manifest = manifestReader.read(manifestUrl);
-        int position = manifestUrl.lastIndexOf("/");
-        if (position == -1) {
-            throw new RuntimeException("The URL of manifest file is invalid.");
-        }
-
-        String path = manifestUrl.substring(0, position + 1);
-        mXWalkView.loadAppFromManifest(path, manifest);
+        mXWalkView.loadAppFromManifest(manifestUrl, null);
     }
 
     @Override
