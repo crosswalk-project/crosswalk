@@ -110,9 +110,22 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       int render_process_id,
       int render_view_id,
       int notification_id) OVERRIDE;
-#if defined(OS_TIZEN)
-  virtual bool CanCommitURL(
-      content::RenderProcessHost* process_host, const GURL& url) OVERRIDE;
+#if !defined(OS_ANDROID)
+  virtual bool CanCreateWindow(const GURL& opener_url,
+                               const GURL& opener_top_level_frame_url,
+                               const GURL& source_origin,
+                               WindowContainerType container_type,
+                               const GURL& target_url,
+                               const content::Referrer& referrer,
+                               WindowOpenDisposition disposition,
+                               const blink::WebWindowFeatures& features,
+                               bool user_gesture,
+                               bool opener_suppressed,
+                               content::ResourceContext* context,
+                               int render_process_id,
+                               bool is_guest,
+                               int opener_id,
+                               bool* no_javascript_access) OVERRIDE;
 #endif
 
 #if defined(OS_ANDROID)

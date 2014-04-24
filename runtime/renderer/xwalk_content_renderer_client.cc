@@ -166,22 +166,42 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
 #if defined(OS_ANDROID)
   return false;
 #else
-  if (!xwalk_render_process_observer_->IsWarpMode())
+  if (!xwalk_render_process_observer_->IsWarpMode()
+#if defined(OS_TIZEN)
+      && !xwalk_render_process_observer_->IsCSPMode()
+#endif
+      )
     return false;
 
   GURL origin_url(frame->document().url());
   GURL app_url(xwalk_render_process_observer_->app_url());
-  if ((url.scheme() == app_url.scheme() &&
-       url.host() == app_url.host()) ||
+#if defined(OS_TIZEN)
+  // if under CSP mode.
+  if (xwalk_render_process_observer_->IsCSPMode()) {
+    if (url.GetOrigin() != app_url.GetOrigin() &&
+        origin_url != first_party_for_cookies &&
+        first_party_for_cookies.GetOrigin() != app_url.GetOrigin() &&
+        !frame->document().securityOrigin().canRequest(url)) {
+      LOG(INFO) << "[BLOCK] allow-navigation: " << url.spec();
+      content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
+      *new_url = GURL();
+      return true;
+    }
+    return false;
+  }
+#endif
+  // if under WARP mode.
+  if (url.GetOrigin() == app_url.GetOrigin() ||
       frame->document().securityOrigin().canRequest(url)) {
     LOG(INFO) << "[PASS] " << origin_url.spec() << " request " << url.spec();
     return false;
   }
 
   LOG(INFO) << "[BLOCK] " << origin_url.spec() << " request " << url.spec();
-
 #if defined(OS_TIZEN)
-  if (origin_url.spec().empty())
+  if (url.GetOrigin() != app_url.GetOrigin() &&
+      origin_url != first_party_for_cookies &&
+      first_party_for_cookies.GetOrigin() != app_url.GetOrigin())
     content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
 #endif
 

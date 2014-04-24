@@ -44,7 +44,7 @@ void AddAccessWhiteListEntry(
 
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
     : is_webkit_initialized_(false),
-      is_warp_mode_(false) {
+      security_mode_(application::SecurityPolicy::NoSecurity) {
 }
 
 XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
@@ -55,7 +55,7 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
-    IPC_MESSAGE_HANDLER(ViewMsg_EnableWarpMode, OnEnableWarpMode)
+    IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -89,9 +89,10 @@ void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
         AccessWhitelistItem(source, dest, allow_subdomains));
 }
 
-void XWalkRenderProcessObserver::OnEnableWarpMode(const GURL& url) {
+void XWalkRenderProcessObserver::OnEnableSecurityMode(
+    const GURL& url, application::SecurityPolicy::SecurityMode mode) {
   app_url_ = url;
-  is_warp_mode_ = true;
+  security_mode_ = mode;
 }
 
 }  // namespace xwalk
