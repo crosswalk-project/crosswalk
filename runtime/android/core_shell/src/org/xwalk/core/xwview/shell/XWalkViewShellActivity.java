@@ -101,6 +101,8 @@ public class XWalkViewShellActivity extends FragmentActivity
             getTracingController().unregisterReceiver(this);
         } catch (SecurityException e) {
             Log.w(TAG, "failed to unregister tracing receiver: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "failed to unregister tracing receiver: " + e.getMessage());
         }
     }
 

@@ -41,6 +41,18 @@
       <message desc="Prompt for the http authentication login [CHAR-LIMIT=32]" name="IDS_HTTP_AUTH_LOG_IN">
         Log In
       </message>
+      <message desc="Title for the CPU architecture mismatch dialog [CHAR-LIMIT=50]" name="IDS_CPU_ARCH_MISMATCH_TITLE">
+        Mismatch of CPU architecture for Crosswalk
+      </message>
+      <message desc="Message for the CPU architecture mismatch dialog [CHAR-LIMIT=150]" name="IDS_CPU_ARCH_MISMATCH_MESSAGE">
+        Unfortunately this application was not created for %1$s based devices, please take a moment to notify the developer about it. Thanks.
+      </message>
+      <message desc="Label of the button for going to Google Play Store [CHAR-LIMIT=32]" name="IDS_GOTO_STORE_BUTTON_LABEL">
+        Go to Google Play Store
+      </message>
+      <message desc="Label of the button for reporting to developer [CHAR-LIMIT=32]" name="IDS_REPORT_FEEDBACK_BUTTON_LABEL">
+        Report to developer
+      </message>
     </messages>
   </release>
 

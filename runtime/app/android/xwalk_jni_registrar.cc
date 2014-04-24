@@ -19,6 +19,7 @@
 #include "xwalk/runtime/browser/android/xwalk_dev_tools_server.h"
 #include "xwalk/runtime/browser/android/xwalk_http_auth_handler.h"
 #include "xwalk/runtime/browser/android/xwalk_settings.h"
+#include "xwalk/runtime/browser/android/xwalk_view_delegate.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
 namespace xwalk {
@@ -41,6 +42,7 @@ static base::android::RegistrationMethod kXWalkRegisteredMethods[] = {
   { "XWalkExtensionAndroid", extensions::RegisterXWalkExtensionAndroid },
   { "XWalkHttpAuthHandler", RegisterXWalkHttpAuthHandler },
   { "XWalkSettings", RegisterXWalkSettings },
+  { "XWalkViewDelegate", RegisterXWalkViewDelegate },
   { "XWalkWebContentsDelegate", RegisterXWalkWebContentsDelegate },
 };
 

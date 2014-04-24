@@ -19,8 +19,7 @@ public class XWalkRuntimeLibraryException extends Exception {
     public final static int XWALK_RUNTIME_LIBRARY_NOT_INSTALLED = 1;
     public final static int XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL = 2;
     public final static int XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_WARNING = 3;
-    public final static int XWALK_CORE_LIBRARY_SO_NOT_EXIST = 4;
-    public final static int XWALK_RUNTIME_LIBRARY_INVOKE_FAILED = 5;
+    public final static int XWALK_RUNTIME_LIBRARY_INVOKE_FAILED = 4;
     
     private int mType;
     private Exception mOriginException;

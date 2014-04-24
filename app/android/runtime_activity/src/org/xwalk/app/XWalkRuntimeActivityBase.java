@@ -164,19 +164,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                 title = getString("dialog_title_install_runtime_lib");
                 message = getString("dialog_message_install_runtime_lib");
                 break;
-            case XWalkRuntimeLibraryException.XWALK_CORE_LIBRARY_SO_NOT_EXIST:
-                title = getString("dialog_title_install_right_abi");
-                if (XWalkRuntimeClient.libraryIsEmbedded()) {
-                    String appName = getPackageManager().getApplicationLabel(
-                            getApplicationContext().getApplicationInfo()).toString();
-                    if (appName == null) appName = getApplicationContext().getPackageName();
-                    message = String.format(getString("dialog_message_install_right_abi_embedded"),
-                            appName, System.getProperty("os.arch"));
-                } else {
-                    message = String.format(getString("dialog_message_install_right_abi_shared"),
-                            System.getProperty("os.arch"));
-                }
-                break;
             case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED:
             default:
                 Exception originException = runtimeException.getOriginException();
