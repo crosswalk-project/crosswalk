@@ -106,7 +106,7 @@ XWalkContent* XWalkContent::FromWebContents(
   return XWalkContentUserData::GetContents(web_contents);
 }
 
-jint XWalkContent::GetWebContents(
+jlong XWalkContent::GetWebContents(
     JNIEnv* env, jobject obj, jobject io_thread_client,
     jobject intercept_navigation_delegate) {
   if (!web_contents_) {
@@ -116,7 +116,7 @@ jint XWalkContent::GetWebContents(
     render_view_host_ext_.reset(
         new XWalkRenderViewHostExt(web_contents_.get()));
   }
-  return reinterpret_cast<jint>(web_contents_.get());
+  return reinterpret_cast<intptr_t>(web_contents_.get());
 }
 
 content::WebContents* XWalkContent::CreateWebContents(
@@ -341,11 +341,11 @@ jboolean XWalkContent::SetState(JNIEnv* env, jobject obj, jbyteArray state) {
   return RestoreFromPickle(&iterator, web_contents_.get());
 }
 
-static jint Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
+static jlong Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
     jobject contents_client_bridge) {
   XWalkContent* xwalk_core_content =
     new XWalkContent(env, obj, web_contents_delegate, contents_client_bridge);
-  return reinterpret_cast<jint>(xwalk_core_content);
+  return reinterpret_cast<intptr_t>(xwalk_core_content);
 }
 
 bool RegisterXWalkContent(JNIEnv* env) {
@@ -384,7 +384,7 @@ void ShowGeolocationPromptHelper(const JavaObjectWeakGlobalRef& java_ref,
 
 void XWalkContent::ShowGeolocationPrompt(
     const GURL& requesting_frame,
-    const base::Callback<void(bool)>& callback) {
+    const base::Callback<void(bool)>& callback) { // NOLINT
   GURL origin = requesting_frame.GetOrigin();
   bool show_prompt = pending_geolocation_prompts_.empty();
   pending_geolocation_prompts_.push_back(OriginCallback(origin, callback));

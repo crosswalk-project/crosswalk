@@ -197,27 +197,27 @@ bool RegisterXWalkDevToolsServer(JNIEnv* env) {
   return RegisterNativesImpl(env);
 }
 
-static jint InitRemoteDebugging(JNIEnv* env,
+static jlong InitRemoteDebugging(JNIEnv* env,
                                 jobject obj,
                                 jstring socketName) {
   XWalkDevToolsServer* server = new XWalkDevToolsServer(
       base::android::ConvertJavaStringToUTF8(env, socketName));
-  return reinterpret_cast<jint>(server);
+  return reinterpret_cast<intptr_t>(server);
 }
 
-static void DestroyRemoteDebugging(JNIEnv* env, jobject obj, jint server) {
+static void DestroyRemoteDebugging(JNIEnv* env, jobject obj, jlong server) {
   delete reinterpret_cast<XWalkDevToolsServer*>(server);
 }
 
 static jboolean IsRemoteDebuggingEnabled(JNIEnv* env,
                                          jobject obj,
-                                         jint server) {
+                                         jlong server) {
   return reinterpret_cast<XWalkDevToolsServer*>(server)->IsStarted();
 }
 
 static void SetRemoteDebuggingEnabled(JNIEnv* env,
                                       jobject obj,
-                                      jint server,
+                                      jlong server,
                                       jboolean enabled) {
   XWalkDevToolsServer* devtools_server =
       reinterpret_cast<XWalkDevToolsServer*>(server);
@@ -230,7 +230,7 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
 
 static void AllowConnectionFromUid(JNIEnv* env,
                                     jobject obj,
-                                    jint server,
+                                    jlong server,
                                     jint uid) {
   XWalkDevToolsServer* devtools_server =
       reinterpret_cast<XWalkDevToolsServer*>(server);

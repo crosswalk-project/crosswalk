@@ -51,7 +51,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private boolean mIsFullscreen = false;
 
     // The native peer of the object
-    private int mNativeContentsClientBridge;
+    private long mNativeContentsClientBridge;
 
     private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
         private XWalkContentsClient mContentsClient;
@@ -471,7 +471,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     // Used by the native peer to set/reset a weak ref to the native peer.
     @CalledByNative
-    private void setNativeContentsClientBridge(int nativeContentsClientBridge) {
+    private void setNativeContentsClientBridge(long nativeContentsClientBridge) {
         mNativeContentsClientBridge = nativeContentsClientBridge;
     }
 
@@ -572,7 +572,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         nativeCancelJsResult(mNativeContentsClientBridge, id);
     }
 
-    void exitFullscreen(int nativeWebContents) {
+    void exitFullscreen(long nativeWebContents) {
         if (mNativeContentsClientBridge == 0) return;
         nativeExitFullscreen(mNativeContentsClientBridge, nativeWebContents);
     }
@@ -618,23 +618,23 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     //--------------------------------------------------------------------------------------------
     //  Native methods
     //--------------------------------------------------------------------------------------------
-    private native void nativeProceedSslError(int nativeXWalkContentsClientBridge,
+    private native void nativeProceedSslError(long nativeXWalkContentsClientBridge,
             boolean proceed, int id);
 
-    private native void nativeConfirmJsResult(int nativeXWalkContentsClientBridge, int id,
+    private native void nativeConfirmJsResult(long nativeXWalkContentsClientBridge, int id,
             String prompt);
-    private native void nativeCancelJsResult(int nativeXWalkContentsClientBridge, int id);
-    private native void nativeExitFullscreen(int nativeXWalkContentsClientBridge, int nativeWebContents);
-    private native void nativeNotificationDisplayed(int nativeXWalkContentsClientBridge, int id,
+    private native void nativeCancelJsResult(long nativeXWalkContentsClientBridge, int id);
+    private native void nativeExitFullscreen(long nativeXWalkContentsClientBridge, long nativeWebContents);
+    private native void nativeNotificationDisplayed(long nativeXWalkContentsClientBridge, int id,
             int processId, int routeId);
-    private native void nativeNotificationError(int nativeXWalkContentsClientBridge, int id,
+    private native void nativeNotificationError(long nativeXWalkContentsClientBridge, int id,
             String error, int processId, int routeId);
-    private native void nativeNotificationClicked(int nativeXWalkContentsClientBridge, int id,
+    private native void nativeNotificationClicked(long nativeXWalkContentsClientBridge, int id,
             int processId, int routeId);
-    private native void nativeNotificationClosed(int nativeXWalkContentsClientBridge, int id,
+    private native void nativeNotificationClosed(long nativeXWalkContentsClientBridge, int id,
             boolean byUser, int processId, int routeId);
-    private native void nativeOnFilesSelected(int nativeXWalkContentsClientBridge,
+    private native void nativeOnFilesSelected(long nativeXWalkContentsClientBridge,
             int processId, int renderId, int mode_flags, String filepath, String displayName);
-    private native void nativeOnFilesNotSelected(int nativeXWalkContentsClientBridge,
+    private native void nativeOnFilesNotSelected(long nativeXWalkContentsClientBridge,
             int processId, int renderId, int mode_flags);
 }

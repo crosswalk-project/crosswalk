@@ -18,7 +18,7 @@ import org.chromium.base.JNINamespace;
 @JNINamespace("xwalk::extensions")
 public abstract class XWalkExtensionAndroid {
     private final static String TAG = "XWalkExtensionAndroid";
-    private int mXWalkExtension;
+    private long mXWalkExtension;
 
     public XWalkExtensionAndroid(String name, String jsApi) {
         mXWalkExtension = nativeGetOrCreateExtension(name, jsApi, null);
@@ -62,8 +62,8 @@ public abstract class XWalkExtensionAndroid {
     @CalledByNative
     public abstract String handleSyncMessage(int instanceID, String message);
 
-    private native int nativeGetOrCreateExtension(String name, String jsApi, String[] entryPoints);
-    private native void nativePostMessage(int nativeXWalkExtensionAndroid, int instanceID, String message);
-    private native void nativeBroadcastMessage(int nativeXWalkExtensionAndroid, String message);
-    private native void nativeDestroyExtension(int nativeXWalkExtensionAndroid);
+    private native long nativeGetOrCreateExtension(String name, String jsApi, String[] entryPoints);
+    private native void nativePostMessage(long nativeXWalkExtensionAndroid, int instanceID, String message);
+    private native void nativeBroadcastMessage(long nativeXWalkExtensionAndroid, String message);
+    private native void nativeDestroyExtension(long nativeXWalkExtensionAndroid);
 }

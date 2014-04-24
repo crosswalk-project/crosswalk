@@ -54,7 +54,7 @@ XWalkContentsClientBridge::XWalkContentsClientBridge(JNIEnv* env, jobject obj)
     : java_ref_(env, obj) {
   DCHECK(obj);
   Java_XWalkContentsClientBridge_setNativeContentsClientBridge(
-      env, obj, reinterpret_cast<jint>(this));
+      env, obj, reinterpret_cast<intptr_t>(this));
 }
 
 XWalkContentsClientBridge::~XWalkContentsClientBridge() {
@@ -73,7 +73,7 @@ void XWalkContentsClientBridge::AllowCertificateError(
     int cert_error,
     net::X509Certificate* cert,
     const GURL& request_url,
-    const base::Callback<void(bool)>& callback,
+    const base::Callback<void(bool)>& callback, // NOLINT
     bool* cancel_request) {
 
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
@@ -335,7 +335,7 @@ void XWalkContentsClientBridge::CancelJsResult(JNIEnv*, jobject, int id) {
 }
 
 void XWalkContentsClientBridge::ExitFullscreen(
-    JNIEnv*, jobject, jint j_web_contents) {
+    JNIEnv*, jobject, jlong j_web_contents) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   WebContents* web_contents = reinterpret_cast<WebContents*>(j_web_contents);
   if (web_contents) {

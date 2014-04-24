@@ -55,8 +55,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     private XWalkGeolocationPermissions mGeolocationPermissions;
     private XWalkLaunchScreenManager mLaunchScreenManager;
 
-    int mXWalkContent;
-    int mWebContents;
+    long mXWalkContent;
+    long mWebContents;
     boolean mReadyToLoad = false;
     String mPendingUrl = null;
     String mPendingData = null;
@@ -606,20 +606,20 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         }
     }
 
-    private native int nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
+    private native long nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
             XWalkContentsClientBridge bridge);
-    private static native void nativeDestroy(int nativeXWalkContent);
-    private native int nativeGetWebContents(int nativeXWalkContent,
+    private static native void nativeDestroy(long nativeXWalkContent);
+    private native long nativeGetWebContents(long nativeXWalkContent,
             XWalkContentsIoThreadClient ioThreadClient,
             InterceptNavigationDelegate delegate);
-    private native void nativeClearCache(int nativeXWalkContent, boolean includeDiskFiles);
-    private native String nativeDevToolsAgentId(int nativeXWalkContent);
-    private native String nativeGetVersion(int nativeXWalkContent);
-    private native void nativeSetJsOnlineProperty(int nativeXWalkContent, boolean networkUp);
-    private native boolean nativeSetManifest(int nativeXWalkContent, String path, String manifest);
-    private native int nativeGetRoutingID(int nativeXWalkContent);
+    private native void nativeClearCache(long nativeXWalkContent, boolean includeDiskFiles);
+    private native String nativeDevToolsAgentId(long nativeXWalkContent);
+    private native String nativeGetVersion(long nativeXWalkContent);
+    private native void nativeSetJsOnlineProperty(long nativeXWalkContent, boolean networkUp);
+    private native boolean nativeSetManifest(long nativeXWalkContent, String path, String manifest);
+    private native int nativeGetRoutingID(long nativeXWalkContent);
     private native void nativeInvokeGeolocationCallback(
-            int nativeXWalkContent, boolean value, String requestingFrame);
-    private native byte[] nativeGetState(int nativeXWalkContent);
-    private native boolean nativeSetState(int nativeXWalkContent, byte[] state);
+            long nativeXWalkContent, boolean value, String requestingFrame);
+    private native byte[] nativeGetState(long nativeXWalkContent);
+    private native boolean nativeSetState(long nativeXWalkContent, byte[] state);
 }

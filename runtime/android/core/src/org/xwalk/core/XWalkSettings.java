@@ -65,7 +65,7 @@ public class XWalkSettings {
     private static boolean sAppCachePathIsSet = false;
 
     // The native side of this object.
-    private int mNativeXWalkSettings = 0;
+    private long mNativeXWalkSettings = 0;
 
     // A flag to avoid sending superfluous synchronization messages.
     private boolean mIsUpdateWebkitPrefsMessagePending = false;
@@ -137,7 +137,7 @@ public class XWalkSettings {
         }
     }
 
-    public XWalkSettings(Context context, int nativeWebContents,
+    public XWalkSettings(Context context, long nativeWebContents,
             boolean isAccessFromFileURLsGrantedByDefault) {
         ThreadUtils.assertOnUiThread();
         mContext = context;
@@ -158,7 +158,7 @@ public class XWalkSettings {
         setWebContents(nativeWebContents);
     }
 
-    void setWebContents(int nativeWebContents) {
+    void setWebContents(long nativeWebContents) {
         synchronized (mXWalkSettingsLock) {
             if (mNativeXWalkSettings != 0) {
                 nativeDestroy(mNativeXWalkSettings);
@@ -173,7 +173,7 @@ public class XWalkSettings {
     }
 
     @CalledByNative
-    private void nativeXWalkSettingsGone(int nativeXWalkSettings) {
+    private void nativeXWalkSettingsGone(long nativeXWalkSettings) {
         assert mNativeXWalkSettings != 0 && mNativeXWalkSettings == nativeXWalkSettings;
         mNativeXWalkSettings = 0;
     }
@@ -656,15 +656,15 @@ public class XWalkSettings {
         }
     }
 
-    private native int nativeInit(int webContentsPtr);
+    private native long nativeInit(long webContentsPtr);
 
-    private native void nativeDestroy(int nativeXWalkSettings);
+    private native void nativeDestroy(long nativeXWalkSettings);
 
     private static native String nativeGetDefaultUserAgent();
 
-    private native void nativeUpdateEverythingLocked(int nativeXWalkSettings);
+    private native void nativeUpdateEverythingLocked(long nativeXWalkSettings);
 
-    private native void nativeUpdateUserAgent(int nativeXWalkSettings);
+    private native void nativeUpdateUserAgent(long nativeXWalkSettings);
 
-    private native void nativeUpdateWebkitPreferences(int nativeXWalkSettings);
+    private native void nativeUpdateWebkitPreferences(long nativeXWalkSettings);
 }
