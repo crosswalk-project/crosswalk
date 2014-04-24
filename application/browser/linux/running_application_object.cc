@@ -74,6 +74,15 @@ RunningApplicationObject::RunningApplicationObject(
                  base::Unretained(this)),
       base::Bind(&RunningApplicationObject::OnExported,
                  base::Unretained(this)));
+
+#if defined(OS_TIZEN)
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "Hide",
+      base::Bind(&RunningApplicationObject::OnHide,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
+#endif
 }
 
 RunningApplicationObject::~RunningApplicationObject() {
@@ -134,6 +143,27 @@ void RunningApplicationObject::OnGetExtensionProcessChannel(
   writer.AppendFileDescriptor(client_fd);
   response_sender.Run(response.Pass());
 }
+
+#if defined(OS_TIZEN)
+void RunningApplicationObject::OnHide(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+
+  application_->Hide();
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  response_sender.Run(response.Pass());
+}
+#endif
 
 void RunningApplicationObject::ListenForOwnerChange() {
   owner_change_callback_ =

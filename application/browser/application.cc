@@ -29,6 +29,10 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/runtime/browser/ui/native_app_window.h"
+#endif
+
 #if defined(USE_OZONE) && defined(OS_TIZEN)
 #include "base/message_loop/message_pump_ozone.h"
 #include "content/public/browser/render_view_host.h"
@@ -234,6 +238,17 @@ void Application::Terminate(TerminationMode mode) {
   std::for_each(to_be_closed.begin(), to_be_closed.end(),
                 std::mem_fun(&Runtime::Close));
 }
+
+#if defined(OS_TIZEN)
+void Application::Hide() {
+  DCHECK(runtimes_.size());
+  std::set<Runtime*>::iterator it = runtimes_.begin();
+  for (; it != runtimes_.end(); ++it) {
+    if ((*it)->window())
+      (*it)->window()->Hide();
+  }
+}
+#endif
 
 Runtime* Application::GetMainDocumentRuntime() const {
   return HasMainDocument() ? main_runtime_ : NULL;

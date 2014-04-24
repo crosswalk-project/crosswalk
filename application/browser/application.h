@@ -99,6 +99,10 @@ class Application
   };
   void Terminate(TerminationMode = Normal);
 
+#if defined(OS_TIZEN)
+  void Hide();
+#endif
+
   // Returns Runtime (application page) containing the application's
   // 'main document'. The main document is the main entry point of
   // the application to the system. This method will return 'NULL'

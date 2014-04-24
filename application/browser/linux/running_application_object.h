@@ -47,6 +47,11 @@ class RunningApplicationObject : public dbus::ManagedObject {
       dbus::MethodCall* method_call,
       dbus::ExportedObject::ResponseSender response_sender);
 
+#if defined(OS_TIZEN)
+  void OnHide(dbus::MethodCall* method_call,
+              dbus::ExportedObject::ResponseSender response_sender);
+#endif
+
   void ListenForOwnerChange();
   void UnlistenForOwnerChange();
   void OnNameOwnerChanged(const std::string& service_owner);
