@@ -394,9 +394,9 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     }
 
     @CalledByNative
-    public void onGetUrlAndLaunchScreenFromManifest(String url, String readyWhen) {
+    public void onGetUrlAndLaunchScreenFromManifest(String url, String readyWhen, String imageBorder) {
         if (url == null || url.isEmpty()) return;
-        mLaunchScreenManager.displayLaunchScreen(readyWhen);
+        mLaunchScreenManager.displayLaunchScreen(readyWhen, imageBorder);
         mContentsClientBridge.registerPageLoadListener(mLaunchScreenManager);
         loadUrl(url, null);
     }

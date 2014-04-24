@@ -116,9 +116,6 @@ def ParseManifest(options):
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
     options.fullscreen = False
-  if parser.GetLaunchScreenImg():
-    options.launch_screen_img  = os.path.join(options.app_root,
-                                              parser.GetLaunchScreenImg())
 
 
 def ParseXPK(options, out_dir):
@@ -210,7 +207,7 @@ def Customize(options):
                options.permissions, options.app_url, app_root,
                options.app_local_path, remote_debugging,
                fullscreen_flag, options.keep_screen_on, options.extensions,
-               options.launch_screen_img, icon, package, name, app_version,
+               options.manifest, icon, package, name, app_version,
                orientation, options.xwalk_command_line)
 
 
@@ -687,10 +684,6 @@ def main(argv):
   if len(argv) == 1:
     parser.print_help()
     return 0
-
-  # This option will not export to users.
-  # Initialize here and will be read from manifest.json.
-  options.launch_screen_img = ''
 
   if options.version:
     if os.path.isfile('VERSION'):

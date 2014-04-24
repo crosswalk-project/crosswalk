@@ -18,6 +18,12 @@ namespace application_manifest_keys {
   extern const char kDisplay[];
   extern const char kLaunchLocalPathKey[];
   extern const char kLaunchScreen[];
+  extern const char kLaunchScreenDefault[];
+  extern const char kLaunchScreenImageBorderDefault[];
+  extern const char kLaunchScreenImageBorderLandscape[];
+  extern const char kLaunchScreenImageBorderPortrait[];
+  extern const char kLaunchScreenLandscape[];
+  extern const char kLaunchScreenPortrait[];
   extern const char kLaunchScreenReadyWhen[];
   extern const char kLaunchWebURLKey[];
   extern const char kManifestVersionKey[];

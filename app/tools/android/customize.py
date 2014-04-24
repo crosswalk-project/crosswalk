@@ -11,6 +11,7 @@ import re
 import shutil
 import sys
 
+from customize_launch_screen import CustomizeLaunchScreen
 from handle_xml import AddElementAttribute
 from handle_xml import AddElementAttributeAndText
 from handle_xml import EditElementAttribute
@@ -76,46 +77,29 @@ def CustomizeStringXML(sanitized_name, description):
     strings_file.close()
 
 
-def CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img):
+def CustomizeThemeXML(sanitized_name, fullscreen, app_manifest):
   theme_path = os.path.join(sanitized_name, 'res', 'values', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
 
-  xmldoc = minidom.parse(theme_path)
+  theme_xmldoc = minidom.parse(theme_path)
   if fullscreen:
-    EditElementValueByNodeName(xmldoc, 'item',
+    EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowFullscreen', 'true')
-  if launch_screen_img:
-    EditElementValueByNodeName(xmldoc, 'item',
+  has_background = CustomizeLaunchScreen(app_manifest, sanitized_name)
+  if has_background:
+    EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowBackground',
-                               '@drawable/launchscreen')
-    default_image = launch_screen_img
-    if os.path.isfile(default_image):
-      drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
-      if not os.path.exists(drawable_path):
-        os.makedirs(drawable_path)
-      # Get the extension of default_image.
-      # Need to take care of special case, such as 'img.9.png'
-      name = os.path.basename(default_image)
-      extlist = name.split('.')
-      # Remove the file name from the list.
-      extlist.pop(0)
-      ext = '.' + '.'.join(extlist)
-      final_launch_screen_path = os.path.join(drawable_path,
-                                              'launchscreen' + ext)
-      shutil.copyfile(default_image, final_launch_screen_path)
-    else:
-      print('Error: Please make sure \"' + default_image + '\" exists!')
-      sys.exit(6)
-  theme_file = open(theme_path, 'w')
-  xmldoc.writexml(theme_file, encoding='utf-8')
+                               '@drawable/launchscreen_bg')
+  theme_file = open(theme_path, 'wb')
+  theme_xmldoc.writexml(theme_file, encoding='utf-8')
   theme_file.close()
 
 
 def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
                  description, name, orientation, icon_dict, fullscreen,
-                 icon, launch_screen_img, permissions, app_root):
+                 icon, app_manifest, permissions, app_root):
   manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
@@ -123,7 +107,7 @@ def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
     sys.exit(6)
 
   CustomizeStringXML(sanitized_name, description)
-  CustomizeThemeXML(sanitized_name, fullscreen, launch_screen_img)
+  CustomizeThemeXML(sanitized_name, fullscreen, app_manifest)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', package)
   if app_versionCode:
@@ -330,7 +314,7 @@ def CustomizeExtensions(sanitized_name, name, extensions):
 
         # Write to the manifest file to save the update.
         file_handle = open(manifest_path, 'w')
-        xmldoc.writexml(file_handle)
+        xmldoc.writexml(file_handle, encoding='utf-8')
         file_handle.close()
 
   # Write configuration of extensions into the target extensions-config.json.
@@ -411,7 +395,7 @@ def CustomizeIcon(sanitized_name, app_root, icon, icon_dict):
 def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
                  app_root, app_local_path, enable_remote_debugging,
                  display_as_fullscreen, keep_screen_on, extensions,
-                 launch_screen_img, icon, package='org.xwalk.app.template',
+                 app_manifest, icon, package='org.xwalk.app.template',
                  name='AppTemplate', app_version='1.0.0',
                  orientation='unspecified', xwalk_command_line=''):
   sanitized_name = ReplaceInvalidChars(name, 'apkname')
@@ -419,7 +403,7 @@ def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
     Prepare(sanitized_name, package, app_root)
     CustomizeXML(sanitized_name, package, app_versionCode, app_version,
                  description, name, orientation, icon_dict,
-                 display_as_fullscreen, icon, launch_screen_img, permissions,
+                 display_as_fullscreen, icon, app_manifest, permissions,
                  app_root)
     CustomizeJava(sanitized_name, package, app_url, app_local_path,
                   enable_remote_debugging, display_as_fullscreen,
@@ -479,13 +463,13 @@ def main():
           'http://developer.android.com/guide/topics/manifest/'
           'activity-element.html#screen')
   parser.add_option('--orientation', help=info)
-  parser.add_option('--launch-screen-img',
-                    help='The fallback image for launch_screen')
+  parser.add_option('--manifest', help='The manifest path')
   info = ('Use command lines.'
           'Crosswalk is powered by Chromium and supports Chromium command line.'
           'For example, '
           '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
   parser.add_option('--xwalk-command-line', default='', help=info)
+
   options, _ = parser.parse_args()
   try:
     icon_dict = {144: 'icons/icon_144.png',
@@ -507,9 +491,10 @@ def main():
                  options.permissions, options.app_url, options.app_root,
                  options.app_local_path, options.enable_remote_debugging,
                  options.fullscreen, options.keep_screen_on, options.extensions,
-                 options.launch_screen_img, icon, options.package, options.name,
+                 options.manifest, icon, options.package, options.name,
                  options.app_version, options.orientation,
                  options.xwalk_command_line)
+
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code

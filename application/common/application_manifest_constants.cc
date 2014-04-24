@@ -16,6 +16,15 @@ const char kDescriptionKey[] = "description";
 const char kDisplay[] = "display";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchScreen[] = "launch_screen";
+const char kLaunchScreenDefault[] = "launch_screen.default";
+const char kLaunchScreenImageBorderDefault[] =
+    "launch_screen.default.image_border";
+const char kLaunchScreenImageBorderLandscape[] =
+    "launch_screen.landscape.image_border";
+const char kLaunchScreenImageBorderPortrait[] =
+    "launch_screen.portrait.image_border";
+const char kLaunchScreenLandscape[] = "launch_screen.landscape";
+const char kLaunchScreenPortrait[] = "launch_screen.portrait";
 const char kLaunchScreenReadyWhen[] = "launch_screen.ready_when";
 const char kLaunchWebURLKey[] = "app.launch.web_url";
 const char kManifestVersionKey[] = "manifest_version";
