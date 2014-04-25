@@ -8,6 +8,7 @@ It is an open source project started by the Intel Open Source Technology Center
 
 Check out our [Wiki](http://crosswalk-project.org/#wiki).
 
+
 ## Community
 
 How to use Crosswalk you can ask on the mailing list : https://lists.crosswalk-project.org/mailman/listinfo/crosswalk-help
