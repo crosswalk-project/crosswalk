@@ -93,6 +93,10 @@
         'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
+        #TODO(wang16): figure out why the 'jar_final_path' defined in chromium_generated_java
+        #              not added into following all_dependent_settings setting chain.
+        #              BUG=https://crosswalk-project.org/jira/browse/XWALK-1575
+        'input_jars_paths': ['<(PRODUCT_DIR)/lib.java/chromium_generated_java.jar'],
       },
       'all_dependent_settings': {
         'variables': {
