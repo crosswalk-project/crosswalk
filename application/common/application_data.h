@@ -138,6 +138,8 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool HasCSPDefined() const;
 #endif
 
+  bool SetApplicationLocale(const std::string& locale, base::string16* error);
+
  private:
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;

@@ -26,6 +26,7 @@ class InstalledApplicationObject : public dbus::ManagedObject {
       scoped_refptr<dbus::Bus> bus, const dbus::ObjectPath& path,
       const ApplicationData* app);
 
+  void OnApplicationNameChanged(const std::string& app_name);
   // Set the callback used when the Uninstall() method is called in an
   // ApplicationObject.
   void ExportUninstallMethod(

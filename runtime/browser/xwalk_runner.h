@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_RUNNER_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_RUNNER_H_
 
+#include <string>
+
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/values.h"
@@ -75,6 +77,10 @@ class XWalkRunner {
   // Stages of main parts. See content/browser_main_parts.h for description.
   void PreMainMessageLoopRun();
   void PostMainMessageLoopRun();
+
+  // Get the latest application locale from system.
+  // locale is a langtag defined in [BCP47]
+  virtual std::string GetLocale() const;
 
  protected:
   XWalkRunner();

@@ -5,7 +5,10 @@
 #ifndef XWALK_RUNTIME_BROWSER_XWALK_RUNNER_TIZEN_H_
 #define XWALK_RUNTIME_BROWSER_XWALK_RUNNER_TIZEN_H_
 
+#include <string>
+
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/browser/tizen/tizen_locale_listener.h"
 
 namespace xwalk {
 
@@ -20,9 +23,15 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   virtual ~XWalkRunnerTizen();
 
+  // Get the latest application locale from system.
+  // locale is a langtag defined in [BCP47]
+  virtual std::string GetLocale() const OVERRIDE;
+
  private:
   friend class XWalkRunner;
   XWalkRunnerTizen();
+
+  TizenLocaleListener tizen_locale_listener_;
 };
 
 }  // namespace xwalk

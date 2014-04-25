@@ -35,6 +35,10 @@ class ApplicationService : public Application::Observer {
     virtual void OnApplicationInstalled(const std::string& app_id) {}
     virtual void OnApplicationUninstalled(const std::string& app_id) {}
     virtual void OnApplicationUpdated(const std::string& app_id) {}
+    // When we change the application locale, we might get a new name in
+    // the new locale.
+    virtual void OnApplicationNameChanged(const std::string& app_id,
+                                          const std::string& app_name) {}
 
     virtual void DidLaunchApplication(Application* app) {}
     virtual void WillDestroyApplication(Application* app) {}
@@ -50,6 +54,7 @@ class ApplicationService : public Application::Observer {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
+  bool ChangeLocale(const std::string& locale);
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
                       const Application::LaunchParams& launch_params);
