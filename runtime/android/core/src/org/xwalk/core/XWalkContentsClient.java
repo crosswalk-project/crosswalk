@@ -68,7 +68,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
                 // the XWalkView does not notify the embedder of sub-frame failures.
                 return;
             }
-            onReceivedError(errorCode, description, failingUrl);
+            onReceivedError(ErrorCodeConversionHelper.convertErrorCode(errorCode),
+                    description, failingUrl);
         }
 
         @Override

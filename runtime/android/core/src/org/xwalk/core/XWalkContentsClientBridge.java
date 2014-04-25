@@ -183,7 +183,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     public void onResourceLoadFinished(String url) {
         if (isOwnerActivityRunning()) {
-            // TODO(yongsheng): this method is never called. Where should it be hooked?
             mXWalkResourceClient.onLoadFinished(mXWalkView, url);
         }
     }
@@ -256,6 +255,11 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (mXWalkClient != null) {
             mXWalkClient.onPageFinished(mXWalkView, url);
         }
+
+        // This isn't the accurate point to notify a resource loading is finished,
+        // but it's a workable way. We could enhance this by extending Content
+        // API in future if we have the demand.
+        onResourceLoadFinished(url);
     }
 
     @Override
