@@ -165,13 +165,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         }
     }
 
-    public void reload(XWalkView.ReloadMode mode) {
+    public void reload(int mode) {
         if (mReadyToLoad) {
             switch (mode) {
-                case IGNORE_CACHE:
+                case XWalkView.RELOAD_IGNORE_CACHE:
                     mContentView.getContentViewCore().reloadIgnoringCache(true);
                     break;
-                case NORMAL:
+                case XWalkView.RELOAD_NORMAL:
                 default:
                     mContentView.getContentViewCore().reload(true);
 

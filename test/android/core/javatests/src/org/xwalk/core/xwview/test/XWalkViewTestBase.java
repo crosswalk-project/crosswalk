@@ -395,7 +395,7 @@ public class XWalkViewTestBase
                 TimeUnit.SECONDS);
     }
 
-    protected void reloadSync(final XWalkView.ReloadMode mode) throws Exception {
+    protected void reloadSync(final int mode) throws Exception {
         runTestWaitPageFinished(new Runnable(){
             @Override
             public void run() {
