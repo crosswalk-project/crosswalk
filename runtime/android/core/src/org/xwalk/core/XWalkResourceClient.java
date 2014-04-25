@@ -14,6 +14,38 @@ import android.webkit.WebResourceResponse;
  * This class notifies the embedder resource events/callbacks.
  */
 public class XWalkResourceClient {
+    /** Success */
+    public static final int ERROR_OK = 0;
+    /** Generic error */
+    public static final int ERROR_UNKNOWN = -1;
+    /** Server or proxy hostname lookup failed */
+    public static final int ERROR_HOST_LOOKUP = -2;
+    /** Unsupported authentication scheme (not basic or digest) */
+    public static final int ERROR_UNSUPPORTED_AUTH_SCHEME = -3;
+    /** User authentication failed on server */
+    public static final int ERROR_AUTHENTICATION = -4;
+    /** User authentication failed on proxy */
+    public static final int ERROR_PROXY_AUTHENTICATION = -5;
+    /** Failed to connect to the server */
+    public static final int ERROR_CONNECT = -6;
+    /** Failed to read or write to the server */
+    public static final int ERROR_IO = -7;
+    /** Connection timed out */
+    public static final int ERROR_TIMEOUT = -8;
+    /** Too many redirects */
+    public static final int ERROR_REDIRECT_LOOP = -9;
+    /** Unsupported URI scheme */
+    public static final int ERROR_UNSUPPORTED_SCHEME = -10;
+    /** Failed to perform SSL handshake */
+    public static final int ERROR_FAILED_SSL_HANDSHAKE = -11;
+    /** Malformed URL */
+    public static final int ERROR_BAD_URL = -12;
+    /** Generic file error */
+    public static final int ERROR_FILE = -13;
+    /** File not found */
+    public static final int ERROR_FILE_NOT_FOUND = -14;
+    /** Too many requests during this load */
+    public static final int ERROR_TOO_MANY_REQUESTS = -15;
 
     /**
      * Constructor.
@@ -76,7 +108,6 @@ public class XWalkResourceClient {
      */
     public void onReceivedLoadError(XWalkView view, int errorCode, String description,
             String failingUrl) {
-        // TODO(yongsheng): Need to define errorCode.
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(view.getContext());
         dialogBuilder.setTitle(android.R.string.dialog_alert_title)
                 .setMessage(description)

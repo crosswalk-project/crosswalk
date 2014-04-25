@@ -480,7 +480,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
                 mContentsClientBridge.getCallbackHelper().postOnLoadResource(url);
             } else {
                 if (isMainFrame && webResourceResponse.getData() == null) {
-                    mContentsClientBridge.getCallbackHelper().postOnReceivedError(-1, null, url);
+                    mContentsClientBridge.getCallbackHelper().postOnReceivedError(
+                            XWalkResourceClient.ERROR_UNKNOWN, null, url);
                 }
                 interceptedRequestData = new InterceptedRequestData(webResourceResponse.getMimeType(),
                                                                     webResourceResponse.getEncoding(),
