@@ -3,9 +3,6 @@
 # found in the LICENSE file.
 
 {
-  'variables': {
-    'core_library_empty_apk_name': 'XWalkCoreLibraryEmpty',
-  },
   'targets': [
     {
       'target_name': 'pack_xwalk_core_library',
@@ -32,67 +29,17 @@
       ],
     },
     {
-      'target_name': 'xwalk_core_library_empty_apk',
-      'type': 'none',
-      'dependencies': [
-        'libxwalkcore',
-        'xwalk_core_java',
-      ],
-      'variables': {
-        'apk_name': '<(core_library_empty_apk_name)',
-        'java_in_dir': 'runtime/android/core_library_empty',
-        'native_lib_target': 'libxwalkcore',
-      },
-      'includes': [ '../build/java_apk.gypi' ],
-    },
-    {
-      # pack classes compiled from the java files chromium generated into a
-      # jar file.
-      'target_name': 'chromium_generated_java',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_core_library_empty_apk',
-      ],
-      'variables': {
-        'jar_name': '<(_target_name).jar',
-        'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
-        'jar_excluded_classes': [
-          '*org/xwalk/*',
-        ],
-      },
-      'actions': [
-        {
-          'action_name': 'jar_<(_target_name)',
-          'message': 'Creating <(_target_name) jar',
-          'inputs': [
-            '<(DEPTH)/build/android/gyp/util/build_utils.py',
-            '<(DEPTH)/build/android/gyp/util/md5_check.py',
-            '<(DEPTH)/build/android/gyp/jar.py',
-            '<(PRODUCT_DIR)/apks/<(core_library_empty_apk_name).apk',
-          ],
-          'outputs': [
-            '<(jar_final_path)',
-          ],
-          'action': [
-            'python', '<(DEPTH)/build/android/gyp/jar.py',
-            '--classes-dir=<(PRODUCT_DIR)/xwalk_core_library_empty_apk/classes',
-            '--jar-path=<(jar_final_path)',
-            '--excluded-classes=<(jar_excluded_classes)',
-          ],
-        },
-      ],
-    },
-    {
       'target_name': 'xwalk_core_library_java',
       'type': 'none',
       'dependencies': [
         'xwalk_core_java',
-        'chromium_generated_java',
       ],
       'variables': {
+        'java_in_dir': 'runtime/android/core',
         'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
+        'jar_excluded_classes': [ '*/R.class', '*/R##*.class' ],
       },
       'all_dependent_settings': {
         'variables': {
