@@ -96,8 +96,7 @@ void RunningApplicationsManager::OnLaunch(
 
   Application::LaunchParams params;
   params.launcher_pid = launcher_pid;
-  if (fullscreen)
-    params.window_state = ui::SHOW_STATE_FULLSCREEN;
+  params.force_fullscreen = fullscreen;
 
   Application* application = application_service_->Launch(app_id, params);
   if (!application) {
