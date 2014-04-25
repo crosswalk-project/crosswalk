@@ -123,7 +123,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
   }
 
-  GURL url = GetURLForLaunch(launch_params, &entry_point_used_);
+  GURL url = GetStartURL(launch_params, &entry_point_used_);
   if (!url.is_valid())
     return false;
 
@@ -133,16 +133,23 @@ bool Application::Launch(const LaunchParams& launch_params) {
   if (entry_point_used_ != AppMainKey) {
     NativeAppWindow::CreateParams params;
     params.net_wm_pid = launch_params.launcher_pid;
-    params.state = launch_params.window_state;
-
+    params.state = GetWindowShowState(launch_params);
     main_runtime_->AttachWindow(params);
   }
 
   return true;
 }
 
-GURL Application::GetURLForLaunch(const LaunchParams& params,
+GURL Application::GetStartURL(const LaunchParams& params,
                                   LaunchEntryPoint* used) {
+  if (params.entry_points & URLKey) {
+    GURL url = GetURLFromURLKey();
+    if (url.is_valid()) {
+      *used = URLKey;
+      return url;
+    }
+  }
+
   if (params.entry_points & AppMainKey) {
     GURL url = GetURLFromAppMainKey();
     if (url.is_valid()) {
@@ -159,13 +166,6 @@ GURL Application::GetURLForLaunch(const LaunchParams& params,
     }
   }
 
-  if (params.entry_points & URLKey) {
-    GURL url = GetURLFromURLKey();
-    if (url.is_valid()) {
-      *used = URLKey;
-      return url;
-    }
-  }
   LOG(WARNING) << "Failed to find a valid launch URL for the app.";
   return GURL();
 }
@@ -178,6 +178,23 @@ GURL Application::GetURLFromAppMainKey() {
 
   DCHECK(application_data_->HasMainDocument());
   return main_info->GetMainURL();
+}
+
+ui::WindowShowState Application::GetWindowShowState(
+    const LaunchParams& params) {
+  if (params.force_fullscreen)
+    return ui::SHOW_STATE_FULLSCREEN;
+
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string display_string;
+  if (manifest->GetString(keys::kDisplay, &display_string)) {
+    // FIXME: ATM only 'fullscreen' and 'standalone' (which is fallback value)
+    // values are supported.
+    if (display_string.find("fullscreen") != std::string::npos)
+      return ui::SHOW_STATE_FULLSCREEN;
+  }
+
+  return ui::SHOW_STATE_DEFAULT;
 }
 
 GURL Application::GetURLFromLocalPathKey() {

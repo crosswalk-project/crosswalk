@@ -123,8 +123,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam(
         kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
 
   Application::LaunchParams launch_params;
-  if (cmd_line.HasSwitch(switches::kFullscreen))
-    launch_params.window_state = ui::SHOW_STATE_FULLSCREEN;
+  launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
 
   if (application_service_->Launch(param, launch_params)) {
     return true;
@@ -164,8 +163,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
   }
 
   Application::LaunchParams launch_params;
-  if (cmd_line.HasSwitch(switches::kFullscreen))
-    launch_params.window_state = ui::SHOW_STATE_FULLSCREEN;
+  launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
   launch_params.entry_points = Application::URLKey;
 
   return !!application_service_->Launch(application_data, launch_params);

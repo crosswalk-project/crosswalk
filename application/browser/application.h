@@ -64,12 +64,8 @@ class Application
   enum LaunchEntryPoint {
     AppMainKey = 1 << 0,  // app.main
     LaunchLocalPathKey = 1 << 1,  // app.launch.local_path
-    // NOTE: The following key is only used for "dummy" hosted apps,
-    // which can be using any arbitrary URL, incl. remote ones.
-    // For now this should be disabled for all other cases as this will
-    // require special care with permissions etc.
     URLKey = 1 << 2,  // url
-    Default = AppMainKey | LaunchLocalPathKey
+    Default = AppMainKey | LaunchLocalPathKey | URLKey
   };
   typedef unsigned LaunchEntryPoints;
 
@@ -77,7 +73,7 @@ class Application
     LaunchParams() :
         entry_points(Default),
         launcher_pid(0),
-        window_state(ui::SHOW_STATE_DEFAULT) {}
+        force_fullscreen(false) {}
 
     LaunchEntryPoints entry_points;
 
@@ -85,8 +81,7 @@ class Application
     // process.
     int32 launcher_pid;
 
-    // Sets the initial state for the application windows.
-    ui::WindowShowState window_state;
+    bool force_fullscreen;
   };
 
   // Closes all the application's runtimes (application pages).
@@ -160,7 +155,8 @@ class Application
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.
-  GURL GetURLForLaunch(const LaunchParams& params, LaunchEntryPoint* used);
+  GURL GetStartURL(const LaunchParams& params, LaunchEntryPoint* used);
+  ui::WindowShowState GetWindowShowState(const LaunchParams& params);
 
   GURL GetURLFromAppMainKey();
   GURL GetURLFromLocalPathKey();
