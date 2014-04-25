@@ -100,6 +100,11 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       JNIEnv*, jobject, int id, int process_id, int route_id);
   void NotificationClosed(
       JNIEnv*, jobject, int id, bool by_user, int process_id, int route_id);
+  void OnFilesSelected(
+      JNIEnv*, jobject, int process_id, int render_id,
+      int mode, jstring filepath, jstring display_name);
+  void OnFilesNotSelected(
+      JNIEnv*, jobject, int process_id, int render_id, int mode);
 
  private:
   JavaObjectWeakGlobalRef java_ref_;

@@ -179,6 +179,9 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract boolean hasEnteredFullscreen();
 
+    public abstract boolean shouldOverrideRunFileChooser(
+            int processId, int renderId, int mode, String acceptTypes, boolean capture);
+
     // TODO (michaelbai): Remove this method once the same method remove from
     // XWalkContentsClientAdapter.
     public void onShowCustomView(View view,

@@ -5,12 +5,16 @@
 
 package org.xwalk.core;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Picture;
+import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -388,6 +392,79 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public boolean shouldOverrideRunFileChooser(
+            final int processId, final int renderId, final int modeFlags,
+            String acceptTypes, boolean capture) {
+        if (!isOwnerActivityRunning()) return false;
+        abstract class UriCallback implements ValueCallback<Uri> {
+            boolean syncNullReceived = false;
+            boolean syncCallFinished = false;
+            protected String resolveFileName(Uri uri, ContentResolver contentResolver) {
+                if (contentResolver == null || uri == null) return "";
+                Cursor cursor = null;
+                try {
+                    cursor = contentResolver.query(uri, null, null, null, null);
+
+                    if (cursor != null && cursor.getCount() >= 1) {
+                        cursor.moveToFirst();
+                        int index = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                        if (index > -1) return cursor.getString(index);
+                    }
+                } catch (NullPointerException e) {
+                    // Some android models don't handle the provider call correctly.
+                    // see crbug.com/345393
+                    return "";
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+                return "";
+            }
+        }
+        UriCallback uploadFile = new UriCallback() {
+            boolean completed = false;
+            @Override
+            public void onReceiveValue(Uri value) {
+                if (completed) {
+                    throw new IllegalStateException("Duplicate openFileChooser result");
+                }
+                completed = true;
+                if (value == null && !syncCallFinished) {
+                    syncNullReceived = true;
+                    return;
+                }
+                if (value == null) {
+                    nativeOnFilesNotSelected(mNativeContentsClientBridge,
+                            processId, renderId, modeFlags);
+                } else {
+                    String result = "";
+                    String displayName = null;
+                    if (ContentResolver.SCHEME_FILE.equals(value.getScheme())) {
+                        result = value.getSchemeSpecificPart();
+                        displayName = value.getLastPathSegment();
+                    } else if (ContentResolver.SCHEME_CONTENT.equals(value.getScheme())) {
+                        result = value.toString();
+                        displayName = resolveFileName(
+                                value, mXWalkView.getActivity().getContentResolver());
+                    } else {
+                        result = value.getPath();
+                        displayName = value.getLastPathSegment();
+                    }
+                    if (displayName == null || displayName.isEmpty()) displayName = result;
+                    nativeOnFilesSelected(mNativeContentsClientBridge,
+                            processId, renderId, modeFlags, result, displayName);
+                }
+            }
+        };
+        mXWalkUIClient.openFileChooser(
+                mXWalkView, uploadFile, acceptTypes, Boolean.toString(capture));
+        uploadFile.syncCallFinished = true;
+        // File chooser requires user interaction, valid derives should handle it in async process.
+        // If the ValueCallback receive a sync result with null value, it is considered the
+        // file chooser is not overridden.
+        return !uploadFile.syncNullReceived;
+    }
+
+    @Override
     public ContentVideoViewClient getContentVideoViewClient() {
         return new XWalkContentVideoViewClient(this, mXWalkView.getActivity(), mXWalkView);
     }
@@ -464,16 +541,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                     XWalkUIClient.JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD, url, message, "",
                             result);
         }
-    }
-
-    // @CalledByNative
-    // TODO(yongsheng): Native side should call file chooser.
-    public void runFileChooser(final int processId, final int renderId, final int mode_flags,
-            String acceptTypes, String title, String defaultFilename, boolean capture) {
-        if (!isOwnerActivityRunning()) return;
-        // TODO(yongsheng): Implement it.
-        // mXWalkUIClient.openFileChooser(mXWalkView, ...);
-        // See https://crosswalk-project.org/jira/browse/XWALK-1241.
     }
 
     @CalledByNative
@@ -566,4 +633,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             int processId, int routeId);
     private native void nativeNotificationClosed(int nativeXWalkContentsClientBridge, int id,
             boolean byUser, int processId, int routeId);
+    private native void nativeOnFilesSelected(int nativeXWalkContentsClientBridge,
+            int processId, int renderId, int mode_flags, String filepath, String displayName);
+    private native void nativeOnFilesNotSelected(int nativeXWalkContentsClientBridge,
+            int processId, int renderId, int mode_flags);
 }

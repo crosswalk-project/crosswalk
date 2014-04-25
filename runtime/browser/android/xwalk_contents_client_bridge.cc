@@ -13,12 +13,14 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/file_chooser_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
 #include "jni/XWalkContentsClientBridge_jni.h"
 #include "net/cert/x509_certificate.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "url/gurl.h"
 #include "ui/gfx/android/java_bitmap.h"
+#include "ui/shell_dialogs/selected_file_info.h"
 
 using base::android::AttachCurrentThread;
 using base::android::ConvertJavaStringToUTF16;
@@ -27,6 +29,7 @@ using base::android::ConvertUTF16ToJavaString;
 using base::android::JavaRef;
 using base::android::ScopedJavaLocalRef;
 using content::BrowserThread;
+using content::FileChooserParams;
 using content::RenderViewHost;
 using content::WebContents;
 
@@ -385,6 +388,43 @@ void XWalkContentsClientBridge::NotificationClosed(
   if (!rvh)
     return;
   rvh->DesktopNotificationPostClose(id, by_user);
+}
+
+void XWalkContentsClientBridge::OnFilesSelected(
+    JNIEnv* env, jobject, int process_id, int render_id,
+    int mode, jstring filepath, jstring display_name) {
+  content::RenderViewHost* rvh =
+      content::RenderViewHost::FromID(process_id, render_id);
+  if (!rvh)
+    return;
+
+  std::string path = base::android::ConvertJavaStringToUTF8(env, filepath);
+  std::string file_name =
+      base::android::ConvertJavaStringToUTF8(env, display_name);
+  base::FilePath file_path = base::FilePath(path);
+  ui::SelectedFileInfo file_info;
+  file_info.file_path = file_path;
+  file_info.local_path = file_path;
+  if (!file_name.empty())
+    file_info.display_name = file_name;
+  std::vector<ui::SelectedFileInfo> files;
+  files.push_back(file_info);
+
+  rvh->FilesSelectedInChooser(
+      files, static_cast<content::FileChooserParams::Mode>(mode));
+}
+
+void XWalkContentsClientBridge::OnFilesNotSelected(
+    JNIEnv* env, jobject, int process_id, int render_id, int mode) {
+  content::RenderViewHost* rvh =
+      content::RenderViewHost::FromID(process_id, render_id);
+  if (!rvh)
+    return;
+
+  std::vector<ui::SelectedFileInfo> files;
+
+  rvh->FilesSelectedInChooser(
+      files, static_cast<content::FileChooserParams::Mode>(mode));
 }
 
 bool RegisterXWalkContentsClientBridge(JNIEnv* env) {
