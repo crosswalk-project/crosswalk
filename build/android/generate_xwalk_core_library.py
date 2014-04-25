@@ -61,6 +61,61 @@ def CopyProjectFiles(project_source, out_dir):
     shutil.copy2(source_file, target_file)
 
 
+def CopyJavaSources(project_source, out_dir):
+  """cp <path>/java/src/<package>
+        out/Release/xwalk_core_library/src/<package>
+  """
+
+  print 'Copying Java sources...'
+  target_source_dir = os.path.join(
+      out_dir, LIBRARY_PROJECT_NAME, 'src')
+  if not os.path.exists(target_source_dir):
+    os.makedirs(target_source_dir)
+
+  # FIXME(wang16): There is an assumption here the package names listed
+  # here are all beginned with "org". If the assumption is broken in
+  # future, the logic needs to be adjusted accordingly.
+  java_srcs_to_copy = [
+      # R.javas
+      'content/public/android/java/resource_map/org/chromium/content/R.java',
+      'ui/android/java/resource_map/org/chromium/ui/R.java',
+  ]
+
+  for source in java_srcs_to_copy:
+    # find the src/org in the path
+    slash_org_pos = source.find(r'/org/')
+    if slash_org_pos < 0:
+      raise Exception('Invalid java source path: %s' % source)
+    source_path = os.path.join(project_source, source)
+    package_path = source[slash_org_pos+1:]
+    target_path = os.path.join(target_source_dir, package_path)
+    if os.path.isfile(source_path):
+      if not os.path.isdir(os.path.dirname(target_path)):
+        os.makedirs(os.path.dirname(target_path))
+      shutil.copyfile(source_path, target_path)
+    else:
+      shutil.copytree(source_path, target_path)
+
+
+def CopyGeneratedSources(out_dir):
+  """cp out/Release/xwalk_core_shell_apk/
+            native_libraries_java/NativeLibraries.java
+        out/Release/xwalk_core_library/src/org/
+            chromium/base/library_loader/NativeLibraries.java
+  """
+
+  print 'Copying generated source files...'
+
+  source_file = os.path.join(out_dir, XWALK_CORE_SHELL_APK,
+                             'native_libraries_java',
+                             'NativeLibraries.java')
+  target_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src', 'org',
+                             'chromium', 'base', 'library_loader',
+                             'NativeLibraries.java')
+  if not os.path.isdir(os.path.dirname(target_file)):
+    os.makedirs(os.path.dirname(target_file))
+  shutil.copyfile(source_file, target_file)
+
 def CopyJSBindingFiles(project_source, out_dir):
   print 'Copying js binding files...'
   jsapi_dir = os.path.join(out_dir,
@@ -230,6 +285,9 @@ def main(argv):
 
   # Copy Eclipse project files of library project.
   CopyProjectFiles(options.source, out_dir)
+  # Copy Java sources of chromium and xwalk.
+  CopyJavaSources(options.source, out_dir)
+  CopyGeneratedSources(out_dir)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir)
   CopyBinaries(out_dir)
@@ -241,10 +299,6 @@ def main(argv):
   mode = os.path.basename(os.path.normpath(out_dir))
   RemoveUnusedFilesInReleaseMode(mode,
       os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'libs'))
-  # Create empty src directory
-  src_dir = os.path.join(out_project_dir, 'src')
-  if not os.path.isdir(src_dir):
-    os.mkdir(src_dir)
   print 'Your Android library project has been created at %s' % (
       out_project_dir)
 
