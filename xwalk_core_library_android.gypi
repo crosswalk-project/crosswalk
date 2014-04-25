@@ -4,7 +4,7 @@
 
 {
   'variables': {
-    'core_library_empty_apk_name': 'XWalkCoreLibraryEmpty',
+    'core_library_empty_embedder_apk_name': 'XWalkCoreLibraryEmptyEmbedder',
   },
   'targets': [
     {
@@ -32,16 +32,21 @@
       ],
     },
     {
-      'target_name': 'xwalk_core_library_empty_apk',
+      'target_name': 'xwalk_core_library_empty_embedder_apk',
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
         'xwalk_core_java',
       ],
       'variables': {
-        'apk_name': '<(core_library_empty_apk_name)',
+        'apk_name': '<(core_library_empty_embedder_apk_name)',
         'java_in_dir': 'runtime/android/core_library_empty',
         'native_lib_target': 'libxwalkcore',
+        'is_test_apk': 1,
+        'additional_src_dirs': [
+           '<(DEPTH)/ui/android/java/resource_map',
+           '<(DEPTH)/content/public/android/java/resource_map',
+        ],
       },
       'includes': [ '../build/java_apk.gypi' ],
     },
@@ -51,7 +56,7 @@
       'target_name': 'chromium_generated_java',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_library_empty_apk',
+        'xwalk_core_library_empty_embedder_apk',
       ],
       'variables': {
         'jar_name': '<(_target_name).jar',
@@ -68,14 +73,14 @@
             '<(DEPTH)/build/android/gyp/util/build_utils.py',
             '<(DEPTH)/build/android/gyp/util/md5_check.py',
             '<(DEPTH)/build/android/gyp/jar.py',
-            '<(PRODUCT_DIR)/apks/<(core_library_empty_apk_name).apk',
+            '<(PRODUCT_DIR)/apks/<(core_library_empty_embedder_apk_name).apk',
           ],
           'outputs': [
             '<(jar_final_path)',
           ],
           'action': [
             'python', '<(DEPTH)/build/android/gyp/jar.py',
-            '--classes-dir=<(PRODUCT_DIR)/xwalk_core_library_empty_apk/classes',
+            '--classes-dir=<(PRODUCT_DIR)/xwalk_core_library_empty_embedder_apk/classes',
             '--jar-path=<(jar_final_path)',
             '--excluded-classes=<(jar_excluded_classes)',
           ],
@@ -93,6 +98,10 @@
         'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
+        #TODO(wang16): figure out why the 'jar_final_path' defined in chromium_generated_java
+        #              not added into following all_dependent_settings setting chain.
+        #              BUG=https://crosswalk-project.org/jira/browse/XWALK-1575
+        'input_jars_paths': ['<(PRODUCT_DIR)/lib.java/chromium_generated_java.jar'],
       },
       'all_dependent_settings': {
         'variables': {
