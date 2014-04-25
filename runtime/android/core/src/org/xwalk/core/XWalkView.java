@@ -54,6 +54,11 @@ public class XWalkView extends android.widget.FrameLayout {
     private Context mContext;
     private XWalkExtensionManager mExtensionManager;
 
+    /** Normal reload mode as default. */
+    public static final int RELOAD_NORMAL = 0;
+    /** Reload mode with bypassing the cache. */
+    public static final int RELOAD_IGNORE_CACHE = 1;
+
     /**
      * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
@@ -247,20 +252,10 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * The reload mode.
-     */
-    public enum ReloadMode {
-        /** Normal reload as default. */
-        NORMAL,
-        /** Reload bypassing the cache. */
-        IGNORE_CACHE
-    }
-
-    /**
      * Reload a web app with a given mode.
      * @param the reload mode.
      */
-    public void reload(ReloadMode mode) {
+    public void reload(int mode) {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.reload(mode);

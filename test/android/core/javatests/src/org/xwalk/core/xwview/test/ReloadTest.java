@@ -51,7 +51,7 @@ public class ReloadTest extends XWalkViewTestBase {
         String url = mWebServer.setResponse("/reload.html", html1, null);
         loadUrlSync(url);
         mWebServer.setResponse("/reload.html", html2, null);
-        reloadSync(XWalkView.ReloadMode.IGNORE_CACHE);
+        reloadSync(XWalkView.RELOAD_IGNORE_CACHE);
         //TODO(guangzhen) When reload finished, immediately call getTitle will get wrong title.
         Thread.sleep(1000);
         assertEquals(title2, getTitleOnUiThread());
