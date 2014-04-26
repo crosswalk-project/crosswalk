@@ -715,6 +715,10 @@ def main(argv):
     if not options.package:
       parser.error('The package name is required! '
                    'Please use "--package" option.')
+    elif len(options.package) >= 128 :
+      parser.error('To be safe, the length of package name '
+                   'should be less than 128.')
+
     if not options.name:
       parser.error('The APK name is required! Please use "--name" option.')
     if not ((options.app_url and not options.app_root
