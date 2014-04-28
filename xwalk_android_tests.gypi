@@ -531,5 +531,54 @@
       ],
       'includes': [ '../build/java_apk.gypi' ],
     },
+    {
+      'target_name': 'xwalk_core_sample_apk',
+      'type': 'none',
+      'dependencies': [
+        'libxwalkcore',
+        'xwalk_core_extensions_java',
+        'xwalk_core_java',
+        'xwalk_core_shell_apk_pak',
+      ],
+      'variables': {
+        'apk_name': 'CrosswalkSample',
+        'java_in_dir': 'runtime/android/sample',
+        'resource_dir': 'runtime/android/sample/res',
+        'native_lib_target': 'libxwalkcore',
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/sample/assets/index.html',
+          '<(PRODUCT_DIR)/sample/assets/manifest.json',
+          '<(PRODUCT_DIR)/sample/assets/pause_timers.html',
+          '<(PRODUCT_DIR)/sample/assets/xwalk.pak',
+        ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/sample/assets/icudtl.dat',
+            ],
+          }],
+        ],
+        'asset_location': '<(PRODUCT_DIR)/sample/assets',
+      },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/sample/assets',
+          'files': [
+            'runtime/android/sample/assets/index.html',
+            'runtime/android/sample/assets/manifest.json',
+            'runtime/android/sample/assets/pause_timers.html',
+            '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+          ],
+        },
+      ],
+      'includes': [ '../build/java_apk.gypi' ],
+    },
   ],
 }
