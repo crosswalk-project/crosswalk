@@ -198,12 +198,44 @@ ui::WindowShowState Application::GetWindowShowState(
 }
 
 GURL Application::GetURLFromLocalPathKey() {
-  const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
   std::string key(GetLaunchLocalPathKey(
       application_data_->GetPackageType()));
+  const base::DictionaryValue* manifest_data =
+      application_data_->GetManifest()->value();
 
-  if (!manifest->GetString(key, &entry_page)
+  base::Value* contents;
+  if (application_data_->GetPackageType() == Manifest::TYPE_WGT &&
+      application_data_->GetManifest()->Get(
+          widget_keys::kContentKey, &contents)) {
+    if (contents && contents->IsType(base::Value::TYPE_LIST)) {
+      base::ListValue* list;
+      base::DictionaryValue* value;
+      contents->GetAsList(&list);
+      for (base::ListValue::const_iterator it = list->begin();
+           it != list->end(); ++it) {
+        (*it)->GetAsDictionary(&value);
+        std::string ns;
+        if (value->GetString(widget_keys::kNamespaceKey, &ns) &&
+            ns == kWidgetNamespecePrefix) {
+          manifest_data = value;
+          key = widget_keys::kContentSrcKey;
+          break;
+        }
+      }
+    } else if (contents && contents->IsType(base::Value::TYPE_DICTIONARY)) {
+      base::DictionaryValue* value;
+      contents->GetAsDictionary(&value);
+      std::string ns;
+      if (value->GetString(widget_keys::kNamespaceKey, &ns) &&
+          ns == kWidgetNamespecePrefix) {
+        manifest_data = value;
+        key = widget_keys::kContentSrcKey;
+      }
+    }
+  }
+
+  if (!manifest_data->GetString(key, &entry_page)
       || entry_page.empty()) {
     if (application_data_->GetPackageType() == Manifest::TYPE_XPK)
       return GURL();

@@ -44,6 +44,9 @@ namespace application_widget_keys {
   extern const char kNamespaceKey[];
   extern const char kNameKey[];
   extern const char kLaunchLocalPathKey[];
+  extern const char kContentKey[];
+  // Child keys inside 'kContentKey'
+  extern const char kContentSrcKey[];
   extern const char kWebURLsKey[];
   extern const char kWidgetKey[];
   extern const char kVersionKey[];
@@ -80,6 +83,7 @@ namespace application_widget_keys {
 #endif
 }  // namespace application_widget_keys
 
+extern const char kWidgetNamespecePrefix[];
 #if defined(OS_TIZEN)
 extern const char kTizenNamespacePrefix[];
 #endif
