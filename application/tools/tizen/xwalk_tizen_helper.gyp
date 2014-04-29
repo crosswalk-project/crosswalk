@@ -22,6 +22,8 @@
       ],
       'sources': [
         'xwalk_pkg_helper.cc',
+        'xwalk_pkg_installer.cc',
+        'xwalk_pkg_installer.h',
       ],
     },
   ],

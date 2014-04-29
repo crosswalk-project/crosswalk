@@ -34,8 +34,10 @@
           'type': 'none',
           'variables': {
             'packages': [
+              'dlog',
               'pkgmgr-parser',
               'pkgmgr-info',
+              'pkgmgr-installer',
             ],
           },
           'direct_dependent_settings': {
