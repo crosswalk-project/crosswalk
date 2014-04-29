@@ -1,0 +1,135 @@
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <script>
+      var current_test = 0;
+      var test_list = [
+        writeFile,
+        readFile,
+        removeFile,
+        createDirectory,
+        readDirectoryEntries,
+        removeDirectory,
+        endTest
+      ];
+
+      function runNextTest() {
+        if (current_test < test_list.length) {
+          test_list[current_test++]();
+        }
+      };
+
+      function reportFail(message) {
+        console.log(message);
+        document.title = "Fail";
+        document.body.innerText = "Fail";
+      };
+
+      function endTest() {
+        document.title = "Pass";
+        document.body.innerText = "Pass";
+      };
+      
+      function writeFile() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+          function(fs) {
+            fs.root.getFile("/documents/1.txt", {create: true}, function (entry) {
+              entry.createWriter(function (writer) {
+                var blob = new Blob(["1234567890"], {type: "text/plain"});
+                writer.write(blob);
+                runNextTest();
+              },
+              function(e) {reportFail(JSON.stringify(e))});
+            },
+          function(e) {reportFail(JSON.stringify(e))});
+        });
+      }
+
+      function readFile() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+          function(fs) {
+            fs.root.getFile("/documents/1.txt", {create: false}, function (entry) {
+                entry.file(function(file) {
+                  reader = new FileReader();
+                  reader.onloadend = function(e) {
+                    if ("1234567890" == this.result) {
+                      runNextTest();
+                    } else {
+                      reportFail();
+                    }
+                  };
+                  reader.readAsText(file);
+                },
+                function(e) {reportFail(JSON.stringify(e))});
+            },
+            function(e) {reportFail(JSON.stringify(e))});
+        },
+        function(e) {reportFail(JSON.stringify(e))});
+      };
+
+
+      function removeFile() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+            function(fs) {
+              fs.root.getFile("/documents/1.txt", {create: false}, function (entry) {
+                entry.remove(function () {
+                      runNextTest();
+                    },
+                    function(e) {reportFail(JSON.stringify(e))});
+              },
+              function(e) {reportFail(JSON.stringify(e))});
+            }
+        );
+      }
+
+      function createDirectory() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+            function(fs) {
+              fs.root.getDirectory("/documents/justfortest", {create: true}, function (entry) {
+                runNextTest();
+              },
+              function(e) {reportFail(JSON.stringify(e))});
+            }
+        );
+      }
+
+      function readDirectoryEntries() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+            function(fs) {
+              fs.root.getDirectory("/documents/", {create: false}, function (entry) {
+                var dirReader = entry.createReader();
+                var entries = [];
+                dirReader.readEntries(function(results) {
+                    if (0 < results.length) {
+                      runNextTest();
+                    } else {
+                      reportFail("You app home directory is empty!");
+                    }
+                  },
+                  function(e) {reportFail(JSON.stringify(e))}
+                );
+                runNextTest();
+              },
+              function(e) {reportFail(JSON.stringify(e))});
+            }
+        );
+      }
+
+      function removeDirectory() {
+        xwalk.experimental.native_file_system.requestNativeFileSystem("documents",
+            function(fs) {
+              fs.root.getDirectory("/documents/justfortest", {create: false}, function (entry) {
+                entry.remove(function () {runNextTest();},
+                    function(e) {reportFail(JSON.stringify(e))});
+              },
+              function(e) {reportFail(JSON.stringify(e))});
+            }
+        );
+      }
+
+      runNextTest();
+    </script>
+  </body>
+</html>

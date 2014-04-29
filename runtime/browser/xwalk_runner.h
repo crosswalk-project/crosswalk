@@ -11,6 +11,8 @@
 #include "base/memory/scoped_vector.h"
 #include "base/values.h"
 
+#include "xwalk/runtime/browser/storage_component.h"
+
 namespace content {
 class ContentBrowserClient;
 class RenderProcessHost;
@@ -98,6 +100,7 @@ class XWalkRunner {
   // components.
   virtual scoped_ptr<ApplicationComponent> CreateAppComponent();
   virtual scoped_ptr<SysAppsComponent> CreateSysAppsComponent();
+  virtual scoped_ptr<StorageComponent> CreateStorageComponent();
 
  private:
   friend class XWalkMainDelegate;

@@ -14,6 +14,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
@@ -100,6 +101,8 @@ void XWalkRunner::CreateComponents() {
 
   if (XWalkRuntimeFeatures::isSysAppsEnabled())
     AddComponent(CreateSysAppsComponent().PassAs<XWalkComponent>());
+  if (XWalkRuntimeFeatures::isStorageAPIEnabled())
+    AddComponent(CreateStorageComponent().PassAs<XWalkComponent>());
 }
 
 void XWalkRunner::DestroyComponents() {
@@ -123,9 +126,13 @@ scoped_ptr<SysAppsComponent> XWalkRunner::CreateSysAppsComponent() {
   return make_scoped_ptr(new SysAppsComponent());
 }
 
+scoped_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
+  return make_scoped_ptr(new StorageComponent());
+}
+
 void XWalkRunner::InitializeRuntimeVariablesForExtensions(
     const content::RenderProcessHost* host,
-    base::ValueMap& variables) {
+    base::ValueMap& variables) {  // NOLINT
   application::Application* app = app_system()->application_service()->
       GetApplicationByRenderHostID(host->GetID());
 

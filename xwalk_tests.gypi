@@ -95,6 +95,7 @@
         'application/test/application_testapi.cc',
         'application/test/application_testapi.h',
         'application/test/application_testapi_test.cc',
+        'experimental/native_file_system/native_file_system_api_browsertest.cc',
         'runtime/browser/devtools/xwalk_devtools_browsertest.cc',
         'runtime/browser/geolocation/xwalk_geolocation_browsertest.cc',
         'runtime/browser/ui/taskbar_util_browsertest_win.cc',
