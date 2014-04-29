@@ -192,7 +192,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     }
 
     public void addJavascriptInterface(Object object, String name) {
-        mContentViewCore.addJavascriptInterface(object, name);
+        mContentViewCore.addPossiblyUnsafeJavascriptInterface(object, name,
+                JavascriptInterface.class);
     }
 
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
