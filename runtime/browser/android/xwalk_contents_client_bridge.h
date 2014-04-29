@@ -45,7 +45,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   virtual void AllowCertificateError(int cert_error,
                                      net::X509Certificate* cert,
                                      const GURL& request_url,
-                                     const base::Callback<void(bool)>& callback,
+                                     const base::Callback<void(bool)>& callback, // NOLINT
                                      bool* cancel_request) OVERRIDE;
 
   virtual void RunJavaScriptDialog(
@@ -91,7 +91,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   void ProceedSslError(JNIEnv* env, jobject obj, jboolean proceed, jint id);
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
   void CancelJsResult(JNIEnv*, jobject, int id);
-  void ExitFullscreen(JNIEnv*, jobject, jint web_contents);
+  void ExitFullscreen(JNIEnv*, jobject, jlong web_contents);
   void NotificationDisplayed(
       JNIEnv*, jobject, int id, int process_id, int route_id);
   void NotificationError(
@@ -109,7 +109,7 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
  private:
   JavaObjectWeakGlobalRef java_ref_;
 
-  typedef const base::Callback<void(bool)> CertErrorCallback;
+  typedef const base::Callback<void(bool)> CertErrorCallback; // NOLINT
   IDMap<CertErrorCallback, IDMapOwnPointer> pending_cert_error_callbacks_;
   IDMap<content::JavaScriptDialogManager::DialogClosedCallback, IDMapOwnPointer>
       pending_js_dialog_callbacks_;

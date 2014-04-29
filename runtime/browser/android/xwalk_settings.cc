@@ -87,7 +87,7 @@ struct XWalkSettings::FieldIds {
   jfieldID default_video_poster_url;
 };
 
-XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj, jint web_contents)
+XWalkSettings::XWalkSettings(JNIEnv* env, jobject obj, jlong web_contents)
     : WebContentsObserver(
           reinterpret_cast<content::WebContents*>(web_contents)),
       xwalk_settings_(env, obj) {
@@ -98,8 +98,8 @@ XWalkSettings::~XWalkSettings() {
     ScopedJavaLocalRef<jobject> scoped_obj = xwalk_settings_.get(env);
     jobject obj = scoped_obj.obj();
     if (!obj) return;
-    Java_XWalkSettings_nativeXWalkSettingsGone(env, obj,
-                                               reinterpret_cast<jint>(this));
+    Java_XWalkSettings_nativeXWalkSettingsGone(
+        env, obj, reinterpret_cast<intptr_t>(this));
 }
 
 void XWalkSettings::Destroy(JNIEnv* env, jobject obj) {
@@ -224,11 +224,11 @@ void XWalkSettings::RenderViewCreated(
   UpdateEverything();
 }
 
-static jint Init(JNIEnv* env,
+static jlong Init(JNIEnv* env,
                  jobject obj,
-                 jint web_contents) {
+                 jlong web_contents) {
   XWalkSettings* settings = new XWalkSettings(env, obj, web_contents);
-  return reinterpret_cast<jint>(settings);
+  return reinterpret_cast<intptr_t>(settings);
 }
 
 static jstring GetDefaultUserAgent(JNIEnv* env, jclass clazz) {

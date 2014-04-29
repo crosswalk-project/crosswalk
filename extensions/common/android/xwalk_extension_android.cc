@@ -197,7 +197,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
 }
 
-static jint GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
+static jlong GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
                                  jstring js_api, jobjectArray js_entry_points) {
   xwalk::XWalkBrowserMainPartsAndroid* main_parts =
       ToAndroidMainParts(XWalkContentBrowserClient::Get()->main_parts());
@@ -215,7 +215,7 @@ static jint GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
     static_cast<XWalkExtensionAndroid*>(extension)->BindToJavaObject(env, obj);
   }
 
-  return reinterpret_cast<jint>(extension);
+  return reinterpret_cast<intptr_t>(extension);
 }
 
 bool RegisterXWalkExtensionAndroid(JNIEnv* env) {

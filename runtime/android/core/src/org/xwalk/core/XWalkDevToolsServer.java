@@ -12,7 +12,7 @@ import org.chromium.base.JNINamespace;
 @JNINamespace("xwalk")
 class XWalkDevToolsServer {
 
-    private int mNativeDevToolsServer = 0;
+    private long mNativeDevToolsServer = 0;
 
     public XWalkDevToolsServer(String socketName) {
         mNativeDevToolsServer = nativeInitRemoteDebugging(socketName);
@@ -35,9 +35,9 @@ class XWalkDevToolsServer {
         nativeAllowConnectionFromUid(mNativeDevToolsServer, uid);
     }
 
-    private native int nativeInitRemoteDebugging(String socketName);
-    private native void nativeDestroyRemoteDebugging(int devToolsServer);
-    private native boolean nativeIsRemoteDebuggingEnabled(int devToolsServer);
-    private native void nativeSetRemoteDebuggingEnabled(int devToolsServer, boolean enabled);
-    private native void nativeAllowConnectionFromUid(int devToolsServer, int uid);
+    private native long nativeInitRemoteDebugging(String socketName);
+    private native void nativeDestroyRemoteDebugging(long devToolsServer);
+    private native boolean nativeIsRemoteDebuggingEnabled(long devToolsServer);
+    private native void nativeSetRemoteDebuggingEnabled(long devToolsServer, boolean enabled);
+    private native void nativeAllowConnectionFromUid(long devToolsServer, int uid);
 }
