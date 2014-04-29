@@ -12,6 +12,7 @@
           'variables': {
             'packages': [
               'capi-location-manager',
+              'vconf',
             ],
           },
           'direct_dependent_settings': {

@@ -34,6 +34,8 @@ class InstalledApplicationsManager : public ApplicationService::Observer {
   // ApplicationService::Observer implementation.
   void virtual OnApplicationInstalled(const std::string& app_id) OVERRIDE;
   void virtual OnApplicationUninstalled(const std::string& app_id) OVERRIDE;
+  void virtual OnApplicationNameChanged(const std::string& app_id,
+                                        const std::string& app_name) OVERRIDE;
 
   void AddInitialObjects();
   void AddObject(scoped_refptr<const ApplicationData> app);

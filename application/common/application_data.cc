@@ -371,5 +371,16 @@ bool ApplicationData::HasCSPDefined() const {
 }
 #endif
 
+bool ApplicationData::SetApplicationLocale(const std::string& locale,
+                                           base::string16* error) {
+  // TODO(hongzhang): we need to update app data.
+  // like manifest_i18n_data.SetLocale(locale);
+  if (!LoadName(error))
+    return false;
+  if (!LoadDescription(error))
+    return false;
+  return true;
+}
+
 }   // namespace application
 }   // namespace xwalk

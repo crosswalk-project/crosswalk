@@ -42,6 +42,12 @@ InstalledApplicationObject::InstalledApplicationObject(
   properties()->Set(kInstalledApplicationDBusInterface, "Name", name.Pass());
 }
 
+void InstalledApplicationObject::OnApplicationNameChanged(
+    const std::string& app_name) {
+  scoped_ptr<base::Value> name(base::Value::CreateStringValue(app_name));
+  properties()->Set(kInstalledApplicationDBusInterface, "Name", name.Pass());
+}
+
 void InstalledApplicationObject::ExportUninstallMethod(
     dbus::ExportedObject::MethodCallCallback method_call_callback,
     dbus::ExportedObject::OnExportedCallback on_exported_callback) {

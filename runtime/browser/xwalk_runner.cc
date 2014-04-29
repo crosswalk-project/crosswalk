@@ -32,6 +32,7 @@ namespace xwalk {
 
 namespace {
 
+const char kDefaultLocale[] = "en-US";
 XWalkRunner* g_xwalk_runner = NULL;
 
 }  // namespace
@@ -84,6 +85,10 @@ void XWalkRunner::PostMainMessageLoopRun() {
   DestroyComponents();
   extension_service_.reset();
   runtime_context_.reset();
+}
+
+std::string XWalkRunner::GetLocale() const {
+  return kDefaultLocale;
 }
 
 void XWalkRunner::CreateComponents() {
