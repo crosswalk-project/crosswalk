@@ -110,6 +110,7 @@
         'java_in_dir': 'test/android/core/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/add_js_interface.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/broadcast.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
@@ -126,6 +127,7 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': [
+            'test/android/data/add_js_interface.html',
             'test/android/data/broadcast.html',
             'test/android/data/echo.html',
             'test/android/data/echoSync.html',
