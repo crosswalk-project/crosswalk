@@ -535,13 +535,12 @@
       'target_name': 'xwalk_core_sample_apk',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_library',
+        'libxwalkcore',
+        'xwalk_core_extensions_java',
+        'xwalk_core_java',
+        'xwalk_core_shell_apk_pak',
       ],
       'variables': {
-        #TODO(guangzhen): Currently it's using gyp to build this target.
-        #                 Need only depend on xwalk_core_library, and use ant build?
-        #                 It needs further investigation.
-        #                 BUG=https://crosswalk-project.org/jira/browse/XWALK-1324
         'apk_name': 'CrosswalkSample',
         'java_in_dir': 'runtime/android/sample',
         'resource_dir': 'runtime/android/sample/res',
