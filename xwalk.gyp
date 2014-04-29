@@ -633,6 +633,7 @@
             'xwalk_runtime_lib_apk',
             'xwalk_app_hello_world_apk',
             'xwalk_app_template',
+            'xwalk_core_sample_apk',
           ],
         }],
       ],
