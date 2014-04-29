@@ -4,13 +4,17 @@
 
 #include "xwalk/application/common/manifest.h"
 
+#include <list>
+
 #include "base/basictypes.h"
 #include "base/lazy_instance.h"
 #include "base/logging.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_split.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace errors = xwalk::application_manifest_errors;
 namespace keys   = xwalk::application_manifest_keys;
@@ -18,11 +22,52 @@ namespace widget_keys = xwalk::application_widget_keys;
 
 namespace xwalk {
 namespace application {
+namespace {
+const char kLocaleUnlocalized[] = "@unlocalized";
+#if defined(OS_TIZEN)
+const char kLocaleAuto[] = "en-gb";
+#else
+const char kLocaleAuto[] = "en-us";
+#endif
+const char kLocaleFirstOne[] = "*";
+
+const char kWidgetNamePath[] = "widget.name";
+const char kWidgetDecriptionPath[] = "widget.description";
+const char kWidgetLicensePath[] = "widget.license";
+
+const char kPathConnectSymbol = '.';
+
+typedef std::list<std::string> List;
+
+std::string GetLocalizedKey(const std::string& key,
+                            const std::string& local) {
+  std::string lower_local = StringToLowerASCII(local);
+  if (lower_local.empty())
+    lower_local = kLocaleUnlocalized;
+  return key + kPathConnectSymbol + lower_local;
+}
+
+scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
+  scoped_ptr<List> expansion_list(new List);
+  for (List::const_iterator it = list->begin(); it != list->end(); ++it) {
+    std::string copy_locale(*it);
+    size_t position;
+    do {
+      expansion_list->push_back(copy_locale);
+      position = copy_locale.find_last_of("-");
+      copy_locale = copy_locale.substr(0, position);
+    } while (position != std::string::npos);
+  }
+  return expansion_list.Pass();
+}
+
+}  // namespace
 
 Manifest::Manifest(SourceType source_type,
         scoped_ptr<base::DictionaryValue> value)
     : source_type_(source_type),
       data_(value.Pass()),
+      i18n_data_(new base::DictionaryValue),
       type_(TYPE_UNKNOWN) {
   if (data_->HasKey(keys::kAppKey)) {
     if (data_->Get(keys::kWebURLsKey, NULL) ||
@@ -39,6 +84,15 @@ Manifest::Manifest(SourceType source_type,
     package_type_ = TYPE_WGT;
   else
     package_type_ = TYPE_XPK;
+
+  if (IsWGTPackaged())
+    ParseWGTI18n();
+
+  // Unittest may not have an xwalkrunner, so we should check here.
+  if (XWalkRunner* xwalk_runner = XWalkRunner::GetInstance())
+    SetSystemLocale(xwalk_runner->GetLocale());
+  else
+    SetSystemLocale(kLocaleUnlocalized);
 }
 
 Manifest::~Manifest() {
@@ -94,12 +148,36 @@ bool Manifest::GetInteger(
 
 bool Manifest::GetString(
     const std::string& path, std::string* out_value) const {
-  return CanAccessPath(path) && data_->GetString(path, out_value);
+  if (!CanAccessPath(path))
+    return false;
+
+  if (i18n_data_->Get(path, NULL)) {
+    List::const_iterator it = user_agent_locales_->begin();
+    for (; it != user_agent_locales_->end(); ++it) {
+      if (i18n_data_->GetString(GetLocalizedKey(path, *it), out_value))
+        return true;
+    }
+    return false;
+  }
+
+  return data_->GetString(path, out_value);
 }
 
 bool Manifest::GetString(
     const std::string& path, base::string16* out_value) const {
-  return CanAccessPath(path) && data_->GetString(path, out_value);
+  if (!CanAccessPath(path))
+    return false;
+
+  if (i18n_data_->Get(path, NULL)) {
+    List::const_iterator it = user_agent_locales_->begin();
+    for (; it != user_agent_locales_->end(); ++it) {
+      if (i18n_data_->GetString(GetLocalizedKey(path, *it), out_value))
+        return true;
+    }
+    return false;
+  }
+
+  return data_->GetString(path, out_value);
 }
 
 bool Manifest::GetDictionary(
@@ -134,6 +212,90 @@ bool Manifest::CanAccessPath(const std::string& path) const {
 }
 
 bool Manifest::CanAccessKey(const std::string& key) const {
+  return true;
+}
+
+void Manifest::SetSystemLocale(const std::string& locale) {
+  scoped_ptr<List> list_for_expand(new List);
+  list_for_expand->push_back(locale);
+  list_for_expand->push_back(default_locale_);
+  list_for_expand->push_back(kLocaleUnlocalized);
+  list_for_expand->push_back(kLocaleAuto);
+  list_for_expand->push_back(kLocaleFirstOne);
+  user_agent_locales_ = ExpandUserAgentLocalesList(list_for_expand);
+}
+
+void Manifest::ParseWGTI18n() {
+  data_->GetString(application_widget_keys::kDefaultLocaleKey,
+                   &default_locale_);
+  default_locale_ = StringToLowerASCII(default_locale_);
+
+  ParseWGTI18nEachPath(kWidgetNamePath);
+  ParseWGTI18nEachPath(kWidgetDecriptionPath);
+  ParseWGTI18nEachPath(kWidgetLicensePath);
+}
+
+// We might get one element of a list of element from path,
+// and we parse each element for fast access.
+// For example config.xml is:
+// <widget>
+//   <name>unlocalized name</name>
+//   <name xml:lang="zh-CN">zh-CN name</name>
+//   <name xml:lang="en-US" short="en-US short">en-US name</name>
+// </widget>
+// The path for value in i18n_data_ are :
+// "widget.name.#text.@unlocalized" => "unlocalized name".
+// "widget.name.#text.zh-cn" => "zh-CN name".
+// "widget.name.#text.en-us" => "en-US name".
+// "widget.name.@short.en-us" => "en-US short".
+// "widget.name.#text.*" => "unlocalized name". (the first one)
+// "widget.name.@short.*" => "". (the first one do not have a short name)
+void Manifest::ParseWGTI18nEachPath(const std::string& path) {
+  base::Value* value = NULL;
+  if (!data_->Get(path, &value))
+    return;
+
+  if (value->IsType(base::Value::TYPE_DICTIONARY)) {
+    ParseWGTI18nEachElement(value, path);
+    ParseWGTI18nEachElement(value, path, kLocaleFirstOne);
+  } else if (value->IsType(base::Value::TYPE_LIST)) {
+    base::ListValue* list;
+    value->GetAsList(&list);
+
+    bool get_first_one = false;
+    for (base::ListValue::iterator it = list->begin();
+        it != list->end(); ++it) {
+      ParseWGTI18nEachElement(*it, path);
+      if (!get_first_one)
+        get_first_one = ParseWGTI18nEachElement(*it, path, kLocaleFirstOne);
+    }
+  }
+  // After Parse we remove this path from data_ for saving memory.
+  scoped_ptr<base::Value> remove_value;
+  data_->Remove(path, &remove_value);
+}
+
+bool Manifest::ParseWGTI18nEachElement(base::Value* value,
+                                       const std::string& path,
+                                       const std::string& locale) {
+  base::DictionaryValue* dict;
+  if (!value->GetAsDictionary(&dict))
+    return false;
+
+  std::string xml_lang(locale);
+  if (locale.empty())
+    dict->GetString(application_widget_keys::kXmlLangKey, &xml_lang);
+
+  base::DictionaryValue::Iterator iter(*dict);
+  while (!iter.IsAtEnd()) {
+    std::string locale_key(
+        GetLocalizedKey(path + kPathConnectSymbol + iter.key(), xml_lang));
+    if (!i18n_data_->Get(locale_key, NULL))
+      i18n_data_->Set(locale_key, iter.value().DeepCopy());
+
+    iter.Advance();
+  }
+
   return true;
 }
 

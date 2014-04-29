@@ -45,6 +45,8 @@ const char kIcon128Key[] = "icons.128";
 // manifest keys for widget applications.
 namespace application_widget_keys {
 const char kNamespaceKey[] = "@namespace";
+const char kXmlLangKey[] = "@lang";
+const char kDefaultLocaleKey[] = "widget.@defaultlocale";
 const char kNameKey[] = "widget.name.#text";
 const char kVersionKey[] = "widget.@version";
 const char kWidgetKey[] = "widget";
