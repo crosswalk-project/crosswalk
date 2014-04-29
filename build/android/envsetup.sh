@@ -7,8 +7,6 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE:-$0}")"
 
 . ${SCRIPT_DIR}/../../../build/android/envsetup.sh "$@"
 
-unset CHROMIUM_GYP_FILE
-
 export PATH=$PATH:${CHROME_SRC}/xwalk/build/android
 
 xwalk_android_gyp() {
