@@ -373,8 +373,7 @@ bool ApplicationData::HasCSPDefined() const {
 
 bool ApplicationData::SetApplicationLocale(const std::string& locale,
                                            base::string16* error) {
-  // TODO(hongzhang): we need to update app data.
-  // like manifest_i18n_data.SetLocale(locale);
+  manifest_->SetSystemLocale(locale);
   if (!LoadName(error))
     return false;
   if (!LoadDescription(error))
