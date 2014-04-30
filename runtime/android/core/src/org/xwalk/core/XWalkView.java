@@ -253,7 +253,7 @@ public class XWalkView extends android.widget.FrameLayout {
 
     /**
      * Reload a web app with a given mode.
-     * @param the reload mode.
+     * @param mode the reload mode.
      */
     public void reload(int mode) {
         if (mContent == null) return;
@@ -315,6 +315,8 @@ public class XWalkView extends android.widget.FrameLayout {
 
     /**
      * Injects the supplied Java object into this XWalkView.
+     * Each method defined in the class of the object should be
+     * marked with {@link JavascriptInterface} if it's called by JavaScript.
      * @param object the supplied Java object, called by JavaScript.
      * @param name the name injected in JavaScript.
      */
