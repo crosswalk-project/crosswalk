@@ -9,9 +9,8 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE:-$0}")"
 
 export PATH=$PATH:${CHROME_SRC}/xwalk/build/android
 
+# The purpose of this function is to do the same as android_gyp(), but calling
+# gyp_xwalk instead.
 xwalk_android_gyp() {
-  echo "GYP_GENERATORS set to '$GYP_GENERATORS'"
-  (
-    "${CHROME_SRC}/xwalk/gyp_xwalk" --check "$@"
-  )
+  "${CHROME_SRC}/xwalk/gyp_xwalk" --check "$@"
 }
