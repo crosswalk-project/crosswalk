@@ -9,7 +9,7 @@
 chromium_version = '35.0.1916.17'
 chromium_crosswalk_point = 'e62582858402995e841741a28af1c418d815897f'
 blink_crosswalk_point = '2c4e1889f37db55c77215de4f113748f071cb7aa'
-v8_crosswalk_point = 'da94d1be519a0dc5ebc3d7bad06a973be91683c9'
+v8_crosswalk_point = 'd27abf42d305c5ee30cabed4926783bb105953c0'
 ozone_wayland_point = 'f4faec532d7d2f482b3ffe1e52be6fa3e6fc8629'
 
 deps_xwalk = {
