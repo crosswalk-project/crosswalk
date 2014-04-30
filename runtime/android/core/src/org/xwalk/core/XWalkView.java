@@ -53,6 +53,8 @@ public class XWalkView extends android.widget.FrameLayout {
     private Activity mActivity;
     private Context mContext;
     private XWalkExtensionManager mExtensionManager;
+    private boolean mIsTimerPaused;
+    private boolean mIsHidden;
 
     /** Normal reload mode as default. */
     public static final int RELOAD_NORMAL = 0;
@@ -186,6 +188,8 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     private void initXWalkContent(Context context, AttributeSet attrs) {
+        mIsTimerPaused = false;
+        mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
         addView(mContent,
                 new FrameLayout.LayoutParams(
@@ -367,34 +371,46 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * Pause timers of rendering engine. Typically it should be called
-     * when the activity for this view is paused.
+     * Pause all layout, parsing and JavaScript timers for all XWalkView instances.
+     * Typically it should be called when the activity for this view is paused,
+     * and accordingly {@link #resumeTimers} should be called when the activity
+     * is resumed again.
+     *
+     * Note that it will globally impact all XWalkView instances, not limited to
+     * just this XWalkView.
      */
     public void pauseTimers() {
-        if (mContent == null) return;
+        if (mContent == null || mIsTimerPaused) return;
         checkThreadSafety();
         mContent.pauseTimers();
+        mIsTimerPaused = true;
     }
 
     /**
-     * Resume timers of rendering engine. Typically it should be called
-     * when the activyt for this view is resumed.
+     * Resume all layout, parsing and JavaScript timers for all XWalkView instances.
+     * Typically it should be called when the activity for this view is resumed.
+     *
+     * Note that it will globally impact all XWalkView instances, not limited to
+     * just this XWalkView.
      */
     public void resumeTimers() {
-        if (mContent == null) return;
+        if (mContent == null || !mIsTimerPaused) return;
         checkThreadSafety();
         mContent.resumeTimers();
+        mIsTimerPaused = false;
     }
 
     /**
-     * Aside from timers, this method can pause many other things inside
-     * rendering engine, like video player, modal dialogs, etc.
+     * Pause many other things except JavaScript timers inside rendering engine,
+     * like video player, modal dialogs, etc. See {@link #pauseTimers} about pausing
+     * JavaScript timers.
      * Typically it should be called when the activity for this view is paused.
      */
     public void onHide() {
-        if (mContent == null) return;
+        if (mContent == null || mIsHidden) return;
         mExtensionManager.onPause();
         mContent.onPause();
+        mIsHidden = true;
     }
 
     /**
@@ -403,9 +419,10 @@ public class XWalkView extends android.widget.FrameLayout {
      * Typically it should be called when the activity for this view is resumed.
      */
     public void onShow() {
-        if (mContent == null) return;
+        if (mContent == null || !mIsHidden ) return;
         mExtensionManager.onResume();
         mContent.onResume();
+        mIsHidden = false;
     }
 
     /**
