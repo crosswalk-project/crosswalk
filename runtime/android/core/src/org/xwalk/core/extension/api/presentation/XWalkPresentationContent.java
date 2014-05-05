@@ -67,6 +67,10 @@ public class XWalkPresentationContent {
     }
 
     public void close() {
+        // Since pauseTimers is a global request, we should make sure the JS timers
+        // of its openercontext is resumed before the presentation content is being
+        // destroyed.
+        mContentView.resumeTimers();
         mContentView.onDestroy();
         mPresentationId = INVALID_PRESENTATION_ID;
         mContentView = null;
