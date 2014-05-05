@@ -32,6 +32,31 @@
             android:src="@android:drawable/ic_media_next" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FDF5E6" />
+
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FDF5E6" />
+
+        <TextView
+            android:id="@+id/text3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FDF5E6" />
+    </LinearLayout>
+
     <org.xwalk.core.XWalkView
         android:id="@+id/xwalkview"
         android:layout_width="match_parent"
