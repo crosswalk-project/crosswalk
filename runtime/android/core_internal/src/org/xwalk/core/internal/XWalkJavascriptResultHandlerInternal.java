@@ -6,6 +6,7 @@ package org.xwalk.core.internal;
 
 import org.chromium.base.ThreadUtils;
 
+@XWalkAPI(impl = XWalkJavascriptResultInternal.class, createInternally = true)
 public class XWalkJavascriptResultHandlerInternal implements XWalkJavascriptResultInternal {
     private XWalkContentsClientBridge mBridge;
     private final int mId;
@@ -15,12 +16,21 @@ public class XWalkJavascriptResultHandlerInternal implements XWalkJavascriptResu
         mId = id;
     }
 
+    // Never use this constructor.
+    // It is only used in XWalkJavascriptResultHandlerBridge.
+    XWalkJavascriptResultHandlerInternal() {
+        mBridge = null;
+        mId = -1;
+    }
+
     @Override
+    @XWalkAPI
     public void confirm() {
         confirmWithResult(null);
     }
 
     @Override
+    @XWalkAPI
     public void confirmWithResult(final String promptResult) {
         ThreadUtils.runOnUiThread(new Runnable() {
             @Override
@@ -34,6 +44,7 @@ public class XWalkJavascriptResultHandlerInternal implements XWalkJavascriptResu
     }
 
     @Override
+    @XWalkAPI
     public void cancel() {
         ThreadUtils.runOnUiThread(new Runnable() {
             @Override

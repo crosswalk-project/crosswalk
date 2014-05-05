@@ -10,16 +10,20 @@
     {
       'target_name': 'xwalk_core_library_documentation',
       'type': 'none',
+      'dependencies': [
+        'xwalk_core_reflection_layer_java_gen'
+      ],
       'variables': {
         'api_files': [
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkExtension.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkJavascriptResult.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationHistory.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationItem.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkPreferences.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkResourceClient.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUIClient.java',
-          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkView.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/JavascriptInterface.java',
+          '>(reflection_gen_dir)/wrapper/XWalkExtension.java',
+          '>(reflection_gen_dir)/wrapper/XWalkJavascriptResult.java',
+          '>(reflection_gen_dir)/wrapper/XWalkNavigationHistory.java',
+          '>(reflection_gen_dir)/wrapper/XWalkNavigationItem.java',
+          '>(reflection_gen_dir)/wrapper/XWalkPreferences.java',
+          '>(reflection_gen_dir)/wrapper/XWalkResourceClient.java',
+          '>(reflection_gen_dir)/wrapper/XWalkUIClient.java',
+          '>(reflection_gen_dir)/wrapper/XWalkView.java',
         ],
         'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
       },
@@ -28,15 +32,17 @@
           'action_name': 'javadoc_xwalk_core_library',
           'message': 'Creating documentation for XWalk Core Library',
           'inputs': [
-            '<@(api_files)',
+            '>(reflection_layer_gen_timestamp)',
           ],
           'outputs': [
             '<(docs)/index.html',
           ],
           'action': [
             'javadoc',
+            '-quiet',
             '-XDignore.symbol.file',
             '-d', '<(docs)',
+            '-classpath', '<(android_sdk)/android.jar',
             '<@(api_files)',
           ],
         },
