@@ -22,6 +22,12 @@ class WidgetInfo : public ApplicationData::ManifestData {
   void SetString(const std::string& key, const std::string& value);
   void Set(const std::string& key, base::Value* value);
 
+  // Name, shrot name and description are i18n items, they will be set
+  // if their value were changed after loacle was changed.
+  void SetName(const std::string& name);
+  void SetShortName(const std::string& short_name);
+  void SetDescription(const std::string& description);
+
   base::DictionaryValue* GetWidgetInfo() {
     return value_.get();
   }
