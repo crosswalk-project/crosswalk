@@ -270,9 +270,6 @@ void Manifest::ParseWGTI18nEachPath(const std::string& path) {
         get_first_one = ParseWGTI18nEachElement(*it, path, kLocaleFirstOne);
     }
   }
-  // After Parse we remove this path from data_ for saving memory.
-  scoped_ptr<base::Value> remove_value;
-  data_->Remove(path, &remove_value);
 }
 
 bool Manifest::ParseWGTI18nEachElement(base::Value* value,
