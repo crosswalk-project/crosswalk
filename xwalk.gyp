@@ -454,6 +454,13 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
         },
+        {
+          'action_name': 'xwalk_repack_locales_pak',
+          'variables': {
+            'pak_locales': '<(locales)',
+          },
+          'includes': ['xwalk_repack_locales.gypi'],
+        },
       ],
     },
     {

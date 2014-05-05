@@ -60,7 +60,13 @@
           'files': [
             'test/android/data/index.html',
           ],
-        }
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets',
+          'files': [
+            '<!@pymod_do_main(repack_xwalk_locales -o -p <(OS) -s <(SHARED_INTERMEDIATE_DIR) -x <(SHARED_INTERMEDIATE_DIR) <(locales))',
+          ],
+        },
       ],
       'includes': [ '../build/java_apk.gypi' ],
     },

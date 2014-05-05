@@ -1,4 +1,7 @@
 {
+  'includes': [
+    'xwalk_android_locale_paks.gypi',
+  ],
   'targets': [
     {
       'target_name': 'libxwalkcore',
