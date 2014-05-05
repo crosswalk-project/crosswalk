@@ -52,11 +52,13 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
 
     @Override
     public void onResume() {
+        mXWalkView.resumeTimers();
         mXWalkView.onShow();
     }
 
     @Override
     public void onPause() {
+        mXWalkView.pauseTimers();
         mXWalkView.onHide();
     }
 
