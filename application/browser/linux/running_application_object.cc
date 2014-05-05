@@ -7,6 +7,7 @@
 #include <string>
 #include "base/values.h"
 #include "base/bind.h"
+#include "content/public/browser/browser_thread.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
 #include "dbus/exported_object.h"
@@ -133,15 +134,15 @@ void RunningApplicationObject::OnTerminate(
 void RunningApplicationObject::OnGetExtensionProcessChannel(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
-  scoped_ptr<dbus::Response> response =
-      dbus::Response::FromMethodCall(method_call);
-  dbus::MessageWriter writer(response.get());
-
-  writer.AppendString(ep_bp_channel_.name);
-  dbus::FileDescriptor client_fd(ep_bp_channel_.socket.fd);
-  client_fd.CheckValidity();
-  writer.AppendFileDescriptor(client_fd);
-  response_sender.Run(response.Pass());
+  content::BrowserThread::PostTaskAndReplyWithResult(
+      content::BrowserThread::FILE,
+      FROM_HERE,
+      base::Bind(&RunningApplicationObject::CreateClientFileDescriptor,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::SendChannel,
+                 base::Unretained(this),
+                 method_call,
+                 response_sender));
 }
 
 #if defined(OS_TIZEN)
@@ -191,6 +192,27 @@ void RunningApplicationObject::OnNameOwnerChanged(
 void RunningApplicationObject::OnLauncherDisappeared() {
   // Do not care about 'OnSuspend' handlers if the launcher is already killed.
   TerminateApplication(Application::Immediate);
+}
+
+scoped_ptr<dbus::FileDescriptor>
+RunningApplicationObject::CreateClientFileDescriptor() {
+  scoped_ptr<dbus::FileDescriptor> client_fd(
+      new dbus::FileDescriptor(ep_bp_channel_.socket.fd));
+  client_fd->CheckValidity();
+  return client_fd.Pass();
+}
+
+void RunningApplicationObject::SendChannel(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender,
+    scoped_ptr<dbus::FileDescriptor> client_fd) {
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  dbus::MessageWriter writer(response.get());
+
+  writer.AppendString(ep_bp_channel_.name);
+  writer.AppendFileDescriptor(*client_fd);
+  response_sender.Run(response.Pass());
 }
 
 void RunningApplicationObject::ExtensionProcessCreated(
