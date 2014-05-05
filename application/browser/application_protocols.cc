@@ -27,6 +27,7 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -265,6 +266,22 @@ class ApplicationProtocolHandler
   DISALLOW_COPY_AND_ASSIGN(ApplicationProtocolHandler);
 };
 
+// The |locale| should be expanded to user agent locale.
+// Such as, "en-us" will be expaned as "en-us, en".
+void GetUserAgentLocales(const std::string& sys_locale,
+                         std::list<std::string>& ua_locales) {
+  if (sys_locale.empty())
+    return;
+
+  std::string locale = StringToLowerASCII(sys_locale);
+  size_t position;
+  do {
+    ua_locales.push_back(locale);
+    position = locale.find_last_of("-");
+    locale = locale.substr(0, position);
+  } while (position != std::string::npos);
+}
+
 net::URLRequestJob*
 ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
@@ -303,7 +320,12 @@ ApplicationProtocolHandler::MaybeCreateJob(
   }
 
   std::list<std::string> locales;
-  // FIXME(Xinchao): Get the user agent locales into |locales|.
+  if (application->GetPackageType() == Manifest::TYPE_WGT) {
+    GetUserAgentLocales(
+        xwalk::XWalkRunner::GetInstance()->GetLocale(), locales);
+    GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
+  }
+
   return new URLRequestApplicationJob(
       request,
       network_delegate,
