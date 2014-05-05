@@ -438,6 +438,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     public void destroy() {
         if (mXWalkContent == 0) return;
 
+        XWalkPreferences.unload(this);
         // Reset existing notification service in order to destruct it.
         setNotificationService(null);
         // Remove its children used for page rendering from view hierarchy.
