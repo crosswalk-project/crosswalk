@@ -5,7 +5,7 @@
       'type': 'executable',
       'product_name': 'xwalk-pkg-helper',
       'conditions': [
-        ['tizen==1 or tizen_mobile==1', {
+        ['tizen==1', {
           'dependencies': [
             '../../../build/system.gyp:tizen',
             '../../../../base/base.gyp:base',

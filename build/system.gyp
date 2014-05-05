@@ -4,7 +4,7 @@
 
 {
   'conditions': [
-    [ 'tizen == 1 or tizen_mobile == 1', {
+    ['tizen==1', {
       'targets': [
         {
           'target_name': 'tizen_geolocation',

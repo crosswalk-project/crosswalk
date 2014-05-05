@@ -18,7 +18,7 @@
         'xwalk_service_name.h',
       ],
       'conditions': [
-        [ 'tizen == 1 or tizen_mobile == 1', {
+        ['tizen==1', {
           'sources': [
             'dbus_manager_tizen.cc',
           ],
