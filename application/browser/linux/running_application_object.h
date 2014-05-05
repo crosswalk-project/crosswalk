@@ -12,6 +12,10 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/dbus/object_manager_adaptor.h"
 
+namespace dbus {
+class FileDescriptor;
+}
+
 namespace xwalk {
 namespace application {
 
@@ -57,6 +61,11 @@ class RunningApplicationObject : public dbus::ManagedObject {
   void OnNameOwnerChanged(const std::string& service_owner);
 
   void OnLauncherDisappeared();
+
+  scoped_ptr<dbus::FileDescriptor> CreateClientFileDescriptor();
+  void SendChannel(dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender,
+                   scoped_ptr<dbus::FileDescriptor> client_fd);
 
   scoped_refptr<dbus::Bus> bus_;
   std::string launcher_name_;

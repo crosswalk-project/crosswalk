@@ -9,6 +9,10 @@
 
 #include "base/threading/thread.h"
 
+namespace base {
+class AtExitManager;
+}
+
 namespace xwalk {
 namespace extensions {
 class XWalkExtensionProcess;
@@ -20,6 +24,9 @@ class XWalkExtensionProcessLauncher: public base::Thread {
   XWalkExtensionProcessLauncher();
   ~XWalkExtensionProcessLauncher();
 
+  // Implement base::Thread.
+  virtual void CleanUp() OVERRIDE;
+
   // Will be called in launcher's main thread.
   void Launch(const std::string& channel_id, int channel_fd);
 
@@ -29,6 +36,7 @@ class XWalkExtensionProcessLauncher: public base::Thread {
   void StartExtensionProcess(const std::string& channel_id, int channel_fd);
 
   bool is_started_;
+  scoped_ptr<base::AtExitManager> exit_manager_;
   scoped_ptr<xwalk::extensions::XWalkExtensionProcess> extension_process_;
 };
 
