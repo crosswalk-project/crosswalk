@@ -11,8 +11,8 @@
 #include "dbus/bus.h"
 #include "dbus/message.h"
 #include "dbus/exported_object.h"
+#include "xwalk/application/browser/application_tizen.h"
 #include "xwalk/application/browser/linux/running_applications_manager.h"
-
 
 namespace {
 
@@ -158,7 +158,7 @@ void RunningApplicationObject::OnHide(
     return;
   }
 
-  application_->Hide();
+  ToApplicationTizen(application_)->Hide();
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);

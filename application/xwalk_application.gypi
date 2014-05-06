@@ -120,6 +120,8 @@
             '../third_party/re2/re2.gyp:re2',
           ],
           'sources': [
+            'browser/application_tizen.cc',
+            'browser/application_tizen.h',
             'browser/installer/tizen/packageinfo_constants.cc',
             'browser/installer/tizen/packageinfo_constants.h',
             'browser/installer/tizen/service_package_installer.cc',

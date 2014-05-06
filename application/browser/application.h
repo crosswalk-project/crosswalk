@@ -21,10 +21,6 @@
 #include "xwalk/application/common/security_policy.h"
 #include "xwalk/runtime/browser/runtime.h"
 
-#if defined(USE_OZONE) && defined(OS_TIZEN)
-#include "base/message_loop/message_pump_observer.h"
-#endif
-
 namespace xwalk {
 
 class RuntimeContext;
@@ -41,12 +37,7 @@ class SecurityPolicy;
 // terminated.
 // There's one-to-one correspondence between Application and Render Process
 // Host, obtained from its "runtimes" (pages).
-class Application
-  :
-#if defined(USE_OZONE) && defined(OS_TIZEN)
-  public base::MessagePumpObserver,
-#endif
-  public Runtime::Observer {
+class Application : public Runtime::Observer {
  public:
   virtual ~Application();
 
@@ -97,10 +88,6 @@ class Application
   };
   void Terminate(TerminationMode = Normal);
 
-#if defined(OS_TIZEN)
-  void Hide();
-#endif
-
   // Returns Runtime (application page) containing the application's
   // 'main document'. The main document is the main entry point of
   // the application to the system. This method will return 'NULL'
@@ -140,17 +127,27 @@ class Application
                      StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
 
+ protected:
+  // We enforce ApplicationService ownership.
+  friend class ApplicationService;
+  Application(scoped_refptr<ApplicationData> data,
+              RuntimeContext* context,
+              Observer* observer);
+
+  virtual void InitSecurityPolicy();
+  void AddSecurityPolicy(const GURL& url, bool subdomains);
+
+  Runtime* main_runtime_;
+  std::set<Runtime*> runtimes_;
+  scoped_refptr<ApplicationData> const application_data_;
+  bool is_security_mode_;
+
  private:
   bool HasMainDocument() const;
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
 
-  // We enforce ApplicationService ownership.
-  friend class ApplicationService;
-  Application(scoped_refptr<ApplicationData> data,
-              RuntimeContext* context,
-              Observer* observer);
   bool Launch(const LaunchParams& launch_params);
 
   // Try to extract the URL from different possible keys for entry points in the
@@ -168,32 +165,19 @@ class Application
   bool IsOnSuspendHandlerRegistered() const;
   bool IsTerminating() const { return finish_observer_; }
 
-  void InitSecurityPolicy();
-  void AddSecurityPolicy(const GURL& url, bool subdomains);
-
-#if defined(USE_OZONE) && defined(OS_TIZEN)
-  virtual base::EventStatus WillProcessEvent(
-      const base::NativeEvent& event) OVERRIDE;
-  virtual void DidProcessEvent(const base::NativeEvent& event) OVERRIDE;
-#endif
-
   RuntimeContext* runtime_context_;
-  const scoped_refptr<ApplicationData> application_data_;
-  Runtime* main_runtime_;
-  std::set<Runtime*> runtimes_;
   scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
   // The entry point used as part of Launch().
   LaunchEntryPoint entry_point_used_;
   TerminationMode termination_mode_used_;
-  base::WeakPtrFactory<Application> weak_factory_;
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.
   StoredPermissionMap permission_map_;
   // Security policy set.
   ScopedVector<SecurityPolicy> security_policy_;
-  bool is_security_mode_;
-
+  // WeakPtrFactory should be always declared the last.
+  base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);
 };
 
