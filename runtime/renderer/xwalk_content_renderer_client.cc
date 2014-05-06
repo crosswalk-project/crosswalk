@@ -181,7 +181,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
     if (url.GetOrigin() != app_url.GetOrigin() &&
         origin_url != first_party_for_cookies &&
         first_party_for_cookies.GetOrigin() != app_url.GetOrigin() &&
-        !frame->document().securityOrigin().canRequest(url)) {
+        !blink::WebSecurityOrigin::create(app_url).canRequest(url)) {
       LOG(INFO) << "[BLOCK] allow-navigation: " << url.spec();
       content::RenderThread::Get()->Send(new ViewMsg_OpenLinkExternal(url));
       *new_url = GURL();
