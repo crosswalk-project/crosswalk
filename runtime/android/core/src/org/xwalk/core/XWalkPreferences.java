@@ -4,6 +4,8 @@
 
 package org.xwalk.core;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +18,11 @@ import java.util.Map;
  */
 public final class XWalkPreferences {
     private static HashMap<String, Boolean> sPrefMap = new HashMap<String, Boolean>();
-    private static ArrayList<KeyValueChangeListener> sListeners =
-            new ArrayList<KeyValueChangeListener>();
+    // Here we use WeakReference to make sure the KeyValueChangeListener instance
+    // can be GC-ed to avoid memory leaking issue.
+    private static ArrayList<WeakReference<KeyValueChangeListener> > sListeners =
+            new ArrayList<WeakReference<KeyValueChangeListener> >();
+    private static ReferenceQueue sRefQueue = new ReferenceQueue<KeyValueChangeListener>();
 
     /**
      * The key string to enable/disable remote debugging.
@@ -66,26 +71,55 @@ public final class XWalkPreferences {
         registerListener(listener);
     }
 
+    static synchronized void unload(KeyValueChangeListener listener) {
+        unregisterListener(listener);
+    }
+
     // Listen to value changes.
     interface KeyValueChangeListener {
         public void onKeyValueChanged(String key, boolean value);
     }
 
     private static synchronized void registerListener(KeyValueChangeListener listener) {
-        sListeners.add(listener);
+        removeEnqueuedReference();
+        WeakReference<KeyValueChangeListener> weakListener =
+                new WeakReference<KeyValueChangeListener>(listener, sRefQueue);
+        sListeners.add(weakListener);
+    }
+
+    private static synchronized void unregisterListener(KeyValueChangeListener listener) {
+        removeEnqueuedReference();
+        for (WeakReference<KeyValueChangeListener> weakListener : sListeners) {
+            if (weakListener.get() == listener) {
+                sListeners.remove(weakListener);
+                break;
+            }
+        }
     }
 
     private static void onKeyValueChanged(String key, boolean enabled) {
-        for (KeyValueChangeListener listener : sListeners) {
-            listener.onKeyValueChanged(key, enabled);
+        for (WeakReference<KeyValueChangeListener> weakListener : sListeners) {
+            KeyValueChangeListener listener = weakListener.get();
+            if (listener != null) listener.onKeyValueChanged(key, enabled);
         }
     }
 
     private static void checkKey(String key) throws RuntimeException {
+        removeEnqueuedReference();
         if (!sPrefMap.containsKey(key)) {
             throw new RuntimeException("Warning: the preference key " + key +
                     " is not supported by Crosswalk.");
         }
     }
 
+    /**
+     * Internal method to keep track of weak references and remove the enqueued
+     * references from listener list by polling the reference queue.
+     */
+    private static void removeEnqueuedReference() {
+        WeakReference<KeyValueChangeListener> toRemove;
+        while ((toRemove = (WeakReference<KeyValueChangeListener>) sRefQueue.poll()) != null) {
+            sListeners.remove(toRemove);
+        }
+    }
 }
