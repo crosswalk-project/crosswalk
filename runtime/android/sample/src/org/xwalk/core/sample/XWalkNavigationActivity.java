@@ -7,17 +7,15 @@ package org.xwalk.core.sample;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkNavigationHistory;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
-public class XWalkNavigationActivity extends Activity {
+public class XWalkNavigationActivity extends XWalkBaseActivity {
 
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
-    private XWalkView mXWalkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

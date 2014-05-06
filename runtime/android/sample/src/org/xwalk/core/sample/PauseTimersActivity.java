@@ -6,17 +6,15 @@ package org.xwalk.core.sample;
 
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
-public class PauseTimersActivity extends Activity {
+public class PauseTimersActivity extends XWalkBaseActivity {
 
     private ImageButton mButton;
     private boolean isPaused;
-    XWalkView mXWalkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

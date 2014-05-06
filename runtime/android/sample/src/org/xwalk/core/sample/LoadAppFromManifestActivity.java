@@ -6,19 +6,18 @@ package org.xwalk.core.sample;
 
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class LoadAppFromManifestActivity extends Activity {
+public class LoadAppFromManifestActivity extends XWalkBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xwview_layout);
-        XWalkView xwalkView = (XWalkView) findViewById(R.id.xwalkview);
+        mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
 
         // The manifest definition, please refer to the link:
         // https://crosswalk-project.org/#wiki/Crosswalk-manifest 
-        xwalkView.loadAppFromManifest("file:///android_asset/manifest.json", null);
+        mXWalkView.loadAppFromManifest("file:///android_asset/manifest.json", null);
     }
 }

@@ -6,11 +6,12 @@ package org.xwalk.core.sample;
 
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
-public class MultiXWalkViewActivity extends Activity {
+public class MultiXWalkViewActivity extends XWalkBaseActivity {
+
+    private XWalkView mXWalkView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,13 +25,39 @@ public class MultiXWalkViewActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         params.weight = 1;
 
-        XWalkView view1 = new XWalkView(this, this);
-        parent.addView(view1, params);
+        mXWalkView = new XWalkView(this, this);
+        parent.addView(mXWalkView, params);
 
-        XWalkView view2 = new XWalkView(this, this);
-        parent.addView(view2, params);
+        mXWalkView2 = new XWalkView(this, this);
+        parent.addView(mXWalkView2, params);
 
-        view1.load("http://www.intel.com", null);
-        view2.load("http://www.baidu.com", null);
+        mXWalkView.load("http://www.intel.com", null);
+        mXWalkView2.load("http://www.baidu.com", null);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mXWalkView2 != null) {
+            mXWalkView2.onHide();
+            mXWalkView2.pauseTimers();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mXWalkView2 != null) {
+            mXWalkView2.onShow();
+            mXWalkView2.resumeTimers();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mXWalkView2 != null) {
+            mXWalkView2.onDestroy();
+        }
     }
 }
