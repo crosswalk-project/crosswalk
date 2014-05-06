@@ -4,6 +4,7 @@
 
 package org.xwalk.core.sample;
 
+import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkNavigationHistory;
 
@@ -12,12 +13,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 public class XWalkNavigationActivity extends Activity {
 
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
     private XWalkView mXWalkView;
+    String url, originalUrl, title;
+    TextView text1, text2, text3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +30,10 @@ public class XWalkNavigationActivity extends Activity {
         mPrevButton = (ImageButton) findViewById(R.id.prev);
         mNextButton = (ImageButton) findViewById(R.id.next);
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+
+        text1 = (TextView) super.findViewById(R.id.text1);
+        text2 = (TextView) super.findViewById(R.id.text2);
+        text3 = (TextView) super.findViewById(R.id.text3);
 
         mPrevButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -36,6 +44,14 @@ public class XWalkNavigationActivity extends Activity {
                     mXWalkView.getNavigationHistory().navigate(
                             XWalkNavigationHistory.Direction.BACKWARD, 1);
                 }
+                XWalkNavigationItem navigationItem = mXWalkView.getNavigationHistory().getCurrentItem();
+                url = navigationItem.getUrl();
+                originalUrl = navigationItem.getOriginalUrl();
+                title = navigationItem.getTitle();
+
+                text1.setText(title);
+                text2.setText(url);
+                text3.setText(originalUrl);
             }
         });
 
@@ -48,6 +64,14 @@ public class XWalkNavigationActivity extends Activity {
                     mXWalkView.getNavigationHistory().navigate(
                             XWalkNavigationHistory.Direction.FORWARD, 1);
                 }
+                XWalkNavigationItem navigationItem = mXWalkView.getNavigationHistory().getCurrentItem();
+                url = navigationItem.getUrl();
+                originalUrl = navigationItem.getOriginalUrl();
+                title = navigationItem.getTitle();
+
+                text1.setText(title);
+                text2.setText(url);
+                text3.setText(originalUrl);
             }
         });
 
