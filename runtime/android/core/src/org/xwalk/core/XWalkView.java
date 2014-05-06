@@ -29,25 +29,118 @@ import org.chromium.base.ApplicationStatus;
 import org.xwalk.core.extension.XWalkExtensionManager;
 
 /**
- * XWalkView represents an Android view for web apps/pages. Thus most of attributes
- * for Android view are true for this class. It includes an instance of
- * android.view.SurfaceView for rendering. Currently limitations for android.view.SurfaceView
- * also are applied for this class as well, like resizing, retation, transformation and
- * animation.
+ * <p>XWalkView represents an Android view for web apps/pages. Thus most of attributes
+ * for Android view are valid for this class. Since it internally uses
+ * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
+ * android.view.SurfaceView</a> for rendering web pages, it can't be resized, rotated,
+ * transformed and animated due to the limitations of SurfaceView. Besides, XWalkView won't
+ * be rendered if it's invisible.</p>
  *
- * It provides 2 major callback classes, namely XWalkResourceClient and XWalkUIClient for
- * listening to the events related resource loading and UI. By default, Crosswalk has an inner
- * implementation. Callers can override them if like.
+ * <p>XWalkView needs hardware acceleration to render web pages. As a result, the
+ * AndroidManifest.xml of the caller's app must be appended with the attribute
+ * "android:hardwareAccelerated" and its value must be set as "true".</p>
+ * <pre>
+ * &lt;application android:name="android.app.Application" android:label="XWalkUsers"
+ *     android:hardwareAccelerated="true"&gt;
+ * </pre>
  *
- * Unlike other Android views, this class has to listen to system events like application life
- * cycle, intents, and activity result. The web engine inside this view need to handle them.
+ * <p>Crosswalk provides 2 major callback classes, namely {@link XWalkResourceClient} and
+ * {@link XWalkUIClient} for listening to the events related to resource loading and UI.
+ * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
- * It already includes all newly created Web APIs from Crosswalk like Presentation,
- * DeviceCapabilities, etc..
+ * <p>Unlike other Android views, this class has to listen to system events like application life
+ * cycle, intents, and activity result. The web engine inside this view need to get and handle
+ * them. For example:</p>
+ *
+ * <pre>
+ *   import android.app.Activity;
+ *   import android.os.Bundle;
+ *
+ *   import org.xwalk.core.XWalkResourceClient;
+ *   import org.xwalk.core.XWalkUIClient;
+ *   import org.xwalk.core.XWalkView;
+ *
+ *   public class MyActivity extends Activity {
+ *       XWalkView mXwalkView;
+ *
+ *       class MyResourceClient extends XWalkResourceClient {
+ *           MyResourceClient(XWalkView view) {
+ *               super(view);
+ *           }
+ *
+ *           &#64;Override
+ *           WebResourceResponse shouldInterceptLoadRequest(XWalkView view, String url) {
+ *               // Handle it here.
+ *               ...
+ *           }
+ *       }
+ *
+ *       class MyUIClient extends XWalkUIClient {
+ *           MyUIClient(XWalkView view) {
+ *               super(view);
+ *           }
+ *
+ *           &#64;Override
+ *           void onFullscreenToggled(XWalkView view, String url) {
+ *               // Handle it here.
+ *               ...
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onCreate(Bundle savedInstanceState) {
+ *           mXwalkView = new XWalkView(this, null);
+ *           setContentView(mXwalkView);
+ *           mXwalkView.setResourceClient(new MyResourceClient(mXwalkView));
+ *           mXwalkView.setUIClient(new MyUIClient(mXwalkView));
+ *           mXwalkView.load("http://www.crosswalk-project.org", null);
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onPause() {
+ *           super.onPause();
+ *           if (mXwalkView != null) {
+ *               mXwalkView.pauseTimers();
+ *               mXwalkView.onHide();
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onResume() {
+ *           super.onResume();
+ *           if (mXwalkView != null) {
+ *               mXwalkView.resumeTimers();
+ *               mXwalkView.onShow();
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onDestroy() {
+ *           super.onDestroy();
+ *           if (mXwalkView != null) {
+ *               mXwalkView.onDestroy();
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+ *           if (mXwalkView != null) {
+ *               mXwalkView.onActivityResult(requestCode, resultCode, data);
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onNewIntent(Intent intent) {
+ *           if (mXwalkView != null) {
+ *               mXwalkView.onNewIntent(intent);
+ *           }
+ *       }
+ *   }
+ * </pre>
  */
 public class XWalkView extends android.widget.FrameLayout {
 
-    protected static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
+    static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
 
     private XWalkContent mContent;
     private Activity mActivity;
@@ -437,7 +530,8 @@ public class XWalkView extends android.widget.FrameLayout {
     /**
      * Pass through activity result to XWalkView. Many internal facilities need this
      * to handle activity result like JavaScript dialog, Crosswalk extensions, etc.
-     * See android.app.Activity.onActivityResult().
+     * See <a href="http://developer.android.com/reference/android/app/Activity.html">
+     * android.app.Activity.onActivityResult()</a>.
      * @param requestCode passed from android.app.Activity.onActivityResult().
      * @param resultCode passed from android.app.Activity.onActivityResult().
      * @param data passed from android.app.Activity.onActivityResult().
@@ -451,7 +545,8 @@ public class XWalkView extends android.widget.FrameLayout {
     /**
      * Pass through intents to XWalkView. Many internal facilities need this
      * to receive the intents like web notification. See
-     * android.app.Activity.onNewIntent().
+     * <a href="http://developer.android.com/reference/android/app/Activity.html">
+     * android.app.Activity.onNewIntent()</a>.
      * @param intent passed from android.app.Activity.onNewIntent().
      */
     public boolean onNewIntent(Intent intent) {
@@ -523,7 +618,8 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     /**
-     * Inherit from android.view.View. This class needs to handle some keys like
+     * Inherit from <a href="http://developer.android.com/reference/android/view/View.html">
+     * android.view.View</a>. This class needs to handle some keys like
      * 'BACK'.
      * @param keyCode passed from android.view.View.onKeyUp().
      * @param event passed from android.view.View.onKeyUp().
