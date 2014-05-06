@@ -10,23 +10,34 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/platform_file.h"
+#include "content/public/browser/browser_child_process_host.h"
 #include "content/public/browser/browser_main_parts.h"
+#include "content/public/browser/browser_ppapi_host.h"
+#include "content/public/browser/child_process_data.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
+#include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
+#include "components/nacl/browser/nacl_browser.h"
+#include "components/nacl/browser/nacl_host_message_filter.h"
+#include "components/nacl/browser/nacl_process_host.h"
+#include "components/nacl/common/nacl_process_type.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
+#include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
+#include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
@@ -54,6 +65,8 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
+
+using content::BrowserChildProcessHostIterator;
 
 namespace xwalk {
 
@@ -157,6 +170,18 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
 
 void XWalkContentBrowserClient::RenderProcessWillLaunch(
     content::RenderProcessHost* host) {
+#if !defined(DISABLE_NACL)
+  int id = host->GetID();
+  net::URLRequestContextGetter* context =
+      host->GetStoragePartition()->GetURLRequestContext();
+
+  host->AddFilter(new nacl::NaClHostMessageFilter(
+      id,
+      // TODO(Halton): IsOffTheRecord?
+      false,
+      host->GetBrowserContext()->GetPath(),
+      context));
+#endif
   xwalk_runner_->OnRenderProcessWillLaunch(host);
   host->AddFilter(new XWalkRenderMessageFilter);
 }
@@ -279,6 +304,32 @@ void XWalkContentBrowserClient::CancelDesktopNotification(
   bridge->CancelNotification(
       notification_id, render_process_id, render_view_id);
 #endif
+}
+
+void XWalkContentBrowserClient::DidCreatePpapiPlugin(
+    content::BrowserPpapiHost* browser_host) {
+#if defined(ENABLE_PLUGINS)
+  browser_host->GetPpapiHost()->AddHostFactoryFilter(
+      scoped_ptr<ppapi::host::HostFactory>(
+          new XWalkBrowserPepperHostFactory(browser_host)));
+#endif
+}
+
+content::BrowserPpapiHost*
+    XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
+        int plugin_process_id) {
+  BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
+  while (!iter.Done()) {
+    nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
+        iter.GetDelegate());
+    if (host->process() &&
+        host->process()->GetData().id == plugin_process_id) {
+      // Found the plugin.
+      return host->browser_ppapi_host();
+    }
+    ++iter;
+  }
+  return NULL;
 }
 
 #if defined(OS_ANDROID)

@@ -20,6 +20,10 @@ class XWalkContentClient : public content::ContentClient {
   XWalkContentClient();
   virtual ~XWalkContentClient();
 
+  static const char* const kNaClPluginName;
+
+  virtual void AddPepperPlugins(
+      std::vector<content::PepperPluginInfo>* plugins) OVERRIDE;
   virtual std::string GetProduct() const OVERRIDE;
   virtual std::string GetUserAgent() const OVERRIDE;
   virtual base::string16 GetLocalizedString(int message_id) const OVERRIDE;
@@ -32,6 +36,7 @@ class XWalkContentClient : public content::ContentClient {
   virtual void AddAdditionalSchemes(
       std::vector<std::string>* standard_schemes,
       std::vector<std::string>* saveable_shemes) OVERRIDE;
+  virtual std::string GetProcessTypeNameInEnglish(int type) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkContentClient);

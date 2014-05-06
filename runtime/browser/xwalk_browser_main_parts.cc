@@ -14,23 +14,28 @@
 #include "base/files/file_path.h"
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
+#include "cc/base/switches.h"
+#include "components/nacl/browser/nacl_browser.h"
+#include "components/nacl/browser/nacl_process_host.h"
+#include "content/public/browser/browser_thread.h"
+#include "content/public/common/content_switches.h"
+#include "content/public/common/main_function_params.h"
+#include "content/public/common/url_constants.h"
+#include "content/public/common/result_codes.h"
+#include "extensions/browser/extension_system.h"
+#include "net/base/net_util.h"
+#include "ui/gl/gl_switches.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
+#include "xwalk/runtime/browser/nacl_host/nacl_browser_delegate_impl.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
-#include "cc/base/switches.h"
-#include "content/public/common/content_switches.h"
-#include "content/public/common/main_function_params.h"
-#include "content/public/common/url_constants.h"
-#include "content/public/common/result_codes.h"
-#include "net/base/net_util.h"
-#include "ui/gl/gl_switches.h"
 
 #if defined(USE_AURA) && defined(USE_X11)
 #include "ui/base/ime/input_method_initializer.h"
@@ -178,6 +183,16 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
   if (extension_service_)
     RegisterExternalExtensions();
+
+#if !defined(DISABLE_NACL)
+  NaClBrowserDelegateImpl* delegate = new NaClBrowserDelegateImpl();
+  nacl::NaClBrowser::SetDelegate(delegate);
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO,
+      FROM_HERE,
+      base::Bind(nacl::NaClProcessHost::EarlyStartup));
+#endif
 
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kRemoteDebuggingPort)) {

@@ -26,6 +26,9 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   virtual void PreSandboxStartup() OVERRIDE;
   virtual int RunProcess(const std::string& process_type,
       const content::MainFunctionParams& main_function_params) OVERRIDE;
+#if defined(OS_POSIX) && !defined(OS_ANDROID)
+  virtual content::ZygoteForkDelegate* ZygoteStarting() OVERRIDE;
+#endif
   virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
   virtual content::ContentRendererClient*
       CreateContentRendererClient() OVERRIDE;

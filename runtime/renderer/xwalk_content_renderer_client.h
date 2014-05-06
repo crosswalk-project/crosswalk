@@ -46,6 +46,9 @@ class XWalkContentRendererClient
   virtual void DidCreateScriptContext(
       blink::WebFrame* frame, v8::Handle<v8::Context> context,
       int extension_group, int world_id) OVERRIDE;
+  virtual bool IsExternalPepperPlugin(const std::string& module_name) OVERRIDE;
+  virtual const void* CreatePPAPIInterface(
+      const std::string& interface_name) OVERRIDE;
 #if defined(OS_ANDROID)
   virtual unsigned long long VisitedLinkHash(const char* canonical_url, // NOLINT
                                              size_t length) OVERRIDE;

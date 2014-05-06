@@ -128,6 +128,11 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                                bool* no_javascript_access) OVERRIDE;
 #endif
 
+  virtual void DidCreatePpapiPlugin(
+      content::BrowserPpapiHost* browser_host) OVERRIDE;
+  virtual content::BrowserPpapiHost* GetExternalBrowserPpapiHost(
+      int plugin_process_id) OVERRIDE;
+
 #if defined(OS_ANDROID)
   virtual void ResourceDispatcherHostCreated();
 #endif

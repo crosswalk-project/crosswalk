@@ -14,6 +14,11 @@ enum {
   PATH_START = 1000,
   DIR_DATA_PATH = PATH_START,  // Directory where the cache and local storage
                                // data resides.
+  DIR_INTERNAL_PLUGINS,        // Directory where internal plugins reside.
+
+  FILE_NACL_PLUGIN,            // Full path to the internal NaCl plugin file.
+  DIR_PNACL_COMPONENT,         // Full path to the latest PNaCl version
+                               // (subdir of DIR_PNACL_BASE).
   DIR_TEST_DATA,               // Directory where unit test data resides.
   DIR_WGT_STORAGE_PATH,        // Directory where widget storage data resides.
   PATH_END
