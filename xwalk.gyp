@@ -651,7 +651,6 @@
           'dependencies': [
             'xwalk',
             'xwalk_all_tests',
-            'xwalk_xpk_generator',
           ],
         },
         {
@@ -672,18 +671,6 @@
             'xwalk_app_template',
           ],
         }],
-      ],
-    },
-    {
-      'target_name': 'xwalk_xpk_generator',
-      'type': 'none',
-      'copies': [
-        {
-          'destination': '<(PRODUCT_DIR)/tools',
-          'files': [
-            'tools/make_xpk.py',
-          ],
-        },
       ],
     },
   ], # targets
