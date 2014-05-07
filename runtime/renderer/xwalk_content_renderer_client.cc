@@ -203,6 +203,7 @@ bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
   if (xwalk_render_process_observer_->IsCSPMode()) {
     if (url.GetOrigin() != app_url.GetOrigin() &&
         origin_url != first_party_for_cookies &&
+        !first_party_for_cookies.is_empty() &&
         first_party_for_cookies.GetOrigin() != app_url.GetOrigin() &&
         !blink::WebSecurityOrigin::create(app_url).canRequest(url)) {
       LOG(INFO) << "[BLOCK] allow-navigation: " << url.spec();
