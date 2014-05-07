@@ -10,7 +10,7 @@
     package="org.xwalk.app.template"
     android:installLocation="auto">
 
-    <application android:name="android.app.Application"
+    <application android:name="org.xwalk.app.runtime.XWalkRuntimeApplication"
         android:label="XWalkAppTemplate" android:hardwareAccelerated="true"
         android:icon="@drawable/crosswalk">
         <activity android:name="org.xwalk.app.template.AppTemplateActivity"
