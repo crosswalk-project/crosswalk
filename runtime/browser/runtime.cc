@@ -156,8 +156,8 @@ void Runtime::Close() {
   delete this;
 }
 
-NativeAppWindow* Runtime::window() const {
-  return window_;
+content::RenderProcessHost* Runtime::GetRenderProcessHost() {
+  return web_contents_->GetRenderProcessHost();
 }
 
 //////////////////////////////////////////////////////

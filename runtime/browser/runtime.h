@@ -23,6 +23,7 @@ namespace content {
 class ColorChooser;
 struct FileChooserParams;
 class WebContents;
+class RenderProcessHost;
 }
 
 namespace xwalk {
@@ -70,9 +71,11 @@ class Runtime : public content::WebContentsDelegate,
   void Close();
 
   content::WebContents* web_contents() const { return web_contents_.get(); }
-  NativeAppWindow* window() const;
+  NativeAppWindow* window() const { return window_; }
   RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
+
+  content::RenderProcessHost* GetRenderProcessHost();
 
 #if defined(OS_TIZEN_MOBILE)
   void CloseRootWindow();

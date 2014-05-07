@@ -30,6 +30,7 @@
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_tizen.h"
 #include "xwalk/application/browser/installer/tizen/service_package_installer.h"
 #endif
 
@@ -526,9 +527,15 @@ Application* ApplicationService::Launch(
   }
 
   event_manager_->AddEventRouterForApp(application_data);
+
+#if defined(OS_TIZEN)
+  Application* application(new ApplicationTizen(application_data,
+    runtime_context_, this));
+#else
   Application* application(new Application(application_data,
-                                           runtime_context_,
-                                           this));
+    runtime_context_, this));
+#endif
+
   ScopedVector<Application>::iterator app_iter =
       applications_.insert(applications_.end(), application);
 
