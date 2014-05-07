@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import org.chromium.components.navigation_interception.NavigationParams;
 
@@ -47,7 +48,9 @@ public class XWalkNavigationHandlerImpl implements XWalkNavigationHandler {
         } else {
             intent = createIntentForActionUri(url);
         }
-        return intent != null && startActivity(intent);
+        if (intent != null && startActivity(intent)) return true;
+
+        return handleUrlByMimeType(url);
     }
 
     protected boolean startActivity(Intent intent) {
@@ -119,5 +122,33 @@ public class XWalkNavigationHandlerImpl implements XWalkNavigationHandler {
             intent.setData(Uri.parse(url));
         }
         return intent;
+    }
+
+    private boolean handleUrlByMimeType(String url) {
+        MimeTypeMap map = MimeTypeMap.getSingleton();
+        String extenstion = MimeTypeMap.getFileExtensionFromUrl(url);
+        String mimeType = map.getMimeTypeFromExtension(extenstion);
+
+        if (shouldHandleMimeType(mimeType)) {
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_VIEW);
+            sendIntent.setDataAndType(Uri.parse(url), mimeType);
+
+            if (sendIntent.resolveActivity(mContext.getPackageManager()) != null) {
+                startActivity(sendIntent);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldHandleMimeType(String mimeType) {
+        // Currently only "application/*" MIME type should be handled.
+        // Other types (text/*, video/*, image/*, audio/*) are not handled
+        // by intent actions.
+        if (mimeType != null && mimeType.startsWith("application/")) {
+            return true;
+        }
+        return false;
     }
 }
