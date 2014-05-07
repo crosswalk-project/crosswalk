@@ -530,7 +530,7 @@ bool Application::CanRequestURL(const GURL& url) const {
       url.host() == id())
     return true;
 
-  for (int i = 0; i < security_policy_.size(); ++i) {
+  for (unsigned i = 0; i < security_policy_.size(); ++i) {
     const GURL& policy = security_policy_[i]->url();
     bool subdomains = security_policy_[i]->subdomains();
     bool is_host_matched = subdomains ?

@@ -9,6 +9,9 @@
       }, {
        'use_custom_freetype%': 0,
       }],
+      ['OS=="win"', {
+        'disable_nacl': 1,
+      }],
     ], # conditions
   },
   'includes' : [
@@ -360,18 +363,22 @@
           ],
         }],
         ['disable_nacl==0', {
-          'sources': [
-            'runtime/browser/nacl_host/nacl_browser_delegate_impl.cc',
-            'runtime/browser/nacl_host/nacl_browser_delegate_impl.h',
-          ],
-          'dependencies': [
-            '../components/nacl.gyp:nacl',
-            '../components/nacl.gyp:nacl_browser',
-            '../components/nacl.gyp:nacl_common',
-            '../components/nacl.gyp:nacl_renderer',
-            '../components/nacl.gyp:nacl_helper',
-            '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
-          ],
+            'conditions': [
+                ['OS=="linux"', {
+                  'sources': [
+                    'runtime/browser/nacl_host/nacl_browser_delegate_impl.cc',
+                    'runtime/browser/nacl_host/nacl_browser_delegate_impl.h',
+                  ],
+                  'dependencies': [
+                    '../components/nacl.gyp:nacl',
+                    '../components/nacl.gyp:nacl_browser',
+                    '../components/nacl.gyp:nacl_common',
+                    '../components/nacl.gyp:nacl_renderer',
+                    '../components/nacl.gyp:nacl_helper',
+                    '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
+                  ],
+                }],
+            ],
         }],
         ['enable_plugins==1', {
           'dependencies': [
