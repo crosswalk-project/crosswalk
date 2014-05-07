@@ -58,6 +58,26 @@ def RunCommand(command):
   return proc.communicate()[0]
 
 
+def GetResultWithOption(mode, manifest=None, name=None, package=None):
+  app_url = None
+  if manifest != None:
+    manifest = '--manifest=' + manifest
+  else:
+    app_url = '--app-url=http://www.intel.com'
+  if name != None:
+    name = '--name=' + name
+  if package != None:
+    package = '--package=' + package
+  cmd = ['python', 'make_apk.py',
+         '--app-version=1.0.0',
+         '%s' % manifest,
+         '%s' % name,
+         '%s' % package,
+         '%s' % app_url,
+         mode]
+  return RunCommand(cmd)
+
+
 class TestMakeApk(unittest.TestCase):
   @classmethod
   def setUpClass(cls):
@@ -183,25 +203,22 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     Clean('Example', '1.0.0')
     self.assertTrue(out.find('The APK name is required!') != -1)
-    cmd = ['python', 'make_apk.py', '--name="Test Example"',
-           '--app-version=1.0.0',
+
+    cmd = ['python', 'make_apk.py', '--name=Test_Example',
+           '--app-version=1.0.0', '--app-url=http://www.intel.com',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    Clean('Test Example', '1.0.0')
     self.assertTrue(out.find('The APK name is required!') == -1)
-    # The following invalid chars verification is too heavy for embedded mode,
-    # and the result of verification should be the same between shared mode
-    # and embedded mode. So only do the verification in the shared mode.
-    if self._mode.find('shared') != -1:
-      invalid_chars = '\/:.*?"<>|-'
-      for c in invalid_chars:
-        invalid_name = '--name=Example' + c
-        cmd = ['python', 'make_apk.py', invalid_name,
-               '--app-version=1.0.0', '--package=org.xwalk.example',
-               '--app-url=http://www.intel.com', self._mode]
-        out = RunCommand(cmd)
-        Clean('Example_', '1.0.0')
-        self.assertTrue(out.find('Illegal character') != -1)
+    Clean('Test_Example', '1.0.0')
+
+    invalid_chars = '\/:.*?"<>|-'
+    for c in invalid_chars:
+      invalid_name = '--name=Example' + c
+      cmd = ['python', 'make_apk.py', invalid_name,
+             '--app-version=1.0.0', '--package=org.xwalk.example',
+             '--app-url=http://www.intel.com', self._mode]
+      out = RunCommand(cmd)
+      self.assertTrue(out.find('invalid characters') != -1)
 
   def testToolVersion(self):
     cmd = ['python', 'make_apk.py', '--version']
@@ -817,6 +834,58 @@ class TestMakeApk(unittest.TestCase):
 
     Clean(name, '1.0.0')
 
+  def testInvalidCharacter(self):
+    version = '1.0.0'
+    start_with_letters = ' should be started with letters'
+    app_name_error = 'app name' + start_with_letters
+    package_name_error = 'package name' + start_with_letters
+    parse_error = 'parser error in manifest.json file'
+    directory = os.path.join('test_data', 'manifest', 'invalidchars')
+
+    manifest_path = os.path.join(directory, 'manifest_with_space_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_with_chinese_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_parse_error.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(parse_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_with_invalid_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    package = 'org.xwalk.example'
+    name = '_hello'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    name = '123hello'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    name = 'hello_'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) == -1)
+    Clean(name, version)
+
+    name = 'xwalk'
+    package = 'org.xwalk._example'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) != -1)
+
+    package = 'org.xwalk.123example'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) != -1)
+
+    package = 'org.xwalk.example_'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) == -1)
+    Clean(name, version)
+
 
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
@@ -835,6 +904,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testFullscreen'))
   test_suite.addTest(TestMakeApk('testIconByOption'))
   test_suite.addTest(TestMakeApk('testIconByManifest'))
+  test_suite.addTest(TestMakeApk('testInvalidCharacter'))
   test_suite.addTest(TestMakeApk('testKeystore'))
   test_suite.addTest(TestMakeApk('testManifest'))
   test_suite.addTest(TestMakeApk('testManifestWithError'))
