@@ -54,7 +54,7 @@ class ApplicationService : public Application::Observer {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
-  bool ChangeLocale(const std::string& locale);
+  void ChangeLocale(const std::string& locale);
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
                       const Application::LaunchParams& launch_params);

@@ -318,6 +318,7 @@ void XWalkContentBrowserClient::DidCreatePpapiPlugin(
 content::BrowserPpapiHost*
     XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
         int plugin_process_id) {
+#if !defined(DISABLE_NACL)
   BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
   while (!iter.Done()) {
     nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
@@ -329,6 +330,7 @@ content::BrowserPpapiHost*
     }
     ++iter;
   }
+#endif
   return NULL;
 }
 
