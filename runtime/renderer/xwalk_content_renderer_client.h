@@ -74,7 +74,7 @@ class XWalkContentRendererClient
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
 
-  void GetNavigationErrorStrings(
+  virtual void GetNavigationErrorStrings(
       content::RenderView* render_view,
       blink::WebFrame* frame,
       const blink::WebURLRequest& failed_request,

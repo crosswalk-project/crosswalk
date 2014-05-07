@@ -20,6 +20,7 @@ class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
 #if defined(OS_TIZEN)
   void OnOpenLinkExternal(const GURL& url);
 #endif
+  virtual ~XWalkRenderMessageFilter() {}
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderMessageFilter);
 };
