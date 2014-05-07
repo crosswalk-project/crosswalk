@@ -15,6 +15,7 @@
 #include "base/threading/sequenced_worker_pool.h"
 #include "base/threading/worker_pool.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/cookie_store_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/url_constants.h"
 #include "net/cert/cert_verifier.h"
@@ -36,6 +37,7 @@
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
 #include "net/url_request/url_request_job_factory_impl.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
 
 #if defined(OS_ANDROID)
@@ -90,7 +92,16 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 #if defined(OS_ANDROID)
     storage_->set_cookie_store(xwalk::GetCookieMonster());
 #else
-    storage_->set_cookie_store(new net::CookieMonster(NULL, NULL));
+    content::CookieStoreConfig cookie_config(
+        base_path_.Append(
+            FILE_PATH_LITERAL(application::kCookieDatabaseFilename)),
+        content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
+        NULL, NULL);
+    net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
+    const char* schemes[] = {application::kApplicationScheme,
+                             content::kChromeDevToolsScheme};
+    cookie_store->GetCookieMonster()->SetCookieableSchemes(schemes, 2);
+    storage_->set_cookie_store(cookie_store);
 #endif
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
         new net::DefaultServerBoundCertStore(NULL),

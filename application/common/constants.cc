@@ -17,6 +17,7 @@ const base::FilePath::CharType kMessagesFilename[] =
     FILE_PATH_LITERAL("messages.json");
 const char kGeneratedMainDocumentFilename[] =
     "_generated_main_document.html";
+const char kCookieDatabaseFilename[] = "ApplicationCookies";
 
 }  // namespace application
 }  // namespace xwalk
