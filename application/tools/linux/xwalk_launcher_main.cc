@@ -99,13 +99,20 @@ static gboolean init_extension_process_channel(gpointer data) {
   // Get the client socket file descriptor from fd_list. The reply will
   // contains an index to the list.
   GUnixFDList* fd_list;
+  GError* error = NULL;
   GVariant* res = g_dbus_proxy_call_with_unix_fd_list_sync(
       app_proxy, "GetEPChannel", NULL, G_DBUS_CALL_FLAGS_NONE,
-      -1, NULL, &fd_list, NULL, NULL);
+      -1, NULL, &fd_list, NULL, &error);
+  if (!res) {
+    g_print("Fail to call '%s': %s\n", xwalk_running_app_iface, error->message);
+    g_error_free(error);
+    exit(1);
+  }
+
   const gchar* channel_id =
       g_variant_get_string(g_variant_get_child_value(res, 0), NULL);
   if (!strlen(channel_id))
-    return TRUE;
+    return FALSE;
 
   gint32 client_fd_idx =
       g_variant_get_handle(g_variant_get_child_value(res, 1));

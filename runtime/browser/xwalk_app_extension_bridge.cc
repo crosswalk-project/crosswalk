@@ -74,8 +74,8 @@ void XWalkAppExtensionBridge::ExtensionProcessCreated(
       static_cast<application::ApplicationSystemLinux*>(app_system_);
   application::RunningApplicationObject* running_app_object =
       app_system->service_provider()->GetRunningApplicationObject(app);
-  CHECK(running_app_object);
-  running_app_object->ExtensionProcessCreated(channel_handle);
+  if (running_app_object)
+    running_app_object->ExtensionProcessCreated(channel_handle);
 #endif
 }
 
