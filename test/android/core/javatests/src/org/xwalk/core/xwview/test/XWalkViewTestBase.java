@@ -24,6 +24,7 @@ import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
+
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkResourceClient;
