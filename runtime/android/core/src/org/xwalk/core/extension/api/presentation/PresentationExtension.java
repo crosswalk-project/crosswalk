@@ -98,10 +98,7 @@ public class PresentationExtension extends XWalkExtension {
                 notifyAvailabilityChanged(false);
                 // Destroy the presentation content if there is no available secondary display
                 // any more.
-                if (mPresentationContent != null) {
-                    mPresentationContent.close();
-                    mPresentationContent = null;
-                }
+                closePresentationContent();
             }
         }
 
@@ -276,8 +273,7 @@ public class PresentationExtension extends XWalkExtension {
                     @Override
                     public void onContentClosed(XWalkPresentationContent content) {
                         if (content == mPresentationContent) {
-                            mPresentationContent.close();
-                            mPresentationContent = null;
+                            closePresentationContent();
                             if (mPresentationView != null) mPresentationView.cancel();
                         }
                     }
@@ -312,10 +308,7 @@ public class PresentationExtension extends XWalkExtension {
         if (displays.length == 0 && mAvailableDisplayCount > 0) {
             notifyAvailabilityChanged(false);
             mAvailableDisplayCount = 0;
-            if (mPresentationContent != null) {
-                mPresentationContent.close();
-                mPresentationContent = null;
-            }
+            closePresentationContent();
         }
 
         // If there was no available display but right now there is at least one available
@@ -356,8 +349,7 @@ public class PresentationExtension extends XWalkExtension {
         // If the presentation view is showed on another display, we need to dismiss it
         // and re-create a new one.
         if (mPresentationView != null && mPresentationView.getDisplay() != preferredDisplay) {
-            mPresentationView.dismiss();
-            mPresentationView = null;
+            dismissPresentationView();
         }
 
         // If the presentation view is not NULL and its associated display is not changed,
@@ -398,10 +390,7 @@ public class PresentationExtension extends XWalkExtension {
 
     @Override
     public void onPause() {
-        if (mPresentationView != null) {
-            mPresentationView.dismiss();
-            mPresentationView = null;
-        }
+        dismissPresentationView();
 
         if (mPresentationContent != null) mPresentationContent.onPause();
 
@@ -411,5 +400,21 @@ public class PresentationExtension extends XWalkExtension {
 
     @Override
     public void onDestroy() {
+        // close the presentation content if have.
+        closePresentationContent();
+    }
+
+    private void dismissPresentationView() {
+        if (mPresentationView == null) return;
+
+        mPresentationView.dismiss();
+        mPresentationView = null;
+    }
+
+    private void closePresentationContent() {
+        if (mPresentationContent == null) return;
+
+        mPresentationContent.close();
+        mPresentationContent = null;
     }
 }
