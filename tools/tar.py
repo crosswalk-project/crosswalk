@@ -25,7 +25,9 @@ def main(args):
   try:
     os.chdir(work_dir)
     tar = tarfile.open(tar_filename, "w:gz")
-    for root, _, files in os.walk(dir_name):
+    for root, dirs, files in os.walk(dir_name):
+      if dirs == [] and files == []:
+        tar.add(root)
       for f in files:
         tar.add(os.path.join(root, f))
     tar.close()
