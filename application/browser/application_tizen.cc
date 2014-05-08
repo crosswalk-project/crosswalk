@@ -32,6 +32,11 @@ namespace widget_keys = application_widget_keys;
 
 namespace application {
 
+namespace {
+const char kAsterisk[] = "*";
+}  // namespace
+
+
 ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
     RuntimeContext* runtime_context,
@@ -76,6 +81,13 @@ void ApplicationTizen::InitSecurityPolicy() {
     const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
     for (std::vector<std::string>::const_iterator it = allowed_list.begin();
          it != allowed_list.end(); ++it) {
+      // If the policy is "*", it represents that any external link is allowed
+      // to navigate to.
+      if ((*it) == kAsterisk) {
+        is_security_mode_ = false;
+        return;
+      }
+
       // If the policy start with "*.", like this: *.domain,
       // means that can access to all subdomains for 'domain',
       // otherwise, the host of request url should exactly the same
