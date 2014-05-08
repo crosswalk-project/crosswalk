@@ -738,6 +738,11 @@ def main(argv):
           'does exist.')
     sys.exit(7)
 
+  if os.path.exists(options.name):
+    print ('Folder %s existing in current path, '
+           'please move it' % options.name)
+    return 1
+
   if options.target_dir:
     target_dir = os.path.abspath(os.path.expanduser(options.target_dir))
     options.target_dir = target_dir

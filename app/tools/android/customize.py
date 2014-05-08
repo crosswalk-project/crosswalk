@@ -104,8 +104,6 @@ def CompressSourceFiles(app_root, compressor):
 
 
 def Prepare(name, package, app_root, compressor):
-  if os.path.exists(name):
-    shutil.rmtree(name)
   shutil.copytree('app_src', name)
   shutil.rmtree(os.path.join(name, 'src'))
   src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
