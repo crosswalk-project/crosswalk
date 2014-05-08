@@ -7,6 +7,7 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 /**
@@ -23,8 +24,11 @@ public class LoadTest extends XWalkViewTestBase {
         setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
-    @SmallTest
-    @Feature({"Load"})
+    // TODO(hengzhi): Since the device issue, it can not access the network,
+    // so disabled this test temporarily. It will be enabled later.
+    // @SmallTest
+    // @Feature({"Load"})
+    @DisabledTest
     public void testHttpUrl() throws Throwable {
         final String url = "http://www.webkit.org/";
 
@@ -32,8 +36,11 @@ public class LoadTest extends XWalkViewTestBase {
         assertEquals(expectedTitle, getTitleOnUiThread());
     }
 
-    @SmallTest
-    @Feature({"Load"})
+    // TODO(hengzhi): Since the device issue, it can not access the network,
+    // so disabled this test temporarily. It will be enabled later.
+    // @SmallTest
+    // @Feature({"Load"})
+    @DisabledTest
     public void testHttpsUrl() throws Throwable {
         final String url = "https://www.webkit.org/";
 
