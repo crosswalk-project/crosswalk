@@ -9,7 +9,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.app.hello.world">
 
-    <application android:name="android.app.Application"
+    <application android:name="org.xwalk.app.runtime.XWalkRuntimeApplication"
         android:label="XWalkAppHelloWorld" android:hardwareAccelerated="true"
         android:icon="@drawable/crosswalk">
         <activity android:name="org.xwalk.app.hello.world.HelloWorldActivity"

@@ -264,6 +264,7 @@
         'apk_name': 'XWalkRuntimeClientShell',
         'java_in_dir': 'app/android/runtime_client_shell',
         'resource_dir': 'app/android/runtime_client_shell/res',
+        'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_shell/assets/index.html',

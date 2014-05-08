@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -35,8 +34,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     private boolean mRemoteDebugging = false;
 
     private AlertDialog mLibraryNotFoundDialog = null;
-
-    private XWalkMixedResources mMixedResources = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,12 +100,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
         mRuntimeView.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    public Resources getResources() {
-        if (mMixedResources == null) return super.getResources();
-        return mMixedResources;
-    }
-
     private String getLibraryApkDownloadUrl() {
         int resId = getResources().getIdentifier("xwalk_library_apk_download_url", "string", getPackageName());
         if (resId == 0) return DEFAULT_LIBRARY_APK_URL;
@@ -125,8 +116,6 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
         if (mRuntimeView == null || mRuntimeView.get() == null) {
             mRuntimeView = new XWalkRuntimeClient(this, null, this);
             if (mRuntimeView.get() != null) {
-                mMixedResources = new XWalkMixedResources(super.getResources(),
-                        mRuntimeView.getLibraryContext().getResources());
                 mShownNotFoundDialog = false;
                 if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
             }

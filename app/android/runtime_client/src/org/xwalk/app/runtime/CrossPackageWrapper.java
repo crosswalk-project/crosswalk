@@ -35,6 +35,11 @@ public abstract class CrossPackageWrapper {
                 mLibCtx = ctx.createPackageContext(
                         LIBRARY_APK_PACKAGE_NAME,
                         Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+                Context app = ctx.getApplicationContext();
+                assert(app instanceof XWalkRuntimeApplication);
+                XWalkRuntimeApplication xwalkApp = (XWalkRuntimeApplication) app;
+                xwalkApp.addResource(mLibCtx.getResources());
+
                 mTargetClass =
                         mLibCtx.getClassLoader().loadClass(className);
             }
