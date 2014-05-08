@@ -6,12 +6,9 @@ package org.xwalk.core.sample;
 
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class OnHideOnShowActivity extends Activity {
-
-    private XWalkView mXWalkView;
+public class OnHideOnShowActivity extends XWalkBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,20 +16,8 @@ public class OnHideOnShowActivity extends Activity {
         setContentView(R.layout.xwview_layout);
         mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
 
+        // The web page below will display a video.
+        // When home button is pressed, the activity will be in background, and the video will be paused.
         mXWalkView.load("http://www.w3.org/2010/05/video/mediaevents.html", null);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // It will pause the video, when the app in background.
-        mXWalkView.onHide();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Need to call onShow() when onHide() was called.
-        mXWalkView.onShow();
     }
 }

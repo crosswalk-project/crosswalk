@@ -7,21 +7,20 @@ package org.xwalk.core.sample;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class XWalkPreferencesActivity extends Activity {
+public class XWalkPreferencesActivity extends XWalkBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xwview_layout);
-        XWalkView xwalkView = (XWalkView) findViewById(R.id.xwalkview);
+        mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
 
         // Enable remote debugging.
         // You can debug the web content via PC chrome.
         XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
 
-        xwalkView.load("http://www.baidu.com/", null);
+        mXWalkView.load("http://www.baidu.com/", null);
     }
 }

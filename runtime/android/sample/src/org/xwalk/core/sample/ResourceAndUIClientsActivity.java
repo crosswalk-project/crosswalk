@@ -9,20 +9,19 @@ import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
-public class ResourceAndUIClientsActivity extends Activity {
+public class ResourceAndUIClientsActivity extends XWalkBaseActivity {
 
     private static final String TAG = ResourceAndUIClientsActivity.class.getName();
 
-    class ResourceCLient extends XWalkResourceClient {
+    class ResourceClient extends XWalkResourceClient {
 
-        public ResourceCLient(XWalkView xwalkView) {
+        public ResourceClient(XWalkView xwalkView) {
             super(xwalkView);
         }
 
@@ -96,9 +95,9 @@ public class ResourceAndUIClientsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xwview_layout);
-        XWalkView xwalkView = (XWalkView) findViewById(R.id.xwalkview);
-        xwalkView.setResourceClient(new ResourceCLient(xwalkView));
-        xwalkView.setUIClient(new UIClient(xwalkView));
-        xwalkView.load("http://www.baidu.com", null);
+        mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+        mXWalkView.setResourceClient(new ResourceClient(mXWalkView));
+        mXWalkView.setUIClient(new UIClient(mXWalkView));
+        mXWalkView.load("http://www.baidu.com", null);
     }
 }

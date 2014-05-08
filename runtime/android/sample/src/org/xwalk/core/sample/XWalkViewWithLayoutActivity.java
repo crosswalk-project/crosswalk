@@ -6,16 +6,15 @@ package org.xwalk.core.sample;
 
 import org.xwalk.core.XWalkView;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class XWalkViewWithLayoutActivity extends Activity {
+public class XWalkViewWithLayoutActivity extends XWalkBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xwview_layout);
-        XWalkView xwalkView = (XWalkView) findViewById(R.id.xwalkview);
-        xwalkView.load("http://www.baidu.com/", null);
+        mXWalkView = (XWalkView) findViewById(R.id.xwalkview);
+        mXWalkView.load("http://www.baidu.com/", null);
     }
 }
