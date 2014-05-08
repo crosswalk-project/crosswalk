@@ -31,6 +31,12 @@ class ApplicationTizen : //  NOLINT
 
   virtual void InitSecurityPolicy() OVERRIDE;
 
+  virtual void OnAddMessageToConsole(content::WebContents* source,
+                                     int32 level,
+                                     const base::string16& message,
+                                     int32 line_no,
+                                     const base::string16& source_id) OVERRIDE;
+
 #if defined(USE_OZONE)
   virtual base::EventStatus WillProcessEvent(
       const base::NativeEvent& event) OVERRIDE;

@@ -346,6 +346,22 @@ void Runtime::RequestMediaAccessPermission(
       web_contents, request, callback);
 }
 
+#if defined(OS_TIZEN)
+bool Runtime::AddMessageToConsole(content::WebContents* source,
+                                  int32 level,
+                                  const base::string16& message,
+                                  int32 line_no,
+                                  const base::string16& source_id) {
+  if (!XWalkRunner::GetInstance()->is_running_as_service())
+    return false;
+
+  if (observer_)
+    observer_->OnAddMessageToConsole(source, level, message,
+                                     line_no, source_id);
+  return true;
+}
+#endif
+
 void Runtime::RenderProcessGone(base::TerminationStatus status) {
   content::RenderProcessHost* rph = web_contents_->GetRenderProcessHost();
   VLOG(1) << "RenderProcess id: " << rph->GetID() << " is gone!";

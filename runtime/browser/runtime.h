@@ -50,6 +50,14 @@ class Runtime : public content::WebContentsDelegate,
       // Called when a Runtime instance is removed.
       virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
 
+#if defined(OS_TIZEN)
+      virtual void OnAddMessageToConsole(content::WebContents* source,
+                                         int32 level,
+                                         const base::string16& message,
+                                         int32 line_no,
+                                         const base::string16& source_id) = 0;
+#endif
+
     protected:
       virtual ~Observer() {}
   };
@@ -132,6 +140,14 @@ class Runtime : public content::WebContentsDelegate,
       content::WebContents* web_contents,
       const content::MediaStreamRequest& request,
       const content::MediaResponseCallback& callback) OVERRIDE;
+
+#if defined(OS_TIZEN)
+  virtual bool AddMessageToConsole(content::WebContents* source,
+                                   int32 level,
+                                   const base::string16& message,
+                                   int32 line_no,
+                                   const base::string16& source_id) OVERRIDE;
+#endif
 
   // Overridden from content::WebContentsObserver.
   virtual void DidUpdateFaviconURL(int32 page_id,
