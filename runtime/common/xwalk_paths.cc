@@ -16,11 +16,51 @@
 #elif defined(OS_LINUX)
 #include "base/environment.h"
 #include "base/nix/xdg_util.h"
+#elif defined(OS_MACOSX) && !defined(OS_IOS)
+#import "base/mac/mac_util.h"
 #endif
 
 namespace xwalk {
 
 namespace {
+
+#if defined(OS_MACOSX) && !defined(OS_IOS)
+
+base::FilePath GetVersionedDirectory() {
+  // Start out with the path to the running executable.
+  base::FilePath path;
+  PathService::Get(base::FILE_EXE, &path);
+
+  // One step up to MacOS, another to Contents.
+  path = path.DirName().DirName();
+  DCHECK_EQ(path.BaseName().value(), "Contents");
+
+  if (base::mac::IsBackgroundOnlyProcess()) {
+    // path identifies the helper .app's Contents directory in the browser
+    // .app's versioned directory.  Go up two steps to get to the browser
+    // .app's versioned directory.
+    path = path.DirName().DirName();
+  }
+
+  return path;
+}
+
+base::FilePath GetFrameworkBundlePath() {
+  // It's tempting to use +[NSBundle bundleWithIdentifier:], but it's really
+  // slow (about 30ms on 10.5 and 10.6), despite Apple's documentation stating
+  // that it may be more efficient than +bundleForClass:.  +bundleForClass:
+  // itself takes 1-2ms.  Getting an NSBundle from a path, on the other hand,
+  // essentially takes no time at all, at least when the bundle has already
+  // been loaded as it will have been in this case.  The FilePath operations
+  // needed to compute the framework's path are also effectively free, so that
+  // is the approach that is used here.  NSBundle is also documented as being
+  // not thread-safe, and thread safety may be a concern here.
+
+  // The framework bundle is at a known path and name from the browser .app's
+  // versioned directory.
+  return GetVersionedDirectory().Append("XWalk");
+}
+#endif
 
 // File name of the internal NaCl plugin on different platforms.
 const base::FilePath::CharType kInternalNaClPluginFileName[] =

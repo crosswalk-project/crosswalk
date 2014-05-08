@@ -9,7 +9,7 @@
       }, {
        'use_custom_freetype%': 0,
       }],
-      ['OS=="win"', {
+      ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
       }],
     ], # conditions
