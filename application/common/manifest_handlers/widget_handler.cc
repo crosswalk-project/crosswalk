@@ -93,6 +93,18 @@ void WidgetInfo::Set(const std::string& key, base::Value* value) {
   value_->Set(key, value);
 }
 
+void WidgetInfo::SetName(const std::string& name) {
+  value_->SetString(kName, name);
+}
+
+void WidgetInfo::SetShortName(const std::string& short_name) {
+  value_->SetString(kShortName, short_name);
+}
+
+void WidgetInfo::SetDescription(const std::string& description) {
+  value_->SetString(kDecription, description);
+}
+
 WidgetHandler::WidgetHandler() {}
 
 WidgetHandler::~WidgetHandler() {}

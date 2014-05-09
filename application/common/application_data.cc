@@ -28,6 +28,7 @@
 #include "xwalk/application/common/manifest_handler.h"
 #include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
+#include "xwalk/application/common/manifest_handlers/widget_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
@@ -373,11 +374,25 @@ bool ApplicationData::HasCSPDefined() const {
 
 bool ApplicationData::SetApplicationLocale(const std::string& locale,
                                            base::string16* error) {
+  DCHECK(thread_checker_.CalledOnValidThread());
   manifest_->SetSystemLocale(locale);
   if (!LoadName(error))
     return false;
   if (!LoadDescription(error))
     return false;
+
+  // Only update when the package is wgt and we have parsed the widget handler,
+  // otherwise we can not get widget_info.
+  if (WidgetInfo* widget_info = static_cast<WidgetInfo*>(
+          GetManifestData(widget_keys::kWidgetKey))) {
+    std::string string_value;
+    if (manifest_->GetString(widget_keys::kNameKey, &string_value))
+      widget_info->SetName(string_value);
+    if (manifest_->GetString(widget_keys::kShortNameKey, &string_value))
+      widget_info->SetShortName(string_value);
+    if (manifest_->GetString(widget_keys::kDescriptionKey, &string_value))
+      widget_info->SetDescription(string_value);
+  }
   return true;
 }
 
