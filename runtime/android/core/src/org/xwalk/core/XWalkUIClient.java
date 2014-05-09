@@ -201,15 +201,11 @@ public class XWalkUIClient {
                         fResult.confirm();
                         dialog.dismiss();
                     }
-                }).setOnKeyListener(new DialogInterface.OnKeyListener() {
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
-                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                        if (keyCode == KeyEvent.KEYCODE_BACK) {
-                            fResult.confirm();
-                            return false;
-                        } else {
-                            return true;
-                        }
+                    public void onCancel(DialogInterface dialog) {
+                        fResult.cancel();
                     }
                 });
         mDialog = dialogBuilder.create();
@@ -231,21 +227,19 @@ public class XWalkUIClient {
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton(mCancelButton, null)
+                // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
+                // UI will be locked.
+                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // This will call OnCancelLisitener.onCancel().
+                        dialog.cancel();
+                    }
+                })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         fResult.cancel();
-                    }
-                }).setOnKeyListener(new DialogInterface.OnKeyListener() {
-                    @Override
-                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                        if (keyCode == KeyEvent.KEYCODE_BACK) {
-                            fResult.confirm();
-                            return false;
-                        } else {
-                            return true;
-                        }
                     }
                 });
         mDialog = dialogBuilder.create();
@@ -266,7 +260,15 @@ public class XWalkUIClient {
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton(mCancelButton, null)
+                // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
+                // UI will be locked.
+                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // This will call OnCancelLisitener.onCancel().
+                        dialog.cancel();
+                    }
+                })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
