@@ -8,10 +8,14 @@
 #include <string>
 #include <vector>
 
+#include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/url_utils.h"
 
 #include "xwalk/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
 #if defined(USE_OZONE)
@@ -23,6 +27,10 @@
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #endif
 
+#include "xwalk/application/browser/application_system_linux.h"
+#include "xwalk/application/browser/application_service_provider_linux.h"
+#include "xwalk/application/browser/linux/running_applications_manager.h"
+#include "xwalk/application/browser/linux/running_application_object.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 
@@ -102,6 +110,37 @@ void ApplicationTizen::InitSecurityPolicy() {
       new ViewMsg_EnableSecurityMode(
           ApplicationData::GetBaseURLFromApplicationId(id()),
           SecurityPolicy::CSP));
+}
+
+void ApplicationTizen::OnAddMessageToConsole(content::WebContents* source,
+                                             int32 level,
+                                             const base::string16& message,
+                                             int32 line_no,
+                                             const base::string16& source_id) {
+  ApplicationSystemLinux* app_system_linux =
+      static_cast<ApplicationSystemLinux*>(
+          XWalkRunner::GetInstance()->app_system());
+
+  RunningApplicationObject* running_application_object =
+      app_system_linux->service_provider()->GetRunningApplicationObject(this);
+
+  if (!running_application_object)
+    return;
+
+  // Pass through log level only on WebUI pages to limit console spew.
+  int32 resolved_level =
+      content::HasWebUIScheme(source->GetLastCommittedURL()) ? level : 0;
+
+  std::string log_message;
+  if (resolved_level >= ::logging::GetMinLogLevel()) {
+    log_message = base::StringPrintf("[CONSOLE(%d)] \"%s\""
+                                     ", source: %s (%d)",
+                                     resolved_level,
+                                     base::UTF16ToUTF8(message).c_str(),
+                                     base::UTF16ToUTF8(source_id).c_str(),
+                                     line_no);
+  }
+  running_application_object->SendLogToLauncher(log_message);
 }
 
 #if defined(USE_OZONE)

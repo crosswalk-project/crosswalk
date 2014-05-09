@@ -36,6 +36,8 @@ class RunningApplicationObject : public dbus::ManagedObject {
 
   void ExtensionProcessCreated(const IPC::ChannelHandle& handle);
 
+  void SendLogToLauncher(const std::string& log);
+
  private:
   void TerminateApplication(Application::TerminationMode mode);
 

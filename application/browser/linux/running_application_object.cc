@@ -222,5 +222,12 @@ void RunningApplicationObject::ExtensionProcessCreated(
   dbus_object()->SendSignal(&signal);
 }
 
+void RunningApplicationObject::SendLogToLauncher(const std::string& log) {
+  dbus::Signal signal(kRunningApplicationDBusInterface, "PrintLog");
+  dbus::MessageWriter writer(&signal);
+  writer.AppendVariantOfString(log);
+  dbus_object()->SendSignal(&signal);
+}
+
 }  // namespace application
 }  // namespace xwalk

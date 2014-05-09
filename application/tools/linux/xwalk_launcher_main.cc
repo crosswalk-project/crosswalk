@@ -122,6 +122,17 @@ static void on_app_signal(GDBusProxy* proxy,
                           gpointer user_data) {
   if (!strcmp(signal_name, "EPChannelCreated")) {
     init_extension_process_channel(proxy);
+  } else if (!strcmp(signal_name, "PrintLog")) {
+    if (parameters) {
+      GVariant* log_variant;
+      g_variant_get(parameters, "(v)", &log_variant);
+
+      if (log_variant) {
+        const gchar* log;
+        g_variant_get(log_variant, "s", &log);
+        fprintf(stderr, "%s\n", log);
+      }
+    }
   } else {
     fprintf(stderr, "Unkown signal received: %s\n", signal_name);
   }
