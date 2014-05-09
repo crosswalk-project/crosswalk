@@ -146,7 +146,6 @@ public class XWalkView extends android.widget.FrameLayout {
     private Activity mActivity;
     private Context mContext;
     private XWalkExtensionManager mExtensionManager;
-    private boolean mIsTimerPaused;
     private boolean mIsHidden;
 
     /** Normal reload mode as default. */
@@ -281,7 +280,6 @@ public class XWalkView extends android.widget.FrameLayout {
     }
 
     private void initXWalkContent(Context context, AttributeSet attrs) {
-        mIsTimerPaused = false;
         mIsHidden = false;
         mContent = new XWalkContent(context, attrs, this);
         addView(mContent,
@@ -475,10 +473,9 @@ public class XWalkView extends android.widget.FrameLayout {
      * just this XWalkView.
      */
     public void pauseTimers() {
-        if (mContent == null || mIsTimerPaused) return;
+        if (mContent == null) return;
         checkThreadSafety();
         mContent.pauseTimers();
-        mIsTimerPaused = true;
     }
 
     /**
@@ -489,10 +486,9 @@ public class XWalkView extends android.widget.FrameLayout {
      * just this XWalkView.
      */
     public void resumeTimers() {
-        if (mContent == null || !mIsTimerPaused) return;
+        if (mContent == null) return;
         checkThreadSafety();
         mContent.resumeTimers();
-        mIsTimerPaused = false;
     }
 
     /**
