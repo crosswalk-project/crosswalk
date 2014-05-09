@@ -22,7 +22,8 @@ public final class XWalkPreferences {
     // can be GC-ed to avoid memory leaking issue.
     private static ArrayList<WeakReference<KeyValueChangeListener> > sListeners =
             new ArrayList<WeakReference<KeyValueChangeListener> >();
-    private static ReferenceQueue sRefQueue = new ReferenceQueue<KeyValueChangeListener>();
+    private static ReferenceQueue<KeyValueChangeListener> sRefQueue =
+            new ReferenceQueue<KeyValueChangeListener>();
 
     /**
      * The key string to enable/disable remote debugging.
@@ -116,6 +117,7 @@ public final class XWalkPreferences {
      * Internal method to keep track of weak references and remove the enqueued
      * references from listener list by polling the reference queue.
      */
+    @SuppressWarnings("unchecked")
     private static void removeEnqueuedReference() {
         WeakReference<KeyValueChangeListener> toRemove;
         while ((toRemove = (WeakReference<KeyValueChangeListener>) sRefQueue.poll()) != null) {
