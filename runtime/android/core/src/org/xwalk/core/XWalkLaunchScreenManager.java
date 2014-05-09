@@ -128,8 +128,9 @@ public class XWalkLaunchScreenManager
                 mLaunchScreenDialog.getWindow().setBackgroundDrawable(bgDrawable);
                 // Set foreground image
                 RelativeLayout root = getLaunchScreenLayout(imageBorderList);
-                if (root == null) return;
-                mLaunchScreenDialog.setContentView(root);
+                // The root layout can be null when there is no 'image' provided in the manifest.
+                // We can just display the background instead of no launch screen dialog displayed.
+                if (root != null) mLaunchScreenDialog.setContentView(root);
                 mLaunchScreenDialog.show();
 
                 // Change the layout depends on the orientation change.
