@@ -11,7 +11,7 @@
 # every .gyp file, including Chromium's).
 {
   'target_conditions': [
-    ['tizen_mobile!=1 and tizen!=1', {
+    ['tizen!=1', {
       'sources/': [
         ['exclude', '_tizen(_unittest)?\\.(h|cc)$'],
         ['exclude', '(^|/)tizen/'],

@@ -63,7 +63,7 @@
             'gio',
           ],
         }],
-        ['tizen==1 or tizen_mobile==1', {
+        ['tizen==1', {
           'dependencies': [
             'gio',
             '../../../build/system.gyp:tizen_appcore_common'
