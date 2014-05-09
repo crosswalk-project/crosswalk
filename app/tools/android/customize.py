@@ -58,6 +58,11 @@ def ReplaceInvalidChars(value, mode='default'):
     if mode == 'apkname' and c in value:
       print("Illegal character: '%s' is replaced with '_'" % c)
     value = value.replace(c,'_')
+
+  # Replace tailing white-space with '_'
+  old_length = len(value)
+  value = value.rstrip().ljust(old_length, '_')
+
   return value
 
 
