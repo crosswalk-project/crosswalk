@@ -42,6 +42,7 @@
         'resource_dir': 'runtime/android/core_shell/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/get_original_url.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
@@ -58,6 +59,7 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/www',
           'files': [
+            'test/android/data/get_original_url.html',
             'test/android/data/index.html',
           ],
         }
