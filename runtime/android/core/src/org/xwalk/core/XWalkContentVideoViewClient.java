@@ -26,7 +26,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
     }
 
     @Override
-    public void onShowCustomView(View view) {
+    public boolean onShowCustomView(View view) {
         if (!CommandLine.getInstance().hasSwitch(
                 ContentSwitches.DISABLE_OVERLAY_FULLSCREEN_VIDEO_SUBTITLE)) {
             mView.setOverlayVideoMode(true);
@@ -38,6 +38,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
             }
         };
         mContentsClient.onShowCustomView(view, cb);
+        return true;
     }
 
     @Override
