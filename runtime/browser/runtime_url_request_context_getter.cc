@@ -92,9 +92,8 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 #if defined(OS_ANDROID)
     storage_->set_cookie_store(xwalk::GetCookieMonster());
 #else
-    content::CookieStoreConfig cookie_config(
-        base_path_.Append(
-            FILE_PATH_LITERAL(application::kCookieDatabaseFilename)),
+    content::CookieStoreConfig cookie_config(base_path_.Append(
+        application::kCookieDatabaseFilename),
         content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
         NULL, NULL);
     net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
