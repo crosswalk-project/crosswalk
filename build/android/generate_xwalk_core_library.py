@@ -245,6 +245,14 @@ def main(argv):
   src_dir = os.path.join(out_project_dir, 'src')
   if not os.path.isdir(src_dir):
     os.mkdir(src_dir)
+  readme = os.path.join(src_dir, 'README.md')
+  open(readme, 'w').write(
+      "# Source folder for xwalk_core_library\n"
+      "## Why it's empty\n"
+      "xwalk_core_library doesn't contain java sources.\n"
+      "## Why put me here\n"
+      "To make archives keep the folder, "
+      "the src directory is needed to build an apk by ant.")
   print 'Your Android library project has been created at %s' % (
       out_project_dir)
 
