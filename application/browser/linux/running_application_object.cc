@@ -134,6 +134,16 @@ void RunningApplicationObject::OnTerminate(
 void RunningApplicationObject::OnGetExtensionProcessChannel(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
+  // When channel is not ready, send an empty string to launcher.
+  if (ep_bp_channel_.name.empty()) {
+    scoped_ptr<dbus::Response> response =
+        dbus::Response::FromMethodCall(method_call);
+    dbus::MessageWriter writer(response.get());
+    writer.AppendString("");
+    response_sender.Run(response.Pass());
+    return;
+  }
+
   content::BrowserThread::PostTaskAndReplyWithResult(
       content::BrowserThread::FILE,
       FROM_HERE,
