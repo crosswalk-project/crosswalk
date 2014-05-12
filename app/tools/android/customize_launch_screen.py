@@ -10,12 +10,13 @@ import sys
 
 from manifest_json_parser import ManifestJsonParser
 
+
 def CopyToPathWithName(root, name, final_path, rename):
   if name == '':
     return False
   origin_path = os.path.join(root, name)
   if not os.path.exists(origin_path):
-    print ('Error: \'' + origin_path + '\' not found.' )
+    print('Error: \'' + origin_path + '\' not found.')
     sys.exit(6)
   if not os.path.exists(final_path):
     os.makedirs(final_path)
@@ -64,7 +65,7 @@ def CopyDrawables(image_dict, orientation, sanitized_name, name, app_root):
   if not has_image:
     closest = ''
     delta = sys.maxint
-    for (k , v) in  image_dict.items():
+    for(k, v) in image_dict.items():
       items = k.split('x')
       if len(items) == 2:
         float_value = sys.maxint
@@ -97,7 +98,7 @@ def CustomizeDrawable(image, orientation, sanitized_name, app_root, name):
   for image_pair in image_list:
     items = image_pair.strip().split(' ')
     if len(items) >= 2:
-      x = items[len(items)-1]
+      x = items[len(items) - 1]
       image_item = items[0]
       image_dict[x] = image_item
 
@@ -141,7 +142,7 @@ def CustomizeBackground(background_color,
     content = content.replace('<!-- Background Image -->', tmp, 1)
     has_background = True
   if has_background:
-    background_file = file(background_path,'w')
+    background_file = file(background_path, 'w')
     background_file.write(content)
     background_file.close()
   return has_background
