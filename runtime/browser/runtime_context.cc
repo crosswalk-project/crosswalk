@@ -93,7 +93,7 @@ void RuntimeContext::InitWhileIOAllowed() {
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
         cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
-    PathService::OverrideAndCreateIfNeeded(xwalk::DIR_DATA_PATH, path, true);
+    PathService::OverrideAndCreateIfNeeded(xwalk::DIR_DATA_PATH, path, false, true);
   }
 }
 

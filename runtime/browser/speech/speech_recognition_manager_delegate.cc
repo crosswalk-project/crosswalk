@@ -64,8 +64,7 @@ void XWalkSpeechRecognitionManagerDelegate::CheckRecognitionIsAllowed(
                           base::Bind(&CheckRenderViewType,
                                      callback,
                                      render_process_id,
-                                     render_view_id,
-                                     !context.requested_by_page_element));
+                                     render_view_id));
 }
 
 content::SpeechRecognitionEventListener*
@@ -84,8 +83,7 @@ bool XWalkSpeechRecognitionManagerDelegate::FilterProfanities(
 void XWalkSpeechRecognitionManagerDelegate::CheckRenderViewType(
     base::Callback<void(bool ask_user, bool is_allowed)> callback,
     int render_process_id,
-    int render_view_id,
-    bool js_api) {
+    int render_view_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   const content::RenderViewHost* render_view_host =
       content::RenderViewHost::FromID(render_process_id, render_view_id);

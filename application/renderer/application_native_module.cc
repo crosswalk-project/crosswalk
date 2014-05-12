@@ -8,7 +8,7 @@
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/v8_value_converter.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
 
 namespace xwalk {
@@ -56,7 +56,7 @@ void ApplicationNativeModule::GetViewByIDCallback(
 
 void ApplicationNativeModule::GetCurrentRoutingIDCallback(
     const v8::FunctionCallbackInfo<v8::Value>& info) {
-  blink::WebFrame* webframe = blink::WebFrame::frameForCurrentContext();
+  blink::WebLocalFrame* webframe = blink::WebLocalFrame::frameForCurrentContext();
   DCHECK(webframe);
 
   blink::WebView* webview = webframe->view();

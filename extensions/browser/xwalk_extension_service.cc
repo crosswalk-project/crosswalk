@@ -16,6 +16,7 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/render_process_host.h"
 #include "ipc/ipc_message_macros.h"
+#include "ipc/message_filter.h"
 #include "xwalk/extensions/browser/xwalk_extension_data.h"
 #include "xwalk/extensions/browser/xwalk_extension_process_host.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
@@ -46,7 +47,7 @@ base::FilePath g_external_extensions_path_for_testing_;
 //
 // In the case of in process extensions, we will pass the task runner of the
 // extension thread.
-class ExtensionServerMessageFilter : public IPC::ChannelProxy::MessageFilter,
+class ExtensionServerMessageFilter : public IPC::MessageFilter,
                                      public IPC::Sender {
  public:
   ExtensionServerMessageFilter(

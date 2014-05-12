@@ -24,7 +24,6 @@
 #include "content/public/browser/notification_types.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/browser/render_process_host.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -143,7 +142,7 @@ void Runtime::LoadURL(const GURL& url) {
       content::PAGE_TRANSITION_TYPED |
       content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents_->GetController().LoadURLWithParams(params);
-  web_contents_->GetView()->Focus();
+  web_contents_->Focus();
 }
 
 void Runtime::Close() {
@@ -282,8 +281,7 @@ void Runtime::EnumerateDirectory(content::WebContents* web_contents,
 #endif
 }
 
-void Runtime::DidUpdateFaviconURL(int32 page_id,
-                                  const std::vector<FaviconURL>& candidates) {
+void Runtime::DidUpdateFaviconURL(const std::vector<FaviconURL>& candidates) {
   DLOG(INFO) << "Candidates: ";
   for (size_t i = 0; i < candidates.size(); ++i)
     DLOG(INFO) << candidates[i].icon_url.spec();

@@ -18,6 +18,7 @@
 #include "content/public/common/sandboxed_process_launcher_delegate.h"
 #include "ipc/ipc_message.h"
 #include "ipc/ipc_switches.h"
+#include "ipc/message_filter.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
@@ -30,7 +31,7 @@ namespace extensions {
 // This filter is used by ExtensionProcessHost to intercept when Render Process
 // ask for the Extension Channel handle (that is created by extension process).
 class XWalkExtensionProcessHost::RenderProcessMessageFilter
-    : public IPC::ChannelProxy::MessageFilter {
+    : public IPC::MessageFilter {
  public:
   explicit RenderProcessMessageFilter(XWalkExtensionProcessHost* eph)
       : eph_(eph) {}

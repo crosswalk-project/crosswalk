@@ -8,7 +8,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "content/public/browser/render_process_host.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
