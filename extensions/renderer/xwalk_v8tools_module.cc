@@ -8,12 +8,14 @@
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_message.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 using content::RenderView;
 using blink::WebFrame;
+using blink::WebLocalFrame;
 using blink::WebView;
 
 namespace xwalk {
@@ -72,7 +74,7 @@ void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 RenderView* GetCurrentRenderView() {
-  WebFrame* frame = WebFrame::frameForCurrentContext();
+  WebLocalFrame* frame = WebLocalFrame::frameForCurrentContext();
   DCHECK(frame) << "There should be an active frame here";
 
   if (!frame)

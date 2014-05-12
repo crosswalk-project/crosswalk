@@ -37,8 +37,7 @@ class XWalkSpeechRecognitionManagerDelegate
   static void CheckRenderViewType(
       base::Callback<void(bool ask_user, bool is_allowed)> callback,
       int render_process_id,
-      int render_view_id,
-      bool js_api);
+      int render_view_id);
 
   DISALLOW_COPY_AND_ASSIGN(XWalkSpeechRecognitionManagerDelegate);
 };
