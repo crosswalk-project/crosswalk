@@ -749,8 +749,7 @@ def main(argv):
   except SystemExit as ec:
     CleanDir(options.name)
     CleanDir('out')
-    if os.path.exists(xpk_temp_dir):
-      CleanDir(xpk_temp_dir)
+    CleanDir(xpk_temp_dir)
     return ec.code
   return 0
 
