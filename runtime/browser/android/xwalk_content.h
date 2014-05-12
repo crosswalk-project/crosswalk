@@ -48,11 +48,11 @@ class XWalkContent {
 
   XWalkRenderViewHostExt* render_view_host_ext() {
     return render_view_host_ext_.get();
-  };
+  }
 
   XWalkContentsClientBridge* GetContentsClientBridge() {
     return contents_client_bridge_.get();
-  };
+  }
 
   void SetJsOnlineProperty(JNIEnv* env, jobject obj, jboolean network_up);
   jboolean SetManifest(JNIEnv* env,
@@ -74,10 +74,15 @@ class XWalkContent {
                                           jobject delegate);
 
   JavaObjectWeakGlobalRef java_ref_;
-  scoped_ptr<content::WebContents> web_contents_;
+  // TODO(guangzhen): The WebContentsDelegate need to take ownership of
+  // WebContents as chrome content design. For xwalk, XWalkContent owns
+  // these two, we need to redesign XWalkContent in the future.
+  // Currently as a workaround, below declaration order makes sure
+  // the WebContents destructed before WebContentsDelegate.
   scoped_ptr<XWalkWebContentsDelegate> web_contents_delegate_;
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
   scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
+  scoped_ptr<content::WebContents> web_contents_;
 
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result
