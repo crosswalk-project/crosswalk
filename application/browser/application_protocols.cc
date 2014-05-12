@@ -320,7 +320,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   }
 
   std::list<std::string> locales;
-  if (application->GetPackageType() == Manifest::TYPE_WGT) {
+  if (application && application->GetPackageType() == Manifest::TYPE_WGT) {
     GetUserAgentLocales(
         xwalk::XWalkRunner::GetInstance()->GetLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
