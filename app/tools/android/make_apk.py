@@ -222,7 +222,8 @@ def Customize(options):
 def Execution(options, name):
   android_path_array = Which('android')
   if not android_path_array:
-    print('Please install Android SDK first and make sure the Android SDK is in PATH.')
+    print('Please install Android SDK first and '
+        ' make sure the Android SDK is in PATH.')
     sys.exit(1)
 
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
