@@ -6,7 +6,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_utils.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
