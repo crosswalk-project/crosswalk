@@ -23,7 +23,7 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/common/result_codes.h"
 #include "extensions/browser/extension_system.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "ui/gl/gl_switches.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
@@ -110,14 +110,16 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   // FIXME: Add comment why this is needed on Android and Tizen.
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
+  // FIXME: Rebase the SIMD patches.
+  //
   // Enable SIMD.JS API by default.
-  std::string js_flags("--simd_object");
-  if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
-    js_flags += " ";
-    js_flags +=
-        command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
-  }
-  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
+  // std::string js_flags("--simd_object");
+  // if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
+  //   js_flags += " ";
+  //   js_flags +=
+  //       command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
+  // }
+  // command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
 
   startup_url_ = GetURLFromCommandLine(*command_line);
 }

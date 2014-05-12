@@ -220,7 +220,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     // and "https" schemes are supported. So |url| should do nothing when it
     // already has "http" or "https" scheme.
     std::string scheme = GURL(url).scheme();
-    if (scheme != content::kHttpScheme && scheme != content::kHttpsScheme)
+    if (scheme != url::kHttpScheme && scheme != url::kHttpsScheme)
       url = path_str + url;
   } else {
     manifest.GetString(keys::kLaunchWebURLKey, &url);

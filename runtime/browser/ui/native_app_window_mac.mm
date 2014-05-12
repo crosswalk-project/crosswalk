@@ -11,7 +11,6 @@
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #import "ui/base/cocoa/underlay_opengl_hosting_window.h"
 
 @interface XWalkWindowDelegate : NSObject<NSWindowDelegate>
@@ -61,7 +60,7 @@ NativeAppWindowMac::NativeAppWindowMac(
              defer:NO];
   [window_ setDelegate: [XWalkWindowDelegate alloc]];
 
-  gfx::NativeView view = web_contents_->GetView()->GetNativeView();
+  gfx::NativeView view = web_contents_->GetNativeView();
   [view setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   [view setFrame:[[window_ contentView] bounds]];
   [[window_ contentView] addSubview:view];

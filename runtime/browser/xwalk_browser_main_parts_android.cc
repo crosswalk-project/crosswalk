@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 
+#include <string>
+
 #include "base/android/path_utils.h"
 #include "base/base_paths_android.h"
 #include "base/files/file_path.h"
@@ -93,14 +95,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // GPU accelerated_video_decode blacklist or we stop ignoring the GPU
   // blacklist.
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
-
-  // WebAudio is disabled on android x86 platform, and only enabled on android
-  // ARM platform by default, we must enable it explicitly on x86 platform.
-  // TODO(liyin): Remove enable webaudio switch when it is enabled by default.
-#if defined(ARCH_CPU_X86)
-  if (!command_line->HasSwitch(switches::kEnableWebAudio))
-    command_line->AppendSwitch(switches::kEnableWebAudio);
-#endif
 
   // For fullscreen video playback, the ContentVideoView is still buggy, so
   // we switch back to ContentVideoViewLegacy for temp.

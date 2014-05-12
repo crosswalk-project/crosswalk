@@ -81,6 +81,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
     int render_view_id,
     int bridge_id,
     const GURL& requesting_frame,
+    bool user_gesture,
     const base::Callback<void(bool)> callback) {
   content::BrowserThread::PostTask(
       content::BrowserThread::UI, FROM_HERE,

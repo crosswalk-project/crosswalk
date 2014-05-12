@@ -14,6 +14,7 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -263,9 +264,8 @@ void XWalkContentBrowserClient::AllowCertificateError(
 
 void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
     const GURL& source_origin,
-    int callback_context,
-    int render_process_id,
-    int render_view_id) {
+    content::RenderFrameHost* render_frame_host,
+    base::Closure& callback) { // NOLINT
 }
 
 blink::WebNotificationPresenter::Permission
@@ -282,27 +282,14 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    int render_process_id,
-    int render_view_id,
-    bool worker) {
+    content::RenderFrameHost* render_frame_host,
+    content::DesktopNotificationDelegate* delegate,
+    base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderViewID(render_process_id,
-          render_view_id);
-  bridge->ShowNotification(params, worker, render_process_id, render_view_id);
-#endif
-}
-
-void XWalkContentBrowserClient::CancelDesktopNotification(
-    int render_process_id,
-    int render_view_id,
-    int notification_id) {
-#if defined(OS_ANDROID)
-  XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderViewID(render_process_id,
-          render_view_id);
-  bridge->CancelNotification(
-      notification_id, render_process_id, render_view_id);
+      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
+  bridge->ShowNotification(params, render_frame_host,
+      delegate, cancel_callback);
 #endif
 }
 

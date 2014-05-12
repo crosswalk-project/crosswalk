@@ -7,8 +7,8 @@
 #include <string>
 
 #include "base/android/jni_android.h"
-#include "base/android/jni_helper.h"
 #include "base/android/jni_string.h"
+#include "base/android/jni_weak_ref.h"
 #include "base/strings/string_util.h"
 #include "content/public/common/url_constants.h"
 #include "jni/AndroidProtocolHandler_jni.h"

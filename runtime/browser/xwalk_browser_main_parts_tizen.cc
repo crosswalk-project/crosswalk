@@ -17,7 +17,7 @@
 #include "ui/gl/gl_switches.h"
 #include "ui/gfx/switches.h"
 
-#include "content/browser/device_orientation/device_inertial_sensor_service.h"
+#include "content/browser/device_sensors/device_inertial_sensor_service.h"
 #include "xwalk/runtime/extension/screen_orientation_extension.h"
 #include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 

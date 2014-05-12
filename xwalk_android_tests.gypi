@@ -30,7 +30,7 @@
       'target_name': 'xwalk_core_shell_apk',
       'type': 'none',
       'dependencies': [
-        '../third_party/android_tools/android_tools.gyp:android_support_v4_javalib',
+        '../third_party/android_tools/android_tools.gyp:android_support_v13_javalib',
         'libxwalkcore',
         'xwalk_core_extensions_java',
         'xwalk_core_java',

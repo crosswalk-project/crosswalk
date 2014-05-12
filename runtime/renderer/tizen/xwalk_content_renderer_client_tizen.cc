@@ -7,7 +7,7 @@
 #include <string>
 
 #include "base/files/file_path.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "url/gurl.h"
 #include "xwalk/application/common/constants.h"
 #include "third_party/WebKit/public/web/WebFrame.h"

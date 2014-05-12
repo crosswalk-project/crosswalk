@@ -231,8 +231,8 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
       // embedder.
       (resource_type == ResourceType::MAIN_FRAME ||
        (resource_type == ResourceType::SUB_FRAME &&
-        !request->url().SchemeIs(content::kHttpScheme) &&
-        !request->url().SchemeIs(content::kHttpsScheme)));
+        !request->url().SchemeIs(url::kHttpScheme) &&
+        !request->url().SchemeIs(url::kHttpsScheme)));
   if (allow_intercepting) {
     throttles->push_back(InterceptNavigationDelegate::CreateThrottleFor(
         request));
