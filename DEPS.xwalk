@@ -6,10 +6,10 @@
 # Usually it's major.minor.build.patch
 # Use 'Trunk' for trunk.
 # If using trunk, will use '.DEPS.git' for gclient.
-chromium_version = '35.0.1916.114'
-chromium_crosswalk_point = 'e76fa1eeaea6745b72a693cf746e5d3d8ece1bef'
-blink_crosswalk_point = '3cf743afc1a77a1141f08897c4f2c3b805124f25'
-v8_crosswalk_point = '64b8b78dee87a9d465f9d095e2021bdb9d45d37d'
+chromium_version = '36.0.1976.2'
+chromium_crosswalk_point = '609e483f2eb4fa7dc64688f32dbcb9425f5eaf5a'
+blink_crosswalk_point = '287dababee55833dddecc1ecd31aa267a08f08f7'
+v8_crosswalk_point = 'c8e8806f9e54a027d667425f1bb1b28cf9cbb6f7'
 ozone_wayland_point = '55f39c62b461b92d3b0b912c7c80ae98d866b5a6'
 
 deps_xwalk = {
