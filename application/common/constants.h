@@ -26,7 +26,7 @@ extern const base::FilePath::CharType kMessagesFilename[];
 extern const char kGeneratedMainDocumentFilename[];
 
 // The name of cookies database file.
-extern const char kCookieDatabaseFilename[];
+extern const base::FilePath::CharType kCookieDatabaseFilename[];
 
 }  // namespace application
 }  // namespace xwalk
