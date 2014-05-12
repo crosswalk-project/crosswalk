@@ -222,7 +222,7 @@ def Customize(options):
 def Execution(options, name):
   android_path_array = Which('android')
   if not android_path_array:
-    print('Please install Android SDK first.')
+    print('Please install Android SDK first and make sure the Android SDK is in PATH.')
     sys.exit(1)
 
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
@@ -356,10 +356,10 @@ def Execution(options, name):
 
   # Check whether java is installed.
   try:
-    cmd = ['java', '-version']
+    cmd = ['javac', '-version']
     RunCommand(cmd, shell=True)
   except EnvironmentError:
-    print('Please install Oracle JDK first.')
+    print('Please install Oracle JDK first and ensure it is in your PATH.')
     sys.exit(5)
 
   # Compile App source code with app runtime code.
