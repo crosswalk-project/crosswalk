@@ -8,8 +8,8 @@
 #include <string>
 #include <utility>
 
-#include "base/android/jni_helper.h"
 #include "base/android/jni_string.h"
+#include "base/android/jni_weak_ref.h"
 #include "base/lazy_instance.h"
 #include "base/memory/linked_ptr.h"
 #include "base/memory/scoped_ptr.h"
