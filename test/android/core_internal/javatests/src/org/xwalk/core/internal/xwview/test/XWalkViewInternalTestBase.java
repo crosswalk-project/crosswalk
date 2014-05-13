@@ -347,15 +347,15 @@ public class XWalkViewInternalTestBase
         loadDataSync(fileName, fileContent, "text/html", false);
     }
 
-    public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
-        CallbackHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
+    public String loadAssetFileAndWaitForTitle(String fileName) throws Exception {
+        OnTitleUpdatedHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
         int currentCallCount = getTitleHelper.getCallCount();
-        String fileContent = getFileContent(fileName);
 
-        loadDataSync(fileName, fileContent, "text/html", false);
+        loadAssetFile(fileName);
 
         getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
+        return getTitleHelper.getTitle();
     }
 
     protected XWalkViewInternal getXWalkView() {

@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import junit.framework.Assert;
 
@@ -25,12 +27,12 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
+import org.xwalk.core.internal.XWalkSettings;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkSettings;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -38,6 +40,13 @@ public class XWalkViewTestBase
     private final static String TAG = "XWalkViewTestBase";
     private XWalkView mXWalkView;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
+    private Timer mTimer = new Timer();
+    public enum Relation {
+        EQUAL,
+        GREATERTHAN,
+        LESSSTHAN,
+        NONE
+    }
 
     class TestXWalkUIClientBase extends XWalkUIClient {
         TestHelperBridge mInnerContentsClient;
@@ -353,15 +362,15 @@ public class XWalkViewTestBase
         loadDataSync(fileName, fileContent, "text/html", false);
     }
 
-    public void loadAssetFileAndWaitForTitle(String fileName) throws Exception {
-        CallbackHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
+    public String loadAssetFileAndWaitForTitle(String fileName) throws Exception {
+        OnTitleUpdatedHelper getTitleHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
         int currentCallCount = getTitleHelper.getCallCount();
-        String fileContent = getFileContent(fileName);
 
-        loadDataSync(fileName, fileContent, "text/html", false);
+        loadAssetFile(fileName);
 
         getTitleHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
+        return getTitleHelper.getTitle();
     }
 
     protected XWalkView getXWalkView() {
@@ -548,5 +557,64 @@ public class XWalkViewTestBase
                 return mXWalkView.getXWalkVersion();
             }
         });
+    }
+
+    protected void pauseTimersOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.pauseTimers();
+            }
+        });
+    }
+
+    protected void resumeTimersOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.resumeTimers();
+            }
+        });
+    }
+
+    public void compareTitle(String prevTitle, String title, String msg, Relation relation) {
+        if (prevTitle == null) prevTitle = "";
+        if (title == null) title = "";
+
+        switch (relation) {
+            case EQUAL:
+                Assert.assertTrue(msg, title.equals(prevTitle));
+                break;
+            case GREATERTHAN:
+                Assert.assertTrue(msg, title.compareTo(prevTitle) > 0);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void waitForTimerFinish(int timer) throws Throwable {
+        Object notify = new Object();
+        synchronized (notify) {
+            NotifyTask testTask = new NotifyTask(notify);
+            mTimer.schedule(testTask, timer);
+            notify.wait();
+        }
+    }
+
+    public class NotifyTask extends TimerTask {
+        private Object mObj;
+
+        public NotifyTask(Object obj) {
+            super();
+            mObj = obj;
+        }
+
+        @Override
+        public void run() {
+            synchronized (mObj) {
+                mObj.notify();
+            }
+        }
     }
 }
