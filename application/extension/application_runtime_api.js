@@ -11,16 +11,3 @@ var application = requireNative('application');
 exports.getManifest = function(callback) {
   internal.postMessage('getManifest', [], callback);
 };
-
-exports.getMainDocument = function(callback) {
-  var callback_ = function(routing_id) {
-    var md = application.getViewByID(routing_id);
-    callback(md);
-  };
-
-  internal.postMessage('getMainDocumentID', [], callback_);
-};
-
-exports.onLaunched = new xwalk.app.events.Event("onLaunched");
-exports.onSuspend = new xwalk.app.events.Event("onSuspend");
-exports.onInstalled = new xwalk.app.events.Event("onInstalled");

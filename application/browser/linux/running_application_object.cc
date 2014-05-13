@@ -58,14 +58,7 @@ RunningApplicationObject::RunningApplicationObject(
   dbus_object()->ExportMethod(
       kRunningApplicationDBusInterface, "Terminate",
       base::Bind(&RunningApplicationObject::OnTerminate,
-                 base::Unretained(this), Application::Normal),
-      base::Bind(&RunningApplicationObject::OnExported,
-                 base::Unretained(this)));
-
-  dbus_object()->ExportMethod(
-      kRunningApplicationDBusInterface, "ForceTerminate",
-      base::Bind(&RunningApplicationObject::OnTerminate,
-                 base::Unretained(this), Application::Immediate),
+                 base::Unretained(this)),
       base::Bind(&RunningApplicationObject::OnExported,
                  base::Unretained(this)));
 
@@ -90,14 +83,8 @@ RunningApplicationObject::~RunningApplicationObject() {
   UnlistenForOwnerChange();
 }
 
-void RunningApplicationObject::TerminateApplication(
-    Application::TerminationMode mode) {
-  // The application might be still running after 'Terminate' call
-  // (if 'mode == Normal' and it contains 'OnSuspend' handlers),
-  // so we do not call 'UnlistenForOwnerChange' here - it will
-  // be called anyway right before the actual 'Application' instance
-  // deletion.
-  application_->Terminate(mode);
+void RunningApplicationObject::TerminateApplication() {
+  application_->Terminate();
 }
 
 void RunningApplicationObject::OnExported(const std::string& interface_name,
@@ -111,7 +98,6 @@ void RunningApplicationObject::OnExported(const std::string& interface_name,
 }
 
 void RunningApplicationObject::OnTerminate(
-    Application::TerminationMode mode,
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
   // We only allow the caller of Launch() to call Terminate().
@@ -124,7 +110,7 @@ void RunningApplicationObject::OnTerminate(
     return;
   }
 
-  TerminateApplication(mode);
+  TerminateApplication();
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
@@ -188,8 +174,7 @@ void RunningApplicationObject::OnNameOwnerChanged(
 }
 
 void RunningApplicationObject::OnLauncherDisappeared() {
-  // Do not care about 'OnSuspend' handlers if the launcher is already killed.
-  TerminateApplication(Application::Immediate);
+  TerminateApplication();
 }
 
 void RunningApplicationObject::SendChannel(

@@ -39,10 +39,6 @@ AppRuntimeExtensionInstance::AppRuntimeExtensionInstance(
       "getManifest",
       base::Bind(&AppRuntimeExtensionInstance::OnGetManifest,
                  base::Unretained(this)));
-  handler_.Register(
-      "getMainDocumentID",
-      base::Bind(&AppRuntimeExtensionInstance::OnGetMainDocumentID,
-                 base::Unretained(this)));
 }
 
 void AppRuntimeExtensionInstance::HandleMessage(scoped_ptr<base::Value> msg) {
@@ -61,19 +57,6 @@ void AppRuntimeExtensionInstance::OnGetManifest(
   else
     // Return an empty dictionary value when there's no valid manifest data.
     results->Append(new base::DictionaryValue());
-  info->PostResult(results.Pass());
-}
-
-void AppRuntimeExtensionInstance::OnGetMainDocumentID(
-    scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  int main_routing_id = MSG_ROUTING_NONE;
-
-  if (Runtime* runtime = application_->GetMainDocumentRuntime())
-    main_routing_id = runtime->web_contents()->GetRoutingID();
-
-  scoped_ptr<base::ListValue> results(new base::ListValue());
-  results->AppendInteger(main_routing_id);
   info->PostResult(results.Pass());
 }
 

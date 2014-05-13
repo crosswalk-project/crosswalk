@@ -37,14 +37,13 @@ class RunningApplicationObject : public dbus::ManagedObject {
   void ExtensionProcessCreated(const IPC::ChannelHandle& handle);
 
  private:
-  void TerminateApplication(Application::TerminationMode mode);
+  void TerminateApplication();
 
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
                   bool success);
 
-  void OnTerminate(Application::TerminationMode termination_mode,
-                   dbus::MethodCall* method_call,
+  void OnTerminate(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
   void OnGetExtensionProcessChannel(

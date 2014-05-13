@@ -37,7 +37,6 @@ class AppRuntimeExtensionInstance : public XWalkExtensionInstance {
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
  private:
-  void OnGetMainDocumentID(scoped_ptr<XWalkExtensionFunctionInfo> info);
   void OnGetManifest(scoped_ptr<XWalkExtensionFunctionInfo> info);
 
   Application* application_;

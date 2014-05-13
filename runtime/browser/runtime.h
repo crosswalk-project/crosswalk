@@ -136,7 +136,6 @@ class Runtime : public content::WebContentsDelegate,
   // Overridden from content::WebContentsObserver.
   virtual void DidUpdateFaviconURL(int32 page_id,
       const std::vector<content::FaviconURL>& candidates) OVERRIDE;
-  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
 
   // Callback method for WebContents::DownloadImage.
   void DidDownloadFavicon(int id,

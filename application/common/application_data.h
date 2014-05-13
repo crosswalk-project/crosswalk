@@ -131,7 +131,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   void ClearPermissions();
   PermissionSet GetManifestPermissions() const;
 
-  bool HasMainDocument() const;
   Manifest::PackageType GetPackageType() const;
 
 #if defined(OS_TIZEN)

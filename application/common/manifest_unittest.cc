@@ -100,10 +100,11 @@ TEST_F(ManifestTest, ApplicationTypes) {
 
   // Platform app.
   MutateManifest(
-      &manifest, keys::kAppMainKey, new base::DictionaryValue());
+      &manifest, keys::kStartURLKey,
+      new base::StringValue("main.html"));
   AssertType(manifest.get(), Manifest::TYPE_PACKAGED_APP);
   MutateManifest(
-      &manifest, keys::kAppMainKey, NULL);
+      &manifest, keys::kStartURLKey, NULL);
 
   // Hosted app.
   MutateManifest(

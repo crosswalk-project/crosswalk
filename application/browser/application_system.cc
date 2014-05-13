@@ -10,13 +10,10 @@
 #include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/event_names.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/application/extension/application_event_extension.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
 #include "xwalk/application/extension/application_widget_extension.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -32,11 +29,9 @@ namespace application {
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
     application_storage_(new ApplicationStorage(runtime_context->GetPath())),
-    event_manager_(new ApplicationEventManager()),
     application_service_(new ApplicationService(
         runtime_context,
-        application_storage_.get(),
-        event_manager_.get())) {}
+        application_storage_.get())) {}
 
 ApplicationSystem::~ApplicationSystem() {
 }
@@ -98,13 +93,9 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
     std::string app_id;
     if (application_service_->Install(path, &app_id)) {
       LOG(INFO) << "[OK] Application installed: " << app_id;
-      if (application_storage_->GetApplicationData(app_id)->HasMainDocument())
-        run_default_message_loop = true;
     } else if (!app_id.empty() &&
                application_service_->Update(app_id, path)) {
       LOG(INFO) << "[OK] Application updated: " << app_id;
-      if (application_storage_->GetApplicationData(app_id)->HasMainDocument())
-        run_default_message_loop = true;
     } else {
       LOG(ERROR) << "[ERR] Application install/update failure: "
                  << path.value();
@@ -119,17 +110,10 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
 template <typename T>
 bool ApplicationSystem::LaunchWithCommandLineParam(
     const T& param, const base::CommandLine& cmd_line) {
-  scoped_refptr<Event> event = Event::CreateEvent(
-        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-
   Application::LaunchParams launch_params;
   launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
 
-  if (application_service_->Launch(param, launch_params)) {
-    return true;
-  }
-
-  return false;
+  return application_service_->Launch(param, launch_params);
 }
 
 // Launch an application created from arbitrary url.
@@ -207,8 +191,6 @@ void ApplicationSystem::CreateExtensions(
     return;  // We might be in browser mode.
 
   extensions->push_back(new ApplicationRuntimeExtension(application));
-  extensions->push_back(new ApplicationEventExtension(
-              event_manager_.get(), application_storage_.get(), application));
   extensions->push_back(new ApplicationWidgetExtension(application));
 }
 

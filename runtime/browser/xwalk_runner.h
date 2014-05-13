@@ -28,6 +28,7 @@ class XWalkContentBrowserClient;
 class XWalkAppExtensionBridge;
 
 namespace application {
+class Application;
 class ApplicationSystem;
 }
 
@@ -103,7 +104,7 @@ class XWalkRunner {
   friend class ::XWalkTestSuiteInitializer;
 
   // To track OnRenderProcessHostGone.
-  friend class Runtime;
+  friend class application::Application;
 
   // This class acts as an "arm" of XWalkRunner to fulfill Content API needs,
   // it may call us back in some situations where the a more wider view of the

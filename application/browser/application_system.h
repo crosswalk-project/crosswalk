@@ -28,7 +28,6 @@ class RuntimeContext;
 namespace xwalk {
 namespace application {
 
-class ApplicationEventManager;
 class ApplicationService;
 class ApplicationServiceProvider;
 class ApplicationStorage;
@@ -46,11 +45,6 @@ class ApplicationSystem {
   // The ApplicationService is created at startup.
   ApplicationService* application_service() {
     return application_service_.get();
-  }
-
-  // The ApplicationEventManager is created at startup.
-  ApplicationEventManager* event_manager() {
-    return event_manager_.get();
   }
 
   ApplicationStorage* application_storage() {
@@ -97,7 +91,6 @@ class ApplicationSystem {
   // Note: initialization order matters.
   xwalk::RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationStorage> application_storage_;
-  scoped_ptr<ApplicationEventManager> event_manager_;
   scoped_ptr<ApplicationService> application_service_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);

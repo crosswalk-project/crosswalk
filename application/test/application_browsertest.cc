@@ -43,8 +43,7 @@ void ApplicationBrowserTest::ProperMainThreadCleanup() {
     application_sevice()->active_applications();
 
   std::for_each(apps.begin(), apps.end(),
-    std::bind2nd(std::mem_fun(&Application::Terminate),
-                              Application::Immediate));
+    std::mem_fun(&Application::Terminate));
 }
 
 ApplicationService* ApplicationBrowserTest::application_sevice() const {

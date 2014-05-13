@@ -346,12 +346,6 @@ void Runtime::RequestMediaAccessPermission(
       web_contents, request, callback);
 }
 
-void Runtime::RenderProcessGone(base::TerminationStatus status) {
-  content::RenderProcessHost* rph = web_contents_->GetRenderProcessHost();
-  VLOG(1) << "RenderProcess id: " << rph->GetID() << " is gone!";
-  XWalkRunner::GetInstance()->OnRenderProcessHostGone(rph);
-}
-
 void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
   if (!params->delegate)
     params->delegate = this;

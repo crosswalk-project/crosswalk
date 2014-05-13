@@ -15,19 +15,18 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
 #include "net/base/net_util.h"
-#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
-#include "xwalk/application/common/event_names.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
+
+using content::RenderProcessHost;
 
 namespace xwalk {
 
@@ -46,47 +45,26 @@ const char* kDefaultWidgetEntryPage[] = {
 
 namespace application {
 
-class FinishEventObserver : public EventObserver {
- public:
-  FinishEventObserver(
-      ApplicationEventManager* event_manager,
-      Application* application)
-      : EventObserver(event_manager),
-        application_(application) {
-  }
-
-  virtual void Observe(const std::string& app_id,
-                       scoped_refptr<Event> event) OVERRIDE {
-    DCHECK(xwalk::application::kOnJavaScriptEventAck == event->name());
-    std::string ack_event_name;
-    event->args()->GetString(0, &ack_event_name);
-    if (ack_event_name == xwalk::application::kOnSuspend)
-      application_->CloseMainDocument();
-  }
-
- private:
-  Application* application_;
-};
-
 Application::Application(
     scoped_refptr<ApplicationData> data,
     RuntimeContext* runtime_context,
     Observer* observer)
-    : main_runtime_(NULL),
-      application_data_(data),
-      is_security_mode_(false),
+    : data_(data),
+      render_process_host_(NULL),
+      security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(observer),
       entry_point_used_(Default),
-      termination_mode_used_(Normal),
       weak_factory_(this) {
   DCHECK(runtime_context_);
-  DCHECK(application_data_);
+  DCHECK(data_);
   DCHECK(observer_);
 }
 
 Application::~Application() {
-  Terminate(Immediate);
+  Terminate();
+  if (render_process_host_)
+    render_process_host_->RemoveObserver(this);
 }
 
 bool Application::Launch(const LaunchParams& launch_params) {
@@ -96,19 +74,22 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
   }
 
+  CHECK(!render_process_host_);
+
   GURL url = GetStartURL(launch_params, &entry_point_used_);
   if (!url.is_valid())
     return false;
 
-  main_runtime_ = Runtime::Create(runtime_context_, this);
+  Runtime* runtime = Runtime::Create(runtime_context_, this);
+  render_process_host_ = runtime->GetRenderProcessHost();
+  render_process_host_->AddObserver(this);
   InitSecurityPolicy();
-  main_runtime_->LoadURL(url);
-  if (entry_point_used_ != AppMainKey) {
-    NativeAppWindow::CreateParams params;
-    params.net_wm_pid = launch_params.launcher_pid;
-    params.state = GetWindowShowState(launch_params);
-    main_runtime_->AttachWindow(params);
-  }
+  runtime->LoadURL(url);
+
+  NativeAppWindow::CreateParams params;
+  params.net_wm_pid = launch_params.launcher_pid;
+  params.state = GetWindowShowState(launch_params);
+  runtime->AttachWindow(params);
 
   return true;
 }
@@ -123,17 +104,9 @@ GURL Application::GetStartURL(const LaunchParams& params,
     }
   }
 
-  if (params.entry_points & AppMainKey) {
-    GURL url = GetURLFromAppMainKey();
-    if (url.is_valid()) {
-      *used = AppMainKey;
-      return url;
-    }
-  }
-
   if (params.entry_points & LaunchLocalPathKey) {
     GURL url = GetURLFromRelativePathKey(
-        GetLaunchLocalPathKey(application_data_->GetPackageType()));
+        GetLaunchLocalPathKey(data_->GetPackageType()));
     if (url.is_valid()) {
       *used = LaunchLocalPathKey;
       return url;
@@ -152,22 +125,12 @@ GURL Application::GetStartURL(const LaunchParams& params,
   return GURL();
 }
 
-GURL Application::GetURLFromAppMainKey() {
-  MainDocumentInfo* main_info = ToMainDocumentInfo(
-    application_data_->GetManifestData(keys::kAppMainKey));
-  if (!main_info)
-    return GURL();
-
-  DCHECK(application_data_->HasMainDocument());
-  return main_info->GetMainURL();
-}
-
 ui::WindowShowState Application::GetWindowShowState(
     const LaunchParams& params) {
   if (params.force_fullscreen)
     return ui::SHOW_STATE_FULLSCREEN;
 
-  const Manifest* manifest = application_data_->GetManifest();
+  const Manifest* manifest = data_->GetManifest();
   std::string display_string;
   if (manifest->GetString(keys::kDisplay, &display_string)) {
     // FIXME: ATM only 'fullscreen' and 'standalone' (which is fallback value)
@@ -180,7 +143,7 @@ ui::WindowShowState Application::GetWindowShowState(
 }
 
 GURL Application::GetURLFromURLKey() {
-  const Manifest* manifest = application_data_->GetManifest();
+  const Manifest* manifest = data_->GetManifest();
   std::string url_string;
   if (!manifest->GetString(keys::kURLKey, &url_string))
     return GURL();
@@ -189,14 +152,14 @@ GURL Application::GetURLFromURLKey() {
 }
 
 GURL Application::GetURLFromRelativePathKey(const std::string& key) {
-  const Manifest* manifest = application_data_->GetManifest();
+  const Manifest* manifest = data_->GetManifest();
   std::string entry_page;
   if (!manifest->GetString(key, &entry_page)
       || entry_page.empty()) {
-    if (application_data_->GetPackageType() == Manifest::TYPE_XPK)
+    if (data_->GetPackageType() == Manifest::TYPE_XPK)
       return GURL();
 
-    base::FileEnumerator iter(application_data_->Path(), true,
+    base::FileEnumerator iter(data_->Path(), true,
                               base::FileEnumerator::FILES,
                               FILE_PATH_LITERAL("index.*"));
     int priority = arraysize(kDefaultWidgetEntryPage);
@@ -215,43 +178,18 @@ GURL Application::GetURLFromRelativePathKey(const std::string& key) {
       return GURL();
   }
 
-  return application_data_->GetResourceURL(entry_page);
+  return data_->GetResourceURL(entry_page);
 }
 
-void Application::Terminate(TerminationMode mode) {
-  termination_mode_used_ = mode;
-  if (IsTerminating()) {
-    LOG(WARNING) << "Attempt to Terminate app: " << id()
-                 << ", which is already in the process of being terminated.";
-    if (mode == Immediate)
-      CloseMainDocument();
-
-    return;
-  }
-
+void Application::Terminate() {
   std::set<Runtime*> to_be_closed(runtimes_);
-  if (HasMainDocument() && to_be_closed.size() > 1) {
-    // The main document runtime is closed separately
-    // (needs some extra logic) in Application::OnRuntimeRemoved.
-    to_be_closed.erase(main_runtime_);
-  }
-
   std::for_each(to_be_closed.begin(), to_be_closed.end(),
                 std::mem_fun(&Runtime::Close));
 }
 
-Runtime* Application::GetMainDocumentRuntime() const {
-  return HasMainDocument() ? main_runtime_ : NULL;
-}
-
 int Application::GetRenderProcessHostID() const {
-  DCHECK(main_runtime_);
-  return main_runtime_->web_contents()->
-          GetRenderProcessHost()->GetID();
-}
-
-bool Application::HasMainDocument() const {
-  return entry_point_used_ == AppMainKey;
+  DCHECK(render_process_host_);
+  return render_process_host_->GetID();
 }
 
 void Application::OnRuntimeAdded(Runtime* runtime) {
@@ -272,52 +210,25 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
                    weak_factory_.GetWeakPtr()));
     return;
   }
-
-  if (runtimes_.size() == 1 && HasMainDocument() &&
-      ContainsKey(runtimes_, main_runtime_)) {
-    ApplicationSystem* system = XWalkRunner::GetInstance()->app_system();
-    ApplicationEventManager* event_manager = system->event_manager();
-
-    // If onSuspend is not registered in main document,
-    // we close the main document immediately.
-    if (!IsOnSuspendHandlerRegistered() ||
-        termination_mode_used_ == Immediate) {
-      CloseMainDocument();
-      return;
-    }
-
-    DCHECK(!finish_observer_);
-    finish_observer_.reset(
-        new FinishEventObserver(event_manager, this));
-    event_manager->AttachObserver(
-        application_data_->ID(), kOnJavaScriptEventAck,
-        finish_observer_.get());
-
-    scoped_ptr<base::ListValue> event_args(new base::ListValue);
-    scoped_refptr<Event> event = Event::CreateEvent(
-        xwalk::application::kOnSuspend, event_args.Pass());
-    event_manager->SendEvent(application_data_->ID(), event);
-  }
 }
 
-void Application::CloseMainDocument() {
-  DCHECK(main_runtime_);
+void Application::RenderProcessExited(RenderProcessHost* host,
+                                      base::ProcessHandle,
+                                      base::TerminationStatus,
+                                      int) {
+  DCHECK(render_process_host_ == host);
+  VLOG(1) << "RenderProcess id: " << host->GetID() << " is gone!";
+  XWalkRunner::GetInstance()->OnRenderProcessHostGone(host);
+}
 
-  finish_observer_.reset();
-  main_runtime_->Close();
-  main_runtime_ = NULL;
+void Application::RenderProcessHostDestroyed(RenderProcessHost* host) {
+  DCHECK(render_process_host_ == host);
+  render_process_host_ = NULL;
 }
 
 void Application::NotifyTermination() {
+  CHECK(!render_process_host_);
   observer_->OnApplicationTerminated(this);
-}
-
-bool Application::IsOnSuspendHandlerRegistered() const {
-  const std::set<std::string>& events = data()->GetEvents();
-  if (events.find(kOnSuspend) == events.end())
-    return false;
-
-  return true;
 }
 
 bool Application::UseExtension(const std::string& extension_name) const {
@@ -390,7 +301,7 @@ StoredPermission Application::GetPermission(PermissionType type,
     return iter->second;
   }
   if (type == PERSISTENT_PERMISSION) {
-    return application_data_->GetPermission(permission_name);
+    return data_->GetPermission(permission_name);
   }
   NOTREACHED();
   return UNDEFINED_STORED_PERM;
@@ -404,18 +315,18 @@ bool Application::SetPermission(PermissionType type,
     return true;
   }
   if (type == PERSISTENT_PERMISSION)
-    return application_data_->SetPermission(permission_name, perm);
+    return data_->SetPermission(permission_name, perm);
 
   NOTREACHED();
   return false;
 }
 
 void Application::InitSecurityPolicy() {
-  if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Manifest::TYPE_WGT)
     return;
 
   const WARPInfo* info = static_cast<WARPInfo*>(
-      application_data_->GetManifestData(widget_keys::kAccessKey));
+      data_->GetManifestData(widget_keys::kAccessKey));
   // FIXME(xinchao): Need to enable WARP mode by default.
   if (!info)
     return;
@@ -430,7 +341,7 @@ void Application::InitSecurityPolicy() {
         dest.empty())
       continue;
     if (dest == "*") {
-      is_security_mode_ = false;
+      security_mode_enabled_ = false;
       break;
     }
 
@@ -439,29 +350,32 @@ void Application::InitSecurityPolicy() {
     std::string subdomains = "false";
     value->GetString(widget_keys::kAccessSubdomainsKey, &subdomains);
     AddSecurityPolicy(dest_url, (subdomains == "true"));
-    is_security_mode_ = true;
+    security_mode_enabled_ = true;
   }
-  if (is_security_mode_)
-    main_runtime_->GetRenderProcessHost()->Send(
+  if (security_mode_enabled_) {
+    DCHECK(render_process_host_);
+    render_process_host_->Send(
         new ViewMsg_EnableSecurityMode(
             ApplicationData::GetBaseURLFromApplicationId(id()),
             SecurityPolicy::WARP));
+  }
 }
 
 void Application::AddSecurityPolicy(const GURL& url, bool subdomains) {
-  GURL app_url = application_data_->URL();
-  main_runtime_->GetRenderProcessHost()->Send(
+  GURL app_url = data_->URL();
+  DCHECK(render_process_host_);
+  render_process_host_->Send(
       new ViewMsg_SetAccessWhiteList(
           app_url, url, subdomains));
   security_policy_.push_back(new SecurityPolicy(url, subdomains));
 }
 
 bool Application::CanRequestURL(const GURL& url) const {
-  if (!is_security_mode_)
+  if (!security_mode_enabled_)
     return true;
 
   // Only WGT package need to check the url request permission.
-  if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Manifest::TYPE_WGT)
     return true;
 
   // Always can request itself resources.

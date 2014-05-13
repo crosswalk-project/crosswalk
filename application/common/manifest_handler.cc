@@ -8,7 +8,6 @@
 
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
-#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
@@ -95,7 +94,6 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   // FIXME: Add manifest handlers here like this:
   // handlers.push_back(new xxxHandler);
   handlers.push_back(new CSPHandler(Manifest::TYPE_XPK));
-  handlers.push_back(new MainDocumentHandler);
   handlers.push_back(new PermissionsHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);
   return xpk_registry_;
