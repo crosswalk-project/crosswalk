@@ -72,6 +72,13 @@ void InstalledApplicationsManager::OnApplicationUninstalled(
   adaptor_.RemoveManagedObject(GetInstalledPathForAppID(app_id));
 }
 
+void InstalledApplicationsManager::OnApplicationUpdated(
+    const std::string& app_id) {
+  if (scoped_refptr<ApplicationData> app =
+      app_storage_->GetApplicationData(app_id))
+    OnApplicationNameChanged(app_id, app->Name());
+}
+
 void InstalledApplicationsManager::OnApplicationNameChanged(
     const std::string& app_id, const std::string& app_name) {
   InstalledApplicationObject* object =
