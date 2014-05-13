@@ -170,7 +170,7 @@ class XWalkViewDelegate {
     private static void loadLibrary(Context context) {
         PathUtils.setPrivateDataDirectorySuffix(PRIVATE_DATA_DIRECTORY_SUFFIX);
         try {
-            LibraryLoader.loadNow(context);
+            LibraryLoader.loadNow(context, true);
         } catch (ProcessInitException e) {
             throw new RuntimeException("Cannot load Crosswalk Core", e);
         }
