@@ -967,24 +967,24 @@ class TestMakeApk(unittest.TestCase):
     js_file = os.path.join(js_folder, 'test.js')
     fun = self.assertTrue
     name = 'Example'
+    invalid_choice = 'invalid choice'
+    requires_arg = 'requires an argument'
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
            '--package=org.xwalk.example',
            '--compressor',
            '--app-root=%s' % app_root]
-    RunCommand(cmd)
-    CompareSizeForCompressor('all', css_file, 'css', name, fun)
-    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+    result = RunCommand(cmd)
+    self.assertIn(invalid_choice, result)
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
            '--package=org.xwalk.example',
            '--app-root=%s' % app_root,
            '--compressor']
-    RunCommand(cmd)
-    CompareSizeForCompressor('all', css_file, 'css', name, fun)
-    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+    result = RunCommand(cmd)
+    self.assertIn(requires_arg, result)
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
@@ -1015,9 +1015,8 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example',
            '--app-root=%s' % app_root,
            '--compressor=other']
-    RunCommand(cmd)
-    CompareSizeForCompressor(None, css_file, 'css', name, fun)
-    CompareSizeForCompressor(None, js_file, 'js', name, fun)
+    result = RunCommand(cmd)
+    self.assertIn(invalid_choice, result)
 
     Clean(name, '1.0.0')
 
