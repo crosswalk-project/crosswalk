@@ -618,6 +618,28 @@ class TestMakeApk(unittest.TestCase):
       else:
         self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
       self.assertFalse(os.path.isfile('Example_1.0.0_x86.apk'))
+      Clean('Example', '1.0.0')
+      cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+             '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+             self._mode]
+      RunCommand(cmd)
+      if 'arm' in self.archs():
+        self.assertTrue(os.path.isfile('Example_1.0.0_arm.apk'))
+        self.checkApk('Example_1.0.0_arm.apk', 'arm')
+      else:
+        self.assertFalse(os.path.isfile('Example_1.0.0._arm.apk'))
+      if 'x86' in self.archs():
+        self.assertTrue(os.path.isfile('Example_1.0.0_x86.apk'))
+        self.checkApk('Example_1.0.0_x86.apk', 'x86')
+      else:
+        self.assertFalse(os.path.isfile('Example_1.0.0._x86.apk'))
+      Clean('Example', '1.0.0')
+      cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+             '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+             '--arch=undefined', self._mode]
+      out = RunCommand(cmd)
+      error_msg = 'invalid choice: \'undefined\''
+      self.assertTrue(out.find(error_msg) != -1)
 
   def testVerbose(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',

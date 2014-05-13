@@ -581,7 +581,7 @@ def main(argv):
   info = ('The target architecture of the embedded runtime. Supported values '
           'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
           'architestures will be generated.')
-  parser.add_option('--arch', help=info)
+  parser.add_option('--arch', choices=("x86", "arm"), help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '
       '1) XPK package; 2) manifest.json; 3) various command line options, '
