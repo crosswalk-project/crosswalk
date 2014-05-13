@@ -31,7 +31,7 @@
 
 #if defined(OS_TIZEN)
 #include "xwalk/application/browser/application_tizen.h"
-#include "xwalk/application/browser/installer/tizen/service_package_installer.h"
+#include "xwalk/application/browser/installer/tizen/package_installer.h"
 #endif
 
 namespace xwalk {
@@ -159,30 +159,6 @@ void SaveSystemEventsInfo(
   }
 }
 
-#if defined(OS_TIZEN)
-bool InstallPackageOnTizen(ApplicationData* application_data,
-                           const base::FilePath& data_dir) {
-  if (!XWalkRunner::GetInstance()->is_running_as_service()) {
-    LOG(ERROR) << "Installation on Tizen is only possible in"
-               << "service mode via 'xwalkctl' utility.";
-    return false;
-  }
-
-  return InstallApplicationForTizen(application_data, data_dir);
-}
-
-bool UninstallPackageOnTizen(ApplicationData* application_data,
-                             const base::FilePath& data_dir) {
-  if (!XWalkRunner::GetInstance()->is_running_as_service()) {
-    LOG(ERROR) << "Uninstallation on Tizen is only possible in"
-               << "service mode using 'xwalkctl' utility.";
-    return false;
-  }
-
-  return UninstallApplicationForTizen(application_data, data_dir);
-}
-#endif  // OS_TIZEN
-
 bool CopyDirectoryContents(const base::FilePath& from,
     const base::FilePath& to) {
   base::FileEnumerator iter(from, false,
@@ -297,8 +273,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
   }
 
 #if defined(OS_TIZEN)
-  if (!InstallPackageOnTizen(application_data,
-                             runtime_context_->GetPath())) {
+  if (!PackageInstaller::InstallApplication(
+        application_data, runtime_context_->GetPath())) {
     application_storage_->RemoveApplication(application_data->ID());
     return false;
   }
@@ -404,30 +380,29 @@ bool ApplicationService::Update(const std::string& id,
     return false;
   }
 
-#if defined(OS_TIZEN)
-  if (!UninstallPackageOnTizen(old_application,
-                               runtime_context_->GetPath())) {
+  if (!application_storage_->UpdateApplication(new_application)) {
+    LOG(ERROR) << "Fail to update application, roll back to the old one.";
     base::DeleteFile(app_dir, true);
+    base::Move(tmp_dir, app_dir);
+    return false;
+  }
+
+#if defined(OS_TIZEN)
+  if (!PackageInstaller::UpdateApplication(
+        new_application, runtime_context_->GetPath())) {
+    LOG(ERROR) << "Fail to update package on Tizen, roll back to the old one.";
+    base::DeleteFile(app_dir, true);
+    if (!application_storage_->UpdateApplication(old_application)) {
+      LOG(ERROR) << "Fail to revert old application info, "
+                 << "remove the application as a last resort.";
+      application_storage_->RemoveApplication(old_application->ID());
+      return false;
+    }
     base::Move(tmp_dir, app_dir);
     return false;
   }
 #endif
 
-  if (!application_storage_->UpdateApplication(new_application)) {
-    LOG(ERROR) << "An Error occurred when updating the application.";
-    base::DeleteFile(app_dir, true);
-    base::Move(tmp_dir, app_dir);
-#if defined(OS_TIZEN)
-    InstallPackageOnTizen(old_application,
-                          runtime_context_->GetPath());
-#endif
-    return false;
-  }
-#if defined(OS_TIZEN)
-  if (!InstallPackageOnTizen(new_application,
-                             runtime_context_->GetPath()))
-    return false;
-#endif
   base::DeleteFile(tmp_dir, true);
 
   SaveSystemEventsInfo(new_application, this, event_manager_);
@@ -455,8 +430,8 @@ bool ApplicationService::Uninstall(const std::string& id) {
   }
 
 #if defined(OS_TIZEN)
-  if (!UninstallPackageOnTizen(application,
-                               runtime_context_->GetPath()))
+  if (!PackageInstaller::UninstallApplication(
+        application, runtime_context_->GetPath()))
     result = false;
 #endif
 

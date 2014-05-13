@@ -124,8 +124,8 @@
             'browser/application_tizen.h',
             'browser/installer/tizen/packageinfo_constants.cc',
             'browser/installer/tizen/packageinfo_constants.h',
-            'browser/installer/tizen/service_package_installer.cc',
-            'browser/installer/tizen/service_package_installer.h',
+            'browser/installer/tizen/package_installer.cc',
+            'browser/installer/tizen/package_installer.h',
             'common/manifest_handlers/navigation_handler.cc',
             'common/manifest_handlers/navigation_handler.h',
             'common/manifest_handlers/tizen_application_handler.cc',
@@ -188,6 +188,10 @@
           'dependencies': [
             'application/tools/linux/xwalk_application_tools.gyp:xwalkctl',
             'application/tools/linux/xwalk_application_tools.gyp:xwalk_launcher',
+          ],
+        }],
+        ['tizen == 1', {
+          'dependencies': [
             'application/tools/tizen/xwalk_tizen_helper.gyp:xwalk-pkg-helper',
           ],
         }],
