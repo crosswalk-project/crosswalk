@@ -473,7 +473,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
 
             // Notify a resource load is started. This is not the best place to start the callback
             // but it's a workable way.
-            mContentsClientBridge.onResourceLoadStarted(url);
+            mContentsClientBridge.getCallbackHelper().postOnResourceLoadStarted(url);
 
             WebResourceResponse webResourceResponse = mContentsClientBridge.shouldInterceptRequest(url);
             InterceptedRequestData interceptedRequestData = null;

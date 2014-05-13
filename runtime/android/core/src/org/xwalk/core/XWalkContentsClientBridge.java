@@ -179,12 +179,14 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         return null;
     }
 
+    @Override
     public void onResourceLoadStarted(String url) {
         if (isOwnerActivityRunning()) {
             mXWalkResourceClient.onLoadStarted(mXWalkView, url);
         }
     }
 
+    @Override
     public void onResourceLoadFinished(String url) {
         if (isOwnerActivityRunning()) {
             mXWalkResourceClient.onLoadFinished(mXWalkView, url);
