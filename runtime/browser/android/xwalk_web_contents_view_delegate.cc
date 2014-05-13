@@ -8,7 +8,6 @@
 #include "base/command_line.h"
 #include "content/public/browser/android/content_view_core.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/web_contents_view.h"
 #include "content/public/common/context_menu_params.h"
 
 namespace xwalk {
