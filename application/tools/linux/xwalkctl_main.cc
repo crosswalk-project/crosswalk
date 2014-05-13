@@ -8,6 +8,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include <locale.h>
 
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
@@ -172,6 +173,7 @@ static void list_applications(GDBusObjectManager* installed) {
 }
 
 int main(int argc, char* argv[]) {
+  setlocale(LC_ALL, "");
   GError* error = NULL;
   GOptionContext* context;
   bool success;
