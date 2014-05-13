@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/tizen/service_package_installer.h"
+#include "xwalk/application/browser/installer/tizen/package_installer.h"
 
 #include <sys/types.h>
 #include <pwd.h>
@@ -23,6 +23,7 @@
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/installer/tizen/packageinfo_constants.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace info = xwalk::application_packageinfo_constants;
 
@@ -63,7 +64,7 @@ class FileDeleter {
 };
 
 void WriteMetaDataElement(
-    XmlWriter& writer,
+    XmlWriter& writer, // NOLINT
     xwalk::application::TizenMetaDataInfo* info) {
   if (!info)
     return;
@@ -135,13 +136,24 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   return true;
 }
 
+bool CheckRunningMode() {
+  if (xwalk::XWalkRunner::GetInstance()->is_running_as_service())
+    return true;
+  LOG(ERROR) << "Package manipulation on Tizen is only possible in"
+             << "service mode using 'xwalkctl' utility.";
+  return false;
+}
+
 }  // namespace
 
 namespace xwalk {
 namespace application {
 
-bool InstallApplicationForTizen(
+bool PackageInstaller::InstallApplication(
     ApplicationData* application, const base::FilePath& data_dir) {
+  if (!CheckRunningMode())
+    return false;
+
   std::string package_id = application->ID();
   std::string tizen_app_id = kAppIdPrefix + package_id;
   base::FilePath app_dir =
@@ -177,11 +189,8 @@ bool InstallApplicationForTizen(
     return false;
   }
 
-  base::FilePath icon;
-  if (icon_name.empty())
-    icon = kDefaultIcon;
-  else
-    icon = app_dir.AppendASCII(icon_name);
+  base::FilePath icon =
+      icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
   CommandLine cmdline(kPkgHelper);
   cmdline.AppendSwitch("--install");
@@ -208,8 +217,11 @@ bool InstallApplicationForTizen(
   return true;
 }
 
-bool UninstallApplicationForTizen(ApplicationData* application,
-                                  const base::FilePath& data_dir) {
+bool PackageInstaller::UninstallApplication(
+    ApplicationData* application, const base::FilePath& data_dir) {
+  if (!CheckRunningMode())
+    return false;
+
   std::string package_id = application->ID();
   bool result = true;
 
@@ -246,6 +258,62 @@ bool UninstallApplicationForTizen(ApplicationData* application,
   }
 
   return result;
+}
+
+bool PackageInstaller::UpdateApplication(
+    ApplicationData* new_application, const base::FilePath& data_dir) {
+  if (!CheckRunningMode())
+    return false;
+
+  std::string package_id = new_application->ID();
+  std::string tizen_app_id = kAppIdPrefix + package_id;
+  base::FilePath app_dir =
+      data_dir.AppendASCII(info::kAppDir).AppendASCII(package_id);
+  base::FilePath new_xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
+      package_id + ".new" + std::string(info::kXmlExtension));
+
+  std::string icon_name;
+  if (!new_application->GetManifest()->GetString(info::kIconKey, &icon_name)) {
+    LOG(WARNING) << "'icon' not included in manifest";
+  }
+  // This will clean everything inside '<data dir>/<app id>' and the new XML.
+  FileDeleter app_dir_cleaner(app_dir, true);
+  FileDeleter new_xml_cleaner(new_xml_path, true);
+
+  if (!GeneratePkgInfoXml(new_application, icon_name, app_dir, new_xml_path)) {
+    LOG(ERROR) << "Could not create new XML metadata file '"
+               << new_xml_path.value() << "'.";
+    return false;
+  }
+
+  base::FilePath icon =
+      icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
+
+  CommandLine cmdline(kPkgHelper);
+  cmdline.AppendSwitch("--update");
+  cmdline.AppendArg(package_id);
+  cmdline.AppendArgPath(new_xml_path);
+  cmdline.AppendArgPath(icon);
+
+  int exit_code;
+  std::string output;
+
+  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
+    LOG(ERROR) << "Could not launch installer helper";
+    return false;
+  }
+
+  if (exit_code != 0) {
+    LOG(ERROR) << "Could not update application: "
+               << output << " (" << exit_code << ")";
+    return false;
+  }
+
+  base::FilePath old_xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
+      package_id + std::string(info::kXmlExtension));
+  base::Move(new_xml_path, old_xml_path);
+  app_dir_cleaner.Dismiss();
+  return true;
 }
 
 }  // namespace application

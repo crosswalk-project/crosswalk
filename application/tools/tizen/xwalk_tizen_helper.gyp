@@ -4,26 +4,17 @@
       'target_name': 'xwalk-pkg-helper',
       'type': 'executable',
       'product_name': 'xwalk-pkg-helper',
-      'conditions': [
-        ['tizen==1', {
-          'dependencies': [
-            '../../../build/system.gyp:tizen',
-            '../../../../base/base.gyp:base',
-            ],
-          }],
-        ['OS=="linux"', {
-          'dependencies': [
-            '../../../../base/base.gyp:base',
-          ],
-        }],
+      'dependencies': [
+        '../../../build/system.gyp:tizen',
+        '../../../../base/base.gyp:base',
       ],
       'include_dirs': [
         '../../../..',
       ],
       'sources': [
-        'xwalk_pkg_helper.cc',
-        'xwalk_pkg_installer.cc',
-        'xwalk_pkg_installer.h',
+        'xwalk_package_helper.cc',
+        'xwalk_package_installer_helper.cc',
+        'xwalk_package_installer_helper.h',
       ],
     },
   ],

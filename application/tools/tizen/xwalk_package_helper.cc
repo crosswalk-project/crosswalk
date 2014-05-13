@@ -10,7 +10,7 @@
 
 #include "base/files/file_path.h"
 #include "base/file_util.h"
-#include "xwalk/application/tools/tizen/xwalk_pkg_installer.h"
+#include "xwalk/application/tools/tizen/xwalk_package_installer_helper.h"
 
 namespace {
 
@@ -20,6 +20,7 @@ int usage(const char* program) {
   fprintf(stdout, "Usage: \n"
           "\t%s --install <appid> <xml> <icon>\n"
           "\t%s --uninstall <appid>\n",
+          "\t%s --update <appid> <xml> <icon>\n",
           program, program);
   return 1;
 }
@@ -40,17 +41,22 @@ int main(int argc, char *argv[]) {
     return 1;;
   }
 
-  PkgInstaller installer(argv[2]);
+  PackageInstallerHelper helper(argv[2]);
   if (!strcmp(argv[1], "--install")) {
     if (argc != 5)
       return usage(argv[0]);
 
-    result = installer.InstallApplication(argv[3], argv[4]);
+    result = helper.InstallApplication(argv[3], argv[4]);
   } else if (!strcmp(argv[1], "--uninstall")) {
     if (argc != 3)
       return usage(argv[0]);
 
-    result = installer.UninstallApplication();
+    result = helper.UninstallApplication();
+  } else if (!strcmp(argv[1], "--update")) {
+    if (argc != 5)
+      return usage(argv[0]);
+
+    result = helper.UpdateApplication(argv[3], argv[4]);
   } else {
     return usage(argv[0]);
   }
