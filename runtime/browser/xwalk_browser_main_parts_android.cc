@@ -94,14 +94,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // blacklist.
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 
-  // WebAudio is disabled on android x86 platform, and only enabled on android
-  // ARM platform by default, we must enable it explicitly on x86 platform.
-  // TODO(liyin): Remove enable webaudio switch when it is enabled by default.
-#if defined(ARCH_CPU_X86)
-  if (!command_line->HasSwitch(switches::kEnableWebAudio))
-    command_line->AppendSwitch(switches::kEnableWebAudio);
-#endif
-
   // For fullscreen video playback, the ContentVideoView is still buggy, so
   // we switch back to ContentVideoViewLegacy for temp.
   // TODO(shouqun): Remove this flag when ContentVideoView is ready.
