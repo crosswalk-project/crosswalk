@@ -726,7 +726,8 @@ def main(argv):
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
     options.icon_dict = {}
-  else:
+
+  if options.manifest and os.path.exists(options.manifest):
     try:
       ParseManifest(options)
     except SystemExit as ec:
