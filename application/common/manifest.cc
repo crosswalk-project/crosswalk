@@ -82,11 +82,6 @@ Manifest::Manifest(SourceType source_type,
 
   if (data_->HasKey(widget_keys::kWidgetKey) &&
       data_->Get(widget_keys::kWidgetKey, NULL))
-    package_type_ = TYPE_WGT;
-  else
-    package_type_ = TYPE_XPK;
-
-  if (IsWGTPackaged())
     ParseWGTI18n();
 
   // Unittest may not have an xwalkrunner, so we should check here.

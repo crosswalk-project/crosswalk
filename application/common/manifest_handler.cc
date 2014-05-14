@@ -59,8 +59,8 @@ ManifestHandlerRegistry::~ManifestHandlerRegistry() {
 }
 
 ManifestHandlerRegistry*
-ManifestHandlerRegistry::GetInstance(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+ManifestHandlerRegistry::GetInstance(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return GetInstanceForWGT();
   return GetInstanceForXPK();
 }
@@ -75,7 +75,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new WidgetHandler);
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
-  handlers.push_back(new CSPHandler(Manifest::TYPE_WGT));
+  handlers.push_back(new CSPHandler(Package::WGT));
   handlers.push_back(new NavigationHandler);
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenSettingHandler);
@@ -93,7 +93,7 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   std::vector<ManifestHandler*> handlers;
   // FIXME: Add manifest handlers here like this:
   // handlers.push_back(new xxxHandler);
-  handlers.push_back(new CSPHandler(Manifest::TYPE_XPK));
+  handlers.push_back(new CSPHandler(Package::XPK));
   handlers.push_back(new PermissionsHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);
   return xpk_registry_;
@@ -143,8 +143,8 @@ bool ManifestHandlerRegistry::ValidateAppManifest(
 
 // static
 void ManifestHandlerRegistry::SetInstanceForTesting(
-    ManifestHandlerRegistry* registry, Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT) {
+    ManifestHandlerRegistry* registry, Package::Type package_type) {
+  if (package_type == Package::WGT) {
     widget_registry_ = registry;
     return;
   }

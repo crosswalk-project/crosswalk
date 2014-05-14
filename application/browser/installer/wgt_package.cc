@@ -25,6 +25,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   : Package(path) {
   if (!base::PathExists(path))
     return;
+  type_ = WGT;
   base::FilePath extracted_path;
   if (!Extract(&extracted_path))
     return;

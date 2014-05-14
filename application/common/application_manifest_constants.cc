@@ -119,51 +119,51 @@ const char kPlatformAppNeedsManifestVersion2[] =
 
 namespace application {
 
-const char* GetNameKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetNameKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kNameKey;
 
   return application_manifest_keys::kNameKey;
 }
 
-const char* GetVersionKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetVersionKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kVersionKey;
 
   return application_manifest_keys::kVersionKey;
 }
 
-const char* GetWebURLsKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetWebURLsKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kWebURLsKey;
 
   return application_manifest_keys::kWebURLsKey;
 }
 
-const char* GetLaunchLocalPathKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetLaunchLocalPathKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kLaunchLocalPathKey;
 
   return application_manifest_keys::kLaunchLocalPathKey;
 }
 
-const char* GetCSPKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetCSPKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kCSPKey;
 
   return application_manifest_keys::kCSPKey;
 }
 
 #if defined(OS_TIZEN)
-const char* GetTizenAppIdKey(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetTizenAppIdKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kTizenAppIdKey;
 
   return application_manifest_keys::kTizenAppIdKey;
 }
 
-const char* GetIcon128Key(Manifest::PackageType package_type) {
-  if (package_type == Manifest::TYPE_WGT)
+const char* GetIcon128Key(Package::Type package_type) {
+  if (package_type == Package::WGT)
     return application_widget_keys::kIcon128Key;
 
   return application_manifest_keys::kIcon128Key;

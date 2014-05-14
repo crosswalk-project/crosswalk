@@ -151,10 +151,6 @@ bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
 }
 
-Manifest::PackageType ApplicationData::GetPackageType() const {
-  return manifest_->GetPackageType();
-}
-
 // static
 bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
                                 const base::FilePath& path,
@@ -197,6 +193,10 @@ ApplicationData::ApplicationData(const base::FilePath& path,
       finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
+  if (manifest_->HasPath(widget_keys::kWidgetKey))
+    package_type_ = Package::WGT;
+  else
+    package_type_ = Package::XPK;
 }
 
 ApplicationData::~ApplicationData() {
@@ -255,7 +255,7 @@ bool ApplicationData::LoadName(base::string16* error) {
   std::string name_key(GetNameKey(GetPackageType()));
 
   if (!manifest_->GetString(name_key, &localized_name) &&
-      manifest_->IsXPKPackaged()) {
+      package_type_ == Package::XPK) {
     *error = base::ASCIIToUTF16(errors::kInvalidName);
     return false;
   }
@@ -271,12 +271,12 @@ bool ApplicationData::LoadVersion(base::string16* error) {
   std::string version_key(GetVersionKey(GetPackageType()));
 
   if (!manifest_->GetString(version_key, &version_str) &&
-      manifest_->IsXPKPackaged()) {
+      package_type_ == Package::XPK) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
   }
   version_.reset(new base::Version(version_str));
-  if (manifest_->IsXPKPackaged() &&
+  if (package_type_ == Package::XPK &&
       (!version_->IsValid() || version_->components().size() > 4)) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
     return false;
@@ -288,7 +288,7 @@ bool ApplicationData::LoadDescription(base::string16* error) {
   DCHECK(error);
   if (manifest_->HasKey(keys::kDescriptionKey) &&
       !manifest_->GetString(keys::kDescriptionKey, &description_) &&
-      manifest_->IsXPKPackaged()) {
+      package_type_ == Package::XPK) {
     *error = base::ASCIIToUTF16(errors::kInvalidDescription);
     return false;
   }
@@ -303,7 +303,7 @@ bool ApplicationData::LoadManifestVersion(base::string16* error) {
     int manifest_version = 1;
     if (!manifest_->GetInteger(keys::kManifestVersionKey, &manifest_version) ||
         manifest_version < 1) {
-      if (manifest_->IsXPKPackaged()) {
+      if (package_type_ == Package::XPK) {
         *error = base::ASCIIToUTF16(errors::kInvalidManifestVersion);
         return false;
       }

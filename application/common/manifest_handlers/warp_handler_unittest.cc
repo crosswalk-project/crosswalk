@@ -52,7 +52,7 @@ TEST_F(WARPHandlerTest, OneWARP) {
   manifest.Set(keys::kAccessKey, warp);
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(application->GetPackageType(), Manifest::TYPE_WGT);
+  EXPECT_EQ(application->GetPackageType(), Package::WGT);
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);
   scoped_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
@@ -76,7 +76,7 @@ TEST_F(WARPHandlerTest, WARPs) {
 
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(application->GetPackageType(), Manifest::TYPE_WGT);
+  EXPECT_EQ(application->GetPackageType(), Package::WGT);
 
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);

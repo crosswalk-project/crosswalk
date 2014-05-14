@@ -260,7 +260,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   const std::string& path = request->url().path();
 
   std::list<std::string> locales;
-  if (application && application->GetPackageType() == Manifest::TYPE_WGT) {
+  if (application && application->GetPackageType() == Package::WGT) {
     GetUserAgentLocales(
         xwalk::XWalkRunner::GetInstance()->GetLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);

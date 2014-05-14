@@ -98,14 +98,14 @@ namespace application_manifest_errors {
 namespace application {
 
 typedef application::Manifest Manifest;
-const char* GetNameKey(Manifest::PackageType type);
-const char* GetVersionKey(Manifest::PackageType type);
-const char* GetWebURLsKey(Manifest::PackageType type);
-const char* GetLaunchLocalPathKey(Manifest::PackageType type);
-const char* GetCSPKey(Manifest::PackageType type);
+const char* GetNameKey(Package::Type type);
+const char* GetVersionKey(Package::Type type);
+const char* GetWebURLsKey(Package::Type type);
+const char* GetLaunchLocalPathKey(Package::Type type);
+const char* GetCSPKey(Package::Type type);
 #if defined(OS_TIZEN)
-const char* GetTizenAppIdKey(Manifest::PackageType type);
-const char* GetIcon128Key(Manifest::PackageType type);
+const char* GetTizenAppIdKey(Package::Type type);
+const char* GetIcon128Key(Package::Type type);
 #endif
 }  // namespace application
 }  // namespace xwalk

@@ -107,7 +107,8 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
 
   std::string error;
   scoped_refptr<ApplicationData> application_data = LoadApplication(
-      unpacked_dir, app_id, Manifest::COMMAND_LINE, &error);
+      unpacked_dir, app_id, Manifest::COMMAND_LINE,
+      package->type(), &error);
   if (!application_data) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
@@ -208,6 +209,7 @@ bool ApplicationService::Update(const std::string& id,
       LoadApplication(unpacked_dir,
                       app_id,
                       Manifest::COMMAND_LINE,
+                      package->type(),
                       &error);
   if (!new_application) {
     LOG(ERROR) << "An error occurred during application updating: " << error;
@@ -245,6 +247,7 @@ bool ApplicationService::Update(const std::string& id,
   new_application = LoadApplication(app_dir,
                                     app_id,
                                     Manifest::COMMAND_LINE,
+                                    package->type(),
                                     &error);
   if (!new_application) {
     LOG(ERROR) << "Error during loading new package: " << error;

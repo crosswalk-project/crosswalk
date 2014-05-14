@@ -161,7 +161,7 @@ TEST_F(WidgetHandlerTest,
   scoped_refptr<ApplicationData> application;
   application = CreateApplication(*(manifest.get()));
   EXPECT_TRUE(application);
-  EXPECT_EQ(application->GetPackageType(), Manifest::TYPE_WGT);
+  EXPECT_EQ(application->GetPackageType(), Package::WGT);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_TRUE(info);
@@ -193,7 +193,7 @@ TEST_F(WidgetHandlerTest,
   scoped_refptr<ApplicationData> application;
   application = CreateApplication(*(manifest.get()));
   EXPECT_TRUE(application);
-  EXPECT_EQ(application->GetPackageType(), Manifest::TYPE_WGT);
+  EXPECT_EQ(application->GetPackageType(), Package::WGT);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
   EXPECT_TRUE(info);
