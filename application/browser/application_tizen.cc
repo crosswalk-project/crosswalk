@@ -15,7 +15,6 @@
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
 #if defined(USE_OZONE)
-#include "base/message_loop/message_pump_ozone.h"
 #include "content/public/browser/render_view_host.h"
 #include "ui/events/event.h"
 #include "ui/events/event_constants.h"
@@ -42,15 +41,9 @@ ApplicationTizen::ApplicationTizen(
     RuntimeContext* runtime_context,
     Application::Observer* observer)
     : Application(data, runtime_context, observer) {
-#if defined(USE_OZONE)
-  base::MessagePumpOzone::Current()->AddObserver(this);
-#endif
 }
 
 ApplicationTizen::~ApplicationTizen() {
-#if defined(USE_OZONE)
-  base::MessagePumpOzone::Current()->RemoveObserver(this);
-#endif
 }
 
 void ApplicationTizen::Hide() {
@@ -105,11 +98,6 @@ void ApplicationTizen::InitSecurityPolicy() {
 }
 
 #if defined(USE_OZONE)
-base::EventStatus ApplicationTizen::WillProcessEvent(
-    const base::NativeEvent& event) {
-  return base::EVENT_CONTINUE;
-}
-
 void ApplicationTizen::DidProcessEvent(
     const base::NativeEvent& event) {
   ui::Event* ui_event = static_cast<ui::Event*>(event);
