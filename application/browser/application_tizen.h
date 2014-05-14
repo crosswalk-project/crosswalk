@@ -4,20 +4,13 @@
 #ifndef XWALK_APPLICATION_BROWSER_APPLICATION_TIZEN_H_
 #define XWALK_APPLICATION_BROWSER_APPLICATION_TIZEN_H_
 
+#include "base/event_types.h"
 #include "xwalk/application/browser/application.h"
-
-#if defined(USE_OZONE)
-#include "base/message_loop/message_pump_observer.h"
-#endif
 
 namespace xwalk {
 namespace application {
 
-class ApplicationTizen : //  NOLINT
-#if defined(USE_OZONE)
-  public base::MessagePumpObserver,
-#endif
-  public Application {
+class ApplicationTizen : public Application {
  public:
   virtual ~ApplicationTizen();
   void Hide();
@@ -32,9 +25,7 @@ class ApplicationTizen : //  NOLINT
   virtual void InitSecurityPolicy() OVERRIDE;
 
 #if defined(USE_OZONE)
-  virtual base::EventStatus WillProcessEvent(
-      const base::NativeEvent& event) OVERRIDE;
-  virtual void DidProcessEvent(const base::NativeEvent& event) OVERRIDE;
+  virtual void DidProcessEvent(const base::NativeEvent& event);
 #endif
 };
 
