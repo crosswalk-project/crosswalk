@@ -62,10 +62,8 @@ class RunningApplicationObject : public dbus::ManagedObject {
 
   void OnLauncherDisappeared();
 
-  scoped_ptr<dbus::FileDescriptor> CreateClientFileDescriptor();
   void SendChannel(dbus::MethodCall* method_call,
-                   dbus::ExportedObject::ResponseSender response_sender,
-                   scoped_ptr<dbus::FileDescriptor> client_fd);
+                   dbus::ExportedObject::ResponseSender response_sender);
 
   scoped_refptr<dbus::Bus> bus_;
   std::string launcher_name_;

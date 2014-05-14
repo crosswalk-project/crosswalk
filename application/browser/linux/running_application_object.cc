@@ -134,11 +134,9 @@ void RunningApplicationObject::OnTerminate(
 void RunningApplicationObject::OnGetExtensionProcessChannel(
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
-  content::BrowserThread::PostTaskAndReplyWithResult(
+  content::BrowserThread::PostTask(
       content::BrowserThread::FILE,
       FROM_HERE,
-      base::Bind(&RunningApplicationObject::CreateClientFileDescriptor,
-                 base::Unretained(this)),
       base::Bind(&RunningApplicationObject::SendChannel,
                  base::Unretained(this),
                  method_call,
@@ -194,24 +192,26 @@ void RunningApplicationObject::OnLauncherDisappeared() {
   TerminateApplication(Application::Immediate);
 }
 
-scoped_ptr<dbus::FileDescriptor>
-RunningApplicationObject::CreateClientFileDescriptor() {
-  scoped_ptr<dbus::FileDescriptor> client_fd(
-      new dbus::FileDescriptor(ep_bp_channel_.socket.fd));
-  client_fd->CheckValidity();
-  return client_fd.Pass();
-}
-
 void RunningApplicationObject::SendChannel(
     dbus::MethodCall* method_call,
-    dbus::ExportedObject::ResponseSender response_sender,
-    scoped_ptr<dbus::FileDescriptor> client_fd) {
+    dbus::ExportedObject::ResponseSender response_sender) {
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
-  dbus::MessageWriter writer(response.get());
 
+  int fd = ep_bp_channel_.socket.fd;
+  if (fd == -1) {  // EP was not yet created, return empty response.
+    response_sender.Run(response.Pass());
+    return;
+  }
+
+  dbus::MessageWriter writer(response.get());
   writer.AppendString(ep_bp_channel_.name);
+
+  scoped_ptr<dbus::FileDescriptor> client_fd(new dbus::FileDescriptor(fd));
+  client_fd->CheckValidity();
+  CHECK(client_fd->is_valid());
   writer.AppendFileDescriptor(*client_fd);
+
   response_sender.Run(response.Pass());
 }
 

@@ -92,27 +92,30 @@ static void on_app_properties_changed(GDBusProxy* proxy,
   }
 }
 
-static gboolean init_extension_process_channel(gpointer data) {
-  GDBusProxy* app_proxy = static_cast<GDBusProxy*>(data);
+static gboolean init_extension_process_channel(GDBusProxy* app_proxy) {
   if (ep_launcher->is_started())
     return FALSE;
+
   // Get the client socket file descriptor from fd_list. The reply will
   // contains an index to the list.
   GUnixFDList* fd_list;
   GVariant* res = g_dbus_proxy_call_with_unix_fd_list_sync(
       app_proxy, "GetEPChannel", NULL, G_DBUS_CALL_FLAGS_NONE,
       -1, NULL, &fd_list, NULL, NULL);
+  if (!res || g_variant_n_children(res) != 2)
+    return FALSE;
+
   const gchar* channel_id =
       g_variant_get_string(g_variant_get_child_value(res, 0), NULL);
-  if (!strlen(channel_id))
-    return TRUE;
+  if (!channel_id || !strlen(channel_id))
+    return FALSE;
 
   gint32 client_fd_idx =
       g_variant_get_handle(g_variant_get_child_value(res, 1));
   int client_fd = g_unix_fd_list_get(fd_list, client_fd_idx, NULL);
 
   ep_launcher->Launch(channel_id, client_fd);
-  return FALSE;
+  return TRUE;
 }
 
 static void on_app_signal(GDBusProxy* proxy,
@@ -224,7 +227,7 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   }
 #endif
 
-  g_idle_add(init_extension_process_channel, app_proxy);
+  init_extension_process_channel(app_proxy);
   g_main_loop_run(mainloop);
 }
 
