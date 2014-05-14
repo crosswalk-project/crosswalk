@@ -53,7 +53,7 @@ echo "Creating a new ${TAR_FILE} from ${BASE_SRC_DIR}/src"
 # referring to a source file does not need to be updated just because of a
 # version bump.
 tar --update --file "${TAR_FILE}" \
-    --exclude-vcs --exclude=native_client --exclude=LayoutTests \
+    --exclude-vcs --exclude=LayoutTests \
     --exclude=src/out --directory="${BASE_SRC_DIR}" \
     --transform="s:^:crosswalk/:S" \
     src
