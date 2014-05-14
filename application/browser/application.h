@@ -53,10 +53,11 @@ class Application : public Runtime::Observer {
 
   // Manifest keys that can be used as application entry points.
   enum LaunchEntryPoint {
-    AppMainKey = 1 << 0,  // app.main
-    LaunchLocalPathKey = 1 << 1,  // app.launch.local_path
-    URLKey = 1 << 2,  // url
-    Default = AppMainKey | LaunchLocalPathKey | URLKey
+    StartURLKey = 1 << 0,  // start_url
+    AppMainKey = 1 << 1,  // app.main
+    LaunchLocalPathKey = 1 << 2,  // app.launch.local_path
+    URLKey = 1 << 3,  // url
+    Default = StartURLKey | AppMainKey | LaunchLocalPathKey
   };
   typedef unsigned LaunchEntryPoints;
 
@@ -156,8 +157,9 @@ class Application : public Runtime::Observer {
   ui::WindowShowState GetWindowShowState(const LaunchParams& params);
 
   GURL GetURLFromAppMainKey();
-  GURL GetURLFromLocalPathKey();
   GURL GetURLFromURLKey();
+
+  GURL GetURLFromRelativePathKey(const std::string& key);
 
   friend class FinishEventObserver;
   void CloseMainDocument();

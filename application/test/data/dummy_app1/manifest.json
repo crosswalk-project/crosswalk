@@ -2,9 +2,5 @@
   "name": "dummy_app_1",
   "manifest_version": 1,
   "version": "1.0",
-  "app": {
-    "main": {
-      "scripts": ["main.js"]
-    }
-  }
+  "start_url": "main.html"
 }

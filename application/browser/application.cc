@@ -115,10 +115,10 @@ bool Application::Launch(const LaunchParams& launch_params) {
 
 GURL Application::GetStartURL(const LaunchParams& params,
                                   LaunchEntryPoint* used) {
-  if (params.entry_points & URLKey) {
-    GURL url = GetURLFromURLKey();
+  if (params.entry_points & StartURLKey) {
+    GURL url = GetURLFromRelativePathKey(keys::kStartURLKey);
     if (url.is_valid()) {
-      *used = URLKey;
+      *used = StartURLKey;
       return url;
     }
   }
@@ -132,9 +132,18 @@ GURL Application::GetStartURL(const LaunchParams& params,
   }
 
   if (params.entry_points & LaunchLocalPathKey) {
-    GURL url = GetURLFromLocalPathKey();
+    GURL url = GetURLFromRelativePathKey(
+        GetLaunchLocalPathKey(application_data_->GetPackageType()));
     if (url.is_valid()) {
       *used = LaunchLocalPathKey;
+      return url;
+    }
+  }
+
+  if (params.entry_points & URLKey) {
+    GURL url = GetURLFromURLKey();
+    if (url.is_valid()) {
+      *used = URLKey;
       return url;
     }
   }
@@ -170,12 +179,18 @@ ui::WindowShowState Application::GetWindowShowState(
   return ui::SHOW_STATE_DEFAULT;
 }
 
-GURL Application::GetURLFromLocalPathKey() {
+GURL Application::GetURLFromURLKey() {
+  const Manifest* manifest = application_data_->GetManifest();
+  std::string url_string;
+  if (!manifest->GetString(keys::kURLKey, &url_string))
+    return GURL();
+
+  return GURL(url_string);
+}
+
+GURL Application::GetURLFromRelativePathKey(const std::string& key) {
   const Manifest* manifest = application_data_->GetManifest();
   std::string entry_page;
-  std::string key(GetLaunchLocalPathKey(
-      application_data_->GetPackageType()));
-
   if (!manifest->GetString(key, &entry_page)
       || entry_page.empty()) {
     if (application_data_->GetPackageType() == Manifest::TYPE_XPK)
@@ -201,15 +216,6 @@ GURL Application::GetURLFromLocalPathKey() {
   }
 
   return application_data_->GetResourceURL(entry_page);
-}
-
-GURL Application::GetURLFromURLKey() {
-  const Manifest* manifest = application_data_->GetManifest();
-  std::string url_string;
-  if (!manifest->GetString(keys::kURLKey, &url_string))
-    return GURL();
-
-  return GURL(url_string);
 }
 
 void Application::Terminate(TerminationMode mode) {
