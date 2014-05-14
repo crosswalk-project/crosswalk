@@ -12,10 +12,12 @@
 #include "base/files/file_path.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/file_util.h"
+#include "base/i18n/rtl.h"
 #include "base/json/json_file_value_serializer.h"
 #include "base/logging.h"
 #include "base/metrics/histogram.h"
 #include "base/path_service.h"
+#include "base/strings/string16.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
@@ -38,10 +40,20 @@ namespace {
 const char kAttributePrefix[] = "@";
 const char kNamespaceKey[] = "@namespace";
 const char kTextKey[] = "#text";
-}
 
-namespace xwalk {
-namespace application {
+const xmlChar kWidgetNodeKey[] = "widget";
+const xmlChar kNameNodeKey[] = "name";
+const xmlChar kDescriptionNodeKey[] = "description";
+const xmlChar kAuthorNodeKey[] = "author";
+const xmlChar kLicenseNodeKey[] = "license";
+const xmlChar kVersionAttributeKey[] = "version";
+const xmlChar kShortAttributeKey[] = "short";
+const xmlChar kDirAttributeKey[] = "dir";
+
+const char kDirLTRKey[] = "ltr";
+const char kDirRTLKey[] = "rtl";
+const char kDirLROKey[] = "lro";
+const char kDirRLOKey[] = "rlo";
 
 inline char* ToCharPointer(void* ptr) {
   return reinterpret_cast<char *>(ptr);
@@ -50,6 +62,99 @@ inline char* ToCharPointer(void* ptr) {
 inline const char* ToConstCharPointer(const void* ptr) {
   return reinterpret_cast<const char*>(ptr);
 }
+
+base::string16 ToSting16(const xmlChar* string_ptr) {
+  return base::UTF8ToUTF16(std::string(ToConstCharPointer(string_ptr)));
+}
+
+base::string16 GetDirText(const base::string16& text, const std::string& dir) {
+  if (dir == kDirLTRKey)
+    return base::i18n::kLeftToRightEmbeddingMark
+           + text
+           + base::i18n::kPopDirectionalFormatting;
+
+  if (dir == kDirRTLKey)
+    return base::i18n::kRightToLeftEmbeddingMark
+           + text
+           + base::i18n::kPopDirectionalFormatting;
+
+  if (dir == kDirLROKey)
+    return base::i18n::kLeftToRightOverride
+           + text
+           + base::i18n::kPopDirectionalFormatting;
+
+  if (dir == kDirRLOKey)
+    return base::i18n::kRightToLeftOverride
+           + text
+           + base::i18n::kPopDirectionalFormatting;
+
+  return text;
+}
+
+std::string GetNodeDir(xmlNode* node, const std::string& inherit_dir) {
+  DCHECK(node);
+  std::string dir(inherit_dir);
+
+  xmlAttr* prop = NULL;
+  for (prop = node->properties; prop; prop = prop->next) {
+    if (xmlStrEqual(prop->name, kDirAttributeKey)) {
+      char* prop_value = ToCharPointer(xmlNodeListGetString(
+          node->doc, prop->children, 1));
+      dir = prop_value;
+      xmlFree(prop_value);
+      break;
+    }
+  }
+
+  return dir;
+}
+
+base::string16 GetNodeText(xmlNode* root, const std::string& inherit_dir) {
+  DCHECK(root);
+  if (root->type != XML_ELEMENT_NODE)
+    return base::string16();
+
+  std::string current_dir(GetNodeDir(root, inherit_dir));
+  base::string16 text;
+  for (xmlNode* node = root->children; node; node = node->next) {
+    if (node->type == XML_TEXT_NODE || node->type == XML_CDATA_SECTION_NODE) {
+      text = text + base::i18n::StripWrappingBidiControlCharacters(
+                        ToSting16(node->content));
+    } else {
+      text = text + GetNodeText(node, current_dir);
+    }
+  }
+  return GetDirText(text, current_dir);
+}
+
+// According to widget specification, this two prop need to support dir.
+// see detail on http://www.w3.org/TR/widgets/#the-dir-attribute
+inline bool IsPropSupportDir(xmlNode* root, xmlAttr* prop) {
+  if (xmlStrEqual(root->name, kWidgetNodeKey)
+     && xmlStrEqual(prop->name, kVersionAttributeKey))
+    return true;
+  if (xmlStrEqual(root->name, kNameNodeKey)
+     && xmlStrEqual(prop->name, kShortAttributeKey))
+    return true;
+  return false;
+}
+
+// Only this four items need to support span and ignore other element.
+// Besides xmlNodeListGetString can not support dir prop of span.
+// See http://www.w3.org/TR/widgets/#the-span-element-and-its-attributes
+inline bool IsElementSupportSpanAndDir(xmlNode* root) {
+  if (xmlStrEqual(root->name, kNameNodeKey)
+     || xmlStrEqual(root->name, kDescriptionNodeKey)
+     || xmlStrEqual(root->name, kAuthorNodeKey)
+     || xmlStrEqual(root->name, kLicenseNodeKey))
+    return true;
+  return false;
+}
+
+}  // namespace
+
+namespace xwalk {
+namespace application {
 
 // Load XML node into Dictionary structure.
 // The keys for the XML node to Dictionary mapping are described below:
@@ -89,19 +194,26 @@ inline const char* ToConstCharPointer(const void* ptr) {
 //     "@namespace": "linkB"
 //   }
 // }
-base::DictionaryValue* LoadXMLNode(xmlNode* root) {
+base::DictionaryValue* LoadXMLNode(
+    xmlNode* root, const std::string& inherit_dir = "") {
   scoped_ptr<base::DictionaryValue> value(new base::DictionaryValue);
   if (root->type != XML_ELEMENT_NODE)
     return NULL;
 
+  std::string current_dir(GetNodeDir(root, inherit_dir));
+
   xmlAttr* prop = NULL;
   for (prop = root->properties; prop; prop = prop->next) {
-    char* prop_value = ToCharPointer(xmlNodeListGetString(
-        root->doc, prop->children, 1));
+    xmlChar* value_ptr = xmlNodeListGetString(root->doc, prop->children, 1);
+    base::string16 prop_value(ToSting16(value_ptr));
+    xmlFree(value_ptr);
+
+    if (IsPropSupportDir(root, prop))
+      prop_value = GetDirText(prop_value, current_dir);
+
     value->SetString(
         std::string(kAttributePrefix) + ToConstCharPointer(prop->name),
         prop_value);
-    xmlFree(prop_value);
   }
 
   if (root->ns)
@@ -109,7 +221,7 @@ base::DictionaryValue* LoadXMLNode(xmlNode* root) {
 
   for (xmlNode* node = root->children; node; node = node->next) {
     std::string sub_node_name(ToConstCharPointer(node->name));
-    base::DictionaryValue* sub_value = LoadXMLNode(node);
+    base::DictionaryValue* sub_value = LoadXMLNode(node, current_dir);
     if (!sub_value)
       continue;
 
@@ -140,14 +252,19 @@ base::DictionaryValue* LoadXMLNode(xmlNode* root) {
     }
   }
 
-  char* text = ToCharPointer(
-      xmlNodeListGetString(root->doc, root->children, 1));
-  if (!text) {
-    value->SetString(kTextKey, std::string());
+  base::string16 text;
+  if (IsElementSupportSpanAndDir(root)) {
+    text = GetNodeText(root, current_dir);
   } else {
-    value->SetString(kTextKey, text);
+    xmlChar* text_ptr = xmlNodeListGetString(root->doc, root->children, 1);
+    if (text_ptr) {
+      text = ToSting16(text_ptr);
+      xmlFree(text_ptr);
+    }
   }
-  xmlFree(text);
+
+  if (!text.empty())
+    value->SetString(kTextKey, text);
 
   return value.release();
 }
