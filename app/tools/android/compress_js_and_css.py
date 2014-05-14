@@ -7,6 +7,7 @@
 import os
 import subprocess
 
+
 def GetJARFilename():
   # Version of YUI Compressor.
   version = "2.4.8"
@@ -20,7 +21,7 @@ def ExecuteCmd(file_list, ext):
   for file_full_path in file_list:
     if os.path.exists(file_full_path):
       cmd_args = ["java", "-jar", GetJARFilename(), "--type=" + ext,
-          file_full_path, "-o", file_full_path]
+                  file_full_path, "-o", file_full_path]
       subprocess.call(cmd_args)
 
 

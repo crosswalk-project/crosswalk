@@ -19,6 +19,7 @@ import os
 import re
 import sys
 
+
 def HandlePermissionList(permission_list):
   """This function is used to handle the permission list and return the string
   of permissions.
@@ -41,8 +42,8 @@ def HandlePermissionList(permission_list):
 
 
 class ManifestJsonParser(object):
-  """ The class is used to parse json-format manifest file, recompose the fields
-  and provide the field interfaces required by the packaging tool.
+  """ The class is used to parse json-format manifest file, recompose the
+  fields and provide the field interfaces required by the packaging tool.
 
   Args:
     input_path: the full path of the json-format manifest file.
@@ -98,8 +99,8 @@ class ManifestJsonParser(object):
     if 'launch_path' in self.data_src:
       app_url = self.data_src['launch_path']
     elif ('app' in self.data_src and
-        'launch' in self.data_src['app'] and
-            'local_path' in self.data_src['app']['launch']):
+          'launch' in self.data_src['app'] and
+          'local_path' in self.data_src['app']['launch']):
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
@@ -198,7 +199,6 @@ class ManifestJsonParser(object):
         self.GetLaunchScreenImage('landscape'))
     print('launch_screen.landscape.image_border: %s' %
         self.GetLaunchScreenImageBorder('landscape'))
-
 
   def GetAppName(self):
     """Return the application name."""

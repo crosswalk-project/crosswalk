@@ -12,6 +12,7 @@ import sys
 import unittest
 import warnings
 
+
 def Clean(name, app_version):
   if os.path.exists(name):
     shutil.rmtree(name)
@@ -60,13 +61,13 @@ def RunCommand(command):
 
 def GetResultWithOption(mode, manifest=None, name=None, package=None):
   app_url = None
-  if manifest != None:
+  if manifest is not None:
     manifest = '--manifest=' + manifest
   else:
     app_url = '--app-url=http://www.intel.com'
-  if name != None:
+  if name is not None:
     name = '--name=' + name
-  if package != None:
+  if package is not None:
     package = '--package=' + package
   cmd = ['python', 'make_apk.py',
          '--app-version=1.0.0',
@@ -391,9 +392,11 @@ class TestMakeApk(unittest.TestCase):
 
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('Please make sure that the local path file') != -1)
+    self.assertTrue(
+        out.find('Please make sure that the local path file') != -1)
     self.assertFalse(os.path.exists('Example.apk'))
 
   def testIconByOption(self):
@@ -462,7 +465,8 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example', '1.0.0')
 
   def testKeystore(self):
-    keystore_path = os.path.join('test_data', 'keystore', 'xwalk-test.keystore')
+    keystore_path = os.path.join('test_data', 'keystore',
+                                 'xwalk-test.keystore')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--keystore-path=%s' % keystore_path, '--keystore-alias=xwalk-test',
@@ -481,7 +485,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           self._mode]
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
@@ -509,7 +514,8 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithSpecificValue(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
+           self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('no app launch path') == -1)
@@ -567,7 +573,8 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(os.path.exists(extensions_config_json))
     with open(extensions_config_json, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(content.find('xwalk-extensions/myextension/myextension.js'))
+    self.assertTrue(
+        content.find('xwalk-extensions/myextension/myextension.js'))
     self.assertTrue(content.find('com.example.extension.MyExtension'))
     extension_js = 'Example/assets/xwalk-extensions/myextension/myextension.js'
     self.assertTrue(os.path.exists(extension_js))

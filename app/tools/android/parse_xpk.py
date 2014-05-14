@@ -33,14 +33,14 @@ EXIT_CODE_XPK_FILE_IO_ERROR = 6
 XPK_MAGIC_HEAD = 'CrWk'
 
 errorMessageMap = {
-  EXIT_CODE_CRYPTO_NOT_FOUND: 'Python module Crypto('\
-      'https://www.dlitz.net/software/pycrypto/) is needed',
-  EXIT_CODE_NO_XPK_FILE: 'Please specify XPK file by --file',
-  EXIT_CODE_XPK_FILE_NOT_EXIST: 'The XPK file you specified does not exist',
-  EXIT_CODE_MAGIC_FAILED: 'The file you specified is not in XPK format',
-  EXIT_CODE_VERIFICATION_FAILED:
-      'Signature verification failed for the XPK file',
-  EXIT_CODE_XPK_FILE_IO_ERROR: 'Error happened when reading the XPK file',
+    EXIT_CODE_CRYPTO_NOT_FOUND: 'Python module Crypto('\
+        'https://www.dlitz.net/software/pycrypto/) is needed',
+    EXIT_CODE_NO_XPK_FILE: 'Please specify XPK file by --file',
+    EXIT_CODE_XPK_FILE_NOT_EXIST: 'The XPK file you specified does not exist',
+    EXIT_CODE_MAGIC_FAILED: 'The file you specified is not in XPK format',
+    EXIT_CODE_VERIFICATION_FAILED:
+        'Signature verification failed for the XPK file',
+    EXIT_CODE_XPK_FILE_IO_ERROR: 'Error happened when reading the XPK file',
 }
 
 
@@ -92,12 +92,12 @@ def main():
 
   opts, _ = option_parser.parse_args()
 
-  if opts.file == None:
+  if opts.file is None:
     HandleError(EXIT_CODE_NO_XPK_FILE)
 
   app_name = os.path.splitext(os.path.basename(opts.file))[0]
 
-  if opts.out == None:
+  if opts.out is None:
     opts.out = app_name
 
   if os.path.isfile(opts.file):

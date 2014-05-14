@@ -22,6 +22,7 @@ from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
+
 def CleanDir(path):
   if os.path.exists(path):
     shutil.rmtree(path)
@@ -228,7 +229,8 @@ def Execution(options, name):
   sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
 
   try:
-    sdk_jar_path = Find('android.jar', os.path.join(sdk_root_path, 'platforms'))
+    sdk_jar_path = Find('android.jar',
+                        os.path.join(sdk_root_path, 'platforms'))
   except Exception:
     print('Your Android SDK may be ruined, please reinstall it.')
     sys.exit(2)
@@ -268,7 +270,7 @@ def Execution(options, name):
                                     'tools', 'lib', 'ant-tasks.jar')
   if not os.path.exists(ant_tasks_jar_path):
     ant_tasks_jar_path = os.path.join(sdk_root_path,
-                                      'tools', 'lib' ,'anttasks.jar')
+                                      'tools', 'lib', 'anttasks.jar')
 
   aapt_path = ''
   for aapt_str in AddExeExtensions('aapt'):
@@ -487,7 +489,7 @@ def Execution(options, name):
 
 
 def PrintPackageInfo(target_dir, app_name, app_version,
-                     arch = '', multi_arch = False):
+                     arch='', multi_arch=False):
   package_name_version = os.path.join(target_dir, app_name)
   if app_version != '':
     package_name_version += ('_' + app_version)
@@ -501,7 +503,7 @@ def PrintPackageInfo(target_dir, app_name, app_version,
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
            % (app_name, arch, package_name_version, arch))
-    if multi_arch == False:
+    if multi_arch is False:
       if arch == 'x86':
         print ('WARNING: This APK will only work on x86 based Android devices. '
                'Consider building for ARM as well.')
@@ -548,7 +550,7 @@ def MakeApk(options):
         sys.exit(13)
 
       multi_arch = False
-      if len(packaged_archs) >=2:
+      if len(packaged_archs) >= 2:
         multi_arch = True
       for arch in packaged_archs:
         PrintPackageInfo(options.target_dir, name, app_version, arch,
@@ -631,8 +633,8 @@ def main(argv):
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
   group.add_option('--enable-remote-debugging', action='store_true',
-                    dest='enable_remote_debugging', default=False,
-                    help = 'Enable remote debugging.')
+                   dest='enable_remote_debugging', default=False,
+                   help='Enable remote debugging.')
   info = ('The list of external extension paths splitted by OS separators. '
           'The separators are \':\' , \';\' and \':\' on Linux, Windows and '
           'Mac OS respectively. For example, '
@@ -673,8 +675,8 @@ def main(argv):
           '--compressor=js: compress javascript.'
           '--compressor=css: compress css.')
   group.add_option('--compressor', dest='compressor', action='callback',
-                   callback=ParseParameterForCompressor, type='string', nargs=0,
-                   help=info)
+                   callback=ParseParameterForCompressor, type='string',
+                   nargs=0, help=info)
   parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -710,9 +712,12 @@ def main(argv):
       VerifyAppName(options.name)
     else:
       parser.error('The APK name is required! Please use "--name" option.')
-    if not ((options.app_url and not options.app_root
-        and not options.app_local_path) or ((not options.app_url)
-            and options.app_root and options.app_local_path)):
+    if not ((options.app_url and
+             not options.app_root and
+             not options.app_local_path) or
+            (not options.app_url and
+             options.app_root and
+             options.app_local_path)):
       parser.error('The entry is required. If the entry is a remote url, '
                    'please use "--app-url" option; If the entry is local, '
                    'please use "--app-root" and '
@@ -732,8 +737,9 @@ def main(argv):
     except SystemExit as ec:
       return ec.code
 
-  if (options.app_root and options.app_local_path and not
-      os.path.isfile(os.path.join(options.app_root, options.app_local_path))):
+  if (options.app_root and options.app_local_path and
+      not os.path.isfile(os.path.join(options.app_root,
+                                      options.app_local_path))):
     print('Please make sure that the local path file of launching app '
           'does exist.')
     sys.exit(7)

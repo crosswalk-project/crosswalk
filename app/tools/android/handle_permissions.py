@@ -27,20 +27,20 @@ from xml.parsers.expat import ExpatError
 # The global permission mapping table.
 # TODO: update the permission mapping table for added permission.
 permission_mapping_table = {
-  'contacts' : ['android.permission.READ_CONTACTS',
-                'android.permission.WRITE_CONTACTS'],
-  'geolocation' : ['android.permission.ACCESS_FINE_LOCATION'],
-  'messaging' : ['android.permission.READ_SMS',
-                 'android.permission.READ_PHONE_STATE',
-                 'android.permission.RECEIVE_SMS',
-                 'android.permission.SEND_SMS',
-                 'android.permission.WRITE_SMS'],
-  'devicecapabilities' : [],
-  'fullscreen' : [],
-  'presentation' : [],
-  'rawsockets' : [],
-  'screenorientation' : [],
-  'vibration' : ['android.permission.VIBRATE']
+    'contacts': ['android.permission.READ_CONTACTS',
+                 'android.permission.WRITE_CONTACTS'],
+    'geolocation': ['android.permission.ACCESS_FINE_LOCATION'],
+    'messaging': ['android.permission.READ_SMS',
+                  'android.permission.READ_PHONE_STATE',
+                  'android.permission.RECEIVE_SMS',
+                  'android.permission.SEND_SMS',
+                  'android.permission.WRITE_SMS'],
+    'devicecapabilities': [],
+    'fullscreen': [],
+    'presentation': [],
+    'rawsockets': [],
+    'screenorientation': [],
+    'vibration': ['android.permission.VIBRATE']
 }
 
 

@@ -22,12 +22,13 @@ from handle_xml import EditElementValueByNodeName
 from handle_permissions import HandlePermissions
 from xml.dom import minidom
 
+
 def VerifyAppName(value, mode='default'):
   descrpt = 'The app'
   sample = 'helloworld, hello_world, hello_world1'
   regex = r'^([a-zA-Z](\w)*)+$'
 
-  if len(value) >= 128 :
+  if len(value) >= 128:
     print('To be safe, the length of package name or app name '
           'should be less than 128.')
     sys.exit(6)
@@ -57,11 +58,11 @@ def ReplaceInvalidChars(value, mode='default'):
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
       print("Illegal character: '%s' is replaced with '_'" % c)
-    value = value.replace(c,'_')
+    value = value.replace(c, '_')
   return value
 
 
-def GetFilesByExt(path, ext, sub_dir = True):
+def GetFilesByExt(path, ext, sub_dir=True):
   if os.path.exists(path):
     file_list = []
     for name in os.listdir(path):
@@ -114,7 +115,7 @@ def Prepare(name, package, app_root, compressor):
     print ('Please make sure that the java file'
            ' of activity does exist.')
     sys.exit(7)
-  root_path =  os.path.join(name, 'src', package.replace('.', os.path.sep))
+  root_path = os.path.join(name, 'src', package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
   dest_activity = name + 'Activity.java'
@@ -231,7 +232,7 @@ def SetVariable(file_path, string_line, variable, value):
 def CustomizeJava(name, package, app_url, app_local_path,
                   enable_remote_debugging, display_as_fullscreen,
                   keep_screen_on):
-  root_path =  os.path.join(name, 'src', package.replace('.', os.path.sep))
+  root_path = os.path.join(name, 'src', package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
   ReplaceString(dest_activity, 'AppTemplate', name)
@@ -267,7 +268,7 @@ def CustomizeJava(name, package, app_url, app_local_path,
     ReplaceString(
         dest_activity,
         'super.onCreate(savedInstanceState);',
-        'super.onCreate(savedInstanceState);\n        '+
+        'super.onCreate(savedInstanceState);\n        ' +
         'getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);')
 
 
@@ -351,8 +352,9 @@ def CustomizeExtensions(name, extensions):
       json_output = json.JSONDecoder().decode(src_file_content)
       # Below 3 properties are used by runtime. See extension manager.
       # And 'permissions' will be merged.
-      if ((not 'name' in json_output) or (not 'class' in json_output)
-          or (not 'jsapi' in json_output)):
+      if not ('name' in json_output and
+              'class' in json_output and
+              'jsapi' in json_output):
         print ('Error: properties \'name\', \'class\' and \'jsapi\' in a json '
                'file are mandatory.')
         sys.exit(9)
@@ -402,8 +404,9 @@ def GenerateCommandLineFile(name, xwalk_command_line):
 
 def CustomizeIconByDict(name, app_root, icon_dict):
   icon_name = None
-  drawable_dict = {'ldpi':[1, 37], 'mdpi':[37, 72], 'hdpi':[72, 96],
-                   'xhdpi':[96, 120], 'xxhdpi':[120, 144], 'xxxhdpi':[144, 168]}
+  drawable_dict = {'ldpi': [1, 37], 'mdpi': [37, 72], 'hdpi': [72, 96],
+                   'xhdpi': [96, 120], 'xxhdpi': [120, 144],
+                   'xxxhdpi': [144, 168]}
   if not icon_dict:
     return icon_name
 
@@ -413,7 +416,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
     print('The key of icon in the manifest file should be a number.')
 
   if len(icon_dict) > 0:
-    icon_list = sorted(icon_dict.iteritems(), key = lambda d:d[0])
+    icon_list = sorted(icon_dict.iteritems(), key=lambda d: d[0])
     for kd, vd in drawable_dict.iteritems():
       for item in icon_list:
         if item[0] >= vd[0] and item[0] < vd[1]:
@@ -512,7 +515,7 @@ def main():
   parser.add_option('--app-local-path', help=info)
   parser.add_option('--enable-remote-debugging', action='store_true',
                     dest='enable_remote_debugging', default=False,
-                    help = 'Enable remote debugging.')
+                    help='Enable remote debugging.')
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')
@@ -547,22 +550,23 @@ def main():
                  72: 'icons/icon_72.png',
                  96: 'icons/icon_96.png',
                  48: 'icons/icon_48.png'}
-    if options.name == None:
+    if options.name is None:
       options.name = 'Example'
-    if options.app_root == None:
+    if options.app_root is None:
       options.app_root = os.path.join('test_data', 'manifest')
-    if options.package == None:
+    if options.package is None:
       options.package = 'org.xwalk.app.template'
-    if options.orientation == None:
+    if options.orientation is None:
       options.orientation = 'unspecified'
-    if options.app_version == None:
+    if options.app_version is None:
       options.app_version = '1.0.0'
     icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
     CustomizeAll(options.app_versionCode, options.description, icon_dict,
                  options.permissions, options.app_url, options.app_root,
                  options.app_local_path, options.enable_remote_debugging,
-                 options.fullscreen, options.keep_screen_on, options.extensions,
-                 options.manifest, icon, options.package, options.name,
+                 options.fullscreen, options.keep_screen_on,
+                 options.extensions, options.manifest,
+                 icon, options.package, options.name,
                  options.app_version, options.orientation,
                  options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
