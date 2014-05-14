@@ -30,6 +30,7 @@ const char kLaunchWebURLKey[] = "app.launch.web_url";
 const char kManifestVersionKey[] = "manifest_version";
 const char kNameKey[] = "name";
 const char kPermissionsKey[] = "permissions";
+const char kStartURLKey[] = "start_url";
 const char kURLKey[] = "url";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";

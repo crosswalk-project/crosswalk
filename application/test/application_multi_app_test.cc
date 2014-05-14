@@ -29,8 +29,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
   // The App1 has 2 pages: main doc page and "main.html" page.
-  EXPECT_EQ(app1->runtimes().size(), 2);
-  ASSERT_TRUE(app1->GetMainDocumentRuntime());
+  EXPECT_EQ(app1->runtimes().size(), 1);
 
   EXPECT_EQ(service->active_applications().size(), currently_running_count + 1);
   EXPECT_EQ(service->GetApplicationByID(app1->id()), app1);
@@ -51,8 +50,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);
 
   // The App2 also has 2 pages: main doc page and "main.html" page.
-  EXPECT_EQ(app2->runtimes().size(), 2);
-  ASSERT_TRUE(app2->GetMainDocumentRuntime());
+  EXPECT_EQ(app2->runtimes().size(), 1);
 
   // Check that the apps have different IDs and RPH IDs.
   EXPECT_NE(app1->id(), app2->id());
