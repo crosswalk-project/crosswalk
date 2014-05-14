@@ -1,6 +1,16 @@
 %bcond_with x
 %bcond_with wayland
 
+%ifarch x86_64
+# NaCl build on 64bit system require libc 32bit to build the 32 IRT.
+# While Tizen 64bit image does not offer 32bit packages at all,
+# check https://bugs.tizen.org/jira/browse/PTREL-803 for details.
+# So disable nacl for 64bit now.
+%define _disable_nacl 1
+%else
+%define _disable_nacl 0
+%endif
+
 Name:           crosswalk
 Version:        7.35.139.0
 Release:        0
@@ -21,10 +31,12 @@ Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
+BuildRequires:  elfutils
 BuildRequires:  expat-devel
 BuildRequires:  flex
 BuildRequires:  gperf
 BuildRequires:  libcap-devel
+BuildRequires:  libelf-devel
 BuildRequires:  ninja
 BuildRequires:  python
 BuildRequires:  python-xml
@@ -122,6 +134,15 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 # CFLAGS end up appending -fno-omit-frame-pointer. See http://crbug.com/37246
 export CFLAGS=`echo $CFLAGS | sed s,-fno-omit-frame-pointer,,g`
 
+%if ! %{_disable_nacl}
+# For nacl_bootstrap on ia32. The original CFLAGS set by the gyp
+# native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp already ignored 
+# -fstack-protector and -funwind-tables, but Tizen's CFLAGS end up appending them, thus
+# causing linking failures. Check XWALK-1689 for details.
+export CFLAGS=`echo $CFLAGS | sed s,-fstack-protector,,g`
+export CFLAGS=`echo $CFLAGS | sed s,-funwind-tables,,g`
+%endif
+
 # Building the RPM in the GBS chroot fails with errors such as
 #   /usr/lib/gcc/i586-tizen-linux/4.7/../../../../i586-tizen-linux/bin/ld:
 #       failed to set dynamic section sizes: Memory exhausted
@@ -145,6 +166,8 @@ fi
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
 %endif
 
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
+
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='ninja'
@@ -152,7 +175,6 @@ export GYP_GENERATORS='ninja'
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
--Ddisable_nacl=1 \
 -Dtizen=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
@@ -185,6 +207,18 @@ install -p -D src/out/Release/lib/libmojo_system.so %{buildroot}%{_libdir}/xwalk
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
+# PNaCl
+%if ! %{_disable_nacl}
+install -p -D src/out/Release/libppGoogleNaClPluginChrome.so %{buildroot}%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
+install -p -D src/out/Release/nacl_bootstrap_munge_phdr %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_munge_phdr
+install -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
+install -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
+install -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
+install -p -D src/out/Release/nacl_irt_*.nexe %{buildroot}%{_libdir}/xwalk
+install -p -d %{buildroot}%{_libdir}/xwalk/pnacl
+install -m 0664 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
+%endif
+
 # Register xwalk to the package manager.
 install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
 install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
@@ -203,6 +237,15 @@ mkdir -p %{_manifestdir_ro}
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/lib/libmojo_system.so
 %{_libdir}/xwalk/libffmpegsumo.so
+%if ! %{_disable_nacl}
+%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
+%{_libdir}/xwalk/nacl_bootstrap_munge_phdr
+%{_libdir}/xwalk/nacl_bootstrap_raw
+%{_libdir}/xwalk/nacl_helper
+%{_libdir}/xwalk/nacl_helper_bootstrap
+%{_libdir}/xwalk/nacl_irt_*.nexe
+%{_libdir}/xwalk/pnacl/*
+%endif
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
 %{_manifestdir}/%{name}.xml
