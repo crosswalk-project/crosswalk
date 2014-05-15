@@ -71,6 +71,7 @@ class XWalkContentsClientCallbackHelper {
     private final static int MSG_ON_DOWNLOAD_START = 3;
     private final static int MSG_ON_RECEIVED_LOGIN_REQUEST = 4;
     private final static int MSG_ON_RECEIVED_ERROR = 5;
+    private final static int MSG_ON_RESOURCE_LOAD_STARTED = 6;
 
     private final XWalkContentsClient mContentsClient;
 
@@ -103,6 +104,11 @@ class XWalkContentsClientCallbackHelper {
                     OnReceivedErrorInfo info = (OnReceivedErrorInfo) msg.obj;
                     mContentsClient.onReceivedError(info.mErrorCode, info.mDescription,
                             info.mFailingUrl);
+                    break;
+                }
+                case MSG_ON_RESOURCE_LOAD_STARTED: {
+                    final String url = (String) msg.obj;
+                    mContentsClient.onResourceLoadStarted(url);
                     break;
                 }
                 default:
@@ -139,5 +145,9 @@ class XWalkContentsClientCallbackHelper {
     public void postOnReceivedError(int errorCode, String description, String failingUrl) {
         OnReceivedErrorInfo info = new OnReceivedErrorInfo(errorCode, description, failingUrl);
         mHandler.sendMessage(mHandler.obtainMessage(MSG_ON_RECEIVED_ERROR, info));
+    }
+
+    public void postOnResourceLoadStarted(String url) {
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_ON_RESOURCE_LOAD_STARTED, url));
     }
 }

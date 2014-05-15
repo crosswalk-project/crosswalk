@@ -120,6 +120,10 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract WebResourceResponse shouldInterceptRequest(String url);
 
+    public abstract void onResourceLoadStarted(String url);
+
+    public abstract void onResourceLoadFinished(String url);
+
     public abstract void onLoadResource(String url);
 
     public abstract boolean shouldOverrideUrlLoading(String url);
