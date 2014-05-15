@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
   g_type_init();
 #endif
 
-  if (xwalk_tizen_set_home_for_user_app())
+  if (xwalk_tizen_check_user_app())
     exit(1);
 
   context = g_option_context_new("- Crosswalk Application Management");
