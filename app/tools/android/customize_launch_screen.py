@@ -63,11 +63,11 @@ def CopyDrawables(image_dict, orientation, sanitized_name, name, app_root):
   # If no supported images found, find the closest one as 1x.
   if not has_image:
     closest = ''
-    delta = sys.maxint
-    for (k , v) in  image_dict.items():
+    delta = sys.maxsize
+    for(k, v) in image_dict.items():
       items = k.split('x')
       if len(items) == 2:
-        float_value = sys.maxint
+        float_value = sys.maxsize
         try:
           float_value = float(items[0])
         except ValueError:
