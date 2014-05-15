@@ -887,6 +887,10 @@ class TestMakeApk(unittest.TestCase):
     result = GetResultWithOption(self._mode, manifest_path)
     self.assertTrue(result.find(app_name_error) != -1)
 
+    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) == -1)
+
     package = 'org.xwalk.example'
     name = '_hello'
     result = GetResultWithOption(self._mode, name=name, package=package)
