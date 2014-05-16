@@ -128,6 +128,10 @@ var WidgetStorage = function() {
 var widgetStorage = new WidgetStorage();
 exports.preferences = widgetStorage;
 
+exports.toString = function() {
+  return '[object Widget]';
+}
+
 Object.defineProperty(exports, 'preferences', {
   configurable: false,
   enumerable: false,
