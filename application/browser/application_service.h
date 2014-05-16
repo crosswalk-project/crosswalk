@@ -22,7 +22,6 @@ class RuntimeContext;
 namespace application {
 
 class ApplicationStorage;
-class ApplicationEventManager;
 
 // The application service manages install, uninstall and updates of
 // applications.
@@ -47,8 +46,7 @@ class ApplicationService : public Application::Observer {
   };
 
   ApplicationService(RuntimeContext* runtime_context,
-                     ApplicationStorage* app_storage,
-                     ApplicationEventManager* event_manager);
+                     ApplicationStorage* app_storage);
   virtual ~ApplicationService();
 
   bool Install(const base::FilePath& path, std::string* id);
@@ -97,7 +95,6 @@ class ApplicationService : public Application::Observer {
 
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
-  ApplicationEventManager* event_manager_;
   ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
   scoped_ptr<PermissionPolicyManager> permission_policy_handler_;

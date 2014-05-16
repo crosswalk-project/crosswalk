@@ -26,7 +26,6 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
-#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
@@ -154,13 +153,6 @@ bool ApplicationData::IsHostedApp() const {
 
 Manifest::PackageType ApplicationData::GetPackageType() const {
   return manifest_->GetPackageType();
-}
-
-bool ApplicationData::HasMainDocument() const {
-  MainDocumentInfo* main_info = ToMainDocumentInfo(
-      GetManifestData(application_manifest_keys::kAppMainKey));
-
-  return main_info != NULL;
 }
 
 // static

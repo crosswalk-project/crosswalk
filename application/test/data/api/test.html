@@ -1,9 +1,7 @@
 <html>
 <head>
 <title></title>
-</head>
-<body>
-  <script>
+<script>
   var assert = xwalk.app.test.assert;
   var getManifestTest = function(resolve) {
     xwalk.app.runtime.getManifest(function(manifest) {
@@ -15,21 +13,16 @@
     });
   };
 
-  var getMainDocumentTest = function(resolve) {
-    xwalk.app.runtime.getMainDocument(function(main) {
-      assert(main);
-      assert(main.initialized);
-      resolve();
-    });
-  };
-
   var tests = [
-    getManifestTest,
-    getMainDocumentTest,
+    getManifestTest,    
   ];
 
-  // Wait at most 10 seconds, see commen in eventapi/main.js
-  xwalk.app.test.runTests(tests, 10000);
-  </script>
+  function onLoad() {
+    xwalk.app.test.runTests(tests, 10000);
+  }
+
+</script>
+</head>
+<body onload = "onLoad()">
 </body>
 </html>

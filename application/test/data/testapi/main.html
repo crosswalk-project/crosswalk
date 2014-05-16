@@ -1,3 +1,7 @@
+<html>
+<head>
+<title></title>
+<script>
 var notifyFailTest = function(resolve) {
   setTimeout(function() {
     xwalk.app.test.notifyFail(function() {
@@ -28,4 +32,11 @@ var tests = [
   notifyTimeoutTest,
 ];
 
-xwalk.app.test.runTests(tests);
+function onLoad() {
+  xwalk.app.test.runTests(tests);
+}
+
+</script>
+</head>
+<body onload = "onLoad()"/>
+</html>

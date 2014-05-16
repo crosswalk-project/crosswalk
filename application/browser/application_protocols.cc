@@ -35,7 +35,6 @@
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
-#include "xwalk/application/common/manifest_handlers/main_document_handler.h"
 
 using content::BrowserThread;
 using content::ResourceRequestInfo;
@@ -85,58 +84,6 @@ net::HttpResponseHeaders* BuildHttpHeaders(
   raw_headers.append(2, '\0');
   return new net::HttpResponseHeaders(raw_headers);
 }
-
-class GeneratedMainDocumentJob: public net::URLRequestSimpleJob {
- public:
-  GeneratedMainDocumentJob(
-      net::URLRequest* request,
-      net::NetworkDelegate* network_delegate,
-      const base::FilePath& relative_path,
-      const scoped_refptr<const ApplicationData> application,
-      const std::string& content_security_policy)
-    : net::URLRequestSimpleJob(request, network_delegate),
-      application_(application),
-      mime_type_("text/html"),
-      relative_path_(relative_path),
-      content_security_policy_(content_security_policy) {
-  }
-
-  // Overridden from URLRequestSimpleJob:
-  virtual int GetData(std::string* mime_type,
-                      std::string* charset,
-                      std::string* data,
-                      const net::CompletionCallback& callback) const OVERRIDE {
-    *mime_type = mime_type_;
-    *charset = "utf-8";
-    *data = "<!DOCTYPE html>\n<body>\n";
-
-    MainDocumentInfo* main_info = xwalk::application::ToMainDocumentInfo(
-        application_->GetManifestData(keys::kAppMainKey));
-    const std::vector<std::string>& main_scripts = main_info->GetMainScripts();
-    for (size_t i = 0; i < main_scripts.size(); ++i) {
-      *data += "<script src=\"";
-      *data += main_scripts[i];
-      *data += "\"></script>\n";
-    }
-    return net::OK;
-  }
-
-  virtual void GetResponseInfo(net::HttpResponseInfo* info) OVERRIDE {
-    response_info_.headers = BuildHttpHeaders(content_security_policy_,
-                                              mime_type_, "GET", relative_path_,
-                                              relative_path_, true);
-    *info = response_info_;
-  }
-
- private:
-  virtual ~GeneratedMainDocumentJob() {}
-
-  scoped_refptr<const ApplicationData> application_;
-  const std::string mime_type_;
-  const base::FilePath relative_path_;
-  net::HttpResponseInfo response_info_;
-  std::string content_security_policy_;
-};
 
 void ReadResourceFilePath(
     const ApplicationResource& resource,
@@ -311,13 +258,6 @@ ApplicationProtocolHandler::MaybeCreateJob(
   }
 
   const std::string& path = request->url().path();
-  if (application &&
-      path.size() > 1 &&
-      path.substr(1) == kGeneratedMainDocumentFilename) {
-    return new GeneratedMainDocumentJob(request, network_delegate,
-                                        relative_path, application,
-                                        content_security_policy);
-  }
 
   std::list<std::string> locales;
   if (application && application->GetPackageType() == Manifest::TYPE_WGT) {

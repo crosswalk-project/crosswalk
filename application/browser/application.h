@@ -15,11 +15,16 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
+#include "content/public/browser/render_process_host_observer.h"
 #include "ui/base/ui_base_types.h"
-#include "xwalk/application/browser/event_observer.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/security_policy.h"
 #include "xwalk/runtime/browser/runtime.h"
+
+
+namespace content {
+  class RenderProcessHost;
+}
 
 namespace xwalk {
 
@@ -37,7 +42,8 @@ class SecurityPolicy;
 // terminated.
 // There's one-to-one correspondence between Application and Render Process
 // Host, obtained from its "runtimes" (pages).
-class Application : public Runtime::Observer {
+class Application : public Runtime::Observer,
+                    public content::RenderProcessHostObserver {
  public:
   virtual ~Application();
 
@@ -54,10 +60,9 @@ class Application : public Runtime::Observer {
   // Manifest keys that can be used as application entry points.
   enum LaunchEntryPoint {
     StartURLKey = 1 << 0,  // start_url
-    AppMainKey = 1 << 1,  // app.main
-    LaunchLocalPathKey = 1 << 2,  // app.launch.local_path
-    URLKey = 1 << 3,  // url
-    Default = StartURLKey | AppMainKey | LaunchLocalPathKey
+    LaunchLocalPathKey = 1 << 1,  // app.launch.local_path
+    URLKey = 1 << 2,  // url
+    Default = StartURLKey | LaunchLocalPathKey
   };
   typedef unsigned LaunchEntryPoints;
 
@@ -83,30 +88,18 @@ class Application : public Runtime::Observer {
   //
   // NOTE: ApplicationService deletes an Application instance
   // immediately after its termination.
-  enum TerminationMode {
-    Normal,
-    Immediate  // Ignore OnSuspend event handler.
-  };
-  void Terminate(TerminationMode = Normal);
-
-  // Returns Runtime (application page) containing the application's
-  // 'main document'. The main document is the main entry point of
-  // the application to the system. This method will return 'NULL'
-  // if application has different entry point (local path manifest key).
-  // See http://anssiko.github.io/runtime/app-lifecycle.html#dfn-main-document
-  // The main document never has a visible window on its own.
-  Runtime* GetMainDocumentRuntime() const;
+  void Terminate();
 
   const std::set<Runtime*>& runtimes() const { return runtimes_; }
 
   // Returns the unique application id which is used to distinguish the
   // application amoung both running applications and installed ones
   // (ApplicationData objects).
-  std::string id() const { return application_data_->ID(); }
+  std::string id() const { return data_->ID(); }
   int GetRenderProcessHostID() const;
 
-  const ApplicationData* data() const { return application_data_; }
-  ApplicationData* data() { return application_data_; }
+  const ApplicationData* data() const { return data_; }
+  ApplicationData* data() { return data_; }
 
   // Tells whether the application use the specified extension.
   bool UseExtension(const std::string& extension_name) const;
@@ -138,16 +131,25 @@ class Application : public Runtime::Observer {
   virtual void InitSecurityPolicy();
   void AddSecurityPolicy(const GURL& url, bool subdomains);
 
-  Runtime* main_runtime_;
   std::set<Runtime*> runtimes_;
-  scoped_refptr<ApplicationData> const application_data_;
-  bool is_security_mode_;
+  scoped_refptr<ApplicationData> const data_;
+  // The application's render process host.
+  content::RenderProcessHost* render_process_host_;
+  bool security_mode_enabled_;
 
  private:
-  bool HasMainDocument() const;
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
+
+  // content::RenderProcessHostObserver implementation.
+  virtual void RenderProcessExited(content::RenderProcessHost* host,
+                                   base::ProcessHandle handle,
+                                   base::TerminationStatus status,
+                                   int exit_code) OVERRIDE;
+  virtual void RenderProcessHostDestroyed(
+      content::RenderProcessHost* host) OVERRIDE;
+
 
   bool Launch(const LaunchParams& launch_params);
 
@@ -156,23 +158,16 @@ class Application : public Runtime::Observer {
   GURL GetStartURL(const LaunchParams& params, LaunchEntryPoint* used);
   ui::WindowShowState GetWindowShowState(const LaunchParams& params);
 
-  GURL GetURLFromAppMainKey();
   GURL GetURLFromURLKey();
 
   GURL GetURLFromRelativePathKey(const std::string& key);
 
-  friend class FinishEventObserver;
-  void CloseMainDocument();
   void NotifyTermination();
-  bool IsOnSuspendHandlerRegistered() const;
-  bool IsTerminating() const { return finish_observer_; }
 
   RuntimeContext* runtime_context_;
-  scoped_ptr<EventObserver> finish_observer_;
   Observer* observer_;
   // The entry point used as part of Launch().
   LaunchEntryPoint entry_point_used_;
-  TerminationMode termination_mode_used_;
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.
   StoredPermissionMap permission_map_;

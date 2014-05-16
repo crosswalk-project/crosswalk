@@ -65,18 +65,18 @@ void ApplicationTizen::Hide() {
 void ApplicationTizen::InitSecurityPolicy() {
   // On Tizen, CSP mode has higher priority, and WARP will be disabled
   // if the application is under CSP mode.
-  if (!application_data_->HasCSPDefined()) {
+  if (!data_->HasCSPDefined()) {
     Application::InitSecurityPolicy();
     return;
   }
 
-  if (application_data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Manifest::TYPE_WGT)
     return;
 
   // Always enable security mode when under CSP mode.
-  is_security_mode_ = true;
+  security_mode_enabled_ = true;
   NavigationInfo* info = static_cast<NavigationInfo*>(
-      application_data_->GetManifestData(widget_keys::kAllowNavigationKey));
+      data_->GetManifestData(widget_keys::kAllowNavigationKey));
   if (info) {
     const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
     for (std::vector<std::string>::const_iterator it = allowed_list.begin();
@@ -84,7 +84,7 @@ void ApplicationTizen::InitSecurityPolicy() {
       // If the policy is "*", it represents that any external link is allowed
       // to navigate to.
       if ((*it) == kAsterisk) {
-        is_security_mode_ = false;
+        security_mode_enabled_ = false;
         return;
       }
 
@@ -98,7 +98,8 @@ void ApplicationTizen::InitSecurityPolicy() {
       AddSecurityPolicy(GURL("https://" + host), subdomains);
     }
   }
-  main_runtime_->GetRenderProcessHost()->Send(
+  DCHECK(render_process_host_);
+  render_process_host_->Send(
       new ViewMsg_EnableSecurityMode(
           ApplicationData::GetBaseURLFromApplicationId(id()),
           SecurityPolicy::CSP));

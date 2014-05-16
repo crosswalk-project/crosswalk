@@ -16,13 +16,11 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
-#include "xwalk/application/browser/application_event_manager.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_file_util.h"
-#include "xwalk/application/common/event_names.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
@@ -38,126 +36,6 @@ namespace xwalk {
 namespace application {
 
 namespace {
-
-void WaitForEventAndClose(
-    const std::string& app_id,
-    const std::string& event_name,
-    ApplicationService* application_service,
-    ApplicationEventManager* event_manager) {
-
-  class CloseOnEventArrived : public EventObserver {
-   public:
-    CloseOnEventArrived(
-        const std::string& event_name,
-        ApplicationService* application_service,
-        ApplicationEventManager* event_manager)
-        : EventObserver(event_manager),
-          event_name_(event_name),
-          application_service_(application_service) {}
-
-    virtual void Observe(
-        const std::string& app_id,
-        scoped_refptr<Event> event) OVERRIDE {
-      DCHECK(kOnJavaScriptEventAck == event->name());
-      std::string ack_event_name;
-      event->args()->GetString(0, &ack_event_name);
-      if (ack_event_name != event_name_)
-        return;
-
-      if (Application* app = application_service_->GetApplicationByID(app_id))
-        app->Terminate(Application::Immediate);
-
-      delete this;
-    }
-
-   private:
-    std::string event_name_;
-    ApplicationService* application_service_;
-  };
-
-  DCHECK(event_manager);
-  CloseOnEventArrived* observer =
-      new CloseOnEventArrived(event_name, application_service, event_manager);
-  event_manager->AttachObserver(app_id,
-      kOnJavaScriptEventAck, observer);
-}
-
-void WaitForFinishLoad(
-    const std::string& app_id,
-    ApplicationService* application_service,
-    ApplicationEventManager* event_manager,
-    content::WebContents* contents) {
-  class CloseAfterLoadObserver : public content::WebContentsObserver {
-   public:
-    CloseAfterLoadObserver(
-        const std::string& app_id,
-        ApplicationService* application_service,
-        ApplicationEventManager* event_manager,
-        content::WebContents* contents)
-        : content::WebContentsObserver(contents),
-          id_(app_id),
-          application_service_(application_service),
-          event_manager_(event_manager) {
-      DCHECK(application_service_);
-      DCHECK(event_manager_);
-    }
-
-    virtual void DidFinishLoad(
-        int64 frame_id,
-        const GURL& validate_url,
-        bool is_main_frame,
-        content::RenderViewHost* render_view_host) OVERRIDE {
-      Application* app = application_service_->GetApplicationByID(id_);
-      if (!app) {
-        delete this;
-        return;
-      }
-
-      if (!IsEventHandlerRegistered(app->data(), kOnInstalled)) {
-          app->Terminate(Application::Immediate);
-      } else {
-        scoped_ptr<base::ListValue> event_args(new base::ListValue);
-        scoped_refptr<Event> event =
-            Event::CreateEvent(kOnInstalled, event_args.Pass());
-        event_manager_->SendEvent(id_, event);
-
-        WaitForEventAndClose(
-            id_, event->name(), application_service_, event_manager_);
-      }
-      delete this;
-    }
-
-   private:
-    bool IsEventHandlerRegistered(scoped_refptr<ApplicationData> app_data,
-                                  const std::string& event_name) const {
-      const std::set<std::string>& events = app_data->GetEvents();
-      return events.find(event_name) != events.end();
-    }
-
-    std::string id_;
-    ApplicationService* application_service_;
-    ApplicationEventManager* event_manager_;
-  };
-
-  // This object is self-destroyed when an event occurs.
-  new CloseAfterLoadObserver(
-      app_id, application_service, event_manager, contents);
-}
-
-void SaveSystemEventsInfo(
-    scoped_refptr<ApplicationData> application_data,
-    ApplicationService* application_service,
-    ApplicationEventManager* event_manager) {
-  // We need to run main document after installation in order to
-  // register system events.
-  if (application_data->HasMainDocument()) {
-    if (Application* application =
-        application_service->Launch(application_data->ID())) {
-      WaitForFinishLoad(application->id(), application_service, event_manager,
-                        application->GetMainDocumentRuntime()->web_contents());
-    }
-  }
-}
 
 bool CopyDirectoryContents(const base::FilePath& from,
     const base::FilePath& to) {
@@ -191,13 +69,10 @@ const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
 
 ApplicationService::ApplicationService(RuntimeContext* runtime_context,
-                                       ApplicationStorage* app_storage,
-                                       ApplicationEventManager* event_manager)
+                                       ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
       application_storage_(app_storage),
-      event_manager_(event_manager),
       permission_policy_handler_(new PermissionPolicyManager()) {
-  AddObserver(event_manager);
 }
 
 ApplicationService::~ApplicationService() {
@@ -285,8 +160,6 @@ bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
             << " successfully.";
   *id = application_data->ID();
 
-  SaveSystemEventsInfo(application_data, this, event_manager_);
-
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationInstalled(application_data->ID()));
 
@@ -362,7 +235,7 @@ bool ApplicationService::Update(const std::string& id,
 
   if (Application* app = GetApplicationByID(app_id)) {
     LOG(INFO) << "Try to terminate the running application before update.";
-    app->Terminate(Application::Immediate);
+    app->Terminate();
   }
 
   if (!base::Move(app_dir, tmp_dir) ||
@@ -405,8 +278,6 @@ bool ApplicationService::Update(const std::string& id,
 
   base::DeleteFile(tmp_dir, true);
 
-  SaveSystemEventsInfo(new_application, this, event_manager_);
-
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnApplicationUpdated(app_id));
 
@@ -426,7 +297,7 @@ bool ApplicationService::Uninstall(const std::string& id) {
 
   if (Application* app = GetApplicationByID(id)) {
     LOG(INFO) << "Try to terminate the running application before uninstall.";
-    app->Terminate(Application::Immediate);
+    app->Terminate();
   }
 
 #if defined(OS_TIZEN)
@@ -501,8 +372,6 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  event_manager_->AddEventRouterForApp(application_data);
-
 #if defined(OS_TIZEN)
   Application* application(new ApplicationTizen(application_data,
     runtime_context_, this));
@@ -515,7 +384,6 @@ Application* ApplicationService::Launch(
       applications_.insert(applications_.end(), application);
 
   if (!application->Launch(launch_params)) {
-    event_manager_->RemoveEventRouterForApp(application_data);
     applications_.erase(app_iter);
     return NULL;
   }
@@ -536,12 +404,7 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  if ((application = Launch(application_data, params))) {
-    scoped_refptr<Event> event = Event::CreateEvent(
-        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-    event_manager_->SendEvent(application->id(), event);
-  }
-  return application;
+  return Launch(application_data, params);
 }
 
 Application* ApplicationService::Launch(
@@ -560,12 +423,7 @@ Application* ApplicationService::Launch(
     return NULL;
   }
 
-  if ((application = Launch(application_data, params))) {
-    scoped_refptr<Event> event = Event::CreateEvent(
-        kOnLaunched, scoped_ptr<base::ListValue>(new base::ListValue));
-    event_manager_->SendEvent(application->id(), event);
-  }
-  return application;
+  return Launch(application_data, params);
 }
 
 namespace {

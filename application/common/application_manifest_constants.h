@@ -10,9 +10,6 @@
 namespace xwalk {
 namespace application_manifest_keys {
   extern const char kAppKey[];
-  extern const char kAppMainKey[];
-  extern const char kAppMainScriptsKey[];
-  extern const char kAppMainSourceKey[];
   extern const char kCSPKey[];
   extern const char kDescriptionKey[];
   extern const char kDisplay[];
