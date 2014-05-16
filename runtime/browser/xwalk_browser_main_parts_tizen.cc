@@ -34,6 +34,9 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 
+  // Enable Accelerated 2D Canvas.
+  command_line->AppendSwitch(switches::kGpuNoContextLost);
+
   const char* gl_name;
   if (base::PathExists(base::FilePath("/usr/lib/libGL.so")))
     gl_name = gfx::kGLImplementationDesktopName;
