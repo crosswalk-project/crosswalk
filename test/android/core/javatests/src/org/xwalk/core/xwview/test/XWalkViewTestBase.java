@@ -511,4 +511,13 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected void clearCacheOnUiThread(final boolean includeDiskFiles) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.clearCache(includeDiskFiles);
+            }
+        });
+    }
 }
