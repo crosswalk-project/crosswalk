@@ -46,14 +46,49 @@ for (var key in widgetStringInfo) {
 
 var WidgetStorage = function() {
   var _keyList = new Array();
+  var _itemStorage = new Object();
+
+  var _SetItem = function(itemKey, itemValue) {
+    var result = extension.internal.sendSyncMessage({
+        cmd: 'SetPreferencesItem',
+        preferencesItemKey: String(itemKey),
+        preferencesItemValue: String(itemValue) });
+
+    if (result) {
+      if (_itemStorage[String(itemKey)] == undefined)
+        _keyList.push(String(itemKey));
+      _itemStorage[String(itemKey)] = String(itemValue);
+      return itemValue;
+    } else {
+      throw new common.CustomDOMException(
+        common.CustomDOMException.NO_MODIFICATION_ALLOWED_ERR,
+        'The object can not be modified.');
+    }
+  }
+
+  var _GetSetter = function(itemKey) {
+    var _itemKey = itemKey;
+    return function(itemValue) {
+      return _SetItem(_itemKey, itemValue);
+    }
+  }
+
+  var _GetGetter = function(itemKey) {
+    var _itemKey = itemKey;
+    return function() {
+      return _itemStorage[String(_itemKey)];
+    }
+  }
 
   this.init = function() {
     var result = extension.internal.sendSyncMessage(
         { cmd: 'GetAllItems' });
     for (var itemKey in result) {
-      var itemValue = result[itemKey];
-      this[itemKey] = itemValue;
-      _keyList.push(itemKey);
+      var itemValue = result[String(itemKey)];
+      _itemStorage[String(itemKey)] = itemValue;
+      this.__defineSetter__(String(itemKey), _GetSetter(itemKey));
+      this.__defineGetter__(String(itemKey), _GetGetter(itemKey));
+      _keyList.push(String(itemKey));
     }
   }
 
@@ -66,25 +101,13 @@ var WidgetStorage = function() {
   }
 
   this.getItem = function(itemKey) {
-    return this[String(itemKey)];
-  } 
+    return _itemStorage[String(_itemKey)];
+  }
 
   this.setItem = function(itemKey, itemValue) {
-    var result = extension.internal.sendSyncMessage({
-        cmd: 'SetPreferencesItem',
-        preferencesItemKey: String(itemKey),
-        preferencesItemValue: String(itemValue) });
+    return _SetItem(_itemKey, itemValue);
+  }
 
-    if (result) {
-      this[String(itemKey)] = String(itemValue);
-      _keyList.push(String(itemKey));
-    } else {
-      throw new common.CustomDOMException(
-          common.CustomDOMException.NO_MODIFICATION_ALLOWED_ERR,
-          'The object can not be modified.');
-    }
-  };
-  
   this.removeItem = function(itemKey) {
     var result = extension.internal.sendSyncMessage({
         cmd: 'RemovePreferencesItem',
@@ -92,7 +115,8 @@ var WidgetStorage = function() {
 
     if (result) {
       delete this[itemKey];
-      delete _keyList[_keyList.indexOf(String(itemKey))];
+      delete _itemStorage[itemKey];
+      _keyList.splice(_keyList.indexOf(String(itemKey)), 1);
     } else {
       throw new common.CustomDOMException(
           common.CustomDOMException.NO_MODIFICATION_ALLOWED_ERR,
@@ -117,6 +141,7 @@ var WidgetStorage = function() {
 
       if (!exists) {
         delete this[_keyList[i]];
+        delete _itemStorage[_keyList[i]];
         _keyList.splice(i, 1);
       }
     }
