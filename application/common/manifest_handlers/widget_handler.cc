@@ -6,7 +6,7 @@
 
 #include <map>
 #include <utility>
-#include <vector>
+#include <set>
 
 #include "base/strings/utf_string_conversions.h"
 #include "base/strings/stringprintf.h"
@@ -58,22 +58,28 @@ const KeyMap& GetWidgetKeyPairs() {
   return map;
 }
 
-void ParsePreferenceItem(const base::DictionaryValue* in_value,
-                         base::DictionaryValue* out_value) {
+bool ParsePreferenceItem(const base::DictionaryValue* in_value,
+                         base::DictionaryValue* out_value,
+                         std::set<std::string>* used) {
   DCHECK(in_value && in_value->IsType(base::Value::TYPE_DICTIONARY));
 
   std::string pref_name;
   std::string pref_value;
   std::string pref_readonly;
-  if (in_value->GetString(keys::kPreferencesNameKey, &pref_name))
+  if (in_value->GetString(keys::kPreferencesNameKey, &pref_name)
+     && used->find(pref_name) == used->end()) {
     out_value->SetString(kPreferencesName, pref_name);
+    used->insert(pref_name);
+  } else {
+    return false;
+  }
 
   if (in_value->GetString(keys::kPreferencesValueKey, &pref_value))
     out_value->SetString(kPreferencesValue, pref_value);
 
-  if (in_value->GetString(keys::kPreferencesReadonlyKey, &pref_readonly)) {
-      out_value->SetBoolean(kPreferencesReadonly, pref_readonly == "true");
-  }
+  if (in_value->GetString(keys::kPreferencesReadonlyKey, &pref_readonly))
+    out_value->SetBoolean(kPreferencesReadonly, pref_readonly == "true");
+  return true;
 }
 
 }  // namespace
@@ -126,12 +132,13 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   base::Value* pref_value = NULL;
   manifest->Get(keys::kPreferencesKey, &pref_value);
 
+  std::set<std::string> preference_names_used;
   if (pref_value && pref_value->IsType(base::Value::TYPE_DICTIONARY)) {
     base::DictionaryValue* preferences = new base::DictionaryValue;
     base::DictionaryValue* dict;
     pref_value->GetAsDictionary(&dict);
-    ParsePreferenceItem(dict, preferences);
-    widget_info->Set(kPreferences, preferences);
+    if (ParsePreferenceItem(dict, preferences, &preference_names_used))
+      widget_info->Set(kPreferences, preferences);
   } else if (pref_value && pref_value->IsType(base::Value::TYPE_LIST)) {
     base::ListValue* preferences = new base::ListValue;
     base::ListValue* list;
@@ -142,8 +149,8 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
       base::DictionaryValue* pref = new base::DictionaryValue;
       base::DictionaryValue* dict;
       (*it)->GetAsDictionary(&dict);
-      ParsePreferenceItem(dict, pref);
-      preferences->Append(pref);
+      if (ParsePreferenceItem(dict, pref, &preference_names_used))
+        preferences->Append(pref);
     }
     widget_info->Set(kPreferences, preferences);
   }
