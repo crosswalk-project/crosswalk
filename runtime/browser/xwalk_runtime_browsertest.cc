@@ -165,7 +165,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
   EXPECT_TRUE(false == runtime()->window()->IsFullscreen());
 
   FullscreenNotificationObserver enter_observer;
-  content::ExecuteScript(runtime()->web_contents(), "doFullscreenClick();");
+  bool ret = content::ExecuteScript(runtime()->web_contents(), "doFullscreenClick();");
+  EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   enter_observer.Wait();
   // Calling doFullscreenClick defined in fullscreen.html leads to enter into
@@ -173,7 +174,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, HTML5FullscreenAPI) {
   EXPECT_TRUE(true == runtime()->window()->IsFullscreen());
 
   FullscreenNotificationObserver exit_observer;
-  content::ExecuteScript(runtime()->web_contents(), "doExitFullscreenClick();");
+  ret = content::ExecuteScript(runtime()->web_contents(), "doExitFullscreenClick();");
+  EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   exit_observer.Wait();
   // Calling doExitFullscreenClick defined in fullscreen.html leads to exit
@@ -202,7 +204,8 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, OpenLinkInNewRuntime) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII("new_target.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
-  content::ExecuteScript(runtime()->web_contents(), "doClick();");
+  bool ret = content::ExecuteScript(runtime()->web_contents(), "doClick();");
+  EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   // Calling doClick defined in new_target.html leads to open a href in a new
   // target window, and so it is expected to create a new Runtime instance.

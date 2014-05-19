@@ -102,7 +102,8 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, DISABLED_FileSelector) {
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
   content::WaitForLoadStop(runtime()->web_contents());
-  content::ExecuteScript(runtime()->web_contents(), "doSelectFile();");
+  bool ret = content::ExecuteScript(runtime()->web_contents(), "doSelectFile();");
+  EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   base::string16 expected_title = base::ASCIIToUTF16("file selected: ");
   expected_title.append(
@@ -119,7 +120,8 @@ IN_PROC_BROWSER_TEST_F(XWalkFormInputTest, ColorChooser) {
       base::FilePath(), base::FilePath().AppendASCII("form_input.html"));
   xwalk_test_utils::NavigateToURL(runtime(), url);
   content::WaitForLoadStop(runtime()->web_contents());
-  content::ExecuteScript(runtime()->web_contents(), "doChooseColor();");
+  bool ret = content::ExecuteScript(runtime()->web_contents(), "doChooseColor();");
+  EXPECT_TRUE(ret);
   content::RunAllPendingInMessageLoop();
   base::string16 expected_title = base::ASCIIToUTF16("color chosen: ");
   char rgb[8];
