@@ -90,19 +90,28 @@ def GetVersion(path):
   return version_str
 
 
+def VerifyAndConstructPackageName(options, app_name=None, parser=None):
+  package_prefix = 'org.xwalk.'
+  if options.name:
+    VerifyAppName(options.name)
+  elif options.manifest:
+    VerifyAppName(app_name)
+    options.name = app_name
+  else:
+    parser.error('The APK name is required! Please use "--name" option.')
+  if options.package:
+    VerifyAppName(options.package, 'packagename')
+  elif options.manifest and app_name:
+    VerifyAppName(app_name)
+    options.package = package_prefix + app_name.lower()
+  else:
+    options.package = package_prefix + options.name.lower()
+
+
 def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
   app_name = parser.GetAppName()
-  if options.package:
-    VerifyAppName(options.package, 'packagename')
-  else:
-    VerifyAppName(app_name)
-    options.package = 'org.xwalk.' + app_name.lower()
-  if options.name:
-    VerifyAppName(options.name)
-  else:
-    VerifyAppName(app_name)
-    options.name = app_name
+  VerifyAndConstructPackageName(options, app_name)
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -703,15 +712,7 @@ def main(argv):
       options.manifest = manifest_path
 
   if not options.manifest:
-    if options.package:
-      VerifyAppName(options.package, 'packagename')
-    else:
-      parser.error('The package name is required! '
-                   'Please use "--package" option.')
-    if options.name:
-      VerifyAppName(options.name)
-    else:
-      parser.error('The APK name is required! Please use "--name" option.')
+    VerifyAndConstructPackageName(options, parser=parser)
     if not ((options.app_url and
              not options.app_root and
              not options.app_local_path) or
