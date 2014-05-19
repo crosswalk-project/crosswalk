@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/android/jni_weak_ref.h"
@@ -62,18 +63,13 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       OVERRIDE;
   virtual void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
-      bool worker,
-      int process_id,
-      int route_id)
+      content::RenderFrameHost* render_frame_host,
+      content::DesktopNotificationDelegate* delegate,
+      base::Closure* cancel_callback)
       OVERRIDE;
   virtual void UpdateNotificationIcon(
       int notification_id,
       const SkBitmap& icon)
-      OVERRIDE;
-  virtual void CancelNotification(
-      int notification_id,
-      int process_id,
-      int route_id)
       OVERRIDE;
 
   bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
@@ -92,14 +88,11 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   void ConfirmJsResult(JNIEnv*, jobject, int id, jstring prompt);
   void CancelJsResult(JNIEnv*, jobject, int id);
   void ExitFullscreen(JNIEnv*, jobject, jlong web_contents);
-  void NotificationDisplayed(
-      JNIEnv*, jobject, int id, int process_id, int route_id);
-  void NotificationError(
-      JNIEnv*, jobject, int id, jstring error, int process_id, int route_id);
-  void NotificationClicked(
-      JNIEnv*, jobject, int id, int process_id, int route_id);
-  void NotificationClosed(
-      JNIEnv*, jobject, int id, bool by_user, int process_id, int route_id);
+  void NotificationDisplayed(JNIEnv*, jobject, jlong delegate);
+  void NotificationError(JNIEnv*, jobject, jlong delegate);
+  void NotificationClicked(JNIEnv*, jobject, jint id, jlong delegate);
+  void NotificationClosed(JNIEnv*, jobject, jint id, bool by_user,
+    jlong delegate);
   void OnFilesSelected(
       JNIEnv*, jobject, int process_id, int render_id,
       int mode, jstring filepath, jstring display_name);
@@ -114,7 +107,10 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   IDMap<content::JavaScriptDialogManager::DialogClosedCallback, IDMapOwnPointer>
       pending_js_dialog_callbacks_;
 
-  typedef std::map<int, std::vector<int> > NotificationDownloadRequestIdMap;
+  typedef std::pair<int, content::RenderFrameHost*>
+    NotificationDownloadRequestInfos;
+  typedef std::map<int, NotificationDownloadRequestInfos >
+    NotificationDownloadRequestIdMap;
   NotificationDownloadRequestIdMap downloading_icon_notifications_;
 };
 

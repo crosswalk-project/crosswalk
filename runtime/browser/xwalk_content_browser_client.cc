@@ -14,6 +14,7 @@
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/browser_ppapi_host.h"
 #include "content/public/browser/child_process_data.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
@@ -285,11 +286,10 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
     content::DesktopNotificationDelegate* delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
-  content::RenderProcessHost* process = render_frame_host->GetProcess();
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderViewID(process->GetID(),
-          render_view_id);
-  bridge->ShowNotification(params, worker, process->GetID(), cancel_callback);
+      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
+  bridge->ShowNotification(params, render_frame_host,
+      delegate, cancel_callback);
 #endif
 }
 
