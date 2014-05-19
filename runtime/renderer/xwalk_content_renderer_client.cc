@@ -16,6 +16,7 @@
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "third_party/WebKit/public/platform/WebURLRequest.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
+#include "third_party/WebKit/public/web/WebRuntimeFeatures.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
@@ -97,6 +98,7 @@ void XWalkContentRendererClient::RenderThreadStarted() {
       base::ASCIIToUTF16(application::kApplicationScheme));
   blink::WebSecurityPolicy::registerURLSchemeAsSecure(application_scheme);
   blink::WebSecurityPolicy::registerURLSchemeAsCORSEnabled(application_scheme);
+  blink::WebRuntimeFeatures::enableExperimentalFeatures(true);
 
   content::RenderThread* thread = content::RenderThread::Get();
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
