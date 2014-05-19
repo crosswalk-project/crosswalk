@@ -81,6 +81,16 @@ XWalkContentsClientBridgeBase* XWalkContentsClientBridgeBase::FromRenderFrameID(
   return UserData::GetContents(web_contents);
 }
 
+// static
+XWalkContentsClientBridgeBase*
+  XWalkContentsClientBridgeBase::FromRenderFrameHost(
+    content::RenderFrameHost* render_frame_host) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(render_frame_host);
+  return UserData::GetContents(web_contents);
+}
+
 XWalkContentsClientBridgeBase::~XWalkContentsClientBridgeBase() {
 }
 

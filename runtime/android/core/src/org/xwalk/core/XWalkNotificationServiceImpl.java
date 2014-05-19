@@ -32,8 +32,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     private static final String XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX = ".notification.click";
     private static final String XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX = ".notification.close";
     private static final String XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID = "xwalk.NOTIFICATION_ID";
-    private static final String XWALK_INTENT_EXTRA_KEY_PROCESS_ID = "xwalk.PROCESS_ID";
-    private static final String XWALK_INTENT_EXTRA_KEY_ROUTE_ID = "xwalk.ROUTE_ID";
+    private static final String XWALK_INTENT_EXTRA_KEY_DELEGATE = "xwalk.DELEGATE";
     private static final String XWALK_INTENT_CATEGORY_NOTIFICATION_PREFIX = "notification_";
 
     private Context mContext;
@@ -112,16 +111,15 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     public boolean maybeHandleIntent(Intent intent) {
         if (intent.getAction() == null) return false;
         int notificationId = intent.getIntExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, -1);
-        int processId = intent.getIntExtra(XWALK_INTENT_EXTRA_KEY_PROCESS_ID, -1);
-        int routeId = intent.getIntExtra(XWALK_INTENT_EXTRA_KEY_ROUTE_ID, -1);
-        if (notificationId < 0) return false;
+        long delegate = intent.getLongExtra(XWALK_INTENT_EXTRA_KEY_DELEGATE, -1);
+        if (notificationId <= 0) return false;
         if (intent.getAction().equals(
                 mView.getActivity().getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX)) {
-            onNotificationClose(notificationId, true, processId, routeId);
+            onNotificationClose(notificationId, true, delegate);
             return true;
         } else if (intent.getAction().equals(
                 mView.getActivity().getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX)) {
-            onNotificationClick(notificationId, processId, routeId);
+            onNotificationClick(notificationId, delegate);
             return true;
         }
         return false;
@@ -163,14 +161,13 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
     @Override
     @SuppressWarnings("deprecation")
     public void showNotification(String title, String message,
-            int notificationId, int processId, int routeId) {
+            int notificationId, long delegate) {
         Context activity = mView.getActivity();
         String category = getCategoryFromNotificationId(notificationId);
         Intent clickIntent = new Intent(activity, activity.getClass());
         clickIntent.setAction(activity.getPackageName() + XWALK_ACTION_CLICK_NOTIFICATION_SUFFIX);
         clickIntent.putExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, notificationId);
-        clickIntent.putExtra(XWALK_INTENT_EXTRA_KEY_PROCESS_ID, processId);
-        clickIntent.putExtra(XWALK_INTENT_EXTRA_KEY_ROUTE_ID, routeId);
+        clickIntent.putExtra(XWALK_INTENT_EXTRA_KEY_DELEGATE, delegate);
         clickIntent.setFlags(
                 Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         clickIntent.addCategory(category);
@@ -179,8 +176,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         Intent closeIntent =
                 new Intent(activity.getPackageName() + XWALK_ACTION_CLOSE_NOTIFICATION_SUFFIX);
         closeIntent.putExtra(XWALK_INTENT_EXTRA_KEY_NOTIFICATION_ID, notificationId);
-        closeIntent.putExtra(XWALK_INTENT_EXTRA_KEY_PROCESS_ID, processId);
-        closeIntent.putExtra(XWALK_INTENT_EXTRA_KEY_ROUTE_ID, routeId);
+        closeIntent.putExtra(XWALK_INTENT_EXTRA_KEY_DELEGATE, delegate);
         closeIntent.addCategory(category);
         PendingIntent pendingCloseIntent = PendingIntent.getBroadcast(activity,
                 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -202,42 +198,42 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         doShowNotification(notificationId, notification);
         mExistNotificationIds.put(notificationId, builder);
         notificationChanged();
-        onNotificationShown(notificationId, processId, routeId);
+        onNotificationShown(notificationId, delegate);
     }
 
     @Override
-    public void cancelNotification(int notificationId, int processId, int routeId) {
+    public void cancelNotification(int notificationId, long delegate) {
         mNotificationManager.cancel(notificationId);
-        onNotificationClose(notificationId, false, processId, routeId);
+        onNotificationClose(notificationId, false, delegate);
     }
 
     public void doShowNotification(int id, Notification notification) {
         mNotificationManager.notify(id, notification);
     }
 
-    public void onNotificationShown(int notificationId, int processId, int routeId) {
+    public void onNotificationShown(int notificationId, long delegate) {
         if (mExistNotificationIds.containsKey(notificationId) && mBridge != null) {
-            mBridge.notificationDisplayed(notificationId, processId, routeId);
+            mBridge.notificationDisplayed(delegate);
         }
     }
 
-    public void onNotificationClick(int notificationId, int processId, int routeId) {
+    public void onNotificationClick(int notificationId, long delegate) {
         if (mExistNotificationIds.containsKey(notificationId)) {
             mExistNotificationIds.remove(notificationId);
             notificationChanged();
             if (mBridge != null) {
-                mBridge.notificationClicked(notificationId, processId, routeId);
+                mBridge.notificationClicked(notificationId, delegate);
             }
         }
     }
 
     public void onNotificationClose(
-            int notificationId, boolean byUser, int processId, int routeId) {
+            int notificationId, boolean byUser, long delegate) {
         if (mExistNotificationIds.containsKey(notificationId)) {
             mExistNotificationIds.remove(notificationId);
             notificationChanged();
             if (mBridge != null) {
-                mBridge.notificationClosed(notificationId, byUser, processId, routeId);
+                mBridge.notificationClosed(notificationId, byUser, delegate);
             }
         }
     }
