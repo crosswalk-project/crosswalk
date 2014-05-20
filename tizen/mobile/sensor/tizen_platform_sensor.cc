@@ -10,6 +10,40 @@
 #include "base/files/file_path.h"
 #include "base/logging.h"
 
+namespace  {
+
+// Make the class depend on gfx::Display to avoid the hack below:
+
+#if defined(OS_TIZEN_MOBILE)
+int rotation_start = 0;  // Default is portrait primary.
+#else
+int rotation_start = -1;  // Default is landscape primary.
+#endif
+
+blink::WebScreenOrientationType ToScreenOrientation(
+    int rotation) {
+  rotation = (rotation + rotation_start) % 4;
+
+  blink::WebScreenOrientationType r = blink::WebScreenOrientationUndefined;
+  switch (rotation) {
+    case ROTATION_EVENT_0:
+      r = blink::WebScreenOrientationPortraitPrimary;
+      break;
+    case ROTATION_EVENT_90:
+      r = blink::WebScreenOrientationLandscapeSecondary;
+      break;
+    case ROTATION_EVENT_180:
+      r = blink::WebScreenOrientationPortraitSecondary;
+      break;
+    case ROTATION_EVENT_270:
+      r = blink::WebScreenOrientationLandscapePrimary;
+      break;
+  }
+  return r;
+}
+
+}  // namespace
+
 namespace xwalk {
 
 TizenPlatformSensor::TizenPlatformSensor()
@@ -24,7 +58,7 @@ TizenPlatformSensor::~TizenPlatformSensor() {
 bool TizenPlatformSensor::Initialize() {
   unsigned long rotation;  // NOLINT
   if (!sf_check_rotation(&rotation)) {
-    last_rotation_ = ToDisplayRotation(static_cast<int>(rotation));
+    last_orientation_ = ToScreenOrientation(static_cast<int>(rotation));
   }
 
   int value;
@@ -36,13 +70,15 @@ bool TizenPlatformSensor::Initialize() {
 
   accel_handle_ = sf_connect(ACCELEROMETER_SENSOR);
   if (accel_handle_ >= 0) {
-    if (sf_register_event(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK,
-                          NULL, OnEventReceived, this) < 0 ||
+    if (sf_register_event(accel_handle_,
+            ACCELEROMETER_EVENT_ROTATION_CHECK, NULL,
+            OnEventReceived, this) < 0 ||
         sf_register_event(accel_handle_,
-                          ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME,
-                          NULL, OnEventReceived, this) < 0 ||
+            ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME, NULL,
+            OnEventReceived, this) < 0 ||
         sf_start(accel_handle_, 0) < 0) {
       LOG(ERROR) << "Register accelerometer sensor event failed";
+
       sf_unregister_event(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
       sf_unregister_event(accel_handle_,
                           ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
@@ -56,11 +92,10 @@ bool TizenPlatformSensor::Initialize() {
   gyro_handle_ = sf_connect(GYROSCOPE_SENSOR);
   if (gyro_handle_ >= 0) {
     if (sf_register_event(gyro_handle_, GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME,
-                          NULL, OnEventReceived, this) < 0 ||
-        sf_start(gyro_handle_, 0) < 0) {
+            NULL, OnEventReceived, this) < 0 || sf_start(gyro_handle_, 0) < 0) {
       LOG(ERROR) << "Register gyroscope sensor event failed";
       sf_unregister_event(gyro_handle_,
-                          GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME);
+          GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME);
       sf_disconnect(gyro_handle_);
       gyro_handle_ = -1;
     }
@@ -76,7 +111,7 @@ void TizenPlatformSensor::Finish() {
     sf_stop(accel_handle_);
     sf_unregister_event(accel_handle_, ACCELEROMETER_EVENT_ROTATION_CHECK);
     sf_unregister_event(accel_handle_,
-                        ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
+        ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME);
     sf_disconnect(accel_handle_);
     accel_handle_ = -1;
   }
@@ -89,93 +124,64 @@ void TizenPlatformSensor::Finish() {
   }
 
   vconf_ignore_key_changed(VCONFKEY_SETAPPL_AUTO_ROTATE_SCREEN_BOOL,
-                           OnAutoRotationEnabledChanged);
-}
-
-gfx::Display::Rotation TizenPlatformSensor::ToDisplayRotation(
-    int rotation) const {
-  gfx::Display::Rotation r = gfx::Display::ROTATE_0;
-  switch (rotation) {
-    case ROTATION_EVENT_0:
-      r = gfx::Display::ROTATE_0;
-      break;
-    case ROTATION_EVENT_90:
-      r = gfx::Display::ROTATE_90;
-      break;
-    case ROTATION_EVENT_180:
-      r = gfx::Display::ROTATE_180;
-      break;
-    case ROTATION_EVENT_270:
-      r = gfx::Display::ROTATE_270;
-      break;
-  }
-  return r;
+      OnAutoRotationEnabledChanged);
 }
 
 void TizenPlatformSensor::OnEventReceived(unsigned int event_type,
                                           sensor_event_data_t* event_data,
                                           void* udata) {
-  TizenPlatformSensor* sensor = reinterpret_cast<TizenPlatformSensor*>(udata);
+  TizenPlatformSensor* self = reinterpret_cast<TizenPlatformSensor*>(udata);
+
   sensor_data_t* data =
       reinterpret_cast<sensor_data_t*>(event_data->event_data);
   size_t last = event_data->event_data_size / sizeof(sensor_data_t) - 1;
 
   switch (event_type) {
     case ACCELEROMETER_EVENT_ROTATION_CHECK: {
-      gfx::Display::Rotation r = sensor->ToDisplayRotation(
-          *reinterpret_cast<int*>(event_data->event_data));
-      if (sensor->auto_rotation_enabled_)
-        sensor->OnRotationChanged(r);
+      if (!self->auto_rotation_enabled_)
+        return;
+      int value = *reinterpret_cast<int*>(event_data->event_data);
+      self->OnScreenOrientationChanged(ToScreenOrientation(value));
       break;
     }
     case ACCELEROMETER_EVENT_RAW_DATA_REPORT_ON_TIME: {
       sensor_data_t linear;
       linear.values[0] = linear.values[1] = linear.values[2] = FP_NAN;
-      sf_get_data(sensor->accel_handle_,
-                  ACCELEROMETER_LINEAR_ACCELERATION_DATA_SET,
-                  &linear);
-      sensor->OnAccelerationChanged(data[last].values[0],
-                                    data[last].values[1],
-                                    data[last].values[2],
-                                    linear.values[0],
-                                    linear.values[1],
-                                    linear.values[2]);
+      sf_get_data(self->accel_handle_,
+          ACCELEROMETER_LINEAR_ACCELERATION_DATA_SET, &linear);
+      self->OnAccelerationChanged(
+          data[last].values[0], data[last].values[1], data[last].values[2],
+          linear.values[0], linear.values[1], linear.values[2]);
 
       sensor_data_t orient;
-      if (sf_get_data(sensor->accel_handle_,
-                      ACCELEROMETER_ORIENTATION_DATA_SET,
-                      &orient) >= 0) {
-        sensor->OnOrientationChanged(orient.values[0],
-                                     orient.values[1],
-                                     orient.values[2]);
+      if (sf_get_data(self->accel_handle_,
+              ACCELEROMETER_ORIENTATION_DATA_SET, &orient) >= 0) {
+        self->OnOrientationChanged(
+            orient.values[0], orient.values[1], orient.values[2]);
       }
       break;
     }
     case GYROSCOPE_EVENT_RAW_DATA_REPORT_ON_TIME: {
-      sensor->OnRotationRateChanged(data[last].values[0],
-                                    data[last].values[1],
-                                    data[last].values[2]);
+      self->OnRotationRateChanged(
+          data[last].values[0], data[last].values[1], data[last].values[2]);
     }
   }
 }
 
-void TizenPlatformSensor::OnAutoRotationEnabledChanged(keynode_t* node,
-                                                       void* udata) {
-  TizenPlatformSensor* sensor = reinterpret_cast<TizenPlatformSensor*>(udata);
-  sensor->auto_rotation_enabled_ = (vconf_keynode_get_bool(node) != 0);
+void TizenPlatformSensor::OnAutoRotationEnabledChanged(
+    keynode_t* node, void* udata) {
+  TizenPlatformSensor* self = reinterpret_cast<TizenPlatformSensor*>(udata);
+
+  self->auto_rotation_enabled_ = (vconf_keynode_get_bool(node) != 0);
 
   unsigned long value;  // NOLINT
-  if (!sensor->auto_rotation_enabled_ &&
-      sensor->GetCurrentRotation() != gfx::Display::ROTATE_0) {
-    // Change orientation to initial platform orientation when
-    // auto rotation is disabled.
-    sensor->OnRotationChanged(gfx::Display::ROTATE_0);
-  } else if (sensor->auto_rotation_enabled_ && !sf_check_rotation(&value)) {
-    // Notify observers the current orientation.
-    gfx::Display::Rotation rotation =
-          sensor->ToDisplayRotation(static_cast<int>(value));
-    if (rotation != sensor->GetCurrentRotation())
-      sensor->OnRotationChanged(rotation);
+  if (!self->auto_rotation_enabled_) {
+    // Change orientation to initial platform orientation when disabled.
+    self->OnScreenOrientationChanged(
+        ToScreenOrientation(ROTATION_EVENT_0));
+  } else if (self->auto_rotation_enabled_ && !sf_check_rotation(&value)) {
+    self->OnScreenOrientationChanged(
+        ToScreenOrientation(static_cast<int>(value)));
   }
 }
 

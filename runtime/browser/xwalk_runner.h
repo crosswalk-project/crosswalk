@@ -76,8 +76,8 @@ class XWalkRunner {
   bool is_running_as_service() const { return is_running_as_service_; }
 
   // Stages of main parts. See content/browser_main_parts.h for description.
-  void PreMainMessageLoopRun();
-  void PostMainMessageLoopRun();
+  virtual void PreMainMessageLoopRun();
+  virtual void PostMainMessageLoopRun();
 
   // Get the latest application locale from system.
   // locale is a langtag defined in [BCP47]
