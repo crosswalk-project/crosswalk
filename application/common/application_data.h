@@ -131,7 +131,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   void ClearPermissions();
   PermissionSet GetManifestPermissions() const;
 
-  Manifest::PackageType GetPackageType() const;
+  Package::Type GetPackageType() const { return package_type_; }
 
 #if defined(OS_TIZEN)
   bool HasCSPDefined() const;
@@ -222,6 +222,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Application's persistent permissions.
   StoredPermissionMap permission_map_;
+
+  // The package type, wgt or xpk.
+  Package::Type package_type_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };

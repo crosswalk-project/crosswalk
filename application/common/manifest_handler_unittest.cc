@@ -32,14 +32,14 @@ class ScopedTestingManifestHandlerRegistry {
       : registry_(
           new ManifestHandlerRegistry(handlers)),
         prev_registry_(
-          ManifestHandlerRegistry::GetInstance(Manifest::TYPE_XPK)) {
+          ManifestHandlerRegistry::GetInstance(Package::XPK)) {
     ManifestHandlerRegistry::SetInstanceForTesting(
-        registry_.get(), Manifest::TYPE_XPK);
+        registry_.get(), Package::XPK);
   }
 
   ~ScopedTestingManifestHandlerRegistry() {
     ManifestHandlerRegistry::SetInstanceForTesting(
-        prev_registry_, Manifest::TYPE_XPK);
+        prev_registry_, Package::XPK);
   }
 
   scoped_ptr<ManifestHandlerRegistry> registry_;

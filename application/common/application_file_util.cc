@@ -25,6 +25,7 @@
 #include "net/base/file_stream.h"
 #include "third_party/libxml/src/include/libxml/tree.h"
 #include "ui/base/l10n/l10n_util.h"
+#include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
@@ -151,6 +152,27 @@ inline bool IsElementSupportSpanAndDir(xmlNode* root) {
   return false;
 }
 
+bool GetPackageType(const base::FilePath& path,
+                    xwalk::application::Package::Type* package_type,
+                    std::string* error) {
+  base::FilePath manifest_path;
+
+  manifest_path = path.Append(xwalk::application::kManifestXpkFilename);
+  if (base::PathExists(manifest_path)) {
+    *package_type = xwalk::application::Package::XPK;
+    return true;
+  }
+
+  manifest_path = path.Append(xwalk::application::kManifestWgtFilename);
+  if (base::PathExists(manifest_path)) {
+    *package_type = xwalk::application::Package::WGT;
+    return true;
+  }
+
+  *error = base::StringPrintf("%s", errors::kManifestUnreadable);
+  return false;
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -273,17 +295,22 @@ scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     Manifest::SourceType source_type,
     std::string* error) {
+  Package::Type package_type;
+  if (!GetPackageType(application_path, &package_type, error))
+    return NULL;
+
   return LoadApplication(application_path, std::string(),
-                         source_type, error);
+                         source_type, package_type, error);
 }
 
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
     Manifest::SourceType source_type,
+    Package::Type package_type,
     std::string* error) {
   scoped_ptr<base::DictionaryValue> manifest(
-      LoadManifest(application_path, error));
+      LoadManifest(application_path, package_type, error));
   if (!manifest.get())
     return NULL;
 
@@ -299,8 +326,8 @@ scoped_refptr<ApplicationData> LoadApplication(
   std::vector<InstallWarning> warnings;
   ManifestHandlerRegistry* registry =
       manifest->HasKey(widget_keys::kWidgetKey)
-      ? ManifestHandlerRegistry::GetInstance(Manifest::TYPE_WGT)
-      : ManifestHandlerRegistry::GetInstance(Manifest::TYPE_XPK);
+      ? ManifestHandlerRegistry::GetInstance(Package::WGT)
+      : ManifestHandlerRegistry::GetInstance(Package::XPK);
 
   if (!registry->ValidateAppManifest(application, error, &warnings))
     return NULL;
@@ -368,15 +395,16 @@ static base::DictionaryValue* LoadManifestWgt(
 }
 
 base::DictionaryValue* LoadManifest(const base::FilePath& application_path,
-      std::string* error) {
+                                    Package::Type package_type,
+                                    std::string* error) {
   base::FilePath manifest_path;
 
   manifest_path = application_path.Append(kManifestXpkFilename);
-  if (base::PathExists(manifest_path))
+  if (package_type == Package::XPK)
     return LoadManifestXpk(manifest_path, error);
 
   manifest_path = application_path.Append(kManifestWgtFilename);
-  if (base::PathExists(manifest_path))
+  if (package_type == Package::WGT)
     return LoadManifestWgt(manifest_path, error);
 
   *error = base::StringPrintf("%s", errors::kManifestUnreadable);

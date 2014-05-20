@@ -9,6 +9,7 @@
 #include <map>
 
 #include "base/memory/ref_counted.h"
+#include "xwalk/application/browser/installer/package.h"
 #include "xwalk/application/common/manifest.h"
 
 
@@ -37,11 +38,13 @@ scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
     Manifest::SourceType source_type,
+    Package::Type package_type,
     std::string* error);
 
 // Loads an application manifest from the specified directory. Returns NULL
 // on failure, with a description of the error in |error|.
 base::DictionaryValue* LoadManifest(const base::FilePath& application_root,
+                                    Package::Type package_type,
                                     std::string* error);
 
 // Get a relative file path from an app:// URL.

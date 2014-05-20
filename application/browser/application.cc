@@ -156,7 +156,7 @@ GURL Application::GetURLFromRelativePathKey(const std::string& key) {
   std::string entry_page;
   if (!manifest->GetString(key, &entry_page)
       || entry_page.empty()) {
-    if (data_->GetPackageType() == Manifest::TYPE_XPK)
+    if (data_->GetPackageType() == Package::XPK)
       return GURL();
 
     base::FileEnumerator iter(data_->Path(), true,
@@ -322,7 +322,7 @@ bool Application::SetPermission(PermissionType type,
 }
 
 void Application::InitSecurityPolicy() {
-  if (data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Package::WGT)
     return;
 
   const WARPInfo* info = static_cast<WARPInfo*>(
@@ -375,7 +375,7 @@ bool Application::CanRequestURL(const GURL& url) const {
     return true;
 
   // Only WGT package need to check the url request permission.
-  if (data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Package::WGT)
     return true;
 
   // Always can request itself resources.

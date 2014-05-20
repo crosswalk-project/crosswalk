@@ -70,7 +70,7 @@ void ApplicationTizen::InitSecurityPolicy() {
     return;
   }
 
-  if (data_->GetPackageType() != Manifest::TYPE_WGT)
+  if (data_->GetPackageType() != Package::WGT)
     return;
 
   // Always enable security mode when under CSP mode.

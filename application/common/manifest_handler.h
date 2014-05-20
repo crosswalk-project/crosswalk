@@ -56,7 +56,7 @@ class ManifestHandlerRegistry {
   ~ManifestHandlerRegistry();
 
   static ManifestHandlerRegistry* GetInstance(
-      Manifest::PackageType package_type);
+      Package::Type package_type);
 
   bool ParseAppManifest(
        scoped_refptr<ApplicationData> application, base::string16* error);
@@ -77,7 +77,7 @@ class ManifestHandlerRegistry {
 
   // Sets a new global registry, for testing purposes.
   static void SetInstanceForTesting(ManifestHandlerRegistry* registry,
-                                    Manifest::PackageType package_type);
+                                    Package::Type package_type);
 
   static ManifestHandlerRegistry* GetInstanceForWGT();
   static ManifestHandlerRegistry* GetInstanceForXPK();

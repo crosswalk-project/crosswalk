@@ -21,7 +21,7 @@ CSPInfo::CSPInfo() {
 CSPInfo::~CSPInfo() {
 }
 
-CSPHandler::CSPHandler(Manifest::PackageType type)
+CSPHandler::CSPHandler(Package::Type type)
     : package_type_(type) {
 }
 
@@ -62,7 +62,7 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
 }
 
 bool CSPHandler::AlwaysParseForType(Manifest::Type type) const {
-  return package_type_ == Manifest::TYPE_XPK;
+  return package_type_ == Package::XPK;
 }
 
 std::vector<std::string> CSPHandler::Keys() const {
