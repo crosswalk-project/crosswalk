@@ -26,23 +26,9 @@ using application::Application;
 
 namespace {
 
-MultiOrientationScreen* GetMultiOrientationScreen(Application* app) {
-  // FIXME(Mikhail): handle multi-windowed applications properly.
-  // At the moment app has two runtimes: main (without window)
-  // and a runtime with window.
-  NativeAppWindowTizen* window = NULL;
-  const std::set<Runtime*>& runtimes = app->runtimes();
-  std::set<Runtime*>::const_iterator it = runtimes.begin();
-  for (; it != runtimes.end(); ++it) {
-    if (NativeAppWindow* native_window = (*it)->window()) {
-      // FIXME: Let NativeAppWindow inherit the interface.
-      window = static_cast<NativeAppWindowTizen*>(native_window);
-      break;
-    }
-  }
-
-  DCHECK(window);
-  return static_cast<MultiOrientationScreen*>(window);
+MultiOrientationScreen* GetMultiOrientationScreen(Application*) {  // NOLINT
+  NOTREACHED();
+  return NULL;
 }
 
 }  // namespace.

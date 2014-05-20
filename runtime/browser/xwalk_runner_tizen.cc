@@ -19,6 +19,10 @@ XWalkRunnerTizen* XWalkRunnerTizen::GetInstance() {
   return static_cast<XWalkRunnerTizen*>(XWalkRunner::GetInstance());
 }
 
+void XWalkRunnerTizen::PreMainMessageLoopRun() {
+  XWalkRunner::PreMainMessageLoopRun();
+}
+
 std::string XWalkRunnerTizen::GetLocale() const {
   return tizen_locale_listener_.GetLocale();
 }
