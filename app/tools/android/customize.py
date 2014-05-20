@@ -161,7 +161,7 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
     EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowBackground',
                                '@drawable/launchscreen_bg')
-  theme_file = open(theme_path, 'wb')
+  theme_file = open(theme_path, 'w')
   theme_xmldoc.writexml(theme_file, encoding='utf-8')
   theme_file.close()
 
