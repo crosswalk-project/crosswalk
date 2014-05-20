@@ -13,6 +13,8 @@ class GURL;
 class SkBitmap;
 
 namespace content {
+class DesktopNotificationDelegate;
+class RenderFrameHost;
 struct ShowDesktopNotificationHostMsgParams;
 class WebContents;
 }
@@ -39,6 +41,8 @@ class XWalkContentsClientBridgeBase {
                                             int render_view_id);
   static XWalkContentsClientBridgeBase* FromRenderFrameID(int render_process_id,
                                             int render_frame_id);
+  static XWalkContentsClientBridgeBase* FromRenderFrameHost(
+      content::RenderFrameHost* render_frame_host);
 
   virtual ~XWalkContentsClientBridgeBase();
 
@@ -62,18 +66,13 @@ class XWalkContentsClientBridgeBase {
       = 0;
   virtual void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
-      bool worker,
-      int process_id,
-      int route_id)
+      content::RenderFrameHost* render_frame_host,
+      content::DesktopNotificationDelegate* delegate,
+      base::Closure* cancel_callback)
       = 0;
   virtual void UpdateNotificationIcon(
       int notification_id,
       const SkBitmap& icon)
-      = 0;
-  virtual void CancelNotification(
-      int notification_id,
-      int process_id,
-      int route_id)
       = 0;
 };
 

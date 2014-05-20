@@ -10,7 +10,11 @@
 #include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
 #include "base/callback.h"
+#include "base/guid.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/desktop_notification_delegate.h"
+#include "content/public/browser/render_frame_host.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/file_chooser_params.h"
@@ -39,16 +43,17 @@ namespace {
 
 void RunUpdateNotificationIconOnUIThread(
     int notification_id,
-    int process_id,
-    int route_id,
+    content::RenderFrameHost* render_frame_host,
     const SkBitmap& icon) {
   XWalkContentsClientBridgeBase* bridge =
-      XWalkContentsClientBridgeBase::FromRenderViewID(process_id, route_id);
+      XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
   if (bridge)
     bridge->UpdateNotificationIcon(notification_id, icon);
 }
 
 }  // namespace
+
+static IDMap<content::DesktopNotificationDelegate> notifications_;
 
 XWalkContentsClientBridge::XWalkContentsClientBridge(JNIEnv* env, jobject obj)
     : java_ref_(env, obj) {
@@ -210,13 +215,11 @@ void XWalkContentsClientBridge::OnNotificationIconDownloaded(
   } else {
     NotificationDownloadRequestIdMap::iterator iter =
         downloading_icon_notifications_.find(id);
-    if (iter == downloading_icon_notifications_.end() ||
-        iter->second.size() != 3) {
+    if (iter == downloading_icon_notifications_.end())
       return;
-    }
-    int notification_id = iter->second[0];
-    int process_id = iter->second[1];
-    int route_id = iter->second[2];
+
+    int notification_id = iter->second.first;
+    content::RenderFrameHost* render_frame_host = iter->second.second;
     // This will lead to a second call of ShowNotification for the
     // same notification id to update the icon. On Android, when
     // the notification which is already shown is fired again, it will
@@ -226,8 +229,7 @@ void XWalkContentsClientBridge::OnNotificationIconDownloaded(
         FROM_HERE,
         base::Bind(&RunUpdateNotificationIconOnUIThread,
                    notification_id,
-                   process_id,
-                   route_id,
+                   render_frame_host,
                    bitmaps[0]));
   }
   downloading_icon_notifications_.erase(id);
@@ -247,11 +249,24 @@ void XWalkContentsClientBridge::UpdateNotificationIcon(
       env, obj.obj(), notification_id, jicon.obj());
 }
 
+static void CancelNotification(
+    JavaObjectWeakGlobalRef java_ref,
+    int notification_id, content::DesktopNotificationDelegate* delegate) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref.get(env);
+  if (obj.is_null())
+    return;
+
+  Java_XWalkContentsClientBridge_cancelNotification(
+      env, obj.obj(), notification_id, reinterpret_cast<intptr_t>(delegate));
+}
+
 void XWalkContentsClientBridge::ShowNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
-    bool worker,
-    int process_id,
-    int route_id) {
+    content::RenderFrameHost* render_frame_host,
+    content::DesktopNotificationDelegate* delegate,
+    base::Closure* cancel_callback) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   JNIEnv* env = AttachCurrentThread();
 
@@ -266,47 +281,32 @@ void XWalkContentsClientBridge::ShowNotification(
   ScopedJavaLocalRef<jstring> jreplace_id(
     ConvertUTF16ToJavaString(env, params.replace_id));
 
+  int notification_id = notifications_.Add(delegate);
   Java_XWalkContentsClientBridge_showNotification(
       env, obj.obj(), jtitle.obj(), jbody.obj(),
-      jreplace_id.obj(), params.notification_id,
-      process_id, route_id);
+      jreplace_id.obj(), notification_id,
+      reinterpret_cast<intptr_t>(delegate));
+
+  if (cancel_callback)
+    *cancel_callback =
+        base::Bind(&CancelNotification, java_ref_, notification_id, delegate);
 
   if (params.icon_url.is_valid()) {
-    RenderViewHost* rvh = RenderViewHost::FromID(process_id, route_id);
-    if (rvh) {
-      WebContents* web_contents = WebContents::FromRenderViewHost(rvh);
-      if (web_contents) {
-        int download_request_id = web_contents->DownloadImage(
-            params.icon_url,
-            false,
-            0,
-            base::Bind(
-                &XWalkContentsClientBridge::OnNotificationIconDownloaded,
-                base::Unretained(this)));
-        std::vector<int> ids;
-        ids.push_back(params.notification_id);
-        ids.push_back(process_id);
-        ids.push_back(route_id);
-        downloading_icon_notifications_[download_request_id] = ids;
-      }
+    WebContents* web_contents =
+      WebContents::FromRenderFrameHost(render_frame_host);
+    if (web_contents) {
+      int download_request_id = web_contents->DownloadImage(
+          params.icon_url,
+          false,
+          0,
+          base::Bind(
+              &XWalkContentsClientBridge::OnNotificationIconDownloaded,
+              base::Unretained(this)));
+      NotificationDownloadRequestInfos info =
+          std::make_pair(notification_id, render_frame_host);
+      downloading_icon_notifications_[download_request_id] = info;
     }
   }
-}
-
-void XWalkContentsClientBridge::CancelNotification(
-    int notification_id,
-    int process_id,
-    int route_id) {
-  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  JNIEnv* env = AttachCurrentThread();
-
-  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
-  if (obj.is_null())
-    return;
-
-  Java_XWalkContentsClientBridge_cancelNotification(
-      env, obj.obj(), notification_id,
-      process_id, route_id);
 }
 
 void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,
@@ -346,48 +346,37 @@ void XWalkContentsClientBridge::ExitFullscreen(
 }
 
 void XWalkContentsClientBridge::NotificationDisplayed(
-    JNIEnv*, jobject, int id, int process_id, int route_id) {
+    JNIEnv*, jobject, jlong delegate) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  RenderViewHost* rvh = RenderViewHost::FromID(
-      process_id, route_id);
-  if (!rvh)
-    return;
-  rvh->DesktopNotificationPostDisplay(id);
+  content::DesktopNotificationDelegate* notification_delegate =
+    reinterpret_cast<content::DesktopNotificationDelegate*> (delegate);
+  notification_delegate->NotificationDisplayed();
 }
 
 void XWalkContentsClientBridge::NotificationError(
-    JNIEnv* env, jobject, int id, jstring error,
-    int process_id, int route_id) {
+    JNIEnv* env, jobject, jlong delegate) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  RenderViewHost* rvh = RenderViewHost::FromID(
-      process_id, route_id);
-  if (!rvh)
-    return;
-  base::string16 error_text;
-  if (error)
-    error_text = ConvertJavaStringToUTF16(env, error);
-  rvh->DesktopNotificationPostError(id, error_text);
+  content::DesktopNotificationDelegate* notification_delegate =
+    reinterpret_cast<content::DesktopNotificationDelegate*> (delegate);
+  notification_delegate->NotificationError();
 }
 
 void XWalkContentsClientBridge::NotificationClicked(
-    JNIEnv*, jobject, int id, int process_id, int route_id) {
+    JNIEnv*, jobject, jint id, jlong delegate) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  RenderViewHost* rvh = RenderViewHost::FromID(
-      process_id, route_id);
-  if (!rvh)
-    return;
-  rvh->DesktopNotificationPostClick(id);
+  notifications_.Remove(id);
+  content::DesktopNotificationDelegate* notification_delegate =
+    reinterpret_cast<content::DesktopNotificationDelegate*> (delegate);
+  notification_delegate->NotificationClick();
 }
 
 void XWalkContentsClientBridge::NotificationClosed(
-    JNIEnv*, jobject, int id, bool by_user,
-    int process_id, int route_id) {
+    JNIEnv*, jobject, jint id, bool by_user, jlong delegate) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
-  RenderViewHost* rvh = RenderViewHost::FromID(
-      process_id, route_id);
-  if (!rvh)
-    return;
-  rvh->DesktopNotificationPostClose(id, by_user);
+  notifications_.Remove(id);
+  content::DesktopNotificationDelegate* notification_delegate =
+    reinterpret_cast<content::DesktopNotificationDelegate*> (delegate);
+  notification_delegate->NotificationClosed(by_user);
 }
 
 void XWalkContentsClientBridge::OnFilesSelected(
