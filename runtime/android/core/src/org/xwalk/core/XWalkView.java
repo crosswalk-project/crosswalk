@@ -32,13 +32,9 @@ import org.xwalk.core.extension.XWalkExtensionManager;
  * <p>XWalkView represents an Android view for web apps/pages. Thus most of attributes
  * for Android view are valid for this class. Since it internally uses
  * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
- * android.view.SurfaceView</a> for rendering web pages by default, it can't be resized,
- * rotated, transformed and animated due to the limitations of SurfaceView.
- * Alternatively, if the preference key {@link XWalkPreferences#ANIMATABLE_XWALK_VIEW}
- * is set to True, XWalkView can be transformed and animated because
- * <a href="http://developer.android.com/reference/android/view/TextureView.html">
- * TextureView</a> is intentionally used to render web pages for animation support.
- * Besides, XWalkView won't be rendered if it's invisible.</p>
+ * android.view.SurfaceView</a> for rendering web pages, it can't be resized, rotated,
+ * transformed and animated due to the limitations of SurfaceView. Besides, XWalkView won't
+ * be rendered if it's invisible.</p>
  *
  * <p>XWalkView needs hardware acceleration to render web pages. As a result, the
  * AndroidManifest.xml of the caller's app must be appended with the attribute
@@ -582,7 +578,7 @@ public class XWalkView extends android.widget.FrameLayout {
      */
     // TODO(yongsheng): make it static?
     public String getAPIVersion() {
-        return "2.0";
+        return "1.0";
     }
 
     /**

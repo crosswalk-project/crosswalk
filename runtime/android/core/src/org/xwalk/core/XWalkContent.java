@@ -29,7 +29,6 @@ import org.chromium.components.navigation_interception.InterceptNavigationDelega
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
-import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
 import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
@@ -76,10 +75,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         mWindow = new ActivityWindowAndroid(xwView.getActivity());
 
         // Initialize ContentViewRenderView
-        boolean animated = XWalkPreferences.getValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW);
-        CompositingSurfaceType surfaceType =
-                animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        mContentViewRenderView = new ContentViewRenderView(context, mWindow, surfaceType) {
+        mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
             protected void onReadyToRender() {
                 if (mPendingUrl != null) {
                     doLoadUrl(mPendingUrl, mPendingData);
@@ -600,9 +596,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
 
     @Override
     public void onKeyValueChanged(String key, boolean value) {
-        // ANIMATABLE_XWALK_VIEW can only be set before XWalkView creation.
-        assert key != XWalkPreferences.ANIMATABLE_XWALK_VIEW;
-
         if (key == XWalkPreferences.REMOTE_DEBUGGING) {
             if (value) enableRemoteDebugging();
             else disableRemoteDebugging();

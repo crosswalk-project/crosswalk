@@ -30,33 +30,8 @@ public final class XWalkPreferences {
      */
     public static final String REMOTE_DEBUGGING = "remote-debugging";
 
-    /**
-     * The key string to enable/disable animatable XWalkView. Default value is
-     * false.
-     *
-     * If this key is set to True, the XWalkView created by Crosswalk can be
-     * transformed and animated. Internally, Crosswalk is alternatively using
-     * TextureView as the backend of XWalkView.
-     *
-     * <a href="http://developer.android.com/reference/android/view/TextureView.html">
-     * TextureView</a> is a kind of
-     * <a href="http://developer.android.com/reference/android/view/View.html">
-     * android.view.View</a> that is different from
-     * <a href="http://developer.android.com/reference/android/view/SurfaceView.html">
-     * SurfaceView</a>. Unlike SurfaceView, it can be resized, transformed and
-     * animated. Once this key is set to True, all XWalkView will use TextureView
-     * as the rendering target instead of SurfaceView. The downside of TextureView
-     * is, it would consume more graphics memory than SurfaceView and may have
-     * 1~3 extra frames of latency to display updates.
-     *
-     * Note this key MUST be set before creating the first XWalkView, otherwise
-     * a RuntimeException will be thrown.
-     */
-    public static final String ANIMATABLE_XWALK_VIEW = "animatable-xwalk-view";
-
     static {
         sPrefMap.put(REMOTE_DEBUGGING, Boolean.FALSE);
-        sPrefMap.put(ANIMATABLE_XWALK_VIEW, Boolean.FALSE);
     }
 
     /**
@@ -67,12 +42,6 @@ public final class XWalkPreferences {
      */
     public static synchronized void setValue(String key, boolean enabled) throws RuntimeException {
         checkKey(key);
-        // If the listener list is not empty, we consider the preference is
-        // loaded by Crosswalk and taken effect already.
-        if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
-            throw new RuntimeException("Error: the preference key " + key +
-                    " can not be set if the preference is already loaded by Crosswalk");
-        }
         if (sPrefMap.get(key) != enabled) {
             sPrefMap.put(key, new Boolean(enabled));
             onKeyValueChanged(key, enabled);
