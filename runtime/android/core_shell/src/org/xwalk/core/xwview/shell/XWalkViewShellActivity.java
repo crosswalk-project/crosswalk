@@ -40,7 +40,8 @@ import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkViewInternal;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 public class XWalkViewShellActivity extends FragmentActivity
         implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener{
@@ -320,10 +321,11 @@ public class XWalkViewShellActivity extends FragmentActivity
             }
         });
 
+        // TODO: core shell shouldn't use internal APIs.
         xwalkView.setXWalkWebChromeClient(new XWalkWebChromeClient(xwalkView) {
             @Override
-            public void onReceivedTitle(XWalkView view, String title) {
-                mSectionsPagerAdapter.setPageTitle(view, title);
+            public void onReceivedTitle(XWalkViewInternal view, String title) {
+                mSectionsPagerAdapter.setPageTitle((XWalkView)view, title);
             }
         });
     }

@@ -25,13 +25,14 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkViewInternal;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -48,12 +49,12 @@ public class XWalkViewTestBase
         }
 
         @Override
-        public void onPageStarted(XWalkView view, String url) {
+        public void onPageStarted(XWalkViewInternal view, String url) {
             mInnerContentsClient.onPageStarted(url);
         }
 
         @Override
-        public void onPageFinished(XWalkView view, String url) {
+        public void onPageFinished(XWalkViewInternal view, String url) {
             mInnerContentsClient.onPageFinished(url);
         }
     }
@@ -72,7 +73,7 @@ public class XWalkViewTestBase
         }
 
         @Override
-        public void onReceivedTitle(XWalkView view, String title) {
+        public void onReceivedTitle(XWalkViewInternal view, String title) {
             mInnerContentsClient.onTitleChanged(title);
         }
     }

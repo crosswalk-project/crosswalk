@@ -311,7 +311,7 @@ def Execution(options, name):
 
     res_ui_java = os.path.join('gen', 'ui_java')
     res_content_java = os.path.join('gen', 'content_java')
-    res_xwalk_java = os.path.join('gen', 'xwalk_core_java')
+    res_xwalk_java = os.path.join('gen', 'xwalk_core_internal_java')
     res_dirs = ('-DADDITIONAL_RES_DIRS='
                 + os.path.join(res_ui_java, 'res_crunched') + ' '
                 + os.path.join(res_ui_java, 'res_v14_compatibility') + ' '
@@ -326,7 +326,7 @@ def Execution(options, name):
                 + os.path.join('libs_res', 'runtime') + ' '
                 + os.path.join(res_xwalk_java, 'res_grit'))
     res_packages = ('-DADDITIONAL_RES_PACKAGES=org.chromium.ui '
-                    'org.xwalk.core org.chromium.content')
+                    'org.xwalk.core.internal org.chromium.content')
     res_r_text_files = ('-DADDITIONAL_R_TEXT_FILES='
                         + os.path.join(res_ui_java, 'java_R', 'R.txt') + ' '
                         + os.path.join(res_xwalk_java, 'java_R', 'R.txt') + ' '

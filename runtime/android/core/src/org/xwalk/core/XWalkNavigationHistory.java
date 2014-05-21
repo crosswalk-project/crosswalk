@@ -1,29 +1,21 @@
-// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 package org.xwalk.core;
 
-import java.io.Serializable;
-
-import org.chromium.content.browser.NavigationHistory;
+import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
+import org.xwalk.core.internal.XWalkNavigationHistoryInternal.DirectionInternal;
+import org.xwalk.core.internal.XWalkNavigationItemInternal;
 
 /**
  * This class represents a navigation history for a XWalkView instance.
  * It's not thread-safe and should be only called on UI thread.
  */
-public final class XWalkNavigationHistory implements Cloneable, Serializable {
-    private NavigationHistory mHistory;
-    private XWalkView mXWalkView;
+public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal {
 
-    XWalkNavigationHistory(XWalkView view, NavigationHistory history) {
-        mXWalkView = view;
-        mHistory = history;
-    }
-
-    XWalkNavigationHistory(XWalkNavigationHistory history) {
-        mXWalkView = history.mXWalkView;
-        mHistory = history.mHistory;
+    public XWalkNavigationHistory(XWalkNavigationHistoryInternal internal) {
+        super(internal);
     }
 
     /**
@@ -31,7 +23,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return the size of total navigation items.
      */
     public int size() {
-        return mHistory.getEntryCount();
+        return super.size();
     }
 
     /**
@@ -40,7 +32,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return true if there is an item at the specific index.
      */
     public boolean hasItemAt(int index) {
-        return index >=0 && index <= size() - 1;
+        return super.hasItemAt(index);
     }
 
     /**
@@ -49,8 +41,12 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return the navigation item for the given index.
      */
     public XWalkNavigationItem getItemAt(int index) {
-        if (index < 0 || index >= size()) return null;
-        return new XWalkNavigationItem(mHistory.getEntryAtIndex(index));
+        XWalkNavigationItemInternal item = super.getItemAt(index);
+        if (item == null || item instanceof XWalkNavigationItem) {
+            return (XWalkNavigationItem) item;
+        }
+
+        return new XWalkNavigationItem(item);
     }
 
     /**
@@ -58,7 +54,12 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return the current navigation item.
      */
     public XWalkNavigationItem getCurrentItem() {
-        return getItemAt(getCurrentIndex());
+        XWalkNavigationItemInternal item = super.getCurrentItem();
+        if (item == null || item instanceof XWalkNavigationItem) {
+            return (XWalkNavigationItem) item;
+        }
+
+        return new XWalkNavigationItem(item);
     }
 
     /**
@@ -66,7 +67,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return true if it can go back.
      */
     public boolean canGoBack() {
-        return mXWalkView.canGoBack();
+        return super.canGoBack();
     }
 
     /**
@@ -74,7 +75,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return true if it can go forward.
      */
     public boolean canGoForward() {
-        return mXWalkView.canGoForward();
+        return super.canGoForward();
     }
 
     /**
@@ -94,16 +95,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @param steps go back or foward with a given steps.
      */
     public void navigate(Direction direction, int steps) {
-        switch(direction) {
-            case FORWARD:
-                mXWalkView.navigateTo(steps);
-                break;
-            case BACKWARD:
-                mXWalkView.navigateTo(-steps);
-                break;
-            default:
-                break;
-        }
+        super.navigate(DirectionInternal.valueOf(direction.toString()), steps);
     }
 
     /**
@@ -111,17 +103,13 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return current index in the navigation history.
      */
     public int getCurrentIndex() {
-        return mHistory.getCurrentEntryIndex();
+        return super.getCurrentIndex();
     }
 
     /**
      * Clear all history owned by this XWalkView.
      */
     public void clear() {
-        mXWalkView.clearHistory();
-    }
-
-    protected synchronized XWalkNavigationHistory clone() {
-        return new XWalkNavigationHistory(this);
+        super.clear();
     }
 }

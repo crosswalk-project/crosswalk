@@ -20,10 +20,10 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.chromium.net.test.util.TestWebServer;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 import org.xwalk.core.xwview.test.util.CommonResources;
 
 /**

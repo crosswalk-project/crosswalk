@@ -1,34 +1,22 @@
-// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 package org.xwalk.core;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ApplicationErrorReport;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 import android.webkit.ValueCallback;
-import android.widget.FrameLayout;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import org.chromium.base.ActivityState;
-import org.chromium.base.ApplicationStatus;
-
-import org.xwalk.core.extension.XWalkExtensionManager;
-import org.xwalk.core.extension.XWalkPathHelper;
+import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
+import org.xwalk.core.internal.XWalkPreferencesInternal;
+import org.xwalk.core.internal.XWalkResourceClientInternal;
+import org.xwalk.core.internal.XWalkUIClientInternal;
+import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
  * <p>XWalkView represents an Android view for web apps/pages. Thus most of attributes
@@ -148,15 +136,7 @@ import org.xwalk.core.extension.XWalkPathHelper;
  *   }
  * </pre>
  */
-public class XWalkView extends android.widget.FrameLayout {
-
-    static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
-
-    private XWalkContent mContent;
-    private Activity mActivity;
-    private Context mContext;
-    private XWalkExtensionManager mExtensionManager;
-    private boolean mIsHidden;
+public class XWalkView extends XWalkViewInternal {
 
     /** Normal reload mode as default. */
     public static final int RELOAD_NORMAL = 0;
@@ -170,10 +150,6 @@ public class XWalkView extends android.widget.FrameLayout {
      */
     public XWalkView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        checkThreadSafety();
-        mContext = context;
-        init(context, attrs);
     }
 
     /**
@@ -183,151 +159,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param activity the activity for this XWalkView.
      */
     public XWalkView(Context context, Activity activity) {
-        super(context, null);
-        checkThreadSafety();
-
-        // Make sure mActivity is initialized before calling 'init' method.
-        mActivity = activity;
-        mContext = context;
-        init(context, null);
-    }
-
-    /**
-     * Get the current activity passed from callers. It's never null.
-     * @return the activity instance passed from callers.
-     *
-     * @hide
-     */
-    public Activity getActivity() {
-        if (mActivity != null) {
-            return mActivity;
-        } else if (getContext() instanceof Activity) {
-            return (Activity)getContext();
-        }
-
-        // Never achieve here.
-        assert(false);
-        return null;
-    }
-
-    // TODO(yongsheng): we should remove this since we have getContext()?
-    /**
-     * @hide
-     */
-    public Context getViewContext() {
-        return mContext;
-    }
-
-    private void init(Context context, AttributeSet attrs) {
-        // Initialize chromium resources. Assign them the correct ids in
-        // xwalk core.
-        XWalkInternalResources.resetIds(context);
-
-        // Intialize library, paks and others.
-        try {
-            XWalkViewDelegate.init(this);
-        } catch (UnsatisfiedLinkError e) {
-            final UnsatisfiedLinkError err = e;
-            final Activity activity = getActivity();
-            final String packageName = context.getPackageName();
-            String missingArch = XWalkViewDelegate.isRunningOnIA() ? "Intel" : "ARM";
-            final String message =
-                    context.getString(R.string.cpu_arch_mismatch_message, missingArch);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.cpu_arch_mismatch_title)
-                    .setMessage(message)
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            activity.finish();
-                        }
-                    }).setPositiveButton(R.string.goto_store_button_label,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            activity.startActivity(new Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(PLAYSTORE_DETAIL_URI + packageName)));
-                            activity.finish();
-                        }
-                    }).setNeutralButton(R.string.report_feedback_button_label,
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ApplicationErrorReport report = new ApplicationErrorReport();
-                            report.type = ApplicationErrorReport.TYPE_CRASH;
-                            report.packageName = report.processName = packageName;
-
-                            ApplicationErrorReport.CrashInfo crash =
-                                    new ApplicationErrorReport.CrashInfo();
-                            crash.exceptionClassName = err.getClass().getSimpleName();
-                            crash.exceptionMessage = "CPU architecture mismatch";
-                            StringWriter writer = new StringWriter();
-                            PrintWriter print = new PrintWriter(writer);
-                            err.printStackTrace(print);
-                            crash.stackTrace = writer.toString();
-                            StackTraceElement stack = err.getStackTrace()[0];
-                            crash.throwClassName = stack.getClassName();
-                            crash.throwFileName = stack.getFileName();
-                            crash.throwLineNumber = stack.getLineNumber();
-                            crash.throwMethodName = stack.getMethodName();
-
-                            report.crashInfo = crash;
-                            report.systemApp = false;
-                            report.time = System.currentTimeMillis();
-
-                            Intent intent = new Intent(Intent.ACTION_APP_ERROR);
-                            intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
-                            activity.startActivity(intent);
-                            activity.finish();
-                        }
-                    });
-            builder.create().show();
-            return;
-        }
-
-        initXWalkContent(context, attrs);
-    }
-
-    private void initXWalkContent(Context context, AttributeSet attrs) {
-        mIsHidden = false;
-        mContent = new XWalkContent(context, attrs, this);
-        addView(mContent,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
-
-
-        // Set default XWalkClientImpl.
-        setXWalkClient(new XWalkClient(this));
-        // Set default XWalkWebChromeClient and DownloadListener. The default actions
-        // are provided via the following clients if special actions are not needed.
-        setXWalkWebChromeClient(new XWalkWebChromeClient(this));
-
-        // Set with internal implementation. Could be overwritten by embedders'
-        // setting.
-        setUIClient(new XWalkUIClient(this));
-        setResourceClient(new XWalkResourceClient(this));
-
-        setDownloadListener(new XWalkDownloadListenerImpl(context));
-        setNavigationHandler(new XWalkNavigationHandlerImpl(context));
-        setNotificationService(new XWalkNotificationServiceImpl(context, this));
-
-        // Enable xwalk extension mechanism and start load extensions here.
-        // Note that it has to be after above initialization.
-        mExtensionManager = new XWalkExtensionManager(context, getActivity());
-        mExtensionManager.loadExtensions();
-
-        XWalkPathHelper.initialize();
-        XWalkPathHelper.setCacheDirectory(
-                mContext.getApplicationContext().getCacheDir().getPath());
-
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            XWalkPathHelper.setExternalCacheDirectory(
-                    mContext.getApplicationContext().getExternalCacheDir().getPath());
-        }
+        super(context, activity);
     }
 
     /**
@@ -345,9 +177,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param content the content for the web page/app. Could be empty.
      */
     public void load(String url, String content) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.loadUrl(url, content);
+        super.load(url, content);
     }
 
     /**
@@ -362,9 +192,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param content the content for manifest.json.
      */
     public void loadAppFromManifest(String url, String content) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.loadAppFromManifest(url, content);
+        super.loadAppFromManifest(url, content);
     }
 
     /**
@@ -372,18 +200,14 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param mode the reload mode.
      */
     public void reload(int mode) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.reload(mode);
+        super.reload(mode);
     }
 
     /**
      * Stop current loading progress.
      */
     public void stopLoading() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.stopLoading();
+        super.stopLoading();
     }
 
     /**
@@ -392,9 +216,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return the url for current web page/app.
      */
     public String getUrl() {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.getUrl();
+        return super.getUrl();
     }
 
     /**
@@ -403,9 +225,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return the title for current web page/app.
      */
     public String getTitle() {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.getTitle();
+        return super.getTitle();
     }
 
     /**
@@ -413,9 +233,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return the original url.
      */
     public String getOriginalUrl() {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.getOriginalUrl();
+        return super.getOriginalUrl();
     }
 
     /**
@@ -424,9 +242,12 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return the navigation history.
      */
     public XWalkNavigationHistory getNavigationHistory() {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.getNavigationHistory();
+        XWalkNavigationHistoryInternal history = super.getNavigationHistory();
+        if (history == null || history instanceof XWalkNavigationHistory) {
+            return (XWalkNavigationHistory) history;
+        }
+
+        return new XWalkNavigationHistory(history);
     }
 
     /**
@@ -437,9 +258,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param name the name injected in JavaScript.
      */
     public void addJavascriptInterface(Object object, String name) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.addJavascriptInterface(object, name);
+        super.addJavascriptInterface(object, name);
     }
 
     /**
@@ -448,9 +267,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param callback the callback to handle the evaluated result.
      */
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.evaluateJavascript(script, callback);
+        super.evaluateJavascript(script, callback);
     }
 
     /**
@@ -459,9 +276,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param includeDiskFiles indicate whether to clear disk files for cache.
      */
     public void clearCache(boolean includeDiskFiles) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.clearCache(includeDiskFiles);
+        super.clearCache(includeDiskFiles);
     }
 
     /**
@@ -469,9 +284,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return true if any HTML element is occupying the whole screen.
      */
     public boolean hasEnteredFullscreen() {
-        if (mContent == null) return false;
-        checkThreadSafety();
-        return mContent.hasEnteredFullscreen();
+        return super.hasEnteredFullscreen();
     }
 
     /**
@@ -479,9 +292,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * in fullscreen.
      */
     public void leaveFullscreen() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.exitFullscreen();
+        super.leaveFullscreen();
     }
 
     /**
@@ -494,9 +305,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * just this XWalkView.
      */
     public void pauseTimers() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.pauseTimers();
+        super.pauseTimers();
     }
 
     /**
@@ -507,9 +316,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * just this XWalkView.
      */
     public void resumeTimers() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.resumeTimers();
+        super.resumeTimers();
     }
 
     /**
@@ -519,10 +326,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * Typically it should be called when the activity for this view is paused.
      */
     public void onHide() {
-        if (mContent == null || mIsHidden) return;
-        mExtensionManager.onPause();
-        mContent.onPause();
-        mIsHidden = true;
+        super.onHide();
     }
 
     /**
@@ -531,17 +335,14 @@ public class XWalkView extends android.widget.FrameLayout {
      * Typically it should be called when the activity for this view is resumed.
      */
     public void onShow() {
-        if (mContent == null || !mIsHidden ) return;
-        mExtensionManager.onResume();
-        mContent.onResume();
-        mIsHidden = false;
+        super.onShow();
     }
 
     /**
      * Release internal resources occupied by this XWalkView.
      */
     public void onDestroy() {
-        destroy();
+        super.onDestroy();
     }
 
     /**
@@ -554,9 +355,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param data passed from android.app.Activity.onActivityResult().
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (mContent == null) return;
-        mExtensionManager.onActivityResult(requestCode, resultCode, data);
-        mContent.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -567,8 +366,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param intent passed from android.app.Activity.onNewIntent().
      */
     public boolean onNewIntent(Intent intent) {
-        if (mContent == null) return false;
-        return mContent.onNewIntent(intent);
+        return super.onNewIntent(intent);
     }
 
     /**
@@ -577,9 +375,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param outState the saved state for restoring.
      */
     public boolean saveState(Bundle outState) {
-        if (mContent == null) return false;
-        mContent.saveState(outState);
-        return true;
+        return super.saveState(outState);
     }
 
     /**
@@ -588,9 +384,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @return true if it can restore the state.
      */
     public boolean restoreState(Bundle inState) {
-        if (mContent == null) return false;
-        if (mContent.restoreState(inState) != null) return true;
-        return false;
+        return super.restoreState(inState);
     }
 
     /**
@@ -599,7 +393,7 @@ public class XWalkView extends android.widget.FrameLayout {
      */
     // TODO(yongsheng): make it static?
     public String getAPIVersion() {
-        return "2.0";
+        return super.getAPIVersion();
     }
 
     /**
@@ -608,8 +402,7 @@ public class XWalkView extends android.widget.FrameLayout {
      */
     // TODO(yongsheng): make it static?
     public String getXWalkVersion() {
-        if (mContent == null) return null;
-        return mContent.getXWalkVersion();
+        return super.getXWalkVersion();
     }
 
     /**
@@ -618,9 +411,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param client the XWalkUIClient defined by callers.
      */
     public void setUIClient(XWalkUIClient client) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setUIClient(client);
+        super.setUIClient(client);
     }
 
     /**
@@ -629,9 +420,7 @@ public class XWalkView extends android.widget.FrameLayout {
      * @param client the XWalkResourceClient defined by callers.
      */
     public void setResourceClient(XWalkResourceClient client) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setResourceClient(client);
+        super.setResourceClient(client);
     }
 
     /**
@@ -643,183 +432,6 @@ public class XWalkView extends android.widget.FrameLayout {
      */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // If there's navigation happens when app is fullscreen,
-            // the content will still be fullscreen after navigation.
-            // In such case, the back key will exit fullscreen first.
-            if (hasEnteredFullscreen()) {
-                leaveFullscreen();
-                return true;
-            } else if (canGoBack()) {
-                goBack();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // TODO(yongsheng): this is not public.
-    /**
-     * @hide
-     */
-    public XWalkSettings getSettings() {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.getSettings();
-    }
-
-    /**
-     * This method is used by Cordova for hacking.
-     * TODO(yongsheng): remove this and related test cases?
-     *
-     * @hide
-     */
-    public void setNetworkAvailable(boolean networkUp) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setNetworkAvailable(networkUp);
-    }
-
-    /**
-     * Enables remote debugging and returns the URL at which the dev tools server is listening
-     * for commands. The allowedUid argument can be used to specify the uid of the process that is
-     * permitted to connect.
-     * TODO(yongsheng): how to enable this in XWalkPreferences?
-     *
-     * @hide
-     */
-    public String enableRemoteDebugging(int allowedUid) {
-        if (mContent == null) return null;
-        checkThreadSafety();
-        return mContent.enableRemoteDebugging(allowedUid);
-    }
-
-    /**
-     * It's used for Presentation API.
-     * @hide
-     */
-    public int getContentID() {
-        if (mContent == null) return -1;
-        return mContent.getRoutingID();
-    }
-
-    boolean canGoBack() {
-        if (mContent == null) return false;
-        checkThreadSafety();
-        return mContent.canGoBack();
-    }
-
-    void goBack() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.goBack();
-    }
-
-    boolean canGoForward() {
-        if (mContent == null) return false;
-        checkThreadSafety();
-        return mContent.canGoForward();
-    }
-
-    void goForward() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.goForward();
-    }
-
-    void clearHistory() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.clearHistory();
-    }
-
-    void destroy() {
-        if (mContent == null) return;
-        mExtensionManager.onDestroy();
-        mContent.destroy();
-        disableRemoteDebugging();
-    }
-
-    // Enables remote debugging and returns the URL at which the dev tools server is listening
-    // for commands. Only the current process is allowed to connect to the server.
-    String enableRemoteDebugging() {
-        return enableRemoteDebugging(mContext.getApplicationInfo().uid);
-    }
-
-    void disableRemoteDebugging() {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.disableRemoteDebugging();
-    }
-
-    private static void checkThreadSafety() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            Throwable throwable = new Throwable(
-                "Warning: A XWalkView method was called on thread '" +
-                Thread.currentThread().getName() + "'. " +
-                "All XWalkView methods must be called on the UI thread. ");
-            throw new RuntimeException(throwable);
-        }
-    }
-
-    boolean isOwnerActivityRunning() {
-        int status = ApplicationStatus.getStateForActivity(getActivity());
-        if (status == ActivityState.DESTROYED) return false;
-        return true;
-    }
-
-    void navigateTo(int offset) {
-        if (mContent == null) return;
-        mContent.navigateTo(offset);
-    }
-
-    void setOverlayVideoMode(boolean enabled) {
-        mContent.setOverlayVideoMode(enabled);
-    }
-
-    // Below methods are for test shell and instrumentation tests.
-    /**
-     * @hide
-     */
-    public void setXWalkClient(XWalkClient client) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setXWalkClient(client);
-    }
-
-    /**
-     * @hide
-     */
-    public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setXWalkWebChromeClient(client);
-    }
-
-    /**
-     * @hide
-     */
-    public void setDownloadListener(DownloadListener listener) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setDownloadListener(listener);
-    }
-
-    /**
-     * @hide
-     */
-    public void setNavigationHandler(XWalkNavigationHandler handler) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setNavigationHandler(handler);
-    }
-
-    /**
-     * @hide
-     */
-    public void setNotificationService(XWalkNotificationService service) {
-        if (mContent == null) return;
-        checkThreadSafety();
-        mContent.setNotificationService(service);
+        return super.onKeyUp(keyCode, event);
     }
 }

@@ -13,8 +13,8 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import org.chromium.base.test.util.Feature;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkNavigationHandlerImpl;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkNavigationHandlerImpl;
 
 /**
  * Test suite for handling ActionUri.
