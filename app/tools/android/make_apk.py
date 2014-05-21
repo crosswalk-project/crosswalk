@@ -26,6 +26,8 @@ def CleanDir(path):
   if os.path.exists(path):
     shutil.rmtree(path)
 
+def AllArchitectures():
+  return ("x86", "arm")
 
 def RunCommand(command, verbose=False, shell=False):
   """Runs the command list, print the output, and propagate its result."""
@@ -487,48 +489,57 @@ def Execution(options, name):
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(target_dir, app_name, app_version,
-                     arch = '', multi_arch = False):
-  package_name_version = os.path.join(target_dir, app_name)
-  if app_version != '':
-    package_name_version += ('_' + app_version)
-  if arch == '':
+def PrintPackageInfo(options, packaged_archs):
+  package_name_version = os.path.join(options.target_dir, options.name)
+  if options.app_version:
+    package_name_version += '_' + options.app_version
+
+  if len(packaged_archs) == 0:
     print ('A non-platform specific APK for the web application "%s" was '
            'generated successfully at\n%s.apk. It requires a shared Crosswalk '
            'Runtime to be present.'
-           % (app_name, package_name_version))
-  else:
+           % (options.name, package_name_version))
+    return
+
+  for arch in packaged_archs:
     print ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
-           % (app_name, arch, package_name_version, arch))
-    if multi_arch == False:
-      if arch == 'x86':
-        print ('WARNING: This APK will only work on x86 based Android devices. '
-               'Consider building for ARM as well.')
-      elif arch == 'arm':
-        print ('WARNING: This APK will only work on ARM based Android devices. '
-               'Consider building for x86 as well.')
+           % (options.name, arch, package_name_version, arch))
 
+  all_archs = set(AllArchitectures())
+
+  if len(packaged_archs) != len(all_archs):
+    missed_archs = all_archs - set(packaged_archs)
+    print ('\n\nWARNING: ')
+    print ('This APK will only work on %s based Android devices. Consider '
+           'building for %s as well.' %
+           (', '.join(packaged_archs), ', '.join(missed_archs)))
+  else:
+    print ('\n\n%d APKs were created for %s devices. '
+           % (len(all_archs), ', '.join(all_archs)))
+    print ('Please install the one that matches the processor architecture '
+           'of your device.\n\n')
+    print ('If you are going to submit this application to an application '
+           'store, please make sure you submit both packages.\nInstructions '
+           'for submitting multiple APKs to Google Play Store are available '
+           'here:\nhttps://software.intel.com/en-us/html5/articles/submitting'
+           '-multiple-crosswalk-apk-to-google-play-store')
 
 def MakeApk(options):
   Customize(options)
-  app_version = ''
   name = options.name
-  if options.app_version:
-    app_version = options.app_version
+  packaged_archs = []
   if options.mode == 'shared':
     Execution(options, name)
-    PrintPackageInfo(options.target_dir, name, app_version)
   elif options.mode == 'embedded':
     if options.arch:
       Execution(options, name)
-      PrintPackageInfo(options.target_dir, name, app_version, options.arch)
+      packaged_archs.append(options.arch)
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
       valid_archs = ['x86', 'armeabi-v7a']
-      packaged_archs = []
       for arch in valid_archs:
         lib_path = os.path.join('native_libs', arch, 'libs',
                                 arch, 'libxwalkcore.so')
@@ -547,17 +558,11 @@ def MakeApk(options):
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
-
-      multi_arch = False
-      if len(packaged_archs) >=2:
-        multi_arch = True
-      for arch in packaged_archs:
-        PrintPackageInfo(options.target_dir, name, app_version, arch,
-                         multi_arch)
   else:
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
+  PrintPackageInfo(options, packaged_archs)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -577,7 +582,7 @@ def main(argv):
   info = ('The target architecture of the embedded runtime. Supported values '
           'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
           'architestures will be generated.')
-  parser.add_option('--arch', choices=("x86", "arm"), help=info)
+  parser.add_option('--arch', choices=AllArchitectures(), help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '
       '1) XPK package; 2) manifest.json; 3) various command line options, '
