@@ -5,7 +5,7 @@
 #ifndef XWALK_TIZEN_MOBILE_SENSOR_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
 #define XWALK_TIZEN_MOBILE_SENSOR_TIZEN_DATA_FETCHER_SHARED_MEMORY_H_
 
-#include "content/browser/device_orientation/data_fetcher_shared_memory.h"
+#include "content/browser/device_sensors/data_fetcher_shared_memory.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 
 namespace xwalk {

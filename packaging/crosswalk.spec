@@ -25,7 +25,6 @@ Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
-Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
