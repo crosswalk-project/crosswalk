@@ -23,6 +23,8 @@ class PackageInstallerHelper {
   bool InstallApplicationInternal(const std::string& xmlpath,
                                   const std::string& iconpath);
   bool UninstallApplicationInternal();
+  bool UpdateApplicationInternal(const std::string& xmlpath,
+                                 const std::string& iconpath);
 
   bool SendSignal(const std::string& key, const std::string& value);
 
