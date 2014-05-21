@@ -139,9 +139,14 @@ void XWalkBrowserMainParts::RegisterExternalExtensions() {
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
 
 #if defined(OS_TIZEN)
-  static const std::string tec_path = "/usr/lib/tizen-extensions-crosswalk";
   std::string value = cmd_line->GetSwitchValueASCII(
       switches::kXWalkExternalExtensionsPath);
+
+#if defined(ARCH_CPU_64_BITS)
+  const char tec_path[] = "/usr/lib64/tizen-extensions-crosswalk";
+#else
+  const char tec_path[] = "/usr/lib/tizen-extensions-crosswalk";
+#endif
 
   if (value.empty())
     cmd_line->AppendSwitchASCII(switches::kXWalkExternalExtensionsPath,
