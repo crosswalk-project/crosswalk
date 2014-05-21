@@ -69,8 +69,8 @@ void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
     return;
 
   const char* schemes[] = {
-    content::kHttpScheme,
-    content::kHttpsScheme,
+    url::kHttpScheme,
+    url::kHttpsScheme,
     content::kFileScheme,
     xwalk::kAppScheme,
   };
