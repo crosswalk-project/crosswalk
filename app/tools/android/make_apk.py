@@ -17,6 +17,8 @@ sys.path.append('scripts/gyp')
 
 from customize import VerifyAppName, CustomizeAll, \
                       ParseParameterForCompressor
+from console_log import PrintError, PrintWarning, \
+                        PrintSuccess
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -499,17 +501,17 @@ def PrintPackageInfo(target_dir, app_name, app_version,
            'Runtime to be present.'
            % (app_name, package_name_version))
   else:
-    print ('An APK for the web application "%s" including the Crosswalk '
+    PrintSuccess ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
            % (app_name, arch, package_name_version, arch))
     if multi_arch is False:
       if arch == 'x86':
-        print ('WARNING: This APK will only work on x86 based Android devices. '
-               'Consider building for ARM as well.')
+        PrintWarning ('WARNING: This APK will only work on x86 based Android '
+               'devices. Consider building for ARM as well.')
       elif arch == 'arm':
-        print ('WARNING: This APK will only work on ARM based Android devices. '
-               'Consider building for x86 as well.')
+        PrintWarning ('WARNING: This APK will only work on ARM based Android '
+               'devices. Consider building for x86 as well.')
 
 
 def MakeApk(options):
@@ -541,7 +543,7 @@ def MakeApk(options):
           Execution(options, name)
           packaged_archs.append(options.arch)
         else:
-          print('Warning: failed to create package for arch "%s" '
+          PrintWarning('WARNING: failed to create package for arch "%s" '
                 'due to missing library %s' %
                 (arch, lib_path))
 
@@ -556,7 +558,7 @@ def MakeApk(options):
         PrintPackageInfo(options.target_dir, name, app_version, arch,
                          multi_arch)
   else:
-    print('Unknown mode for packaging the application. Abort!')
+    PrintError('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
 
@@ -725,8 +727,8 @@ def main(argv):
     if options.permissions:
       permission_list = options.permissions.split(':')
     else:
-      print('Warning: all supported permissions on Android port are added. '
-            'Refer to https://github.com/crosswalk-project/'
+      PrintWarning('Warning: all supported permissions on Android port are '
+            'added. Refer to https://github.com/crosswalk-project/'
             'crosswalk-website/wiki/Crosswalk-manifest')
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
@@ -740,7 +742,7 @@ def main(argv):
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
                                       options.app_local_path))):
-    print('Please make sure that the local path file of launching app '
+    PrintError('Please make sure that the local path file of launching app '
           'does exist.')
     sys.exit(7)
 
