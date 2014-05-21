@@ -26,6 +26,7 @@ class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
       content::BrowserPpapiHost* ppapi_host) OVERRIDE;
   virtual bool MapUrlToLocalFilePath(const GURL& url,
                                      bool is_blocking,
+                                     const base::FilePath& profile_directory,
                                      base::FilePath* file_path) OVERRIDE;
   virtual void SetDebugPatterns(std::string debug_patterns) OVERRIDE;
   virtual bool URLMatchesDebugPatterns(const GURL& manifest_url) OVERRIDE;
