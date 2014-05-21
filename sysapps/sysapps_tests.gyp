@@ -27,7 +27,7 @@
             '../../dbus/dbus.gyp:dbus',
           ],
         }],
-        ['os_posix==1 and OS!="mac" and linux_use_tcmalloc==1', {
+        ['os_posix==1 and OS!="mac" and use_allocator=="tcmalloc"', {
           'dependencies': [
             '../../base/allocator/allocator.gyp:allocator',
           ],
