@@ -21,6 +21,8 @@ const base::FilePath kIconDir("/opt/share/icons/default/small/");
 const base::FilePath kXmlDir("/opt/share/packages/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 const std::string kServicePrefix("xwalk-service.");
+const std::string kXmlFileExt(".xml");
+const std::string kPngFileExt(".png");
 
 // Package type sent in every signal.
 const char PKGMGR_PKG_TYPE[] = "rpm";
@@ -74,6 +76,22 @@ const char* ToEndStatus(bool result) {
   return result ? PKGMGR_END_SUCCESS : PKGMGR_END_FAILURE;
 }
 
+inline base::FilePath GetDestFilePath(const base::FilePath& DirPath,
+                                      const std::string& appid,
+                                      const std::string& file_ext) {
+  return DirPath.Append(kServicePrefix + std::string(appid) + file_ext);
+}
+
+bool CopyFileToDst(const base::FilePath& file_src,
+                   const base::FilePath& file_dst) {
+  if (!base::CopyFile(file_src, file_dst)) {
+    fprintf(stdout, "Couldn't copy application file to '%s'\n",
+            file_dst.value().c_str());
+    return false;
+  }
+  return true;
+}
+
 }  // namespace
 
 PackageInstallerHelper::PackageInstallerHelper(const std::string& appid)
@@ -123,36 +141,24 @@ bool PackageInstallerHelper::InstallApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for installation\n");
   }
 
-  base::FilePath icon_src(iconpath);
-  // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(
-      kServicePrefix + std::string(appid_) + ".png");
-  if (!base::CopyFile(icon_src, icon_dst)) {
-    fprintf(stdout, "Couldn't copy application icon to '%s'\n",
-            icon_dst.value().c_str());
-    return false;
-  }
-
+  base::FilePath xml_dst = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
+  base::FilePath icon_dst = GetDestFilePath(kIconDir, appid_, kPngFileExt);
+  FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
-  base::FilePath xml_src(xmlpath);
-  base::FilePath xml_dst = kXmlDir.Append(
-      kServicePrefix + std::string(appid_) + ".xml");
-  if (!base::CopyFile(xml_src, xml_dst)) {
-    fprintf(stdout, "Couldn't copy application XML metadata to '%s'\n",
-            xml_dst.value().c_str());
+
+  if (!CopyFileToDst(base::FilePath(xmlpath), xml_dst)
+     || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
-  }
 
   if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(), NULL)) {
     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
     return false;
   }
 
-  FileDeleter xml_cleaner(xml_dst, false);
-  icon_cleaner.Dismiss();
   xml_cleaner.Dismiss();
+  icon_cleaner.Dismiss();
 
   return true;
 }
@@ -161,30 +167,21 @@ bool PackageInstallerHelper::UninstallApplicationInternal() {
   bool result = true;
 
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(
-      kServicePrefix + appid_ + ".png");
-  if (!base::DeleteFile(icon_dst, false)) {
-    fprintf(stdout, "Couldn't delete '%s'\n", icon_dst.value().c_str());
-    result = false;
-  }
-
-  base::FilePath xmlpath(kXmlDir);
-  xmlpath = xmlpath.Append(kServicePrefix + std::string(appid_) + ".xml");
+  base::FilePath iconpath = GetDestFilePath(kIconDir, appid_, kPngFileExt);
+  base::FilePath xmlpath = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
+  FileDeleter icon_cleaner(iconpath, false);
+  FileDeleter xml_cleaner(xmlpath, false);
 
   std::string xmlpath_str = xmlpath.MaybeAsASCII();
   assert(!xmlpath_str.empty());
   if (pkgmgr_parser_parse_manifest_for_uninstallation(
         xmlpath_str.c_str(), NULL)) {
     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath_str.c_str());
-    result = false;
+    icon_cleaner.Dismiss();
+    xml_cleaner.Dismiss();
+    return false;
   }
-
-  if (!base::DeleteFile(xmlpath, false)) {
-    fprintf(stdout, "Couldn't delete '%s'\n", xmlpath_str.c_str());
-    result = false;
-  }
-
-  return result;
+  return true;
 }
 
 bool PackageInstallerHelper::UpdateApplicationInternal(
@@ -194,36 +191,24 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for update\n");
   }
 
-  base::FilePath icon_src(iconpath);
-  // icon_dst == /opt/share/icons/default/small/xwalk-service.<appid>.png
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath icon_dst = kIconDir.Append(
-      kServicePrefix + std::string(appid_) + ".png");
-  if (!base::CopyFile(icon_src, icon_dst)) {
-    fprintf(stdout, "Couldn't copy application icon to '%s'\n",
-            icon_dst.value().c_str());
-    return false;
-  }
-
+  base::FilePath xml_dst = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
+  base::FilePath icon_dst = GetDestFilePath(kIconDir, appid_, kPngFileExt);
+  FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
-  base::FilePath xml_src(xmlpath);
-  base::FilePath xml_dst = kXmlDir.Append(
-      kServicePrefix + std::string(appid_) + ".xml");
-  if (!base::CopyFile(xml_src, xml_dst)) {
-    fprintf(stdout, "Couldn't copy application XML metadata to '%s'\n",
-            xml_dst.value().c_str());
+
+  if (!CopyFileToDst(base::FilePath(xmlpath), xml_dst)
+     || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
-  }
 
   if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(), NULL)) {
     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
     return false;
   }
 
-  FileDeleter xml_cleaner(xml_dst, false);
-  icon_cleaner.Dismiss();
   xml_cleaner.Dismiss();
+  icon_cleaner.Dismiss();
 
   return true;
 }
