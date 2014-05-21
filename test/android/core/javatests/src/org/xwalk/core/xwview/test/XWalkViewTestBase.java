@@ -95,6 +95,11 @@ public class XWalkViewTestBase
         }
 
         @Override
+        public void onLoadFinished(XWalkView view, String url) {
+            mTestHelperBridge.onLoadFinished(url);
+        }
+
+        @Override
         public void onReceivedLoadError(XWalkView view, int errorCode, String description, String failingUrl) {
             mTestHelperBridge.onReceivedLoadError(errorCode, description, failingUrl);
         }

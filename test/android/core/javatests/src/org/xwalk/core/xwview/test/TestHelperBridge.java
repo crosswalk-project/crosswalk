@@ -80,6 +80,19 @@ class TestHelperBridge {
         }
     }
 
+    public static class OnLoadFinishedHelper extends CallbackHelper {
+        private String mUrl;
+        public void notifyCalled(String url) {
+            mUrl = url;
+            notifyCalled();
+        }
+
+        public String getUrl() {
+            assert getCallCount() > 0;
+            return mUrl;
+        }
+    }
+
     class OnEvaluateJavaScriptResultHelper extends CallbackHelper {
         private String mJsonResult;
         public void evaluateJavascript(XWalkView xWalkView, String code) {
@@ -136,6 +149,7 @@ class TestHelperBridge {
     private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
     private final ShouldInterceptLoadRequestHelper mShouldInterceptLoadRequestHelper;
     private final OnLoadStartedHelper mOnLoadStartedHelper;
+    private final OnLoadFinishedHelper mOnLoadFinishedHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -145,6 +159,7 @@ class TestHelperBridge {
         mOnTitleUpdatedHelper = new OnTitleUpdatedHelper();
         mShouldInterceptLoadRequestHelper = new ShouldInterceptLoadRequestHelper();
         mOnLoadStartedHelper = new OnLoadStartedHelper();
+        mOnLoadFinishedHelper = new OnLoadFinishedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -173,6 +188,10 @@ class TestHelperBridge {
 
     public OnLoadStartedHelper getOnLoadStartedHelper() {
         return mOnLoadStartedHelper;
+    }
+
+    public OnLoadFinishedHelper getOnLoadFinishedHelper() {
+        return mOnLoadFinishedHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -204,5 +223,9 @@ class TestHelperBridge {
 
     public void onLoadStarted(String url) {
         mOnLoadStartedHelper.notifyCalled(url);
+    }
+
+    public void onLoadFinished(String url) {
+        mOnLoadFinishedHelper.notifyCalled(url);
     }
 }
