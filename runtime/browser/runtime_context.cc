@@ -166,6 +166,11 @@ content::GeolocationPermissionContext*
   return geolocation_permission_context_.get();
 }
 
+content::BrowserPluginGuestManagerDelegate*
+RuntimeContext::GetGuestManagerDelegate() {
+  return NULL;
+}
+
 quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
 }

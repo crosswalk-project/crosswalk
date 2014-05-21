@@ -71,7 +71,7 @@ bool NaClBrowserDelegateImpl::URLMatchesDebugPatterns(
 // This function is security sensitive.  Be sure to check with a security
 // person before you modify it.
 bool NaClBrowserDelegateImpl::MapUrlToLocalFilePath(
-    const GURL& file_url, bool use_blocking_api, base::FilePath* file_path) {
+    const GURL& file_url, bool use_blocking_api, const base::FilePath& profile_directory, base::FilePath* file_path) {
   return false;
 }
 
