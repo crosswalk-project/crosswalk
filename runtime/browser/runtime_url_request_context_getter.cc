@@ -97,9 +97,16 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
         content::CookieStoreConfig::PERSISTANT_SESSION_COOKIES,
         NULL, NULL);
     net::CookieStore* cookie_store = content::CreateCookieStore(cookie_config);
-    const char* schemes[] = {application::kApplicationScheme,
-                             content::kChromeDevToolsScheme};
-    cookie_store->GetCookieMonster()->SetCookieableSchemes(schemes, 2);
+
+    std::vector<const char*> cookieable_schemes(
+        net::CookieMonster::kDefaultCookieableSchemes,
+        net::CookieMonster::kDefaultCookieableSchemes +
+            net::CookieMonster::kDefaultCookieableSchemesCount - 1);
+    cookieable_schemes.push_back(application::kApplicationScheme);
+    cookieable_schemes.push_back(content::kChromeDevToolsScheme);
+
+    cookie_store->GetCookieMonster()->SetCookieableSchemes(
+        &cookieable_schemes[0], cookieable_schemes.size());
     storage_->set_cookie_store(cookie_store);
 #endif
     storage_->set_server_bound_cert_service(new net::ServerBoundCertService(
