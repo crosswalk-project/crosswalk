@@ -17,8 +17,10 @@
 
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_extension_process_launcher.h"
+#if defined(OS_TIZEN)
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
+#endif
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_running_path = "/running1";
@@ -243,8 +245,10 @@ int main(int argc, char** argv) {
   g_type_init();
 #endif
 
+#if defined(OS_TIZEN)
   if (xwalk_tizen_check_user_app())
     exit(1);
+#endif
 
   GOptionContext* context =
       g_option_context_new("- Crosswalk Application Launcher");

@@ -31,11 +31,17 @@
         '../../../..',
       ],
       'sources': [
-        'dbus_connection.h',
         'dbus_connection.cc',
-        'xwalk_tizen_user.h',
-        'xwalk_tizen_user.cc',
+        'dbus_connection.h',
         'xwalkctl_main.cc',
+      ],
+      'conditions' : [
+        ['tizen==1', {
+          'sources': [
+            'xwalk_tizen_user.cc',
+            'xwalk_tizen_user.h',
+          ],
+        }],
       ],
     },
     {
@@ -49,12 +55,10 @@
         '../../../extensions/extensions.gyp:xwalk_extensions',
       ],
       'sources': [
-        'dbus_connection.h',
         'dbus_connection.cc',
-        'xwalk_extension_process_launcher.h',
+        'dbus_connection.h',
         'xwalk_extension_process_launcher.cc',
-        'xwalk_tizen_user.h',
-        'xwalk_tizen_user.cc',
+        'xwalk_extension_process_launcher.h',
         'xwalk_launcher_main.cc',
       ],
       'conditions' : [
@@ -71,6 +75,8 @@
           'sources': [
             'xwalk_launcher_tizen.cc',
             'xwalk_launcher_tizen.h',
+            'xwalk_tizen_user.cc',
+            'xwalk_tizen_user.h',
           ],
         }],
       ],

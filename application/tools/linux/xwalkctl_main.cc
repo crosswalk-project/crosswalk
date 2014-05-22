@@ -11,7 +11,9 @@
 #include <locale.h>
 
 #include "xwalk/application/tools/linux/dbus_connection.h"
+#if defined(OS_TIZEN)
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
+#endif
 
 static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
 static const char* xwalk_installed_path = "/installed1";
@@ -183,8 +185,10 @@ int main(int argc, char* argv[]) {
   g_type_init();
 #endif
 
+#if defined(OS_TIZEN)
   if (xwalk_tizen_check_user_app())
     exit(1);
+#endif
 
   context = g_option_context_new("- Crosswalk Application Management");
   g_option_context_add_main_entries(context, entries, NULL);
