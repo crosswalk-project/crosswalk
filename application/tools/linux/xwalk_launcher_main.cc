@@ -33,6 +33,7 @@ static char* application_object_path;
 
 static GMainLoop* mainloop;
 static GDBusConnection* g_connection;
+static GDBusObjectManager* g_running_apps_manager;
 static XWalkExtensionProcessLauncher* ep_launcher = NULL;
 
 static int g_argc;
@@ -132,9 +133,8 @@ static void on_app_signal(GDBusProxy* proxy,
   }
 }
 
-static void query_application_running(GDBusObjectManager* running_om,
-                                      const char* app_id) {
-  GList* objects = g_dbus_object_manager_get_objects(running_om);
+static void query_application_running(const char* app_id) {
+  GList* objects = g_dbus_object_manager_get_objects(g_running_apps_manager);
   GList* it;
   bool is_running = FALSE;
 
@@ -169,12 +169,11 @@ static void query_application_running(GDBusObjectManager* running_om,
   g_list_free_full(objects, g_object_unref);
 }
 
-static void launch_application(GDBusObjectManager* running_apps_manager,
-                               const char* appid,
+static void launch_application(const char* appid,
                                gboolean fullscreen) {
   ep_launcher = new XWalkExtensionProcessLauncher();
   GError* error = NULL;
-  g_signal_connect(running_apps_manager, "object-removed",
+  g_signal_connect(g_running_apps_manager, "object-removed",
                    G_CALLBACK(object_removed), NULL);
 
   GDBusProxy* running_proxy = g_dbus_proxy_new_sync(
@@ -233,6 +232,27 @@ static void launch_application(GDBusObjectManager* running_apps_manager,
   g_main_loop_run(mainloop);
 }
 
+void connect_to_application_manager() {
+  GError* error = NULL;
+  g_connection = get_session_bus_connection(&error);
+  if (!g_connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    exit(1);
+  }
+
+  g_running_apps_manager =
+      g_dbus_object_manager_client_new_sync(
+          g_connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+          xwalk_service_name, xwalk_running_path,
+          NULL, NULL, NULL, NULL, &error);
+  if (!g_running_apps_manager) {
+    fprintf(stderr, "Service '%s' does could not be reached: %s\n",
+            xwalk_service_name, error->message);
+    exit(1);
+  }
+}
+
 int main(int argc, char** argv) {
   GError* error = NULL;
   char* appid;
@@ -258,53 +278,36 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  connect_to_application_manager();
+
+  // Query app.
+  if (query_running) {
+    query_application_running(cmd_appid[0]);
+    return 0;
+  }
+
+  // Launch app.
   if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
     if (cmd_appid == NULL) {
       fprintf(stderr, "No AppID informed, nothing to do.\n");
       return 0;
     }
     appid = strdup(cmd_appid[0]);
+#if defined(OS_TIZEN)
+    if (xwalk_change_cmdline(argc, argv, appid))
+      exit(1);
+#endif
   } else {
     appid = strdup(basename(argv[0]));
 #if defined(OS_TIZEN)
-    // The Tizen application ID will have a format like
-    // "xwalk.crosswalk_32bytes_app_id".
-    gchar** tokens;
-    tokens = g_strsplit(appid, ".", 2);
-    if (g_strv_length(tokens) != 2) {
-      fprintf(stderr, "Invalid Tizen AppID, fallback to Crosswalk AppID.\n");
-    } else {
+    if (char* xwalk_appid = xwalk_extract_app_id(appid)) {
       free(appid);
-      appid = strdup(tokens[1]);
+      appid = xwalk_appid;
     }
-    g_strfreev(tokens);
 #endif
   }
 
-  g_connection = get_session_bus_connection(&error);
-  if (!g_connection) {
-    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
-            error->message);
-    exit(1);
-  }
-
-  GDBusObjectManager* running_apps_manager =
-      g_dbus_object_manager_client_new_sync(
-          g_connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-          xwalk_service_name, xwalk_running_path,
-          NULL, NULL, NULL, NULL, &error);
-  if (!running_apps_manager) {
-    fprintf(stderr, "Service '%s' does could not be reached: %s\n",
-            xwalk_service_name, error->message);
-    exit(1);
-  }
-
-  if (query_running) {
-    query_application_running(running_apps_manager, appid);
-  } else {
-    launch_application(running_apps_manager, appid, fullscreen);
-  }
-
+  launch_application(appid, fullscreen);
   free(appid);
   return 0;
 }

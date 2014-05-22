@@ -70,6 +70,7 @@
         ['tizen==1', {
           'dependencies': [
             'gio',
+            '../../../build/system.gyp:tizen',
             '../../../build/system.gyp:tizen_appcore_common'
           ],
           'sources': [
