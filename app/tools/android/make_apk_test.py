@@ -333,7 +333,7 @@ class TestMakeApk(unittest.TestCase):
            self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(out.find('The package name is required!') != -1)
+    self.assertTrue(out.find('The package name is required!') == -1)
     Clean('Example', '1.0.0')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
@@ -887,6 +887,12 @@ class TestMakeApk(unittest.TestCase):
     result = GetResultWithOption(self._mode, manifest_path)
     self.assertTrue(result.find(app_name_error) != -1)
 
+    name = 'example'
+    manifest_path = os.path.join(directory, '..', 'manifest_no_name.json')
+    result = GetResultWithOption(self._mode, manifest_path, name)
+    self.assertTrue(result.find(package_name_error) == -1)
+    Clean(name, version)
+
     package = 'org.xwalk.example'
     name = '_hello'
     result = GetResultWithOption(self._mode, name=name, package=package)
@@ -912,6 +918,10 @@ class TestMakeApk(unittest.TestCase):
 
     package = 'org.xwalk.example_'
     result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) == -1)
+    Clean(name, version)
+
+    result = GetResultWithOption(self._mode, name=name)
     self.assertTrue(result.find(package_name_error) == -1)
     Clean(name, version)
 
