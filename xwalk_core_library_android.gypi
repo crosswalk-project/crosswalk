@@ -46,6 +46,7 @@
         'additional_src_dirs': [
            '<(DEPTH)/ui/android/java/resource_map',
            '<(DEPTH)/content/public/android/java/resource_map',
+           '<(DEPTH)/xwalk/runtime/android/core_internal/resource_map',
         ],
       },
       'includes': [ '../build/java_apk.gypi' ],
@@ -62,7 +63,7 @@
         'jar_name': '<(_target_name).jar',
         'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
         'jar_excluded_classes': [
-          '*org/xwalk/*',
+          '*org/xwalk/core/R*',
         ],
       },
       'all_dependent_settings': {

@@ -16,11 +16,12 @@ class XWalkInternalResources {
     private static boolean loaded = false;
     private final static String INTERNAL_RESOURCE_CLASSES[] = {
         "org.chromium.content.R",
-        "org.chromium.ui.R"
+        "org.chromium.ui.R",
+        "org.xwalk.core.internal.R"
     };
-    private final static String GENERATED_RESOURCE_CLASS = "org.xwalk.core.internal.R";
+    private final static String GENERATED_RESOURCE_CLASS = "org.xwalk.core.R";
 
-    // Doing org.chromium.content.R.<class>.<name> = org.xwalk.core.internal.R.<class>.<name>
+    // Doing org.chromium.content.R.<class>.<name> = org.xwalk.core.R.<class>.<name>
     // Use reflection to iterate over the target class is to avoid hardcode.
     private static void doResetIds(Context context) {
         ClassLoader classLoader = context.getClassLoader();
