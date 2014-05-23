@@ -60,6 +60,11 @@ public class XWalkViewTestBase
         public void onReceivedTitle(XWalkView view, String title) {
             mInnerContentsClient.onTitleChanged(title);
         }
+
+        @Override
+        public void onJavascriptCloseWindow(XWalkView view) {
+            mInnerContentsClient.onJavascriptCloseWindow();
+        }
     }
 
     class TestXWalkUIClient extends TestXWalkUIClientBase {

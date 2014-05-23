@@ -126,6 +126,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnJavascriptCloseWindowHelper extends CallbackHelper {
+        private boolean mCalled = false;
+
+        public boolean getCalled() {
+            assert getCallCount() > 0;
+            return mCalled;
+        }
+
+        public void notifyCalled(boolean called) {
+            mCalled = called;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -136,6 +150,7 @@ class TestHelperBridge {
     private final OnTitleUpdatedHelper mOnTitleUpdatedHelper;
     private final ShouldInterceptLoadRequestHelper mShouldInterceptLoadRequestHelper;
     private final OnLoadStartedHelper mOnLoadStartedHelper;
+    private final OnJavascriptCloseWindowHelper mOnJavascriptCloseWindowHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -145,6 +160,7 @@ class TestHelperBridge {
         mOnTitleUpdatedHelper = new OnTitleUpdatedHelper();
         mShouldInterceptLoadRequestHelper = new ShouldInterceptLoadRequestHelper();
         mOnLoadStartedHelper = new OnLoadStartedHelper();
+        mOnJavascriptCloseWindowHelper = new OnJavascriptCloseWindowHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -173,6 +189,10 @@ class TestHelperBridge {
 
     public OnLoadStartedHelper getOnLoadStartedHelper() {
         return mOnLoadStartedHelper;
+    }
+
+    public OnJavascriptCloseWindowHelper getOnJavascriptCloseWindowHelper() {
+        return mOnJavascriptCloseWindowHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -204,5 +224,9 @@ class TestHelperBridge {
 
     public void onLoadStarted(String url) {
         mOnLoadStartedHelper.notifyCalled(url);
+    }
+
+    public void onJavascriptCloseWindow() {
+        mOnJavascriptCloseWindowHelper.notifyCalled(true);
     }
 }
