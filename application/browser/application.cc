@@ -327,9 +327,16 @@ void Application::InitSecurityPolicy() {
 
   const WARPInfo* info = static_cast<WARPInfo*>(
       data_->GetManifestData(widget_keys::kAccessKey));
-  // FIXME(xinchao): Need to enable WARP mode by default.
-  if (!info)
+  // Need to enable WARP mode by default.
+  if (!info) {
+    security_mode_enabled_ = true;
+    DCHECK(render_process_host_);
+    render_process_host_->Send(
+        new ViewMsg_EnableSecurityMode(
+            ApplicationData::GetBaseURLFromApplicationId(id()),
+            SecurityPolicy::WARP));
     return;
+  }
 
   const base::ListValue* whitelist = info->GetWARP();
   for (base::ListValue::const_iterator it = whitelist->begin();
