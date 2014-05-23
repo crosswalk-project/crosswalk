@@ -36,6 +36,8 @@ class SensorProvider {
     return last_rotation_;
   }
 
+  static bool initialized_;
+
  protected:
   SensorProvider();
 
