@@ -16,7 +16,6 @@ Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
-Patch2:         %{name}-no-fatal-ld-warnings.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 
 BuildRequires:  bison
@@ -107,12 +106,6 @@ cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch1
-
-# Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
-%if "%{profile}" == "common" || "%{profile}" == "generic"
-%patch2
-%endif
-
 %patch9
 
 %build
@@ -143,6 +136,11 @@ fi
 
 %if %{with wayland}
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+%endif
+
+# Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
+%if "%{profile}" == "common" || "%{profile}" == "generic"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
 
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
@@ -181,7 +179,6 @@ install -m 06755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/x
 
 # Supporting libraries and resources.
 install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
-install -p -D src/out/Release/lib/libmojo_system.so %{buildroot}%{_libdir}/xwalk/lib/libmojo_system.so
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 
@@ -201,7 +198,6 @@ mkdir -p %{_manifestdir_ro}
 %{_bindir}/xwalk-launcher
 %{_bindir}/xwalk-pkg-helper
 %{_libdir}/xwalk/icudtl.dat
-%{_libdir}/xwalk/lib/libmojo_system.so
 %{_libdir}/xwalk/libffmpegsumo.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
