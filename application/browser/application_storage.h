@@ -39,6 +39,7 @@ class ApplicationStorage {
   base::FilePath data_path_;
   scoped_ptr<class ApplicationStorageImpl> impl_;
   ApplicationData::ApplicationDataMap applications_;
+  mutable base::Lock lock_;
   DISALLOW_COPY_AND_ASSIGN(ApplicationStorage);
 };
 

@@ -5,6 +5,7 @@
 #include "xwalk/application/browser/installer/wgt_package.h"
 
 #include "base/file_util.h"
+#include "base/strings/string_util.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"
 
@@ -54,7 +55,13 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   }
 
   if (!value.empty())
+#if defined(OS_TIZEN)
+    // For app scheme, only support lower cases, so need to convert
+    // here, so that we can get the right app id.
+    id_ = GenerateId(StringToLowerASCII(value));
+#else
     id_ = GenerateId(value);
+#endif
 
   is_valid_ = true;
 

@@ -24,7 +24,8 @@ ApplicationStorage::~ApplicationStorage() {
 
 bool ApplicationStorage::AddApplication(
     scoped_refptr<ApplicationData> app_data) {
-  if (Contains(app_data->ID())) {
+  base::AutoLock lock(lock_);
+  if (applications_.find(app_data->ID()) != applications_.end()) {
     LOG(WARNING) << "Application " << app_data->ID()
                  << " has been already installed";
     return false;
@@ -38,6 +39,7 @@ bool ApplicationStorage::AddApplication(
 }
 
 bool ApplicationStorage::RemoveApplication(const std::string& id) {
+  base::AutoLock lock(lock_);
   if (applications_.erase(id) != 1) {
     LOG(ERROR) << "Application " << id << " is invalid.";
     return false;
@@ -55,6 +57,7 @@ bool ApplicationStorage::RemoveApplication(const std::string& id) {
 
 bool ApplicationStorage::UpdateApplication(
     scoped_refptr<ApplicationData> app_data) {
+  base::AutoLock lock(lock_);
   ApplicationData::ApplicationDataMapIterator it =
       applications_.find(app_data->ID());
   if (it == applications_.end()) {
@@ -70,11 +73,13 @@ bool ApplicationStorage::UpdateApplication(
 }
 
 bool ApplicationStorage::Contains(const std::string& app_id) const {
+  base::AutoLock lock(lock_);
   return applications_.find(app_id) != applications_.end();
 }
 
 scoped_refptr<ApplicationData> ApplicationStorage::GetApplicationData(
     const std::string& application_id) const {
+  base::AutoLock lock(lock_);
   ApplicationData::ApplicationDataMap::const_iterator it =
       applications_.find(application_id);
   if (it != applications_.end()) {
