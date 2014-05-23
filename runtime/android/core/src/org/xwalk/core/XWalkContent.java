@@ -29,6 +29,7 @@ import org.chromium.components.navigation_interception.InterceptNavigationDelega
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 import org.chromium.content.browser.ContentViewRenderView;
+import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType;
 import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
@@ -75,7 +76,10 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         mWindow = new ActivityWindowAndroid(xwView.getActivity());
 
         // Initialize ContentViewRenderView
-        mContentViewRenderView = new ContentViewRenderView(context, mWindow) {
+        boolean animated = XWalkPreferences.getValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW);
+        CompositingSurfaceType surfaceType =
+                animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
+        mContentViewRenderView = new ContentViewRenderView(context, mWindow, surfaceType) {
             protected void onReadyToRender() {
                 if (mPendingUrl != null) {
                     doLoadUrl(mPendingUrl, mPendingData);
