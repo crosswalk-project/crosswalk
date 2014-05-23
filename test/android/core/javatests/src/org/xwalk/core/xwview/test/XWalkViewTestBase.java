@@ -95,6 +95,11 @@ public class XWalkViewTestBase
                 String url) {
             return mInnerContentsClient.shouldInterceptLoadRequest(url);
         }
+
+        @Override
+        public void onProgressChanged(XWalkView view, int progressInPercent) {
+            mTestHelperBridge.onProgressChanged(progressInPercent);
+        }
     }
 
     class TestXWalkResourceClient extends TestXWalkResourceClientBase {
