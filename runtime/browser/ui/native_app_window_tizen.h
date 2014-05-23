@@ -5,13 +5,13 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 
+#include "content/browser/screen_orientation/screen_orientation_provider.h"
 #include "xwalk/runtime/browser/ui/screen_orientation.h"
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_widget.h"
 #include "xwalk/tizen/mobile/ui/widget_container_view.h"
 #include "ui/aura/window_observer.h"
-#include "content/browser/screen_orientation/screen_orientation_provider.h"
 
 namespace xwalk {
 
@@ -20,11 +20,13 @@ namespace xwalk {
 class NativeAppWindowTizen
     : public aura::WindowObserver,
       public NativeAppWindowViews,
-      public SensorProvider::Observer,
-      public content::ScreenOrientationProvider {
+      public SensorProvider::Observer {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
+
+  void LockOrientation(
+      blink::WebScreenOrientationLockType orientations);
 
  private:
   blink::WebScreenOrientationType FindNearestAllowedOrientation(
@@ -35,11 +37,6 @@ class NativeAppWindowTizen
   // SensorProvider::Observer overrides:
   virtual void OnScreenOrientationChanged(
       blink::WebScreenOrientationType orientation) OVERRIDE;
-
-  // content::ScreenOrientationProvider overrides:
-  virtual void LockOrientation(
-      blink::WebScreenOrientationLockType orientations) OVERRIDE;
-  virtual void UnlockOrientation() OVERRIDE;
 
   // NativeAppWindowViews overrides:
   virtual void Initialize() OVERRIDE;
@@ -73,6 +70,10 @@ class NativeAppWindowTizen
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowTizen);
 };
+
+inline NativeAppWindowTizen* ToNativeAppWindowTizen(NativeAppWindow* window) {
+  return static_cast<NativeAppWindowTizen*>(window);
+}
 
 }  // namespace xwalk
 

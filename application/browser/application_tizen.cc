@@ -10,8 +10,9 @@
 
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/browser/screen_orientation/screen_orientation_dispatcher_host.h"
 
-#include "xwalk/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
 #if defined(USE_OZONE)
@@ -83,12 +84,22 @@ ApplicationTizen::~ApplicationTizen() {
 }
 
 void ApplicationTizen::Hide() {
-  DCHECK(runtimes_.size());
+  DCHECK(!runtimes_.empty());
   std::set<Runtime*>::iterator it = runtimes_.begin();
   for (; it != runtimes_.end(); ++it) {
     if ((*it)->window())
       (*it)->window()->Hide();
   }
+}
+
+bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
+  if (Application::Launch(launch_params)) {
+    DCHECK(render_process_host_);
+    render_process_host_->GetScreenOrientationDispatcherHost()->
+        SetProviderForTests(this);
+    return true;
+  }
+  return false;
 }
 
 void ApplicationTizen::InitSecurityPolicy() {
@@ -171,6 +182,25 @@ void ApplicationTizen::DidProcessEvent(
   }
 }
 #endif
+
+void ApplicationTizen::LockOrientation(
+      blink::WebScreenOrientationLockType lock) {
+  DCHECK(!runtimes_.empty());
+  // FIXME: Probably need better alignment with
+  // https://w3c.github.io/screen-orientation/#screen-orientation-lock-lifetime
+  std::set<Runtime*>::iterator it = runtimes_.begin();
+  for (; it != runtimes_.end(); ++it) {
+    NativeAppWindow* window = (*it)->window();
+    if (window && window->IsActive()) {
+      ToNativeAppWindowTizen(window)->LockOrientation(lock);
+      break;
+    }
+  }
+}
+
+void ApplicationTizen::UnlockOrientation() {
+  LockOrientation(blink::WebScreenOrientationLockDefault);
+}
 
 }  // namespace application
 }  // namespace xwalk
