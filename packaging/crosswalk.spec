@@ -116,7 +116,6 @@ cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
-%patch1
 %patch9
 
 %build
