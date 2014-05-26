@@ -82,6 +82,11 @@ BuildRequires:  pkgconfig(xt)
 BuildRequires:  pkgconfig(xtst)
 %endif
 
+%if "%{profile}" == "ivi"
+BuildRequires:  pkgconfig(murphy-common)
+BuildRequires:  pkgconfig(murphy-resource)
+%endif
+
 %if %{with wayland}
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
