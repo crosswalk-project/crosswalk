@@ -7,7 +7,6 @@
 
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "xwalk/tizen/browser/audio_session_manager_init.h"
 #include "xwalk/tizen/common/media_player_messages.h"
 
 namespace tizen {
@@ -16,6 +15,7 @@ BrowserMediaPlayerManager::BrowserMediaPlayerManager(
     content::RenderViewHost* render_view_host)
     : WebContentsObserver(content::WebContents::FromRenderViewHost(
           render_view_host)) {
+  resource_manager_.reset(new MurphyResourceManager(this));
 }
 
 BrowserMediaPlayerManager::~BrowserMediaPlayerManager() {}
@@ -40,10 +40,10 @@ bool BrowserMediaPlayerManager::OnMessageReceived(const IPC::Message& msg) {
   return handled;
 }
 
-AudioSessionManager* BrowserMediaPlayerManager::GetAudioSessionManager(
+MurphyResource* BrowserMediaPlayerManager::GetMurphyResource(
     MediaPlayerID player_id) {
-  for (ScopedVector<AudioSessionManager>::iterator it =
-      audio_session_managers_.begin(); it != audio_session_managers_.end();
+  for (ScopedVector<MurphyResource>::iterator it =
+      murphy_resources_.begin(); it != murphy_resources_.end();
       ++it) {
     if ((*it)->player_id() == player_id)
       return *it;
@@ -52,51 +52,32 @@ AudioSessionManager* BrowserMediaPlayerManager::GetAudioSessionManager(
   return NULL;
 }
 
-ASM_cb_result_t BrowserMediaPlayerManager::AudioSessionEventPause(
-    ASM_event_sources_t event_source,
+void BrowserMediaPlayerManager::ResourceNotifyCallback(
+    mrp_res_resource_state_t state,
     MediaPlayerID player_id) {
-  switch (event_source) {
-    case ASM_EVENT_SOURCE_CALL_START:
-    case ASM_EVENT_SOURCE_ALARM_START:
-    case ASM_EVENT_SOURCE_MEDIA:
-    case ASM_EVENT_SOURCE_EMERGENCY_START:
-    case ASM_EVENT_SOURCE_OTHER_PLAYER_APP:
-    case ASM_EVENT_SOURCE_RESOURCE_CONFLICT:
-      Send(new MediaPlayerMsg_MediaPlayerPause(routing_id(), player_id));
-      return ASM_CB_RES_PAUSE;
+
+  MurphyResource* resource = GetMurphyResource(player_id);
+
+  mrp_res_resource_state_t prev_state = resource->GetResourceState();
+
+  // Received a resource event from Murphy
+  switch (state) {
+    case MRP_RES_RESOURCE_AVAILABLE:
+      if (prev_state == MRP_RES_RESOURCE_ACQUIRED)
+        Send(new MediaPlayerMsg_MediaPlayerPause(routing_id(), player_id));
+    case MRP_RES_RESOURCE_LOST:
+      if (prev_state == MRP_RES_RESOURCE_ACQUIRED ||
+          prev_state == MRP_RES_RESOURCE_LOST)
+        Send(new MediaPlayerMsg_MediaPlayerPause(routing_id(), player_id));
+      break;
+    case MRP_RES_RESOURCE_ACQUIRED:
+      if (prev_state == MRP_RES_RESOURCE_LOST)
+        Send(new MediaPlayerMsg_MediaPlayerPlay(routing_id(), player_id));
+      break;
+    case MRP_RES_RESOURCE_PENDING:
     default:
-      return ASM_CB_RES_NONE;
+      break;
     }
-}
-
-ASM_cb_result_t BrowserMediaPlayerManager::AudioSessionEventPlay(
-    ASM_event_sources_t event_source,
-    MediaPlayerID player_id) {
-  switch (event_source) {
-    case ASM_EVENT_SOURCE_ALARM_END:
-      Send(new MediaPlayerMsg_MediaPlayerPlay(routing_id(), player_id));
-      return ASM_CB_RES_PLAYING;
-    default:
-      return ASM_CB_RES_NONE;
-  }
-}
-
-static ASM_cb_result_t AudioSessionNotifyCallback(
-    int handle,
-    ASM_event_sources_t event_source,
-    ASM_sound_commands_t command,
-    unsigned int sound_status,
-    void* callback_data) {
-  AudioSessionManager* data =
-      static_cast<AudioSessionManager*>(callback_data);
-
-  BrowserMediaPlayerManager* manager = data->media_player_manager();
-  if (command == ASM_COMMAND_STOP || command == ASM_COMMAND_PAUSE)
-    return manager->AudioSessionEventPause(event_source, data->player_id());
-  if (command == ASM_COMMAND_PLAY || command == ASM_COMMAND_RESUME)
-    return manager->AudioSessionEventPlay(event_source, data->player_id());
-
-  return ASM_CB_RES_NONE;
 }
 
 void BrowserMediaPlayerManager::OnInitialize(
@@ -104,58 +85,46 @@ void BrowserMediaPlayerManager::OnInitialize(
     int process_id,
     const GURL& url) {
 
-  // Initialize the audio session manager library.
-  if (!InitializeAudioSessionManager()) {
-    DLOG(WARNING) << "Failed on loading the audio session manager library";
-    return;
+  // Create murphy resource for the given player id.
+  if (resource_manager_ && resource_manager_->IsConnected()) {
+    MurphyResource* resource = new MurphyResource(this,
+        player_id, resource_manager_.get());
+    RemoveMurphyResource(player_id);
+    AddMurphyResource(resource);
   }
-
-  RemoveAudioSessionManager(player_id);
-  AudioSessionManager* session_manager =
-      new AudioSessionManager(this, player_id, process_id);
-
-  session_manager->RegisterAudioSessionManager(
-      ASM_EVENT_SHARE_MMPLAYER,
-      AudioSessionNotifyCallback,
-      session_manager);
-  session_manager->SetSoundState(ASM_STATE_PAUSE);
-
-  AddAudioSessionManager(session_manager);
 }
 
 void BrowserMediaPlayerManager::OnDestroyAllMediaPlayers() {
-  audio_session_managers_.clear();
+  murphy_resources_.clear();
 }
 
 void BrowserMediaPlayerManager::OnDestroyPlayer(MediaPlayerID player_id) {
-  RemoveAudioSessionManager(player_id);
+  RemoveMurphyResource(player_id);
 }
 
 void BrowserMediaPlayerManager::OnPause(MediaPlayerID player_id) {
-  AudioSessionManager* session_manager = GetAudioSessionManager(player_id);
-  if (session_manager)
-    session_manager->SetSoundState(ASM_STATE_PAUSE);
+  if (MurphyResource* resource = GetMurphyResource(player_id))
+    resource->ReleaseResource();
 }
 
 void BrowserMediaPlayerManager::OnStart(MediaPlayerID player_id) {
-  AudioSessionManager* session_manager = GetAudioSessionManager(player_id);
-  if (session_manager)
-    session_manager->SetSoundState(ASM_STATE_PLAYING);
+  if (MurphyResource* resource = GetMurphyResource(player_id))
+    resource->AcquireResource();
 }
 
-void BrowserMediaPlayerManager::AddAudioSessionManager(
-    AudioSessionManager* session_manager) {
-  DCHECK(!GetAudioSessionManager(session_manager->player_id()));
-  audio_session_managers_.push_back(session_manager);
+void BrowserMediaPlayerManager::AddMurphyResource(
+    MurphyResource* resource) {
+  DCHECK(!GetMurphyResource(resource->player_id()));
+  murphy_resources_.push_back(resource);
 }
 
-void BrowserMediaPlayerManager::RemoveAudioSessionManager(
+void BrowserMediaPlayerManager::RemoveMurphyResource(
     MediaPlayerID player_id) {
-  for (ScopedVector<AudioSessionManager>::iterator it =
-      audio_session_managers_.begin(); it != audio_session_managers_.end();
+  for (ScopedVector<MurphyResource>::iterator it =
+      murphy_resources_.begin(); it != murphy_resources_.end();
       ++it) {
     if ((*it)->player_id() == player_id) {
-      audio_session_managers_.erase(it);
+      murphy_resources_.erase(it);
       break;
     }
   }

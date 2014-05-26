@@ -10,15 +10,15 @@
 #include "base/memory/scoped_vector.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "url/gurl.h"
-#include "xwalk/tizen/browser/audio_session_manager.h"
+#include "xwalk/tizen/browser/murphy_resource_manager.h"
+#include "xwalk/tizen/browser/murphy_resource.h"
 
 namespace tizen {
 
-// This class manages all AudioSessionManager objects in the browser
-// process. It receives control operations from the render process, and
-// forwards them to corresponding AudioSessionManager object. Callbacks
-// from AudioSessionManager objects are converted to IPCs and then sent
-// to the render process.
+// This class manages all MurphyResource objects in the browser process. It
+// receives control operations from the render process, and forwards them to
+// corresponding MurphyResource object. Callbacks from MurphyResource objects
+// are converted to IPCs and then sent to the render process.
 class CONTENT_EXPORT BrowserMediaPlayerManager
     : public content::WebContentsObserver {
  public:
@@ -30,13 +30,11 @@ class CONTENT_EXPORT BrowserMediaPlayerManager
 
   // WebContentsObserver overrides.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
-  virtual AudioSessionManager* GetAudioSessionManager(
+  virtual MurphyResource* GetMurphyResource(
       MediaPlayerID player_id) OVERRIDE;
 
-  ASM_cb_result_t AudioSessionEventPause(
-      ASM_event_sources_t eventSource, MediaPlayerID player_id);
-  ASM_cb_result_t AudioSessionEventPlay(
-      ASM_event_sources_t eventSource, MediaPlayerID player_id);
+  void ResourceNotifyCallback(mrp_res_resource_state_t state,
+      MediaPlayerID player_id);
 
  protected:
   explicit BrowserMediaPlayerManager(content::RenderViewHost* render_view_host);
@@ -49,13 +47,14 @@ class CONTENT_EXPORT BrowserMediaPlayerManager
   virtual void OnPause(MediaPlayerID player_id);
   virtual void OnStart(MediaPlayerID player_id);
 
-  // Adds a audio session manager for the given player to the list.
-  void AddAudioSessionManager(AudioSessionManager* session_manager);
+  // Adds a murphy resource for the given player to the list.
+  void AddMurphyResource(MurphyResource* resource);
 
-  // Removes the audio session manager of given |player_id|.
-  void RemoveAudioSessionManager(MediaPlayerID player_id);
+  // Removes the murphy resource of given |player_id|.
+  void RemoveMurphyResource(MediaPlayerID player_id);
 
-  ScopedVector<AudioSessionManager> audio_session_managers_;
+  scoped_ptr<MurphyResourceManager> resource_manager_;
+  ScopedVector<MurphyResource> murphy_resources_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserMediaPlayerManager);
 };

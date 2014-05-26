@@ -18,7 +18,7 @@ namespace tizen {
 class MediaPlayerImpl : public content::WebMediaPlayerImpl {
  public:
   MediaPlayerImpl(
-      blink::WebFrame* frame,
+      blink::WebLocalFrame* frame,
       blink::WebMediaPlayerClient* client,
       base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
       RendererMediaPlayerManager* manager,
@@ -34,16 +34,17 @@ class MediaPlayerImpl : public content::WebMediaPlayerImpl {
   virtual void play();
   virtual void pause();
 
-  // As we are closing the app, |main_loop_| is destroyed even before
-  // this object gets destructed, so we need to know when |main_loop_|
-  // is being destroyed and we can stop posting playback controls.
-  virtual void WillDestroyCurrentMessageLoop() OVERRIDE;
-
   // Detach the player from its manager.
   void Detach();
 
+  // Functions called when media player status changes.
+  void OnMediaPlayerPlay();
+  void OnMediaPlayerPause();
+
  private:
   void InitializeMediaPlayer(const blink::WebURL& url);
+
+  blink::WebMediaPlayerClient* client_;
 
   // Manager for managing this object and for delegating method calls on
   // Render Thread.
