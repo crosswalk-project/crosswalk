@@ -9,8 +9,11 @@
 
 namespace xwalk {
 
+// static
+bool SensorProvider::initialized_ = false;
+
 SensorProvider* SensorProvider::GetInstance() {
-  if (!instance_) {
+  if (!initialized_) {
     instance_.reset(new TizenPlatformSensor());
     if (!instance_->Initialize())
       instance_.reset();

@@ -22,6 +22,12 @@ TizenPlatformSensor::~TizenPlatformSensor() {
 }
 
 bool TizenPlatformSensor::Initialize() {
+  // If the sensors couldn't be able to connect normally for the first time,
+  // it indicates that the platform doesn't support these sensors.
+  // Set |initialized_| true to make this function is called only
+  // once and avoid connecting to platform sensors repeatedly.
+  initialized_ = true;
+
   unsigned long rotation;  // NOLINT
   if (!sf_check_rotation(&rotation)) {
     last_rotation_ = ToDisplayRotation(static_cast<int>(rotation));
