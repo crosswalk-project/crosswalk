@@ -166,6 +166,24 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
 
+# For building for arm in OBS, we need :
+# -> to unset sysroot value.
+# sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
+# -> to force system ld binary.
+# Indeed the build is made on Emulated / Virtualized environment that correspond
+# to the target.
+# gold ld used is avaible only for 32/64 bits Intel Arch.
+# sysroot usage is not needed, we need to use arm libraries from the virtualized environment.
+#
+# Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
+# So force it.
+%ifarch %{arm}
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dsysroot= -Dlinux_use_gold_binary=0"
+export CFLAGS=`echo $CFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+export CXXFLAGS=`echo $CXXFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+%endif
+
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='ninja'
