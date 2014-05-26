@@ -3,16 +3,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/tizen/renderer/renderer_mediaplayer_manager.h"
+#include "xwalk/tizen/renderer/media/renderer_mediaplayer_manager.h"
 
-#include "xwalk/tizen/common/media_player_messages.h"
-#include "xwalk/tizen/renderer/mediaplayer_impl.h"
+#include "xwalk/tizen/common/media/media_player_messages.h"
+#include "xwalk/tizen/renderer/media/mediaplayer_impl.h"
 
 namespace tizen {
 
 RendererMediaPlayerManager::RendererMediaPlayerManager(
-    content::RenderView* render_view)
-    : content::RenderViewObserver(render_view),
+    content::RenderFrame* render_frame)
+    : content::RenderFrameObserver(render_frame),
       next_media_player_id_(0) {
 }
 
@@ -23,8 +23,6 @@ RendererMediaPlayerManager::~RendererMediaPlayerManager() {
     MediaPlayerImpl* player = player_it->second;
     player->Detach();
   }
-
-  Send(new MediaPlayerHostMsg_DestroyAllMediaPlayers(routing_id()));
 }
 
 bool RendererMediaPlayerManager::OnMessageReceived(const IPC::Message& msg) {
@@ -81,12 +79,12 @@ MediaPlayerImpl* RendererMediaPlayerManager::GetMediaPlayer(
 
 void RendererMediaPlayerManager::OnPlayerPlay(MediaPlayerID player_id) {
   if (MediaPlayerImpl* player = GetMediaPlayer(player_id))
-    player->play();
+    player->OnMediaPlayerPlay();
 }
 
 void RendererMediaPlayerManager::OnPlayerPause(MediaPlayerID player_id) {
   if (MediaPlayerImpl* player = GetMediaPlayer(player_id))
-    player->pause();
+    player->OnMediaPlayerPause();
 }
 
 }  // namespace tizen

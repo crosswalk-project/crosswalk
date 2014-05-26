@@ -3,13 +3,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_TIZEN_RENDERER_RENDERER_MEDIAPLAYER_MANAGER_H_
-#define XWALK_TIZEN_RENDERER_RENDERER_MEDIAPLAYER_MANAGER_H_
+#ifndef XWALK_TIZEN_RENDERER_MEDIA_RENDERER_MEDIAPLAYER_MANAGER_H_
+#define XWALK_TIZEN_RENDERER_MEDIA_RENDERER_MEDIAPLAYER_MANAGER_H_
 
 #include <map>
 
 #include "base/basictypes.h"
-#include "content/public/renderer/render_view_observer.h"
+#include "content/public/renderer/render_frame_observer.h"
 #include "url/gurl.h"
 
 namespace tizen {
@@ -19,10 +19,10 @@ typedef int MediaPlayerID;
 
 // Class for managing all the MediaPlayerImpl objects in the same
 // RenderView.
-class RendererMediaPlayerManager : public content::RenderViewObserver {
+class RendererMediaPlayerManager : public content::RenderFrameObserver {
  public:
   // Constructs a RendererMediaPlayerManager object for the |render_view|.
-  explicit RendererMediaPlayerManager(content::RenderView* render_view);
+  explicit RendererMediaPlayerManager(content::RenderFrame* render_frame);
   virtual ~RendererMediaPlayerManager();
 
   // RenderViewObserver overrides.
@@ -67,4 +67,4 @@ class RendererMediaPlayerManager : public content::RenderViewObserver {
 
 }  // namespace tizen
 
-#endif  // XWALK_TIZEN_RENDERER_RENDERER_MEDIAPLAYER_MANAGER_H_
+#endif  // XWALK_TIZEN_RENDERER_MEDIA_RENDERER_MEDIAPLAYER_MANAGER_H_
