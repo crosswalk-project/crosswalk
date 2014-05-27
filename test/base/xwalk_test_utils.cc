@@ -22,7 +22,7 @@
 #include "content/public/test/browser_test_utils.h"
 #include "content/public/test/test_navigation_observer.h"
 #include "content/public/test/test_utils.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "ui/gl/gl_switches.h"
 
 using content::TestNavigationObserver;

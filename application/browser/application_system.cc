@@ -8,7 +8,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "content/public/browser/render_process_host.h"
-#include "net/base/net_util.h"
+#include "net/base/filename_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
@@ -50,7 +50,7 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
 
 bool ApplicationSystem::HandleApplicationManagementCommands(
     const base::CommandLine& cmd_line, const GURL& url,
-    bool& run_default_message_loop) {
+    bool& run_default_message_loop) { // NOLINT
   run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
     const ApplicationData::ApplicationDataMap& apps =
@@ -155,7 +155,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
 
 bool ApplicationSystem::LaunchFromCommandLine(
     const base::CommandLine& cmd_line, const GURL& url,
-    bool& run_default_message_loop) {
+    bool& run_default_message_loop) { // NOLINT
 
   // Handles raw app_id passed as first non-switch argument.
   const base::CommandLine::StringVector& args = cmd_line.GetArgs();

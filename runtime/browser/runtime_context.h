@@ -69,6 +69,8 @@ class RuntimeContext
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
   virtual content::GeolocationPermissionContext*
       GetGeolocationPermissionContext() OVERRIDE;
+  virtual content::BrowserPluginGuestManagerDelegate*
+      GetGuestManagerDelegate() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
   virtual void RequestMidiSysExPermission(
       int render_process_id,

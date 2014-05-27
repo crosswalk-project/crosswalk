@@ -107,15 +107,14 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
-        mContentView.setContentViewClient(mContentsClientBridge);
+        mContentView.getContentViewCore().setContentViewClient(mContentsClientBridge);
 
-        mContentViewRenderView.setCurrentContentView(mContentView);
-
-        // For addJavascriptInterface
         mContentViewCore = mContentView.getContentViewCore();
+        mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
+        // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
-        mContentView.getContentViewCore().setDownloadDelegate(mContentsClientBridge);
+        mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
         // Set the third argument isAccessFromFileURLsGrantedByDefault to false, so that
         // the members mAllowUniversalAccessFromFileURLs and mAllowFileAccessFromFileURLs
@@ -138,8 +137,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     void doLoadUrl(String url, String content) {
         // Handle the same url loading by parameters.
         if (url != null && !url.isEmpty() &&
-                TextUtils.equals(url, mContentView.getUrl())) {
-            mContentView.getContentViewCore().reload(true);
+                TextUtils.equals(url, mContentViewCore.getUrl())) {
+            mContentViewCore.reload(true);
         } else {
             LoadUrlParams params = null;
             if (content == null || content.isEmpty()) {
@@ -149,7 +148,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
                         content, "text/html", false, url, null);
             }
             params.setOverrideUserAgent(LoadUrlParams.UA_OVERRIDE_TRUE);
-            mContentView.loadUrl(params);
+            mContentViewCore.loadUrl(params);
         }
 
         mContentView.requestFocus();
@@ -173,24 +172,24 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         if (mReadyToLoad) {
             switch (mode) {
                 case XWalkView.RELOAD_IGNORE_CACHE:
-                    mContentView.getContentViewCore().reloadIgnoringCache(true);
+                    mContentViewCore.reloadIgnoringCache(true);
                     break;
                 case XWalkView.RELOAD_NORMAL:
                 default:
-                    mContentView.getContentViewCore().reload(true);
+                    mContentViewCore.reload(true);
 
             }
         }
     }
 
     public String getUrl() {
-        String url = mContentView.getUrl();
+        String url = mContentViewCore.getUrl();
         if (url == null || url.trim().isEmpty()) return null;
         return url;
     }
 
     public String getTitle() {
-        String title = mContentView.getTitle().trim();
+        String title = mContentViewCore.getTitle().trim();
         if (title == null) title = "";
         return title;
     }
@@ -244,11 +243,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     }
 
     public void onPause() {
-        mContentView.onHide();
+        mContentViewCore.onHide();
     }
 
     public void onResume() {
-        mContentView.onShow();
+        mContentViewCore.onShow();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -265,31 +264,31 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
     }
 
     public void clearHistory() {
-        mContentView.getContentViewCore().clearHistory();
+        mContentViewCore.clearHistory();
     }
 
     public boolean canGoBack() {
-        return mContentView.canGoBack();
+        return mContentViewCore.canGoBack();
     }
 
     public void goBack() {
-        mContentView.goBack();
+        mContentViewCore.goBack();
     }
 
     public boolean canGoForward() {
-        return mContentView.canGoForward();
+        return mContentViewCore.canGoForward();
     }
 
     public void goForward() {
-        mContentView.goForward();
+        mContentViewCore.goForward();
     }
 
     void navigateTo(int offset)  {
-        mContentView.getContentViewCore().goToOffset(offset);
+        mContentViewCore.goToOffset(offset);
     }
 
     public void stopLoading() {
-        mContentView.getContentViewCore().stopLoading();
+        mContentViewCore.stopLoading();
     }
 
     // TODO(Guangzhen): ContentViewStatics will be removed in upstream,
@@ -448,11 +447,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
         // Remove its children used for page rendering from view hierarchy.
         removeView(mContentView);
         removeView(mContentViewRenderView);
-        mContentViewRenderView.setCurrentContentView(null);
+        mContentViewRenderView.setCurrentContentViewCore(null);
 
         // Destroy the native resources.
         mContentViewRenderView.destroy();
-        mContentView.destroy();
+        mContentViewCore.destroy();
 
         nativeDestroy(mXWalkContent);
         mXWalkContent = 0;

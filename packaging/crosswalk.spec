@@ -12,7 +12,7 @@
 %endif
 
 Name:           crosswalk
-Version:        7.35.145.0
+Version:        7.36.145.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -25,8 +25,8 @@ Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
-Patch1:         %{name}-do-not-look-for-gtk2-when-using-aura.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
+Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -117,8 +117,12 @@ cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
-%patch1
 %patch9
+
+# The profiles using Wayland (and thus Ozone) do not need this patch.
+%if !%{with wayland}
+%patch10
+%endif
 
 %build
 

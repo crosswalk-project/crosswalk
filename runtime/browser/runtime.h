@@ -43,14 +43,14 @@ class Runtime : public content::WebContentsDelegate,
   // is overridden WebContentsDelegate method. The "observer" is needed to
   // observe appearance and removal of such Runtime instances.
   class Observer {
-    public:
+   public:
       // Called when a new Runtime instance is added.
       virtual void OnRuntimeAdded(Runtime* runtime) = 0;
 
       // Called when a Runtime instance is removed.
       virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
 
-    protected:
+   protected:
       virtual ~Observer() {}
   };
 
@@ -134,7 +134,7 @@ class Runtime : public content::WebContentsDelegate,
       const content::MediaResponseCallback& callback) OVERRIDE;
 
   // Overridden from content::WebContentsObserver.
-  virtual void DidUpdateFaviconURL(int32 page_id,
+  virtual void DidUpdateFaviconURL(
       const std::vector<content::FaviconURL>& candidates) OVERRIDE;
 
   // Callback method for WebContents::DownloadImage.

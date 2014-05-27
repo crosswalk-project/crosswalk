@@ -9,7 +9,7 @@
 #include <list>
 #include <utility>
 
-#include "base/android/jni_helper.h"
+#include "base/android/jni_weak_ref.h"
 #include "base/android/scoped_java_ref.h"
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"

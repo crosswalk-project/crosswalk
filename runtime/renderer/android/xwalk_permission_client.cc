@@ -31,8 +31,8 @@ bool XWalkPermissionClient::allowImage(blink::WebFrame* frame,
 
   // For compatibility, only blacklist network schemes instead of whitelisting.
   const GURL url(image_url);
-  return !(url.SchemeIs(content::kHttpScheme) ||
-           url.SchemeIs(content::kHttpsScheme) ||
+  return !(url.SchemeIs(url::kHttpScheme) ||
+           url.SchemeIs(url::kHttpsScheme) ||
            url.SchemeIs(content::kFtpScheme));
 }
 

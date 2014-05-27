@@ -8,7 +8,7 @@
 #include <haptic.h>
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "content/port/browser/vibration_provider.h"
+#include "content/public/browser/vibration_provider.h"
 
 namespace xwalk {
 

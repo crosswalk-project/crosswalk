@@ -11,12 +11,9 @@ namespace xwalk {
 RuntimeQuotaPermissionContext::RuntimeQuotaPermissionContext() {}
 
 void RuntimeQuotaPermissionContext::RequestQuotaPermission(
-    const GURL& origin_url,
-    quota::StorageType type,
-    int64 requested_quota,
-    int render_process_id,
-    int render_view_id,
-    const PermissionCallback& callback) {
+      const content::StorageQuotaParams& params,
+      int render_process_id,
+      const PermissionCallback& callback) {
   // TODO(wang16): Handle request according to app's manifest declaration.
   callback.Run(QUOTA_PERMISSION_RESPONSE_ALLOW);
 }

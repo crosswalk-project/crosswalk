@@ -8,12 +8,14 @@
 #include "content/public/renderer/render_view.h"
 #include "ipc/ipc_message.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "xwalk/extensions/renderer/xwalk_v8_utils.h"
 
 using content::RenderView;
 using blink::WebFrame;
+using blink::WebLocalFrame;
 using blink::WebView;
 
 namespace xwalk {
@@ -72,7 +74,7 @@ void LifecycleTracker(const v8::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 RenderView* GetCurrentRenderView() {
-  WebFrame* frame = WebFrame::frameForCurrentContext();
+  WebLocalFrame* frame = WebLocalFrame::frameForCurrentContext();
   DCHECK(frame) << "There should be an active frame here";
 
   if (!frame)
@@ -124,7 +126,8 @@ XWalkV8ToolsModule::XWalkV8ToolsModule() {
   // TODO(cmarcelo): Use Template::Set() function that takes isolate, once we
   // update the Chromium (and V8) version.
   object_template->Set(v8::String::NewFromUtf8(isolate, "forceSetProperty"),
-                       v8::FunctionTemplate::New(isolate, ForceSetPropertyCallback));
+                       v8::FunctionTemplate::New(
+                          isolate, ForceSetPropertyCallback));
   object_template->Set(v8::String::NewFromUtf8(isolate, "lifecycleTracker"),
                        v8::FunctionTemplate::New(isolate, LifecycleTracker));
 

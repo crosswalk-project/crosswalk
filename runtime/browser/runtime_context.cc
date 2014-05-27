@@ -93,7 +93,8 @@ void RuntimeContext::InitWhileIOAllowed() {
   if (cmd_line->HasSwitch(switches::kXWalkDataPath)) {
     base::FilePath path =
         cmd_line->GetSwitchValuePath(switches::kXWalkDataPath);
-    PathService::OverrideAndCreateIfNeeded(xwalk::DIR_DATA_PATH, path, true);
+    PathService::OverrideAndCreateIfNeeded(
+        xwalk::DIR_DATA_PATH, path, false, true);
   }
 }
 
@@ -164,6 +165,11 @@ content::GeolocationPermissionContext*
 #endif
   // TODO(yongsheng): Create geolcation permission context for other platforms.
   return geolocation_permission_context_.get();
+}
+
+content::BrowserPluginGuestManagerDelegate*
+RuntimeContext::GetGuestManagerDelegate() {
+  return NULL;
 }
 
 quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
