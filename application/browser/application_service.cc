@@ -223,7 +223,14 @@ bool ApplicationService::Update(const std::string& id,
     return false;
   }
 
-  if (old_application->Version()->CompareTo(
+  if (
+#if defined(OS_TIZEN)
+      // For Tizen WGT package, downgrade to a lower version or reinstall
+      // is permitted when using Tizen WRT, Crosswalk runtime need to follow
+      // this behavior on Tizen platform.
+      package->type() != Package::WGT &&
+#endif
+      old_application->Version()->CompareTo(
           *(new_application->Version())) >= 0) {
     LOG(INFO) << "The version number of new XPK/WGT package "
                  "should be higher than "
