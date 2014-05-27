@@ -544,4 +544,23 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected void stopLoadingOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.stopLoading();
+            }
+        });
+    }
+
+    protected void stopLoadingSync(final String url) throws Exception {
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+
+        loadUrlAsync(url);
+        stopLoadingOnUiThread();
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
 }
