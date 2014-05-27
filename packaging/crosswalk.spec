@@ -25,6 +25,7 @@ Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
+Patch2:         %{name}-tizen-murphy-resource-manager.patch
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
 
@@ -122,6 +123,7 @@ cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
 
+%patch2
 %patch9
 
 # The profiles using Wayland (and thus Ozone) do not need this patch.
