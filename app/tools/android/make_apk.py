@@ -187,12 +187,10 @@ def MakeVersionCode(options):
 
 
 def Customize(options):
+  name_prefix = 'xwalk_'
   package = 'org.xwalk.app.template'
   if options.package:
     package = options.package
-  name = 'AppTemplate'
-  if options.name:
-    name = options.name
   app_version = ''
   if options.app_version:
     app_version = options.app_version
@@ -200,6 +198,11 @@ def Customize(options):
   app_root = ''
   if options.app_root:
     app_root = os.path.expanduser(options.app_root)
+  name = 'AppTemplate'
+  if options.name:
+    if options.name == app_root:
+      options.name = name_prefix + options.name
+    name = options.name
   remote_debugging = ''
   if options.enable_remote_debugging:
     remote_debugging = '--enable-remote-debugging'
