@@ -16,7 +16,7 @@ import sys
 sys.path.append('scripts/gyp')
 
 from customize import VerifyAppName, CustomizeAll, \
-                      ParseParameterForCompressor
+                      ParseParameterForCompressor, ReplaceSpaceWithUnderscore
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -97,12 +97,14 @@ def ParseManifest(options):
     VerifyAppName(options.package, 'packagename')
   else:
     VerifyAppName(app_name)
+    app_name = ReplaceSpaceWithUnderscore(app_name)
     options.package = 'org.xwalk.' + app_name.lower()
   if options.name:
     VerifyAppName(options.name)
+    options.name = ReplaceSpaceWithUnderscore(options.name)
   else:
     VerifyAppName(app_name)
-    options.name = app_name
+    options.name = ReplaceSpaceWithUnderscore(app_name)
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -710,6 +712,7 @@ def main(argv):
                    'Please use "--package" option.')
     if options.name:
       VerifyAppName(options.name)
+      options.name = ReplaceSpaceWithUnderscore(options.name)
     else:
       parser.error('The APK name is required! Please use "--name" option.')
     if not ((options.app_url and

@@ -25,8 +25,8 @@ from xml.dom import minidom
 
 def VerifyAppName(value, mode='default'):
   descrpt = 'The app'
-  sample = 'helloworld, hello_world, hello_world1'
-  regex = r'^([a-zA-Z](\w)*)+$'
+  sample = 'helloworld, hello world, hello_world, hello_world1'
+  regex = r'[a-zA-Z][\w ]*$'
 
   if len(value) >= 128:
     print('To be safe, the length of package name or app name '
@@ -39,10 +39,14 @@ def VerifyAppName(value, mode='default'):
 
   if not re.match(regex, value):
     print('Error: %s name should be started with letters and should not '
-          'conatin invalid characters.\n'
-          'It may conatin letters, numbers and underscores\n'
+          'contain invalid characters.\n'
+          'It may contain letters, numbers, blank spaces and underscores\n'
           'Sample: %s' % (descrpt, sample))
     sys.exit(6)
+
+
+def ReplaceSpaceWithUnderscore(value):
+  return value.replace(' ', '_')
 
 
 def ReplaceInvalidChars(value, mode='default'):
