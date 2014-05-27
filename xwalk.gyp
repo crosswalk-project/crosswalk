@@ -285,6 +285,9 @@
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
           ],
           'sources': [
+            'runtime/browser/ui/screen_orientation.h',
+            'runtime/extension/screen_orientation_extension.cc',
+            'runtime/extension/screen_orientation_extension.h',
             'runtime/browser/tizen/tizen_locale_listener.cc',
             'runtime/browser/tizen/tizen_locale_listener.h',
           ],

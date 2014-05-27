@@ -11,7 +11,6 @@
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_widget.h"
 #include "xwalk/tizen/mobile/ui/widget_container_view.h"
 #include "ui/aura/window_observer.h"
-#include "content/browser/screen_orientation/screen_orientation_provider.h"
 
 namespace xwalk {
 
@@ -21,41 +20,43 @@ class NativeAppWindowTizen
     : public aura::WindowObserver,
       public NativeAppWindowViews,
       public SensorProvider::Observer,
-      public content::ScreenOrientationProvider {
+      public MultiOrientationScreen {
  public:
   explicit NativeAppWindowTizen(const NativeAppWindow::CreateParams& params);
   virtual ~NativeAppWindowTizen();
 
+
  private:
-  blink::WebScreenOrientationType FindNearestAllowedOrientation(
-      blink::WebScreenOrientationType orientation) const;
-
-  void SetDisplayRotation(gfx::Display);
-
-  // SensorProvider::Observer overrides:
-  virtual void OnScreenOrientationChanged(
-      blink::WebScreenOrientationType orientation) OVERRIDE;
-
-  // content::ScreenOrientationProvider overrides:
-  virtual void LockOrientation(
-      blink::WebScreenOrientationLockType orientations) OVERRIDE;
-  virtual void UnlockOrientation() OVERRIDE;
+  gfx::Transform GetRotationTransform() const;
+  void ApplyDisplayRotation();
 
   // NativeAppWindowViews overrides:
   virtual void Initialize() OVERRIDE;
 
   // WindowObserver overrides:
-  virtual void OnWindowVisibilityChanging(
-      aura::Window* window, bool visible) OVERRIDE;
-  virtual void OnWindowBoundsChanged(
-      aura::Window* window,
-      const gfx::Rect& old_bounds,
-      const gfx::Rect& new_bounds) OVERRIDE;
+  virtual void OnWindowVisibilityChanging(aura::Window* window,
+                                          bool visible) OVERRIDE;
+  virtual void OnWindowBoundsChanged(aura::Window* window,
+                                     const gfx::Rect& old_bounds,
+                                     const gfx::Rect& new_bounds) OVERRIDE;
   virtual void OnWindowDestroying(aura::Window* window) OVERRIDE;
 
   // views::View overrides:
   virtual void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) OVERRIDE;
+
+  // SensorProvider::Observer overrides:
+  virtual void OnRotationChanged(gfx::Display::Rotation rotation) OVERRIDE;
+
+  void UpdateTopViewOverlay();
+
+  // MultiOrientationScreen overrides:
+  virtual Orientation GetCurrentOrientation() const OVERRIDE;
+  virtual void OnAllowedOrientationsChanged(
+      OrientationMask orientations) OVERRIDE;
+
+  gfx::Display::Rotation GetClosestAllowedRotation(
+      gfx::Display::Rotation) const;
 
 #if defined(OS_TIZEN_MOBILE)
   // The system indicator is implemented as a widget because it needs to
@@ -69,7 +70,7 @@ class NativeAppWindowTizen
 #endif
 
   gfx::Display display_;
-  blink::WebScreenOrientationLockType orientation_lock_;
+  OrientationMask allowed_orientations_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowTizen);
 };

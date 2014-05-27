@@ -23,8 +23,6 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   virtual ~XWalkRunnerTizen();
 
-  virtual void PreMainMessageLoopRun() OVERRIDE;
-
   // Get the latest application locale from system.
   // locale is a langtag defined in [BCP47]
   virtual std::string GetLocale() const OVERRIDE;

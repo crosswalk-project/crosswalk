@@ -18,6 +18,7 @@
 #include "ui/gfx/switches.h"
 
 #include "content/browser/device_sensors/device_inertial_sensor_service.h"
+#include "xwalk/runtime/extension/screen_orientation_extension.h"
 #include "xwalk/tizen/mobile/sensor/tizen_data_fetcher_shared_memory.h"
 
 namespace xwalk {
@@ -56,6 +57,34 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
   }
 
   XWalkBrowserMainParts::PreMainMessageLoopRun();
+}
+
+// static.
+OrientationMask XWalkBrowserMainPartsTizen::GetAllowedUAOrientations() {
+  char* env = getenv("TIZEN_ALLOWED_ORIENTATIONS");
+  int value = env ? atoi(env) : 0;
+  if (value > 0 && value < (1 << 4))
+    return static_cast<OrientationMask>(value);
+
+  // Tizen mobile supports all orientations by default.
+  return ANY;
+}
+
+void XWalkBrowserMainPartsTizen::CreateInternalExtensionsForUIThread(
+    content::RenderProcessHost* host,
+    extensions::XWalkExtensionVector* extensions) {
+  XWalkBrowserMainParts::CreateInternalExtensionsForUIThread(
+      host, extensions);
+  // FIXME(Mikhail): move this code to a dedicated XWalkComponent.
+  application::ApplicationSystem* app_system = xwalk_runner_->app_system();
+  application::ApplicationService* app_service
+      = app_system->application_service();
+  Application* application =
+      app_service->GetApplicationByRenderHostID(host->GetID());
+  if (!application)
+    return;
+  extensions->push_back(new ScreenOrientationExtension(
+        application, GetAllowedUAOrientations()));
 }
 
 }  // namespace xwalk

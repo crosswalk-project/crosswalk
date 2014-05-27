@@ -33,12 +33,15 @@ class TizenPlatformSensor : public SensorProvider {
   virtual void Finish() OVERRIDE;
 
  private:
+  gfx::Display::Rotation ToDisplayRotation(int rotation) const;
+
   bool auto_rotation_enabled_;
   int accel_handle_;
   int gyro_handle_;
 
   static void OnEventReceived(unsigned int event_type,
-      sensor_event_data_t* event_data, void* udata);
+                              sensor_event_data_t* event_data,
+                              void* udata);
   static void OnAutoRotationEnabledChanged(keynode_t* node, void* udata);
 
   DISALLOW_COPY_AND_ASSIGN(TizenPlatformSensor);
