@@ -24,6 +24,7 @@
 #endif
 
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 
 namespace xwalk {
@@ -34,6 +35,34 @@ namespace application {
 
 namespace {
 const char kAsterisk[] = "*";
+
+const char kDirectiveValueSelf[] = "'self'";
+const char kDirectiveValueNone[] = "'none'";
+
+const char kDirectiveNameDefault[] = "default-src";
+const char kDirectiveNameScript[] = "script-src";
+const char kDirectiveNameStyle[] = "style-src";
+const char kDirectiveNameObject[] = "object-src";
+
+CSPInfo* GetDefaultCSPInfo() {
+  static CSPInfo default_csp_info;
+  if (default_csp_info.GetDirectives().empty()) {
+    std::vector<std::string> directive_all;
+    std::vector<std::string> directive_self;
+    std::vector<std::string> directive_none;
+    directive_all.push_back(kAsterisk);
+    directive_self.push_back(kDirectiveValueSelf);
+    directive_none.push_back(kDirectiveValueNone);
+
+    default_csp_info.SetDirective(kDirectiveNameDefault, directive_all);
+    default_csp_info.SetDirective(kDirectiveNameScript, directive_self);
+    default_csp_info.SetDirective(kDirectiveNameStyle, directive_self);
+    default_csp_info.SetDirective(kDirectiveNameObject, directive_none);
+  }
+
+  return (new CSPInfo(default_csp_info));
+}
+
 }  // namespace
 
 
@@ -72,6 +101,11 @@ void ApplicationTizen::InitSecurityPolicy() {
 
   if (data_->GetPackageType() != Package::WGT)
     return;
+
+  CSPInfo* csp_info =
+      static_cast<CSPInfo*>(data_->GetManifestData(widget_keys::kCSPKey));
+  if (!csp_info || csp_info->GetDirectives().empty())
+    data_->SetManifestData(widget_keys::kCSPKey, GetDefaultCSPInfo());
 
   // Always enable security mode when under CSP mode.
   security_mode_enabled_ = true;
