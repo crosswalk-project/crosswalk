@@ -26,6 +26,8 @@ using extensions::XWalkExtensionFunctionHandler;
 using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 
+// NOTE : This class will be removed (and content::ScreenOrientationProvider
+// used instead).
 class ScreenOrientationExtension : public XWalkExtension {
  public:
   explicit ScreenOrientationExtension(
