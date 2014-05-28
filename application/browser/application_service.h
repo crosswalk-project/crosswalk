@@ -88,6 +88,8 @@ class ApplicationService : public Application::Observer {
       const std::string& extension_name,
       const std::string& perm_table);
 
+  ApplicationStorage* application_storage() { return application_storage_; }
+
  private:
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;

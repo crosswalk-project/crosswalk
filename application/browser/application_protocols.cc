@@ -29,11 +29,13 @@
 #include "net/url_request/url_request_simple_job.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 
 using content::BrowserThread;
@@ -163,6 +165,8 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
 // and hence cannot access ApplicationService directly.
 class ApplicationDataCache : public ApplicationService::Observer {
  public:
+  explicit ApplicationDataCache(ApplicationStorage* storage)
+      : storage_(storage) {}
   scoped_refptr<ApplicationData> GetApplicationData(
       const std::string& application_id) const {
     base::AutoLock lock(lock_);
@@ -171,7 +175,9 @@ class ApplicationDataCache : public ApplicationService::Observer {
     if (it != cache_.end()) {
       return it->second;
     }
-    return NULL;
+    // Need to check the installed applications' cache also, in some cases,
+    // launched application is not an installed application.
+    return storage_->GetApplicationData(application_id);
   }
 
   virtual void DidLaunchApplication(Application* app) OVERRIDE {
@@ -187,13 +193,15 @@ class ApplicationDataCache : public ApplicationService::Observer {
 
  private:
   ApplicationData::ApplicationDataMap cache_;
+  ApplicationStorage* storage_;
   mutable base::Lock lock_;
 };
 
 class ApplicationProtocolHandler
     : public net::URLRequestJobFactory::ProtocolHandler {
  public:
-  explicit ApplicationProtocolHandler(ApplicationService* service) {
+  explicit ApplicationProtocolHandler(ApplicationService* service)
+      : cache_(service->application_storage()) {
     DCHECK(service);
     DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
     // ApplicationProtocolHandler lives longer than ApplicationService,
@@ -232,9 +240,20 @@ void GetUserAgentLocales(const std::string& sys_locale,
 net::URLRequestJob*
 ApplicationProtocolHandler::MaybeCreateJob(
     net::URLRequest* request, net::NetworkDelegate* network_delegate) const {
-  const std::string& application_id = request->url().host();
+  std::string application_id = request->url().host();
+#if defined(OS_TIZEN)
+  // If the app id is tizen app id, should convert it to
+  // crosswalk package id first.
+  if (!ApplicationData::IsIDValid(application_id))
+    application_id = GenerateId(application_id);
+#endif
+
   scoped_refptr<ApplicationData> application =
       cache_.GetApplicationData(application_id);
+  if (!application)
+    return new net::URLRequestErrorJob(
+        request, network_delegate, net::ERR_FILE_NOT_FOUND);
+
   base::FilePath relative_path =
       ApplicationURLToRelativeFilePath(request->url());
   base::FilePath directory_path;
