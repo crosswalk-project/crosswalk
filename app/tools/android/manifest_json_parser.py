@@ -61,8 +61,6 @@ class ManifestJsonParser(object):
     except KeyError as error:
       print('There is a field error in manifest.json file: %s' % error)
       sys.exit(1)
-    finally:
-      input_file.close()
 
   def _output_items(self):
     """ The manifest field items are reorganized and returned as a

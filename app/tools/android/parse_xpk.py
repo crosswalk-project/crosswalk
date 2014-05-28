@@ -115,7 +115,6 @@ def main():
     except IOError:
       HandleError(EXIT_CODE_XPK_FILE_IO_ERROR)
     finally:
-      xpk_file.close()
       if zip_path and os.path.isfile(zip_path):
         os.remove(zip_path)
   else:
