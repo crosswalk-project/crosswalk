@@ -35,6 +35,10 @@
         'browser/installer/xpk_package.cc',
         'browser/installer/xpk_package.h',
 
+        'common/application_config_xml_loader.cc',
+        'common/application_config_xml_loader.h',
+        'common/application_config_xml_loader_util.cc',
+        'common/application_config_xml_loader_util.h',
         'common/application_data.cc',
         'common/application_data.h',
         'common/application_file_util.cc',
