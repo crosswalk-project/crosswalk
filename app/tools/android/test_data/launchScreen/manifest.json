@@ -1,0 +1,36 @@
+{
+  "name": "Example",
+  "version": "1.0.0",
+  "app": {
+    "launch": {
+      "local_path": "../entry/index.html"
+    }
+  },
+  "description": "Launch screen test",
+  "icons": {
+  },
+  "permissions": [],
+  "required_version": "3.31.31.0",
+  "plugin": [],
+  "launch_screen": {
+    "ready_when": "custom",
+    "default": {
+       "background_color": "#000000",
+       "background_image": "default_bg_1, default_bg_1_5 1.5x, default_bg_2 2x, default_bg_0_75 0.75x",
+       "image": "default_img_1, default_img_1_5 1.5x, default_img_2 2x, default_img_0_75 0.75x",
+       "image_border": "30px repeat stretch"
+    }, 
+    "portrait": {
+       "background_color": "#000001",
+       "background_image": "portrait_bg_1, portrait_bg_1_5 1.5x, portrait_bg_2 2x, portrait_bg_0_75 0.75x",
+       "image": "portrait_img_1, portrait_img_1_5 1.5x, portrait_img_2 2x, portrait_img_0_75 0.75x",
+       "image_border": "30px repeat stretch"
+    }, 
+    "landscape": {
+       "background_color": "#000002",
+       "background_image": "landscape_bg_1, landscape_bg_1_5 1.5x, landscape_bg_2 2x, landscape_bg_0_75 0.75x",
+       "image": "landscape_img_1, landscape_img_1_5 1.5x, landscape_img_2 2x, landscape_img_0_75 0.75x",
+       "image_border": "30px repeat stretch"
+    }
+  }
+}
