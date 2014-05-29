@@ -13,6 +13,7 @@
 #include "base/path_service.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
@@ -130,25 +131,44 @@ net::URLRequestContextGetter* RuntimeContext::GetRequestContext() {
 
 net::URLRequestContextGetter*
     RuntimeContext::GetRequestContextForRenderProcess(
-        int renderer_child_id)  {
+        int renderer_child_id) {
+#if defined(OS_ANDROID)
   return GetRequestContext();
+#else
+  content::RenderProcessHost* rph =
+      content::RenderProcessHost::FromID(renderer_child_id);
+  return rph->GetStoragePartition()->GetURLRequestContext();
+#endif
 }
 
-net::URLRequestContextGetter* RuntimeContext::GetMediaRequestContext()  {
+net::URLRequestContextGetter* RuntimeContext::GetMediaRequestContext() {
   return GetRequestContext();
 }
 
 net::URLRequestContextGetter*
     RuntimeContext::GetMediaRequestContextForRenderProcess(
-        int renderer_child_id)  {
+        int renderer_child_id) {
+#if defined(OS_ANDROID)
   return GetRequestContext();
+#else
+  content::RenderProcessHost* rph =
+      content::RenderProcessHost::FromID(renderer_child_id);
+  return rph->GetStoragePartition()->GetURLRequestContext();
+#endif
 }
 
 net::URLRequestContextGetter*
     RuntimeContext::GetMediaRequestContextForStoragePartition(
         const base::FilePath& partition_path,
         bool in_memory) {
+#if defined(OS_ANDROID)
   return GetRequestContext();
+#else
+  PartitionPathContextGetterMap::iterator iter =
+      context_getters_.find(partition_path.value());
+  CHECK(iter != context_getters_.end());
+  return iter->second.get();
+#endif
 }
 
 content::ResourceContext* RuntimeContext::GetResourceContext()  {
@@ -215,12 +235,38 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
 }
 
 net::URLRequestContextGetter*
-    RuntimeContext::CreateRequestContextForStoragePartition(
-        const base::FilePath& partition_path,
-        bool in_memory,
-        content::ProtocolHandlerMap* protocol_handlers,
-        content::ProtocolHandlerScopedVector protocol_interceptors) {
-  return NULL;
+  RuntimeContext::CreateRequestContextForStoragePartition(
+      const base::FilePath& partition_path,
+      bool in_memory,
+      content::ProtocolHandlerMap* protocol_handlers,
+      content::ProtocolHandlerScopedVector protocol_interceptors) {
+#if defined(OS_ANDROID)
+    return NULL;
+#else
+  PartitionPathContextGetterMap::iterator iter =
+      context_getters_.find(partition_path.value());
+  if (iter != context_getters_.end())
+    return iter->second.get();
+
+  application::ApplicationService* service =
+      XWalkRunner::GetInstance()->app_system()->application_service();
+  protocol_handlers->insert(std::pair<std::string,
+        linked_ptr<net::URLRequestJobFactory::ProtocolHandler> >(
+          application::kApplicationScheme,
+          application::CreateApplicationProtocolHandler(service)));
+
+  scoped_refptr<RuntimeURLRequestContextGetter>
+  context_getter = new RuntimeURLRequestContextGetter(
+      false, /* ignore_certificate_error = false */
+      partition_path,
+      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
+      BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
+      protocol_handlers, protocol_interceptors.Pass());
+
+  context_getters_.insert(
+      std::make_pair(partition_path.value(), context_getter));
+  return context_getter.get();
+#endif
 }
 
 #if defined(OS_ANDROID)

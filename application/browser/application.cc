@@ -14,6 +14,7 @@
 #include "base/values.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/browser/site_instance.h"
 #include "net/base/net_util.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_storage.h"
@@ -80,7 +81,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
   if (!url.is_valid())
     return false;
 
-  Runtime* runtime = Runtime::Create(runtime_context_, this);
+  Runtime* runtime = Runtime::Create(
+      runtime_context_,
+      this, content::SiteInstance::CreateForURL(runtime_context_, url));
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
   InitSecurityPolicy();
@@ -159,6 +162,7 @@ GURL Application::GetURLFromRelativePathKey(const std::string& key) {
     if (data_->GetPackageType() == Package::XPK)
       return GURL();
 
+    base::ThreadRestrictions::SetIOAllowed(true);
     base::FileEnumerator iter(data_->Path(), true,
                               base::FileEnumerator::FILES,
                               FILE_PATH_LITERAL("index.*"));

@@ -29,6 +29,7 @@
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
@@ -62,7 +63,6 @@
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
-#include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
@@ -368,5 +368,23 @@ bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
   return false;
 }
 #endif
+
+
+void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
+    content::BrowserContext* browser_context,
+    const GURL& site,
+    bool can_be_default,
+    std::string* partition_domain,
+    std::string* partition_name,
+    bool* in_memory) {
+  *in_memory = false;
+  partition_domain->clear();
+  partition_name->clear();
+
+#if !defined(OS_ANDROID)
+  if (site.SchemeIs(application::kApplicationScheme))
+    *partition_domain = site.host();
+#endif
+}
 
 }  // namespace xwalk

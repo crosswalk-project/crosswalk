@@ -331,18 +331,12 @@ bool ApplicationService::Uninstall(const std::string& id) {
     result = false;
   }
 
-  content::StoragePartition* partition =
-      content::BrowserContext::GetStoragePartitionForSite(
-          runtime_context_, application->GetBaseURLFromApplicationId(id));
-  partition->ClearDataForOrigin(
-      content::StoragePartition::REMOVE_DATA_MASK_ALL,
-      content::StoragePartition::QUOTA_MANAGED_STORAGE_MASK_ALL,
-      application->URL(),
-      partition->GetURLRequestContext());
-
-  base::FilePath path;
-  PathService::Get(xwalk::DIR_WGT_STORAGE_PATH, &path);
-  RemoveWidgetStorageFiles(path, id);
+  // Clear databases, the directory clean up will happen next time Crosswalk
+  // startup by ApplicationStorageImpl::CollectGarbageApplications.
+  content::BrowserContext::AsyncObliterateStoragePartition(
+      runtime_context_,
+      application->GetBaseURLFromApplicationId(id),
+      base::Bind(&base::DoNothing));
 
   FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
 

@@ -11,6 +11,7 @@ namespace application_storage_constants {
 const char kAppTableName[] = "applications";
 const char kEventTableName[] = "registered_events";
 const char kPermissionTableName[] = "stored_permissions";
+const char kGarbageCollectionTableName[] = "garbage_collection";
 
 const char kCreateAppTableOp[] =
     "CREATE TABLE applications ("
@@ -34,6 +35,16 @@ const char kCreatePermissionTableOp[] =
     "PRIMARY KEY (id),"
     "FOREIGN KEY (id) REFERENCES applications(id)"
     "ON DELETE CASCADE)";
+
+const char kCreateGarbageCollectionTableOp[] =
+    "CREATE TABLE garbage_collection ("
+    "app_id TEXT NOT NULL PRIMARY KEY)";
+
+const char kCreateGarbageCollectionTriggersOp[] =
+    "CREATE TRIGGER IF NOT EXISTS add_garbage_app AFTER DELETE ON applications"
+    " BEGIN INSERT INTO garbage_collection VALUES (OLD.id); END;"
+    "CREATE TRIGGER IF NOT EXISTS del_garbage_app AFTER INSERT ON applications"
+    " BEGIN DELETE FROM garbage_collection WHERE app_id = NEW.id; END";
 
 const char kGetAllRowsFromAppEventTableOp[] =
     "SELECT A.id, A.manifest, A.path, A.install_time, "
@@ -74,6 +85,12 @@ const char kUpdatePermissionsWithBindOp[] =
 
 const char kDeletePermissionsWithBindOp[] =
     "DELETE FROM stored_permissions WHERE id = ?";
+
+const char kGetAllRowsFromGarbageCollectionTableOp[] =
+    "SELECT app_id FROM garbage_collection";
+
+const char kDeleteGarbageAppIdWithBindOp[] =
+    "DELETE FROM garbage_collection WHERE app_id = ?";
 
 }  // namespace application_storage_constants
 }  // namespace xwalk

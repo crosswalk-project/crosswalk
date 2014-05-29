@@ -22,8 +22,9 @@
 namespace content {
 class ColorChooser;
 struct FileChooserParams;
-class WebContents;
 class RenderProcessHost;
+class SiteInstance;
+class WebContents;
 }
 
 namespace xwalk {
@@ -60,7 +61,8 @@ class Runtime : public content::WebContentsDelegate,
   static Runtime* CreateWithDefaultWindow(RuntimeContext*,
                                           const GURL&, Observer* = NULL);
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext*, Observer* = NULL);
+  static Runtime* Create(RuntimeContext*,
+                         Observer* = NULL, content::SiteInstance* = NULL);
 
   // Attach to a default app window.
   void AttachDefaultWindow();
