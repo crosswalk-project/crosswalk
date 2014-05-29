@@ -477,6 +477,15 @@ public class XWalkViewTestBase
         });
     }
 
+    protected int getCurrentIndexOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return mXWalkView.getNavigationHistory().getCurrentIndex();
+            }
+        });
+    }
+
     protected String executeJavaScriptAndWaitForResult(final String code) throws Exception {
 
         final TestHelperBridge.OnEvaluateJavaScriptResultHelper helper =
