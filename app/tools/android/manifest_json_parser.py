@@ -246,31 +246,23 @@ class ManifestJsonParser(object):
 
   def GetLaunchScreenBackgroundColor(self, orientation):
     """Return the background color for launch_screen."""
-    if 'launch_screen_background_color_' + orientation in self.ret_dict:
-      return self.ret_dict['launch_screen_background_color_' + orientation]
-    else:
-      return ''
+    key = 'launch_screen_background_color_' + orientation
+    return self.ret_dict.get(key, '')
 
   def GetLaunchScreenBackgroundImage(self, orientation):
     """Return the background image for launch_screen."""
-    if 'launch_screen_background_image_' + orientation in self.ret_dict:
-      return self.ret_dict['launch_screen_background_image_' + orientation]
-    else:
-      return ''
+    key = 'launch_screen_background_image_' + orientation
+    return self.ret_dict.get(key, '')
 
   def GetLaunchScreenImage(self, orientation):
     """Return the image for launch_screen."""
-    if 'launch_screen_image_' + orientation in self.ret_dict:
-      return self.ret_dict['launch_screen_image_' + orientation]
-    else:
-      return ''
+    key = 'launch_screen_image_' + orientation
+    return self.ret_dict.get(key, '')
 
   def GetLaunchScreenImageBorder(self, orientation):
     """Return the image border for launch_screen."""
-    if 'launch_screen_image_border_' + orientation in self.ret_dict:
-      return self.ret_dict['launch_screen_image_border_' + orientation]
-    else:
-      return ''
+    key = 'launch_screen_image_border_' + orientation
+    return self.ret_dict.get(key, '')
 
 
 def main(argv):
