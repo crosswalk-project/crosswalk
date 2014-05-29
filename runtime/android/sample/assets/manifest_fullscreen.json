@@ -1,0 +1,13 @@
+{
+  "name": "FullScreen",
+  "version": "1.0.0",
+  "app": {
+      "launch": {
+          "local_path": "fullscreen.html"
+      }
+  },
+  "description": "test fullscreen feature",
+  "origin": "app://app.id",
+  "default_locale": "en",
+  "fullscreen":"true"
+}
