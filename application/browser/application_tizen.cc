@@ -19,6 +19,7 @@
 #include "ui/events/event.h"
 #include "ui/events/event_constants.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
+#include "ui/events/platform/platform_event_source.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #endif
 
@@ -70,9 +71,15 @@ ApplicationTizen::ApplicationTizen(
     RuntimeContext* runtime_context,
     Application::Observer* observer)
     : Application(data, runtime_context, observer) {
+#if defined(USE_OZONE)
+  ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
+#endif
 }
 
 ApplicationTizen::~ApplicationTizen() {
+#if defined(USE_OZONE)
+  ui::PlatformEventSource::GetInstance()->RemovePlatformEventObserver(this);
+#endif
 }
 
 void ApplicationTizen::Hide() {
@@ -133,8 +140,10 @@ void ApplicationTizen::InitSecurityPolicy() {
 }
 
 #if defined(USE_OZONE)
+void ApplicationTizen::WillProcessEvent(const ui::PlatformEvent& event) {}
+
 void ApplicationTizen::DidProcessEvent(
-    const base::NativeEvent& event) {
+    const ui::PlatformEvent& event) {
   ui::Event* ui_event = static_cast<ui::Event*>(event);
   if (!ui_event->IsKeyEvent() || ui_event->type() != ui::ET_KEY_PRESSED)
     return;

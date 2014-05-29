@@ -7,10 +7,19 @@
 #include "base/event_types.h"
 #include "xwalk/application/browser/application.h"
 
+#if defined(USE_OZONE)
+#include "ui/events/platform/platform_event_observer.h"
+#include "ui/events/platform/platform_event_types.h"
+#endif
+
 namespace xwalk {
 namespace application {
 
-class ApplicationTizen : public Application {
+class ApplicationTizen :  // NOLINT
+#if defined(USE_OZONE)
+  public ui::PlatformEventObserver,
+#endif
+  public Application {
  public:
   virtual ~ApplicationTizen();
   void Hide();
@@ -25,7 +34,8 @@ class ApplicationTizen : public Application {
   virtual void InitSecurityPolicy() OVERRIDE;
 
 #if defined(USE_OZONE)
-  virtual void DidProcessEvent(const base::NativeEvent& event);
+  virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
+  virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
 };
 
