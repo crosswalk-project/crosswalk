@@ -468,4 +468,20 @@ public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
     public void testCalledForNonexistentContentUrl() throws Throwable {
         calledForUrlTemplate("content://org.xwalk.core.test.NoSuchProvider/foo");
     }
+
+    @SmallTest
+    @Feature({"ShouldInterceptLoadRequest"})
+    public void testOnPageStartedOnlyOnMainFrame() throws Throwable {
+        final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
+        final String pageWithIframe = addPageToTestServer(mWebServer, "/page_with_iframe.html",
+                CommonResources.makeHtmlPageFrom("",
+                    "<iframe src=\"" + aboutPageUrl + "\"/>"));
+        int onPageStartedCallCount = mTestHelperBridge.getOnPageStartedHelper().getCallCount();
+
+        loadUrlSync(pageWithIframe);
+
+        mTestHelperBridge.getOnPageStartedHelper().waitForCallback(onPageStartedCallCount);
+        assertEquals(onPageStartedCallCount + 1,
+                mTestHelperBridge.getOnPageStartedHelper().getCallCount());
+    }
 }
