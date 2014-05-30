@@ -101,11 +101,11 @@ var WidgetStorage = function() {
   }
 
   this.getItem = function(itemKey) {
-    return _itemStorage[String(_itemKey)];
+    return _itemStorage[String(itemKey)];
   }
 
   this.setItem = function(itemKey, itemValue) {
-    return _SetItem(_itemKey, itemValue);
+    return _SetItem(itemKey, itemValue);
   }
 
   this.removeItem = function(itemKey) {
