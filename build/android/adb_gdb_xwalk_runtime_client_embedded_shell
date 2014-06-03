@@ -7,12 +7,11 @@
 # Attach to or start a ContentShell process and debug it.
 # See --help for details.
 #
-cd ${CHROME_SRC}
+cd ${ENVSETUP_GYP_CHROME_SRC}
 
-PROGDIR=${CHROME_SRC}/build/android
 export ADB_GDB_PROGNAME=$(basename "$0")
 export ADB_GDB_ACTIVITY=.XWalkRuntimeClientEmbeddedShellActivity
-"$PROGDIR"/adb_gdb \
+"${ENVSETUP_GYP_CHROME_SRC}"/build/android/adb_gdb \
     --program-name=XWalkRuntimeClientEmbeddedShellActivity \
     --package-name=org.xwalk.runtime.client.embedded.shell \
     "$@"
