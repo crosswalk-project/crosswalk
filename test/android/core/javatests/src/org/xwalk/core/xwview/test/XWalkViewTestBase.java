@@ -27,6 +27,7 @@ import org.chromium.content.browser.test.util.CriteriaHelper;
 
 import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
@@ -463,6 +464,15 @@ public class XWalkViewTestBase
             @Override
             public Boolean call() {
                 return mXWalkView.getNavigationHistory().canGoForward();
+            }
+        });
+    }
+
+    protected XWalkNavigationItem getCurrentItemOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkNavigationItem>() {
+            @Override
+            public XWalkNavigationItem call() {
+                return mXWalkView.getNavigationHistory().getCurrentItem();
             }
         });
     }
