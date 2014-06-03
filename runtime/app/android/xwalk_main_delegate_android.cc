@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/command_line.h"
+#include "base/cpu.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
@@ -37,6 +38,11 @@ bool XWalkMainDelegateAndroid::BasicStartupComplete(int* exit_code) {
 }
 
 void XWalkMainDelegateAndroid::PreSandboxStartup() {
+#if defined(ARCH_CPU_ARM_FAMILY)
+  // Create an instance of the CPU class to parse /proc/cpuinfo and cache
+  // cpu_brand info for ARM platform.
+  base::CPU cpu_info;
+#endif
   InitResourceBundle();
 }
 
