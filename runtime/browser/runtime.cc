@@ -22,9 +22,9 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
-#include "content/public/browser/render_process_host.h"
 #include "grit/xwalk_resources.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
@@ -53,9 +53,10 @@ Runtime* Runtime::CreateWithDefaultWindow(
 }
 
 // static
-Runtime* Runtime::Create(
-    RuntimeContext* runtime_context, Observer* observer) {
-  WebContents::CreateParams params(runtime_context, NULL);
+Runtime* Runtime::Create(RuntimeContext* runtime_context,
+                         Observer* observer,
+                         content::SiteInstance* site) {
+  WebContents::CreateParams params(runtime_context, site);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 

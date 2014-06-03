@@ -9,6 +9,7 @@
 #include <string>
 #endif
 
+#include <map>
 #include <vector>
 
 #include "base/compiler_specific.h"
@@ -133,6 +134,10 @@ class RuntimeContext
   std::string csp_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 #endif
+
+  typedef std::map<std::string, scoped_refptr<RuntimeURLRequestContextGetter> >
+      PartitionPathContextGetterMap;
+  PartitionPathContextGetterMap context_getters_;
 
   DISALLOW_COPY_AND_ASSIGN(RuntimeContext);
 };

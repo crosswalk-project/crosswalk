@@ -59,6 +59,8 @@ class ApplicationStorageImpl {
                          const StoredPermissionMap& permissions);
   bool RevokePermissions(const std::string& id);
 
+  bool CollectGarbageApplications();
+
   scoped_ptr<sql::Connection> sqlite_db_;
   sql::MetaTable meta_table_;
   base::FilePath data_path_;

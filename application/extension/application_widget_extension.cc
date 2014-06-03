@@ -8,6 +8,8 @@
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "content/public/browser/browser_thread.h"
+#include "content/public/browser/render_process_host.h"
+#include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "ipc/ipc_message.h"
 #include "grit/xwalk_application_resources.h"
@@ -55,9 +57,10 @@ AppWidgetExtensionInstance::AppWidgetExtensionInstance(
   DCHECK(application_);
   base::ThreadRestrictions::SetIOAllowed(true);
 
-  base::FilePath path;
-  xwalk::RegisterPathProvider();
-  PathService::Get(xwalk::DIR_WGT_STORAGE_PATH, &path);
+  content::RenderProcessHost* rph =
+      content::RenderProcessHost::FromID(application->GetRenderProcessHostID());
+  content::StoragePartition* partition = rph->GetStoragePartition();
+  base::FilePath path = partition->GetPath().Append("WidgetStorage");
   widget_storage_.reset(new AppWidgetStorage(application_, path));
 }
 

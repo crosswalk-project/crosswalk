@@ -22,9 +22,6 @@ const char kPreferencesName[] = "name";
 const char kPreferencesValue[] = "value";
 const char kPreferencesReadonly[] = "readonly";
 
-const base::FilePath::CharType kWidgetStorageExtension[] =
-    FILE_PATH_LITERAL(".widgetStorage");
-
 const char kStorageTableName[] = "widget_storage";
 
 const char kCreateStorageTableOp[] =
@@ -68,23 +65,9 @@ namespace application {
 AppWidgetStorage::AppWidgetStorage(Application* application,
                                    const base::FilePath& data_dir)
     : application_(application),
-      db_initialized_(false) {
+      db_initialized_(false),
+      data_path_(data_dir) {
   sqlite_db_.reset(new sql::Connection);
-
-  base::FilePath name;
-#if defined(OS_WIN)
-  name = base::FilePath(base::UTF8ToWide(application_->id()));
-#else
-  name = base::FilePath(application_->id());
-#endif
-  base::FilePath::StringType storage_name =
-      name.value() + kWidgetStorageExtension;
-  data_path_ = data_dir.Append(storage_name);
-
-  if (!base::PathExists(data_dir) && !base::CreateDirectory(data_dir)) {
-    LOG(ERROR) << "Could not create widget storage path.";
-    return;
-  }
 
   if (!Init()) {
     LOG(ERROR) << "Initialize widget storage failed.";
@@ -130,7 +113,7 @@ bool AppWidgetStorage::SaveConfigInfoInDB() {
     return false;
   }
 
-  base::Value* pref_value;
+  base::Value* pref_value = NULL;
   widget_info->Get(kPreferences, &pref_value);
 
   if (pref_value && pref_value->IsType(base::Value::TYPE_DICTIONARY)) {

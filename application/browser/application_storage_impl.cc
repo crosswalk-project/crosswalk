@@ -40,6 +40,9 @@ const std::string StoredPermissionStr[] = {
     "PROMPT",
 };
 
+const base::FilePath::CharType kApplicationDataDirName[] =
+    FILE_PATH_LITERAL("Storage/ext");
+
 std::string ToString(StoredPermission permission) {
   if (permission == UNDEFINED_STORED_PERM)
     return std::string("");
@@ -123,11 +126,29 @@ bool InitPermissionsTable(sql::Connection* db) {
   return transaction.Commit();
 }
 
+
+bool InitGarbageCollectionTable(sql::Connection* db) {
+  sql::Transaction transaction(db);
+  transaction.Begin();
+  if (!db->DoesTableExist(db_fields::kGarbageCollectionTableName)) {
+    if (!db->Execute(db_fields::kCreateGarbageCollectionTableOp) ||
+        !db->Execute(db_fields::kCreateGarbageCollectionTriggersOp))
+     return false;
+  }
+
+  return transaction.Commit();
+}
+
 bool Insert(scoped_refptr<ApplicationData> application,
             ApplicationData::ApplicationDataMap& applications) {
   return applications.insert(
       std::pair<std::string, scoped_refptr<ApplicationData> >(
           application->ID(), application)).second;
+}
+
+base::FilePath GetAppDataPath(
+    const base::FilePath& base_path, const std::string& app_id) {
+  return base_path.Append(kApplicationDataDirName).Append(app_id);
 }
 
 }  // namespace
@@ -218,6 +239,11 @@ bool ApplicationStorageImpl::Init(
     return false;
   }
 
+  if (!InitGarbageCollectionTable(sqlite_db.get())) {
+    LOG(ERROR) << "Unable to open garbage collection table.";
+    return false;
+  }
+
   if (!sqlite_db->Execute("PRAGMA foreign_keys=ON")) {
     LOG(ERROR) << "Unable to enforce foreign key contraints.";
     return false;
@@ -244,6 +270,11 @@ bool ApplicationStorageImpl::Init(
   }
 
   db_initialized_ = GetInstalledApplications(applications);
+
+  // TODO(xiang): move this to file thread and only enable application install
+  // after this garbage collection finished.
+  if (!CollectGarbageApplications())
+    LOG(ERROR) << "Unable to collection garbage applications.";
 
   return db_initialized_;
 }
@@ -522,6 +553,37 @@ bool ApplicationStorageImpl::SetPermissionsValue(
         "An error occurred while inserting permissions.";
     return false;
   }
+  return transaction.Commit();
+}
+
+bool ApplicationStorageImpl::CollectGarbageApplications() {
+  sql::Transaction transaction(sqlite_db_.get());
+  if (!transaction.Begin())
+    return false;
+
+  sql::Statement smt(sqlite_db_->GetUniqueStatement(
+      db_fields::kGetAllRowsFromGarbageCollectionTableOp));
+  if (!smt.is_valid())
+    return false;
+
+  while (smt.Step()) {
+    const std::string app_id = smt.ColumnString(0);
+    base::FilePath app_data_path = GetAppDataPath(data_path_, app_id);
+    if (base::DirectoryExists(app_data_path) &&
+        !base::DeleteFile(app_data_path, true)) {
+      LOG(ERROR) << "Error occurred while trying to remove application data.";
+      return false;
+    }
+
+    sql::Statement del_smt(sqlite_db_->GetUniqueStatement(
+        db_fields::kDeleteGarbageAppIdWithBindOp));
+    del_smt.BindString(0, app_id);
+    if (!del_smt.Run()) {
+      LOG(ERROR) << "Could not delete app_id from garbage table.";
+      return false;
+    }
+  }
+
   return transaction.Commit();
 }
 
