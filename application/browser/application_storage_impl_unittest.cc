@@ -56,17 +56,12 @@ TEST_F(ApplicationStorageImplTest, DBInsert) {
       &error);
   ASSERT_TRUE(error.empty());
   ASSERT_TRUE(application);
-  std::set<std::string> events;
-  events.insert("test_events");
-  application->SetEvents(events);
   EXPECT_TRUE(app_storage_impl_->AddApplication(application.get(),
                                                 base::Time::FromDoubleT(0)));
   ApplicationData::ApplicationDataMap applications;
   ASSERT_TRUE(app_storage_impl_->GetInstalledApplications(applications));
   EXPECT_EQ(applications.size(), 1);
   EXPECT_TRUE(applications[application->ID()]);
-  EXPECT_EQ(applications[application->ID()]
-            ->GetEvents().count("test_events"), 1);
 }
 
 TEST_F(ApplicationStorageImplTest, DBDelete) {

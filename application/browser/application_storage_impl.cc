@@ -25,7 +25,6 @@ namespace application {
 const base::FilePath::CharType ApplicationStorageImpl::kDBFileName[] =
     FILE_PATH_LITERAL("applications.db");
 
-const char kEventSeparator = ';';
 const char kPermissionSeparator = '^';
 
 // Switching the JSON format DB(version 0) to SQLite backend version 1,
@@ -70,16 +69,6 @@ bool InitApplicationsTable(sql::Connection* db) {
   if (!db->DoesTableExist(db_fields::kAppTableName)) {
     if (!db->Execute(db_fields::kCreateAppTableOp))
       return false;
-  }
-  return transaction.Commit();
-}
-
-bool InitEventsTable(sql::Connection* db) {
-  sql::Transaction transaction(db);
-  transaction.Begin();
-  if (!db->DoesTableExist(db_fields::kEventTableName)) {
-    if (!db->Execute(db_fields::kCreateEventTableOp))
-     return false;
   }
   return transaction.Commit();
 }
@@ -229,11 +218,6 @@ bool ApplicationStorageImpl::Init(
     return false;
   }
 
-  if (!InitEventsTable(sqlite_db.get())) {
-    LOG(ERROR) << "Unable to open registered events table.";
-    return false;
-  }
-
   if (!InitPermissionsTable(sqlite_db.get())) {
     LOG(ERROR) << "Unable to open registered permissions table.";
     return false;
@@ -287,7 +271,7 @@ bool ApplicationStorageImpl::GetInstalledApplications(
   }
 
   sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      db_fields::kGetAllRowsFromAppEventTableOp));
+      db_fields::kGetAllRowsFromAppTableOp));
   if (!smt.is_valid())
     return false;
 
@@ -310,8 +294,6 @@ bool ApplicationStorageImpl::GetInstalledApplications(
     }
     std::string path = smt.ColumnString(2);
     double install_time = smt.ColumnDouble(3);
-    std::vector<std::string> events;
-    base::SplitString(smt.ColumnString(4), kEventSeparator, &events);
 
     std::string error;
     scoped_refptr<ApplicationData> application =
@@ -327,11 +309,6 @@ bool ApplicationStorageImpl::GetInstalledApplications(
     }
 
     application->install_time_ = base::Time::FromDoubleT(install_time);
-
-    if (!events.empty()) {
-      application->events_ =
-          std::set<std::string>(events.begin(), events.end());
-    }
 
     application->permission_map_ = ToPermissionMap(smt.ColumnString(5));
 
@@ -354,7 +331,6 @@ bool ApplicationStorageImpl::AddApplication(const ApplicationData* application,
 
   return (SetApplicationValue(
       application, install_time, db_fields::kSetApplicationWithBindOp) &&
-          SetEvents(application->ID(), application->GetEvents()) &&
           SetPermissions(application->ID(), application->permission_map_));
 }
 
@@ -367,7 +343,6 @@ bool ApplicationStorageImpl::UpdateApplication(
 
   if (SetApplicationValue(
           application, install_time, db_fields::kUpdateApplicationWithBindOp) &&
-      UpdateEvents(application->ID(), application->GetEvents()) &&
       UpdatePermissions(application->ID(), application->permission_map_)) {
     application->is_dirty_ = false;
     return true;
@@ -430,64 +405,6 @@ bool ApplicationStorageImpl::SetApplicationValue(
   if (!smt.Run()) {
     LOG(ERROR) << "An error occured when inserting/updating "
                   "application info in DB.";
-    return false;
-  }
-
-  return transaction.Commit();
-}
-
-bool ApplicationStorageImpl::SetEvents(const std::string& id,
-                                       const std::set<std::string>& events) {
-  if (!db_initialized_)
-    return false;
-  return SetEventsValue(id, events, db_fields::kInsertEventsWithBindOp);
-}
-
-bool ApplicationStorageImpl::UpdateEvents(
-    const std::string &id, const std::set<std::string>& events) {
-  if (!db_initialized_)
-    return false;
-
-  if (events.empty())
-    return DeleteEvents(id);
-
-  return SetEventsValue(id, events, db_fields::kUpdateEventsWithBindOp);
-}
-
-bool ApplicationStorageImpl::DeleteEvents(const std::string& id) {
-  sql::Transaction transaction(sqlite_db_.get());
-  if (!transaction.Begin())
-    return false;
-
-  sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      db_fields::kDeleteEventsWithBindOp));
-  smt.BindString(0, id);
-
-  if (!smt.Run()) {
-    LOG(ERROR) << "An error occured when deleting event information from DB.";
-    return false;
-  }
-
-  return transaction.Commit();
-}
-
-bool ApplicationStorageImpl::SetEventsValue(
-    const std::string& id,
-    const std::set<std::string>& events,
-    const std::string& operation) {
-  sql::Transaction transaction(sqlite_db_.get());
-  std::string events_list(JoinString(
-      std::vector<std::string>(events.begin(), events.end()), kEventSeparator));
-
-  if (!transaction.Begin())
-    return false;
-
-  sql::Statement smt(sqlite_db_->GetUniqueStatement(
-      operation.c_str()));
-  smt.BindString(0, events_list);
-  smt.BindString(1, id);
-  if (!smt.Run()) {
-    LOG(ERROR) << "An error occured when inserting event information into DB.";
     return false;
   }
 

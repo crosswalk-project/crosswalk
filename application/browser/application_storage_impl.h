@@ -40,15 +40,6 @@ class ApplicationStorageImpl {
   bool SetApplicationValue(const ApplicationData* application,
                            const base::Time& install_time,
                            const std::string& operation);
-  // Events helper functions
-  bool SetEventsValue(const std::string& id,
-                      const std::set<std::string>& events,
-                      const std::string& operation);
-  bool SetEvents(const std::string& id,
-                 const std::set<std::string>& events);
-  bool UpdateEvents(const std::string& id,
-                    const std::set<std::string>& events);
-  bool DeleteEvents(const std::string& id);
   // Permissions helper functions
   bool SetPermissionsValue(const std::string& id,
                            const StoredPermissionMap& permissions,
