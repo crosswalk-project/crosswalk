@@ -56,9 +56,9 @@ def ReplaceInvalidChars(value, mode='default'):
     mode: the target usage mode of original string.
   """
   if mode == 'default':
-    invalid_chars = '\/:*?"<>|- '
+    invalid_chars = '\/\\:*?"<>|-$ '
   elif mode == 'apkname':
-    invalid_chars = '\/:.*?"<>|- '
+    invalid_chars = '\/\\:.*?"<>|-$'
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
       print("Illegal character: '%s' is replaced with '_'" % c)
