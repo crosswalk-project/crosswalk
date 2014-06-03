@@ -54,6 +54,8 @@ void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
              "JavaScript support for using TCP and UDP sockets", Stable);
   AddFeature("DeviceCapabilitiesAPI", "device-capabilities",
              "JavaScript support for peeking at device capabilities", Stable);
+  AddFeature("StorageAPI", "storage",
+             "JavaScript support to file system beyond W3C spec", Stable);
   AddFeature("DialogAPI", "dialog",
              "JavaScript support to create open/save native dialogs"
              , Experimental);

@@ -21,6 +21,7 @@
 #include "xwalk/application/renderer/application_native_module.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 #include "xwalk/runtime/common/xwalk_localized_error.h"
+#include "xwalk/runtime/renderer/isolated_file_system.h"
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
 
 #if defined(OS_ANDROID)
@@ -143,6 +144,10 @@ void XWalkContentRendererClient::DidCreateModuleSystem(
   scoped_ptr<extensions::XWalkNativeModule> app_module(
       new application::ApplicationNativeModule());
   module_system->RegisterNativeModule("application", app_module.Pass());
+  scoped_ptr<extensions::XWalkNativeModule> isolated_file_system_module(
+      new extensions::IsolatedFileSystem());
+  module_system->RegisterNativeModule("isolated_file_system",
+      isolated_file_system_module.Pass());
   module_system->RegisterNativeModule("sysapps_common",
       extensions::CreateJSModuleFromResource(IDR_XWALK_SYSAPPS_COMMON_API));
   module_system->RegisterNativeModule("sysapps_promise",

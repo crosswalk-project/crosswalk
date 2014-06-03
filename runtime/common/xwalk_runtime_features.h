@@ -22,6 +22,7 @@ class XWalkRuntimeFeatures {
   DECLARE_RUNTIME_FEATURE(SysApps);
   DECLARE_RUNTIME_FEATURE(RawSocketsAPI);
   DECLARE_RUNTIME_FEATURE(DeviceCapabilitiesAPI);
+  DECLARE_RUNTIME_FEATURE(StorageAPI);
   DECLARE_RUNTIME_FEATURE(DialogAPI);
 
   void Initialize(const CommandLine* cmd);

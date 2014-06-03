@@ -57,6 +57,8 @@
         '../v8/tools/gyp/v8.gyp:v8',
         '../webkit/child/webkit_child.gyp:webkit_child',
         '../webkit/common/webkit_common.gyp:webkit_common',
+        '../webkit/storage_browser.gyp:webkit_storage_browser',
+        '../webkit/storage_common.gyp:webkit_storage_common',
         '../webkit/webkit_resources.gyp:webkit_resources',
         'xwalk_application_lib',
         'xwalk_resources',
@@ -71,6 +73,10 @@
         '../extensions/common/constants.h',
         '../extensions/common/url_pattern.cc',
         '../extensions/common/url_pattern.h',
+        'experimental/native_file_system/native_file_system_extension.cc',
+        'experimental/native_file_system/native_file_system_extension.h',
+        'experimental/native_file_system/virtual_root_provider.cc',
+        'experimental/native_file_system/virtual_root_provider.h',
         'runtime/app/android/xwalk_main_delegate_android.cc',
         'runtime/app/android/xwalk_main_delegate_android.h',
         'runtime/app/xwalk_main_delegate.cc',
@@ -180,6 +186,8 @@
         'runtime/browser/speech/speech_recognition_manager_delegate.h',
         'runtime/browser/sysapps_component.cc',
         'runtime/browser/sysapps_component.h',
+        'runtime/browser/storage_component.cc',
+        'runtime/browser/storage_component.h',
         'runtime/browser/ui/color_chooser.cc',
         'runtime/browser/ui/color_chooser.h',
         'runtime/browser/ui/color_chooser_android.cc',
@@ -253,6 +261,8 @@
         'runtime/renderer/android/xwalk_permission_client.h',
         'runtime/renderer/android/xwalk_render_view_ext.cc',
         'runtime/renderer/android/xwalk_render_view_ext.h',
+        'runtime/renderer/isolated_file_system.cc',
+        'runtime/renderer/isolated_file_system.h',
         'runtime/renderer/pepper/pepper_helper.cc',
         'runtime/renderer/pepper/pepper_helper.h',
         'runtime/renderer/pepper/pepper_uma_host.cc',
@@ -285,6 +295,7 @@
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
           ],
           'sources': [
+            'experimental/native_file_system/virtual_root_provider_tizen.cc',
             'runtime/browser/tizen/tizen_locale_listener.cc',
             'runtime/browser/tizen/tizen_locale_listener.h',
           ],
@@ -296,6 +307,9 @@
           'dependencies':[
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
+          ],
+          'sources': [
+            'experimental/native_file_system/virtual_root_provider_android.cc',
           ],
           'sources!':[
             'runtime/renderer/xwalk_render_process_observer_generic.cc',
@@ -328,6 +342,9 @@
             '../build/linux/system.gyp:fontconfig',
             '../build/linux/system.gyp:dbus',
           ],
+          'sources': [
+            'experimental/native_file_system/virtual_root_provider_linux.cc',
+          ]
         }],  # OS=="linux"
         ['os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"', {
           'dependencies': [
