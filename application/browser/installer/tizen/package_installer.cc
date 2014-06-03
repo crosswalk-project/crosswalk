@@ -144,6 +144,25 @@ bool CheckRunningMode() {
   return false;
 }
 
+bool CreateAppSymbolicLink(const base::FilePath& app_dir,
+                           const std::string& tizen_app_id) {
+  base::FilePath execute_path =
+      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
+
+  if (!base::CreateDirectory(execute_path.DirName())) {
+    LOG(ERROR) << "Could not create directory '"
+               << execute_path.DirName().value() << "'.";
+    return false;
+  }
+
+  if (!base::CreateSymbolicLink(kXWalkLauncherBinary, execute_path)) {
+    LOG(ERROR) << "Could not create symbolic link to launcher from '"
+               << execute_path.value() << "'.";
+    return false;
+  }
+  return true;
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -174,20 +193,8 @@ bool PackageInstaller::InstallApplication(
     return false;
   }
 
-  base::FilePath execute_path =
-      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
-
-  if (!base::CreateDirectory(execute_path.DirName())) {
-    LOG(ERROR) << "Could not create directory '"
-               << execute_path.DirName().value() << "'.";
+  if (!CreateAppSymbolicLink(app_dir, tizen_app_id))
     return false;
-  }
-
-  if (!base::CreateSymbolicLink(kXWalkLauncherBinary, execute_path)) {
-    LOG(ERROR) << "Could not create symbolic link to launcher from '"
-               << execute_path.value() << "'.";
-    return false;
-  }
 
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
@@ -285,6 +292,9 @@ bool PackageInstaller::UpdateApplication(
                << new_xml_path.value() << "'.";
     return false;
   }
+
+  if (!CreateAppSymbolicLink(app_dir, tizen_app_id))
+    return false;
 
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
