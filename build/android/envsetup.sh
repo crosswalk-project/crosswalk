@@ -7,10 +7,10 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE:-$0}")"
 
 . ${SCRIPT_DIR}/../../../build/android/envsetup.sh "$@"
 
-export PATH=$PATH:${ENVSETUP_GYP_CHROME_SRC}/xwalk/build/android
+export PATH=$PATH:${SCRIPT_DIR}/../../../xwalk/build/android
 
 # The purpose of this function is to do the same as android_gyp(), but calling
 # gyp_xwalk instead.
 xwalk_android_gyp() {
-  "${ENVSETUP_GYP_CHROME_SRC}/xwalk/gyp_xwalk" --check "$@"
+  "${SCRIPT_DIR}/../../../xwalk/gyp_xwalk" --check "$@"
 }
