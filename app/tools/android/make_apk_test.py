@@ -788,6 +788,72 @@ class TestMakeApk(unittest.TestCase):
 
     self.executeCommandAndVerifyResult('customize.py')
 
+  def testLaunchScreen(self):
+    # Prepare launch screen resources.
+    launch_screen_path = os.path.join('test_data', 'launchScreen')
+    orientations = ['default', 'portrait', 'landscape']
+    dimensions = ['0_75', '1', '1_5', '2']
+    img_types = ['img', 'bg']
+    for orientation in orientations:
+      for dimension in dimensions:
+        for img_type in img_types:
+          name = orientation + '_' + img_type + '_' + dimension
+          path_tmp = os.path.join(launch_screen_path, name)
+          _file = open(path_tmp,'w+')
+          _file.write(name)
+          _file.close()
+    # Run Test.
+    manifest_path = os.path.join('test_data', 'launchScreen', 'manifest.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    RunCommand(cmd)
+    # Check theme.xml.
+    theme_path = os.path.join('Example', 'res', 'values', 'theme.xml')
+    self.assertTrue(os.path.exists(theme_path))
+    with open(theme_path, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(content.find('@drawable/launchscreen_bg') != -1)
+    # Check launchscreen_bg.xml
+    launch_screen_bg_path = os.path.join(
+        "Example", 'res', 'drawable', 'launchscreen_bg.xml')
+    self.assertTrue(os.path.exists(launch_screen_bg_path))
+    with open(launch_screen_bg_path, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(content.find('@drawable/launchscreen_bg_img') != -1)
+    # Check resource images
+    for orientation in orientations:
+      for dimension in dimensions:
+        drawable = 'drawable'
+        if orientation == 'portrait':
+          drawable = drawable + '-port'
+        elif orientation == 'landscape':
+          drawable = drawable + '-land'
+        if dimension == '0_75':
+          drawable = drawable + '-ldpi'
+        elif dimension == '1':
+          drawable = drawable + '-mdpi'
+        elif dimension == '1_5':
+          drawable = drawable + '-hdpi'
+        elif dimension == '2':
+          drawable = drawable + '-xhdpi'
+        # Check background image
+        bg_drawable = os.path.join(
+            "Example", 'res', drawable, 'launchscreen_bg_img')
+        self.assertTrue(os.path.exists(bg_drawable))
+        with open(bg_drawable, 'r') as content_file:
+          content = content_file.read()
+        name = orientation + '_' + 'bg' + '_' + dimension
+        self.assertTrue(content == name)
+        # Check foreground image
+        fg_drawable = os.path.join(
+            "Example", 'res', drawable, 'launchscreen_img')
+        self.assertTrue(os.path.exists(fg_drawable))
+        with open(fg_drawable, 'r') as content_file:
+          content = content_file.read()
+        name = orientation + '_' + 'img' + '_' + dimension
+        self.assertTrue(content == name)
+    self.checkApks('Example', '1.0.0')
+    Clean('Example', '1.0.0')
+
   def testTargetDir(self):
     test_option = ['./', '../', '~/']
     for option in test_option:
@@ -949,6 +1015,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testXPK'))
   test_suite.addTest(TestMakeApk('testXPKWithError'))
   test_suite.addTest(TestMakeApk('testTargetDir'))
+  test_suite.addTest(TestMakeApk('testLaunchScreen'))
   return test_suite
 
 
