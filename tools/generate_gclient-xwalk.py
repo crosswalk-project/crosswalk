@@ -19,24 +19,25 @@ import sys
 class GClientFileGenerator(object):
   def __init__(self, options):
     self._options = options
-    self._xwalk_dir = os.path.dirname(
+    xwalk_dir = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))
+
     if options.deps:
       self._deps_file = options.deps
     else:
-      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
+      self._deps_file = os.path.join(xwalk_dir, 'DEPS.xwalk')
+
     self._deps = None
     self._vars = None
-    self._chromium_version = None
     self._ParseDepsFile()
+
     if not 'src' in self._deps:
       raise RuntimeError("'src' not specified in deps file(%s)" % options.deps)
     self._src_dep = self._deps['src']
+
     # self should be at src/xwalk/tools/fetch_deps.py
     # so src is at self/../../../
-    self._src_dir = os.path.dirname(self._xwalk_dir)
-    self._root_dir = os.path.dirname(self._src_dir)
-    self._new_gclient_file = os.path.join(self._root_dir,
+    self._new_gclient_file = os.path.join(xwalk_dir, '..', '..',
                                           '.gclient-xwalk')
 
   def _ParseDepsFile(self):
@@ -47,7 +48,6 @@ class GClientFileGenerator(object):
     execfile(self._deps_file, exec_globals)
     self._deps = exec_globals['deps_xwalk']
     self._vars = exec_globals['vars_xwalk']
-    self._chromium_version = exec_globals['chromium_version']
 
   def _AddIgnorePathFromEnv(self):
     """Read paths from environ XWALK_SYNC_IGNORE.
@@ -90,13 +90,20 @@ class GClientFileGenerator(object):
   def Generate(self):
     self._AddIgnorePathFromEnv()
     solution = {
-      'name': self._chromium_version,
-      'url': 'http://src.chromium.org/svn/releases/%s' %
-              self._chromium_version,
+      'name': 'src',
+      'deps_file': '.DEPS.git',
       'custom_deps': self._deps,
     }
+
+    # Override url with chromium-crosswalk repo.
+    solution['url'] = self._deps['src']
+    # The src is still listed in .DEPS.git in chromium repo, then it truly
+    # needs the 'src': None here.
+    solution['custom_deps']['src'] = None
+
     if self._vars:
       solution['custom_vars'] = self._vars
+
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
@@ -105,6 +112,7 @@ class GClientFileGenerator(object):
     if os.environ.get('XWALK_OS_ANDROID'):
       target_os = ['android']
       gclient_file.write('target_os = %s\n' % target_os)
+
     if self._options.cache_dir:
       gclient_file.write('cache_dir = %s\n' %
                          pprint.pformat(self._options.cache_dir))
