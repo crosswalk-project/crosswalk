@@ -12,6 +12,17 @@ public class XWalkBaseActivity extends Activity {
     protected XWalkView mXWalkView;
 
     /*
+     * When the activity is started, XWalkView.onStart() need to be called.
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mXWalkView != null) {
+            mXWalkView.onStart();
+        }
+    }
+
+    /*
      * When the activity is paused, XWalkView.onHide() and XWalkView.pauseTimers() need to be called.
      */
     @Override
@@ -32,6 +43,17 @@ public class XWalkBaseActivity extends Activity {
         if (mXWalkView != null) {
             mXWalkView.onShow();
             mXWalkView.resumeTimers();
+        }
+    }
+
+    /*
+     * When the activity is stopped, XWalkView.onStop() need to be called.
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mXWalkView != null) {
+            mXWalkView.onStop();
         }
     }
 

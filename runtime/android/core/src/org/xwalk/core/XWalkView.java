@@ -106,6 +106,14 @@ import org.xwalk.core.extension.XWalkPathHelper;
  *       }
  *
  *       &#64;Override
+ *       protected void onStart() {
+ *           super.onStart();
+ *           if (mXwalkView != null) {
+ *               mXwalkView.onStart();
+ *           }
+ *       }
+ *
+ *       &#64;Override
  *       protected void onPause() {
  *           super.onPause();
  *           if (mXwalkView != null) {
@@ -120,6 +128,14 @@ import org.xwalk.core.extension.XWalkPathHelper;
  *           if (mXwalkView != null) {
  *               mXwalkView.resumeTimers();
  *               mXwalkView.onShow();
+ *           }
+ *       }
+ *
+ *       &#64;Override
+ *       protected void onStop() {
+ *           super.onStop();
+ *           if (mXwalkView != null) {
+ *               mXwalkView.onStop();
  *           }
  *       }
  *
@@ -529,6 +545,24 @@ public class XWalkView extends android.widget.FrameLayout {
         mExtensionManager.onResume();
         mContent.onResume();
         mIsHidden = false;
+    }
+
+    /**
+     * Pass onStart to extensions. Embedders are in charge of calling
+     * this during this activity is becoming visible.
+     */
+    public void onStart() {
+      if (mExtensionManager == null) return;
+      mExtensionManager.onStart();
+    }
+
+    /**
+     * Pass onStop to extensions. Embedders are in charge of calling
+     * this during this activity is becoming invisible.
+     */
+    public void onStop() {
+      if (mExtensionManager == null) return;
+      mExtensionManager.onStop();
     }
 
     /**

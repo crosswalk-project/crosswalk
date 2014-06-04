@@ -54,6 +54,11 @@ interface XWalkExtensionBridge {
     public String handleSyncMessage(int instanceId, String message);
 
     /**
+     * Called when the extension is required to be started.
+     */
+    public void onStart();
+
+    /**
      * Called when the extension is required to be resumed.
      */
     public void onResume();
@@ -62,6 +67,12 @@ interface XWalkExtensionBridge {
      * Called when the extension is required to be paused.
      */
     public void onPause();
+
+    /**
+     * Called when the extension is required to be stopped.
+     */
+    public void onStop();
+
 
     /**
      * Called when the extension is required to be destroyed.

@@ -70,6 +70,14 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
+    public void onStart() {
+        for (int i=0; i<mFragmentList.size(); i++) {
+            XWalkViewSectionFragment fragment = (XWalkViewSectionFragment)mFragmentList.get(i);
+            XWalkView xwalkView = fragment.getXWalkView();
+            if (xwalkView != null) xwalkView.onStart();
+        }
+    }
+
     public void onPause() {
         for (int i=0; i<mFragmentList.size(); i++) {
             XWalkViewSectionFragment fragment = (XWalkViewSectionFragment)mFragmentList.get(i);
@@ -83,6 +91,14 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             XWalkViewSectionFragment fragment = (XWalkViewSectionFragment)mFragmentList.get(i);
             XWalkView xwalkView = fragment.getXWalkView();
             if (xwalkView != null) xwalkView.onShow();
+        }
+    }
+
+    public void onStop() {
+        for (int i=0; i<mFragmentList.size(); i++) {
+            XWalkViewSectionFragment fragment = (XWalkViewSectionFragment)mFragmentList.get(i);
+            XWalkView xwalkView = fragment.getXWalkView();
+            if (xwalkView != null) xwalkView.onStop();
         }
     }
 

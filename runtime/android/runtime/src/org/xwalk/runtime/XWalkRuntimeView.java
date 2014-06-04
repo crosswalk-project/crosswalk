@@ -100,6 +100,14 @@ public class XWalkRuntimeView extends FrameLayout {
     }
 
     /**
+     * Tell runtime that the application is on starting. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStart() {
+        mProvider.onStart();
+    }
+
+    /**
      * Tell runtime that the application is on resuming. This can make runtime
      * be aware of application life cycle.
      */
@@ -113,6 +121,14 @@ public class XWalkRuntimeView extends FrameLayout {
      */
     public void onPause() {
         mProvider.onPause();
+    }
+
+    /**
+     * Tell runtime that the application is on stoping. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStop() {
+        mProvider.onStop();
     }
 
     /**

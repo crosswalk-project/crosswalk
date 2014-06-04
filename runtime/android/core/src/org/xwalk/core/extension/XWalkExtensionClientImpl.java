@@ -22,8 +22,10 @@ class XWalkExtensionClientImpl extends XWalkExtension {
     private Object mExtensionClient;
     private Method mOnMessage;
     private Method mOnSyncMessage;
+    private Method mOnStart;
     private Method mOnResume;
     private Method mOnPause;
+    private Method mOnStop;
     private Method mOnDestroy;
     private Method mOnActivityResult;
 
@@ -34,8 +36,10 @@ class XWalkExtensionClientImpl extends XWalkExtension {
         mExtensionClient = extensionClient;
         mOnMessage = lookupMethod("onMessage", int.class, String.class);
         mOnSyncMessage = lookupMethod("onSyncMessage", int.class, String.class);
+        mOnStart = lookupMethod("onStart");
         mOnResume = lookupMethod("onResume");
         mOnPause = lookupMethod("onPause");
+        mOnStop = lookupMethod("onStop");
         mOnDestroy = lookupMethod("onDestroy");
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
     }
@@ -51,6 +55,11 @@ class XWalkExtensionClientImpl extends XWalkExtension {
     }
 
     @Override
+    public void onStart() {
+        invokeMethod(mOnStart, mExtensionClient);
+    }
+
+    @Override
     public void onResume() {
         invokeMethod(mOnResume, mExtensionClient);
     }
@@ -58,6 +67,11 @@ class XWalkExtensionClientImpl extends XWalkExtension {
     @Override
     public void onPause() {
         invokeMethod(mOnPause, mExtensionClient);
+    }
+
+    @Override
+    public void onStop() {
+        invokeMethod(mOnStop, mExtensionClient);
     }
 
     @Override
