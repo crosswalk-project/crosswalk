@@ -201,12 +201,15 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
 
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
         final ValueCallback<String>  fCallback = callback;
-        ContentViewCore.JavaScriptCallback coreCallback = new ContentViewCore.JavaScriptCallback() {
-            @Override
-            public void handleJavaScriptResult(String jsonResult) {
-                fCallback.onReceiveValue(jsonResult);
-            }
-        };
+        ContentViewCore.JavaScriptCallback coreCallback = null;
+        if (fCallback != null) {
+            coreCallback = new ContentViewCore.JavaScriptCallback() {
+                @Override
+                public void handleJavaScriptResult(String jsonResult) {
+                    fCallback.onReceiveValue(jsonResult);
+                }
+            };
+        }
         mContentViewCore.evaluateJavaScript(script, coreCallback);
     }
 
