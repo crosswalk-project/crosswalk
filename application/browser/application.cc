@@ -11,6 +11,7 @@
 #include "base/macros.h"
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
+#include "base/strings/string_split.h"
 #include "base/values.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
@@ -91,7 +92,10 @@ bool Application::Launch(const LaunchParams& launch_params) {
 
   NativeAppWindow::CreateParams params;
   params.net_wm_pid = launch_params.launcher_pid;
-  params.state = GetWindowShowState(launch_params);
+  if (data_->GetPackageType() == Package::WGT)
+    params.state = GetWindowShowStateWGT(launch_params);
+  else
+    params.state = GetWindowShowStateXPK(launch_params);
   runtime->AttachWindow(params);
 
   return true;
@@ -128,7 +132,27 @@ GURL Application::GetStartURL(const LaunchParams& params,
   return GURL();
 }
 
-ui::WindowShowState Application::GetWindowShowState(
+ui::WindowShowState Application::GetWindowShowStateWGT(
+    const LaunchParams& params) {
+  if (params.force_fullscreen)
+    return ui::SHOW_STATE_FULLSCREEN;
+
+  const Manifest* manifest = data_->GetManifest();
+  std::string view_modes_string;
+  if (manifest->GetString(widget_keys::kViewModesKey, &view_modes_string)) {
+    // FIXME: ATM only 'fullscreen' and 'windowed' values are supported.
+    // If the first user prefererence is 'fullscreen', set window show state
+    // FULLSCREEN, otherwise set the default window show state.
+    std::vector<std::string> modes;
+    base::SplitString(view_modes_string, ' ', &modes);
+    if (!modes.empty() && modes[0] == "fullscreen")
+      return ui::SHOW_STATE_FULLSCREEN;
+  }
+
+  return ui::SHOW_STATE_DEFAULT;
+}
+
+ui::WindowShowState Application::GetWindowShowStateXPK(
     const LaunchParams& params) {
   if (params.force_fullscreen)
     return ui::SHOW_STATE_FULLSCREEN;

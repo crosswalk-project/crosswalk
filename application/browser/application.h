@@ -156,7 +156,8 @@ class Application : public Runtime::Observer,
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.
   GURL GetStartURL(const LaunchParams& params, LaunchEntryPoint* used);
-  ui::WindowShowState GetWindowShowState(const LaunchParams& params);
+  ui::WindowShowState GetWindowShowStateWGT(const LaunchParams& params);
+  ui::WindowShowState GetWindowShowStateXPK(const LaunchParams& params);
 
   GURL GetURLFromURLKey();
 
