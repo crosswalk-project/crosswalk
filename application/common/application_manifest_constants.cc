@@ -47,6 +47,7 @@ const char kXmlLangKey[] = "@lang";
 const char kDefaultLocaleKey[] = "widget.@defaultlocale";
 const char kNameKey[] = "widget.name.#text";
 const char kVersionKey[] = "widget.@version";
+const char kViewModesKey[] = "widget.@viewmodes";
 const char kWidgetKey[] = "widget";
 const char kLaunchLocalPathKey[] = "widget.content.@src";
 const char kWebURLsKey[] = "widget.@id";
