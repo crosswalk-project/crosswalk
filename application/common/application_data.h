@@ -129,9 +129,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   Package::Type GetPackageType() const { return package_type_; }
 
-#if defined(OS_TIZEN)
   bool HasCSPDefined() const;
-#endif
 
   bool SetApplicationLocale(const std::string& locale, base::string16* error);
 

@@ -12,6 +12,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/browser/screen_orientation/screen_orientation_dispatcher_host.h"
 
+#include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "xwalk/runtime/browser/ui/native_app_window_tizen.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
@@ -25,47 +26,12 @@
 #endif
 
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/manifest_handlers/csp_handler.h"
-#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 
 namespace xwalk {
 
 namespace widget_keys = application_widget_keys;
 
 namespace application {
-
-namespace {
-const char kAsterisk[] = "*";
-
-const char kDirectiveValueSelf[] = "'self'";
-const char kDirectiveValueNone[] = "'none'";
-
-const char kDirectiveNameDefault[] = "default-src";
-const char kDirectiveNameScript[] = "script-src";
-const char kDirectiveNameStyle[] = "style-src";
-const char kDirectiveNameObject[] = "object-src";
-
-CSPInfo* GetDefaultCSPInfo() {
-  static CSPInfo default_csp_info;
-  if (default_csp_info.GetDirectives().empty()) {
-    std::vector<std::string> directive_all;
-    std::vector<std::string> directive_self;
-    std::vector<std::string> directive_none;
-    directive_all.push_back(kAsterisk);
-    directive_self.push_back(kDirectiveValueSelf);
-    directive_none.push_back(kDirectiveValueNone);
-
-    default_csp_info.SetDirective(kDirectiveNameDefault, directive_all);
-    default_csp_info.SetDirective(kDirectiveNameScript, directive_self);
-    default_csp_info.SetDirective(kDirectiveNameStyle, directive_self);
-    default_csp_info.SetDirective(kDirectiveNameObject, directive_none);
-  }
-
-  return (new CSPInfo(default_csp_info));
-}
-
-}  // namespace
-
 
 ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
@@ -100,54 +66,6 @@ bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
     return true;
   }
   return false;
-}
-
-void ApplicationTizen::InitSecurityPolicy() {
-  // On Tizen, CSP mode has higher priority, and WARP will be disabled
-  // if the application is under CSP mode.
-  if (!data_->HasCSPDefined()) {
-    Application::InitSecurityPolicy();
-    return;
-  }
-
-  if (data_->GetPackageType() != Package::WGT)
-    return;
-
-  CSPInfo* csp_info =
-      static_cast<CSPInfo*>(data_->GetManifestData(widget_keys::kCSPKey));
-  if (!csp_info || csp_info->GetDirectives().empty())
-    data_->SetManifestData(widget_keys::kCSPKey, GetDefaultCSPInfo());
-
-  // Always enable security mode when under CSP mode.
-  security_mode_enabled_ = true;
-  NavigationInfo* info = static_cast<NavigationInfo*>(
-      data_->GetManifestData(widget_keys::kAllowNavigationKey));
-  if (info) {
-    const std::vector<std::string>& allowed_list = info->GetAllowedDomains();
-    for (std::vector<std::string>::const_iterator it = allowed_list.begin();
-         it != allowed_list.end(); ++it) {
-      // If the policy is "*", it represents that any external link is allowed
-      // to navigate to.
-      if ((*it) == kAsterisk) {
-        security_mode_enabled_ = false;
-        return;
-      }
-
-      // If the policy start with "*.", like this: *.domain,
-      // means that can access to all subdomains for 'domain',
-      // otherwise, the host of request url should exactly the same
-      // as policy.
-      bool subdomains = ((*it).find("*.") == 0);
-      std::string host = subdomains ? (*it).substr(2) : (*it);
-      AddSecurityPolicy(GURL("http://" + host), subdomains);
-      AddSecurityPolicy(GURL("https://" + host), subdomains);
-    }
-  }
-  DCHECK(render_process_host_);
-  render_process_host_->Send(
-      new ViewMsg_EnableSecurityMode(
-          ApplicationData::GetBaseURLFromApplicationId(id()),
-          SecurityPolicy::CSP));
 }
 
 #if defined(USE_OZONE)
