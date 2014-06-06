@@ -36,6 +36,10 @@ class SecurityPolicy {
     WhitelistEntry(const GURL& url, bool subdomains);
     GURL url;
     bool subdomains;
+
+    bool operator==(const WhitelistEntry& o) const {
+      return o.url == url && o.subdomains == subdomains;
+    }
   };
 
   void AddWhitelistEntry(const GURL& url, bool subdomains);

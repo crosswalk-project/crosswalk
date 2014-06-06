@@ -235,7 +235,9 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
-  manifest.GetString(keys::kCSPKey, &csp);
+  // FIXME: Switch to 'csp' field, accordingly to
+  // http://w3c.github.io/manifest-csp/.
+  manifest.GetString(keys::kCSPKeyLegacy, &csp);
   RuntimeContext* runtime_context =
       XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);

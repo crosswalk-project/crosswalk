@@ -350,13 +350,11 @@ bool Application::SetPermission(PermissionType type,
 }
 
 void Application::InitSecurityPolicy() {
-  if (data_->GetPackageType() == Package::WGT) {
-    // CSP policy takes precedence over WARP.
-    if (data_->HasCSPDefined())
-      security_policy_.reset(new SecurityPolicyCSP(this));
-    else
-      security_policy_.reset(new SecurityPolicyWARP(this));
-  }
+  // CSP policy takes precedence over WARP.
+  if (data_->HasCSPDefined())
+    security_policy_.reset(new SecurityPolicyCSP(this));
+  else if (data_->GetPackageType() == Package::WGT)
+    security_policy_.reset(new SecurityPolicyWARP(this));
 
   if (security_policy_)
     security_policy_->Enforce();

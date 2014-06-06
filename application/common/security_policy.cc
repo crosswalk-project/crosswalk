@@ -4,6 +4,7 @@
 
 #include "xwalk/application/common/security_policy.h"
 
+#include <map>
 #include <string>
 
 #include "content/public/browser/render_process_host.h"
@@ -96,10 +97,16 @@ void SecurityPolicy::Enforce() {
 void SecurityPolicy::AddWhitelistEntry(const GURL& url, bool subdomains) {
   GURL app_url = app_->data()->URL();
   DCHECK(app_->render_process_host());
-  app_->render_process_host()->Send(
-      new ViewMsg_SetAccessWhiteList(
-          app_url, url, subdomains));
-  whitelist_entries_.push_back(WhitelistEntry(url, subdomains));
+  WhitelistEntry entry = WhitelistEntry(url, subdomains);
+
+  std::vector<WhitelistEntry>::iterator it =
+      std::find(whitelist_entries_.begin(), whitelist_entries_.end(), entry);
+  if (it != whitelist_entries_.end())
+    return;
+
+  app_->render_process_host()->Send(new ViewMsg_SetAccessWhiteList(
+      app_url, url, subdomains));
+  whitelist_entries_.push_back(entry);
 }
 
 SecurityPolicyWARP::SecurityPolicyWARP(Application* app)
@@ -161,19 +168,16 @@ SecurityPolicyCSP::~SecurityPolicyCSP() {
 }
 
 void SecurityPolicyCSP::Enforce() {
-#if defined(OS_TIZEN)
   Package::Type package_type = app_->data()->GetPackageType();
   const char* scp_key = GetCSPKey(package_type);
-
   CSPInfo* csp_info =
       static_cast<CSPInfo*>(app_->data()->GetManifestData(scp_key));
-  if (!csp_info || csp_info->GetDirectives().empty())
-    app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());
-
-  // Always enable security mode when under CSP mode.
-  enabled_ = true;
-
   if (package_type = Package::WGT) {
+#if defined(OS_TIZEN)
+    if (!csp_info || csp_info->GetDirectives().empty())
+       app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());
+    // Always enable security mode when under CSP mode.
+    enabled_ = true;
     NavigationInfo* info = static_cast<NavigationInfo*>(
         app_->data()->GetManifestData(widget_keys::kAllowNavigationKey));
     if (info) {
@@ -197,16 +201,35 @@ void SecurityPolicyCSP::Enforce() {
         AddWhitelistEntry(GURL("https://" + host), subdomains);
       }
     }
+#endif
   } else {
-    // FIXME: Implement http://w3c.github.io/manifest-csp/ here.
+    if (!csp_info || csp_info->GetDirectives().empty()) {
+      LOG(ERROR) << "Failed to obtain CSP directives from the manifest";
+      return;
+    }
+    enabled_ = true;
+    const std::map<std::string, std::vector<std::string> >& policies =
+        csp_info->GetDirectives();
+    std::map<std::string, std::vector<std::string> >::const_iterator it =
+        policies.begin();
+    for (; it != policies.end(); ++it) {
+      const std::vector<std::string>& allowed_list = it->second;
+      for (std::vector<std::string>::const_iterator it = allowed_list.begin();
+           it != allowed_list.end(); ++it) {
+        GURL url(*it);
+        if (url.is_valid())
+          AddWhitelistEntry(url, false);
+      }
+    }
   }
 
-  DCHECK(app_->render_process_host());
-  app_->render_process_host()->Send(
-      new ViewMsg_EnableSecurityMode(
-          ApplicationData::GetBaseURLFromApplicationId(app_->id()),
-          SecurityPolicy::CSP));
-#endif
+  if (enabled_) {
+    DCHECK(app_->render_process_host());
+    app_->render_process_host()->Send(
+        new ViewMsg_EnableSecurityMode(
+            ApplicationData::GetBaseURLFromApplicationId(app_->id()),
+            SecurityPolicy::CSP));
+  }
 }
 
 }  // namespace application
