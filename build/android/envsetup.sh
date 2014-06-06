@@ -12,5 +12,5 @@ export PATH=$PATH:${SCRIPT_DIR}/../../../xwalk/build/android
 # The purpose of this function is to do the same as android_gyp(), but calling
 # gyp_xwalk instead.
 xwalk_android_gyp() {
-  "${SCRIPT_DIR}/../../../xwalk/gyp_xwalk" --check "$@"
+  "${SCRIPT_DIR}/../../../xwalk/gyp_xwalk" "$@" "-DOS=android"
 }
