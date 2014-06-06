@@ -124,6 +124,7 @@ def PrepareFromXwalk(src_dir, target_dir):
     # Build and python tools.
     (os.path.join(tools_src_dir, 'ant'),
      os.path.join(target_dir, 'scripts/ant')),
+    (os.path.join(tools_src_dir, 'app_info.py'), target_dir),
     (os.path.join(tools_src_dir, 'compress_js_and_css.py'), target_dir),
     (os.path.join(tools_src_dir, 'customize.py'), target_dir),
     (os.path.join(tools_src_dir, 'customize_launch_screen.py'), target_dir),

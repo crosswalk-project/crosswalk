@@ -14,6 +14,7 @@ import shutil
 import stat
 import sys
 
+from app_info import AppInfo
 from customize_launch_screen import CustomizeLaunchScreen
 from handle_xml import AddElementAttribute
 from handle_xml import AddElementAttributeAndText
@@ -107,7 +108,10 @@ def CompressSourceFiles(app_root, compressor):
     compress_js_and_css.CompressCss(css_list)
 
 
-def Prepare(name, package, app_root, compressor):
+def Prepare(app_info, compressor):
+  name = app_info.name
+  package = app_info.package
+  app_root = app_info.app_root
   if os.path.exists(name):
     shutil.rmtree(name)
   shutil.copytree('app_src', name)
@@ -169,9 +173,13 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
   theme_file.close()
 
 
-def CustomizeXML(package, app_versionCode, app_version, description, name,
-                 orientation, icon_dict, fullscreen, icon, app_manifest,
-                 permissions, app_root):
+def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
+  app_version = app_info.app_version
+  app_versionCode = app_info.app_versionCode
+  name = app_info.name
+  orientation = app_info.orientation
+  package = app_info.package
+  original_name = app_info.original_name
   manifest_path = os.path.join(name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
@@ -179,7 +187,7 @@ def CustomizeXML(package, app_versionCode, app_version, description, name,
     sys.exit(6)
 
   CustomizeStringXML(name, description)
-  CustomizeThemeXML(name, fullscreen, app_manifest)
+  CustomizeThemeXML(name, app_info.fullscreen_flag, app_manifest)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', package)
   if app_versionCode:
@@ -192,14 +200,14 @@ def CustomizeXML(package, app_versionCode, app_version, description, name,
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
   HandlePermissions(permissions, xmldoc)
-  EditElementAttribute(xmldoc, 'application', 'android:label', name)
+  EditElementAttribute(xmldoc, 'application', 'android:label', original_name)
   activity_name = package + '.' + name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
-  EditElementAttribute(xmldoc, 'activity', 'android:label', name)
+  EditElementAttribute(xmldoc, 'activity', 'android:label', original_name)
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  icon_name = CustomizeIcon(name, app_root, icon, icon_dict)
+  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon, icon_dict)
   if icon_name:
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
@@ -232,10 +240,10 @@ def SetVariable(file_path, string_line, variable, value):
   shutil.move(temp_file_path, file_path)
 
 
-def CustomizeJava(name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen,
-                  keep_screen_on):
-  root_path =  os.path.join(name, 'src', package.replace('.', os.path.sep))
+def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
+  name = app_info.name
+  package = app_info.package
+  root_path = os.path.join(name, 'src', package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
   ReplaceString(dest_activity, 'AppTemplate', name)
@@ -259,11 +267,11 @@ def CustomizeJava(name, package, app_url, app_local_path,
                ' is correct.')
         sys.exit(8)
 
-  if enable_remote_debugging:
+  if app_info.remote_debugging:
     SetVariable(dest_activity,
                 'public void onCreate(Bundle savedInstanceState)',
                 'RemoteDebugging', 'true')
-  if display_as_fullscreen:
+  if app_info.fullscreen_flag:
     SetVariable(dest_activity,
                 'super.onCreate(savedInstanceState)',
                 'IsFullscreen', 'true')
@@ -296,7 +304,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
     shutil.copyfile(src_file, dest_file)
 
 
-def CustomizeExtensions(name, extensions):
+def CustomizeExtensions(app_info, extensions):
   """Copy the files from external extensions and merge them into APK.
 
   The directory of one external extension should be like:
@@ -314,6 +322,7 @@ def CustomizeExtensions(name, extensions):
   """
   if not extensions:
     return
+  name = app_info.name
   apk_path = name
   apk_assets_path = os.path.join(apk_path, 'assets')
   extensions_string = 'xwalk-extensions'
@@ -395,10 +404,10 @@ def CustomizeExtensions(name, extensions):
     extension_json_file.close()
 
 
-def GenerateCommandLineFile(name, xwalk_command_line):
+def GenerateCommandLineFile(app_info, xwalk_command_line):
   if xwalk_command_line == '':
     return
-  assets_path = os.path.join(name, 'assets')
+  assets_path = os.path.join(app_info.name, 'assets')
   file_path = os.path.join(assets_path, 'xwalk-command-line')
   command_line_file = open(file_path, 'w')
   command_line_file.write('xwalk ' + xwalk_command_line)
@@ -462,23 +471,15 @@ def CustomizeIcon(name, app_root, icon, icon_dict):
   return icon_name
 
 
-def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
-                 app_root, app_local_path, enable_remote_debugging,
-                 display_as_fullscreen, keep_screen_on, extensions,
-                 app_manifest, icon, package='org.xwalk.app.template',
-                 name='AppTemplate', app_version='1.0.0',
-                 orientation='unspecified', xwalk_command_line='',
-                 compressor=None):
+def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
+                 app_local_path, keep_screen_on, extensions, app_manifest,
+                 xwalk_command_line='', compressor=None):
   try:
-    Prepare(name, package, app_root, compressor)
-    CustomizeXML(package, app_versionCode, app_version, description, name,
-                 orientation, icon_dict, display_as_fullscreen, icon,
-                 app_manifest, permissions, app_root)
-    CustomizeJava(name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen,
-                  keep_screen_on)
-    CustomizeExtensions(name, extensions)
-    GenerateCommandLineFile(name, xwalk_command_line)
+    Prepare(app_info, compressor)
+    CustomizeXML(app_info, description, icon_dict, app_manifest, permissions)
+    CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
+    CustomizeExtensions(app_info, extensions)
+    GenerateCommandLineFile(app_info, xwalk_command_line)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     sys.exit(ec.code)
@@ -551,23 +552,28 @@ def main():
                  72: 'icons/icon_72.png',
                  96: 'icons/icon_96.png',
                  48: 'icons/icon_48.png'}
-    if options.name == None:
-      options.name = 'Example'
-    if options.app_root == None:
-      options.app_root = os.path.join('test_data', 'manifest')
-    if options.package == None:
-      options.package = 'org.xwalk.app.template'
-    if options.orientation == None:
-      options.orientation = 'unspecified'
-    if options.app_version == None:
-      options.app_version = '1.0.0'
-    icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
-    CustomizeAll(options.app_versionCode, options.description, icon_dict,
-                 options.permissions, options.app_url, options.app_root,
-                 options.app_local_path, options.enable_remote_debugging,
-                 options.fullscreen, options.keep_screen_on, options.extensions,
-                 options.manifest, icon, options.package, options.name,
-                 options.app_version, options.orientation,
+    app_info = AppInfo()
+    if options.name is not None:
+      app_info.name = options.name
+    if options.app_root is None:
+      app_info.app_root = os.path.join('test_data', 'manifest')
+    else:
+      app_info.app_root = options.app_root
+    if options.package is not None:
+      app_info.package = options.package
+    if options.orientation is not None:
+      app_info.orientation = options.orientation
+    if options.app_version is not None:
+      app_info.app_version = options.app_version
+    if options.enable_remote_debugging is not None:
+      app_info.remote_debugging = options.enable_remote_debugging
+    if options.fullscreen is not None:
+      app_info.fullscreen_flag = options.fullscreen
+    app_info.icon = os.path.join('test_data', 'manifest', 'icons',
+                                 'icon_96.png')
+    CustomizeAll(app_info, options.description, icon_dict,
+                 options.permissions, options.app_url, options.app_local_path,
+                 options.keep_screen_on, options.extensions, options.manifest,
                  options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
