@@ -269,7 +269,7 @@ public class XWalkViewShellActivity extends FragmentActivity
                 if (mActiveView != null &&
                         mActiveView.getNavigationHistory().canGoBack()) {
                     mActiveView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.BACKWARD, 1);
+                            XWalkNavigationHistory.NAVIGATION_BACKWARD, 1);
                 }
             }
         });
@@ -281,7 +281,7 @@ public class XWalkViewShellActivity extends FragmentActivity
                 if (mActiveView != null &&
                         mActiveView.getNavigationHistory().canGoForward()) {
                     mActiveView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.FORWARD, 1);
+                            XWalkNavigationHistory.NAVIGATION_FORWARD, 1);
                 }
             }
         });

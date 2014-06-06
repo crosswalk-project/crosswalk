@@ -41,7 +41,7 @@ public class XWalkNavigationActivity extends XWalkBaseActivity {
                 if (mXWalkView != null &&
                         mXWalkView.getNavigationHistory().canGoBack()) {
                     mXWalkView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.BACKWARD, 1);
+                            XWalkNavigationHistory.NAVIGATION_BACKWARD, 1);
                 }
                 XWalkNavigationItem navigationItem = mXWalkView.getNavigationHistory().getCurrentItem();
                 showNavigationItemInfo(navigationItem);
@@ -55,7 +55,7 @@ public class XWalkNavigationActivity extends XWalkBaseActivity {
                 if (mXWalkView != null &&
                         mXWalkView.getNavigationHistory().canGoForward()) {
                     mXWalkView.getNavigationHistory().navigate(
-                            XWalkNavigationHistory.Direction.FORWARD, 1);
+                            XWalkNavigationHistory.NAVIGATION_FORWARD, 1);
                 }
                 XWalkNavigationItem navigationItem = mXWalkView.getNavigationHistory().getCurrentItem();
                 showNavigationItemInfo(navigationItem);

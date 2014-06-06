@@ -512,7 +512,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (isOwnerActivityRunning()) {
             XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
             mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_ALERT, url, message, "", result);
+                    XWalkUIClient.JAVASCRIPT_MESSAGE_ALERT, url, message, "", result);
         }
     }
 
@@ -521,7 +521,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (isOwnerActivityRunning()) {
             XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
             mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_CONFIRM, url, message, "", result);
+                    XWalkUIClient.JAVASCRIPT_MESSAGE_CONFIRM, url, message, "", result);
         }
     }
 
@@ -530,7 +530,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (isOwnerActivityRunning()) {
             XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
             mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_PROMPT, url, message, defaultValue,
+                    XWalkUIClient.JAVASCRIPT_MESSAGE_PROMPT, url, message, defaultValue,
                             result);
         }
     }
@@ -540,7 +540,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (isOwnerActivityRunning()) {
             XWalkJavascriptResultHandler result = new XWalkJavascriptResultHandler(this, id);
             mXWalkUIClient.onJavascriptModalDialog(mXWalkView,
-                    XWalkUIClient.JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD, url, message, "",
+                    XWalkUIClient.JAVASCRIPT_MESSAGE_BEFOREUNLOAD, url, message, "",
                             result);
         }
     }
