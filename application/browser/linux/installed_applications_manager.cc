@@ -7,6 +7,7 @@
 #include <string>
 #include "base/bind.h"
 #include "base/files/file_path.h"
+#include "content/public/browser/browser_thread.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
 #include "xwalk/application/browser/application_storage.h"
@@ -122,6 +123,48 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
     return error_response.PassAs<dbus::Response>();
 }
 
+scoped_ptr<dbus::Response> doInstall(dbus::MethodCall* method_call,
+                                     ApplicationService* service,
+                                     const base::FilePath file_path,
+                                     dbus::ObjectManagerAdaptor* adaptor) {
+  std::string app_id;
+  if (!service->Install(file_path, &app_id) &&
+      (app_id.empty() || !service->Update(app_id, file_path))) {
+    scoped_ptr<dbus::Response> response =
+        CreateError(method_call,
+                    "Error installing/updating application with path: "
+                    + file_path.value());
+    return response.Pass();
+  }
+
+  dbus::ManagedObject* managed_object =
+      adaptor->GetManagedObject(GetInstalledPathForAppID(app_id));
+  CHECK(managed_object);
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  dbus::MessageWriter writer(response.get());
+  writer.AppendObjectPath(managed_object->path());
+  return response.Pass();
+}
+
+scoped_ptr<dbus::Response> doUninstall(dbus::MethodCall* method_call,
+                                       ApplicationService* service,
+                                       const std::string app_id) {
+  if (!service->Uninstall(app_id)) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(
+            method_call, kInstalledApplicationDBusError,
+            "Error trying to uninstall application with id "
+            + app_id);
+    return error_response.PassAs<dbus::Response>();
+  }
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  return response.Pass();
+}
+
 }  // namespace
 
 void InstalledApplicationsManager::OnInstall(
@@ -144,26 +187,15 @@ void InstalledApplicationsManager::OnInstall(
     return;
   }
 
-  std::string app_id;
-  if (!application_service_->Install(file_path, &app_id) &&
-      (app_id.empty() || !application_service_->Update(app_id, file_path))) {
-    scoped_ptr<dbus::Response> response =
-        CreateError(method_call,
-                    "Error installing/updating application with path: "
-                    + file_path_str);
-    response_sender.Run(response.Pass());
-    return;
-  }
-
-  dbus::ManagedObject* managed_object =
-      adaptor_.GetManagedObject(GetInstalledPathForAppID(app_id));
-  CHECK(managed_object);
-
-  scoped_ptr<dbus::Response> response =
-      dbus::Response::FromMethodCall(method_call);
-  dbus::MessageWriter writer(response.get());
-  writer.AppendObjectPath(managed_object->path());
-  response_sender.Run(response.Pass());
+  content::BrowserThread::PostTaskAndReplyWithResult(
+      content::BrowserThread::FILE,
+      FROM_HERE,
+      base::Bind(&doInstall,
+                 base::Unretained(method_call),
+                 base::Unretained(application_service_),
+                 file_path,
+                 base::Unretained(&adaptor_)),
+      response_sender);
 }
 
 // InstalledApplicationsManager implements the callback exposed in the child
@@ -176,19 +208,14 @@ void InstalledApplicationsManager::OnUninstall(
     InstalledApplicationObject* installed_app_object,
     dbus::MethodCall* method_call,
     dbus::ExportedObject::ResponseSender response_sender) {
-  if (!application_service_->Uninstall(installed_app_object->app_id())) {
-    scoped_ptr<dbus::ErrorResponse> error_response =
-        dbus::ErrorResponse::FromMethodCall(
-            method_call, kInstalledApplicationDBusError,
-            "Error trying to uninstall application with id "
-            + installed_app_object->app_id());
-    response_sender.Run(error_response.PassAs<dbus::Response>());
-    return;
-  }
-
-  scoped_ptr<dbus::Response> response =
-      dbus::Response::FromMethodCall(method_call);
-  response_sender.Run(response.Pass());
+  content::BrowserThread::PostTaskAndReplyWithResult(
+      content::BrowserThread::FILE,
+      FROM_HERE,
+      base::Bind(&doUninstall,
+                 base::Unretained(method_call),
+                 base::Unretained(application_service_),
+                 installed_app_object->app_id()),
+      response_sender);
 }
 
 void InstalledApplicationsManager::OnExported(
