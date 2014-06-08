@@ -154,6 +154,7 @@
         'runtime/android/core/src/org/xwalk/core/XWalkContent.java',
         'runtime/android/core/src/org/xwalk/core/XWalkCookieManager.java',
         'runtime/android/core/src/org/xwalk/core/XWalkDevToolsServer.java',
+        'runtime/android/core/src/org/xwalk/core/XWalkPathHelper.java',
         'runtime/android/core/src/org/xwalk/core/XWalkSettings.java',
         'runtime/android/core/src/org/xwalk/core/XWalkViewDelegate.java',
         'runtime/android/core/src/org/xwalk/core/XWalkWebContentsDelegate.java',

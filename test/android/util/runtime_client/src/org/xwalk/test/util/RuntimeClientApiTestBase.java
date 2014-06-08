@@ -328,6 +328,13 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         String title = mTestUtil.loadAssetFileAndWaitForTitle("messaging_mini.html");
         mTestCase.assertEquals("Pass", title);
     }
+
+    // For internal extension implementation of NativeFileSystem.
+    public void testNativeFileSystem() throws Throwable {
+        String title = mTestUtil.loadAssetFileAndWaitForTitle("native_file_system.html");
+        mTestCase.assertEquals("Pass", title);
+    }
+
     // For onPause, onResume.
     public void testPauseAndResume() throws Throwable {
         String title = "";

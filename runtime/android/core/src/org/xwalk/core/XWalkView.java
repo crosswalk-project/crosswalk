@@ -27,6 +27,7 @@ import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
 
 import org.xwalk.core.extension.XWalkExtensionManager;
+import org.xwalk.core.extension.XWalkPathHelper;
 
 /**
  * <p>XWalkView represents an Android view for web apps/pages. Thus most of attributes
@@ -311,6 +312,12 @@ public class XWalkView extends android.widget.FrameLayout {
         // Note that it has to be after above initialization.
         mExtensionManager = new XWalkExtensionManager(context, getActivity());
         mExtensionManager.loadExtensions();
+
+        XWalkPathHelper.initialize();
+        XWalkPathHelper.setCacheDirectory(
+                mContext.getApplicationContext().getCacheDir().getPath());
+        XWalkPathHelper.setExternalCacheDirectory(
+                mContext.getApplicationContext().getExternalCacheDir().getPath());
     }
 
     /**

@@ -4,9 +4,8 @@
 
 #include "xwalk/experimental/native_file_system/virtual_root_provider.h"
 
-#include "base/logging.h"
+#include "xwalk/runtime/browser/android/xwalk_path_helper.h"
 
 VirtualRootProvider::VirtualRootProvider() {
-  // TODO(shawngao5): Android support to be added.
-  NOTIMPLEMENTED();
+  virtual_root_map_ = xwalk::XWalkPathHelper::GetVirtualRootMap();
 }
