@@ -164,7 +164,7 @@ def CustomizeLaunchScreen(app_manifest, sanitized_name):
   if not app_manifest:
     return False
   parser = ManifestJsonParser(os.path.expanduser(app_manifest))
-  app_root = os.path.dirname(app_manifest)
+  app_root = os.path.dirname(parser.input_path)
   default = CustomizeByOrientation(parser, 'default',
                                    sanitized_name, app_root)
   portrait = CustomizeByOrientation(parser, 'portrait',
