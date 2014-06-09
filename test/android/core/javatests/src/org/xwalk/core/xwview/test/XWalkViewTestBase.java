@@ -468,6 +468,33 @@ public class XWalkViewTestBase
         });
     }
 
+    protected int historySizeOnUiThread() throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return mXWalkView.getNavigationHistory().size();
+            }
+        });
+    }
+
+    protected boolean hasItemAtOnUiThread(final int index) throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<Boolean>() {
+            @Override
+            public Boolean call() {
+                return mXWalkView.getNavigationHistory().hasItemAt(index);
+            }
+        });
+    }
+
+    protected XWalkNavigationItem getItemAtOnUiThread(final int index) throws Throwable {
+        return runTestOnUiThreadAndGetResult(new Callable<XWalkNavigationItem>() {
+            @Override
+            public XWalkNavigationItem call() {
+                return mXWalkView.getNavigationHistory().getItemAt(index);
+            }
+        });
+    }
+
     protected XWalkNavigationItem getCurrentItemOnUiThread() throws Throwable {
         return runTestOnUiThreadAndGetResult(new Callable<XWalkNavigationItem>() {
             @Override
