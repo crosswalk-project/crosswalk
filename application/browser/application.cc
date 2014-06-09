@@ -12,6 +12,7 @@
 #include "base/message_loop/message_loop.h"
 #include "base/stl_util.h"
 #include "base/strings/string_split.h"
+#include "base/threading/thread_restrictions.h"
 #include "base/values.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
@@ -320,7 +321,7 @@ std::string Application::GetRegisteredPermissionName(
 }
 
 StoredPermission Application::GetPermission(PermissionType type,
-                               std::string& permission_name) const {
+                               const std::string& permission_name) const {
   if (type == SESSION_PERMISSION) {
     StoredPermissionMap::const_iterator iter =
         permission_map_.find(permission_name);

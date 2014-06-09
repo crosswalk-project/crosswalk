@@ -56,6 +56,8 @@ class FileSystemChecker
   void DoTask();
 
  private:
+  friend class base::RefCountedThreadSafe<FileSystemChecker>;
+  virtual ~FileSystemChecker() {}
   void RegisterFileSystemsAndSendResponse();
 
   int process_id_;

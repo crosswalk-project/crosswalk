@@ -324,7 +324,7 @@ const std::set<std::string>& ApplicationData::GetEvents() const {
 }
 
 StoredPermission ApplicationData::GetPermission(
-    std::string& permission_name) const {
+    const std::string& permission_name) const {
   StoredPermissionMap::const_iterator iter =
       permission_map_.find(permission_name);
   if (iter == permission_map_.end())
