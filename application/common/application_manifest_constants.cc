@@ -11,6 +11,7 @@ const char kAppKey[] = "app";
 const char kCSPKey[] = "csp";
 const char kDescriptionKey[] = "description";
 const char kDisplay[] = "display";
+const char kIconKey[] = "icons";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchScreen[] = "launch_screen";
 const char kLaunchScreenDefault[] = "launch_screen.default";
@@ -35,7 +36,6 @@ const char kXWalkHostsKey[] = "xwalk_hosts";
 
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";
-const char kIcon128Key[] = "icons.128";
 #endif
 
 }  // namespace application_manifest_keys
@@ -62,6 +62,7 @@ const char kWidthKey[] = "widget.@width";
 const char kPreferencesKey[] = "widget.preference";
 const char kCSPKey[] = "widget.content-security-policy.#text";
 const char kAccessKey[] = "widget.access";
+const char kIconKey[] = "widget.icon";
 
 // Child keys inside 'kPreferencesKey'.
 const char kPreferencesNameKey[] = "@name";
@@ -72,8 +73,12 @@ const char kPreferencesReadonlyKey[] = "@readonly";
 const char kAccessOriginKey[] = "@origin";
 const char kAccessSubdomainsKey[] = "@subdomains";
 
+// Child keys inside 'kIconKey'.
+const char kIconWidthKey[] = "@width";
+const char kIconHeightKey[] = "@height";
+const char kIconSrcKey[] = "@src";
+
 #if defined(OS_TIZEN)
-const char kIcon128Key[] = "widget.icon.@src";
 const char kTizenApplicationKey[] = "widget.application";
 // Child keys inside 'kTizenApplicationKey'
 const char kTizenApplicationIdKey[] = "@id";
@@ -155,19 +160,19 @@ const char* GetCSPKey(Package::Type package_type) {
   return application_manifest_keys::kCSPKey;
 }
 
+const char* GetIconKey(Package::Type package_type) {
+  if (package_type == Package::WGT)
+    return application_widget_keys::kIconKey;
+
+  return application_manifest_keys::kIconKey;
+}
+
 #if defined(OS_TIZEN)
 const char* GetTizenAppIdKey(Package::Type package_type) {
   if (package_type == Package::WGT)
     return application_widget_keys::kTizenAppIdKey;
 
   return application_manifest_keys::kTizenAppIdKey;
-}
-
-const char* GetIcon128Key(Package::Type package_type) {
-  if (package_type == Package::WGT)
-    return application_widget_keys::kIcon128Key;
-
-  return application_manifest_keys::kIcon128Key;
 }
 #endif
 }  // namespace application
