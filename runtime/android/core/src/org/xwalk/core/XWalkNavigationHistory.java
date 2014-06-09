@@ -49,6 +49,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
      * @return the navigation item for the given index.
      */
     public XWalkNavigationItem getItemAt(int index) {
+        if (index < 0 || index >= size()) return null;
         return new XWalkNavigationItem(mHistory.getEntryAtIndex(index));
     }
 
