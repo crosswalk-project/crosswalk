@@ -20,9 +20,11 @@ IN_PROC_BROWSER_TEST_F(InProcessBrowserTest, NativeFileSystem) {
   content::TitleWatcher title_watcher(runtime()->web_contents(), passString);
   title_watcher.AlsoWaitForTitle(failString);
 
+#if defined(OS_LINUX)
   // create "<tmp>/Documents" path if not exists. This path will be used in this
   // testing to replace real home directory.
   VirtualRootProvider::SetTesting(true);
+#endif
 
   base::FilePath test_file;
   PathService::Get(base::DIR_SOURCE_ROOT, &test_file);

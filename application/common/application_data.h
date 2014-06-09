@@ -125,7 +125,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Permission related.
   StoredPermission GetPermission(
-      std::string& permission_name) const;
+      const std::string& permission_name) const;
   bool SetPermission(const std::string& permission_name,
                      StoredPermission perm);
   void ClearPermissions();

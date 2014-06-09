@@ -115,7 +115,7 @@ class Application : public Runtime::Observer,
                                           const std::string& api_name) const;
 
   StoredPermission GetPermission(PermissionType type,
-                                 std::string& permission_name) const;
+                                 const std::string& permission_name) const;
   bool SetPermission(PermissionType type,
                      const std::string& permission_name,
                      StoredPermission perm);

@@ -75,6 +75,7 @@
         '../extensions/common/url_pattern.h',
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
+        'experimental/native_file_system/virtual_root_provider_mac.cc',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
         'runtime/app/android/xwalk_main_delegate_android.cc',
