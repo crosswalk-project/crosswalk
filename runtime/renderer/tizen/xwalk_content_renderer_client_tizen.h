@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_RENDERER_TIZEN_XWALK_CONTENT_RENDERER_CLIENT_TIZEN_H_
 #define XWALK_RUNTIME_RENDERER_TIZEN_XWALK_CONTENT_RENDERER_CLIENT_TIZEN_H_
 
+#include <string>
+
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
 namespace xwalk {
@@ -18,6 +20,18 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
                                const GURL& url,
                                const GURL& first_party_for_cookies,
                                GURL* new_url) OVERRIDE;
+
+  virtual bool HasErrorPage(int http_status_code,
+                            std::string* error_domain) OVERRIDE;
+
+  virtual void GetNavigationErrorStrings(
+      content::RenderView* render_view,
+      blink::WebFrame* frame,
+      const blink::WebURLRequest& failed_request,
+      const blink::WebURLError& error,
+      std::string* error_html,
+      base::string16* error_description) OVERRIDE;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClientTizen);
 };
