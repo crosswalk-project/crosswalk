@@ -1,7 +1,7 @@
 %bcond_with x
 %bcond_with wayland
 
-%ifarch x86_64
+%ifarch x86_64 armv7l
 # NaCl build on 64bit system require libc 32bit to build the 32 IRT.
 # While Tizen 64bit image does not offer 32bit packages at all,
 # check https://bugs.tizen.org/jira/browse/PTREL-803 for details.
