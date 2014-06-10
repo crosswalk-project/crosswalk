@@ -15,6 +15,7 @@ import sys
 
 sys.path.append('scripts/gyp')
 
+from app_info import AppInfo
 from customize import VerifyAppName, CustomizeAll, \
                       ParseParameterForCompressor, ReplaceSpaceWithUnderscore
 from dex import AddExeExtensions
@@ -92,21 +93,23 @@ def GetVersion(path):
   return version_str
 
 
-def ParseManifest(options):
+def ParseManifest(options, app_info):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
-  app_name = parser.GetAppName()
+  original_name = app_info.original_name = parser.GetAppName()
+  app_name = None
   if options.package:
     VerifyAppName(options.package, 'packagename')
   else:
-    VerifyAppName(app_name)
-    app_name = ReplaceSpaceWithUnderscore(app_name)
+    VerifyAppName(original_name)
+    app_name = ReplaceSpaceWithUnderscore(original_name)
     options.package = 'org.xwalk.' + app_name.lower()
   if options.name:
     VerifyAppName(options.name)
+    app_info.original_name = options.name
     options.name = ReplaceSpaceWithUnderscore(options.name)
   else:
-    VerifyAppName(app_name)
-    options.name = ReplaceSpaceWithUnderscore(app_name)
+    VerifyAppName(original_name)
+    options.name = ReplaceSpaceWithUnderscore(original_name)
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -190,38 +193,28 @@ def MakeVersionCode(options):
   return '%s%s' % (abi, b.zfill(7))
 
 
-def Customize(options):
-  package = 'org.xwalk.app.template'
+def Customize(options, app_info):
   if options.package:
-    package = options.package
-  name = 'AppTemplate'
+    app_info.package = options.package
   if options.name:
-    name = options.name
-  app_version = ''
+    app_info.name = options.name
   if options.app_version:
-    app_version = options.app_version
-  app_versionCode = MakeVersionCode(options)
-  app_root = ''
+    app_info.app_version = options.app_version
+  app_info.app_versionCode = MakeVersionCode(options)
   if options.app_root:
-    app_root = os.path.expanduser(options.app_root)
-  remote_debugging = ''
+    app_info.app_root = os.path.expanduser(options.app_root)
   if options.enable_remote_debugging:
-    remote_debugging = '--enable-remote-debugging'
-  fullscreen_flag = ''
+    app_info.remote_debugging = '--enable-remote-debugging'
   if options.fullscreen:
-    fullscreen_flag = '-f'
-  orientation = 'unspecified'
+    app_info.fullscreen_flag = '-f'
   if options.orientation:
-    orientation = options.orientation
-  icon = ''
+    app_info.orientation = options.orientation
   if options.icon:
-    icon = '%s' % os.path.expanduser(options.icon)
-  CustomizeAll(app_versionCode, options.description, options.icon_dict,
-               options.permissions, options.app_url, app_root,
-               options.app_local_path, remote_debugging,
-               fullscreen_flag, options.keep_screen_on, options.extensions,
-               options.manifest, icon, package, name, app_version,
-               orientation, options.xwalk_command_line, options.compressor)
+    app_info.icon = '%s' % os.path.expanduser(options.icon)
+  CustomizeAll(app_info, options.description, options.icon_dict,
+               options.permissions, options.app_url, options.app_local_path,
+               options.keep_screen_on, options.extensions, options.manifest,
+               options.xwalk_command_line, options.compressor)
 
 
 def Execution(options, name):
@@ -529,8 +522,8 @@ def PrintPackageInfo(options, packaged_archs):
            'here:\nhttps://software.intel.com/en-us/html5/articles/submitting'
            '-multiple-crosswalk-apk-to-google-play-store')
 
-def MakeApk(options):
-  Customize(options)
+def MakeApk(options, app_info):
+  Customize(options, app_info)
   name = options.name
   packaged_archs = []
   if options.mode == 'shared':
@@ -709,6 +702,7 @@ def main(argv):
       print('Using manifest.json distributed with the application.')
       options.manifest = manifest_path
 
+  app_info = AppInfo()
   if not options.manifest:
     if options.package:
       VerifyAppName(options.package, 'packagename')
@@ -717,6 +711,7 @@ def main(argv):
                    'Please use "--package" option.')
     if options.name:
       VerifyAppName(options.name)
+      app_info.original_name = options.name
       options.name = ReplaceSpaceWithUnderscore(options.name)
     else:
       parser.error('The APK name is required! Please use "--name" option.')
@@ -741,7 +736,7 @@ def main(argv):
     options.icon_dict = {}
   else:
     try:
-      ParseManifest(options)
+      ParseManifest(options, app_info)
     except SystemExit as ec:
       return ec.code
 
@@ -759,7 +754,7 @@ def main(argv):
       os.makedirs(target_dir)
 
   try:
-    MakeApk(options)
+    MakeApk(options, app_info)
   except SystemExit as ec:
     CleanDir(options.name)
     CleanDir('out')

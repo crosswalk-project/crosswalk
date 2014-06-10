@@ -12,6 +12,8 @@ import sys
 import unittest
 import warnings
 
+from customize import ReplaceSpaceWithUnderscore
+
 
 def Clean(name, app_version):
   if os.path.exists(name):
@@ -59,7 +61,7 @@ def RunCommand(command):
   return proc.communicate()[0]
 
 
-def GetResultWithOption(mode, manifest=None, name=None, package=None):
+def GetResultWithOption(mode=None, manifest=None, name=None, package=None):
   app_url = None
   if manifest is not None:
     manifest = '--manifest=' + manifest
@@ -69,13 +71,14 @@ def GetResultWithOption(mode, manifest=None, name=None, package=None):
     name = '--name=' + name
   if package is not None:
     package = '--package=' + package
+
   cmd = ['python', 'make_apk.py',
          '--app-version=1.0.0',
          '%s' % manifest,
          '%s' % name,
          '%s' % package,
          '%s' % app_url,
-         mode]
+         '%s' % mode]
   return RunCommand(cmd)
 
 
@@ -986,6 +989,35 @@ class TestMakeApk(unittest.TestCase):
     Clean(name, version)
 
 
+  def VerifyResultForAppNameWithSpace(self, manifest=None, name=None,
+                                      package=None):
+    version = '1.0.0'
+    GetResultWithOption(manifest=manifest, name=name, package=package)
+    if name is None:
+      name = 'app name '
+    replaced_name = ReplaceSpaceWithUnderscore(name)
+    manifest = replaced_name + '/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(name in content)
+    Clean(replaced_name, version)
+
+
+  def testAppNameWithSpace(self):
+    name = 'app name'
+    package = 'org.xwalk.app_name'
+
+    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+
+    name = 'app name '
+    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+
+    directory = os.path.join('test_data', 'manifest', 'invalidchars')
+    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
+    self.VerifyResultForAppNameWithSpace(manifest=manifest_path)
+
+
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
   test_suite = unittest.TestSuite()
@@ -1022,6 +1054,7 @@ def SuiteWithModeOption():
 def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
+  test_suite.addTest(TestMakeApk('testAppNameWithSpace'))
   test_suite.addTest(TestMakeApk('testCompressor'))
   test_suite.addTest(TestMakeApk('testCustomizeFile'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
