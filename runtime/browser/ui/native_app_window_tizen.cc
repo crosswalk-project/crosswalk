@@ -119,6 +119,13 @@ NativeAppWindowTizen::~NativeAppWindowTizen() {
     SensorProvider::GetInstance()->RemoveObserver(this);
 }
 
+void NativeAppWindowTizen::LockOrientation(
+      blink::WebScreenOrientationLockType lock) {
+  orientation_lock_ = lock;
+  if (SensorProvider* sensor = SensorProvider::GetInstance())
+    OnScreenOrientationChanged(sensor->GetScreenOrientation());
+}
+
 void NativeAppWindowTizen::ViewHierarchyChanged(
     const ViewHierarchyChangedDetails& details) {
   if (details.is_add && details.child == this) {
@@ -198,17 +205,6 @@ blink::WebScreenOrientationType
       NOTREACHED();
   }
   return orientation;
-}
-
-void NativeAppWindowTizen::LockOrientation(
-      blink::WebScreenOrientationLockType lock) {
-  orientation_lock_ = lock;
-  if (SensorProvider* sensor = SensorProvider::GetInstance())
-    OnScreenOrientationChanged(sensor->GetScreenOrientation());
-}
-
-void NativeAppWindowTizen::UnlockOrientation() {
-  LockOrientation(blink::WebScreenOrientationLockDefault);
 }
 
 void NativeAppWindowTizen::OnScreenOrientationChanged(

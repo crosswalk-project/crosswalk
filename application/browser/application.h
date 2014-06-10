@@ -127,7 +127,7 @@ class Application : public Runtime::Observer,
   Application(scoped_refptr<ApplicationData> data,
               RuntimeContext* context,
               Observer* observer);
-
+  virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
   void AddSecurityPolicy(const GURL& url, bool subdomains);
 
@@ -149,9 +149,6 @@ class Application : public Runtime::Observer,
                                    int exit_code) OVERRIDE;
   virtual void RenderProcessHostDestroyed(
       content::RenderProcessHost* host) OVERRIDE;
-
-
-  bool Launch(const LaunchParams& launch_params);
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.

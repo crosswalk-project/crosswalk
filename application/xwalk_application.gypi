@@ -5,6 +5,7 @@
       'type': 'static_library',
       'dependencies': [
         '../base/base.gyp:base',
+        '../content/content.gyp:content_browser',
         '../crypto/crypto.gyp:crypto',
         '../ipc/ipc.gyp:ipc',
         '../sql/sql.gyp:sql',
@@ -125,6 +126,7 @@
         }],
       ],
       'include_dirs': [
+        '..',
         '../..',
       ],
     },
