@@ -347,13 +347,15 @@ PermissionSet ApplicationData::GetManifestPermissions() const {
   return permissions;
 }
 
-#if defined(OS_TIZEN)
 bool ApplicationData::HasCSPDefined() const {
-  return (manifest_->HasPath(widget_keys::kCSPKey) ||
+#if defined(OS_TIZEN)
+  return  manifest_->HasPath(GetCSPKey(package_type_)) ||
           manifest_->HasPath(widget_keys::kCSPReportOnlyKey) ||
-          manifest_->HasPath(widget_keys::kAllowNavigationKey));
-}
+          manifest_->HasPath(widget_keys::kAllowNavigationKey);
+#else
+  return manifest_->HasPath(GetCSPKey(package_type_));
 #endif
+}
 
 bool ApplicationData::SetApplicationLocale(const std::string& locale,
                                            base::string16* error) {
