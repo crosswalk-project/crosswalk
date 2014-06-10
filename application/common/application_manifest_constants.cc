@@ -8,7 +8,7 @@ namespace xwalk {
 
 namespace application_manifest_keys {
 const char kAppKey[] = "app";
-const char kCSPKey[] = "content_security_policy";
+const char kCSPKey[] = "csp";
 const char kDescriptionKey[] = "description";
 const char kDisplay[] = "display";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";

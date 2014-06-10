@@ -32,7 +32,6 @@ class ApplicationTizen :  // NOLINT
                    RuntimeContext* context,
                    Application::Observer* observer);
   virtual bool Launch(const LaunchParams& launch_params) OVERRIDE;
-  virtual void InitSecurityPolicy() OVERRIDE;
 
 #if defined(USE_OZONE)
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;

@@ -97,6 +97,8 @@ class Application : public Runtime::Observer,
   // (ApplicationData objects).
   std::string id() const { return data_->ID(); }
   int GetRenderProcessHostID() const;
+  content::RenderProcessHost* render_process_host() {
+    return render_process_host_; }
 
   const ApplicationData* data() const { return data_; }
   ApplicationData* data() { return data_; }
@@ -129,7 +131,6 @@ class Application : public Runtime::Observer,
               Observer* observer);
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
-  void AddSecurityPolicy(const GURL& url, bool subdomains);
 
   std::set<Runtime*> runtimes_;
   scoped_refptr<ApplicationData> const data_;
@@ -169,8 +170,8 @@ class Application : public Runtime::Observer,
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.
   StoredPermissionMap permission_map_;
-  // Security policy set.
-  ScopedVector<SecurityPolicy> security_policy_;
+  // Security policy.
+  scoped_ptr<SecurityPolicy> security_policy_;
   // WeakPtrFactory should be always declared the last.
   base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);

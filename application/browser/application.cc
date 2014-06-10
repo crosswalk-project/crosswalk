@@ -27,7 +27,6 @@
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
-#include "xwalk/runtime/common/xwalk_common_messages.h"
 
 using content::RenderProcessHost;
 
@@ -351,83 +350,22 @@ bool Application::SetPermission(PermissionType type,
 }
 
 void Application::InitSecurityPolicy() {
-  if (data_->GetPackageType() != Package::WGT)
-    return;
-
-  const WARPInfo* info = static_cast<WARPInfo*>(
-      data_->GetManifestData(widget_keys::kAccessKey));
-  // Need to enable WARP mode by default.
-  if (!info) {
-    security_mode_enabled_ = true;
-    DCHECK(render_process_host_);
-    render_process_host_->Send(
-        new ViewMsg_EnableSecurityMode(
-            ApplicationData::GetBaseURLFromApplicationId(id()),
-            SecurityPolicy::WARP));
-    return;
+  if (data_->GetPackageType() == Package::WGT) {
+    // CSP policy takes precedence over WARP.
+    if (data_->HasCSPDefined())
+      security_policy_.reset(new SecurityPolicyCSP(this));
+    else
+      security_policy_.reset(new SecurityPolicyWARP(this));
   }
 
-  const base::ListValue* whitelist = info->GetWARP();
-  for (base::ListValue::const_iterator it = whitelist->begin();
-       it != whitelist->end(); ++it) {
-    base::DictionaryValue* value = NULL;
-    (*it)->GetAsDictionary(&value);
-    std::string dest;
-    if (!value || !value->GetString(widget_keys::kAccessOriginKey, &dest) ||
-        dest.empty())
-      continue;
-    if (dest == "*") {
-      security_mode_enabled_ = false;
-      break;
-    }
-
-    GURL dest_url(dest);
-    // The default subdomains attrubute should be "false".
-    std::string subdomains = "false";
-    value->GetString(widget_keys::kAccessSubdomainsKey, &subdomains);
-    AddSecurityPolicy(dest_url, (subdomains == "true"));
-    security_mode_enabled_ = true;
-  }
-  if (security_mode_enabled_) {
-    DCHECK(render_process_host_);
-    render_process_host_->Send(
-        new ViewMsg_EnableSecurityMode(
-            ApplicationData::GetBaseURLFromApplicationId(id()),
-            SecurityPolicy::WARP));
-  }
-}
-
-void Application::AddSecurityPolicy(const GURL& url, bool subdomains) {
-  GURL app_url = data_->URL();
-  DCHECK(render_process_host_);
-  render_process_host_->Send(
-      new ViewMsg_SetAccessWhiteList(
-          app_url, url, subdomains));
-  security_policy_.push_back(new SecurityPolicy(url, subdomains));
+  if (security_policy_)
+    security_policy_->Enforce();
 }
 
 bool Application::CanRequestURL(const GURL& url) const {
-  if (!security_mode_enabled_)
-    return true;
-
-  // Only WGT package need to check the url request permission.
-  if (data_->GetPackageType() != Package::WGT)
-    return true;
-
-  // Always can request itself resources.
-  if (url.SchemeIs(application::kApplicationScheme) &&
-      url.host() == id())
-    return true;
-
-  for (unsigned i = 0; i < security_policy_.size(); ++i) {
-    const GURL& policy = security_policy_[i]->url();
-    bool subdomains = security_policy_[i]->subdomains();
-    bool is_host_matched = subdomains ?
-        url.DomainIs(policy.host().c_str()) : url.host() == policy.host();
-    if (url.scheme() == policy.scheme() && is_host_matched)
-      return true;
-  }
-  return false;
+  if (security_policy_)
+    return security_policy_->IsAccessAllowed(url);
+  return true;
 }
 
 }  // namespace application
