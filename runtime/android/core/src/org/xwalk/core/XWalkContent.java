@@ -58,9 +58,6 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
 
     long mXWalkContent;
     long mWebContents;
-    boolean mReadyToLoad = false;
-    String mPendingUrl = null;
-    String mPendingData = null;
 
     public XWalkContent(Context context, AttributeSet attrs, XWalkView xwView) {
         super(context, attrs);
@@ -81,13 +78,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
         mContentViewRenderView = new ContentViewRenderView(context, mWindow, surfaceType) {
             protected void onReadyToRender() {
-                if (mPendingUrl != null) {
-                    doLoadUrl(mPendingUrl, mPendingData);
-                    mPendingUrl = null;
-                    mPendingData = null;
-                }
-
-                mReadyToLoad = true;
+                // Anything depending on the underlying Surface readiness should
+                // be placed here.
             }
         };
         mLaunchScreenManager = new XWalkLaunchScreenManager(context, mXWalkView);
@@ -160,25 +152,17 @@ class XWalkContent extends FrameLayout implements XWalkPreferences.KeyValueChang
             return;
         }
 
-        if (mReadyToLoad) {
-            doLoadUrl(url, data);
-        } else {
-            mPendingUrl = url;
-            mPendingData = data;
-        }
+        doLoadUrl(url, data);
     }
 
     public void reload(int mode) {
-        if (mReadyToLoad) {
-            switch (mode) {
-                case XWalkView.RELOAD_IGNORE_CACHE:
-                    mContentViewCore.reloadIgnoringCache(true);
-                    break;
-                case XWalkView.RELOAD_NORMAL:
-                default:
-                    mContentViewCore.reload(true);
-
-            }
+        switch (mode) {
+            case XWalkView.RELOAD_IGNORE_CACHE:
+                mContentViewCore.reloadIgnoringCache(true);
+                break;
+            case XWalkView.RELOAD_NORMAL:
+            default:
+                mContentViewCore.reload(true);
         }
     }
 
