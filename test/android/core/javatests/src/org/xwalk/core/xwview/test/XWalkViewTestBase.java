@@ -548,4 +548,22 @@ public class XWalkViewTestBase
             }
         });
     }
+
+    protected void onHideOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.onHide();
+            }
+        });
+    }
+
+    protected void onShowOnUiThread() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.onShow();
+            }
+        });
+    }
 }

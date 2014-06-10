@@ -43,6 +43,8 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/movie.mp4',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/play_video.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
         'conditions': [
@@ -59,6 +61,8 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/www',
           'files': [
             'test/android/data/index.html',
+            'test/android/data/movie.mp4',
+            'test/android/data/play_video.html',
           ],
         }
       ],
