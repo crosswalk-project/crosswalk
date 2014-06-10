@@ -111,10 +111,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
     return manifest_.get();
   }
 
-  // System events
-  void SetEvents(const std::set<std::string>& events);
-  const std::set<std::string>& GetEvents() const;
-
   bool IsDirty() const { return is_dirty_; }
 
   const base::Time& install_time() const { return install_time_; }

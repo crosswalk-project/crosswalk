@@ -314,15 +314,6 @@ bool ApplicationData::LoadManifestVersion(base::string16* error) {
   return true;
 }
 
-void ApplicationData::SetEvents(const std::set<std::string>& events) {
-  events_ = events;
-  is_dirty_ = true;
-}
-
-const std::set<std::string>& ApplicationData::GetEvents() const {
-  return events_;
-}
-
 StoredPermission ApplicationData::GetPermission(
     const std::string& permission_name) const {
   StoredPermissionMap::const_iterator iter =

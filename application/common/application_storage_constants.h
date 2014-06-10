@@ -11,22 +11,17 @@
 namespace xwalk {
 namespace application_storage_constants {
   extern const char kAppTableName[];
-  extern const char kEventTableName[];
   extern const char kPermissionTableName[];
   extern const char kGarbageCollectionTableName[];
 
   extern const char kCreateAppTableOp[];
-  extern const char kCreateEventTableOp[];
   extern const char kCreatePermissionTableOp[];
   extern const char kCreateGarbageCollectionTableOp[];
   extern const char kCreateGarbageCollectionTriggersOp[];
-  extern const char kGetAllRowsFromAppEventTableOp[];
+  extern const char kGetAllRowsFromAppTableOp[];
   extern const char kSetApplicationWithBindOp[];
   extern const char kUpdateApplicationWithBindOp[];
   extern const char kDeleteApplicationWithBindOp[];
-  extern const char kInsertEventsWithBindOp[];
-  extern const char kUpdateEventsWithBindOp[];
-  extern const char kDeleteEventsWithBindOp[];
   extern const char kInsertPermissionsWithBindOp[];
   extern const char kUpdatePermissionsWithBindOp[];
   extern const char kDeletePermissionsWithBindOp[];

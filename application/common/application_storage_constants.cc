@@ -9,7 +9,6 @@ namespace xwalk {
 namespace application_storage_constants {
 
 const char kAppTableName[] = "applications";
-const char kEventTableName[] = "registered_events";
 const char kPermissionTableName[] = "stored_permissions";
 const char kGarbageCollectionTableName[] = "garbage_collection";
 
@@ -19,14 +18,6 @@ const char kCreateAppTableOp[] =
     "manifest TEXT NOT NULL,"
     "path TEXT NOT NULL,"
     "install_time REAL)";
-
-const char kCreateEventTableOp[] =
-    "CREATE TABLE registered_events ("
-    "id TEXT NOT NULL,"
-    "event_names TEXT NOT NULL,"
-    "PRIMARY KEY (id),"
-    "FOREIGN KEY (id) REFERENCES applications(id)"
-    "ON DELETE CASCADE)";
 
 const char kCreatePermissionTableOp[] =
     "CREATE TABLE stored_permissions ("
@@ -46,12 +37,9 @@ const char kCreateGarbageCollectionTriggersOp[] =
     "CREATE TRIGGER IF NOT EXISTS del_garbage_app AFTER INSERT ON applications"
     " BEGIN DELETE FROM garbage_collection WHERE app_id = NEW.id; END";
 
-const char kGetAllRowsFromAppEventTableOp[] =
+const char kGetAllRowsFromAppTableOp[] =
     "SELECT A.id, A.manifest, A.path, A.install_time, "
-    "B.event_names, C.permission_names "
-    "FROM applications as A "
-    "LEFT JOIN registered_events as B "
-    "ON A.id = B.id "
+    "C.permission_names FROM applications as A "
     "LEFT JOIN stored_permissions as C "
     "ON A.id = C.id";
 
@@ -65,16 +53,6 @@ const char kUpdateApplicationWithBindOp[] =
 
 const char kDeleteApplicationWithBindOp[] =
     "DELETE FROM applications WHERE id = ?";
-
-const char kInsertEventsWithBindOp[] =
-    "INSERT INTO registered_events (event_names, id) "
-    "VALUES(?,?)";
-
-const char kUpdateEventsWithBindOp[] =
-    "UPDATE registered_events SET event_names = ? WHERE id = ?";
-
-const char kDeleteEventsWithBindOp[] =
-    "DELETE FROM registered_events WHERE id = ?";
 
 const char kInsertPermissionsWithBindOp[] =
     "INSERT INTO stored_permissions (permission_names, id) "
