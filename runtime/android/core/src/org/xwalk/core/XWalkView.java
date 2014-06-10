@@ -54,7 +54,11 @@ import org.xwalk.core.extension.XWalkExtensionManager;
  *
  * <p>Unlike other Android views, this class has to listen to system events like application life
  * cycle, intents, and activity result. The web engine inside this view need to get and handle
- * them. For example:</p>
+ * them. And the onDestroy() method of XWalkView MUST be called explicitly when an XWalkView
+ * won't be used anymore, otherwise it will cause the memory leak from the native side of the web
+ * engine. It's similar to the 
+ * <a href="http://developer.android.com/reference/android/webkit/WebView.html#destroy()">
+ * destroy()</a> method of Android WebView. For example:</p>
  *
  * <pre>
  *   import android.app.Activity;
