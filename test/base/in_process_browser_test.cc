@@ -126,6 +126,10 @@ void InProcessBrowserTest::SetUp() {
   BrowserTestBase::SetUp();
 }
 
+xwalk::RuntimeContext* InProcessBrowserTest::GetRuntimeContext() const {
+  return XWalkRunner::GetInstance()->runtime_context();
+}
+
 void InProcessBrowserTest::PrepareTestCommandLine(
     base::CommandLine* command_line) {
   // Propagate commandline settings from test_launcher_utils.
@@ -145,7 +149,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // when needed and thus the 'runtime()' method should be removed
   // as well as 'runtime_' initialization below.
   runtime_ = Runtime::CreateWithDefaultWindow(
-      XWalkRunner::GetInstance()->runtime_context(),
+          GetRuntimeContext(),
           GURL(), runtime_registry_.get());
   content::WaitForLoadStop(runtime_->web_contents());
   content::RunAllPendingInMessageLoop();

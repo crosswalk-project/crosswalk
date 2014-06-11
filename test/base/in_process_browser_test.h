@@ -70,6 +70,8 @@ class InProcessBrowserTest : public content::BrowserTestBase {
   RuntimeRegistry* runtime_registry() const {
       return runtime_registry_.get(); }
 
+  xwalk::RuntimeContext* GetRuntimeContext() const;
+
   // Override this to add any custom cleanup code that needs to be done on the
   // main thread before the browser is torn down.
   virtual void ProperMainThreadCleanup() {}

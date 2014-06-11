@@ -110,7 +110,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
   // Create a new Runtime instance.
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url, runtime_registry());
+      GetRuntimeContext(), url, runtime_registry());
   EXPECT_TRUE(url == new_runtime->web_contents()->GetURL());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   content::RunAllPendingInMessageLoop();
@@ -136,7 +136,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url, runtime_registry());
+      GetRuntimeContext(), url, runtime_registry());
   size_t len = runtimes().size();
   new_runtime->window()->Close();
   content::RunAllPendingInMessageLoop();
@@ -147,7 +147,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   GURL url(test_server()->GetURL("test.html"));
   Runtime* new_runtime = Runtime::Create(
-      runtime()->runtime_context(), runtime_registry());
+      GetRuntimeContext(), runtime_registry());
 
   NativeAppWindow::CreateParams params;
   params.state = ui::SHOW_STATE_FULLSCREEN;

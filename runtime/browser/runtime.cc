@@ -76,7 +76,6 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
       fullscreen_options_(NO_FULLSCREEN),
       observer_(observer) {
   web_contents_->SetDelegate(this);
-  runtime_context_ = RuntimeContext::FromWebContents(web_contents);
   content::NotificationService::current()->Notify(
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),

@@ -74,7 +74,6 @@ class Runtime : public content::WebContentsDelegate,
 
   content::WebContents* web_contents() const { return web_contents_.get(); }
   NativeAppWindow* window() const { return window_; }
-  RuntimeContext* runtime_context() const { return runtime_context_; }
   gfx::Image app_icon() const { return app_icon_; }
 
   content::RenderProcessHost* GetRenderProcessHost();
@@ -162,9 +161,6 @@ class Runtime : public content::WebContentsDelegate,
   void SetRootWindow(NativeAppWindow* window);
   void InitRootWindow();
 #endif
-
-  // The browsing context.
-  xwalk::RuntimeContext* runtime_context_;
 
   // Notification manager.
   content::NotificationRegistrar registrar_;
