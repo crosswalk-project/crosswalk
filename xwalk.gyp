@@ -127,6 +127,8 @@
         'runtime/browser/android/xwalk_http_auth_handler_base.h',
         'runtime/browser/android/xwalk_login_delegate.cc',
         'runtime/browser/android/xwalk_login_delegate.h',
+        'runtime/browser/android/xwalk_path_helper.cc',
+        'runtime/browser/android/xwalk_path_helper.h',
         'runtime/browser/android/xwalk_request_interceptor.cc',
         'runtime/browser/android/xwalk_request_interceptor.h',
         'runtime/browser/android/xwalk_settings.cc',
