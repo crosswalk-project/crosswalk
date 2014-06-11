@@ -28,6 +28,7 @@ Source1003:     %{name}.png
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
 
+BuildRequires:  binutils-gold
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
 BuildRequires:  elfutils
@@ -165,24 +166,18 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -
 
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 
-# Linking fails in Tizen Common when fatal ld warnings are enabled. XWALK-1379.
-%if "%{profile}" == "common" || "%{profile}" == "generic"
+# Linking fails in Tizen when fatal ld warnings are enabled. XWALK-1379.
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
-%endif
 
 # For building for arm in OBS, we need :
 # -> to unset sysroot value.
 # sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
-# -> to force system ld binary.
-# Indeed the build is made on Emulated / Virtualized environment that correspond
-# to the target.
-# gold ld used is avaible only for 32/64 bits Intel Arch.
 # sysroot usage is not needed, we need to use arm libraries from the virtualized environment.
 #
 # Crosswalk build fails if the fpu selected in the gcc option is different from neon in case of arm7 compilation
 # So force it.
 %ifarch %{arm}
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dsysroot= -Dlinux_use_gold_binary=0"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dsysroot="
 export CFLAGS=`echo $CFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 export CXXFLAGS=`echo $CXXFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
@@ -190,6 +185,8 @@ export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
+# Force gold binary from chroot ld.gold provided by binutils-gold
+#  -Dlinux_use_bundled_binutils=0 -Dlinux_use_bundled_gold=0
 export GYP_GENERATORS='ninja'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
@@ -206,7 +203,9 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
 -Duse_system_nspr=1 \
--Denable_hidpi=1
+-Denable_hidpi=1 \
+-Dlinux_use_bundled_binutils=0 \
+-Dlinux_use_bundled_gold=0
 
 ninja %{?_smp_mflags} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper
 
