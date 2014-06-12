@@ -55,13 +55,13 @@ namespace xwalk {
 
 // Calls through the IoThreadClient to check the embedders settings to determine
 // if the request should be cancelled. There may not always be an IoThreadClient
-// available for the |child_id|, |route_id| pair (in the case of newly created
-// pop up windows, for example) and in that case the request and the client
-// callbacks will be deferred the request until a client is ready.
+// available for the |render_process_id|, |render_frame_id| pair (in the case of
+// newly created pop up windows, for example) and in that case the request and
+// the client callbacks will be deferred the request until a client is ready.
 class IoThreadClientThrottle : public content::ResourceThrottle {
  public:
-  IoThreadClientThrottle(int child_id,
-                         int route_id,
+  IoThreadClientThrottle(int render_process_id,
+                         int render_frame_id,
                          net::URLRequest* request);
   virtual ~IoThreadClientThrottle();
 
@@ -71,23 +71,24 @@ class IoThreadClientThrottle : public content::ResourceThrottle {
   virtual const char* GetNameForLogging() const OVERRIDE;
 
   bool MaybeDeferRequest(bool* defer);
-  void OnIoThreadClientReady(int new_child_id, int new_route_id);
+  void OnIoThreadClientReady(int new_render_process_id,
+                             int new_render_frame_id);
   bool MaybeBlockRequest();
   bool ShouldBlockRequest();
-  int get_child_id() const { return child_id_; }
-  int get_route_id() const { return route_id_; }
+  int render_process_id() const { return render_process_id_; }
+  int render_frame_id() const { return render_frame_id_; }
 
  private:
-  int child_id_;
-  int route_id_;
+  int render_process_id_;
+  int render_frame_id_;
   net::URLRequest* request_;
 };
 
-IoThreadClientThrottle::IoThreadClientThrottle(int child_id,
-                                               int route_id,
+IoThreadClientThrottle::IoThreadClientThrottle(int render_process_id,
+                                               int render_frame_id,
                                                net::URLRequest* request)
-    : child_id_(child_id),
-      route_id_(route_id),
+    : render_process_id_(render_process_id),
+      render_frame_id_(render_frame_id),
       request_(request) { }
 
 IoThreadClientThrottle::~IoThreadClientThrottle() {
@@ -97,12 +98,12 @@ IoThreadClientThrottle::~IoThreadClientThrottle() {
 }
 
 void IoThreadClientThrottle::WillStartRequest(bool* defer) {
-  if (route_id_ < 1) {
+  if (render_frame_id_ < 1) {
     // OPTIONS is used for preflighted requests which are generated internally.
     DCHECK_EQ("OPTIONS", request_->method());
     return;
   }
-  DCHECK(child_id_);
+  DCHECK(render_process_id_);
   if (!MaybeDeferRequest(defer)) {
     MaybeBlockRequest();
   }
@@ -123,17 +124,17 @@ bool IoThreadClientThrottle::MaybeDeferRequest(bool* defer) {
   // Defer all requests of a pop up that is still not associated with Java
   // client so that the client will get a chance to override requests.
   scoped_ptr<XWalkContentsIoThreadClient> io_client =
-      XWalkContentsIoThreadClient::FromID(child_id_, route_id_);
+      XWalkContentsIoThreadClient::FromID(render_process_id_, render_frame_id_);
   if (io_client && io_client->PendingAssociation()) {
     *defer = true;
     RuntimeResourceDispatcherHostDelegateAndroid::AddPendingThrottle(
-        child_id_, route_id_, this);
+        render_process_id_, render_frame_id_, this);
   }
   return *defer;
 }
 
-void IoThreadClientThrottle::OnIoThreadClientReady(int new_child_id,
-                                                   int new_route_id) {
+void IoThreadClientThrottle::OnIoThreadClientReady(int new_render_process_id,
+                                                   int new_render_frame_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
 
   if (!MaybeBlockRequest()) {
@@ -151,7 +152,7 @@ bool IoThreadClientThrottle::MaybeBlockRequest() {
 
 bool IoThreadClientThrottle::ShouldBlockRequest() {
   scoped_ptr<XWalkContentsIoThreadClient> io_client =
-      XWalkContentsIoThreadClient::FromID(child_id_, route_id_);
+      XWalkContentsIoThreadClient::FromID(render_process_id_, render_frame_id_);
   DCHECK(io_client.get());
 
   // Part of implementation of WebSettings.allowContentAccess.
@@ -220,6 +221,9 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
     int child_id,
     int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
+  const content::ResourceRequestInfo* request_info =
+      content::ResourceRequestInfo::ForRequest(request);
+
   // We allow intercepting only navigations within main frames. This
   // is used to post onPageStarted. We handle shouldOverrideUrlLoading
   // via a sync IPC for url loading in iframe.
@@ -233,12 +237,13 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
   // request relates to a not-yet-created popup window, then the client will
   // be non-NULL but PopupPendingAssociation() will be set.
   scoped_ptr<XWalkContentsIoThreadClient> io_client =
-      XWalkContentsIoThreadClient::FromID(child_id, route_id);
+      XWalkContentsIoThreadClient::FromID(
+          child_id, request_info->GetRenderFrameID());
   if (!io_client)
     return;
 
   throttles->push_back(new IoThreadClientThrottle(
-      child_id, route_id, request));
+      child_id, request_info->GetRenderFrameID(), request));
 }
 
 void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
@@ -269,8 +274,12 @@ void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
 
   request->Cancel();
 
+  const content::ResourceRequestInfo* request_info =
+      content::ResourceRequestInfo::ForRequest(request);
+
   scoped_ptr<XWalkContentsIoThreadClient> io_client =
-      XWalkContentsIoThreadClient::FromID(child_id, route_id);
+      XWalkContentsIoThreadClient::FromID(
+          child_id, request_info->GetRenderFrameID());
 
   // POST request cannot be repeated in general, so prevent client from
   // retrying the same request, even if it is with a GET.
@@ -321,7 +330,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::OnResponseStarted(
             request, auto_login_parser::ALLOW_ANY_REALM, &header_data)) {
       scoped_ptr<XWalkContentsIoThreadClient> io_client =
           XWalkContentsIoThreadClient::FromID(request_info->GetChildID(),
-                                              request_info->GetRouteID());
+                                              request_info->GetRenderFrameID());
       if (io_client) {
         io_client->NewLoginRequest(
             header_data.realm, header_data.account, header_data.args);
@@ -335,7 +344,8 @@ RemovePendingThrottleOnIoThread(
     IoThreadClientThrottle* throttle) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   PendingThrottleMap::iterator it = pending_throttles_.find(
-      ChildRouteIDPair(throttle->get_child_id(), throttle->get_route_id()));
+      FrameRouteIDPair(throttle->render_process_id(),
+                       throttle->render_frame_id()));
   if (it != pending_throttles_.end()) {
     pending_throttles_.erase(it);
   }
@@ -343,21 +353,21 @@ RemovePendingThrottleOnIoThread(
 
 // static
 void RuntimeResourceDispatcherHostDelegateAndroid::OnIoThreadClientReady(
-    int new_child_id,
-    int new_route_id) {
+    int new_render_process_id,
+    int new_render_frame_id) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(
           &RuntimeResourceDispatcherHostDelegateAndroid::
           OnIoThreadClientReadyInternal,
           base::Unretained(
               g_runtime_resource_dispatcher_host_delegate_android.Pointer()),
-          new_child_id, new_route_id));
+          new_render_process_id, new_render_frame_id));
 }
 
 // static
 void RuntimeResourceDispatcherHostDelegateAndroid::AddPendingThrottle(
-    int child_id,
-    int route_id,
+    int render_process_id,
+    int render_frame_id,
     IoThreadClientThrottle* pending_throttle) {
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(
@@ -365,31 +375,33 @@ void RuntimeResourceDispatcherHostDelegateAndroid::AddPendingThrottle(
               AddPendingThrottleOnIoThread,
           base::Unretained(
               g_runtime_resource_dispatcher_host_delegate_android.Pointer()),
-          child_id, route_id, pending_throttle));
+          render_process_id, render_frame_id, pending_throttle));
 }
 
 void RuntimeResourceDispatcherHostDelegateAndroid::
     AddPendingThrottleOnIoThread(
-        int child_id,
-        int route_id,
+        int render_process_id,
+        int render_frame_id,
         IoThreadClientThrottle* pending_throttle) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   pending_throttles_.insert(
-      std::pair<ChildRouteIDPair, IoThreadClientThrottle*>(
-          ChildRouteIDPair(child_id, route_id), pending_throttle));
+      std::pair<FrameRouteIDPair, IoThreadClientThrottle*>(
+          FrameRouteIDPair(render_process_id, render_frame_id),
+          pending_throttle));
 }
 
 void RuntimeResourceDispatcherHostDelegateAndroid::
 OnIoThreadClientReadyInternal(
-    int new_child_id,
-    int new_route_id) {
+    int new_render_process_id,
+    int new_render_frame_id) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   PendingThrottleMap::iterator it = pending_throttles_.find(
-      ChildRouteIDPair(new_child_id, new_route_id));
+      FrameRouteIDPair(new_render_process_id, new_render_frame_id));
 
   if (it != pending_throttles_.end()) {
     IoThreadClientThrottle* throttle = it->second;
-    throttle->OnIoThreadClientReady(new_child_id, new_route_id);
+    throttle->OnIoThreadClientReady(new_render_process_id,
+                                    new_render_frame_id);
     pending_throttles_.erase(it);
   }
 }

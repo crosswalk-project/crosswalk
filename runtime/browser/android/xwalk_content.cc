@@ -145,10 +145,10 @@ content::WebContents* XWalkContent::CreateWebContents(
       contents_client_bridge_.get());
   XWalkContentsIoThreadClientImpl::Associate(web_contents,
       ScopedJavaLocalRef<jobject>(env, io_thread_client));
-  int child_id = web_contents->GetRenderProcessHost()->GetID();
-  int route_id = web_contents->GetRoutingID();
+  int render_process_id = web_contents->GetRenderProcessHost()->GetID();
+  int render_frame_id = web_contents->GetRoutingID();
   RuntimeResourceDispatcherHostDelegateAndroid::OnIoThreadClientReady(
-      child_id, route_id);
+      render_process_id, render_frame_id);
   InterceptNavigationDelegate::Associate(web_contents,
       make_scoped_ptr(new InterceptNavigationDelegate(
           env, intercept_navigation_delegate)));
