@@ -4,6 +4,8 @@
 
 #include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 
+#include "content/public/browser/browser_thread.h"
+#include "crypto/nss_util.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -21,6 +23,16 @@ XWalkRunnerTizen* XWalkRunnerTizen::GetInstance() {
 
 void XWalkRunnerTizen::PreMainMessageLoopRun() {
   XWalkRunner::PreMainMessageLoopRun();
+
+  // NSSInitSingleton is a costly operation (up to 100ms on VTC-1010),
+  // resulting in postponing the parsing and composition steps of the render
+  // process at cold start. Therefore, move the initialization logic here.
+  if (XWalkRunner::is_running_as_service()) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO,
+        FROM_HERE,
+        base::Bind(&crypto::EnsureNSSInit));
+  }
 }
 
 std::string XWalkRunnerTizen::GetLocale() const {
