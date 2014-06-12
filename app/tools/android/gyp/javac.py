@@ -17,7 +17,7 @@ from util import md5_check
 def DoJavac(options):
   output_dir = options.output_dir
 
-  src_dirs = options.src_dirs.split()
+  src_dirs = options.src_dirs.split('|')
   java_files = build_utils.FindInDirectories(src_dirs, '*.java')
   if options.javac_includes:
     javac_includes = options.javac_includes.split()
@@ -33,7 +33,7 @@ def DoJavac(options):
   # crash... Sorted order works, so use that.
   # See https://code.google.com/p/guava-libraries/issues/detail?id=950
   java_files.sort()
-  classpath = options.classpath.split()
+  classpath = options.classpath.split('|')
 
   jar_inputs = []
   for path in classpath:
