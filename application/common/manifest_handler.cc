@@ -8,6 +8,7 @@
 
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
+#include "xwalk/application/common/manifest_handlers/icons_handler.h"
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
@@ -72,6 +73,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
 
   std::vector<ManifestHandler*> handlers;
   // We can put WGT specific manifest handlers here.
+  handlers.push_back(new IconsHandler(Package::WGT));
   handlers.push_back(new WidgetHandler);
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
@@ -93,6 +95,7 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   std::vector<ManifestHandler*> handlers;
   // FIXME: Add manifest handlers here like this:
   // handlers.push_back(new xxxHandler);
+  handlers.push_back(new IconsHandler(Package::XPK));
   handlers.push_back(new CSPHandler(Package::XPK));
   handlers.push_back(new PermissionsHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);

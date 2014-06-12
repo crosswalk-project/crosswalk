@@ -14,6 +14,7 @@ namespace application_manifest_keys {
   extern const char kCSPKeyLegacy[];
   extern const char kDescriptionKey[];
   extern const char kDisplay[];
+  extern const char kIconKey[];
   extern const char kLaunchLocalPathKey[];
   extern const char kLaunchScreen[];
   extern const char kLaunchScreenDefault[];
@@ -65,6 +66,10 @@ namespace application_widget_keys {
   extern const char kPreferencesNameKey[];
   extern const char kPreferencesValueKey[];
   extern const char kPreferencesReadonlyKey[];
+  extern const char kIconKey[];
+  extern const char kIconWidthKey[];
+  extern const char kIconHeightKey[];
+  extern const char kIconSrcKey[];
 #if defined(OS_TIZEN)
   extern const char kTizenApplicationKey[];
   extern const char kTizenApplicationIdKey[];
@@ -105,9 +110,9 @@ const char* GetVersionKey(Package::Type type);
 const char* GetWebURLsKey(Package::Type type);
 const char* GetLaunchLocalPathKey(Package::Type type);
 const char* GetCSPKey(Package::Type type);
+const char* GetIconKey(Package::Type type);
 #if defined(OS_TIZEN)
 const char* GetTizenAppIdKey(Package::Type type);
-const char* GetIcon128Key(Package::Type type);
 #endif
 }  // namespace application
 }  // namespace xwalk
