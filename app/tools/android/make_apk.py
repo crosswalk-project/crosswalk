@@ -355,17 +355,16 @@ def Execution(options, sanitized_name):
     sys.exit(5)
 
   # Compile App source code with app runtime code.
-  classpath = '--classpath='
-  classpath += os.path.join(os.getcwd(), 'libs',
-                            'xwalk_app_runtime_java.jar')
-  classpath += ' ' + sdk_jar_path
-  src_dirs = '--src-dirs=' + os.path.join(os.getcwd(), sanitized_name, 'src') +\
-             ' ' + os.path.join(os.getcwd(), 'out', 'gen')
   cmd = ['python', os.path.join('scripts', 'gyp', 'javac.py'),
          '--output-dir=%s' % os.path.join('out', 'classes'),
-         classpath,
-         src_dirs,
-         '--javac-includes=',
+         '--classpath',
+         os.path.join(os.getcwd(), 'libs', 'xwalk_app_runtime_java.jar'),
+         '--classpath',
+         sdk_jar_path,
+         '--src-dirs',
+         os.path.join(os.getcwd(), name, 'src'),
+         '--src-dirs',
+         os.path.join(os.getcwd(), 'out', 'gen'),
          '--chromium-code=0',
          '--stamp=compile.stam']
   RunCommand(cmd)
