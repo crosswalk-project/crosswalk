@@ -276,7 +276,7 @@ def Execution(options, name):
       print('Use %s in %s.' % (aapt_str, sdk_root_path))
       break
     except Exception:
-      print('There doesn\'t exist %s in %s.' % (aapt_str, sdk_root_path))
+      pass
   if not aapt_path:
     print('Your Android SDK may be ruined, please reinstall it.')
     sys.exit(2)
