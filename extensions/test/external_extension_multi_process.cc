@@ -125,7 +125,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionMultiProcessTest,
   EXPECT_EQ(1, CountRegisterExtensions());
 
   Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
-      runtime()->runtime_context(), url, runtime_registry());
+      GetRuntimeContext(), url, runtime_registry());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   EXPECT_NE(runtime(), new_runtime);
   content::RunAllPendingInMessageLoop();
