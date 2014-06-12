@@ -362,16 +362,21 @@ def Execution(options, name):
     sys.exit(5)
 
   # Compile App source code with app runtime code.
-  classpath = '--classpath='
-  classpath += os.path.join(os.getcwd(), 'libs',
+  classpath = os.path.join(os.getcwd(), 'libs',
                             'xwalk_app_runtime_java.jar')
-  classpath += ' ' + sdk_jar_path
-  src_dirs = '--src-dirs=' + os.path.join(os.getcwd(), name, 'src') +\
-             ' ' + os.path.join(os.getcwd(), 'out', 'gen')
+  if ('|' in classpath):
+    print('Error: contain invalid characters \'|\' in %s.' % classpath)
+    sys.exit(6)
+  if ('|' in sdk_jar_path):
+    print('Error: contain invalid characters \'|\' in %s.' % sdk_jar_path)
+    sys.exit(6)
+  classpath += '|' + sdk_jar_path
+  src_dirs = os.path.join(os.getcwd(), name, 'src') +\
+             '|' + os.path.join(os.getcwd(), 'out', 'gen')
   cmd = ['python', os.path.join('scripts', 'gyp', 'javac.py'),
          '--output-dir=%s' % os.path.join('out', 'classes'),
-         classpath,
-         src_dirs,
+         '--classpath=%s' % classpath,
+         '--src-dirs=%s' % src_dirs,
          '--javac-includes=',
          '--chromium-code=0',
          '--stamp=compile.stam']
