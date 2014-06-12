@@ -41,7 +41,8 @@ def VerifyAppName(value, mode='default'):
   if not re.match(regex, value):
     print('Error: %s name should be started with letters and should not '
           'contain invalid characters.\n'
-          'It may contain letters, numbers, blank spaces and underscores\n'
+          'It may contain lowercase letters, numbers, blank spaces and '
+          'underscores\n'
           'Sample: %s' % (descrpt, sample))
     sys.exit(6)
 
