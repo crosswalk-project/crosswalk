@@ -27,6 +27,7 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
+Patch11:        crosswalk-tizen-ozonewl-xdgshell150.patch
 
 BuildRequires:  binutils-gold
 BuildRequires:  bison
@@ -125,6 +126,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch10
 %endif
 
+%patch11
+
 %build
 
 # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
@@ -161,7 +164,7 @@ if [ -n "${BUILDDIR_NAME}" ]; then
 fi
 
 %if %{with wayland}
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=0"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
 %endif
 
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
