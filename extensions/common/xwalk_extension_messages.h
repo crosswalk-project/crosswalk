@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "base/memory/shared_memory.h"
 #include "base/values.h"
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_message_macros.h"
@@ -74,6 +75,10 @@ IPC_MESSAGE_CONTROL2(XWalkExtensionServerMsg_PostMessageToNative,  // NOLINT(*)
 IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_PostMessageToJS,  // NOLINT(*)
                      int64_t /* instance id */,
                      base::ListValue /* contents */)
+
+IPC_MESSAGE_CONTROL2(XWalkExtensionClientMsg_PostOOLMessageToJS,  // NOLINT(*)
+                     base::SharedMemoryHandle /* message buffer */,
+                     size_t /* buffer size */)
 
 IPC_SYNC_MESSAGE_CONTROL2_1(XWalkExtensionServerMsg_SendSyncMessageToNative,  // NOLINT(*)
                             int64_t /* instance id */,

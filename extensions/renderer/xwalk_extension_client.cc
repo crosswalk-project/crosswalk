@@ -44,6 +44,8 @@ bool XWalkExtensionClient::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(XWalkExtensionClient, message)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_PostMessageToJS,
         OnPostMessageToJS)
+    IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_PostOOLMessageToJS,
+        OnPostOOLMessageToJS)
     IPC_MESSAGE_HANDLER(XWalkExtensionClientMsg_InstanceDestroyed,
         OnInstanceDestroyed)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -74,6 +76,17 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
   const base::Value* value;
   msg.Get(0, &value);
   it->second->HandleMessageFromNative(*value);
+}
+
+void XWalkExtensionClient::OnPostOOLMessageToJS(base::SharedMemoryHandle handle,
+                                                size_t size) {
+  CHECK(base::SharedMemory::IsHandleValid(handle));
+
+  base::SharedMemory shared_memory(handle, true);
+  shared_memory.Map(size);
+
+  IPC::Message message(static_cast<char*>(shared_memory.memory()), size);
+  OnMessageReceived(message);
 }
 
 void XWalkExtensionClient::DestroyInstance(int64_t instance_id) {

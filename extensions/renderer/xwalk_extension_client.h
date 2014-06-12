@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/shared_memory.h"
 #include "base/values.h"
 #include "ipc/ipc_listener.h"
 
@@ -73,6 +74,7 @@ class XWalkExtensionClient : public IPC::Listener {
   // Message Handlers.
   void OnInstanceDestroyed(int64_t instance_id);
   void OnPostMessageToJS(int64_t instance_id, const base::ListValue& msg);
+  void OnPostOOLMessageToJS(base::SharedMemoryHandle handle, size_t size);
 
   IPC::Sender* sender_;
   ExtensionAPIMap extension_apis_;
