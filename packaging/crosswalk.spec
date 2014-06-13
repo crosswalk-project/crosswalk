@@ -1,11 +1,15 @@
 %bcond_with x
 %bcond_with wayland
 
-%ifarch x86_64
+%ifarch x86_64 %{arm}
+### x86_64
 # NaCl build on 64bit system require libc 32bit to build the 32 IRT.
 # While Tizen 64bit image does not offer 32bit packages at all,
 # check https://bugs.tizen.org/jira/browse/PTREL-803 for details.
 # So disable nacl for 64bit now.
+### ARM
+# Due to OBS build for ARM some files needed by NaCl to be build
+# are not present.
 %define _disable_nacl 1
 %else
 %define _disable_nacl 0
