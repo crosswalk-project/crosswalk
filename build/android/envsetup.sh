@@ -12,5 +12,9 @@ export PATH=$PATH:${SCRIPT_DIR}/../../../xwalk/build/android
 # The purpose of this function is to do the same as android_gyp(), but calling
 # gyp_xwalk instead.
 xwalk_android_gyp() {
+  echo "Deprecated: Please use xwalk/gyp_xwalk instead. xwalk_android_gyp \
+is going away."
+  echo "Notice: Add '-DOS=android' explicity to generate android building \
+environment."
   "${SCRIPT_DIR}/../../../xwalk/gyp_xwalk" --check "$@"
 }
