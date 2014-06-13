@@ -297,6 +297,14 @@
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
           ],
+          'cflags': [
+            '<!@(pkg-config --cflags libtzplatform-config)',
+          ],
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs libtzplatform-config)',
+            ],
+          },
           'sources': [
             'experimental/native_file_system/virtual_root_provider_tizen.cc',
             'runtime/browser/tizen/tizen_locale_listener.cc',
