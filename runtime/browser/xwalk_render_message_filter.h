@@ -17,6 +17,7 @@ class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
                                  bool* message_was_ok) OVERRIDE;
 
  private:
+  virtual ~XWalkRenderMessageFilter() {}
 #if defined(OS_TIZEN)
   void OnOpenLinkExternal(const GURL& url);
 #endif
