@@ -137,7 +137,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         //        jsApiContent = getExtensionJSFileContent(mContext, Device.JS_API_PATH, true);
         //        new Device(jsApiContent, mExtensionContextImpl);
         //    } catch(IOException e) {
-        //        Log.e(TAG, "Failed to read js API file of internal extension: Device");
+        //        Log.w(TAG, "Failed to read js API file of internal extension: Device");
         //    }
         {
             String jsApiContent = "";
@@ -147,7 +147,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 // Load PresentationExtension as an internal extension.
                 new PresentationExtension(PresentationExtension.NAME, jsApiContent, this);
             } catch (IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
             }
         }
 
@@ -159,7 +159,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent,
                                                ScreenOrientationExtension.JS_ENTRY_POINTS, this);
             } catch (IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
             }
         }
 
@@ -172,7 +172,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 new LaunchScreenExtension(LaunchScreenExtension.NAME, jsApiContent,
                                           LaunchScreenExtension.JS_ENTRY_POINTS, this);
             } catch (IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
             }
         }
 
@@ -183,7 +183,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                         mContext, Contacts.JS_API_PATH, true);
                 new Contacts(jsApiContent, this);
             } catch(IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + Contacts.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + Contacts.JS_API_PATH);
             }
         }
 
@@ -194,7 +194,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                         mContext, DeviceCapabilities.JS_API_PATH, true);
                 new DeviceCapabilities(jsApiContent, this);
             } catch(IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + DeviceCapabilities.JS_API_PATH);
             }
         }
         {
@@ -204,7 +204,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                         mContext, Messaging.JS_API_PATH, true);
                 new Messaging(jsApiContent, this);
             } catch(IOException e) {
-                Log.e(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
+                Log.w(TAG, "Failed to read JS API file: " + Messaging.JS_API_PATH);
             }
         }
     }
@@ -217,7 +217,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         try {
             configFileContent = getExtensionJSFileContent(mActivity, EXTENSION_CONFIG_FILE, false);
         } catch (IOException e) {
-            Log.e(TAG, "Failed to read extensions-config.json");
+            Log.w(TAG, "Failed to read extensions-config.json");
             return;
         }
 
@@ -240,7 +240,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 try {
                     jsApi = getExtensionJSFileContent(mActivity, jsApiFile, false);
                 } catch (IOException e) {
-                    Log.e(TAG, "Failed to read the file " + jsApiFile);
+                    Log.w(TAG, "Failed to read the file " + jsApiFile);
                     return;
                 }
 
@@ -249,7 +249,7 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 }
             }
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to parse extensions-config.json");
+            Log.w(TAG, "Failed to parse extensions-config.json");
         }
     }
 
