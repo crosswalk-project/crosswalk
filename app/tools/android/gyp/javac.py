@@ -17,13 +17,11 @@ from util import md5_check
 def DoJavac(options):
   output_dir = options.output_dir
 
-  src_dirs = options.src_dirs.split()
-  java_files = build_utils.FindInDirectories(src_dirs, '*.java')
+  java_files = build_utils.FindInDirectories(options.src_dirs, '*.java')
   if options.javac_includes:
-    javac_includes = options.javac_includes.split()
     filtered_java_files = []
     for f in java_files:
-      for include in javac_includes:
+      for include in options.javac_includes:
         if fnmatch.fnmatch(f, include):
           filtered_java_files.append(f)
           break
@@ -33,10 +31,9 @@ def DoJavac(options):
   # crash... Sorted order works, so use that.
   # See https://code.google.com/p/guava-libraries/issues/detail?id=950
   java_files.sort()
-  classpath = options.classpath.split()
 
   jar_inputs = []
-  for path in classpath:
+  for path in options.classpath:
     if os.path.exists(path + '.TOC'):
       jar_inputs.append(path + '.TOC')
     else:
@@ -47,7 +44,7 @@ def DoJavac(options):
       '-g',
       '-source', '1.5',
       '-target', '1.5',
-      '-classpath', os.pathsep.join(classpath),
+      '-classpath', os.pathsep.join(options.classpath),
       '-d', output_dir,
       '-Xlint:unchecked',
       '-Xlint:deprecation',
@@ -73,11 +70,13 @@ def DoJavac(options):
 
 def main():
   parser = optparse.OptionParser()
-  parser.add_option('--src-dirs', help='Directories containing java files.')
-  parser.add_option('--javac-includes',
+  parser.add_option('--src-dirs', action='append',
+                    help='Directories containing java files.')
+  parser.add_option('--javac-includes', action='append',
       help='A list of file patterns. If provided, only java files that match' +
         'one of the patterns will be compiled.')
-  parser.add_option('--classpath', help='Classpath for javac.')
+  parser.add_option('--classpath', action='append',
+                    help='Classpaths for javac.')
   parser.add_option('--output-dir', help='Directory for javac output.')
   parser.add_option('--stamp', help='Path to touch on success.')
   parser.add_option('--chromium-code', type='int', help='Whether code being '
