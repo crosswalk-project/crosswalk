@@ -52,26 +52,6 @@ class DepsFetcher(object):
     gclient_utils.CheckCallAndFilterAndHeader(gclient_cmd,
         always=self._options.verbose, cwd=self._root_dir)
 
-  def RemoveOldSCMCheckouts(self):
-    gclient_entries = os.path.join(self._root_dir, '.gclient_entries')
-    if not os.path.isfile(gclient_entries):
-      # This is the first time gclient sync is being called (ie. this is a new
-      # checkout), so skip this step since `gclient recurse' requires
-      # .gclient_entries to be present, even if it does not use it.
-      return
-
-    cmd = ('gclient', 'recurse', '--no-progress', '-j1',
-           '--gclientfile=%s' % os.path.basename(self._new_gclient_file),
-           os.path.join(self._tools_dir, 'scm-remove-wrong-checkout.py'))
-
-    def _FilterSkippedDependencyMessage(line):
-      if line.startswith('Skipped omitted dependency'):
-        return
-      print line
-    gclient_utils.CheckCallAndFilterAndHeader(cmd,
-      always=self._options.verbose, print_stdout=False,
-      cwd=self._root_dir, filter_fn=_FilterSkippedDependencyMessage)
-
 
 def main():
   option_parser = optparse.OptionParser()
@@ -94,7 +74,6 @@ def main():
     return 1
 
   deps_fetcher = DepsFetcher(options)
-  deps_fetcher.RemoveOldSCMCheckouts()
   deps_fetcher.DoGclientSyncForChromium()
 
   return 0
