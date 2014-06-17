@@ -28,7 +28,6 @@ import org.xwalk.core.extension.api.device_capabilities.DeviceCapabilities;
 import org.xwalk.core.extension.api.launchscreen.LaunchScreenExtension;
 import org.xwalk.core.extension.api.messaging.Messaging;
 import org.xwalk.core.extension.api.presentation.PresentationExtension;
-import org.xwalk.core.extension.api.screenorientation.ScreenOrientationExtension;
 
 /**
  * This internal class acts a manager to manage extensions.
@@ -148,18 +147,6 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
                 new PresentationExtension(PresentationExtension.NAME, jsApiContent, this);
             } catch (IOException e) {
                 Log.w(TAG, "Failed to read JS API file: " + PresentationExtension.JS_API_PATH);
-            }
-        }
-
-        {
-            String jsApiContent = ScreenOrientationExtension.getInsertedString();
-            try {
-                jsApiContent += getExtensionJSFileContent(
-                        mContext, ScreenOrientationExtension.JS_API_PATH, true);
-                new ScreenOrientationExtension(ScreenOrientationExtension.NAME, jsApiContent,
-                                               ScreenOrientationExtension.JS_ENTRY_POINTS, this);
-            } catch (IOException e) {
-                Log.w(TAG, "Failed to read JS API file: " + ScreenOrientationExtension.JS_API_PATH);
             }
         }
 
