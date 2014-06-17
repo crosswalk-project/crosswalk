@@ -6,6 +6,7 @@ package org.xwalk.core.extension;
 
 import android.os.Environment;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.chromium.base.CalledByNative;
@@ -43,8 +44,10 @@ public class XWalkPathHelper {
             Environment.DIRECTORY_RINGTONES
         };
         for (int i = 0; i < names.length; ++i) {
-            nativeSetDirectory(names[i],
-                  Environment.getExternalStoragePublicDirectory(dirs[i]).getPath());
+            File dir = Environment.getExternalStoragePublicDirectory(dirs[i]);
+            if (null != dir && dir.exists()) {
+                nativeSetDirectory(names[i], dir.getPath());
+            }
         }
     }
 
