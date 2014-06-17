@@ -22,6 +22,7 @@ class RuntimeContext;
 namespace application {
 
 class ApplicationStorage;
+class PackageInstaller;
 
 // The application service manages install, uninstall and updates of
 // applications.
@@ -31,6 +32,7 @@ class ApplicationService : public Application::Observer {
   // keep track of [un]installation of applications.
   class Observer {
    public:
+    // FIXME(Mikhail): Remove all un/installation code from ApplicationService.
     virtual void OnApplicationInstalled(const std::string& app_id) {}
     virtual void OnApplicationUninstalled(const std::string& app_id) {}
     virtual void OnApplicationUpdated(const std::string& app_id) {}
@@ -92,12 +94,12 @@ class ApplicationService : public Application::Observer {
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
-
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
   ScopedVector<Application> applications_;
+  // FIXME(Mikhail): Remove the installer from this class.
+  scoped_ptr<PackageInstaller> package_installer_;
   ObserverList<Observer> observers_;
-  scoped_ptr<PermissionPolicyManager> permission_policy_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
 };

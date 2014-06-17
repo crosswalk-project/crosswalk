@@ -12,7 +12,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
-#include "base/version.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -20,8 +19,8 @@
 #include "xwalk/application/browser/application_storage.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/installer/package.h"
+#include "xwalk/application/browser/installer/package_installer.h"
 #include "xwalk/application/common/application_file_util.h"
-#include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -29,318 +28,59 @@
 
 #if defined(OS_TIZEN)
 #include "xwalk/application/browser/application_tizen.h"
-#include "xwalk/application/browser/installer/tizen/package_installer.h"
 #endif
 
 namespace xwalk {
 namespace application {
 
-namespace {
-
-bool CopyDirectoryContents(const base::FilePath& from,
-    const base::FilePath& to) {
-  base::FileEnumerator iter(from, false,
-      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
-  for (base::FilePath path = iter.Next(); !path.empty(); path = iter.Next()) {
-    if (iter.GetInfo().IsDirectory()) {
-      if (!base::CopyDirectory(path, to, true))
-        return false;
-    } else if (!base::CopyFile(path, to.Append(path.BaseName()))) {
-        return false;
-    }
-  }
-
-  return true;
-}
-
-void RemoveWidgetStorageFiles(const base::FilePath& storage_path,
-                              const std::string& app_id) {
-  base::FileEnumerator iter(storage_path, true,
-                            base::FileEnumerator::FILES);
-  for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
-    if (file.MaybeAsASCII().find(app_id) != std::string::npos)
-      base::DeleteFile(file, false);
-  }
-}
-
-}  // namespace
-
-const base::FilePath::CharType kApplicationsDir[] =
-    FILE_PATH_LITERAL("applications");
-
 ApplicationService::ApplicationService(RuntimeContext* runtime_context,
                                        ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
       application_storage_(app_storage),
-      permission_policy_handler_(new PermissionPolicyManager()) {
+      package_installer_(PackageInstaller::Create(app_storage)) {
 }
 
 ApplicationService::~ApplicationService() {
 }
 
 bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
-  // FIXME(leandro): Installation is not robust enough -- should any step
-  // fail, it can't roll back to a consistent state.
-  if (!base::PathExists(path))
+  if (!package_installer_->Install(path, id))
     return false;
-
-  const base::FilePath data_dir =
-      runtime_context_->GetPath().Append(kApplicationsDir);
-
-  // Make sure the kApplicationsDir exists under data_path, otherwise,
-  // the installation will always fail because of moving application
-  // resources into an invalid directory.
-  if (!base::DirectoryExists(data_dir) &&
-      !base::CreateDirectory(data_dir))
-    return false;
-
-  std::string app_id;
-  base::FilePath unpacked_dir;
-  scoped_ptr<Package> package;
-  if (!base::DirectoryExists(path)) {
-    package = Package::Create(path);
-    package->Extract(&unpacked_dir);
-    app_id = package->Id();
-  } else {
-    unpacked_dir = path;
-  }
-
-  std::string error;
-  scoped_refptr<ApplicationData> application_data = LoadApplication(
-      unpacked_dir, app_id, Manifest::COMMAND_LINE,
-      package->type(), &error);
-  if (!application_data) {
-    LOG(ERROR) << "Error during application installation: " << error;
-    return false;
-  }
-  if (!permission_policy_handler_->
-      InitApplicationPermission(application_data)) {
-    LOG(ERROR) << "Application permission data is invalid";
-    return false;
-  }
-
-  if (application_storage_->Contains(application_data->ID())) {
-    *id = application_data->ID();
-    LOG(INFO) << "Already installed: " << *id;
-    return false;
-  }
-
-  base::FilePath app_dir = data_dir.AppendASCII(application_data->ID());
-  if (base::DirectoryExists(app_dir)) {
-    if (!base::DeleteFile(app_dir, true))
-      return false;
-  }
-  if (!package) {
-    if (!base::CreateDirectory(app_dir))
-      return false;
-    if (!CopyDirectoryContents(unpacked_dir, app_dir))
-      return false;
-  } else {
-    if (!base::Move(unpacked_dir, app_dir))
-      return false;
-  }
-
-  application_data->SetPath(app_dir);
-
-  if (!application_storage_->AddApplication(application_data)) {
-    LOG(ERROR) << "Application with id " << application_data->ID()
-               << " couldn't be installed.";
-    return false;
-  }
-
-#if defined(OS_TIZEN)
-  if (!PackageInstaller::InstallApplication(
-        application_data, runtime_context_->GetPath())) {
-    application_storage_->RemoveApplication(application_data->ID());
-    return false;
-  }
-#endif
-
-  LOG(INFO) << "Application be installed in: " << app_dir.MaybeAsASCII();
-  LOG(INFO) << "Installed application with id: " << application_data->ID()
-            << " successfully.";
-  *id = application_data->ID();
 
   FOR_EACH_OBSERVER(Observer, observers_,
-                    OnApplicationInstalled(application_data->ID()));
+                    OnApplicationInstalled(*id));
 
   return true;
 }
 
 bool ApplicationService::Update(const std::string& id,
                                 const base::FilePath& path) {
-  if (!base::PathExists(path)) {
-    LOG(ERROR) << "The XPK/WGT package file " << path.value() << " is invalid.";
-    return false;
-  }
-
-  if (base::DirectoryExists(path)) {
-    LOG(WARNING) << "Can not update an unpacked XPK/WGT package.";
-    return false;
-  }
-
-  base::FilePath unpacked_dir;
-  base::FilePath origin_dir;
-  std::string app_id;
-  scoped_ptr<Package> package = Package::Create(path);
-  if (!package) {
-    LOG(ERROR) << "XPK/WGT file is invalid.";
-    return false;
-  }
-
-  app_id = package->Id();
-
-  if (app_id.empty()) {
-    LOG(ERROR) << "XPK/WGT file is invalid, and the application id is empty.";
-    return false;
-  }
-
-  if (id.empty() ||
-      id.compare(app_id) != 0) {
-    LOG(ERROR) << "The XPK/WGT file is not the same as expecting.";
-    return false;
-  }
-
-  if (!package->Extract(&unpacked_dir))
-    return false;
-
-  std::string error;
-  scoped_refptr<ApplicationData> new_application =
-      LoadApplication(unpacked_dir,
-                      app_id,
-                      Manifest::COMMAND_LINE,
-                      package->type(),
-                      &error);
-  if (!new_application) {
-    LOG(ERROR) << "An error occurred during application updating: " << error;
-    return false;
-  }
-
-  scoped_refptr<ApplicationData> old_application =
-      application_storage_->GetApplicationData(app_id);
-  if (!old_application) {
-    LOG(INFO) << "Application haven't installed yet: " << app_id;
-    return false;
-  }
-
-  if (
-#if defined(OS_TIZEN)
-      // For Tizen WGT package, downgrade to a lower version or reinstall
-      // is permitted when using Tizen WRT, Crosswalk runtime need to follow
-      // this behavior on Tizen platform.
-      package->type() != Package::WGT &&
-#endif
-      old_application->Version()->CompareTo(
-          *(new_application->Version())) >= 0) {
-    LOG(INFO) << "The version number of new XPK/WGT package "
-                 "should be higher than "
-              << old_application->VersionString();
-    return false;
-  }
-
-  const base::FilePath& app_dir = old_application->Path();
-  const base::FilePath tmp_dir(app_dir.value()
-                               + FILE_PATH_LITERAL(".tmp"));
-
-  if (Application* app = GetApplicationByID(app_id)) {
-    LOG(INFO) << "Try to terminate the running application before update.";
-    app->Terminate();
-  }
-
-  if (!base::Move(app_dir, tmp_dir) ||
-      !base::Move(unpacked_dir, app_dir))
-    return false;
-
-  new_application = LoadApplication(app_dir,
-                                    app_id,
-                                    Manifest::COMMAND_LINE,
-                                    package->type(),
-                                    &error);
-  if (!new_application) {
-    LOG(ERROR) << "Error during loading new package: " << error;
-    base::DeleteFile(app_dir, true);
-    base::Move(tmp_dir, app_dir);
-    return false;
-  }
-
-  if (!application_storage_->UpdateApplication(new_application)) {
-    LOG(ERROR) << "Fail to update application, roll back to the old one.";
-    base::DeleteFile(app_dir, true);
-    base::Move(tmp_dir, app_dir);
-    return false;
-  }
-
-#if defined(OS_TIZEN)
-  if (!PackageInstaller::UpdateApplication(
-        new_application, runtime_context_->GetPath())) {
-    LOG(ERROR) << "Fail to update package on Tizen, roll back to the old one.";
-    base::DeleteFile(app_dir, true);
-    if (!application_storage_->UpdateApplication(old_application)) {
-      LOG(ERROR) << "Fail to revert old application info, "
-                 << "remove the application as a last resort.";
-      application_storage_->RemoveApplication(old_application->ID());
-      return false;
-    }
-    base::Move(tmp_dir, app_dir);
-    return false;
-  }
-#endif
-
-  base::DeleteFile(tmp_dir, true);
-
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnApplicationUpdated(app_id));
-
-  return true;
-}
-
-bool ApplicationService::Uninstall(const std::string& id) {
-  bool result = true;
-
-  scoped_refptr<ApplicationData> application =
-      application_storage_->GetApplicationData(id);
-  if (!application) {
-    LOG(ERROR) << "Cannot uninstall application with id " << id
-               << "; invalid application id";
-    return false;
-  }
-
   if (Application* app = GetApplicationByID(id)) {
     LOG(INFO) << "Try to terminate the running application before uninstall.";
     app->Terminate();
   }
 
-#if defined(OS_TIZEN)
-  if (!PackageInstaller::UninstallApplication(
-        application, runtime_context_->GetPath()))
-    result = false;
-#endif
+  if (!package_installer_->Update(id, path))
+    return false;
 
-  if (!application_storage_->RemoveApplication(id)) {
-    LOG(ERROR) << "Cannot uninstall application with id " << id
-               << "; application is not installed.";
-    result = false;
+  FOR_EACH_OBSERVER(Observer, observers_,
+                    OnApplicationUpdated(id));
+
+  return true;
+}
+
+bool ApplicationService::Uninstall(const std::string& id) {
+  if (Application* app = GetApplicationByID(id)) {
+    LOG(INFO) << "Try to terminate the running application before uninstall.";
+    app->Terminate();
   }
 
-  const base::FilePath resources =
-      runtime_context_->GetPath().Append(kApplicationsDir).AppendASCII(id);
-  if (base::DirectoryExists(resources) &&
-      !base::DeleteFile(resources, true)) {
-    LOG(ERROR) << "Error occurred while trying to remove application with id "
-               << id << "; Cannot remove all resources.";
-    result = false;
-  }
-
-  // Clear databases, the directory clean up will happen next time Crosswalk
-  // startup by ApplicationStorageImpl::CollectGarbageApplications.
-  content::BrowserContext::AsyncObliterateStoragePartition(
-      runtime_context_,
-      application->GetBaseURLFromApplicationId(id),
-      base::Bind(&base::DoNothing));
+  if (!package_installer_->Uninstall(id))
+    return false;
 
   FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
 
-  return result;
+  return true;
 }
 
 void ApplicationService::ChangeLocale(const std::string& locale) {
