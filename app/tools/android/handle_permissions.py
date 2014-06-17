@@ -37,6 +37,7 @@ permission_mapping_table = {
                   'android.permission.WRITE_SMS'],
     'devicecapabilities': [],
     'fullscreen': [],
+    'iap': ['com.android.vending.BILLING'],
     'presentation': [],
     'rawsockets': [],
     'screenorientation': [],
