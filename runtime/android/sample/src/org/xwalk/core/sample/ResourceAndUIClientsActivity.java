@@ -63,8 +63,7 @@ public class ResourceAndUIClientsActivity extends XWalkBaseActivity {
             Log.d(TAG, "Window closed.");
         }
 
-        public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type,
-                String url,
+        public boolean onJavascriptModalDialog(XWalkView view, int type, String url,
                 String message, String defaultValue, XWalkJavascriptResult result) {
             Log.d(TAG, "Show JS dialog.");
             return super.onJavascriptModalDialog(view, type, url, message, defaultValue, result);

@@ -79,6 +79,7 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
 
     /**
      * The direction for web page navigation.
+     * @deprecated use const int value instead.
      */
     public enum Direction {
         /** The backward direction for web page navigation. */
@@ -87,11 +88,17 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
         FORWARD
     }
 
+    /** The backward direction for web page navigation. */
+    public final static int NAVIGATION_BACKWARD = 1;
+    /** The forward direction for web page navigation. */
+    public final static int NAVIGATION_FORWARD = 2;
+
     /**
      * Navigates to the specified step from the current navigation item.
      * Do nothing if the offset is out of bound.
      * @param direction the direction of navigation.
      * @param steps go back or foward with a given steps.
+     * @deprecated use navigate(int direction, int steps) instead.
      */
     public void navigate(Direction direction, int steps) {
         switch(direction) {
@@ -99,6 +106,25 @@ public final class XWalkNavigationHistory implements Cloneable, Serializable {
                 mXWalkView.navigateTo(steps);
                 break;
             case BACKWARD:
+                mXWalkView.navigateTo(-steps);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Navigates to the specified step from the current navigation item.
+     * Do nothing if the offset is out of bound.
+     * @param direction the direction of navigation.
+     * @param steps go back or foward with a given steps.
+     */
+    public void navigate(int direction, int steps) {
+        switch(direction) {
+            case NAVIGATION_FORWARD:
+                mXWalkView.navigateTo(steps);
+                break;
+            case NAVIGATION_BACKWARD:
                 mXWalkView.navigateTo(-steps);
                 break;
             default:

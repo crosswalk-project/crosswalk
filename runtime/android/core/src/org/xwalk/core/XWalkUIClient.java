@@ -81,6 +81,7 @@ public class XWalkUIClient {
 
     /**
      * The type of JavaScript modal dialog.
+     * @deprecated use const int value instead.
      */
     public enum JavascriptMessageType {
         /** JavaScript alert dialog. */
@@ -93,6 +94,15 @@ public class XWalkUIClient {
         JAVASCRIPT_BEFOREUNLOAD
     }
 
+    /** JavaScript alert dialog. */
+    public final static int JAVASCRIPT_MESSAGE_ALERT = 1;
+    /** JavaScript confirm dialog. */
+    public final static int JAVASCRIPT_MESSAGE_CONFIRM = 2;
+    /** JavaScript prompt dialog. */
+    public final static int JAVASCRIPT_MESSAGE_PROMPT = 3;
+    /** JavaScript dialog for a window-before-unload notification. */
+    public final static int JAVASCRIPT_MESSAGE_BEFOREUNLOAD = 4;
+
     /**
      * Tell the client to display a prompt dialog to the user.
      * @param view the owner XWalkView instance.
@@ -101,6 +111,8 @@ public class XWalkUIClient {
      * @param message the message to be shown.
      * @param defaultValue the default value string. Only valid for Prompt dialog.
      * @param result the callback to handle the result from caller.
+     * @deprecated use onJavascriptModalDialog(XWalkView, int, String,
+     *             String, String, XWalkJavascriptResult) instead.
      */
     public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type, String url,
             String message, String defaultValue, XWalkJavascriptResult result) {
@@ -119,6 +131,38 @@ public class XWalkUIClient {
         }
         assert(false);
         return false;
+    }
+
+    /**
+     * Tell the client to display a prompt dialog to the user.
+     * @param view the owner XWalkView instance.
+     * @param type the type of JavaScript modal dialog.
+     * @param url the url of the web page which wants to show this dialog.
+     * @param message the message to be shown.
+     * @param defaultValue the default value string. Only valid for Prompt dialog.
+     * @param result the callback to handle the result from caller.
+     */
+    public boolean onJavascriptModalDialog(XWalkView view, int type, String url,
+            String message, String defaultValue, XWalkJavascriptResult result) {
+        JavascriptMessageType enumType = JavascriptMessageType.JAVASCRIPT_ALERT;
+        switch(type) {
+            case JAVASCRIPT_MESSAGE_ALERT:
+                enumType = JavascriptMessageType.JAVASCRIPT_ALERT;
+                break;
+            case JAVASCRIPT_MESSAGE_CONFIRM:
+                enumType = JavascriptMessageType.JAVASCRIPT_CONFIRM;
+                break;
+            case JAVASCRIPT_MESSAGE_PROMPT:
+                enumType = JavascriptMessageType.JAVASCRIPT_PROMPT;
+                break;
+            case JAVASCRIPT_MESSAGE_BEFOREUNLOAD:
+                enumType = JavascriptMessageType.JAVASCRIPT_BEFOREUNLOAD;
+                break;
+            default:
+                assert(false);
+                break;
+        }
+        return onJavascriptModalDialog(view, enumType, url, message, defaultValue, result);
     }
 
     /**
