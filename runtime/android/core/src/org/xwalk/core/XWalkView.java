@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -318,10 +319,14 @@ public class XWalkView extends android.widget.FrameLayout {
         mExtensionManager.loadExtensions();
 
         XWalkPathHelper.initialize();
-        XWalkPathHelper.setCacheDirectory(
-                mContext.getApplicationContext().getCacheDir().getPath());
-        XWalkPathHelper.setExternalCacheDirectory(
-                mContext.getApplicationContext().getExternalCacheDir().getPath());
+        File cacheDir = mContext.getApplicationContext().getCacheDir();
+        if (null != cacheDir && cacheDir.exists()) {
+            XWalkPathHelper.setCacheDirectory(cacheDir.getPath());
+        }
+        File externalCacheDir = mContext.getApplicationContext().getExternalCacheDir();
+        if (null != externalCacheDir && externalCacheDir.exists()) {
+            XWalkPathHelper.setExternalCacheDirectory(externalCacheDir.getPath());
+        }
     }
 
     /**
