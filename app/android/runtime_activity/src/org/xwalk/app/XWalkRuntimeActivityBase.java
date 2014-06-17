@@ -68,6 +68,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     public void onStart() {
         super.onStart();
         tryLoadRuntimeView();
+        mRuntimeView.onStart();
     }
 
     @Override
@@ -80,6 +81,12 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     public void onResume() {
         super.onResume();
         mRuntimeView.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mRuntimeView.onStop();
     }
 
     @Override

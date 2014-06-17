@@ -124,6 +124,12 @@ public abstract class XWalkExtension {
     }
 
     /**
+     * Called when this app is onStart.
+     */
+    public void onStart() {
+    }
+
+    /**
      * Called when this app is onResume.
      */
     public void onResume() {
@@ -133,6 +139,12 @@ public abstract class XWalkExtension {
      * Called when this app is onPause.
      */
     public void onPause() {
+    }
+
+    /**
+     * Called when this app is onStop.
+     */
+    public void onStop() {
     }
 
     /**

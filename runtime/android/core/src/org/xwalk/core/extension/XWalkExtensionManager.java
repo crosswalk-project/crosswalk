@@ -94,6 +94,12 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
         if (bridge != null) bridge.broadcastMessage(message);
     }
 
+    public void onStart() {
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
+            extension.onStart();
+        }
+    }
+
     public void onResume() {
         for(XWalkExtensionBridge extension: mExtensions.values()) {
             extension.onResume();
@@ -103,6 +109,12 @@ public class XWalkExtensionManager implements XWalkExtensionContext {
     public void onPause() {
         for(XWalkExtensionBridge extension: mExtensions.values()) {
             extension.onPause();
+        }
+    }
+
+    public void onStop() {
+        for(XWalkExtensionBridge extension: mExtensions.values()) {
+            extension.onStop();
         }
     }
 

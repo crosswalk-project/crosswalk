@@ -170,6 +170,12 @@ public class XWalkViewShellActivity extends FragmentActivity
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mSectionsPagerAdapter.onStart();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         mSectionsPagerAdapter.onPause();
@@ -179,6 +185,12 @@ public class XWalkViewShellActivity extends FragmentActivity
     public void onResume() {
         super.onResume();
         mSectionsPagerAdapter.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mSectionsPagerAdapter.onStop();
     }
 
     @Override

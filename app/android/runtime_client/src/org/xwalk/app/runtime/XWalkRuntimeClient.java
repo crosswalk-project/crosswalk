@@ -30,8 +30,10 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     private Method mLoadAppFromUrl;
     private Method mLoadAppFromManifest;
     private Method mOnCreate;
+    private Method mOnStart;
     private Method mOnResume;
     private Method mOnPause;
+    private Method mOnStop;
     private Method mOnDestroy;
     private Method mOnActivityResult;
     private Method mOnNewIntent;
@@ -60,8 +62,10 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mLoadAppFromUrl = lookupMethod("loadAppFromUrl", String.class);
         mLoadAppFromManifest = lookupMethod("loadAppFromManifest", String.class);
         mOnCreate = lookupMethod("onCreate");
+        mOnStart = lookupMethod("onStart");
         mOnResume = lookupMethod("onResume");
         mOnPause = lookupMethod("onPause");
+        mOnStop = lookupMethod("onStop");
         mOnDestroy = lookupMethod("onDestroy");
         mOnActivityResult = lookupMethod("onActivityResult", int.class, int.class, Intent.class);
         mOnNewIntent = lookupMethod("onNewIntent", Intent.class);
@@ -174,6 +178,14 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
     }
 
     /**
+     * Tell runtime that the application is on starting. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStart() {
+        invokeMethod(mOnStart, mInstance);
+    }
+
+    /**
      * Tell runtime that the application is on resuming. This can make runtime
      * be aware of application life cycle.
      */
@@ -187,6 +199,14 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
      */
     public void onPause() {
         invokeMethod(mOnPause, mInstance);
+    }
+
+    /**
+     * Tell runtime that the application is on stopping. This can make runtime
+     * be aware of application life cycle.
+     */
+    public void onStop() {
+        invokeMethod(mOnStop, mInstance);
     }
 
     /**
