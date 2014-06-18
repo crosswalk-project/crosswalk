@@ -172,7 +172,7 @@ void SecurityPolicyCSP::Enforce() {
   const char* scp_key = GetCSPKey(package_type);
   CSPInfo* csp_info =
       static_cast<CSPInfo*>(app_->data()->GetManifestData(scp_key));
-  if (package_type = Package::WGT) {
+  if (package_type == Package::WGT) {
 #if defined(OS_TIZEN)
     if (!csp_info || csp_info->GetDirectives().empty())
        app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());
