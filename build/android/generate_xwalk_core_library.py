@@ -73,7 +73,6 @@ def CopyJSBindingFiles(project_source, out_dir):
   jsfiles_to_copy = [
       'xwalk/experimental/launch_screen/launch_screen_api.js',
       'xwalk/experimental/presentation/presentation_api.js',
-      'xwalk/runtime/extension/screen_orientation_api.js',
       'xwalk/sysapps/device_capabilities/device_capabilities_api.js'
   ]
 
