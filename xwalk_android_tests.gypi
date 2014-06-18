@@ -379,6 +379,7 @@
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
             'sysapps/device_capabilities/device_capabilities_api.js',
+            'runtime/extension/screen_orientation_api.js',
           ],
         },
         {

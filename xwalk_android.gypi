@@ -207,6 +207,7 @@
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/presentation_api.js',
+          '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/xwalk_runtime_lib/assets/xwalk.pak',
         ],
         'conditions': [
@@ -256,6 +257,7 @@
             'runtime/android/core/src/org/xwalk/core/extension/api/contacts/contacts_api.js',
             'runtime/android/core/src/org/xwalk/core/extension/api/device_capabilities/device_capabilities_api.js',
             'runtime/android/core/src/org/xwalk/core/extension/api/messaging/messaging_api.js',
+            'runtime/extension/screen_orientation_api.js',
           ],
         },
       ],
