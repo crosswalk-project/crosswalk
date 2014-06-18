@@ -71,6 +71,12 @@ class XWalkContentUserData : public base::SupportsUserData::Data {
   XWalkContent* content_;
 };
 
+void PrintManifestDeprecationWarning(std::string field) {
+  LOG(WARNING) << "\"" << field << "\" is deprecated for Crosswalk. "
+      << "Please follow "
+      << "https://www.crosswalk-project.org/#documentation/manifest.";
+}
+
 }  // namespace
 
 XWalkContent::XWalkContent(JNIEnv* env,
@@ -215,15 +221,22 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       manifest_dictionary_ptr.Pass());
 
   std::string url;
-  if (manifest.GetString(keys::kLaunchLocalPathKey, &url)) {
+  if (manifest.GetString(keys::kStartURLKey, &url)) {
+    std::string scheme = GURL(url).scheme();
+    if (scheme.empty())
+      url = path_str + url;
+  } else if (manifest.GetString(keys::kLaunchLocalPathKey, &url)) {
+    PrintManifestDeprecationWarning(keys::kLaunchLocalPathKey);
     // According to original proposal for "app:launch:local_path", the "http"
     // and "https" schemes are supported. So |url| should do nothing when it
     // already has "http" or "https" scheme.
     std::string scheme = GURL(url).scheme();
     if (scheme != url::kHttpScheme && scheme != url::kHttpsScheme)
       url = path_str + url;
+  } else if (manifest.GetString(keys::kLaunchWebURLKey, &url)) {
+    PrintManifestDeprecationWarning(keys::kLaunchWebURLKey);
   } else {
-    manifest.GetString(keys::kLaunchWebURLKey, &url);
+    NOTIMPLEMENTED();
   }
 
   std::string match_patterns;
@@ -235,9 +248,10 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
-  // FIXME: Switch to 'csp' field, accordingly to
-  // http://w3c.github.io/manifest-csp/.
-  manifest.GetString(keys::kCSPKeyLegacy, &csp);
+  if (!manifest.GetString(keys::kCSPKey, &csp)) {
+    if (manifest.GetString(keys::kCSPKeyLegacy, &csp))
+      PrintManifestDeprecationWarning(keys::kCSPKeyLegacy);
+  }
   RuntimeContext* runtime_context =
       XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
