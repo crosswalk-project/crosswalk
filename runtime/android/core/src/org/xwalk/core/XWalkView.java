@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -320,8 +321,13 @@ public class XWalkView extends android.widget.FrameLayout {
         XWalkPathHelper.initialize();
         XWalkPathHelper.setCacheDirectory(
                 mContext.getApplicationContext().getCacheDir().getPath());
-        XWalkPathHelper.setExternalCacheDirectory(
-                mContext.getApplicationContext().getExternalCacheDir().getPath());
+
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            XWalkPathHelper.setExternalCacheDirectory(
+                    mContext.getApplicationContext().getExternalCacheDir().getPath());
+        }
     }
 
     /**
