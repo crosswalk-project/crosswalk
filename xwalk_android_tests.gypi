@@ -335,8 +335,10 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/extensions-config.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/index.html',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/contacts_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/launch_screen_api.js',
+          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/messaging_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension/myextension.js',
@@ -377,7 +379,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'sysapps/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core/src/org/xwalk/core/extension/api/contacts/contacts_api.js',
+            'runtime/android/core/src/org/xwalk/core/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core/src/org/xwalk/core/extension/api/messaging/messaging_api.js',
           ],
         },
         {
