@@ -299,7 +299,6 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/device_capabilities_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/launch_screen_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/presentation_api.js',
-          '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/jsapi/screen_orientation_api.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/manifest.json',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/myextension/myextension.js',
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/sampapp-icon-helloworld.png',
