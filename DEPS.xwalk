@@ -2,10 +2,6 @@
     DO NOT use this DEPS to checkout code, it's for tools/generate_gclient-xwalk.py.
 '''
 
-# chromium_version is the version of chromium crosswalk based,
-# Usually it's major.minor.build.patch
-# Use 'Trunk' for trunk.
-# If using trunk, will use '.DEPS.git' for gclient.
 chromium_version = '36.0.1985.18'
 chromium_crosswalk_point = '6488cb72d9cc33832af16d65d75f16e06f0bdd88'
 blink_crosswalk_point = '07920aa9d1a9ae404ba8fb574ae1a9b109b22083'
@@ -20,5 +16,6 @@ deps_xwalk = {
   # Ozone-Wayland is required for Wayland support in Chromium.
   'src/ozone': 'https://github.com/01org/ozone-wayland.git@%s' % ozone_wayland_point,
 }
+
 vars_xwalk = {
 }
