@@ -235,6 +235,11 @@ ApplicationProtocolHandler::MaybeCreateJob(
   const std::string& application_id = request->url().host();
   scoped_refptr<ApplicationData> application =
       cache_.GetApplicationData(application_id);
+
+  if (!application)
+    return new net::URLRequestErrorJob(
+        request, network_delegate, net::ERR_FILE_NOT_FOUND);
+
   base::FilePath relative_path =
       ApplicationURLToRelativeFilePath(request->url());
   base::FilePath directory_path;
