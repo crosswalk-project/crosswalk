@@ -4,13 +4,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import compress_js_and_css
+import fnmatch
 import json
 import optparse
 import os
 import re
 import shutil
+import stat
 import sys
 
+from app_info import AppInfo
 from customize_launch_screen import CustomizeLaunchScreen
 from handle_xml import AddElementAttribute
 from handle_xml import AddElementAttributeAndText
@@ -18,6 +22,32 @@ from handle_xml import EditElementAttribute
 from handle_xml import EditElementValueByNodeName
 from handle_permissions import HandlePermissions
 from xml.dom import minidom
+
+def VerifyAppName(value, mode='default'):
+  descrpt = 'The app'
+  sample = 'helloworld, hello world, hello_world, hello_world1'
+  regex = r'[a-zA-Z][\w ]*$'
+
+  if len(value) >= 128 :
+    print('To be safe, the length of package name or app name '
+          'should be less than 128.')
+    sys.exit(6)
+  if mode == 'packagename':
+    regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
+    descrpt = 'Each part of package'
+    sample = 'org.xwalk.example, org.xwalk.example_'
+
+  if not re.match(regex, value):
+    print('Error: %s name should be started with letters and should not '
+          'contain invalid characters.\n'
+          'It may contain letters, numbers, blank spaces and underscores\n'
+          'Sample: %s' % (descrpt, sample))
+    sys.exit(6)
+
+
+def ReplaceSpaceWithUnderscore(value):
+  return value.replace(' ', '_')
+
 
 def ReplaceInvalidChars(value, mode='default'):
   """ Replace the invalid chars with '_' for input string.
@@ -36,33 +66,79 @@ def ReplaceInvalidChars(value, mode='default'):
   return value
 
 
-def Prepare(sanitized_name, package, app_root):
-  if os.path.exists(sanitized_name):
-    shutil.rmtree(sanitized_name)
-  shutil.copytree('app_src', sanitized_name)
-  shutil.rmtree(os.path.join(sanitized_name, 'src'))
+def GetFilesByExt(path, ext, sub_dir = True):
+  if os.path.exists(path):
+    file_list = []
+    for name in os.listdir(path):
+      full_name = os.path.join(path, name)
+      st = os.lstat(full_name)
+      if stat.S_ISDIR(st.st_mode) and sub_dir:
+        file_list += GetFilesByExt(full_name, ext)
+      elif os.path.isfile(full_name):
+        if fnmatch.fnmatch(full_name, ext):
+          file_list.append(full_name)
+    return file_list
+  else:
+    return []
+
+
+def ParseParameterForCompressor(option, value, values, parser):
+  if ((not values or values.startswith('-'))
+      and value.find('--compressor') != -1):
+    values = 'all'
+  val = values
+  if parser.rargs and not parser.rargs[0].startswith('-'):
+    val = parser.rargs[0]
+    parser.rargs.pop(0)
+  setattr(parser.values, option.dest, val)
+
+
+def CompressSourceFiles(app_root, compressor):
+  js_list = []
+  css_list = []
+  js_ext = '*.js'
+  css_ext = '*.css'
+
+  if compressor == 'all' or compressor == 'js':
+    js_list = GetFilesByExt(app_root, js_ext)
+    compress_js_and_css.CompressJavaScript(js_list)
+
+  if compressor == 'all' or compressor == 'css':
+    css_list = GetFilesByExt(app_root, css_ext)
+    compress_js_and_css.CompressCss(css_list)
+
+
+def Prepare(app_info, compressor):
+  name = app_info.name
+  package = app_info.package
+  app_root = app_info.app_root
+  if os.path.exists(name):
+    shutil.rmtree(name)
+  shutil.copytree('app_src', name)
+  shutil.rmtree(os.path.join(name, 'src'))
   src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
   src_activity = os.path.join(src_root, 'AppTemplateActivity.java')
   if not os.path.isfile(src_activity):
     print ('Please make sure that the java file'
            ' of activity does exist.')
     sys.exit(7)
-  root_path =  os.path.join(sanitized_name, 'src',
-                            package.replace('.', os.path.sep))
+  root_path =  os.path.join(name, 'src', package.replace('.', os.path.sep))
   if not os.path.exists(root_path):
     os.makedirs(root_path)
-  dest_activity = sanitized_name + 'Activity.java'
+  dest_activity = name + 'Activity.java'
   shutil.copyfile(src_activity, os.path.join(root_path, dest_activity))
   if app_root:
-    assets_path = os.path.join(sanitized_name, 'assets')
+    assets_path = os.path.join(name, 'assets')
     shutil.rmtree(assets_path)
     os.makedirs(assets_path)
     app_src_path = os.path.join(assets_path, 'www')
     shutil.copytree(app_root, app_src_path)
+    if compressor:
+      CompressSourceFiles(app_src_path, compressor)
 
 
-def CustomizeStringXML(sanitized_name, description):
-  strings_path = os.path.join(sanitized_name, 'res', 'values', 'strings.xml')
+def CustomizeStringXML(name, description):
+  strings_path = os.path.join(name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
     print ('Please make sure strings_xml'
            ' exists under app_src folder.')
@@ -77,8 +153,8 @@ def CustomizeStringXML(sanitized_name, description):
     strings_file.close()
 
 
-def CustomizeThemeXML(sanitized_name, fullscreen, app_manifest):
-  theme_path = os.path.join(sanitized_name, 'res', 'values', 'theme.xml')
+def CustomizeThemeXML(name, fullscreen, app_manifest):
+  theme_path = os.path.join(name, 'res', 'values', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
@@ -87,7 +163,7 @@ def CustomizeThemeXML(sanitized_name, fullscreen, app_manifest):
   if fullscreen:
     EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowFullscreen', 'true')
-  has_background = CustomizeLaunchScreen(app_manifest, sanitized_name)
+  has_background = CustomizeLaunchScreen(app_manifest, name)
   if has_background:
     EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowBackground',
@@ -97,17 +173,21 @@ def CustomizeThemeXML(sanitized_name, fullscreen, app_manifest):
   theme_file.close()
 
 
-def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
-                 description, name, orientation, icon_dict, fullscreen,
-                 icon, app_manifest, permissions, app_root):
-  manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
+def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
+  app_version = app_info.app_version
+  app_versionCode = app_info.app_versionCode
+  name = app_info.name
+  orientation = app_info.orientation
+  package = app_info.package
+  original_name = app_info.original_name
+  manifest_path = os.path.join(name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
            ' exists under app_src folder.')
     sys.exit(6)
 
-  CustomizeStringXML(sanitized_name, description)
-  CustomizeThemeXML(sanitized_name, fullscreen, app_manifest)
+  CustomizeStringXML(name, description)
+  CustomizeThemeXML(name, app_info.fullscreen_flag, app_manifest)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', package)
   if app_versionCode:
@@ -120,19 +200,19 @@ def CustomizeXML(sanitized_name, package, app_versionCode, app_version,
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
   HandlePermissions(permissions, xmldoc)
-  EditElementAttribute(xmldoc, 'application', 'android:label', name)
-  activity_name = package + '.' + sanitized_name + 'Activity'
+  EditElementAttribute(xmldoc, 'application', 'android:label', original_name)
+  activity_name = package + '.' + name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
-  EditElementAttribute(xmldoc, 'activity', 'android:label', name)
+  EditElementAttribute(xmldoc, 'activity', 'android:label', original_name)
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  icon_name = CustomizeIcon(sanitized_name, app_root, icon, icon_dict)
+  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon, icon_dict)
   if icon_name:
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
 
-  file_handle = open(os.path.join(sanitized_name, 'AndroidManifest.xml'), 'w')
+  file_handle = open(os.path.join(name, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle, encoding='utf-8')
   file_handle.close()
 
@@ -160,15 +240,14 @@ def SetVariable(file_path, string_line, variable, value):
   shutil.move(temp_file_path, file_path)
 
 
-def CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen,
-                  keep_screen_on):
-  root_path =  os.path.join(sanitized_name, 'src',
-                            package.replace('.', os.path.sep))
-  dest_activity = os.path.join(root_path, sanitized_name + 'Activity.java')
+def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
+  name = app_info.name
+  package = app_info.package
+  root_path = os.path.join(name, 'src', package.replace('.', os.path.sep))
+  dest_activity = os.path.join(root_path, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
-  ReplaceString(dest_activity, 'AppTemplate', sanitized_name)
-  manifest_file = os.path.join(sanitized_name, 'assets/www', 'manifest.json')
+  ReplaceString(dest_activity, 'AppTemplate', name)
+  manifest_file = os.path.join(name, 'assets/www', 'manifest.json')
   if os.path.isfile(manifest_file):
     ReplaceString(
         dest_activity,
@@ -180,8 +259,7 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       app_url)
     elif app_local_path:
-      if os.path.isfile(os.path.join(sanitized_name, 'assets/www',
-                                     app_local_path)):
+      if os.path.isfile(os.path.join(name, 'assets/www', app_local_path)):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       'app://' + package + '/' + app_local_path)
       else:
@@ -189,11 +267,11 @@ def CustomizeJava(sanitized_name, package, app_url, app_local_path,
                ' is correct.')
         sys.exit(8)
 
-  if enable_remote_debugging:
+  if app_info.remote_debugging:
     SetVariable(dest_activity,
                 'public void onCreate(Bundle savedInstanceState)',
                 'RemoteDebugging', 'true')
-  if display_as_fullscreen:
+  if app_info.fullscreen_flag:
     SetVariable(dest_activity,
                 'super.onCreate(savedInstanceState)',
                 'IsFullscreen', 'true')
@@ -226,7 +304,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
     shutil.copyfile(src_file, dest_file)
 
 
-def CustomizeExtensions(sanitized_name, name, extensions):
+def CustomizeExtensions(app_info, extensions):
   """Copy the files from external extensions and merge them into APK.
 
   The directory of one external extension should be like:
@@ -244,6 +322,7 @@ def CustomizeExtensions(sanitized_name, name, extensions):
   """
   if not extensions:
     return
+  name = app_info.name
   apk_path = name
   apk_assets_path = os.path.join(apk_path, 'assets')
   extensions_string = 'xwalk-extensions'
@@ -295,7 +374,7 @@ def CustomizeExtensions(sanitized_name, name, extensions):
       json_output['jsapi'] = js_path_prefix + json_output['jsapi']
       extension_json_list.append(json_output)
       # Merge the permissions of extensions into AndroidManifest.xml.
-      manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
+      manifest_path = os.path.join(name, 'AndroidManifest.xml')
       xmldoc = minidom.parse(manifest_path)
       if ('permissions' in json_output):
         # Get used permission list to avoid repetition as "--permissions"
@@ -325,16 +404,16 @@ def CustomizeExtensions(sanitized_name, name, extensions):
     extension_json_file.close()
 
 
-def GenerateCommandLineFile(sanitized_name, xwalk_command_line):
+def GenerateCommandLineFile(app_info, xwalk_command_line):
   if xwalk_command_line == '':
     return
-  assets_path = os.path.join(sanitized_name, 'assets')
+  assets_path = os.path.join(app_info.name, 'assets')
   file_path = os.path.join(assets_path, 'xwalk-command-line')
   command_line_file = open(file_path, 'w')
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
-def CustomizeIconByDict(sanitized_name, app_root, icon_dict):
+def CustomizeIconByDict(name, app_root, icon_dict):
   icon_name = None
   drawable_dict = {'ldpi':[1, 37], 'mdpi':[37, 72], 'hdpi':[72, 96],
                    'xhdpi':[96, 120], 'xxhdpi':[120, 144], 'xxxhdpi':[144, 168]}
@@ -351,7 +430,7 @@ def CustomizeIconByDict(sanitized_name, app_root, icon_dict):
     for kd, vd in drawable_dict.iteritems():
       for item in icon_list:
         if item[0] >= vd[0] and item[0] < vd[1]:
-          drawable_path = os.path.join(sanitized_name, 'res', 'drawable-' + kd)
+          drawable_path = os.path.join(name, 'res', 'drawable-' + kd)
           if not os.path.exists(drawable_path):
             os.makedirs(drawable_path)
           icon = os.path.join(app_root, item[1])
@@ -368,9 +447,9 @@ def CustomizeIconByDict(sanitized_name, app_root, icon_dict):
   return icon_name
 
 
-def CustomizeIconByOption(sanitized_name, icon):
+def CustomizeIconByOption(name, icon):
   if os.path.isfile(icon):
-    drawable_path = os.path.join(sanitized_name, 'res', 'drawable')
+    drawable_path = os.path.join(name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(icon)
@@ -383,33 +462,24 @@ def CustomizeIconByOption(sanitized_name, icon):
     sys.exit(6)
 
 
-def CustomizeIcon(sanitized_name, app_root, icon, icon_dict):
+def CustomizeIcon(name, app_root, icon, icon_dict):
   icon_name = None
   if icon:
-    icon_name = CustomizeIconByOption(sanitized_name, icon)
+    icon_name = CustomizeIconByOption(name, icon)
   else:
-    icon_name = CustomizeIconByDict(sanitized_name, app_root, icon_dict)
+    icon_name = CustomizeIconByDict(name, app_root, icon_dict)
   return icon_name
 
 
-def CustomizeAll(app_versionCode, description, icon_dict, permissions, app_url,
-                 app_root, app_local_path, enable_remote_debugging,
-                 display_as_fullscreen, keep_screen_on, extensions,
-                 app_manifest, icon, package='org.xwalk.app.template',
-                 name='AppTemplate', app_version='1.0.0',
-                 orientation='unspecified', xwalk_command_line=''):
-  sanitized_name = ReplaceInvalidChars(name, 'apkname')
+def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
+                 app_local_path, keep_screen_on, extensions, app_manifest,
+                 xwalk_command_line='', compressor=None):
   try:
-    Prepare(sanitized_name, package, app_root)
-    CustomizeXML(sanitized_name, package, app_versionCode, app_version,
-                 description, name, orientation, icon_dict,
-                 display_as_fullscreen, icon, app_manifest, permissions,
-                 app_root)
-    CustomizeJava(sanitized_name, package, app_url, app_local_path,
-                  enable_remote_debugging, display_as_fullscreen,
-                  keep_screen_on)
-    CustomizeExtensions(sanitized_name, name, extensions)
-    GenerateCommandLineFile(sanitized_name, xwalk_command_line)
+    Prepare(app_info, compressor)
+    CustomizeXML(app_info, description, icon_dict, app_manifest, permissions)
+    CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
+    CustomizeExtensions(app_info, extensions)
+    GenerateCommandLineFile(app_info, xwalk_command_line)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     sys.exit(ec.code)
@@ -469,32 +539,42 @@ def main():
           'For example, '
           '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
   parser.add_option('--xwalk-command-line', default='', help=info)
-
+  info = ('Minify and obfuscate javascript and css.'
+          '--compressor: compress javascript and css.'
+          '--compressor=js: compress javascript.'
+          '--compressor=css: compress css.')
+  parser.add_option('--compressor', dest='compressor', action='callback',
+                    callback=ParseParameterForCompressor,
+                    type='string', nargs=0, help=info)
   options, _ = parser.parse_args()
   try:
     icon_dict = {144: 'icons/icon_144.png',
                  72: 'icons/icon_72.png',
                  96: 'icons/icon_96.png',
                  48: 'icons/icon_48.png'}
-    if options.name == None:
-      options.name = 'Example'
-    if options.app_root == None:
-      options.app_root = os.path.join('test_data', 'manifest')
-    if options.package == None:
-      options.package = 'org.xwalk.app.template'
-    if options.orientation == None:
-      options.orientation = 'unspecified'
-    if options.app_version == None:
-      options.app_version = '1.0.0'
-    icon = os.path.join('test_data', 'manifest', 'icons', 'icon_96.png')
-    CustomizeAll(options.app_versionCode, options.description, icon_dict,
-                 options.permissions, options.app_url, options.app_root,
-                 options.app_local_path, options.enable_remote_debugging,
-                 options.fullscreen, options.keep_screen_on, options.extensions,
-                 options.manifest, icon, options.package, options.name,
-                 options.app_version, options.orientation,
-                 options.xwalk_command_line)
-
+    app_info = AppInfo()
+    if options.name is not None:
+      app_info.name = options.name
+    if options.app_root is None:
+      app_info.app_root = os.path.join('test_data', 'manifest')
+    else:
+      app_info.app_root = options.app_root
+    if options.package is not None:
+      app_info.package = options.package
+    if options.orientation is not None:
+      app_info.orientation = options.orientation
+    if options.app_version is not None:
+      app_info.app_version = options.app_version
+    if options.enable_remote_debugging is not None:
+      app_info.remote_debugging = options.enable_remote_debugging
+    if options.fullscreen is not None:
+      app_info.fullscreen_flag = options.fullscreen
+    app_info.icon = os.path.join('test_data', 'manifest', 'icons',
+                                 'icon_96.png')
+    CustomizeAll(app_info, options.description, icon_dict,
+                 options.permissions, options.app_url, options.app_local_path,
+                 options.keep_screen_on, options.extensions, options.manifest,
+                 options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code

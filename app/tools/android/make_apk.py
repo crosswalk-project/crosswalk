@@ -5,7 +5,6 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
-import compress_js_and_css
 import operator
 import optparse
 import os
@@ -15,7 +14,10 @@ import subprocess
 import sys
 
 sys.path.append('scripts/gyp')
-from customize import ReplaceInvalidChars, CustomizeAll
+
+from app_info import AppInfo
+from customize import VerifyAppName, CustomizeAll, \
+                      ParseParameterForCompressor, ReplaceSpaceWithUnderscore
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -25,6 +27,8 @@ def CleanDir(path):
   if os.path.exists(path):
     shutil.rmtree(path)
 
+def AllArchitectures():
+  return ("x86", "arm")
 
 def RunCommand(command, verbose=False, shell=False):
   """Runs the command list, print the output, and propagate its result."""
@@ -88,12 +92,23 @@ def GetVersion(path):
   return version_str
 
 
-def ParseManifest(options):
+def ParseManifest(options, app_info):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
-  if not options.package:
-    options.package = 'org.xwalk.' + parser.GetAppName().lower()
-  if not options.name:
-    options.name = parser.GetAppName()
+  original_name = app_info.original_name = parser.GetAppName()
+  app_name = None
+  if options.package:
+    VerifyAppName(options.package, 'packagename')
+  else:
+    VerifyAppName(original_name)
+    app_name = ReplaceSpaceWithUnderscore(original_name)
+    options.package = 'org.xwalk.' + app_name.lower()
+  if options.name:
+    VerifyAppName(options.name)
+    app_info.original_name = options.name
+    options.name = ReplaceSpaceWithUnderscore(options.name)
+  else:
+    VerifyAppName(original_name)
+    options.name = ReplaceSpaceWithUnderscore(original_name)
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -177,41 +192,31 @@ def MakeVersionCode(options):
   return '%s%s' % (abi, b.zfill(7))
 
 
-def Customize(options):
-  package = 'org.xwalk.app.template'
+def Customize(options, app_info):
   if options.package:
-    package = options.package
-  name = 'AppTemplate'
+    app_info.package = options.package
   if options.name:
-    name = options.name
-  app_version = ''
+    app_info.name = options.name
   if options.app_version:
-    app_version = options.app_version
-  app_versionCode = MakeVersionCode(options)
-  app_root = ''
+    app_info.app_version = options.app_version
+  app_info.app_versionCode = MakeVersionCode(options)
   if options.app_root:
-    app_root = os.path.expanduser(options.app_root)
-  remote_debugging = ''
+    app_info.app_root = os.path.expanduser(options.app_root)
   if options.enable_remote_debugging:
-    remote_debugging = '--enable-remote-debugging'
-  fullscreen_flag = ''
+    app_info.remote_debugging = '--enable-remote-debugging'
   if options.fullscreen:
-    fullscreen_flag = '-f'
-  orientation = 'unspecified'
+    app_info.fullscreen_flag = '-f'
   if options.orientation:
-    orientation = options.orientation
-  icon = ''
+    app_info.orientation = options.orientation
   if options.icon:
-    icon = '%s' % os.path.expanduser(options.icon)
-  CustomizeAll(app_versionCode, options.description, options.icon_dict,
-               options.permissions, options.app_url, app_root,
-               options.app_local_path, remote_debugging,
-               fullscreen_flag, options.keep_screen_on, options.extensions,
-               options.manifest, icon, package, name, app_version,
-               orientation, options.xwalk_command_line)
+    app_info.icon = '%s' % os.path.expanduser(options.icon)
+  CustomizeAll(app_info, options.description, options.icon_dict,
+               options.permissions, options.app_url, options.app_local_path,
+               options.keep_screen_on, options.extensions, options.manifest,
+               options.xwalk_command_line, options.compressor)
 
 
-def Execution(options, sanitized_name):
+def Execution(options, name):
   android_path_array = Which('android')
   if not android_path_array:
     print('Please install Android SDK first.')
@@ -288,16 +293,16 @@ def Execution(options, sanitized_name):
   if options.mode == 'embedded':
     # Prepare the .pak file for embedded mode.
     pak_src_path = os.path.join('native_libs_res', 'xwalk.pak')
-    pak_des_path = os.path.join(sanitized_name, 'assets', 'xwalk.pak')
+    pak_des_path = os.path.join(name, 'assets', 'xwalk.pak')
     shutil.copy(pak_src_path, pak_des_path)
 
     # Prepare the icudtl.dat for embedded mode.
     icudtl_src_path = os.path.join('native_libs_res', 'icudtl.dat')
-    icudtl_des_path = os.path.join(sanitized_name, 'assets', 'icudtl.dat')
+    icudtl_des_path = os.path.join(name, 'assets', 'icudtl.dat')
     shutil.copy(icudtl_src_path, icudtl_des_path)
 
     js_src_dir = os.path.join('native_libs_res', 'jsapi')
-    js_des_dir = os.path.join(sanitized_name, 'assets', 'jsapi')
+    js_des_dir = os.path.join(name, 'assets', 'jsapi')
     if os.path.exists(js_des_dir):
       shutil.rmtree(js_des_dir)
     shutil.copytree(js_src_dir, js_des_dir)
@@ -325,8 +330,8 @@ def Execution(options, sanitized_name):
                         + os.path.join(res_xwalk_java, 'java_R', 'R.txt') + ' '
                         + os.path.join(res_content_java, 'java_R', 'R.txt'))
 
-  resource_dir = '-DRESOURCE_DIR=' + os.path.join(sanitized_name, 'res')
-  manifest_path = os.path.join(sanitized_name, 'AndroidManifest.xml')
+  resource_dir = '-DRESOURCE_DIR=' + os.path.join(name, 'res')
+  manifest_path = os.path.join(name, 'AndroidManifest.xml')
   cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
          '-DAAPT_PATH=%s' % aapt_path,
          res_dirs,
@@ -367,10 +372,10 @@ def Execution(options, sanitized_name):
          os.path.join(os.getcwd(), 'out', 'gen'),
          '--chromium-code=0',
          '--stamp=compile.stam']
-  RunCommand(cmd)
+  RunCommand(cmd, options.verbose)
 
   # Package resources.
-  asset_dir = '-DASSET_DIR=%s' % os.path.join(sanitized_name, 'assets')
+  asset_dir = '-DASSET_DIR=%s' % os.path.join(name, 'assets')
   xml_path = os.path.join('scripts', 'ant', 'apk-package-resources.xml')
   cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
          '-DAAPT_PATH=%s' % aapt_path,
@@ -380,7 +385,7 @@ def Execution(options, sanitized_name):
          '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
          '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-         '-DAPK_NAME=%s' % sanitized_name,
+         '-DAPK_NAME=%s' % name,
          '-DAPP_MANIFEST_VERSION_CODE=0',
          '-DAPP_MANIFEST_VERSION_NAME=Developer Build',
          asset_dir,
@@ -399,7 +404,7 @@ def Execution(options, sanitized_name):
 
   # Check whether external extensions are included.
   extensions_string = 'xwalk-extensions'
-  extensions_dir = os.path.join(os.getcwd(), sanitized_name, extensions_string)
+  extensions_dir = os.path.join(os.getcwd(), name, extensions_string)
   external_extension_jars = FindExtensionJars(extensions_dir)
   input_jars = []
   if options.mode == 'embedded':
@@ -414,7 +419,7 @@ def Execution(options, sanitized_name):
   dex_command_list.extend(input_jars)
   RunCommand(dex_command_list)
 
-  src_dir = '-DSOURCE_DIR=' + os.path.join(sanitized_name, 'src')
+  src_dir = '-DSOURCE_DIR=' + os.path.join(name, 'src')
   apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
   native_lib_path = '-DNATIVE_LIBS_DIR='
   if options.mode == 'embedded':
@@ -439,7 +444,7 @@ def Execution(options, sanitized_name):
   cmd = ['python', 'scripts/gyp/ant.py',
          '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
          '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-         '-DAPK_NAME=%s' % sanitized_name,
+         '-DAPK_NAME=%s' % name,
          '-DCONFIGURATION_NAME=Release',
          native_lib_path,
          '-DOUT_DIR=out',
@@ -452,7 +457,7 @@ def Execution(options, sanitized_name):
 
   apk_path = '--unsigned-apk-path=' + os.path.join('out', 'app-unsigned.apk')
   final_apk_path = '--final-apk-path=' + \
-                   os.path.join('out', sanitized_name + '.apk')
+                   os.path.join('out', name + '.apk')
   cmd = ['python', 'scripts/gyp/finalize_apk.py',
          '--android-sdk-root=%s' % sdk_root_path,
          apk_path,
@@ -462,7 +467,7 @@ def Execution(options, sanitized_name):
          '--keystore-passcode=%s' % key_code]
   RunCommand(cmd)
 
-  src_file = os.path.join('out', sanitized_name + '.apk')
+  src_file = os.path.join('out', name + '.apk')
   package_name = options.name
   if options.app_version:
     package_name += ('_' + options.app_version)
@@ -477,48 +482,57 @@ def Execution(options, sanitized_name):
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(target_dir, app_name, app_version,
-                     arch = '', multi_arch = False):
-  package_name_version = os.path.join(target_dir, app_name)
-  if app_version != '':
-    package_name_version += ('_' + app_version)
-  if arch == '':
+def PrintPackageInfo(options, packaged_archs):
+  package_name_version = os.path.join(options.target_dir, options.name)
+  if options.app_version:
+    package_name_version += '_' + options.app_version
+
+  if len(packaged_archs) == 0:
     print ('A non-platform specific APK for the web application "%s" was '
            'generated successfully at\n%s.apk. It requires a shared Crosswalk '
            'Runtime to be present.'
-           % (app_name, package_name_version))
-  else:
+           % (options.name, package_name_version))
+    return
+
+  for arch in packaged_archs:
     print ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
-           % (app_name, arch, package_name_version, arch))
-    if multi_arch == False:
-      if arch == 'x86':
-        print ('WARNING: This APK will only work on x86 based Android devices. '
-               'Consider building for ARM as well.')
-      elif arch == 'arm':
-        print ('WARNING: This APK will only work on ARM based Android devices. '
-               'Consider building for x86 as well.')
+           % (options.name, arch, package_name_version, arch))
 
+  all_archs = set(AllArchitectures())
 
-def MakeApk(options, sanitized_name):
-  Customize(options)
-  app_version = ''
-  if options.app_version:
-    app_version = options.app_version
+  if len(packaged_archs) != len(all_archs):
+    missed_archs = all_archs - set(packaged_archs)
+    print ('\n\nWARNING: ')
+    print ('This APK will only work on %s based Android devices. Consider '
+           'building for %s as well.' %
+           (', '.join(packaged_archs), ', '.join(missed_archs)))
+  else:
+    print ('\n\n%d APKs were created for %s devices. '
+           % (len(all_archs), ', '.join(all_archs)))
+    print ('Please install the one that matches the processor architecture '
+           'of your device.\n\n')
+    print ('If you are going to submit this application to an application '
+           'store, please make sure you submit both packages.\nInstructions '
+           'for submitting multiple APKs to Google Play Store are available '
+           'here:\nhttps://software.intel.com/en-us/html5/articles/submitting'
+           '-multiple-crosswalk-apk-to-google-play-store')
+
+def MakeApk(options, app_info):
+  Customize(options, app_info)
+  name = options.name
+  packaged_archs = []
   if options.mode == 'shared':
-    Execution(options, sanitized_name)
-    PrintPackageInfo(options.target_dir, sanitized_name, app_version)
+    Execution(options, name)
   elif options.mode == 'embedded':
     if options.arch:
-      Execution(options, sanitized_name)
-      PrintPackageInfo(options.target_dir, sanitized_name,
-                       app_version, options.arch)
+      Execution(options, name)
+      packaged_archs.append(options.arch)
     else:
       # If the arch option is unspecified, all of available platform APKs
       # will be generated.
       valid_archs = ['x86', 'armeabi-v7a']
-      packaged_archs = []
       for arch in valid_archs:
         lib_path = os.path.join('native_libs', arch, 'libs',
                                 arch, 'libxwalkcore.so')
@@ -527,7 +541,7 @@ def MakeApk(options, sanitized_name):
             options.arch = 'x86'
           elif arch.find('arm') != -1:
             options.arch = 'arm'
-          Execution(options, sanitized_name)
+          Execution(options, name)
           packaged_archs.append(options.arch)
         else:
           print('Warning: failed to create package for arch "%s" '
@@ -537,30 +551,11 @@ def MakeApk(options, sanitized_name):
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
-
-      multi_arch = False
-      if len(packaged_archs) >=2:
-        multi_arch = True
-      for arch in packaged_archs:
-        PrintPackageInfo(options.target_dir, sanitized_name,
-                         app_version, arch, multi_arch)
   else:
     print('Unknown mode for packaging the application. Abort!')
     sys.exit(11)
 
-
-def parse_optional_arg(default_value):
-  def func(option, value, values, parser):
-    del value
-    del values
-    if parser.rargs and not parser.rargs[0].startswith('-'):
-      val = parser.rargs[0]
-      parser.rargs.pop(0)
-    else:
-      val = default_value
-    setattr(parser.values, option.dest, val)
-  return func
-
+  PrintPackageInfo(options, packaged_archs)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -580,7 +575,7 @@ def main(argv):
   info = ('The target architecture of the embedded runtime. Supported values '
           'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
           'architestures will be generated.')
-  parser.add_option('--arch', choices=("x86", "arm"), help=info)
+  parser.add_option('--arch', choices=AllArchitectures(), help=info)
   group = optparse.OptionGroup(parser, 'Application Source Options',
       'This packaging tool supports 3 kinds of web application source: '
       '1) XPK package; 2) manifest.json; 3) various command line options, '
@@ -677,7 +672,8 @@ def main(argv):
           '--compressor=js: compress javascript.'
           '--compressor=css: compress css.')
   group.add_option('--compressor', dest='compressor', action='callback',
-                   callback=parse_optional_arg('all'), help=info)
+                   callback=ParseParameterForCompressor, type='string', nargs=0,
+                   help=info)
   parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
@@ -703,15 +699,18 @@ def main(argv):
       print('Using manifest.json distributed with the application.')
       options.manifest = manifest_path
 
+  app_info = AppInfo()
   if not options.manifest:
-    if not options.package:
+    if options.package:
+      VerifyAppName(options.package, 'packagename')
+    else:
       parser.error('The package name is required! '
                    'Please use "--package" option.')
-    elif len(options.package) >= 128 :
-      parser.error('To be safe, the length of package name '
-                   'should be less than 128.')
-
-    if not options.name:
+    if options.name:
+      VerifyAppName(options.name)
+      app_info.original_name = options.name
+      options.name = ReplaceSpaceWithUnderscore(options.name)
+    else:
       parser.error('The APK name is required! Please use "--name" option.')
     if not ((options.app_url and not options.app_root
         and not options.app_local_path) or ((not options.app_url)
@@ -731,7 +730,7 @@ def main(argv):
     options.icon_dict = {}
   else:
     try:
-      ParseManifest(options)
+      ParseManifest(options, app_info)
     except SystemExit as ec:
       return ec.code
 
@@ -741,10 +740,6 @@ def main(argv):
           'does exist.')
     sys.exit(7)
 
-  options.name = ReplaceInvalidChars(options.name, 'apkname')
-  options.package = ReplaceInvalidChars(options.package)
-  sanitized_name = ReplaceInvalidChars(options.name, 'apkname')
-
   if options.target_dir:
     target_dir = os.path.abspath(os.path.expanduser(options.target_dir))
     options.target_dir = target_dir
@@ -752,17 +747,9 @@ def main(argv):
       os.makedirs(target_dir)
 
   try:
-    compress = compress_js_and_css.CompressJsAndCss(options.app_root)
-    if options.compressor == 'all':
-      compress.CompressJavaScript()
-      compress.CompressCss()
-    elif options.compressor == 'js':
-      compress.CompressJavaScript()
-    elif options.compressor == 'css':
-      compress.CompressCss()
-    MakeApk(options, sanitized_name)
+    MakeApk(options, app_info)
   except SystemExit as ec:
-    CleanDir(sanitized_name)
+    CleanDir(options.name)
     CleanDir('out')
     if os.path.exists(xpk_temp_dir):
       CleanDir(xpk_temp_dir)

@@ -12,6 +12,9 @@ import sys
 import unittest
 import warnings
 
+from customize import ReplaceSpaceWithUnderscore
+
+
 def Clean(name, app_version):
   if os.path.exists(name):
     shutil.rmtree(name)
@@ -25,11 +28,57 @@ def Clean(name, app_version):
       os.remove(name + '_' + app_version + '_arm.apk')
 
 
+def CompareSizeForCompressor(mode, original, ext, name, fun):
+  size = 0
+  compressed_size = 0
+  mode_list = ['all', 'js', 'css']
+
+  www_dir = os.path.join(name, 'assets', 'www')
+  if os.path.exists(www_dir):
+    size = GetFileSize(original)
+    compressed_file = os.path.join(www_dir, ext, 'test.' + ext)
+    compressed_size = GetFileSize(compressed_file)
+
+    if mode in mode_list:
+      fun(compressed_size < size)
+    else:
+      fun(size == compressed_size)
+  else:
+    print('Error: %s is not exist.' % www_dir)
+
+
+def GetFileSize(file_path):
+  size = 0
+  if os.path.exists(file_path):
+    size = os.path.getsize(file_path)
+  return size
+
+
 def RunCommand(command):
   """Runs the command list, return the output."""
   proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT, shell=False)
   return proc.communicate()[0]
+
+
+def GetResultWithOption(mode, manifest=None, name=None, package=None):
+  app_url = None
+  if manifest != None:
+    manifest = '--manifest=' + manifest
+  else:
+    app_url = '--app-url=http://www.intel.com'
+  if name != None:
+    name = '--name=' + name
+  if package != None:
+    package = '--package=' + package
+  cmd = ['python', 'make_apk.py',
+         '--app-version=1.0.0',
+         '%s' % manifest,
+         '%s' % name,
+         '%s' % package,
+         '%s' % app_url,
+         mode]
+  return RunCommand(cmd)
 
 
 class TestMakeApk(unittest.TestCase):
@@ -157,25 +206,22 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     Clean('Example', '1.0.0')
     self.assertTrue(out.find('The APK name is required!') != -1)
-    cmd = ['python', 'make_apk.py', '--name="Test Example"',
-           '--app-version=1.0.0',
+
+    cmd = ['python', 'make_apk.py', '--name=Test_Example',
+           '--app-version=1.0.0', '--app-url=http://www.intel.com',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    Clean('Test Example', '1.0.0')
     self.assertTrue(out.find('The APK name is required!') == -1)
-    # The following invalid chars verification is too heavy for embedded mode,
-    # and the result of verification should be the same between shared mode
-    # and embedded mode. So only do the verification in the shared mode.
-    if self._mode.find('shared') != -1:
-      invalid_chars = '\/:.*?"<>|-'
-      for c in invalid_chars:
-        invalid_name = '--name=Example' + c
-        cmd = ['python', 'make_apk.py', invalid_name,
-               '--app-version=1.0.0', '--package=org.xwalk.example',
-               '--app-url=http://www.intel.com', self._mode]
-        out = RunCommand(cmd)
-        Clean('Example_', '1.0.0')
-        self.assertTrue(out.find('Illegal character') != -1)
+    Clean('Test_Example', '1.0.0')
+
+    invalid_chars = '\/:.*?"<>|-'
+    for c in invalid_chars:
+      invalid_name = '--name=Example' + c
+      cmd = ['python', 'make_apk.py', invalid_name,
+             '--app-version=1.0.0', '--package=org.xwalk.example',
+             '--app-url=http://www.intel.com', self._mode]
+      out = RunCommand(cmd)
+      self.assertTrue(out.find('invalid characters') != -1)
 
   def testToolVersion(self):
     cmd = ['python', 'make_apk.py', '--version']
@@ -738,7 +784,6 @@ class TestMakeApk(unittest.TestCase):
 
     self.executeCommandAndVerifyResult('customize.py')
 
-
   def testTargetDir(self):
     test_option = ['./', '../', '~/']
     for option in test_option:
@@ -758,6 +803,147 @@ class TestMakeApk(unittest.TestCase):
           self.assertTrue(os.path.exists(apk_path))
           self.checkApk(apk_path, arch)
 
+  def testCompressor(self):
+    app_root = os.path.join('test_data', 'compressor')
+    css_folder = os.path.join('test_data', 'compressor', 'css')
+    css_file = os.path.join(css_folder, 'test.css')
+    js_folder = os.path.join('test_data', 'compressor', 'js')
+    js_file = os.path.join(js_folder, 'test.js')
+    fun = self.assertTrue
+    name = 'Example'
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('all', css_file, 'css', name, fun)
+    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root,
+           '--compressor']
+    RunCommand(cmd)
+    CompareSizeForCompressor('all', css_file, 'css', name, fun)
+    CompareSizeForCompressor('all', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor=js',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('js', js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--compressor=css',
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor('css', css_file, 'css', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root]
+    RunCommand(cmd)
+    CompareSizeForCompressor(None, css_file, 'css', name, fun)
+    CompareSizeForCompressor(None, js_file, 'js', name, fun)
+
+    cmd = ['python', 'customize.py',
+           '--name=%s' % name,
+           '--app-root=%s' % app_root,
+           '--compressor=other']
+    RunCommand(cmd)
+    CompareSizeForCompressor(None, css_file, 'css', name, fun)
+    CompareSizeForCompressor(None, js_file, 'js', name, fun)
+
+    Clean(name, '1.0.0')
+
+  def testInvalidCharacter(self):
+    version = '1.0.0'
+    start_with_letters = ' should be started with letters'
+    app_name_error = 'app name' + start_with_letters
+    package_name_error = 'package name' + start_with_letters
+    parse_error = 'parser error in manifest.json file'
+    directory = os.path.join('test_data', 'manifest', 'invalidchars')
+
+    manifest_path = os.path.join(directory, 'manifest_with_space_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_with_chinese_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_parse_error.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(parse_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_with_invalid_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
+    result = GetResultWithOption(self._mode, manifest_path)
+    self.assertTrue(result.find(app_name_error) == -1)
+
+    package = 'org.xwalk.example'
+    name = '_hello'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    name = '123hello'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) != -1)
+
+    name = 'hello_'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(app_name_error) == -1)
+    Clean(name, version)
+
+    name = 'xwalk'
+    package = 'org.xwalk._example'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) != -1)
+
+    package = 'org.xwalk.123example'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) != -1)
+
+    package = 'org.xwalk.example_'
+    result = GetResultWithOption(self._mode, name=name, package=package)
+    self.assertTrue(result.find(package_name_error) == -1)
+    Clean(name, version)
+
+
+  def VerifyResultForAppNameWithSpace(self, manifest=None, name=None,
+                                      package=None):
+    version = '1.0.0'
+    GetResultWithOption(manifest=manifest, name=name, package=package)
+    if name is None:
+      name = 'app name '
+    replaced_name = ReplaceSpaceWithUnderscore(name)
+    manifest = replaced_name + '/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(name in content)
+    Clean(replaced_name, version)
+
+
+  def testAppNameWithSpace(self):
+    name = 'app name'
+    package = 'org.xwalk.app_name'
+
+    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+
+    name = 'app name '
+    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+
+    directory = os.path.join('test_data', 'manifest', 'invalidchars')
+    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
+    self.VerifyResultForAppNameWithSpace(manifest=manifest_path)
+
 
 def SuiteWithModeOption():
   # Gather all the tests for the specified mode option.
@@ -776,6 +962,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testFullscreen'))
   test_suite.addTest(TestMakeApk('testIconByOption'))
   test_suite.addTest(TestMakeApk('testIconByManifest'))
+  test_suite.addTest(TestMakeApk('testInvalidCharacter'))
   test_suite.addTest(TestMakeApk('testKeystore'))
   test_suite.addTest(TestMakeApk('testManifest'))
   test_suite.addTest(TestMakeApk('testManifestWithError'))
@@ -793,6 +980,8 @@ def SuiteWithModeOption():
 def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
+  test_suite.addTest(TestMakeApk('testAppNameWithSpace'))
+  test_suite.addTest(TestMakeApk('testCompressor'))
   test_suite.addTest(TestMakeApk('testCustomizeFile'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
   test_suite.addTest(TestMakeApk('testToolVersion'))
