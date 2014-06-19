@@ -138,6 +138,10 @@ class Application : public Runtime::Observer,
   content::RenderProcessHost* render_process_host_;
   bool security_mode_enabled_;
 
+  base::WeakPtr<Application> GetWeakPtr() {
+    return weak_factory_.GetWeakPtr();
+  }
+
  private:
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;

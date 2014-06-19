@@ -5,7 +5,6 @@
 #define XWALK_APPLICATION_BROWSER_APPLICATION_TIZEN_H_
 
 #include "base/event_types.h"
-#include "content/browser/screen_orientation/screen_orientation_provider.h"
 #include "xwalk/application/browser/application.h"
 
 #if defined(USE_OZONE)
@@ -20,7 +19,7 @@ class ApplicationTizen :  // NOLINT
 #if defined(USE_OZONE)
   public ui::PlatformEventObserver,
 #endif
-  public Application, public content::ScreenOrientationProvider {
+  public Application {
  public:
   virtual ~ApplicationTizen();
   void Hide();
@@ -37,11 +36,6 @@ class ApplicationTizen :  // NOLINT
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
-
-  // content::ScreenOrientationProvider overrides:
-  virtual void LockOrientation(
-      blink::WebScreenOrientationLockType orientations) OVERRIDE;
-  virtual void UnlockOrientation() OVERRIDE;
 };
 
 inline ApplicationTizen* ToApplicationTizen(Application* app) {
