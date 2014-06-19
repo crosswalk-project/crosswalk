@@ -7,10 +7,10 @@ package org.xwalk.core.sample;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class XWalkEmbeddingAPISample extends XWalkEmbeddingAPIList {
+public class XWalkUIClientAPI extends XWalkEmbeddingAPIList {
 
-    public XWalkEmbeddingAPISample() {
-        super(Intent.CATEGORY_SAMPLE_CODE);
+    public XWalkUIClientAPI() {
+        super(Intent.CATEGORY_TEST);
     }
 
     @Override

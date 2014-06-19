@@ -138,6 +138,61 @@
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".XWalkUIClientAPI"
+            android:label="XWalkUIClient API"
+            android:parentActivityName=".XWalkEmbeddedAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OpenFileChooserActivity"
+            android:label="OpenFileChooser"
+            android:parentActivityName=".XWalkUIClientAPI" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OnScaleChangedActivity"
+            android:label="OnScaleChanged"
+            android:parentActivityName=".XWalkUIClientAPI" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OnRequestFocusActivity"
+            android:label="OnRequestFocus"
+            android:parentActivityName=".XWalkUIClientAPI" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OnFullscreenToggledActivity"
+            android:label="OnFullscreenToggled"
+            android:parentActivityName=".XWalkUIClientAPI" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".OnJavascriptModalDialogActivity"
+            android:label="OnJavascriptModalDialog"
+            android:parentActivityName=".XWalkUIClientAPI" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.TEST" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
