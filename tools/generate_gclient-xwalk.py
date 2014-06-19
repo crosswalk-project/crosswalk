@@ -6,8 +6,7 @@
 
 """
 This script is responsible for generating .gclient-xwalk in the top-level
-source directory by parsing .DEPS.xwalk (or any other file passed to the --deps
-option).
+source directory by parsing DEPS in the parent directory.
 """
 
 import optparse
@@ -21,17 +20,9 @@ class GClientFileGenerator(object):
     self._options = options
     self._xwalk_dir = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))
-    if options.deps:
-      self._deps_file = options.deps
-    else:
-      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
-    self._deps = None
-    self._vars = None
-    self._chromium_version = None
+    self._deps_file = os.path.join(self._xwalk_dir, 'DEPS')
+    self._deps = {}
     self._ParseDepsFile()
-    if not 'src' in self._deps:
-      raise RuntimeError("'src' not specified in deps file(%s)" % options.deps)
-    self._src_dep = self._deps['src']
     # self should be at src/xwalk/tools/fetch_deps.py
     # so src is at self/../../../
     self._src_dir = os.path.dirname(self._xwalk_dir)
@@ -45,9 +36,8 @@ class GClientFileGenerator(object):
     exec_globals = {}
 
     execfile(self._deps_file, exec_globals)
-    self._deps = exec_globals['deps_xwalk']
-    self._vars = exec_globals['vars_xwalk']
-    self._chromium_version = exec_globals['chromium_version']
+    self._deps = exec_globals['deps']
+    assert 'src' in self._deps, '"src" is not specified in DEPS'
 
   def _AddIgnorePathFromEnv(self):
     """Read paths from environ XWALK_SYNC_IGNORE.
@@ -87,16 +77,28 @@ class GClientFileGenerator(object):
     for ignore in ignores:
       self._deps[ignore] = None
 
+
+  def _IgnorePathsInDEPS(self):
+    """Ignore the paths that have already been specified in DEPS, otherwise we
+    either needlessly try to sync them again or run into naming collisions. The
+    latter happens with src/, for example, since 'url' in .gclient-xwalk points
+    to chromium-crosswalk and the 'src' entry in its .DEPS.git points to the
+    upstream Chromium repository.
+    """
+    for dependency in self._deps:
+      self._deps[dependency] = None
+
+
   def Generate(self):
     self._AddIgnorePathFromEnv()
+    self._IgnorePathsInDEPS()
     solution = {
-      'name': self._chromium_version,
-      'url': 'http://src.chromium.org/svn/releases/%s' %
-              self._chromium_version,
+      'name': 'src',
+      'url': None,  # src has already been checked out and updated in
+                    # Crosswalk's DEPS.
+      'deps_file': '.DEPS.git',
       'custom_deps': self._deps,
     }
-    if self._vars:
-      solution['custom_vars'] = self._vars
     solutions = [solution]
     gclient_file = open(self._new_gclient_file, 'w')
     print "Place %s with solutions:\n%s" % (self._new_gclient_file, solutions)
@@ -113,9 +115,6 @@ class GClientFileGenerator(object):
 def main():
   option_parser = optparse.OptionParser()
 
-  option_parser.add_option('--deps', default=None,
-                           help='The deps file contains the dependencies path '
-                                'and url')
   option_parser.add_option('--cache-dir',
                            help='Set "cache_dir" in the .gclient file to this '
                                 'directory, so that all git repositories are '
