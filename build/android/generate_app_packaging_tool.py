@@ -76,7 +76,7 @@ def PrepareFromXwalk(src_dir, target_dir):
      os.path.join(target_dir, 'libs_res/content')),
     (os.path.join(source_code_dir, 'ui/android/java/res'),
      os.path.join(target_dir, 'libs_res/ui')),
-    (os.path.join(source_code_dir, 'xwalk/runtime/android/core/res'),
+    (os.path.join(source_code_dir, 'xwalk/runtime/android/core_internal/res'),
      os.path.join(target_dir, 'libs_res/runtime')),
 
     (os.path.join(gen_res_src_dir, 'ui_java/java_R'),
@@ -97,14 +97,16 @@ def PrepareFromXwalk(src_dir, target_dir):
     (os.path.join(gen_res_src_dir, 'content_java/res_v14_compatibility'),
      os.path.join(gen_res_target_dir, 'content_java/res_v14_compatibility')),
 
-    (os.path.join(gen_res_src_dir, 'xwalk_core_java/java_R'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_java/java_R')),
-    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_crunched'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_crunched')),
-    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_grit'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_grit')),
-    (os.path.join(gen_res_src_dir, 'xwalk_core_java/res_v14_compatibility'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_java/res_v14_compatibility')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/java_R'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/java_R')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/res_crunched'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/res_crunched')),
+    (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/res_grit'),
+     os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/res_grit')),
+    (os.path.join(gen_res_src_dir,
+         'xwalk_core_internal_java/res_v14_compatibility'),
+     os.path.join(gen_res_target_dir,
+         'xwalk_core_internal_java/res_v14_compatibility')),
 
     # The app wrapper code. It's the template Java code.
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),

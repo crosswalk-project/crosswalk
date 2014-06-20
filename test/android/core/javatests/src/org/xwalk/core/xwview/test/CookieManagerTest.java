@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.xwalk.core.XWalkCookieManager;
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkCookieManager;
+import org.xwalk.core.internal.XWalkClient;
 
 /**
  * Tests for the CookieManager.

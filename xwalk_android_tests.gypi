@@ -379,9 +379,9 @@
           'files': [
             'experimental/launch_screen/launch_screen_api.js',
             'experimental/presentation/presentation_api.js',
-            'runtime/android/core/src/org/xwalk/core/extension/api/contacts/contacts_api.js',
-            'runtime/android/core/src/org/xwalk/core/extension/api/device_capabilities/device_capabilities_api.js',
-            'runtime/android/core/src/org/xwalk/core/extension/api/messaging/messaging_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
           ],
         },
         {

@@ -11,8 +11,8 @@ import android.util.Log;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
 
 /**
  * Test case for XWalkView.setNetworkAvailable method

@@ -13,7 +13,7 @@ import android.webkit.WebResourceResponse;
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.UrlUtils;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkClient;
+import org.xwalk.core.internal.XWalkClient;
 
 /**
  * Test suite for setDatabaseEnabled().

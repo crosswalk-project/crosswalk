@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.UrlUtils;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
  * Test suite for setDomStorageEnabled().

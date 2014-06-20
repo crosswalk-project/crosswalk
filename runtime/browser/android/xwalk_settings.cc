@@ -42,7 +42,7 @@ struct XWalkSettings::FieldIds {
 
     // FIXME: we should be using a new GetFieldIDFromClassName() with caching.
     ScopedJavaLocalRef<jclass> clazz(
-        GetClass(env, "org/xwalk/core/XWalkSettings"));
+        GetClass(env, "org/xwalk/core/internal/XWalkSettings"));
     allow_scripts_to_close_windows =
         GetFieldID(env, clazz, "mAllowScriptsToCloseWindows", "Z");
     load_images_automatically =

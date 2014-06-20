@@ -9,9 +9,9 @@ import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 import org.chromium.base.test.util.Feature;
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
  * Test suite for onUpdateTitle().

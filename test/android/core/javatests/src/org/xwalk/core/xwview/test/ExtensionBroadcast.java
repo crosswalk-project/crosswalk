@@ -4,7 +4,7 @@
 
 package org.xwalk.core.xwview.test;
 
-import org.xwalk.core.extensions.XWalkExtensionAndroid;
+import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
 
 public class ExtensionBroadcast extends XWalkExtensionAndroid {
 

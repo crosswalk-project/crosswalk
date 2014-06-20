@@ -11,10 +11,11 @@ import android.webkit.ValueCallback;
 
 import java.lang.reflect.Method;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkWebChromeClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkViewInternal;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 class XWalkRuntimeTestHelper {
 
@@ -47,7 +48,7 @@ class XWalkRuntimeTestHelper {
         }
 
         @Override
-        public void onPageStarted(XWalkView view, String url) {
+        public void onPageStarted(XWalkViewInternal view, String url) {
             super.onPageStarted(view, url);
             if (mCallbackForTest != null) {
                 try {
@@ -61,7 +62,7 @@ class XWalkRuntimeTestHelper {
         }
 
         @Override
-        public void onPageFinished(XWalkView view, String url) {
+        public void onPageFinished(XWalkViewInternal view, String url) {
             super.onPageFinished(view, url);
             if (mCallbackForTest != null) {
                 try {
@@ -81,7 +82,7 @@ class XWalkRuntimeTestHelper {
         }
 
         @Override
-        public void onReceivedTitle(XWalkView view, String title) {
+        public void onReceivedTitle(XWalkViewInternal view, String title) {
             super.onReceivedTitle(view, title);
             if (mCallbackForTest != null) {
                 try {

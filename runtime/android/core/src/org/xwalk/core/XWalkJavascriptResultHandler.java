@@ -1,48 +1,32 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 package org.xwalk.core;
 
-import org.chromium.base.ThreadUtils;
+import org.xwalk.core.internal.XWalkJavascriptResultInternal;
 
-class XWalkJavascriptResultHandler implements XWalkJavascriptResult {
-    private XWalkContentsClientBridge mBridge;
-    private final int mId;
+final class XWalkJavascriptResultHandler implements XWalkJavascriptResult{
 
-    XWalkJavascriptResultHandler(XWalkContentsClientBridge bridge, int id) {
-        mBridge = bridge;
-        mId = id;
+    private XWalkJavascriptResultInternal internal;
+
+    XWalkJavascriptResultHandler(XWalkJavascriptResultInternal internal) {
+        this.internal = internal;
     }
 
-    @Override
+    XWalkJavascriptResultInternal getInternal() {
+        return this.internal;
+    }
+
     public void confirm() {
-        confirmWithResult(null);
+        internal.confirm();
     }
 
-    @Override
     public void confirmWithResult(final String promptResult) {
-        ThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mBridge != null) {
-                    mBridge.confirmJsResult(mId, promptResult);
-                }
-                mBridge = null;
-            }
-        });
+        internal.confirmWithResult(promptResult);
     }
 
-    @Override
     public void cancel() {
-        ThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mBridge != null) {
-                    mBridge.cancelJsResult(mId);
-                }
-                mBridge = null;
-            }
-        });
+        internal.cancel();
     }
 }

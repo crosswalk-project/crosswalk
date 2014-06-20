@@ -11,10 +11,10 @@ import android.util.Log;
 
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkGeolocationPermissions;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebChromeClient;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkGeolocationPermissions;
+import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
  * Test suite for onGeolocationPermissionsShowPrompt() and

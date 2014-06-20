@@ -4,79 +4,24 @@
 
 package org.xwalk.core;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.WindowManager;
 import android.webkit.ValueCallback;
-import android.widget.EditText;
+
+import org.xwalk.core.internal.XWalkJavascriptResultInternal;
+import org.xwalk.core.internal.XWalkUIClientInternal;
+import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
  * This class notifies the embedder UI events/callbacks.
  */
-public class XWalkUIClient {
-
-    // Strings for displaying Dialog.
-    private static String mJSAlertTitle;
-    private static String mJSConfirmTitle;
-    private static String mJSPromptTitle;
-    private static String mOKButton;
-    private static String mCancelButton;
-
-    private Context mContext;
-    private AlertDialog mDialog;
-    private EditText mPromptText;
-    private int mSystemUiFlag;
-    private View mDecorView;
-    private XWalkView mXWalkView;
-    private boolean mOriginalFullscreen;
+public class XWalkUIClient extends XWalkUIClientInternal {
 
     /**
      * Constructor.
      * @param view the owner XWalkView instance.
      */
     public XWalkUIClient(XWalkView view) {
-        mContext = view.getContext();
-        mDecorView = view.getActivity().getWindow().getDecorView();
-        if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-            mSystemUiFlag = View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        }
-        mXWalkView = view;
-        initResources();
-    }
-
-    private void initResources() {
-        if (mJSAlertTitle != null) return;
-        mJSAlertTitle = mContext.getString(R.string.js_alert_title);
-        mJSConfirmTitle = mContext.getString(R.string.js_confirm_title);
-        mJSPromptTitle = mContext.getString(R.string.js_prompt_title);
-        mOKButton = mContext.getString(android.R.string.ok);
-        mCancelButton = mContext.getString(android.R.string.cancel);
-    }
-
-    /**
-     * Request display and focus for this XWalkView.
-     * @param view the owner XWalkView instance.
-     */
-    public void onRequestFocus(XWalkView view) {
-    }
-
-    /**
-     * Notify the client to close the given XWalkView.
-     * @param view the owner XWalkView instance.
-     */
-    public void onJavascriptCloseWindow(XWalkView view) {
-        if (view != null && view.getActivity() != null) {
-            view.getActivity().finish();
-        }
+        super(view);
     }
 
     /**
@@ -93,6 +38,22 @@ public class XWalkUIClient {
         JAVASCRIPT_BEFOREUNLOAD
     }
 
+    @Override
+    public boolean onJavascriptModalDialog(XWalkViewInternal view,
+            JavascriptMessageTypeInternal typeInternal,
+            String url, String message, String defaultValue, XWalkJavascriptResultInternal result) {
+        JavascriptMessageType type = JavascriptMessageType.valueOf(typeInternal.toString());
+        if (view instanceof XWalkView) {
+            return onJavascriptModalDialog(
+                    (XWalkView) view,
+                    type, url, message, defaultValue,
+                    new XWalkJavascriptResultHandler(result));
+        }
+
+        return super.onJavascriptModalDialog(
+                view, typeInternal, url, message, defaultValue, result);
+    }
+
     /**
      * Tell the client to display a prompt dialog to the user.
      * @param view the owner XWalkView instance.
@@ -102,23 +63,57 @@ public class XWalkUIClient {
      * @param defaultValue the default value string. Only valid for Prompt dialog.
      * @param result the callback to handle the result from caller.
      */
-    public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type, String url,
-            String message, String defaultValue, XWalkJavascriptResult result) {
-        switch(type) {
-            case JAVASCRIPT_ALERT:
-                return onJsAlert(view, url, message, result);
-            case JAVASCRIPT_CONFIRM:
-                return onJsConfirm(view, url, message, result);
-            case JAVASCRIPT_PROMPT:
-                return onJsPrompt(view, url, message, defaultValue, result);
-            case JAVASCRIPT_BEFOREUNLOAD:
-                // Reuse onJsConfirm to show the dialog.
-                return onJsConfirm(view, url, message, result);
-            default:
-                break;
+    public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type,
+            String url, String message, String defaultValue, XWalkJavascriptResult result) {
+        XWalkJavascriptResultInternal resultInternal =
+                ((XWalkJavascriptResultHandler) result).getInternal();
+        JavascriptMessageTypeInternal typeInternal =
+                JavascriptMessageTypeInternal.valueOf(type.toString());
+        return super.onJavascriptModalDialog(
+                view, typeInternal, url, message, defaultValue, resultInternal);
+    }
+
+    @Override
+    public void onRequestFocus(XWalkViewInternal view) {
+        if (view instanceof XWalkView) {
+            onRequestFocus((XWalkView) view);
+        } else {
+            super.onRequestFocus(view);
         }
-        assert(false);
-        return false;
+    }
+
+    /**
+     * Request display and focus for this XWalkView.
+     * @param view the owner XWalkView instance.
+     */
+    public void onRequestFocus(XWalkView view) {
+        super.onRequestFocus(view);
+    }
+
+    @Override
+    public void onJavascriptCloseWindow(XWalkViewInternal view) {
+        if (view instanceof XWalkView) {
+            onJavascriptCloseWindow((XWalkView) view);
+        } else {
+            super.onJavascriptCloseWindow(view);
+        }
+    }
+
+    /**
+     * Notify the client to close the given XWalkView.
+     * @param view the owner XWalkView instance.
+     */
+    public void onJavascriptCloseWindow(XWalkView view) {
+        super.onJavascriptCloseWindow(view);
+    }
+
+    @Override
+    public void onFullscreenToggled(XWalkViewInternal view, boolean enterFullscreen) {
+        if (view instanceof XWalkView) {
+            onFullscreenToggled((XWalkView) view, enterFullscreen);
+        } else {
+            super.onFullscreenToggled(view, enterFullscreen);
+        }
     }
 
     /**
@@ -127,39 +122,16 @@ public class XWalkUIClient {
      * @param enterFullscreen true if it has entered fullscreen mode.
      */
     public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
-        Activity activity = view.getActivity();
-        if (enterFullscreen) {
-            if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-                mSystemUiFlag = mDecorView.getSystemUiVisibility();
-                mDecorView.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-            } else {
-                if ((activity.getWindow().getAttributes().flags &
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
-                    mOriginalFullscreen = true;
-                } else {
-                    mOriginalFullscreen = false;
-                }
-                if (!mOriginalFullscreen) {
-                    activity.getWindow().setFlags(
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                }
-            }
+        super.onFullscreenToggled(view, enterFullscreen);
+    }
+
+    @Override
+    public void openFileChooser(XWalkViewInternal view, ValueCallback<Uri> uploadFile,
+            String acceptType, String capture) {
+        if (view instanceof XWalkView) {
+            openFileChooser((XWalkView) view, uploadFile, acceptType, capture);
         } else {
-            if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
-                mDecorView.setSystemUiVisibility(mSystemUiFlag);
-            } else {
-                // Clear the activity fullscreen flag.
-                if (!mOriginalFullscreen) {
-                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                }
-            }
+            super.openFileChooser(view, uploadFile, acceptType, capture);
         }
     }
 
@@ -176,7 +148,16 @@ public class XWalkUIClient {
      */
     public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
             String acceptType, String capture) {
-        uploadFile.onReceiveValue(null);
+        super.openFileChooser(view, uploadFile, acceptType, capture);
+    }
+
+    @Override
+    public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
+        if (view instanceof XWalkView) {
+            onScaleChanged((XWalkView) view, oldScale, newScale);
+        } else {
+            super.onScaleChanged(view, oldScale, newScale);
+        }
     }
 
     /**
@@ -186,103 +167,6 @@ public class XWalkUIClient {
      * @param newScale the current scale factor after scaling.
      */
     public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
-    }
-
-    private boolean onJsAlert(XWalkView view, String url, String message,
-            XWalkJavascriptResult result) {
-        final XWalkJavascriptResult fResult = result;
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSAlertTitle)
-                .setMessage(message)
-                .setCancelable(true)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        fResult.confirm();
-                        dialog.dismiss();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        fResult.cancel();
-                    }
-                });
-        mDialog = dialogBuilder.create();
-        mDialog.show();
-        return false;
-    }
-
-    private boolean onJsConfirm(XWalkView view, String url, String message,
-            XWalkJavascriptResult result) {
-        final XWalkJavascriptResult fResult = result;
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSConfirmTitle)
-                .setMessage(message)
-                .setCancelable(true)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        fResult.confirm();
-                        dialog.dismiss();
-                    }
-                })
-                // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
-                // UI will be locked.
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // This will call OnCancelLisitener.onCancel().
-                        dialog.cancel();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        fResult.cancel();
-                    }
-                });
-        mDialog = dialogBuilder.create();
-        mDialog.show();
-        return false;
-    }
-
-    private boolean onJsPrompt(XWalkView view, String url, String message,
-            String defaultValue, XWalkJavascriptResult result) {
-        final XWalkJavascriptResult fResult = result;
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        dialogBuilder.setTitle(mJSPromptTitle)
-                .setMessage(message)
-                .setPositiveButton(mOKButton, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        fResult.confirmWithResult(mPromptText.getText().toString());
-                        dialog.dismiss();
-                    }
-                })
-                // Need to implement 'onClick' and call the dialog.cancel. Otherwise, the
-                // UI will be locked.
-                .setNegativeButton(mCancelButton, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // This will call OnCancelLisitener.onCancel().
-                        dialog.cancel();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        fResult.cancel();
-                    }
-                });
-        mPromptText = new EditText(mContext);
-        mPromptText.setVisibility(View.VISIBLE);
-        mPromptText.setText(defaultValue);
-        mPromptText.selectAll();
-
-        dialogBuilder.setView(mPromptText);
-        mDialog = dialogBuilder.create();
-        mDialog.show();
-        return false;
+        super.onScaleChanged(view, oldScale, newScale);
     }
 }

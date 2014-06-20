@@ -16,9 +16,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.net.test.util.TestWebServer;
-import org.xwalk.core.XWalkClient;
-import org.xwalk.core.XWalkSettings;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkSettings;
 
 /**
  * Test suite for setUserAgentString() and getUserAgentString().

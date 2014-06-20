@@ -19,8 +19,9 @@ import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
  * Renderer responsiveness tests:
@@ -46,7 +47,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
         setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
             @Override
-            public void onRendererUnresponsive(XWalkView view) {
+            public void onRendererUnresponsive(XWalkViewInternal view) {
                 unresponsiveHelper.notifyCalled(view);
             }
         });
@@ -82,7 +83,7 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
              * Called once the renderer become responsive again.
              */
             @Override
-            public void onRendererResponsive(XWalkView view) {
+            public void onRendererResponsive(XWalkViewInternal view) {
                 responsiveHelper.notifyCalled(view);
             }
         });
@@ -107,13 +108,13 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     }
 
     private final class OnRendererResponsivenessHelper extends CallbackHelper {
-        private XWalkView mView;
+        private XWalkViewInternal mView;
 
-        public void notifyCalled(XWalkView view) {
+        public void notifyCalled(XWalkViewInternal view) {
             mView = view;
             notifyCalled();
         }
-        public XWalkView getXWalkView() {
+        public XWalkViewInternal getXWalkView() {
             assert getCallCount() > 0;
             return mView;
         }

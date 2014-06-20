@@ -17,9 +17,9 @@ import org.chromium.content.browser.NavigationEntry;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.net.test.util.TestWebServer;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.xwview.test.util.CommonResources;
 
 import java.util.concurrent.Callable;

@@ -12,8 +12,8 @@ import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer;
 import org.chromium.net.test.util.TestWebServer;
 
-import org.xwalk.core.XWalkClient;
 import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkClient;
 
 import java.util.concurrent.TimeUnit;
 
