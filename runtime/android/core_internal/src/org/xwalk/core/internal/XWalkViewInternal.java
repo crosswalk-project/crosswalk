@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -325,8 +326,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            XWalkPathHelper.setExternalCacheDirectory(
-                    mContext.getApplicationContext().getExternalCacheDir().getPath());
+            File extCacheDir =  mContext.getApplicationContext().getExternalCacheDir();
+            if (null != extCacheDir) {
+                XWalkPathHelper.setExternalCacheDirectory(extCacheDir.getPath());
+            }
         }
     }
 
