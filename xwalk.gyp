@@ -698,6 +698,7 @@
 
             # For external testing.
             'pack_xwalk_core_library',
+            'xwalk_core_library_documentation',
             'xwalk_runtime_lib_apk',
             'xwalk_app_hello_world_apk',
             'xwalk_app_template',

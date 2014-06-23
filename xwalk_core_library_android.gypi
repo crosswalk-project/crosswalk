@@ -8,6 +8,40 @@
   },
   'targets': [
     {
+      'target_name': 'xwalk_core_library_documentation',
+      'type': 'none',
+      'variables': {
+        'api_files': [
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkJavascriptResult.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationHistory.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationItem.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkPreferences.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkResourceClient.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkUIClient.java',
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkView.java',
+        ],
+        'docs': '<(PRODUCT_DIR)/xwalk_core_library_docs',
+      },
+      'actions': [
+        {
+          'action_name': 'javadoc_xwalk_core_library',
+          'message': 'Creating documentation for XWalk Core Library',
+          'inputs': [
+            '<@(api_files)',
+          ],
+          'outputs': [
+            '<(docs)/index.html',
+          ],
+          'action': [
+            'javadoc',
+            '-XDignore.symbol.file',
+            '-d', '<(docs)',
+            '<@(api_files)',
+          ],
+        },
+      ],
+    },
+    {
       'target_name': 'pack_xwalk_core_library',
       'type': 'none',
       'dependencies': [
