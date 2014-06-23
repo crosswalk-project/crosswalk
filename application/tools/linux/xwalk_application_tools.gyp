@@ -52,6 +52,7 @@
         '../../../..',
       ],
       'dependencies': [
+        '../../../../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../../../extensions/extensions.gyp:xwalk_extensions',
       ],
       'sources': [
