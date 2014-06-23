@@ -33,6 +33,17 @@ const char kURLKey[] = "url";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
 const char kXWalkHostsKey[] = "xwalk_hosts";
+const char kXWalkLaunchScreen[] = "xwalk_launch_screen";
+const char kXWalkLaunchScreenDefault[] = "xwalk_launch_screen.default";
+const char kXWalkLaunchScreenImageBorderDefault[] =
+    "xwalk_launch_screen.default.image_border";
+const char kXWalkLaunchScreenImageBorderLandscape[] =
+    "xwalk_launch_screen.landscape.image_border";
+const char kXWalkLaunchScreenImageBorderPortrait[] =
+    "xwalk_launch_screen.portrait.image_border";
+const char kXWalkLaunchScreenLandscape[] = "xwalk_launch_screen.landscape";
+const char kXWalkLaunchScreenPortrait[] = "xwalk_launch_screen.portrait";
+const char kXWalkLaunchScreenReadyWhen[] = "xwalk_launch_screen.ready_when";
 
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";
