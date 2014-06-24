@@ -53,8 +53,8 @@ bool ApplicationSystem::HandleApplicationManagementCommands(
     bool& run_default_message_loop) { // NOLINT
   run_default_message_loop = false;
   if (cmd_line.HasSwitch(switches::kListApplications)) {
-    const ApplicationData::ApplicationDataMap& apps =
-        application_storage_->GetInstalledApplications();
+    ApplicationData::ApplicationDataMap apps;
+    application_storage_->GetInstalledApplications(apps);
     LOG(INFO) << "Application ID                       Application Name";
     LOG(INFO) << "-----------------------------------------------------";
     ApplicationData::ApplicationDataMap::const_iterator it;

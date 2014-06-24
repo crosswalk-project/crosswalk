@@ -3,20 +3,14 @@
 // found in the LICENSE file.
 
 #include "xwalk/application/browser/application_storage.h"
-
-#include <utility>
-
 #include "xwalk/application/browser/application_storage_impl.h"
-#include "xwalk/application/common/application_file_util.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 
 namespace xwalk {
 namespace application {
 
 ApplicationStorage::ApplicationStorage(const base::FilePath& path)
-    : data_path_(path),
-      impl_(new ApplicationStorageImpl(path)) {
-  impl_->Init(applications_);
+    : impl_(new ApplicationStorageImpl(path)) {
+  impl_->Init();
 }
 
 ApplicationStorage::~ApplicationStorage() {
@@ -30,69 +24,30 @@ bool ApplicationStorage::AddApplication(
     return false;
   }
 
-  if (!impl_->AddApplication(app_data.get(), base::Time::Now()) ||
-      !Insert(app_data))
-    return false;
-
-  return true;
+  return impl_->AddApplication(app_data.get(), base::Time::Now());
 }
 
 bool ApplicationStorage::RemoveApplication(const std::string& id) {
-  if (applications_.erase(id) != 1) {
-    LOG(ERROR) << "Application " << id << " is invalid.";
-    return false;
-  }
-
-  if (!impl_->RemoveApplication(id)) {
-    LOG(ERROR) << "Error occurred while trying to remove application"
-                  "information with id "
-               << id << " from database.";
-    return false;
-  }
-
-  return true;
+  return impl_->RemoveApplication(id);
 }
 
 bool ApplicationStorage::UpdateApplication(
     scoped_refptr<ApplicationData> app_data) {
-  ApplicationData::ApplicationDataMapIterator it =
-      applications_.find(app_data->ID());
-  if (it == applications_.end()) {
-    LOG(ERROR) << "Application " << app_data->ID() << " is invalid.";
-    return false;
-  }
-
-  it->second = app_data;
-  if (!impl_->UpdateApplication(app_data.get(), base::Time::Now()))
-    return false;
-
-  return true;
+  return impl_->UpdateApplication(app_data.get(), base::Time::Now());
 }
 
 bool ApplicationStorage::Contains(const std::string& app_id) const {
-  return applications_.find(app_id) != applications_.end();
+  return impl_->ContainsApplication(app_id);
 }
 
 scoped_refptr<ApplicationData> ApplicationStorage::GetApplicationData(
-    const std::string& application_id) const {
-  ApplicationData::ApplicationDataMap::const_iterator it =
-      applications_.find(application_id);
-  if (it != applications_.end()) {
-    return it->second;
-  }
-
-  return NULL;
+    const std::string& app_id) const {
+  return impl_->GetApplicationData(app_id);
 }
 
-const ApplicationData::ApplicationDataMap&
-ApplicationStorage::GetInstalledApplications() const {
-  return applications_;
-}
-
-bool ApplicationStorage::Insert(scoped_refptr<ApplicationData> app_data) {
-  return applications_.insert(
-      std::pair<std::string, scoped_refptr<ApplicationData> >(
-          app_data->ID(), app_data)).second;
+bool ApplicationStorage::GetInstalledApplications(
+    ApplicationData::ApplicationDataMap& apps) const { // NOLINT
+  return impl_->GetInstalledApplications(apps);
 }
 
 }  // namespace application

@@ -128,13 +128,6 @@ bool InitGarbageCollectionTable(sql::Connection* db) {
   return transaction.Commit();
 }
 
-bool Insert(scoped_refptr<ApplicationData> application,
-            ApplicationData::ApplicationDataMap& applications) {
-  return applications.insert(
-      std::pair<std::string, scoped_refptr<ApplicationData> >(
-          application->ID(), application)).second;
-}
-
 base::FilePath GetAppDataPath(
     const base::FilePath& base_path, const std::string& app_id) {
   return base_path.Append(kApplicationDataDirName).Append(app_id);
@@ -197,8 +190,7 @@ bool ApplicationStorageImpl::UpgradeToVersion1(const base::FilePath& v0_file) {
 ApplicationStorageImpl::~ApplicationStorageImpl() {
 }
 
-bool ApplicationStorageImpl::Init(
-    ApplicationData::ApplicationDataMap& applications) {
+bool ApplicationStorageImpl::Init() {
   bool does_db_exist = base::PathExists(GetDBPath(data_path_));
   scoped_ptr<sql::Connection> sqlite_db(new sql::Connection);
   if (!sqlite_db->Open(GetDBPath(data_path_))) {
@@ -253,7 +245,7 @@ bool ApplicationStorageImpl::Init(
     }
   }
 
-  db_initialized_ = GetInstalledApplications(applications);
+  db_initialized_ = true;
 
   // TODO(xiang): move this to file thread and only enable application install
   // after this garbage collection finished.
@@ -263,10 +255,70 @@ bool ApplicationStorageImpl::Init(
   return db_initialized_;
 }
 
-bool ApplicationStorageImpl::GetInstalledApplications(
-    ApplicationData::ApplicationDataMap& applications) {
+scoped_refptr<ApplicationData> ApplicationStorageImpl::ExtractApplicationData(
+    const sql::Statement& smt) {
+  std::string id = smt.ColumnString(0);
+
+  int error_code;
+  std::string manifest_str = smt.ColumnString(1);
+  JSONStringValueSerializer serializer(&manifest_str);
+  std::string error_msg;
+  scoped_ptr<base::DictionaryValue> manifest(
+      static_cast<base::DictionaryValue*>(
+          serializer.Deserialize(&error_code, &error_msg)));
+
+  if (!manifest) {
+    LOG(ERROR) << "An error occured when deserializing the manifest, "
+                  "the error message is: "
+               << error_msg;
+    return NULL;
+  }
+  std::string path = smt.ColumnString(2);
+  double install_time = smt.ColumnDouble(3);
+
+  std::string error;
+  scoped_refptr<ApplicationData> app_data =
+      ApplicationData::Create(
+          base::FilePath::FromUTF8Unsafe(path),
+          Manifest::INTERNAL,
+          *manifest,
+          id,
+          &error);
+  if (!app_data) {
+    LOG(ERROR) << "Load appliation error: " << error;
+    return NULL;
+  }
+
+  app_data->install_time_ = base::Time::FromDoubleT(install_time);
+
+  app_data->permission_map_ = ToPermissionMap(smt.ColumnString(5));
+
+  return app_data;
+}
+
+scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
+    const std::string& app_id) {
   if (!db_initialized_) {
-    LOG(ERROR) << "The database haven't initilized.";
+    LOG(ERROR) << "The database hasn't been initilized.";
+    return NULL;
+  }
+
+  sql::Statement smt(sqlite_db_->GetUniqueStatement(
+      db_fields::kGetRowFromAppTableOp));
+  smt.BindString(0, app_id);
+  if (!smt.is_valid())
+    return NULL;
+
+  if (!smt.Step())
+    return NULL;
+
+  return ExtractApplicationData(smt);
+}
+
+bool ApplicationStorageImpl::GetInstalledApplications(
+    ApplicationData::ApplicationDataMap& applications) {  // NOLINT
+  if (!db_initialized_) {
+    LOG(ERROR) << "The database hasn't been initilized.";
     return false;
   }
 
@@ -275,48 +327,15 @@ bool ApplicationStorageImpl::GetInstalledApplications(
   if (!smt.is_valid())
     return false;
 
-  std::string error_msg;
   while (smt.Step()) {
-    std::string id = smt.ColumnString(0);
-
-    int error_code;
-    std::string manifest_str = smt.ColumnString(1);
-    JSONStringValueSerializer serializer(&manifest_str);
-    scoped_ptr<base::DictionaryValue> manifest(
-        static_cast<base::DictionaryValue*>(
-            serializer.Deserialize(&error_code, &error_msg)));
-
-    if (!manifest) {
-      LOG(ERROR) << "An error occured when deserializing the manifest, "
-                    "the error message is: "
-                 << error_msg;
+    scoped_refptr<ApplicationData> data = ExtractApplicationData(smt);
+    if (!data) {
+      LOG(ERROR) << "Failed to obtain ApplicationData from SQL query";
       return false;
     }
-    std::string path = smt.ColumnString(2);
-    double install_time = smt.ColumnDouble(3);
-
-    std::string error;
-    scoped_refptr<ApplicationData> application =
-        ApplicationData::Create(
-            base::FilePath::FromUTF8Unsafe(path),
-            Manifest::INTERNAL,
-            *manifest,
-            id,
-            &error);
-    if (!application) {
-      LOG(ERROR) << "Load appliation error: " << error;
-      return false;
-    }
-
-    application->install_time_ = base::Time::FromDoubleT(install_time);
-
-    application->permission_map_ = ToPermissionMap(smt.ColumnString(5));
-
-    if (!Insert(application, applications)) {
-      LOG(ERROR) << "An error occurred while"
-                    "initializing the application cache data.";
-      return false;
-    }
+    applications.insert(
+          std::pair<std::string, scoped_refptr<ApplicationData> >(
+              data->ID(), data));
   }
 
   return true;
@@ -325,7 +344,7 @@ bool ApplicationStorageImpl::GetInstalledApplications(
 bool ApplicationStorageImpl::AddApplication(const ApplicationData* application,
                                             const base::Time& install_time) {
   if (!db_initialized_) {
-    LOG(ERROR) << "The database haven't initialized.";
+    LOG(ERROR) << "The database hasn't been initilized.";
     return false;
   }
 
@@ -337,14 +356,13 @@ bool ApplicationStorageImpl::AddApplication(const ApplicationData* application,
 bool ApplicationStorageImpl::UpdateApplication(
     ApplicationData* application, const base::Time& install_time) {
   if (!db_initialized_) {
-    LOG(ERROR) << "The database haven't initialized.";
+    LOG(ERROR) << "The database hasn't been initilized.";
     return false;
   }
 
   if (SetApplicationValue(
           application, install_time, db_fields::kUpdateApplicationWithBindOp) &&
       UpdatePermissions(application->ID(), application->permission_map_)) {
-    application->is_dirty_ = false;
     return true;
   }
 
@@ -353,7 +371,7 @@ bool ApplicationStorageImpl::UpdateApplication(
 
 bool ApplicationStorageImpl::RemoveApplication(const std::string& id) {
   if (!db_initialized_) {
-    LOG(ERROR) << "The database haven't initialized.";
+    LOG(ERROR) << "The database hasn't been initilized.";
     return false;
   }
 
@@ -371,6 +389,10 @@ bool ApplicationStorageImpl::RemoveApplication(const std::string& id) {
   }
 
   return transaction.Commit();
+}
+
+bool ApplicationStorageImpl::ContainsApplication(const std::string& app_id) {
+  return GetApplicationData(app_id) != NULL;
 }
 
 bool ApplicationStorageImpl::SetApplicationValue(
