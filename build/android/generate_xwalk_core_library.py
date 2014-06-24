@@ -181,7 +181,7 @@ def CopyResources(project_source, out_dir):
       # (package, prefix) turple.
       ('ui/android/java/res', 'ui'),
       ('content/public/android/java/res', 'content'),
-      ('xwalk/runtime/android/java/res', 'xwalk_core'),
+      ('xwalk/runtime/android/core_internal/res', 'xwalk_core_internal'),
   ]
 
   # For each res, there are two generated res folder in out directory,
