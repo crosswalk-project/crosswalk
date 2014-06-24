@@ -26,13 +26,12 @@ class ApplicationStorageImplTest : public testing::Test {
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &tmp));
     ASSERT_TRUE(temp_dir_.CreateUniqueTempDirUnderPath(tmp));
     app_storage_impl_.reset(new ApplicationStorageImpl(temp_dir_.path()));
-    ASSERT_TRUE(app_storage_impl_->Init(applications));
+    ASSERT_TRUE(app_storage_impl_->Init());
   }
 
  protected:
   base::ScopedTempDir temp_dir_;
   scoped_ptr<ApplicationStorageImpl> app_storage_impl_;
-  ApplicationData::ApplicationDataMap applications;
 };
 
 TEST_F(ApplicationStorageImplTest, CreateDBFile) {
@@ -111,8 +110,9 @@ TEST_F(ApplicationStorageImplTest, DBUpgradeToV1) {
   ASSERT_TRUE(base::PathExists(v0_db_file));
 
   app_storage_impl_.reset(new ApplicationStorageImpl(temp_dir_.path()));
+  ASSERT_TRUE(app_storage_impl_->Init());
   ApplicationData::ApplicationDataMap applications;
-  ASSERT_TRUE(app_storage_impl_->Init(applications));
+  ASSERT_TRUE(app_storage_impl_->GetInstalledApplications(applications));
   ASSERT_FALSE(base::PathExists(v0_db_file));
   EXPECT_EQ(applications.size(), 1);
   EXPECT_TRUE(applications["test_id"]);

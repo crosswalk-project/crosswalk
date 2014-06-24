@@ -18,6 +18,7 @@ namespace application_storage_constants {
   extern const char kCreatePermissionTableOp[];
   extern const char kCreateGarbageCollectionTableOp[];
   extern const char kCreateGarbageCollectionTriggersOp[];
+  extern const char kGetRowFromAppTableOp[];
   extern const char kGetAllRowsFromAppTableOp[];
   extern const char kSetApplicationWithBindOp[];
   extern const char kUpdateApplicationWithBindOp[];

@@ -37,6 +37,12 @@ const char kCreateGarbageCollectionTriggersOp[] =
     "CREATE TRIGGER IF NOT EXISTS del_garbage_app AFTER INSERT ON applications"
     " BEGIN DELETE FROM garbage_collection WHERE app_id = NEW.id; END";
 
+const char kGetRowFromAppTableOp[] =
+    "SELECT A.id, A.manifest, A.path, A.install_time, "
+    "C.permission_names FROM applications as A "
+    "LEFT JOIN stored_permissions as C "
+    "ON A.id = C.id WHERE A.id = ?";
+
 const char kGetAllRowsFromAppTableOp[] =
     "SELECT A.id, A.manifest, A.path, A.install_time, "
     "C.permission_names FROM applications as A "

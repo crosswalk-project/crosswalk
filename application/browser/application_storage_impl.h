@@ -28,14 +28,18 @@ class ApplicationStorageImpl {
   bool AddApplication(const ApplicationData* application,
                       const base::Time& install_time);
   bool RemoveApplication(const std::string& key);
+  bool ContainsApplication(const std::string& key);
   bool UpdateApplication(ApplicationData* application,
                          const base::Time& install_time);
-  bool Init(
-      ApplicationData::ApplicationDataMap& applications);
+  bool Init();
+
+  scoped_refptr<ApplicationData> GetApplicationData(const std::string& id);
   bool GetInstalledApplications(
-      ApplicationData::ApplicationDataMap& applications);
+      ApplicationData::ApplicationDataMap& applications);  // NOLINT
 
  private:
+  scoped_refptr<ApplicationData> ExtractApplicationData(
+      const sql::Statement& smt);
   bool UpgradeToVersion1(const base::FilePath& v0_file);
   bool SetApplicationValue(const ApplicationData* application,
                            const base::Time& install_time,

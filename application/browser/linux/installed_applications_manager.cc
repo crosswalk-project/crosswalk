@@ -88,8 +88,8 @@ void InstalledApplicationsManager::OnApplicationNameChanged(
 }
 
 void InstalledApplicationsManager::AddInitialObjects() {
-  const ApplicationData::ApplicationDataMap& apps =
-      app_storage_->GetInstalledApplications();
+  ApplicationData::ApplicationDataMap apps;
+  app_storage_->GetInstalledApplications(apps);
   ApplicationData::ApplicationDataMap::const_iterator it;
   for (it = apps.begin(); it != apps.end(); ++it)
     AddObject(it->second);

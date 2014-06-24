@@ -188,7 +188,6 @@ bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
 ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
-      is_dirty_(false),
       manifest_(manifest.release()),
       finished_parsing_manifest_(false) {
   DCHECK(path.empty() || path.IsAbsolute());
@@ -327,7 +326,6 @@ bool ApplicationData::SetPermission(const std::string& permission_name,
                                     StoredPermission perm) {
   if (perm != UNDEFINED_STORED_PERM) {
     permission_map_[permission_name] = perm;
-    is_dirty_ = true;
     return true;
   }
   return false;

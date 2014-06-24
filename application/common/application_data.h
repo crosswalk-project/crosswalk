@@ -111,8 +111,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
     return manifest_.get();
   }
 
-  bool IsDirty() const { return is_dirty_; }
-
   const base::Time& install_time() const { return install_time_; }
 
   // App-related.

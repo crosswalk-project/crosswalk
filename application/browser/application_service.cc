@@ -84,8 +84,10 @@ bool ApplicationService::Uninstall(const std::string& id) {
 }
 
 void ApplicationService::ChangeLocale(const std::string& locale) {
-  const ApplicationData::ApplicationDataMap& apps =
-      application_storage_->GetInstalledApplications();
+  ApplicationData::ApplicationDataMap apps;
+  if (!application_storage_->GetInstalledApplications(apps))
+    return;
+
   ApplicationData::ApplicationDataMap::const_iterator it;
   for (it = apps.begin(); it != apps.end(); ++it) {
     base::string16 error;
