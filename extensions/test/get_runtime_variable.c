@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "xwalk/extensions/public/XW_Extension.h"
 #include "xwalk/extensions/public/XW_Extension_Runtime.h"
 #include "xwalk/extensions/public/XW_Extension_SyncMessage.h"
@@ -62,6 +63,13 @@ int32_t XW_Initialize(XW_Extension extension, XW_GetInterface get_interface) {
 
   g_runtime = get_interface(XW_INTERNAL_RUNTIME_INTERFACE);
   if (!g_runtime)
+    return XW_ERROR;
+
+  char extension_path[4096];
+  g_runtime->GetRuntimeVariableString(g_extension, "extension_path",
+      extension_path, sizeof(extension_path));
+
+  if (strstr(extension_path, "get_runtime_variable") == NULL)
     return XW_ERROR;
 
   return XW_OK;
