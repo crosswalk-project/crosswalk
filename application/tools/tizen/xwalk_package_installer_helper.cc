@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <pkgmgr/pkgmgr_parser.h>
+#include <tzplatform_config.h>
 
 #undef LOG
 #include <string>
@@ -17,9 +18,9 @@ namespace {
 
 typedef int (*PkgParser)(const char*, char* const*);
 
-const base::FilePath kIconDir("/opt/share/icons/default/small/");
-const base::FilePath kXmlDir("/opt/share/packages/");
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
+const char kIconDir[] = "icons/default/small/";
+const char kXmlDir[] = "packages/";
 const std::string kServicePrefix("xwalk-service.");
 const std::string kXmlFileExt(".xml");
 const std::string kPngFileExt(".png");
@@ -141,9 +142,12 @@ bool PackageInstallerHelper::InstallApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for installation\n");
   }
 
+  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath xml_dst = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
-  base::FilePath icon_dst = GetDestFilePath(kIconDir, appid_, kPngFileExt);
+  base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
+  base::FilePath icon_dst = GetDestFilePath(icon, appid_, kPngFileExt);
   FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
@@ -166,9 +170,12 @@ bool PackageInstallerHelper::InstallApplicationInternal(
 bool PackageInstallerHelper::UninstallApplicationInternal() {
   bool result = true;
 
+  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath iconpath = GetDestFilePath(kIconDir, appid_, kPngFileExt);
-  base::FilePath xmlpath = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
+  base::FilePath iconpath = GetDestFilePath(icon, appid_, kPngFileExt);
+  base::FilePath xmlpath = GetDestFilePath(xml, appid_, kXmlFileExt);
   FileDeleter icon_cleaner(iconpath, false);
   FileDeleter xml_cleaner(xmlpath, false);
 
@@ -191,9 +198,12 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for update\n");
   }
 
+  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+
   // FIXME(vcgomes): Add support for more icon types
-  base::FilePath xml_dst = GetDestFilePath(kXmlDir, appid_, kXmlFileExt);
-  base::FilePath icon_dst = GetDestFilePath(kIconDir, appid_, kPngFileExt);
+  base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
+  base::FilePath icon_dst = GetDestFilePath(icon, appid_, kPngFileExt);
   FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
