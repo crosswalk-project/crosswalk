@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_INSTALLER_PACKAGE_INSTALLER_H_
-#define XWALK_APPLICATION_BROWSER_INSTALLER_PACKAGE_INSTALLER_H_
+#ifndef XWALK_APPLICATION_COMMON_INSTALLER_PACKAGE_INSTALLER_H_
+#define XWALK_APPLICATION_COMMON_INSTALLER_PACKAGE_INSTALLER_H_
 
 #include <string>
 #include "base/files/file_path.h"
@@ -38,4 +38,4 @@ class PackageInstaller {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_INSTALLER_PACKAGE_INSTALLER_H_
+#endif  // XWALK_APPLICATION_COMMON_INSTALLER_PACKAGE_INSTALLER_H_

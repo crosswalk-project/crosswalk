@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/xpk_package.h"
+#include "xwalk/application/common/installer/xpk_package.h"
 
 #include "base/file_util.h"
 #include "crypto/signature_verifier.h"

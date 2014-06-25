@@ -25,7 +25,7 @@
 #include "net/base/file_stream.h"
 #include "third_party/libxml/src/include/libxml/tree.h"
 #include "ui/base/l10n/l10n_util.h"
-#include "xwalk/application/browser/installer/package.h"
+#include "xwalk/application/common/installer/package.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"

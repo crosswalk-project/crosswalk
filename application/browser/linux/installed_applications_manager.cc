@@ -9,7 +9,7 @@
 #include "base/files/file_path.h"
 #include "dbus/bus.h"
 #include "dbus/message.h"
-#include "xwalk/application/browser/application_storage.h"
+#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/browser/linux/installed_application_object.h"
 
 namespace {
