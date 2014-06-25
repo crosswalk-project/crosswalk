@@ -69,15 +69,6 @@ public class XWalkWebChromeClient {
     public void onReceivedIcon(XWalkViewInternal view, Bitmap icon) {}
 
     /**
-     * Notify the host application of the url for an apple-touch-icon.
-     * @param view The XWalkViewInternal that initiated the callback.
-     * @param url The icon url.
-     * @param precomposed True if the url is for a precomposed touch icon.
-     */
-    public void onReceivedTouchIconUrl(XWalkViewInternal view, String url,
-            boolean precomposed) {}
-
-    /**
      * A callback interface used by the host application to notify
      * the current page that its custom view has been dismissed.
      */
@@ -310,19 +301,6 @@ public class XWalkWebChromeClient {
         onConsoleMessage(consoleMessage.message(), consoleMessage.lineNumber(),
                 consoleMessage.sourceId());
         return false;
-    }
-
-    /**
-     * When not playing, video elements are represented by a 'poster' image. The
-     * image to use can be specified by the poster attribute of the video tag in
-     * HTML. If the attribute is absent, then a default poster will be used. This
-     * method allows the ChromeClient to provide that default image.
-     *
-     * @return Bitmap The image to use as a default poster, or null if no such image is
-     * available.
-     */
-    public Bitmap getDefaultVideoPoster() {
-        return null;
     }
 
     /**
