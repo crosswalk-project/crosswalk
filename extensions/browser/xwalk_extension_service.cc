@@ -237,7 +237,7 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    const base::ValueMap& runtime_variables) {
+    scoped_ptr<base::ValueMap> runtime_variables) {
   XWalkExtensionData* data = new XWalkExtensionData;
   data->set_render_process_host(host);
 
@@ -245,12 +245,12 @@ void XWalkExtensionService::OnRenderProcessHostCreatedInternal(
                                   extension_thread_extensions);
 
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess))
-    CreateExtensionProcessHost(host, data, runtime_variables);
-  else if (!external_extensions_path_.empty()) {
+  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensionProcess)) {
+    CreateExtensionProcessHost(host, data, runtime_variables.Pass());
+  } else if (!external_extensions_path_.empty()) {
     RegisterExternalExtensionsInDirectory(
         data->in_process_ui_thread_server(),
-        external_extensions_path_, runtime_variables);
+        external_extensions_path_, runtime_variables.Pass());
   }
 
   extension_data_map_[host->GetID()] = data;
@@ -260,19 +260,19 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
     content::RenderProcessHost* host,
     XWalkExtensionVector* ui_thread_extensions,
     XWalkExtensionVector* extension_thread_extensions,
-    const base::ValueMap& runtime_variables) {
+    scoped_ptr<base::ValueMap> runtime_variables) {
   CHECK(host);
 
   if (!g_external_extensions_path_for_testing_.empty()) {
-    base::ValueMap test_variables;
-    test_variables["runtime_name"] = base::Value::CreateStringValue("xwalk");
+    (*runtime_variables)["runtime_name"] =
+        base::Value::CreateStringValue("xwalk");
     OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
-        extension_thread_extensions, test_variables);
+        extension_thread_extensions, runtime_variables.Pass());
     return;
   }
 
   OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
-      extension_thread_extensions, runtime_variables);
+      extension_thread_extensions, runtime_variables.Pass());
 }
 
 // static
@@ -403,10 +403,10 @@ void XWalkExtensionService::CreateInProcessExtensionServers(
 
 void XWalkExtensionService::CreateExtensionProcessHost(
     content::RenderProcessHost* host, XWalkExtensionData* data,
-    const base::ValueMap& runtime_variables) {
+    scoped_ptr<base::ValueMap> runtime_variables) {
   data->set_extension_process_host(make_scoped_ptr(
       new XWalkExtensionProcessHost(host, external_extensions_path_, this,
-                                    runtime_variables)));
+                                    runtime_variables.Pass())));
 }
 
 void XWalkExtensionService::OnExtensionProcessDied(
