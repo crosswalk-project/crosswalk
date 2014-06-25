@@ -20,5 +20,3 @@ deps_xwalk = {
   # Ozone-Wayland is required for Wayland support in Chromium.
   'src/ozone': 'https://github.com/01org/ozone-wayland.git@%s' % ozone_wayland_point,
 }
-vars_xwalk = {
-}
