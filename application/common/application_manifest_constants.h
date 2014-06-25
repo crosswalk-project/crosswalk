@@ -32,6 +32,14 @@ namespace application_manifest_keys {
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
   extern const char kXWalkHostsKey[];
+  extern const char kXWalkLaunchScreen[];
+  extern const char kXWalkLaunchScreenDefault[];
+  extern const char kXWalkLaunchScreenImageBorderDefault[];
+  extern const char kXWalkLaunchScreenImageBorderLandscape[];
+  extern const char kXWalkLaunchScreenImageBorderPortrait[];
+  extern const char kXWalkLaunchScreenLandscape[];
+  extern const char kXWalkLaunchScreenPortrait[];
+  extern const char kXWalkLaunchScreenReadyWhen[];
 
 #if defined(OS_TIZEN)
   extern const char kTizenAppIdKey[];

@@ -71,10 +71,37 @@ class XWalkContentUserData : public base::SupportsUserData::Data {
   XWalkContent* content_;
 };
 
+// FIXME(wang16): Remove following methods after deprecated fields
+// are not supported any more.
 void PrintManifestDeprecationWarning(std::string field) {
   LOG(WARNING) << "\"" << field << "\" is deprecated for Crosswalk. "
       << "Please follow "
       << "https://www.crosswalk-project.org/#documentation/manifest.";
+}
+
+bool ManifestHasPath(const xwalk::application::Manifest& manifest,
+                     const std::string& path,
+                     const std::string& deprecated_path) {
+  if (manifest.HasPath(path))
+    return true;
+  if (manifest.HasPath(deprecated_path)) {
+    PrintManifestDeprecationWarning(deprecated_path);
+    return true;
+  }
+  return false;
+}
+
+bool ManifestGetString(const xwalk::application::Manifest& manifest,
+                       const std::string& path,
+                       const std::string& deprecated_path,
+                       std::string* out_value) {
+  if (manifest.GetString(path, out_value))
+    return true;
+  if (manifest.GetString(deprecated_path, out_value)) {
+    PrintManifestDeprecationWarning(deprecated_path);
+    return true;
+  }
+  return false;
 }
 
 }  // namespace
@@ -248,10 +275,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
-  if (!manifest.GetString(keys::kCSPKey, &csp)) {
-    if (manifest.GetString(keys::kCSPKeyLegacy, &csp))
-      PrintManifestDeprecationWarning(keys::kCSPKeyLegacy);
-  }
+  ManifestGetString(manifest, keys::kCSPKey, keys::kCSPKeyLegacy, &csp);
   RuntimeContext* runtime_context =
       XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
@@ -272,10 +296,15 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   }
 
   // Check whether need to display launch screen. (Read from manifest.json)
-  if (manifest.HasPath(keys::kLaunchScreen)) {
+  if (ManifestHasPath(manifest,
+                      keys::kXWalkLaunchScreen,
+                      keys::kLaunchScreen)) {
     std::string ready_when;
     // Get the value of 'ready_when' from manifest.json
-    manifest.GetString(keys::kLaunchScreenReadyWhen, &ready_when);
+    ManifestGetString(manifest,
+                      keys::kXWalkLaunchScreenReadyWhen,
+                      keys::kLaunchScreenReadyWhen,
+                      &ready_when);
     ScopedJavaLocalRef<jstring> ready_when_buffer =
         base::android::ConvertUTF8ToJavaString(env, ready_when);
 
@@ -286,26 +315,38 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
     //    The value of 'image_border' will be empty.
     const char empty[] = "empty";
     std::string image_border_default;
-    manifest.GetString(keys::kLaunchScreenImageBorderDefault,
-                       &image_border_default);
-    if (image_border_default.empty() && manifest.HasPath(
-        keys::kLaunchScreenDefault)) {
+    ManifestGetString(manifest,
+                      keys::kXWalkLaunchScreenImageBorderDefault,
+                      keys::kLaunchScreenImageBorderDefault,
+                      &image_border_default);
+    if (image_border_default.empty() &&
+        ManifestHasPath(manifest,
+                        keys::kXWalkLaunchScreenDefault,
+                        keys::kLaunchScreenDefault)) {
       image_border_default = empty;
     }
 
     std::string image_border_landscape;
-    manifest.GetString(keys::kLaunchScreenImageBorderLandscape,
-                       &image_border_landscape);
-    if (image_border_landscape.empty() && manifest.HasPath(
-        keys::kLaunchScreenLandscape)) {
+    ManifestGetString(manifest,
+                      keys::kXWalkLaunchScreenImageBorderLandscape,
+                      keys::kLaunchScreenImageBorderLandscape,
+                      &image_border_landscape);
+    if (image_border_landscape.empty() &&
+        ManifestHasPath(manifest,
+                        keys::kXWalkLaunchScreenLandscape,
+                        keys::kLaunchScreenLandscape)) {
       image_border_landscape = empty;
     }
 
     std::string image_border_portrait;
-    manifest.GetString(keys::kLaunchScreenImageBorderPortrait,
-                       &image_border_portrait);
-    if (image_border_portrait.empty() && manifest.HasPath(
-        keys::kLaunchScreenPortrait)) {
+    ManifestGetString(manifest,
+                      keys::kXWalkLaunchScreenImageBorderPortrait,
+                      keys::kLaunchScreenImageBorderPortrait,
+                      &image_border_portrait);
+    if (image_border_portrait.empty() &&
+        ManifestHasPath(manifest,
+                        keys::kXWalkLaunchScreenPortrait,
+                        keys::kLaunchScreenPortrait)) {
       image_border_portrait = empty;
     }
 
