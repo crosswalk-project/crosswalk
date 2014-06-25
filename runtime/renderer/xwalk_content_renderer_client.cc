@@ -69,6 +69,17 @@ class XWalkFrameHelper
         render_frame()->GetWebFrame(), context);
   }
 
+#if defined(OS_TIZEN)
+  virtual void DidCommitProvisionalLoad(bool is_new_navigation) OVERRIDE {
+    blink::WebFrame* frame = render_frame()->GetWebFrame();
+    GURL url(frame->document().url());
+    if (url.SchemeIs(application::kApplicationScheme)) {
+      blink::WebSecurityOrigin origin = frame->document().securityOrigin();
+      origin.grantLoadLocalResources();
+    }
+  }
+#endif
+
  private:
   extensions::XWalkExtensionRendererController* extension_controller_;
 
