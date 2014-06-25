@@ -5,6 +5,7 @@
 package org.xwalk.core.internal;
 
 import android.util.Log;
+import android.view.KeyEvent;
 
 class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
@@ -43,6 +44,12 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
     @Override
     public void rendererResponsive() {
         if (mXWalkContentsClient != null) mXWalkContentsClient.onRendererResponsive();
+    }
+
+    @Override
+    public void handleKeyboardEvent(KeyEvent event) {
+        // Handle the event here when necessary and return if so.
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onUnhandledKeyEvent(event);
     }
 
     @Override

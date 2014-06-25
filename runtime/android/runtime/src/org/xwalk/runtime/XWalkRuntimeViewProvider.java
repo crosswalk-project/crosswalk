@@ -7,7 +7,6 @@ package org.xwalk.runtime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.KeyEvent;
 import android.view.View;
 
 /**
@@ -31,7 +30,6 @@ interface XWalkRuntimeViewProvider {
     public void loadAppFromManifest(String manifestUrl);
     public void enableRemoteDebugging(String frontEndUrl, String socketName);
     public void disableRemoteDebugging();
-    public boolean onKeyUp(int KeyCode, KeyEvent event);
 
     // For instrumentation test.
     public String getTitleForTest();

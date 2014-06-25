@@ -9,7 +9,6 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.view.WindowManager;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,17 +18,6 @@ public class AppTemplateActivity extends XWalkRuntimeActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        // Passdown the key-up event to runtime view.
-        if (getRuntimeView() != null &&
-                getRuntimeView().onKeyUp(keyCode, event)) {
-            return true;
-        }
-
-        return super.onKeyUp(keyCode, event);
     }
 
     @Override

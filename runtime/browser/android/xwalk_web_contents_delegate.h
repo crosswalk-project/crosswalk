@@ -41,6 +41,10 @@ class XWalkWebContentsDelegate
   virtual void RendererUnresponsive(content::WebContents* source) OVERRIDE;
   virtual void RendererResponsive(content::WebContents* source) OVERRIDE;
 
+  virtual void HandleKeyboardEvent(
+      content::WebContents* source,
+      const content::NativeWebKeyboardEvent& event) OVERRIDE;
+
   virtual void ToggleFullscreenModeForTab(content::WebContents* web_contents,
                                           bool enter_fullscreen) OVERRIDE;
   virtual bool IsFullscreenForTabOrPending(
