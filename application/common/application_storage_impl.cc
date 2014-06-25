@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/application_storage_impl.h"
+#include "xwalk/application/common/application_storage_impl.h"
 
 #include <string>
 #include <vector>
@@ -15,7 +15,7 @@
 #include "base/json/json_string_value_serializer.h"
 #include "sql/statement.h"
 #include "sql/transaction.h"
-#include "xwalk/application/browser/application_storage.h"
+#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_storage_constants.h"
 
 namespace db_fields = xwalk::application_storage_constants;

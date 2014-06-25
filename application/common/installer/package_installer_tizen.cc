@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/package_installer_tizen.h"
+#include "xwalk/application/common/installer/package_installer_tizen.h"
 
 #include <sys/types.h>
 #include <pwd.h>
@@ -22,8 +22,8 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
-#include "xwalk/application/browser/application_storage.h"
-#include "xwalk/application/browser/installer/tizen/packageinfo_constants.h"
+#include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 namespace info = xwalk::application_packageinfo_constants;

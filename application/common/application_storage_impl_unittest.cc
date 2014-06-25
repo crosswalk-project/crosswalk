@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/application_storage_impl.h"
+#include "xwalk/application/common/application_storage_impl.h"
 
 #include "base/file_util.h"
 #include "base/files/scoped_temp_dir.h"
@@ -10,7 +10,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "xwalk/application/browser/application_storage.h"
+#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
 namespace xwalk {

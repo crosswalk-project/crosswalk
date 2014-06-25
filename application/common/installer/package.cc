@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/package.h"
+#include "xwalk/application/common/installer/package.h"
 
 #include "base/file_util.h"
 #include "base/files/file_path.h"
@@ -10,8 +10,8 @@
 #include "base/path_service.h"
 #include "third_party/zlib/google/zip.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/application/browser/installer/wgt_package.h"
-#include "xwalk/application/browser/installer/xpk_package.h"
+#include "xwalk/application/common/installer/wgt_package.h"
+#include "xwalk/application/common/installer/xpk_package.h"
 
 namespace xwalk {
 namespace application {

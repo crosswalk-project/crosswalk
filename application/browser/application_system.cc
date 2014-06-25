@@ -11,7 +11,7 @@
 #include "net/base/filename_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/browser/application_storage.h"
+#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/extension/application_runtime_extension.h"

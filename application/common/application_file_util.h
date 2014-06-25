@@ -9,7 +9,7 @@
 #include <map>
 
 #include "base/memory/ref_counted.h"
-#include "xwalk/application/browser/installer/package.h"
+#include "xwalk/application/common/installer/package.h"
 #include "xwalk/application/common/manifest.h"
 
 

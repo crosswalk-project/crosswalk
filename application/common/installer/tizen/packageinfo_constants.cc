@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/browser/installer/tizen/packageinfo_constants.h"
+#include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
 
 namespace xwalk {
 namespace application_packageinfo_constants {

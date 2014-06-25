@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_BROWSER_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
-#define XWALK_APPLICATION_BROWSER_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
+#ifndef XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
+#define XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
 
 #include "base/files/file_path.h"
 #include "base/basictypes.h"
@@ -27,4 +27,4 @@ namespace application_packageinfo_constants {
 }  // namespace application_packageinfo_constants
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_BROWSER_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
+#endif  // XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
