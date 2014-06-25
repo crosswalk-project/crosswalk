@@ -163,8 +163,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     protected abstract void onRequestFocus();
 
-    protected abstract View getVideoLoadingProgressView();
-
     public abstract void onPageStarted(String url);
 
     public abstract void onPageFinished(String url);

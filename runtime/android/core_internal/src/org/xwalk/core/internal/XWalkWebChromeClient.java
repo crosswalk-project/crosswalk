@@ -303,18 +303,6 @@ public class XWalkWebChromeClient {
         return false;
     }
 
-    /**
-     * When the user starts to playback a video element, it may take time for enough
-     * data to be buffered before the first frames can be rendered. While this buffering
-     * is taking place, the ChromeClient can use this function to provide a View to be
-     * displayed. For example, the ChromeClient could show a spinner animation.
-     *
-     * @return View The View to be displayed whilst the video is loading.
-     */
-    public View getVideoLoadingProgressView() {
-        return null;
-    }
-
     /** Obtains a list of all visited history items, used for link coloring
      */
     public void getVisitedHistory(ValueCallback<String[]> callback) {

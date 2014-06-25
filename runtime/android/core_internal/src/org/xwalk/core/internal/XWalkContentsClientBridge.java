@@ -351,13 +351,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    protected View getVideoLoadingProgressView() {
-        if (mXWalkWebChromeClient != null)
-            return mXWalkWebChromeClient.getVideoLoadingProgressView();
-        return null;
-    }
-
-    @Override
     public void didFinishLoad(String url) {
     }
 
