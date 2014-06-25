@@ -6,8 +6,7 @@
 
 """
 This script is responsible for generating .gclient-xwalk in the top-level
-source directory by parsing .DEPS.xwalk (or any other file passed to the --deps
-option).
+source directory by parsing .DEPS.xwalk.
 """
 
 import optparse
@@ -21,10 +20,7 @@ class GClientFileGenerator(object):
     self._options = options
     self._xwalk_dir = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))
-    if options.deps:
-      self._deps_file = options.deps
-    else:
-      self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
+    self._deps_file = os.path.join(self._xwalk_dir, 'DEPS.xwalk')
     self._deps = None
     self._chromium_version = None
     self._ParseDepsFile()
@@ -94,9 +90,6 @@ class GClientFileGenerator(object):
 def main():
   option_parser = optparse.OptionParser()
 
-  option_parser.add_option('--deps', default=None,
-                           help='The deps file contains the dependencies path '
-                                'and url')
   option_parser.add_option('--cache-dir',
                            help='Set "cache_dir" in the .gclient file to this '
                                 'directory, so that all git repositories are '
