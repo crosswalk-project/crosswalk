@@ -47,46 +47,31 @@ class GClientFileGenerator(object):
     self._deps = exec_globals['deps_xwalk']
     self._chromium_version = exec_globals['chromium_version']
 
-  def _AddIgnorePathFromEnv(self):
-    """Read paths from environ XWALK_SYNC_IGNORE.
-       Set the path with None value to ignore it when syncing chromium.
-
-       If environ not set, will ignore the ones upstream wiki recommended
-       by default.
+  def _AddIgnoredPaths(self):
     """
-    ignores_str = os.environ.get("XWALK_SYNC_IGNORE")
-    if not ignores_str:
-      ignores = ['build',
-                 'build/scripts/command_wrapper/bin',
-                 'build/scripts/gsd_generate_index',
-                 'build/scripts/private/data/reliability',
-                 'build/scripts/tools/deps2git',
-                 'build/third_party/cbuildbot_chromite',
-                 'build/third_party/gsutil',
-                 'build/third_party/lighttpd',
-                 'build/third_party/swarm_client',
-                 'build/third_party/xvfb',
-                 'build/xvfb',
-                 'commit-queue',
-                 'depot_tools',
-                 'src/webkit/data/layout_tests/LayoutTests',
-                 'src/third_party/WebKit/LayoutTests',
-                 'src/content/test/data/layout_tests/LayoutTests',
-                 'src/chrome/tools/test/reference_build/chrome_win',
-                 'src/chrome_frame/tools/test/reference_build/chrome_win',
-                 'src/chrome/tools/test/reference_build/chrome_linux',
-                 'src/chrome/tools/test/reference_build/chrome_mac',
-                 'src/third_party/chromite',
-                 'src/third_party/hunspell_dictionaries',
-                 'src/third_party/pyelftools']
-    else:
-      ignores_str = ignores_str.replace(':', ';')
-      ignores = ignores_str.split(';')
+    Excludes certain directories from a checkout that are not relevant to
+    Crosswalk (basically, directories outside src/).
+    """
+    ignores = [
+      'build',
+      'build/scripts/command_wrapper/bin',
+      'build/scripts/gsd_generate_index',
+      'build/scripts/private/data/reliability',
+      'build/scripts/tools/deps2git',
+      'build/third_party/cbuildbot_chromite',
+      'build/third_party/gsutil',
+      'build/third_party/lighttpd',
+      'build/third_party/swarm_client',
+      'build/third_party/xvfb',
+      'build/xvfb',
+      'commit-queue',
+      'depot_tools',
+    ]
     for ignore in ignores:
       self._deps[ignore] = None
 
   def Generate(self):
-    self._AddIgnorePathFromEnv()
+    self._AddIgnoredPaths()
     solution = {
       'name': self._chromium_version,
       'url': 'http://src.chromium.org/svn/releases/%s' %
