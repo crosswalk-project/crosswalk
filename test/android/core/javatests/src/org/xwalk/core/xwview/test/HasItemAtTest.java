@@ -18,8 +18,6 @@ public class HasItemAtTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     @SmallTest

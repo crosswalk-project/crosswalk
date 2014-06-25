@@ -49,48 +49,6 @@ public class XWalkClient {
     }
 
     /**
-     * Give the host application a chance to take over the control when a new
-     * url is about to be loaded in the current XWalkViewInternal. If XWalkClient is not
-     * provided, by default XWalkViewInternal will ask Activity Manager to choose the
-     * proper handler for the url. If XWalkClient is provided, return true
-     * means the host application handles the url, while return false means the
-     * current XWalkViewInternal handles the url.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param url The url to be loaded.
-     * @return True if the host application wants to leave the current XWalkViewInternal
-     *         and handle the url itself, otherwise return false.
-     */
-    public boolean shouldOverrideUrlLoading(XWalkViewInternal view, String url) {
-        return false;
-    }
-
-    /**
-     * Notify the host application that a page has started loading. This method
-     * is called once for each main frame load so a page with iframes or
-     * framesets will call onPageStarted one time for the main frame. This also
-     * means that onPageStarted will not be called when the contents of an
-     * embedded frame changes, i.e. clicking a link whose target is an iframe.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param url The url to be loaded.
-     */
-    public void onPageStarted(XWalkViewInternal view, String url) {
-    }
-
-    /**
-     * Notify the host application that a page has finished loading. This method
-     * is called only for main frame. When onPageFinished() is called, the
-     * rendering picture may not be updated yet. To get the notification for the
-     * new Picture, use {@link XWalkViewInternal.PictureListener#onNewPicture}.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param url The url of the page.
-     */
-    public void onPageFinished(XWalkViewInternal view, String url) {
-    }
-
-    /**
      * Notify the host application that the renderer of XWalkViewInternal is hung.
      *
      * @param view The XWalkViewInternal on which the render is hung.
@@ -258,40 +216,6 @@ public class XWalkClient {
                         haHandler.cancel();
                     }
                 }).create().show();
-    }
-
-    /**
-     * Give the host application a chance to handle the key event synchronously.
-     * e.g. menu shortcut key events need to be filtered this way. If return
-     * true, XWalkViewInternal will not handle the key event. If return false, XWalkViewInternal
-     * will always handle the key event, so none of the super in the view chain
-     * will see the key event. The default behavior returns false.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param event The key event.
-     * @return True if the host application wants to handle the key event
-     *         itself, otherwise return false
-     */
-    public boolean shouldOverrideKeyEvent(XWalkViewInternal view, KeyEvent event) {
-        return false;
-    }
-
-    /**
-     * Notify the host application that a key was not handled by the XWalkViewInternal.
-     * Except system keys, XWalkViewInternal always consumes the keys in the normal flow
-     * or if shouldOverrideKeyEvent returns true. This is called asynchronously
-     * from where the key is dispatched. It gives the host application a chance
-     * to handle the unhandled key events.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param event The key event.
-     */
-    public void onUnhandledKeyEvent(XWalkViewInternal view, KeyEvent event) {
-        // TODO: Commment the below code for compile
-        // ViewRootImpl root = view.getViewRootImpl();
-        // if (root != null) {
-        //     root.dispatchUnhandledKey(event);
-        // }
     }
 
     /**

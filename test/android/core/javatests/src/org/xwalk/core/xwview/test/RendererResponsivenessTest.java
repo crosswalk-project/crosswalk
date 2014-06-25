@@ -24,6 +24,8 @@ import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
+ * TODO(wang16): This test should be moved to internal test.
+ *
  * Renderer responsiveness tests:
  *
  * Internally, a hang monitor timer will start for each renderer when there is
@@ -44,11 +46,15 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     //@MediumTest
     @DisabledTest
     public void testRendererUnresponsive() throws Throwable {
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
+        getInstrumentation().runOnMainSync(new Runnable() {
             @Override
-            public void onRendererUnresponsive(XWalkViewInternal view) {
-                unresponsiveHelper.notifyCalled(view);
+            public void run() {
+                getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
+                    @Override
+                    public void onRendererUnresponsive(XWalkViewInternal view) {
+                        unresponsiveHelper.notifyCalled(view);
+                    }
+                });
             }
         });
 
@@ -77,14 +83,15 @@ public class RendererResponsivenessTest extends XWalkViewTestBase {
     //@MediumTest
     @DisabledTest
     public void testRendererResponsiveAgain() throws Throwable {
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
-            /**
-             * Called once the renderer become responsive again.
-             */
+        getInstrumentation().runOnMainSync(new Runnable() {
             @Override
-            public void onRendererResponsive(XWalkViewInternal view) {
-                responsiveHelper.notifyCalled(view);
+            public void run() {
+                getXWalkView().setXWalkClient(new XWalkClient(getXWalkView()) {
+                    @Override
+                    public void onRendererResponsive(XWalkViewInternal view) {
+                        responsiveHelper.notifyCalled(view);
+                    }
+                });
             }
         });
 

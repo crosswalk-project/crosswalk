@@ -30,6 +30,7 @@ import org.chromium.components.navigation_interception.NavigationParams;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.chromium.content.browser.ContentViewDownloadDelegate;
 import org.chromium.content.browser.DownloadInfo;
+import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 
 // Help bridge callback in XWalkContentsClient to XWalkViewClient and
 // XWalkWebChromeClient; Also handle the JNI conmmunication logic.
@@ -147,16 +148,18 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     // TODO(Xingnan): All the empty functions need to be implemented.
     @Override
     public boolean shouldOverrideUrlLoading(String url) {
-        if (mXWalkClient != null && mXWalkView != null)
-            return mXWalkClient.shouldOverrideUrlLoading(mXWalkView, url);
+        if (mXWalkResourceClient != null && mXWalkView != null) {
+            return mXWalkResourceClient.shouldOverrideUrlLoading(mXWalkView, url);
+        }
         return false;
     }
 
     @Override
     public boolean shouldOverrideKeyEvent(KeyEvent event) {
         boolean overridden = false;
-        if (mXWalkClient != null && mXWalkView != null)
-            overridden = mXWalkClient.shouldOverrideKeyEvent(mXWalkView, event);
+        if (mXWalkUIClient != null && mXWalkView != null) {
+            overridden = mXWalkUIClient.shouldOverrideKeyEvent(mXWalkView, event);
+        }
         if (!overridden) {
             return super.shouldOverrideKeyEvent(event);
         }
@@ -165,8 +168,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onUnhandledKeyEvent(KeyEvent event) {
-        if (mXWalkClient != null && mXWalkView != null) {
-            mXWalkClient.onUnhandledKeyEvent(mXWalkView, event);
+        if (mXWalkUIClient != null && mXWalkView != null) {
+            mXWalkUIClient.onUnhandledKeyEvent(mXWalkView, event);
         }
     }
 
@@ -263,8 +266,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onPageStarted(String url) {
-        if (mXWalkClient != null && isOwnerActivityRunning()) {
-            mXWalkClient.onPageStarted(mXWalkView, url);
+        if (mXWalkUIClient != null && isOwnerActivityRunning()) {
+            mXWalkUIClient.onPageLoadStarted(mXWalkView, url);
         }
     }
 
@@ -272,8 +275,9 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     public void onPageFinished(String url) {
         if (!isOwnerActivityRunning()) return;
         if (mPageLoadListener != null) mPageLoadListener.onPageFinished(url);
-        if (mXWalkClient != null) {
-            mXWalkClient.onPageFinished(mXWalkView, url);
+        if (mXWalkUIClient != null) {
+            // TODO(wang16): Implement the LoadStatus param.
+            mXWalkUIClient.onPageLoadStopped(mXWalkView, url, LoadStatusInternal.FINISHED);
         }
 
         // This isn't the accurate point to notify a resource loading is finished,
@@ -336,13 +340,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onReceivedTouchIconUrl(String url, boolean precomposed) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onReceivedTouchIconUrl(mXWalkView, url, precomposed);
-        }
-    }
-
-    @Override
     public void onReceivedIcon(Bitmap bitmap) {
         if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onReceivedIcon(mXWalkView, bitmap);
@@ -372,25 +369,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    protected View getVideoLoadingProgressView() {
-        if (mXWalkWebChromeClient != null)
-            return mXWalkWebChromeClient.getVideoLoadingProgressView();
-        return null;
-    }
-
-    @Override
-    public Bitmap getDefaultVideoPoster() {
-        return null;
-    }
-
-    @Override
     public void didFinishLoad(String url) {
     }
 
     @Override
     public void onTitleChanged(String title) {
-        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
-            mXWalkWebChromeClient.onReceivedTitle(mXWalkView, title);
+        if (mXWalkUIClient != null && isOwnerActivityRunning()) {
+            mXWalkUIClient.onReceivedTitle(mXWalkView, title);
         }
     }
 

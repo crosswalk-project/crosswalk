@@ -12,10 +12,8 @@ import android.webkit.ValueCallback;
 import java.lang.reflect.Method;
 
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkClient;
-import org.xwalk.core.internal.XWalkViewInternal;
-import org.xwalk.core.internal.XWalkWebChromeClient;
 
 class XWalkRuntimeTestHelper {
 
@@ -42,14 +40,14 @@ class XWalkRuntimeTestHelper {
         }
     }
 
-    class TestXWalkClient extends XWalkClient {
-        TestXWalkClient(Context context, XWalkView view) {
+    class TestXWalkUIClient extends XWalkUIClient {
+        TestXWalkUIClient(Context context, XWalkView view) {
             super(view);
         }
 
         @Override
-        public void onPageStarted(XWalkViewInternal view, String url) {
-            super.onPageStarted(view, url);
+        public void onPageLoadStarted(XWalkView view, String url) {
+            super.onPageLoadStarted(view, url);
             if (mCallbackForTest != null) {
                 try {
                     Class<?> objectClass = mCallbackForTest.getClass();
@@ -62,27 +60,21 @@ class XWalkRuntimeTestHelper {
         }
 
         @Override
-        public void onPageFinished(XWalkViewInternal view, String url) {
-            super.onPageFinished(view, url);
+        public void onPageLoadStopped(XWalkView view, String url, LoadStatus status) {
+            super.onPageLoadStopped(view, url, status);
             if (mCallbackForTest != null) {
                 try {
                     Class<?> objectClass = mCallbackForTest.getClass();
-                    Method onPageStarted = objectClass.getMethod("onPageFinished", String.class);
-                    onPageStarted.invoke(mCallbackForTest, url);
+                    Method onPageFinished = objectClass.getMethod("onPageFinished", String.class);
+                    onPageFinished.invoke(mCallbackForTest, url);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    class TestXWalkWebChromeClient extends XWalkWebChromeClient {
-        TestXWalkWebChromeClient(Context context, XWalkView view) {
-            super(view);
-        }
 
         @Override
-        public void onReceivedTitle(XWalkViewInternal view, String title) {
+        public void onReceivedTitle(XWalkView view, String title) {
             super.onReceivedTitle(view, title);
             if (mCallbackForTest != null) {
                 try {
@@ -97,13 +89,11 @@ class XWalkRuntimeTestHelper {
     }
 
     private Object mCallbackForTest;
-    private TestXWalkClient mClient;
-    private TestXWalkWebChromeClient mWebChromeClient;
+    private TestXWalkUIClient mUIClient;
     private TestXWalkResourceClient mResourceClient;
 
     XWalkRuntimeTestHelper(Context context, XWalkView view) {
-        mClient = new TestXWalkClient(context, view);
-        mWebChromeClient = new TestXWalkWebChromeClient(context, view);
+        mUIClient = new TestXWalkUIClient(context, view);
         mResourceClient = new TestXWalkResourceClient(context, view);
     }
 
@@ -111,12 +101,8 @@ class XWalkRuntimeTestHelper {
         mCallbackForTest = callback;
     }
 
-    XWalkClient getClient() {
-        return mClient;
-    }
-
-    XWalkWebChromeClient getWebChromeClient() {
-        return mWebChromeClient;
+    XWalkUIClient getUIClient() {
+        return mUIClient;
     }
 
     XWalkResourceClient getResourceClient() {

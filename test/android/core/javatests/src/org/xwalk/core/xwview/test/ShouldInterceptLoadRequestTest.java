@@ -74,7 +74,6 @@ public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

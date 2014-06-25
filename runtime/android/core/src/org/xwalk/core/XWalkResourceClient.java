@@ -4,8 +4,6 @@
 
 package org.xwalk.core;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.webkit.WebResourceResponse;
 
 import org.xwalk.core.internal.XWalkResourceClientInternal;
@@ -228,5 +226,36 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
         } else {
             super.onReceivedLoadError(view, errorCode, description, failingUrl);
         }
+    }
+
+    /**
+     * Give the host application a chance to take over the control when a new
+     * url is about to be loaded in the current XWalkView. If XWalkClient is not
+     * provided, by default XWalkView will ask Activity Manager to choose the
+     * proper handler for the url. If XWalkClient is provided, return true
+     * means the host application handles the url, while return false means the
+     * current XWalkView handles the url.
+     *
+     * @param view The XWalkView that is initiating the callback.
+     * @param url The url to be loaded.
+     * @return True if the host application wants to leave the current XWalkView
+     *         and handle the url itself, otherwise return false.
+     *
+     * @since 2.1
+     */
+    public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
+        return super.shouldOverrideUrlLoading(view, url);
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public boolean shouldOverrideUrlLoading(XWalkViewInternal view, String url) {
+        if (view instanceof XWalkView) {
+            return shouldOverrideUrlLoading((XWalkView) view, url);
+        }
+
+        return super.shouldOverrideUrlLoading(view, url);
     }
 }

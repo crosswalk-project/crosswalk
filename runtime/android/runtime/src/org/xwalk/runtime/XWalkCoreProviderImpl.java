@@ -107,8 +107,7 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     public void setCallbackForTest(Object callback) {
         XWalkRuntimeTestHelper testHelper = new XWalkRuntimeTestHelper(mContext, mXWalkView);
         testHelper.setCallbackForTest(callback);
-        mXWalkView.setXWalkClient(testHelper.getClient());
-        mXWalkView.setXWalkWebChromeClient(testHelper.getWebChromeClient());
+        mXWalkView.setUIClient(testHelper.getUIClient());
         mXWalkView.setResourceClient(testHelper.getResourceClient());
     }
 

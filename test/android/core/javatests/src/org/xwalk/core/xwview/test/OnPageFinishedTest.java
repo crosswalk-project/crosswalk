@@ -26,9 +26,6 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        setResourceClient(new XWalkViewTestBase.TestXWalkResourceClient());
     }
 
     @MediumTest

@@ -20,8 +20,6 @@ public class ClearHistoryTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     // TODO(guangzhen): Since the device issue, it can not access the network,

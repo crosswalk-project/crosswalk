@@ -25,7 +25,6 @@ public class ReloadTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         mWebServer = new TestWebServer(false);
     }
 

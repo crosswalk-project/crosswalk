@@ -20,8 +20,6 @@ public class AddJavascriptInterfaceTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     class TestJavascriptInterface {

@@ -23,6 +23,8 @@ import org.xwalk.core.internal.XWalkWebChromeClient;
 import org.xwalk.core.internal.XWalkNotificationServiceImpl;
 
 /**
+ * TODO(wang16): This test should be moved into internal test.
+ *
  * Test suite for web notification API.
  * This test will only cover notification.show() and notification.close().
  * The event handler will be covered in runtime level test. Because that
@@ -66,7 +68,6 @@ public class WebNotificationTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

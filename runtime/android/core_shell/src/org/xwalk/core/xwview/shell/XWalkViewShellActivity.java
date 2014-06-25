@@ -39,12 +39,11 @@ import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkViewInternal;
-import org.xwalk.core.internal.XWalkWebChromeClient;
 
 public class XWalkViewShellActivity extends FragmentActivity
-        implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener{
+        implements ActionBar.TabListener, XWalkViewSectionFragment.OnXWalkViewCreatedListener {
     public static final String COMMAND_LINE_FILE = "/data/local/tmp/xwview-shell-command-line";
     private static final String TAG = XWalkViewShellActivity.class.getName();
     public static final String COMMAND_LINE_ARGS_KEY = "commandLineArgs";
@@ -313,11 +312,10 @@ public class XWalkViewShellActivity extends FragmentActivity
             }
         });
 
-        // TODO: core shell shouldn't use internal APIs.
-        xwalkView.setXWalkWebChromeClient(new XWalkWebChromeClient(xwalkView) {
+        xwalkView.setUIClient(new XWalkUIClient(xwalkView) {
             @Override
-            public void onReceivedTitle(XWalkViewInternal view, String title) {
-                mSectionsPagerAdapter.setPageTitle((XWalkView)view, title);
+            public void onReceivedTitle(XWalkView view, String title) {
+                mSectionsPagerAdapter.setPageTitle(view, title);
             }
         });
     }

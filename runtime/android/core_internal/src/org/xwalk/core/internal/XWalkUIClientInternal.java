@@ -196,6 +196,92 @@ public class XWalkUIClientInternal {
     public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
     }
 
+    /**
+     * Give the host application a chance to handle the key event synchronously.
+     * e.g. menu shortcut key events need to be filtered this way. If return
+     * true, XWalkViewInternal will not handle the key event. If return false, XWalkViewInternal
+     * will always handle the key event, so none of the super in the view chain
+     * will see the key event. The default behavior returns false.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param event The key event.
+     * @return True if the host application wants to handle the key event
+     *         itself, otherwise return false
+     *
+     * @since 2.1
+     */
+    public boolean shouldOverrideKeyEvent(XWalkViewInternal view, KeyEvent event) {
+        return false;
+    }
+
+    /**
+     * Notify the host application that a key was not handled by the XWalkViewInternal.
+     * Except system keys, XWalkViewInternal always consumes the keys in the normal flow
+     * or if shouldOverrideKeyEvent returns true. This is called asynchronously
+     * from where the key is dispatched. It gives the host application a chance
+     * to handle the unhandled key events.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param event The key event.
+     *
+     * @since 2.1
+     */
+    public void onUnhandledKeyEvent(XWalkViewInternal view, KeyEvent event) {
+    }
+
+    /**
+     * Notify the host application of a change in the document title.
+     * @param view The XWalkViewInternal that initiated the callback.
+     * @param title A String containing the new title of the document.
+     * @since 2.1
+     */
+    public void onReceivedTitle(XWalkViewInternal view, String title) {
+    }
+
+
+    /**
+     * The status when a page stopped loading
+     * @since 2.1
+     */
+    public enum LoadStatusInternal {
+        /** Loading finished. */
+        FINISHED,
+        /** Loading failed. */
+        FAILED,
+        /** Loading cancelled by user. */
+        CANCELLED
+    }
+
+    /**
+     * Notify the host application that a page has started loading. This method
+     * is called once for each main frame load so a page with iframes or
+     * framesets will call onPageLoadStarted one time for the main frame. This also
+     * means that onPageLoadStarted will not be called when the contents of an
+     * embedded frame changes, i.e. clicking a link whose target is an iframe.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param url The url to be loaded.
+     *
+     * @since 2.1
+     */
+    public void onPageLoadStarted(XWalkViewInternal view, String url) {
+    }
+
+    /**
+     * Notify the host application that a page has stopped loading. This method
+     * is called only for main frame. When onPageLoadStopped() is called, the
+     * rendering picture may not be updated yet. To get the notification for the
+     * new Picture, use {@link XWalkViewInternal.PictureListener#onNewPicture}.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param url The url of the page.
+     * @param status The status when the page stopped loading.
+     *
+     * @since 2.1
+     */
+    public void onPageLoadStopped(XWalkViewInternal view, String url, LoadStatusInternal status) {
+    }
+
     private boolean onJsAlert(XWalkViewInternal view, String url, String message,
             XWalkJavascriptResultInternal result) {
         final XWalkJavascriptResultInternal fResult = result;

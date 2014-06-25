@@ -175,4 +175,23 @@ public class XWalkResourceClientInternal {
         AlertDialog dialog = dialogBuilder.create();
         dialog.show();
     }
+
+    /**
+     * Give the host application a chance to take over the control when a new
+     * url is about to be loaded in the current XWalkViewInternal. If XWalkClient is not
+     * provided, by default XWalkViewInternal will ask Activity Manager to choose the
+     * proper handler for the url. If XWalkClient is provided, return true
+     * means the host application handles the url, while return false means the
+     * current XWalkViewInternal handles the url.
+     *
+     * @param view The XWalkViewInternal that is initiating the callback.
+     * @param url The url to be loaded.
+     * @return True if the host application wants to leave the current XWalkViewInternal
+     *         and handle the url itself, otherwise return false.
+     *
+     * @since 2.1
+     */
+    public boolean shouldOverrideUrlLoading(XWalkViewInternal view, String url) {
+        return false;
+    }
 }
