@@ -17,8 +17,6 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_version = '36.0.1985.18'
-
 chromium_crosswalk_rev = 'f8b103e7c4f60e2cf88f49594dbcdd06e58ffa17'
 blink_crosswalk_rev = '99b0aa2fd873af570eb84cbbd342a343ce8bfd7f'
 v8_crosswalk_rev = '535cd006e5174ff00fd7b745a581980b1d371a9f'
@@ -33,8 +31,9 @@ ozone_wayland_git = 'https://github.com/01org'
 # ------------------------------------------------------
 
 chromium_solution = {
-  'name': chromium_version,
-  'url': 'http://src.chromium.org/svn/releases/' + chromium_version,
+  'name': 'src',
+  'url': crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
+  'deps_file': '.DEPS.git',
   'custom_deps': {
     'src':
       crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
@@ -42,8 +41,6 @@ chromium_solution = {
       crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
     'src/v8':
       crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
-    'src/ozone':
-      ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
   }
 }
 
@@ -68,7 +65,18 @@ ignored_directories = [
 for ignored_directory in ignored_directories:
   chromium_solution['custom_deps'][ignored_directory] = None
 
-solutions = [chromium_solution]
+# ozone-wayland is set as a separate solution because we gclient _not_ to read
+# its .DEPS.git: it changes the recursion limit and tries to check Chromium
+# upstream out itself, leading to URL conflicts and errors about duplicate
+# entries.
+ozone_wayland_solution = {
+  'name': 'src/ozone',
+  'url': ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
+  'deps_file': '',
+}
+
+solutions = [chromium_solution,
+             ozone_wayland_solution]
 
 # -------------------------------------------------
 # This area is edited by generate_gclient-xwalk.py.
