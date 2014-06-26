@@ -158,5 +158,32 @@ TEST_F(ApplicationStorageImplTest, DBUpdate) {
       new_application->GetManifest()->value()));
 }
 
+TEST_F(ApplicationStorageImplTest, SetPermission) {
+  TestInit();
+  base::DictionaryValue manifest;
+  manifest.SetString(keys::kNameKey, "no name");
+  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString("a", "b");
+  std::string error;
+  scoped_refptr<ApplicationData> application =
+      ApplicationData::Create(base::FilePath(),
+                              Manifest::INTERNAL,
+                              manifest,
+                              "",
+                              &error);
+  ASSERT_TRUE(error.empty());
+  ASSERT_TRUE(application);
+  EXPECT_TRUE(application->SetPermission("permission", ALLOW));
+  EXPECT_TRUE(app_storage_impl_->AddApplication(application.get(),
+                                                base::Time::FromDoubleT(0)));
+
+  ApplicationData::ApplicationDataMap applications;
+  ASSERT_TRUE(app_storage_impl_->GetInstalledApplications(applications));
+  EXPECT_EQ(applications.size(), 1);
+  EXPECT_TRUE(applications[application->ID()]);
+  EXPECT_TRUE(
+      applications[application->ID()]->GetPermission("permission") == ALLOW);
+}
+
 }  // namespace application
 }  // namespace xwalk
