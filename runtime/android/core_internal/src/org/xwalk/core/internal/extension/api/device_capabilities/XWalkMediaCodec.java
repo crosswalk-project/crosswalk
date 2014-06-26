@@ -31,7 +31,6 @@ abstract class XWalkMediaCodec {
     protected Set<VideoCodecElement> mVideoCodecsSet;
 
     protected DeviceCapabilities mDeviceCapabilities;
-    private static XWalkMediaCodec sInstance;
 
     protected class AudioCodecElement {
         public String codecName;
@@ -75,15 +74,14 @@ abstract class XWalkMediaCodec {
         }
     }
 
-    public static XWalkMediaCodec getInstance(DeviceCapabilities instance) {
-        if (sInstance == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                sInstance = new MediaCodec(instance);
-            } else {
-                sInstance = new MediaCodecNull(instance);
-            }
+    public static XWalkMediaCodec Create(DeviceCapabilities instance) {
+        XWalkMediaCodec codec;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            codec = new MediaCodec(instance);
+        } else {
+            codec = new MediaCodecNull(instance);
         }
-        return sInstance;
+        return codec;
     }
 
     public abstract JSONObject getCodecsInfo();
