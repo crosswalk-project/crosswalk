@@ -8,14 +8,14 @@ import org.json.JSONObject;
 import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesCodecs {
-    private static XWalkMediaCodec sMediaCodec;
+    private XWalkMediaCodec mediaCodec;
 
     public DeviceCapabilitiesCodecs(DeviceCapabilities instance,
                                     XWalkExtensionContext context) {
-        sMediaCodec = XWalkMediaCodec.getInstance(instance);
+        mediaCodec = XWalkMediaCodec.Create(instance);
     }
 
     public JSONObject getInfo() {
-        return sMediaCodec.getCodecsInfo();
+        return mediaCodec.getCodecsInfo();
     }
 }
