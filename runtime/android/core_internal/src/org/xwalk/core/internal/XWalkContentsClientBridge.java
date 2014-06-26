@@ -153,7 +153,21 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public boolean shouldOverrideKeyEvent(KeyEvent event) {
+        boolean overridden = false;
+        if (mXWalkClient != null && mXWalkView != null)
+            overridden = mXWalkClient.shouldOverrideKeyEvent(mXWalkView, event);
+        if (!overridden) {
+            return super.shouldOverrideKeyEvent(event);
+        }
+        return overridden;
+    }
+
+    @Override
     public void onUnhandledKeyEvent(KeyEvent event) {
+        if (mXWalkClient != null && mXWalkView != null) {
+            mXWalkClient.onUnhandledKeyEvent(mXWalkView, event);
+        }
     }
 
     @Override

@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 
 import org.xwalk.core.internal.XWalkNavigationHistoryInternal;
@@ -421,17 +420,5 @@ public class XWalkView extends XWalkViewInternal {
      */
     public void setResourceClient(XWalkResourceClient client) {
         super.setResourceClient(client);
-    }
-
-    /**
-     * Inherit from <a href="http://developer.android.com/reference/android/view/View.html">
-     * android.view.View</a>. This class needs to handle some keys like
-     * 'BACK'.
-     * @param keyCode passed from android.view.View.onKeyUp().
-     * @param event passed from android.view.View.onKeyUp().
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return super.onKeyUp(keyCode, event);
     }
 }

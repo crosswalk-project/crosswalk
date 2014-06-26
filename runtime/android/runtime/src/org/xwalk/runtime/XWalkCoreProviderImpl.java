@@ -7,7 +7,6 @@ package org.xwalk.runtime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -116,10 +115,5 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     @Override
     public void loadDataForTest(String data, String mimeType, boolean isBase64Encoded) {
         mXWalkView.load("", data);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        return mXWalkView.onKeyUp(keyCode, event);
     }
 }

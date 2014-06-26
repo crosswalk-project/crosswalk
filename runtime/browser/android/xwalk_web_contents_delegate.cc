@@ -146,6 +146,20 @@ void XWalkWebContentsDelegate::RendererResponsive(WebContents* source) {
   Java_XWalkWebContentsDelegate_rendererResponsive(env, obj.obj());
 }
 
+void XWalkWebContentsDelegate::HandleKeyboardEvent(
+    content::WebContents* source,
+    const content::NativeWebKeyboardEvent& event) {
+  jobject key_event = event.os_event;
+  if (!key_event)
+    return;
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = GetJavaDelegate(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkWebContentsDelegate_handleKeyboardEvent(env, obj.obj(), key_event);
+}
+
+
 void XWalkWebContentsDelegate::ToggleFullscreenModeForTab(
     content::WebContents* web_contents,
     bool enter_fullscreen) {

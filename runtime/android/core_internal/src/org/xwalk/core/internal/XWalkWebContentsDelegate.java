@@ -4,6 +4,8 @@
 
 package org.xwalk.core.internal;
 
+import android.view.KeyEvent;
+
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 import org.chromium.components.web_contents_delegate_android.WebContentsDelegateAndroid;
@@ -24,6 +26,9 @@ abstract class XWalkWebContentsDelegate extends WebContentsDelegateAndroid {
 
     @CalledByNative
     public abstract void rendererResponsive();
+
+    @CalledByNative
+    public abstract void handleKeyboardEvent(KeyEvent event);
 
     @CalledByNative
     public abstract boolean shouldOverrideRunFileChooser(

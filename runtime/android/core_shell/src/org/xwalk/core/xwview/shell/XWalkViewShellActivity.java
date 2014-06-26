@@ -196,14 +196,6 @@ public class XWalkViewShellActivity extends FragmentActivity
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (mActiveView != null) {
-            return mActiveView.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
-        }
-        return super.onKeyUp(keyCode, event);
-    }
-
-    @Override
     public void onNewIntent(Intent intent) {
         if (mActiveView != null) {
             if (!mActiveView.onNewIntent(intent)) super.onNewIntent(intent);

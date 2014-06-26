@@ -45,17 +45,6 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        // Passdown the key-up event to runtime view.
-        if (getRuntimeView() != null &&
-                getRuntimeView().onKeyUp(keyCode, event)) {
-            return true;
-        }
-
-        return super.onKeyUp(keyCode, event);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterTracingReceiver();

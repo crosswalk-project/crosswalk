@@ -637,30 +637,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mContent.setResourceClient(client);
     }
 
-    /**
-     * Inherit from <a href="http://developer.android.com/reference/android/view/View.html">
-     * android.view.View</a>. This class needs to handle some keys like
-     * 'BACK'.
-     * @param keyCode passed from android.view.View.onKeyUp().
-     * @param event passed from android.view.View.onKeyUp().
-     */
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // If there's navigation happens when app is fullscreen,
-            // the content will still be fullscreen after navigation.
-            // In such case, the back key will exit fullscreen first.
-            if (hasEnteredFullscreen()) {
-                leaveFullscreen();
-                return true;
-            } else if (canGoBack()) {
-                goBack();
-                return true;
-            }
-        }
-        return false;
-    }
-
     // TODO(yongsheng): this is not public.
     /**
      * @hide
@@ -824,5 +800,26 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setNotificationService(service);
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_UP &&
+                event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            // If there's navigation happens when app is fullscreen,
+            // the content will still be fullscreen after navigation.
+            // In such case, the back key will exit fullscreen first.
+            if (hasEnteredFullscreen()) {
+                leaveFullscreen();
+                return true;
+            } else if (canGoBack()) {
+                goBack();
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 }

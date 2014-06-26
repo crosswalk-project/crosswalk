@@ -93,6 +93,11 @@ abstract class XWalkContentsClient extends ContentViewClient {
         onTitleChanged(title);
     }
 
+    @Override
+    public boolean shouldOverrideKeyEvent(KeyEvent event) {
+        return super.shouldOverrideKeyEvent(event);
+    }
+
     void installWebContentsObserver(ContentViewCore contentViewCore) {
         if (mWebContentsObserver != null) {
             mWebContentsObserver.detachFromWebContents();
