@@ -1,0 +1,256 @@
+Author: Sudarsana Nagineni <sudarsana.nagineni@intel.com>
+
+This patch includes Chromium side changes needed for integrating
+WebMediaPlayer with the Tizen Audio Session Manager.
+
+diff --git src/build/linux/system.gyp src/build/linux/system.gyp
+index 4a3fa32..f30e6aa 100644
+--- src/build/linux/system.gyp
++++ src/build/linux/system.gyp
+@@ -1049,5 +1049,27 @@
+         }],
+       ],
+     },
++    {
++      'target_name': 'resource_manager',
++      'type': 'none',
++      'toolsets': ['host', 'target'],
++      'conditions': [
++        ['tizen==1 and enable_murphy==1', {
++          'direct_dependent_settings': {
++            'cflags': [
++              '<!@(<(pkg-config) --cflags murphy-common murphy-resource)',
++            ],
++          },
++          'link_settings': {
++            'ldflags': [
++              '<!@(<(pkg-config) --libs-only-L --libs-only-other murphy-common murphy-resource)',
++            ],
++            'libraries': [
++              '<!@(<(pkg-config) --libs-only-l murphy-common  murphy-resource)',
++            ],
++          },
++        }],
++      ],
++    },
+   ],
+ }
+diff --git src/content/browser/renderer_host/render_view_host_impl.cc src/content/browser/renderer_host/render_view_host_impl.cc
+index 49a17ef..bf2e358 100644
+--- src/content/browser/renderer_host/render_view_host_impl.cc
++++ src/content/browser/renderer_host/render_view_host_impl.cc
+@@ -93,6 +93,8 @@
+ #include "content/browser/renderer_host/popup_menu_helper_mac.h"
+ #elif defined(OS_ANDROID)
+ #include "content/browser/media/android/browser_media_player_manager.h"
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++#include "xwalk/tizen/browser/browser_mediaplayer_manager.h"
+ #elif defined(OS_WIN)
+ #include "base/win/win_util.h"
+ #endif
+@@ -239,6 +241,8 @@ RenderViewHostImpl::RenderViewHostImpl(
+ 
+ #if defined(OS_ANDROID)
+   media_player_manager_.reset(BrowserMediaPlayerManager::Create(this));
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++  media_player_manager_.reset(tizen::BrowserMediaPlayerManager::Create(this));
+ #endif
+ 
+   unload_event_monitor_timeout_.reset(new TimeoutMonitor(base::Bind(
+diff --git src/content/browser/renderer_host/render_view_host_impl.h src/content/browser/renderer_host/render_view_host_impl.h
+index e08d18c..73deda5 100644
+--- src/content/browser/renderer_host/render_view_host_impl.h
++++ src/content/browser/renderer_host/render_view_host_impl.h
+@@ -39,6 +39,12 @@ struct ViewHostMsg_ShowPopup_Params;
+ struct FrameMsg_Navigate_Params;
+ struct ViewMsg_PostMessage_Params;
+ 
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++namespace tizen {
++class BrowserMediaPlayerManager;
++}
++#endif
++
+ namespace base {
+ class ListValue;
+ }
+@@ -629,6 +635,8 @@ class CONTENT_EXPORT RenderViewHostImpl
+ #if defined(OS_ANDROID)
+   // Manages all the android mediaplayer objects and handling IPCs for video.
+   scoped_ptr<BrowserMediaPlayerManager> media_player_manager_;
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++  scoped_ptr<tizen::BrowserMediaPlayerManager> media_player_manager_;
+ #endif
+ 
+   // Used to swap out or shutdown this RVH when the unload event is taking too
+diff --git src/content/common/content_message_generator.h src/content/common/content_message_generator.h
+index 07943e8..4014b84 100644
+--- src/content/common/content_message_generator.h
++++ src/content/common/content_message_generator.h
+@@ -64,3 +64,7 @@
+ #include "content/common/medisrc/cdm_messages.h"
+ #include "content/common/medisrc/media_player_messages_android.h"
+ #endif  // defined(OS_ANDROID)
++
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++#include "xwalk/tizen/common/media_player_messages.h"
++#endif
+diff --git src/content/content_browser.gypi src/content/content_browser.gypi
+index 41c2c0a..75fa06e 100644
+--- src/content/content_browser.gypi
++++ src/content/content_browser.gypi
+@@ -1651,6 +1651,24 @@
+         'browser/power_save_blocker_x11.cc',
+       ],
+     }],
++    ['tizen==1 and enable_murphy==1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.cc',
++        '<(DEPTH)/xwalk/tizen/browser/browser_mediaplayer_manager.h',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_mainloop.cc',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_mainloop.h',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_resource.cc',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_resource.h',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_resource_manager.cc',
++        '<(DEPTH)/xwalk/tizen/browser/murphy_resource_manager.h',
++      ],
++      'dependencies': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++      'export_dependent_settings': [
++        '../build/linux/system.gyp:resource_manager',
++      ],
++    }],
+     ['os_bsd==1', {
+       'sources/': [
+         ['exclude', '^browser/gamepad/gamepad_platform_data_fetcher_linux\\.cc$'],
+diff --git src/content/content_common.gypi src/content/content_common.gypi
+index 6fe2990..4c40874 100644
+--- src/content/content_common.gypi
++++ src/content/content_common.gypi
+@@ -765,6 +765,11 @@
+         '<(DEPTH)/third_party/khronos',
+       ],
+     }],
++    ['tizen==1 and enable_murphy==1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/common/media_player_messages.h',
++      ],
++    }],
+     ['OS=="win" and directxsdk_exists=="True"', {
+       'actions': [
+       {
+diff --git src/content/content_renderer.gypi src/content/content_renderer.gypi
+index 80fd4ec..defb87a 100644
+--- src/content/content_renderer.gypi
++++ src/content/content_renderer.gypi
+@@ -773,6 +773,14 @@
+         'renderer/media/crypto/ppapi_decryptor.h',
+       ],
+     }],
++    ['tizen==1 and enable_murphy==1', {
++      'sources': [
++        '<(DEPTH)/xwalk/tizen/renderer/mediaplayer_impl.cc',
++        '<(DEPTH)/xwalk/tizen/renderer/mediaplayer_impl.h',
++        '<(DEPTH)/xwalk/tizen/renderer/renderer_mediaplayer_manager.cc',
++        '<(DEPTH)/xwalk/tizen/renderer/renderer_mediaplayer_manager.h',
++      ],
++    }],
+   ],
+   'target_conditions': [
+     ['OS=="android"', {
+diff --git src/content/renderer/render_frame_impl.cc src/content/renderer/render_frame_impl.cc
+index b93c8ed..12ed8a4 100644
+--- src/content/renderer/render_frame_impl.cc
++++ src/content/renderer/render_frame_impl.cc
+@@ -124,6 +124,10 @@
+ #include "content/renderer/medisrc/android/webmediaplayer_android.h"
+ #endif
+ 
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++#include "xwalk/tizen/renderer/mediaplayer_impl.h"
++#endif
++
+ using blink::WebContextMenuData;
+ using blink::WebData;
+ using blink::WebDataSource;
+@@ -1358,6 +1362,14 @@ blink::WebMediaPlayer* RenderFrameImpl::createMediaPlayer(
+                  static_cast<RenderFrame*>(this)),
+       RenderThreadImpl::current()->GetAudioRendererMixerManager()->CreateInput(
+           render_view_->routing_id_, routing_id_));
++
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++  tizen::MediaPlayerImpl* media_player = new tizen::MediaPlayerImpl(
++      frame, client, weak_factory_.GetWeakPtr(),
++      render_view_->media_player_manager_, params);
++  return media_player;
++#endif
++
+   return new WebMediaPlayerImpl(frame, client, weak_factory_.GetWeakPtr(),
+                                 params);
+ #endif  // defined(OS_ANDROID)
+diff --git src/content/renderer/render_view_impl.cc src/content/renderer/render_view_impl.cc
+index 17b69a0..a85263c 100644
+--- src/content/renderer/render_view_impl.cc
++++ src/content/renderer/render_view_impl.cc
+@@ -227,6 +227,10 @@
+ #include "content/renderer/medisrc/rtc_peer_connection_handler.h"
+ #endif
+ 
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++#include "xwalk/tizen/renderer/renderer_mediaplayer_manager.h"
++#endif
++
+ using blink::WebAXObject;
+ using blink::WebApplicationCacheHost;
+ using blink::WebApplicationCacheHostClient;
+@@ -662,6 +666,8 @@ RenderViewImpl::RenderViewImpl(RenderViewImplParams* params)
+ #if defined(OS_ANDROID)
+       expected_content_intent_id_(0),
+       media_player_manager_(NULL),
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++      media_player_manager_(NULL),
+ #endif
+ #if defined(OS_WIN)
+       focused_plugin_id_(-1),
+@@ -783,6 +789,8 @@ void RenderViewImpl::Initialize(RenderViewImplParams* params) {
+ 
+ #if defined(OS_ANDROID)
+   media_player_manager_ = new RendererMediaPlayerManager(this);
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++  media_player_manager_ = new tizen::RendererMediaPlayerManager(this);
+ #endif
+ 
+   // The next group of objects all implement RenderViewObserver, so are deleted
+diff --git src/content/renderer/render_view_impl.h src/content/renderer/render_view_impl.h
+index 8ef97ae..0bfeedd 100644
+--- src/content/renderer/render_view_impl.h
++++ src/content/renderer/render_view_impl.h
+@@ -125,6 +125,12 @@ namespace webkit_glue {
+ class WebURLResponseExtraDataImpl;
+ }
+ 
++#if defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++namespace tizen {
++class RendererMediaPlayerManager;
++}
++#endif
++
+ namespace content {
+ class BrowserPluginManager;
+ class DeviceOrientationDispatcher;
+@@ -1141,6 +1147,11 @@ class CONTENT_EXPORT RenderViewImpl
+ 
+   // A date/time picker object for date and time related input elements.
+   scoped_ptr<RendererDateTimePicker> date_time_picker_client_;
++#elif defined(OS_TIZEN) && defined(ENABLE_MURPHY)
++  // The media player manager for managing all the media players on this view
++  // and for communicating with the murphy resource policy daemon in browser
++  // process.
++  tizen::RendererMediaPlayerManager* media_player_manager_;
+ #endif
+ 
+   // Plugins -------------------------------------------------------------------
+-- 
+1.8.3.2
+

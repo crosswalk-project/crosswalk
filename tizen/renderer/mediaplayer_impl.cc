@@ -11,12 +11,13 @@
 namespace tizen {
 
 MediaPlayerImpl::MediaPlayerImpl(
-    blink::WebFrame* frame,
+    blink::WebLocalFrame* frame,
     blink::WebMediaPlayerClient* client,
     base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
     const content::WebMediaPlayerParams& params)
     : WebMediaPlayerImpl(frame, client, delegate, params),
+      client_(client),
       manager_(manager) {
   DCHECK(manager_);
 
@@ -28,12 +29,6 @@ MediaPlayerImpl::~MediaPlayerImpl() {
     manager_->DestroyPlayer(player_id_);
     manager_->UnregisterMediaPlayer(player_id_);
   }
-}
-
-void MediaPlayerImpl::WillDestroyCurrentMessageLoop() {
-  if (manager_)
-    manager_->UnregisterMediaPlayer(player_id_);
-  Detach();
 }
 
 void MediaPlayerImpl::Detach() {
@@ -61,6 +56,16 @@ void MediaPlayerImpl::pause() {
   if (manager_)
     manager_->Pause(player_id_);
   WebMediaPlayerImpl::pause();
+}
+
+void MediaPlayerImpl::OnMediaPlayerPlay() {
+  WebMediaPlayerImpl::play();
+  client_->playbackStateChanged();
+}
+
+void MediaPlayerImpl::OnMediaPlayerPause() {
+  WebMediaPlayerImpl::pause();
+  client_->playbackStateChanged();
 }
 
 }  // namespace tizen

@@ -81,12 +81,12 @@ MediaPlayerImpl* RendererMediaPlayerManager::GetMediaPlayer(
 
 void RendererMediaPlayerManager::OnPlayerPlay(MediaPlayerID player_id) {
   if (MediaPlayerImpl* player = GetMediaPlayer(player_id))
-    player->play();
+    player->OnMediaPlayerPlay();
 }
 
 void RendererMediaPlayerManager::OnPlayerPause(MediaPlayerID player_id) {
   if (MediaPlayerImpl* player = GetMediaPlayer(player_id))
-    player->pause();
+    player->OnMediaPlayerPause();
 }
 
 }  // namespace tizen
