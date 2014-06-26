@@ -96,8 +96,7 @@ def main():
                                 'cached there and shared across multiple '
                                 'clones.')
 
-  # pylint: disable=W0612
-  options, args = option_parser.parse_args()
+  options, _ = option_parser.parse_args()
 
   sys.exit(GClientFileGenerator(options).Generate())
 
