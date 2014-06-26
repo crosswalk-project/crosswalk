@@ -16,18 +16,15 @@ namespace application_storage_constants {
 
   extern const char kCreateAppTableOp[];
   extern const char kCreatePermissionTableOp[];
-  extern const char kCreateGarbageCollectionTableOp[];
-  extern const char kCreateGarbageCollectionTriggersOp[];
   extern const char kGetRowFromAppTableOp[];
   extern const char kGetAllRowsFromAppTableOp[];
+  extern const char kGetAllIDsFromAppTableOp[];
   extern const char kSetApplicationWithBindOp[];
   extern const char kUpdateApplicationWithBindOp[];
   extern const char kDeleteApplicationWithBindOp[];
   extern const char kInsertPermissionsWithBindOp[];
   extern const char kUpdatePermissionsWithBindOp[];
   extern const char kDeletePermissionsWithBindOp[];
-  extern const char kGetAllRowsFromGarbageCollectionTableOp[];
-  extern const char kDeleteGarbageAppIdWithBindOp[];
 
 }  // namespace application_storage_constants
 }  // namespace xwalk

@@ -50,5 +50,10 @@ bool ApplicationStorage::GetInstalledApplications(
   return impl_->GetInstalledApplications(apps);
 }
 
+bool ApplicationStorage::GetInstalledApplicationIDs(
+    std::vector<std::string>& app_ids) const {  // NOLINT
+  return impl_->GetInstalledApplicationIDs(app_ids);
+}
+
 }  // namespace application
 }  // namespace xwalk
