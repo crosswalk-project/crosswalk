@@ -6,17 +6,22 @@ package org.xwalk.runtime.client.embedded.shell;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import org.chromium.base.library_loader.LibraryLoader;
+import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.app.XWalkRuntimeActivityBase;
 
 public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivityBase {
@@ -24,10 +29,19 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
     private static final String TAG = XWalkRuntimeClientEmbeddedShellActivity.class.getName();
 
     private EditText mUrlTextView;
+    private TracingControllerAndroid mTracingController;
+
+    TracingControllerAndroid getTracingController() {
+        if (mTracingController == null) {
+            mTracingController = new TracingControllerAndroid(this);
+        }
+        return mTracingController;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        registerTracingReceiverWhenIdle();
     }
 
     @Override
@@ -39,6 +53,39 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
         }
 
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterTracingReceiver();
+    }
+
+    private void registerTracingReceiverWhenIdle() {
+        // Delay tracing receiver registration until the main loop is idle.
+        Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+            @Override
+            public boolean queueIdle() {
+                // Will retry if the native library is not initialized yet.
+                if (!LibraryLoader.isInitialized()) return true;
+                try {
+                    getTracingController().registerReceiver(XWalkRuntimeClientEmbeddedShellActivity.this);
+                } catch (SecurityException e) {
+                    Log.w(TAG, "failed to register tracing receiver: " + e.getMessage());
+                }
+                return false;
+            }
+        });
+    }
+
+    private void unregisterTracingReceiver() {
+        try {
+            getTracingController().unregisterReceiver(this);
+        } catch (SecurityException e) {
+            Log.w(TAG, "failed to unregister tracing receiver: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "failed to unregister tracing receiver: " + e.getMessage());
+        }
     }
 
     private static String sanitizeUrl(String url) {
