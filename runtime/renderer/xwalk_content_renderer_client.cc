@@ -25,6 +25,7 @@
 #include "xwalk/runtime/renderer/pepper/pepper_helper.h"
 
 #if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/android/net/url_constants.h"
 #include "xwalk/runtime/renderer/android/xwalk_permission_client.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
@@ -103,6 +104,10 @@ void XWalkContentRendererClient::RenderThreadStarted() {
   xwalk_render_process_observer_.reset(new XWalkRenderProcessObserver);
   thread->AddObserver(xwalk_render_process_observer_.get());
 #if defined(OS_ANDROID)
+  blink::WebString content_scheme(
+      base::ASCIIToUTF16(xwalk::kContentScheme));
+  blink::WebSecurityPolicy::registerURLSchemeAsLocal(content_scheme);
+
   visited_link_slave_.reset(new visitedlink::VisitedLinkSlave);
   thread->AddObserver(visited_link_slave_.get());
 #endif
