@@ -15,47 +15,110 @@ import org.xwalk.core.internal.XWalkViewInternal;
  * This class notifies the embedder resource events/callbacks.
  */
 public class XWalkResourceClient extends XWalkResourceClientInternal {
-    /** Success */
+    /**
+     * Success
+     * @since 1.0
+     */
     public static final int ERROR_OK = 0;
-    /** Generic error */
+    /**
+     * Generic error
+     * @since 1.0
+     */
     public static final int ERROR_UNKNOWN = -1;
-    /** Server or proxy hostname lookup failed */
+    /**
+     * Server or proxy hostname lookup failed
+     * @since 1.0
+     */
     public static final int ERROR_HOST_LOOKUP = -2;
-    /** Unsupported authentication scheme (not basic or digest) */
+    /**
+     * Unsupported authentication scheme (not basic or digest)
+     * @since 1.0
+     */
     public static final int ERROR_UNSUPPORTED_AUTH_SCHEME = -3;
-    /** User authentication failed on server */
+    /**
+     * User authentication failed on server
+     * @since 1.0
+     */
     public static final int ERROR_AUTHENTICATION = -4;
-    /** User authentication failed on proxy */
+    /**
+     * User authentication failed on proxy
+     * @since 1.0
+     */
     public static final int ERROR_PROXY_AUTHENTICATION = -5;
-    /** Failed to connect to the server */
+    /**
+     * Failed to connect to the server
+     * @since 1.0
+     */
     public static final int ERROR_CONNECT = -6;
-    /** Failed to read or write to the server */
+    /**
+     * Failed to read or write to the server
+     * @since 1.0
+     */
     public static final int ERROR_IO = -7;
-    /** Connection timed out */
+    /**
+     * Connection timed out
+     * @since 1.0
+     */
     public static final int ERROR_TIMEOUT = -8;
-    /** Too many redirects */
+    /**
+     * Too many redirects
+     * @since 1.0
+     */
     public static final int ERROR_REDIRECT_LOOP = -9;
-    /** Unsupported URI scheme */
+    /**
+     * Unsupported URI scheme
+     * @since 1.0
+     */
     public static final int ERROR_UNSUPPORTED_SCHEME = -10;
-    /** Failed to perform SSL handshake */
+    /**
+     * Failed to perform SSL handshake
+     * @since 1.0
+     */
     public static final int ERROR_FAILED_SSL_HANDSHAKE = -11;
-    /** Malformed URL */
+    /**
+     * Malformed URL
+     * @since 1.0
+     */
     public static final int ERROR_BAD_URL = -12;
-    /** Generic file error */
+    /**
+     * Generic file error
+     * @since 1.0
+     */
     public static final int ERROR_FILE = -13;
-    /** File not found */
+    /**
+     * File not found
+     * @since 1.0
+     */
     public static final int ERROR_FILE_NOT_FOUND = -14;
-    /** Too many requests during this load */
+    /**
+     * Too many requests during this load
+     * @since 1.0
+     */
     public static final int ERROR_TOO_MANY_REQUESTS = -15;
 
     /**
      * Constructor.
      * @param view the owner XWalkView instance.
+     * @since 1.0
      */
     public XWalkResourceClient(XWalkView view) {
         super(view);
     }
 
+    /**
+     * Notify the client that the XWalkView will load the resource specified
+     * by the given url.
+     * @param view the owner XWalkView instance.
+     * @param url the url for the resource to be loaded.
+     * @since 1.0
+     */
+    public void onLoadStarted(XWalkView view, String url) {
+        super.onLoadStarted(view, url);
+    }
+
+    /**
+     * @hide
+     */
     @Override
     public void onLoadStarted(XWalkViewInternal view, String url) {
         if (view instanceof XWalkView) {
@@ -66,15 +129,19 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
     }
 
     /**
-     * Notify the client that the XWalkView will load the resource specified
-     * by the given url.
+     * Notify the client that the XWalkView completes to load the resource
+     * specified by the given url.
      * @param view the owner XWalkView instance.
-     * @param url the url for the resource to be loaded.
+     * @param url the url for the resource done for loading.
+     * @since 1.0
      */
-    public void onLoadStarted(XWalkView view, String url) {
-        super.onLoadStarted(view, url);
+    public void onLoadFinished(XWalkView view, String url) {
+        super.onLoadFinished(view, url);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onLoadFinished(XWalkViewInternal view, String url) {
         if (view instanceof XWalkView) {
@@ -85,15 +152,18 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
     }
 
     /**
-     * Notify the client that the XWalkView completes to load the resource
-     * specified by the given url.
+     * Notify the client the progress info of loading a specific url.
      * @param view the owner XWalkView instance.
-     * @param url the url for the resource done for loading.
+     * @param progressInPercent the loading process in percent.
+     * @since 1.0
      */
-    public void onLoadFinished(XWalkView view, String url) {
-        super.onLoadFinished(view, url);
+    public void onProgressChanged(XWalkView view, int progressInPercent) {
+        super.onProgressChanged(view, progressInPercent);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onProgressChanged(XWalkViewInternal view, int progressInPercent) {
         if (view instanceof XWalkView) {
@@ -101,24 +171,6 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
         } else {
             super.onProgressChanged(view, progressInPercent);
         }
-    }
-
-    /**
-     * Notify the client the progress info of loading a specific url.
-     * @param view the owner XWalkView instance.
-     * @param progressInPercent the loading process in percent.
-     */
-    public void onProgressChanged(XWalkView view, int progressInPercent) {
-        super.onProgressChanged(view, progressInPercent);
-    }
-
-    @Override
-    public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
-        if (view instanceof XWalkView) {
-            return shouldInterceptLoadRequest((XWalkView) view, url);
-        }
-
-        return super.shouldInterceptLoadRequest(view, url);
     }
 
     /**
@@ -134,19 +186,22 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
      * @return A {@link android.webkit.WebResourceResponse} containing the
      *         response information or null if the XWalkView should load the
      *         resource itself.
+     * @since 1.0
      */
     public WebResourceResponse shouldInterceptLoadRequest(XWalkView view, String url) {
         return super.shouldInterceptLoadRequest(view, url);
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public void onReceivedLoadError(XWalkViewInternal view, int errorCode, String description,
-            String failingUrl) {
+    public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
         if (view instanceof XWalkView) {
-            onReceivedLoadError((XWalkView) view, errorCode, description, failingUrl);
-        } else {
-            super.onReceivedLoadError(view, errorCode, description, failingUrl);
+            return shouldInterceptLoadRequest((XWalkView) view, url);
         }
+
+        return super.shouldInterceptLoadRequest(view, url);
     }
 
     /**
@@ -155,9 +210,23 @@ public class XWalkResourceClient extends XWalkResourceClientInternal {
      * @param errorCode the error id.
      * @param description A String describing the error.
      * @param failingUrl The url that failed to load.
+     * @since 1.0
      */
     public void onReceivedLoadError(XWalkView view, int errorCode, String description,
             String failingUrl) {
         super.onReceivedLoadError(view, errorCode, description, failingUrl);
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public void onReceivedLoadError(XWalkViewInternal view, int errorCode, String description,
+            String failingUrl) {
+        if (view instanceof XWalkView) {
+            onReceivedLoadError((XWalkView) view, errorCode, description, failingUrl);
+        } else {
+            super.onReceivedLoadError(view, errorCode, description, failingUrl);
+        }
     }
 }

@@ -29,6 +29,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
     /**
      * Total size of navigation history for the XWalkViewInternal.
      * @return the size of total navigation items.
+     * @since 1.0
      */
     public int size() {
         return mHistory.getEntryCount();
@@ -38,6 +39,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
      * Test whether there is an item at a specific index.
      * @param index the given index.
      * @return true if there is an item at the specific index.
+     * @since 1.0
      */
     public boolean hasItemAt(int index) {
         return index >=0 && index <= size() - 1;
@@ -47,6 +49,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
      * Get a specific item given by index.
      * @param index the given index.
      * @return the navigation item for the given index.
+     * @since 1.0
      */
     public XWalkNavigationItemInternal getItemAt(int index) {
         if (index < 0 || index >= size()) return null;
@@ -56,6 +59,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
     /**
      * Get the current item which XWalkViewInternal displays.
      * @return the current navigation item.
+     * @since 1.0
      */
     public XWalkNavigationItemInternal getCurrentItem() {
         return getItemAt(getCurrentIndex());
@@ -64,6 +68,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
     /**
      * Test whether XWalkViewInternal can go back.
      * @return true if it can go back.
+     * @since 1.0
      */
     public boolean canGoBack() {
         return mXWalkView.canGoBack();
@@ -72,6 +77,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
     /**
      * Test whether XWalkViewInternal can go forward.
      * @return true if it can go forward.
+     * @since 1.0
      */
     public boolean canGoForward() {
         return mXWalkView.canGoForward();
@@ -79,6 +85,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
 
     /**
      * The direction for web page navigation.
+     * @since 1.0
      */
     public enum DirectionInternal {
         /** The backward direction for web page navigation. */
@@ -92,6 +99,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
      * Do nothing if the offset is out of bound.
      * @param direction the direction of navigation.
      * @param steps go back or foward with a given steps.
+     * @since 1.0
      */
     public void navigate(DirectionInternal direction, int steps) {
         switch(direction) {
@@ -109,6 +117,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
     /**
      * Get the index for current navigation item.
      * @return current index in the navigation history.
+     * @since 1.0
      */
     public int getCurrentIndex() {
         return mHistory.getCurrentEntryIndex();
@@ -116,6 +125,7 @@ public class XWalkNavigationHistoryInternal implements Cloneable, Serializable {
 
     /**
      * Clear all history owned by this XWalkViewInternal.
+     * @since 1.0
      */
     public void clear() {
         mXWalkView.clearHistory();

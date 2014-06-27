@@ -14,42 +14,91 @@ import android.webkit.WebResourceResponse;
  * This class notifies the embedder resource events/callbacks.
  */
 public class XWalkResourceClientInternal {
-    /** Success */
+    /**
+     * Success
+     * @since 1.0
+     */
     public static final int ERROR_OK = 0;
-    /** Generic error */
+    /**
+     * Generic error
+     * @since 1.0
+     */
     public static final int ERROR_UNKNOWN = -1;
-    /** Server or proxy hostname lookup failed */
+    /**
+     * Server or proxy hostname lookup failed
+     * @since 1.0
+     */
     public static final int ERROR_HOST_LOOKUP = -2;
-    /** Unsupported authentication scheme (not basic or digest) */
+    /**
+     * Unsupported authentication scheme (not basic or digest)
+     * @since 1.0
+     */
     public static final int ERROR_UNSUPPORTED_AUTH_SCHEME = -3;
-    /** User authentication failed on server */
+    /**
+     * User authentication failed on server
+     * @since 1.0
+     */
     public static final int ERROR_AUTHENTICATION = -4;
-    /** User authentication failed on proxy */
+    /**
+     * User authentication failed on proxy
+     * @since 1.0
+     */
     public static final int ERROR_PROXY_AUTHENTICATION = -5;
-    /** Failed to connect to the server */
+    /**
+     * Failed to connect to the server
+     * @since 1.0
+     */
     public static final int ERROR_CONNECT = -6;
-    /** Failed to read or write to the server */
+    /**
+     * Failed to read or write to the server
+     * @since 1.0
+     */
     public static final int ERROR_IO = -7;
-    /** Connection timed out */
+    /**
+     * Connection timed out
+     * @since 1.0
+     */
     public static final int ERROR_TIMEOUT = -8;
-    /** Too many redirects */
+    /**
+     * Too many redirects
+     * @since 1.0
+     */
     public static final int ERROR_REDIRECT_LOOP = -9;
-    /** Unsupported URI scheme */
+    /**
+     * Unsupported URI scheme
+     * @since 1.0
+     */
     public static final int ERROR_UNSUPPORTED_SCHEME = -10;
-    /** Failed to perform SSL handshake */
+    /**
+     * Failed to perform SSL handshake
+     * @since 1.0
+     */
     public static final int ERROR_FAILED_SSL_HANDSHAKE = -11;
-    /** Malformed URL */
+    /**
+     * Malformed URL
+     * @since 1.0
+     */
     public static final int ERROR_BAD_URL = -12;
-    /** Generic file error */
+    /**
+     * Generic file error
+     * @since 1.0
+     */
     public static final int ERROR_FILE = -13;
-    /** File not found */
+    /**
+     * File not found
+     * @since 1.0
+     */
     public static final int ERROR_FILE_NOT_FOUND = -14;
-    /** Too many requests during this load */
+    /**
+     * Too many requests during this load
+     * @since 1.0
+     */
     public static final int ERROR_TOO_MANY_REQUESTS = -15;
 
     /**
      * Constructor.
      * @param view the owner XWalkViewInternal instance.
+     * @since 1.0
      */
     public XWalkResourceClientInternal(XWalkViewInternal view) {
         // Keep the above parameter for future use.
@@ -60,6 +109,7 @@ public class XWalkResourceClientInternal {
      * by the given url.
      * @param view the owner XWalkViewInternal instance.
      * @param url the url for the resource to be loaded.
+     * @since 1.0
      */
     public void onLoadStarted(XWalkViewInternal view, String url) {
     }
@@ -69,6 +119,7 @@ public class XWalkResourceClientInternal {
      * specified by the given url.
      * @param view the owner XWalkViewInternal instance.
      * @param url the url for the resource done for loading.
+     * @since 1.0
      */
     public void onLoadFinished(XWalkViewInternal view, String url) {
     }
@@ -77,6 +128,7 @@ public class XWalkResourceClientInternal {
      * Notify the client the progress info of loading a specific url.
      * @param view the owner XWalkViewInternal instance.
      * @param progressInPercent the loading process in percent.
+     * @since 1.0
      */
     public void onProgressChanged(XWalkViewInternal view, int progressInPercent) {
     }
@@ -94,6 +146,7 @@ public class XWalkResourceClientInternal {
      * @return A {@link android.webkit.WebResourceResponse} containing the
      *         response information or null if the XWalkViewInternal should load the
      *         resource itself.
+     * @since 1.0
      */
     public WebResourceResponse shouldInterceptLoadRequest(XWalkViewInternal view, String url) {
         return null;
@@ -105,6 +158,7 @@ public class XWalkResourceClientInternal {
      * @param errorCode the error id.
      * @param description A String describing the error.
      * @param failingUrl The url that failed to load.
+     * @since 1.0
      */
     public void onReceivedLoadError(XWalkViewInternal view, int errorCode, String description,
             String failingUrl) {

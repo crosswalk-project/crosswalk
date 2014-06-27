@@ -19,6 +19,7 @@ public class XWalkUIClient extends XWalkUIClientInternal {
     /**
      * Constructor.
      * @param view the owner XWalkView instance.
+     * @since 1.0
      */
     public XWalkUIClient(XWalkView view) {
         super(view);
@@ -26,6 +27,7 @@ public class XWalkUIClient extends XWalkUIClientInternal {
 
     /**
      * The type of JavaScript modal dialog.
+     * @since 1.0
      */
     public enum JavascriptMessageType {
         /** JavaScript alert dialog. */
@@ -38,6 +40,29 @@ public class XWalkUIClient extends XWalkUIClientInternal {
         JAVASCRIPT_BEFOREUNLOAD
     }
 
+    /**
+     * Tell the client to display a prompt dialog to the user.
+     * @param view the owner XWalkView instance.
+     * @param type the type of JavaScript modal dialog.
+     * @param url the url of the web page which wants to show this dialog.
+     * @param message the message to be shown.
+     * @param defaultValue the default value string. Only valid for Prompt dialog.
+     * @param result the callback to handle the result from caller.
+     * @since 1.0
+     */
+    public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type,
+            String url, String message, String defaultValue, XWalkJavascriptResult result) {
+        XWalkJavascriptResultInternal resultInternal =
+                ((XWalkJavascriptResultHandler) result).getInternal();
+        JavascriptMessageTypeInternal typeInternal =
+                JavascriptMessageTypeInternal.valueOf(type.toString());
+        return super.onJavascriptModalDialog(
+                view, typeInternal, url, message, defaultValue, resultInternal);
+    }
+
+    /**
+     * @hide
+     */
     @Override
     public boolean onJavascriptModalDialog(XWalkViewInternal view,
             JavascriptMessageTypeInternal typeInternal,
@@ -55,24 +80,17 @@ public class XWalkUIClient extends XWalkUIClientInternal {
     }
 
     /**
-     * Tell the client to display a prompt dialog to the user.
+     * Request display and focus for this XWalkView.
      * @param view the owner XWalkView instance.
-     * @param type the type of JavaScript modal dialog.
-     * @param url the url of the web page which wants to show this dialog.
-     * @param message the message to be shown.
-     * @param defaultValue the default value string. Only valid for Prompt dialog.
-     * @param result the callback to handle the result from caller.
+     * @since 1.0
      */
-    public boolean onJavascriptModalDialog(XWalkView view, JavascriptMessageType type,
-            String url, String message, String defaultValue, XWalkJavascriptResult result) {
-        XWalkJavascriptResultInternal resultInternal =
-                ((XWalkJavascriptResultHandler) result).getInternal();
-        JavascriptMessageTypeInternal typeInternal =
-                JavascriptMessageTypeInternal.valueOf(type.toString());
-        return super.onJavascriptModalDialog(
-                view, typeInternal, url, message, defaultValue, resultInternal);
+    public void onRequestFocus(XWalkView view) {
+        super.onRequestFocus(view);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onRequestFocus(XWalkViewInternal view) {
         if (view instanceof XWalkView) {
@@ -83,13 +101,17 @@ public class XWalkUIClient extends XWalkUIClientInternal {
     }
 
     /**
-     * Request display and focus for this XWalkView.
+     * Notify the client to close the given XWalkView.
      * @param view the owner XWalkView instance.
+     * @since 1.0
      */
-    public void onRequestFocus(XWalkView view) {
-        super.onRequestFocus(view);
+    public void onJavascriptCloseWindow(XWalkView view) {
+        super.onJavascriptCloseWindow(view);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onJavascriptCloseWindow(XWalkViewInternal view) {
         if (view instanceof XWalkView) {
@@ -100,38 +122,24 @@ public class XWalkUIClient extends XWalkUIClientInternal {
     }
 
     /**
-     * Notify the client to close the given XWalkView.
+     * Tell the client to toggle fullscreen mode.
      * @param view the owner XWalkView instance.
+     * @param enterFullscreen true if it has entered fullscreen mode.
+     * @since 1.0
      */
-    public void onJavascriptCloseWindow(XWalkView view) {
-        super.onJavascriptCloseWindow(view);
+    public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
+        super.onFullscreenToggled(view, enterFullscreen);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onFullscreenToggled(XWalkViewInternal view, boolean enterFullscreen) {
         if (view instanceof XWalkView) {
             onFullscreenToggled((XWalkView) view, enterFullscreen);
         } else {
             super.onFullscreenToggled(view, enterFullscreen);
-        }
-    }
-
-    /**
-     * Tell the client to toggle fullscreen mode.
-     * @param view the owner XWalkView instance.
-     * @param enterFullscreen true if it has entered fullscreen mode.
-     */
-    public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
-        super.onFullscreenToggled(view, enterFullscreen);
-    }
-
-    @Override
-    public void openFileChooser(XWalkViewInternal view, ValueCallback<Uri> uploadFile,
-            String acceptType, String capture) {
-        if (view instanceof XWalkView) {
-            openFileChooser((XWalkView) view, uploadFile, acceptType, capture);
-        } else {
-            super.openFileChooser(view, uploadFile, acceptType, capture);
         }
     }
 
@@ -145,18 +153,23 @@ public class XWalkUIClient extends XWalkUIClientInternal {
      *        with this file picker.
      * @param capture value of the 'capture' attribute of the input tag associated
      *        with this file picker
+     * @since 1.0
      */
     public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
             String acceptType, String capture) {
         super.openFileChooser(view, uploadFile, acceptType, capture);
     }
 
+    /**
+     * @hide
+     */
     @Override
-    public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
+    public void openFileChooser(XWalkViewInternal view, ValueCallback<Uri> uploadFile,
+            String acceptType, String capture) {
         if (view instanceof XWalkView) {
-            onScaleChanged((XWalkView) view, oldScale, newScale);
+            openFileChooser((XWalkView) view, uploadFile, acceptType, capture);
         } else {
-            super.onScaleChanged(view, oldScale, newScale);
+            super.openFileChooser(view, uploadFile, acceptType, capture);
         }
     }
 
@@ -165,8 +178,21 @@ public class XWalkUIClient extends XWalkUIClientInternal {
      * @param view the owner XWalkView instance.
      * @param oldScale the old scale before scaling.
      * @param newScale the current scale factor after scaling.
+     * @since 1.0
      */
     public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
         super.onScaleChanged(view, oldScale, newScale);
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
+        if (view instanceof XWalkView) {
+            onScaleChanged((XWalkView) view, oldScale, newScale);
+        } else {
+            super.onScaleChanged(view, oldScale, newScale);
+        }
     }
 }

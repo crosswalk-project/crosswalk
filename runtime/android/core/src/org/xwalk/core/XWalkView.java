@@ -137,15 +137,22 @@ import org.xwalk.core.internal.XWalkViewInternal;
  */
 public class XWalkView extends XWalkViewInternal {
 
-    /** Normal reload mode as default. */
+    /**
+     * Normal reload mode as default.
+     * @since 1.0
+     */
     public static final int RELOAD_NORMAL = 0;
-    /** Reload mode with bypassing the cache. */
+    /**
+     * Reload mode with bypassing the cache.
+     * @since 1.0
+     */
     public static final int RELOAD_IGNORE_CACHE = 1;
 
     /**
      * Constructor for inflating via XML.
      * @param context  a Context object used to access application assets.
      * @param attrs    an AttributeSet passed to our parent.
+     * @since 1.0
      */
     public XWalkView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -156,6 +163,7 @@ public class XWalkView extends XWalkViewInternal {
      * different from activity. In embedded mode, they're same.
      * @param context  a Context object used to access application assets
      * @param activity the activity for this XWalkView.
+     * @since 1.0
      */
     public XWalkView(Context context, Activity activity) {
         super(context, activity);
@@ -174,6 +182,7 @@ public class XWalkView extends XWalkViewInternal {
      * It can also load files from Android assets, e.g. 'file:///android_asset/'.
      * @param url the url for web page/app.
      * @param content the content for the web page/app. Could be empty.
+     * @since 1.0
      */
     public void load(String url, String content) {
         super.load(url, content);
@@ -189,6 +198,7 @@ public class XWalkView extends XWalkViewInternal {
      * It can also load files from Android assets, e.g. 'file:///android_asset/'.
      * @param url the url for manifest.json.
      * @param content the content for manifest.json.
+     * @since 1.0
      */
     public void loadAppFromManifest(String url, String content) {
         super.loadAppFromManifest(url, content);
@@ -197,6 +207,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Reload a web app with a given mode.
      * @param mode the reload mode.
+     * @since 1.0
      */
     public void reload(int mode) {
         super.reload(mode);
@@ -204,6 +215,7 @@ public class XWalkView extends XWalkViewInternal {
 
     /**
      * Stop current loading progress.
+     * @since 1.0
      */
     public void stopLoading() {
         super.stopLoading();
@@ -213,6 +225,7 @@ public class XWalkView extends XWalkViewInternal {
      * Get the url of current web page/app. This may be different from what's passed
      * by caller.
      * @return the url for current web page/app.
+     * @since 1.0
      */
     public String getUrl() {
         return super.getUrl();
@@ -222,6 +235,7 @@ public class XWalkView extends XWalkViewInternal {
      * Get the title of current web page/app. This may be different from what's passed
      * by caller.
      * @return the title for current web page/app.
+     * @since 1.0
      */
     public String getTitle() {
         return super.getTitle();
@@ -230,6 +244,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Get the original url specified by caller.
      * @return the original url.
+     * @since 1.0
      */
     public String getOriginalUrl() {
         return super.getOriginalUrl();
@@ -239,6 +254,7 @@ public class XWalkView extends XWalkViewInternal {
      * Get the navigation history for current XWalkView. It's synchronized with
      * this XWalkView if any backward/forward and navigation operations.
      * @return the navigation history.
+     * @since 1.0
      */
     public XWalkNavigationHistory getNavigationHistory() {
         XWalkNavigationHistoryInternal history = super.getNavigationHistory();
@@ -255,6 +271,7 @@ public class XWalkView extends XWalkViewInternal {
      * marked with {@link JavascriptInterface} if it's called by JavaScript.
      * @param object the supplied Java object, called by JavaScript.
      * @param name the name injected in JavaScript.
+     * @since 1.0
      */
     public void addJavascriptInterface(Object object, String name) {
         super.addJavascriptInterface(object, name);
@@ -264,6 +281,7 @@ public class XWalkView extends XWalkViewInternal {
      * Evaluate a fragment of JavaScript code and get the result via callback.
      * @param script the JavaScript string.
      * @param callback the callback to handle the evaluated result.
+     * @since 1.0
      */
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
         super.evaluateJavascript(script, callback);
@@ -273,6 +291,7 @@ public class XWalkView extends XWalkViewInternal {
      * Clear the resource cache. Note that the cache is per-application, so this
      * will clear the cache for all XWalkViews used.
      * @param includeDiskFiles indicate whether to clear disk files for cache.
+     * @since 1.0
      */
     public void clearCache(boolean includeDiskFiles) {
         super.clearCache(includeDiskFiles);
@@ -281,6 +300,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Indicate that a HTML element is occupying the whole screen.
      * @return true if any HTML element is occupying the whole screen.
+     * @since 1.0
      */
     public boolean hasEnteredFullscreen() {
         return super.hasEnteredFullscreen();
@@ -289,6 +309,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Leave fullscreen mode if it's. Do nothing if it's not
      * in fullscreen.
+     * @since 1.0
      */
     public void leaveFullscreen() {
         super.leaveFullscreen();
@@ -302,6 +323,8 @@ public class XWalkView extends XWalkViewInternal {
      *
      * Note that it will globally impact all XWalkView instances, not limited to
      * just this XWalkView.
+     *
+     * @since 1.0
      */
     public void pauseTimers() {
         super.pauseTimers();
@@ -313,6 +336,8 @@ public class XWalkView extends XWalkViewInternal {
      *
      * Note that it will globally impact all XWalkView instances, not limited to
      * just this XWalkView.
+     *
+     * @since 1.0
      */
     public void resumeTimers() {
         super.resumeTimers();
@@ -323,6 +348,7 @@ public class XWalkView extends XWalkViewInternal {
      * like video player, modal dialogs, etc. See {@link #pauseTimers} about pausing
      * JavaScript timers.
      * Typically it should be called when the activity for this view is paused.
+     * @since 1.0
      */
     public void onHide() {
         super.onHide();
@@ -332,6 +358,7 @@ public class XWalkView extends XWalkViewInternal {
      * Resume video player, modal dialogs. Embedders are in charge of calling
      * this during resuming this activity if they call onHide.
      * Typically it should be called when the activity for this view is resumed.
+     * @since 1.0
      */
     public void onShow() {
         super.onShow();
@@ -339,6 +366,7 @@ public class XWalkView extends XWalkViewInternal {
 
     /**
      * Release internal resources occupied by this XWalkView.
+     * @since 1.0
      */
     public void onDestroy() {
         super.onDestroy();
@@ -352,6 +380,7 @@ public class XWalkView extends XWalkViewInternal {
      * @param requestCode passed from android.app.Activity.onActivityResult().
      * @param resultCode passed from android.app.Activity.onActivityResult().
      * @param data passed from android.app.Activity.onActivityResult().
+     * @since 1.0
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -363,6 +392,7 @@ public class XWalkView extends XWalkViewInternal {
      * <a href="http://developer.android.com/reference/android/app/Activity.html">
      * android.app.Activity.onNewIntent()</a>.
      * @param intent passed from android.app.Activity.onNewIntent().
+     * @since 1.0
      */
     public boolean onNewIntent(Intent intent) {
         return super.onNewIntent(intent);
@@ -372,6 +402,7 @@ public class XWalkView extends XWalkViewInternal {
      * Save current internal state of this XWalkView. This can help restore this state
      * afterwards restoring.
      * @param outState the saved state for restoring.
+     * @since 1.0
      */
     public boolean saveState(Bundle outState) {
         return super.saveState(outState);
@@ -381,6 +412,7 @@ public class XWalkView extends XWalkViewInternal {
      * Restore the state from the saved bundle data.
      * @param inState the state saved from saveState().
      * @return true if it can restore the state.
+     * @since 1.0
      */
     public boolean restoreState(Bundle inState) {
         return super.restoreState(inState);
@@ -389,6 +421,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Get the API version of Crosswalk embedding API.
      * @return the string of API level.
+     * @since 1.0
      */
     // TODO(yongsheng): make it static?
     public String getAPIVersion() {
@@ -398,6 +431,7 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Get the Crosswalk version.
      * @return the string of Crosswalk.
+     * @since 1.0
      */
     // TODO(yongsheng): make it static?
     public String getXWalkVersion() {
@@ -408,6 +442,7 @@ public class XWalkView extends XWalkViewInternal {
      * Embedders use this to customize their handlers to events/callbacks related
      * to UI.
      * @param client the XWalkUIClient defined by callers.
+     * @since 1.0
      */
     public void setUIClient(XWalkUIClient client) {
         super.setUIClient(client);
@@ -417,6 +452,7 @@ public class XWalkView extends XWalkViewInternal {
      * Embedders use this to customize their handlers to events/callbacks related
      * to resource loading.
      * @param client the XWalkResourceClient defined by callers.
+     * @since 1.0
      */
     public void setResourceClient(XWalkResourceClient client) {
         super.setResourceClient(client);
