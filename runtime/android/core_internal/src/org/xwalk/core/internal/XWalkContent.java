@@ -33,6 +33,7 @@ import org.chromium.content.browser.ContentViewRenderView.CompositingSurfaceType
 import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
+import org.chromium.content.common.CleanupReference;
 import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
 
@@ -60,6 +61,22 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     long mXWalkContent;
     long mWebContents;
+
+    private static final class DestroyRunnable implements Runnable {
+        private final long mXWalkContent;
+        private DestroyRunnable(long nativeXWalkContent) {
+            mXWalkContent = nativeXWalkContent;
+        }
+
+        @Override
+        public void run() {
+            nativeDestroy(mXWalkContent);
+        }
+    }
+
+    // Reference to the active mXWalkContent pointer while it is active use
+    // (ie before it is destroyed).
+    private CleanupReference mCleanupReference;
 
     public XWalkContent(Context context, AttributeSet attrs, XWalkViewInternal xwView) {
         super(context, attrs);
@@ -92,6 +109,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
         mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
+
+        // The native side object has been bound to this java instance, so now is the time to
+        // bind all the native->java relationships.
+        mCleanupReference = new CleanupReference(this, new DestroyRunnable(mXWalkContent));
+
         mWebContents = nativeGetWebContents(mXWalkContent, mIoThreadClient,
                 mContentsClientBridge.getInterceptNavigationDelegate());
 
@@ -442,7 +464,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentViewRenderView.destroy();
         mContentViewCore.destroy();
 
-        nativeDestroy(mXWalkContent);
+        mCleanupReference.cleanupNow();
+        mCleanupReference = null;
         mXWalkContent = 0;
     }
 
