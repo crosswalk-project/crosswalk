@@ -4,15 +4,16 @@
 
 #include "xwalk/application/browser/application_service.h"
 
+#include <hash_set>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "base/files/file_enumerator.h"
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
-#include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application.h"
@@ -31,13 +32,45 @@
 #endif
 
 namespace xwalk {
+
 namespace application {
+
+namespace {
+
+const base::FilePath::CharType kApplicationDataDirName[] =
+    FILE_PATH_LITERAL("Storage/ext");
+
+base::FilePath GetStoragePartitionPath(
+    const base::FilePath& base_path, const std::string& app_id) {
+  return base_path.Append(kApplicationDataDirName).Append(app_id);
+}
+
+void CollectUnusedStoragePartitions(RuntimeContext* context,
+                                    ApplicationStorage* storage) {
+  std::vector<std::string> app_ids;
+  if (!storage->GetInstalledApplicationIDs(app_ids))
+    return;
+
+  scoped_ptr<base::hash_set<base::FilePath> > active_paths(
+      new base::hash_set<base::FilePath>());
+
+  for (unsigned i = 0; i < app_ids.size(); ++i) {
+    active_paths->insert(
+        GetStoragePartitionPath(context->GetPath(), app_ids.at(i)));
+  }
+
+  content::BrowserContext::GarbageCollectStoragePartitions(
+      context, active_paths.Pass(), base::Bind(&base::DoNothing));
+}
+
+}  // namespace
 
 ApplicationService::ApplicationService(RuntimeContext* runtime_context,
                                        ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
       application_storage_(app_storage),
       package_installer_(PackageInstaller::Create(app_storage)) {
+  CollectUnusedStoragePartitions(runtime_context, app_storage);
 }
 
 ApplicationService::~ApplicationService() {

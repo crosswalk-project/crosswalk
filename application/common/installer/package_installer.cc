@@ -24,8 +24,6 @@
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
-#include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
@@ -305,13 +303,6 @@ bool PackageInstaller::Uninstall(const std::string& id) {
                << id << "; Cannot remove all resources.";
     result = false;
   }
-
-  // Clear databases, the directory clean up will happen next time Crosswalk
-  // startup by ApplicationStorageImpl::CollectGarbageApplications.
-  content::BrowserContext::AsyncObliterateStoragePartition(
-      XWalkRunner::GetInstance()->runtime_context(),
-      ApplicationData::GetBaseURLFromApplicationId(id),
-      base::Bind(&base::DoNothing));
 
   if (!PlatformUninstall(app_data))
     result = false;

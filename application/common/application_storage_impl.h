@@ -37,6 +37,9 @@ class ApplicationStorageImpl {
   bool GetInstalledApplications(
       ApplicationData::ApplicationDataMap& applications);  // NOLINT
 
+  bool GetInstalledApplicationIDs(
+      std::vector<std::string>& app_ids);  // NOLINT
+
  private:
   scoped_refptr<ApplicationData> ExtractApplicationData(
       const sql::Statement& smt);
@@ -53,8 +56,6 @@ class ApplicationStorageImpl {
   bool UpdatePermissions(const std::string& id,
                          const StoredPermissionMap& permissions);
   bool RevokePermissions(const std::string& id);
-
-  bool CollectGarbageApplications();
 
   scoped_ptr<sql::Connection> sqlite_db_;
   sql::MetaTable meta_table_;
