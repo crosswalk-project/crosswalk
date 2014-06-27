@@ -6,7 +6,6 @@
 #define XWALK_RUNTIME_COMMON_XWALK_PATHS_H_
 
 #include "build/build_config.h"
-#include "content/public/browser/notification_types.h"
 
 namespace xwalk {
 

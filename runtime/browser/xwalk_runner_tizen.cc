@@ -35,8 +35,4 @@ void XWalkRunnerTizen::PreMainMessageLoopRun() {
   }
 }
 
-std::string XWalkRunnerTizen::GetLocale() const {
-  return tizen_locale_listener_.GetLocale();
-}
-
 }  // namespace xwalk

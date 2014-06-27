@@ -38,6 +38,7 @@
               'pkgmgr-parser',
               'pkgmgr-info',
               'pkgmgr-installer',
+              'vconf',
             ],
           },
           'direct_dependent_settings': {

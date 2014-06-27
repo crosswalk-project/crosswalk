@@ -5,9 +5,13 @@
       'type': 'static_library',
       'dependencies': [
         '../../../base/base.gyp:base',
+        '../../../base/base.gyp:base_i18n',
+        '../../../content/content.gyp:content_common',
+        '../../../crypto/crypto.gyp:crypto',
         '../../../sql/sql.gyp:sql',
         '../../../url/url.gyp:url_lib',
         '../../../third_party/libxml/libxml.gyp:libxml',
+        '../../../third_party/zlib/google/zip.gyp:zip',
       ],
       'sources': [
         'application_storage.cc',

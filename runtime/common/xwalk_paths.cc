@@ -9,7 +9,6 @@
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_WIN)
 #include "base/base_paths_win.h"
@@ -83,10 +82,15 @@ base::FilePath GetConfigPath() {
 
 bool GetXWalkDataPath(base::FilePath* path) {
   base::FilePath::StringType xwalk_suffix;
-  if (XWalkRunner::GetInstance()->is_running_as_service())
-    xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
-  else
-    xwalk_suffix = FILE_PATH_LITERAL("xwalk");
+
+// Only Tizen uses the Shared Process Mode now.
+// FIXME: Create common settings to detect process mode in runtime.
+// XWalkRunner::is_running_as_service() cannot be used here.
+#if defined(OS_TIZEN)
+  xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
+#else
+  xwalk_suffix = FILE_PATH_LITERAL("xwalk");
+#endif
   base::FilePath cur;
 
 #if defined(OS_WIN)

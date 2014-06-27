@@ -26,6 +26,7 @@
       'product_name': 'xwalkctl',
       'dependencies': [
         'gio',
+        '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
       ],
       'include_dirs': [
         '../../../..',
@@ -34,9 +35,16 @@
         'dbus_connection.cc',
         'dbus_connection.h',
         'xwalkctl_main.cc',
+        '../../../runtime/common/xwalk_paths.cc',
+        '../../../runtime/common/xwalk_paths.h',
+        '../../../runtime/common/xwalk_system_locale.cc',
+        '../../../runtime/common/xwalk_system_locale.h',
       ],
       'conditions' : [
         ['tizen==1', {
+          'dependencies': [
+            '../../../build/system.gyp:tizen',
+          ],
           'sources': [
             'xwalk_tizen_user.cc',
             'xwalk_tizen_user.h',

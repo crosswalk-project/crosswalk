@@ -81,10 +81,6 @@ class XWalkRunner {
   virtual void PreMainMessageLoopRun();
   virtual void PostMainMessageLoopRun();
 
-  // Get the latest application locale from system.
-  // locale is a langtag defined in [BCP47]
-  virtual std::string GetLocale() const;
-
  protected:
   XWalkRunner();
 
@@ -146,7 +142,7 @@ class XWalkRunner {
   // side to the extension side, such as application IDs and whatnot.
   void InitializeRuntimeVariablesForExtensions(
       const content::RenderProcessHost* host,
-      base::ValueMap& runtime_variables);
+      base::ValueMap& runtime_variables);  // NOLINT
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };
