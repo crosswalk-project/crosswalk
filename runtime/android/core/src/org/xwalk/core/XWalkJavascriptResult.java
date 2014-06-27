@@ -16,16 +16,19 @@ public interface XWalkJavascriptResult {
     /**
      * Handle a confirm with a result from caller.
      * @param result the result string from caller.
+     * @since 1.0
      */
     public void confirmWithResult(String result);
 
     /**
      * Handle a confirm without a result.
+     * @since 1.0
      */
     public void confirm();
 
     /**
      * Handle the result if the caller cancelled the dialog.
+     * @since 1.0
      */
     public void cancel();
 }

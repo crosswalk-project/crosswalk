@@ -15,6 +15,7 @@ import org.xwalk.core.internal.XWalkPreferencesInternal;
 public final class XWalkPreferences extends XWalkPreferencesInternal {
     /**
      * The key string to enable/disable remote debugging.
+     * @since 1.0
      */
     public static final String REMOTE_DEBUGGING = "remote-debugging";
 
@@ -39,6 +40,7 @@ public final class XWalkPreferences extends XWalkPreferencesInternal {
      *
      * Note this key MUST be set before creating the first XWalkView, otherwise
      * a RuntimeException will be thrown.
+     * @since 2.0
      */
     public static final String ANIMATABLE_XWALK_VIEW = "animatable-xwalk-view";
 
@@ -47,6 +49,7 @@ public final class XWalkPreferences extends XWalkPreferencesInternal {
      * the key for the preference is not valid.
      * @param key the string name of the key.
      * @param enabled true if setting it as enabled.
+     * @since 1.0
      */
     public static synchronized void setValue(String key, boolean enabled) throws RuntimeException {
         XWalkPreferencesInternal.setValue(key, enabled);
@@ -57,6 +60,7 @@ public final class XWalkPreferences extends XWalkPreferencesInternal {
      * the key for the preference is not valid.
      * @param key the string name of the key.
      * @return true if it's enabled.
+     * @since 1.0
      */
     public static synchronized boolean getValue(String key) throws RuntimeException {
         return XWalkPreferencesInternal.getValue(key);

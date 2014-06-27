@@ -23,6 +23,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
     /**
      * Get the url of current navigation item.
      * @return the string of the url.
+     * @since 1.0
      */
     public String getUrl() {
         return mEntry.getUrl();
@@ -31,6 +32,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
     /**
      * Get the original url of current navigation item.
      * @return the string of the original url.
+     * @since 1.0
      */
     public String getOriginalUrl() {
         return mEntry.getOriginalUrl();
@@ -39,6 +41,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
     /**
      * Get the title of current navigation item.
      * @return the string of the title.
+     * @since 1.0
      */
     public String getTitle() {
         return mEntry.getTitle();

@@ -14,13 +14,14 @@ import org.xwalk.core.internal.XWalkNavigationItemInternal;
  */
 public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal {
 
-    public XWalkNavigationHistory(XWalkNavigationHistoryInternal internal) {
+    XWalkNavigationHistory(XWalkNavigationHistoryInternal internal) {
         super(internal);
     }
 
     /**
      * Total size of navigation history for the XWalkView.
      * @return the size of total navigation items.
+     * @since 1.0
      */
     public int size() {
         return super.size();
@@ -30,6 +31,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
      * Test whether there is an item at a specific index.
      * @param index the given index.
      * @return true if there is an item at the specific index.
+     * @since 1.0
      */
     public boolean hasItemAt(int index) {
         return super.hasItemAt(index);
@@ -39,6 +41,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
      * Get a specific item given by index.
      * @param index the given index.
      * @return the navigation item for the given index.
+     * @since 1.0
      */
     public XWalkNavigationItem getItemAt(int index) {
         XWalkNavigationItemInternal item = super.getItemAt(index);
@@ -52,6 +55,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
     /**
      * Get the current item which XWalkView displays.
      * @return the current navigation item.
+     * @since 1.0
      */
     public XWalkNavigationItem getCurrentItem() {
         XWalkNavigationItemInternal item = super.getCurrentItem();
@@ -65,6 +69,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
     /**
      * Test whether XWalkView can go back.
      * @return true if it can go back.
+     * @since 1.0
      */
     public boolean canGoBack() {
         return super.canGoBack();
@@ -73,6 +78,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
     /**
      * Test whether XWalkView can go forward.
      * @return true if it can go forward.
+     * @since 1.0
      */
     public boolean canGoForward() {
         return super.canGoForward();
@@ -80,6 +86,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
 
     /**
      * The direction for web page navigation.
+     * @since 1.0
      */
     public enum Direction {
         /** The backward direction for web page navigation. */
@@ -93,6 +100,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
      * Do nothing if the offset is out of bound.
      * @param direction the direction of navigation.
      * @param steps go back or foward with a given steps.
+     * @since 1.0
      */
     public void navigate(Direction direction, int steps) {
         super.navigate(DirectionInternal.valueOf(direction.toString()), steps);
@@ -101,6 +109,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
     /**
      * Get the index for current navigation item.
      * @return current index in the navigation history.
+     * @since 1.0
      */
     public int getCurrentIndex() {
         return super.getCurrentIndex();
@@ -108,6 +117,7 @@ public final class XWalkNavigationHistory extends XWalkNavigationHistoryInternal
 
     /**
      * Clear all history owned by this XWalkView.
+     * @since 1.0
      */
     public void clear() {
         super.clear();

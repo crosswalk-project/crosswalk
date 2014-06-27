@@ -40,6 +40,7 @@ public class XWalkUIClientInternal {
     /**
      * Constructor.
      * @param view the owner XWalkViewInternal instance.
+     * @since 1.0
      */
     public XWalkUIClientInternal(XWalkViewInternal view) {
         mContext = view.getContext();
@@ -65,6 +66,7 @@ public class XWalkUIClientInternal {
     /**
      * Request display and focus for this XWalkViewInternal.
      * @param view the owner XWalkViewInternal instance.
+     * @since 1.0
      */
     public void onRequestFocus(XWalkViewInternal view) {
     }
@@ -72,6 +74,7 @@ public class XWalkUIClientInternal {
     /**
      * Notify the client to close the given XWalkViewInternal.
      * @param view the owner XWalkViewInternal instance.
+     * @since 1.0
      */
     public void onJavascriptCloseWindow(XWalkViewInternal view) {
         if (view != null && view.getActivity() != null) {
@@ -81,6 +84,7 @@ public class XWalkUIClientInternal {
 
     /**
      * The type of JavaScript modal dialog.
+     * @since 1.0
      */
     public enum JavascriptMessageTypeInternal {
         /** JavaScript alert dialog. */
@@ -101,6 +105,7 @@ public class XWalkUIClientInternal {
      * @param message the message to be shown.
      * @param defaultValue the default value string. Only valid for Prompt dialog.
      * @param result the callback to handle the result from caller.
+     * @since 1.0
      */
     public boolean onJavascriptModalDialog(XWalkViewInternal view, JavascriptMessageTypeInternal type,
             String url, String message, String defaultValue, XWalkJavascriptResultInternal result) {
@@ -125,6 +130,7 @@ public class XWalkUIClientInternal {
      * Tell the client to toggle fullscreen mode.
      * @param view the owner XWalkViewInternal instance.
      * @param enterFullscreen true if it has entered fullscreen mode.
+     * @since 1.0
      */
     public void onFullscreenToggled(XWalkViewInternal view, boolean enterFullscreen) {
         Activity activity = view.getActivity();
@@ -173,6 +179,7 @@ public class XWalkUIClientInternal {
      *        with this file picker.
      * @param capture value of the 'capture' attribute of the input tag associated
      *        with this file picker
+     * @since 1.0
      */
     public void openFileChooser(XWalkViewInternal view, ValueCallback<Uri> uploadFile,
             String acceptType, String capture) {
@@ -184,6 +191,7 @@ public class XWalkUIClientInternal {
      * @param view the owner XWalkViewInternal instance.
      * @param oldScale the old scale before scaling.
      * @param newScale the current scale factor after scaling.
+     * @since 1.0
      */
     public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
     }
