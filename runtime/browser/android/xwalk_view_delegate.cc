@@ -5,6 +5,7 @@
 #include "xwalk/runtime/browser/android/xwalk_view_delegate.h"
 
 #include "base/android/jni_android.h"
+#include "build/build_config.h"
 #include "jni/XWalkViewDelegate_jni.h"
 
 namespace xwalk {

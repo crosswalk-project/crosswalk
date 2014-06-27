@@ -235,8 +235,19 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Intialize library, paks and others.
         try {
             XWalkViewDelegate.init(this);
-        } catch (UnsatisfiedLinkError e) {
-            final UnsatisfiedLinkError err = e;
+        } catch (Throwable e) {
+            // Try to find if there is UnsatisfiedLinkError in the cause chain of the met Throwable.
+            Throwable linkError = e;
+            while (true) {
+                if (linkError == null) throw new RuntimeException(e);
+                if (linkError instanceof UnsatisfiedLinkError) break;
+                if (linkError.getCause() == null ||
+                        linkError.getCause().equals(linkError)) {
+                    throw new RuntimeException(e);
+                }
+                linkError = linkError.getCause();
+            }
+            final UnsatisfiedLinkError err = (UnsatisfiedLinkError) linkError;
             final Activity activity = getActivity();
             final String packageName = context.getPackageName();
             String missingArch = XWalkViewDelegate.isRunningOnIA() ? "Intel" : "ARM";
