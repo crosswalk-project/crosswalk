@@ -1,24 +1,75 @@
-''' This file indicate the dependencies crosswalk lays on.
-    DO NOT use this DEPS to checkout code, it's for tools/generate_gclient-xwalk.py.
-'''
+# Source code dependencies required for building Crosswalk.
+#
+# This file is used as a template to generate .gclient-xwalk, which is a
+# regular .gclient file pointing to additional source code repositories that
+# need to be checked out in order to build Crosswalk.
+#
+# These dependencies are not specified in DEPS for historical compatibility
+# reasons and also to allow us to perform some additional manipulation on some
+# entries (such as setting a custom value for "deps_file" in certain
+# solutions).
+#
+# If you are doing a DEPS roll, you should only need to worry about the *_rev
+# variables below.
 
-# chromium_version is the version of chromium crosswalk based,
-# Usually it's major.minor.build.patch
-# Use 'Trunk' for trunk.
-# If using trunk, will use '.DEPS.git' for gclient.
+# -----------------------------------
+# Crosswalk dependencies.
+# Edit these when rolling DEPS.xwalk.
+# -----------------------------------
+
 chromium_version = '36.0.1985.18'
-chromium_crosswalk_point = 'f8b103e7c4f60e2cf88f49594dbcdd06e58ffa17'
-blink_crosswalk_point = '99b0aa2fd873af570eb84cbbd342a343ce8bfd7f'
-v8_crosswalk_point = '535cd006e5174ff00fd7b745a581980b1d371a9f'
-ozone_wayland_point = '5047b6ea8843bfd439a9f5adf2e270cd6fa6db7c'
 
-deps_xwalk = {
-  'src': 'https://github.com/crosswalk-project/chromium-crosswalk.git@%s' % chromium_crosswalk_point,
-  'src/third_party/WebKit': 'https://github.com/crosswalk-project/blink-crosswalk.git@%s' % blink_crosswalk_point,
-  'src/v8': 'https://github.com/crosswalk-project/v8-crosswalk.git@%s' % v8_crosswalk_point,
+chromium_crosswalk_rev = 'f8b103e7c4f60e2cf88f49594dbcdd06e58ffa17'
+blink_crosswalk_rev = '99b0aa2fd873af570eb84cbbd342a343ce8bfd7f'
+v8_crosswalk_rev = '535cd006e5174ff00fd7b745a581980b1d371a9f'
+ozone_wayland_rev = '5047b6ea8843bfd439a9f5adf2e270cd6fa6db7c'
 
-  # Ozone-Wayland is required for Wayland support in Chromium.
-  'src/ozone': 'https://github.com/01org/ozone-wayland.git@%s' % ozone_wayland_point,
+crosswalk_git = 'https://github.com/crosswalk-project'
+ozone_wayland_git = 'https://github.com/01org'
+
+# ------------------------------------------------------
+# gclient solutions.
+# You do not need to worry about these most of the time.
+# ------------------------------------------------------
+
+chromium_solution = {
+  'name': chromium_version,
+  'url': 'http://src.chromium.org/svn/releases/' + chromium_version,
+  'custom_deps': {
+    'src':
+      crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
+    'src/third_party/WebKit':
+      crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
+    'src/v8':
+      crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
+    'src/ozone':
+      ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
+  }
 }
-vars_xwalk = {
-}
+
+# These directories are not relevant to Crosswalk and can be safely ignored
+# in a checkout. It avoids creating additional directories outside src/ that
+# are not used and also saves some bandwidth.
+ignored_directories = [
+  'build',
+  'build/scripts/command_wrapper/bin',
+  'build/scripts/gsd_generate_index',
+  'build/scripts/private/data/reliability',
+  'build/scripts/tools/deps2git',
+  'build/third_party/cbuildbot_chromite',
+  'build/third_party/gsutil',
+  'build/third_party/lighttpd',
+  'build/third_party/swarm_client',
+  'build/third_party/xvfb',
+  'build/xvfb',
+  'commit-queue',
+  'depot_tools',
+]
+for ignored_directory in ignored_directories:
+  chromium_solution['custom_deps'][ignored_directory] = None
+
+solutions = [chromium_solution]
+
+# -------------------------------------------------
+# This area is edited by generate_gclient-xwalk.py.
+# -------------------------------------------------
