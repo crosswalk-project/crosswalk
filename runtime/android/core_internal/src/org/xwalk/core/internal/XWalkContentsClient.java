@@ -164,13 +164,9 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     protected abstract void onCloseWindow();
 
-    public abstract void onReceivedTouchIconUrl(String url, boolean precomposed);
-
     public abstract void onReceivedIcon(Bitmap bitmap);
 
     protected abstract void onRequestFocus();
-
-    protected abstract View getVideoLoadingProgressView();
 
     public abstract void onPageStarted(String url);
 
@@ -204,8 +200,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
     }
 
     public abstract void onHideCustomView();
-
-    public abstract Bitmap getDefaultVideoPoster();
 
     public abstract void didFinishLoad(String url);
 

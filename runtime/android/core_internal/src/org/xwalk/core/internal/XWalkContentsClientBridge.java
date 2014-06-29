@@ -336,13 +336,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
-    public void onReceivedTouchIconUrl(String url, boolean precomposed) {
-        if (mXWalkWebChromeClient != null && mXWalkView != null) {
-            mXWalkWebChromeClient.onReceivedTouchIconUrl(mXWalkView, url, precomposed);
-        }
-    }
-
-    @Override
     public void onReceivedIcon(Bitmap bitmap) {
         if (mXWalkWebChromeClient != null && mXWalkView != null) {
             mXWalkWebChromeClient.onReceivedIcon(mXWalkView, bitmap);
@@ -369,18 +362,6 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (isOwnerActivityRunning()) {
             mXWalkUIClient.onScaleChanged(mXWalkView, oldScale, newScale);
         }
-    }
-
-    @Override
-    protected View getVideoLoadingProgressView() {
-        if (mXWalkWebChromeClient != null)
-            return mXWalkWebChromeClient.getVideoLoadingProgressView();
-        return null;
-    }
-
-    @Override
-    public Bitmap getDefaultVideoPoster() {
-        return null;
     }
 
     @Override
