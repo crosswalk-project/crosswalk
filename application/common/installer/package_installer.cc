@@ -72,6 +72,18 @@ scoped_ptr<PackageInstaller> PackageInstaller::Create(
 #endif
 }
 
+bool PackageInstaller::PlatformInstall(ApplicationData* data) {
+  return true;
+}
+
+bool PackageInstaller::PlatformUninstall(ApplicationData* data) {
+  return true;
+}
+
+bool PackageInstaller::PlatformUpdate(ApplicationData* updated_data) {
+  return true;
+}
+
 bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   // FIXME(leandro): Installation is not robust enough -- should any step
   // fail, it can't roll back to a consistent state.

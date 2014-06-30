@@ -28,9 +28,9 @@ class PackageInstaller {
  protected:
   explicit PackageInstaller(ApplicationStorage* storage);
   // Those to be overriden to implement platform specific logic.
-  virtual bool PlatformInstall(ApplicationData* data) { return true; }
-  virtual bool PlatformUninstall(ApplicationData* data) { return true; }
-  virtual bool PlatformUpdate(ApplicationData* updated_data) { return true; }
+  virtual bool PlatformInstall(ApplicationData* data);
+  virtual bool PlatformUninstall(ApplicationData* data);
+  virtual bool PlatformUpdate(ApplicationData* updated_data);
 
   ApplicationStorage* storage_;
 };
