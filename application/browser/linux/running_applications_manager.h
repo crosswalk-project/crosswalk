@@ -39,6 +39,8 @@ class RunningApplicationsManager : public ApplicationService::Observer {
   // org.crosswalkproject.Running.Manager1 interface.
   void OnLaunch(dbus::MethodCall* method_call,
                 dbus::ExportedObject::ResponseSender response_sender);
+  void OnTerminateIfRunning(dbus::MethodCall* method_call,
+      dbus::ExportedObject::ResponseSender response_sender);
 
   void OnExported(const std::string& interface_name,
                   const std::string& method_name,
