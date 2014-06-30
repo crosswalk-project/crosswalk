@@ -10,21 +10,24 @@
 #include <gio/gio.h>
 #include <locale.h>
 
+#include "base/at_exit.h"
+#include "base/memory/scoped_ptr.h"
+#include "base/path_service.h"
+
+#include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/installer/package_installer.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 #if defined(OS_TIZEN)
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #endif
 
-static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
-static const char* xwalk_installed_path = "/installed1";
-static const char* xwalk_installed_iface =
-    "org.crosswalkproject.Installed.Manager1";
-static const char* xwalk_installed_app_iface =
-    "org.crosswalkproject.Installed.Application1";
+using xwalk::application::ApplicationData;
+using xwalk::application::ApplicationStorage;
+using xwalk::application::PackageInstaller;
 
 static char* install_path;
 static char* uninstall_appid;
-static GDBusConnection* g_connection;
 
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
@@ -34,53 +37,42 @@ static GOptionEntry entries[] = {
   { NULL }
 };
 
-static bool install_application(const char* path) {
+static bool uninstall_application(const char* appid) {
+  static const char* xwalk_service_name = "org.crosswalkproject.Runtime1";
+  static const char* xwalk_installed_path = "/installed1";
+  static const char* xwalk_installed_app_iface =
+      "org.crosswalkproject.Installed.Application1";
+
   GError* error = NULL;
-  GDBusProxy* proxy;
-  bool ret;
-  GVariant* result = NULL;
-
-  proxy = g_dbus_proxy_new_sync(
-      g_connection,
-      G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
-      xwalk_installed_path, xwalk_installed_iface, NULL, &error);
-  if (!proxy) {
-    g_print("Couldn't create proxy for '%s': %s\n", xwalk_installed_iface,
+  GDBusConnection* connection = get_session_bus_connection(&error);
+  if (!connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
             error->message);
-    g_error_free(error);
-    ret = false;
-    goto done;
+    exit(1);
   }
 
-  result = g_dbus_proxy_call_sync(proxy, "Install",
-                                  g_variant_new("(s)", path),
-                                  G_DBUS_CALL_FLAGS_NONE,
-                                  -1, NULL, &error);
-  if (!result) {
-    g_print("Installing application failed: %s\n", error->message);
-    g_error_free(error);
-    ret = false;
-    goto done;
+  GDBusObjectManager* installed_om = g_dbus_object_manager_client_new_sync(
+      connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+      xwalk_service_name, xwalk_installed_path,
+      NULL, NULL, NULL, NULL, &error);
+  if (!installed_om) {
+    g_print("Service '%s' could not be reached: %s\n", xwalk_service_name,
+            error->message);
+    exit(1);
   }
 
-  const char* object_path;
+  // GDBus may return a valid ObjectManager even if it fails to auto activate
+  // the proper service name. We should check 'name-owner' property to make sure
+  // the service is working. See GDBusObjectManager documentation.
+  gchar* name_owner = NULL;
+  g_object_get(installed_om, "name-owner", &name_owner, NULL);
+  if (!name_owner) {
+    g_print("Service '%s' could not be activated.\n", xwalk_service_name);
+    exit(1);
+  }
+  g_free(name_owner);
 
-  g_variant_get(result, "(o)", &object_path);
-  g_print("Application installed/updated with path '%s'\n", object_path);
-  g_variant_unref(result);
-
-  ret = true;
-
- done:
-  if (proxy)
-    g_object_unref(proxy);
-
-  return ret;
-}
-
-static bool uninstall_application(GDBusObjectManager* installed,
-                                  const char* appid) {
-  GList* objects = g_dbus_object_manager_get_objects(installed);
+  GList* objects = g_dbus_object_manager_get_objects(installed_om);
   GList* l;
   bool ret = false;
 
@@ -133,52 +125,26 @@ static bool uninstall_application(GDBusObjectManager* installed,
   return ret;
 }
 
-static void list_applications(GDBusObjectManager* installed) {
-  GList* objects = g_dbus_object_manager_get_objects(installed);
-  GList* l;
+bool list_applications(ApplicationStorage* storage) {
+  ApplicationData::ApplicationDataMap apps;
+  if (!storage->GetInstalledApplications(apps))
+    return false;
 
-  for (l = objects; l; l = l->next) {
-    GDBusObject* object = reinterpret_cast<GDBusObject*>(l->data);
-    GDBusInterface* iface = g_dbus_object_get_interface(
-        object,
-        xwalk_installed_app_iface);
-    if (!iface)
-      continue;
+  g_print("Application ID                       Application Name\n");
+  g_print("-----------------------------------------------------\n");
+  ApplicationData::ApplicationDataMap::const_iterator it;
+  for (it = apps.begin(); it != apps.end(); ++it)
+    g_print("%s  %s\n", it->first.c_str(), it->second->Name().c_str());
+  g_print("-----------------------------------------------------\n");
 
-    GDBusProxy* proxy = G_DBUS_PROXY(iface);
-    GVariant* id_variant;
-    id_variant = g_dbus_proxy_get_cached_property(proxy, "AppID");
-    if (!id_variant) {
-      g_object_unref(iface);
-      continue;
-    }
-
-    const char* id;
-    g_variant_get(id_variant, "s", &id);
-
-    GVariant* name_variant;
-    name_variant = g_dbus_proxy_get_cached_property(proxy, "Name");
-    if (!name_variant) {
-      g_object_unref(iface);
-      continue;
-    }
-
-    const char* name;
-    g_variant_get(name_variant, "s", &name);
-
-    g_print("%s\t%s\n", id, name);
-
-    g_object_unref(iface);
-  }
-
-  g_list_free_full(objects, g_object_unref);
+  return true;
 }
 
 int main(int argc, char* argv[]) {
   setlocale(LC_ALL, "");
   GError* error = NULL;
   GOptionContext* context;
-  bool success;
+  bool success = false;
 
 #if !GLIB_CHECK_VERSION(2, 36, 0)
   // g_type_init() is deprecated on GLib since 2.36, Tizen has 2.32.
@@ -197,44 +163,21 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  g_connection = get_session_bus_connection(&error);
-  if (!g_connection) {
-    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
-            error->message);
-    exit(1);
-  }
-
-  GDBusObjectManager* installed_om = g_dbus_object_manager_client_new_sync(
-      g_connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
-      xwalk_service_name, xwalk_installed_path,
-      NULL, NULL, NULL, NULL, &error);
-  if (!installed_om) {
-    g_print("Service '%s' could not be reached: %s\n", xwalk_service_name,
-            error->message);
-    exit(1);
-  }
-
-  // GDBus may return a valid ObjectManager even if it fails to auto activate
-  // the proper service name. We should check 'name-owner' property to make sure
-  // the service is working. See GDBusObjectManager documentation.
-  gchar* name_owner = NULL;
-  g_object_get(installed_om, "name-owner", &name_owner, NULL);
-  if (!name_owner) {
-    g_print("Service '%s' could not be activated.\n", xwalk_service_name);
-    exit(1);
-  }
-  g_free(name_owner);
+  base::AtExitManager at_exit;
+  base::FilePath data_path;
+  xwalk::RegisterPathProvider();
+  PathService::Get(xwalk::DIR_DATA_PATH, &data_path);
+  scoped_ptr<ApplicationStorage> storage(new ApplicationStorage(data_path));
+  scoped_ptr<PackageInstaller> installer =
+      PackageInstaller::Create(storage.get());
 
   if (install_path) {
-    success = install_application(install_path);
+    std::string id;
+    success = installer->Install(base::FilePath(install_path), &id);
   } else if (uninstall_appid) {
-    success = uninstall_application(installed_om, uninstall_appid);
+    success = uninstall_application(uninstall_appid);
   } else {
-    g_print("Application ID                       Application Name\n");
-    g_print("-----------------------------------------------------\n");
-    list_applications(installed_om);
-    g_print("-----------------------------------------------------\n");
-    success = true;
+    success = list_applications(storage.get());
   }
 
   return success ? 0 : 1;

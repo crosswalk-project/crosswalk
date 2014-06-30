@@ -12,25 +12,29 @@
 
 namespace xwalk {
 
+// FIXME: Do we need to watch system locale change
+// now (we do not keep the cache of the installed
+// apps anymore)? This class should probably be
+// removed.
 class TizenLocaleListener : public base::SimpleThread {
-  public:
-    TizenLocaleListener();
-    virtual ~TizenLocaleListener();
+ public:
+  TizenLocaleListener();
+  virtual ~TizenLocaleListener();
 
-    virtual void Run() OVERRIDE;
+  virtual void Run() OVERRIDE;
 
-    // Get the latest application locale from system.
-    // locale is a langtag defined in [BCP47]
-    std::string GetLocale() const;
-    // Set the locale and apply this locale to all applications.
-    // Locale is a langtag defined in [BCP47].
-    // This function will called by TizenLocaleListener when locale is changed.
-    void SetLocale(const std::string& locale);
+  // Get the latest application locale from system.
+  // locale is a langtag defined in [BCP47]
+  std::string GetLocale() const;
+  // Set the locale and apply this locale to all applications.
+  // Locale is a langtag defined in [BCP47].
+  // This function will called by TizenLocaleListener when locale is changed.
+  void SetLocale(const std::string& locale);
 
-  private:
-    GMainLoop*  main_loop_;
-    // The locale is a langtag defined in [BCP47]
-    std::string locale_;
+ private:
+  GMainLoop*  main_loop_;
+  // The locale is a langtag defined in [BCP47]
+  std::string locale_;
 };
 
 }  // namespace xwalk

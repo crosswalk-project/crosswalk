@@ -14,7 +14,7 @@
 #include "base/strings/string_split.h"
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/common/xwalk_system_locale.h"
 
 namespace errors = xwalk::application_manifest_errors;
 namespace keys   = xwalk::application_manifest_keys;
@@ -84,11 +84,7 @@ Manifest::Manifest(SourceType source_type,
       data_->Get(widget_keys::kWidgetKey, NULL))
     ParseWGTI18n();
 
-  // Unittest may not have an xwalkrunner, so we should check here.
-  if (XWalkRunner* xwalk_runner = XWalkRunner::GetInstance())
-    SetSystemLocale(xwalk_runner->GetLocale());
-  else
-    SetSystemLocale(kLocaleUnlocalized);
+  SetSystemLocale(GetSystemLocale());
 }
 
 Manifest::~Manifest() {

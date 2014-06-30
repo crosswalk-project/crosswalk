@@ -27,7 +27,6 @@
 #include "net/url_request/url_request_error_job.h"
 #include "net/url_request/url_request_file_job.h"
 #include "net/url_request/url_request_simple_job.h"
-#include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -35,6 +34,7 @@
 #include "xwalk/application/common/application_resource.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
+#include "xwalk/runtime/common/xwalk_system_locale.h"
 
 using content::BrowserThread;
 using content::ResourceRequestInfo;
@@ -216,7 +216,7 @@ class ApplicationProtocolHandler
 // The |locale| should be expanded to user agent locale.
 // Such as, "en-us" will be expaned as "en-us, en".
 void GetUserAgentLocales(const std::string& sys_locale,
-                         std::list<std::string>& ua_locales) {
+                         std::list<std::string>& ua_locales) {  // NOLINT
   if (sys_locale.empty())
     return;
 
@@ -266,8 +266,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
 
   std::list<std::string> locales;
   if (application && application->GetPackageType() == Package::WGT) {
-    GetUserAgentLocales(
-        xwalk::XWalkRunner::GetInstance()->GetLocale(), locales);
+    GetUserAgentLocales(GetSystemLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
   }
 

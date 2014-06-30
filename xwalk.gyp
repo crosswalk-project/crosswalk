@@ -258,6 +258,8 @@
         'runtime/common/xwalk_runtime_features.h',
         'runtime/common/xwalk_switches.cc',
         'runtime/common/xwalk_switches.h',
+        'runtime/common/xwalk_system_locale.cc',
+        'runtime/common/xwalk_system_locale.h',
         'runtime/renderer/android/xwalk_render_process_observer.cc',
         'runtime/renderer/android/xwalk_render_process_observer.h',
         'runtime/renderer/android/xwalk_permission_client.cc',
