@@ -4,11 +4,11 @@
 
 #include "xwalk/application/browser/application_service.h"
 
-#include <hash_set>
 #include <set>
 #include <string>
 #include <vector>
 
+#include "base/containers/hash_tables.h"
 #include "base/files/file_enumerator.h"
 #include "base/file_util.h"
 #include "base/memory/scoped_ptr.h"
@@ -52,7 +52,7 @@ void CollectUnusedStoragePartitions(RuntimeContext* context,
     return;
 
   scoped_ptr<base::hash_set<base::FilePath> > active_paths(
-      new base::hash_set<base::FilePath>());
+      new base::hash_set<base::FilePath>()); // NOLINT
 
   for (unsigned i = 0; i < app_ids.size(); ++i) {
     active_paths->insert(
