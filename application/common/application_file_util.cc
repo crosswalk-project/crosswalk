@@ -56,6 +56,12 @@ const char kDirRTLKey[] = "rtl";
 const char kDirLROKey[] = "lro";
 const char kDirRLOKey[] = "rlo";
 
+const char* kSingletonElements[] = {
+  "allow-navigation",
+  "content-security-policy-report-only",
+  "content-security-policy"
+};
+
 inline char* ToCharPointer(void* ptr) {
   return reinterpret_cast<char *>(ptr);
 }
@@ -173,6 +179,13 @@ bool GetPackageType(const base::FilePath& path,
   return false;
 }
 
+bool IsSingletonElement(const std::string& name) {
+  for (int i = 0; i < arraysize(kSingletonElements); ++i)
+    if (kSingletonElements[i] == name)
+      return true;
+  return false;
+}
+
 }  // namespace
 
 namespace xwalk {
@@ -249,6 +262,8 @@ base::DictionaryValue* LoadXMLNode(
 
     if (!value->HasKey(sub_node_name)) {
       value->Set(sub_node_name, sub_value);
+      continue;
+    } else if (IsSingletonElement(sub_node_name)) {
       continue;
     }
 
