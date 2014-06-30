@@ -394,13 +394,26 @@ public class XWalkLaunchScreenManager
         Bitmap img = BitmapFactory.decodeResource(mActivity.getResources(), imgResId);
         if (img == null) return null;
 
-        // Create the 9-piece layout as spec defined.
         RelativeLayout root = new RelativeLayout(mActivity);
         root.setLayoutParams(new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         RelativeLayout.LayoutParams params;
         ImageView subImageView;
+
+        // If no border specified, display the foreground image centered horizontally and vertically.
+        if (borders.size() == 0) {
+            subImageView = new ImageView(mActivity);
+            subImageView.setImageBitmap(img);
+            params = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+            root.addView(subImageView, params);
+            return root;
+        }
+
+        // Create the 9-piece layout as spec defined.
 
         // Get Screen width and height.
         Display display = mActivity.getWindowManager().getDefaultDisplay();
