@@ -56,6 +56,9 @@ class NativeAppWindowViews : public NativeAppWindow,
 
  protected:
   TopViewLayout* top_view_layout();
+  const NativeAppWindow::CreateParams& create_params() const {
+    return create_params_;
+  }
 
   virtual void ViewHierarchyChanged(
       const ViewHierarchyChangedDetails& details) OVERRIDE;

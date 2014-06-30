@@ -9,6 +9,7 @@
 #include "base/file_util.h"
 #include "base/strings/string_util.h"
 #include "ui/gfx/image/image_skia.h"
+#include "ui/gfx/image/image_util.h"
 #include "ui/gfx/size.h"
 
 #if defined(OS_WIN)
@@ -20,6 +21,8 @@ namespace xwalk_utils {
 gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
   const base::FilePath::StringType kPNGFormat(FILE_PATH_LITERAL(".png"));
   const base::FilePath::StringType kICOFormat(FILE_PATH_LITERAL(".ico"));
+  const base::FilePath::StringType kJPGFormat(FILE_PATH_LITERAL(".jpg"));
+  const base::FilePath::StringType kJPEGFormat(FILE_PATH_LITERAL(".jpeg"));
 
   if (EndsWith(filename.value(), kPNGFormat, false)) {
     std::string contents;
@@ -27,6 +30,15 @@ gfx::Image LoadImageFromFilePath(const base::FilePath& filename) {
     return gfx::Image::CreateFrom1xPNGBytes(
         reinterpret_cast<const unsigned char*>(contents.data()),
             contents.size());
+  }
+
+  if (EndsWith(filename.value(), kJPGFormat, false) ||
+      EndsWith(filename.value(), kJPEGFormat, false)) {
+    std::string contents;
+    base::ReadFileToString(filename, &contents);
+    return gfx::ImageFrom1xJPEGEncodedData(
+        reinterpret_cast<const unsigned char*>(contents.data()),
+        contents.size());
   }
 
   if (EndsWith(filename.value(), kICOFormat, false)) {

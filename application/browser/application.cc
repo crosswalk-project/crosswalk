@@ -96,6 +96,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
     params.state = GetWindowShowStateWGT(launch_params);
   else
     params.state = GetWindowShowStateXPK(launch_params);
+
+  params.splash_screen_path = GetSplashScreenPath();
+
   runtime->AttachWindow(params);
 
   return true;
@@ -364,6 +367,10 @@ bool Application::CanRequestURL(const GURL& url) const {
   if (security_policy_)
     return security_policy_->IsAccessAllowed(url);
   return true;
+}
+
+base::FilePath Application::GetSplashScreenPath() {
+  return base::FilePath();
 }
 
 }  // namespace application

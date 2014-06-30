@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_H_
 
 #include "base/compiler_specific.h"
+#include "base/files/file_path.h"
 #include "base/strings/string16.h"
 #include "ui/base/ui_base_types.h"
 #include "ui/gfx/image/image.h"
@@ -53,6 +54,9 @@ class NativeAppWindow {
     int32 net_wm_pid;
     // The parent view which this window belongs to. NULL if it is root window.
     gfx::NativeView parent;
+    // The absolute path of splash screen.
+    // Empty if splash screen is not to be shown.
+    base::FilePath splash_screen_path;
   };
 
   // Do one time initialization at application startup.

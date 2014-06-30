@@ -27,6 +27,7 @@
 #endif
 
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/tizen_splash_screen_handler.h"
 
 namespace xwalk {
 
@@ -100,6 +101,14 @@ bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
     return true;
   }
   return false;
+}
+
+base::FilePath ApplicationTizen::GetSplashScreenPath() {
+  if (TizenSplashScreenInfo* ss_info = static_cast<TizenSplashScreenInfo*>(
+      data()->GetManifestData(widget_keys::kTizenSplashScreenKey))) {
+    return data()->Path().Append(FILE_PATH_LITERAL(ss_info->src()));
+  }
+  return base::FilePath();
 }
 
 #if defined(USE_OZONE)
