@@ -457,11 +457,29 @@ def Execution(options, name):
          'scripts/ant/apk-package.xml']
   RunCommand(cmd, options.verbose)
 
+  # Find the path of zipalign.
+  # XWALK-2033: zipalign can be in different locations depending on Android
+  # SDK version that used ((eg. /tools, /build-tools/android-4.4W etc),).
+  # So looking up the location of zipalign here instead of hard coding.
+  # Refer to: https://codereview.chromium.org/238253015
+  zipalign_path = ''
+  for zipalign_str in AddExeExtensions('zipalign'):
+    try:
+      zipalign_path = Find(zipalign_str, sdk_root_path)
+      if options.verbose:
+        print('Use %s in %s.' % (zipalign_str, sdk_root_path))
+      break
+    except Exception:
+      pass
+  if not zipalign_path:
+    print('zipalign could not be found in your Android SDK.'
+          ' Make sure it is installed.')
+    sys.exit(10)
   apk_path = '--unsigned-apk-path=' + os.path.join('out', 'app-unsigned.apk')
   final_apk_path = '--final-apk-path=' + \
                    os.path.join('out', name + '.apk')
   cmd = ['python', 'scripts/gyp/finalize_apk.py',
-         '--android-sdk-root=%s' % sdk_root_path,
+         '--zipalign-path=%s' % zipalign_path,
          apk_path,
          final_apk_path,
          '--keystore-path=%s' % key_store,
