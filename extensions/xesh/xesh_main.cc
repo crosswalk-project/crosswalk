@@ -172,9 +172,9 @@ class ExtensionManager {
   void Initialize(base::MessageLoopProxy* io_message_loop_proxy) {
     handle_ = IPC::Channel::GenerateVerifiedChannelID(std::string());
 
-    server_channel_.reset(new IPC::SyncChannel(handle_,
+    server_channel_ = IPC::SyncChannel::Create(handle_,
         IPC::Channel::MODE_SERVER, &server_, io_message_loop_proxy, true,
-        &shutdown_event_));
+        &shutdown_event_);
 
     server_.Initialize(server_channel_.get());
   }

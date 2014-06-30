@@ -49,7 +49,6 @@ void NativeAppWindowViews::Initialize() {
   params.delegate = this;
   params.remove_standard_frame = false;
   params.use_system_default_icon = true;
-  params.top_level = true;
   params.show_state = create_params_.state;
   params.parent = create_params_.parent;
 #if defined(OS_TIZEN_MOBILE)
@@ -269,11 +268,11 @@ void NativeAppWindowViews::OnFocus() {
   web_view_->RequestFocus();
 }
 
-gfx::Size NativeAppWindowViews::GetMaximumSize() {
+gfx::Size NativeAppWindowViews::GetMaximumSize() const {
   return maximum_size_;
 }
 
-gfx::Size NativeAppWindowViews::GetMinimumSize() {
+gfx::Size NativeAppWindowViews::GetMinimumSize() const {
   return minimum_size_;
 }
 

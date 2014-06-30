@@ -5,6 +5,7 @@
 #include "xwalk/application/common/installer/wgt_package.h"
 
 #include "base/file_util.h"
+#include "base/files/scoped_file.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"
 
@@ -58,8 +59,8 @@ WGTPackage::WGTPackage(const base::FilePath& path)
 
   is_valid_ = true;
 
-  scoped_ptr<ScopedStdioHandle> file(
-        new ScopedStdioHandle(base::OpenFile(path, "rb")));
+  scoped_ptr<base::ScopedFILE> file(
+        new base::ScopedFILE(base::OpenFile(path, "rb")));
 
   file_ = file.Pass();
 }

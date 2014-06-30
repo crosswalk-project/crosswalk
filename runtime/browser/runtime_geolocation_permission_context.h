@@ -5,50 +5,39 @@
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 
-#include "content/public/browser/geolocation_permission_context.h"
+#include "base/callback.h"
+#include "base/memory/ref_counted.h"
 
 class GURL;
+
+namespace content {
+  class WebContents;
+}
 
 namespace xwalk {
 
 class RuntimeContext;
 
 class RuntimeGeolocationPermissionContext
-    : public content::GeolocationPermissionContext {
+    : public base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext> {
  public:
-  static content::GeolocationPermissionContext* Create(
-      RuntimeContext* runtime_context);
-
   // content::GeolocationPermissionContext implementation.
   virtual void RequestGeolocationPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      base::Callback<void(bool)> callback) OVERRIDE;
-  virtual void CancelGeolocationPermissionRequest(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame) OVERRIDE;
+    content::WebContents* web_contents,
+    const GURL& requesting_frame,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback);
 
  protected:
   virtual ~RuntimeGeolocationPermissionContext();
+  friend class base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext>;
 
  private:
   void RequestGeolocationPermissionOnUIThread(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      const base::Callback<void(bool)> callback);
-
-  void CancelGeolocationPermissionRequestOnUIThread(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame);
+    content::WebContents* web_contents,
+    const GURL& requesting_frame,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback);
 };
 
 }  // namespace xwalk

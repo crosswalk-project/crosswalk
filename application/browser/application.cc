@@ -53,6 +53,7 @@ Application::Application(
     Observer* observer)
     : data_(data),
       render_process_host_(NULL),
+      web_contents_(NULL),
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(observer),
@@ -87,6 +88,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
       this, content::SiteInstance::CreateForURL(runtime_context_, url));
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
+  web_contents_ = runtime->web_contents();
   InitSecurityPolicy();
   runtime->LoadURL(url);
 
@@ -255,6 +257,7 @@ void Application::RenderProcessExited(RenderProcessHost* host,
 void Application::RenderProcessHostDestroyed(RenderProcessHost* host) {
   DCHECK(render_process_host_ == host);
   render_process_host_ = NULL;
+  web_contents_ = NULL;
 }
 
 void Application::NotifyTermination() {

@@ -8,6 +8,7 @@
         '../../../base/base.gyp:base_i18n',
         '../../../content/content.gyp:content_common',
         '../../../crypto/crypto.gyp:crypto',
+        '../../../net/net.gyp:net',
         '../../../sql/sql.gyp:sql',
         '../../../url/url.gyp:url_lib',
         '../../../third_party/libxml/libxml.gyp:libxml',

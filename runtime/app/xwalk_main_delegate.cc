@@ -78,7 +78,7 @@ content::ZygoteForkDelegate* XWalkMainDelegate::ZygoteStarting() {
 #if defined(DISABLE_NACL)
   return NULL;
 #else
-  return new NaClForkDelegate();
+  return new nacl::NaClForkDelegate(true);
 #endif
 }
 

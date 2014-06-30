@@ -1,0 +1,21 @@
+Author: Raphael Kubo Da Costa <raphael.kubo.da.costa@intel.com>
+
+Angle : Do not use .git/index as a dependency. Tizen is built by packing
+everything in a tarball where there is no .git/ directory.
+
+This has been fixed upstream already :
+http://code.google.com/p/chromium/issues/detail?id=395705
+
+diff --git src/third_party/angle/src/angle.gypi src/third_party/angle/src/angle.gypi
+index 5339369..c7ef8c1 100644
+--- src/third_party/angle/src/angle.gypi
++++ src/third_party/angle/src/angle.gypi
+@@ -56,7 +56,7 @@
+                         {
+                             'action_name': 'Generate Commit ID Header',
+                             'message': 'Generating commit ID header...',
+-                            'inputs': [ '<(SHARED_INTERMEDIATE_DIR)/commit_id.py', '<(angle_path)/.git/index' ],
++                            'inputs': [ '<(SHARED_INTERMEDIATE_DIR)/commit_id.py' ],
+                             'outputs': [ '<(SHARED_INTERMEDIATE_DIR)/commit.h' ],
+                             'action': [ 'python', '<(SHARED_INTERMEDIATE_DIR)/commit_id.py', '<(SHARED_INTERMEDIATE_DIR)/commit.h' ],
+                         },

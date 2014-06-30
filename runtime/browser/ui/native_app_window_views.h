@@ -85,8 +85,8 @@ class NativeAppWindowViews : public NativeAppWindow,
   // views::View implementation.
   virtual void ChildPreferredSizeChanged(views::View* child) OVERRIDE;
   virtual void OnFocus() OVERRIDE;
-  virtual gfx::Size GetMaximumSize() OVERRIDE;
-  virtual gfx::Size GetMinimumSize() OVERRIDE;
+  virtual gfx::Size GetMaximumSize() const OVERRIDE;
+  virtual gfx::Size GetMinimumSize() const OVERRIDE;
 
   // views::WidgetObserver implementation.
   virtual void OnWidgetClosing(views::Widget* widget) OVERRIDE;

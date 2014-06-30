@@ -10,7 +10,7 @@
 
     <application>
         <uses-library android:name="android.test.runner" />
-        <provider android:name="TestContentProvider"
+        <provider android:name="org.xwalk.runtime.client.test.TestContentProvider"
             android:authorities="org.xwalk.runtime.test.TestContentProvider" />
     </application>
 

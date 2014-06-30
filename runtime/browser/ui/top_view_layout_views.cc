@@ -52,7 +52,7 @@ void TopViewLayout::Layout(views::View* host) {
   content_view_->SetBoundsRect(content_view_bounds);
 }
 
-gfx::Size TopViewLayout::GetPreferredSize(views::View* host) {
+gfx::Size TopViewLayout::GetPreferredSize(const views::View* host) const {
   CHECK(content_view_);
   gfx::Rect rect(content_view_->GetPreferredSize());
   if (top_view_)

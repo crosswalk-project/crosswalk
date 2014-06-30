@@ -5,8 +5,6 @@
 #include "xwalk/application/common/installer/package_installer.h"
 
 #include <sys/types.h>
-#include <pwd.h>
-#include <unistd.h>
 #include <algorithm>
 #include <map>
 #include <string>

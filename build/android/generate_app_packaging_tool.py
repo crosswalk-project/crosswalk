@@ -39,6 +39,8 @@ def PrepareFromXwalk(src_dir, target_dir):
   # The directories for generated resources.
   gen_res_src_dir = os.path.join(src_dir, 'gen')
   gen_res_target_dir = os.path.join(target_dir, 'gen')
+  xwalk_core_library_res_dir = os.path.join(
+      src_dir, 'xwalk_core_library', 'res')
 
   # The directory for source packaging tools.
   tools_src_dir = os.path.join(source_code_dir, 'xwalk/app/tools/android')
@@ -72,41 +74,16 @@ def PrepareFromXwalk(src_dir, target_dir):
      os.path.join(target_dir, 'native_libs_res')),
 
     # Various Java resources.
-    (os.path.join(source_code_dir, 'content/public/android/java/res'),
-     os.path.join(target_dir, 'libs_res/content')),
-    (os.path.join(source_code_dir, 'ui/android/java/res'),
-     os.path.join(target_dir, 'libs_res/ui')),
-    (os.path.join(source_code_dir, 'xwalk/runtime/android/core_internal/res'),
-     os.path.join(target_dir, 'libs_res/runtime')),
-
+    # FIXME(wang16): Copy from the xwalk_core_library first. We need to
+    # consider refine the whole process of make_apk.
     (os.path.join(gen_res_src_dir, 'ui_java/java_R'),
      os.path.join(gen_res_target_dir, 'ui_java/java_R')),
-    (os.path.join(gen_res_src_dir, 'ui_java/res_crunched'),
-     os.path.join(gen_res_target_dir, 'ui_java/res_crunched')),
-    (os.path.join(gen_res_src_dir, 'ui_java/res_grit'),
-     os.path.join(gen_res_target_dir, 'ui_java/res_grit')),
-    (os.path.join(gen_res_src_dir, 'ui_java/res_v14_compatibility'),
-     os.path.join(gen_res_target_dir, 'ui_java/res_v14_compatibility')),
-
     (os.path.join(gen_res_src_dir, 'content_java/java_R'),
      os.path.join(gen_res_target_dir, 'content_java/java_R')),
-    (os.path.join(gen_res_src_dir, 'content_java/res_crunched'),
-     os.path.join(gen_res_target_dir, 'content_java/res_crunched')),
-    (os.path.join(gen_res_src_dir, 'content_java/res_grit'),
-     os.path.join(gen_res_target_dir, 'content_java/res_grit')),
-    (os.path.join(gen_res_src_dir, 'content_java/res_v14_compatibility'),
-     os.path.join(gen_res_target_dir, 'content_java/res_v14_compatibility')),
-
     (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/java_R'),
      os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/java_R')),
-    (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/res_crunched'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/res_crunched')),
-    (os.path.join(gen_res_src_dir, 'xwalk_core_internal_java/res_grit'),
-     os.path.join(gen_res_target_dir, 'xwalk_core_internal_java/res_grit')),
-    (os.path.join(gen_res_src_dir,
-         'xwalk_core_internal_java/res_v14_compatibility'),
-     os.path.join(gen_res_target_dir,
-         'xwalk_core_internal_java/res_v14_compatibility')),
+    (xwalk_core_library_res_dir,
+     os.path.join(target_dir, 'libs_res/xwalk_core_library')),
 
     # The app wrapper code. It's the template Java code.
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),

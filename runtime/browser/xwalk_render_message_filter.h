@@ -13,8 +13,7 @@ namespace xwalk {
 class XWalkRenderMessageFilter : public content::BrowserMessageFilter {
  public:
   XWalkRenderMessageFilter();
-  virtual bool OnMessageReceived(const IPC::Message& message,
-                                 bool* message_was_ok) OVERRIDE;
+  virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
 
  private:
 #if defined(OS_TIZEN)

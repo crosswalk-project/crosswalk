@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/files/file_path.h"
-#include "base/memory/scoped_handle.h"
 #include "base/memory/scoped_ptr.h"
 #include "xwalk/application/common/installer/package.h"
 

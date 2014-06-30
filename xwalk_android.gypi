@@ -38,15 +38,25 @@
         '../content/content.gyp:content_java',
         '../ui/android/ui_android.gyp:ui_java',
         'xwalk_core_extensions_java',
+        'xwalk_core_strings',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/core_internal',
         'has_java_resources': 1,
         'R_package': 'org.xwalk.core.internal',
         'R_package_relpath': 'org/xwalk/core/internal',
-        'java_strings_grd': 'android_xwalk_strings.grd',
       },
       'includes': ['../build/java.gypi'],
+    },
+    {
+      'target_name': 'xwalk_core_strings',
+      'type': 'none',
+      'variables': {
+          'grd_file': '../xwalk/runtime/android/core_internal/strings/android_xwalk_strings.grd',
+       },
+       'includes': [
+          '../build/java_strings_grd.gypi',
+        ],
     },
     {
       'target_name': 'xwalk_core_java',

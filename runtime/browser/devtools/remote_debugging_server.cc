@@ -19,7 +19,8 @@ RemoteDebuggingServer::RemoteDebuggingServer(
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       new net::TCPListenSocketFactory(ip, port),
       frontend_url,
-      new XWalkDevToolsDelegate(runtime_context));
+      new XWalkDevToolsDelegate(runtime_context),
+      base::FilePath());
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {
