@@ -120,6 +120,7 @@ void FileSystemChecker::RegisterFileSystemsAndSendResponse() {
 
   std::string filesystem_id = isolated_context->RegisterFileSystemForPath(
       fileapi::kFileSystemTypeNativeForPlatformApp,
+      std::string(),
       base::FilePath::FromUTF8Unsafe(path_),
       &root_name_);
 

@@ -63,11 +63,11 @@ void IsolatedFileSystem::GetIsolatedFileSystem(
       context_url.GetOrigin(),
       file_system_id,
       optional_root_name)));
-
+  v8::Isolate* isolate = v8::Isolate::GetCurrent();
   info.GetReturnValue().Set(blink::WebDOMFileSystem::create(webframe,
       blink::WebFileSystemTypeIsolated,
       blink::WebString::fromUTF8(name),
-      root).toV8Value());
+      root).toV8Value(isolate->GetCurrentContext()->Global(), isolate));
 }
 
 IsolatedFileSystem::IsolatedFileSystem() {

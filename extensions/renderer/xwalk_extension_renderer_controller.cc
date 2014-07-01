@@ -126,10 +126,10 @@ void XWalkExtensionRendererController::SetupExtensionProcessClient(
   // FIXME(cmarcelo): Need to account for failure in creating the channel.
 
   external_extensions_client_.reset(new XWalkExtensionClient);
-  extension_process_channel_.reset(new IPC::SyncChannel(handle,
+  extension_process_channel_ = IPC::SyncChannel::Create(handle,
       IPC::Channel::MODE_CLIENT, external_extensions_client_.get(),
       content::RenderThread::Get()->GetIOMessageLoopProxy(), true,
-      &shutdown_event_));
+      &shutdown_event_);
 
   external_extensions_client_->Initialize(extension_process_channel_.get());
 }

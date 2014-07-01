@@ -151,8 +151,8 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
   }
 
   // IPC::ChannelProxy::MessageFilter implementation.
-  virtual void OnFilterAdded(IPC::Channel* channel) OVERRIDE {
-    sender_ = channel;
+  virtual void OnFilterAdded(IPC::Sender* sender) OVERRIDE {
+    sender_ = sender;
   }
 
   virtual void OnFilterRemoved() OVERRIDE {

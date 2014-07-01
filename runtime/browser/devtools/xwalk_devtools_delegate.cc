@@ -41,6 +41,7 @@ class Target : public content::DevToolsTarget {
   virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
     return last_activity_time_;
   }
+  virtual std::string GetParentId() const OVERRIDE { return std::string(); }
   virtual bool IsAttached() const OVERRIDE {
     return agent_host_->IsAttached();
   }
@@ -122,7 +123,7 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = Runtime::CreateWithDefaultWindow(
-      runtime_context_, GURL(content::kAboutBlankURL));
+      runtime_context_, GURL(url::kAboutBlankURL));
   return scoped_ptr<content::DevToolsTarget>(
       new Target(runtime->web_contents()));
 }

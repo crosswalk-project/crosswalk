@@ -32,10 +32,11 @@
 #include "net/ssl/ssl_config_service_defaults.h"
 #include "net/url_request/data_protocol_handler.h"
 #include "net/url_request/file_protocol_handler.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/static_http_user_agent_settings.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_context_storage.h"
+#include "net/url_request/url_request_intercepting_job_factory.h"
+#include "net/url_request/url_request_interceptor.h"
 #include "net/url_request/url_request_job_factory_impl.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/browser/runtime_network_delegate.h"
@@ -58,12 +59,12 @@ RuntimeURLRequestContextGetter::RuntimeURLRequestContextGetter(
     base::MessageLoop* io_loop,
     base::MessageLoop* file_loop,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors)
+    content::URLRequestInterceptorScopedVector request_interceptors)
     : ignore_certificate_errors_(ignore_certificate_errors),
       base_path_(base_path),
       io_loop_(io_loop),
       file_loop_(file_loop),
-      protocol_interceptors_(protocol_interceptors.Pass()) {
+      request_interceptors_(request_interceptors.Pass()) {
   // Must first be created on the UI thread.
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
 
@@ -195,11 +196,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // Step 2:
     // Add new basic schemes.
     set_protocol = job_factory_impl->SetProtocolHandler(
-        content::kDataScheme,
+        url::kDataScheme,
         new net::DataProtocolHandler);
     DCHECK(set_protocol);
     set_protocol = job_factory_impl->SetProtocolHandler(
-        content::kFileScheme,
+        url::kFileScheme,
         new net::FileProtocolHandler(
             content::BrowserThread::GetBlockingPool()->
             GetTaskRunnerWithShutdownBehavior(
@@ -208,18 +209,17 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
     // Step 3:
     // Add the scheme interceptors.
-    // Create a chain of URLRequestJobFactories. The handlers will be invoked
-    // in the order in which they appear in the protocol_handlers vector.
-    typedef std::vector<net::URLRequestJobFactory::ProtocolHandler*>
-        ProtocolHandlerVector;
-    ProtocolHandlerVector protocol_interceptors;
+  // in the order in which they appear in the |request_interceptors| vector.
+  typedef std::vector<net::URLRequestInterceptor*>
+      URLRequestInterceptorVector;
+  URLRequestInterceptorVector request_interceptors;
 
 #if defined(OS_ANDROID)
-    protocol_interceptors.push_back(
+    request_interceptors.push_back(
         CreateContentSchemeProtocolHandler().release());
-    protocol_interceptors.push_back(
+    request_interceptors.push_back(
         CreateAssetFileProtocolHandler().release());
-    protocol_interceptors.push_back(
+    request_interceptors.push_back(
         CreateAppSchemeProtocolHandler().release());
     // The XWalkRequestInterceptor must come after the content and asset
     // file job factories. This for WebViewClassic compatibility where it
@@ -228,32 +228,32 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
     // This logical dependency is also the reason why the Content
     // ProtocolHandler has to be added as a ProtocolInterceptJobFactory rather
     // than via SetProtocolHandler.
-    protocol_interceptors.push_back(new XWalkRequestInterceptor());
+    request_interceptors.push_back(new XWalkRequestInterceptor());
 #endif
 
     // The chain of responsibility will execute the handlers in reverse to the
     // order in which the elements of the chain are created.
     scoped_ptr<net::URLRequestJobFactory> job_factory(
         job_factory_impl.PassAs<net::URLRequestJobFactory>());
-    for (ProtocolHandlerVector::reverse_iterator
-             i = protocol_interceptors.rbegin();
-         i != protocol_interceptors.rend();
+    for (URLRequestInterceptorVector::reverse_iterator
+             i = request_interceptors.rbegin();
+         i != request_interceptors.rend();
          ++i) {
-      job_factory.reset(new net::ProtocolInterceptJobFactory(
+      job_factory.reset(new net::URLRequestInterceptingJobFactory(
           job_factory.Pass(), make_scoped_ptr(*i)));
     }
 
     // Set up interceptors in the reverse order.
     scoped_ptr<net::URLRequestJobFactory> top_job_factory =
         job_factory.PassAs<net::URLRequestJobFactory>();
-    for (content::ProtocolHandlerScopedVector::reverse_iterator i =
-             protocol_interceptors_.rbegin();
-         i != protocol_interceptors_.rend();
+    for (content::URLRequestInterceptorScopedVector::reverse_iterator i =
+             request_interceptors_.rbegin();
+         i != request_interceptors_.rend();
          ++i) {
-      top_job_factory.reset(new net::ProtocolInterceptJobFactory(
+      top_job_factory.reset(new net::URLRequestInterceptingJobFactory(
           top_job_factory.Pass(), make_scoped_ptr(*i)));
     }
-    protocol_interceptors_.weak_clear();
+    request_interceptors_.weak_clear();
 
     storage_->set_job_factory(top_job_factory.release());
   }

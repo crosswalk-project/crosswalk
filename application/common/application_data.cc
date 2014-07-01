@@ -110,7 +110,7 @@ bool ApplicationData::IsIDValid(const std::string& id) {
 GURL ApplicationData::GetBaseURLFromApplicationId(
     const std::string& application_id) {
   return GURL(std::string(xwalk::application::kApplicationScheme) +
-              content::kStandardSchemeSeparator + application_id + "/");
+              url::kStandardSchemeSeparator + application_id + "/");
 }
 
 ApplicationData::ManifestData* ApplicationData::GetManifestData(

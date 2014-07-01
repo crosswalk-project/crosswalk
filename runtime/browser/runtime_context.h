@@ -19,7 +19,6 @@
 #include "components/visitedlink/browser/visitedlink_delegate.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/content_browser_client.h"
-#include "content/public/browser/geolocation_permission_context.h"
 
 namespace net {
 class URLRequestContextGetter;
@@ -68,41 +67,18 @@ class RuntimeContext
           const base::FilePath& partition_path,
           bool in_memory) OVERRIDE;
   virtual content::ResourceContext* GetResourceContext() OVERRIDE;
-  virtual content::GeolocationPermissionContext*
-      GetGeolocationPermissionContext() OVERRIDE;
-  virtual content::BrowserPluginGuestManagerDelegate*
-      GetGuestManagerDelegate() OVERRIDE;
+  virtual content::BrowserPluginGuestManager*
+      GetGuestManager() OVERRIDE;
   virtual quota::SpecialStoragePolicy* GetSpecialStoragePolicy() OVERRIDE;
-  virtual void RequestMidiSysExPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      const MidiSysExPermissionCallback& callback) OVERRIDE { }
-  virtual void CancelMidiSysExPermissionRequest(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame) OVERRIDE {}
-  virtual void RequestProtectedMediaIdentifierPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      int group_id,
-      const GURL& requesting_frame,
-      const ProtectedMediaIdentifierPermissionCallback& callback) OVERRIDE;
-  virtual void CancelProtectedMediaIdentifierPermissionRequests(
-      int group_id) OVERRIDE;
-
+  virtual content::PushMessagingService* GetPushMessagingService() OVERRIDE;
   net::URLRequestContextGetter* CreateRequestContext(
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors);
   net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors);
+      content::URLRequestInterceptorScopedVector request_interceptors);
 #if defined(OS_ANDROID)
   void SetCSPString(const std::string& csp);
   std::string GetCSPString() const;
@@ -128,8 +104,6 @@ class RuntimeContext
   scoped_ptr<RuntimeResourceContext> resource_context_;
   scoped_refptr<RuntimeDownloadManagerDelegate> download_manager_delegate_;
   scoped_refptr<RuntimeURLRequestContextGetter> url_request_getter_;
-  scoped_refptr<content::GeolocationPermissionContext>
-       geolocation_permission_context_;
 #if defined(OS_ANDROID)
   std::string csp_;
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
