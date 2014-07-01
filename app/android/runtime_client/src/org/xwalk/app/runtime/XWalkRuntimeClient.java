@@ -48,7 +48,14 @@ public class XWalkRuntimeClient extends CrossPackageWrapper {
         mInstance = this.createInstance(activity, libCtx, attrs);
         Method getVersion = lookupMethod("getVersion");
         String libVersion = (String) invokeMethod(getVersion, mInstance);
-        if (libVersion == null || !compareVersion(libVersion, getVersion())) {
+        if (libVersion == null) {
+            // If the code executes to here and libVersion got is null, it means
+            // the library package is available but native library is not.
+            // It probably meets CPU arch mismatch, stop execution here to avoid crash.
+            // A dialog should be prompt to user for this information.
+            return;
+        }
+        if (!compareVersion(libVersion, getVersion())) {
             handleException(new XWalkRuntimeLibraryException(
                     XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL));
             mInstance = null;
