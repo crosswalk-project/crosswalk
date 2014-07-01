@@ -260,7 +260,7 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::ExtractApplicationData(
 
   app_data->install_time_ = base::Time::FromDoubleT(install_time);
 
-  app_data->permission_map_ = ToPermissionMap(smt.ColumnString(5));
+  app_data->permission_map_ = ToPermissionMap(smt.ColumnString(4));
 
   return app_data;
 }
