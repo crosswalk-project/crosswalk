@@ -145,7 +145,6 @@ class ExtensionManager {
  public:
   ExtensionManager()
     : shutdown_event_(false, false) {
-    runtime_variables_["app_id"] = base::Value::CreateStringValue("xesh");
   }
 
   ~ExtensionManager() {
@@ -157,9 +156,12 @@ class ExtensionManager {
         CommandLine::ForCurrentProcess()->GetSwitchValuePath(
             switches::kXWalkExternalExtensionsPath);
 
+    scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+    (*runtime_variables)["app_id"] = base::Value::CreateStringValue("xesh");
+
     std::vector<std::string> extensions =
         RegisterExternalExtensionsInDirectory(&server_, extensions_dir,
-            runtime_variables_);
+            runtime_variables.Pass());
 
     fprintf(stderr, "\nExtensions Loaded:\n");
     std::vector<std::string>::const_iterator it = extensions.begin();
@@ -184,7 +186,6 @@ class ExtensionManager {
   base::WaitableEvent shutdown_event_;
   XWalkExtensionServer server_;
   scoped_ptr<IPC::SyncChannel> server_channel_;
-  base::ValueMap runtime_variables_;
 };
 }  // namespace
 

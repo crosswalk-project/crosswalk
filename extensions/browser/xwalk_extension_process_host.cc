@@ -114,14 +114,14 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
     content::RenderProcessHost* render_process_host,
     const base::FilePath& external_extensions_path,
     XWalkExtensionProcessHost::Delegate* delegate,
-    const base::ValueMap& runtime_variables)
+    scoped_ptr<base::ValueMap> runtime_variables)
     : ep_rp_channel_handle_(""),
       render_process_host_(render_process_host),
       render_process_message_filter_(new RenderProcessMessageFilter(this)),
       external_extensions_path_(external_extensions_path),
       is_extension_process_channel_ready_(false),
       delegate_(delegate),
-      runtime_variables_(runtime_variables) {
+      runtime_variables_(runtime_variables.Pass()) {
   render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
@@ -211,7 +211,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   }
 
   base::ListValue runtime_variables_lv;
-  ToListValue(&const_cast<base::ValueMap&>(runtime_variables_),
+  ToListValue(&const_cast<base::ValueMap&>(*runtime_variables_),
       &runtime_variables_lv);
   Send(new XWalkExtensionProcessMsg_RegisterExtensions(
         external_extensions_path_, runtime_variables_lv));

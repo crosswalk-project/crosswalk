@@ -142,7 +142,7 @@ class XWalkRunner {
   // side to the extension side, such as application IDs and whatnot.
   void InitializeRuntimeVariablesForExtensions(
       const content::RenderProcessHost* host,
-      base::ValueMap& runtime_variables);  // NOLINT
+      base::ValueMap* runtime_variables);
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRunner);
 };

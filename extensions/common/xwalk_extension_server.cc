@@ -348,7 +348,7 @@ base::FilePath::StringType GetNativeLibraryPattern() {
 
 std::vector<std::string> RegisterExternalExtensionsInDirectory(
     XWalkExtensionServer* server, const base::FilePath& dir,
-    const base::ValueMap& runtime_variables) {
+    scoped_ptr<base::ValueMap> runtime_variables) {
   CHECK(server);
 
   std::vector<std::string> registered_extensions;
@@ -366,7 +366,14 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
         !extension_path.empty(); extension_path = libraries.Next()) {
     scoped_ptr<XWalkExternalExtension> extension(
         new XWalkExternalExtension(extension_path));
-    extension->set_runtime_variables(runtime_variables);
+
+    // Let the extension know about its own path, so it can be used
+    // as an identifier in case you have symlinks to extensions to force it
+    // load multiple times.
+    (*runtime_variables)["extension_path"] =
+        base::Value::CreateStringValue(extension_path.AsUTF8Unsafe());
+
+    extension->set_runtime_variables(*runtime_variables);
     if (server->permissions_delegate())
       extension->set_permissions_delegate(server->permissions_delegate());
     if (extension->Initialize()) {

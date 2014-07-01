@@ -127,12 +127,12 @@ scoped_ptr<StorageComponent> XWalkRunner::CreateStorageComponent() {
 
 void XWalkRunner::InitializeRuntimeVariablesForExtensions(
     const content::RenderProcessHost* host,
-    base::ValueMap& variables) {  // NOLINT
+    base::ValueMap* variables) {
   application::Application* app = app_system()->application_service()->
       GetApplicationByRenderHostID(host->GetID());
 
   if (app)
-    variables["app_id"] = base::Value::CreateStringValue(app->id());
+    (*variables)["app_id"] = base::Value::CreateStringValue(app->id());
 }
 
 void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
@@ -158,11 +158,11 @@ void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {
   main_parts->CreateInternalExtensionsForExtensionThread(
       host, &extension_thread_extensions);
 
-  base::ValueMap runtime_variables;
-  InitializeRuntimeVariablesForExtensions(host, runtime_variables);
+  scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
+  InitializeRuntimeVariablesForExtensions(host, runtime_variables.get());
   extension_service_->OnRenderProcessWillLaunch(
       host, &ui_thread_extensions, &extension_thread_extensions,
-      runtime_variables);
+      runtime_variables.Pass());
 }
 
 void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {

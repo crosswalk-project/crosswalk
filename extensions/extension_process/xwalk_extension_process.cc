@@ -67,13 +67,13 @@ void ToValueMap(base::ListValue* lv, base::ValueMap* vm) {
 void XWalkExtensionProcess::OnRegisterExtensions(
     const base::FilePath& path, const base::ListValue& browser_variables_lv) {
   if (!path.empty()) {
-    base::ValueMap browser_variables;
+    scoped_ptr<base::ValueMap> browser_variables(new base::ValueMap);
 
     ToValueMap(&const_cast<base::ListValue&>(browser_variables_lv),
-          &browser_variables);
+          browser_variables.get());
 
     RegisterExternalExtensionsInDirectory(&extensions_server_, path,
-                                          browser_variables);
+                                          browser_variables.Pass());
   }
   CreateRenderProcessChannel();
 }
