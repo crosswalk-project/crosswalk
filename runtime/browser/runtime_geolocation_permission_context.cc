@@ -96,11 +96,6 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermission(
           callback));
 }
 
-content::GeolocationPermissionContext*
-RuntimeGeolocationPermissionContext::Create(RuntimeContext* runtime_context) {
-  return new RuntimeGeolocationPermissionContext();
-}
-
 void
 RuntimeGeolocationPermissionContext
     ::CancelGeolocationPermissionRequestOnUIThread(

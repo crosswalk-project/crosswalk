@@ -80,20 +80,20 @@ void XWalkExtensionProcess::OnRegisterExtensions(
 
 void XWalkExtensionProcess::CreateBrowserProcessChannel(
     const IPC::ChannelHandle& channel_handle) {
-  IPC::SyncChannel* channel;
+  scoped_ptr<IPC::SyncChannel> channel;
   if (channel_handle.name.empty()) {
     std::string channel_id =
         CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
             switches::kProcessChannelID);
-    channel = new IPC::SyncChannel(
+    channel = IPC::SyncChannel::Create(
         channel_id, IPC::Channel::MODE_CLIENT, this,
         io_thread_.message_loop_proxy(), true, &shutdown_event_);
   } else {
-    channel = new IPC::SyncChannel(
+    channel = IPC::SyncChannel::Create(
         channel_handle, IPC::Channel::MODE_CLIENT, this,
         io_thread_.message_loop_proxy(), true, &shutdown_event_);
   }
-  browser_process_channel_.reset(channel);
+  browser_process_channel_.reset(channel.get());
 }
 
 void XWalkExtensionProcess::CreateRenderProcessChannel() {
@@ -101,9 +101,9 @@ void XWalkExtensionProcess::CreateRenderProcessChannel() {
       std::string()));
   rp_channel_handle_ = handle;
 
-  render_process_channel_.reset(new IPC::SyncChannel(rp_channel_handle_,
+  render_process_channel_= IPC::SyncChannel::Create(rp_channel_handle_,
       IPC::Channel::MODE_SERVER, &extensions_server_,
-      io_thread_.message_loop_proxy(), true, &shutdown_event_));
+      io_thread_.message_loop_proxy(), true, &shutdown_event_);
 
 #if defined(OS_POSIX)
     // On POSIX, pass the server-side file descriptor. We use

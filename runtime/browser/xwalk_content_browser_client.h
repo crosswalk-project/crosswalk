@@ -11,6 +11,7 @@
 #include "base/compiler_specific.h"
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
+#include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
 
 namespace content {
 class BrowserContext;
@@ -44,13 +45,13 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual net::URLRequestContextGetter* CreateRequestContext(
       content::BrowserContext* browser_context,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors) OVERRIDE;
   virtual net::URLRequestContextGetter* CreateRequestContextForStoragePartition(
       content::BrowserContext* browser_context,
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) OVERRIDE;
+      content::URLRequestInterceptorScopedVector request_interceptors) OVERRIDE;
   virtual void AppendExtraCommandLineSwitches(CommandLine* command_line,
                                               int child_process_id) OVERRIDE;
   virtual content::QuotaPermissionContext*
@@ -94,7 +95,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void RequestDesktopNotificationPermission(
       const GURL& source_origin,
       content::RenderFrameHost* render_frame_host,
-      base::Closure& callback) OVERRIDE; // NOLINT
+      const base::Closure& callback) OVERRIDE;
   virtual blink::WebNotificationPresenter::Permission
   CheckDesktopNotificationPermission(
       const GURL& source_url,
@@ -104,6 +105,13 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       const content::ShowDesktopNotificationHostMsgParams& params,
       content::RenderFrameHost* render_frame_host,
       content::DesktopNotificationDelegate* delegate,
+      base::Closure* cancel_callback) OVERRIDE;
+  virtual void RequestGeolocationPermission(
+      content::WebContents* web_contents,
+      int bridge_id,
+      const GURL& requesting_frame,
+      bool user_gesture,
+      base::Callback<void(bool)> result_callback,
       base::Closure* cancel_callback) OVERRIDE;
 #if !defined(OS_ANDROID)
   virtual bool CanCreateWindow(const GURL& opener_url,
@@ -118,7 +126,6 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
                                bool opener_suppressed,
                                content::ResourceContext* context,
                                int render_process_id,
-                               bool is_guest,
                                int opener_id,
                                bool* no_javascript_access) OVERRIDE;
 #endif
@@ -146,6 +153,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
+  scoped_refptr<RuntimeGeolocationPermissionContext> geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);

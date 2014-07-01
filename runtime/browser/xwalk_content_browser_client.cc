@@ -115,9 +115,9 @@ content::BrowserMainParts* XWalkContentBrowserClient::CreateBrowserMainParts(
 net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   url_request_context_getter_ = static_cast<RuntimeContext*>(browser_context)->
-      CreateRequestContext(protocol_handlers, protocol_interceptors.Pass());
+      CreateRequestContext(protocol_handlers, request_interceptors.Pass());
   return url_request_context_getter_;
 }
 
@@ -127,11 +127,11 @@ XWalkContentBrowserClient::CreateRequestContextForStoragePartition(
     const base::FilePath& partition_path,
     bool in_memory,
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   return static_cast<RuntimeContext*>(browser_context)->
       CreateRequestContextForStoragePartition(
           partition_path, in_memory, protocol_handlers,
-          protocol_interceptors.Pass());
+          request_interceptors.Pass());
 }
 
 // This allow us to append extra command line switches to the child
@@ -265,7 +265,7 @@ void XWalkContentBrowserClient::AllowCertificateError(
 void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
     const GURL& source_origin,
     content::RenderFrameHost* render_frame_host,
-    base::Closure& callback) { // NOLINT
+    const base::Closure& callback) {
 }
 
 blink::WebNotificationPresenter::Permission
@@ -290,6 +290,24 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
       XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
   bridge->ShowNotification(params, render_frame_host,
       delegate, cancel_callback);
+#endif
+}
+
+void XWalkContentBrowserClient::RequestGeolocationPermission(
+    content::WebContents* web_contents,
+    int bridge_id,
+    const GURL& requesting_frame,
+    bool user_gesture,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback) {
+#if defined(OS_ANDROID) || defined(OS_TIZEN)
+  if (!geolocation_permission_context_) {
+    geolocation_permission_context_ =
+        RuntimeGeolocationPermissionContext::Create(this);
+  }
+  geolocation_permission_context_->RequestGeolocationPermission(
+    web_contents, bridge_id, requesting_frame, user_gesture,
+    result_callback, cancel_callback);
 #endif
 }
 
@@ -346,7 +364,6 @@ bool XWalkContentBrowserClient::CanCreateWindow(const GURL& opener_url,
                              bool opener_suppressed,
                              content::ResourceContext* context,
                              int render_process_id,
-                             bool is_guest,
                              int opener_id,
                              bool* no_javascript_access) {
   *no_javascript_access = false;

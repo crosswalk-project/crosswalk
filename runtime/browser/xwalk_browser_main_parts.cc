@@ -74,7 +74,7 @@ namespace xwalk {
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : xwalk_runner_(XWalkRunner::GetInstance()),
-      startup_url_(content::kAboutBlankURL),
+      startup_url_(url::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
 #if defined(OS_LINUX)

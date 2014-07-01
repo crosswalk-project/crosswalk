@@ -26,14 +26,14 @@ PepperUMAHost::~PepperUMAHost() {
 int32_t PepperUMAHost::OnResourceMessageReceived(
     const IPC::Message& msg,
     ppapi::host::HostMessageContext* context) {
-  IPC_BEGIN_MESSAGE_MAP(PepperUMAHost, msg)
+PPAPI_BEGIN_MESSAGE_MAP(PepperUMAHost, msg)
     PPAPI_DISPATCH_HOST_RESOURCE_CALL(PpapiHostMsg_UMA_HistogramCustomTimes,
-        OnHistogramCustomTimes);
+                                      OnHistogramCustomTimes)
     PPAPI_DISPATCH_HOST_RESOURCE_CALL(PpapiHostMsg_UMA_HistogramCustomCounts,
-        OnHistogramCustomCounts);
+                                      OnHistogramCustomCounts)
     PPAPI_DISPATCH_HOST_RESOURCE_CALL(PpapiHostMsg_UMA_HistogramEnumeration,
-        OnHistogramEnumeration);
-  IPC_END_MESSAGE_MAP()
+                                      OnHistogramEnumeration)
+  PPAPI_END_MESSAGE_MAP()
   return PP_ERROR_FAILED;
 }
 

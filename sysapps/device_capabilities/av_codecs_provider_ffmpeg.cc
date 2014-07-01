@@ -5,13 +5,10 @@
 
 #include "xwalk/sysapps/device_capabilities/av_codecs_provider_ffmpeg.h"
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-}  // extern "C"
-
 #include <set>
 #include <string>
 
+#include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "content/public/common/content_paths.h"
 #include "media/base/media.h"

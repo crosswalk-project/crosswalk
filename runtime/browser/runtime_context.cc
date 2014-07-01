@@ -175,20 +175,8 @@ content::ResourceContext* RuntimeContext::GetResourceContext()  {
   return resource_context_.get();
 }
 
-content::GeolocationPermissionContext*
-    RuntimeContext::GetGeolocationPermissionContext()  {
-#if defined(OS_ANDROID) || defined(OS_TIZEN)
-  if (!geolocation_permission_context_) {
-    geolocation_permission_context_ =
-        RuntimeGeolocationPermissionContext::Create(this);
-  }
-#endif
-  // TODO(yongsheng): Create geolcation permission context for other platforms.
-  return geolocation_permission_context_.get();
-}
-
-content::BrowserPluginGuestManagerDelegate*
-RuntimeContext::GetGuestManagerDelegate() {
+content::BrowserPluginGuestManager*
+RuntimeContext::GetGuestManager() {
   return NULL;
 }
 
@@ -196,25 +184,13 @@ quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 
-void RuntimeContext::RequestProtectedMediaIdentifierPermission(
-    int render_process_id,
-    int render_view_id,
-    int bridge_id,
-    int group_id,
-    const GURL& requesting_frame,
-    const ProtectedMediaIdentifierPermissionCallback& callback) {
-  NOTIMPLEMENTED();
-  callback.Run(false);
-}
-
-void RuntimeContext::CancelProtectedMediaIdentifierPermissionRequests(
-    int group_id) {
-  NOTIMPLEMENTED();
+content::PushMessagingService* RuntimeContext::GetPushMessagingService() {
+  return NULL;
 }
 
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
-    content::ProtocolHandlerScopedVector protocol_interceptors) {
+    content::URLRequestInterceptorScopedVector request_interceptors) {
   DCHECK(!url_request_getter_);
 
   application::ApplicationService* service =
@@ -229,7 +205,7 @@ net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
       GetPath(),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers, protocol_interceptors.Pass());
+      protocol_handlers, request_interceptors.Pass());
   resource_context_->set_url_request_context_getter(url_request_getter_.get());
   return url_request_getter_.get();
 }
@@ -239,7 +215,7 @@ net::URLRequestContextGetter*
       const base::FilePath& partition_path,
       bool in_memory,
       content::ProtocolHandlerMap* protocol_handlers,
-      content::ProtocolHandlerScopedVector protocol_interceptors) {
+      content::URLRequestInterceptorScopedVector request_interceptors) {
 #if defined(OS_ANDROID)
     return NULL;
 #else
@@ -261,7 +237,7 @@ net::URLRequestContextGetter*
       partition_path,
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::IO),
       BrowserThread::UnsafeGetMessageLoopForThread(BrowserThread::FILE),
-      protocol_handlers, protocol_interceptors.Pass());
+      protocol_handlers, request_interceptors.Pass());
 
   context_getters_.insert(
       std::make_pair(partition_path.value(), context_getter));
