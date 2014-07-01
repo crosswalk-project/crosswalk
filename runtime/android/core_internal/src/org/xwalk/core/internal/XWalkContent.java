@@ -300,6 +300,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     public void stopLoading() {
         mContentViewCore.stopLoading();
+        mContentsClientBridge.onStopLoading();
     }
 
     // TODO(Guangzhen): ContentViewStatics will be removed in upstream,
