@@ -18,6 +18,7 @@
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_extension_process_launcher.h"
 #if defined(OS_TIZEN)
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #endif
@@ -299,13 +300,13 @@ int main(int argc, char** argv) {
 #endif
   } else {
     appid = strdup(basename(argv[0]));
-#if defined(OS_TIZEN)
-    if (char* xwalk_appid = xwalk_extract_app_id(appid)) {
-      free(appid);
-      appid = xwalk_appid;
-    }
-#endif
   }
+
+#if defined(OS_TIZEN)
+    std::string crosswalk_app_id =
+        xwalk::application::RawAppIdToCrosswalkAppId(appid);
+    appid = strdup(crosswalk_app_id.c_str());
+#endif
 
   launch_application(appid, fullscreen);
   free(appid);
