@@ -503,6 +503,7 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('android.permission.RECEIVE_SMS') != -1)
     self.assertTrue(content.find('android.permission.SEND_SMS') != -1)
     self.assertTrue(content.find('android.permission.WRITE_SMS') != -1)
+    self.assertTrue(content.find('landscape') != -1)
     theme = 'Example/res/values/theme.xml'
     with open(theme, 'r') as content_file:
       content = content_file.read()

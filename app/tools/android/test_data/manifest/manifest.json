@@ -18,5 +18,6 @@
     "Messaging"],
   "required_version": "1.28.1.0",
   "plugin": [],
+  "orientation": "landscape",
   "display": ["fullscreen"]
 }
