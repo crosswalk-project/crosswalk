@@ -27,6 +27,8 @@
       'dependencies': [
         'gio',
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
+        '../../../../build/linux/system.gyp:dbus',
+        '../../../../dbus/dbus.gyp:dbus',
       ],
       'include_dirs': [
         '../../../..',

@@ -50,6 +50,13 @@ RunningApplicationsManager::RunningApplicationsManager(
                  weak_factory_.GetWeakPtr()),
       base::Bind(&RunningApplicationsManager::OnExported,
                  weak_factory_.GetWeakPtr()));
+
+  adaptor_.manager_object()->ExportMethod(
+      kRunningManagerDBusInterface, "TerminateIfRunning",
+      base::Bind(&RunningApplicationsManager::OnTerminateIfRunning,
+                 weak_factory_.GetWeakPtr()),
+      base::Bind(&RunningApplicationsManager::OnExported,
+                 weak_factory_.GetWeakPtr()));
 }
 
 RunningApplicationsManager::~RunningApplicationsManager() {}
@@ -117,6 +124,31 @@ void RunningApplicationsManager::OnLaunch(
       dbus::Response::FromMethodCall(method_call);
   dbus::MessageWriter writer(response.get());
   writer.AppendObjectPath(path);
+  response_sender.Run(response.Pass());
+}
+
+void RunningApplicationsManager::OnTerminateIfRunning(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+
+  dbus::MessageReader reader(method_call);
+  std::string app_id;
+
+  if (!reader.PopString(&app_id)) {
+    scoped_ptr<dbus::Response> response =
+        CreateError(method_call,
+                    "Error parsing message. Missing argument.");
+    response_sender.Run(response.Pass());
+    return;
+  }
+
+  if (Application* app = application_service_->GetApplicationByID(app_id)) {
+    CHECK(app_id == app->id());
+    app->Terminate();
+  }
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
   response_sender.Run(response.Pass());
 }
 
