@@ -261,11 +261,12 @@ void ApplicationService::OnApplicationTerminated(
   FOR_EACH_OBSERVER(Observer, observers_,
                     WillDestroyApplication(application));
   applications_.erase(found);
-  if (!XWalkRunner::GetInstance()->is_running_as_service() &&
-      applications_.empty()) {
+#if !defined(SHARED_PROCESS_MODE)
+  if (applications_.empty()) {
     base::MessageLoop::current()->PostTask(
             FROM_HERE, base::MessageLoop::QuitClosure());
   }
+#endif
 }
 
 void ApplicationService::CheckAPIAccessControl(const std::string& app_id,

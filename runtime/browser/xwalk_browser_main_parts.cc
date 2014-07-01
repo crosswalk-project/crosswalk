@@ -220,13 +220,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     return;
   }
 
-  if (xwalk_runner_->is_running_as_service()) {
-    // In service mode, Crosswalk doesn't launch anything, just waits
-    // for external requests to launch apps.
-    VLOG(1) << "Crosswalk running as Service.";
-    return;
-  }
-
+#if !defined(SHARED_PROCESS_MODE)
   application::ApplicationSystem* app_system = xwalk_runner_->app_system();
   if (!app_system->HandleApplicationManagementCommands(*command_line,
       startup_url_, run_default_message_loop_)) {
@@ -243,6 +237,7 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     delete parameters_.ui_task;
     run_default_message_loop_ = false;
   }
+#endif
 }
 
 bool XWalkBrowserMainParts::MainMessageLoopRun(int* result_code) {

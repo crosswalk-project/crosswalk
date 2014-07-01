@@ -18,7 +18,6 @@ extern const char kListFeaturesFlags[];
 extern const char kUninstall[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
-extern const char kXWalkRunAsService[];
 
 }  // namespace switches
 

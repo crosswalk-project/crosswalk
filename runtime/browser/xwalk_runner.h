@@ -73,10 +73,6 @@ class XWalkRunner {
     return extension_service_.get();
   }
 
-  // Return true if Crosswalk is running in service mode, i.e. taking
-  // requests from native IPC mechanism to launch applications.
-  bool is_running_as_service() const { return is_running_as_service_; }
-
   // Stages of main parts. See content/browser_main_parts.h for description.
   virtual void PreMainMessageLoopRun();
   virtual void PostMainMessageLoopRun();
@@ -135,8 +131,6 @@ class XWalkRunner {
   ScopedVector<XWalkComponent> components_;
 
   ApplicationComponent* app_component_;
-
-  bool is_running_as_service_;
 
   // These variables are used to export some values from the browser process
   // side to the extension side, such as application IDs and whatnot.
