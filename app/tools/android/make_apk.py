@@ -28,8 +28,10 @@ def CleanDir(path):
   if os.path.exists(path):
     shutil.rmtree(path)
 
+
 def AllArchitectures():
   return ("x86", "arm")
+
 
 def RunCommand(command, verbose=False, shell=False):
   """Runs the command list, print the output, and propagate its result."""
@@ -47,21 +49,15 @@ def RunCommand(command, verbose=False, shell=False):
 
 
 def Which(name):
-  """Search PATH for executable files with the given name."""
-  result = []
-  exts = [_f for _f in os.environ.get('PATHEXT', '').split(os.pathsep) if _f]
-  path = os.environ.get('PATH', None)
-  if path is None:
-    return []
-  for p in os.environ.get('PATH', '').split(os.pathsep):
-    p = os.path.join(p, name)
-    if os.access(p, os.X_OK):
-      result.append(p)
-    for e in exts:
-      pext = p + e
-      if os.access(pext, os.X_OK):
-        result.append(pext)
-  return result
+  """Searches PATH for executable files with the given name, also taking
+  PATHEXT into account. Returns the first existing match, or None if no matches
+  are found."""
+  for path in os.environ.get('PATH', '').split(os.pathsep):
+    for filename in AddExeExtensions(name):
+      full_path = os.path.join(path, filename)
+      if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+        return full_path
+  return None
 
 
 def Find(name, path):
@@ -218,12 +214,13 @@ def Customize(options, app_info):
 
 
 def Execution(options, name):
-  android_path_array = Which('android')
-  if not android_path_array:
-    print('Please install Android SDK first.')
+  android_path = Which('android')
+  if android_path is None:
+    print('The "android" binary could not be found. Check your Android SDK '
+          'installation and your PATH environment variable.')
     sys.exit(1)
 
-  sdk_root_path = os.path.dirname(os.path.dirname(android_path_array[0]))
+  sdk_root_path = os.path.dirname(os.path.dirname(android_path))
 
   try:
     sdk_jar_path = Find('android.jar',
