@@ -41,6 +41,7 @@ static GOptionEntry entries[] = {
   { NULL }
 };
 
+#if defined(SHARED_PROCESS_MODE)
 namespace {
 
 const char xwalk_service_name[] = "org.crosswalkproject.Runtime1";
@@ -69,6 +70,7 @@ static void TerminateIfRunning(const std::string& app_id) {
 
   app_proxy->CallMethodAndBlock(&method_call, 1000);
 }
+#endif
 
 bool list_applications(ApplicationStorage* storage) {
   ApplicationData::ApplicationDataMap apps;
@@ -120,7 +122,9 @@ int main(int argc, char* argv[]) {
     std::string id;
     success = installer->Install(base::FilePath(install_path), &id);
   } else if (uninstall_appid) {
+#if defined(SHARED_PROCESS_MODE)
     TerminateIfRunning(uninstall_appid);
+#endif
     success = installer->Uninstall(uninstall_appid);
   } else {
     success = list_applications(storage.get());

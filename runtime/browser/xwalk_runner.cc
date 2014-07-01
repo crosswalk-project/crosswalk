@@ -37,16 +37,13 @@ XWalkRunner* g_xwalk_runner = NULL;
 
 }  // namespace
 
-XWalkRunner::XWalkRunner()
-    : is_running_as_service_(false) {
+XWalkRunner::XWalkRunner() {
   VLOG(1) << "Creating XWalkRunner object.";
   DCHECK(!g_xwalk_runner);
   g_xwalk_runner = this;
 
   XWalkRuntimeFeatures::GetInstance()->Initialize(
       CommandLine::ForCurrentProcess());
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  is_running_as_service_ = cmd_line->HasSwitch(switches::kXWalkRunAsService);
 
   // Initializing after the g_xwalk_runner is set to ensure
   // XWalkRunner::GetInstance() can be used in all sub objects if needed.

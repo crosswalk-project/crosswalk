@@ -152,8 +152,7 @@ void XWalkExtensionProcessHost::StartProcess() {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   CHECK(!process_ || !channel_);
 
-  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kXWalkRunAsService)) {
+#if defined(SHARED_PROCESS_MODE)
 #if defined(OS_LINUX)
     std::string channel_id =
         IPC::Channel::GenerateVerifiedChannelID(std::string());
@@ -171,8 +170,8 @@ void XWalkExtensionProcessHost::StartProcess() {
             channel_handle));
 #else
     NOTIMPLEMENTED();
-#endif
-  } else {
+#endif  // #if defined(OS_LINUX)
+#else
     process_.reset(content::BrowserChildProcessHost::Create(
         content::PROCESS_TYPE_CONTENT_END, this));
 
@@ -208,7 +207,7 @@ void XWalkExtensionProcessHost::StartProcess() {
     process_->Launch(
         new ExtensionSandboxedProcessLauncherDelegate(process_->GetHost()),
         cmd_line.release());
-  }
+#endif  // #if defined(SHARED_PROCESS_MODE)
 
   base::ListValue runtime_variables_lv;
   ToListValue(&const_cast<base::ValueMap&>(runtime_variables_),

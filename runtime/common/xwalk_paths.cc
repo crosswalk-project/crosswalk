@@ -82,11 +82,7 @@ base::FilePath GetConfigPath() {
 
 bool GetXWalkDataPath(base::FilePath* path) {
   base::FilePath::StringType xwalk_suffix;
-
-// Only Tizen uses the Shared Process Mode now.
-// FIXME: Create common settings to detect process mode in runtime.
-// XWalkRunner::is_running_as_service() cannot be used here.
-#if defined(OS_TIZEN)
+#if defined(SHARED_PROCESS_MODE)
   xwalk_suffix = FILE_PATH_LITERAL("xwalk-service");
 #else
   xwalk_suffix = FILE_PATH_LITERAL("xwalk");

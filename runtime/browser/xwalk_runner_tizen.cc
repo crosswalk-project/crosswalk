@@ -27,12 +27,12 @@ void XWalkRunnerTizen::PreMainMessageLoopRun() {
   // NSSInitSingleton is a costly operation (up to 100ms on VTC-1010),
   // resulting in postponing the parsing and composition steps of the render
   // process at cold start. Therefore, move the initialization logic here.
-  if (XWalkRunner::is_running_as_service()) {
-    content::BrowserThread::PostTask(
-        content::BrowserThread::IO,
-        FROM_HERE,
-        base::Bind(&crypto::EnsureNSSInit));
-  }
+#if defined(SHARED_PROCESS_MODE)
+  content::BrowserThread::PostTask(
+      content::BrowserThread::IO,
+      FROM_HERE,
+      base::Bind(&crypto::EnsureNSSInit));
+#endif
 }
 
 }  // namespace xwalk

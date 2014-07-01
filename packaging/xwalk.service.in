@@ -4,4 +4,4 @@ Description=Crosswalk
 [Service]
 Type=dbus
 BusName=org.crosswalkproject.Runtime1
-ExecStart=@LIB_INSTALL_DIR@/xwalk/xwalk --run-as-service --external-extensions-path=@LIB_INSTALL_DIR@/tizen-extensions-crosswalk
+ExecStart=@LIB_INSTALL_DIR@/xwalk/xwalk --external-extensions-path=@LIB_INSTALL_DIR@/tizen-extensions-crosswalk
