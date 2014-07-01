@@ -18,17 +18,8 @@ const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 // Specifies the window whether launched with fullscreen mode.
 const char kFullscreen[] = "fullscreen";
 
-// Specifies install an application.
-const char kInstall[] = "install";
-
-// Specifies list all installed applications.
-const char kListApplications[] = "list-apps";
-
 // List the command lines feature flags.
 const char kListFeaturesFlags[] = "list-features-flags";
-
-// Specifies uninstall an application from runtime.
-const char kUninstall[] = "uninstall";
 
 const char kXWalkAllowExternalExtensionsForRemoteSources[] =
     "allow-external-extensions-for-remote-sources";

@@ -48,65 +48,6 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
   return app_system.Pass();
 }
 
-bool ApplicationSystem::HandleApplicationManagementCommands(
-    const base::CommandLine& cmd_line, const GURL& url,
-    bool& run_default_message_loop) { // NOLINT
-  run_default_message_loop = false;
-  if (cmd_line.HasSwitch(switches::kListApplications)) {
-    ApplicationData::ApplicationDataMap apps;
-    application_storage_->GetInstalledApplications(apps);
-    LOG(INFO) << "Application ID                       Application Name";
-    LOG(INFO) << "-----------------------------------------------------";
-    ApplicationData::ApplicationDataMap::const_iterator it;
-    for (it = apps.begin(); it != apps.end(); ++it)
-      LOG(INFO) << it->first << "     " << it->second->Name();
-    LOG(INFO) << "-----------------------------------------------------";
-    return true;
-  }
-
-  if (cmd_line.HasSwitch(switches::kUninstall)) {
-    const base::CommandLine::StringVector& args = cmd_line.GetArgs();
-    if (args.empty())
-      return false;
-
-    std::string app_id = std::string(args[0].begin(), args[0].end());
-    if (!ApplicationData::IsIDValid(app_id))
-      return false;
-
-    if (application_service_->Uninstall(app_id)) {
-      LOG(INFO) << "[OK] Application uninstalled successfully: " << app_id;
-    } else {
-      LOG(ERROR) << "[ERR] An error occurred when uninstalling application "
-                 << app_id;
-    }
-    return true;
-  }
-
-  if (cmd_line.HasSwitch(switches::kInstall)) {
-    base::FilePath path;
-    if (!net::FileURLToFilePath(url, &path))
-      return false;
-
-    if (!base::PathExists(path))
-      return false;
-
-    std::string app_id;
-    if (application_service_->Install(path, &app_id)) {
-      LOG(INFO) << "[OK] Application installed: " << app_id;
-    } else if (!app_id.empty() &&
-               application_service_->Update(app_id, path)) {
-      LOG(INFO) << "[OK] Application updated: " << app_id;
-    } else {
-      LOG(ERROR) << "[ERR] Application install/update failure: "
-                 << path.value();
-    }
-    return true;
-  }
-
-  run_default_message_loop = true;
-  return false;
-}
-
 template <typename T>
 bool ApplicationSystem::LaunchWithCommandLineParam(
     const T& param, const base::CommandLine& cmd_line) {

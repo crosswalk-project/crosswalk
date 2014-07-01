@@ -51,16 +51,6 @@ class ApplicationSystem {
     return application_storage_.get();
   }
 
-  // Parse the command line and process the --install, --uninstall and
-  // --list-apps commands. Returns true when a management command was processed,
-  // so the caller shouldn't load a runtime.
-  //
-  // The parameter `url` contains the current URL Crosswalk is considering to
-  // load.
-  bool HandleApplicationManagementCommands(const base::CommandLine& cmd_line,
-                                           const GURL& url,
-                                           bool& run_default_message_loop);
-
   // Launches an application based on the given command line, there are
   // different ways to inform which application should be launched
   //

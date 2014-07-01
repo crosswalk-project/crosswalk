@@ -68,52 +68,11 @@ void CollectUnusedStoragePartitions(RuntimeContext* context,
 ApplicationService::ApplicationService(RuntimeContext* runtime_context,
                                        ApplicationStorage* app_storage)
     : runtime_context_(runtime_context),
-      application_storage_(app_storage),
-      package_installer_(PackageInstaller::Create(app_storage)) {
+      application_storage_(app_storage) {
   CollectUnusedStoragePartitions(runtime_context, app_storage);
 }
 
 ApplicationService::~ApplicationService() {
-}
-
-bool ApplicationService::Install(const base::FilePath& path, std::string* id) {
-  if (!package_installer_->Install(path, id))
-    return false;
-
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnApplicationInstalled(*id));
-
-  return true;
-}
-
-bool ApplicationService::Update(const std::string& id,
-                                const base::FilePath& path) {
-  if (Application* app = GetApplicationByID(id)) {
-    LOG(INFO) << "Try to terminate the running application before uninstall.";
-    app->Terminate();
-  }
-
-  if (!package_installer_->Update(id, path))
-    return false;
-
-  FOR_EACH_OBSERVER(Observer, observers_,
-                    OnApplicationUpdated(id));
-
-  return true;
-}
-
-bool ApplicationService::Uninstall(const std::string& id) {
-  if (Application* app = GetApplicationByID(id)) {
-    LOG(INFO) << "Try to terminate the running application before uninstall.";
-    app->Terminate();
-  }
-
-  if (!package_installer_->Uninstall(id))
-    return false;
-
-  FOR_EACH_OBSERVER(Observer, observers_, OnApplicationUninstalled(id));
-
-  return true;
 }
 
 void ApplicationService::ChangeLocale(const std::string& locale) {
