@@ -119,8 +119,13 @@ int main(int argc, char* argv[]) {
       PackageInstaller::Create(storage.get());
 
   if (install_path) {
-    std::string id;
-    success = installer->Install(base::FilePath(install_path), &id);
+    std::string app_id;
+    const base::FilePath& path = base::FilePath(install_path);
+    success = installer->Install(path, &app_id);
+    if (!success && storage->Contains(app_id)) {
+      g_print("trying to update %s\n", app_id.c_str());
+      success = installer->Update(app_id, path);
+    }
   } else if (uninstall_appid) {
 #if defined(SHARED_PROCESS_MODE)
     TerminateIfRunning(uninstall_appid);
