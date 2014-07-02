@@ -124,6 +124,8 @@ def ParseManifest(options, app_info):
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
     options.icon_dict = parser.GetIcons()
+  if parser.GetOrientation():
+    options.orientation = parser.GetOrientation()
   if parser.GetFullScreenFlag().lower() == 'true':
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':

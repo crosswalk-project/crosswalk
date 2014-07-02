@@ -84,6 +84,7 @@ class ManifestJsonParser(object):
     permissions:      The permission list.
     required_version: The required crosswalk runtime version.
     plugin:           The plug-in information.
+    orientation       The default allowed orientations.
     fullscreen:       The fullscreen flag of the application.
     launch_screen:    The launch screen configuration.
     """
@@ -135,6 +136,21 @@ class ManifestJsonParser(object):
     ret_dict['plugin'] = ''
     if 'plugin' in self.data_src:
       ret_dict['plugin'] = self.data_src['plugin']
+    orientation = {'landscape':'landscape',
+                   'landscape-primary':'landscape',
+                   'landscape-secondary':'reverseLandscape',
+                   'portrait':'portrait',
+                   'portrait-primary':'portrait',
+                   'portrait-secondary':'reversePortrait',
+                   'any':'unspecified',
+                   'natural':'unspecified'}
+    if 'orientation' in self.data_src:
+      if self.data_src['orientation'] in orientation:
+        ret_dict['orientation'] = orientation[self.data_src['orientation']]
+      else:
+        ret_dict['orientation'] = 'unspecified'
+    else:
+      ret_dict['orientation'] = 'unspecified'
     if 'display' in self.data_src and 'fullscreen' in self.data_src['display']:
       ret_dict['fullscreen'] = 'true'
     else:
@@ -174,6 +190,7 @@ class ManifestJsonParser(object):
     print("permissions: %s" % self.GetPermissions())
     print("required_version: %s" % self.GetRequiredVersion())
     print("plugins: %s" % self.GetPlugins())
+    print("orientation: %s" % self.GetOrientation())
     print("fullscreen: %s" % self.GetFullScreenFlag())
     print('launch_screen.default.background_color: %s' %
         self.GetLaunchScreenBackgroundColor('default'))
@@ -239,6 +256,10 @@ class ManifestJsonParser(object):
   def GetPlugins(self):
     """Return the plug-in path and file name."""
     return self.ret_dict['plugin']
+
+  def GetOrientation(self):
+    """Return the default allowed orientations"""
+    return self.ret_dict['orientation']
 
   def GetFullScreenFlag(self):
     """Return the set fullscreen flag of the application."""
