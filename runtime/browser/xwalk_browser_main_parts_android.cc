@@ -90,12 +90,14 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
 
+#if defined(ENABLE_WEBRTC)
   // Disable HW encoding/decoding acceleration for WebRTC on Android.
   // FIXME: Remove these switches for Android when Android OS is removed from
   // GPU accelerated_video_decode blacklist or we stop ignoring the GPU
   // blacklist.
   command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
+#endif
 
   // For fullscreen video playback, the ContentVideoView is still buggy, so
   // we switch back to ContentVideoViewLegacy for temp.
