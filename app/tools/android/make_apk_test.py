@@ -347,8 +347,11 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            self._mode]
     out = RunCommand(cmd)
+    self.assertNotIn('You must pass either "--app-url" or',
+                     out)
+    self.assertNotIn('You must specify both "--app-local-path" and',
+                     out)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(out.find('The entry is required.') == -1)
     self.checkApks('Example', '1.0.0')
     Clean('Example', '1.0.0')
 
@@ -357,7 +360,10 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-root=%s' % test_entry_root,
            '--app-local-path=index.html', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The entry is required.') == -1)
+    self.assertNotIn('You must pass either "--app-url" or',
+                     out)
+    self.assertNotIn('You must specify both "--app-local-path" and',
+                     out)
     self.checkApks('Example', '1.0.0')
 
   def testEntryWithErrors(self):
@@ -365,7 +371,9 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertIn('You must pass either "--app-url" or',
+                  out)
+
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
@@ -373,14 +381,16 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--app-root=.', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertIn('You must pass either "--app-url" or',
+                  out)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-root=./', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertIn('You must specify both "--app-local-path" and',
+                  out)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
@@ -388,7 +398,8 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', '--app-local-path=index.html',
            self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The entry is required.') != -1)
+    self.assertIn('You must specify both "--app-local-path" and',
+                  out)
     self.assertFalse(os.path.exists('Example.apk'))
     Clean('Example', '1.0.0')
 
