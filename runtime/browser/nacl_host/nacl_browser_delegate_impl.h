@@ -29,6 +29,8 @@ class NaClBrowserDelegateImpl : public NaClBrowserDelegate {
                                      const base::FilePath& profile_directory,
                                      base::FilePath* file_path) OVERRIDE;
   virtual void SetDebugPatterns(std::string debug_patterns) OVERRIDE;
+  virtual bool IsNonSfiModeAllowed(const base::FilePath& profile_directory,
+                                   const GURL& manifest_url) OVERRIDE;
   virtual bool URLMatchesDebugPatterns(const GURL& manifest_url) OVERRIDE;
   virtual content::BrowserPpapiHost::OnKeepaliveCallback
       GetOnKeepaliveCallback() OVERRIDE;

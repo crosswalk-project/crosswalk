@@ -49,7 +49,6 @@ void NativeAppWindowViews::Initialize() {
   params.delegate = this;
   params.remove_standard_frame = false;
   params.use_system_default_icon = true;
-  params.top_level = true;
   params.show_state = create_params_.state;
   params.parent = create_params_.parent;
 #if defined(OS_TIZEN_MOBILE)
