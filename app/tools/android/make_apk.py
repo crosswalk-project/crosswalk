@@ -570,9 +570,6 @@ def MakeApk(options, app_info):
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
         sys.exit(13)
-  else:
-    print('Unknown mode for packaging the application. Abort!')
-    sys.exit(11)
 
   PrintPackageInfo(options, packaged_archs)
 
@@ -590,7 +587,8 @@ def main(argv):
           'The value \'embedded\' means that the runtime is embedded into the '
           'application itself and distributed along with it.'
           'Set the default mode as \'embedded\'. For example: --mode=embedded')
-  parser.add_option('--mode', default='embedded', help=info)
+  parser.add_option('--mode', choices=('embedded', 'shared'),
+                    default='embedded', help=info)
   info = ('The target architecture of the embedded runtime. Supported values '
           'are \'x86\' and \'arm\'. Note, if undefined, APKs for all possible '
           'architestures will be generated.')
