@@ -294,6 +294,7 @@
       'conditions': [
         ['tizen==1', {
           'dependencies': [
+            '../content/content_resources.gyp:content_resources',
             'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
@@ -509,6 +510,15 @@
               'variables': {
                 'pak_inputs+': [
                   '<(SHARED_INTERMEDIATE_DIR)/xwalk/xwalk_sysapps_resources.pak',
+                ],
+              },
+            }],
+            [ 'tizen==1', {
+              'variables': {
+                'pak_inputs+': [
+                  # Add WebUI resources for Tizen.
+                  '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/webui_resources.pak',
                 ],
               },
             }],
