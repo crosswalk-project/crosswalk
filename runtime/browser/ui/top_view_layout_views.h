@@ -43,7 +43,7 @@ class TopViewLayout : public views::LayoutManager {
 
   // views::LayoutManager implementation.
   virtual void Layout(views::View* host) OVERRIDE;
-  virtual gfx::Size GetPreferredSize(views::View* host) OVERRIDE;
+  virtual gfx::Size GetPreferredSize(const views::View* host) const OVERRIDE;
 
  private:
   views::View* top_view_;
