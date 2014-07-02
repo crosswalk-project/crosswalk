@@ -1,18 +1,13 @@
 {
   "name": "Example",
   "version": "1.0.0",
-  "launch_path": "http://www.intel.com",
-  "app": {
-      "launch": {
-          "local_path": "index.html"
-      }
-  },
+  "start_url": "http://www.intel.com",
   "description": "a sample description",
   "origin": "app://app.id",
   "icons": {
   },
   "default_locale": "en",
-  "permissions": [
+  "xwalk_permissions": [
     "Contacts",
     "Geolocation",
     "Messaging"],

@@ -3,9 +3,5 @@
   "version": "1.0.0",
   "description": "CSP test with unsafe-inline script-src",
   "content_security_policy": "object-src 'self'; script-src 'unsafe-inline'",
-  "app": {
-    "launch": {
-      "local_path": "csp.html"
-    }
-  }
+  "start_url": "csp.html"
 }

@@ -41,6 +41,28 @@ def HandlePermissionList(permission_list):
   return ':'.join(permissions)
 
 
+def ParseLaunchScreen(ret_dict, launch_screen_dict, orientation):
+  if orientation in launch_screen_dict:
+    sub_dict = launch_screen_dict[orientation]
+    if 'background_color' in sub_dict:
+      ret_dict['launch_screen_background_color_' + orientation] = (
+          sub_dict['background_color'])
+    if 'background_image' in sub_dict:
+      ret_dict['launch_screen_background_image_' + orientation] = (
+          sub_dict['background_image'])
+    if 'image' in sub_dict:
+      ret_dict['launch_screen_image_' + orientation] = (
+          sub_dict['image'])
+    if 'image_border' in sub_dict:
+      ret_dict['launch_screen_image_border_' + orientation] = (
+          sub_dict['image_border'])
+
+
+def PrintDeprecationWarning(item):
+  print ('WARNING: %s is deprecated for Crosswalk. Please follow '
+         'https://www.crosswalk-project.org/#documentation/manifest.' % item)
+
+
 class ManifestJsonParser(object):
   """ The class is used to parse json-format manifest file, recompose the
   fields and provide the field interfaces required by the packaging tool.
@@ -97,11 +119,15 @@ class ManifestJsonParser(object):
       print('Error: no \'version\' field in manifest.json file.')
       sys.exit(1)
     ret_dict['version'] = self.data_src['version']
-    if 'launch_path' in self.data_src:
+    if 'start_url' in self.data_src:
+      app_url = self.data_src['start_url']
+    elif 'launch_path' in self.data_src:
+      PrintDeprecationWarning('launch_path')
       app_url = self.data_src['launch_path']
     elif ('app' in self.data_src and
           'launch' in self.data_src['app'] and
           'local_path' in self.data_src['app']['launch']):
+      PrintDeprecationWarning('app.launch.local_path')
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
@@ -123,7 +149,15 @@ class ManifestJsonParser(object):
     ret_dict['app_root'] = app_root
     ret_dict['app_local_path'] = app_local_path
     ret_dict['permissions'] = ''
-    if 'permissions' in self.data_src:
+    if 'xwalk_permissions' in self.data_src:
+      try:
+        permission_list = self.data_src['xwalk_permissions']
+        ret_dict['permissions'] = HandlePermissionList(permission_list)
+      except (TypeError, ValueError, IOError):
+        print('\'Permissions\' field error in manifest.json file.')
+        sys.exit(1)
+    elif 'permissions' in self.data_src:
+      PrintDeprecationWarning('permissions')
       try:
         permission_list = self.data_src['permissions']
         ret_dict['permissions'] = HandlePermissionList(permission_list)
@@ -155,27 +189,18 @@ class ManifestJsonParser(object):
       ret_dict['fullscreen'] = 'true'
     else:
       ret_dict['fullscreen'] = ''
-    if 'launch_screen' in self.data_src:
-      self.ParseLaunchScreen(ret_dict, 'default')
-      self.ParseLaunchScreen(ret_dict, 'portrait')
-      self.ParseLaunchScreen(ret_dict, 'landscape')
+    if 'xwalk_launch_screen' in self.data_src:
+      launch_screen_dict = self.data_src['xwalk_launch_screen']
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'default')
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'portrait')
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'landscape')
+    elif 'launch_screen' in self.data_src:
+      PrintDeprecationWarning('launch_screen')
+      launch_screen_dict = self.data_src['launch_screen']
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'default')
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'portrait')
+      ParseLaunchScreen(ret_dict, launch_screen_dict, 'landscape')
     return ret_dict
-
-  def ParseLaunchScreen(self, ret_dict, orientation):
-    if orientation in self.data_src['launch_screen']:
-      sub_dict = self.data_src['launch_screen'][orientation]
-      if 'background_color' in sub_dict:
-        ret_dict['launch_screen_background_color_' + orientation] = (
-            sub_dict['background_color'])
-      if 'background_image' in sub_dict:
-        ret_dict['launch_screen_background_image_' + orientation] = (
-            sub_dict['background_image'])
-      if 'image' in sub_dict:
-        ret_dict['launch_screen_image_' + orientation] = (
-            sub_dict['image'])
-      if 'image_border' in sub_dict:
-        ret_dict['launch_screen_image_border_' + orientation] = (
-            sub_dict['image_border'])
 
   def ShowItems(self):
     """Show the processed results, it is used for command-line
