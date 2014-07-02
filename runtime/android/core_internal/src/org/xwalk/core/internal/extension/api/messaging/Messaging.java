@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;  
 import android.net.Uri; 
-import android.util.Log; 
 
 import java.util.Date;
 import java.util.HashMap;
@@ -30,8 +29,10 @@ interface Command {
 }
 
 public class Messaging extends XWalkExtension {
-    public static final String NAME = "xwalk.experimental.messaging";
     public static final String JS_API_PATH = "jsapi/messaging_api.js";
+
+    private static final String NAME = "xwalk.experimental.messaging";
+
     private static HashMap<String, Command> sMethodMap = new HashMap<String, Command>();
 
     private MessagingSmsManager mSmsManager;

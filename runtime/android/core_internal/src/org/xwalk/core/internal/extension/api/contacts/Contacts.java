@@ -25,10 +25,10 @@ import org.xwalk.core.internal.extension.XWalkExtension;
 import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 public class Contacts extends XWalkExtension {
-    public static final String NAME = "xwalk.experimental.contacts";
     public static final String JS_API_PATH = "jsapi/contacts_api.js";
 
     private static final String TAG = "Contacts";
+    private static final String NAME = "xwalk.experimental.contacts";
 
     private final ContactEventListener mObserver;
     private final ContentResolver mResolver;

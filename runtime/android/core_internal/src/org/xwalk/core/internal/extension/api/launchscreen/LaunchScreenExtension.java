@@ -16,16 +16,17 @@ import org.xwalk.core.internal.extension.XWalkExtensionContext;
  */
 public class LaunchScreenExtension extends XWalkExtension {
     public final static String JS_API_PATH = "jsapi/launch_screen_api.js";
-    public final static String NAME = "xwalk.launchscreen";
-    public final static String[] JS_ENTRY_POINTS = {
+
+    private final static String NAME = "xwalk.launchscreen";
+    private final static String[] JS_ENTRY_POINTS = {
         "window.screen.show"
     };
 
     // Command messages:
     private final static String CMD_HIDE_LAUNCH_SCREEN = "hideLaunchScreen";
 
-    public LaunchScreenExtension(String name, String jsApi, String[] entryPoints, XWalkExtensionContext context) {
-        super(name, jsApi, entryPoints, context);
+    public LaunchScreenExtension(String jsApi, XWalkExtensionContext context) {
+        super(NAME, jsApi, JS_ENTRY_POINTS, context);
     }
 
     @Override
