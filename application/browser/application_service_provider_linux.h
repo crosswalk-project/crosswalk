@@ -18,8 +18,6 @@ namespace application {
 
 class Application;
 class ApplicationService;
-class ApplicationStorage;
-class InstalledApplicationsManager;
 class RunningApplicationObject;
 class RunningApplicationsManager;
 
@@ -28,7 +26,6 @@ class RunningApplicationsManager;
 class ApplicationServiceProviderLinux {
  public:
   ApplicationServiceProviderLinux(ApplicationService* app_service,
-                                  ApplicationStorage* app_storage,
                                   scoped_refptr<dbus::Bus> session_bus);
   virtual ~ApplicationServiceProviderLinux();
 
@@ -41,7 +38,6 @@ class ApplicationServiceProviderLinux {
   void ExportTestObject();
 
   scoped_refptr<dbus::Bus> session_bus_;
-  scoped_ptr<InstalledApplicationsManager> installed_apps_;
   scoped_ptr<RunningApplicationsManager> running_apps_;
 };
 

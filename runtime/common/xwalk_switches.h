@@ -12,10 +12,7 @@ extern const char kAppIcon[];
 extern const char kDisablePnacl[];
 extern const char kExperimentalFeatures[];
 extern const char kFullscreen[];
-extern const char kInstall[];
-extern const char kListApplications[];
 extern const char kListFeaturesFlags[];
-extern const char kUninstall[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
 

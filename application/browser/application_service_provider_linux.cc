@@ -10,7 +10,6 @@
 #include "dbus/exported_object.h"
 #include "dbus/message.h"
 #include "xwalk/dbus/xwalk_service_name.h"
-#include "xwalk/application/browser/linux/installed_applications_manager.h"
 #include "xwalk/application/browser/linux/running_application_object.h"
 #include "xwalk/application/browser/linux/running_applications_manager.h"
 
@@ -19,12 +18,8 @@ namespace application {
 
 ApplicationServiceProviderLinux::ApplicationServiceProviderLinux(
     ApplicationService* app_service,
-    ApplicationStorage* app_storage,
     scoped_refptr<dbus::Bus> session_bus)
     : session_bus_(session_bus) {
-  installed_apps_.reset(new InstalledApplicationsManager(session_bus_,
-                                                         app_service,
-                                                         app_storage));
   running_apps_.reset(new RunningApplicationsManager(session_bus_,
                                                      app_service));
 

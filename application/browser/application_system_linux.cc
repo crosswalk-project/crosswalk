@@ -17,7 +17,6 @@ ApplicationSystemLinux::ApplicationSystemLinux(RuntimeContext* runtime_context)
 #if defined(SHARED_PROCESS_MODE)
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
-                                            application_storage(),
                                             dbus_manager().session_bus()));
 #endif
 }

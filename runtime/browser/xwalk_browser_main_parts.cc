@@ -222,12 +222,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
 
 #if !defined(SHARED_PROCESS_MODE)
   application::ApplicationSystem* app_system = xwalk_runner_->app_system();
-  if (!app_system->HandleApplicationManagementCommands(*command_line,
-      startup_url_, run_default_message_loop_)) {
-    app_system->LaunchFromCommandLine(*command_line, startup_url_,
-                                      run_default_message_loop_);
-  }
-
+  app_system->LaunchFromCommandLine(*command_line, startup_url_,
+                                    run_default_message_loop_);
   // If the |ui_task| is specified in main function parameter, it indicates
   // that we will run this UI task instead of running the the default main
   // message loop. See |content::BrowserTestBase::SetUp| for |ui_task| usage

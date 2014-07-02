@@ -32,10 +32,6 @@ class ApplicationService : public Application::Observer {
   // keep track of [un]installation of applications.
   class Observer {
    public:
-    // FIXME(Mikhail): Remove all un/installation code from ApplicationService.
-    virtual void OnApplicationInstalled(const std::string& app_id) {}
-    virtual void OnApplicationUninstalled(const std::string& app_id) {}
-    virtual void OnApplicationUpdated(const std::string& app_id) {}
     // When we change the application locale, we might get a new name in
     // the new locale.
     virtual void OnApplicationNameChanged(const std::string& app_id,
@@ -51,9 +47,6 @@ class ApplicationService : public Application::Observer {
                      ApplicationStorage* app_storage);
   virtual ~ApplicationService();
 
-  bool Install(const base::FilePath& path, std::string* id);
-  bool Uninstall(const std::string& id);
-  bool Update(const std::string& id, const base::FilePath& path);
   void ChangeLocale(const std::string& locale);
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
@@ -97,8 +90,6 @@ class ApplicationService : public Application::Observer {
   xwalk::RuntimeContext* runtime_context_;
   ApplicationStorage* application_storage_;
   ScopedVector<Application> applications_;
-  // FIXME(Mikhail): Remove the installer from this class.
-  scoped_ptr<PackageInstaller> package_installer_;
   ObserverList<Observer> observers_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationService);
