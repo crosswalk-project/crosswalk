@@ -731,16 +731,18 @@ def main(argv):
       options.name = ReplaceSpaceWithUnderscore(options.name)
     else:
       parser.error('The APK name is required! Please use "--name" option.')
-    if not ((options.app_url and
-             not options.app_root and
-             not options.app_local_path) or
-            (not options.app_url and
-             options.app_root and
-             options.app_local_path)):
-      parser.error('The entry is required. If the entry is a remote url, '
-                   'please use "--app-url" option; If the entry is local, '
-                   'please use "--app-root" and '
-                   '"--app-local-path" options together!')
+
+    # One needs to either pass --app-url or both --app-root and
+    # --app-local-path. For simplicity, we use the same error message if none
+    # were passed or only one of --app-root and --app-local-path was specified.
+    # If all parameters were set we just do not say anything and prefer
+    # --app-url.
+    if not options.app_url and not (options.app_root and
+                                    options.app_local_path):
+      parser.error('You have to either specify a remote URL with "--app-url" '
+                   'or a local source with both "--app-root" and '
+                   '"--app-local-path".')
+
     if options.permissions:
       permission_list = options.permissions.split(':')
     else:
