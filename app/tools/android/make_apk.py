@@ -430,7 +430,8 @@ def Execution(options, name):
       if os.path.isfile(x86_native_lib_path):
         native_lib_path += os.path.join('native_libs', 'x86', 'libs')
       else:
-        print('Missing x86 native library for Crosswalk embedded APK. Abort!')
+        print('No x86 native library has been found for creating a Crosswalk '
+              'embedded APK.')
         sys.exit(10)
     elif options.arch == 'arm':
       arm_native_lib_path = os.path.join('native_libs', 'armeabi-v7a', 'libs',
@@ -438,7 +439,8 @@ def Execution(options, name):
       if os.path.isfile(arm_native_lib_path):
         native_lib_path += os.path.join('native_libs', 'armeabi-v7a', 'libs')
       else:
-        print('Missing ARM native library for Crosswalk embedded APK. Abort!')
+        print('No ARM native library has been found for creating a Crosswalk '
+              'embedded APK.')
         sys.exit(10)
   # A space is needed for Windows.
   native_lib_path += ' '
@@ -702,7 +704,8 @@ def main(argv):
       print(GetVersion('VERSION'))
       return 0
     else:
-      parser.error('Can\'t get version due to the VERSION file missing!')
+      parser.error('VERSION was not found, so Crosswalk\'s version could not '
+                   'be determined.')
 
   xpk_temp_dir = ''
   if options.xpk:
@@ -721,14 +724,14 @@ def main(argv):
     if options.package:
       VerifyAppName(options.package, 'packagename')
     else:
-      parser.error('The package name is required! '
-                   'Please use "--package" option.')
+      parser.error('A package name is required. Please use the "--package" '
+                   'option.')
     if options.name:
       VerifyAppName(options.name)
       app_info.original_name = options.name
       options.name = ReplaceSpaceWithUnderscore(options.name)
     else:
-      parser.error('The APK name is required! Please use "--name" option.')
+      parser.error('An APK name is required. Please use the "--name" option.')
 
     # The checks here are really convoluted, but at the moment make_apk
     # misbehaves any of the following conditions is true.

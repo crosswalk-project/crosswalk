@@ -445,7 +445,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
                                                'icon.' + icon_suffix))
             icon_name = 'icon'
           elif icon and (not os.path.isfile(icon)):
-            print ('Error: Please make sure \"' + icon + '\" does exist!')
+            print('Error: "%s" does not exist.' % icon)
             sys.exit(6)
           break
   return icon_name
@@ -462,7 +462,7 @@ def CustomizeIconByOption(name, icon):
     icon_name = os.path.splitext(icon_file)[0]
     return icon_name
   else:
-    print ('Error: Please make sure \"' + icon + '\" is a file!')
+    print('Error: "%s" does not exist.')
     sys.exit(6)
 
 
