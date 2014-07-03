@@ -29,9 +29,10 @@ import org.xwalk.core.internal.extension.XWalkExtensionContext;
  * A XWalk extension for Presentation API implementation on Android.
  */
 public class PresentationExtension extends XWalkExtension {
-    public final static String TAG = "PresentationExtension";
     public final static String JS_API_PATH = "jsapi/presentation_api.js";
-    public final static String NAME = "navigator.presentation";
+
+    private final static String NAME = "navigator.presentation";
+    private final static String TAG = "PresentationExtension";
 
     // Tags:
     private final static String TAG_BASE_URL = "baseUrl";
@@ -108,8 +109,8 @@ public class PresentationExtension extends XWalkExtension {
         }
     };
 
-    public PresentationExtension(String name, String jsApi, XWalkExtensionContext context) {
-        super(name, jsApi, context);
+    public PresentationExtension(String jsApi, XWalkExtensionContext context) {
+        super(NAME, jsApi, context);
 
         mDisplayManager = XWalkDisplayManager.getInstance(context.getContext());
         Display[] displays = mDisplayManager.getPresentationDisplays();
