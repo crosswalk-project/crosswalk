@@ -39,8 +39,12 @@ const char kPnaclPluginDescription[] = "Portable Native Client Executable";
 
 namespace xwalk {
 
+std::string GetProduct() {
+  return "Chrome/" CHROME_VERSION;
+}
+
 std::string GetUserAgent() {
-  std::string product = "Chrome/" CHROME_VERSION;
+  std::string product = GetProduct();
 #if (defined(OS_TIZEN) || defined(OS_ANDROID))
   product += " Mobile Crosswalk/" XWALK_VERSION;
 #else
@@ -94,7 +98,7 @@ void XWalkContentClient::AddPepperPlugins(
 }
 
 std::string XWalkContentClient::GetProduct() const {
-  return std::string("Version/4.0");
+  return xwalk::GetProduct();
 }
 
 std::string XWalkContentClient::GetUserAgent() const {
