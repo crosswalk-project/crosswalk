@@ -138,7 +138,18 @@ class ManifestJsonParser(object):
       app_url = ''
     file_path_prefix = os.path.split(self.input_path)[0]
     if 'icons' in self.data_src:
-      ret_dict['icons'] = self.data_src['icons']
+      icons = self.data_src['icons']
+      if type(icons) == dict:
+        PrintDeprecationWarning('icons defined as dictionary form')
+        ret_dict['icons'] = icons
+      elif type(icons) == list:
+        icons_dict = {}
+        for icon in icons:
+          if 'sizes' in icon and 'src' in icon:
+            icons_dict[icon['sizes'].split('x')[0]] = icon['src']
+        ret_dict['icons'] = icons_dict
+      else:
+        ret_dict['icons'] = {}
     else:
       ret_dict['icons'] = {}
     app_root = file_path_prefix

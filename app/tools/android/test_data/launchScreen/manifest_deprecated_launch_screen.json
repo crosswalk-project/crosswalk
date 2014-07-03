@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "Launch screen test",
-  "icons": {
-  },
+  "icons": [],
   "xwalk_permissions": [],
   "required_version": "3.31.31.0",
   "plugin": [],
