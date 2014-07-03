@@ -175,8 +175,13 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   return true;
 }
 
-bool PackageInstaller::Update(const std::string& id,
+bool PackageInstaller::Update(const std::string& app_id,
                               const base::FilePath& path) {
+  if (!ApplicationData::IsIDValid(app_id)) {
+    LOG(ERROR) << "The given application id " << app_id << " is invalid.";
+    return false;
+  }
+
   if (!base::PathExists(path)) {
     LOG(ERROR) << "The XPK/WGT package file " << path.value() << " is invalid.";
     return false;
@@ -188,21 +193,13 @@ bool PackageInstaller::Update(const std::string& id,
   }
 
   base::FilePath unpacked_dir;
-  std::string app_id;
   scoped_ptr<Package> package = Package::Create(path);
   if (!package) {
     LOG(ERROR) << "XPK/WGT file is invalid.";
     return false;
   }
 
-  app_id = package->Id();
-
-  if (app_id.empty()) {
-    LOG(ERROR) << "The XPK/WGT file is invalid, the application id is empty.";
-    return false;
-  }
-
-  if (id.empty() || id.compare(app_id) != 0) {
+  if (app_id.compare(package->Id()) != 0) {
     LOG(ERROR) << "The XPK/WGT file is invalid, the application id is not the"
                << "same as the installed application has.";
     return false;
