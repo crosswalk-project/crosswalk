@@ -23,6 +23,7 @@
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 #if defined(OS_TIZEN)
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #endif
 
@@ -80,8 +81,15 @@ bool list_applications(ApplicationStorage* storage) {
   g_print("Application ID                       Application Name\n");
   g_print("-----------------------------------------------------\n");
   ApplicationData::ApplicationDataMap::const_iterator it;
-  for (it = apps.begin(); it != apps.end(); ++it)
+  for (it = apps.begin(); it != apps.end(); ++it) {
+#if defined(OS_TIZEN)
+    g_print("%s  %s\n",
+            GetTizenAppId(it->second).c_str(),
+            it->second->Name().c_str());
+#else
     g_print("%s  %s\n", it->first.c_str(), it->second->Name().c_str());
+#endif
+  }
   g_print("-----------------------------------------------------\n");
 
   return true;
@@ -129,6 +137,11 @@ int main(int argc, char* argv[]) {
   } else if (uninstall_appid) {
 #if defined(SHARED_PROCESS_MODE)
     TerminateIfRunning(uninstall_appid);
+#endif
+#if defined(OS_TIZEN)
+    std::string crosswalk_app_id =
+        xwalk::application::RawAppIdToCrosswalkAppId(uninstall_appid);
+    uninstall_appid = strdup(crosswalk_app_id.c_str());
 #endif
     success = installer->Uninstall(uninstall_appid);
   } else {

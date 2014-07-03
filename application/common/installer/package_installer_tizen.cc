@@ -21,9 +21,11 @@
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 namespace info = xwalk::application_packageinfo_constants;
@@ -80,6 +82,19 @@ void WriteMetaDataElement(
   }
 }
 
+// For xpk, package_id => [crosswalk_32bytes_app_id]
+// For wgt, package_id => [tizen_wrt_10bytes_package_id]
+std::string GetTizenPackageId(
+    xwalk::application::ApplicationData* application) {
+  if (application->GetPackageType() == xwalk::application::Package::XPK)
+    return application->ID();
+
+  const xwalk::application::TizenApplicationInfo* tizen_app_info =
+      static_cast<xwalk::application::TizenApplicationInfo*>(
+          application->GetManifestData(widget_keys::kTizenApplicationKey));
+  return tizen_app_info->package();
+}
+
 bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
                         const std::string& icon_name,
                         const base::FilePath& app_dir,
@@ -88,8 +103,9 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
       !base::CreateDirectory(app_dir))
     return false;
 
-  std::string package_id = application->ID();
-  std::string tizen_app_id = kAppIdPrefix + package_id;
+  std::string package_id = GetTizenPackageId(application);
+  std::string tizen_app_id = GetTizenAppId(application);
+
   base::FilePath execute_path =
       app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
   std::string stripped_name = application->Name();
@@ -106,7 +122,8 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.WriteElement("description", application->Description());
 
   xml_writer.StartElement("ui-application");
-  xml_writer.AddAttribute("appid", tizen_app_id);
+  xml_writer.AddAttribute("appid",
+      xwalk::application::RawAppIdToAppIdForTizenPkgmgrDB(tizen_app_id));
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "c++app");
   xml_writer.AddAttribute("taskmanage", "true");
@@ -170,7 +187,7 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
-  std::string tizen_app_id = kAppIdPrefix + app_id;
+  std::string tizen_app_id = GetTizenAppId(app_data);
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(app_id);
   base::FilePath xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
@@ -268,7 +285,7 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
-  std::string tizen_app_id = kAppIdPrefix + app_id;
+  std::string tizen_app_id = GetTizenAppId(app_data);
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(app_id);
   base::FilePath new_xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(

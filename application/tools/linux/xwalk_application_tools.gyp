@@ -64,6 +64,7 @@
       'dependencies': [
         '../../../../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
         '../../../extensions/extensions.gyp:xwalk_extensions',
+        '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
       ],
       'sources': [
         'dbus_connection.cc',
