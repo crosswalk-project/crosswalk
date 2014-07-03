@@ -524,6 +524,29 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(out.find('no app launch path') == -1)
     self.checkApks('Example', '1.0.0')
 
+  def testManifestWithDeprecatedField(self):
+    manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
+                                 'manifest_app_local_path.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
+    self.assertTrue(out.find(
+        'WARNING: app.launch.local_path is deprecated for Crosswalk') != -1)
+    Clean('Example', '1.0.0')
+    manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
+                                 'manifest_launch_path.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(
+        out.find('WARNING: launch_path is deprecated for Crosswalk') != -1)
+    Clean('Example', '1.0.0')
+    manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
+                                 'manifest_permissions.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(
+        out.find('WARNING: permissions is deprecated for Crosswalk') != -1)
+
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_app_launch_path.json')
@@ -806,6 +829,13 @@ class TestMakeApk(unittest.TestCase):
           _file.write(name)
           _file.close()
     # Run Test.
+    manifest_path = os.path.join('test_data', 'launchScreen',
+                                 'manifest_deprecated_launch_screen.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(
+        out.find('WARNING: launch_screen is deprecated for Crosswalk') != -1)
+    Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'launchScreen', 'manifest.json')
     cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
@@ -1038,6 +1068,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testInvalidCharacter'))
   test_suite.addTest(TestMakeApk('testKeystore'))
   test_suite.addTest(TestMakeApk('testManifest'))
+  test_suite.addTest(TestMakeApk('testManifestWithDeprecatedField'))
   test_suite.addTest(TestMakeApk('testManifestWithError'))
   test_suite.addTest(TestMakeApk('testName'))
   test_suite.addTest(TestMakeApk('testOrientation'))

@@ -1,9 +1,10 @@
 {
-  "name": "\Example",
+  "name": "Example",
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "a sample description",
-  "origin": "app://app.id",
-  "default_locale": "en",
-  "fullscreen":"true"
+  "permissions": [
+    "Contacts",
+    "Geolocation",
+    "Messaging"]
 }

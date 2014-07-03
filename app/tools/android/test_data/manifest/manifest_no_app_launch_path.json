@@ -6,7 +6,7 @@
   "icons": {
   },
   "default_locale": "en",
-  "permissions": ["geolocation"],
+  "xwalk_permissions": ["geolocation"],
   "required_version": "1.28.1.0",
   "plugin": [],
   "fullscreen":"true"
