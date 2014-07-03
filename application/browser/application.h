@@ -12,6 +12,7 @@
 
 #include "base/callback.h"
 #include "base/compiler_specific.h"
+#include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
@@ -131,6 +132,10 @@ class Application : public Runtime::Observer,
               Observer* observer);
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
+
+  // Get the path of splash screen image. Return empty path by default.
+  // Sub class can override it to return a specific path.
+  virtual base::FilePath GetSplashScreenPath();
 
   std::set<Runtime*> runtimes_;
   scoped_refptr<ApplicationData> const data_;

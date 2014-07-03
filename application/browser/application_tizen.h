@@ -32,6 +32,8 @@ class ApplicationTizen :  // NOLINT
                    Application::Observer* observer);
   virtual bool Launch(const LaunchParams& launch_params) OVERRIDE;
 
+  virtual base::FilePath GetSplashScreenPath() OVERRIDE;
+
 #if defined(USE_OZONE)
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;

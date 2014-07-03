@@ -75,6 +75,8 @@
             'manifest_handlers/tizen_metadata_handler.h',
             'manifest_handlers/tizen_setting_handler.cc',
             'manifest_handlers/tizen_setting_handler.h',
+            'manifest_handlers/tizen_splash_screen_handler.cc',
+            'manifest_handlers/tizen_splash_screen_handler.h',
             'installer/package_installer_tizen.cc',
             'installer/package_installer_tizen.h',
             'installer/tizen/packageinfo_constants.cc',

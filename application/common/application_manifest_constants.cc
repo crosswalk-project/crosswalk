@@ -102,6 +102,8 @@ const char kTizenMetaDataKey[] = "widget.metadata";
 // Child keys inside 'kTizenMetaDataKey'
 const char kTizenMetaDataNameKey[] = "@key";
 const char kTizenMetaDataValueKey[] = "@value";
+const char kTizenSplashScreenKey[] = "widget.splash-screen";
+const char kTizenSplashScreenSrcKey[] = "@src";
 #endif
 }  // namespace application_widget_keys
 

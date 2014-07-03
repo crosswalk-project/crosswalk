@@ -13,6 +13,7 @@
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_splash_screen_handler.h"
 #endif
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
@@ -80,6 +81,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenSettingHandler);
   handlers.push_back(new TizenMetaDataHandler);
+  handlers.push_back(new TizenSplashScreenHandler);
 #endif
   widget_registry_ = new ManifestHandlerRegistry(handlers);
   return widget_registry_;

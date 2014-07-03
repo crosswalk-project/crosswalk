@@ -12,6 +12,7 @@
 #include "ui/gfx/screen.h"
 #include "ui/views/view.h"
 #include "ui/views/widget/widget.h"
+#include "xwalk/runtime/browser/ui/splash_screen.h"
 #include "xwalk/runtime/browser/ui/top_view_layout_views.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 
@@ -93,11 +94,17 @@ NativeAppWindowTizen::NativeAppWindowTizen(
       indicator_widget_(new TizenSystemIndicatorWidget()),
       indicator_container_(new WidgetContainerView(indicator_widget_)),
 #endif
-      orientation_lock_(blink::WebScreenOrientationLockAny) {
-}
+      orientation_lock_(blink::WebScreenOrientationLockAny) {}
 
 void NativeAppWindowTizen::Initialize() {
   NativeAppWindowViews::Initialize();
+
+  const base::FilePath& splash_screen_path = create_params().splash_screen_path;
+  if (!splash_screen_path.empty()) {
+    splash_screen_.reset(new SplashScreen(
+        GetWidget(), splash_screen_path, create_params().web_contents));
+    splash_screen_->Start();
+  }
 
   // Get display info such as device_scale_factor, and current
   // rotation (orientation).

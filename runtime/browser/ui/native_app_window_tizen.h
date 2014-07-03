@@ -5,6 +5,7 @@
 #ifndef XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 
+#include "base/memory/scoped_ptr.h"
 #include "content/browser/screen_orientation/screen_orientation_provider.h"
 #include "xwalk/runtime/browser/ui/screen_orientation.h"
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
@@ -14,6 +15,8 @@
 #include "ui/aura/window_observer.h"
 
 namespace xwalk {
+
+class SplashScreen;
 
 // Tizen uses the Views native window but adds its own features like orientation
 // handling and integration with system indicator bar.
@@ -67,6 +70,7 @@ class NativeAppWindowTizen
 
   gfx::Display display_;
   blink::WebScreenOrientationLockType orientation_lock_;
+  scoped_ptr<SplashScreen> splash_screen_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowTizen);
 };
