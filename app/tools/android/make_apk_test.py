@@ -546,6 +546,13 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('WARNING: permissions is deprecated for Crosswalk') != -1)
+    Clean('Example', '1.0.0')
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_deprecated_icon.json')
+    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.assertTrue(out.find(
+        'WARNING: icons defined as dictionary form is deprecated') != -1)
 
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',

@@ -1,12 +1,15 @@
 {
+  "name": "Example",
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "a sample description",
   "origin": "app://app.id",
-  "icons": [],
+  "icons": {
+    "144": "icons/icon_144.png",
+    "96": "icons/icon_96.png",
+    "72": "icons/icon_72.png",
+    "48": "icons/icon_48.png"
+  },
   "default_locale": "en",
-  "xwalk_permissions": ["geolocation"],
-  "required_version": "1.28.1.0",
-  "plugin": [],
   "fullscreen":"true"
 }

@@ -4,8 +4,7 @@
   "start_url": "http://www.intel.com",
   "description": "a sample description",
   "origin": "app://app.id",
-  "icons": {
-  },
+  "icons": [],
   "default_locale": "en",
   "xwalk_permissions": ["geolocation,"],
   "required_version": "1.28.1.0",
