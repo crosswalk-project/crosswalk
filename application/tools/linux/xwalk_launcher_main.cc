@@ -224,7 +224,7 @@ static void launch_application(const char* appid_or_url,
   char name[128];
   snprintf(name, sizeof(name), "xwalk-%s", appid_or_url);
 
-  if (xwalk_appcore_init(g_argc, g_argv, name)) {
+  if (xwalk_appcore_init(g_argc, g_argv, name, app_proxy)) {
     fprintf(stderr, "Failed to initialize appcore");
     exit(1);
   }

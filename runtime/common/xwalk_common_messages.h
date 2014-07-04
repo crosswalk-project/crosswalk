@@ -39,6 +39,9 @@ IPC_MESSAGE_CONTROL2(ViewMsg_EnableSecurityMode,    // NOLINT
                      xwalk::application::SecurityPolicy::SecurityMode
                      /* security mode */)
 
+IPC_MESSAGE_CONTROL1(ViewMsg_SuspendJSEngine,  // NOLINT
+                     bool /* is suspend */)
+
 IPC_MESSAGE_ROUTED1(ViewMsg_HWKeyPressed, int /*keycode*/)  // NOLINT
 
 // These are messages sent from the renderer to the browser process.

@@ -23,6 +23,8 @@ class ApplicationTizen :  // NOLINT
  public:
   virtual ~ApplicationTizen();
   void Hide();
+  void Suspend();
+  void Resume();
 
  private:
   // We enforce ApplicationService ownership.
@@ -38,6 +40,8 @@ class ApplicationTizen :  // NOLINT
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
+
+  bool is_suspended_;
 };
 
 inline ApplicationTizen* ToApplicationTizen(Application* app) {

@@ -51,8 +51,10 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
       const GURL& source, const GURL& dest, bool allow_subdomains);
   void OnEnableSecurityMode(
       const GURL& url, application::SecurityPolicy::SecurityMode mode);
+  void OnSuspendJSEngine(bool is_pause);
 
   bool is_webkit_initialized_;
+  bool is_suspended_;
   application::SecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;
 };

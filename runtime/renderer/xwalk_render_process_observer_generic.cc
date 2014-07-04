@@ -6,7 +6,8 @@
 
 #include <vector>
 
-#include "content/public/renderer/render_thread.h"
+#include "content/renderer/render_thread_impl.h"
+#include "content/renderer/renderer_webkitplatformsupport_impl.h"
 #include "ipc/ipc_message_macros.h"
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -44,6 +45,7 @@ void AddAccessWhiteListEntry(
 
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
     : is_webkit_initialized_(false),
+      is_suspended_(false),
       security_mode_(application::SecurityPolicy::NoSecurity) {
 }
 
@@ -56,6 +58,7 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
   IPC_BEGIN_MESSAGE_MAP(XWalkRenderProcessObserver, message)
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
+    IPC_MESSAGE_HANDLER(ViewMsg_SuspendJSEngine, OnSuspendJSEngine)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -93,6 +96,18 @@ void XWalkRenderProcessObserver::OnEnableSecurityMode(
     const GURL& url, application::SecurityPolicy::SecurityMode mode) {
   app_url_ = url;
   security_mode_ = mode;
+}
+
+void XWalkRenderProcessObserver::OnSuspendJSEngine(bool is_suspend) {
+  if (is_suspend == is_suspended_)
+    return;
+  content::RenderThreadImpl* thread = content::RenderThreadImpl::current();
+  thread->EnsureWebKitInitialized();
+  if (is_suspend)
+    thread->webkit_platform_support()->SuspendSharedTimer();
+  else
+    thread->webkit_platform_support()->ResumeSharedTimer();
+  is_suspended_ = is_suspend;
 }
 
 }  // namespace xwalk

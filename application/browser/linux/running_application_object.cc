@@ -76,6 +76,20 @@ RunningApplicationObject::RunningApplicationObject(
                  base::Unretained(this)),
       base::Bind(&RunningApplicationObject::OnExported,
                  base::Unretained(this)));
+
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "Suspend",
+      base::Bind(&RunningApplicationObject::OnSuspend,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
+
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "Resume",
+      base::Bind(&RunningApplicationObject::OnResume,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
 #endif
 }
 
@@ -143,6 +157,44 @@ void RunningApplicationObject::OnHide(
   }
 
   ToApplicationTizen(application_)->Hide();
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  response_sender.Run(response.Pass());
+}
+
+void RunningApplicationObject::OnSuspend(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+
+  ToApplicationTizen(application_)->Suspend();
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  response_sender.Run(response.Pass());
+}
+
+void RunningApplicationObject::OnResume(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+
+  ToApplicationTizen(application_)->Resume();
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
