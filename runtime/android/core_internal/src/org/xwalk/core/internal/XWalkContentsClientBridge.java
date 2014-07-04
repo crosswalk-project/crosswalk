@@ -49,7 +49,13 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
     private XWalkNotificationService mNotificationService;
+
+    /** State recording variables */
+    // For fullscreen state.
     private boolean mIsFullscreen = false;
+    // For load state.
+    private LoadStatusInternal mLoadStatus = LoadStatusInternal.FINISHED;
+    private String mLoadingUrl = null;
 
     // The native peer of the object
     private long mNativeContentsClientBridge;
@@ -267,6 +273,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public void onPageStarted(String url) {
         if (mXWalkUIClient != null && isOwnerActivityRunning()) {
+            mLoadingUrl = url;
+            mLoadStatus = LoadStatusInternal.FINISHED;
             mXWalkUIClient.onPageLoadStarted(mXWalkView, url);
         }
     }
@@ -276,8 +284,12 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (!isOwnerActivityRunning()) return;
         if (mPageLoadListener != null) mPageLoadListener.onPageFinished(url);
         if (mXWalkUIClient != null) {
-            // TODO(wang16): Implement the LoadStatus param.
-            mXWalkUIClient.onPageLoadStopped(mXWalkView, url, LoadStatusInternal.FINISHED);
+            if (mLoadStatus == LoadStatusInternal.CANCELLED && mLoadingUrl != null) {
+                mXWalkUIClient.onPageLoadStopped(mXWalkView, mLoadingUrl, mLoadStatus);
+            } else {
+                mXWalkUIClient.onPageLoadStopped(mXWalkView, url, mLoadStatus);
+            }
+            mLoadingUrl = null;
         }
 
         // This isn't the accurate point to notify a resource loading is finished,
@@ -287,8 +299,16 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    protected void onStopLoading() {
+        mLoadStatus = LoadStatusInternal.CANCELLED;
+    }
+
+    @Override
     public void onReceivedError(int errorCode, String description, String failingUrl) {
         if (isOwnerActivityRunning()) {
+            if (mLoadingUrl != null && mLoadingUrl.equals(failingUrl)) {
+                mLoadStatus = LoadStatusInternal.FAILED;
+            }
             mXWalkResourceClient.onReceivedLoadError(mXWalkView, errorCode, description, failingUrl);
         }
     }

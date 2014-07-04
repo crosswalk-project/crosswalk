@@ -172,6 +172,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onPageFinished(String url);
 
+    protected abstract void onStopLoading();
+
     public abstract void onReceivedError(int errorCode, String description, String failingUrl);
 
     public abstract void onRendererUnresponsive();
