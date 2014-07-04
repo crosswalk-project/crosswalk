@@ -125,7 +125,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.AddAttribute("appid",
       xwalk::application::RawAppIdToAppIdForTizenPkgmgrDB(tizen_app_id));
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
-  xml_writer.AddAttribute("type", "c++app");
+  xml_writer.AddAttribute("type", "webapp");
   xml_writer.AddAttribute("taskmanage", "true");
   xml_writer.WriteElement("label", application->Name());
 
