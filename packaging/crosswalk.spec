@@ -218,7 +218,6 @@ ninja %{?_smp_mflags} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg
 
 %install
 # Binaries.
-install -p -D xwalk %{buildroot}%{_bindir}/xwalk
 install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
@@ -255,7 +254,6 @@ mkdir -p %{_manifestdir_ro}
 %files
 %manifest %{name}.manifest
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
-%{_bindir}/xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
 %{_bindir}/xwalk-pkg-helper
