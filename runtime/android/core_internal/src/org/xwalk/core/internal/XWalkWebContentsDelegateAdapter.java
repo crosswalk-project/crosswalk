@@ -4,6 +4,8 @@
 
 package org.xwalk.core.internal;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -13,6 +15,14 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     public XWalkWebContentsDelegateAdapter(XWalkContentsClient client) {
         mXWalkContentsClient = client;
+    }
+
+    @Override
+    public boolean shouldOpenWithDefaultBrowser(String contentUrl) {
+        if (mXWalkContentsClient != null) {
+            return mXWalkContentsClient.shouldOpenWithDefaultBrowser(contentUrl);
+        }
+        return false;
     }
 
     @Override

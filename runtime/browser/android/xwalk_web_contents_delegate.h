@@ -6,6 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_WEB_CONTENTS_DELEGATE_H_
 
 #include <jni.h>
+#include <string>
 
 #include "components/web_contents_delegate_android/web_contents_delegate_android.h"
 
@@ -49,6 +50,15 @@ class XWalkWebContentsDelegate
                                           bool enter_fullscreen) OVERRIDE;
   virtual bool IsFullscreenForTabOrPending(
       const content::WebContents* web_contents) const OVERRIDE;
+
+  virtual bool ShouldCreateWebContents(
+      content::WebContents* web_contents,
+      int route_id,
+      WindowContainerType window_container_type,
+      const base::string16& frame_name,
+      const GURL& target_url,
+      const std::string& partition_id,
+      content::SessionStorageNamespace* session_storage_namespace) OVERRIDE;
 
  private:
   scoped_ptr<content::JavaScriptDialogManager> javascript_dialog_manager_;

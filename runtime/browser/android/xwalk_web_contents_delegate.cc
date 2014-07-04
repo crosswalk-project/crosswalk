@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
+#include <string>
 #include <vector>
 
 #include "base/android/jni_string.h"
@@ -178,6 +179,29 @@ bool XWalkWebContentsDelegate::IsFullscreenForTabOrPending(
   if (obj.is_null())
     return false;
   return Java_XWalkWebContentsDelegate_isFullscreen(env, obj.obj());
+}
+
+bool XWalkWebContentsDelegate::ShouldCreateWebContents(
+    content::WebContents* web_contents,
+    int route_id,
+    WindowContainerType window_container_type,
+    const base::string16& frame_name,
+    const GURL& target_url,
+    const std::string& partition_id,
+    content::SessionStorageNamespace* session_storage_namespace) {
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> java_delegate = GetJavaDelegate(env);
+
+  if (java_delegate.obj()) {
+    ScopedJavaLocalRef<jstring> url_buffer =
+        base::android::ConvertUTF8ToJavaString(env, target_url.spec());
+    return Java_XWalkWebContentsDelegate_shouldOpenWithDefaultBrowser(env,
+        java_delegate.obj(), url_buffer.obj()) == JNI_FALSE;
+  }
+
+  // As multiple windows mode has not been implemented yet, return false
+  // to make sure new WebContents won't be created.
+  return false;
 }
 
 bool RegisterXWalkWebContentsDelegate(JNIEnv* env) {

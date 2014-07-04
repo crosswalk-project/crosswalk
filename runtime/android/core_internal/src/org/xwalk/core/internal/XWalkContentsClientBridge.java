@@ -5,6 +5,7 @@
 
 package org.xwalk.core.internal;
 
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
@@ -37,6 +38,7 @@ import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 @JNINamespace("xwalk")
 class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
+	private static final String TAG = XWalkContentsClientBridge.class.getName();
 
     private XWalkViewInternal mXWalkView;
     private XWalkUIClientInternal mXWalkUIClient;
@@ -390,6 +392,22 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     @Override
     public boolean hasEnteredFullscreen() {
         return mIsFullscreen;
+    }
+
+    @Override
+    public boolean shouldOpenWithDefaultBrowser(String contentUrl) {
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri url = Uri.parse(contentUrl);
+        intent.setData(url);
+        try {
+            mXWalkView.getActivity().startActivity(intent);
+        } catch (ActivityNotFoundException exception) {
+            Log.w(TAG, "Activity not found for Intent:");
+            return false;
+        }
+
+        return true;
     }
 
     @Override
