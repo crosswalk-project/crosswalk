@@ -17,6 +17,8 @@ import org.xwalk.core.internal.XWalkGeolocationPermissions;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
+ * TODO(wang16): This test should be moved to internal test.
+ *
  * Test suite for onGeolocationPermissionsShowPrompt() and
  *                onGeolocationPermissionsHidePrompt().
  */
@@ -25,7 +27,6 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
@@ -59,7 +60,12 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
             }
         }
         final TestWebChromeClient testWebChromeClient = new TestWebChromeClient();
-        setXWalkWebChromeClient(testWebChromeClient);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkWebChromeClient(testWebChromeClient);
+            }
+        });
         loadAssetFile("geolocation.html");
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -85,7 +91,12 @@ public class GeolocationPermissionTest extends XWalkViewTestBase {
                 // Do something.
             }
         }
-        setXWalkWebChromeClient(new TestWebChromeClient());
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                getXWalkView().setXWalkWebChromeClient(new TestWebChromeClient());
+            }
+        });
         loadUrlSync("http://html5demos.com/geo");
     }
 }

@@ -35,15 +35,6 @@ public class XWalkPresentationContent {
     public void load(final String url) {
         if (mContentView == null) {
             mContentView = new XWalkViewInternal(mContext, mActivity);
-            final XWalkClient xWalkClient = new XWalkClient(mContentView) {
-                @Override
-                public void onPageFinished(XWalkViewInternal view, String url) {
-                    mPresentationId = mContentView.getContentID();
-                    onContentLoaded();
-                }
-            };
-            mContentView.setXWalkClient(xWalkClient);
-
             final XWalkUIClientInternal xWalkUIClient = new XWalkUIClientInternal(mContentView) {
                 @Override
                 public void onJavascriptCloseWindow(XWalkViewInternal view) {
@@ -51,6 +42,15 @@ public class XWalkPresentationContent {
                     // presentation id now.
                     mPresentationId = INVALID_PRESENTATION_ID;
                     onContentClosed();
+                }
+
+                @Override
+                public void onPageLoadStopped(
+                        XWalkViewInternal view, String url, LoadStatusInternal status) {
+                    if (status == LoadStatusInternal.FINISHED) {
+                        mPresentationId = mContentView.getContentID();
+                        onContentLoaded();
+                    }
                 }
             };
             mContentView.setUIClient(xWalkUIClient);

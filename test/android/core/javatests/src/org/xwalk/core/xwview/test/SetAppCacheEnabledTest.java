@@ -27,6 +27,8 @@ import org.xwalk.core.internal.XWalkWebChromeClient;
 import org.xwalk.core.xwview.test.util.CommonResources;
 
 /**
+ * TODO(wang16): This test should be moved to internal test.
+ *
  * Test suite for setAppCacheEnabled().
  */
 public class SetAppCacheEnabledTest extends XWalkViewTestBase {
@@ -103,15 +105,13 @@ public class SetAppCacheEnabledTest extends XWalkViewTestBase {
         final TestHelperBridge helperBridge =
                 new TestHelperBridge();
         mContentClient = helperBridge;
-        final XWalkViewTestBase.TestXWalkClientBase client =
-                new XWalkViewTestBase.TestXWalkClientBase(helperBridge);
+        final XWalkViewTestBase.TestXWalkUIClientBase uiClient =
+                new XWalkViewTestBase.TestXWalkUIClientBase(helperBridge);
         final XWalkViewTestBase.TestXWalkResourceClientBase resourceClient =
                 new XWalkViewTestBase.TestXWalkResourceClientBase(helperBridge);
-        final XWalkViewTestBase.TestXWalkWebChromeClientBase chromeClient =
-                new XWalkViewTestBase.TestXWalkWebChromeClientBase(helperBridge);
         final XWalkView xWalkView =
-                createXWalkViewContainerOnMainSync(getActivity(), client,
-                        resourceClient, chromeClient);
+                createXWalkViewContainerOnMainSync(getActivity(), uiClient,
+                        resourceClient);
 
         final XWalkSettings settings = getXWalkSettings(xWalkView);
         settings.setJavaScriptEnabled(true);

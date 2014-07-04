@@ -39,7 +39,6 @@ public class CookieManagerTest extends XWalkViewTestBase {
         super.setUp();
 
         mCookieManager = new XWalkCookieManager();
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
     }
 
     @SmallTest

@@ -25,10 +25,6 @@ public class SetDatabaseEnabledTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
-        setXWalkWebChromeClient(new XWalkViewTestBase.TestXWalkWebChromeClient());
-        setResourceClient(new XWalkViewTestBase.TestXWalkResourceClient());
     }
 
     abstract class XWalkViewSettingsTestHelper<T> {

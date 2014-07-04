@@ -28,11 +28,9 @@ import org.chromium.content.browser.test.util.CriteriaHelper;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkSettings;
-import org.xwalk.core.internal.XWalkViewInternal;
-import org.xwalk.core.internal.XWalkWebChromeClient;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -41,45 +39,31 @@ public class XWalkViewTestBase
     private XWalkView mXWalkView;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
 
-    class TestXWalkClientBase extends XWalkClient {
+    class TestXWalkUIClientBase extends XWalkUIClient {
         TestHelperBridge mInnerContentsClient;
-        public TestXWalkClientBase(TestHelperBridge client) {
+        public TestXWalkUIClientBase(TestHelperBridge client) {
             super(getXWalkView());
             mInnerContentsClient = client;
         }
 
         @Override
-        public void onPageStarted(XWalkViewInternal view, String url) {
+        public void onPageLoadStarted(XWalkView view, String url) {
             mInnerContentsClient.onPageStarted(url);
         }
 
         @Override
-        public void onPageFinished(XWalkViewInternal view, String url) {
+        public void onPageLoadStopped(XWalkView view, String url, LoadStatus status) {
             mInnerContentsClient.onPageFinished(url);
-        }
-    }
-
-    class TestXWalkClient extends TestXWalkClientBase {
-        public TestXWalkClient() {
-            super(mTestHelperBridge);
-        }
-    }
-
-    class TestXWalkWebChromeClientBase extends XWalkWebChromeClient {
-        TestHelperBridge mInnerContentsClient;
-        public TestXWalkWebChromeClientBase(TestHelperBridge client) {
-            super(getXWalkView());
-            mInnerContentsClient = client;
         }
 
         @Override
-        public void onReceivedTitle(XWalkViewInternal view, String title) {
+        public void onReceivedTitle(XWalkView view, String title) {
             mInnerContentsClient.onTitleChanged(title);
         }
     }
 
-    class TestXWalkWebChromeClient extends TestXWalkWebChromeClientBase {
-        public TestXWalkWebChromeClient() {
+    class TestXWalkUIClient extends TestXWalkUIClientBase {
+        public TestXWalkUIClient() {
             super(mTestHelperBridge);
         }
     }
@@ -93,18 +77,18 @@ public class XWalkViewTestBase
 
         @Override
         public void onLoadStarted(XWalkView view, String url) {
-            mTestHelperBridge.onLoadStarted(url);
+            mInnerContentsClient.onLoadStarted(url);
         }
 
         @Override
         public void onReceivedLoadError(XWalkView view, int errorCode, String description, String failingUrl) {
-            mTestHelperBridge.onReceivedLoadError(errorCode, description, failingUrl);
+            mInnerContentsClient.onReceivedLoadError(errorCode, description, failingUrl);
         }
 
         @Override
         public WebResourceResponse shouldInterceptLoadRequest(XWalkView view,
                 String url) {
-            return mTestHelperBridge.shouldInterceptLoadRequest(url);
+            return mInnerContentsClient.shouldInterceptLoadRequest(url);
         }
     }
 
@@ -114,20 +98,11 @@ public class XWalkViewTestBase
         }
     }
 
-    void setXWalkClient(final XWalkClient client) {
+    void setUIClient(final XWalkUIClient client) {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getXWalkView().setXWalkClient(client);
-            }
-        });
-    }
-
-    void setXWalkWebChromeClient(final XWalkWebChromeClient client) {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().setXWalkWebChromeClient(client);
+                getXWalkView().setUIClient(client);
             }
         });
     }
@@ -187,6 +162,8 @@ public class XWalkViewTestBase
             public void run() {
                 mXWalkView = new XWalkView(activity, activity);
                 getActivity().addView(mXWalkView);
+                mXWalkView.setUIClient(new TestXWalkUIClient());
+                mXWalkView.setResourceClient(new TestXWalkResourceClient());
                 // mXWalkView.getXWalkViewContentForTest().installWebContentsObserverForTest(mTestHelperBridge);
             }
         });
@@ -326,9 +303,8 @@ public class XWalkViewTestBase
 
     protected XWalkView createXWalkViewContainerOnMainSync(
             final Context context,
-            final XWalkClient client,
-            final XWalkResourceClient resourceClient,
-            final XWalkWebChromeClient webChromeClient) throws Exception {
+            final XWalkUIClient uiClient,
+            final XWalkResourceClient resourceClient) throws Exception {
         final AtomicReference<XWalkView> xWalkViewContainer =
                 new AtomicReference<XWalkView>();
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -336,9 +312,8 @@ public class XWalkViewTestBase
             public void run() {
                 xWalkViewContainer.set(new XWalkView(context, getActivity()));
                 getActivity().addView(xWalkViewContainer.get());
-                xWalkViewContainer.get().setXWalkClient(client);
+                xWalkViewContainer.get().setUIClient(uiClient);
                 xWalkViewContainer.get().setResourceClient(resourceClient);
-                xWalkViewContainer.get().setXWalkWebChromeClient(webChromeClient);
             }
         });
 
@@ -347,17 +322,15 @@ public class XWalkViewTestBase
 
     protected ViewPair createViewsOnMainSync(final TestHelperBridge helperBridge0,
                                              final TestHelperBridge helperBridge1,
-                                             final XWalkClient client0,
-                                             final XWalkClient client1,
+                                             final XWalkUIClient uiClient0,
+                                             final XWalkUIClient uiClient1,
                                              final XWalkResourceClient resourceClient0,
                                              final XWalkResourceClient resourceClient1,
-                                             final XWalkWebChromeClient chromeClient0,
-                                             final XWalkWebChromeClient chromeClient1,
                                              final Context context) throws Throwable {
         final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context,
-                client0, resourceClient0, chromeClient0);
+                uiClient0, resourceClient0);
         final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context,
-                client1, resourceClient1, chromeClient1);
+                uiClient1, resourceClient1);
         final AtomicReference<ViewPair> viewPair = new AtomicReference<ViewPair>();
 
         getInstrumentation().runOnMainSync(new Runnable() {
@@ -523,20 +496,15 @@ public class XWalkViewTestBase
     protected ViewPair createViews() throws Throwable {
         TestHelperBridge helperBridge0 = new TestHelperBridge();
         TestHelperBridge helperBridge1 = new TestHelperBridge();
-        TestXWalkClientBase viewClient0 = new TestXWalkClientBase(helperBridge0);
-        TestXWalkClientBase viewClient1 = new TestXWalkClientBase(helperBridge1);
-        TestXWalkWebChromeClientBase chromeClient0 =
-                new TestXWalkWebChromeClientBase(helperBridge0);
-        TestXWalkWebChromeClientBase chromeClient1 =
-                new TestXWalkWebChromeClientBase(helperBridge1);
+        TestXWalkUIClientBase uiClient0 = new TestXWalkUIClientBase(helperBridge0);
+        TestXWalkUIClientBase uiClient1 = new TestXWalkUIClientBase(helperBridge1);
         TestXWalkResourceClientBase resourceClient0 =
                 new TestXWalkResourceClientBase(helperBridge0);
         TestXWalkResourceClientBase resourceClient1 =
                 new TestXWalkResourceClientBase(helperBridge1);
         ViewPair viewPair =
-                createViewsOnMainSync(helperBridge0, helperBridge1, viewClient0, viewClient1,
-                        resourceClient0, resourceClient1, chromeClient0, chromeClient1,
-                                getActivity());
+                createViewsOnMainSync(helperBridge0, helperBridge1, uiClient0, uiClient1,
+                        resourceClient0, resourceClient1, getActivity());
 
         return viewPair;
     }

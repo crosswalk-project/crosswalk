@@ -54,7 +54,8 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
             public void run() {
                 mXWalkView = getXWalkView();
                 mRestoreXWalkView = new XWalkView(activity, activity);
-                mXWalkView.setXWalkClient(new XWalkViewTestBase.TestXWalkClient());
+                mXWalkView.setUIClient(new XWalkViewTestBase.TestXWalkUIClient());
+                mXWalkView.setResourceClient(new XWalkViewTestBase.TestXWalkResourceClient());
             }
         });
 

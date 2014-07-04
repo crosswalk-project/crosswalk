@@ -55,27 +55,11 @@ public class XWalkWebChromeClient {
     }
 
     /**
-     * Notify the host application of a change in the document title.
-     * @param view The XWalkViewInternal that initiated the callback.
-     * @param title A String containing the new title of the document.
-     */
-    public void onReceivedTitle(XWalkViewInternal view, String title) {}
-
-    /**
      * Notify the host application of a new favicon for the current page.
      * @param view The XWalkViewInternal that initiated the callback.
      * @param icon A Bitmap containing the favicon for the current page.
      */
     public void onReceivedIcon(XWalkViewInternal view, Bitmap icon) {}
-
-    /**
-     * Notify the host application of the url for an apple-touch-icon.
-     * @param view The XWalkViewInternal that initiated the callback.
-     * @param url The icon url.
-     * @param precomposed True if the url is for a precomposed touch icon.
-     */
-    public void onReceivedTouchIconUrl(XWalkViewInternal view, String url,
-            boolean precomposed) {}
 
     /**
      * A callback interface used by the host application to notify
@@ -151,37 +135,6 @@ public class XWalkWebChromeClient {
 
         mCustomXWalkView = null;
         mCustomViewCallback = null;
-    }
-
-    /**
-     * Request the host application to create a new window. If the host
-     * application chooses to honor this request, it should return true from
-     * this method, create a new XWalkViewInternal to host the window, insert it into the
-     * View system and send the supplied resultMsg message to its target with
-     * the new XWalkViewInternal as an argument. If the host application chooses not to
-     * honor the request, it should return false from this method. The default
-     * implementation of this method does nothing and hence returns false.
-     * @param view The XWalkViewInternal from which the request for a new window
-     *             originated.
-     * @param isDialog True if the new window should be a dialog, rather than
-     *                 a full-size window.
-     * @param isUserGesture True if the request was initiated by a user gesture,
-     *                      such as the user clicking a link.
-     * @param resultMsg The message to send when once a new XWalkViewInternal has been
-     *                  created. resultMsg.obj is a
-     *                  {@link XWalkViewInternal.XWalkViewTransport} object. This should be
-     *                  used to transport the new XWalkViewInternal, by calling
-     *                  {@link XWalkViewInternal.XWalkViewTransport#setXWalkView(XWalkViewInternal)
-     *                  XWalkViewInternal.XWalkViewTransport.setXWalkView(XWalkViewInternal)}.
-     * @return This method should return true if the host application will
-     *         create a new window, in which case resultMsg should be sent to
-     *         its target. Otherwise, this method should return false. Returning
-     *         false from this method but also sending resultMsg will result in
-     *         undefined behavior.
-     */
-    public boolean onCreateWindow(XWalkViewInternal view, boolean isDialog,
-            boolean isUserGesture, Message resultMsg) {
-        return false;
     }
 
    /**
@@ -310,31 +263,6 @@ public class XWalkWebChromeClient {
         onConsoleMessage(consoleMessage.message(), consoleMessage.lineNumber(),
                 consoleMessage.sourceId());
         return false;
-    }
-
-    /**
-     * When not playing, video elements are represented by a 'poster' image. The
-     * image to use can be specified by the poster attribute of the video tag in
-     * HTML. If the attribute is absent, then a default poster will be used. This
-     * method allows the ChromeClient to provide that default image.
-     *
-     * @return Bitmap The image to use as a default poster, or null if no such image is
-     * available.
-     */
-    public Bitmap getDefaultVideoPoster() {
-        return null;
-    }
-
-    /**
-     * When the user starts to playback a video element, it may take time for enough
-     * data to be buffered before the first frames can be rendered. While this buffering
-     * is taking place, the ChromeClient can use this function to provide a View to be
-     * displayed. For example, the ChromeClient could show a spinner animation.
-     *
-     * @return View The View to be displayed whilst the video is loading.
-     */
-    public View getVideoLoadingProgressView() {
-        return null;
     }
 
     /** Obtains a list of all visited history items, used for link coloring

@@ -52,6 +52,6 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
 
     @Override
     public View getVideoLoadingProgressView() {
-        return mContentsClient.getVideoLoadingProgressView();
+        return null;
     }
 }
