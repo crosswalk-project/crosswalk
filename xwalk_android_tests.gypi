@@ -589,5 +589,103 @@
       ],
       'includes': [ '../build/java_apk.gypi' ],
     },
+    {
+      'target_name': 'xwalk_core_internal_shell_apk',
+      'type': 'none',
+      'dependencies': [
+        '../third_party/android_tools/android_tools.gyp:android_support_v13_javalib',
+        'libxwalkcore',
+        'xwalk_core_extensions_java',
+        'xwalk_core_internal_java',
+        'xwalk_core_internal_shell_apk_pak',
+      ],
+      'variables': {
+        'apk_name': 'XWalkCoreInternalShell',
+        'java_in_dir': 'runtime/android/core_internal_shell',
+        'resource_dir': 'runtime/android/core_internal_shell/res',
+        'native_lib_target': 'libxwalkcore',
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/www/index.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/xwalk.pak',
+        ],
+        'conditions': [
+          ['icu_use_data_file_flag==1', {
+            'additional_input_paths': [
+              '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/icudtl.dat',
+            ],
+          }],
+        ],
+        'asset_location': '<(PRODUCT_DIR)/xwalk_internal_xwview/assets',
+      },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview/assets/www',
+          'files': [
+            'test/android/data/index.html',
+          ],
+        }
+      ],
+      'includes': [ '../build/java_apk.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_core_internal_shell_apk_pak',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_pak',
+      ],
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview/assets',
+          'files': [
+            '<(PRODUCT_DIR)/xwalk.pak',
+          ],
+          'conditions': [
+            ['icu_use_data_file_flag==1', {
+              'files': [
+                '<(PRODUCT_DIR)/icudtl.dat',
+              ],
+            }],
+          ],
+        },
+      ],
+    },
+    {
+      'target_name': 'xwalk_core_internal_shell_apk_java',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_core_internal_shell_apk',
+      ],
+      'includes': [ '../build/apk_fake_jar.gypi' ],
+    },
+    {
+      'target_name': 'xwalk_core_internal_test_apk',
+      'type': 'none',
+      'dependencies': [
+        '../base/base.gyp:base_java_test_support',
+        '../content/content_shell_and_tests.gyp:content_java_test_support',
+        '../net/net.gyp:net_java_test_support',
+        '../tools/android/md5sum/md5sum.gyp:md5sum',
+        '../tools/android/forwarder2/forwarder.gyp:forwarder2',
+        'xwalk_core_internal_shell_apk_java',
+      ],
+      'variables': {
+        'apk_name': 'XWalkCoreInternalTest',
+        'java_in_dir': 'test/android/core_internal/javatests',
+        'is_test_apk': 1,
+        'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/index.html',
+        ],
+        'asset_location': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
+      },
+      'copies': [
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
+          'files': [
+            'test/android/data/index.html',
+          ],
+        },
+      ],
+      'includes': [ '../build/java_apk.gypi' ],
+    },
   ],
 }
