@@ -18,11 +18,12 @@ const XW_Internal_EntryPointsInterface* g_entry_points = NULL;
 
 int32_t XW_Initialize(XW_Extension extension, XW_GetInterface get_interface) {
   static const char* kAPI =
+      "var v8tools = requireNative('v8tools');"
       "window.should_exist = true;"
       "exports.also_should_exist = true;"
       "window.onsomething = {};"
       "function ReplacementScreen() {};"
-      "window.screen = new ReplacementScreen();"
+      "v8tools.forceSetProperty(window, 'screen', new ReplacementScreen());"
       "Object.defineProperty(window.screen, 'height', {"
       "get: function() { return window.screen instanceof ReplacementScreen; }"
       "});";
