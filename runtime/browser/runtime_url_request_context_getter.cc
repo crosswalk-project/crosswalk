@@ -216,11 +216,11 @@ net::URLRequestContext* RuntimeURLRequestContextGetter::GetURLRequestContext() {
 
 #if defined(OS_ANDROID)
     request_interceptors.push_back(
-        CreateContentSchemeProtocolHandler().release());
+        CreateContentSchemeRequestInterceptor().release());
     request_interceptors.push_back(
-        CreateAssetFileProtocolHandler().release());
+        CreateAssetFileRequestInterceptor().release());
     request_interceptors.push_back(
-        CreateAppSchemeProtocolHandler().release());
+        CreateAppSchemeRequestInterceptor().release());
     // The XWalkRequestInterceptor must come after the content and asset
     // file job factories. This for WebViewClassic compatibility where it
     // was not possible to intercept resource loads to resolvable content://

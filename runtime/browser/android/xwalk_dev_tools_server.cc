@@ -59,6 +59,7 @@ class Target : public content::DevToolsTarget {
   virtual base::TimeTicks GetLastActivityTime() const OVERRIDE {
     return last_activity_time_;
   }
+  virtual std::string GetParentId() const OVERRIDE { return std::string(); }
   virtual bool IsAttached() const OVERRIDE {
     return agent_host_->IsAttached();
   }
@@ -173,7 +174,7 @@ void XWalkDevToolsServer::Start() {
           base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
               base::Unretained(this))),
       base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
-      new XWalkDevToolsServerDelegate());
+      new XWalkDevToolsServerDelegate(), base::FilePath());
 }
 
 void XWalkDevToolsServer::Stop() {

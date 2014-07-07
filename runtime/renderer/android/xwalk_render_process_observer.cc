@@ -71,7 +71,7 @@ void XWalkRenderProcessObserver::OnSetOriginAccessWhitelist(
   const char* schemes[] = {
     url::kHttpScheme,
     url::kHttpsScheme,
-    content::kFileScheme,
+    url::kFileScheme,
     xwalk::kAppScheme,
   };
   size_t size = match_pattern_list->GetSize();

@@ -73,7 +73,7 @@ XWalkRequestInterceptor::QueryForInterceptedRequestData(
   return io_thread_client->ShouldInterceptRequest(location, request).Pass();
 }
 
-net::URLRequestJob* XWalkRequestInterceptor::MaybeCreateJob(
+net::URLRequestJob* XWalkRequestInterceptor::MaybeInterceptRequest(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) const {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
