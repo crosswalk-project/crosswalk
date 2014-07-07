@@ -46,8 +46,8 @@ void XEShV8Runner::Shutdown() {
 
 void XEShV8Runner::Initialize(int argc, char** argv,
     base::MessageLoopProxy* io_loop_proxy, const IPC::ChannelHandle& handle) {
-  client_channel_.reset(new IPC::SyncChannel(handle, IPC::Channel::MODE_CLIENT,
-    &client_, io_loop_proxy, true, &shutdown_event_));
+  client_channel_ = IPC::SyncChannel::Create(handle, IPC::Channel::MODE_CLIENT,
+    &client_, io_loop_proxy, true, &shutdown_event_);
 
   client_.Initialize(client_channel_.get());
 
