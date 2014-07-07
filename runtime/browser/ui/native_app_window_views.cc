@@ -268,11 +268,11 @@ void NativeAppWindowViews::OnFocus() {
   web_view_->RequestFocus();
 }
 
-gfx::Size NativeAppWindowViews::GetMaximumSize() {
+gfx::Size NativeAppWindowViews::GetMaximumSize() const {
   return maximum_size_;
 }
 
-gfx::Size NativeAppWindowViews::GetMinimumSize() {
+gfx::Size NativeAppWindowViews::GetMinimumSize() const {
   return minimum_size_;
 }
 

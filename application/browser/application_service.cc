@@ -42,7 +42,12 @@ const base::FilePath::CharType kApplicationDataDirName[] =
 
 base::FilePath GetStoragePartitionPath(
     const base::FilePath& base_path, const std::string& app_id) {
+#if defined(OS_WIN)
+  std::wstring application_id(app_id.begin(), app_id.end());
+  return base_path.Append(kApplicationDataDirName).Append(application_id);
+#else
   return base_path.Append(kApplicationDataDirName).Append(app_id);
+#endif
 }
 
 void CollectUnusedStoragePartitions(RuntimeContext* context,

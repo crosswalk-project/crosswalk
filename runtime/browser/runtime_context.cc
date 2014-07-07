@@ -11,6 +11,7 @@
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/strings/utf_string_conversions.h"
 #include "components/visitedlink/browser/visitedlink_master.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
@@ -219,8 +220,8 @@ net::URLRequestContextGetter*
 #if defined(OS_ANDROID)
     return NULL;
 #else
-  PartitionPathContextGetterMap::iterator iter =
-      context_getters_.find(partition_path.value());
+  PartitionPathContextGetterMap::iterator iter = 
+    context_getters_.find(partition_path.value());
   if (iter != context_getters_.end())
     return iter->second.get();
 

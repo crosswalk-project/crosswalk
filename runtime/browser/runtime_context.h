@@ -109,7 +109,7 @@ class RuntimeContext
   scoped_ptr<visitedlink::VisitedLinkMaster> visitedlink_master_;
 #endif
 
-  typedef std::map<std::string, scoped_refptr<RuntimeURLRequestContextGetter> >
+  typedef std::map<base::FilePath::StringType, scoped_refptr<RuntimeURLRequestContextGetter> >
       PartitionPathContextGetterMap;
   PartitionPathContextGetterMap context_getters_;
 
