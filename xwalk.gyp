@@ -692,6 +692,8 @@
         {
           'dependencies': [
             # For internal testing.
+            'xwalk_core_internal_shell_apk',
+            'xwalk_core_internal_test_apk',
             'xwalk_core_shell_apk',
             'xwalk_core_test_apk',
             'xwalk_runtime_shell_apk',
