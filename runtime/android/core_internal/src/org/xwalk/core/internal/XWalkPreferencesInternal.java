@@ -57,9 +57,32 @@ public class XWalkPreferencesInternal {
      */
     public static final String ANIMATABLE_XWALK_VIEW = "animatable-xwalk-view";
 
+    /**
+     * The key string to enable/disable javascript.
+     */
+    static final String ENABLE_JAVASCRIPT = "enable-javascript";
+
+    /**
+     * The key string to allow/disallow javascript to open
+     * window automatically.
+     */
+    static final String JAVASCRIPT_CAN_OPEN_WINDOW =
+            "javascript-can-open-window";
+
+    /**
+     * The key string to allow/disallow having universal access
+     * from file origin.
+     */
+    static final String ALLOW_UNIVERSAL_ACCESS_FROM_FILE =
+            "allow-universal-access-from-file";
+
     static {
         sPrefMap.put(REMOTE_DEBUGGING, Boolean.FALSE);
         sPrefMap.put(ANIMATABLE_XWALK_VIEW, Boolean.FALSE);
+        sPrefMap.put(ENABLE_JAVASCRIPT, Boolean.TRUE);
+        sPrefMap.put(JAVASCRIPT_CAN_OPEN_WINDOW, Boolean.TRUE);
+        sPrefMap.put(
+                ALLOW_UNIVERSAL_ACCESS_FROM_FILE, Boolean.FALSE);
     }
 
     /**
