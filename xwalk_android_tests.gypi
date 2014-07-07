@@ -673,6 +673,7 @@
         'java_in_dir': 'test/android/core_internal/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/add_js_interface.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/index.html',
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
@@ -681,6 +682,7 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
           'files': [
+            'test/android/data/add_js_interface.html',
             'test/android/data/index.html',
           ],
         },
