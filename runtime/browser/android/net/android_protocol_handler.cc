@@ -17,8 +17,9 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/http/http_util.h"
-#include "net/url_request/protocol_intercept_job_factory.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_intercepting_job_factory.h"
+#include "net/url_request/url_request_interceptor.h"
 #include "url/gurl.h"
 #include "xwalk/runtime/browser/android/net/android_stream_reader_url_request_job.h"
 #include "xwalk/runtime/browser/android/net/input_stream_impl.h"
@@ -86,22 +87,22 @@ class AndroidStreamReaderURLRequestJobDelegateImpl
   virtual ~AndroidStreamReaderURLRequestJobDelegateImpl();
 };
 
-class AndroidProtocolHandlerBase
-    : public net::URLRequestJobFactory::ProtocolHandler {
+class AndroidRequestInterceptorBase : public net::URLRequestInterceptor {
  public:
-  virtual net::URLRequestJob* MaybeCreateJob(
+  virtual net::URLRequestJob* MaybeInterceptRequest(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const OVERRIDE;
 
-  virtual bool CanHandleRequest(const net::URLRequest* request) const = 0;
+  virtual bool ShouldHandleRequest(const net::URLRequest* request) const = 0;
 };
 
-class AssetFileProtocolHandler : public AndroidProtocolHandlerBase {
+class AssetFileRequestInterceptor : public AndroidRequestInterceptorBase {
  public:
-  AssetFileProtocolHandler();
+  AssetFileRequestInterceptor();
 
-  virtual ~AssetFileProtocolHandler() OVERRIDE;
-  virtual bool CanHandleRequest(const net::URLRequest* request) const OVERRIDE;
+  virtual ~AssetFileRequestInterceptor() OVERRIDE;
+  virtual bool ShouldHandleRequest(
+      const net::URLRequest* request) const OVERRIDE;
 
  private:
   // file:///android_asset/
@@ -111,17 +112,19 @@ class AssetFileProtocolHandler : public AndroidProtocolHandlerBase {
 };
 
 // Protocol handler for app:// scheme requests.
-class AppSchemeProtocolHandler : public AndroidProtocolHandlerBase {
+class AppSchemeRequestInterceptor : public AndroidRequestInterceptorBase {
  public:
-  AppSchemeProtocolHandler();
-  virtual bool CanHandleRequest(const net::URLRequest* request) const OVERRIDE;
+  AppSchemeRequestInterceptor();
+    virtual bool ShouldHandleRequest(
+      const net::URLRequest* request) const OVERRIDE;
 };
 
 // Protocol handler for content:// scheme requests.
-class ContentSchemeProtocolHandler : public AndroidProtocolHandlerBase {
+class ContentSchemeRequestInterceptor : public AndroidRequestInterceptorBase {
  public:
-  ContentSchemeProtocolHandler();
-  virtual bool CanHandleRequest(const net::URLRequest* request) const OVERRIDE;
+  ContentSchemeRequestInterceptor();
+  virtual bool ShouldHandleRequest(
+      const net::URLRequest* request) const OVERRIDE;
 };
 
 static ScopedJavaLocalRef<jobject> GetResourceContext(JNIEnv* env) {
@@ -226,12 +229,13 @@ bool AndroidStreamReaderURLRequestJobDelegateImpl::GetPackageName(
   return true;
 }
 
-// AndroidProtocolHandlerBase -------------------------------------------------
+// AndroidRequestInterceptorBase -------------------------------------------------
 
-net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
+net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
     net::URLRequest* request,
     net::NetworkDelegate* network_delegate) const {
-  if (!CanHandleRequest(request)) return NULL;
+  if (!ShouldHandleRequest(request))
+    return NULL;
 
   // For WebViewClassic compatibility this job can only accept URLs that can be
   // opened. URLs that cannot be opened should be resolved by the next handler.
@@ -243,7 +247,8 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
   // handler will ignore requests know to have previously failed to 1) prevent
   // an infinite loop, 2) ensure that the next handler in line gets the
   // opportunity to create a job for the request.
-  if (HasRequestPreviouslyFailed(request)) return NULL;
+  if (!ShouldHandleRequest(request))
+    return NULL;
 
   scoped_ptr<AndroidStreamReaderURLRequestJobDelegateImpl> reader_delegate(
       new AndroidStreamReaderURLRequestJobDelegateImpl());
@@ -259,21 +264,21 @@ net::URLRequestJob* AndroidProtocolHandlerBase::MaybeCreateJob(
       content_security_policy);
 }
 
-// AssetFileProtocolHandler ---------------------------------------------------
+// AssetFileRequestInterceptor ---------------------------------------------------
 
-AssetFileProtocolHandler::AssetFileProtocolHandler()
-    : asset_prefix_(std::string(content::kFileScheme) +
-                    std::string(content::kStandardSchemeSeparator) +
+AssetFileRequestInterceptor::AssetFileRequestInterceptor()
+    : asset_prefix_(std::string(url::kFileScheme) +
+                    std::string(url::kStandardSchemeSeparator) +
                     xwalk::kAndroidAssetPath),
-      resource_prefix_(std::string(content::kFileScheme) +
-                       std::string(content::kStandardSchemeSeparator) +
+      resource_prefix_(std::string(url::kFileScheme) +
+                       std::string(url::kStandardSchemeSeparator) +
                        xwalk::kAndroidResourcePath) {
 }
 
-AssetFileProtocolHandler::~AssetFileProtocolHandler() {
+AssetFileRequestInterceptor::~AssetFileRequestInterceptor() {
 }
 
-bool AssetFileProtocolHandler::CanHandleRequest(
+bool AssetFileRequestInterceptor::ShouldHandleRequest(
     const net::URLRequest* request) const {
   if (!request->url().SchemeIsFile())
     return false;
@@ -287,20 +292,20 @@ bool AssetFileProtocolHandler::CanHandleRequest(
   return true;
 }
 
-// ContentSchemeProtocolHandler
-ContentSchemeProtocolHandler::ContentSchemeProtocolHandler() {
+// ContentSchemeRequestInterceptor
+ContentSchemeRequestInterceptor::ContentSchemeRequestInterceptor() {
 }
 
-bool ContentSchemeProtocolHandler::CanHandleRequest(
+bool ContentSchemeRequestInterceptor::ShouldHandleRequest(
     const net::URLRequest* request) const {
   return request->url().SchemeIs(xwalk::kContentScheme);
 }
 
-// AppSchemeProtocolHandler
-AppSchemeProtocolHandler::AppSchemeProtocolHandler() {
+// AppSchemeRequestInterceptor
+AppSchemeRequestInterceptor::AppSchemeRequestInterceptor() {
 }
 
-bool AppSchemeProtocolHandler::CanHandleRequest(
+bool AppSchemeRequestInterceptor::ShouldHandleRequest(
     const net::URLRequest* request) const {
   return request->url().SchemeIs(xwalk::kAppScheme);
 }
@@ -314,23 +319,22 @@ bool RegisterAndroidProtocolHandler(JNIEnv* env) {
 }
 
 // static
-scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateContentSchemeProtocolHandler() {
-  return make_scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new ContentSchemeProtocolHandler());
+scoped_ptr<net::URLRequestInterceptor>
+CreateContentSchemeRequestInterceptor() {
+  return make_scoped_ptr<net::URLRequestInterceptor>(
+      new ContentSchemeRequestInterceptor());
 }
 
 // static
-scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateAssetFileProtocolHandler() {
-  return make_scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new AssetFileProtocolHandler());
+scoped_ptr<net::URLRequestInterceptor> CreateAssetFileRequestInterceptor() {
+  return scoped_ptr<net::URLRequestInterceptor>(
+      new AssetFileRequestInterceptor());
 }
+
 // static
-scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>
-CreateAppSchemeProtocolHandler() {
-  return make_scoped_ptr<net::URLRequestJobFactory::ProtocolHandler>(
-      new AppSchemeProtocolHandler());
+scoped_ptr<net::URLRequestInterceptor> CreateAppSchemeRequestInterceptor() {
+  return make_scoped_ptr<net::URLRequestInterceptor>(
+      new AppSchemeRequestInterceptor());
 }
 
 
