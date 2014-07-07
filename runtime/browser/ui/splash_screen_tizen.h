@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_H_
-#define XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_H_
+#ifndef XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_TIZEN_H_
+#define XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_TIZEN_H_
 
 #include "base/files/file_path.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -24,13 +24,13 @@ class Widget;
 
 namespace xwalk {
 
-class SplashScreen : public content::WebContentsObserver,
-                     public ui::ImplicitAnimationObserver {
+class SplashScreenTizen : public content::WebContentsObserver,
+                          public ui::ImplicitAnimationObserver {
  public:
-  SplashScreen(views::Widget* host,
-               const base::FilePath& file,
-               content::WebContents* web_contents);
-  ~SplashScreen();
+  SplashScreenTizen(views::Widget* host,
+                    const base::FilePath& file,
+                    content::WebContents* web_contents);
+  ~SplashScreenTizen();
 
   void Start();
   void Stop();
@@ -62,9 +62,9 @@ class SplashScreen : public content::WebContentsObserver,
 
   bool is_started;
 
-  DISALLOW_COPY_AND_ASSIGN(SplashScreen);
+  DISALLOW_COPY_AND_ASSIGN(SplashScreenTizen);
 };
 
 }  // namespace xwalk
 
-#endif  // XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_H_
+#endif  // XWALK_RUNTIME_BROWSER_UI_SPLASH_SCREEN_TIZEN_H_
