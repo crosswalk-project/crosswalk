@@ -729,16 +729,26 @@ def main(argv):
       options.name = ReplaceSpaceWithUnderscore(options.name)
     else:
       parser.error('The APK name is required! Please use "--name" option.')
-    if not ((options.app_url and
-             not options.app_root and
-             not options.app_local_path) or
-            (not options.app_url and
-             options.app_root and
-             options.app_local_path)):
-      parser.error('The entry is required. If the entry is a remote url, '
-                   'please use "--app-url" option; If the entry is local, '
-                   'please use "--app-root" and '
-                   '"--app-local-path" options together!')
+
+    # The checks here are really convoluted, but at the moment make_apk
+    # misbehaves any of the following conditions is true.
+    if options.app_url:
+      # 1) --app-url must be passed without either --app-local-path or
+      #    --app-root.
+      if options.app_root or options.app_local_path:
+        parser.error('You must pass either "--app-url" or "--app-local-path" '
+                     'with "--app-root", but not all.')
+    else:
+      # 2) --app-url is not passed but only one of --app-local-path and
+      #    --app-root is set.
+      if bool(options.app_root) != bool(options.app_local_path):
+        parser.error('You must specify both "--app-local-path" and '
+                     '"--app-root".')
+      # 3) None of --app-url, --app-local-path and --app-root are passed.
+      elif not options.app_root and not options.app_local_path:
+        parser.error('You must pass either "--app-url" or "--app-local-path" '
+                     'with "--app-root".')
+
     if options.permissions:
       permission_list = options.permissions.split(':')
     else:
