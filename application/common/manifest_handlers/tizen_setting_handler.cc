@@ -35,6 +35,10 @@ bool TizenSettingHandler::Parse(scoped_refptr<ApplicationData> application,
   manifest->GetString(keys::kTizenHardwareKey, &hwkey);
   app_info->set_hwkey_enabled(hwkey != "disable");
 
+  std::string encryption;
+  manifest->GetString(keys::kTizenEncryptionKey, &encryption);
+  app_info->set_encryption_enabled(encryption == "enable");
+
   application->SetManifestData(keys::kTizenSettingKey,
                                app_info.release());
   return true;
@@ -51,6 +55,14 @@ bool TizenSettingHandler::Validate(
   if (!hwkey.empty() && hwkey != "enable" && hwkey != "disable") {
     *error = std::string("The hwkey value must be 'enable'/'disable',"
                          " or not specified in configuration file.");
+    return false;
+  }
+  std::string encryption;
+  manifest->GetString(keys::kTizenEncryptionKey, &encryption);
+  if (!encryption.empty() && encryption != "enable" &&
+      encryption != "disable") {
+    *error = std::string("The encryption value must be 'enable'/'disable', "
+                         "or not specified in configuration file.");
     return false;
   }
   return true;
