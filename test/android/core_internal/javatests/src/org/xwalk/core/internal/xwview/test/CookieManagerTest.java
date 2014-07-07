@@ -1,11 +1,10 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
-import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
 import org.chromium.base.test.util.Feature;
 import android.test.MoreAsserts;
@@ -23,15 +22,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.xwalk.core.XWalkView;
 import org.xwalk.core.internal.XWalkCookieManager;
-import org.xwalk.core.internal.XWalkClient;
 
 /**
  * Tests for the CookieManager.
  */
-public class CookieManagerTest extends XWalkViewTestBase {
-
+public class CookieManagerTest extends XWalkViewInternalTestBase {
     private XWalkCookieManager mCookieManager = null;
 
     @Override
