@@ -114,6 +114,7 @@ const char kCSPReportOnlyKey[] =
     "widget.content-security-policy-report-only.#text";
 const char kTizenSettingKey[] = "widget.setting";
 const char kTizenHardwareKey[] = "widget.setting.@hwkey-event";
+const char kTizenEncryptionKey[] = "widget.setting.@encryption";
 const char kTizenMetaDataKey[] = "widget.metadata";
 // Child keys inside 'kTizenMetaDataKey'
 const char kTizenMetaDataNameKey[] = "@key";

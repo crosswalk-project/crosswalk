@@ -45,6 +45,9 @@ bool TizenSettingHandler::Parse(scoped_refptr<ApplicationData> application,
     app_info->set_screen_orientation(TizenSettingInfo::LANDSCAPE);
   else
     app_info->set_screen_orientation(TizenSettingInfo::AUTO);
+  std::string encryption;
+  manifest->GetString(keys::kTizenEncryptionKey, &encryption);
+  app_info->set_encryption_enabled(encryption == "enable");
 
   application->SetManifestData(keys::kTizenSettingKey,
                                app_info.release());
@@ -72,6 +75,14 @@ bool TizenSettingHandler::Validate(
       base::strcasecmp("auto-rotation", screen_orientation.c_str()) != 0) {
     *error = std::string("The screen-orientation must be 'portrait'/"
                          "'landscape'/'auto-rotation' or not specified.");
+    return false;
+  }
+  std::string encryption;
+  manifest->GetString(keys::kTizenEncryptionKey, &encryption);
+  if (!encryption.empty() && encryption != "enable" &&
+      encryption != "disable") {
+    *error = std::string("The encryption value must be 'enable'/'disable', "
+                         "or not specified in configuration file.");
     return false;
   }
   return true;

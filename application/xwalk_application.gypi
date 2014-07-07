@@ -19,6 +19,8 @@
       'sources': [
         'browser/application.cc',
         'browser/application.h',
+        'browser/application_encrypted_file_job_tizen.cc',
+        'browser/application_encrypted_file_job_tizen.h',
         'browser/application_protocols.cc',
         'browser/application_protocols.h',
         'browser/application_service.cc',

@@ -22,9 +22,11 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/encryption_tizen.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
@@ -434,6 +436,26 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   } else {
     if (!base::Move(unpacked_dir, app_dir))
       return false;
+  }
+
+  xwalk::application::TizenSettingInfo* info = static_cast<xwalk::application::TizenSettingInfo*>(
+      app_data->GetManifestData(widget_keys::kTizenSettingKey));
+  if (info && info->encryption_enabled()) {
+    // Encrypt the resources if needed.
+    base::FileEnumerator iter(app_dir, true, base::FileEnumerator::FILES);
+    for (base::FilePath file_path = iter.Next();
+         !file_path.empty();
+         file_path = iter.Next()) {
+      if (xwalk::application::RequiresEncryption(file_path) && base::PathIsWritable(file_path)) {
+        std::string content;
+        std::string encrypted;
+        if (!base::ReadFileToString(file_path, &content))
+          LOG(ERROR) << "Failed to read " << file_path.MaybeAsASCII();
+        if (!xwalk::application::EncryptData(content.data(), content.size(), &encrypted) ||
+            !base::WriteFile(file_path, encrypted.data(), encrypted.size()))
+          LOG(ERROR) << "Failed to encrypt " << file_path.MaybeAsASCII();
+      }
+    }
   }
 
   app_data->set_path(app_dir);
