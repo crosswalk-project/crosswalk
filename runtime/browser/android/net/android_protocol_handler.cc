@@ -247,7 +247,7 @@ net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
   // handler will ignore requests know to have previously failed to 1) prevent
   // an infinite loop, 2) ensure that the next handler in line gets the
   // opportunity to create a job for the request.
-  if (!ShouldHandleRequest(request))
+  if (HasRequestPreviouslyFailed(request))
     return NULL;
 
   scoped_ptr<AndroidStreamReaderURLRequestJobDelegateImpl> reader_delegate(
