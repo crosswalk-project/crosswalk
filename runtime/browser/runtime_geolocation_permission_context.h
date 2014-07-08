@@ -10,6 +10,10 @@
 
 class GURL;
 
+namespace content {
+  class WebContents;
+}
+
 namespace xwalk {
 
 class RuntimeContext;
@@ -19,17 +23,10 @@ class RuntimeGeolocationPermissionContext
  public:
   // content::GeolocationPermissionContext implementation.
   virtual void RequestGeolocationPermission(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      bool user_gesture,
-      base::Callback<void(bool)> callback);
-  virtual void CancelGeolocationPermissionRequest(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame);
+    content::WebContents* web_contents,
+    const GURL& requesting_frame,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback);
 
  protected:
   virtual ~RuntimeGeolocationPermissionContext();
@@ -37,17 +34,10 @@ class RuntimeGeolocationPermissionContext
 
  private:
   void RequestGeolocationPermissionOnUIThread(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame,
-      const base::Callback<void(bool)> callback);
-
-  void CancelGeolocationPermissionRequestOnUIThread(
-      int render_process_id,
-      int render_view_id,
-      int bridge_id,
-      const GURL& requesting_frame);
+    content::WebContents* web_contents,
+    const GURL& requesting_frame,
+    base::Callback<void(bool)> result_callback,
+    base::Closure* cancel_callback);
 };
 
 }  // namespace xwalk

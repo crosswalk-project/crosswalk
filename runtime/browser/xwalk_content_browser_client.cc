@@ -303,11 +303,13 @@ void XWalkContentBrowserClient::RequestGeolocationPermission(
 #if defined(OS_ANDROID) || defined(OS_TIZEN)
   if (!geolocation_permission_context_) {
     geolocation_permission_context_ =
-        RuntimeGeolocationPermissionContext::Create(this);
+      new RuntimeGeolocationPermissionContext();
   }
   geolocation_permission_context_->RequestGeolocationPermission(
-    web_contents, bridge_id, requesting_frame, user_gesture,
-    result_callback, cancel_callback);
+    web_contents,
+    requesting_frame,
+    result_callback,
+    cancel_callback);
 #else
   result_callback.Run(false);
 #endif
