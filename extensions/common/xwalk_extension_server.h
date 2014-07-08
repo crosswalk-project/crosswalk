@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "base/memory/shared_memory.h"
 #include "base/memory/weak_ptr.h"
 #include "base/synchronization/lock.h"
 #include "base/values.h"
@@ -51,6 +52,7 @@ class XWalkExtensionServer : public IPC::Listener,
 
   // IPC::Listener Implementation.
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void OnChannelConnected(int32 peer_pid) OVERRIDE;
 
   // Different types of ExtensionServers are initialized with different
   // permission delegates: For out-of-process extensions the extension
@@ -113,6 +115,8 @@ class XWalkExtensionServer : public IPC::Listener,
   // The exported symbols for extensions already registered.
   typedef std::set<std::string> ExtensionSymbolsSet;
   ExtensionSymbolsSet extension_symbols_;
+
+  base::ProcessHandle renderer_process_handle_;
 
   XWalkExtension::PermissionsDelegate* permissions_delegate_;
 };
