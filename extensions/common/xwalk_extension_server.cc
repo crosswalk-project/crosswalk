@@ -7,10 +7,12 @@
 #include "base/file_util.h"
 #include "base/files/file_enumerator.h"
 #include "base/files/file_path.h"
+#include "base/memory/shared_memory.h"
 #include "base/strings/string16.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/stl_util.h"
 #include "content/public/browser/render_process_host.h"
+#include "ipc/ipc_message.h"
 #include "ipc/ipc_sender.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_external_extension.h"
@@ -18,8 +20,12 @@
 namespace xwalk {
 namespace extensions {
 
+// Threshold to determine using shared memory or message
+const size_t kInlineMessageMaxSize = 256 * 1024;
+
 XWalkExtensionServer::XWalkExtensionServer()
     : sender_(NULL),
+      renderer_process_handle_(base::kNullProcessHandle),
       permissions_delegate_(NULL) {}
 
 XWalkExtensionServer::~XWalkExtensionServer() {
@@ -45,6 +51,10 @@ bool XWalkExtensionServer::OnMessageReceived(const IPC::Message& message) {
   IPC_END_MESSAGE_MAP()
 
   return handled;
+}
+
+void XWalkExtensionServer::OnChannelConnected(int32 peer_pid) {
+  CHECK(base::OpenProcessHandle(peer_pid, &renderer_process_handle_));
 }
 
 void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
@@ -185,7 +195,31 @@ void XWalkExtensionServer::PostMessageToJSCallback(
     int64_t instance_id, scoped_ptr<base::Value> msg) {
   base::ListValue wrapped_msg;
   wrapped_msg.Append(msg.release());
-  Send(new XWalkExtensionClientMsg_PostMessageToJS(instance_id, wrapped_msg));
+
+  scoped_ptr<IPC::Message> message(
+      new XWalkExtensionClientMsg_PostMessageToJS(instance_id, wrapped_msg));
+  if (message->size() <= kInlineMessageMaxSize) {
+    Send(message.release());
+    return;
+  }
+
+  base::SharedMemoryCreateOptions options;
+  options.size = message->size();
+  options.share_read_only = true;
+
+  base::SharedMemory shared_memory;
+  if (!shared_memory.Create(options) || !shared_memory.Map(message->size())) {
+    LOG(WARNING) << "Can't create shared memory to send out of line message";
+    return;
+  }
+
+  memcpy(shared_memory.memory(), message->data(), message->size());
+
+  base::SharedMemoryHandle handle;
+  shared_memory.GiveReadOnlyToProcess(renderer_process_handle_, &handle);
+
+  Send(new XWalkExtensionClientMsg_PostOutOfLineMessageToJS(handle,
+                                                            message->size()));
 }
 
 void XWalkExtensionServer::SendSyncReplyToJSCallback(
