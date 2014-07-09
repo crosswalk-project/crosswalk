@@ -10,6 +10,7 @@
 #include "dbus/message.h"
 
 #include "xwalk/application/browser/linux/running_application_object.h"
+#include "xwalk/application/common/application_data.h"
 
 namespace {
 
@@ -86,12 +87,12 @@ void RunningApplicationsManager::OnLaunch(
     dbus::ExportedObject::ResponseSender response_sender) {
 
   dbus::MessageReader reader(method_call);
-  std::string app_id;
+  std::string app_id_or_url;
   // We might want to pass key-value pairs if have more parameters in future.
   unsigned int launcher_pid;
   bool fullscreen;
 
-  if (!reader.PopString(&app_id) ||
+  if (!reader.PopString(&app_id_or_url) ||
       !reader.PopUint32(&launcher_pid) ||
       !reader.PopBool(&fullscreen)) {
     scoped_ptr<dbus::Response> response =
@@ -105,19 +106,38 @@ void RunningApplicationsManager::OnLaunch(
   params.launcher_pid = launcher_pid;
   params.force_fullscreen = fullscreen;
 
-  Application* application = application_service_->Launch(app_id, params);
+  Application* application;
+  if (GURL(app_id_or_url).spec().empty()) {
+    application = application_service_->Launch(app_id_or_url, params);
+  } else {
+    params.entry_points = Application::URLKey;
+    std::string error;
+    scoped_refptr<ApplicationData> application_data =
+        ApplicationData::Create(GURL(app_id_or_url), &error);
+    if (!application_data) {
+      scoped_ptr<dbus::Response> response = CreateError(method_call, error);
+      response_sender.Run(response.Pass());
+      return;
+    }
+
+    application = application_service_->Launch(application_data, params);
+  }
+
   if (!application) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
-                    "Error launching application with id " + app_id);
+                    "Error launching application with id or url"
+                    + app_id_or_url);
     response_sender.Run(response.Pass());
     return;
   }
-  CHECK(app_id == application->id());
+  if (GURL(app_id_or_url).spec().empty()) {
+    CHECK(app_id_or_url == application->id());
+  }
   // FIXME(cmarcelo): ApplicationService will tell us when new applications
   // appear (with DidLaunchApplication()) and we create new managed objects
   // in D-Bus based on that.
-  dbus::ObjectPath path = AddObject(app_id, method_call->GetSender(),
+  dbus::ObjectPath path = AddObject(application->id(), method_call->GetSender(),
                                     application);
 
   scoped_ptr<dbus::Response> response =

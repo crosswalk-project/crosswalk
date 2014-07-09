@@ -65,6 +65,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
       const std::string& explicit_id,
       std::string* error_message);
 
+  static scoped_refptr<ApplicationData> Create(const GURL& url,
+                                               std::string* error_message);
+
   // Checks to see if the application has a valid ID.
   static bool IsIDValid(const std::string& id);
 
