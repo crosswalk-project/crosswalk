@@ -38,7 +38,7 @@
         '../content/content.gyp:content_java',
         '../ui/android/ui_android.gyp:ui_java',
         'xwalk_core_extensions_java',
-        'xwalk_core_strings',
+        'xwalk_core_internal_strings',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/core_internal',
@@ -49,7 +49,7 @@
       'includes': ['../build/java.gypi'],
     },
     {
-      'target_name': 'xwalk_core_strings',
+      'target_name': 'xwalk_core_internal_strings',
       'type': 'none',
       'variables': {
           'grd_file': '../xwalk/runtime/android/core_internal/strings/android_xwalk_strings.grd',
