@@ -41,15 +41,15 @@ static int g_argc;
 static char** g_argv;
 static gboolean query_running = FALSE;
 static gboolean fullscreen = FALSE;
-static gchar** cmd_appid;
+static gchar** cmd_appid_or_url;
 
 static GOptionEntry entries[] = {
   { "running", 'r', 0, G_OPTION_ARG_NONE, &query_running,
     "Check whether the application is running", NULL },
   { "fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen,
     "Run the application as fullscreen", NULL },
-  { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &cmd_appid,
-    "ID of the application to be launched", NULL },
+  { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &cmd_appid_or_url,
+    "ID of the application to be launched or URL to open", NULL },
   { NULL }
 };
 
@@ -170,7 +170,7 @@ static void query_application_running(const char* app_id) {
   g_list_free_full(objects, g_object_unref);
 }
 
-static void launch_application(const char* appid,
+static void launch_application(const char* appid_or_url,
                                gboolean fullscreen) {
   ep_launcher = new XWalkExtensionProcessLauncher();
   GError* error = NULL;
@@ -191,7 +191,7 @@ static void launch_application(const char* appid,
   unsigned int launcher_pid = getpid();
 
   GVariant* result  = g_dbus_proxy_call_sync(running_proxy, "Launch",
-      g_variant_new("(sub)", appid, launcher_pid, fullscreen),
+      g_variant_new("(sub)", appid_or_url, launcher_pid, fullscreen),
       G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
   if (!result) {
     fprintf(stderr, "Couldn't call 'Launch' method: %s\n", error->message);
@@ -221,7 +221,7 @@ static void launch_application(const char* appid,
 
 #if defined(OS_TIZEN)
   char name[128];
-  snprintf(name, sizeof(name), "xwalk-%s", appid);
+  snprintf(name, sizeof(name), "xwalk-%s", appid_or_url);
 
   if (xwalk_appcore_init(g_argc, g_argv, name)) {
     fprintf(stderr, "Failed to initialize appcore");
@@ -256,7 +256,7 @@ void connect_to_application_manager() {
 
 int main(int argc, char** argv) {
   GError* error = NULL;
-  char* appid;
+  char* appid_or_url;
 
   g_argc = argc;
   g_argv = argv;
@@ -283,32 +283,33 @@ int main(int argc, char** argv) {
 
   // Query app.
   if (query_running) {
-    query_application_running(cmd_appid[0]);
+    query_application_running(cmd_appid_or_url[0]);
     return 0;
   }
 
   // Launch app.
   if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
-    if (cmd_appid == NULL) {
+    if (cmd_appid_or_url == NULL) {
       fprintf(stderr, "No AppID informed, nothing to do.\n");
       return 0;
     }
-    appid = strdup(cmd_appid[0]);
+    appid_or_url = strdup(cmd_appid_or_url[0]);
 #if defined(OS_TIZEN)
-    if (xwalk_change_cmdline(argc, argv, appid))
+    if (GURL(appid_or_url).spec().empty()
+       && xwalk_change_cmdline(argc, argv, appid_or_url))
       exit(1);
 #endif
   } else {
-    appid = strdup(basename(argv[0]));
+    appid_or_url = strdup(basename(argv[0]));
   }
 
 #if defined(OS_TIZEN)
     std::string crosswalk_app_id =
-        xwalk::application::RawAppIdToCrosswalkAppId(appid);
-    appid = strdup(crosswalk_app_id.c_str());
+        xwalk::application::RawAppIdToCrosswalkAppId(appid_or_url);
+    appid_or_url = strdup(crosswalk_app_id.c_str());
 #endif
 
-  launch_application(appid, fullscreen);
-  free(appid);
+  launch_application(appid_or_url, fullscreen);
+  free(appid_or_url);
   return 0;
 }

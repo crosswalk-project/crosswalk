@@ -76,6 +76,26 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
 }
 
 // static
+scoped_refptr<ApplicationData> ApplicationData::Create(
+    const GURL& url,
+    std::string* error_message) {
+  const std::string& url_spec = url.spec();
+  DCHECK(!url_spec.empty());
+  const std::string& app_id = GenerateId(url_spec);
+
+  base::DictionaryValue manifest;
+  // FIXME: define permissions!
+  manifest.SetString(application_manifest_keys::kURLKey, url_spec);
+  manifest.SetString(application_manifest_keys::kNameKey, url_spec);
+  manifest.SetString(application_manifest_keys::kVersionKey, "0");
+  scoped_refptr<ApplicationData> application_data =
+      ApplicationData::Create(base::FilePath(), Manifest::COMMAND_LINE,
+                              manifest, app_id, error_message);
+
+  return application_data;
+}
+
+// static
 bool ApplicationData::IsIDValid(const std::string& id) {
   std::string temp = StringToLowerASCII(id);
 

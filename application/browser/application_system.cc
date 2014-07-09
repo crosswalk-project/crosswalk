@@ -63,24 +63,9 @@ bool ApplicationSystem::LaunchWithCommandLineParam(
 template <>
 bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
     const GURL& url, const base::CommandLine& cmd_line) {
-  namespace keys = xwalk::application_manifest_keys;
-
-  const std::string& url_spec = url.spec();
-  DCHECK(!url_spec.empty());
-  const std::string& app_id = GenerateId(url_spec);
-  // FIXME: we need to handle hash collisions.
-  DCHECK(!application_storage_->GetApplicationData(app_id));
-
-  base::DictionaryValue manifest;
-  // FIXME: define permissions!
-  manifest.SetString(keys::kURLKey, url_spec);
-  manifest.SetString(keys::kNameKey,
-      "Crosswalk Hosted App [Restricted Permissions]");
-  manifest.SetString(keys::kVersionKey, "0");
-  manifest.SetInteger(keys::kManifestVersionKey, 1);
   std::string error;
-  scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
-            base::FilePath(), Manifest::COMMAND_LINE, manifest, app_id, &error);
+  scoped_refptr<ApplicationData> application_data =
+      ApplicationData::Create(url, &error);
   if (!application_data) {
     LOG(ERROR) << "Error occurred while trying to launch application: "
                << error;

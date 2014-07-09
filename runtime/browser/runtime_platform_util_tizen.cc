@@ -25,7 +25,7 @@ void OpenExternal(const GURL& url) {
     if (base::PathExists(base::FilePath(kWebBrowserPath)))
       argv.push_back(kWebBrowserPath);
     else
-      argv.push_back("xwalk");
+      argv.push_back("xwalk-launcher");
     argv.push_back(url.spec());
     base::ProcessHandle handle;
 
