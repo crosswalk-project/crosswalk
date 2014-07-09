@@ -27,6 +27,7 @@ import java.io.StringWriter;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
+import org.chromium.base.ApplicationStatus.ActivityStateListener;
 
 import org.xwalk.core.internal.extension.XWalkExtensionManager;
 import org.xwalk.core.internal.extension.XWalkPathHelper;
@@ -55,13 +56,15 @@ import org.xwalk.core.internal.extension.XWalkPathHelper;
  * {@link XWalkUIClientInternal} for listening to the events related to resource loading and UI.
  * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
- * <p>Unlike other Android views, this class has to listen to system events like application life
- * cycle, intents, and activity result. The web engine inside this view need to get and handle
- * them. And the onDestroy() method of XWalkViewInternal MUST be called explicitly when an XWalkViewInternal
- * won't be used anymore, otherwise it will cause the memory leak from the native side of the web
- * engine. It's similar to the 
- * <a href="http://developer.android.com/reference/android/webkit/WebView.html#destroy()">
- * destroy()</a> method of Android WebView. For example:</p>
+ * <p>Unlike other Android views, this class has to listen to system events like intents and activity result.
+ * The web engine inside this view need to get and handle them.
+ * With contianer activity's lifecycle change, XWalkViewInternal will pause all timers and other
+ * components like videos when activity paused, resume back them when activity resumed.
+ * When activity is about to destroy, XWalkViewInternal will destroy itself as well.
+ * Embedders can also call onHide() and pauseTimers() to explicitly pause XWalkViewInternal.
+ * Similarily with onShow(), resumeTimers() and onDestroy().
+ *
+ * For example:</p>
  *
  * <pre>
  *   import android.app.Activity;
@@ -108,32 +111,6 @@ import org.xwalk.core.internal.extension.XWalkPathHelper;
  *       }
  *
  *       &#64;Override
- *       protected void onPause() {
- *           super.onPause();
- *           if (mXwalkView != null) {
- *               mXwalkView.pauseTimers();
- *               mXwalkView.onHide();
- *           }
- *       }
- *
- *       &#64;Override
- *       protected void onResume() {
- *           super.onResume();
- *           if (mXwalkView != null) {
- *               mXwalkView.resumeTimers();
- *               mXwalkView.onShow();
- *           }
- *       }
- *
- *       &#64;Override
- *       protected void onDestroy() {
- *           super.onDestroy();
- *           if (mXwalkView != null) {
- *               mXwalkView.onDestroy();
- *           }
- *       }
- *
- *       &#64;Override
  *       protected void onActivityResult(int requestCode, int resultCode, Intent data) {
  *           if (mXwalkView != null) {
  *               mXwalkView.onActivityResult(requestCode, resultCode, data);
@@ -149,7 +126,8 @@ import org.xwalk.core.internal.extension.XWalkPathHelper;
  *   }
  * </pre>
  */
-public class XWalkViewInternal extends android.widget.FrameLayout {
+public class XWalkViewInternal extends android.widget.FrameLayout
+        implements ActivityStateListener {
 
     static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
 
@@ -235,6 +213,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         // Intialize library, paks and others.
         try {
             XWalkViewDelegate.init(this);
+            ApplicationStatus.registerStateListenerForActivity(this, getActivity());
         } catch (Throwable e) {
             // Try to find if there is UnsatisfiedLinkError in the cause chain of the met Throwable.
             Throwable linkError = e;
@@ -521,9 +500,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
      * Pause all layout, parsing and JavaScript timers for all XWalkViewInternal instances.
-     * Typically it should be called when the activity for this view is paused,
-     * and accordingly {@link #resumeTimers} should be called when the activity
-     * is resumed again.
+     * It will be called when the container Activity get paused. It can also be explicitly
+     * called to pause timers.
      *
      * Note that it will globally impact all XWalkViewInternal instances, not limited to
      * just this XWalkViewInternal.
@@ -538,7 +516,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
      * Resume all layout, parsing and JavaScript timers for all XWalkViewInternal instances.
-     * Typically it should be called when the activity for this view is resumed.
+     * It will be called when the container Activity get resumed. It can also be explicitly
+     * called to resume timers.
      *
      * Note that it will globally impact all XWalkViewInternal instances, not limited to
      * just this XWalkViewInternal.
@@ -555,7 +534,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * Pause many other things except JavaScript timers inside rendering engine,
      * like video player, modal dialogs, etc. See {@link #pauseTimers} about pausing
      * JavaScript timers.
-     * Typically it should be called when the activity for this view is paused.
+     * It will be called when the container Activity get paused. It can also be explicitly
+     * called to pause above things.
      * @since 1.0
      */
     public void onHide() {
@@ -569,6 +549,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * Resume video player, modal dialogs. Embedders are in charge of calling
      * this during resuming this activity if they call onHide.
      * Typically it should be called when the activity for this view is resumed.
+     * It will be called when the container Activity get resumed. It can also be explicitly
+     * called to resume above things.
      * @since 1.0
      */
     public void onShow() {
@@ -580,6 +562,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     /**
      * Release internal resources occupied by this XWalkViewInternal.
+     * It will be called when the container Activity get destroyed. It can also be explicitly
+     * called to release resources.
      * @since 1.0
      */
     public void onDestroy() {
@@ -868,5 +852,28 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    /**
+     * @hide
+     */
+    @Override
+    public void onActivityStateChange(Activity activity, int newState) {
+        assert(getActivity() == activity);
+        switch (newState) {
+            case ActivityState.PAUSED:
+                pauseTimers();
+                onHide();
+                break;
+            case ActivityState.RESUMED:
+                onShow();
+                resumeTimers();
+                break;
+            case ActivityState.DESTROYED:
+                onDestroy();
+                break;
+            default:
+                break;
+        }
     }
 }

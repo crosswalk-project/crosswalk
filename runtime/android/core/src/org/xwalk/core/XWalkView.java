@@ -41,13 +41,15 @@ import org.xwalk.core.internal.XWalkViewInternal;
  * {@link XWalkUIClient} for listening to the events related to resource loading and UI.
  * By default, Crosswalk has a default implementation. Callers can override them if needed.</p>
  *
- * <p>Unlike other Android views, this class has to listen to system events like application life
- * cycle, intents, and activity result. The web engine inside this view need to get and handle
- * them. And the onDestroy() method of XWalkView MUST be called explicitly when an XWalkView
- * won't be used anymore, otherwise it will cause the memory leak from the native side of the web
- * engine. It's similar to the 
- * <a href="http://developer.android.com/reference/android/webkit/WebView.html#destroy()">
- * destroy()</a> method of Android WebView. For example:</p>
+ * <p>Unlike other Android views, this class has to listen to system events like intents and activity result.
+ * The web engine inside this view need to get and handle them.
+ * With contianer activity's lifecycle change, XWalkView will pause all timers and other
+ * components like videos when activity paused, resume back them when activity resumed.
+ * When activity is about to destroy, XWalkView will destroy itself as well.
+ * Embedders can also call onHide() and pauseTimers() to explicitly pause XWalkView.
+ * Similarily with onShow(), resumeTimers() and onDestroy().
+ *
+ * For example:</p>
  *
  * <pre>
  *   import android.app.Activity;
@@ -317,9 +319,8 @@ public class XWalkView extends XWalkViewInternal {
 
     /**
      * Pause all layout, parsing and JavaScript timers for all XWalkView instances.
-     * Typically it should be called when the activity for this view is paused,
-     * and accordingly {@link #resumeTimers} should be called when the activity
-     * is resumed again.
+     * It will be called when the container Activity get paused. It can also be explicitly
+     * called to pause timers.
      *
      * Note that it will globally impact all XWalkView instances, not limited to
      * just this XWalkView.
@@ -332,7 +333,8 @@ public class XWalkView extends XWalkViewInternal {
 
     /**
      * Resume all layout, parsing and JavaScript timers for all XWalkView instances.
-     * Typically it should be called when the activity for this view is resumed.
+     * It will be called when the container Activity get resumed. It can also be explicitly
+     * called to resume timers.
      *
      * Note that it will globally impact all XWalkView instances, not limited to
      * just this XWalkView.
@@ -347,7 +349,8 @@ public class XWalkView extends XWalkViewInternal {
      * Pause many other things except JavaScript timers inside rendering engine,
      * like video player, modal dialogs, etc. See {@link #pauseTimers} about pausing
      * JavaScript timers.
-     * Typically it should be called when the activity for this view is paused.
+     * It will be called when the container Activity get paused. It can also be explicitly
+     * called to pause above things.
      * @since 1.0
      */
     public void onHide() {
@@ -357,7 +360,8 @@ public class XWalkView extends XWalkViewInternal {
     /**
      * Resume video player, modal dialogs. Embedders are in charge of calling
      * this during resuming this activity if they call onHide.
-     * Typically it should be called when the activity for this view is resumed.
+     * It will be called when the container Activity get resumed. It can also be explicitly
+     * called to resume above things.
      * @since 1.0
      */
     public void onShow() {
@@ -366,6 +370,8 @@ public class XWalkView extends XWalkViewInternal {
 
     /**
      * Release internal resources occupied by this XWalkView.
+     * It will be called when the container Activity get destroyed. It can also be explicitly
+     * called to release resources.
      * @since 1.0
      */
     public void onDestroy() {

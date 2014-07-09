@@ -170,23 +170,10 @@ public class XWalkViewShellActivity extends FragmentActivity
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        mSectionsPagerAdapter.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mSectionsPagerAdapter.onResume();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
         unregisterTracingReceiver();
-        mSectionsPagerAdapter.onDestroy();
     }
 
     @Override
