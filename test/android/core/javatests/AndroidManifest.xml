@@ -10,8 +10,6 @@
 
     <application>
         <uses-library android:name="android.test.runner" />
-        <provider android:name="TestContentProvider"
-            android:authorities="org.xwalk.core.xwview.test.TestContentProvider" />
     </application>
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
