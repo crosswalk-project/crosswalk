@@ -303,15 +303,25 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentsClientBridge.onStopLoading();
     }
 
+    // Currently, timer pause/resume is actually
+    // a global setting. And multiple pause will fail the
+    // DCHECK in content (content_view_statics.cc:57).
+    // Here uses a static boolean to avoid this issue.
+    private static boolean timerPaused = false;
+
     // TODO(Guangzhen): ContentViewStatics will be removed in upstream,
     // details in content_view_statics.cc.
     // We need follow up after upstream updates that.
     public void pauseTimers() {
+        if (timerPaused) return;
         ContentViewStatics.setWebKitSharedTimersSuspended(true);
+        timerPaused = true;
     }
 
     public void resumeTimers() {
+        if (!timerPaused) return;
         ContentViewStatics.setWebKitSharedTimersSuspended(false);
+        timerPaused = false;
     }
 
     public String getOriginalUrl() {
