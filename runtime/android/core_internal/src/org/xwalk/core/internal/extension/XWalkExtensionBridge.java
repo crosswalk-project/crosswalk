@@ -38,7 +38,7 @@ interface XWalkExtensionBridge {
      * @param instanceId The extension instance id.
      * @param message The message content received on native side.
      */
-    public void handleMessage(int instanceId, String message);
+    public void onMessage(int instanceId, String message);
 
     /**
      * Handle the message from JavaScript side to native side in a synchronous way.
@@ -51,7 +51,7 @@ interface XWalkExtensionBridge {
      *
      * @return The result to be posted to JavaScript side
      */
-    public String handleSyncMessage(int instanceId, String message);
+    public String onSyncMessage(int instanceId, String message);
 
     /**
      * Called when the extension is required to be resumed.
