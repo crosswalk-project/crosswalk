@@ -111,6 +111,9 @@
         'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/add_js_interface.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echo.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echoSync.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/framesEcho.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/geolocation.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/navigator.online.html',
@@ -124,6 +127,9 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': [
             'test/android/data/add_js_interface.html',
+            'test/android/data/echo.html',
+            'test/android/data/echoSync.html',
+            'test/android/data/framesEcho.html',
             'test/android/data/geolocation.html',
             'test/android/data/index.html',
             'test/android/data/navigator.online.html',
@@ -547,6 +553,7 @@
         'resource_dir': 'runtime/android/sample/res',
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/sample/assets/echo.html',
           '<(PRODUCT_DIR)/sample/assets/index.html',
           '<(PRODUCT_DIR)/sample/assets/manifest.json',
           '<(PRODUCT_DIR)/sample/assets/pause_timers.html',
@@ -568,6 +575,7 @@
             'runtime/android/sample/assets/index.html',
             'runtime/android/sample/assets/manifest.json',
             'runtime/android/sample/assets/pause_timers.html',
+            'test/android/data/echo.html',
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [

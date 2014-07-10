@@ -12,6 +12,7 @@
       'type': 'none',
       'variables': {
         'api_files': [
+          '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkExtension.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkJavascriptResult.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationHistory.java',
           '<(DEPTH)/xwalk/runtime/android/core/src/org/xwalk/core/XWalkNavigationItem.java',
