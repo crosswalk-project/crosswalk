@@ -134,7 +134,7 @@ static void on_app_signal(GDBusProxy* proxy,
   }
 }
 
-static void query_application_running(const char* app_id) {
+static int query_application_running(const char* app_id) {
   GList* objects = g_dbus_object_manager_get_objects(g_running_apps_manager);
   GList* it;
   bool is_running = FALSE;
@@ -168,6 +168,7 @@ static void query_application_running(const char* app_id) {
   g_print("Application %s is %s.\n", app_id, str);
 
   g_list_free_full(objects, g_object_unref);
+  return is_running ? 0 : 1;
 }
 
 static void launch_application(const char* appid_or_url,
@@ -281,12 +282,6 @@ int main(int argc, char** argv) {
 
   connect_to_application_manager();
 
-  // Query app.
-  if (query_running) {
-    query_application_running(cmd_appid_or_url[0]);
-    return 0;
-  }
-
   // Launch app.
   if (!strcmp(basename(argv[0]), "xwalk-launcher")) {
     if (cmd_appid_or_url == NULL) {
@@ -308,6 +303,11 @@ int main(int argc, char** argv) {
         xwalk::application::RawAppIdToCrosswalkAppId(appid_or_url);
     appid_or_url = strdup(crosswalk_app_id.c_str());
 #endif
+
+  // Query app.
+  if (query_running) {
+    return query_application_running(appid_or_url);
+  }
 
   launch_application(appid_or_url, fullscreen);
   free(appid_or_url);
