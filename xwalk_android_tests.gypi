@@ -665,7 +665,7 @@
         'java_in_dir': 'test/android/core_internal/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/broadcast.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/broadcast.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echo.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echoSync.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/framesEcho.html',
