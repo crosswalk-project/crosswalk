@@ -311,7 +311,7 @@ def Execution(options, name):
 
     res_ui_java = os.path.join('gen', 'ui_java')
     res_content_java = os.path.join('gen', 'content_java')
-    res_xwalk_java = os.path.join('gen', 'xwalk_core_internal_java')
+    res_xwalk_java = os.path.join('gen', 'xwalk_core_java')
     res_dirs = ('-DADDITIONAL_RES_DIRS='
                 + os.path.join(res_ui_java, 'res_crunched') + ' '
                 + os.path.join(res_ui_java, 'res_v14_compatibility') + ' '
