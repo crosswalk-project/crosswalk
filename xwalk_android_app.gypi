@@ -131,6 +131,9 @@
         'xwalk_app_template_apk',
         'xwalk_runtime_embedded',
         'xwalk_runtime_lib_apk',
+        # Depends on xwalk_core_library because we are copying resources
+        # from it.
+        'xwalk_core_library',
       ],
       'actions': [
         {

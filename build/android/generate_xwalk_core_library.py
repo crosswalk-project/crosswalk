@@ -10,6 +10,7 @@ import optparse
 import os
 import shutil
 import sys
+import zipfile
 from common_function import RemoveUnusedFilesInReleaseMode
 from xml.dom.minidom import Document
 
@@ -167,34 +168,74 @@ def CopyDirAndPrefixDuplicates(input_dir, output_dir, prefix):
       shutil.copyfile(src_file, target_file)
 
 
+def MoveImagesToNonMdpiFolders(res_root):
+  """Move images from drawable-*-mdpi-* folders to drawable-* folders.
+
+  Why? http://crbug.com/289843
+
+  Copied from build/android/gyp/package_resources.py.
+  """
+  for src_dir_name in os.listdir(res_root):
+    src_components = src_dir_name.split('-')
+    if src_components[0] != 'drawable' or 'mdpi' not in src_components:
+      continue
+    src_dir = os.path.join(res_root, src_dir_name)
+    if not os.path.isdir(src_dir):
+      continue
+    dst_components = [c for c in src_components if c != 'mdpi']
+    assert dst_components != src_components
+    dst_dir_name = '-'.join(dst_components)
+    dst_dir = os.path.join(res_root, dst_dir_name)
+    if not os.path.isdir(dst_dir):
+      os.makedirs(dst_dir)
+    for src_file_name in os.listdir(src_dir):
+      if not src_file_name.endswith('.png'):
+        continue
+      src_file = os.path.join(src_dir, src_file_name)
+      dst_file = os.path.join(dst_dir, src_file_name)
+      assert not os.path.lexists(dst_file)
+      shutil.move(src_file, dst_file)
+
+
 def CopyResources(project_source, out_dir):
   print 'Copying resources...'
   res_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'res')
+  temp_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'temp')
   if os.path.exists(res_dir):
     shutil.rmtree(res_dir)
+  if os.path.exists(temp_dir):
+    shutil.rmtree(temp_dir)
 
   # All resources should be in specific folders in res_directory.
   # Since there might be some resource files with same names from
   # different folders like ui_java, content_java and others,
   # it's necessary to rename some files to avoid overridding.
   res_to_copy = [
-      # (package, prefix) turple.
-      ('ui/android/java/res', 'ui'),
-      ('content/public/android/java/res', 'content'),
-      ('xwalk/runtime/android/core_internal/res', 'xwalk_core_internal'),
+      # zip file list
+      'content_java.zip',
+      'content_strings_grd.zip',
+      'ui_java.zip',
+      'ui_strings_grd.zip',
+      'xwalk_core_internal_java.zip',
+      'xwalk_core_strings.zip'
   ]
 
-  # For each res, there are two generated res folder in out directory,
-  # they are res_grit and res_v14_compatibility.
-  for res, prefix in res_to_copy:
-    res_path_src = os.path.join(project_source, res)
-    res_path_grit = os.path.join(out_dir,
-        'gen', '%s_java' % prefix, 'res_grit')
-    res_path_v14 = os.path.join(out_dir,
-        'gen', '%s_java' % prefix, 'res_v14_compatibility')
+  for res_zip in res_to_copy:
+    zip_file = os.path.join(out_dir, 'res.java', res_zip)
+    zip_name = os.path.splitext(res_zip)[0]
+    if not os.path.isfile(zip_file):
+      raise Exception('Resource zip not found: ' + zip_file)
+    subdir = os.path.join(temp_dir, zip_name)
+    if os.path.isdir(subdir):
+      raise Exception('Resource zip name conflict: ' + zip_name)
+    os.makedirs(subdir)
+    with zipfile.ZipFile(zip_file) as z:
+      z.extractall(path=subdir)
+    CopyDirAndPrefixDuplicates(subdir, res_dir, zip_name)
+    MoveImagesToNonMdpiFolders(res_dir)
 
-    for res_path in [res_path_src, res_path_grit, res_path_v14]:
-      CopyDirAndPrefixDuplicates(res_path, res_dir, prefix)
+  if os.path.isdir(temp_dir):
+    shutil.rmtree(temp_dir)
 
 
 def PostCopyLibraryProject(out_dir):

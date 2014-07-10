@@ -312,19 +312,8 @@ def Execution(options, name):
     res_ui_java = os.path.join('gen', 'ui_java')
     res_content_java = os.path.join('gen', 'content_java')
     res_xwalk_java = os.path.join('gen', 'xwalk_core_internal_java')
-    res_dirs = ('-DADDITIONAL_RES_DIRS='
-                + os.path.join(res_ui_java, 'res_crunched') + ' '
-                + os.path.join(res_ui_java, 'res_v14_compatibility') + ' '
-                + os.path.join(res_ui_java, 'res_grit') + ' '
-                + os.path.join('libs_res', 'ui') + ' '
-                + os.path.join(res_content_java, 'res_crunched') + ' '
-                + os.path.join(res_content_java, 'res_v14_compatibility') + ' '
-                + os.path.join('libs_res', 'content') + ' '
-                + os.path.join(res_content_java, 'res_grit') + ' '
-                + os.path.join(res_xwalk_java, 'res_crunched') + ' '
-                + os.path.join(res_xwalk_java, 'res_v14_compatibility') + ' '
-                + os.path.join('libs_res', 'runtime') + ' '
-                + os.path.join(res_xwalk_java, 'res_grit'))
+    res_dir = os.path.join('libs_res', 'xwalk_core_library')
+    res_dirs = ('-DADDITIONAL_RES_DIRS=' + res_dir)
     res_packages = ('-DADDITIONAL_RES_PACKAGES=org.chromium.ui '
                     'org.xwalk.core.internal org.chromium.content')
     res_r_text_files = ('-DADDITIONAL_R_TEXT_FILES='
