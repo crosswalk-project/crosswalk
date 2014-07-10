@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
 
-public class ExtensionEcho extends XWalkExtensionAndroid {
+public class ExtensionEchoInternal extends XWalkExtensionAndroid {
 
-    public ExtensionEcho() {
+    public ExtensionEchoInternal() {
         super("echo",
               "var echoListener = null;"
               + "extension.setMessageListener(function(msg) {"
