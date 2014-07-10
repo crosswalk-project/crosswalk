@@ -111,10 +111,6 @@
         'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/add_js_interface.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/broadcast.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
-          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/framesEcho.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/geolocation.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/navigator.online.html',
@@ -128,10 +124,6 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview_test/assets',
           'files': [
             'test/android/data/add_js_interface.html',
-            'test/android/data/broadcast.html',
-            'test/android/data/echo.html',
-            'test/android/data/echoSync.html',
-            'test/android/data/framesEcho.html',
             'test/android/data/geolocation.html',
             'test/android/data/index.html',
             'test/android/data/navigator.online.html',
@@ -673,6 +665,10 @@
         'java_in_dir': 'test/android/core_internal/javatests',
         'is_test_apk': 1,
         'additional_input_paths': [
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/broadcast.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echo.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echoSync.html',
+          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/framesEcho.html',
           '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/index.html',
         ],
         'asset_location': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
@@ -681,6 +677,10 @@
         {
           'destination': '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets',
           'files': [
+            'test/android/data/broadcast.html',
+            'test/android/data/echo.html',
+            'test/android/data/echoSync.html',
+            'test/android/data/framesEcho.html',
             'test/android/data/index.html',
           ],
         },
