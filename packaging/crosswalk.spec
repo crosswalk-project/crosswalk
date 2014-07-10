@@ -175,6 +175,11 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
 
+# Temporarily disable Alsa support while snd_seq_* support is not enabled on
+# Tizen. See https://codereview.chromium.org/264973012 and
+# https://review.tizen.org/gerrit/#/c/24336/
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
+
 # For building for arm in OBS, we need :
 # -> to unset sysroot value.
 # sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
