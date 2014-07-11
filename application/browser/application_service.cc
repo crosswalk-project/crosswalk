@@ -134,7 +134,6 @@ Application* ApplicationService::Launch(
 
 Application* ApplicationService::Launch(
     const std::string& id, const Application::LaunchParams& params) {
-  Application* application = NULL;
   scoped_refptr<ApplicationData> application_data =
     application_storage_->GetApplicationData(id);
   if (!application_data) {
@@ -147,7 +146,6 @@ Application* ApplicationService::Launch(
 
 Application* ApplicationService::Launch(
     const base::FilePath& path, const Application::LaunchParams& params) {
-  Application* application = NULL;
   if (!base::DirectoryExists(path))
     return NULL;
 
