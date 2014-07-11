@@ -196,7 +196,7 @@ GURL Application::GetURLFromRelativePathKey(const std::string& key) {
     int priority = arraysize(kDefaultWidgetEntryPage);
 
     for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
-      for (int i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
+      for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
         if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
             i < priority) {
           entry_page = kDefaultWidgetEntryPage[i];
