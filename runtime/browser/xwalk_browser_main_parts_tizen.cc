@@ -52,7 +52,8 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
     // As the data fetcher of sensors is implemented outside of Chromium, we
     // need to make it available to Chromium by "abusing" the test framework.
     // TODO(zliang7): Find a decent way to inject our sensor fetcher for Tizen.
-    sensor_service->SetDataFetcherForTests(new TizenDataFetcherSharedMemory());
+    sensor_service->SetDataFetcherForTesting(
+        new TizenDataFetcherSharedMemory());
   }
 
   XWalkBrowserMainParts::PreMainMessageLoopRun();
