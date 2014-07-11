@@ -205,13 +205,13 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     Clean('Example', '1.0.0')
-    self.assertTrue(out.find('The APK name is required!') != -1)
+    self.assertIn('An APK name is required', out)
 
     cmd = ['python', 'make_apk.py', '--name=Test_Example',
            '--app-version=1.0.0', '--app-url=http://www.intel.com',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The APK name is required!') == -1)
+    self.assertNotIn('An APK name is required', out)
     Clean('Test_Example', '1.0.0')
 
     invalid_chars = '\/:.*?"<>|-'
@@ -335,12 +335,12 @@ class TestMakeApk(unittest.TestCase):
            self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(out.find('The package name is required!') != -1)
+    self.assertIn('A package name is required', out)
     Clean('Example', '1.0.0')
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find('The package name is required!') == -1)
+    self.assertNotIn('A package name is required', out)
 
   def testEntry(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
