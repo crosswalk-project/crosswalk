@@ -3,15 +3,11 @@
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "a sample description",
-  "origin": "app://app.id",
   "icons": [],
-  "default_locale": "en",
   "xwalk_permissions": [
     "Contacts",
     "Geolocation",
     "Messaging"],
-  "required_version": "1.28.1.0",
-  "plugin": [],
   "orientation": "landscape",
   "display": ["fullscreen"]
 }

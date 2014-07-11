@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "a sample description",
-  "origin": "app://app.id",
   "icons": [
     {
       "src": "icons/icon_144.png",
@@ -22,6 +21,5 @@
       "sizes": "48x48"
     }
   ],
-  "default_locale": "en",
   "fullscreen":"true"
 }
