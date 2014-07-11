@@ -141,6 +141,7 @@ class Application : public Runtime::Observer,
   scoped_refptr<ApplicationData> const data_;
   // The application's render process host.
   content::RenderProcessHost* render_process_host_;
+  content::WebContents* web_contents_;
   bool security_mode_enabled_;
 
   base::WeakPtr<Application> GetWeakPtr() {
