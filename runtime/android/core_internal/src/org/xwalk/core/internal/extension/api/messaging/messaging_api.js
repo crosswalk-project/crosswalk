@@ -2,26 +2,29 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-var _promises = {};
-var _next_promise_id = 0;
-var _listeners = {};
+var g_next_async_call_id = 0;
+var g_async_calls = [];
+var g_listeners = [];
+
 // Preserve 6 spaces to hold onreceived, onsent, ondeliverysuccess,
 // ondeliveryerror, onserviceadded and onserviceremoved's
 // callback functions.
-var _next_listener_id = 6;
+var g_next_async_call_id = 6;
 
-var Promise = requireNative('sysapps_promise').Promise;
+function AsyncCall(resolve, reject) {
+  this.resolve = resolve;
+  this.reject = reject;
+}
 
-var postMessage = function(msg) {
-  var p = new Promise();
-
-  _promises[_next_promise_id] = p;
-  msg._promise_id = _next_promise_id.toString();
-  _next_promise_id += 1;
-
+function createPromise(msg) {
+  var promise = new Promise(function(resolve, reject) {
+    g_async_calls[g_next_async_call_id] = new AsyncCall(resolve, reject);
+  });
+  msg.asyncCallId = g_next_async_call_id;
   extension.postMessage(JSON.stringify(msg));
-  return p;
-};
+  ++g_next_async_call_id;
+  return promise;
+}
 
 function _isFunction(fn) {
   return !!fn && !fn.nodeName && fn.constructor != String
@@ -140,27 +143,27 @@ function _addEventListener(isOn, eventName, callback) {
   if (isOn) {
     switch(listener.eventName) {
       case 'received':
-        _listeners[0] = listener;
+        g_listeners[0] = listener;
         listener_id = 0;
         break;
       case 'sent':
-        _listeners[1] = listener;
+        g_listeners[1] = listener;
         listener_id = 1;
         break;
       case 'deliverysuccess':
-        _listeners[2] = listener;
+        g_listeners[2] = listener;
         listener_id = 2;
         break;
       case 'deliveryerror':
-        _listeners[3] = listener;
+        g_listeners[3] = listener;
         listener_id = 3;
         break;
       case 'serviceadded':
-        _listeners[4] = listener;
+        g_listeners[4] = listener;
         listener_id = 4;
         break;
       case 'serviceremoved':
-        _listeners[5] = listener;
+        g_listeners[5] = listener;
         listener_id = 5;
         break;
       default:
@@ -168,9 +171,9 @@ function _addEventListener(isOn, eventName, callback) {
         break;
       }
     } else {
-      listener_id = _next_listener_id;
-      _next_listener_id += 1;
-      _listeners[listener_id] = listener;
+      listener_id = g_next_async_call_id;
+      g_next_async_call_id += 1;
+      g_listeners[listener_id] = listener;
     }
 
   return listener_id;
@@ -181,9 +184,9 @@ exports.sms.addEventListener = function(eventName, callback) {
 }
 
 function handleEvent(msg) {
-  for (var id in _listeners) {
-    if (_listeners[id]['eventName'] === msg.cmd && _listeners[id]['callback']) {
-      _listeners[id]['callback'](msg.data);
+  for (var id in g_listeners) {
+    if (g_listeners[id]['eventName'] === msg.cmd && g_listeners[id]['callback']) {
+      g_listeners[id]['callback'](msg.data);
     }
   }
 }
@@ -221,31 +224,31 @@ MessagingCursor.prototype.previous = function() {
 
 function handleFindMessages(msgObj) {
   if (msgObj.data.error) {
-    if (_isFunction(_promises[msgObj._promise_id].reject)) {
-      _promises[msgObj._promise_id].reject(msgObj.data.body);
+    if (_isFunction(g_promises[msgObj.asyncCallId].reject)) {
+      g_promises[msgObj.asyncCallId].reject(msgObj.data.body);
     }
   } else {
-    if (_isFunction(_promises[msgObj._promise_id].fulfill)) {
+    if (_isFunction(g_promises[msgObj.asyncCallId].resolve)) {
       var cursor = new MessagingCursor(msgObj.data.body.results);
-      _promises[msgObj._promise_id].fulfill(cursor);
+      g_promises[msgObj.asyncCallId].resolve(cursor);
     }
   }
 
-  delete _promises[msgObj._promise_id];
+  delete g_promises[msgObj.asyncCallId];
 }
 
 function handlePromise(msgObj) {
   if (msgObj.data.error) {
-    if (_isFunction(_promises[msgObj._promise_id].reject)) {
-      _promises[msgObj._promise_id].reject(msgObj.data.body);
+    if (_isFunction(g_promises[msgObj.asyncCallId].reject)) {
+      g_promises[msgObj.asyncCallId].reject(msgObj.data.body);
     }
   } else {
-    if (_isFunction(_promises[msgObj._promise_id].fulfill)) {
-      _promises[msgObj._promise_id].fulfill(msgObj.data.body);
+    if (_isFunction(g_promises[msgObj.asyncCallId].resolve)) {
+      g_promises[msgObj.asyncCallId].resolve(msgObj.data.body);
     }
   }
 
-  delete _promises[msgObj._promise_id];
+  delete g_promises[msgObj.asyncCallId];
 }
 
 extension.setMessageListener(function(json) {

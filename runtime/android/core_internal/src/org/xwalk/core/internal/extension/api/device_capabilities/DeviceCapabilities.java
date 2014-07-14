@@ -43,15 +43,15 @@ public class DeviceCapabilities extends XWalkExtension {
                 String eventName = jsonInput.getString("eventName");
                 handleAddEventListener(eventName);
             } else {
-                String promiseId = jsonInput.getString("_promise_id");
-                handleGetDeviceInfo(instanceID, promiseId, cmd);
+                String asyncCallId = jsonInput.getString("asyncCallId");
+                handleGetDeviceInfo(instanceID, asyncCallId, cmd);
             }
         } catch (JSONException e) {
             printErrorMessage(e);
         }
     }
 
-    private void handleGetDeviceInfo(int instanceID, String promiseId, String cmd) {
+    private void handleGetDeviceInfo(int instanceID, String asyncCallId, String cmd) {
         try {
             JSONObject jsonOutput = new JSONObject();
             if (cmd.equals("getCPUInfo")) {
@@ -65,7 +65,7 @@ public class DeviceCapabilities extends XWalkExtension {
             } else if (cmd.equals("getStorageInfo")) {
                 jsonOutput.put("data", mStorage.getInfo());
             }
-            jsonOutput.put("_promise_id", promiseId);
+            jsonOutput.put("asyncCallId", asyncCallId);
             this.postMessage(instanceID, jsonOutput.toString());
         } catch (JSONException e) {
             printErrorMessage(e);

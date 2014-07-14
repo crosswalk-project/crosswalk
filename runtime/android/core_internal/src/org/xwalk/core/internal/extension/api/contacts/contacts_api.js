@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-var _promises = {};
-var _next_promise_id = 0;
-var _listeners = [];
+var g_next_async_call_id = 0;
+var g_async_calls = [];
+var g_listeners = [];
 
 // Preserve first element for "oncontactschange" way event listener.
 //
@@ -14,21 +14,23 @@ var _listeners = [];
 //
 // This listener can be set as "oncontactschange = function(){...};"
 // and can be unset as "oncontactschange = null;"
-_listeners[0] = null;
-var _next_listener_id = 1;
+g_listeners[0] = null;
+var g_next_listener_id = 1;
 
-var Promise = requireNative('sysapps_promise').Promise;
+function AsyncCall(resolve, reject) {
+  this.resolve = resolve;
+  this.reject = reject;
+}
 
-var _postMessage = function(msg) {
-  var p = new Promise();
-
-  _promises[_next_promise_id] = p;
-  msg._promise_id = _next_promise_id.toString();
-  _next_promise_id += 1;
-
+function createPromise(msg) {
+  var promise = new Promise(function(resolve, reject) {
+    g_async_calls[g_next_async_call_id] = new AsyncCall(resolve, reject);
+  });
+  msg.asyncCallId = g_next_async_call_id;
   extension.postMessage(JSON.stringify(msg));
-  return p;
-};
+  ++g_next_async_call_id;
+  return promise;
+}
 
 function _addConstProperty(obj, propertyKey, propertyValue) {
   Object.defineProperty(obj, propertyKey, {
@@ -50,48 +52,48 @@ extension.setMessageListener(function(json) {
   var msg = JSON.parse(json);
 
   if (msg.reply == 'contactschange') {
-    for (var id in _listeners) {
-      if (typeof _listeners[id] === 'function') {
-        _listeners[id](_createConstClone(msg.data));
+    for (var id in g_listeners) {
+      if (typeof g_listeners[id] === 'function') {
+        g_listeners[id](_createConstClone(msg.data));
       }
     }
     return;
   }
 
   if (msg.data && msg.data.error) {
-    _promises[msg._promise_id].reject(msg.data.error);
+    g_async_calls[msg.asyncCallId].reject(msg.data.error);
   } else {
-    _promises[msg._promise_id].fulfill(msg.data);
+    g_async_calls[msg.asyncCallId].resolve(msg.data);
   }
 
-  delete _promises[msg._promise_id];
+  delete g_async_calls[msg.asyncCallId];
 });
 
 exports.save = function(contact) {
   var msg = {};
   msg['cmd'] = 'save';
   msg['contact'] = contact;
-  return _postMessage(msg);
+  return createPromise(msg);
 }
 
 exports.find = function(options) {
   var msg = {};
   msg['cmd'] = 'find';
   msg['options'] = options;
-  return _postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.remove = function(contactId) {
   var msg = {};
   msg['cmd'] = 'remove';
   msg['contactId'] = contactId;
-  return _postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.clear = function() {
   var msg = {};
   msg['cmd'] = 'clear';
-  return _postMessage(msg);
+  return createPromise(msg);
 }
 
 function _addListener(isOnChange, callback) {
@@ -109,16 +111,16 @@ function _addListener(isOnChange, callback) {
 
   var listener_id;
   if (isOnChange) { // Set callback to oncontactschange()
-      _listeners[0] = callback;
+      g_listeners[0] = callback;
       listener_id = 0;
   } else { // Set callback by addEventListner()
-      listener_id = _next_listener_id;
-      _next_listener_id += 1;
-      _listeners[listener_id] = callback;
+      listener_id = g_next_listener_id;
+      ++g_next_listener_id;
+      g_listeners[listener_id] = callback;
   }
 
   // Notify native code there is valid listener.
-  if (_listeners[0] != null || _listeners.length > 1) {
+  if (g_listeners[0] != null || g_listeners.length > 1) {
     var msg = { 'cmd': 'addEventListener' };
     extension.postMessage(JSON.stringify(msg));
   }

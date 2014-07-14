@@ -29,7 +29,7 @@ import org.xwalk.core.internal.extension.api.messaging.Messaging;
 
 public class MessagingSmsManager {
     private final static String TAG = "MessagingSmsManager";
-    private final static String EXTRA_MSGID = "_promise_id";
+    private final static String EXTRA_MSGID = "asyncCallId";
     private final static String EXTRA_MSGTEXT = "message";
     private final static String EXTRA_MSGTO = "to";
     private final static String EXTRA_MSGINSTANCEID = "instanceid";
@@ -62,12 +62,12 @@ public class MessagingSmsManager {
         if (!checkService(DEFAULT_SERVICE_ID)) {
             Log.e(TAG, "No Sim Card");
         }
-        String promise_id = null;
+        String asyncCallId = null;
         JSONObject eventBody = null;
         String phone = null;
         String smsMessage = null;
         try {
-            promise_id = jsonMsg.getString("_promise_id");
+            asyncCallId = jsonMsg.getString("asyncCallId");
             eventBody = jsonMsg.getJSONObject("data");
             phone = eventBody.getString("phone");
             smsMessage = eventBody.getString("message");
@@ -78,18 +78,18 @@ public class MessagingSmsManager {
         
         SmsManager sms = SmsManager.getDefault();
         Intent intentSmsSent = new Intent("SMS_SENT");
-        intentSmsSent.putExtra(EXTRA_MSGID, promise_id);
+        intentSmsSent.putExtra(EXTRA_MSGID, asyncCallId);
         intentSmsSent.putExtra(EXTRA_MSGTEXT, smsMessage);
         intentSmsSent.putExtra(EXTRA_MSGTO, phone);
         String instanceIDString = Integer.toString(instanceID);
         intentSmsSent.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
-        int promiseIdInt = Integer.valueOf(promise_id);
+        int promiseIdInt = Integer.valueOf(asyncCallId);
         PendingIntent piSent = PendingIntent.getBroadcast(mMainActivity, 
                                                           promiseIdInt, 
                                                           intentSmsSent, 
                                                           PendingIntent.FLAG_ONE_SHOT);
         Intent intentSmsDelivered = new Intent("SMS_DELIVERED");
-        intentSmsDelivered.putExtra(EXTRA_MSGID, promise_id);
+        intentSmsDelivered.putExtra(EXTRA_MSGID, asyncCallId);
         intentSmsDelivered.putExtra(EXTRA_MSGTEXT, smsMessage);
         intentSmsDelivered.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
         PendingIntent piDelivered = PendingIntent.getBroadcast(mMainActivity, 
@@ -104,11 +104,11 @@ public class MessagingSmsManager {
     }
 
     public void onSmsClear(int instanceID, JSONObject jsonMsg) {
-        String promise_id = null, cmd = null;
+        String asyncCallId = null, cmd = null;
         JSONObject eventBody = null;
         String serviceID = null;
         try {
-            promise_id = jsonMsg.getString("_promise_id");
+            asyncCallId = jsonMsg.getString("asyncCallId");
             cmd = jsonMsg.getString("cmd");
             eventBody = jsonMsg.getJSONObject("data");
             serviceID = eventBody.getString("serviceID");
@@ -123,7 +123,7 @@ public class MessagingSmsManager {
         JSONObject jsonMsgRet = null;
         try {
             jsonMsgRet = new JSONObject();
-            jsonMsgRet.put("_promise_id", promise_id);
+            jsonMsgRet.put("asyncCallId", asyncCallId);
             jsonMsgRet.put("cmd", cmd + "_ret");
             JSONObject jsData = new JSONObject();
             jsonMsgRet.put("data", jsData);
@@ -140,11 +140,11 @@ public class MessagingSmsManager {
     }
 
     public void onSmsSegmentInfo(int instanceID, JSONObject jsonMsg) {
-        String promise_id = null;
+        String asyncCallId = null;
         JSONObject eventBody = null;
         String text = null;
         try {
-            promise_id = jsonMsg.getString("_promise_id");
+            asyncCallId = jsonMsg.getString("asyncCallId");
             eventBody = jsonMsg.getJSONObject("data");
             text = eventBody.getString("text");
 
@@ -162,7 +162,7 @@ public class MessagingSmsManager {
         try {
             JSONObject jsonMsgRet = new JSONObject();
             jsonMsgRet.put("cmd", "msg_smsSegmentInfo_ret");
-            jsonMsgRet.put("_promise_id", promise_id);
+            jsonMsgRet.put("asyncCallId", asyncCallId);
             JSONObject jsData = new JSONObject();
             jsonMsgRet.put("data", jsData);
             jsData.put("error", false);
@@ -222,7 +222,7 @@ public class MessagingSmsManager {
             @Override
             public void onReceive(Context content, Intent intent) {
                 boolean error = getResultCode() != Activity.RESULT_OK;
-                String promise_id = intent.getStringExtra(EXTRA_MSGID);
+                String asyncCallId = intent.getStringExtra(EXTRA_MSGID);
                 String smsMessage = intent.getStringExtra(EXTRA_MSGTEXT);
                 String to = intent.getStringExtra(EXTRA_MSGTO);
                 int instanceID = Integer.valueOf(intent.getStringExtra(EXTRA_MSGINSTANCEID));
@@ -239,7 +239,7 @@ public class MessagingSmsManager {
                     jsSentMsg.put("deliveryStatus", error ? "error" : "pending");
 
                     JSONObject jsonMsgPromise = new JSONObject();
-                    jsonMsgPromise.put("_promise_id", promise_id);
+                    jsonMsgPromise.put("asyncCallId", asyncCallId);
                     jsonMsgPromise.put("cmd", "msg_smsSend_ret");
                     JSONObject jsData = new JSONObject();
                     jsonMsgPromise.put("data", jsData);
@@ -269,12 +269,12 @@ public class MessagingSmsManager {
             @Override
             public void onReceive(Context content, Intent intent) {
                 boolean error = getResultCode() != Activity.RESULT_OK;
-                String promise_id = intent.getStringExtra(EXTRA_MSGID);
+                String asyncCallId = intent.getStringExtra(EXTRA_MSGID);
                 int instanceID = Integer.valueOf(intent.getStringExtra(EXTRA_MSGINSTANCEID));
 
                 try {
                     JSONObject jsonMsg = new JSONObject();
-                    jsonMsg.put("_promise_id", promise_id);
+                    jsonMsg.put("asyncCallId", asyncCallId);
                     jsonMsg.put("cmd", error ? "deliveryerror": "deliverysuccess");
                     JSONObject jsData = new JSONObject();
                     jsonMsg.put("data", jsData);
