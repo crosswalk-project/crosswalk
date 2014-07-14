@@ -16,7 +16,7 @@
 
 namespace xwalk {
 
-class SplashScreen;
+class SplashScreenTizen;
 
 // Tizen uses the Views native window but adds its own features like orientation
 // handling and integration with system indicator bar.
@@ -70,7 +70,7 @@ class NativeAppWindowTizen
 
   gfx::Display display_;
   blink::WebScreenOrientationLockType orientation_lock_;
-  scoped_ptr<SplashScreen> splash_screen_;
+  scoped_ptr<SplashScreenTizen> splash_screen_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeAppWindowTizen);
 };

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/runtime/browser/ui/splash_screen.h"
+#include "xwalk/runtime/browser/ui/splash_screen_tizen.h"
 
 #include "base/location.h"
 #include "ui/compositor/layer.h"
@@ -18,7 +18,7 @@ namespace {
 const int kHideAnimationDuration = 1;  // second
 }  // namespace
 
-class SplashScreen::SplashScreenLayerDelegate : public ui::LayerDelegate {
+class SplashScreenTizen::SplashScreenLayerDelegate : public ui::LayerDelegate {
  public:
   SplashScreenLayerDelegate() {}
 
@@ -48,9 +48,9 @@ class SplashScreen::SplashScreenLayerDelegate : public ui::LayerDelegate {
   DISALLOW_COPY_AND_ASSIGN(SplashScreenLayerDelegate);
 };
 
-SplashScreen::SplashScreen(views::Widget* host,
-                           const base::FilePath& file,
-                           content::WebContents* web_contents)
+SplashScreenTizen::SplashScreenTizen(views::Widget* host,
+                                     const base::FilePath& file,
+                                     content::WebContents* web_contents)
     : content::WebContentsObserver(web_contents),
       widget_host_(host),
       splash_screen_image_(file),
@@ -61,9 +61,9 @@ SplashScreen::SplashScreen(views::Widget* host,
   layer_->set_delegate(layer_delegate_.get());
 }
 
-SplashScreen::~SplashScreen() {}
+SplashScreenTizen::~SplashScreenTizen() {}
 
-void SplashScreen::Start() {
+void SplashScreenTizen::Start() {
   DCHECK(widget_host_);
   if (is_started)
     return;
@@ -83,7 +83,7 @@ void SplashScreen::Start() {
   }
 }
 
-void SplashScreen::Stop() {
+void SplashScreenTizen::Stop() {
   DCHECK(widget_host_);
   if (!is_started)
     return;
@@ -97,23 +97,25 @@ void SplashScreen::Stop() {
   layer_->SetOpacity(0.0f);
 }
 
-void SplashScreen::DidFinishLoad(int64 frame_id,
-                                 const GURL& validated_url,
-                                 bool is_main_frame,
-                                 content::RenderViewHost* render_view_host) {
+void SplashScreenTizen::DidFinishLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    content::RenderViewHost* render_view_host) {
   Stop();
 }
 
-void SplashScreen::DidFailLoad(int64 frame_id,
-                               const GURL& validated_url,
-                               bool is_main_frame,
-                               int error_code,
-                               const base::string16& error_description,
-                               content::RenderViewHost* render_view_host) {
+void SplashScreenTizen::DidFailLoad(
+    int64 frame_id,
+    const GURL& validated_url,
+    bool is_main_frame,
+    int error_code,
+    const base::string16& error_description,
+    content::RenderViewHost* render_view_host) {
   Stop();
 }
 
-void SplashScreen::OnImplicitAnimationsCompleted() {
+void SplashScreenTizen::OnImplicitAnimationsCompleted() {
   DCHECK(widget_host_);
   widget_host_->GetLayer()->Remove(layer_.get());
 }
