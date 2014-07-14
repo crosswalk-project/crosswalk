@@ -79,20 +79,20 @@ public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRunti
         });
     }
 
-    public void onPause() throws Exception {
-        mInstrumentation.runOnMainSync(new Runnable() {
+    public void pauseActivity(final Context activity) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getTestedView().onPause();
+                ActivityToCausePause.pauseActivity(activity);
             }
         });
     }
 
-    public void onResume() throws Exception {
-        mInstrumentation.runOnMainSync(new Runnable() {
+    public void resumeActivity() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                getTestedView().onResume();
+                ActivityToCausePause.resumeActivity();
             }
         });
     }
