@@ -104,8 +104,6 @@ class ManifestJsonParser(object):
     app_local_path:   The relative path of entry file based on app_root,
                       this flag should work with "--app-root" together.
     permissions:      The permission list.
-    required_version: The required crosswalk runtime version.
-    plugin:           The plug-in information.
     orientation       The default allowed orientations.
     fullscreen:       The fullscreen flag of the application.
     launch_screen:    The launch screen configuration.
@@ -175,12 +173,6 @@ class ManifestJsonParser(object):
       except (TypeError, ValueError, IOError):
         print('\'Permissions\' field error in manifest.json file.')
         sys.exit(1)
-    ret_dict['required_version'] = ''
-    if 'required_version' in self.data_src:
-      ret_dict['required_version'] = self.data_src['required_version']
-    ret_dict['plugin'] = ''
-    if 'plugin' in self.data_src:
-      ret_dict['plugin'] = self.data_src['plugin']
     orientation = {'landscape':'landscape',
                    'landscape-primary':'landscape',
                    'landscape-secondary':'reverseLandscape',
@@ -224,8 +216,6 @@ class ManifestJsonParser(object):
     print("app_root: %s" % self.GetAppRoot())
     print("app_local_path: %s" % self.GetAppLocalPath())
     print("permissions: %s" % self.GetPermissions())
-    print("required_version: %s" % self.GetRequiredVersion())
-    print("plugins: %s" % self.GetPlugins())
     print("orientation: %s" % self.GetOrientation())
     print("fullscreen: %s" % self.GetFullScreenFlag())
     print('launch_screen.default.background_color: %s' %
@@ -284,14 +274,6 @@ class ManifestJsonParser(object):
   def GetPermissions(self):
     """Return the permissions."""
     return self.ret_dict['permissions']
-
-  def GetRequiredVersion(self):
-    """Return the required crosswalk runtime version."""
-    return self.ret_dict['required_version']
-
-  def GetPlugins(self):
-    """Return the plug-in path and file name."""
-    return self.ret_dict['plugin']
 
   def GetOrientation(self):
     """Return the default allowed orientations"""

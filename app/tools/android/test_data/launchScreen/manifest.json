@@ -5,8 +5,6 @@
   "description": "Launch screen test",
   "icons": [],
   "xwalk_permissions": [],
-  "required_version": "3.31.31.0",
-  "plugin": [],
   "xwalk_launch_screen": {
     "ready_when": "custom",
     "default": {

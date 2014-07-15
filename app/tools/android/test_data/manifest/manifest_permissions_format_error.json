@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "description": "a sample description",
-  "origin": "app://app.id",
   "icons": [],
-  "default_locale": "en",
   "xwalk_permissions": [{"filesystem":["write"]},"experimental"],
-  "required_version": "1.28.1.0",
-  "plugin": [],
   "fullscreen":"true"
 }
