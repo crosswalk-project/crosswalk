@@ -51,6 +51,7 @@
                                                          '-> archName: ' + cpu.archName + '<br>' +
                                                          '-> cpu load: ' + cpu.load;
               onSuccess();
+              return cpu;
             }, Error)
             .then(function(cpu) {
               document.getElementById('cpu_chain').innerHTML = 'Second level promise:<br>' +

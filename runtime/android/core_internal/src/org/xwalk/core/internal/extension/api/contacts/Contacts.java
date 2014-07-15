@@ -51,7 +51,7 @@ public class Contacts extends XWalkExtension {
                 return;
             }
             JSONObject jsonOutput = new JSONObject();
-            jsonOutput.put("_promise_id", jsonInput.getString("_promise_id"));
+            jsonOutput.put("asyncCallId", jsonInput.getString("asyncCallId"));
             if (cmd.equals("save")) {
                 ContactSaver saver = new ContactSaver(mResolver);
                 jsonOutput.put("data", saver.save(jsonInput.getString("contact")));

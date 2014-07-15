@@ -2,59 +2,62 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-var _promises = {};
-var _next_promise_id = 0;
-var _listeners = {};
+var g_next_async_call_id = 0;
+var g_async_calls = [];
+var g_listeners = [];
+
 // Preserve 4 spaces to hold onattach, ondetach, onconnect and ondisconnect's
 // callback functions.
-var _next_listener_id = 4;
+var g_next_listener_id = 4;
 
-var Promise = requireNative('sysapps_promise').Promise;
+function AsyncCall(resolve, reject) {
+  this.resolve = resolve;
+  this.reject = reject;
+}
 
-var postMessage = function(msg) {
-  var p = new Promise();
-
-  _promises[_next_promise_id] = p;
-  msg._promise_id = _next_promise_id.toString();
-  _next_promise_id += 1;
-
+function createPromise(msg) {
+  var promise = new Promise(function(resolve, reject) {
+    g_async_calls[g_next_async_call_id] = new AsyncCall(resolve, reject);
+  });
+  msg.asyncCallId = g_next_async_call_id;
   extension.postMessage(JSON.stringify(msg));
-  return p;
-};
+  ++g_next_async_call_id;
+  return promise;
+}
 
 exports.getCPUInfo = function() {
   var msg = {
     'cmd': 'getCPUInfo'
   };
-  return postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.getAVCodecs = function() {
   var msg = {
     'cmd': 'getCodecsInfo'
   };
-  return postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.getDisplayInfo = function() {
   var msg = {
     'cmd': 'getDisplayInfo'
   };
-  return postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.getMemoryInfo = function() {
   var msg = {
     'cmd': 'getMemoryInfo'
   };
-  return postMessage(msg);
+  return createPromise(msg);
 };
 
 exports.getStorageInfo = function() {
   var msg = {
     'cmd': 'getStorageInfo'
   };
-  return postMessage(msg);
+  return createPromise(msg);
 };
 
 function _addConstProperty(obj, propertyKey, propertyValue) {
@@ -93,21 +96,21 @@ extension.setMessageListener(function(json) {
       msg.reply == 'detachStorage' ||
       msg.reply == 'connectDisplay' ||
       msg.reply == 'disconnectDisplay') {
-    for (var id in _listeners) {
-      if (_listeners[id]['eventName'] === msg.eventName) {
-        _listeners[id]['callback'](_createConstClone(msg.data));
+    for (var id in g_listeners) {
+      if (g_listeners[id]['eventName'] === msg.eventName) {
+        g_listeners[id]['callback'](_createConstClone(msg.data));
       }
     }
     return;
   }
 
   if (msg.data.error) {
-    _promises[msg._promise_id].reject(msg.data.error);
+    g_async_calls[msg.asyncCallId].reject(msg.data.error);
   } else {
-    _promises[msg._promise_id].fulfill(_createConstClone(msg.data)); 
+    g_async_calls[msg.asyncCallId].resolve(_createConstClone(msg.data)); 
   }
 
-  delete _promises[msg._promise_id];
+  delete g_async_calls[msg.asyncCallId];
 });
 
 function _addEventListener(isOn, eventName, callback) {
@@ -136,22 +139,22 @@ function _addEventListener(isOn, eventName, callback) {
   if (isOn) {
     switch(listener.eventName) {
       case 'storageattach':
-        _listeners[0] = listener;
+        g_listeners[0] = listener;
         listener_id = 0;
         break;
 
       case 'storagedetach':
-        _listeners[1] = listener;
+        g_listeners[1] = listener;
         listener_id = 1;
         break;
 
       case 'displayconnect':
-        _listeners[2] = listener;
+        g_listeners[2] = listener;
         listener_id = 2;
         break;
 
       case 'displaydisconnect':
-        _listeners[3] = listener;
+        g_listeners[3] = listener;
         listener_id = 3;
         break;
 
@@ -160,12 +163,12 @@ function _addEventListener(isOn, eventName, callback) {
         break;
     }
   } else {
-      listener_id = _next_listener_id;
-      _next_listener_id += 1;
-      _listeners[listener_id] = listener;
+      listener_id = g_next_listener_id;
+      g_next_listener_id += 1;
+      g_listeners[listener_id] = listener;
   }
 
-  if (_listeners[listener_id] != null) {
+  if (g_listeners[listener_id] != null) {
     var msg = {
       'cmd': 'addEventListener',
       'eventName': listener.eventName

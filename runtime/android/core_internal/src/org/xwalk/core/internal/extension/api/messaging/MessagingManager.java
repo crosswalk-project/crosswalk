@@ -75,11 +75,11 @@ public class MessagingManager {
     }
 
     private void queryMessage(int instanceID, JSONObject jsonMsg) {
-        String promise_id = null, msgType = null, cmd = null, messageID = null;
+        String asyncCallId = null, msgType = null, cmd = null, messageID = null;
         JSONObject filter = null, filterOption = null;
         
         try {
-            promise_id = jsonMsg.getString("_promise_id");
+            asyncCallId = jsonMsg.getString("asyncCallId");
             cmd = jsonMsg.getString("cmd");
             JSONObject eventBody = jsonMsg.getJSONObject("data");
             if (eventBody.has("messageID")) {
@@ -129,7 +129,7 @@ public class MessagingManager {
         try {
             jsonMsgRet = new JSONObject();
             results = new JSONArray(); 
-            jsonMsgRet.put("_promise_id", promise_id);
+            jsonMsgRet.put("asyncCallId", asyncCallId);
             jsonMsgRet.put("cmd", cmd + "_ret");
             JSONObject jsData = new JSONObject();
             jsonMsgRet.put("data", jsData);
@@ -165,11 +165,11 @@ public class MessagingManager {
 
     private void operation(int instanceID, JSONObject jsonMsg) {
         JSONObject eventBody = null;
-        String promise_id = null, msgType = null, id = null, cmd = null;
+        String asyncCallId = null, msgType = null, id = null, cmd = null;
         boolean isRead = false;
 
         try {
-            promise_id = jsonMsg.getString("_promise_id");
+            asyncCallId = jsonMsg.getString("asyncCallId");
             eventBody = jsonMsg.getJSONObject("data");
             if (eventBody.has("messageID")) {
                 id = eventBody.getString("messageID");
@@ -208,7 +208,7 @@ public class MessagingManager {
         JSONObject jsonMsgRet = null;
         try {
             jsonMsgRet = new JSONObject();
-            jsonMsgRet.put("_promise_id", promise_id);
+            jsonMsgRet.put("asyncCallId", asyncCallId);
             JSONObject jsData = new JSONObject();
             jsonMsgRet.put("data", jsData);
             jsData.put("error", false);
