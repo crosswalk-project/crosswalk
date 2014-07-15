@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
@@ -126,8 +127,22 @@ import org.xwalk.core.internal.extension.XWalkPathHelper;
  *   }
  * </pre>
  */
-public class XWalkViewInternal extends android.widget.FrameLayout
-        implements ActivityStateListener {
+public class XWalkViewInternal extends android.widget.FrameLayout {
+
+    private class XWalkActivityStateListener implements ActivityStateListener {
+        WeakReference<XWalkViewInternal> mXWalkViewRef;
+
+        XWalkActivityStateListener(XWalkViewInternal view) {
+            mXWalkViewRef = new WeakReference<XWalkViewInternal>(view);
+        }
+
+        @Override
+        public void onActivityStateChange(Activity activity, int newState) {
+            XWalkViewInternal view = mXWalkViewRef.get();
+            if (view == null) return;
+            view.onActivityStateChange(activity, newState);
+        }
+    }
 
     static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
 
@@ -136,6 +151,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout
     private Context mContext;
     private XWalkExtensionManager mExtensionManager;
     private boolean mIsHidden;
+    private XWalkActivityStateListener mActivityStateListener;
 
     /**
      * Normal reload mode as default.
@@ -213,7 +229,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout
         // Intialize library, paks and others.
         try {
             XWalkViewDelegate.init(this);
-            ApplicationStatus.registerStateListenerForActivity(this, getActivity());
+            mActivityStateListener = new XWalkActivityStateListener(this);
+            ApplicationStatus.registerStateListenerForActivity(
+                    mActivityStateListener, getActivity());
         } catch (Throwable e) {
             // Try to find if there is UnsatisfiedLinkError in the cause chain of the met Throwable.
             Throwable linkError = e;
@@ -745,6 +763,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout
 
     void destroy() {
         if (mContent == null) return;
+        ApplicationStatus.unregisterActivityStateListener(mActivityStateListener);
+        mActivityStateListener = null;
         mExtensionManager.onDestroy();
         mContent.destroy();
         disableRemoteDebugging();
@@ -854,11 +874,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout
         return super.dispatchKeyEvent(event);
     }
 
-    /**
-     * @hide
-     */
-    @Override
-    public void onActivityStateChange(Activity activity, int newState) {
+    private void onActivityStateChange(Activity activity, int newState) {
         assert(getActivity() == activity);
         switch (newState) {
             case ActivityState.PAUSED:
