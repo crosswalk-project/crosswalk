@@ -31,8 +31,4 @@ VirtualRootProvider::VirtualRootProvider() {
         base::FilePath::FromUTF8Unsafe(
             std::string(tzplatform_getenv(dirs[i])));
   }
-
-  virtual_root_map_["RINGTONES"] =
-      base::FilePath::FromUTF8Unsafe(
-          std::string(tzplatform_mkpath(TZ_USER_SHARE, "settings/Ringtones")));
 }
