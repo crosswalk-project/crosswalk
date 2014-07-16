@@ -160,15 +160,13 @@ def CustomizeByOrientation(parser, orientation, sanitized_name, app_root):
   return has_background
 
 
-def CustomizeLaunchScreen(app_manifest, sanitized_name):
-  if not app_manifest:
-    return False
-  parser = ManifestJsonParser(os.path.expanduser(app_manifest))
-  app_root = os.path.dirname(parser.input_path)
-  default = CustomizeByOrientation(parser, 'default',
+def CustomizeLaunchScreen(paser_from_makeapk, sanitized_name):
+  app_root = os.path.dirname(paser_from_makeapk.input_path)
+  print('Debug in CustomizeLaunchScreen app_root:' + app_root)
+  default = CustomizeByOrientation(paser_from_makeapk, 'default',
                                    sanitized_name, app_root)
-  portrait = CustomizeByOrientation(parser, 'portrait',
+  portrait = CustomizeByOrientation(paser_from_makeapk, 'portrait',
                                     sanitized_name, app_root)
-  landscape = CustomizeByOrientation(parser, 'landscape',
+  landscape = CustomizeByOrientation(paser_from_makeapk, 'landscape',
                                      sanitized_name, app_root)
   return default or portrait or landscape
