@@ -632,6 +632,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
             if (mSettings != null) mSettings.setJavaScriptCanOpenWindowsAutomatically(value);
         } else if (key.equals(XWalkPreferencesInternal.ALLOW_UNIVERSAL_ACCESS_FROM_FILE)) {
             if (mSettings != null) mSettings.setAllowUniversalAccessFromFileURLs(value);
+        } else if (key.equals(XWalkPreferencesInternal.SUPPORT_MULTIPLE_WINDOWS)) {
+            if (mSettings != null) mSettings.setSupportMultipleWindows(value);
         }
     }
 
