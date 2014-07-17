@@ -76,6 +76,12 @@ public class XWalkPreferencesInternal {
     static final String ALLOW_UNIVERSAL_ACCESS_FROM_FILE =
             "allow-universal-access-from-file";
 
+   /**
+     * The key string to enable/disable multiple windows.
+     */
+    static final String SUPPORT_MULTIPLE_WINDOWS =
+            "support-multiple-windows";
+
     static {
         sPrefMap.put(REMOTE_DEBUGGING, Boolean.FALSE);
         sPrefMap.put(ANIMATABLE_XWALK_VIEW, Boolean.FALSE);
@@ -83,6 +89,7 @@ public class XWalkPreferencesInternal {
         sPrefMap.put(JAVASCRIPT_CAN_OPEN_WINDOW, Boolean.TRUE);
         sPrefMap.put(
                 ALLOW_UNIVERSAL_ACCESS_FROM_FILE, Boolean.FALSE);
+        sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, Boolean.TRUE);
     }
 
     /**
