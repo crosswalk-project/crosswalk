@@ -648,7 +648,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     // TODO(yongsheng): make it static?
     public String getAPIVersion() {
-        return "2.0";
+        return "2.1";
     }
 
     /**
