@@ -1,14 +1,14 @@
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.internal.xwview.test;
+package org.xwalk.core.xwview.test;
 
-import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
+import org.xwalk.core.XWalkExtension;
 
-public class ExtensionEchoInternal extends XWalkExtensionAndroid {
+public class ExtensionEcho extends XWalkExtension {
 
-    public ExtensionEchoInternal() {
+    public ExtensionEcho() {
         super("echo",
               "var echoListener = null;"
               + "extension.setMessageListener(function(msg) {"
@@ -26,14 +26,13 @@ public class ExtensionEchoInternal extends XWalkExtensionAndroid {
              );
     }
 
+    @Override
     public void onMessage(int instanceID, String message) {
         postMessage(instanceID, "From java:" + message);
     }
 
+    @Override
     public String onSyncMessage(int instanceID, String message) {
         return "From java sync:" + message;
-    }
-
-    public void onDestroy() {
     }
 }

@@ -57,10 +57,10 @@ public abstract class XWalkExtensionAndroid {
     }
 
     @CalledByNative
-    public abstract void handleMessage(int instanceID, String message);
+    public abstract void onMessage(int instanceID, String message);
 
     @CalledByNative
-    public abstract String handleSyncMessage(int instanceID, String message);
+    public abstract String onSyncMessage(int instanceID, String message);
 
     private native long nativeGetOrCreateExtension(String name, String jsApi, String[] entryPoints);
     private native void nativePostMessage(long nativeXWalkExtensionAndroid, int instanceID, String message);

@@ -19,11 +19,11 @@ public class ExtensionBroadcastInternal extends XWalkExtensionAndroid {
              );
     }
 
-    public void handleMessage(int instanceID, String message) {
+    public void onMessage(int instanceID, String message) {
         broadcastMessage("From java broadcast:" + message);
     }
 
-    public String handleSyncMessage(int instanceID, String message) {
+    public String onSyncMessage(int instanceID, String message) {
         return "From java:" + message;
     }
 

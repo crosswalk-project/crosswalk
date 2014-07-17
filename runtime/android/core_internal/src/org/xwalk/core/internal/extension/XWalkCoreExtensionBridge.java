@@ -26,11 +26,11 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid implements XWalkExt
     //------------------------------------------------
     // XWalkExtensionBridge implementations.
     //------------------------------------------------
-    public void handleMessage(int instanceID, String message) {
+    public void onMessage(int instanceID, String message) {
         mExtension.onMessage(instanceID, message);
     }
 
-    public String handleSyncMessage(int instanceID, String message) {
+    public String onSyncMessage(int instanceID, String message) {
         return mExtension.onSyncMessage(instanceID, message);
     }
 

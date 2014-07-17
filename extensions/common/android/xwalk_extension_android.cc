@@ -163,7 +163,7 @@ void XWalkExtensionAndroidInstance::HandleMessage(
     return;
   }
 
-  Java_XWalkExtensionAndroid_handleMessage(
+  Java_XWalkExtensionAndroid_onMessage(
       env, obj.obj(), getID(), buffer.obj());
 }
 
@@ -187,7 +187,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
 
   ScopedJavaLocalRef<jstring> buffer(env, env->NewStringUTF(value.c_str()));
   ScopedJavaLocalRef<jstring> ret =
-      Java_XWalkExtensionAndroid_handleSyncMessage(
+      Java_XWalkExtensionAndroid_onSyncMessage(
               env, obj.obj(), getID(), buffer.obj());
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
