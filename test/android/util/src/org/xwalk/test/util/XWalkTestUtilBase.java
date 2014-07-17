@@ -7,6 +7,7 @@ package org.xwalk.test.util;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.net.Uri;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -74,7 +75,8 @@ public class XWalkTestUtilBase<T> {
     }
 
     public void loadAssetFile(String fileName) throws Exception {
-        String fileContent = getFileContent(fileName);
+        //The content of "Data URI scheme" should be escaped when data type is "text/html".
+        String fileContent = Uri.encode(getFileContent(fileName));
         loadDataSync(fileContent, "text/html", false);
     }
 
