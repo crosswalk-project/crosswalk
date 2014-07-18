@@ -249,12 +249,19 @@ def Execution(options, name):
     else:
       print('Please provide the passcode of the developer key.')
       sys.exit(6)
+    if options.keystore_alias_passcode:
+      key_alias_code = options.keystore_alias_passcode
+    else:
+      print('--keystore-alias-passcode was not specified, '
+            'using the keystore\'s passcode as the alias keystore passcode.')
+      key_alias_code = key_code
   else:
     print ('Use xwalk\'s keystore by default for debugging. '
            'Please switch to your keystore when distributing it to app market.')
     key_store = 'scripts/ant/xwalk-debug.keystore'
     key_alias = 'xwalkdebugkey'
     key_code = 'xwalkdebug'
+    key_alias_code = 'xwalkdebug'
 
   if not os.path.exists('out'):
     os.mkdir('out')
@@ -485,7 +492,8 @@ def Execution(options, name):
          final_apk_path,
          '--keystore-path=%s' % key_store,
          '--keystore-alias=%s' % key_alias,
-         '--keystore-passcode=%s' % key_code]
+         '--keystore-passcode=%s' % key_code,
+         '--keystore-alias-passcode=%s' % key_alias_code]
   RunCommand(cmd)
 
   src_file = os.path.join('out', name + '.apk')
@@ -686,6 +694,9 @@ def main(argv):
   group.add_option('--keystore-alias', help=info)
   info = ('The passcode of keystore. For example, --keystore-passcode=code')
   group.add_option('--keystore-passcode', help=info)
+  info = ('Passcode for alias\'s private key in the keystore, '
+          'For example, --keystore-alias-passcode=alias-code')
+  group.add_option('--keystore-alias-passcode', help=info)
   info = ('Minify and obfuscate javascript and css.'
           '--compressor: compress javascript and css.'
           '--compressor=js: compress javascript.'
