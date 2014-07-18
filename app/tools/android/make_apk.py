@@ -13,15 +13,15 @@ import shutil
 import subprocess
 import sys
 
-sys.path.append('scripts/gyp')
-
 from app_info import AppInfo
 from customize import VerifyAppName, CustomizeAll, \
                       ParseParameterForCompressor, ReplaceSpaceWithUnderscore
-from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
+
+
+NATIVE_LIBRARY = 'libxwalkcore.so'
 
 
 def CleanDir(path):
@@ -31,6 +31,16 @@ def CleanDir(path):
 
 def AllArchitectures():
   return ("x86", "arm")
+
+
+def AddExeExtensions(name):
+  exts_str = os.environ.get('PATHEXT', '').lower()
+  exts = [_f for _f in exts_str.split(os.pathsep) if _f]
+  result = []
+  result.append(name)
+  for e in exts:
+    result.append(name + e)
+  return result
 
 
 def RunCommand(command, verbose=False, shell=False):
@@ -46,6 +56,7 @@ def RunCommand(command, verbose=False, shell=False):
       print ('Command "%s" exited with non-zero exit code %d'
              % (' '.join(command), result))
       sys.exit(result)
+    return output
 
 
 def Which(name):
@@ -60,22 +71,16 @@ def Which(name):
   return None
 
 
-def Find(name, path):
-  """Find executable file with the given name
-  and maximum API level under specific path."""
-  result = {}
-  for root, _, files in os.walk(path):
-    if name in files:
-      key = os.path.join(root, name)
-      sdk_version = os.path.basename(os.path.dirname(key))
-      str_num = re.search(r'\d+', sdk_version)
-      if str_num:
-        result[key] = int(str_num.group())
-      else:
-        result[key] = 0
-  if not result:
-    raise Exception()
-  return max(iter(result.items()), key=operator.itemgetter(1))[0]
+def GetAndroidApiLevel():
+  """Get Highest Android target level installed.
+     return -1 if no targets have been found.
+  """
+  target_output = RunCommand(['android', 'list', 'target'])
+  target_regex = re.compile(r'(android-\d+)')
+  targets = map(int,
+      [target[8:] for target in target_regex.findall(target_output)])
+  targets.extend([-1])
+  return max(targets)
 
 
 def GetVersion(path):
@@ -87,6 +92,10 @@ def GetVersion(path):
   version_str += ('.').join(version_nums)
   file_handle.close()
   return version_str
+
+
+def ContainNativeLibrary(path):
+  return os.path.isfile(os.path.join(path, NATIVE_LIBRARY))
 
 
 def ParseManifest(options, app_info):
@@ -222,20 +231,11 @@ def Execution(options, name):
           'installation and your PATH environment variable.')
     sys.exit(1)
 
-  sdk_root_path = os.path.dirname(os.path.dirname(android_path))
-
-  try:
-    sdk_jar_path = Find('android.jar',
-                        os.path.join(sdk_root_path, 'platforms'))
-  except Exception:
-    print('Your Android SDK may be ruined, please reinstall it.')
-    sys.exit(2)
-
-  level_string = os.path.basename(os.path.dirname(sdk_jar_path))
-  api_level = int(re.search(r'\d+', level_string).group())
+  api_level = GetAndroidApiLevel()
   if api_level < 14:
     print('Please install Android API level (>=14) first.')
     sys.exit(3)
+  target_string = 'android-%d' % api_level
 
   if options.keystore_path:
     key_store = os.path.expanduser(options.keystore_path)
@@ -258,34 +258,10 @@ def Execution(options, name):
   else:
     print ('Use xwalk\'s keystore by default for debugging. '
            'Please switch to your keystore when distributing it to app market.')
-    key_store = 'scripts/ant/xwalk-debug.keystore'
+    key_store = 'xwalk-debug.keystore'
     key_alias = 'xwalkdebugkey'
     key_code = 'xwalkdebug'
     key_alias_code = 'xwalkdebug'
-
-  if not os.path.exists('out'):
-    os.mkdir('out')
-
-  # Make sure to use ant-tasks.jar correctly.
-  # Default Android SDK names it as ant-tasks.jar
-  # Chrome third party Android SDk names it as anttasks.jar
-  ant_tasks_jar_path = os.path.join(sdk_root_path,
-                                    'tools', 'lib', 'ant-tasks.jar')
-  if not os.path.exists(ant_tasks_jar_path):
-    ant_tasks_jar_path = os.path.join(sdk_root_path,
-                                      'tools', 'lib', 'anttasks.jar')
-
-  aapt_path = ''
-  for aapt_str in AddExeExtensions('aapt'):
-    try:
-      aapt_path = Find(aapt_str, sdk_root_path)
-      print('Use %s in %s.' % (aapt_str, sdk_root_path))
-      break
-    except Exception:
-      pass
-  if not aapt_path:
-    print('Your Android SDK may be ruined, please reinstall it.')
-    sys.exit(2)
 
   # Check whether ant is installed.
   try:
@@ -295,197 +271,59 @@ def Execution(options, name):
     print('Please install ant first.')
     sys.exit(4)
 
-  res_dirs = '-DADDITIONAL_RES_DIRS=\'\''
-  res_packages = '-DADDITIONAL_RES_PACKAGES=\'\''
-  res_r_text_files = '-DADDITIONAL_R_TEXT_FILES=\'\''
+  # Update android project for app and xwalk_core_library.
+  update_project_cmd = ['android', 'update', 'project',
+                        '--path', name, '--target', target_string,
+                        '--name', name]
   if options.mode == 'embedded':
-    # Prepare the .pak file for embedded mode.
-    pak_src_path = os.path.join('native_libs_res', 'xwalk.pak')
-    pak_des_path = os.path.join(name, 'assets', 'xwalk.pak')
-    shutil.copy(pak_src_path, pak_des_path)
+    RunCommand(['android', 'update', 'lib-project',
+                '--path', os.path.join(name, 'xwalk_core_library'),
+                '--target', target_string])
+    update_project_cmd.extend(['-l', 'xwalk_core_library'])
+  else:
+    # Shared mode doesn't need xwalk_runtime_java.jar.
+    os.remove(os.path.join(name, 'libs', 'xwalk_runtime_java.jar'))
 
-    # Prepare the icudtl.dat for embedded mode.
-    icudtl_src_path = os.path.join('native_libs_res', 'icudtl.dat')
-    icudtl_des_path = os.path.join(name, 'assets', 'icudtl.dat')
-    shutil.copy(icudtl_src_path, icudtl_des_path)
+  RunCommand(update_project_cmd)
 
-    js_src_dir = os.path.join('native_libs_res', 'jsapi')
-    js_des_dir = os.path.join(name, 'assets', 'jsapi')
-    if os.path.exists(js_des_dir):
-      shutil.rmtree(js_des_dir)
-    shutil.copytree(js_src_dir, js_des_dir)
-
-    res_ui_java = os.path.join('gen', 'ui_java')
-    res_content_java = os.path.join('gen', 'content_java')
-    res_xwalk_java = os.path.join('gen', 'xwalk_core_internal_java')
-    res_dir = os.path.join('libs_res', 'xwalk_core_library')
-    res_dirs = ('-DADDITIONAL_RES_DIRS=' + res_dir)
-    res_packages = ('-DADDITIONAL_RES_PACKAGES=org.chromium.ui '
-                    'org.xwalk.core.internal org.chromium.content')
-    res_r_text_files = ('-DADDITIONAL_R_TEXT_FILES='
-                        + os.path.join(res_ui_java, 'java_R', 'R.txt') + ' '
-                        + os.path.join(res_xwalk_java, 'java_R', 'R.txt') + ' '
-                        + os.path.join(res_content_java, 'java_R', 'R.txt'))
-
-  resource_dir = '-DRESOURCE_DIR=' + os.path.join(name, 'res')
-  manifest_path = os.path.join(name, 'AndroidManifest.xml')
-  cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
-         '-DAAPT_PATH=%s' % aapt_path,
-         res_dirs,
-         res_packages,
-         res_r_text_files,
-         '-DANDROID_MANIFEST=%s' % manifest_path,
-         '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
-         '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
-         '-DANDROID_SDK_VERSION=%d' % api_level,
-         '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-         '-DLIBRARY_MANIFEST_PATHS= ',
-         '-DOUT_DIR=out',
-         resource_dir,
-         '-DSTAMP=codegen.stamp',
-         '-Dbasedir=.',
-         '-buildfile',
-         os.path.join('scripts', 'ant', 'apk-codegen.xml')]
-  RunCommand(cmd, options.verbose)
-
-  # Check whether java is installed.
-  try:
-    cmd = ['java', '-version']
-    RunCommand(cmd, shell=True)
-  except EnvironmentError:
-    print('Please install Oracle JDK first.')
-    sys.exit(5)
-
-  # Compile App source code with app runtime code.
-  cmd = ['python', os.path.join('scripts', 'gyp', 'javac.py'),
-         '--output-dir=%s' % os.path.join('out', 'classes'),
-         '--classpath',
-         os.path.join(os.getcwd(), 'libs', 'xwalk_app_runtime_java.jar'),
-         '--classpath',
-         sdk_jar_path,
-         '--src-dirs',
-         os.path.join(os.getcwd(), name, 'src'),
-         '--src-dirs',
-         os.path.join(os.getcwd(), 'out', 'gen'),
-         '--chromium-code=0',
-         '--stamp=compile.stam']
-  RunCommand(cmd, options.verbose)
-
-  # Package resources.
-  asset_dir = '-DASSET_DIR=%s' % os.path.join(name, 'assets')
-  xml_path = os.path.join('scripts', 'ant', 'apk-package-resources.xml')
-  cmd = ['python', os.path.join('scripts', 'gyp', 'ant.py'),
-         '-DAAPT_PATH=%s' % aapt_path,
-         res_dirs,
-         res_packages,
-         res_r_text_files,
-         '-DANDROID_SDK_JAR=%s' % sdk_jar_path,
-         '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
-         '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-         '-DAPK_NAME=%s' % name,
-         '-DAPP_MANIFEST_VERSION_CODE=0',
-         '-DAPP_MANIFEST_VERSION_NAME=Developer Build',
-         asset_dir,
-         '-DCONFIGURATION_NAME=Release',
-         '-DOUT_DIR=out',
-         resource_dir,
-         '-DSTAMP=package_resources.stamp',
-         '-Dbasedir=.',
-         '-buildfile',
-         xml_path]
-  RunCommand(cmd, options.verbose)
-
-  dex_path = '--dex-path=' + os.path.join(os.getcwd(), 'out', 'classes.dex')
-  app_runtime_jar = os.path.join(os.getcwd(),
-                                 'libs', 'xwalk_app_runtime_java.jar')
+  # Place ant.properties for pre-specified keystore and passcode.
+  # FIXME(wang16): allow developer to enter password interactively.
+  with open(os.path.join(name, 'ant.properties'), 'a') as ant_properties:
+    ant_properties.write('key.store=%s\n' % os.path.abspath(key_store))
+    ant_properties.write('key.alias=%s\n' % key_alias)
+    ant_properties.write('key.store.password=%s\n' % key_code)
+    ant_properties.write('key.alias.password=%s\n' % key_alias_code)
 
   # Check whether external extensions are included.
   extensions_string = 'xwalk-extensions'
   extensions_dir = os.path.join(os.getcwd(), name, extensions_string)
   external_extension_jars = FindExtensionJars(extensions_dir)
-  input_jars = []
+  for external_extension_jar in external_extension_jars:
+    shutil.copyfile(external_extension_jar,
+                    os.path.join(name, 'libs',
+                                 os.path.basename(external_extension_jar)))
+
   if options.mode == 'embedded':
-    input_jars.append(os.path.join(os.getcwd(), 'libs',
-                                   'xwalk_runtime_embedded.dex.jar'))
-  dex_command_list = ['python', os.path.join('scripts', 'gyp', 'dex.py'),
-                      dex_path,
-                      '--android-sdk-root=%s' % sdk_root_path,
-                      app_runtime_jar,
-                      os.path.join(os.getcwd(), 'out', 'classes')]
-  dex_command_list.extend(external_extension_jars)
-  dex_command_list.extend(input_jars)
-  RunCommand(dex_command_list)
+    # Remove existing native libraries in xwalk_core_library, they are probably
+    # for the last execution to make apk for another CPU arch.
+    # And then copy the native libraries for the specified arch into
+    # xwalk_core_library.
+    arch = options.arch
+    library_lib_path = os.path.join(name, 'xwalk_core_library', 'libs')
+    for dir_name in os.listdir(library_lib_path):
+      lib_dir = os.path.join(library_lib_path, dir_name)
+      if ContainNativeLibrary(lib_dir):
+        shutil.rmtree(lib_dir)
+    native_lib_path = os.path.join(name, 'native_libs', arch)
+    if ContainNativeLibrary(native_lib_path):
+      shutil.copytree(native_lib_path, os.path.join(library_lib_path, arch))
+    else:
+      print('No %s native library has been found for creating a Crosswalk '
+            'embedded APK.' % arch)
+      sys.exit(10)
 
-  src_dir = '-DSOURCE_DIR=' + os.path.join(name, 'src')
-  apk_path = '-DUNSIGNED_APK_PATH=' + os.path.join('out', 'app-unsigned.apk')
-  native_lib_path = '-DNATIVE_LIBS_DIR='
-  if options.mode == 'embedded':
-    if options.arch == 'x86':
-      x86_native_lib_path = os.path.join('native_libs', 'x86', 'libs',
-                                         'x86', 'libxwalkcore.so')
-      if os.path.isfile(x86_native_lib_path):
-        native_lib_path += os.path.join('native_libs', 'x86', 'libs')
-      else:
-        print('No x86 native library has been found for creating a Crosswalk '
-              'embedded APK.')
-        sys.exit(10)
-    elif options.arch == 'arm':
-      arm_native_lib_path = os.path.join('native_libs', 'armeabi-v7a', 'libs',
-                                         'armeabi-v7a', 'libxwalkcore.so')
-      if os.path.isfile(arm_native_lib_path):
-        native_lib_path += os.path.join('native_libs', 'armeabi-v7a', 'libs')
-      else:
-        print('No ARM native library has been found for creating a Crosswalk '
-              'embedded APK.')
-        sys.exit(10)
-  # A space is needed for Windows.
-  native_lib_path += ' '
-  cmd = ['python', 'scripts/gyp/ant.py',
-         '-DANDROID_SDK_ROOT=%s' % sdk_root_path,
-         '-DANT_TASKS_JAR=%s' % ant_tasks_jar_path,
-         '-DAPK_NAME=%s' % name,
-         '-DCONFIGURATION_NAME=Release',
-         native_lib_path,
-         '-DOUT_DIR=out',
-         src_dir,
-         apk_path,
-         '-Dbasedir=.',
-         '-buildfile',
-         'scripts/ant/apk-package.xml']
-  RunCommand(cmd, options.verbose)
-
-  # Find the path of zipalign.
-  # XWALK-2033: zipalign can be in different locations depending on Android
-  # SDK version that used ((eg. /tools, /build-tools/android-4.4W etc),).
-  # So looking up the location of zipalign here instead of hard coding.
-  # Refer to: https://codereview.chromium.org/238253015
-  zipalign_path = ''
-  for zipalign_str in AddExeExtensions('zipalign'):
-    try:
-      zipalign_path = Find(zipalign_str, sdk_root_path)
-      if options.verbose:
-        print('Use %s in %s.' % (zipalign_str, sdk_root_path))
-      break
-    except Exception:
-      pass
-  if not zipalign_path:
-    print('zipalign could not be found in your Android SDK.'
-          ' Make sure it is installed.')
-    sys.exit(10)
-  apk_path = '--unsigned-apk-path=' + os.path.join('out', 'app-unsigned.apk')
-  final_apk_path = '--final-apk-path=' + \
-                   os.path.join('out', name + '.apk')
-  cmd = ['python', 'scripts/gyp/finalize_apk.py',
-         '--zipalign-path=%s' % zipalign_path,
-         apk_path,
-         final_apk_path,
-         '--keystore-path=%s' % key_store,
-         '--keystore-alias=%s' % key_alias,
-         '--keystore-passcode=%s' % key_code,
-         '--keystore-alias-passcode=%s' % key_alias_code]
-  RunCommand(cmd)
-
-  src_file = os.path.join('out', name + '.apk')
+  RunCommand(['ant', 'release', '-f', os.path.join(name, 'build.xml')])
+  src_file = os.path.join(name, 'bin', '%s-release.apk' % name)
   package_name = options.name
   if options.app_version:
     package_name += ('_' + options.app_version)
@@ -495,9 +333,6 @@ def Execution(options, name):
     dst_file = os.path.join(options.target_dir,
                             '%s_%s.apk' % (package_name, options.arch))
   shutil.copyfile(src_file, dst_file)
-  CleanDir('out')
-  if options.mode == 'embedded':
-    os.remove(pak_des_path)
 
 
 def PrintPackageInfo(options, packaged_archs):
@@ -544,6 +379,21 @@ def MakeApk(options, app_info):
   if options.mode == 'shared':
     Execution(options, name)
   elif options.mode == 'embedded':
+    # Copy xwalk_core_library into app folder and move the native libraries
+    # out.
+    # When making apk for specified CPU arch, will only includes the
+    # corresponding native library by copying it back into xwalk_core_library.
+    target_library_path = os.path.join(name, 'xwalk_core_library')
+    shutil.copytree('xwalk_core_library', target_library_path)
+    library_lib_path = os.path.join(target_library_path, 'libs')
+    native_lib_path = os.path.join(name, 'native_libs')
+    os.makedirs(native_lib_path)
+    available_archs = []
+    for dir_name in os.listdir(library_lib_path):
+      lib_dir = os.path.join(library_lib_path, dir_name)
+      if ContainNativeLibrary(lib_dir):
+        shutil.move(lib_dir, os.path.join(native_lib_path, dir_name))
+        available_archs.append(dir_name)
     if options.arch:
       Execution(options, name)
       packaged_archs.append(options.arch)
@@ -552,9 +402,7 @@ def MakeApk(options, app_info):
       # will be generated.
       valid_archs = ['x86', 'armeabi-v7a']
       for arch in valid_archs:
-        lib_path = os.path.join('native_libs', arch, 'libs',
-                                arch, 'libxwalkcore.so')
-        if os.path.isfile(lib_path):
+        if arch in available_archs:
           if arch.find('x86') != -1:
             options.arch = 'x86'
           elif arch.find('arm') != -1:
@@ -563,8 +411,7 @@ def MakeApk(options, app_info):
           packaged_archs.append(options.arch)
         else:
           print('Warning: failed to create package for arch "%s" '
-                'due to missing library %s' %
-                (arch, lib_path))
+                'due to missing native library' % arch)
 
       if len(packaged_archs) == 0:
         print('No packages created, aborting')
