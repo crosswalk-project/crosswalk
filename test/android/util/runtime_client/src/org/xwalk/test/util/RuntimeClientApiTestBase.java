@@ -336,7 +336,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
     }
 
     // For onPause, onResume.
-    public void testPauseAndResume() throws Throwable {
+    public void testPauseAndResume(Context context) throws Throwable {
         String title = "";
         String prevTitle = "";
         String nextTitle = "";
@@ -345,7 +345,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         title = mTestUtil.loadAssetFileAndWaitForTitle("timer.html");
         mTestCase.assertNotNull(title);
 
-        mTestUtil.onPause();
+        mTestUtil.pauseActivity(context);
         msg = "The second title should be equal to the first title.";
         // wait for the pause is finished.
         waitForTimerFinish(5000);
@@ -354,7 +354,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
         nextTitle = getTitleOnUiThread();
         compareTitle(prevTitle, nextTitle, msg, Relation.EQUAL);
 
-        mTestUtil.onResume();
+        mTestUtil.resumeActivity();
         msg = "The second title should be greater than the first title.";
         // wait for the resume is finished.
         waitForTimerFinish(5000);

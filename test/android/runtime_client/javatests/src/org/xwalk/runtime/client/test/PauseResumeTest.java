@@ -16,13 +16,12 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
  */
 public class PauseResumeTest extends XWalkRuntimeClientTestBase {
 
-    // @SmallTest
-    // @Feature({"PauseResume"})
-    @DisabledTest
+    @SmallTest
+    @Feature({"PauseResume"})
     public void testPauseAndResume() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
                         getTestUtil(), this);
-        helper.testPauseAndResume();
+        helper.testPauseAndResume(getActivity());
     }
 }
