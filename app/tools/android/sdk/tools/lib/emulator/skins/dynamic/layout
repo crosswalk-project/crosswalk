@@ -1,0 +1,138 @@
+# This layout file only defines all the parts. The layouts section
+# that is missing is filled in at runtime by the skin parser.
+# Many of the parts in this layout have both _on and _off versions
+# which correspond to the part to be used if that control is actually
+# available in the AVD.
+parts {
+    device {
+        display {
+            width   320
+            height  480
+            x       0
+            y       0
+        }
+    }
+
+    dpad_on {
+        background {
+            image   dpad_on.png
+            width   110
+            height  88
+        }
+        buttons {
+            dpad-up {
+                    image arrow_up.png
+                    x 24
+                    y 8
+            }
+            dpad-down {
+                    image arrow_down.png
+                    x 24
+                    y 60
+            }
+            dpad-left {
+                    image arrow_left.png
+                    x 0
+                    y 8
+            }
+            dpad-right {
+                    image arrow_right.png
+                    x 70
+                    y 8
+            }
+            dpad-center {
+                    image select.png
+                    x 24
+                    y 36
+            }
+        }
+    }
+
+    dpad_off {
+        background {
+            image   dpad_off.png
+            width   111
+            height  91
+        }
+    }
+
+    hwkeys_on {
+        background {
+            image   hwkeys_on.png
+            width   212
+            height  58
+        }
+        buttons {
+            home {
+                    image button.png
+                    x 0
+                    y 12
+            }
+            soft-left {
+                    image button.png
+                    x 56
+                    y 12
+            }
+            back {
+                    image button.png
+                    x 112
+                    y 12
+            }
+            search {
+                    image button.png
+                    x 166
+                    y 12
+            }
+        }
+    }
+
+    hwkeys_off {
+        background {
+            image   hwkeys_off.png
+            width   212
+            height  58
+        }
+    }
+
+    keyboard_on {
+        background {
+            image   keyboard_on.png
+            width   195
+            height  21
+        }
+    }
+
+    keyboard_off {
+        background {
+            image   keyboard_off.png
+            width   174
+            height  21
+        }
+    }
+
+    basic_controls {
+        background {
+            image   basic.png
+            width   159
+            height  55
+        }
+
+        buttons {
+            volume-down {
+                    image button.png
+                    x 1
+                    y 9
+            }
+            volume-up {
+                    image button.png
+                    x 57
+                    y 9
+            }
+            power {
+                    image button.png
+                    x 113
+                    y 9
+            }
+        }
+    }
+}
