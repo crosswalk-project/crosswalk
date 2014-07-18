@@ -76,6 +76,13 @@ bool NaClBrowserDelegateImpl::MapUrlToLocalFilePath(
   return false;
 }
 
+bool NaClBrowserDelegateImpl::IsNonSfiModeAllowed(
+    const base::FilePath& profile_directory,
+    const GURL& manifest_url)
+{
+  return false;
+}
+
 content::BrowserPpapiHost::OnKeepaliveCallback
 NaClBrowserDelegateImpl::GetOnKeepaliveCallback() {
   return base::Bind(&OnKeepalive);
