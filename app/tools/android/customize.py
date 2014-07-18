@@ -116,9 +116,9 @@ def Prepare(app_info, compressor):
   app_root = app_info.app_root
   if os.path.exists(name):
     shutil.rmtree(name)
-  shutil.copytree('app_src', name)
+  shutil.copytree('template', name)
   shutil.rmtree(os.path.join(name, 'src'))
-  src_root = os.path.join('app_src', 'src', 'org', 'xwalk', 'app', 'template')
+  src_root = os.path.join('template', 'src', 'org', 'xwalk', 'app', 'template')
   src_activity = os.path.join(src_root, 'AppTemplateActivity.java')
   if not os.path.isfile(src_activity):
     print ('Please make sure that the java file'
@@ -130,20 +130,19 @@ def Prepare(app_info, compressor):
   dest_activity = name + 'Activity.java'
   shutil.copyfile(src_activity, os.path.join(root_path, dest_activity))
   if app_root:
-    assets_path = os.path.join(name, 'assets')
-    shutil.rmtree(assets_path)
-    os.makedirs(assets_path)
-    app_src_path = os.path.join(assets_path, 'www')
-    shutil.copytree(app_root, app_src_path)
+    assets_path = os.path.join(name, 'assets', 'www')
+    if os.path.isdir(assets_path):
+      shutil.rmtree(assets_path)
+    shutil.copytree(app_root, assets_path)
     if compressor:
-      CompressSourceFiles(app_src_path, compressor)
+      CompressSourceFiles(assets_path, compressor)
 
 
 def CustomizeStringXML(name, description):
   strings_path = os.path.join(name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
     print ('Please make sure strings_xml'
-           ' exists under app_src folder.')
+           ' exists under template folder.')
     sys.exit(6)
 
   if description:
@@ -185,7 +184,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   manifest_path = os.path.join(name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
-           ' exists under app_src folder.')
+           ' exists under template folder.')
     sys.exit(6)
 
   CustomizeStringXML(name, description)
