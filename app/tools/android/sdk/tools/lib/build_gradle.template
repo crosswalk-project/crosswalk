@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:ARTIFACT_VERSION'
+    }
+}
+apply plugin: 'PLUGIN'
+
+android {
+    compileSdkVersion 'TARGET'
+    buildToolsVersion 'BUILD_TOOL_REV'
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+        }
+    }
+}

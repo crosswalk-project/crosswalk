@@ -216,13 +216,23 @@ def Customize(options, app_info):
 
 
 def Execution(options, name):
-  android_path = Which('android')
-  if android_path is None:
-    print('The "android" binary could not be found. Check your Android SDK '
-          'installation and your PATH environment variable.')
-    sys.exit(1)
+  local_sdk = os.path.join('sdk')
+  local_sdk = os.path.abspath(local_sdk)
+  local_android = Find('android', local_sdk)
+  if local_android is None:
+    is_local =  False
+  else:
+    is_local = True
 
-  sdk_root_path = os.path.dirname(os.path.dirname(android_path))
+  if is_local:
+    sdk_root_path = local_sdk
+  else:
+    android_path = Which('android')
+    if android_path is None:
+      print('The "android" binary could not be found. Check your Android SDK '
+            'installation and your PATH environment variable.')
+      sys.exit(1)
+    sdk_root_path = os.path.dirname(os.path.dirname(android_path))
 
   try:
     sdk_jar_path = Find('android.jar',
