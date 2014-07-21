@@ -13,7 +13,7 @@ import sys
 
 from util import build_utils
 
-def SignApk(keystore_path, unsigned_path, signed_path, alias, code):
+def SignApk(keystore_path, unsigned_path, signed_path, alias, code, alias_code):
   intermediate_path = unsigned_path + '.copy'
   shutil.copy(unsigned_path, intermediate_path)
   sign_cmd = [
@@ -22,6 +22,7 @@ def SignApk(keystore_path, unsigned_path, signed_path, alias, code):
       '-digestalg', 'SHA1',
       '-keystore', keystore_path,
       '-storepass', code,
+      '-keypass', alias_code,
       intermediate_path, alias
       ]
   build_utils.CheckCallDie(sign_cmd)
@@ -48,12 +49,15 @@ def main():
   parser.add_option('--keystore-path', help='Path to keystore for signing.')
   parser.add_option('--keystore-alias', help='Alias name of keystore.')
   parser.add_option('--keystore-passcode', help='Passcode of keystore.')
+  parser.add_option('--keystore-alias-passcode',
+                    help='Passcode for alias\'s private key in the keystore.')
   parser.add_option('--stamp', help='Path to touch on success.')
   options, _ = parser.parse_args()
 
   signed_apk_path = options.unsigned_apk_path + '.signed.apk'
   SignApk(options.keystore_path, options.unsigned_apk_path,
-          signed_apk_path, options.keystore_alias, options.keystore_passcode)
+          signed_apk_path, options.keystore_alias, options.keystore_passcode,
+          options.keystore_alias_passcode)
   AlignApk(options.zipalign_path, signed_apk_path, options.final_apk_path)
 
   if options.stamp:
