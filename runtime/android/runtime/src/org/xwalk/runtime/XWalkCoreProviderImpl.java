@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import org.chromium.content.browser.LoadUrlParams;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkPreferences;
 
