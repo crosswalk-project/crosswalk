@@ -130,6 +130,7 @@ def ParseManifest(options, app_info):
     options.fullscreen = True
   elif parser.GetFullScreenFlag().lower() == 'false':
     options.fullscreen = False
+  return parser
 
 
 def ParseXPK(options, out_dir):
@@ -191,7 +192,7 @@ def MakeVersionCode(options):
   return '%s%s' % (abi, b.zfill(7))
 
 
-def Customize(options, app_info):
+def Customize(options, app_info, parser):
   if options.package:
     app_info.package = options.package
   if options.name:
@@ -211,7 +212,7 @@ def Customize(options, app_info):
     app_info.icon = '%s' % os.path.expanduser(options.icon)
   CustomizeAll(app_info, options.description, options.icon_dict,
                options.permissions, options.app_url, options.app_local_path,
-               options.keep_screen_on, options.extensions, options.manifest,
+               options.keep_screen_on, options.extensions, parser,
                options.xwalk_command_line, options.compressor)
 
 
@@ -540,8 +541,8 @@ def PrintPackageInfo(options, packaged_archs):
            'here:\nhttps://software.intel.com/en-us/html5/articles/submitting'
            '-multiple-crosswalk-apk-to-google-play-store')
 
-def MakeApk(options, app_info):
-  Customize(options, app_info)
+def MakeApk(options, app_info, parser_result):
+  Customize(options, app_info, parser_result)
   name = options.name
   packaged_archs = []
   if options.mode == 'shared':
@@ -763,7 +764,7 @@ def main(argv):
     options.icon_dict = {}
   else:
     try:
-      ParseManifest(options, app_info)
+      parser_result = ParseManifest(options, app_info)
     except SystemExit as ec:
       return ec.code
 
@@ -781,7 +782,7 @@ def main(argv):
       os.makedirs(target_dir)
 
   try:
-    MakeApk(options, app_info)
+    MakeApk(options, app_info, parser_result)
   except SystemExit as ec:
     CleanDir(options.name)
     CleanDir('out')

@@ -155,7 +155,7 @@ def CustomizeStringXML(name, description):
     strings_file.close()
 
 
-def CustomizeThemeXML(name, fullscreen, app_manifest):
+def CustomizeThemeXML(name, fullscreen, parser_from_makeapk):
   theme_path = os.path.join(name, 'res', 'values', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
@@ -165,7 +165,7 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
   if fullscreen:
     EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowFullscreen', 'true')
-  has_background = CustomizeLaunchScreen(app_manifest, name)
+  has_background = CustomizeLaunchScreen(parser_from_makeapk, name)
   if has_background:
     EditElementValueByNodeName(theme_xmldoc, 'item',
                                'android:windowBackground',
@@ -175,7 +175,7 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
   theme_file.close()
 
 
-def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
+def CustomizeXML(app_info, description, icon_dict, parser_from_makeapk, permissions):
   app_version = app_info.app_version
   app_versionCode = app_info.app_versionCode
   name = app_info.name
@@ -189,7 +189,7 @@ def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
     sys.exit(6)
 
   CustomizeStringXML(name, description)
-  CustomizeThemeXML(name, app_info.fullscreen_flag, app_manifest)
+  CustomizeThemeXML(name, app_info.fullscreen_flag, parser_from_makeapk)
   xmldoc = minidom.parse(manifest_path)
   EditElementAttribute(xmldoc, 'manifest', 'package', package)
   if app_versionCode:
@@ -476,11 +476,11 @@ def CustomizeIcon(name, app_root, icon, icon_dict):
 
 
 def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
-                 app_local_path, keep_screen_on, extensions, app_manifest,
+                 app_local_path, keep_screen_on, extensions, parser_from_makeapk,
                  xwalk_command_line='', compressor=None):
   try:
     Prepare(app_info, compressor)
-    CustomizeXML(app_info, description, icon_dict, app_manifest, permissions)
+    CustomizeXML(app_info, description, icon_dict, parser_from_makeapk, permissions)
     CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
     CustomizeExtensions(app_info, extensions)
     GenerateCommandLineFile(app_info, xwalk_command_line)
@@ -577,7 +577,7 @@ def main():
                                  'icon_96.png')
     CustomizeAll(app_info, options.description, icon_dict,
                  options.permissions, options.app_url, options.app_local_path,
-                 options.keep_screen_on, options.extensions, options.manifest,
+                 options.keep_screen_on, options.extensions, parser_from_makeapk,
                  options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
