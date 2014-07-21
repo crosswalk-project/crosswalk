@@ -153,7 +153,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
-  scoped_refptr<RuntimeGeolocationPermissionContext> geolocation_permission_context_;
+  scoped_refptr<RuntimeGeolocationPermissionContext>
+    geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);

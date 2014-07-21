@@ -60,7 +60,8 @@ AppWidgetExtensionInstance::AppWidgetExtensionInstance(
   content::RenderProcessHost* rph =
       content::RenderProcessHost::FromID(application->GetRenderProcessHostID());
   content::StoragePartition* partition = rph->GetStoragePartition();
-  base::FilePath path = partition->GetPath().Append(FILE_PATH_LITERAL("WidgetStorage"));
+  base::FilePath path = partition->GetPath().Append(
+      FILE_PATH_LITERAL("WidgetStorage"));
   widget_storage_.reset(new AppWidgetStorage(application_, path));
 }
 

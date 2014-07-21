@@ -220,7 +220,7 @@ net::URLRequestContextGetter*
 #if defined(OS_ANDROID)
     return NULL;
 #else
-  PartitionPathContextGetterMap::iterator iter = 
+  PartitionPathContextGetterMap::iterator iter =
     context_getters_.find(partition_path.value());
   if (iter != context_getters_.end())
     return iter->second.get();

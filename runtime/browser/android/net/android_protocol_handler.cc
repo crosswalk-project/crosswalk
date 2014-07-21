@@ -229,7 +229,7 @@ bool AndroidStreamReaderURLRequestJobDelegateImpl::GetPackageName(
   return true;
 }
 
-// AndroidRequestInterceptorBase -------------------------------------------------
+// AndroidRequestInterceptorBase ----------------------------------------------
 
 net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
     net::URLRequest* request,
@@ -264,7 +264,7 @@ net::URLRequestJob* AndroidRequestInterceptorBase::MaybeInterceptRequest(
       content_security_policy);
 }
 
-// AssetFileRequestInterceptor ---------------------------------------------------
+// AssetFileRequestInterceptor ----------------------------------------------
 
 AssetFileRequestInterceptor::AssetFileRequestInterceptor()
     : asset_prefix_(std::string(url::kFileScheme) +

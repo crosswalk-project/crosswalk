@@ -32,7 +32,9 @@ class ViewWithPreferredSize : public View {
   }
 
   // View implementation.
-  virtual gfx::Size GetPreferredSize() const OVERRIDE { return preferred_size_; }
+  virtual gfx::Size GetPreferredSize() const OVERRIDE {
+    return preferred_size_;
+  }
 
  private:
   gfx::Size preferred_size_;
