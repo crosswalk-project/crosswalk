@@ -21,7 +21,9 @@
 #include "ui/gfx/image/image.h"
 
 namespace content {
+#if defined(TOOLKIT_VIEWS)
 class ColorChooser;
+#endif
 struct FileChooserParams;
 class RenderProcessHost;
 class SiteInstance;
@@ -129,10 +131,12 @@ class Runtime : public content::WebContentsDelegate,
   virtual void HandleKeyboardEvent(
       content::WebContents* source,
       const content::NativeWebKeyboardEvent& event) OVERRIDE;
+#if defined(TOOLKIT_VIEWS)
   virtual content::ColorChooser* OpenColorChooser(
       content::WebContents* web_contents,
       SkColor initial_color,
       const std::vector<content::ColorSuggestion>& suggestions) OVERRIDE;
+#endif
   virtual void RunFileChooser(
       content::WebContents* web_contents,
       const content::FileChooserParams& params) OVERRIDE;

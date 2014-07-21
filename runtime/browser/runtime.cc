@@ -225,12 +225,14 @@ void Runtime::DeactivateContents(content::WebContents* contents) {
   contents->GetRenderViewHost()->Blur();
 }
 
+#if defined(TOOLKIT_VIEWS)
 content::ColorChooser* Runtime::OpenColorChooser(
     content::WebContents* web_contents,
     SkColor initial_color,
     const std::vector<content::ColorSuggestion>& suggestions) {
   return xwalk::ShowColorChooser(web_contents, initial_color);
 }
+#endif
 
 void Runtime::RunFileChooser(
     content::WebContents* web_contents,
