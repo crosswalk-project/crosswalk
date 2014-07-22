@@ -430,8 +430,8 @@ def CustomizeIconByDict(name, app_root, icon_dict):
     print('The key of icon in the manifest file should be a number.')
 
   if len(icon_dict) > 0:
-    icon_list = sorted(icon_dict.iteritems(), key=lambda d: d[0])
-    for kd, vd in drawable_dict.iteritems():
+    icon_list = sorted(icon_dict.items(), key=lambda d: d[0])
+    for kd, vd in drawable_dict.items():
       for item in icon_list:
         if item[0] >= vd[0] and item[0] < vd[1]:
           drawable_path = os.path.join(name, 'res', 'drawable-' + kd)
