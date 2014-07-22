@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -11,18 +11,16 @@ import android.util.Log;
 
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
-import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkGeolocationPermissions;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
- * TODO(wang16): This test should be moved to internal test.
- *
  * Test suite for onGeolocationPermissionsShowPrompt() and
  *                onGeolocationPermissionsHidePrompt().
  */
-public class GeolocationPermissionTest extends XWalkViewTestBase {
+public class GeolocationPermissionTest extends XWalkViewInternalTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();

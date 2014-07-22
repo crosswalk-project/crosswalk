@@ -1,9 +1,9 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -19,13 +19,10 @@ import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.ContentView;
 import org.chromium.content.browser.ContentViewCore;
 
-import org.xwalk.core.XWalkView;
 import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
- * TODO(wang16): This test should be moved to internal test.
- *
  * Renderer responsiveness tests:
  *
  * Internally, a hang monitor timer will start for each renderer when there is
@@ -33,7 +30,7 @@ import org.xwalk.core.internal.XWalkViewInternal;
  * is not received in 30 seconds, the renderer is deemed to be unresponsive to
  * user interaction.
  */
-public class RendererResponsivenessTest extends XWalkViewTestBase {
+public class RendererResponsivenessTest extends XWalkViewInternalTestBase {
     private OnRendererResponsivenessHelper responsiveHelper = new OnRendererResponsivenessHelper();
     private OnRendererResponsivenessHelper unresponsiveHelper = new OnRendererResponsivenessHelper();
 
