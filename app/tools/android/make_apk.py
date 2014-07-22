@@ -718,6 +718,9 @@ def main(argv):
       parser.error('VERSION was not found, so Crosswalk\'s version could not '
                    'be determined.')
 
+  if options.icon and not os.path.isfile(options.icon):
+    parser.error('"%s" does not exist.' % options.icon)
+
   xpk_temp_dir = ''
   if options.xpk:
     xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]

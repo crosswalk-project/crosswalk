@@ -452,18 +452,14 @@ def CustomizeIconByDict(name, app_root, icon_dict):
 
 
 def CustomizeIconByOption(name, icon):
-  if os.path.isfile(icon):
-    drawable_path = os.path.join(name, 'res', 'drawable')
-    if not os.path.exists(drawable_path):
-      os.makedirs(drawable_path)
-    icon_file = os.path.basename(icon)
-    icon_file = ReplaceInvalidChars(icon_file)
-    shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
-    icon_name = os.path.splitext(icon_file)[0]
-    return icon_name
-  else:
-    print('Error: "%s" does not exist.')
-    sys.exit(6)
+  drawable_path = os.path.join(name, 'res', 'drawable')
+  if not os.path.exists(drawable_path):
+    os.makedirs(drawable_path)
+  icon_file = os.path.basename(icon)
+  icon_file = ReplaceInvalidChars(icon_file)
+  shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
+  icon_name = os.path.splitext(icon_file)[0]
+  return icon_name
 
 
 def CustomizeIcon(name, app_root, icon, icon_dict):
