@@ -142,7 +142,7 @@ def CustomizeBackground(background_color,
     content = content.replace('<!-- Background Image -->', tmp, 1)
     has_background = True
   if has_background:
-    background_file = file(background_path, 'w')
+    background_file = open(background_path, 'w')
     background_file.write(content)
     background_file.close()
   return has_background
