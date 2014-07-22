@@ -416,38 +416,55 @@ def GenerateCommandLineFile(app_info, xwalk_command_line):
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
+def GetIconSizeName(icon_size):
+  """
+  Returns a string corresponding to the range where |icon_size| falls into,
+  or None if it is out of range.
+  """
+  if icon_size in range(1, 37):
+    return 'ldpi'
+  elif icon_size in range(37, 72):
+    return 'mdpi'
+  elif icon_size in range(72, 96):
+    return 'hdpi'
+  elif icon_size in range(96, 120):
+    return 'xhdpi'
+  elif icon_size in range(120, 144):
+    return 'xxhdpi'
+  elif icon_size in range(144, 168):
+    return 'xxxhdpi'
+  return None
+
+
 def CustomizeIconByDict(name, app_root, icon_dict):
   icon_name = None
-  drawable_dict = {'ldpi': [1, 37], 'mdpi': [37, 72], 'hdpi': [72, 96],
-                   'xhdpi': [96, 120], 'xxhdpi': [120, 144],
-                   'xxxhdpi': [144, 168]}
-  if not icon_dict:
-    return icon_name
+  for icon_size, icon_file in icon_dict.items():
+    try:
+      icon_size = int(icon_size)
+    except ValueError:
+      print('"%s" is not an integer icon size. Skipping.' % icon_size)
+      continue
 
-  try:
-    icon_dict = dict((int(k), v) for k, v in icon_dict.items())
-  except ValueError:
-    print('The key of icon in the manifest file should be a number.')
+    source_path = os.path.join(app_root, icon_file)
+    if not os.path.isfile(source_path):
+      print('Error: "%s" does not exist. Skipping.' % source_path)
+      continue
 
-  if len(icon_dict) > 0:
-    icon_list = sorted(icon_dict.items(), key=lambda d: d[0])
-    for kd, vd in drawable_dict.items():
-      for item in icon_list:
-        if item[0] >= vd[0] and item[0] < vd[1]:
-          drawable_path = os.path.join(name, 'res', 'drawable-' + kd)
-          if not os.path.exists(drawable_path):
-            os.makedirs(drawable_path)
-          icon = os.path.join(app_root, item[1])
-          if icon and os.path.isfile(icon):
-            icon_name = os.path.basename(icon)
-            icon_suffix = icon_name.split('.')[-1]
-            shutil.copyfile(icon, os.path.join(drawable_path,
-                                               'icon.' + icon_suffix))
-            icon_name = 'icon'
-          elif icon and (not os.path.isfile(icon)):
-            print('Error: "%s" does not exist.' % icon)
-            sys.exit(6)
-          break
+    icon_type = GetIconSizeName(icon_size)
+    if icon_type is None:
+      print('The icon size must be an integer between 1 and 167. '
+            'Got %d, skipping.' % icon_size)
+      continue
+
+    # With some effort, this could be shared with CustomizeIconByOption().
+    destination_dir = os.path.join(name, 'res', 'drawable-%s' % icon_type)
+    if not os.path.isdir(destination_dir):
+      os.makedirs(destination_dir)
+    _, icon_extension = os.path.splitext(icon_file)
+    destination_path = os.path.join(
+      destination_dir, 'icon%s' % icon_extension)
+    shutil.copyfile(source_path, destination_path)
+    icon_name = 'icon'
   return icon_name
 
 
