@@ -10,7 +10,7 @@ class AppInfo:
     self.app_version = '1.0.0'
     self.app_versionCode = ''
     self.fullscreen_flag = ''
-    self.icon = ''
+    self.icon = None
     self.name = 'AppTemplate'
     self.orientation = 'unspecified'
     self.original_name = ''

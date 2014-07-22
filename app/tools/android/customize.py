@@ -175,7 +175,7 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
   theme_file.close()
 
 
-def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
+def CustomizeXML(app_info, description, app_manifest, permissions):
   app_version = app_info.app_version
   app_versionCode = app_info.app_versionCode
   name = app_info.name
@@ -209,7 +209,7 @@ def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon, icon_dict)
+  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon)
   if icon_name:
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
@@ -462,21 +462,22 @@ def CustomizeIconByOption(name, icon):
   return icon_name
 
 
-def CustomizeIcon(name, app_root, icon, icon_dict):
-  icon_name = None
-  if icon:
-    icon_name = CustomizeIconByOption(name, icon)
-  else:
-    icon_name = CustomizeIconByDict(name, app_root, icon_dict)
-  return icon_name
+def CustomizeIcon(name, app_root, icon):
+  if isinstance(icon, str):
+    # Single icon specified on the command line.
+    return CustomizeIconByOption(name, icon)
+  elif isinstance(icon, dict):
+    # Dictionary parsed from the manifest.
+    return CustomizeIconByDict(name, app_root, icon)
+  return None
 
 
-def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
+def CustomizeAll(app_info, description, permissions, app_url,
                  app_local_path, keep_screen_on, extensions, app_manifest,
                  xwalk_command_line='', compressor=None):
   try:
     Prepare(app_info, compressor)
-    CustomizeXML(app_info, description, icon_dict, app_manifest, permissions)
+    CustomizeXML(app_info, description, app_manifest, permissions)
     CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
     CustomizeExtensions(app_info, extensions)
     GenerateCommandLineFile(app_info, xwalk_command_line)
@@ -548,10 +549,6 @@ def main():
                     type='string', nargs=0, help=info)
   options, _ = parser.parse_args()
   try:
-    icon_dict = {144: 'icons/icon_144.png',
-                 72: 'icons/icon_72.png',
-                 96: 'icons/icon_96.png',
-                 48: 'icons/icon_48.png'}
     app_info = AppInfo()
     if options.name is not None:
       app_info.name = options.name
@@ -571,7 +568,7 @@ def main():
       app_info.fullscreen_flag = options.fullscreen
     app_info.icon = os.path.join('test_data', 'manifest', 'icons',
                                  'icon_96.png')
-    CustomizeAll(app_info, options.description, icon_dict,
+    CustomizeAll(app_info, options.description,
                  options.permissions, options.app_url, options.app_local_path,
                  options.keep_screen_on, options.extensions, options.manifest,
                  options.xwalk_command_line, options.compressor)
