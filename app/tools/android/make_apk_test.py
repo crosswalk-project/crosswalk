@@ -12,8 +12,6 @@ import sys
 import unittest
 import warnings
 
-from customize import ReplaceSpaceWithUnderscore
-
 
 def Clean(name, app_version):
   if os.path.exists(name):
@@ -213,7 +211,7 @@ class TestMakeApk(unittest.TestCase):
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     self.assertNotIn('An APK name is required', out)
-    Clean('Test_Example', '1.0.0')
+    Clean('Example', '1.0.0')
 
     invalid_chars = '\/:.*?"<>|-'
     for c in invalid_chars:
@@ -1072,34 +1070,31 @@ class TestMakeApk(unittest.TestCase):
     Clean(name, version)
 
 
-  def VerifyResultForAppNameWithSpace(self, manifest=None, name=None,
-                                      package=None):
+  def VerifyResultForAppNameWithSpace(self, manifest=None, name=None):
     version = '1.0.0'
+    package = 'org.xwalk.example'
     GetResultWithOption(manifest=manifest, name=name, package=package)
     if name is None:
       name = 'app name '
-    replaced_name = ReplaceSpaceWithUnderscore(name)
-    manifest = replaced_name + '/AndroidManifest.xml'
-    with open(manifest, 'r') as content_file:
+    android_manifest = 'Example/AndroidManifest.xml'
+    self.assertTrue(os.path.exists(android_manifest))
+    with open(android_manifest, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(os.path.exists(manifest))
     self.assertTrue(name in content)
-    Clean(replaced_name, version)
+    Clean('Example', version)
 
 
   def testAppNameWithSpace(self):
     name = 'app name'
-    package = 'org.xwalk.app_name'
 
-    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+    self.VerifyResultForAppNameWithSpace(name=name)
 
     name = 'app name '
-    self.VerifyResultForAppNameWithSpace(name=name, package=package)
+    self.VerifyResultForAppNameWithSpace(name=name)
 
     directory = os.path.join('test_data', 'manifest', 'invalidchars')
     manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
-    self.VerifyResultForAppNameWithSpace(manifest=manifest_path,
-                                         package=package)
+    self.VerifyResultForAppNameWithSpace(manifest=manifest_path)
 
 
 def SuiteWithModeOption():

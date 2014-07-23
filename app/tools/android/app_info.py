@@ -12,7 +12,8 @@ class AppInfo:
     self.fullscreen_flag = ''
     self.icon = ''
     # android_name is only composed of alphabetic characters,
-    # it will be used for Android project name,
+    # generated from the last segment of input package name.
+    # It will be used for Android project name,
     # APK file name and Activity name.
     self.android_name = 'AppTemplate'
     self.orientation = 'unspecified'
