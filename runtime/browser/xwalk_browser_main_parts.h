@@ -55,14 +55,6 @@ class XWalkBrowserMainParts : public content::BrowserMainParts {
       content::RenderProcessHost* host,
       extensions::XWalkExtensionVector* extensions);
 
-#if defined(OS_ANDROID)
-  // XWalkExtensionAndroid needs to register its extensions on
-  // XWalkBrowserMainParts so they get correctly registered on-demand
-  // by XWalkExtensionService each time a in_process Server is created.
-  void RegisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
-  void UnregisterExtension(scoped_ptr<extensions::XWalkExtension> extension);
-#endif
-
  protected:
   void RegisterExternalExtensions();
 

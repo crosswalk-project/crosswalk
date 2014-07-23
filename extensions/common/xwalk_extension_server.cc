@@ -68,6 +68,12 @@ void XWalkExtensionServer::OnCreateInstance(int64_t instance_id,
   }
 
   XWalkExtensionInstance* instance = it->second->CreateInstance();
+  if (!instance) {
+    LOG(WARNING) << "Can't create instance of extension: " << name
+        << ". CreateInstance() return invalid pointer.";
+    return;
+  }
+
   instance->SetPostMessageCallback(
       base::Bind(&XWalkExtensionServer::PostMessageToJSCallback,
                  base::Unretained(this), instance_id));
