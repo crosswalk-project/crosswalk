@@ -29,6 +29,10 @@ class XWalkRunnerTizen : public XWalkRunner {
   friend class XWalkRunner;
   XWalkRunnerTizen();
 
+  virtual void InitializeRuntimeVariablesForExtensions(
+      const content::RenderProcessHost* host,
+      base::ValueMap* runtime_variables) OVERRIDE;
+
   TizenLocaleListener tizen_locale_listener_;
 };
 

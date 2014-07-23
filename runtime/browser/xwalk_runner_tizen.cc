@@ -6,6 +6,9 @@
 
 #include "content/public/browser/browser_thread.h"
 #include "crypto/nss_util.h"
+#include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -33,6 +36,20 @@ void XWalkRunnerTizen::PreMainMessageLoopRun() {
       FROM_HERE,
       base::Bind(&crypto::EnsureNSSInit));
 #endif
+}
+
+void XWalkRunnerTizen::InitializeRuntimeVariablesForExtensions(
+    const content::RenderProcessHost* host,
+    base::ValueMap* variables) {
+  application::Application* app = app_system()->application_service()->
+      GetApplicationByRenderHostID(host->GetID());
+
+  if (app) {
+    (*variables)["app_id"] = base::Value::CreateStringValue(app->id());
+    (*variables)["tizen_app_id"] = base::Value::CreateStringValue(
+        application::RawAppIdToAppIdForTizenPkgmgrDB(
+            application::GetTizenAppId(app->data())));
+  }
 }
 
 }  // namespace xwalk

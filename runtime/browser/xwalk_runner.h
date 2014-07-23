@@ -134,7 +134,7 @@ class XWalkRunner {
 
   // These variables are used to export some values from the browser process
   // side to the extension side, such as application IDs and whatnot.
-  void InitializeRuntimeVariablesForExtensions(
+  virtual void InitializeRuntimeVariablesForExtensions(
       const content::RenderProcessHost* host,
       base::ValueMap* runtime_variables);
 
