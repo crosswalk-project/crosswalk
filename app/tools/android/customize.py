@@ -300,8 +300,8 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   src_file = os.path.join(src_path, file_name)
   dest_file = os.path.join(dest_extension_path, file_name)
   if not os.path.isfile(src_file):
+    print('Error: %s was not found in %s.' % (file_name, src_path))
     sys.exit(9)
-    print('Error: %s is not found in %s.' % (file_name, src_path))
   else:
     shutil.copyfile(src_file, dest_file)
 
