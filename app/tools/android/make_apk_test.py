@@ -332,15 +332,38 @@ class TestMakeApk(unittest.TestCase):
 
   def testPackage(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
-           self._mode]
+           '--app-url=http://www.intel.com', self._mode]
     out = RunCommand(cmd)
-    self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertIn('A package name is required', out)
-    Clean('Example', '1.0.0')
+
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
-           '--package=org.xwalk.example', self._mode]
+           '--package=org.xwalk.example',
+           '--app-url=http://www.intel.com', self._mode]
     out = RunCommand(cmd)
     self.assertNotIn('A package name is required', out)
+    Clean('Example', '1.0.0')
+
+  def testPackageWithInvalidCharacter(self):
+    package_name_error = 'package name should be started with letters'
+
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk._example',
+           '--app-url=http://www.intel.com', self._mode]
+    out = RunCommand(cmd)
+    self.assertIn(package_name_error, out)
+
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.123example',
+           '--app-url=http://www.intel.com', self._mode]
+    out = RunCommand(cmd)
+    self.assertIn(package_name_error, out)
+
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example_',
+           '--app-url=http://www.intel.com', self._mode]
+    out = RunCommand(cmd)
+    self.assertNotIn(package_name_error, out)
+    Clean('Example', '1.0.0')
 
   def testEntry(self):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
@@ -405,8 +428,8 @@ class TestMakeApk(unittest.TestCase):
 
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('Please make sure that the local path file') != -1)
@@ -468,6 +491,7 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
     cmd = ['python', 'make_apk.py', '--enable-remote-debugging',
+           '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
     activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
@@ -498,8 +522,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     manifest = 'Example/AndroidManifest.xml'
@@ -528,8 +552,8 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithSpecificValue(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_app_launch_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find('no app launch path') == -1)
@@ -538,7 +562,8 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithDeprecatedField(self):
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
                                  'manifest_app_local_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(out.find(
@@ -546,21 +571,24 @@ class TestMakeApk(unittest.TestCase):
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
                                  'manifest_launch_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('WARNING: launch_path is deprecated for Crosswalk') != -1)
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
                                  'manifest_permissions.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('WARNING: permissions is deprecated for Crosswalk') != -1)
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_deprecated_icon.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find(
         'WARNING: icons defined as dictionary form is deprecated') != -1)
@@ -568,38 +596,38 @@ class TestMakeApk(unittest.TestCase):
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_app_launch_path.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no app launch path') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_name.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no \'name\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_no_version.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('no \'version\' field') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_format_error.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_permissions_field_error.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(out.find('\'Permissions\' field error') != -1)
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_not_supported_permission.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path,
-           '--verbose', self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, '--verbose', self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('\'Telephony\' related API is not supported') != -1)
@@ -658,7 +686,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testXPK(self):
     xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
-    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--xpk=%s' % xpk_file, self._mode]
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
@@ -666,7 +695,8 @@ class TestMakeApk(unittest.TestCase):
 
   def testXPKWithError(self):
     xpk_file = os.path.join('test_data', 'xpk', 'error.xpk')
-    cmd = ['python', 'make_apk.py', '--xpk=%s' % xpk_file, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--xpk=%s' % xpk_file, self._mode]
     out = RunCommand(cmd)
     error_msg = 'XPK doesn\'t contain manifest file'
     self.assertTrue(out.find(error_msg) != -1)
@@ -849,13 +879,15 @@ class TestMakeApk(unittest.TestCase):
     # Run Test.
     manifest_path = os.path.join('test_data', 'launchScreen',
                                  'manifest_deprecated_launch_screen.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.assertTrue(
         out.find('WARNING: launch_screen is deprecated for Crosswalk') != -1)
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'launchScreen', 'manifest.json')
-    cmd = ['python', 'make_apk.py', '--manifest=%s' % manifest_path, self._mode]
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
     # Check theme.xml.
     theme_path = os.path.join('Example', 'res', 'values', 'theme.xml')
@@ -935,6 +967,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--compressor',
            '--app-root=%s' % app_root]
     RunCommand(cmd)
@@ -943,6 +976,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--app-root=%s' % app_root,
            '--compressor']
     RunCommand(cmd)
@@ -951,6 +985,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--compressor=js',
            '--app-root=%s' % app_root]
     RunCommand(cmd)
@@ -958,6 +993,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--compressor=css',
            '--app-root=%s' % app_root]
     RunCommand(cmd)
@@ -965,6 +1001,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--app-root=%s' % app_root]
     RunCommand(cmd)
     CompareSizeForCompressor(None, css_file, 'css', name, fun)
@@ -972,6 +1009,7 @@ class TestMakeApk(unittest.TestCase):
 
     cmd = ['python', 'customize.py',
            '--name=%s' % name,
+           '--package=org.xwalk.example',
            '--app-root=%s' % app_root,
            '--compressor=other']
     RunCommand(cmd)
@@ -1022,20 +1060,6 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(result.find(app_name_error) == -1)
     Clean(name, version)
 
-    name = 'xwalk'
-    package = 'org.xwalk._example'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(package_name_error) != -1)
-
-    package = 'org.xwalk.123example'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(package_name_error) != -1)
-
-    package = 'org.xwalk.example_'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(package_name_error) == -1)
-    Clean(name, version)
-
 
   def VerifyResultForAppNameWithSpace(self, manifest=None, name=None,
                                       package=None):
@@ -1063,7 +1087,8 @@ class TestMakeApk(unittest.TestCase):
 
     directory = os.path.join('test_data', 'manifest', 'invalidchars')
     manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
-    self.VerifyResultForAppNameWithSpace(manifest=manifest_path)
+    self.VerifyResultForAppNameWithSpace(manifest=manifest_path,
+                                         package=package)
 
 
 def SuiteWithModeOption():
@@ -1091,6 +1116,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testName'))
   test_suite.addTest(TestMakeApk('testOrientation'))
   test_suite.addTest(TestMakeApk('testPackage'))
+  test_suite.addTest(TestMakeApk('testPackageWithInvalidCharacter'))
   test_suite.addTest(TestMakeApk('testPermissions'))
   test_suite.addTest(TestMakeApk('testPermissionsWithError'))
   test_suite.addTest(TestMakeApk('testXPK'))

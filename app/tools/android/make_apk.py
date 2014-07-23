@@ -92,13 +92,6 @@ def GetVersion(path):
 def ParseManifest(options, app_info):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
   original_name = app_info.original_name = parser.GetAppName()
-  app_name = None
-  if options.package:
-    VerifyAppName(options.package, 'packagename')
-  else:
-    VerifyAppName(original_name)
-    app_name = ReplaceSpaceWithUnderscore(original_name)
-    options.package = 'org.xwalk.' + app_name.lower()
   if options.name:
     VerifyAppName(options.name)
     app_info.original_name = options.name
@@ -732,11 +725,6 @@ def main(argv):
 
   app_info = AppInfo()
   if not options.manifest:
-    if options.package:
-      VerifyAppName(options.package, 'packagename')
-    else:
-      parser.error('A package name is required. Please use the "--package" '
-                   'option.')
     if options.name:
       VerifyAppName(options.name)
       app_info.original_name = options.name
@@ -777,6 +765,11 @@ def main(argv):
       ParseManifest(options, app_info)
     except SystemExit as ec:
       return ec.code
+
+  if not options.package:
+    parser.error('A package name is required. Please use the "--package" '
+                 'option.')
+  VerifyAppName(options.package, 'packagename')
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
