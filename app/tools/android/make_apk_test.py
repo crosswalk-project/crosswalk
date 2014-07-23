@@ -202,6 +202,7 @@ class TestMakeApk(unittest.TestCase):
 
   def testName(self):
     cmd = ['python', 'make_apk.py', '--app-version=1.0.0',
+           '--app-url=http://www.intel.com',
            '--package=org.xwalk.example', self._mode]
     out = RunCommand(cmd)
     Clean('Example', '1.0.0')

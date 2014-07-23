@@ -89,16 +89,10 @@ def GetVersion(path):
   return version_str
 
 
-def ParseManifest(options, app_info):
+def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
-  original_name = app_info.original_name = parser.GetAppName()
-  if options.name:
-    VerifyAppName(options.name)
-    app_info.original_name = options.name
-    app_info.name = ReplaceSpaceWithUnderscore(options.name)
-  else:
-    VerifyAppName(original_name)
-    app_info.name = ReplaceSpaceWithUnderscore(original_name)
+  if not options.name:
+    options.name = parser.GetAppName()
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -186,8 +180,9 @@ def MakeVersionCode(options):
 
 
 def Customize(options, app_info, manifest):
-  if options.package:
-    app_info.package = options.package
+  app_info.package = options.package
+  app_info.original_name = options.name
+  app_info.name = ReplaceSpaceWithUnderscore(options.name)
   if options.app_version:
     app_info.app_version = options.app_version
   app_info.app_versionCode = MakeVersionCode(options)
@@ -714,13 +709,6 @@ def main(argv):
   app_info = AppInfo()
   manifest = None
   if not options.manifest:
-    if options.name:
-      VerifyAppName(options.name)
-      app_info.original_name = options.name
-      app_info.name = ReplaceSpaceWithUnderscore(options.name)
-    else:
-      parser.error('An APK name is required. Please use the "--name" option.')
-
     # The checks here are really convoluted, but at the moment make_apk
     # misbehaves any of the following conditions is true.
     if options.app_url:
@@ -751,9 +739,13 @@ def main(argv):
     options.icon_dict = {}
   else:
     try:
-      manifest = ParseManifest(options, app_info)
+      manifest = ParseManifest(options)
     except SystemExit as ec:
       return ec.code
+
+  if not options.name:
+    parser.error('An APK name is required. Please use the "--name" option.')
+  VerifyAppName(options.name)
 
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
