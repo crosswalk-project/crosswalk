@@ -16,6 +16,7 @@
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebScopedMicrotaskSuppression.h"
 #include "v8/include/v8.h"
+#include "xwalk/application/common/constants.h"
 #include "xwalk/extensions/common/xwalk_extension_messages.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_extension_client.h"
@@ -78,20 +79,24 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
 
-  module_system->RegisterNativeModule(
-      "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
-  module_system->RegisterNativeModule(
-      "internal", CreateJSModuleFromResource(
-          IDR_XWALK_EXTENSIONS_INTERNAL_API));
+  GURL url = static_cast<GURL>(frame->document().url());
+  if (url.SchemeIs(xwalk::application::kApplicationScheme) ||
+      url.SchemeIsFile()) {
+    module_system->RegisterNativeModule(
+        "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
+    module_system->RegisterNativeModule(
+        "internal", CreateJSModuleFromResource(
+            IDR_XWALK_EXTENSIONS_INTERNAL_API));
 
-  delegate_->DidCreateModuleSystem(module_system);
+    delegate_->DidCreateModuleSystem(module_system);
 
-  CreateExtensionModules(in_browser_process_extensions_client_.get(),
-                         module_system);
-
-  if (external_extensions_client_) {
-    CreateExtensionModules(external_extensions_client_.get(),
+    CreateExtensionModules(in_browser_process_extensions_client_.get(),
                            module_system);
+
+    if (external_extensions_client_) {
+      CreateExtensionModules(external_extensions_client_.get(),
+                             module_system);
+    }
   }
 
   module_system->Initialize();
