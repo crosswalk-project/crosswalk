@@ -95,10 +95,10 @@ def ParseManifest(options, app_info):
   if options.name:
     VerifyAppName(options.name)
     app_info.original_name = options.name
-    options.name = ReplaceSpaceWithUnderscore(options.name)
+    app_info.name = ReplaceSpaceWithUnderscore(options.name)
   else:
     VerifyAppName(original_name)
-    options.name = ReplaceSpaceWithUnderscore(original_name)
+    app_info.name = ReplaceSpaceWithUnderscore(original_name)
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -188,8 +188,6 @@ def MakeVersionCode(options):
 def Customize(options, app_info, manifest):
   if options.package:
     app_info.package = options.package
-  if options.name:
-    app_info.name = options.name
   if options.app_version:
     app_info.app_version = options.app_version
   app_info.app_versionCode = MakeVersionCode(options)
@@ -480,7 +478,7 @@ def Execution(options, name):
   RunCommand(cmd)
 
   src_file = os.path.join('out', name + '.apk')
-  package_name = options.name
+  package_name = name
   if options.app_version:
     package_name += ('_' + options.app_version)
   if options.mode == 'shared':
@@ -494,8 +492,8 @@ def Execution(options, name):
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(options, packaged_archs):
-  package_name_version = os.path.join(options.target_dir, options.name)
+def PrintPackageInfo(options, name, packaged_archs):
+  package_name_version = os.path.join(options.target_dir, name)
   if options.app_version:
     package_name_version += '_' + options.app_version
 
@@ -503,14 +501,14 @@ def PrintPackageInfo(options, packaged_archs):
     print ('A non-platform specific APK for the web application "%s" was '
            'generated successfully at\n%s.apk. It requires a shared Crosswalk '
            'Runtime to be present.'
-           % (options.name, package_name_version))
+           % (name, package_name_version))
     return
 
   for arch in packaged_archs:
     print ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
-           % (options.name, arch, package_name_version, arch))
+           % (name, arch, package_name_version, arch))
 
   all_archs = set(AllArchitectures())
 
@@ -533,7 +531,7 @@ def PrintPackageInfo(options, packaged_archs):
 
 def MakeApk(options, app_info, manifest):
   Customize(options, app_info, manifest)
-  name = options.name
+  name = app_info.name
   packaged_archs = []
   if options.mode == 'shared':
     Execution(options, name)
@@ -564,7 +562,7 @@ def MakeApk(options, app_info, manifest):
         print('No packages created, aborting')
         sys.exit(13)
 
-  PrintPackageInfo(options, packaged_archs)
+  PrintPackageInfo(options, name, packaged_archs)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -719,7 +717,7 @@ def main(argv):
     if options.name:
       VerifyAppName(options.name)
       app_info.original_name = options.name
-      options.name = ReplaceSpaceWithUnderscore(options.name)
+      app_info.name = ReplaceSpaceWithUnderscore(options.name)
     else:
       parser.error('An APK name is required. Please use the "--name" option.')
 
@@ -778,7 +776,7 @@ def main(argv):
   try:
     MakeApk(options, app_info, manifest)
   except SystemExit as ec:
-    CleanDir(options.name)
+    CleanDir(app_info.name)
     CleanDir('out')
     CleanDir(xpk_temp_dir)
     return ec.code
