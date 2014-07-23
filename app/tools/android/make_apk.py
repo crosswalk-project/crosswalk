@@ -181,8 +181,8 @@ def MakeVersionCode(options):
 
 def Customize(options, app_info, manifest):
   app_info.package = options.package
-  app_info.original_name = options.name
-  app_info.name = ReplaceSpaceWithUnderscore(options.name)
+  app_info.app_name = options.name
+  app_info.android_name = ReplaceSpaceWithUnderscore(options.name)
   if options.app_version:
     app_info.app_version = options.app_version
   app_info.app_versionCode = MakeVersionCode(options)
@@ -526,7 +526,7 @@ def PrintPackageInfo(options, name, packaged_archs):
 
 def MakeApk(options, app_info, manifest):
   Customize(options, app_info, manifest)
-  name = app_info.name
+  name = app_info.android_name
   packaged_archs = []
   if options.mode == 'shared':
     Execution(options, name)
@@ -768,7 +768,7 @@ def main(argv):
   try:
     MakeApk(options, app_info, manifest)
   except SystemExit as ec:
-    CleanDir(app_info.name)
+    CleanDir(app_info.android_name)
     CleanDir('out')
     CleanDir(xpk_temp_dir)
     return ec.code
