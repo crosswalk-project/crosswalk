@@ -361,7 +361,7 @@ def CustomizeExtensions(app_info, extensions):
       print('Error: %s is not found in %s.' % (file_name, source_path))
       sys.exit(9)
     else:
-      src_file_handle = file(src_file)
+      src_file_handle = open(src_file)
       src_file_content = src_file_handle.read()
       json_output = json.JSONDecoder().decode(src_file_content)
       # Below 3 properties are used by runtime. See extension manager.
