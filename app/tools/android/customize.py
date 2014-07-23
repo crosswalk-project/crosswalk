@@ -24,19 +24,15 @@ from handle_permissions import HandlePermissions
 from xml.dom import minidom
 
 
-def VerifyAppName(value, mode='default'):
-  descrpt = 'The app'
-  sample = 'helloworld, hello world, hello_world, hello_world1'
-  regex = r'[a-zA-Z][\w ]*$'
+def VerifyPackageName(value):
+  regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
+  descrpt = 'Each part of package'
+  sample = 'org.xwalk.example, org.xwalk.example_'
 
   if len(value) >= 128:
     print('To be safe, the length of package name or app name '
           'should be less than 128.')
     sys.exit(6)
-  if mode == 'packagename':
-    regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
-    descrpt = 'Each part of package'
-    sample = 'org.xwalk.example, org.xwalk.example_'
 
   if not re.match(regex, value):
     print('Error: %s name should be started with letters and should not '
@@ -182,6 +178,15 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   orientation = app_info.orientation
   package = app_info.package
   app_name = app_info.app_name
+  # Chinese character with unicode get from 'manifest.json' will cause
+  # 'UnicodeEncodeError' when finally wrote to 'AndroidManifest.xml'.
+  if isinstance(app_name, unicode):
+    app_name = app_name.encode("utf-8")
+  # If string start with '@' or '?', it will be treated as Android resource,
+  # which will cause 'No resource found' error,
+  # append a space before '@' or '?' to fix that.
+  if app_name.startswith('@') or app_name.startswith('?'):
+    app_name = ' ' + app_name
   manifest_path = os.path.join(name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'

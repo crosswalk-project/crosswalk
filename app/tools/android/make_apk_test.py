@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: UTF-8
 
 # Copyright (c) 2013, 2014 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -212,15 +213,6 @@ class TestMakeApk(unittest.TestCase):
     out = RunCommand(cmd)
     self.assertNotIn('An APK name is required', out)
     Clean('Example', '1.0.0')
-
-    invalid_chars = '\/:.*?"<>|-'
-    for c in invalid_chars:
-      invalid_name = '--name=Example' + c
-      cmd = ['python', 'make_apk.py', invalid_name,
-             '--app-version=1.0.0', '--package=org.xwalk.example',
-             '--app-url=http://www.intel.com', self._mode]
-      out = RunCommand(cmd)
-      self.assertTrue(out.find('invalid characters') != -1)
 
   def testToolVersion(self):
     cmd = ['python', 'make_apk.py', '--version']
@@ -1027,74 +1019,29 @@ class TestMakeApk(unittest.TestCase):
 
     Clean(name, '1.0.0')
 
-  def testInvalidCharacter(self):
-    version = '1.0.0'
-    start_with_letters = ' should be started with letters'
-    app_name_error = 'app name' + start_with_letters
-    package_name_error = 'package name' + start_with_letters
-    parse_error = 'parser error in manifest.json file'
-    directory = os.path.join('test_data', 'manifest', 'invalidchars')
 
-    manifest_path = os.path.join(directory, 'manifest_with_space_name.json')
-    result = GetResultWithOption(self._mode, manifest_path)
-    self.assertTrue(result.find(app_name_error) != -1)
-
-    manifest_path = os.path.join(directory, 'manifest_with_chinese_name.json')
-    result = GetResultWithOption(self._mode, manifest_path)
-    self.assertTrue(result.find(app_name_error) != -1)
-
-    manifest_path = os.path.join(directory, 'manifest_parse_error.json')
-    result = GetResultWithOption(self._mode, manifest_path)
-    self.assertTrue(result.find(parse_error) != -1)
-
-    manifest_path = os.path.join(directory, 'manifest_with_invalid_name.json')
-    result = GetResultWithOption(self._mode, manifest_path)
-    self.assertTrue(result.find(app_name_error) != -1)
-
-    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
-    result = GetResultWithOption(self._mode, manifest_path)
-    self.assertTrue(result.find(app_name_error) == -1)
-
-    package = 'org.xwalk.example'
-    name = '_hello'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(app_name_error) != -1)
-
-    name = '123hello'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(app_name_error) != -1)
-
-    name = 'hello_'
-    result = GetResultWithOption(self._mode, name=name, package=package)
-    self.assertTrue(result.find(app_name_error) == -1)
-    Clean(name, version)
-
-
-  def VerifyResultForAppNameWithSpace(self, manifest=None, name=None):
-    version = '1.0.0'
-    package = 'org.xwalk.example'
-    GetResultWithOption(manifest=manifest, name=name, package=package)
-    if name is None:
-      name = 'app name '
+  def verifyResultForAppName(self, app_name):
     android_manifest = 'Example/AndroidManifest.xml'
     self.assertTrue(os.path.exists(android_manifest))
     with open(android_manifest, 'r') as content_file:
       content = content_file.read()
-    self.assertTrue(name in content)
-    Clean('Example', version)
+    label_name = 'android:label="%s"' % app_name
+    self.assertIn(label_name, content)
+    Clean('Example', '1.0.0')
 
 
-  def testAppNameWithSpace(self):
-    name = 'app name'
+  def testAppNameWithNonASCII (self):
+    cmd = ['python', 'make_apk.py', '--name=你好', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com']
+    RunCommand(cmd)
+    self.verifyResultForAppName('你好')
 
-    self.VerifyResultForAppNameWithSpace(name=name)
-
-    name = 'app name '
-    self.VerifyResultForAppNameWithSpace(name=name)
-
-    directory = os.path.join('test_data', 'manifest', 'invalidchars')
-    manifest_path = os.path.join(directory, 'manifest_contain_space_name.json')
-    self.VerifyResultForAppNameWithSpace(manifest=manifest_path)
+    manifest_path = os.path.join('test_data', 'manifest', 'invalidchars',
+                                 'manifest_with_chinese_name.json')
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path]
+    RunCommand(cmd)
+    self.verifyResultForAppName('你好')
 
 
 def SuiteWithModeOption():
@@ -1114,7 +1061,6 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testFullscreen'))
   test_suite.addTest(TestMakeApk('testIconByOption'))
   test_suite.addTest(TestMakeApk('testIconByManifest'))
-  test_suite.addTest(TestMakeApk('testInvalidCharacter'))
   test_suite.addTest(TestMakeApk('testKeystore'))
   test_suite.addTest(TestMakeApk('testManifest'))
   test_suite.addTest(TestMakeApk('testManifestWithDeprecatedField'))
@@ -1135,7 +1081,7 @@ def SuiteWithModeOption():
 def SuiteWithEmptyModeOption():
   # Gather all the tests for empty mode option.
   test_suite = unittest.TestSuite()
-  test_suite.addTest(TestMakeApk('testAppNameWithSpace'))
+  test_suite.addTest(TestMakeApk('testAppNameWithNonASCII'))
   test_suite.addTest(TestMakeApk('testCompressor'))
   test_suite.addTest(TestMakeApk('testCustomizeFile'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
