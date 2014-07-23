@@ -218,6 +218,10 @@ def Customize(options, app_info):
 def Execution(options, name):
   android_path = Which('android')
   if android_path is None:
+    sdk_root_path = os.path.abspath('sdk')
+    android_path = Find('android', sdk_root_path)
+
+  if android_path is None:
     print('The "android" binary could not be found. Check your Android SDK '
           'installation and your PATH environment variable.')
     sys.exit(1)
