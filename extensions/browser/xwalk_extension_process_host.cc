@@ -156,8 +156,7 @@ void XWalkExtensionProcessHost::StartProcess() {
 #if defined(OS_LINUX)
     std::string channel_id =
         IPC::Channel::GenerateVerifiedChannelID(std::string());
-    channel_.reset(new IPC::Channel(
-          channel_id, IPC::Channel::MODE_SERVER, this));
+    channel_ = IPC::Channel::CreateClient(channel_id, this);
     if (!channel_->Connect())
       NOTREACHED();
     IPC::ChannelHandle channel_handle(channel_id,

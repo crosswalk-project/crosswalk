@@ -118,14 +118,14 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                 mContentsClientBridge.getInterceptNavigationDelegate());
 
         // Initialize ContentView.
-        mContentView = ContentView.newInstance(getContext(), mWebContents, mWindow);
+        mContentViewCore = new ContentViewCore(getContext());
+        mContentView = ContentView.newInstance(getContext(), mContentViewCore);
+        mContentViewCore.initialize(mContentView, mContentView, mWebContents, mWindow);
         addView(mContentView,
                 new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
-        mContentView.getContentViewCore().setContentViewClient(mContentsClientBridge);
-
-        mContentViewCore = mContentView.getContentViewCore();
+        mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);

@@ -95,8 +95,8 @@ void ApplicationTizen::Hide() {
 
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
-    DCHECK(render_process_host_);
-    render_process_host_->GetScreenOrientationDispatcherHost()->
+    DCHECK(web_contents_);
+    web_contents_->GetScreenOrientationDispatcherHost()->
         SetProviderForTests(new ScreenOrientationProviderTizen(GetWeakPtr()));
     return true;
   }

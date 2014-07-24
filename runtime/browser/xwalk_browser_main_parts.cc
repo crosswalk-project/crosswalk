@@ -74,7 +74,7 @@ namespace xwalk {
 XWalkBrowserMainParts::XWalkBrowserMainParts(
     const content::MainFunctionParams& parameters)
     : xwalk_runner_(XWalkRunner::GetInstance()),
-      startup_url_(content::kAboutBlankURL),
+      startup_url_(url::kAboutBlankURL),
       parameters_(parameters),
       run_default_message_loop_(true) {
 #if defined(OS_LINUX)
@@ -111,13 +111,13 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
   // Enable SIMD.JS API by default.
-  std::string js_flags("--simd_object");
+  /*std::string js_flags("--simd_object");
   if (command_line->HasSwitch(switches::kJavaScriptFlags)) {
     js_flags += " ";
     js_flags +=
         command_line->GetSwitchValueASCII(switches::kJavaScriptFlags);
   }
-  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
+  command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);*/
 
   startup_url_ = GetURLFromCommandLine(*command_line);
 }

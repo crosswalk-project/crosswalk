@@ -31,6 +31,7 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
+Patch11:        crosswalk-angle-do-not-depend-git-index.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -129,6 +130,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %patch10
 %endif
 
+%patch11
+
 %build
 
 # For ffmpeg on ia32. The original CFLAGS set by the gyp and config files in
@@ -174,6 +177,16 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 %if "%{profile}" == "common" || "%{profile}" == "generic"
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
+
+# Temporarily disable Alsa support while snd_seq_* support is not enabled on
+# Tizen. See https://codereview.chromium.org/264973012 and
+# https://review.tizen.org/gerrit/#/c/24336/
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
+
+# Temporarily disable WebRTC support because its build currently hardcodes
+# dependencies on X11 and OpenSSL. We are still trying to get some
+# clarifications as to whether this is really necessary. See XWALK-2160.
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
 
 # For building for arm in OBS, we need :
 # -> to unset sysroot value.

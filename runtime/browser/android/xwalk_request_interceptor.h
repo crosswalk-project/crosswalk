@@ -6,7 +6,7 @@
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_REQUEST_INTERCEPTOR_H_
 
 #include "base/memory/scoped_ptr.h"
-#include "net/url_request/url_request_job_factory.h"
+#include "net/url_request/url_request_interceptor.h"
 
 class GURL;
 
@@ -25,13 +25,13 @@ class InterceptedRequestData;
 // URLRequest of a given request for an alternative job that will read data
 // from a Java stream.
 class XWalkRequestInterceptor
-    : public net::URLRequestJobFactory::ProtocolHandler {
+    : public net::URLRequestInterceptor {
  public:
   XWalkRequestInterceptor();
   virtual ~XWalkRequestInterceptor();
 
-  // net::URLRequestJobFactory::ProtocolHandler override -----------------------
-  virtual net::URLRequestJob* MaybeCreateJob(
+  // net::URLRequestInterceptor override -----------------------
+  virtual net::URLRequestJob* MaybeInterceptRequest(
       net::URLRequest* request,
       net::NetworkDelegate* network_delegate) const OVERRIDE;
 

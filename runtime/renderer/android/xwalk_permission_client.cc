@@ -33,7 +33,7 @@ bool XWalkPermissionClient::allowImage(blink::WebFrame* frame,
   const GURL url(image_url);
   return !(url.SchemeIs(url::kHttpScheme) ||
            url.SchemeIs(url::kHttpsScheme) ||
-           url.SchemeIs(content::kFtpScheme));
+           url.SchemeIs(url::kFtpScheme));
 }
 
 }  // namespace xwalk

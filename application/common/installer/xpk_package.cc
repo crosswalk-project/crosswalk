@@ -5,6 +5,7 @@
 #include "xwalk/application/common/installer/xpk_package.h"
 
 #include "base/file_util.h"
+#include "base/files/scoped_file.h"
 #include "crypto/signature_verifier.h"
 #include "xwalk/application/common/id_util.h"
 
@@ -26,8 +27,8 @@ XPKPackage::XPKPackage(const base::FilePath& path)
   if (!base::PathExists(path))
     return;
   type_ = XPK;
-  scoped_ptr<ScopedStdioHandle> file(
-      new ScopedStdioHandle(base::OpenFile(path, "rb")));
+  scoped_ptr<base::ScopedFILE> file(
+      new base::ScopedFILE(base::OpenFile(path, "rb")));
   file_ = file.Pass();
   size_t len = fread(&header_, 1, sizeof(header_), file_->get());
   is_valid_ = false;

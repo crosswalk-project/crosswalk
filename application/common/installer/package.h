@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "base/files/file_path.h"
+#include "base/files/scoped_file.h"
 #include "base/files/scoped_temp_dir.h"
-#include "base/memory/scoped_handle.h"
 #include "base/memory/scoped_ptr.h"
 
 namespace xwalk {
@@ -39,7 +39,7 @@ class Package {
 
  protected:
   explicit Package(const base::FilePath& source_path);
-  scoped_ptr<ScopedStdioHandle> file_;
+  scoped_ptr<base::ScopedFILE> file_;
   bool is_valid_;
   std::string id_;
   // Unzipping of the zipped file happens in a temporary directory

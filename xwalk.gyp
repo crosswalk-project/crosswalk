@@ -76,6 +76,7 @@
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider_mac.cc',
+        'experimental/native_file_system/virtual_root_provider_win.cc',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
         'runtime/app/android/xwalk_main_delegate_android.cc',
@@ -375,7 +376,7 @@
         }],  # use_custom_freetype==1
         ['toolkit_views==1', {
           'dependencies': [
-            '../ui/base/strings/ui_strings.gyp:ui_strings',
+            '../ui/strings/ui_strings.gyp:ui_strings',
             '../ui/views/controls/webview/webview.gyp:webview',
             '../ui/views/views.gyp:views',
             '../ui/views/views.gyp:views_test_support',
@@ -466,7 +467,7 @@
       'target_name': 'xwalk_pak',
       'type': 'none',
       'dependencies': [
-        '<(DEPTH)/ui/base/strings/ui_strings.gyp:ui_strings',
+        '<(DEPTH)/ui/strings/ui_strings.gyp:ui_strings',
         '<(DEPTH)/ui/resources/ui_resources.gyp:ui_resources',
         '<(DEPTH)/content/content_resources.gyp:content_resources',
         'xwalk_resources',

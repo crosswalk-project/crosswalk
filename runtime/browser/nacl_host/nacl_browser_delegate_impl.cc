@@ -68,6 +68,12 @@ bool NaClBrowserDelegateImpl::URLMatchesDebugPatterns(
   return false;
 }
 
+bool NaClBrowserDelegateImpl::IsNonSfiModeAllowed(
+    const base::FilePath& profile_directory,
+    const GURL& manifest_url) {
+  return false;
+}
+
 // This function is security sensitive.  Be sure to check with a security
 // person before you modify it.
 bool NaClBrowserDelegateImpl::MapUrlToLocalFilePath(

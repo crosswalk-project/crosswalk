@@ -27,6 +27,8 @@
             <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
           </intent-filter>
         </activity>
+        <provider android:name="org.xwalk.core.xwview.test.TestContentProvider"
+            android:authorities="org.xwalk.core.xwview.test.TestContentProvider" />
     </application>
 
   <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />

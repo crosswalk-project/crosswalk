@@ -467,7 +467,7 @@ class TestMakeApk(unittest.TestCase):
            '-f', self._mode]
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    theme = 'Example/res/values/theme.xml'
+    theme = 'Example/res/values-v17/theme.xml'
     with open(theme, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(theme))
@@ -539,7 +539,7 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('android.permission.SEND_SMS') != -1)
     self.assertTrue(content.find('android.permission.WRITE_SMS') != -1)
     self.assertTrue(content.find('landscape') != -1)
-    theme = 'Example/res/values/theme.xml'
+    theme = 'Example/res/values-v17/theme.xml'
     with open(theme, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(theme))
@@ -824,7 +824,7 @@ class TestMakeApk(unittest.TestCase):
     # Test orientation option.
     self.assertTrue(content.find('landscape') != -1)
     # Test fullscreen option
-    theme = 'Example/res/values/theme.xml'
+    theme = 'Example/res/values-v17/theme.xml'
     with open(theme, 'r') as content_file:
       content = content_file.read()
     self.assertTrue(os.path.exists(theme))
@@ -890,7 +890,7 @@ class TestMakeApk(unittest.TestCase):
            '--manifest=%s' % manifest_path, self._mode]
     RunCommand(cmd)
     # Check theme.xml.
-    theme_path = os.path.join('Example', 'res', 'values', 'theme.xml')
+    theme_path = os.path.join('Example', 'res', 'values-v17', 'theme.xml')
     self.assertTrue(os.path.exists(theme_path))
     with open(theme_path, 'r') as content_file:
       content = content_file.read()

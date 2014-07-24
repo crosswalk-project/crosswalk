@@ -42,7 +42,8 @@ class DisplayInfoProvider : public gfx::DisplayObserver {
   void StopDisplayMonitoring();
 
   // gfx::DisplayObserver implementation.
-  virtual void OnDisplayBoundsChanged(const gfx::Display& display) OVERRIDE {}
+  virtual void OnDisplayMetricsChanged(const gfx::Display& display,
+                                       uint32_t metrics) OVERRIDE {}
   virtual void OnDisplayAdded(const gfx::Display& display) OVERRIDE;
   virtual void OnDisplayRemoved(const gfx::Display& display) OVERRIDE;
 
