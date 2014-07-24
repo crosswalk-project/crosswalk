@@ -566,32 +566,42 @@ class TestMakeApk(unittest.TestCase):
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(out.find(
-        'WARNING: app.launch.local_path is deprecated for Crosswalk') != -1)
+    self.assertIn('WARNING: app.launch.local_path is deprecated for Crosswalk',
+                  out)
     Clean('Example', '1.0.0')
+
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
                                  'manifest_launch_path.json')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(
-        out.find('WARNING: launch_path is deprecated for Crosswalk') != -1)
+    self.assertIn('WARNING: launch_path is deprecated for Crosswalk', out)
     Clean('Example', '1.0.0')
+
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
                                  'manifest_permissions.json')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(
-        out.find('WARNING: permissions is deprecated for Crosswalk') != -1)
+    self.assertIn('WARNING: permissions is deprecated for Crosswalk', out)
     Clean('Example', '1.0.0')
+
     manifest_path = os.path.join('test_data', 'manifest',
                                  'manifest_deprecated_icon.json')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(out.find(
-        'WARNING: icons defined as dictionary form is deprecated') != -1)
+    self.assertIn('WARNING: icons defined as dictionary form is deprecated',
+                  out)
+    Clean('Example', '1.0.0')
+
+    manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
+                                 'manifest_description.json')
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
+    out = RunCommand(cmd)
+    self.assertIn('WARNING: description is deprecated for Crosswalk', out)
+    Clean('Example', '1.0.0')
 
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',

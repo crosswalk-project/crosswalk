@@ -152,7 +152,14 @@ class ManifestJsonParser(object):
       ret_dict['icons'] = {}
     app_root = file_path_prefix
     ret_dict['description'] = ''
-    if 'description' in self.data_src:
+    if 'description' in self.data_src and 'xwalk_description' in self.data_src:
+      print('WARNING: the value in "description" will be ignored and support '
+            'for it will be removed in the future.')
+      ret_dict['description'] = self.data_src['xwalk_description']
+    elif 'xwalk_description' in self.data_src:
+      ret_dict['description'] = self.data_src['xwalk_description']
+    elif 'description' in self.data_src:
+      PrintDeprecationWarning('description')
       ret_dict['description'] = self.data_src['description']
     ret_dict['app_url'] = app_url
     ret_dict['app_root'] = app_root

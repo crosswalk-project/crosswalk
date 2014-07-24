@@ -2,7 +2,7 @@
   "name": "Example",
   "version": "1.0.0",
   "start_url": "http.html",
-  "description": "a sample description",
+  "xwalk_description": "a sample description",
   "icons": [],
   "xwalk_permissions": ["geolocation"],
   "display": ["fullscreen"]

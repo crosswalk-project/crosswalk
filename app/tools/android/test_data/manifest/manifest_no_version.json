@@ -1,7 +1,7 @@
 {
   "name": "Example",
   "start_url": "http://www.intel.com",
-  "description": "a sample description",
+  "xwalk_description": "a sample description",
   "icons": [],
   "xwalk_permissions": ["geolocation"],
   "fullscreen":"true"
