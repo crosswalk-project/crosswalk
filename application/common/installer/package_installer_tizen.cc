@@ -117,6 +117,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.StartElement("manifest");
   xml_writer.AddAttribute("xmlns", "http://tizen.org/ns/packages");
   xml_writer.AddAttribute("package", package_id);
+  xml_writer.AddAttribute("type", "wgt");
   xml_writer.AddAttribute("version", application->VersionString());
   xml_writer.WriteElement("label", application->Name());
   xml_writer.WriteElement("description", application->Description());

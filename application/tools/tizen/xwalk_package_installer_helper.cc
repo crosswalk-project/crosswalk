@@ -26,7 +26,7 @@ const std::string kXmlFileExt(".xml");
 const std::string kPngFileExt(".png");
 
 // Package type sent in every signal.
-const char PKGMGR_PKG_TYPE[] = "rpm";
+const char PKGMGR_PKG_TYPE[] = "wgt";
 
 // Notification about operation start.
 const char PKGMGR_START_KEY[] = "start";
