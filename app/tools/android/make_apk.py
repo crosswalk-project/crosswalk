@@ -116,7 +116,7 @@ def ParseManifest(options, app_info):
     sys.exit(9)
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
-    options.icon_dict = parser.GetIcons()
+    app_info.icon = parser.GetIcons()
   if parser.GetOrientation():
     options.orientation = parser.GetOrientation()
   if parser.GetFullScreenFlag().lower() == 'true':
@@ -202,7 +202,7 @@ def Customize(options, app_info):
     app_info.orientation = options.orientation
   if options.icon:
     app_info.icon = '%s' % os.path.expanduser(options.icon)
-  CustomizeAll(app_info, options.description, options.icon_dict,
+  CustomizeAll(app_info, options.description,
                options.permissions, options.app_url, options.app_local_path,
                options.keep_screen_on, options.extensions, options.manifest,
                options.xwalk_command_line, options.compressor)
@@ -711,6 +711,9 @@ def main(argv):
       parser.error('VERSION was not found, so Crosswalk\'s version could not '
                    'be determined.')
 
+  if options.icon and not os.path.isfile(options.icon):
+    parser.error('"%s" does not exist.' % options.icon)
+
   xpk_temp_dir = ''
   if options.xpk:
     xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
@@ -759,7 +762,6 @@ def main(argv):
             'crosswalk-website/wiki/Crosswalk-manifest')
       permission_list = permission_mapping_table.keys()
     options.permissions = HandlePermissionList(permission_list)
-    options.icon_dict = {}
   else:
     try:
       ParseManifest(options, app_info)

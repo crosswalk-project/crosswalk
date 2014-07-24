@@ -175,7 +175,7 @@ def CustomizeThemeXML(name, fullscreen, app_manifest):
   theme_file.close()
 
 
-def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
+def CustomizeXML(app_info, description, app_manifest, permissions):
   app_version = app_info.app_version
   app_versionCode = app_info.app_versionCode
   name = app_info.name
@@ -209,7 +209,7 @@ def CustomizeXML(app_info, description, icon_dict, app_manifest, permissions):
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
-  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon, icon_dict)
+  icon_name = CustomizeIcon(name, app_info.app_root, app_info.icon)
   if icon_name:
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
@@ -416,71 +416,85 @@ def GenerateCommandLineFile(app_info, xwalk_command_line):
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
+def GetIconSizeName(icon_size):
+  """
+  Returns a string corresponding to the range where |icon_size| falls into,
+  or None if it is out of range.
+  """
+  if icon_size in range(1, 37):
+    return 'ldpi'
+  elif icon_size in range(37, 72):
+    return 'mdpi'
+  elif icon_size in range(72, 96):
+    return 'hdpi'
+  elif icon_size in range(96, 120):
+    return 'xhdpi'
+  elif icon_size in range(120, 144):
+    return 'xxhdpi'
+  elif icon_size in range(144, 168):
+    return 'xxxhdpi'
+  return None
+
+
 def CustomizeIconByDict(name, app_root, icon_dict):
   icon_name = None
-  drawable_dict = {'ldpi': [1, 37], 'mdpi': [37, 72], 'hdpi': [72, 96],
-                   'xhdpi': [96, 120], 'xxhdpi': [120, 144],
-                   'xxxhdpi': [144, 168]}
-  if not icon_dict:
-    return icon_name
+  for icon_size, icon_file in icon_dict.items():
+    try:
+      icon_size = int(icon_size)
+    except ValueError:
+      print('"%s" is not an integer icon size. Skipping.' % icon_size)
+      continue
 
-  try:
-    icon_dict = dict((int(k), v) for k, v in icon_dict.items())
-  except ValueError:
-    print('The key of icon in the manifest file should be a number.')
+    source_path = os.path.join(app_root, icon_file)
+    if not os.path.isfile(source_path):
+      print('Error: "%s" does not exist. Skipping.' % source_path)
+      continue
 
-  if len(icon_dict) > 0:
-    icon_list = sorted(icon_dict.items(), key=lambda d: d[0])
-    for kd, vd in drawable_dict.items():
-      for item in icon_list:
-        if item[0] >= vd[0] and item[0] < vd[1]:
-          drawable_path = os.path.join(name, 'res', 'drawable-' + kd)
-          if not os.path.exists(drawable_path):
-            os.makedirs(drawable_path)
-          icon = os.path.join(app_root, item[1])
-          if icon and os.path.isfile(icon):
-            icon_name = os.path.basename(icon)
-            icon_suffix = icon_name.split('.')[-1]
-            shutil.copyfile(icon, os.path.join(drawable_path,
-                                               'icon.' + icon_suffix))
-            icon_name = 'icon'
-          elif icon and (not os.path.isfile(icon)):
-            print('Error: "%s" does not exist.' % icon)
-            sys.exit(6)
-          break
+    icon_type = GetIconSizeName(icon_size)
+    if icon_type is None:
+      print('The icon size must be an integer between 1 and 167. '
+            'Got %d, skipping.' % icon_size)
+      continue
+
+    # With some effort, this could be shared with CustomizeIconByOption().
+    destination_dir = os.path.join(name, 'res', 'drawable-%s' % icon_type)
+    if not os.path.isdir(destination_dir):
+      os.makedirs(destination_dir)
+    _, icon_extension = os.path.splitext(icon_file)
+    destination_path = os.path.join(
+      destination_dir, 'icon%s' % icon_extension)
+    shutil.copyfile(source_path, destination_path)
+    icon_name = 'icon'
   return icon_name
 
 
 def CustomizeIconByOption(name, icon):
-  if os.path.isfile(icon):
-    drawable_path = os.path.join(name, 'res', 'drawable')
-    if not os.path.exists(drawable_path):
-      os.makedirs(drawable_path)
-    icon_file = os.path.basename(icon)
-    icon_file = ReplaceInvalidChars(icon_file)
-    shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
-    icon_name = os.path.splitext(icon_file)[0]
-    return icon_name
-  else:
-    print('Error: "%s" does not exist.')
-    sys.exit(6)
-
-
-def CustomizeIcon(name, app_root, icon, icon_dict):
-  icon_name = None
-  if icon:
-    icon_name = CustomizeIconByOption(name, icon)
-  else:
-    icon_name = CustomizeIconByDict(name, app_root, icon_dict)
+  drawable_path = os.path.join(name, 'res', 'drawable')
+  if not os.path.exists(drawable_path):
+    os.makedirs(drawable_path)
+  icon_file = os.path.basename(icon)
+  icon_file = ReplaceInvalidChars(icon_file)
+  shutil.copyfile(icon, os.path.join(drawable_path, icon_file))
+  icon_name = os.path.splitext(icon_file)[0]
   return icon_name
 
 
-def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
+def CustomizeIcon(name, app_root, icon):
+  if isinstance(icon, str):
+    # Single icon specified on the command line.
+    return CustomizeIconByOption(name, icon)
+  elif isinstance(icon, dict):
+    # Dictionary parsed from the manifest.
+    return CustomizeIconByDict(name, app_root, icon)
+  return None
+
+
+def CustomizeAll(app_info, description, permissions, app_url,
                  app_local_path, keep_screen_on, extensions, app_manifest,
                  xwalk_command_line='', compressor=None):
   try:
     Prepare(app_info, compressor)
-    CustomizeXML(app_info, description, icon_dict, app_manifest, permissions)
+    CustomizeXML(app_info, description, app_manifest, permissions)
     CustomizeJava(app_info, app_url, app_local_path, keep_screen_on)
     CustomizeExtensions(app_info, extensions)
     GenerateCommandLineFile(app_info, xwalk_command_line)
@@ -552,10 +566,6 @@ def main():
                     type='string', nargs=0, help=info)
   options, _ = parser.parse_args()
   try:
-    icon_dict = {144: 'icons/icon_144.png',
-                 72: 'icons/icon_72.png',
-                 96: 'icons/icon_96.png',
-                 48: 'icons/icon_48.png'}
     app_info = AppInfo()
     if options.name is not None:
       app_info.name = options.name
@@ -575,7 +585,7 @@ def main():
       app_info.fullscreen_flag = options.fullscreen
     app_info.icon = os.path.join('test_data', 'manifest', 'icons',
                                  'icon_96.png')
-    CustomizeAll(app_info, options.description, icon_dict,
+    CustomizeAll(app_info, options.description,
                  options.permissions, options.app_url, options.app_local_path,
                  options.keep_screen_on, options.extensions, options.manifest,
                  options.xwalk_command_line, options.compressor)
