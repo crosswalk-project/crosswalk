@@ -59,15 +59,6 @@ window.onload = function() {
   var testNewContactFlag = false;
   var expectedNewPhoneNumber = '+4455001';
   function testNewContacts() {
-    // Test Case 2: check if oncontactchanges received all new contacts IDs.
-    if (addedIDs.length != 2) {
-      return;
-    }
-
-    if (ifcontains(addedIDs, contact1.id) && ifcontains(addedIDs, contact2.id)) {
-      testNewContactFlag = true;
-    }
-
     // Test Case 3: update first contact after both contacts are saved.
     var output = 'Will update contact ' + 
                  contact1.id + ' ' +
@@ -78,18 +69,6 @@ window.onload = function() {
 
     contact1.phoneNumbers[0].value = expectedNewPhoneNumber;
     contacts.save(contact1).then(updateCallback, errorCallback);
-  }
-
-  var removedIDs = [];
-  contacts.oncontactschange = function(data) {
-    if (data.added) {
-      addedIDs.push.apply(addedIDs, data.added); // Append added IDs to addedIDs
-      testNewContacts();
-    }
-    if (data.removed) {
-      removedIDs.push.apply(removedIDs, data.removed); // Append removed IDs to removedIDs
-      tryFinalVerify();
-    }
   }
 
   // Create two contacts for testing
@@ -128,8 +107,26 @@ window.onload = function() {
     phoneNumbers: [mobilePhone2]
   });
 
-  contacts.save(contact1).then(function(item) { logContactSaved(item); contact1.id = item.id; }, errorCallback);
-  contacts.save(contact2).then(function(item) { logContactSaved(item); contact2.id = item.id; }, errorCallback);
+  function handleSaveSuccessCallback(_contact, item) {
+    addedIDs.push(item.id);
+    logContactSaved(item);
+    _contact.id = item.id; 
+    // Test Case 2: check if oncontactchanges received all new contacts IDs.
+    if (ifcontains(addedIDs, contact1.id) && ifcontains(addedIDs, contact2.id)) {
+      testNewContactFlag = true;
+      testNewContacts();
+    }
+  }
+
+  contacts.save(contact1).then(function(item) {
+      handleSaveSuccessCallback(contact1, item);
+    }, 
+    errorCallback);
+
+  contacts.save(contact2).then(function(item) { 
+      handleSaveSuccessCallback(contact2, item);
+    }, 
+    errorCallback);
 
   var testUpdateFirstFlag = false;
   function updateCallback(item) {
@@ -179,17 +176,13 @@ window.onload = function() {
   function removeCallback() {
     addHTML('remove', contact2.id + " is removed.<br>Will test clear()");
     // Test Case 6: clear all contacts.
-    contacts.clear().then(tryFinalVerify, errorCallback);
+    contacts.clear().then(clearCallback, errorCallback);
   }
 
   // Check if contacts are all removed, which means all test steps are done. If so we verify all results.
-  function tryFinalVerify() {
-    if (removedIDs.length != 2) {
-      return;
-    }
+  function clearCallback() {
     addHTML('remove', "All contacts are removed.");
-    testRemovedSecondFlag = ifcontains(removedIDs, contact2.id);
-    if (testNewContactFlag && testUpdateFirstFlag && testFindFirstFlag && testRemovedSecondFlag) {
+    if (testNewContactFlag && testUpdateFirstFlag && testFindFirstFlag) {
       document.title = 'Pass';
     } else {
       document.title = 'Fail';
