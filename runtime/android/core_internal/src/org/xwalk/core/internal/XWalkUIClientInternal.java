@@ -36,6 +36,7 @@ public class XWalkUIClientInternal {
     private View mDecorView;
     private XWalkViewInternal mXWalkView;
     private boolean mOriginalFullscreen;
+    private boolean mOriginalForceNotFullscreen;
 
     /**
      * Constructor.
@@ -144,22 +145,30 @@ public class XWalkUIClientInternal {
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                         View.SYSTEM_UI_FLAG_FULLSCREEN |
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                if ((activity.getWindow().getAttributes().flags &
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN) != 0) {
+                    mOriginalForceNotFullscreen = true;
+                    activity.getWindow().clearFlags(
+                            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                } else {
+                    mOriginalForceNotFullscreen = false;
+                }
             } else {
                 if ((activity.getWindow().getAttributes().flags &
                         WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
                     mOriginalFullscreen = true;
                 } else {
                     mOriginalFullscreen = false;
-                }
-                if (!mOriginalFullscreen) {
-                    activity.getWindow().setFlags(
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 }
             }
         } else {
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
                 mDecorView.setSystemUiVisibility(mSystemUiFlag);
+                if (mOriginalForceNotFullscreen) {
+                    activity.getWindow().addFlags(
+                            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                }
             } else {
                 // Clear the activity fullscreen flag.
                 if (!mOriginalFullscreen) {
