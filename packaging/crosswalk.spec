@@ -45,6 +45,7 @@ BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
 BuildRequires:  which
+BuildRequires:  pkgconfig(ail)
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
 BuildRequires:  pkgconfig(cairo)

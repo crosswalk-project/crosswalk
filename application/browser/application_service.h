@@ -32,11 +32,6 @@ class ApplicationService : public Application::Observer {
   // keep track of [un]installation of applications.
   class Observer {
    public:
-    // When we change the application locale, we might get a new name in
-    // the new locale.
-    virtual void OnApplicationNameChanged(const std::string& app_id,
-                                          const std::string& app_name) {}
-
     virtual void DidLaunchApplication(Application* app) {}
     virtual void WillDestroyApplication(Application* app) {}
    protected:
@@ -46,8 +41,6 @@ class ApplicationService : public Application::Observer {
   ApplicationService(RuntimeContext* runtime_context,
                      ApplicationStorage* app_storage);
   virtual ~ApplicationService();
-
-  void ChangeLocale(const std::string& locale);
 
   Application* Launch(scoped_refptr<ApplicationData> application_data,
                       const Application::LaunchParams& launch_params);

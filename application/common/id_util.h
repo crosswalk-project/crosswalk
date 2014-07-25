@@ -45,6 +45,8 @@ std::string RawAppIdToCrosswalkAppId(const std::string& id);
 // for xpk, but it must be an "." on appid or it cannot insert to tizen pkgmgr
 // db, so we have to have a "xwalk." as it's prefix.
 std::string RawAppIdToAppIdForTizenPkgmgrDB(const std::string& id);
+// Does the opposite to the above function.
+std::string TizenPkgmgrDBAppIdToRawAppId(const std::string& id);
 
 // For xpk, app_id == crosswalk_32bytes_app_id == this->ID(),
 // For wgt, app_id == tizen_wrt_10bytes_package_id.app_name,

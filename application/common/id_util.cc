@@ -76,6 +76,13 @@ std::string RawAppIdToAppIdForTizenPkgmgrDB(const std::string& id) {
   return kAppIdPrefix + id;
 }
 
+std::string TizenPkgmgrDBAppIdToRawAppId(const std::string& id) {
+  std::string raw_id;
+  if (RE2::FullMatch(id, "xwalk.(\\w+)", &raw_id))
+    return raw_id;
+  return id;
+}
+
 std::string GetTizenAppId(ApplicationData* application) {
   if (application->GetPackageType() == xwalk::application::Package::XPK)
     return application->ID();

@@ -18,7 +18,7 @@
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/linux/xwalk_extension_process_launcher.h"
 #if defined(OS_TIZEN)
-#include "xwalk/application/common/id_util.h"
+#include "url/gurl.h"
 #include "xwalk/application/tools/linux/xwalk_launcher_tizen.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
 #endif
@@ -298,11 +298,6 @@ int main(int argc, char** argv) {
     appid_or_url = strdup(basename(argv[0]));
   }
 
-#if defined(OS_TIZEN)
-    std::string crosswalk_app_id =
-        xwalk::application::RawAppIdToCrosswalkAppId(appid_or_url);
-    appid_or_url = strdup(crosswalk_app_id.c_str());
-#endif
 
   // Query app.
   if (query_running) {

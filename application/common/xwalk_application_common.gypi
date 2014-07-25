@@ -16,8 +16,6 @@
       'sources': [
         'application_storage.cc',
         'application_storage.h',
-        'application_storage_impl.cc',
-        'application_storage_impl.h',
 
         'application_data.cc',
         'application_data.h',
@@ -67,6 +65,8 @@
             '../../../third_party/re2/re2.gyp:re2',
           ],
           'sources': [
+            'application_storage_impl_tizen.cc',
+            'application_storage_impl_tizen.h',
             'manifest_handlers/navigation_handler.cc',
             'manifest_handlers/navigation_handler.h',
             'manifest_handlers/tizen_application_handler.cc',
@@ -82,6 +82,11 @@
             'installer/tizen/packageinfo_constants.cc',
             'installer/tizen/packageinfo_constants.h',
           ],
+        }, {
+        'sources': [
+            'application_storage_impl.cc',
+            'application_storage_impl.h',
+          ]
         }],
       ],
       'include_dirs': [
