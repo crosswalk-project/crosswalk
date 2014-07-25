@@ -8,8 +8,6 @@ import os
 import shutil
 import sys
 
-from manifest_json_parser import ManifestJsonParser
-
 
 def CopyToPathWithName(root, name, final_path, rename):
   if name == '':
@@ -148,10 +146,10 @@ def CustomizeBackground(background_color,
   return has_background
 
 
-def CustomizeByOrientation(parser, orientation, sanitized_name, app_root):
-  background_color = parser.GetLaunchScreenBackgroundColor(orientation)
-  background_image = parser.GetLaunchScreenBackgroundImage(orientation)
-  image = parser.GetLaunchScreenImage(orientation)
+def CustomizeByOrientation(manifest, orientation, sanitized_name, app_root):
+  background_color = manifest.GetLaunchScreenBackgroundColor(orientation)
+  background_image = manifest.GetLaunchScreenBackgroundImage(orientation)
+  image = manifest.GetLaunchScreenImage(orientation)
   # Customize background: background_color, background_image.
   has_background = CustomizeBackground(background_color, background_image,
                                        orientation, sanitized_name, app_root)
@@ -160,15 +158,14 @@ def CustomizeByOrientation(parser, orientation, sanitized_name, app_root):
   return has_background
 
 
-def CustomizeLaunchScreen(app_manifest, sanitized_name):
-  if not app_manifest:
+def CustomizeLaunchScreen(manifest, sanitized_name):
+  if manifest is None:
     return False
-  parser = ManifestJsonParser(os.path.expanduser(app_manifest))
-  app_root = os.path.dirname(parser.input_path)
-  default = CustomizeByOrientation(parser, 'default',
+  app_root = os.path.dirname(manifest.input_path)
+  default = CustomizeByOrientation(manifest, 'default',
                                    sanitized_name, app_root)
-  portrait = CustomizeByOrientation(parser, 'portrait',
+  portrait = CustomizeByOrientation(manifest, 'portrait',
                                     sanitized_name, app_root)
-  landscape = CustomizeByOrientation(parser, 'landscape',
+  landscape = CustomizeByOrientation(manifest, 'landscape',
                                      sanitized_name, app_root)
   return default or portrait or landscape
