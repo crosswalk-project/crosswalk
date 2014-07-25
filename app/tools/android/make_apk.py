@@ -232,14 +232,11 @@ def Execution(options, name):
     if options.keystore_passcode:
       key_code = options.keystore_passcode
     else:
-      print('Please provide the passcode of the developer key.')
-      sys.exit(6)
+      key_code = None
     if options.keystore_alias_passcode:
       key_alias_code = options.keystore_alias_passcode
     else:
-      print('--keystore-alias-passcode was not specified, '
-            'using the keystore\'s passcode as the alias keystore passcode.')
-      key_alias_code = key_code
+      key_alias_code = None
   else:
     print ('Use xwalk\'s keystore by default for debugging. '
            'Please switch to your keystore when distributing it to app market.')
@@ -300,13 +297,19 @@ def Execution(options, name):
       sys.exit(10)
 
   ant_cmd = ['ant', 'release', '-f', os.path.join(name, 'build.xml')]
+  if not options.verbose:
+    ant_cmd.extend(['-quiet'])
   ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
   ant_cmd.extend(['-Dkey.alias="%s"' % key_alias])
   if key_code:
     ant_cmd.extend(['-Dkey.store.password="%s"' % key_code])
   if key_alias_code:
     ant_cmd.extend(['-Dkey.alias.password="%s"' % key_alias_code])
-  RunCommand(ant_cmd)
+  ant_result = subprocess.call(ant_cmd)
+  if ant_result != 0:
+    print('Command "%s" exited with non-zero exit code %d'
+          % (' '.join(ant_cmd), ant_result))
+    sys.exit(ant_result)
 
   src_file = os.path.join(name, 'bin', '%s-release.apk' % name)
   package_name = name
