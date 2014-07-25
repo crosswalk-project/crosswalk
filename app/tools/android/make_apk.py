@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
+import getpass
 import operator
 import optparse
 import os
@@ -12,6 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 from app_info import AppInfo
 from customize import VerifyAppName, CustomizeAll, \
@@ -22,6 +24,8 @@ from manifest_json_parser import ManifestJsonParser
 
 
 NATIVE_LIBRARY = 'libxwalkcore.so'
+ANT_PRINT_FOR_INPUT = '[input]'
+ANT_PRINT_FOR_FAILURE = 'BUILD FAILED'
 
 
 def CleanDir(path):
@@ -57,6 +61,48 @@ def RunCommand(command, verbose=False, shell=False):
              % (' '.join(command), result))
       sys.exit(result)
     return output
+
+
+def ProcessAntOutput(ant_proc):
+  print_each_line_after = False
+  while True:
+    ret = ant_proc.poll()
+    if not ret is None:
+      return ret
+
+    line = ant_proc.stdout.readline()
+    if not line:
+      time.sleep(1)
+
+    # If failure detected, print each line after as the error message.
+    if line.startswith(ANT_PRINT_FOR_FAILURE):
+      print_each_line_after = True
+    if print_each_line_after:
+      print line
+      continue
+
+    # If it's an input echo of ant build, print the sentence to user
+    # and get the password for the build.
+    line = line.strip()
+    if line.startswith(ANT_PRINT_FOR_INPUT):
+      password = getpass.getpass('%s\n' % line.split(']', 1)[-1].strip())
+      ant_proc.stdin.write('%s\n' % password)
+
+
+def RunAntBuild(buildfile, verbose=False):
+  """Runs ant release for the specified build file."""
+  command = ['ant', 'release', '-f', buildfile]
+  proc = subprocess.Popen(command, stderr=subprocess.STDOUT,
+                          stdout=None if verbose else subprocess.PIPE,
+                          stdin=None if verbose else subprocess.PIPE)
+  if verbose:
+    result = proc.wait()
+  else:
+    result = ProcessAntOutput(proc)
+  if result != 0:
+    print ('Command "%s" exited with non-zero exit code %d'
+           % (' '.join(command), result))
+    sys.exit(result)
 
 
 def Which(name):
@@ -239,14 +285,11 @@ def Execution(options, name):
     if options.keystore_passcode:
       key_code = options.keystore_passcode
     else:
-      print('Please provide the passcode of the developer key.')
-      sys.exit(6)
+      key_code = None
     if options.keystore_alias_passcode:
       key_alias_code = options.keystore_alias_passcode
     else:
-      print('--keystore-alias-passcode was not specified, '
-            'using the keystore\'s passcode as the alias keystore passcode.')
-      key_alias_code = key_code
+      key_alias_code = None
   else:
     print ('Use xwalk\'s keystore by default for debugging. '
            'Please switch to your keystore when distributing it to app market.')
@@ -283,8 +326,10 @@ def Execution(options, name):
   with open(os.path.join(name, 'ant.properties'), 'a') as ant_properties:
     ant_properties.write('key.store=%s\n' % os.path.abspath(key_store))
     ant_properties.write('key.alias=%s\n' % key_alias)
-    ant_properties.write('key.store.password=%s\n' % key_code)
-    ant_properties.write('key.alias.password=%s\n' % key_alias_code)
+    if key_code:
+      ant_properties.write('key.store.password=%s\n' % key_code)
+    if key_alias_code:
+      ant_properties.write('key.alias.password=%s\n' % key_alias_code)
 
   # Check whether external extensions are included.
   extensions_string = 'xwalk-extensions'
@@ -314,7 +359,13 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
-  RunCommand(['ant', 'release', '-f', os.path.join(name, 'build.xml')])
+  try:
+    RunAntBuild(os.path.join(name, 'build.xml'), verbose=options.verbose)
+  finally:
+    # Remove the ant.properties file, it contains the passwords if they
+    # are specified in commandline.
+    os.remove(os.path.join(name, 'ant.properties'))
+
   src_file = os.path.join(name, 'bin', '%s-release.apk' % name)
   package_name = options.name
   if options.app_version:
