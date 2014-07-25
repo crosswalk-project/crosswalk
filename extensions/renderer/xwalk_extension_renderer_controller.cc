@@ -79,9 +79,13 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
   XWalkModuleSystem::SetModuleSystemInContext(
       scoped_ptr<XWalkModuleSystem>(module_system), context);
 
+#if !defined(OS_ANDROID)
   GURL url = static_cast<GURL>(frame->document().url());
   if (url.SchemeIs(xwalk::application::kApplicationScheme) ||
       url.SchemeIsFile()) {
+#else
+  {
+#endif
     module_system->RegisterNativeModule(
         "v8tools", scoped_ptr<XWalkNativeModule>(new XWalkV8ToolsModule));
     module_system->RegisterNativeModule(
