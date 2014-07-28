@@ -3,7 +3,12 @@
 // found in the LICENSE file.
 
 #include "xwalk/application/common/application_storage.h"
+
+#if defined(OS_TIZEN)
+#include "xwalk/application/common/application_storage_impl_tizen.h"
+#else
 #include "xwalk/application/common/application_storage_impl.h"
+#endif
 
 namespace xwalk {
 namespace application {
@@ -43,11 +48,6 @@ bool ApplicationStorage::Contains(const std::string& app_id) const {
 scoped_refptr<ApplicationData> ApplicationStorage::GetApplicationData(
     const std::string& app_id) const {
   return impl_->GetApplicationData(app_id);
-}
-
-bool ApplicationStorage::GetInstalledApplications(
-    ApplicationData::ApplicationDataMap& apps) const { // NOLINT
-  return impl_->GetInstalledApplications(apps);
 }
 
 bool ApplicationStorage::GetInstalledApplicationIDs(

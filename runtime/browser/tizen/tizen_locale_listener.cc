@@ -9,9 +9,6 @@
 
 #include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
-#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
-#include "xwalk/application/browser/application_system.h"
-#include "xwalk/application/browser/application_service.h"
 
 namespace xwalk {
 namespace {
@@ -98,11 +95,6 @@ void TizenLocaleListener::SetLocale(const std::string& locale) {
 
   LOG(INFO) << "Locale change from " << locale_ << " to " << locale;
   locale_ = locale;
-
-  application::ApplicationSystem* application_system_ =
-      XWalkRunnerTizen::GetInstance()->app_system();
-  if (application_system_)
-    application_system_->application_service()->ChangeLocale(locale);
 }
 
 }  // namespace xwalk

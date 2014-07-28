@@ -34,6 +34,7 @@
           'type': 'none',
           'variables': {
             'packages': [
+              'ail',
               'dlog',
               'pkgmgr-parser',
               'pkgmgr-info',

@@ -80,30 +80,6 @@ ApplicationService::ApplicationService(RuntimeContext* runtime_context,
 ApplicationService::~ApplicationService() {
 }
 
-void ApplicationService::ChangeLocale(const std::string& locale) {
-  ApplicationData::ApplicationDataMap apps;
-  if (!application_storage_->GetInstalledApplications(apps))
-    return;
-
-  ApplicationData::ApplicationDataMap::const_iterator it;
-  for (it = apps.begin(); it != apps.end(); ++it) {
-    base::string16 error;
-    std::string old_name = it->second->Name();
-    if (!it->second->SetApplicationLocale(locale, &error)) {
-      LOG(ERROR) << "Error when set locale " << locale
-                 << " to application " << it->second->ID()
-                 << "error : " << error;
-    }
-    if (old_name != it->second->Name()) {
-      // After we has changed the application locale, we might get a new name in
-      // the new locale, so call all observer for this event.
-      FOR_EACH_OBSERVER(
-          Observer, observers_,
-          OnApplicationNameChanged(it->second->ID(), it->second->Name()));
-    }
-  }
-}
-
 Application* ApplicationService::Launch(
     scoped_refptr<ApplicationData> application_data,
     const Application::LaunchParams& launch_params) {

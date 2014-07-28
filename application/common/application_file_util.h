@@ -38,6 +38,12 @@ scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
     Manifest::SourceType source_type,
+    std::string* error);
+
+scoped_refptr<ApplicationData> LoadApplication(
+    const base::FilePath& application_root,
+    const std::string& application_id,
+    Manifest::SourceType source_type,
     Package::Type package_type,
     std::string* error);
 

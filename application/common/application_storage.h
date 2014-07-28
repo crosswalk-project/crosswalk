@@ -30,10 +30,6 @@ class ApplicationStorage {
 
   scoped_refptr<ApplicationData> GetApplicationData(
       const std::string& app_id) const;
-  // Note: Do not use this method! It is too heavy and it will be
-  // removed.
-  bool GetInstalledApplications(
-      ApplicationData::ApplicationDataMap& apps) const;  // NOLINT
 
   bool GetInstalledApplicationIDs(
       std::vector<std::string>& app_ids) const;  // NOLINT

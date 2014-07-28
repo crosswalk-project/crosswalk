@@ -74,20 +74,21 @@ static void TerminateIfRunning(const std::string& app_id) {
 #endif
 
 bool list_applications(ApplicationStorage* storage) {
-  ApplicationData::ApplicationDataMap apps;
-  if (!storage->GetInstalledApplications(apps))
+  std::vector<std::string> app_ids;
+  if (!storage->GetInstalledApplicationIDs(app_ids))
     return false;
 
   g_print("Application ID                       Application Name\n");
   g_print("-----------------------------------------------------\n");
-  ApplicationData::ApplicationDataMap::const_iterator it;
-  for (it = apps.begin(); it != apps.end(); ++it) {
+  for (unsigned i = 0; i < app_ids.size(); ++i) {
+    scoped_refptr<ApplicationData> app_data =
+        storage->GetApplicationData(app_ids.at(i));
 #if defined(OS_TIZEN)
     g_print("%s  %s\n",
-            GetTizenAppId(it->second).c_str(),
-            it->second->Name().c_str());
+            GetTizenAppId(app_data).c_str(),
+            app_data->Name().c_str());
 #else
-    g_print("%s  %s\n", it->first.c_str(), it->second->Name().c_str());
+    g_print("%s  %s\n", app_data->ID().c_str(), app_data->Name().c_str());
 #endif
   }
   g_print("-----------------------------------------------------\n");

@@ -322,6 +322,19 @@ scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
     Manifest::SourceType source_type,
+    std::string* error) {
+  Package::Type package_type;
+  if (!GetPackageType(application_path, &package_type, error))
+    return NULL;
+
+  return LoadApplication(application_path, application_id,
+                         source_type, package_type, error);
+}
+
+scoped_refptr<ApplicationData> LoadApplication(
+    const base::FilePath& application_path,
+    const std::string& application_id,
+    Manifest::SourceType source_type,
     Package::Type package_type,
     std::string* error) {
   scoped_ptr<base::DictionaryValue> manifest(
