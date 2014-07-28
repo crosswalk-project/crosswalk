@@ -16,7 +16,6 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
 public class MessagingTest extends XWalkRuntimeClientTestBase {
     // @SmallTest
     // @Feature({"Messaging"})
-    @DisabledTest
     public void testMessaging() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
