@@ -53,7 +53,8 @@ class XWalkRuntimeTest : public InProcessBrowserTest {
   scoped_ptr<content::WindowedNotificationObserver> notification_observer_;
 };
 
-IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadGeolocationPage) {
+// XWALK-2176: Test temporarily disabled due to flakiness.
+IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, DISABLED_LoadGeolocationPage) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath(), base::FilePath().AppendASCII(
           "geolocation/simple.html"));
