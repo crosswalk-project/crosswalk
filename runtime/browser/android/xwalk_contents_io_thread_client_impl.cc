@@ -112,7 +112,7 @@ class ClientMapEntryUpdater : public content::WebContentsObserver {
 
   virtual void RenderFrameCreated(RenderFrameHost* render_frame_host) OVERRIDE;
   virtual void RenderFrameDeleted(RenderFrameHost* render_frame_host) OVERRIDE;
-  virtual void WebContentsDestroyed(WebContents* web_contents) OVERRIDE;
+  virtual void WebContentsDestroyed() OVERRIDE;
 
  private:
   JavaObjectWeakGlobalRef jdelegate_;
@@ -143,7 +143,7 @@ void ClientMapEntryUpdater::RenderFrameDeleted(RenderFrameHost* rfh) {
   RfhToIoThreadClientMap::GetInstance()->Erase(GetRenderFrameHostIdPair(rfh));
 }
 
-void ClientMapEntryUpdater::WebContentsDestroyed(WebContents* web_contents) {
+void ClientMapEntryUpdater::WebContentsDestroyed() {
   delete this;
 }
 
