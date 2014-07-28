@@ -11,8 +11,14 @@ class AppInfo:
     self.app_versionCode = ''
     self.fullscreen_flag = ''
     self.icon = ''
-    self.name = 'AppTemplate'
+    # android_name is only composed of alphabetic characters,
+    # generated from the last segment of input package name.
+    # It will be used for Android project name,
+    # APK file name and Activity name.
+    self.android_name = 'AppTemplate'
     self.orientation = 'unspecified'
-    self.original_name = ''
+    # app_name is human readable string,
+    # it will be used for the Android application name.
+    self.app_name = ''
     self.package = 'org.xwalk.app.template'
     self.remote_debugging = ''

@@ -16,8 +16,8 @@ import sys
 sys.path.append('scripts/gyp')
 
 from app_info import AppInfo
-from customize import VerifyAppName, CustomizeAll, \
-                      ParseParameterForCompressor, ReplaceSpaceWithUnderscore
+from customize import VerifyPackageName, CustomizeAll, \
+                      ParseParameterForCompressor
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -89,16 +89,10 @@ def GetVersion(path):
   return version_str
 
 
-def ParseManifest(options, app_info):
+def ParseManifest(options):
   parser = ManifestJsonParser(os.path.expanduser(options.manifest))
-  original_name = app_info.original_name = parser.GetAppName()
-  if options.name:
-    VerifyAppName(options.name)
-    app_info.original_name = options.name
-    options.name = ReplaceSpaceWithUnderscore(options.name)
-  else:
-    VerifyAppName(original_name)
-    options.name = ReplaceSpaceWithUnderscore(original_name)
+  if not options.name:
+    options.name = parser.GetAppName()
   if not options.app_version:
     options.app_version = parser.GetVersion()
   if not options.app_versionCode and not options.app_versionCodeBase:
@@ -186,10 +180,11 @@ def MakeVersionCode(options):
 
 
 def Customize(options, app_info, manifest):
-  if options.package:
-    app_info.package = options.package
-  if options.name:
-    app_info.name = options.name
+  app_info.package = options.package
+  app_info.app_name = options.name
+  # 'org.xwalk.my_first_app' => 'MyFirstApp'
+  android_name = options.package.split('.')[-1].split('_')
+  app_info.android_name = ''.join([i.capitalize() for i in android_name if i])
   if options.app_version:
     app_info.app_version = options.app_version
   app_info.app_versionCode = MakeVersionCode(options)
@@ -480,7 +475,7 @@ def Execution(options, name):
   RunCommand(cmd)
 
   src_file = os.path.join('out', name + '.apk')
-  package_name = options.name
+  package_name = name
   if options.app_version:
     package_name += ('_' + options.app_version)
   if options.mode == 'shared':
@@ -494,8 +489,8 @@ def Execution(options, name):
     os.remove(pak_des_path)
 
 
-def PrintPackageInfo(options, packaged_archs):
-  package_name_version = os.path.join(options.target_dir, options.name)
+def PrintPackageInfo(options, name, packaged_archs):
+  package_name_version = os.path.join(options.target_dir, name)
   if options.app_version:
     package_name_version += '_' + options.app_version
 
@@ -503,14 +498,14 @@ def PrintPackageInfo(options, packaged_archs):
     print ('A non-platform specific APK for the web application "%s" was '
            'generated successfully at\n%s.apk. It requires a shared Crosswalk '
            'Runtime to be present.'
-           % (options.name, package_name_version))
+           % (name, package_name_version))
     return
 
   for arch in packaged_archs:
     print ('An APK for the web application "%s" including the Crosswalk '
            'Runtime built for %s was generated successfully, which can be '
            'found at\n%s_%s.apk.'
-           % (options.name, arch, package_name_version, arch))
+           % (name, arch, package_name_version, arch))
 
   all_archs = set(AllArchitectures())
 
@@ -533,7 +528,7 @@ def PrintPackageInfo(options, packaged_archs):
 
 def MakeApk(options, app_info, manifest):
   Customize(options, app_info, manifest)
-  name = options.name
+  name = app_info.android_name
   packaged_archs = []
   if options.mode == 'shared':
     Execution(options, name)
@@ -564,7 +559,7 @@ def MakeApk(options, app_info, manifest):
         print('No packages created, aborting')
         sys.exit(13)
 
-  PrintPackageInfo(options, packaged_archs)
+  PrintPackageInfo(options, name, packaged_archs)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -716,13 +711,6 @@ def main(argv):
   app_info = AppInfo()
   manifest = None
   if not options.manifest:
-    if options.name:
-      VerifyAppName(options.name)
-      app_info.original_name = options.name
-      options.name = ReplaceSpaceWithUnderscore(options.name)
-    else:
-      parser.error('An APK name is required. Please use the "--name" option.')
-
     # The checks here are really convoluted, but at the moment make_apk
     # misbehaves any of the following conditions is true.
     if options.app_url:
@@ -753,14 +741,17 @@ def main(argv):
     options.icon_dict = {}
   else:
     try:
-      manifest = ParseManifest(options, app_info)
+      manifest = ParseManifest(options)
     except SystemExit as ec:
       return ec.code
+
+  if not options.name:
+    parser.error('An APK name is required. Please use the "--name" option.')
 
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
                  'option.')
-  VerifyAppName(options.package, 'packagename')
+  VerifyPackageName(options.package)
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
@@ -778,7 +769,7 @@ def main(argv):
   try:
     MakeApk(options, app_info, manifest)
   except SystemExit as ec:
-    CleanDir(options.name)
+    CleanDir(app_info.android_name)
     CleanDir('out')
     CleanDir(xpk_temp_dir)
     return ec.code

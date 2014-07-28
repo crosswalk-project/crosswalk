@@ -24,19 +24,15 @@ from handle_permissions import HandlePermissions
 from xml.dom import minidom
 
 
-def VerifyAppName(value, mode='default'):
-  descrpt = 'The app'
-  sample = 'helloworld, hello world, hello_world, hello_world1'
-  regex = r'[a-zA-Z][\w ]*$'
+def VerifyPackageName(value):
+  regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
+  descrpt = 'Each part of package'
+  sample = 'org.xwalk.example, org.xwalk.example_'
 
   if len(value) >= 128:
     print('To be safe, the length of package name or app name '
           'should be less than 128.')
     sys.exit(6)
-  if mode == 'packagename':
-    regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
-    descrpt = 'Each part of package'
-    sample = 'org.xwalk.example, org.xwalk.example_'
 
   if not re.match(regex, value):
     print('Error: %s name should be started with letters and should not '
@@ -111,7 +107,7 @@ def CompressSourceFiles(app_root, compressor):
 
 
 def Prepare(app_info, compressor):
-  name = app_info.name
+  name = app_info.android_name
   package = app_info.package
   app_root = app_info.app_root
   if os.path.exists(name):
@@ -178,10 +174,19 @@ def CustomizeThemeXML(name, fullscreen, manifest):
 def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   app_version = app_info.app_version
   app_versionCode = app_info.app_versionCode
-  name = app_info.name
+  name = app_info.android_name
   orientation = app_info.orientation
   package = app_info.package
-  original_name = app_info.original_name
+  app_name = app_info.app_name
+  # Chinese character with unicode get from 'manifest.json' will cause
+  # 'UnicodeEncodeError' when finally wrote to 'AndroidManifest.xml'.
+  if isinstance(app_name, unicode):
+    app_name = app_name.encode("utf-8")
+  # If string start with '@' or '?', it will be treated as Android resource,
+  # which will cause 'No resource found' error,
+  # append a space before '@' or '?' to fix that.
+  if app_name.startswith('@') or app_name.startswith('?'):
+    app_name = ' ' + app_name
   manifest_path = os.path.join(name, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
@@ -202,10 +207,10 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
     EditElementAttribute(xmldoc, 'manifest', 'android:description',
                          "@string/description")
   HandlePermissions(permissions, xmldoc)
-  EditElementAttribute(xmldoc, 'application', 'android:label', original_name)
+  EditElementAttribute(xmldoc, 'application', 'android:label', app_name)
   activity_name = package + '.' + name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
-  EditElementAttribute(xmldoc, 'activity', 'android:label', original_name)
+  EditElementAttribute(xmldoc, 'activity', 'android:label', app_name)
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)
@@ -243,7 +248,7 @@ def SetVariable(file_path, string_line, variable, value):
 
 
 def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
-  name = app_info.name
+  name = app_info.android_name
   package = app_info.package
   root_path = os.path.join(name, 'src', package.replace('.', os.path.sep))
   dest_activity = os.path.join(root_path, name + 'Activity.java')
@@ -324,7 +329,7 @@ def CustomizeExtensions(app_info, extensions):
   """
   if not extensions:
     return
-  name = app_info.name
+  name = app_info.android_name
   apk_path = name
   apk_assets_path = os.path.join(apk_path, 'assets')
   extensions_string = 'xwalk-extensions'
@@ -410,7 +415,7 @@ def CustomizeExtensions(app_info, extensions):
 def GenerateCommandLineFile(app_info, xwalk_command_line):
   if xwalk_command_line == '':
     return
-  assets_path = os.path.join(app_info.name, 'assets')
+  assets_path = os.path.join(app_info.android_name, 'assets')
   file_path = os.path.join(assets_path, 'xwalk-command-line')
   command_line_file = open(file_path, 'w')
   command_line_file.write('xwalk ' + xwalk_command_line)
@@ -558,7 +563,7 @@ def main():
                  48: 'icons/icon_48.png'}
     app_info = AppInfo()
     if options.name is not None:
-      app_info.name = options.name
+      app_info.android_name = options.name
     if options.app_root is None:
       app_info.app_root = os.path.join('test_data', 'manifest')
     else:
