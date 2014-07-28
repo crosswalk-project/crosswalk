@@ -60,7 +60,7 @@ Application::Application(
       entry_point_used_(Default),
       weak_factory_(this) {
   DCHECK(runtime_context_);
-  DCHECK(data_);
+  DCHECK(data_.get());
   DCHECK(observer_);
 }
 
