@@ -2,7 +2,7 @@
   "name": "Example",
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
-  "description": "Launch screen test",
+  "xwalk_description": "Launch screen test",
   "icons": [],
   "xwalk_permissions": [],
   "xwalk_launch_screen": {

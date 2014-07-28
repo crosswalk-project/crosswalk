@@ -2,12 +2,9 @@
   "name": "Example",
   "version": "1.0.0",
   "start_url": "http://www.intel.com",
-  "xwalk_description": "a sample description",
-  "icons": [],
+  "description": "a sample description",
   "xwalk_permissions": [
     "Contacts",
     "Geolocation",
-    "Messaging"],
-  "orientation": "landscape",
-  "display": ["fullscreen"]
+    "Messaging"]
 }

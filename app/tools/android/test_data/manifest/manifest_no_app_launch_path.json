@@ -1,7 +1,7 @@
 {
   "name": "Example",
   "version": "1.0.0",
-  "description": "a sample description",
+  "xwalk_description": "a sample description",
   "icons": [],
   "xwalk_permissions": ["geolocation"],
   "fullscreen":"true"
