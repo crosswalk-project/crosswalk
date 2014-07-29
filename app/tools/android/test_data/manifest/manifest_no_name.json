@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "xwalk_version": "1.0.0",
   "start_url": "http://www.intel.com",
   "xwalk_description": "a sample description",
   "icons": [],

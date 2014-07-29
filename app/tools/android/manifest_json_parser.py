@@ -113,10 +113,16 @@ class ManifestJsonParser(object):
       print('Error: no \'name\' field in manifest.json file.')
       sys.exit(1)
     ret_dict['app_name'] = self.data_src['name']
-    if 'version' not in self.data_src:
-      print('Error: no \'version\' field in manifest.json file.')
-      sys.exit(1)
-    ret_dict['version'] = self.data_src['version']
+    ret_dict['version'] = ''
+    if 'version' in self.data_src and 'xwalk_version' in self.data_src:
+      print('WARNING: the value in "version" will be ignored and support '
+            'for it will be removed in the future.')
+      ret_dict['version'] = self.data_src['xwalk_version']
+    elif 'xwalk_version' in self.data_src:
+      ret_dict['version'] = self.data_src['xwalk_version']
+    elif 'version' in self.data_src:
+      PrintDeprecationWarning('version')
+      ret_dict['version'] = self.data_src['version']
     if 'start_url' in self.data_src:
       app_url = self.data_src['start_url']
     elif 'launch_path' in self.data_src:

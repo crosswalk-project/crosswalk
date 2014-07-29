@@ -1,8 +1,10 @@
 {
   "name": "Example",
+  "version": "1.0.0",
   "start_url": "http://www.intel.com",
   "xwalk_description": "a sample description",
   "icons": [],
   "xwalk_permissions": ["geolocation"],
+  "default_locale": "en",
   "fullscreen":"true"
 }
