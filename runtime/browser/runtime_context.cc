@@ -77,7 +77,7 @@ RuntimeContext::RuntimeContext()
 }
 
 RuntimeContext::~RuntimeContext() {
-  if (resource_context_) {
+  if (resource_context_.get()) {
     BrowserThread::DeleteSoon(
         BrowserThread::IO, FROM_HERE, resource_context_.release());
   }
@@ -118,7 +118,7 @@ bool RuntimeContext::IsOffTheRecord() const {
 content::DownloadManagerDelegate* RuntimeContext::GetDownloadManagerDelegate() {
   content::DownloadManager* manager = BrowserContext::GetDownloadManager(this);
 
-  if (!download_manager_delegate_) {
+  if (!download_manager_delegate_.get()) {
     download_manager_delegate_ = new RuntimeDownloadManagerDelegate();
     download_manager_delegate_->SetDownloadManager(manager);
   }
@@ -192,7 +192,7 @@ content::PushMessagingService* RuntimeContext::GetPushMessagingService() {
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  DCHECK(!url_request_getter_);
+  DCHECK(!url_request_getter_.get());
 
   application::ApplicationService* service =
       XWalkRunner::GetInstance()->app_system()->application_service();
@@ -272,7 +272,7 @@ void RuntimeContext::InitVisitedLinkMaster() {
 }
 
 void RuntimeContext::AddVisitedURLs(const std::vector<GURL>& urls) {
-  DCHECK(visitedlink_master_);
+  DCHECK(visitedlink_master_.get());
   visitedlink_master_->AddURLs(urls);
 }
 

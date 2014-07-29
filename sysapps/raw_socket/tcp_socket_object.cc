@@ -74,7 +74,7 @@ void TCPSocketObject::DoRead() {
 }
 
 void TCPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  if (socket_) {
+  if (socket_.get()) {
     DoRead();
     return;
   }
@@ -101,7 +101,7 @@ void TCPSocketObject::OnInit(scoped_ptr<XWalkExtensionFunctionInfo> info) {
 }
 
 void TCPSocketObject::OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  if (socket_)
+  if (socket_.get())
     socket_->Disconnect();
 
   setReadyState(READY_STATE_CLOSED);
@@ -109,7 +109,7 @@ void TCPSocketObject::OnClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
 }
 
 void TCPSocketObject::OnHalfClose(scoped_ptr<XWalkExtensionFunctionInfo> info) {
-  if (!socket_ || !socket_->IsConnected())
+  if (!socket_.get() || !socket_->IsConnected())
     return;
 
   is_half_closed_ = true;
@@ -129,7 +129,7 @@ void TCPSocketObject::OnSendString(
   if (is_half_closed_ || has_write_pending_)
     return;
 
-  if (!socket_ || !socket_->IsConnected())
+  if (!socket_.get() || !socket_->IsConnected())
     return;
 
   scoped_ptr<SendDOMString::Params>

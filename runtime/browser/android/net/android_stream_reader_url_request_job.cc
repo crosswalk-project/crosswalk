@@ -222,7 +222,7 @@ void AndroidStreamReaderURLRequestJob::OnInputStreamOpened(
       CreateStreamReader(input_stream.get()));
   DCHECK(input_stream_reader);
 
-  DCHECK(!input_stream_reader_wrapper_);
+  DCHECK(!input_stream_reader_wrapper_.get());
   input_stream_reader_wrapper_ = new InputStreamReaderWrapper(
       input_stream.Pass(), input_stream_reader.Pass());
 
@@ -277,7 +277,7 @@ bool AndroidStreamReaderURLRequestJob::ReadRawData(net::IOBuffer* dest,
                                                    int dest_size,
                                                    int* bytes_read) {
   DCHECK(thread_checker_.CalledOnValidThread());
-  if (!input_stream_reader_wrapper_) {
+  if (!input_stream_reader_wrapper_.get()) {
     // This will happen if opening the InputStream fails in which case the
     // error is communicated by setting the HTTP response status header rather
     // than failing the request during the header fetch phase.
@@ -306,7 +306,7 @@ bool AndroidStreamReaderURLRequestJob::GetMimeType(
   JNIEnv* env = AttachCurrentThread();
   DCHECK(env);
 
-  if (!input_stream_reader_wrapper_)
+  if (!input_stream_reader_wrapper_.get())
     return false;
 
   // Since it's possible for this call to alter the InputStream a
@@ -322,7 +322,7 @@ bool AndroidStreamReaderURLRequestJob::GetCharset(std::string* charset) {
   JNIEnv* env = AttachCurrentThread();
   DCHECK(env);
 
-  if (!input_stream_reader_wrapper_)
+  if (!input_stream_reader_wrapper_.get())
     return false;
 
   // Since it's possible for this call to alter the InputStream a
