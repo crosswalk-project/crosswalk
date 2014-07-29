@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.List;
 
-import org.chromium.base.CalledByNativeUnchecked;
+import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
 
 /**
@@ -42,32 +42,34 @@ class AndroidProtocolHandler {
      * @param url The url to load.
      * @return An InputStream to the Android resource.
      */
-    // TODO(bulach): this should have either a throw clause, or
-    // handle the exception in the java side rather than the native side.
-    @CalledByNativeUnchecked
+    @CalledByNative
     public static InputStream open(Context context, String url) {
         Uri uri = verifyUrl(url);
         if (uri == null) {
             return null;
         }
-        String path = uri.getPath();
-        if (uri.getScheme().equals(FILE_SCHEME)) {
-            if (path.startsWith(nativeGetAndroidAssetPath())) {
-                return openAsset(context, uri);
-            } else if (path.startsWith(nativeGetAndroidResourcePath())) {
-                return openResource(context, uri);
+        try {
+            String path = uri.getPath();
+            if (uri.getScheme().equals(FILE_SCHEME)) {
+                if (path.startsWith(nativeGetAndroidAssetPath())) {
+                    return openAsset(context, uri);
+                } else if (path.startsWith(nativeGetAndroidResourcePath())) {
+                    return openResource(context, uri);
+                }
+            } else if (uri.getScheme().equals(CONTENT_SCHEME)) {
+                return openContent(context, uri);
+            } else if (uri.getScheme().equals(APP_SCHEME)) {
+                // The host should be the same as the lower case of the package
+                // name, otherwise the resource request should be rejected.
+                if (!uri.getHost().equals(context.getPackageName().toLowerCase())) return null;
+
+                // path == "/" or path == ""
+                if (path.length() <= 1) return null;
+
+                return openAsset(context, appUriToFileUri(uri));
             }
-        } else if (uri.getScheme().equals(CONTENT_SCHEME)) {
-            return openContent(context, uri);
-        } else if (uri.getScheme().equals(APP_SCHEME)) {
-            // The host should be the same as the lower case of the package
-            // name, otherwise the resource request should be rejected.
-            if (!uri.getHost().equals(context.getPackageName().toLowerCase())) return null;
-
-            // path == "/" or path == ""
-            if (path.length() <= 1) return null;
-
-            return openAsset(context, appUriToFileUri(uri));
+        } catch (Exception ex) {
+            Log.e(TAG, "Error opening inputstream: " + url);
         }
 
         return null;
@@ -128,16 +130,16 @@ class AndroidProtocolHandler {
         return id;
     }
 
-    private static int getValueType(Context context, int field_id) {
-      TypedValue value = new TypedValue();
-      context.getResources().getValue(field_id, value, true);
-      return value.type;
+    private static int getValueType(Context context, int fieldId) {
+        TypedValue value = new TypedValue();
+        context.getResources().getValue(fieldId, value, true);
+        return value.type;
     }
 
     private static InputStream openResource(Context context, Uri uri) {
-        assert(uri.getScheme().equals(FILE_SCHEME));
-        assert(uri.getPath() != null);
-        assert(uri.getPath().startsWith(nativeGetAndroidResourcePath()));
+        assert uri.getScheme().equals(FILE_SCHEME);
+        assert uri.getPath() != null;
+        assert uri.getPath().startsWith(nativeGetAndroidResourcePath());
         // The path must be of the form "/android_res/asset_type/asset_name.ext".
         List<String> pathSegments = uri.getPathSegments();
         if (pathSegments.size() != 3) {
@@ -162,10 +164,10 @@ class AndroidProtocolHandler {
             if (context.getApplicationContext() != null) {
                 context = context.getApplicationContext();
             }
-            int field_id = getFieldId(context, assetType, assetName);
-            int value_type = getValueType(context, field_id);
-            if (value_type == TypedValue.TYPE_STRING) {
-                return context.getResources().openRawResource(field_id);
+            int fieldId = getFieldId(context, assetType, assetName);
+            int valueType = getValueType(context, fieldId);
+            if (valueType == TypedValue.TYPE_STRING) {
+                return context.getResources().openRawResource(fieldId);
             } else {
                 Log.e(TAG, "Asset not of type string: " + uri);
                 return null;
@@ -183,9 +185,13 @@ class AndroidProtocolHandler {
     }
 
     private static InputStream openAsset(Context context, Uri uri) {
+        assert uri.getScheme().equals(FILE_SCHEME);
+        assert uri.getPath() != null;
+        assert uri.getPath().startsWith(nativeGetAndroidAssetPath());
+        String path = uri.getPath().replaceFirst(nativeGetAndroidAssetPath(), "");
         try {
             AssetManager assets = context.getAssets();
-            return assets.open(getAssetPath(uri), AssetManager.ACCESS_STREAMING);
+            return assets.open(path, AssetManager.ACCESS_STREAMING);
         } catch (IOException e) {
             Log.e(TAG, "Unable to open asset URL: " + uri);
             return null;
@@ -213,26 +219,28 @@ class AndroidProtocolHandler {
      * @param url The url from which the stream was opened.
      * @return The mime type or null if the type is unknown.
      */
-    // TODO(bulach): this should have either a throw clause, or
-    // handle the exception in the java side rather than the native side.
-    @CalledByNativeUnchecked
+    @CalledByNative
     public static String getMimeType(Context context, InputStream stream, String url) {
         Uri uri = verifyUrl(url);
         if (uri == null) {
             return null;
         }
-        String path = uri.getPath();
-        // The content URL type can be queried directly.
-        if (uri.getScheme().equals(CONTENT_SCHEME)) {
-            return context.getContentResolver().getType(uri);
-        // Asset files may have a known extension.
-        } else if (uri.getScheme().equals(APP_SCHEME) ||
-                   uri.getScheme().equals(FILE_SCHEME) &&
-                   path.startsWith(nativeGetAndroidAssetPath())) {
-            String mimeType = URLConnection.guessContentTypeFromName(path);
-            if (mimeType != null) {
-                return mimeType;
+        try {
+            String path = uri.getPath();
+            // The content URL type can be queried directly.
+            if (uri.getScheme().equals(CONTENT_SCHEME)) {
+                return context.getContentResolver().getType(uri);
+                // Asset files may have a known extension.
+            } else if (uri.getScheme().equals(FILE_SCHEME) &&
+                       path.startsWith(nativeGetAndroidAssetPath())) {
+                String mimeType = URLConnection.guessContentTypeFromName(path);
+                if (mimeType != null) {
+                    return mimeType;
+                }
             }
+        } catch (Exception ex) {
+            Log.e(TAG, "Unable to get mime type" + url);
+            return null;
         }
         // Fall back to sniffing the type from the stream.
         try {
@@ -247,11 +255,16 @@ class AndroidProtocolHandler {
      * @param context The context manager.
      * @return Package name.
      */
-    @CalledByNativeUnchecked
+    @CalledByNative
     public static String getPackageName(Context context) {
-        // Make sure the context is the application context.
-        // Or it will get the wrong package name in shared mode.
-        return context.getPackageName();
+        try {
+            // Make sure the context is the application context.
+            // Or it will get the wrong package name in shared mode.
+            return context.getPackageName();
+        } catch (Exception ex) {
+            Log.e(TAG, "Unable to get package name");
+            return null;
+        }
     }
 
     /**
