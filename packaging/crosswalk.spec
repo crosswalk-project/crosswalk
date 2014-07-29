@@ -31,7 +31,6 @@ Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
-Patch11:        crosswalk-angle-do-not-depend-git-index.patch
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -130,8 +129,6 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %if !%{with wayland}
 %patch10
 %endif
-
-%patch11
 
 %build
 
