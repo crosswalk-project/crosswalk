@@ -877,16 +877,20 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private void onActivityStateChange(Activity activity, int newState) {
         assert(getActivity() == activity);
         switch (newState) {
+	    case ActivityState.STARTED:
+                onShow();
+                break;
             case ActivityState.PAUSED:
                 pauseTimers();
-                onHide();
                 break;
             case ActivityState.RESUMED:
-                onShow();
                 resumeTimers();
                 break;
             case ActivityState.DESTROYED:
                 onDestroy();
+                break;
+	    case ActivityState.STOPPED:
+                onHide();
                 break;
             default:
                 break;
