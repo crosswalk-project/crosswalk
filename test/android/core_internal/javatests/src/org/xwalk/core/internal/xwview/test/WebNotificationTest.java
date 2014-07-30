@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import java.lang.Thread;
 import java.lang.InterruptedException;
@@ -16,25 +16,23 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
 import org.chromium.base.test.util.Feature;
-import org.xwalk.core.XWalkPreferences;
-import org.xwalk.core.XWalkView;
+import org.xwalk.core.internal.XWalkPreferencesInternal;
+import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 import org.xwalk.core.internal.XWalkNotificationServiceImpl;
 
 /**
- * TODO(wang16): This test should be moved into internal test.
- *
  * Test suite for web notification API.
  * This test will only cover notification.show() and notification.close().
  * The event handler will be covered in runtime level test. Because that
  * will need activity to participate.
  */
-public class WebNotificationTest extends XWalkViewTestBase {
+public class WebNotificationTest extends XWalkViewInternalTestBase {
     class TestXWalkNotificationService extends XWalkNotificationServiceImpl {
         private Notification mNotification;
 
-        public TestXWalkNotificationService(Context context, XWalkView view) {
+        public TestXWalkNotificationService(Context context, XWalkViewInternal view) {
             super(context, view);
         }
 
@@ -49,7 +47,7 @@ public class WebNotificationTest extends XWalkViewTestBase {
             if (mNotification != null && mNotification.contentIntent != null) {
                 try {
                     mNotification.contentIntent.send();
-            	} catch (android.app.PendingIntent.CanceledException e) {}
+                } catch (android.app.PendingIntent.CanceledException e) {}
             }
         }
 
@@ -57,7 +55,7 @@ public class WebNotificationTest extends XWalkViewTestBase {
             if (mNotification != null && mNotification.deleteIntent != null) {
                 try {
                     mNotification.deleteIntent.send();
-            	} catch (android.app.PendingIntent.CanceledException e) {}
+                } catch (android.app.PendingIntent.CanceledException e) {}
             }
         }
     }
@@ -74,7 +72,7 @@ public class WebNotificationTest extends XWalkViewTestBase {
                 mNotificationService = new TestXWalkNotificationService(
                         getXWalkView().getActivity(), getXWalkView());
                 getXWalkView().setNotificationService(mNotificationService);
-                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+                XWalkPreferencesInternal.setValue(XWalkPreferencesInternal.REMOTE_DEBUGGING, true);
             }
         });
     }
@@ -117,7 +115,7 @@ public class WebNotificationTest extends XWalkViewTestBase {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {}
-	getInstrumentation().waitForIdleSync();
+        getInstrumentation().waitForIdleSync();
         assertEquals("notification closed", getTitleOnUiThread());
     }
 }
