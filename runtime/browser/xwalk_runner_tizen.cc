@@ -47,8 +47,7 @@ void XWalkRunnerTizen::InitializeRuntimeVariablesForExtensions(
   if (app) {
     (*variables)["app_id"] = base::Value::CreateStringValue(app->id());
     (*variables)["tizen_app_id"] = base::Value::CreateStringValue(
-        application::RawAppIdToAppIdForTizenPkgmgrDB(
-            application::GetTizenAppId(app->data())));
+        application::GetTizenAppId(app->data()));
   }
 }
 

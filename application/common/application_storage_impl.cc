@@ -336,6 +336,12 @@ bool ApplicationStorageImpl::GetInstalledApplicationIDs(
 
 bool ApplicationStorageImpl::AddApplication(const ApplicationData* application,
                                             const base::Time& install_time) {
+  if (ContainsApplication(application->ID())) {
+    LOG(WARNING) << "Application " << application->ID()
+                 << " has been already installed";
+    return false;
+  }
+
   if (!db_initialized_) {
     LOG(ERROR) << "The database hasn't been initilized.";
     return false;

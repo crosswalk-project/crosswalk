@@ -43,7 +43,6 @@ ail_cb_ret_e appinfo_get_exec_cb(const ail_appinfo_h appinfo, void *user_data) {
 }
 
 base::FilePath GetApplicationPath(const std::string& app_id) {
-  std::string ail_id = RawAppIdToAppIdForTizenPkgmgrDB(app_id);
   ail_filter_h filter;
   ail_error_e ret = ail_filter_new(&filter);
   if (ret != AIL_ERROR_OK) {
@@ -51,7 +50,7 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
     return base::FilePath();
   }
 
-  ret = ail_filter_add_str(filter, AIL_PROP_X_SLP_APPID_STR, ail_id.c_str());
+  ret = ail_filter_add_str(filter, AIL_PROP_X_SLP_APPID_STR, app_id.c_str());
   if (ret != AIL_ERROR_OK) {
     LOG(ERROR) << "Failed to init AIL filter.";
     ail_filter_destroy(filter);
@@ -95,31 +94,33 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
 }  // namespace
 
 scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
-    const std::string& app_id) {
-  base::FilePath app_path = GetApplicationPath(app_id);
+    const std::string& tizen_app_id) {
+  base::FilePath app_path = GetApplicationPath(tizen_app_id);
 
+  if (app_path.empty())
+    return NULL;
   std::string error_str;
-  return LoadApplication(app_path, RawAppIdToCrosswalkAppId(app_id),
+  return LoadApplication(app_path, TizenAppIdToAppId(tizen_app_id),
                          Manifest::INTERNAL, &error_str);
 }
 
 namespace {
 
 int pkgmgrinfo_app_list_cb(pkgmgrinfo_appinfo_h handle, void *user_data) {
-  std::vector<std::string>* app_ids =
+  std::vector<std::string>* tizen_app_ids =
     static_cast<std::vector<std::string>*>(user_data);
-  char* appid = NULL;
-  pkgmgrinfo_appinfo_get_appid(handle, &appid);
-  CHECK(appid);
+  char* tizen_app_id = NULL;
+  pkgmgrinfo_appinfo_get_appid(handle, &tizen_app_id);
+  CHECK(tizen_app_id);
 
-  app_ids->push_back(TizenPkgmgrDBAppIdToRawAppId(appid));
+  tizen_app_ids->push_back(tizen_app_id);
   return 0;
 }
 
 }  // namespace
 
 bool ApplicationStorageImpl::GetInstalledApplicationIDs(
-    std::vector<std::string>& app_ids) {  // NOLINT
+    std::vector<std::string>& tizen_app_ids) {  // NOLINT
   pkgmgrinfo_appinfo_filter_h handle;
   int ret = pkgmgrinfo_appinfo_filter_create(&handle);
   if (ret != PMINFO_R_OK) {
@@ -136,7 +137,7 @@ bool ApplicationStorageImpl::GetInstalledApplicationIDs(
   }
 
   ret = pkgmgrinfo_appinfo_filter_foreach_appinfo(
-      handle, pkgmgrinfo_app_list_cb, &app_ids);
+      handle, pkgmgrinfo_app_list_cb, &tizen_app_ids);
   if (ret != PMINFO_R_OK) {
     LOG(ERROR) << "Failed to apply pkgmgrinfo filter.";
     pkgmgrinfo_appinfo_filter_destroy(handle);

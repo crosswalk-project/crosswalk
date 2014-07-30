@@ -23,12 +23,6 @@ ApplicationStorage::~ApplicationStorage() {
 
 bool ApplicationStorage::AddApplication(
     scoped_refptr<ApplicationData> app_data) {
-  if (Contains(app_data->ID())) {
-    LOG(WARNING) << "Application " << app_data->ID()
-                 << " has been already installed";
-    return false;
-  }
-
   return impl_->AddApplication(app_data.get(), base::Time::Now());
 }
 
