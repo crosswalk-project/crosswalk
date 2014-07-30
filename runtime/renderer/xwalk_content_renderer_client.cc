@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
 
+#include "base/command_line.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/nacl/renderer/ppb_nacl_private_impl.h"
 #include "components/visitedlink/renderer/visitedlink_slave.h"
@@ -19,6 +20,7 @@
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/renderer/application_native_module.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/extensions/renderer/xwalk_js_module.h"
 #include "xwalk/runtime/common/xwalk_localized_error.h"
 #include "xwalk/runtime/renderer/isolated_file_system.h"
@@ -66,8 +68,9 @@ class XWalkFrameHelper
   // RenderFrameObserver implementation.
   virtual void WillReleaseScriptContext(v8::Handle<v8::Context> context,
                                         int world_id) OVERRIDE {
-    extension_controller_->WillReleaseScriptContext(
-        render_frame()->GetWebFrame(), context);
+    if (extension_controller_)
+      extension_controller_->WillReleaseScriptContext(
+          render_frame()->GetWebFrame(), context);
   }
 
  private:
@@ -92,8 +95,14 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
-  extension_controller_.reset(
-      new extensions::XWalkExtensionRendererController(this));
+#if defined(OS_ANDROID)
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
+#endif
+  {
+    extension_controller_.reset(
+        new extensions::XWalkExtensionRendererController(this));
+  }
 
   blink::WebString application_scheme(
       base::ASCIIToUTF16(application::kApplicationScheme));
@@ -137,7 +146,8 @@ void XWalkContentRendererClient::RenderViewCreated(
 void XWalkContentRendererClient::DidCreateScriptContext(
     blink::WebFrame* frame, v8::Handle<v8::Context> context,
     int extension_group, int world_id) {
-  extension_controller_->DidCreateScriptContext(frame, context);
+  if (extension_controller_)
+    extension_controller_->DidCreateScriptContext(frame, context);
 #if !defined(OS_ANDROID)
   xwalk_render_process_observer_->DidCreateScriptContext(
       frame, context, extension_group, world_id);

@@ -12,6 +12,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
+#include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/storage_component.h"
@@ -68,8 +69,16 @@ application::ApplicationSystem* XWalkRunner::app_system() {
 void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   app_extension_bridge_.reset(new XWalkAppExtensionBridge());
-  extension_service_.reset(new extensions::XWalkExtensionService(
-      app_extension_bridge_.get()));
+
+#if defined(OS_ANDROID)
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
+#endif
+  {
+    extension_service_.reset(new extensions::XWalkExtensionService(
+        app_extension_bridge_.get()));
+  }
+
   CreateComponents();
   app_extension_bridge_->SetApplicationSystem(app_component_->app_system());
 }

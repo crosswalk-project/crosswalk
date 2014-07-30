@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference;
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatus.ActivityStateListener;
+import org.chromium.base.CommandLine;
 
 import org.xwalk.core.internal.extension.XWalkExtensionManager;
 import org.xwalk.core.internal.extension.XWalkPathHelper;
@@ -330,10 +331,12 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         setNavigationHandler(new XWalkNavigationHandlerImpl(context));
         setNotificationService(new XWalkNotificationServiceImpl(context, this));
 
-        // Enable xwalk extension mechanism and start load extensions here.
-        // Note that it has to be after above initialization.
-        mExtensionManager = new XWalkExtensionManager(context, getActivity());
-        mExtensionManager.loadExtensions();
+        if (!CommandLine.getInstance().hasSwitch("disable-xwalk-extensions")) {
+            // Enable xwalk extension mechanism and start load extensions here.
+            // Note that it has to be after above initialization.
+            mExtensionManager = new XWalkExtensionManager(context, getActivity());
+            mExtensionManager.loadExtensions();
+        }
 
         XWalkPathHelper.initialize();
         XWalkPathHelper.setCacheDirectory(
@@ -558,7 +561,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     public void onHide() {
         if (mContent == null || mIsHidden) return;
-        mExtensionManager.onPause();
+        if (null != mExtensionManager) mExtensionManager.onPause();
         mContent.onPause();
         mIsHidden = true;
     }
@@ -573,7 +576,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     public void onShow() {
         if (mContent == null || !mIsHidden ) return;
-        mExtensionManager.onResume();
+        if (null != mExtensionManager) mExtensionManager.onResume();
         mContent.onResume();
         mIsHidden = false;
     }
@@ -600,7 +603,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (mContent == null) return;
-        mExtensionManager.onActivityResult(requestCode, resultCode, data);
+        if (null != mExtensionManager)
+                mExtensionManager.onActivityResult(requestCode, resultCode, data);
         mContent.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -765,7 +769,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         ApplicationStatus.unregisterActivityStateListener(mActivityStateListener);
         mActivityStateListener = null;
-        mExtensionManager.onDestroy();
+        if (null != mExtensionManager) mExtensionManager.onDestroy();
         mContent.destroy();
         disableRemoteDebugging();
     }
