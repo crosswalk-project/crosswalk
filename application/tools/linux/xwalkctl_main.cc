@@ -83,6 +83,11 @@ bool list_applications(ApplicationStorage* storage) {
   for (unsigned i = 0; i < app_ids.size(); ++i) {
     scoped_refptr<ApplicationData> app_data =
         storage->GetApplicationData(app_ids.at(i));
+    if (!app_data) {
+      g_print("Failed to obtain app data for xwalk id: %s\n",
+              app_ids.at(i).c_str());
+      continue;
+    }
 #if defined(OS_TIZEN)
     g_print("%s  %s\n",
             GetTizenAppId(app_data).c_str(),

@@ -80,14 +80,13 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
   // x_slp_exe_path is <app_path>/bin/<app_id>, we need to
   // return just <app_path>.
   std::string toBeExcluded = "/bin/" + app_id;
-  unsigned found = x_slp_exe_path.rfind(toBeExcluded);
+  size_t found = x_slp_exe_path.find(toBeExcluded);
   if (found == std::string::npos) {
     LOG(ERROR) << "Invalid 'x_slp_exe_path' value (" << x_slp_exe_path
                << ") for the app id " << app_id;
     return base::FilePath();
   }
 
-  CHECK(found < x_slp_exe_path.length());
   x_slp_exe_path.resize(found);
   return base::FilePath(x_slp_exe_path);
 }
