@@ -21,6 +21,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
@@ -128,8 +129,12 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  if (storage_->Contains(app_data->ID())) {
-    *id = app_data->ID();
+#if defined(OS_TIZEN)
+  *id = GetTizenAppId(app_data);
+#else
+  *id = app_data->ID();
+#endif
+  if (storage_->Contains(*id)) {
     LOG(INFO) << "Already installed: " << *id;
     return false;
   }
@@ -152,29 +157,32 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   app_data->SetPath(app_dir);
 
   if (!storage_->AddApplication(app_data)) {
-    LOG(ERROR) << "Application with id " << app_data->ID()
+    LOG(ERROR) << "Application with id " << *id
                << " couldn't be installed due to a Storage error";
     base::DeleteFile(app_dir, true);
     return false;
   }
 
   if (!PlatformInstall(app_data)) {
-    LOG(ERROR) << "Application with id " << app_data->ID()
+    LOG(ERROR) << "Application with id " << *id
                << " couldn't be installed due to a platform error";
     storage_->RemoveApplication(app_data->ID());
     base::DeleteFile(app_dir, true);
     return false;
   }
 
-  LOG(INFO) << "Installed application with id: " << app_data->ID()
+  LOG(INFO) << "Installed application with id: " << *id
             << "to" << app_dir.MaybeAsASCII() << " successfully.";
-  *id = app_data->ID();
-
   return true;
 }
 
-bool PackageInstaller::Update(const std::string& app_id,
+bool PackageInstaller::Update(const std::string& id,
                               const base::FilePath& path) {
+#if defined(OS_TIZEN)
+  std::string app_id = TizenAppIdToAppId(id);
+#else
+  std::string app_id = id;
+#endif
   if (!ApplicationData::IsIDValid(app_id)) {
     LOG(ERROR) << "The given application id " << app_id << " is invalid.";
     return false;
@@ -219,9 +227,9 @@ bool PackageInstaller::Update(const std::string& app_id,
   }
 
   scoped_refptr<ApplicationData> old_app_data =
-      storage_->GetApplicationData(app_id);
+      storage_->GetApplicationData(id);
   if (!old_app_data) {
-    LOG(INFO) << "Application haven't installed yet: " << app_id;
+    LOG(INFO) << "Application haven't installed yet: " << id;
     return false;
   }
 
@@ -303,7 +311,7 @@ bool PackageInstaller::Uninstall(const std::string& id) {
 
   base::FilePath resources;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &resources));
-  resources = resources.Append(kApplicationsDir).AppendASCII(id);
+  resources = resources.Append(kApplicationsDir).AppendASCII(app_data->ID());
   if (base::DirectoryExists(resources) &&
       !base::DeleteFile(resources, true)) {
     LOG(ERROR) << "Error occurred while trying to remove application with id "

@@ -32,10 +32,11 @@ class ApplicationStorageImpl {
                          const base::Time& install_time);
   bool Init();
 
-  scoped_refptr<ApplicationData> GetApplicationData(const std::string& id);
+  scoped_refptr<ApplicationData> GetApplicationData(
+      const std::string& tizen_app_id);
 
   bool GetInstalledApplicationIDs(
-      std::vector<std::string>& app_ids);  // NOLINT
+      std::vector<std::string>& tizen_app_ids);  // NOLINT
 };
 
 }  // namespace application

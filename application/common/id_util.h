@@ -33,24 +33,12 @@ std::string GenerateId(const std::string& input);
 std::string GenerateIdForPath(const base::FilePath& path);
 
 #if defined(OS_TIZEN)
-// If this appid is a xpk app id(crosswalk_32bytes_app_id), return itself.
-// If this appid is a wgt app id(tizen_app_id), convert it to
-// crosswalk_32bytes_app_id and return it.
-std::string RawAppIdToCrosswalkAppId(const std::string& id);
-
-// If this appid is a xpk app id(crosswalk_32bytes_app_id), return
-// xwalk.crosswalk_32bytes_app_id.
-// If this appid is a wgt app id(tizen_app_id), return itself.
-// It is better to storage crosswalk_32bytes_app_id on tizen pkgmgr db
-// for xpk, but it must be an "." on appid or it cannot insert to tizen pkgmgr
-// db, so we have to have a "xwalk." as it's prefix.
-std::string RawAppIdToAppIdForTizenPkgmgrDB(const std::string& id);
-// Does the opposite to the above function.
-std::string TizenPkgmgrDBAppIdToRawAppId(const std::string& id);
-
-// For xpk, app_id == crosswalk_32bytes_app_id == this->ID(),
-// For wgt, app_id == tizen_wrt_10bytes_package_id.app_name,
+// For xpk, tizen_app_id == xwalk.crosswalk_32bytes_app_id,
+// For wgt, tizen_app_id == tizen_wrt_10bytes_package_id.app_name.
 std::string GetTizenAppId(ApplicationData* application);
+
+std::string TizenAppIdToAppId(const std::string& tizen_app_id);
+
 #endif
 
 }  // namespace application

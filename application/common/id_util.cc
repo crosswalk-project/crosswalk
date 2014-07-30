@@ -64,34 +64,24 @@ std::string GenerateIdForPath(const base::FilePath& path) {
 }
 
 #if defined(OS_TIZEN)
-std::string RawAppIdToCrosswalkAppId(const std::string& id) {
-  if (RE2::PartialMatch(id, kTizenAppIdPattern))
-    return GenerateId(id);
-  return id;
-}
-
-std::string RawAppIdToAppIdForTizenPkgmgrDB(const std::string& id) {
-  if (RE2::PartialMatch(id, kTizenAppIdPattern))
-    return id;
-  return kAppIdPrefix + id;
-}
-
-std::string TizenPkgmgrDBAppIdToRawAppId(const std::string& id) {
-  std::string raw_id;
-  if (RE2::FullMatch(id, "xwalk.(\\w+)", &raw_id))
-    return raw_id;
-  return id;
-}
-
 std::string GetTizenAppId(ApplicationData* application) {
   if (application->GetPackageType() == xwalk::application::Package::XPK)
-    return application->ID();
+    return kAppIdPrefix + application->ID();
 
   const TizenApplicationInfo* tizen_app_info =
       static_cast<TizenApplicationInfo*>(application->GetManifestData(
           application_widget_keys::kTizenApplicationKey));
+  CHECK(tizen_app_info);
   return tizen_app_info->id();
 }
+
+std::string TizenAppIdToAppId(const std::string& tizen_app_id) {
+  std::string app_id;
+  if (RE2::FullMatch(tizen_app_id, "xwalk.(\\w+)", &app_id))
+    return app_id;
+  return GenerateId(tizen_app_id);
+}
+
 #endif
 
 }  // namespace application

@@ -92,6 +92,7 @@ std::string GetTizenPackageId(
   const xwalk::application::TizenApplicationInfo* tizen_app_info =
       static_cast<xwalk::application::TizenApplicationInfo*>(
           application->GetManifestData(widget_keys::kTizenApplicationKey));
+  CHECK(tizen_app_info);
   return tizen_app_info->package();
 }
 
@@ -123,8 +124,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.WriteElement("description", application->Description());
 
   xml_writer.StartElement("ui-application");
-  xml_writer.AddAttribute("appid",
-      xwalk::application::RawAppIdToAppIdForTizenPkgmgrDB(tizen_app_id));
+  xml_writer.AddAttribute("appid", tizen_app_id);
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "webapp");
   xml_writer.AddAttribute("taskmanage", "true");
