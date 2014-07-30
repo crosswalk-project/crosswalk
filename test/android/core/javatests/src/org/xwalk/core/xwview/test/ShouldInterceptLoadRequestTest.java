@@ -234,13 +234,6 @@ public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
             "  return xhr.status;" +
             "})();";
 
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                getXWalkView().getSettings().setJavaScriptEnabled(true);
-            }
-        });
-
         final String aboutPageUrl = addAboutPageToTestServer(mWebServer);
         loadUrlSync(aboutPageUrl);
 
