@@ -60,10 +60,15 @@ extension.setMessageListener(function(json) {
     return;
   }
 
-  if (msg.data && msg.data.error) {
-    g_async_calls[msg.asyncCallId].reject(msg.data.error);
+  if (msg.data) {
+    if (!msg.data.hasOwnProperty("error") || !msg.data.error) {
+      g_async_calls[msg.asyncCallId].resolve(msg.data);
+    } else {
+      g_async_calls[msg.asyncCallId].reject(msg.data);
+    }
   } else {
-    g_async_calls[msg.asyncCallId].resolve(msg.data);
+    console.log("WARNING: Message from backend doesn't have data.")
+    g_async_calls[msg.asyncCallId].resolve();
   }
 
   delete g_async_calls[msg.asyncCallId];

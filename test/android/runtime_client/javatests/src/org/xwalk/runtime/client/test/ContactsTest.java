@@ -18,7 +18,6 @@ public class ContactsTest extends XWalkRuntimeClientTestBase {
 
     // @SmallTest
     // @Feature({"Contacts"})
-    @DisabledTest
     public void testContacts() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
