@@ -104,45 +104,50 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
 
 namespace {
 
-int pkgmgrinfo_app_list_cb(pkgmgrinfo_appinfo_h handle, void *user_data) {
+ail_cb_ret_e appinfo_get_app_id_cb(
+    const ail_appinfo_h appinfo, void* user_data) {
   std::vector<std::string>* app_ids =
     static_cast<std::vector<std::string>*>(user_data);
-  char* appid = NULL;
-  pkgmgrinfo_appinfo_get_appid(handle, &appid);
-  CHECK(appid);
+  char* app_id;
+  ail_appinfo_get_str(appinfo, AIL_PROP_X_SLP_APPID_STR, &app_id);
+  if (app_id)
+    app_ids->push_back(TizenPkgmgrDBAppIdToRawAppId(app_id));
 
-  app_ids->push_back(TizenPkgmgrDBAppIdToRawAppId(appid));
-  return 0;
+  return AIL_CB_RET_CONTINUE;
 }
+
+const char kXWalkPackageType[] = "wgt";
 
 }  // namespace
 
 bool ApplicationStorageImpl::GetInstalledApplicationIDs(
-    std::vector<std::string>& app_ids) {  // NOLINT
-  pkgmgrinfo_appinfo_filter_h handle;
-  int ret = pkgmgrinfo_appinfo_filter_create(&handle);
-  if (ret != PMINFO_R_OK) {
-    LOG(ERROR) << "Failed to create pkgmgrinfo filter.";
+  std::vector<std::string>& app_ids) {  // NOLINT
+  ail_filter_h filter;
+  ail_error_e ret = ail_filter_new(&filter);
+  if (ret != AIL_ERROR_OK) {
+    LOG(ERROR) << "Failed to create AIL filter.";
+    return false;
+  }
+  // Filters out web apps (installed from WGT and XPK packages).
+  ret = ail_filter_add_str(
+      filter, AIL_PROP_X_SLP_PACKAGETYPE_STR, kXWalkPackageType);
+  if (ret != AIL_ERROR_OK) {
+    LOG(ERROR) << "Failed to init AIL filter.";
+    ail_filter_destroy(filter);
     return false;
   }
 
-  ret = pkgmgrinfo_appinfo_filter_add_string(
-      handle, PMINFO_APPINFO_PROP_APP_TYPE, "webapp");
-  if (ret != PMINFO_R_OK) {
-    LOG(ERROR) << "Failed to init pkgmgrinfo filter.";
-    pkgmgrinfo_appinfo_filter_destroy(handle);
+  int count;
+  ret = ail_filter_count_appinfo(filter, &count);
+  if (ret != AIL_ERROR_OK) {
+    LOG(ERROR) << "Failed to count AIL app info.";
+    ail_filter_destroy(filter);
     return false;
   }
 
-  ret = pkgmgrinfo_appinfo_filter_foreach_appinfo(
-      handle, pkgmgrinfo_app_list_cb, &app_ids);
-  if (ret != PMINFO_R_OK) {
-    LOG(ERROR) << "Failed to apply pkgmgrinfo filter.";
-    pkgmgrinfo_appinfo_filter_destroy(handle);
-    return false;
-  }
-  pkgmgrinfo_appinfo_filter_destroy(handle);
-
+  if (count > 0)
+    ail_filter_list_appinfo_foreach(filter, appinfo_get_app_id_cb, &app_ids);
+  ail_filter_destroy(filter);
   return true;
 }
 
