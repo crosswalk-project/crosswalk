@@ -9,8 +9,6 @@ namespace xwalk {
 namespace application_manifest_keys {
 const char kAppKey[] = "app";
 const char kCSPKey[] = "csp";
-const char kCSPKeyLegacy[] = "content_security_policy";
-const char kDescriptionKey[] = "description";
 const char kDisplay[] = "display";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
 const char kLaunchScreen[] = "launch_screen";
@@ -32,6 +30,15 @@ const char kStartURLKey[] = "start_url";
 const char kURLKey[] = "url";
 const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
+
+// Deprecated entries:
+
+const char kDeprecatedDescriptionKey[] = "description";
+const char kDeprecatedCSPKey[] = "content_security_policy";
+
+// XWalk W3C Manifest (XPK) extensions:
+
+const char kXWalkDescriptionKey[] = "xwalk_description";
 const char kXWalkHostsKey[] = "xwalk_hosts";
 const char kXWalkLaunchScreen[] = "xwalk_launch_screen";
 const char kXWalkLaunchScreenDefault[] = "xwalk_launch_screen.default";

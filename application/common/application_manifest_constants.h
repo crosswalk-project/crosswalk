@@ -11,8 +11,6 @@ namespace xwalk {
 namespace application_manifest_keys {
   extern const char kAppKey[];
   extern const char kCSPKey[];
-  extern const char kCSPKeyLegacy[];
-  extern const char kDescriptionKey[];
   extern const char kDisplay[];
   extern const char kLaunchLocalPathKey[];
   extern const char kLaunchScreen[];
@@ -31,6 +29,11 @@ namespace application_manifest_keys {
   extern const char kURLKey[];
   extern const char kVersionKey[];
   extern const char kWebURLsKey[];
+
+  extern const char kDeprecatedDescriptionKey[];
+  extern const char kDeprecatedCSPKey[];
+
+  extern const char kXWalkDescriptionKey[];
   extern const char kXWalkHostsKey[];
   extern const char kXWalkLaunchScreen[];
   extern const char kXWalkLaunchScreenDefault[];

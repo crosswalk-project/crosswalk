@@ -69,6 +69,7 @@ Manifest::Manifest(SourceType source_type,
       data_(value.Pass()),
       i18n_data_(new base::DictionaryValue),
       type_(TYPE_UNKNOWN) {
+  // FIXME: Hosted apps can contain start_url. Below is wrong.
   if (data_->Get(keys::kStartURLKey, NULL)) {
     type_ = TYPE_PACKAGED_APP;
   } else if (data_->HasKey(keys::kAppKey)) {
@@ -84,6 +85,7 @@ Manifest::Manifest(SourceType source_type,
       data_->Get(widget_keys::kWidgetKey, NULL))
     ParseWGTI18n();
 
+  // FIXME: Sounds like a setter calling a getter for the same value.
   SetSystemLocale(GetSystemLocale());
 }
 
@@ -93,16 +95,6 @@ Manifest::~Manifest() {
 bool Manifest::ValidateManifest(
     std::string* error,
     std::vector<InstallWarning>* warnings) const {
-  // TODO(changbin): field 'manifest_version' of manifest.json is not clearly
-  // defined at present. Temporarily disable check of this field.
-  /*
-  *error = "";
-  if (type_ == Manifest::TYPE_PACKAGED_APP && GetManifestVersion() < 2) {
-    *error = errors::kPlatformAppNeedsManifestVersion2;
-    return false;
-  }
-  */
-
   // TODO(xiang): support features validation
   return true;
 }
