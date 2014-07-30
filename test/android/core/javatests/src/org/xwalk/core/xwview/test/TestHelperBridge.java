@@ -80,6 +80,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnProgressChangedHelper extends CallbackHelper {
+        private int mProgress;
+
+        public int getProgress() {
+            assert getCallCount() > 0;
+            return mProgress;
+        }
+
+        public void notifyCalled(int progress) {
+            mProgress = progress;
+            notifyCalled();
+        }
+    }
+
     class OnEvaluateJavaScriptResultHelper extends CallbackHelper {
         private String mJsonResult;
         public void evaluateJavascript(XWalkView xWalkView, String code) {
@@ -151,6 +165,7 @@ class TestHelperBridge {
     private final ShouldInterceptLoadRequestHelper mShouldInterceptLoadRequestHelper;
     private final OnLoadStartedHelper mOnLoadStartedHelper;
     private final OnJavascriptCloseWindowHelper mOnJavascriptCloseWindowHelper;
+    private final OnProgressChangedHelper mOnProgressChangedHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -161,6 +176,7 @@ class TestHelperBridge {
         mShouldInterceptLoadRequestHelper = new ShouldInterceptLoadRequestHelper();
         mOnLoadStartedHelper = new OnLoadStartedHelper();
         mOnJavascriptCloseWindowHelper = new OnJavascriptCloseWindowHelper();
+        mOnProgressChangedHelper = new OnProgressChangedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -193,6 +209,10 @@ class TestHelperBridge {
 
     public OnJavascriptCloseWindowHelper getOnJavascriptCloseWindowHelper() {
         return mOnJavascriptCloseWindowHelper;
+    }
+
+    public OnProgressChangedHelper getOnProgressChangedHelper() {
+        return mOnProgressChangedHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -228,5 +248,9 @@ class TestHelperBridge {
 
     public void onJavascriptCloseWindow() {
         mOnJavascriptCloseWindowHelper.notifyCalled(true);
+    }
+
+    public void onProgressChanged(int progress) {
+        mOnProgressChangedHelper.notifyCalled(progress);
     }
 }
