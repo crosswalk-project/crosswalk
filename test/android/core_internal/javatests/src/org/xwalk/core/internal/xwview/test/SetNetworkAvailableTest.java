@@ -1,9 +1,9 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -11,17 +11,17 @@ import android.util.Log;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
-import org.xwalk.core.XWalkView;
 import org.xwalk.core.internal.XWalkClient;
+import org.xwalk.core.internal.XWalkViewInternal;
 
 /**
- * Test case for XWalkView.setNetworkAvailable method
+ * Test case for XWalkViewInternal.setNetworkAvailable method
  *
  * Once setNetworkAvailable is called, the navigator.onLine property will be
  * set, and window.ononline/onoffline event will be fired if the property is
  * changed.
  */
-public class SetNetworkAvailableTest extends XWalkViewTestBase {
+public class SetNetworkAvailableTest extends XWalkViewInternalTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -34,7 +34,7 @@ public class SetNetworkAvailableTest extends XWalkViewTestBase {
         loadAssetFile("navigator.online.html");
         String title = getTitleOnUiThread();
 
-        final XWalkView xwView = getXWalkView();
+        final XWalkViewInternal xwView = getXWalkView();
 
         if ("true".equals(title)) {
             getInstrumentation().runOnMainSync(new Runnable() {
