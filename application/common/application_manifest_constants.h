@@ -22,7 +22,6 @@ namespace application_manifest_keys {
   extern const char kLaunchScreenPortrait[];
   extern const char kLaunchScreenReadyWhen[];
   extern const char kLaunchWebURLKey[];
-  extern const char kManifestVersionKey[];
   extern const char kNameKey[];
   extern const char kPermissionsKey[];
   extern const char kStartURLKey[];
@@ -102,12 +101,10 @@ extern const char kTizenNamespacePrefix[];
 namespace application_manifest_errors {
   extern const char kInvalidDescription[];
   extern const char kInvalidKey[];
-  extern const char kInvalidManifestVersion[];
   extern const char kInvalidName[];
   extern const char kInvalidVersion[];
   extern const char kManifestParseError[];
   extern const char kManifestUnreadable[];
-  extern const char kPlatformAppNeedsManifestVersion2[];
 }  // namespace application_manifest_errors
 
 namespace application {

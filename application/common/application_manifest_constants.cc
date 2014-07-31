@@ -23,7 +23,6 @@ const char kLaunchScreenLandscape[] = "launch_screen.landscape";
 const char kLaunchScreenPortrait[] = "launch_screen.portrait";
 const char kLaunchScreenReadyWhen[] = "launch_screen.ready_when";
 const char kLaunchWebURLKey[] = "app.launch.web_url";
-const char kManifestVersionKey[] = "manifest_version";
 const char kNameKey[] = "name";
 const char kPermissionsKey[] = "permissions";
 const char kStartURLKey[] = "start_url";
@@ -123,9 +122,6 @@ const char kInvalidDescription[] =
     "Invalid value for 'description'.";
 const char kInvalidKey[] =
     "Value 'key' is missing or invalid.";
-const char kInvalidManifestVersion[] =
-    "Invalid value for 'manifest_version'. Must be an integer greater than "
-    "zero.";
 const char kInvalidName[] =
     "Required value 'name' is missing or invalid.";
 const char kInvalidVersion[] =
@@ -135,8 +131,6 @@ const char kManifestParseError[] =
     "Manifest is not valid JSON.";
 const char kManifestUnreadable[] =
     "Manifest file is missing or unreadable.";
-const char kPlatformAppNeedsManifestVersion2[] =
-    "Packaged apps need manifest_version set to >= 2";
 }  // namespace application_manifest_errors
 
 namespace application {

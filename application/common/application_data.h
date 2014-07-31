@@ -108,7 +108,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const std::string& Name() const { return name_; }
   const std::string& NonLocalizedName() const { return non_localized_name_; }
   const std::string& Description() const { return description_; }
-  int ManifestVersion() const { return manifest_version_; }
 
   const Manifest* GetManifest() const {
     return manifest_.get();
@@ -157,7 +156,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   bool LoadName(base::string16* error);
   bool LoadVersion(base::string16* error);
   bool LoadDescription(base::string16* error);
-  bool LoadManifestVersion(base::string16* error);
 
   // The application's human-readable name. Name is used for display purpose. It
   // might be wrapped with unicode bidi control characters so that it is
