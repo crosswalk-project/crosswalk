@@ -70,14 +70,10 @@ void XWalkRunner::PreMainMessageLoopRun() {
   runtime_context_.reset(new RuntimeContext);
   app_extension_bridge_.reset(new XWalkAppExtensionBridge());
 
-#if defined(OS_ANDROID)
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
-#endif
-  {
     extension_service_.reset(new extensions::XWalkExtensionService(
         app_extension_bridge_.get()));
-  }
 
   CreateComponents();
   app_extension_bridge_->SetApplicationSystem(app_component_->app_system());

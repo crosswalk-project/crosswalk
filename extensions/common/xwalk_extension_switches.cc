@@ -23,7 +23,7 @@ const char kXWalkExternalExtensionsPath[] = "external-extensions-path";
 // Useful values might be "valgrind" or "xterm -e gdb --args".
 const char kXWalkExtensionCmdPrefix[] = "xwalk-extension-cmd-prefix";
 
-// Disable XWalkExtensionSystem and all extensions only for Android OS
+// Disable XWalkExtensionSystem and all extensions
 const char kXWalkDisableExtensions[] = "disable-xwalk-extensions";
 
 }  // namespace switches
