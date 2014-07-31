@@ -87,7 +87,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   const base::CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
-    if (ApplicationData::IsIDValid(app_id)) {
+    if (IsValidApplicationID(app_id)) {
       run_default_message_loop = LaunchWithCommandLineParam(app_id, cmd_line);
       return true;
     }

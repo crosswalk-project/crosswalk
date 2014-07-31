@@ -40,5 +40,17 @@ TEST(IDUtilTest, GenerateID) {
                 "this_string_is_longer_than_a_single_sha256_hash_digest"));
 }
 
+TEST(IDUtilTest, IsValidApplicationID) {
+  EXPECT_TRUE(IsValidApplicationID("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+  EXPECT_TRUE(IsValidApplicationID("pppppppppppppppppppppppppppppppp"));
+  EXPECT_TRUE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnop"));
+  EXPECT_TRUE(IsValidApplicationID("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
+  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmno"));
+  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnopa"));
+  EXPECT_FALSE(IsValidApplicationID("0123456789abcdef0123456789abcdef"));
+  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnoq"));
+  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmno0"));
+}
+
 }  // namespace application
 }  // namespace xwalk

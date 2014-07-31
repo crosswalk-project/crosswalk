@@ -21,6 +21,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
@@ -175,7 +176,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
 
 bool PackageInstaller::Update(const std::string& app_id,
                               const base::FilePath& path) {
-  if (!ApplicationData::IsIDValid(app_id)) {
+  if (!IsValidApplicationID(app_id)) {
     LOG(ERROR) << "The given application id " << app_id << " is invalid.";
     return false;
   }
@@ -286,28 +287,34 @@ bool PackageInstaller::Update(const std::string& app_id,
   return true;
 }
 
-bool PackageInstaller::Uninstall(const std::string& id) {
+bool PackageInstaller::Uninstall(const std::string& app_id) {
+  if (!IsValidApplicationID(app_id)) {
+    LOG(ERROR) << "The given application id " << app_id << " is invalid.";
+    return false;
+  }
+
   bool result = true;
-  scoped_refptr<ApplicationData> app_data = storage_->GetApplicationData(id);
+  scoped_refptr<ApplicationData> app_data =
+      storage_->GetApplicationData(app_id);
   if (!app_data) {
-    LOG(ERROR) << "Failed to find application with id " << id
+    LOG(ERROR) << "Failed to find application with id " << app_id
                << " among the installed ones.";
     result = false;
   }
 
-  if (!storage_->RemoveApplication(id)) {
-    LOG(ERROR) << "Cannot uninstall application with id " << id
+  if (!storage_->RemoveApplication(app_id)) {
+    LOG(ERROR) << "Cannot uninstall application with id " << app_id
                << "; application is not installed.";
     result = false;
   }
 
   base::FilePath resources;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &resources));
-  resources = resources.Append(kApplicationsDir).AppendASCII(id);
+  resources = resources.Append(kApplicationsDir).AppendASCII(app_id);
   if (base::DirectoryExists(resources) &&
       !base::DeleteFile(resources, true)) {
     LOG(ERROR) << "Error occurred while trying to remove application with id "
-               << id << "; Cannot remove all resources.";
+               << app_id << "; Cannot remove all resources.";
     result = false;
   }
 

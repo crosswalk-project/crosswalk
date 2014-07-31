@@ -34,8 +34,21 @@ const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 namespace xwalk {
 namespace application {
 
+// The [tizen_app_id] contains a dot, making it an invalid object path.
+// For this reason we replace it with an underscore '_'.
+std::string GetAppObjectPathFromAppId(const std::string& app_id) {
+#if defined(OS_TIZEN)
+  std::string ret(app_id);
+  std::replace(ret.begin(), ret.end(), '.', '_');
+  return ret;
+#else
+  return app_id;
+#endif
+}
+
 dbus::ObjectPath GetRunningPathForAppID(const std::string& app_id) {
-  return dbus::ObjectPath(kRunningManagerDBusPath.value() + "/" + app_id);
+  return dbus::ObjectPath(kRunningManagerDBusPath.value() + "/" +
+                          GetAppObjectPathFromAppId(app_id));
 }
 
 RunningApplicationsManager::RunningApplicationsManager(
@@ -135,8 +148,10 @@ void RunningApplicationsManager::OnLaunch(
   // FIXME(cmarcelo): ApplicationService will tell us when new applications
   // appear (with DidLaunchApplication()) and we create new managed objects
   // in D-Bus based on that.
-  dbus::ObjectPath path = AddObject(application->id(), method_call->GetSender(),
-                                    application);
+  dbus::ObjectPath path =
+      AddObject(GetAppObjectPathFromAppId(application->id()),
+                method_call->GetSender(),
+                application);
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);

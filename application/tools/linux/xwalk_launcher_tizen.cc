@@ -75,22 +75,18 @@ int xwalk_appcore_init(int argc, char** argv, const char* name) {
 
 int xwalk_change_cmdline(int argc, char** argv, const char* app_id) {
   // Change /proc/<pid>/cmdline to app exec path. See XWALK-1722 for details.
-  char* app_id_for_db = strdup(
-      xwalk::application::RawAppIdToAppIdForTizenPkgmgrDB(app_id).c_str());
   pkgmgrinfo_appinfo_h handle;
   char* exec_path = NULL;
-  if (pkgmgrinfo_appinfo_get_appinfo(app_id_for_db, &handle) != PMINFO_R_OK ||
+  if (pkgmgrinfo_appinfo_get_appinfo(app_id, &handle) != PMINFO_R_OK ||
       pkgmgrinfo_appinfo_get_exec(handle, &exec_path) != PMINFO_R_OK ||
       !exec_path) {
-    fprintf(stderr, "Couldn't find exec path for application: %s\n",
-            app_id_for_db);
+    fprintf(stderr, "Couldn't find exec path for application: %s\n", app_id);
     return -1;
   }
 
   for (int i = 0; i < argc; ++i)
     memset(argv[i], 0, strlen(argv[i]));
   strncpy(argv[0], exec_path, strlen(exec_path)+1);
-  g_free(app_id_for_db);
   pkgmgrinfo_appinfo_destroy_appinfo(handle);
   return 0;
 }

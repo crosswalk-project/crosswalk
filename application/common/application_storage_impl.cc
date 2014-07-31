@@ -17,6 +17,7 @@
 #include "sql/transaction.h"
 #include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_storage_constants.h"
+#include "xwalk/application/common/id_util.h"
 
 namespace db_fields = xwalk::application_storage_constants;
 namespace xwalk {
@@ -324,7 +325,7 @@ bool ApplicationStorageImpl::GetInstalledApplicationIDs(
 
   while (smt.Step()) {
     const std::string& id = smt.ColumnString(0);
-    if (!ApplicationData::IsIDValid(id)) {
+    if (!IsValidApplicationID(id)) {
       LOG(ERROR) << "Failed to obtain Application ID from SQL query";
       return false;
     }

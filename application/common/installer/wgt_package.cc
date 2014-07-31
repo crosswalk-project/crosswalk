@@ -55,7 +55,11 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   }
 
   if (!value.empty())
+#if defined(OS_TIZEN)
+    id_ = value;
+#else
     id_ = GenerateId(value);
+#endif
 
   is_valid_ = true;
 

@@ -28,6 +28,7 @@
 #include "xwalk/application/common/manifest_handler.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/widget_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
@@ -53,11 +54,6 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
       new xwalk::application::Manifest(source_type,
                  scoped_ptr<base::DictionaryValue>(manifest_data.DeepCopy())));
 
-  if (!InitApplicationID(manifest.get(), path, explicit_id, &error)) {
-    *error_message = base::UTF16ToUTF8(error);
-    return NULL;
-  }
-
   std::vector<InstallWarning> install_warnings;
   if (!manifest->ValidateManifest(error_message, &install_warnings)) {
     return NULL;
@@ -67,7 +63,7 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
                                                            manifest.Pass());
   application->install_warnings_.swap(install_warnings);
 
-  if (!application->Init(&error)) {
+  if (!application->Init(explicit_id, &error)) {
     *error_message = base::UTF16ToUTF8(error);
     return NULL;
   }
@@ -93,37 +89,6 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
                               manifest, app_id, error_message);
 
   return application_data;
-}
-
-// static
-bool ApplicationData::IsIDValid(const std::string& id) {
-  std::string temp = StringToLowerASCII(id);
-
-#if defined(OS_TIZEN)
-  // An ID with 10 characters is most likely a legacy Tizen ID.
-  if (temp.size() == kLegacyTizenIdSize) {
-    for (size_t i = 0; i < kLegacyTizenIdSize; ++i) {
-      const char c = temp[i];
-      const bool valid = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z');
-      if (!valid)
-        return false;
-    }
-
-    return true;
-  }
-#endif
-
-  // Verify that the id is legal.
-  if (temp.size() != (kIdSize * 2))
-    return false;
-
-  // We only support lowercase IDs, because IDs can be used as URL components
-  // (where GURL will lowercase it).
-  for (size_t i = 0; i < temp.size(); ++i)
-    if (temp[i] < 'a' || temp[i] > 'p')
-      return false;
-
-  return true;
 }
 
 // static
@@ -171,40 +136,6 @@ bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
 }
 
-// static
-bool ApplicationData::InitApplicationID(xwalk::application::Manifest* manifest,
-                                const base::FilePath& path,
-                                const std::string& explicit_id,
-                                base::string16* error) {
-  std::string application_id;
-#if defined(OS_TIZEN)
-  if (manifest->HasKey(keys::kTizenAppIdKey)) {
-    if (!manifest->GetString(keys::kTizenAppIdKey, &application_id)) {
-      NOTREACHED() << "Could not get Tizen application key";
-      return false;
-    }
-  }
-
-  if (!application_id.empty()) {
-    manifest->SetApplicationID(application_id);
-    return true;
-  }
-#endif
-
-  if (!explicit_id.empty()) {
-    manifest->SetApplicationID(explicit_id);
-    return true;
-  }
-
-  application_id = GenerateIdForPath(path);
-  if (application_id.empty()) {
-    NOTREACHED() << "Could not create ID from path.";
-    return false;
-  }
-  manifest->SetApplicationID(application_id);
-  return true;
-}
-
 ApplicationData::ApplicationData(const base::FilePath& path,
                      scoped_ptr<xwalk::application::Manifest> manifest)
     : manifest_version_(0),
@@ -245,24 +176,63 @@ Manifest::Type ApplicationData::GetType() const {
   return manifest_->GetType();
 }
 
-bool ApplicationData::Init(base::string16* error) {
+bool ApplicationData::Init(const std::string& explicit_id,
+                           base::string16* error) {
   DCHECK(error);
-
-  if (!LoadName(error))
-    return false;
-  if (!LoadVersion(error))
-      return false;
-  if (!LoadDescription(error))
-      return false;
-
-  application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
-
   ManifestHandlerRegistry* registry =
       ManifestHandlerRegistry::GetInstance(GetPackageType());
   if (!registry->ParseAppManifest(this, error))
     return false;
 
+  if (!LoadID(explicit_id, error))
+    return false;
+  if (!LoadName(error))
+    return false;
+  if (!LoadVersion(error))
+    return false;
+  if (!LoadDescription(error))
+    return false;
+
+  application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
+
   finished_parsing_manifest_ = true;
+  return true;
+}
+
+bool ApplicationData::LoadID(const std::string& explicit_id,
+                             base::string16* error) {
+  std::string application_id;
+#if defined(OS_TIZEN)
+  if (GetPackageType() == Package::WGT) {
+    const TizenApplicationInfo* tizen_app_info =
+        static_cast<TizenApplicationInfo*>(GetManifestData(
+            widget_keys::kTizenApplicationKey));
+    CHECK(tizen_app_info);
+    application_id = tizen_app_info->id();
+  } else if (manifest_->HasKey(keys::kTizenAppIdKey)) {
+    if (!manifest_->GetString(keys::kTizenAppIdKey, &application_id)) {
+      NOTREACHED() << "Could not get Tizen application key";
+      return false;
+    }
+  }
+
+  if (!application_id.empty()) {
+    manifest_->SetApplicationID(application_id);
+    return true;
+  }
+#endif
+
+  if (!explicit_id.empty()) {
+    manifest_->SetApplicationID(explicit_id);
+    return true;
+  }
+
+  application_id = GenerateIdForPath(path_);
+  if (application_id.empty()) {
+    NOTREACHED() << "Could not create ID from path.";
+    return false;
+  }
+  manifest_->SetApplicationID(application_id);
   return true;
 }
 
