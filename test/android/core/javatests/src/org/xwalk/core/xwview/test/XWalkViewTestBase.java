@@ -30,7 +30,6 @@ import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkUIClient;
 import org.xwalk.core.XWalkView;
-import org.xwalk.core.internal.XWalkSettings;
 
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
@@ -124,37 +123,6 @@ public class XWalkViewTestBase
                 getXWalkView().setResourceClient(client);
             }
         });
-    }
-
-    static class ViewPair {
-        private final XWalkView content0;
-        private final TestHelperBridge client0;
-        private final XWalkView content1;
-        private final TestHelperBridge client1;
-
-        ViewPair(XWalkView content0, TestHelperBridge client0,
-                XWalkView content1, TestHelperBridge client1) {
-            this.content0 = content0;
-            this.client0 = client0;
-            this.content1 = content1;
-            this.client1 = client1;
-        }
-
-        XWalkView getContent0() {
-            return content0;
-        }
-
-        TestHelperBridge getClient0() {
-            return client0;
-        }
-
-        XWalkView getContent1() {
-            return content1;
-        }
-
-        TestHelperBridge getClient1() {
-            return client1;
-        }
     }
 
     public XWalkViewTestBase() {
@@ -301,16 +269,6 @@ public class XWalkViewTestBase
         });
     }
 
-    protected XWalkSettings getXWalkSettingsOnUiThreadByContent(
-            final XWalkView xwalkContent) throws Exception {
-        return runTestOnUiThreadAndGetResult(new Callable<XWalkSettings>() {
-            @Override
-            public XWalkSettings call() throws Exception {
-                return xwalkContent.getSettings();
-            }
-        });
-    }
-
     protected XWalkView createXWalkViewContainerOnMainSync(
             final Context context,
             final XWalkUIClient uiClient,
@@ -328,29 +286,6 @@ public class XWalkViewTestBase
         });
 
         return xWalkViewContainer.get();
-    }
-
-    protected ViewPair createViewsOnMainSync(final TestHelperBridge helperBridge0,
-                                             final TestHelperBridge helperBridge1,
-                                             final XWalkUIClient uiClient0,
-                                             final XWalkUIClient uiClient1,
-                                             final XWalkResourceClient resourceClient0,
-                                             final XWalkResourceClient resourceClient1,
-                                             final Context context) throws Throwable {
-        final XWalkView walkView0 = createXWalkViewContainerOnMainSync(context,
-                uiClient0, resourceClient0);
-        final XWalkView walkView1 = createXWalkViewContainerOnMainSync(context,
-                uiClient1, resourceClient1);
-        final AtomicReference<ViewPair> viewPair = new AtomicReference<ViewPair>();
-
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                viewPair.set(new ViewPair(walkView0, helperBridge0, walkView1, helperBridge1));
-            }
-        });
-
-        return viewPair.get();
     }
 
     protected void loadAssetFile(String fileName) throws Exception {
@@ -501,22 +436,6 @@ public class XWalkViewTestBase
         helper.waitUntilHasValue();
         Assert.assertTrue("Failed to retrieve JavaScript evaluation results.", helper.hasValue());
         return helper.getJsonResultAndClear();
-    }
-
-    protected ViewPair createViews() throws Throwable {
-        TestHelperBridge helperBridge0 = new TestHelperBridge();
-        TestHelperBridge helperBridge1 = new TestHelperBridge();
-        TestXWalkUIClientBase uiClient0 = new TestXWalkUIClientBase(helperBridge0);
-        TestXWalkUIClientBase uiClient1 = new TestXWalkUIClientBase(helperBridge1);
-        TestXWalkResourceClientBase resourceClient0 =
-                new TestXWalkResourceClientBase(helperBridge0);
-        TestXWalkResourceClientBase resourceClient1 =
-                new TestXWalkResourceClientBase(helperBridge1);
-        ViewPair viewPair =
-                createViewsOnMainSync(helperBridge0, helperBridge1, uiClient0, uiClient1,
-                        resourceClient0, resourceClient1, getActivity());
-
-        return viewPair;
     }
 
     protected String getUrlOnUiThread() throws Exception {
