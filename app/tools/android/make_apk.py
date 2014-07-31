@@ -16,7 +16,7 @@ import sys
 sys.path.append('scripts/gyp')
 
 from app_info import AppInfo
-from customize import VerifyPackageName, CustomizeAll, \
+from customize import VerifyAppName, CustomizeAll, \
                       ParseParameterForCompressor
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
@@ -747,11 +747,12 @@ def main(argv):
 
   if not options.name:
     parser.error('An APK name is required. Please use the "--name" option.')
+  VerifyAppName(options.name)
 
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
                  'option.')
-  VerifyPackageName(options.package)
+  VerifyAppName(options.package, 'packagename')
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
