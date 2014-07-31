@@ -27,16 +27,17 @@ const char kNameKey[] = "name";
 const char kPermissionsKey[] = "permissions";
 const char kStartURLKey[] = "start_url";
 const char kURLKey[] = "url";
-const char kVersionKey[] = "version";
 const char kWebURLsKey[] = "app.urls";
 
 // Deprecated entries:
 
+const char kDeprecatedVersionKey[] = "version";
 const char kDeprecatedDescriptionKey[] = "description";
 const char kDeprecatedCSPKey[] = "content_security_policy";
 
 // XWalk W3C Manifest (XPK) extensions:
 
+const char kXWalkVersionKey[] = "xwalk_version";
 const char kXWalkDescriptionKey[] = "xwalk_description";
 const char kXWalkHostsKey[] = "xwalk_hosts";
 const char kXWalkLaunchScreen[] = "xwalk_launch_screen";
@@ -146,7 +147,7 @@ const char* GetVersionKey(Package::Type package_type) {
   if (package_type == Package::WGT)
     return application_widget_keys::kVersionKey;
 
-  return application_manifest_keys::kVersionKey;
+  return application_manifest_keys::kXWalkVersionKey;
 }
 
 const char* GetWebURLsKey(Package::Type package_type) {
