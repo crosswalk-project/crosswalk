@@ -16,8 +16,8 @@ import sys
 sys.path.append('scripts/gyp')
 
 from app_info import AppInfo
-from customize import VerifyPackageName, CustomizeAll, \
-                      ParseParameterForCompressor
+from customize import VerifyAppName, CustomizeAll, \
+                      ParseParameterForCompressor, ReplaceSpaceWithUnderscore
 from dex import AddExeExtensions
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -182,9 +182,7 @@ def MakeVersionCode(options):
 def Customize(options, app_info, manifest):
   app_info.package = options.package
   app_info.app_name = options.name
-  # 'org.xwalk.my_first_app' => 'MyFirstApp'
-  android_name = options.package.split('.')[-1].split('_')
-  app_info.android_name = ''.join([i.capitalize() for i in android_name if i])
+  app_info.android_name = ReplaceSpaceWithUnderscore(options.name)
   if options.app_version:
     app_info.app_version = options.app_version
   app_info.app_versionCode = MakeVersionCode(options)
@@ -747,11 +745,12 @@ def main(argv):
 
   if not options.name:
     parser.error('An APK name is required. Please use the "--name" option.')
+  VerifyAppName(options.name)
 
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
                  'option.')
-  VerifyPackageName(options.package)
+  VerifyAppName(options.package, 'packagename')
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
