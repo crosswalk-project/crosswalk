@@ -254,8 +254,6 @@ bool ApplicationData::Init(base::string16* error) {
       return false;
   if (!LoadDescription(error))
       return false;
-  if (!LoadManifestVersion(error))
-    return false;
 
   application_url_ = ApplicationData::GetBaseURLFromApplicationId(ID());
 
@@ -336,25 +334,6 @@ bool ApplicationData::LoadDescription(base::string16* error) {
   }
 
   // No error but also no description found.
-  return true;
-}
-
-bool ApplicationData::LoadManifestVersion(base::string16* error) {
-  DCHECK(error);
-  // Get the original value out of the dictionary so that we can validate it
-  // more strictly.
-  if (manifest_->value()->HasKey(keys::kManifestVersionKey)) {
-    int manifest_version = 1;
-    if (!manifest_->GetInteger(keys::kManifestVersionKey, &manifest_version) ||
-        manifest_version < 1) {
-      if (package_type_ == Package::XPK) {
-        *error = base::ASCIIToUTF16(errors::kInvalidManifestVersion);
-        return false;
-      }
-    }
-  }
-
-  manifest_version_ = manifest_->GetManifestVersion();
   return true;
 }
 

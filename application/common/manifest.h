@@ -54,12 +54,6 @@ class Manifest {
   bool ValidateManifest(std::string* error,
                         std::vector<InstallWarning>* warnings) const;
 
-  // The version of this application's manifest. We increase the manifest
-  // version when making breaking changes to the application system. If the
-  // manifest contains no explicit manifest version, this returns the current
-  // system default.
-  int GetManifestVersion() const;
-
   // Returns the manifest type.
   Type GetType() const { return type_; }
 

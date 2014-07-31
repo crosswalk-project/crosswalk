@@ -185,12 +185,6 @@ bool Manifest::Equals(const Manifest* other) const {
   return other && data_->Equals(other->value());
 }
 
-int Manifest::GetManifestVersion() const {
-  int manifest_version = 1;
-  data_->GetInteger(keys::kManifestVersionKey, &manifest_version);
-  return manifest_version;
-}
-
 bool Manifest::CanAccessPath(const std::string& path) const {
   return true;
 }
