@@ -156,7 +156,7 @@ bool ParseSignedInfoElement(
   ReferenceData reference_data;
   std::set<std::string> reference_set;
   ReferenceHashMap reference_hash_map;
-  for (int i = 0; i < reference_vec.size(); ++i) {
+  for (size_t i = 0; i < reference_vec.size(); ++i) {
     refer_node = reference_vec[i];
     uri = GetAttribute(refer_node, kTokenURI);
     if (uri.empty()) {
@@ -284,7 +284,7 @@ bool ParseObjectElement(
     GetChildren(properties_node, ns, kTokenSignatureProperty);
   std::string Id, uri, element_name, profile_uri, role_uri;
   xmlNodePtr sign_property_node, child;
-  for (int i = 0; i < prop_vec.size(); i++) {
+  for (size_t i = 0; i < prop_vec.size(); i++) {
     sign_property_node = prop_vec[i];
     Id = GetAttribute(sign_property_node, kTokenID);
     child = sign_property_node->children;

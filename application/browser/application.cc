@@ -195,7 +195,7 @@ GURL Application::GetURLFromRelativePathKey(const std::string& key) {
     base::FileEnumerator iter(data_->Path(), true,
                               base::FileEnumerator::FILES,
                               FILE_PATH_LITERAL("index.*"));
-    int priority = arraysize(kDefaultWidgetEntryPage);
+    size_t priority = arraysize(kDefaultWidgetEntryPage);
 
     for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
       for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
