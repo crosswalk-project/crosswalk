@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -121,6 +122,7 @@ class Application : public Runtime::Observer,
   virtual base::FilePath GetSplashScreenPath();
 
   std::set<Runtime*> runtimes_;
+  RuntimeContext* runtime_context_;
   scoped_refptr<ApplicationData> const data_;
   // The application's render process host.
   content::RenderProcessHost* render_process_host_;
@@ -159,7 +161,6 @@ class Application : public Runtime::Observer,
 
   void NotifyTermination();
 
-  RuntimeContext* runtime_context_;
   Observer* observer_;
 
   std::map<std::string, std::string> name_perm_map_;

@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -44,6 +45,14 @@ class RunningApplicationObject : public dbus::ManagedObject {
                   bool success);
 
   void OnTerminate(dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender);
+
+  void SetUserAgentStringOnIOThread(const std::string& user_agent_string);
+
+  void OnRemoveAllCookies(dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender);
+
+  void OnSetUserAgentString(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
   void OnGetExtensionProcessChannel(

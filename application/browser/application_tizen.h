@@ -1,11 +1,15 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 #ifndef XWALK_APPLICATION_BROWSER_APPLICATION_TIZEN_H_
 #define XWALK_APPLICATION_BROWSER_APPLICATION_TIZEN_H_
 
+#include <string>
+
 #include "base/event_types.h"
 #include "xwalk/application/browser/application.h"
+#include "xwalk/application/common/tizen/cookie_manager.h"
 
 #if defined(USE_OZONE)
 #include "ui/events/platform/platform_event_observer.h"
@@ -26,6 +30,9 @@ class ApplicationTizen :  // NOLINT
   void Suspend();
   void Resume();
 
+  void RemoveAllCookies();
+  void SetUserAgentString(const std::string& user_agent_string);
+
  private:
   friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
@@ -39,6 +46,7 @@ class ApplicationTizen :  // NOLINT
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
 
+  scoped_ptr<CookieManager> cookie_manager_;
   bool is_suspended_;
 };
 

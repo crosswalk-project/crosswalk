@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -195,6 +196,16 @@ content::PushMessagingService* RuntimeContext::GetPushMessagingService() {
 
 content::SSLHostStateDelegate* RuntimeContext::GetSSLHostStateDelegate() {
   return NULL;
+}
+
+RuntimeURLRequestContextGetter* RuntimeContext::GetURLRequestContextGetterById(
+    const std::string& pkg_id) {
+  for (PartitionPathContextGetterMap::iterator it = context_getters_.begin();
+       it != context_getters_.end(); ++it) {
+    if (it->first.find(pkg_id))
+      return it->second.get();
+  }
+  return 0;
 }
 
 net::URLRequestContextGetter* RuntimeContext::CreateRequestContext(

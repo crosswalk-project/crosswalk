@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -55,6 +56,25 @@ RunningApplicationObject::RunningApplicationObject(
       kRunningApplicationDBusInterface, "AppID",
       scoped_ptr<base::Value>(new base::StringValue(app_id)));
 
+  // FIXME: RemoveAllCookies and SetUserAgentString
+  // are exported for web_setting extension usage.
+  // This is a temporary solution - when another
+  // IPC on extension process side is implemented,
+  // these methods have to be removed.
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "RemoveAllCookies",
+      base::Bind(&RunningApplicationObject::OnRemoveAllCookies,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
+
+  dbus_object()->ExportMethod(
+      kRunningApplicationDBusInterface, "SetUserAgentString",
+      base::Bind(&RunningApplicationObject::OnSetUserAgentString,
+                 base::Unretained(this)),
+      base::Bind(&RunningApplicationObject::OnExported,
+                 base::Unretained(this)));
+
   dbus_object()->ExportMethod(
       kRunningApplicationDBusInterface, "Terminate",
       base::Bind(&RunningApplicationObject::OnTerminate,
@@ -108,6 +128,60 @@ void RunningApplicationObject::OnExported(const std::string& interface_name,
     LOG(WARNING) << "Error exporting method '" << interface_name
                  << "." << method_name << "' in '"
                  << path().value() << "'.";
+  }
+}
+
+void RunningApplicationObject::SetUserAgentStringOnIOThread(
+    const std::string& user_agent_string) {
+  DCHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::IO));
+  ToApplicationTizen(application_)->SetUserAgentString(user_agent_string);
+}
+
+void RunningApplicationObject::OnRemoveAllCookies(dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+
+  ToApplicationTizen(application_)->RemoveAllCookies();
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  response_sender.Run(response.Pass());
+}
+
+void RunningApplicationObject::OnSetUserAgentString(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  if (method_call->GetSender() != launcher_name_) {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Not permitted");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
+    return;
+  }
+  dbus::MessageReader reader(method_call);
+  std::string new_user_agent;
+  if (reader.PopString(&new_user_agent)) {
+    content::BrowserThread::PostTask(
+        content::BrowserThread::IO, FROM_HERE,
+        base::Bind(&RunningApplicationObject::SetUserAgentStringOnIOThread,
+                   base::Unretained(this), new_user_agent));
+    scoped_ptr<dbus::Response> response =
+        dbus::Response::FromMethodCall(method_call);
+    response_sender.Run(response.Pass());
+  } else {
+    scoped_ptr<dbus::ErrorResponse> error_response =
+        dbus::ErrorResponse::FromMethodCall(method_call,
+                                            kRunningApplicationDBusError,
+                                            "Wrong user agent string");
+    response_sender.Run(error_response.PassAs<dbus::Response>());
   }
 }
 

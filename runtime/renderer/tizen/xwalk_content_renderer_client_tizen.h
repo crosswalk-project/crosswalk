@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -31,6 +32,7 @@ class XWalkContentRendererClientTizen : public XWalkContentRendererClient {
       const blink::WebURLError& error,
       std::string* error_html,
       base::string16* error_description) OVERRIDE;
+  std::string GetOverridenUserAgent() const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkContentRendererClientTizen);

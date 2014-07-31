@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -61,6 +62,9 @@ class XWalkContentRendererClient
                                const GURL& first_party_for_cookies,
                                GURL* new_url) OVERRIDE;
 
+ protected:
+  scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
+
  private:
   // XWalkExtensionRendererController::Delegate implementation.
   virtual void DidCreateModuleSystem(
@@ -69,7 +73,6 @@ class XWalkContentRendererClient
   scoped_ptr<extensions::XWalkExtensionRendererController>
       extension_controller_;
 
-  scoped_ptr<XWalkRenderProcessObserver> xwalk_render_process_observer_;
 #if defined(OS_ANDROID)
   scoped_ptr<visitedlink::VisitedLinkSlave> visited_link_slave_;
 #endif
