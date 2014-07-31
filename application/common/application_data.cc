@@ -305,12 +305,37 @@ bool ApplicationData::LoadVersion(base::string16* error) {
 
 bool ApplicationData::LoadDescription(base::string16* error) {
   DCHECK(error);
-  if (manifest_->HasKey(keys::kDescriptionKey) &&
-      !manifest_->GetString(keys::kDescriptionKey, &description_) &&
-      package_type_ == Package::XPK) {
-    *error = base::ASCIIToUTF16(errors::kInvalidDescription);
-    return false;
+  // FIXME: Better to assert on use from Widget.
+  if (package_type_ != Package::XPK)
+    return true;  // No error.
+
+  bool hasDeprecatedKey = manifest_->HasKey(keys::kDeprecatedDescriptionKey);
+  bool hasKey = manifest_->HasKey(keys::kXWalkDescriptionKey);
+
+  if (hasKey) {
+    if (hasDeprecatedKey) {
+      LOG(WARNING) << "Deprecated key '" << keys::kDeprecatedDescriptionKey
+          << "' found in addition to '" << keys::kXWalkDescriptionKey
+          << "'. Consider removing.";
+    }
+    bool ok = manifest_->GetString(keys::kXWalkDescriptionKey, &description_);
+    if (!ok)
+      *error = base::ASCIIToUTF16(errors::kInvalidDescription);
+    return ok;
   }
+
+  if (hasDeprecatedKey) {
+    LOG(WARNING) << "Deprecated key '" << keys::kDeprecatedDescriptionKey
+        << "' found. Please migrate to using '" << keys::kXWalkDescriptionKey
+        << "' instead.";
+    bool ok = manifest_->GetString(
+        keys::kDeprecatedDescriptionKey, &description_);
+    if (!ok)
+      *error = base::ASCIIToUTF16(errors::kInvalidDescription);
+    return ok;
+  }
+
+  // No error but also no description found.
   return true;
 }
 

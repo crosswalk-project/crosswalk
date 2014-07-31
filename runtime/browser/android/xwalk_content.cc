@@ -275,7 +275,7 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   render_view_host_ext_->SetOriginAccessWhitelist(url, match_patterns);
 
   std::string csp;
-  ManifestGetString(manifest, keys::kCSPKey, keys::kCSPKeyLegacy, &csp);
+  ManifestGetString(manifest, keys::kCSPKey, keys::kDeprecatedCSPKey, &csp);
   RuntimeContext* runtime_context =
       XWalkRunner::GetInstance()->runtime_context();
   CHECK(runtime_context);
