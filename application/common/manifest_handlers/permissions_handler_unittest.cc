@@ -31,7 +31,7 @@ class PermissionsHandlerTest: public testing::Test {
 TEST_F(PermissionsHandlerTest, NonePermission) {
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
@@ -46,7 +46,7 @@ TEST_F(PermissionsHandlerTest, NonePermission) {
 TEST_F(PermissionsHandlerTest, EmptyPermission) {
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   base::ListValue* permissions = new base::ListValue;
   manifest.Set(keys::kPermissionsKey, permissions);
   std::string error;
@@ -63,7 +63,7 @@ TEST_F(PermissionsHandlerTest, EmptyPermission) {
 TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   base::ListValue* permissions = new base::ListValue;
   permissions->AppendString("geolocation");
   manifest.Set(keys::kPermissionsKey, permissions);

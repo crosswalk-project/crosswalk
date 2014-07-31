@@ -57,7 +57,7 @@ class ManifestTest : public testing::Test {
 TEST_F(ManifestTest, ApplicationData) {
   scoped_ptr<base::DictionaryValue> manifest_value(new base::DictionaryValue());
   manifest_value->SetString(keys::kNameKey, "extension");
-  manifest_value->SetString(keys::kVersionKey, "1");
+  manifest_value->SetString(keys::kXWalkVersionKey, "1");
   manifest_value->SetString("unknown_key", "foo");
 
   scoped_ptr<Manifest> manifest(
@@ -88,7 +88,7 @@ TEST_F(ManifestTest, ApplicationData) {
 TEST_F(ManifestTest, ApplicationTypes) {
   scoped_ptr<base::DictionaryValue> value(new base::DictionaryValue());
   value->SetString(keys::kNameKey, "extension");
-  value->SetString(keys::kVersionKey, "1");
+  value->SetString(keys::kXWalkVersionKey, "1");
 
   scoped_ptr<Manifest> manifest(
       new Manifest(Manifest::COMMAND_LINE, value.Pass()));

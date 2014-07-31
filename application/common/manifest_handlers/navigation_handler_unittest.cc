@@ -19,7 +19,7 @@ class NavigationHandlerTest: public testing::Test {
  public:
   virtual void SetUp() OVERRIDE {
     manifest.SetString(keys::kNameKey, "no name");
-    manifest.SetString(keys::kVersionKey, "0");
+    manifest.SetString(keys::kXWalkVersionKey, "0");
   }
 
   scoped_refptr<ApplicationData> CreateApplication() {

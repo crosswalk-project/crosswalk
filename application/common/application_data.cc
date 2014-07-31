@@ -87,7 +87,7 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
   // FIXME: define permissions!
   manifest.SetString(application_manifest_keys::kURLKey, url_spec);
   manifest.SetString(application_manifest_keys::kNameKey, url_spec);
-  manifest.SetString(application_manifest_keys::kVersionKey, "0");
+  manifest.SetString(application_manifest_keys::kXWalkVersionKey, "0");
   scoped_refptr<ApplicationData> application_data =
       ApplicationData::Create(base::FilePath(), Manifest::COMMAND_LINE,
                               manifest, app_id, error_message);
@@ -285,20 +285,56 @@ bool ApplicationData::LoadName(base::string16* error) {
 bool ApplicationData::LoadVersion(base::string16* error) {
   DCHECK(error);
   std::string version_str;
-  std::string version_key(GetVersionKey(GetPackageType()));
 
-  if (!manifest_->GetString(version_key, &version_str) &&
-      package_type_ == Package::XPK) {
-    *error = base::ASCIIToUTF16(errors::kInvalidVersion);
-    return false;
+  version_.reset(new base::Version());
+
+  if (package_type_ == Package::WGT) {
+    bool ok = manifest_->GetString(widget_keys::kVersionKey, &version_str);
+    if (!ok) {
+      *error = base::ASCIIToUTF16(errors::kInvalidVersion);
+      return false;
+    }
+
+    version_.reset(new base::Version(version_str));
+    return true;
   }
+
+  // W3C Manifest (XPK and hosted):
+
+  bool hasDeprecatedKey = manifest_->HasKey(keys::kDeprecatedVersionKey);
+  bool hasKey = manifest_->HasKey(keys::kXWalkVersionKey);
+
+  if (!hasKey && !hasDeprecatedKey) {
+    // xwalk_version is optional.
+    return true;
+  }
+
+  bool ok = false;
+  if (hasKey) {
+    if (hasDeprecatedKey) {
+      LOG(WARNING) << "Deprecated key '" << keys::kDeprecatedVersionKey
+          << "' found in addition to '" << keys::kXWalkVersionKey
+          << "'. Consider removing.";
+    }
+    ok = manifest_->GetString(keys::kXWalkVersionKey, &version_str);
+  }
+
+  if (!hasKey && hasDeprecatedKey) {
+    LOG(WARNING) << "Deprecated key '" << keys::kDeprecatedVersionKey
+        << "' found. Please migrate to using '" << keys::kXWalkVersionKey
+        << "' instead.";
+    ok = manifest_->GetString(keys::kDeprecatedVersionKey, &version_str);
+  }
+
   version_.reset(new base::Version(version_str));
-  if (package_type_ == Package::XPK &&
-      (!version_->IsValid() || version_->components().size() > 4)) {
+
+  if (!ok || !version_->IsValid() || version_->components().size() > 4) {
     *error = base::ASCIIToUTF16(errors::kInvalidVersion);
+    version_.reset(new base::Version());
     return false;
   }
-  return true;
+
+  return ok;
 }
 
 bool ApplicationData::LoadDescription(base::string16* error) {

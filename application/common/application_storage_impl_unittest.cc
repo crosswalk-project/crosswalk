@@ -44,7 +44,7 @@ TEST_F(ApplicationStorageImplTest, DBInsert) {
   TestInit();
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString("a", "b");
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
@@ -67,7 +67,7 @@ TEST_F(ApplicationStorageImplTest, DBDelete) {
   TestInit();
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString("a", "b");
   std::string error;
   scoped_refptr<ApplicationData> application =
@@ -98,7 +98,7 @@ TEST_F(ApplicationStorageImplTest, DBUpgradeToV1) {
   base::DictionaryValue* manifest = new base::DictionaryValue;
   manifest->SetString("a", "b");
   manifest->SetString(keys::kNameKey, "no name");
-  manifest->SetString(keys::kVersionKey, "0");
+  manifest->SetString(keys::kXWalkVersionKey, "0");
   value->Set("manifest", manifest);
   value->SetDouble("install_time", 0);
   db_value->Set("test_id", value.release());
@@ -122,7 +122,7 @@ TEST_F(ApplicationStorageImplTest, DBUpdate) {
   TestInit();
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString("a", "b");
   std::string error;
   scoped_refptr<ApplicationData> application =
@@ -162,7 +162,7 @@ TEST_F(ApplicationStorageImplTest, SetPermission) {
   TestInit();
   base::DictionaryValue manifest;
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString("a", "b");
   std::string error;
   scoped_refptr<ApplicationData> application =

@@ -26,12 +26,13 @@ namespace application_manifest_keys {
   extern const char kPermissionsKey[];
   extern const char kStartURLKey[];
   extern const char kURLKey[];
-  extern const char kVersionKey[];
   extern const char kWebURLsKey[];
 
+  extern const char kDeprecatedVersionKey[];
   extern const char kDeprecatedDescriptionKey[];
   extern const char kDeprecatedCSPKey[];
 
+  extern const char kXWalkVersionKey[];
   extern const char kXWalkDescriptionKey[];
   extern const char kXWalkHostsKey[];
   extern const char kXWalkLaunchScreen[];
@@ -111,7 +112,6 @@ namespace application {
 
 typedef application::Manifest Manifest;
 const char* GetNameKey(Package::Type type);
-const char* GetVersionKey(Package::Type type);
 const char* GetWebURLsKey(Package::Type type);
 const char* GetLaunchLocalPathKey(Package::Type type);
 const char* GetCSPKey(Package::Type type);

@@ -37,7 +37,7 @@ class CSPHandlerTest: public testing::Test {
 // are temporally removed, since they had affected some tests and legacy apps.
 TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetCSPInfo(application)->GetDirectives().size(), 2);
@@ -45,7 +45,7 @@ TEST_F(CSPHandlerTest, DISABLED_NoCSP) {
 
 TEST_F(CSPHandlerTest, EmptyCSP) {
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString(keys::kCSPKey, "");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
@@ -54,7 +54,7 @@ TEST_F(CSPHandlerTest, EmptyCSP) {
 
 TEST_F(CSPHandlerTest, CSP) {
   manifest.SetString(keys::kNameKey, "no name");
-  manifest.SetString(keys::kVersionKey, "0");
+  manifest.SetString(keys::kXWalkVersionKey, "0");
   manifest.SetString(keys::kCSPKey, "default-src    'self'   ");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
@@ -71,7 +71,7 @@ TEST_F(CSPHandlerTest, CSP) {
 #if defined(OS_TIZEN)
 TEST_F(CSPHandlerTest, WGTEmptyCSP) {
   manifest.SetString(widget_keys::kNameKey, "no name");
-  manifest.SetString(widget_keys::kVersionKey, "0");
+  manifest.SetString(widget_keys::kXWalkVersionKey, "0");
   manifest.SetString(widget_keys::kCSPKey, "");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
@@ -81,7 +81,7 @@ TEST_F(CSPHandlerTest, WGTEmptyCSP) {
 
 TEST_F(CSPHandlerTest, WGTCSP) {
   manifest.SetString(widget_keys::kNameKey, "no name");
-  manifest.SetString(widget_keys::kVersionKey, "0");
+  manifest.SetString(widget_keys::kXWalkVersionKey, "0");
   manifest.SetString(widget_keys::kCSPKey, "default-src    'self'   ");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
