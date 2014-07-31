@@ -95,14 +95,10 @@ XWalkContentRendererClient::~XWalkContentRendererClient() {
 }
 
 void XWalkContentRendererClient::RenderThreadStarted() {
-#if defined(OS_ANDROID)
   CommandLine* cmd_line = CommandLine::ForCurrentProcess();
   if (!cmd_line->HasSwitch(switches::kXWalkDisableExtensions))
-#endif
-  {
     extension_controller_.reset(
         new extensions::XWalkExtensionRendererController(this));
-  }
 
   blink::WebString application_scheme(
       base::ASCIIToUTF16(application::kApplicationScheme));
