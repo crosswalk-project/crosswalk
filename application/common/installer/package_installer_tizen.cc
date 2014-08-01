@@ -82,19 +82,6 @@ void WriteMetaDataElement(
   }
 }
 
-// For xpk, package_id => [crosswalk_32bytes_app_id]
-// For wgt, package_id => [tizen_wrt_10bytes_package_id]
-std::string GetTizenPackageId(
-    xwalk::application::ApplicationData* application) {
-  if (application->GetPackageType() == xwalk::application::Package::XPK)
-    return application->ID();
-
-  const xwalk::application::TizenApplicationInfo* tizen_app_info =
-      static_cast<xwalk::application::TizenApplicationInfo*>(
-          application->GetManifestData(widget_keys::kTizenApplicationKey));
-  return tizen_app_info->package();
-}
-
 bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
                         const std::string& icon_name,
                         const base::FilePath& app_dir,
@@ -103,11 +90,11 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
       !base::CreateDirectory(app_dir))
     return false;
 
-  std::string package_id = GetTizenPackageId(application);
-  std::string tizen_app_id = GetTizenAppId(application);
+  std::string package_id =
+      xwalk::application::GetPackageIdFromAppId(application->ID());
 
   base::FilePath execute_path =
-      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
+      app_dir.AppendASCII("bin/").AppendASCII(application->ID());
   std::string stripped_name = application->Name();
 
   FILE* file = base::OpenFile(xml_path, "w");
@@ -123,8 +110,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.WriteElement("description", application->Description());
 
   xml_writer.StartElement("ui-application");
-  xml_writer.AddAttribute("appid",
-      xwalk::application::RawAppIdToAppIdForTizenPkgmgrDB(tizen_app_id));
+  xml_writer.AddAttribute("appid", application->ID());
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "webapp");
   xml_writer.AddAttribute("taskmanage", "true");
@@ -156,9 +142,9 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
 }
 
 bool CreateAppSymbolicLink(const base::FilePath& app_dir,
-                           const std::string& tizen_app_id) {
+                           const std::string& app_id) {
   base::FilePath execute_path =
-      app_dir.AppendASCII("bin/").AppendASCII(tizen_app_id);
+      app_dir.AppendASCII("bin/").AppendASCII(app_id);
 
   if (!base::CreateDirectory(execute_path.DirName())) {
     LOG(ERROR) << "Could not create directory '"
@@ -188,7 +174,6 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
-  std::string tizen_app_id = GetTizenAppId(app_data);
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(app_id);
   base::FilePath xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
@@ -207,7 +192,7 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
     return false;
   }
 
-  if (!CreateAppSymbolicLink(app_dir, tizen_app_id)) {
+  if (!CreateAppSymbolicLink(app_dir, app_id)) {
     LOG(ERROR) << "Failed to create symbolic link for " << app_id;
     return false;
   }
@@ -286,7 +271,6 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
-  std::string tizen_app_id = GetTizenAppId(app_data);
   base::FilePath app_dir =
       data_dir.AppendASCII(info::kAppDir).AppendASCII(app_id);
   base::FilePath new_xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
@@ -306,7 +290,7 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
     return false;
   }
 
-  if (!CreateAppSymbolicLink(app_dir, tizen_app_id))
+  if (!CreateAppSymbolicLink(app_dir, app_id))
     return false;
 
   base::FilePath icon =

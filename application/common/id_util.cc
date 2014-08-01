@@ -19,9 +19,11 @@ namespace xwalk {
 namespace application {
 namespace {
 #if defined(OS_TIZEN)
-const char kTizenAppIdPattern[] = "\\A[0-9a-zA-Z]{10}[.][0-9a-zA-Z]{1,52}\\z";
+const char kWGTAppIdPattern[] = "\\A([0-9a-zA-Z]{10})[.][0-9a-zA-Z]{1,52}\\z";
+const char kXPKAppIdPattern[] = "\\Axwalk[.]([a-p]{32})\\z";
 const std::string kAppIdPrefix("xwalk.");
 #endif
+const size_t kIdSize = 16;
 }  // namespace
 
 // Converts a normal hexadecimal string into the alphabet used by applications.
@@ -40,20 +42,17 @@ static void ConvertHexadecimalToIDAlphabet(std::string* id) {
   }
 }
 
-// First 16 bytes of SHA256 hashed public key.
-const size_t kIdSize = 16;
-
-#if defined(OS_TIZEN)
-const size_t kLegacyTizenIdSize = 10;
-#endif
-
 std::string GenerateId(const std::string& input) {
   uint8 hash[kIdSize];
   crypto::SHA256HashString(input, hash, sizeof(hash));
   std::string output = StringToLowerASCII(base::HexEncode(hash, sizeof(hash)));
   ConvertHexadecimalToIDAlphabet(&output);
 
+#if defined(OS_TIZEN)
+  return kAppIdPrefix + output;
+#else
   return output;
+#endif
 }
 
 std::string GenerateIdForPath(const base::FilePath& path) {
@@ -63,34 +62,38 @@ std::string GenerateIdForPath(const base::FilePath& path) {
   return GenerateId(path_bytes);
 }
 
+bool IsValidApplicationID(const std::string& id) {
 #if defined(OS_TIZEN)
-std::string RawAppIdToCrosswalkAppId(const std::string& id) {
-  if (RE2::PartialMatch(id, kTizenAppIdPattern))
-    return GenerateId(id);
-  return id;
+  if (RE2::FullMatch(id, kWGTAppIdPattern) ||
+      RE2::FullMatch(id, kXPKAppIdPattern))
+    return true;
+  return false;
+#endif
+
+  std::string temp = StringToLowerASCII(id);
+  // Verify that the id is legal.
+  if (temp.size() != (kIdSize * 2))
+    return false;
+
+  // We only support lowercase IDs, because IDs can be used as URL components
+  // (where GURL will lowercase it).
+  for (size_t i = 0; i < temp.size(); ++i)
+    if (temp[i] < 'a' || temp[i] > 'p')
+      return false;
+
+  return true;
 }
 
-std::string RawAppIdToAppIdForTizenPkgmgrDB(const std::string& id) {
-  if (RE2::PartialMatch(id, kTizenAppIdPattern))
-    return id;
-  return kAppIdPrefix + id;
-}
-
-std::string TizenPkgmgrDBAppIdToRawAppId(const std::string& id) {
-  std::string raw_id;
-  if (RE2::FullMatch(id, "xwalk.(\\w+)", &raw_id))
-    return raw_id;
-  return id;
-}
-
-std::string GetTizenAppId(ApplicationData* application) {
-  if (application->GetPackageType() == xwalk::application::Package::XPK)
-    return application->ID();
-
-  const TizenApplicationInfo* tizen_app_info =
-      static_cast<TizenApplicationInfo*>(application->GetManifestData(
-          application_widget_keys::kTizenApplicationKey));
-  return tizen_app_info->id();
+#if defined(OS_TIZEN)
+std::string GetPackageIdFromAppId(const std::string& app_id) {
+  std::string package_id;
+  if (RE2::FullMatch(app_id, kWGTAppIdPattern, &package_id) ||
+      RE2::FullMatch(app_id, kXPKAppIdPattern, &package_id)) {
+    return package_id;
+  } else {
+    LOG(ERROR) << "Cannot get package_id from invalid app id";
+    return app_id;
+  }
 }
 #endif
 

@@ -22,17 +22,5 @@ TEST(ApplicationTest, LocationValuesTest) {
   ASSERT_EQ(2, Manifest::COMMAND_LINE);
 }
 
-TEST(ApplicationTest, IsIDValid) {
-  EXPECT_TRUE(ApplicationData::IsIDValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
-  EXPECT_TRUE(ApplicationData::IsIDValid("pppppppppppppppppppppppppppppppp"));
-  EXPECT_TRUE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnop"));
-  EXPECT_TRUE(ApplicationData::IsIDValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
-  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmno"));
-  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnopa"));
-  EXPECT_FALSE(ApplicationData::IsIDValid("0123456789abcdef0123456789abcdef"));
-  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmnoq"));
-  EXPECT_FALSE(ApplicationData::IsIDValid("abcdefghijklmnopabcdefghijklmno0"));
-}
-
 }  // namespace application
 }  // namespace xwalk

@@ -43,7 +43,6 @@ ail_cb_ret_e appinfo_get_exec_cb(const ail_appinfo_h appinfo, void *user_data) {
 }
 
 base::FilePath GetApplicationPath(const std::string& app_id) {
-  std::string ail_id = RawAppIdToAppIdForTizenPkgmgrDB(app_id);
   ail_filter_h filter;
   ail_error_e ret = ail_filter_new(&filter);
   if (ret != AIL_ERROR_OK) {
@@ -51,7 +50,7 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
     return base::FilePath();
   }
 
-  ret = ail_filter_add_str(filter, AIL_PROP_X_SLP_APPID_STR, ail_id.c_str());
+  ret = ail_filter_add_str(filter, AIL_PROP_X_SLP_APPID_STR, app_id.c_str());
   if (ret != AIL_ERROR_OK) {
     LOG(ERROR) << "Failed to init AIL filter.";
     ail_filter_destroy(filter);
@@ -98,8 +97,7 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
   base::FilePath app_path = GetApplicationPath(app_id);
 
   std::string error_str;
-  return LoadApplication(app_path, RawAppIdToCrosswalkAppId(app_id),
-                         Manifest::INTERNAL, &error_str);
+  return LoadApplication(app_path, app_id, Manifest::INTERNAL, &error_str);
 }
 
 namespace {
@@ -111,7 +109,7 @@ ail_cb_ret_e appinfo_get_app_id_cb(
   char* app_id;
   ail_appinfo_get_str(appinfo, AIL_PROP_X_SLP_APPID_STR, &app_id);
   if (app_id)
-    app_ids->push_back(TizenPkgmgrDBAppIdToRawAppId(app_id));
+    app_ids->push_back(app_id);
 
   return AIL_CB_RET_CONTINUE;
 }

@@ -88,13 +88,7 @@ bool list_applications(ApplicationStorage* storage) {
               app_ids.at(i).c_str());
       continue;
     }
-#if defined(OS_TIZEN)
-    g_print("%s  %s\n",
-            GetTizenAppId(app_data).c_str(),
-            app_data->Name().c_str());
-#else
-    g_print("%s  %s\n", app_data->ID().c_str(), app_data->Name().c_str());
-#endif
+    g_print("%s  %s\n", app_ids.at(i).c_str(), app_data->Name().c_str());
   }
   g_print("-----------------------------------------------------\n");
 
@@ -143,11 +137,6 @@ int main(int argc, char* argv[]) {
   } else if (uninstall_appid) {
 #if defined(SHARED_PROCESS_MODE)
     TerminateIfRunning(uninstall_appid);
-#endif
-#if defined(OS_TIZEN)
-    std::string crosswalk_app_id =
-        xwalk::application::RawAppIdToCrosswalkAppId(uninstall_appid);
-    uninstall_appid = strdup(crosswalk_app_id.c_str());
 #endif
     success = installer->Uninstall(uninstall_appid);
   } else {
