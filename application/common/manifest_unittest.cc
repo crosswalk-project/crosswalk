@@ -82,7 +82,7 @@ TEST_F(ManifestTest, ApplicationData) {
   MutateManifest(
       &manifest, "foo", new base::StringValue("blah"));
   EXPECT_FALSE(manifest->Equals(manifest2.get()));
-};
+}
 
 // Verifies that key restriction based on type works.
 TEST_F(ManifestTest, ApplicationTypes) {
@@ -108,16 +108,11 @@ TEST_F(ManifestTest, ApplicationTypes) {
 
   // Hosted app.
   MutateManifest(
-      &manifest, keys::kWebURLsKey, new base::ListValue());
-  AssertType(manifest.get(), Manifest::TYPE_HOSTED_APP);
-  MutateManifest(
-      &manifest, keys::kWebURLsKey, NULL);
-  MutateManifest(
       &manifest, keys::kLaunchWebURLKey, new base::StringValue("foo"));
   AssertType(manifest.get(), Manifest::TYPE_HOSTED_APP);
   MutateManifest(
       &manifest, keys::kLaunchWebURLKey, NULL);
-};
+}
 
 }  // namespace application
 }  // namespace xwalk

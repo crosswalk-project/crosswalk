@@ -107,9 +107,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
 }
 
 GURL Application::GetStartURL(const LaunchParams& params,
-                                  LaunchEntryPoint* used) {
+    LaunchEntryPoint* used) {
   if (params.entry_points & StartURLKey) {
-    GURL url = GetURLFromRelativePathKey(keys::kStartURLKey);
+    GURL url = GetAbsoluteURLFromKey(keys::kStartURLKey);
     if (url.is_valid()) {
       *used = StartURLKey;
       return url;
@@ -117,7 +117,7 @@ GURL Application::GetStartURL(const LaunchParams& params,
   }
 
   if (params.entry_points & LaunchLocalPathKey) {
-    GURL url = GetURLFromRelativePathKey(
+    GURL url = GetAbsoluteURLFromKey(
         GetLaunchLocalPathKey(data_->GetPackageType()));
     if (url.is_valid()) {
       *used = LaunchLocalPathKey;
@@ -126,14 +126,17 @@ GURL Application::GetStartURL(const LaunchParams& params,
   }
 
   if (params.entry_points & URLKey) {
-    GURL url = GetURLFromURLKey();
+    LOG(WARNING) << "Deprecated key '" << keys::kDeprecatedURLKey
+        << "' found. Please migrate to using '" << keys::kStartURLKey
+        << "' instead.";
+    GURL url = GetAbsoluteURLFromKey(keys::kDeprecatedURLKey);
     if (url.is_valid()) {
       *used = URLKey;
       return url;
     }
   }
 
-  LOG(WARNING) << "Failed to find a valid launch URL for the app.";
+  LOG(WARNING) << "Failed to find a valid start URL in the manifest.";
   return GURL();
 }
 
@@ -174,44 +177,40 @@ ui::WindowShowState Application::GetWindowShowStateXPK(
   return ui::SHOW_STATE_DEFAULT;
 }
 
-GURL Application::GetURLFromURLKey() {
+GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
   const Manifest* manifest = data_->GetManifest();
-  std::string url_string;
-  if (!manifest->GetString(keys::kURLKey, &url_string))
-    return GURL();
+  std::string source;
 
-  return GURL(url_string);
-}
-
-GURL Application::GetURLFromRelativePathKey(const std::string& key) {
-  const Manifest* manifest = data_->GetManifest();
-  std::string entry_page;
-  if (!manifest->GetString(key, &entry_page)
-      || entry_page.empty()) {
+  if (!manifest->GetString(key, &source) || source.empty()) {
     if (data_->GetPackageType() == Package::XPK)
       return GURL();
 
+    // FIXME: Refactor this Widget specific code out.
     base::ThreadRestrictions::SetIOAllowed(true);
-    base::FileEnumerator iter(data_->Path(), true,
-                              base::FileEnumerator::FILES,
-                              FILE_PATH_LITERAL("index.*"));
+    base::FileEnumerator iter(
+        data_->Path(), true,
+        base::FileEnumerator::FILES,
+        FILE_PATH_LITERAL("index.*"));
     size_t priority = arraysize(kDefaultWidgetEntryPage);
 
     for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
       for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
         if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
             i < priority) {
-          entry_page = kDefaultWidgetEntryPage[i];
+          source = kDefaultWidgetEntryPage[i];
           priority = i;
         }
       }
     }
 
-    if (entry_page.empty())
+    if (source.empty())
       return GURL();
   }
 
-  return data_->GetResourceURL(entry_page);
+  std::size_t found = source.find_first_of("://");
+  if (found == std::string::npos)
+    return data_->GetResourceURL(source);
+  return GURL(source);
 }
 
 void Application::Terminate() {

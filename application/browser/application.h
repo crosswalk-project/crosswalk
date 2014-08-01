@@ -167,9 +167,7 @@ class Application : public Runtime::Observer,
   ui::WindowShowState GetWindowShowStateWGT(const LaunchParams& params);
   ui::WindowShowState GetWindowShowStateXPK(const LaunchParams& params);
 
-  GURL GetURLFromURLKey();
-
-  GURL GetURLFromRelativePathKey(const std::string& key);
+  GURL GetAbsoluteURLFromKey(const std::string& key);
 
   void NotifyTermination();
 
