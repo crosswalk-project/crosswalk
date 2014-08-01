@@ -95,6 +95,9 @@ def ParseManifest(options):
     options.name = parser.GetAppName()
   if not options.app_version:
     options.app_version = parser.GetVersion()
+  if not options.app_version:
+    print('Error: version is necessary for packaging tool.')
+    sys.exit(9)
   if not options.app_versionCode and not options.app_versionCodeBase:
     options.app_versionCode = 1
   if parser.GetDescription():
