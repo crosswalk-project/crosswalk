@@ -7,10 +7,23 @@
 namespace xwalk {
 
 namespace application_manifest_keys {
-const char kAppKey[] = "app";
-const char kCSPKey[] = "csp";
+
+// Official fields (ordered as spec):
+
+const char kNameKey[] = "name";
 const char kDisplay[] = "display";
+const char kStartURLKey[] = "start_url";
+const char kCSPKey[] = "csp";
+
+// Deprecated entries:
+
+const char kAppKey[] = "app";
 const char kLaunchLocalPathKey[] = "app.launch.local_path";
+const char kLaunchWebURLKey[] = "app.launch.web_url";
+const char kDeprecatedURLKey[] = "url";
+const char kDeprecatedVersionKey[] = "version";
+const char kDeprecatedDescriptionKey[] = "description";
+const char kDeprecatedCSPKey[] = "content_security_policy";
 const char kLaunchScreen[] = "launch_screen";
 const char kLaunchScreenDefault[] = "launch_screen.default";
 const char kLaunchScreenImageBorderDefault[] =
@@ -19,24 +32,16 @@ const char kLaunchScreenImageBorderLandscape[] =
     "launch_screen.landscape.image_border";
 const char kLaunchScreenImageBorderPortrait[] =
     "launch_screen.portrait.image_border";
-const char kLaunchScreenLandscape[] = "launch_screen.landscape";
-const char kLaunchScreenPortrait[] = "launch_screen.portrait";
-const char kLaunchScreenReadyWhen[] = "launch_screen.ready_when";
-const char kLaunchWebURLKey[] = "app.launch.web_url";
-const char kNameKey[] = "name";
-const char kPermissionsKey[] = "permissions";
-const char kStartURLKey[] = "start_url";
-const char kURLKey[] = "url";
-const char kWebURLsKey[] = "app.urls";
-
-// Deprecated entries:
-
-const char kDeprecatedVersionKey[] = "version";
-const char kDeprecatedDescriptionKey[] = "description";
-const char kDeprecatedCSPKey[] = "content_security_policy";
+const char kLaunchScreenLandscape[] =
+    "launch_screen.landscape";
+const char kLaunchScreenPortrait[] =
+    "launch_screen.portrait";
+const char kLaunchScreenReadyWhen[] =
+    "launch_screen.ready_when";
 
 // XWalk W3C Manifest (XPK) extensions:
 
+const char kPermissionsKey[] = "permissions";
 const char kXWalkVersionKey[] = "xwalk_version";
 const char kXWalkDescriptionKey[] = "xwalk_description";
 const char kXWalkHostsKey[] = "xwalk_hosts";
@@ -48,9 +53,12 @@ const char kXWalkLaunchScreenImageBorderLandscape[] =
     "xwalk_launch_screen.landscape.image_border";
 const char kXWalkLaunchScreenImageBorderPortrait[] =
     "xwalk_launch_screen.portrait.image_border";
-const char kXWalkLaunchScreenLandscape[] = "xwalk_launch_screen.landscape";
-const char kXWalkLaunchScreenPortrait[] = "xwalk_launch_screen.portrait";
-const char kXWalkLaunchScreenReadyWhen[] = "xwalk_launch_screen.ready_when";
+const char kXWalkLaunchScreenLandscape[] =
+    "xwalk_launch_screen.landscape";
+const char kXWalkLaunchScreenPortrait[] =
+    "xwalk_launch_screen.portrait";
+const char kXWalkLaunchScreenReadyWhen[] =
+    "xwalk_launch_screen.ready_when";
 
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";
@@ -61,6 +69,7 @@ const char kIcon128Key[] = "icons.128";
 
 // manifest keys for widget applications.
 namespace application_widget_keys {
+
 const char kNamespaceKey[] = "@namespace";
 const char kXmlLangKey[] = "@lang";
 const char kDefaultLocaleKey[] = "widget.@defaultlocale";
@@ -112,6 +121,7 @@ const char kTizenMetaDataValueKey[] = "@value";
 const char kTizenSplashScreenKey[] = "widget.splash-screen";
 const char kTizenSplashScreenSrcKey[] = "@src";
 #endif
+
 }  // namespace application_widget_keys
 
 #if defined(OS_TIZEN)
@@ -148,13 +158,6 @@ const char* GetVersionKey(Package::Type package_type) {
     return application_widget_keys::kVersionKey;
 
   return application_manifest_keys::kXWalkVersionKey;
-}
-
-const char* GetWebURLsKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
-    return application_widget_keys::kWebURLsKey;
-
-  return application_manifest_keys::kWebURLsKey;
 }
 
 const char* GetLaunchLocalPathKey(Package::Type package_type) {

@@ -9,10 +9,25 @@
 // Keys used in JSON representation of applications.
 namespace xwalk {
 namespace application_manifest_keys {
-  extern const char kAppKey[];
-  extern const char kCSPKey[];
+  // Official fields (ordered as spec):
+
+  extern const char kNameKey[];
+  // extern const char kShortName[];
+  // extern const char kIcons[];
   extern const char kDisplay[];
+  // extern const char kOrientation[];
+  extern const char kStartURLKey[];
+  extern const char kCSPKey[];
+
+  // Deprecated fields:
+
+  extern const char kAppKey[];
+  extern const char kLaunchWebURLKey[];
   extern const char kLaunchLocalPathKey[];
+  extern const char kDeprecatedURLKey[];
+  extern const char kDeprecatedVersionKey[];
+  extern const char kDeprecatedDescriptionKey[];
+  extern const char kDeprecatedCSPKey[];
   extern const char kLaunchScreen[];
   extern const char kLaunchScreenDefault[];
   extern const char kLaunchScreenImageBorderDefault[];
@@ -21,17 +36,10 @@ namespace application_manifest_keys {
   extern const char kLaunchScreenLandscape[];
   extern const char kLaunchScreenPortrait[];
   extern const char kLaunchScreenReadyWhen[];
-  extern const char kLaunchWebURLKey[];
-  extern const char kNameKey[];
+
+  // XWalk extensions:
+
   extern const char kPermissionsKey[];
-  extern const char kStartURLKey[];
-  extern const char kURLKey[];
-  extern const char kWebURLsKey[];
-
-  extern const char kDeprecatedVersionKey[];
-  extern const char kDeprecatedDescriptionKey[];
-  extern const char kDeprecatedCSPKey[];
-
   extern const char kXWalkVersionKey[];
   extern const char kXWalkDescriptionKey[];
   extern const char kXWalkHostsKey[];
@@ -112,7 +120,6 @@ namespace application {
 
 typedef application::Manifest Manifest;
 const char* GetNameKey(Package::Type type);
-const char* GetWebURLsKey(Package::Type type);
 const char* GetLaunchLocalPathKey(Package::Type type);
 const char* GetCSPKey(Package::Type type);
 #if defined(OS_TIZEN)

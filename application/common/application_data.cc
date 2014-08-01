@@ -85,7 +85,8 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
 
   base::DictionaryValue manifest;
   // FIXME: define permissions!
-  manifest.SetString(application_manifest_keys::kURLKey, url_spec);
+  manifest.SetString(application_manifest_keys::kStartURLKey, url_spec);
+  // FIXME: Why use URL as name?
   manifest.SetString(application_manifest_keys::kNameKey, url_spec);
   manifest.SetString(application_manifest_keys::kXWalkVersionKey, "0");
   scoped_refptr<ApplicationData> application_data =
