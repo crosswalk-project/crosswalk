@@ -74,6 +74,7 @@ class XWalkContentsClientBridgeBase {
       int notification_id,
       const SkBitmap& icon)
       = 0;
+  virtual void OnWebLayoutPageScaleFactorChanged(float page_scale_factor) = 0;
 };
 
 }  // namespace xwalk

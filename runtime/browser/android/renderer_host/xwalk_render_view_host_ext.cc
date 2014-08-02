@@ -12,6 +12,7 @@
 #include "content/public/browser/user_metrics.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/frame_navigate_params.h"
+#include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/common/android/xwalk_render_view_messages.h"
 
@@ -120,6 +121,8 @@ bool XWalkRenderViewHostExt::OnMessageReceived(const IPC::Message& message) {
                         OnDocumentHasImagesResponse)
     IPC_MESSAGE_HANDLER(XWalkViewHostMsg_UpdateHitTestData,
                         OnUpdateHitTestData)
+    IPC_MESSAGE_HANDLER(XWalkViewHostMsg_PageScaleFactorChanged,
+                        OnPageScaleFactorChanged)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
 
@@ -157,6 +160,13 @@ void XWalkRenderViewHostExt::SetOriginAccessWhitelist(
     Send(new XWalkViewMsg_SetOriginAccessWhitelist(
         pending_base_url_, pending_match_patterns_));
   }
+}
+
+void XWalkRenderViewHostExt::OnPageScaleFactorChanged(float page_scale_factor) {
+  XWalkContentsClientBridgeBase* client_bridge =
+      XWalkContentsClientBridgeBase::FromWebContents(web_contents());
+  if (client_bridge != NULL)
+    client_bridge->OnWebLayoutPageScaleFactorChanged(page_scale_factor);
 }
 
 }  // namespace xwalk

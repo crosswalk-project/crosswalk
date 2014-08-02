@@ -71,6 +71,9 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       int notification_id,
       const SkBitmap& icon)
       OVERRIDE;
+  virtual void OnWebLayoutPageScaleFactorChanged(
+      float page_scale_factor)
+      OVERRIDE;
 
   bool OnReceivedHttpAuthRequest(const base::android::JavaRef<jobject>& handler,
                                  const std::string& host,

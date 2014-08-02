@@ -80,6 +80,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   void OnDocumentHasImagesResponse(int msg_id, bool has_images);
   void OnUpdateHitTestData(const XWalkHitTestData& hit_test_data);
   void OnPictureUpdated();
+  void OnPageScaleFactorChanged(float page_scale_factor);
 
   bool IsRenderViewReady() const;
 

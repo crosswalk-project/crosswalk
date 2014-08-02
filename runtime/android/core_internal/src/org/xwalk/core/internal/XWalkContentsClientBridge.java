@@ -38,7 +38,7 @@ import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 @JNINamespace("xwalk")
 class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
-	private static final String TAG = XWalkContentsClientBridge.class.getName();
+    private static final String TAG = XWalkContentsClientBridge.class.getName();
 
     private XWalkViewInternal mXWalkView;
     private XWalkUIClientInternal mXWalkUIClient;
@@ -61,6 +61,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     // The native peer of the object
     private long mNativeContentsClientBridge;
+
+    private float mPageScaleFactor;
 
     private class InterceptNavigationDelegateImpl implements InterceptNavigationDelegate {
         private XWalkContentsClient mContentsClient;
@@ -658,6 +660,17 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     public void onDangerousDownload(String filename, int downloadId) {
+    }
+
+    @CalledByNative
+    public void onWebLayoutPageScaleFactorChanged(float pageScaleFactor) {
+        if (mPageScaleFactor == pageScaleFactor) return;
+
+        float oldPageScaleFactor = mPageScaleFactor;
+        double dipScale = getDIPScale();
+        mPageScaleFactor = pageScaleFactor;
+        onScaleChanged((float)(oldPageScaleFactor * dipScale),
+                       (float)(mPageScaleFactor * dipScale));
     }
 
     //--------------------------------------------------------------------------------------------

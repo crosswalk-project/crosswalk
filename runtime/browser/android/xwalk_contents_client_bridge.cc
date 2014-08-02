@@ -309,6 +309,17 @@ void XWalkContentsClientBridge::ShowNotification(
   }
 }
 
+void XWalkContentsClientBridge::OnWebLayoutPageScaleFactorChanged(
+    float page_scale_factor) {
+  DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
+  JNIEnv* env = AttachCurrentThread();
+  ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
+  if (obj.is_null())
+    return;
+  Java_XWalkContentsClientBridge_onWebLayoutPageScaleFactorChanged(
+      env, obj.obj(), page_scale_factor);
+}
+
 void XWalkContentsClientBridge::ConfirmJsResult(JNIEnv* env,
                                                 jobject,
                                                 int id,
