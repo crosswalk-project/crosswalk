@@ -55,6 +55,15 @@ public class LoadTest extends XWalkViewInternalTestBase {
     }
 
     @SmallTest
+    @Feature({"LoadUnnormalized"})
+    public void testAndroidAssetUrlUnnormalized() throws Throwable {
+        final String url = "file:///android_asset/www//index.html";
+
+        loadUrlSync(url);
+        assertEquals(expectedLocalTitle, getTitleOnUiThread());
+    }
+
+    @SmallTest
     @Feature({"LoadWithData"})
     public void testWithData() throws Throwable {
         final String name = "index.html";

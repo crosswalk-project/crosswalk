@@ -188,10 +188,9 @@ class AndroidProtocolHandler {
         assert uri.getScheme().equals(FILE_SCHEME);
         assert uri.getPath() != null;
         assert uri.getPath().startsWith(nativeGetAndroidAssetPath());
-        String path = uri.getPath().replaceFirst(nativeGetAndroidAssetPath(), "");
         try {
             AssetManager assets = context.getAssets();
-            return assets.open(path, AssetManager.ACCESS_STREAMING);
+            return assets.open(getAssetPath(uri), AssetManager.ACCESS_STREAMING);
         } catch (IOException e) {
             Log.e(TAG, "Unable to open asset URL: " + uri);
             return null;
