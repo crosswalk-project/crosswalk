@@ -263,7 +263,7 @@ bool ApplicationData::LoadVersion(base::string16* error) {
     bool ok = manifest_->GetString(widget_keys::kVersionKey, &version_str);
     if (!ok) {
       *error = base::ASCIIToUTF16(errors::kInvalidVersion);
-      return false;
+      return true;
     }
 
     version_.reset(new base::Version(version_str));
