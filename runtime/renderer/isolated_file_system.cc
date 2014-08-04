@@ -52,15 +52,22 @@ void IsolatedFileSystem::GetIsolatedFileSystem(
   CHECK(data_source);
   GURL context_url(data_source->request().url());
 
-  std::string name(fileapi::GetIsolatedFileSystemName(context_url.GetOrigin(),
-                                                      file_system_id));
+  // In instrument test, context_url.GetOrigin() returns emtpy string.
+  // That causes app crash. So assign "file:///" as default value to
+  // origin to avoid this.
+  GURL origin("file:///");
+  if (!context_url.SchemeIs(url::kDataScheme) &&
+      !context_url.GetOrigin().is_empty()) {
+    origin = context_url.GetOrigin();
+  }
+  std::string name(fileapi::GetIsolatedFileSystemName(origin, file_system_id));
 
   // The optional second argument is the subfolder within the isolated file
   // system at which to root the DOMFileSystem we're returning to the caller.
   std::string optional_root_name = "";
 
   blink::WebURL root(GURL(fileapi::GetIsolatedFileSystemRootURIString(
-      context_url.GetOrigin(),
+      origin,
       file_system_id,
       optional_root_name)));
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
