@@ -34,6 +34,8 @@ import org.xwalk.core.XWalkView;
 public class XWalkViewTestBase
        extends ActivityInstrumentationTestCase2<XWalkViewTestRunnerActivity> {
     protected final static int WAIT_TIMEOUT_SECONDS = 15;
+    protected final static long WAIT_TIMEOUT_MS = 2000;
+    private final static int CHECK_INTERVAL = 100;
     private final static String TAG = "XWalkViewTestBase";
     private XWalkView mXWalkView;
     final TestHelperBridge mTestHelperBridge = new TestHelperBridge();
@@ -98,6 +100,11 @@ public class XWalkViewTestBase
         @Override
         public void onProgressChanged(XWalkView view, int progressInPercent) {
             mTestHelperBridge.onProgressChanged(progressInPercent);
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
+            return mTestHelperBridge.shouldOverrideUrlLoading(url);
         }
     }
 
@@ -472,5 +479,32 @@ public class XWalkViewTestBase
                 return mXWalkView.getXWalkVersion();
             }
         });
+    }
+
+    public void clickOnElementId(final String id) throws Exception {
+        Assert.assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
+            @Override
+            public boolean isSatisfied() {
+                try {
+                    String idIsNotNull = executeJavaScriptAndWaitForResult(
+                        "document.getElementById('" + id + "') != null");
+                    return idIsNotNull.equals("true");
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    Assert.fail("Failed to check if DOM is loaded: " + t.toString());
+                    return false;
+                }
+            }
+        }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
+
+        try {
+            String result = executeJavaScriptAndWaitForResult(
+                "var evObj = document.createEvent('Events'); " +
+                "evObj.initEvent('click', true, false); " +
+                "document.getElementById('" + id + "').dispatchEvent(evObj);" +
+                "console.log('element with id [" + id + "] clicked');");
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 }

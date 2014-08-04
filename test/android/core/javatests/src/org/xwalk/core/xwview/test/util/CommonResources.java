@@ -102,4 +102,22 @@ public class CommonResources {
                  "</body>" +
              "</html>";
     }
+
+    public static String makeHtmlPageWithSimpleLinkTo(String headers, String destination) {
+        return makeHtmlPageFrom(headers,
+                        "<a href=\"" + destination + "\" id=\"link\">" +
+                          "<img class=\"big\" />" +
+                        "</a>");
+    }
+
+    public static String makeHtmlPageWithSimpleLinkTo(String destination) {
+        return makeHtmlPageWithSimpleLinkTo("", destination);
+    }
+
+    public static String makeHtmlPageWithSimplePostFormTo(String destination) {
+        return makeHtmlPageFrom("",
+                "<form action=\"" + destination + "\" method=\"post\">" +
+                  "<input type=\"submit\" value=\"post\" id=\"link\">" +
+                "</form>");
+    }
 }
