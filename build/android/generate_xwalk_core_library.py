@@ -71,13 +71,17 @@ def CopyJSBindingFiles(project_source, out_dir):
   if not os.path.exists(jsapi_dir):
     os.makedirs(jsapi_dir)
 
+  internal_extension_dir = 'xwalk/runtime/android/core_internal/'\
+      'src/org/xwalk/core/internal/extension/api'
   jsfiles_to_copy = [
       'xwalk/experimental/launch_screen/launch_screen_api.js',
       'xwalk/experimental/presentation/presentation_api.js',
-      'xwalk/sysapps/device_capabilities/device_capabilities_api.js'
+      os.path.join(internal_extension_dir,
+                   'device_capabilities',
+                   'device_capabilities_api.js')
   ]
 
-  # Copy JS binding file to assets/jsapi folder.
+  # Copy JS binding file to res/raw folder.
   for jsfile in jsfiles_to_copy:
     source_file = os.path.join(project_source, jsfile)
     target_file = os.path.join(jsapi_dir, os.path.basename(source_file))
