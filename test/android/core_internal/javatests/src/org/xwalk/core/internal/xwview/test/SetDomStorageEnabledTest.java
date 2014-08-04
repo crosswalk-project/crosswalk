@@ -1,9 +1,9 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2013-2014 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.xwview.test;
+package org.xwalk.core.internal.xwview.test;
 
 import android.graphics.Bitmap;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -13,25 +13,25 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.chromium.base.test.util.Feature;
 import org.chromium.base.test.util.UrlUtils;
-import org.xwalk.core.XWalkView;
 import org.xwalk.core.internal.XWalkClient;
 import org.xwalk.core.internal.XWalkSettings;
+import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.internal.XWalkWebChromeClient;
 
 /**
  * Test suite for setDomStorageEnabled().
  */
-public class SetDomStorageEnabledTest extends XWalkViewTestBase {
+public class SetDomStorageEnabledTest extends XWalkViewInternalTestBase {
     private static final boolean ENABLED = true;
     private static final boolean DISABLED = false;
 
     abstract class XWalkViewSettingsTestHelper<T> {
-        protected final XWalkView mXWalkView;
+        protected final XWalkViewInternal mXWalkViewInternal;
         protected final XWalkSettings mXWalkSettings;
 
-        XWalkViewSettingsTestHelper(XWalkView xWalkContent,
+        XWalkViewSettingsTestHelper(XWalkViewInternal xWalkContent,
                 boolean requiresJsEnabled) throws Throwable {
-            mXWalkView = xWalkContent;
+            mXWalkViewInternal = xWalkContent;
             mXWalkSettings = getXWalkSettingsOnUiThreadByContent(xWalkContent);
             mXWalkSettings.setDomStorageEnabled(false);
             if (requiresJsEnabled) {
@@ -77,7 +77,7 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
         TestHelperBridge mHelperBridge;
 
         XWalkViewSettingsDomStorageEnabledTestHelper(
-                XWalkView xWalkContent,
+                XWalkViewInternal xWalkContent,
                 final TestHelperBridge helperBridge) throws Throwable {
             super(xWalkContent, true);
             mHelperBridge = helperBridge;
@@ -107,7 +107,7 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
         protected void doEnsureSettingHasValue(Boolean value) throws Throwable {
             // It is not permitted to access localStorage from data URLs in WebKit,
             // that is why a standalone page must be used.
-            loadUrlSyncByContent(mXWalkView, mHelperBridge,
+            loadUrlSyncByContent(mXWalkViewInternal, mHelperBridge,
                     UrlUtils.getTestFileUrl("xwalkview/localStorage.html"));
             assertEquals(
                 value == ENABLED ? HAS_LOCAL_STORAGE : NO_LOCAL_STORAGE,
@@ -119,8 +119,8 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
      * Verifies the following statements about a setting:
      *  - initially, the setting has a default value;
      *  - the setting can be switched to an alternate value and back;
-     *  - switching a setting in the first XWalkView doesn't affect the setting
-     *    state in the second XWalkView and vice versa.
+     *  - switching a setting in the first XWalkViewInternal doesn't affect the setting
+     *    state in the second XWalkViewInternal and vice versa.
      *
      * @param helper0 Test helper for the first ContentView
      * @param helper1 Test helper for the second ContentView
@@ -165,13 +165,13 @@ public class SetDomStorageEnabledTest extends XWalkViewTestBase {
     }
 
     @SmallTest
-    @Feature({"XWalkView", "Preferences"})
+    @Feature({"XWalkViewInternal", "Preferences"})
     public void testDomStorageEnabledWithTwoViews() throws Throwable {
         ViewPair views = createViews();
         runPerViewSettingsTest(
             new XWalkViewSettingsDomStorageEnabledTestHelper(
-                    views.getContent0(), views.getClient0()),
+                    views.getView0(), views.getClient0()),
             new XWalkViewSettingsDomStorageEnabledTestHelper(
-                    views.getContent1(), views.getClient1()));
+                    views.getView1(), views.getClient1()));
     }
 }
