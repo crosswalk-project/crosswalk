@@ -74,7 +74,7 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
 
   Application::LaunchParams launch_params;
   launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
-  launch_params.entry_points = Application::URLKey;
+  launch_params.entry_points = Application::StartURLKey;
 
   return !!application_service_->Launch(application_data, launch_params);
 }
