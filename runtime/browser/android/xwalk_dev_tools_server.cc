@@ -26,6 +26,7 @@
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/browser/web_contents_delegate.h"
 #include "content/public/common/user_agent.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
@@ -66,7 +67,18 @@ class Target : public content::DevToolsTarget {
   virtual scoped_refptr<DevToolsAgentHost> GetAgentHost() const OVERRIDE {
     return agent_host_;
   }
-  virtual bool Activate() const OVERRIDE { return false; }
+
+  virtual bool Activate() const OVERRIDE {
+    RenderViewHost* rvh = agent_host_->GetRenderViewHost();
+    if (!rvh)
+      return false;
+    WebContents* web_contents = WebContents::FromRenderViewHost(rvh);
+    if (!web_contents)
+      return false;
+    web_contents->GetDelegate()->ActivateContents(web_contents);
+    return true;
+  }
+
   virtual bool Close() const OVERRIDE { return false; }
 
  private:
