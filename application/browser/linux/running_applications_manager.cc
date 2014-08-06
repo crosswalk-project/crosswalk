@@ -123,7 +123,7 @@ void RunningApplicationsManager::OnLaunch(
   if (GURL(app_id_or_url).spec().empty()) {
     application = application_service_->Launch(app_id_or_url, params);
   } else {
-    params.entry_points = Application::URLKey;
+    params.entry_points = Application::StartURLKey;
     std::string error;
     scoped_refptr<ApplicationData> application_data =
         ApplicationData::Create(GURL(app_id_or_url), &error);
