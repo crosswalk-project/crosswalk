@@ -14,7 +14,7 @@ def GetJARFilename():
   # yuicompressor-*.jar was gotten from http://yui.github.io/yuicompressor/.
   file_name = "yuicompressor-%s.jar" % version
   cur_dir = os.path.realpath(os.path.dirname(__file__))
-  return os.path.join(cur_dir, "libs", file_name)
+  return os.path.join(cur_dir, file_name)
 
 
 def ExecuteCmd(file_list, ext):

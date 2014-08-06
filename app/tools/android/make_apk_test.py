@@ -132,7 +132,7 @@ class TestMakeApk(unittest.TestCase):
     # replace the original native library with an empty library.
     # Because it doesn't affect the result of test.
     if options.mode == 'embedded':
-      native_library_dir = 'native_libs'
+      native_library_dir = os.path.join('xwalk_core_library', 'libs')
       native_library_temp_dir = 'temp'
       shutil.copytree(native_library_dir, native_library_temp_dir)
       for root, _, files in os.walk(native_library_dir):
@@ -147,17 +147,17 @@ class TestMakeApk(unittest.TestCase):
   def restoreNativeLibrary():
     # Restore the original native library for embedded mode.
     if options.mode == 'embedded':
-      native_library_dir = 'native_libs'
+      native_library_dir = os.path.join('xwalk_core_library', 'libs')
       native_library_temp_dir = 'temp'
-      if os.path.exists(native_library_dir):
+      if os.path.isdir(native_library_dir):
         shutil.rmtree(native_library_dir)
       shutil.move(native_library_temp_dir, native_library_dir)
 
   @staticmethod
   def archs():
-    x86_native_lib_path = os.path.join('native_libs', 'x86', 'libs',
+    x86_native_lib_path = os.path.join('xwalk_core_library', 'libs',
                                        'x86', 'libxwalkcore.so')
-    arm_native_lib_path = os.path.join('native_libs', 'armeabi-v7a', 'libs',
+    arm_native_lib_path = os.path.join('xwalk_core_library', 'libs',
                                        'armeabi-v7a', 'libxwalkcore.so')
     arch_list = []
     if os.path.isfile(x86_native_lib_path):
@@ -508,7 +508,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--keystore-path=%s' % keystore_path, '--keystore-alias=xwalk-test',
-           '--keystore-passcode=xwalk-test', self._mode]
+           '--keystore-passcode=xwalk-test',
+           '--keystore-alias-passcode=xwalk-test', self._mode]
     RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
     self.assertTrue(os.path.exists('Example'))
@@ -791,7 +792,7 @@ class TestMakeApk(unittest.TestCase):
 
   def executeCommandAndVerifyResult(self, exec_file):
     # Test all of supported options with empty 'mode' option.
-    icon_path = './app_src/res/drawable-xhdpi/crosswalk.png'
+    icon_path = './template/res/drawable-xhdpi/crosswalk.png'
     extension_path = 'test_data/extensions/myextension'
     arch = ''
     icon = ''
