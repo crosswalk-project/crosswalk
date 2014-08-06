@@ -185,5 +185,30 @@
         },
       ],
     },
+    {
+      'target_name': 'xwalk_core_library_aar',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_core_library',
+      ],
+      'actions': [
+        {
+          'action_name': 'generate_xwalk_core_library_aar',
+          'message': 'Generating XwalkCore AAR Library.',
+          'inputs': [
+            '<(DEPTH)/xwalk/build/android/common_function.py',
+            '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library_aar.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/xwalk_core_library_aar_intermediate/always_run',
+          ],
+          'action': [
+            'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library_aar.py',
+            '-s',  '<(DEPTH)',
+            '-t', '<(PRODUCT_DIR)',
+          ],
+        },
+      ],
+    },
   ],
 }
