@@ -582,16 +582,6 @@
             '../content/app/startup_helper_win.cc', # Needed by InitializedSandbox
             'runtime/resources/xwalk.rc',
           ],
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)',
-              'files': [
-                'tools/packaging/bootstrapped/win/app.wxs.templ',
-                'tools/packaging/bootstrapped/win/create_windows_installer.bat',
-                'tools/packaging/bootstrapped/win/guid.vbs',
-              ],
-            },
-          ],
           'configurations': {
             'Debug_Base': {
               'msvs_settings': {
@@ -607,18 +597,6 @@
             '../sandbox/sandbox.gyp:sandbox',
           ],
         }],  # OS=="win"
-        ['OS == "linux"', {
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)',
-              'files': [
-                'tools/packaging/bootstrapped/linux/app.desktop.templ',
-                'tools/packaging/bootstrapped/linux/create_linux_installer.sh',
-                'tools/packaging/bootstrapped/linux/Makefile.templ',
-              ],
-            }
-          ],
-        }],
         ['OS=="mac"', {
           'product_name': '<(xwalk_product_name)',
           'dependencies!': [
