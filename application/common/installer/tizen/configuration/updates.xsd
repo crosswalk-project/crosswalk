@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/ns/widgets" xmlns:widgets="http://www.w3.org/ns/widgets">
+    <xs:include schemaLocation="common.xsd"/>
+    <!--
+    Widget Updates <http://www.w3.org/TR/widgets-updates/>
+    requires common.rnc
+    -->
+    <xs:element name="update-description">
+    <xs:complexType mixed="true">
+        <xs:group minOccurs="0" maxOccurs="unbounded" ref="widgets:foreignElement"/>
+        <xs:attributeGroup ref="widgets:foreignAttribute"/>
+        <xs:attribute name="href" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+    </xs:element>
+</xs:schema>

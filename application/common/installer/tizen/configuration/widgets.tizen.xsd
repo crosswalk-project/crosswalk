@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Widget Configuration Document Extensions XSD For TIZEN -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tizen="http://tizen.org/ns/widgets" targetNamespace="http://tizen.org/ns/widgets">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+    <xs:simpleType name="data.boolean">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="appserviceOperationType">
+        <xs:restriction base="xs:anyURI"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="PackageType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-zA-Z]{10}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="applicationIdType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-zA-Z]{10}[.][0-9a-zA-Z]{1,52}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="screenOrientationType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="portrait"/>
+            <xs:enumeration value="landscape"/>
+            <xs:enumeration value="auto-rotation"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="activationType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="enable"/>
+            <xs:enumeration value="disable"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="soundmodeType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="shared"/>
+            <xs:enumeration value="exclusive"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="appWidgetIdType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9a-zA-Z]{10}.[0-9a-zA-Z]{1,52}.[0-9a-zA-Z]{1,}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="updatePeriodType">
+        <xs:restriction base="xs:float">
+            <xs:minInclusive value="1800"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="content">
+        <xs:complexType>
+            <xs:attribute name="src" use="required" type="xs:anyURI"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="application">
+        <xs:complexType>
+            <xs:attribute name="id" type="tizen:applicationIdType" use="required"/>
+            <xs:attribute name="package" type="tizen:PackageType" use="required"/>
+            <xs:attribute name="required_version" type="xs:float" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="setting">
+        <xs:complexType>
+            <xs:attribute name="screen-orientation" type="tizen:screenOrientationType" use="optional"/> <!-- default: portrait -->
+            <xs:attribute name="context-menu" type="tizen:activationType" use="optional"/> <!-- default: enable -->
+            <xs:attribute name="background-support" type="tizen:activationType" use="optional"/> <!-- default: enable -->
+            <xs:attribute name="encryption" type="tizen:activationType" use="optional"/> <!-- default: disable -->
+            <xs:attribute name="install-location" type="tizen:InstallLocationType" use="optional"/>
+            <xs:attribute name="nodisplay" type="tizen:data.boolean" use="optional"/> <!-- default: false -->
+            <xs:attribute name="indicator-persence" type="tizen:data.boolean" use="optional"/>
+            <xs:attribute name="backbutton-persence" type="tizen:data.boolean" use="optional"/>
+            <xs:attribute name="user-agent" use="optional"/>
+            <xs:attribute name="hwkey-event" type="tizen:activationType" use="optional"/> <!-- default: true -->
+            <xs:attribute name="sound-mode" type="tizen:soundmodeType" use="optional"/> <!-- default: shared -->
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="app-control">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="tizen:src"/>
+            <xs:element ref="tizen:operation"/>
+            <xs:element ref="tizen:uri"/>
+            <xs:element ref="tizen:mime"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="category">
+      <xs:complexType>
+        <xs:anyAttribute processContents="lax"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="src">
+        <xs:complexType>
+            <xs:attribute name="name" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="operation">
+        <xs:complexType>
+            <xs:attribute name="name" type="tizen:appserviceOperationType" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="uri">
+        <xs:complexType>
+            <xs:attribute name="name" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="mime">
+      <xs:complexType>
+        <xs:attribute name="name" use="required"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="privilege">
+        <xs:complexType>
+            <xs:attribute name="name" use="required" type="xs:anyURI"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="content-security-policy">
+        <xs:complexType  mixed="true">
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="content-security-policy-report-only">
+        <xs:complexType  mixed="true">
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="allow-navigation">
+        <xs:complexType  mixed="true">
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="app-widget">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element ref="tizen:box-label" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element ref="tizen:box-icon" minOccurs="1" maxOccurs="1"/>
+                <xs:element ref="tizen:box-content" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="tizen:appWidgetIdType" use="required"/>
+            <xs:attribute name="primary" type="tizen:data.boolean" use="required"/>
+            <xs:attribute name="auto-launch" type="tizen:data.boolean" use="optional"/>
+            <xs:attribute name="update-period" type="tizen:updatePeriodType" use="optional"/>
+            <xs:attribute name="type" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="box-label">
+        <xs:complexType mixed="true">
+            <xs:attribute ref="xml:lang"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="box-icon">
+        <xs:complexType>
+        <xs:attribute name="src" use="required" type="xs:anyURI"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="box-content">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element ref="tizen:box-size" minOccurs="1" maxOccurs="5"/>
+                <xs:element ref="tizen:pd" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="src" use="required" type="xs:anyURI"/>
+            <xs:attribute name="mouse-event" use="optional" type="tizen:data.boolean"/>
+            <xs:attribute name="touch-effect" use="optional" type="tizen:data.boolean"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pd">
+        <xs:complexType>
+            <xs:attribute name="src" use="required" type="xs:anyURI"/>
+            <xs:attribute name="width" use="required" type="xs:int"/>
+            <xs:attribute name="height" use="required" type="xs:int"/>
+            <xs:attribute name="fast-open" use="optional" type="tizen:data.boolean"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="box-size">
+        <xs:complexType mixed="true">
+        <xs:attribute name="preview" use="optional" type="xs:anyURI"/>
+        <xs:attribute name="use-decoration" use="optional" type="tizen:data.boolean"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="InstallLocationType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="auto"/>
+            <xs:enumeration value="internal-only"/>
+            <xs:enumeration value="prefer-external"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="capability">
+        <xs:complexType mixed="true">
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="account">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="tizen:icon" />
+                    <xs:element ref="tizen:display-name" />
+                    <xs:element ref="tizen:capability" />
+                </xs:choice>
+            </xs:sequence>
+        <xs:attribute name="multiple-account-support" use="required" type="tizen:data.boolean"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="icon">
+      <xs:complexType mixed="true">
+        <xs:attribute name="section" use="required" type="xs:string"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="display-name">
+      <xs:complexType mixed="true">
+        <xs:attribute ref="xml:lang"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="metadata">
+        <xs:complexType>
+            <xs:attribute name="key" type="xs:string" use="required"/>
+            <xs:attribute name="value" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="splash">
+        <xs:complexType>
+            <xs:attribute name="src" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

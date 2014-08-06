@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/ns/widgets" xmlns:widgets="http://www.w3.org/ns/widgets">
+  <xs:include schemaLocation="common.xsd"/>
+  <xs:include schemaLocation="access.xsd"/>
+  <xs:include schemaLocation="updates.xsd"/>
+  <xs:import namespace="http://tizen.org/ns/widgets" schemaLocation="widgets.tizen.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <!--
+    Widget Packaging and Configuration <http://www.w3.org/TR/widgets/>
+    requires common.rnc
+  -->
+  <xs:element name="widget">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="widgets:group.widgetContent">
+          <xs:attributeGroup ref="widgets:global.attrs"/>
+          <xs:attributeGroup ref="widgets:global.xml"/>
+          <xs:attributeGroup ref="widgets:extension"/>
+          <xs:attribute name="id" type="xs:anyURI"/>
+          <xs:attribute name="defaultlocale"/>
+          <xs:attribute name="version" type="widgets:data.versionNumber"/>
+          <xs:attribute name="min-version" type="widgets:data.versionNumber"/>
+          <xs:attribute name="height" type="widgets:data.positiveNumber"/>
+          <xs:attribute name="width" type="widgets:data.positiveNumber"/>
+          <xs:attribute name="viewmodes">
+            <xs:simpleType>
+              <xs:list>
+                <xs:simpleType>
+                  <xs:restriction base="xs:token">
+                    <xs:enumeration value="windowed"/>
+                    <xs:enumeration value="floating"/>
+                    <xs:enumeration value="fullscreen"/>
+                    <xs:enumeration value="maximized"/>
+                    <xs:enumeration value="minimized"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:list>
+            </xs:simpleType>
+          </xs:attribute>
+          <!-- Requirment from IDE UX -->
+          <xs:attribute ref="xml:lang"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="group.widgetContent" mixed="true">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:choice>
+        <xs:element ref="widgets:name"/>
+        <xs:element ref="widgets:description"/>
+        <xs:element ref="widgets:icon"/>
+        <xs:element ref="widgets:author"/>
+        <xs:element ref="widgets:license"/>
+        <xs:element ref="widgets:content"/>
+        <xs:element ref="widgets:feature"/>
+        <xs:element ref="widgets:preference"/>
+
+        <xs:element ref="tizen:app-control"  maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:setting"  maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:application" minOccurs="1" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:content"  minOccurs="1" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:privilege"  minOccurs="0" maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:content-security-policy" minOccurs="0" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:content-security-policy-report-only" minOccurs="0" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:allow-navigation" minOccurs="0" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:app-widget"  minOccurs="0" maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:account"  minOccurs="0" maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:metadata"  minOccurs="0" maxOccurs="unbounded" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <xs:element ref="tizen:splash"  minOccurs="0" maxOccurs="1" xmlns:tizen="http://tizen.org/ns/widgets"/>
+        <!-- W3C testcases fail - should accept any element -->
+        <!--  <xs:group minOccurs="0" maxOccurs="unbounded" ref="widgets:foreignElement"/> -->
+      </xs:choice>
+      <xs:element ref="widgets:access"/>
+      <!--   <xs:element ref="widgets:update-description"/> -->
+    </xs:choice>
+  </xs:complexType>
+  <xs:element name="name">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:span"/>
+        <xs:group ref="widgets:foreignElement"/>
+      </xs:choice>
+      <!-- Requirment from IDE UX -->
+      <xs:attribute ref="xml:lang"/>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <xs:attribute name="short"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="description">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:span"/>
+        <xs:group ref="widgets:foreignElement"/>
+      </xs:choice>
+      <!-- Requirment from IDE UX -->
+      <xs:attribute ref="xml:lang"/>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="icon">
+    <xs:complexType>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:foreignAttribute"/>
+      <!-- w3c testcase - must ignore
+      <xs:attribute name="src" use="required" type="xs:anyURI"/>
+      -->
+      <xs:attribute name="src" type="xs:anyURI"/>
+      <xs:attribute name="height" type="widgets:data.positiveNumber"/>
+      <xs:attribute name="width" type="widgets:data.positiveNumber"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="author">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:span"/>
+        <xs:group ref="widgets:foreignElement"/>
+        <!-- W3C testcases fail - should accept any element -->
+      </xs:choice>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <xs:attribute name="href" type="xs:anyURI"/>
+      <xs:attribute name="email" type="xs:string"/>
+      <!-- fails W3C testcases
+      <xs:attribute name="email">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value=".+@.+"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+       -->
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="license">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:span"/>
+        <xs:group ref="widgets:foreignElement"/>
+      </xs:choice>
+      <!-- Requirment from IDE UX -->
+      <xs:attribute ref="xml:lang"/>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <xs:attribute name="href" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="content">
+    <xs:complexType>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:foreignAttribute"/>
+      <!-- w3c testcase - ignore not valid
+      <xs:attribute name="src" use="required" type="xs:anyURI"/>
+      -->
+      <xs:attribute name="src" type="xs:string"/>
+      <xs:attribute name="type"/>
+      <xs:attribute name="encoding"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="feature">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:param"/>
+        <xs:group ref="widgets:foreignElement"/>
+      </xs:choice>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <!-- w3c tescase - must ignore
+      <xs:attribute name="name" use="required" type="xs:anyURI"/>
+      -->
+      <xs:attribute name="name" type="xs:anyURI"/>
+      <xs:attribute name="required" type="widgets:data.boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="param">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="widgets:foreignElement"/>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <xs:attribute name="name"/>
+      <xs:attribute name="value"/>
+      <!-- w3c testcase - must ignore
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="value" use="required"/>
+      -->
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="span">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="widgets:span"/>
+        <xs:group ref="widgets:foreignElement"/>
+      </xs:choice>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="preference">
+    <xs:complexType mixed="true">
+      <xs:group minOccurs="0" maxOccurs="unbounded" ref="widgets:foreignElement"/>
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:global.xml"/>
+      <xs:attributeGroup ref="widgets:extension"/>
+      <!-- w3c testcase -required but missing
+      <xs:attribute name="name" use="required"/>
+      -->
+      <xs:attribute name="name"/>
+      <xs:attribute name="value"/>
+      <xs:attribute name="readonly" type="widgets:data.boolean"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

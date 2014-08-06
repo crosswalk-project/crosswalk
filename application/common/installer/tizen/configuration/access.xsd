@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/ns/widgets" xmlns:widgets="http://www.w3.org/ns/widgets">
+  <xs:include schemaLocation="common.xsd"/>
+  <!--
+    Widget Access Request Policy <http://www.w3.org/TR/widgets-access/>
+    requires common.rnc
+  -->
+  <xs:element name="access">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="widgets:global.attrs"/>
+      <xs:attributeGroup ref="widgets:foreignAttribute"/>
+      <xs:attribute name="origin" type="xs:string"/>
+      <!-- w3c policy testcases
+      <xs:attribute name="origin" use="required">
+        <xs:simpleType>
+          <xs:union memberTypes="xs:anyURI">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="*"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:union>
+        </xs:simpleType>
+      </xs:attribute>
+      -->
+      <xs:attribute name="subdomains" type="widgets:data.boolean"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

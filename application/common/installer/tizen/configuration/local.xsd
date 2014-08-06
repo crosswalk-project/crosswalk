@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xmlns:widgets="http://www.w3.org/ns/widgets">
+    <xs:group name="local">
+        <xs:sequence>
+            <xs:any namespace="##other" processContents="skip"/>
+        </xs:sequence>
+    </xs:group>
+</xs:schema>

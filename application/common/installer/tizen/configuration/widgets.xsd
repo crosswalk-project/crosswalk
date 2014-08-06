@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  RELAX NG Schema for the Widgets Family of Specifications
+  
+  This document is non-normative.
+  
+  The following is a RELAX NG schema representation of the elements,
+  and attributes, that can be used in a widget's configuration document.
+  
+  A conformance checker may use the RELAX NG for the configuration document to validate
+  elements and attributes of a configuration document within the limits of the RELAX NG
+  specification.
+  
+  Authors: David Håsäther, Marcos Cáceres, Robin Berjon
+  Contact: public-webapps@w3.org if you find any errors or have any questions
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.w3.org/ns/widgets" xmlns:widgets="http://www.w3.org/ns/widgets">
+    <xs:include schemaLocation="packaging-configuration.xsd"/>
+    <xs:import schemaLocation="common.xsd"/>
+</xs:schema>
