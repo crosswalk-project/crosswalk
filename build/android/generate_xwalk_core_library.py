@@ -198,7 +198,30 @@ def MoveImagesToNonMdpiFolders(res_root):
       shutil.move(src_file, dst_file)
 
 
-def CopyResources(out_dir):
+def ReplaceCrunchedImage(project_source, filename, filepath):
+  """Replace crunched images with source images.
+  """
+  search_dir = [
+      'content/public/android/java/res',
+      'ui/android/java/res'
+  ]
+
+  pathname = os.path.basename(filepath)
+  #replace crunched 9-patch image resources.
+  for search in search_dir:
+    absdir = os.path.join(project_source, search)
+    for dirname, _, files in os.walk(absdir):
+      if filename in files:
+        relativedir = os.path.basename(dirname)
+        if (pathname == 'drawable' and relativedir == 'drawable-mdpi') or \
+            relativedir == pathname:
+          source_file = os.path.abspath(os.path.join(dirname, filename))
+          target_file = os.path.join(filepath, filename)
+          shutil.copyfile(source_file, target_file)
+          return 
+        
+
+def CopyResources(project_source, out_dir):
   print 'Copying resources...'
   res_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'res')
   temp_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'temp')
@@ -238,6 +261,12 @@ def CopyResources(out_dir):
   if os.path.isdir(temp_dir):
     shutil.rmtree(temp_dir)
 
+  #search 9-patch, then replace it with uncrunch image.
+  for dirname, _, files in os.walk(res_dir):
+    for filename in files:
+      if filename.endswith('.9.png'):
+        ReplaceCrunchedImage(project_source, filename, dirname)
+
 
 def PostCopyLibraryProject(out_dir):
   print 'Post Copy Library Project...'
@@ -272,7 +301,7 @@ def main(argv):
   # Copy Eclipse project files of library project.
   CopyProjectFiles(options.source, out_dir)
   # Copy binaries and resuorces.
-  CopyResources(out_dir)
+  CopyResources(options.source, out_dir)
   CopyBinaries(out_dir)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_dir)
