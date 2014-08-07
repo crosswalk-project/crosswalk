@@ -28,6 +28,8 @@ bool IsValidApplicationID(const std::string& id);
 
 #if defined(OS_TIZEN)
 std::string GetPackageIdFromAppId(const std::string& app_id);
+bool IsValidWGTID(const std::string& id);
+bool IsValidXPKID(const std::string& id);
 #endif
 
 }  // namespace application

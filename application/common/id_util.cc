@@ -62,10 +62,20 @@ std::string GenerateIdForPath(const base::FilePath& path) {
   return GenerateId(path_bytes);
 }
 
+#if defined(OS_TIZEN)
+bool IsValidWGTID(const std::string& id) {
+  return RE2::FullMatch(id, kWGTAppIdPattern);
+}
+
+bool IsValidXPKID(const std::string& id) {
+  return RE2::FullMatch(id, kXPKAppIdPattern);
+}
+#endif
+
 bool IsValidApplicationID(const std::string& id) {
 #if defined(OS_TIZEN)
-  if (RE2::FullMatch(id, kWGTAppIdPattern) ||
-      RE2::FullMatch(id, kXPKAppIdPattern))
+  if (IsValidWGTID(id) ||
+      IsValidXPKID(id))
     return true;
   return false;
 #endif

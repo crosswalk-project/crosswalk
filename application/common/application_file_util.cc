@@ -33,6 +33,10 @@
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/common/id_util.h"
+#endif
+
 namespace errors = xwalk::application_manifest_errors;
 namespace keys = xwalk::application_manifest_keys;
 namespace widget_keys = xwalk::application_widget_keys;
@@ -158,6 +162,8 @@ inline bool IsElementSupportSpanAndDir(xmlNode* root) {
   return false;
 }
 
+// FIXME: This function is wrong and has to be re-implemented
+// further (see XWALK-2230)
 bool GetPackageType(const base::FilePath& path,
                     xwalk::application::Package::Type* package_type,
                     std::string* error) {
@@ -178,6 +184,24 @@ bool GetPackageType(const base::FilePath& path,
   *error = base::StringPrintf("%s", errors::kManifestUnreadable);
   return false;
 }
+
+#if defined(OS_TIZEN)
+bool GetPackageType(const std::string& application_id,
+                    xwalk::application::Package::Type* package_type,
+                    std::string* error) {
+  if (xwalk::application::IsValidWGTID(application_id)) {
+    *package_type = xwalk::application::Package::WGT;
+    return true;
+  } else if (xwalk::application::IsValidXPKID(application_id)) {
+    *package_type = xwalk::application::Package::XPK;
+    return true;
+  }
+
+  *error = base::StringPrintf("Invalid application id: %s",
+                              application_id.c_str());
+  return false;
+}
+#endif
 
 bool IsSingletonElement(const std::string& name) {
   for (int i = 0; i < arraysize(kSingletonElements); ++i)
@@ -324,7 +348,11 @@ scoped_refptr<ApplicationData> LoadApplication(
     Manifest::SourceType source_type,
     std::string* error) {
   Package::Type package_type;
+#if defined(OS_TIZEN)
+  if (!GetPackageType(application_id, &package_type, error))
+#else
   if (!GetPackageType(application_path, &package_type, error))
+#endif
     return NULL;
 
   return LoadApplication(application_path, application_id,
