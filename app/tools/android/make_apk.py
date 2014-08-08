@@ -32,6 +32,14 @@ def AllArchitectures():
   return ("x86", "arm")
 
 
+def ConvertArchNameToArchFolder(arch):
+  arch_dict = {
+      'x86': 'x86',
+      'arm': 'armeabi-v7a'
+  }
+  return arch_dict.get(arch, None)
+
+
 def AddExeExtensions(name):
   exts_str = os.environ.get('PATHEXT', '').lower()
   exts = [_f for _f in exts_str.split(os.pathsep) if _f]
@@ -282,7 +290,10 @@ def Execution(options, name):
     # for the last execution to make apk for another CPU arch.
     # And then copy the native libraries for the specified arch into
     # xwalk_core_library.
-    arch = options.arch
+    arch = ConvertArchNameToArchFolder(options.arch)
+    if not arch:
+      print ('Invalid CPU arch: %s.' % arch)
+      sys.exit(10)
     library_lib_path = os.path.join(name, 'xwalk_core_library', 'libs')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
