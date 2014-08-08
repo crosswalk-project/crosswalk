@@ -16,5 +16,16 @@ SignatureData::SignatureData(const std::string& signature_file_name,
 SignatureData::~SignatureData() {
 }
 
+base::FilePath SignatureData::GetExtractedWidgetPath() const {
+  std::string widget_path = signature_file_name();
+  size_t pos = widget_path.rfind('/');
+  if (pos == std::string::npos) {
+    widget_path.clear();
+  } else {
+    widget_path.erase(pos + 1, std::string::npos);
+  }
+  return base::FilePath(widget_path);
+}
+
 }  // namespace application
 }  // namespace xwalk
