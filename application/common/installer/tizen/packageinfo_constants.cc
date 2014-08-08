@@ -14,16 +14,17 @@ const base::FilePath::CharType kAppDBPath[] =
 const base::FilePath::CharType kAppDBJournalPath[] =
     FILE_PATH_LITERAL("applications.db-journal");
 const base::FilePath::CharType kIconDir[] =
-    FILE_PATH_LITERAL("/opt/share/icons/default/small/");
+    FILE_PATH_LITERAL("/usr/share/icons/default/small/");
 const base::FilePath::CharType kXmlDir[] =
-    FILE_PATH_LITERAL("/opt/share/packages/");
+    FILE_PATH_LITERAL("/usr/share/packages/");
 const base::FilePath::CharType kXwalkPath[] =
     FILE_PATH_LITERAL("/usr/lib/xwalk/xwalk");
 const base::FilePath::CharType kExecDir[] =
     FILE_PATH_LITERAL("bin");
 
 const char kDefaultIconName[] = "crosswalk.png";
-const char kIconKey[] = "icons.128";
+const char kIconKey_128[] = "icons.128";
+const char kIconKey[] = "icon";
 const char kOwner[] = "app";
 
 const char kXmlExtension[] = ".xml";

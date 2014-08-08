@@ -180,9 +180,14 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
       app_id + std::string(info::kXmlExtension));
 
   std::string icon_name;
-  if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
-    LOG(WARNING) << "'icon' not included in manifest";
-  }
+  if(app_data->GetPackageType() == Package::WGT) {
+    if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
+	 LOG(WARNING) << "'icon' not included in manifest";}
+  } else {
+    if (!app_data->GetManifest()->GetString(info::kIconKey_128, &icon_name)) {
+	 LOG(WARNING) << "'icon' not included in manifest";
+    }
+  }	  
   // This will clean everything inside '<data dir>/<app id>'.
   FileDeleter app_dir_cleaner(app_dir, true);
 
@@ -277,9 +282,16 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
       app_id + ".new" + std::string(info::kXmlExtension));
 
   std::string icon_name;
-  if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
-    LOG(WARNING) << "'icon' not included in manifest";
+  if(app_data->GetPackageType() == Package::WGT) {
+    if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
+     LOG(WARNING) << "'icon' not included in manifest";
+    }
+  } else {
+    if (!app_data->GetManifest()->GetString(info::kIconKey_128, &icon_name)) {
+      LOG(WARNING) << "'icon' not included in manifest";
+    }
   }
+
   // This will clean everything inside '<data dir>/<app id>' and the new XML.
   FileDeleter app_dir_cleaner(app_dir, true);
   FileDeleter new_xml_cleaner(new_xml_path, true);

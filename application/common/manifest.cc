@@ -133,7 +133,7 @@ bool Manifest::GetString(
     const std::string& path, std::string* out_value) const {
   if (!CanAccessPath(path))
     return false;
-
+	
   if (i18n_data_->Get(path, NULL)) {
     List::const_iterator it = user_agent_locales_->begin();
     for (; it != user_agent_locales_->end(); ++it) {
