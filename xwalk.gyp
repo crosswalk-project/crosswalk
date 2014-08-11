@@ -43,7 +43,6 @@
         '../content/content.gyp:content_ppapi_plugin',
         '../content/content.gyp:content_renderer',
         '../content/content.gyp:content_utility',
-        '../content/content.gyp:content_worker',
         '../ipc/ipc.gyp:ipc',
         '../media/media.gyp:media',
         '../net/net.gyp:net',
