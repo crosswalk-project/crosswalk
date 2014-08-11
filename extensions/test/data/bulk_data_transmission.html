@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bulk Data Transmission demo</title>
+</head>
+<body>
+
+<p>This uses the bulk data transmission extension defined in
+bulk_data_transmission.c (compiled to libbulk_data_transmission.so) to
+extend Crosswalk.</p>
+
+<div id="out">
+  <div id='async' />
+</div>
+
+<script>
+var div = document.getElementById('out');
+var divAsync = document.getElementById('async');
+
+var readableSize = function(size) {
+  var suffixCount = 0;
+  while (size >= 1024) {
+    size = size / 1024;
+    ++suffixCount;
+  }
+
+  var suffix;
+  switch(suffixCount) {
+  case 0:
+    suffix = 'B';
+    break;
+  case 1:
+    suffix = 'KB';
+    break;
+  case 2:
+    suffix = 'MB';
+    break;
+  case 3:
+    suffix = 'GB';
+    break;
+  case 4:
+    suffix = 'TB';
+    break;
+  default:
+    return nil;
+  }
+  return size + suffix;
+}
+
+var requestDataAsync = function(size) {
+  bulkData.requestBulkDataAsync(size, function(msg) {
+      var message = document.createElement('p');
+      message.innerText = 'Requested '
+        + readableSize(msg.length) + ' data chunk asynchronously';
+      divAsync.appendChild(message);
+    });
+}
+
+var startPow = 1;
+var maxPow = 26; // 26 is 64MB, which is the limit of IPC post message
+var repeatTimes = 1;
+
+var index = startPow * repeatTimes;
+
+function runTestCase() {
+  return new Promise(function(resolve) {
+      var size = Math.pow(2, Math.floor(index / repeatTimes));
+      requestDataAsync(size);
+      resolve();
+    }).then(function() {
+      ++index;
+      if (index == (maxPow + 1) * repeatTimes) {
+        document.title = "Pass";
+        return;
+      }
+      runTestCase();
+    }, function(e) {
+      console.error(e);
+      document.title = "Fail";
+    });
+};
+runTestCase();
+
+</script>
+</body>
+</html>

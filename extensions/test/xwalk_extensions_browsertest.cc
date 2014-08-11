@@ -108,6 +108,45 @@ class ExtensionWithInvalidName : public XWalkExtension {
 
 bool ExtensionWithInvalidName::s_instance_was_created = false;
 
+static const char* kBulkDataAPI = "var bulkDataListener = null;"
+""
+"extension.setMessageListener(function(msg) {"
+"  if (bulkDataListener instanceof Function) {"
+"    bulkDataListener(msg);"
+"  };"
+"});"
+""
+"exports.requestBulkDataAsync = function(power, callback) {"
+"  bulkDataListener = callback;"
+"  extension.postMessage(power.toString());"
+"};";
+
+class BulkDataContext : public XWalkExtensionInstance {
+ public:
+  BulkDataContext() {
+  }
+  virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE {
+    std::string message;
+    msg->GetAsString(&message);
+    int size = atoi(message.c_str());
+    std::string data_chunk(size, 'p');
+    scoped_ptr<base::Value> data(new base::StringValue(data_chunk));
+    PostMessageToJS(data.Pass());
+  }
+};
+
+class BulkDataExtension : public XWalkExtension {
+ public:
+  BulkDataExtension() : XWalkExtension() {
+    set_name("bulkData");
+    set_javascript_api(kBulkDataAPI);
+  }
+
+  virtual XWalkExtensionInstance* CreateInstance() OVERRIDE {
+    return new BulkDataContext();
+  }
+};
+
 }  // namespace
 
 class XWalkExtensionsTest : public XWalkExtensionsTestBase {
@@ -116,6 +155,7 @@ class XWalkExtensionsTest : public XWalkExtensionsTestBase {
       XWalkExtensionVector* extensions) OVERRIDE {
     extensions->push_back(new EchoExtension);
     extensions->push_back(new ExtensionWithInvalidName);
+    extensions->push_back(new BulkDataExtension);
   }
 };
 
@@ -166,6 +206,16 @@ IN_PROC_BROWSER_TEST_F(XWalkExtensionsDelayedTest, EchoExtensionSync) {
   GURL url = GetExtensionsTestURL(base::FilePath(),
                                   base::FilePath().AppendASCII(
                                       "sync_echo.html"));
+  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  title_watcher.AlsoWaitForTitle(kFailString);
+  xwalk_test_utils::NavigateToURL(runtime(), url);
+  EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
+}
+
+IN_PROC_BROWSER_TEST_F(XWalkExtensionsTest, BulkDataExtension) {
+  content::RunAllPendingInMessageLoop();
+  GURL url = GetExtensionsTestURL(base::FilePath(),
+      base::FilePath().AppendASCII("bulk_data_transmission.html"));
   content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
   xwalk_test_utils::NavigateToURL(runtime(), url);

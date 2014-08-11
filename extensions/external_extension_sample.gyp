@@ -93,5 +93,22 @@
         }],
       ],
     },
+    {
+      'target_name': 'bulk_data_transmission',
+      'type': 'loadable_module',
+      'variables': {
+        'mac_strip': 0,
+      },
+      'sources': [
+        'test/bulk_data_transmission.c',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'product_dir': '<(PRODUCT_DIR)\\tests\\extension\\bulk_data_transmission\\'
+        }, {
+          'product_dir': '<(PRODUCT_DIR)/tests/extension/bulk_data_transmission/'
+        }],
+      ],
+    },
   ],
 }
