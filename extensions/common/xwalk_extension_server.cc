@@ -410,8 +410,7 @@ std::vector<std::string> RegisterExternalExtensionsInDirectory(
     // Let the extension know about its own path, so it can be used
     // as an identifier in case you have symlinks to extensions to force it
     // load multiple times.
-    (*runtime_variables)["extension_path"] =
-        base::Value::CreateStringValue(extension_path.AsUTF8Unsafe());
+    (*runtime_variables)["extension_path"] = new base::StringValue(extension_path.AsUTF8Unsafe());
 
     extension->set_runtime_variables(*runtime_variables);
     if (server->permissions_delegate())
