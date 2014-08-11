@@ -45,7 +45,7 @@ class OnceExtensionInstance : public XWalkExtensionInstance {
       answered_ = true;
     }
     PostMessageToJS(scoped_ptr<base::Value>(
-        base::Value::CreateStringValue(answer)));
+        new base::StringValue(answer)));
   }
 
  private:
