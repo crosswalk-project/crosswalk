@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 ''' This script is used to lint changeset before code checkin
     It get the changeset from the repo and base specified by
     command line arguments. And run cpplint over the changeset.
