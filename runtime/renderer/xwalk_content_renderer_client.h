@@ -9,7 +9,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/memory/scoped_ptr.h"
-#include "base/platform_file.h"
+#include "base/files/file.h"
 #include "base/strings/string16.h"
 #include "content/public/common/page_transition_types.h"
 #include "content/public/renderer/content_renderer_client.h"
