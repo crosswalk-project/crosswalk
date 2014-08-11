@@ -79,12 +79,11 @@ void AppWidgetExtensionInstance::HandleSyncMessage(
 
   if (!msg->GetAsDictionary(&dict) || !dict->GetString(kCommandKey, &command)) {
     LOG(ERROR) << "Fail to handle command sync message.";
-    SendSyncReplyToJS(scoped_ptr<base::Value>(
-        base::Value::CreateStringValue("")));
+    SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue("")));
     return;
   }
 
-  scoped_ptr<base::Value> result(base::Value::CreateStringValue(""));
+  scoped_ptr<base::Value> result(new base::StringValue(""));
   if (command == "GetWidgetInfo") {
     result = GetWidgetInfo(msg.Pass());
   } else if (command == "SetPreferencesItem") {
@@ -106,7 +105,7 @@ void AppWidgetExtensionInstance::HandleSyncMessage(
 
 scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
     scoped_ptr<base::Value> msg) {
-  scoped_ptr<base::StringValue> result(base::Value::CreateStringValue(""));
+  scoped_ptr<base::StringValue> result(new base::StringValue(""));
   std::string key;
   std::string value;
   base::DictionaryValue* dict;
@@ -122,14 +121,14 @@ scoped_ptr<base::StringValue> AppWidgetExtensionInstance::GetWidgetInfo(
       application_->data()->GetManifestData(widget_keys::kWidgetKey));
   base::DictionaryValue* widget_info = info->GetWidgetInfo();
   widget_info->GetString(key, &value);
-  result.reset(base::Value::CreateStringValue(value));
+  result.reset(new base::StringValue(value));
   return result.Pass();
 }
 
 scoped_ptr<base::FundamentalValue>
 AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
   scoped_ptr<base::FundamentalValue> result(
-      base::Value::CreateBooleanValue(false));
+      new base::FundamentalValue(false));
   std::string key;
   std::string value;
   base::DictionaryValue* dict;
@@ -142,7 +141,7 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
   }
 
   if (widget_storage_->AddEntry(key, value, false))
-    result.reset(base::Value::CreateBooleanValue(true));
+    result.reset(new base::FundamentalValue(true));
 
   return result.Pass();
 }
@@ -150,7 +149,7 @@ AppWidgetExtensionInstance::SetPreferencesItem(scoped_ptr<base::Value> msg) {
 scoped_ptr<base::FundamentalValue>
 AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
   scoped_ptr<base::FundamentalValue> result(
-      base::Value::CreateBooleanValue(false));
+      new base::FundamentalValue(false));
   std::string key;
   base::DictionaryValue* dict;
 
@@ -161,7 +160,7 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
   }
 
   if (widget_storage_->RemoveEntry(key))
-    result.reset(base::Value::CreateBooleanValue(true));
+    result.reset(new base::FundamentalValue(true));
 
   return result.Pass();
 }
@@ -169,10 +168,10 @@ AppWidgetExtensionInstance::RemovePreferencesItem(scoped_ptr<base::Value> msg) {
 scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::ClearAllItems(
     scoped_ptr<base::Value> msg) {
   scoped_ptr<base::FundamentalValue> result(
-      base::Value::CreateBooleanValue(false));
+      new base::FundamentalValue(false));
 
   if (widget_storage_->Clear())
-    result.reset(base::Value::CreateBooleanValue(true));
+    result.reset(new base::FundamentalValue(true));
 
   return result.Pass();
 }
@@ -188,7 +187,7 @@ scoped_ptr<base::DictionaryValue> AppWidgetExtensionInstance::GetAllItems(
 scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
     scoped_ptr<base::Value> msg) const {
   scoped_ptr<base::FundamentalValue> result(
-      base::Value::CreateBooleanValue(false));
+      new base::FundamentalValue(false));
   std::string key;
   base::DictionaryValue* dict;
 
@@ -199,7 +198,7 @@ scoped_ptr<base::FundamentalValue> AppWidgetExtensionInstance::KeyExists(
   }
 
   if (widget_storage_->EntryExists(key))
-    result.reset(base::Value::CreateBooleanValue(true));
+    result.reset(new base::FundamentalValue(true));
 
   return result.Pass();
 }
