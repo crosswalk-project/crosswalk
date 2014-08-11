@@ -63,14 +63,7 @@ base::FilePath GetFrameworkBundlePath() {
 
 // File name of the internal NaCl plugin on different platforms.
 const base::FilePath::CharType kInternalNaClPluginFileName[] =
-#if defined(OS_WIN)
-    FILE_PATH_LITERAL("ppGoogleNaClPluginChrome.dll");
-#elif defined(OS_MACOSX)
-    // TODO(noelallen) Please verify this extention name is correct.
-    FILE_PATH_LITERAL("ppGoogleNaClPluginChrome.plugin");
-#else  // Linux and Chrome OS
-    FILE_PATH_LITERAL("libppGoogleNaClPluginChrome.so");
-#endif
+    FILE_PATH_LITERAL("internal-nacl-plugin");
 
 #if defined(OS_LINUX)
 base::FilePath GetConfigPath() {

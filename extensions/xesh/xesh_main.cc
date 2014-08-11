@@ -157,7 +157,7 @@ class ExtensionManager {
             switches::kXWalkExternalExtensionsPath);
 
     scoped_ptr<base::ValueMap> runtime_variables(new base::ValueMap);
-    (*runtime_variables)["app_id"] = base::Value::CreateStringValue("xesh");
+    (*runtime_variables)["app_id"] = new base::StringValue("xesh");
 
     std::vector<std::string> extensions =
         RegisterExternalExtensionsInDirectory(&server_, extensions_dir,

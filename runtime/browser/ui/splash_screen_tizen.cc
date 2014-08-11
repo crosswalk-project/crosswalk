@@ -98,20 +98,16 @@ void SplashScreenTizen::Stop() {
 }
 
 void SplashScreenTizen::DidFinishLoad(
-    int64 frame_id,
-    const GURL& validated_url,
-    bool is_main_frame,
-    content::RenderViewHost* render_view_host) {
+    content::RenderFrameHost* render_frame_host,
+    const GURL& validated_url) {
   Stop();
 }
 
 void SplashScreenTizen::DidFailLoad(
-    int64 frame_id,
+    content::RenderFrameHost* render_frame_host,
     const GURL& validated_url,
-    bool is_main_frame,
     int error_code,
-    const base::string16& error_description,
-    content::RenderViewHost* render_view_host) {
+    const base::string16& error_description) {
   Stop();
 }
 

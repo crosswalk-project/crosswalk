@@ -45,7 +45,8 @@ static void ConvertHexadecimalToIDAlphabet(std::string* id) {
 std::string GenerateId(const std::string& input) {
   uint8 hash[kIdSize];
   crypto::SHA256HashString(input, hash, sizeof(hash));
-  std::string output = StringToLowerASCII(base::HexEncode(hash, sizeof(hash)));
+  std::string output =
+      base::StringToLowerASCII(base::HexEncode(hash, sizeof(hash)));
   ConvertHexadecimalToIDAlphabet(&output);
 
 #if defined(OS_TIZEN)
@@ -80,7 +81,7 @@ bool IsValidApplicationID(const std::string& id) {
   return false;
 #endif
 
-  std::string temp = StringToLowerASCII(id);
+  std::string temp = base::StringToLowerASCII(id);
   // Verify that the id is legal.
   if (temp.size() != (kIdSize * 2))
     return false;

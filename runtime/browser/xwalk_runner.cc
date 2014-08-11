@@ -133,7 +133,7 @@ void XWalkRunner::InitializeRuntimeVariablesForExtensions(
       GetApplicationByRenderHostID(host->GetID());
 
   if (app)
-    (*variables)["app_id"] = base::Value::CreateStringValue(app->id());
+    (*variables)["app_id"] = new base::StringValue(app->id());
 }
 
 void XWalkRunner::OnRenderProcessWillLaunch(content::RenderProcessHost* host) {

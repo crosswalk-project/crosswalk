@@ -204,9 +204,8 @@ void XWalkContent::ClearCache(
 
 ScopedJavaLocalRef<jstring> XWalkContent::DevToolsAgentId(JNIEnv* env,
                                                           jobject obj) {
-  content::RenderViewHost* rvh = web_contents_->GetRenderViewHost();
   scoped_refptr<content::DevToolsAgentHost> agent_host(
-      content::DevToolsAgentHost::GetOrCreateFor(rvh));
+      content::DevToolsAgentHost::GetOrCreateFor(web_contents_.get()));
   return base::android::ConvertUTF8ToJavaString(env, agent_host->GetId());
 }
 

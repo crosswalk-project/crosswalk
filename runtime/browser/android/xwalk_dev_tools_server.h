@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <string>
 #include "base/basictypes.h"
+#include "net/socket/unix_domain_server_socket_posix.h"
 
 namespace content {
 class DevToolsHttpHandler;
@@ -18,11 +19,11 @@ namespace xwalk {
 // This class controls Developer Tools remote debugging server.
 class XWalkDevToolsServer {
  public:
-  XWalkDevToolsServer(const std::string& socket_name);
+  explicit XWalkDevToolsServer(const std::string& socket_name);
   ~XWalkDevToolsServer();
 
   // Opens linux abstract socket to be ready for remote debugging.
-  void Start();
+  void Start(bool allow_debug_permission);
 
   // Closes debugging socket, stops debugging.
   void Stop();
@@ -32,7 +33,8 @@ class XWalkDevToolsServer {
   void AllowConnectionFromUid(uid_t uid);
 
  private:
-  bool CanUserConnectToDevTools(uid_t uid, gid_t gid);
+  bool CanUserConnectToDevTools(
+    const net::UnixDomainServerSocket::Credentials& credentials);
 
   std::string socket_name_;
   content::DevToolsHttpHandler* protocol_handler_;

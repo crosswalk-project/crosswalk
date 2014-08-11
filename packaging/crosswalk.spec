@@ -16,7 +16,7 @@
 %endif
 
 Name:           crosswalk
-Version:        9.37.198.0
+Version:        9.38.198.0
 Release:        0
 Summary:        Crosswalk is an app runtime based on Chromium
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -176,11 +176,6 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
 
-# Temporarily disable WebRTC support because its build currently hardcodes
-# dependencies on X11 and OpenSSL. We are still trying to get some
-# clarifications as to whether this is really necessary. See XWALK-2160.
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_webrtc=0"
-
 # For building for arm in OBS, we need :
 # -> to unset sysroot value.
 # sysroot variable is automatically set for cross compilation to use arm-sysroot provided by Chromium project
@@ -206,6 +201,7 @@ export GYP_GENERATORS='ninja'
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
+-Dclang=0 \
 -Dtizen=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
@@ -241,8 +237,6 @@ install -p -D src/xwalk/application/common/installer/tizen/configuration/*.xsd %
 
 # PNaCl
 %if ! %{_disable_nacl}
-install -p -D src/out/Release/libppGoogleNaClPluginChrome.so %{buildroot}%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
-install -p -D src/out/Release/nacl_bootstrap_munge_phdr %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_munge_phdr
 install -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
 install -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
 install -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
@@ -268,8 +262,6 @@ mkdir -p %{_manifestdir_ro}
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}
-%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
-%{_libdir}/xwalk/nacl_bootstrap_munge_phdr
 %{_libdir}/xwalk/nacl_bootstrap_raw
 %{_libdir}/xwalk/nacl_helper
 %{_libdir}/xwalk/nacl_helper_bootstrap

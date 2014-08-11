@@ -30,7 +30,7 @@
 #include "content/public/common/user_agent.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
-#include "net/socket/unix_domain_socket_posix.h"
+#include "net/socket/unix_domain_listen_socket_posix.h"
 #include "ui/base/resource/resource_bundle.h"
 
 using content::DevToolsAgentHost;
@@ -45,6 +45,15 @@ namespace {
 const char kFrontEndURL[] =
     "http://chrome-devtools-frontend.appspot.com/serve_rev/%s/devtools.html";
 const char kTargetTypePage[] = "page";
+
+bool AuthorizeSocketAccessWithDebugPermission(
+     const net::UnixDomainServerSocket::Credentials& credentials) {
+  JNIEnv* env = base::android::AttachCurrentThread();
+  return xwalk::Java_XWalkDevToolsServer_checkDebugPermission(
+      env, base::android::GetApplicationContext(),
+      credentials.process_id, credentials.user_id) ||
+      content::CanUserConnectToDevTools(credentials);
+}
 
 class Target : public content::DevToolsTarget {
  public:
@@ -69,10 +78,7 @@ class Target : public content::DevToolsTarget {
   }
 
   virtual bool Activate() const OVERRIDE {
-    RenderViewHost* rvh = agent_host_->GetRenderViewHost();
-    if (!rvh)
-      return false;
-    WebContents* web_contents = WebContents::FromRenderViewHost(rvh);
+    WebContents* web_contents = agent_host_->GetWebContents();
     if (!web_contents)
       return false;
     web_contents->GetDelegate()->ActivateContents(web_contents);
@@ -91,7 +97,7 @@ class Target : public content::DevToolsTarget {
 
 Target::Target(WebContents* web_contents) {
   agent_host_ =
-      DevToolsAgentHost::GetOrCreateFor(web_contents->GetRenderViewHost());
+      DevToolsAgentHost::GetOrCreateFor(web_contents);
   id_ = agent_host_->GetId();
   title_ = UTF16ToUTF8(web_contents->GetTitle());
   url_ = web_contents->GetURL();
@@ -103,7 +109,9 @@ Target::Target(WebContents* web_contents) {
 class XWalkDevToolsServerDelegate
   : public content::DevToolsHttpHandlerDelegate {
  public:
-  explicit XWalkDevToolsServerDelegate() {
+  explicit XWalkDevToolsServerDelegate(
+    const net::UnixDomainServerSocket::AuthCallback& auth_callback)
+    : auth_callback_(auth_callback) {
   }
 
   virtual std::string GetDiscoveryPageHTML() OVERRIDE {
@@ -136,18 +144,18 @@ class XWalkDevToolsServerDelegate
 
   virtual void EnumerateTargets(TargetCallback callback) OVERRIDE {
     TargetList targets;
-    std::vector<RenderViewHost*> rvh_list =
-        DevToolsAgentHost::GetValidRenderViewHosts();
-    for (std::vector<RenderViewHost*>::iterator it = rvh_list.begin();
-         it != rvh_list.end(); ++it) {
-      WebContents* web_contents = WebContents::FromRenderViewHost(*it);
-      if (web_contents)
-        targets.push_back(new Target(web_contents));
+    std::vector<WebContents*> web_contents_list =
+      content::DevToolsAgentHost::GetInspectableWebContents();
+    for (std::vector<WebContents*>::iterator it = web_contents_list.begin();
+       it != web_contents_list.end();
+       ++it) {
+      targets.push_back(new Target(*it));
     }
     callback.Run(targets);
   }
 
  private:
+  const net::UnixDomainServerSocket::AuthCallback auth_callback_;
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsServerDelegate);
 };
 
@@ -168,25 +176,29 @@ XWalkDevToolsServer::~XWalkDevToolsServer() {
 // Allow connection from uid specified using AllowConnectionFromUid to devtools
 // server. This supports the XDK usage: debug bridge wrapper runs in a separate
 // process and connects to the devtools server.
-bool XWalkDevToolsServer::CanUserConnectToDevTools(uid_t uid, gid_t gid) {
-  if (uid == allowed_uid_)
+bool XWalkDevToolsServer::CanUserConnectToDevTools(
+    const net::UnixDomainServerSocket::Credentials& credentials) {
+  if (credentials.user_id == allowed_uid_)
     return true;
-
-  return content::CanUserConnectToDevTools(uid, gid);
+  return content::CanUserConnectToDevTools(credentials);
 }
 
-void XWalkDevToolsServer::Start() {
+void XWalkDevToolsServer::Start(bool allow_debug_permission) {
   if (protocol_handler_)
     return;
 
+  net::UnixDomainServerSocket::AuthCallback auth_callback =
+      allow_debug_permission ?
+          base::Bind(&AuthorizeSocketAccessWithDebugPermission) :
+          base::Bind(&content::CanUserConnectToDevTools);
+
   protocol_handler_ = content::DevToolsHttpHandler::Start(
-      new net::UnixDomainSocketWithAbstractNamespaceFactory(
+      new net::deprecated::UnixDomainListenSocketWithAbstractNamespaceFactory(
           socket_name_,
           "",  // fallback socket name
-          base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
-              base::Unretained(this))),
+          auth_callback),
       base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
-      new XWalkDevToolsServerDelegate(), base::FilePath());
+      new XWalkDevToolsServerDelegate(auth_callback), base::FilePath());
 }
 
 void XWalkDevToolsServer::Stop() {
@@ -231,11 +243,12 @@ static jboolean IsRemoteDebuggingEnabled(JNIEnv* env,
 static void SetRemoteDebuggingEnabled(JNIEnv* env,
                                       jobject obj,
                                       jlong server,
-                                      jboolean enabled) {
+                                      jboolean enabled,
+                                      jboolean allow_debug_permission) {
   XWalkDevToolsServer* devtools_server =
       reinterpret_cast<XWalkDevToolsServer*>(server);
   if (enabled) {
-    devtools_server->Start();
+    devtools_server->Start(allow_debug_permission);
   } else {
     devtools_server->Stop();
   }
