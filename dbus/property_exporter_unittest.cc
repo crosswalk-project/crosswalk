@@ -37,7 +37,7 @@ class ExportObjectWithPropertiesService {
 
   void SetStringProperty(const std::string& property,
                          const std::string& value) {
-    scoped_ptr<base::Value> v(base::Value::CreateStringValue(value));
+    scoped_ptr<base::Value> v(new base::StringValue(value));
     properties_->Set(kTestInterface, property, v.Pass());
   }
 
