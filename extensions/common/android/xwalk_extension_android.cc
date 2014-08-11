@@ -169,7 +169,7 @@ void XWalkExtensionAndroidInstance::HandleMessage(
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
-  base::StringValue* ret_val = base::Value::CreateStringValue("");
+  base::StringValue* ret_val = new base::StringValue("");
 
   std::string value;
   if (!msg->GetAsString(&value)) {
@@ -191,7 +191,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
               env, obj.obj(), getID(), buffer.obj());
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
-  ret_val = base::Value::CreateStringValue(str);
+  ret_val = new base::StringValue(str);
   env->ReleaseStringUTFChars(ret.obj(), str);
 
   SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
