@@ -53,7 +53,7 @@ RunningApplicationObject::RunningApplicationObject(
 
   properties()->Set(
       kRunningApplicationDBusInterface, "AppID",
-      scoped_ptr<base::Value>(base::Value::CreateStringValue(app_id)));
+      scoped_ptr<base::Value>(new base::StringValue(app_id)));
 
   dbus_object()->ExportMethod(
       kRunningApplicationDBusInterface, "Terminate",
