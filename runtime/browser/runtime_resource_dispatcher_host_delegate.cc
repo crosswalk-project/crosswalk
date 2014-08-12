@@ -43,7 +43,7 @@ void RuntimeResourceDispatcherHostDelegate::RequestBeginning(
     net::URLRequest* request,
     content::ResourceContext* resource_context,
     content::AppCacheService* appcache_service,
-    ResourceType::Type resource_type,
+    content::ResourceType resource_type,
     int child_id,
     int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
