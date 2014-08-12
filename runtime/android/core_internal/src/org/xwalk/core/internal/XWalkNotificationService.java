@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 interface XWalkNotificationService {
     public void setBridge(XWalkContentsClientBridge bridge);
     public void showNotification(
-            String title, String message, int notificationId, long delegate);
+            String title, String message, String replaceId, int notificationId, long delegate);
     public void updateNotificationIcon(int notificationId, Bitmap icon);
     public void cancelNotification(int notificationId, long delegate);
     public void shutdown();
