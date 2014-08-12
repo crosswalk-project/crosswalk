@@ -23,7 +23,6 @@
 #include "content/public/common/show_desktop_notification_params.h"
 #include "components/nacl/browser/nacl_browser.h"
 #include "components/nacl/browser/nacl_host_message_filter.h"
-#include "components/nacl/browser/nacl_process_host.h"
 #include "components/nacl/common/nacl_process_type.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
@@ -40,6 +39,10 @@
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+
+#if !defined(DISABLE_NACL)
+#include "components/nacl/browser/nacl_process_host.h"
+#endif
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"

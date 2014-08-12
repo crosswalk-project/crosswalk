@@ -16,7 +16,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "cc/base/switches.h"
 #include "components/nacl/browser/nacl_browser.h"
-#include "components/nacl/browser/nacl_process_host.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -35,6 +34,10 @@
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
+
+#if !defined(DISABLE_NACL)
+#include "components/nacl/browser/nacl_process_host.h"
+#endif
 
 #if defined(USE_AURA) && defined(USE_X11)
 #include "ui/base/ime/input_method_initializer.h"
