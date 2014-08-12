@@ -56,7 +56,8 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   virtual bool HandleExternalProtocol(
       const GURL& url,
       int child_id,
-      int route_id) OVERRIDE;
+      int route_id,
+      bool initiated_by_user_gesture) OVERRIDE;
   virtual void OnResponseStarted(
       net::URLRequest* request,
       content::ResourceContext* resource_context,
