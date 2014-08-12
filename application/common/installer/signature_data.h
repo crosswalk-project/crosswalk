@@ -19,10 +19,8 @@ namespace application {
 
 class SignatureData {
  public:
-  SignatureData(const std::string& signature_file_name, int signature_number)
-    : signature_file_name_(signature_file_name),
-      signature_number_(signature_number) {
-  }
+  SignatureData(const std::string& signature_file_name, int signature_number);
+  ~SignatureData();
 
   std::string signature_file_name() const {
     return signature_file_name_;
