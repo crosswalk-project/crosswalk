@@ -15,7 +15,6 @@
 #include "base/message_loop/message_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "cc/base/switches.h"
-#include "components/nacl/browser/nacl_browser.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/main_function_params.h"
@@ -29,7 +28,6 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
-#include "xwalk/runtime/browser/nacl_host/nacl_browser_delegate_impl.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
@@ -37,7 +35,9 @@
 #include "xwalk/runtime/common/xwalk_switches.h"
 
 #if !defined(DISABLE_NACL)
+#include "components/nacl/browser/nacl_browser.h"
 #include "components/nacl/browser/nacl_process_host.h"
+#include "xwalk/runtime/browser/nacl_host/nacl_browser_delegate_impl.h"
 #endif
 
 #if defined(USE_AURA) && defined(USE_X11)
