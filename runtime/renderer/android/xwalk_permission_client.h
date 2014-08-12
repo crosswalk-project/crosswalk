@@ -12,7 +12,7 @@ namespace xwalk {
 
 // XWalk implementation of blink::WebPermissionClient.
 class XWalkPermissionClient : public content::RenderFrameObserver,
-                           public blink::WebPermissionClient {
+                              public blink::WebPermissionClient {
  public:
   explicit XWalkPermissionClient(content::RenderFrame* render_view);
 
@@ -20,9 +20,8 @@ class XWalkPermissionClient : public content::RenderFrameObserver,
   virtual ~XWalkPermissionClient();
 
   // blink::WebPermissionClient implementation.
-  virtual bool allowImage(blink::WebFrame* frame,
-                        bool enabledPerSettings,
-                        const blink::WebURL& imageURL) OVERRIDE;
+  virtual bool allowImage(bool enabledPerSettings,
+                          const blink::WebURL& imageURL) OVERRIDE;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkPermissionClient);
 };

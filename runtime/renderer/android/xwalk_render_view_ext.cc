@@ -20,8 +20,8 @@
 #include "third_party/WebKit/public/web/WebDocument.h"
 #include "third_party/WebKit/public/web/WebElement.h"
 #include "third_party/WebKit/public/web/WebElementCollection.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebHitTestResult.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebNode.h"
 #include "third_party/WebKit/public/web/WebNodeList.h"
 #include "third_party/WebKit/public/web/WebSecurityOrigin.h"
@@ -168,8 +168,8 @@ void XWalkRenderViewExt::OnDocumentHasImagesRequest(int id) {
                                                    hasImages));
 }
 
-void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebFrame* frame,
-                                               bool is_new_navigation) {
+void XWalkRenderViewExt::DidCommitProvisionalLoad(blink::WebLocalFrame* frame,
+                                                  bool is_new_navigation) {
   content::DocumentState* document_state =
       content::DocumentState::FromDataSource(frame->dataSource());
   if (document_state->can_load_local_resources()) {
