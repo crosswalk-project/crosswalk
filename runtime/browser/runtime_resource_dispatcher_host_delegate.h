@@ -37,8 +37,7 @@ class RuntimeResourceDispatcherHostDelegate
   virtual bool HandleExternalProtocol(
       const GURL& url,
       int child_id,
-      int route_id,
-      bool initiated_by_user_gesture) OVERRIDE;
+      int route_id) OVERRIDE;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RuntimeResourceDispatcherHostDelegate);
