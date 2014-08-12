@@ -12,7 +12,6 @@
 
 namespace xwalk {
 
-
 XWalkPermissionClient::XWalkPermissionClient(content::RenderFrame* render_frame)
     : content::RenderFrameObserver(render_frame) {
   render_frame->GetWebFrame()->setPermissionClient(this);
@@ -21,9 +20,8 @@ XWalkPermissionClient::XWalkPermissionClient(content::RenderFrame* render_frame)
 XWalkPermissionClient::~XWalkPermissionClient() {
 }
 
-bool XWalkPermissionClient::allowImage(blink::WebFrame* frame,
-                                 bool enabled_per_settings,
-                                 const blink::WebURL& image_url) {
+bool XWalkPermissionClient::allowImage(bool enabled_per_settings,
+                                       const blink::WebURL& image_url) {
   // Implementing setBlockNetworkImages, so allow local scheme images to be
   // loaded.
   if (enabled_per_settings)
