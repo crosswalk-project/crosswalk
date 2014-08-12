@@ -95,7 +95,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         boolean animated = XWalkPreferencesInternal.getValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        mContentViewRenderView = new ContentViewRenderView(context, mWindow, surfaceType) {
+        mContentViewRenderView = new ContentViewRenderView(context, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
                 // be placed here.
@@ -128,7 +128,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
-        mContentsClientBridge.installWebContentsObserver(mContentViewCore);
+        mContentsClientBridge.installWebContentsObserver(mContentViewCore.getWebContents());
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
@@ -350,7 +350,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     // For instrumentation test.
     public void installWebContentsObserverForTest(XWalkContentsClient contentClient) {
-        contentClient.installWebContentsObserver(mContentViewCore);
+        contentClient.installWebContentsObserver(mContentViewCore.getWebContents());
     }
 
     public String devToolsAgentId() {

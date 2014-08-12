@@ -9,13 +9,13 @@
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "base/command_line.h"
-#include "content/browser/renderer_host/java/jni_helper.h"
+#include "content/browser/android/java/jni_helper.h"
 #include "content/public/browser/navigation_controller.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
+#include "content/public/common/web_preferences.h"
 #include "jni/XWalkSettings_jni.h"
-#include "webkit/common/webpreferences.h"
 #include "xwalk/runtime/common/xwalk_content_client.h"
 #include "xwalk/runtime/browser/android/renderer_host/xwalk_render_view_host_ext.h"
 #include "xwalk/runtime/browser/android/xwalk_content.h"
@@ -157,7 +157,7 @@ void XWalkSettings::UpdateWebkitPreferences(JNIEnv* env, jobject obj) {
   content::RenderViewHost* render_view_host =
       web_contents()->GetRenderViewHost();
   if (!render_view_host) return;
-  WebPreferences prefs = render_view_host->GetWebkitPreferences();
+  content::WebPreferences prefs = render_view_host->GetWebkitPreferences();
 
   prefs.allow_scripts_to_close_windows =
       env->GetBooleanField(obj, field_ids_->allow_scripts_to_close_windows);
