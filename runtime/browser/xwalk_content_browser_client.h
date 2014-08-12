@@ -95,8 +95,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void RequestDesktopNotificationPermission(
       const GURL& source_origin,
       content::RenderFrameHost* render_frame_host,
-      const base::Closure& callback) OVERRIDE;
-  virtual blink::WebNotificationPresenter::Permission
+      const base::Callback<void(blink::WebNotificationPermission)>& callback) OVERRIDE;
+  virtual blink::WebNotificationPermission
   CheckDesktopNotificationPermission(
       const GURL& source_url,
       content::ResourceContext* context,
