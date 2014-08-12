@@ -100,10 +100,10 @@ BuildRequires:  pkgconfig(scim)
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
-%define _manifestdir /usr/share/packages
-%define _manifestdir_ro /opt/share/packages
-%define _desktop_icondir /usr/share/icons/default/small
-%define _desktop_icondir_ro /opt/share/icons/default/small
+%define _manifestdir %TZ_SYS_RO_PACKAGES
+%define _manifestdir_ro %TZ_SYS_RO_PACKAGE
+%define _desktop_icondir %TZ_SYS_RW_ICONS/default/small
+%define _desktop_icondir_ro %TZ_SYS_RO_ICONS/default/small
 %define _dbusservicedir /usr/share/dbus-1/services
 %define _systemduserservicedir /usr/lib/systemd/user
 
