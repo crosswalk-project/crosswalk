@@ -216,8 +216,8 @@ ResourceDispatcherHostCreated() {
 void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
     net::URLRequest* request,
     content::ResourceContext* resource_context,
-    appcache::AppCacheService* appcache_service,
-    ResourceType::Type resource_type,
+    content::AppCacheService* appcache_service,
+    content::ResourceType resource_type,
     int child_id,
     int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
@@ -227,7 +227,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
   // We allow intercepting only navigations within main frames. This
   // is used to post onPageStarted. We handle shouldOverrideUrlLoading
   // via a sync IPC for url loading in iframe.
-  if (resource_type == ResourceType::MAIN_FRAME) {
+  if (resource_type == content::RESOURCE_TYPE_MAIN_FRAME) {
     throttles->push_back(InterceptNavigationDelegate::CreateThrottleFor(
         request));
   }
@@ -302,8 +302,7 @@ content::ResourceDispatcherHostLoginDelegate*
 bool RuntimeResourceDispatcherHostDelegateAndroid::HandleExternalProtocol(
     const GURL& url,
     int child_id,
-    int route_id,
-    bool initiated_by_user_gesture) {
+    int route_id) {
   // On Android, there are many Uris need to be handled differently.
   // e.g: sms:, tel:, mailto: and etc.
   // So here return false to let embedders to decide which protocol
@@ -324,7 +323,7 @@ void RuntimeResourceDispatcherHostDelegateAndroid::OnResponseStarted(
     return;
   }
 
-  if (request_info->GetResourceType() == ResourceType::MAIN_FRAME) {
+  if (request_info->GetResourceType() == content::RESOURCE_TYPE_MAIN_FRAME) {
     // Check for x-auto-login header.
     auto_login_parser::HeaderData header_data;
     if (auto_login_parser::ParserHeaderInResponse(

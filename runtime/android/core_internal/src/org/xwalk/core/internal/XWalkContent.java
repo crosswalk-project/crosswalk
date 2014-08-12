@@ -129,7 +129,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
-        mContentsClientBridge.installWebContentsObserver(mContentViewCore);
+        mContentsClientBridge.installWebContentsObserver(mContentViewCore.getWebContents());
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
@@ -351,7 +351,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     // For instrumentation test.
     public void installWebContentsObserverForTest(XWalkContentsClient contentClient) {
-        contentClient.installWebContentsObserver(mContentViewCore);
+        contentClient.installWebContentsObserver(mContentViewCore.getWebContents());
     }
 
     public String devToolsAgentId() {
