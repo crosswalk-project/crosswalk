@@ -187,7 +187,7 @@ class XWalkViewDelegate {
                 }
                 try {
                     BrowserStartupController.get(context).startBrowserProcessesSync(
-                        BrowserStartupController.MAX_RENDERERS_SINGLE_PROCESS);
+                        true);
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }

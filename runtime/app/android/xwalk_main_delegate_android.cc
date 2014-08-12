@@ -14,7 +14,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/base_paths_android.h"
 #include "base/path_service.h"
-#include "base/platform_file.h"
+#include "base/files/file.h"
 #include "base/posix/global_descriptors.h"
 #include "content/public/browser/browser_main_runner.h"
 #include "ui/base/resource/resource_bundle.h"

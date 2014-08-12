@@ -241,7 +241,7 @@ XWalkContentsIoThreadClientImpl::ShouldInterceptRequest(
   const content::ResourceRequestInfo* info =
       content::ResourceRequestInfo::ForRequest(request);
   bool is_main_frame = info &&
-      info->GetResourceType() == ResourceType::MAIN_FRAME;
+      info->GetResourceType() == content::RESOURCE_TYPE_MAIN_FRAME;
 
   JNIEnv* env = AttachCurrentThread();
   ScopedJavaLocalRef<jstring> jstring_url =

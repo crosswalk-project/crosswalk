@@ -51,14 +51,14 @@ GURL GetAbsoluteSrcUrl(const blink::WebElement& element) {
   return GetAbsoluteUrl(element, element.getAttribute("src"));
 }
 
-blink::WebNode GetImgChild(const blink::WebNode& node) {
+blink::WebElement GetImgChild(const blink::WebElement& element) {
   // This implementation is incomplete (for example if is an area tag) but
   // matches the original WebViewClassic implementation.
 
-  blink::WebElementCollection list = node.getElementsByTagName("img");
-  if (list.length() > 0)
-    return list.firstItem();
-  return blink::WebNode();
+  blink::WebElementCollection collection =
+      element.getElementsByHTMLTagName("img");
+  DCHECK(!collection.isNull());
+  return collection.firstItem();
 }
 
 bool RemovePrefixAndAssignIfMatches(const base::StringPiece& prefix,
@@ -206,10 +206,10 @@ void XWalkRenderViewExt::FocusedNodeChanged(const blink::WebNode& node) {
     absolute_link_url = GetAbsoluteUrl(node, data.href);
 
   GURL absolute_image_url;
-  const blink::WebNode child_img = GetImgChild(node);
-  if (!child_img.isNull() && child_img.isElementNode()) {
+  const blink::WebElement child_img = GetImgChild(element);
+  if (!child_img.isNull()) {
     absolute_image_url =
-        GetAbsoluteSrcUrl(child_img.toConst<blink::WebElement>());
+        GetAbsoluteSrcUrl(child_img);
   }
 
   PopulateHitTestData(absolute_link_url,
