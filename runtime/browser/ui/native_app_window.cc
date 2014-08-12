@@ -15,5 +15,8 @@ NativeAppWindow::CreateParams::CreateParams()
     parent(NULL) {
 }
 
+NativeAppWindow::CreateParams::~CreateParams() {
+}
+
 }  // namespace xwalk
 

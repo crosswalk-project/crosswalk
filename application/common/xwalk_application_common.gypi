@@ -55,6 +55,7 @@
         'installer/package_installer.cc',
         'installer/package_installer.h',
         'installer/signature_data.h',
+        'installer/signature_data.cc',
         'installer/signature_parser.h',
         'installer/signature_parser.cc',
         'installer/wgt_package.h',
