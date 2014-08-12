@@ -34,6 +34,7 @@ class NativeAppWindow {
  public:
   struct CreateParams {
     CreateParams();
+    ~CreateParams();
     // Delegate for this window.
     NativeAppWindowDelegate* delegate;
     // WebContents which the content will be displayed in this window.
