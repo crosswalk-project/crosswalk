@@ -104,9 +104,6 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   // This also enables pinch on Tizen.
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
 
-  // Show feedback on touch.
-  command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
-
   // FIXME: Add comment why this is needed on Android and Tizen.
   command_line->AppendSwitch(switches::kAllowFileAccessFromFiles);
 
