@@ -21,9 +21,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
-#include "components/nacl/browser/nacl_browser.h"
-#include "components/nacl/browser/nacl_host_message_filter.h"
-#include "components/nacl/common/nacl_process_type.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
@@ -41,7 +38,10 @@
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if !defined(DISABLE_NACL)
+#include "components/nacl/browser/nacl_browser.h"
+#include "components/nacl/browser/nacl_host_message_filter.h"
 #include "components/nacl/browser/nacl_process_host.h"
+#include "components/nacl/common/nacl_process_type.h"
 #endif
 
 #if defined(OS_ANDROID)
@@ -69,8 +69,6 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
-
-using content::BrowserChildProcessHostIterator;
 
 namespace xwalk {
 
@@ -331,7 +329,7 @@ content::BrowserPpapiHost*
     XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
         int plugin_process_id) {
 #if !defined(DISABLE_NACL)
-  BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
+  content::BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
   while (!iter.Done()) {
     nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
         iter.GetDelegate());
