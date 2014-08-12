@@ -268,18 +268,18 @@ void XWalkContentBrowserClient::AllowCertificateError(
 void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
     const GURL& source_origin,
     content::RenderFrameHost* render_frame_host,
-    const base::Closure& callback) {
+    const base::Callback<void(blink::WebNotificationPermission)>& callback) {
 }
 
-blink::WebNotificationPresenter::Permission
+blink::WebNotificationPermission
 XWalkContentBrowserClient::CheckDesktopNotificationPermission(
     const GURL& source_url,
     content::ResourceContext* context,
     int render_process_id) {
 #if defined(OS_ANDROID)
-  return blink::WebNotificationPresenter::PermissionAllowed;
+  return blink::WebNotificationPermissionAllowed;
 #else
-  return blink::WebNotificationPresenter::PermissionNotAllowed;
+  return blink::WebNotificationPermissionDenied;
 #endif
 }
 
