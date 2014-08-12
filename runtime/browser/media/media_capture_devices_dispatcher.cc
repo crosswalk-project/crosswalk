@@ -149,18 +149,18 @@ void XWalkMediaCaptureDevicesDispatcher::OnVideoCaptureDevicesChanged() {
 
 void XWalkMediaCaptureDevicesDispatcher::OnMediaRequestStateChanged(
     int render_process_id,
-    int render_view_id,
+    int render_frame_id,
     int page_request_id,
     const GURL& security_origin,
-    const content::MediaStreamDevice& device,
+    content::MediaStreamType stream_type,
     content::MediaRequestState state) {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
   BrowserThread::PostTask(
       BrowserThread::UI, FROM_HERE,
       base::Bind(
           &XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread,
-          base::Unretained(this), render_process_id, render_view_id,
-          security_origin, device, state));
+          base::Unretained(this), render_process_id, render_frame_id,
+          security_origin, stream_type, state));
 }
 
 void XWalkMediaCaptureDevicesDispatcher::NotifyAudioDevicesChangedOnUIThread() {
@@ -177,14 +177,14 @@ void XWalkMediaCaptureDevicesDispatcher::NotifyVideoDevicesChangedOnUIThread() {
 
 void XWalkMediaCaptureDevicesDispatcher::UpdateMediaReqStateOnUIThread(
     int render_process_id,
-    int render_view_id,
+    int render_frame_id,
     const GURL& security_origin,
-    const content::MediaStreamDevice& device,
+    content::MediaStreamType stream_type,
     content::MediaRequestState state) {
   FOR_EACH_OBSERVER(Observer, observers_,
                     OnRequestUpdate(render_process_id,
-                                    render_view_id,
-                                    device,
+                                    render_frame_id,
+                                    stream_type,
                                     state));
 }
 
