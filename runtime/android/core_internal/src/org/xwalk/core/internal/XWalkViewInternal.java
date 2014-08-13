@@ -881,7 +881,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private void onActivityStateChange(Activity activity, int newState) {
         assert(getActivity() == activity);
         switch (newState) {
-	    case ActivityState.STARTED:
+            case ActivityState.STARTED:
                 onShow();
                 break;
             case ActivityState.PAUSED:
@@ -893,7 +893,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             case ActivityState.DESTROYED:
                 onDestroy();
                 break;
-	    case ActivityState.STOPPED:
+            case ActivityState.STOPPED:
                 onHide();
                 break;
             default:

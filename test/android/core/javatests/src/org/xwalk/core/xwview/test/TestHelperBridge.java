@@ -154,6 +154,44 @@ class TestHelperBridge {
         }
     }
 
+    public class ShouldOverrideUrlLoadingHelper extends CallbackHelper {
+        private String mShouldOverrideUrlLoadingUrl;
+        private String mPreviousShouldOverrideUrlLoadingUrl;
+        private boolean mShouldOverrideUrlLoadingReturnValue = false;
+
+        void setShouldOverrideUrlLoadingUrl(String url) {
+            mShouldOverrideUrlLoadingUrl = url;
+        }
+
+        void setPreviousShouldOverrideUrlLoadingUrl(String url) {
+            mPreviousShouldOverrideUrlLoadingUrl = url;
+        }
+
+        void setShouldOverrideUrlLoadingReturnValue(boolean value) {
+            mShouldOverrideUrlLoadingReturnValue = value;
+        }
+
+        public String getShouldOverrideUrlLoadingUrl() {
+            assert getCallCount() > 0;
+            return mShouldOverrideUrlLoadingUrl;
+        }
+
+        public String getPreviousShouldOverrideUrlLoadingUrl() {
+            assert getCallCount() > 1;
+            return mPreviousShouldOverrideUrlLoadingUrl;
+        }
+
+        public boolean getShouldOverrideUrlLoadingReturnValue() {
+            return mShouldOverrideUrlLoadingReturnValue;
+        }
+
+        public void notifyCalled(String url) {
+            mPreviousShouldOverrideUrlLoadingUrl = mShouldOverrideUrlLoadingUrl;
+            mShouldOverrideUrlLoadingUrl = url;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -166,6 +204,7 @@ class TestHelperBridge {
     private final OnLoadStartedHelper mOnLoadStartedHelper;
     private final OnJavascriptCloseWindowHelper mOnJavascriptCloseWindowHelper;
     private final OnProgressChangedHelper mOnProgressChangedHelper;
+    private final ShouldOverrideUrlLoadingHelper mShouldOverrideUrlLoadingHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -177,6 +216,7 @@ class TestHelperBridge {
         mOnLoadStartedHelper = new OnLoadStartedHelper();
         mOnJavascriptCloseWindowHelper = new OnJavascriptCloseWindowHelper();
         mOnProgressChangedHelper = new OnProgressChangedHelper();
+        mShouldOverrideUrlLoadingHelper = new ShouldOverrideUrlLoadingHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -213,6 +253,10 @@ class TestHelperBridge {
 
     public OnProgressChangedHelper getOnProgressChangedHelper() {
         return mOnProgressChangedHelper;
+    }
+
+    public ShouldOverrideUrlLoadingHelper getShouldOverrideUrlLoadingHelper() {
+        return mShouldOverrideUrlLoadingHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -252,5 +296,12 @@ class TestHelperBridge {
 
     public void onProgressChanged(int progress) {
         mOnProgressChangedHelper.notifyCalled(progress);
+    }
+
+    public boolean shouldOverrideUrlLoading(String url) {
+        boolean returnValue =
+            mShouldOverrideUrlLoadingHelper.getShouldOverrideUrlLoadingReturnValue();
+        mShouldOverrideUrlLoadingHelper.notifyCalled(url);
+        return returnValue;
     }
 }
