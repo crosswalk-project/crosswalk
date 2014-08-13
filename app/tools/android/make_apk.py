@@ -63,7 +63,7 @@ def RunCommand(command, verbose=False, shell=False):
       print ('Command "%s" exited with non-zero exit code %d'
              % (' '.join(command), result))
       sys.exit(result)
-    return output
+    return output.decode("utf-8")
 
 
 def Which(name):
@@ -84,7 +84,7 @@ def GetAndroidApiLevel():
   """
   target_output = RunCommand(['android', 'list', 'target', '-c'])
   target_regex = re.compile(r'android-(\d+)')
-  targets = map(int, target_regex.findall(target_output))
+  targets = [int(i) for i in target_regex.findall(target_output)]
   targets.extend([-1])
   return max(targets)
 
