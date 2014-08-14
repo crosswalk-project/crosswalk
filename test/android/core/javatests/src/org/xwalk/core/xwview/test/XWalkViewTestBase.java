@@ -512,4 +512,22 @@ public class XWalkViewTestBase
             t.printStackTrace();
         }
     }
+
+    protected void loadManifestSync(final String url, final String content) throws Exception {
+        CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
+        int currentCallCount = pageFinishedHelper.getCallCount();
+        loadManifestAsync(url, content);
+
+        pageFinishedHelper.waitForCallback(currentCallCount, 1, WAIT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
+    }
+
+    protected void loadManifestAsync(final String url, final String content) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.loadAppFromManifest(url, content);
+            }
+        });
+    }
 }
