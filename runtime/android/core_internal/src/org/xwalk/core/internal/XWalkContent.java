@@ -101,6 +101,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                 // be placed here.
             }
         };
+        mContentViewRenderView.onNativeLibraryLoaded(mWindow);
         mLaunchScreenManager = new XWalkLaunchScreenManager(context, mXWalkView);
         mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
         addView(mContentViewRenderView,
