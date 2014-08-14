@@ -16,7 +16,6 @@ import org.xwalk.test.util.RuntimeClientApiTestBase;
 public class NativeFileSystemTest extends XWalkRuntimeClientTestBase {
     // @SmallTest
     // @Feature({"NativeFileSystem"})
-    @DisabledTest
     public void testNativeFileSystem() throws Throwable {
         RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity> helper =
                 new RuntimeClientApiTestBase<XWalkRuntimeClientShellActivity>(
