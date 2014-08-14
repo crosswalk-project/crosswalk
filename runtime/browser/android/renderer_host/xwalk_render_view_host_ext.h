@@ -71,7 +71,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   // content::WebContentsObserver implementation.
   virtual void RenderViewCreated(
       content::RenderViewHost* render_view_host) OVERRIDE;
-  virtual void RenderViewGone(base::TerminationStatus status) OVERRIDE;
+  virtual void RenderProcessGone(base::TerminationStatus status) OVERRIDE;
   virtual void DidNavigateAnyFrame(
       const content::LoadCommittedDetails& details,
       const content::FrameNavigateParams& params) OVERRIDE;
