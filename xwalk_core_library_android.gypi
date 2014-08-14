@@ -91,6 +91,11 @@
         ],
       },
       'includes': [ '../build/java_apk.gypi' ],
+      'all_dependent_settings': {
+        'variables': {
+          'core_library_classes_dir': '<(classes_dir)',
+        },
+      },
     },
     {
       # pack classes compiled from the java files chromium generated into a
@@ -127,7 +132,7 @@
           ],
           'action': [
             'python', '<(DEPTH)/build/android/gyp/jar.py',
-            '--classes-dir=<(PRODUCT_DIR)/xwalk_core_library_empty_embedder_apk/classes',
+            '--classes-dir=>(core_library_classes_dir)',
             '--jar-path=<(jar_final_path)',
             '--excluded-classes=<(jar_excluded_classes)',
           ],
