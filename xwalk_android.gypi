@@ -141,12 +141,17 @@
         'xwalk_runtime_lib_apk',
       ],
       'variables': {
-        'output_dir': '<(SHARED_INTERMEDIATE_DIR)/xwalk_native_libraries',
+        'jar_path': '<(SHARED_INTERMEDIATE_DIR)/xwalk_native_libraries/native_libraries.jar',
         'jar_excluded_classes': [
           '*/R.class',
           '*/R##*.class',
           '*org/xwalk/*',
         ],
+      },
+      'all_dependent_settings': {
+        'variables': {
+          'library_dexed_jars_paths': ['<(jar_path)'],
+        },
       },
       'actions': [
         {
@@ -158,12 +163,12 @@
             '<(DEPTH)/build/android/gyp/jar.py',
           ],
           'outputs': [
-            '<(output_dir)/xwalk_native_libraries.jar',
+            '<(jar_path)',
           ],
           'action': [
             'python', '<(DEPTH)/build/android/gyp/jar.py',
-            '--classes-dir=<(PRODUCT_DIR)/xwalk_runtime_lib_apk/classes',
-            '--jar-path=<(output_dir)/xwalk_native_libraries.jar',
+            '--classes-dir=>(runtime_lib_classes_dir)',
+            '--jar-path=<(jar_path)',
             '--excluded-classes=<(jar_excluded_classes)',
           ],
         },
@@ -180,23 +185,7 @@
         {
           'action_name': 'xwalk_runtime_embedded',
           'variables': {
-            'dex_input_paths': [
-              '<(PRODUCT_DIR)/lib.java/base_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/content_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/eyesfree_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/guava_javalib.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/jsr_305_javalib.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/media_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/navigation_interception_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/net_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/ui_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/web_contents_delegate_android_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/xwalk_core_extensions_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/xwalk_core_internal_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/xwalk_core_java.dex.jar',
-              '<(PRODUCT_DIR)/lib.java/xwalk_runtime_java.dex.jar',
-              '<(SHARED_INTERMEDIATE_DIR)/xwalk_native_libraries/'
-                  'xwalk_native_libraries.jar' ],
+            'dex_input_paths': ['>@(library_dexed_jars_paths)'],
             'output_path': '<(PRODUCT_DIR)/lib.java/xwalk_runtime_embedded.dex.jar',
           },
           'includes': [ '../build/android/dex_action.gypi' ],
@@ -294,6 +283,11 @@
         'app_manifest_version_code': '<(xwalk_version_code)',
       },
       'includes': ['../build/java_apk.gypi'],
+      'all_dependent_settings': {
+        'variables': {
+          'runtime_lib_classes_dir': '<(classes_dir)',
+        },
+      },
     },
     {
       'target_name': 'xwalk_runtime_lib_apk_pak',
