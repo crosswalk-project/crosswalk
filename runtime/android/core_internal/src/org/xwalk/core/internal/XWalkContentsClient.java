@@ -109,10 +109,6 @@ abstract class XWalkContentsClient extends ContentViewClient {
         mDIPScale = dipScale;
     }
 
-    public double getDIPScale() {
-        return mDIPScale;
-    }
-
     final XWalkContentsClientCallbackHelper getCallbackHelper() {
         return mCallbackHelper;
     }
@@ -158,8 +154,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     public abstract void onGeolocationPermissionsHidePrompt();
 
-    public final void onScaleChanged(float oldScale, float newScale) {
-        onScaleChangedScaled((float)(oldScale * mDIPScale), (float)(newScale * mDIPScale));
+    public final void onScaleChanged(float oldScaleFactor, float newScaleFactor) {
+        onScaleChangedScaled((float)(oldScaleFactor * mDIPScale), (float)(newScaleFactor * mDIPScale));
     }
 
     public abstract void onScaleChangedScaled(float oldScale, float newScale);

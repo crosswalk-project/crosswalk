@@ -667,10 +667,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         if (mPageScaleFactor == pageScaleFactor) return;
 
         float oldPageScaleFactor = mPageScaleFactor;
-        double dipScale = getDIPScale();
         mPageScaleFactor = pageScaleFactor;
-        onScaleChanged((float)(oldPageScaleFactor * dipScale),
-                       (float)(mPageScaleFactor * dipScale));
+        onScaleChanged(oldPageScaleFactor, mPageScaleFactor);
     }
 
     //--------------------------------------------------------------------------------------------

@@ -36,6 +36,7 @@ import org.chromium.content.browser.NavigationHistory;
 import org.chromium.content.common.CleanupReference;
 import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
+import org.chromium.ui.gfx.DeviceDisplayInfo;
 
 import org.xwalk.core.JavascriptInterface;
 
@@ -129,6 +130,9 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
+
+        // Set DIP scale.
+        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(context).getDIPScale());
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
