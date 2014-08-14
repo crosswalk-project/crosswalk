@@ -6,12 +6,12 @@
 <script>
   try {
     var result = true;
-    if (typeof window.screen.lockOrientation != "function") {
-      console.log("window.screen.lockOrientation is not a function");
+    if (typeof screen.orientation.lock != "function") {
+      console.log("screen.orientation.lock is not a function");
       result = false;
     }
-    if (typeof window.screen.unlockOrientation != "function") {
-      console.log("window.screen.unlockOrientation is not a function");
+    if (typeof window.screen.orientation.unlock != "function") {
+      console.log("screen.orientation.unlock is not a function");
       result = false;
     }
 
