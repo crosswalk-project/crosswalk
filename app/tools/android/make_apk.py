@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 from app_info import AppInfo
-from customize import VerifyAppName, CustomizeAll, \
+from customize import VerifyPackageName, CustomizeAll, \
                       ParseParameterForCompressor
 from handle_permissions import permission_mapping_table
 from manifest_json_parser import HandlePermissionList
@@ -606,12 +606,11 @@ def main(argv):
 
   if not options.name:
     parser.error('An APK name is required. Please use the "--name" option.')
-  VerifyAppName(options.name)
 
   if not options.package:
     parser.error('A package name is required. Please use the "--package" '
                  'option.')
-  VerifyAppName(options.package, 'packagename')
+  VerifyPackageName(options.package)
 
   if (options.app_root and options.app_local_path and
       not os.path.isfile(os.path.join(options.app_root,
