@@ -25,6 +25,7 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
+import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
@@ -75,6 +76,13 @@ public class XWalkViewTestBase
         @Override
         public void onRequestFocus(XWalkView view) {
             mInnerContentsClient.onRequestFocus();
+        }
+
+        @Override
+        public boolean onJavascriptModalDialog(XWalkView view,
+                XWalkUIClient.JavascriptMessageType type, String url, String message,
+                        String defaultValue, XWalkJavascriptResult result) {
+            return mInnerContentsClient.onJavascriptModalDialog(message);
         }
     }
 

@@ -220,6 +220,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnJavascriptModalDialogHelper extends CallbackHelper {
+        private String mMessage;
+
+        public String getMessage() {
+            assert getCallCount() > 0;
+            return mMessage;
+        }
+
+        public void notifyCalled(String message) {
+            mMessage = message;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -235,6 +249,7 @@ class TestHelperBridge {
     private final ShouldOverrideUrlLoadingHelper mShouldOverrideUrlLoadingHelper;
     private final OnScaleChangedHelper mOnScaleChangedHelper;
     private final OnRequestFocusHelper mOnRequestFocusHelper;
+    private final OnJavascriptModalDialogHelper mOnJavascriptModalDialogHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -249,6 +264,7 @@ class TestHelperBridge {
         mShouldOverrideUrlLoadingHelper = new ShouldOverrideUrlLoadingHelper();
         mOnScaleChangedHelper = new OnScaleChangedHelper();
         mOnRequestFocusHelper = new OnRequestFocusHelper();
+        mOnJavascriptModalDialogHelper = new OnJavascriptModalDialogHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -297,6 +313,10 @@ class TestHelperBridge {
 
     public OnRequestFocusHelper getOnRequestFocusHelper() {
         return mOnRequestFocusHelper;
+    }
+
+    public OnJavascriptModalDialogHelper getOnJavascriptModalDialogHelper() {
+        return mOnJavascriptModalDialogHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -351,5 +371,10 @@ class TestHelperBridge {
 
     public void onRequestFocus() {
         mOnRequestFocusHelper.notifyCalled(true);
+    }
+
+    public boolean onJavascriptModalDialog(String message) {
+        mOnJavascriptModalDialogHelper.notifyCalled(message);
+        return true;
     }
 }
