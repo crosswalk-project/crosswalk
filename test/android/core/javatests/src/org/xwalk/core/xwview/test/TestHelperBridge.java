@@ -7,6 +7,7 @@ package org.xwalk.core.xwview.test;
 
 import android.net.Uri;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -263,6 +264,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OverrideOrUnhandledKeyEventHelper extends CallbackHelper {
+        private KeyEvent mEvent;
+
+        public KeyEvent getKeyEvent() {
+            assert getCallCount() > 0;
+            return mEvent;
+        }
+
+        public void notifyCalled(KeyEvent event) {
+            mEvent = event;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -281,6 +296,7 @@ class TestHelperBridge {
     private final OnJavascriptModalDialogHelper mOnJavascriptModalDialogHelper;
     private final OpenFileChooserHelper mOpenFileChooserHelper;
     private final OnFullscreenToggledHelper mOnFullscreenToggledHelper;
+    private final OverrideOrUnhandledKeyEventHelper mOverrideOrUnhandledKeyEventHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -298,6 +314,7 @@ class TestHelperBridge {
         mOnJavascriptModalDialogHelper = new OnJavascriptModalDialogHelper();
         mOpenFileChooserHelper = new OpenFileChooserHelper();
         mOnFullscreenToggledHelper = new OnFullscreenToggledHelper();
+        mOverrideOrUnhandledKeyEventHelper = new OverrideOrUnhandledKeyEventHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -358,6 +375,10 @@ class TestHelperBridge {
 
     public OnFullscreenToggledHelper getOnFullscreenToggledHelper() {
         return mOnFullscreenToggledHelper;
+    }
+
+    public OverrideOrUnhandledKeyEventHelper getOverrideOrUnhandledKeyEventHelper() {
+        return mOverrideOrUnhandledKeyEventHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -425,5 +446,10 @@ class TestHelperBridge {
 
     public void onFullscreenToggled(boolean enterFullscreen) {
         mOnFullscreenToggledHelper.notifyCalled(enterFullscreen);
+    }
+
+    public boolean overrideOrUnhandledKeyEvent(KeyEvent event) {
+        mOverrideOrUnhandledKeyEventHelper.notifyCalled(event);
+        return true;
     }
 }

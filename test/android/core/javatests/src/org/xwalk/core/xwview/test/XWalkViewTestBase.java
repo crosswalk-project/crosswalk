@@ -10,6 +10,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
@@ -96,6 +97,11 @@ public class XWalkViewTestBase
         @Override
         public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
             mInnerContentsClient.onFullscreenToggled(enterFullscreen);
+        }
+
+        @Override
+        public boolean shouldOverrideKeyEvent(XWalkView view, KeyEvent event) {
+            return mInnerContentsClient.overrideOrUnhandledKeyEvent(event);
         }
     }
 
@@ -544,5 +550,18 @@ public class XWalkViewTestBase
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public void simulateKeyAction(final int action) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    getInstrumentation().sendKeySync(new KeyEvent(action,
+                            KeyEvent.KEYCODE_DPAD_CENTER));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }
