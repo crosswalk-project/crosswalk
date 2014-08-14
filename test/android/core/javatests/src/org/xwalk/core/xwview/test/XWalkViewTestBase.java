@@ -7,8 +7,10 @@ package org.xwalk.core.xwview.test;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import java.io.InputStream;
@@ -83,6 +85,12 @@ public class XWalkViewTestBase
                 XWalkUIClient.JavascriptMessageType type, String url, String message,
                         String defaultValue, XWalkJavascriptResult result) {
             return mInnerContentsClient.onJavascriptModalDialog(message);
+        }
+
+        @Override
+        public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
+                String acceptType, String capture) {
+            mInnerContentsClient.openFileChooser(uploadFile);
         }
     }
 

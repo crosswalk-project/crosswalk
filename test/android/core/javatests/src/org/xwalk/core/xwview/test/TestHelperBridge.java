@@ -5,6 +5,7 @@
 
 package org.xwalk.core.xwview.test;
 
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
@@ -234,6 +235,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OpenFileChooserHelper extends CallbackHelper {
+        private ValueCallback<Uri> mCallback;
+
+        public ValueCallback<Uri> getCallback() {
+            assert getCallCount() > 0;
+            return mCallback;
+        }
+
+        public void notifyCalled(ValueCallback<Uri> callback) {
+            mCallback = callback;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -250,6 +265,7 @@ class TestHelperBridge {
     private final OnScaleChangedHelper mOnScaleChangedHelper;
     private final OnRequestFocusHelper mOnRequestFocusHelper;
     private final OnJavascriptModalDialogHelper mOnJavascriptModalDialogHelper;
+    private final OpenFileChooserHelper mOpenFileChooserHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -265,6 +281,7 @@ class TestHelperBridge {
         mOnScaleChangedHelper = new OnScaleChangedHelper();
         mOnRequestFocusHelper = new OnRequestFocusHelper();
         mOnJavascriptModalDialogHelper = new OnJavascriptModalDialogHelper();
+        mOpenFileChooserHelper = new OpenFileChooserHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -317,6 +334,10 @@ class TestHelperBridge {
 
     public OnJavascriptModalDialogHelper getOnJavascriptModalDialogHelper() {
         return mOnJavascriptModalDialogHelper;
+    }
+
+    public OpenFileChooserHelper getOpenFileChooserHelper() {
+        return mOpenFileChooserHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -376,5 +397,9 @@ class TestHelperBridge {
     public boolean onJavascriptModalDialog(String message) {
         mOnJavascriptModalDialogHelper.notifyCalled(message);
         return true;
+    }
+
+    public void openFileChooser(ValueCallback<Uri> uploadFile) {
+        mOpenFileChooserHelper.notifyCalled(uploadFile);
     }
 }
