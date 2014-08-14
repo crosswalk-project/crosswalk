@@ -249,6 +249,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnFullscreenToggledHelper extends CallbackHelper {
+        private boolean mEnterFullscreen = false;
+
+        public boolean getEnterFullscreen() {
+            assert getCallCount() > 0;
+            return mEnterFullscreen;
+        }
+
+        public void notifyCalled(boolean enterFullscreen) {
+            mEnterFullscreen = enterFullscreen;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -266,6 +280,7 @@ class TestHelperBridge {
     private final OnRequestFocusHelper mOnRequestFocusHelper;
     private final OnJavascriptModalDialogHelper mOnJavascriptModalDialogHelper;
     private final OpenFileChooserHelper mOpenFileChooserHelper;
+    private final OnFullscreenToggledHelper mOnFullscreenToggledHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -282,6 +297,7 @@ class TestHelperBridge {
         mOnRequestFocusHelper = new OnRequestFocusHelper();
         mOnJavascriptModalDialogHelper = new OnJavascriptModalDialogHelper();
         mOpenFileChooserHelper = new OpenFileChooserHelper();
+        mOnFullscreenToggledHelper = new OnFullscreenToggledHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -338,6 +354,10 @@ class TestHelperBridge {
 
     public OpenFileChooserHelper getOpenFileChooserHelper() {
         return mOpenFileChooserHelper;
+    }
+
+    public OnFullscreenToggledHelper getOnFullscreenToggledHelper() {
+        return mOnFullscreenToggledHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -401,5 +421,9 @@ class TestHelperBridge {
 
     public void openFileChooser(ValueCallback<Uri> uploadFile) {
         mOpenFileChooserHelper.notifyCalled(uploadFile);
+    }
+
+    public void onFullscreenToggled(boolean enterFullscreen) {
+        mOnFullscreenToggledHelper.notifyCalled(enterFullscreen);
     }
 }

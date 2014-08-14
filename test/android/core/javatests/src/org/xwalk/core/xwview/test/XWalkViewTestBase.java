@@ -92,6 +92,11 @@ public class XWalkViewTestBase
                 String acceptType, String capture) {
             mInnerContentsClient.openFileChooser(uploadFile);
         }
+
+        @Override
+        public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
+            mInnerContentsClient.onFullscreenToggled(enterFullscreen);
+        }
     }
 
     class TestXWalkUIClient extends TestXWalkUIClientBase {
