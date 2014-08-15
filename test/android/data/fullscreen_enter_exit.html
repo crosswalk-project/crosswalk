@@ -1,0 +1,19 @@
+<html>
+<head>
+<script>
+  function launchFullscreen(element) {
+    element.webkitRequestFullscreen();
+  }
+
+  function exitFullscreen() {
+    document.webkitExitFullscreen();
+  }
+</script>
+</head>
+<body>
+  <div>
+    <button id="enter_fullscreen" onclick="launchFullscreen(document.documentElement);">Launch Fullscreen</button>
+    <button id="exit_fullscreen" onclick="exitFullscreen();">Exit Fullscreen</button>
+  </div>
+</body>
+</html>
