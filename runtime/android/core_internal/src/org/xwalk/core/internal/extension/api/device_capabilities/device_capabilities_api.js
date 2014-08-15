@@ -98,7 +98,16 @@ extension.setMessageListener(function(json) {
       msg.reply == 'disconnectDisplay') {
     for (var id in g_listeners) {
       if (g_listeners[id]['eventName'] === msg.eventName) {
-        g_listeners[id]['callback'](_createConstClone(msg.data));
+        var event = null;
+        if (msg.eventName == 'displayconnect' ||
+            msg.eventName == 'displaydisconnect') {
+          event = new SystemDisplayEvent(msg.data);
+        }
+        if (msg.eventName == 'storageattach' ||
+            msg.eventName == 'storagedetach') {
+          event = new SystemStorageEvent(msg.data);
+        }
+        g_listeners[id]['callback'](event);
       }
     }
     return;
@@ -205,8 +214,18 @@ Object.defineProperty(exports, 'ondisplaydisconnect', {
 
 exports.addEventListener = function(eventName, callback) {
   return _addEventListener(false, eventName, callback);
-}
+};
 
 var _sendSyncMessage = function(msg) {
   return extension.internal.sendSyncMessage(JSON.stringify(msg));
+};
+
+window.SystemDisplayEvent = function(data) {
+  _addConstProperty(this, 'display', _createConstClone(data));
+  this.prototype = new Event('SystemDisplayEvent');
+};
+
+window.SystemStorageEvent = function(data) {
+  _addConstProperty(this, 'storage', _createConstClone(data));
+  this.prototype = new Event('SystemStorageEvent');
 };
