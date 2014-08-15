@@ -548,8 +548,13 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/sample/assets/echo.html',
+          '<(PRODUCT_DIR)/sample/assets/fullscreen.html',
+          '<(PRODUCT_DIR)/sample/assets/fullscreen.mp4',
+          '<(PRODUCT_DIR)/sample/assets/fullscreen_html5_api.html',
+          '<(PRODUCT_DIR)/sample/assets/fullscreen_video.html',
           '<(PRODUCT_DIR)/sample/assets/index.html',
           '<(PRODUCT_DIR)/sample/assets/manifest.json',
+          '<(PRODUCT_DIR)/sample/assets/manifest_fullscreen.json',
           '<(PRODUCT_DIR)/sample/assets/pause_timers.html',
           '<(PRODUCT_DIR)/sample/assets/xwalk.pak',
         ],
@@ -566,8 +571,13 @@
         {
           'destination': '<(PRODUCT_DIR)/sample/assets',
           'files': [
+            'runtime/android/sample/assets/fullscreen.html',
+            'runtime/android/sample/assets/fullscreen.mp4',
+            'runtime/android/sample/assets/fullscreen_html5_api.html',
+            'runtime/android/sample/assets/fullscreen_video.html',
             'runtime/android/sample/assets/index.html',
             'runtime/android/sample/assets/manifest.json',
+            'runtime/android/sample/assets/manifest_fullscreen.json',
             'runtime/android/sample/assets/pause_timers.html',
             'test/android/data/echo.html',
             '<(PRODUCT_DIR)/xwalk.pak',

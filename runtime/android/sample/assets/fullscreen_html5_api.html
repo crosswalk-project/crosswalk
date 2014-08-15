@@ -1,0 +1,59 @@
+<html>
+<head>
+<script>
+// Find the right method, call on correct element
+function launchFullscreen(element) {
+  if(element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if(element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if(element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if(element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+
+function exitFullscreen() {
+  if(document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if(document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if(document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  }
+}
+
+function hasEnteredFullscreen() {
+  console.log(fullscreen.hasEnteredFullscreen());
+  if(fullscreen.hasEnteredFullscreen()) {
+    document.getElementById("result").innerHTML = "hasEnteredFullscreen works fine."
+  }
+}
+
+function leaveFullscreen() {
+  console.log(fullscreen.leaveFullscreen());
+  if(fullscreen.leaveFullscreen()) {
+    document.getElementById("result").innerHTML = "leaveFullscreen works fine."
+  }
+}
+</script>
+</head>
+<body>
+<div>
+  <div>
+    <button onclick="launchFullscreen(document.documentElement);">Launch Fullscreen</button>
+    <button onclick="exitFullscreen();">Hide Fullscreen</button>
+  </div>
+  <div>
+    <button onclick="hasEnteredFullscreen();">Test for hasEnteredFullscreen</button>
+    <button onclick="leaveFullscreen();">Test for leaveFullscreen</button>
+  </div>
+  <div id="result" style="color:red">Will display the result.</div>
+  <h1>Test step:</h1>
+  <p>1. Click the button named "Launch Fullscreen", it will enter fullscreen.</p>
+  <p>2. Click the button named "Test for hasEnteredFullscreen", it will display "hasEnteredFullscreen works fine.".
+  <p>3. Click the button named "Test for leaveFullscreen", it will exit the fullscreen and display "leaveFullscreen works fine.".
+</div>
+</body>
+</html>
