@@ -43,7 +43,7 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void activateContents() {
-        // TODO: implement.
+        if (mXWalkContentsClient != null) mXWalkContentsClient.onRequestFocus();
     }
 
     @Override
