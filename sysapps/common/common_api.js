@@ -9,6 +9,35 @@ var v8tools;
 
 var unique_id = 0;
 
+function addConstProperty(obj, propertyKey, propertyValue) {
+  Object.defineProperty(obj, propertyKey, {
+    configurable: false,
+    writable: false,
+    value: propertyValue
+  });
+}
+
+function createConstClone(obj) {
+  var const_obj = {};
+  for (var key in obj) {
+    if (Array.isArray(obj[key])) {
+      var obj_array = obj[key];
+      var const_obj_array = [];
+      for (var i = 0; i < obj_array.length; ++i) {
+        var const_sub_obj = {};
+        for (var sub_key in obj_array[i]) {
+          addConstProperty(const_sub_obj, sub_key, obj_array[i][sub_key]);
+        }
+        const_obj_array.push(const_sub_obj);
+      }
+      addConstProperty(const_obj, key, const_obj_array);
+    } else {
+      addConstProperty(const_obj, key, obj[key]);
+    }
+  }
+  return const_obj;
+}
+
 function getUniqueId() {
   return (unique_id++).toString();
 }
@@ -18,7 +47,7 @@ function wrapPromiseAsCallback(promise) {
     if (error)
       promise.reject(error);
     else
-      promise.fulfill(data);
+      promise.fulfill(createConstClone(data));
   };
 };
 
@@ -205,7 +234,8 @@ var EventTargetPrototype = function() {
     var listeners = this._event_listeners[type];
 
     for (var i in listeners)
-      listeners[i](new this._event_synthesizers[type](type, data));
+      listeners[i](new this._event_synthesizers[type](type,
+                                                      createConstClone(data)));
   };
 
   // We need a reference to the calling object because
