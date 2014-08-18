@@ -95,12 +95,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         boolean animated = XWalkPreferencesInternal.getValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        mContentViewRenderView = new ContentViewRenderView(context, mWindow, surfaceType) {
+        mContentViewRenderView = new ContentViewRenderView(context, surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
                 // be placed here.
             }
         };
+        mContentViewRenderView.onNativeLibraryLoaded(mWindow);
         mLaunchScreenManager = new XWalkLaunchScreenManager(context, mXWalkView);
         mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
         addView(mContentViewRenderView,
