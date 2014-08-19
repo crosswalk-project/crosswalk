@@ -601,7 +601,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         // FIXME(wang16): use replaceId to replace exist notification. It happens when
         //                a notification with same name and tag fires.
         mNotificationService.showNotification(
-                title, message, notificationId, delegate);
+                title, message, replaceId, notificationId, delegate);
     }
 
     @CalledByNative
