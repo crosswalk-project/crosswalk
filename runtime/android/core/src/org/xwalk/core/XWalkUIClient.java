@@ -130,6 +130,14 @@ public class XWalkUIClient {
     public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
         Activity activity = view.getActivity();
         if (enterFullscreen) {
+            if ((activity.getWindow().getAttributes().flags &
+                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN) != 0) {
+                mOriginalForceNotFullscreen = true;
+                activity.getWindow().clearFlags(
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            } else {
+                mOriginalForceNotFullscreen = false;
+            }
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
                 mSystemUiFlag = mDecorView.getSystemUiVisibility();
                 mDecorView.setSystemUiVisibility(
@@ -139,14 +147,6 @@ public class XWalkUIClient {
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                         View.SYSTEM_UI_FLAG_FULLSCREEN |
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-                if ((activity.getWindow().getAttributes().flags &
-                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN) != 0) {
-                    mOriginalForceNotFullscreen = true;
-                    activity.getWindow().clearFlags(
-                            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                } else {
-                    mOriginalForceNotFullscreen = false;
-                }
             } else {
                 if ((activity.getWindow().getAttributes().flags &
                         WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0) {
@@ -157,12 +157,12 @@ public class XWalkUIClient {
                 }
             }
         } else {
+            if (mOriginalForceNotFullscreen) {
+                activity.getWindow().addFlags(
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            }
             if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
                 mDecorView.setSystemUiVisibility(mSystemUiFlag);
-                if (mOriginalForceNotFullscreen) {
-                    activity.getWindow().addFlags(
-                            WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                }
             } else {
                 // Clear the activity fullscreen flag.
                 if (!mOriginalFullscreen) {
