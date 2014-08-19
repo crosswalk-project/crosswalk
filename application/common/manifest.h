@@ -119,6 +119,11 @@ class Manifest {
   // key, or as a hash of the path in the case of unpacked applications.
   std::string application_id_;
 
+#if defined(OS_TIZEN)
+  // Unique package id for tizen platform
+  std::string package_id_;
+#endif
+
   // The source the application was loaded from.
   SourceType source_type_;
 

@@ -13,6 +13,8 @@ class PackageInstallerHelper {
  public:
   explicit PackageInstallerHelper(const std::string& appid);
   ~PackageInstallerHelper();
+  bool InitializePkgmgrSignal(int argc, const char** argv);
+
   bool InstallApplication(const std::string& xmlpath,
                           const std::string& iconpath);
   bool UninstallApplication();
@@ -31,6 +33,7 @@ class PackageInstallerHelper {
   pkgmgr_installer* handle_;
 
   std::string appid_;
+  std::string pkgid_;
 };
 
 #endif  // XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGE_INSTALLER_HELPER_H_

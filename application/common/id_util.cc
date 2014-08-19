@@ -12,6 +12,8 @@
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 
 #if defined(OS_TIZEN)
+#include "xwalk/application/common/tizen/package_path.h"
+
 #include "third_party/re2/re2/re2.h"
 #endif
 
@@ -21,6 +23,7 @@ namespace {
 #if defined(OS_TIZEN)
 const char kWGTAppIdPattern[] = "\\A([0-9a-zA-Z]{10})[.][0-9a-zA-Z]{1,52}\\z";
 const char kXPKAppIdPattern[] = "\\Axwalk[.]([a-p]{32})\\z";
+const char kPkgIdPattern[] = "\\A([0-9a-zA-Z]{10,})\\z";
 const std::string kAppIdPrefix("xwalk.");
 #endif
 const size_t kIdSize = 16;
@@ -71,6 +74,29 @@ bool IsValidWGTID(const std::string& id) {
 bool IsValidXPKID(const std::string& id) {
   return RE2::FullMatch(id, kXPKAppIdPattern);
 }
+
+bool IsValidPkgID(const std::string& id) {
+  return RE2::FullMatch(id, kPkgIdPattern);
+}
+
+std::string AppIdToPkgId(const std::string& id) {
+  std::string package_id;
+  if (!RE2::FullMatch(id, kWGTAppIdPattern, &package_id) &&
+      !RE2::FullMatch(id, kXPKAppIdPattern, &package_id)) {
+    LOG(ERROR) << "Cannot get package_id from invalid app id";
+    return std::string();
+  }
+  return package_id;
+}
+
+std::string PkgIdToAppId(const std::string& id) {
+  base::FilePath app_path = GetPackagePath(id);
+  if (app_path.empty())
+    return std::string();
+
+  return app_path.BaseName().value();
+}
+
 #endif
 
 bool IsValidApplicationID(const std::string& id) {
@@ -94,19 +120,6 @@ bool IsValidApplicationID(const std::string& id) {
 
   return true;
 }
-
-#if defined(OS_TIZEN)
-std::string GetPackageIdFromAppId(const std::string& app_id) {
-  std::string package_id;
-  if (RE2::FullMatch(app_id, kWGTAppIdPattern, &package_id) ||
-      RE2::FullMatch(app_id, kXPKAppIdPattern, &package_id)) {
-    return package_id;
-  } else {
-    LOG(ERROR) << "Cannot get package_id from invalid app id";
-    return app_id;
-  }
-}
-#endif
 
 }  // namespace application
 }  // namespace xwalk

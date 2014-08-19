@@ -13,6 +13,7 @@
 #include <string>
 #include "base/files/file_path.h"
 #include "base/file_util.h"
+#include "xwalk/application/common/id_util.h"
 
 namespace {
 
@@ -47,6 +48,9 @@ const char PKGMGR_END_SUCCESS[] = "ok";
 
 // Failure value of end of installation.
 const char PKGMGR_END_FAILURE[] = "fail";
+
+// Tags for pkgmgr describing package
+const char* pkgmgr_tags[] = {"removable=true", NULL, };
 
 const std::string kAppIdPrefix("xwalk.");
 
@@ -98,18 +102,29 @@ bool CopyFileToDst(const base::FilePath& file_src,
 }  // namespace
 
 PackageInstallerHelper::PackageInstallerHelper(const std::string& appid)
-    : appid_(appid) {
+    : handle_(NULL),
+      appid_(appid),
+      pkgid_(xwalk::application::AppIdToPkgId(appid)) {
   if (appid_.empty())
     fprintf(stdout, "Invalid app id is provided for pkg installer.\n");
-
-  handle_ = pkgmgr_installer_new();
-  if (!handle_)
-    fprintf(stdout, "Fail to get package manager installer handle.\n");
 }
 
 PackageInstallerHelper::~PackageInstallerHelper() {
   if (handle_)
     pkgmgr_installer_free(handle_);
+}
+
+bool PackageInstallerHelper::InitializePkgmgrSignal(int argc,
+                                                    const char** argv) {
+  handle_ = pkgmgr_installer_new();
+  if (!handle_) {
+    fprintf(stdout, "Fail to get package manager installer handle.\n");
+    return false;
+  }
+
+  return pkgmgr_installer_receive_request(handle_,
+                                          argc,
+                                          const_cast<char**>(argv));
 }
 
 bool PackageInstallerHelper::InstallApplication(
@@ -170,13 +185,14 @@ bool PackageInstallerHelper::InstallApplicationInternal(
   fprintf(stdout, "uid for installation : '%d'\n", uid);
   if (uid != GLOBAL_USER) {  // For only the user that request installation
     if (pkgmgr_parser_parse_usr_manifest_for_installation(xmlpath.c_str(),
-        uid, NULL)) {
+        uid, const_cast<char**>(pkgmgr_tags))) {
       fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
               xmlpath.c_str(), uid);
       return false;
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(), NULL)) {
+    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(),
+                                            const_cast<char**>(pkgmgr_tags))) {
       fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
            xmlpath.c_str(), uid);
       return false;
@@ -189,8 +205,6 @@ bool PackageInstallerHelper::InstallApplicationInternal(
 }
 
 bool PackageInstallerHelper::UninstallApplicationInternal() {
-  bool result = true;
-
   base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
   base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
   base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
@@ -267,12 +281,13 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
 
   if (uid != GLOBAL_USER) {  // For only the user that request installation
     if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.c_str(), uid,
-        NULL)) {
+        const_cast<char**>(pkgmgr_tags))) {
       fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
       return false;
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(), NULL)) {
+    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(),
+                                            const_cast<char**>(pkgmgr_tags))) {
       fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
       return false;
      }
@@ -288,8 +303,8 @@ bool PackageInstallerHelper::SendSignal(
     const std::string& key,
     const std::string& value) {
   if (!handle_) {
-    fprintf(stdout, "The package install manager is not initialized.\n");
-    return false;
+    // this is installation with xwalkctl not pkgmgr
+    return true;
   }
 
   if (key.empty() || value.empty()) {
@@ -298,7 +313,7 @@ bool PackageInstallerHelper::SendSignal(
   }
 
   if (pkgmgr_installer_send_signal(
-          handle_, PKGMGR_PKG_TYPE, appid_.c_str(),
+          handle_, PKGMGR_PKG_TYPE, pkgid_.c_str(),
           key.c_str(), value.c_str())) {
     fprintf(stdout, "Fail to send package manager signal.\n");
   }

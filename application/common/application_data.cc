@@ -122,6 +122,12 @@ const std::string& ApplicationData::ID() const {
   return manifest_->GetApplicationID();
 }
 
+#if defined(OS_TIZEN)
+std::string ApplicationData::GetPackageID() const {
+  return AppIdToPkgId(manifest_->GetApplicationID());
+}
+#endif
+
 const std::string ApplicationData::VersionString() const {
   if (!version_->components().empty())
     return Version()->GetString();

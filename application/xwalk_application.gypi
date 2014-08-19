@@ -125,7 +125,8 @@
         }],
         ['tizen == 1', {
           'dependencies': [
-            'application/tools/tizen/xwalk_tizen_helper.gyp:xwalk-pkg-helper',
+            'application/tools/tizen/xwalk_tizen_tools.gyp:xwalk-pkg-helper',
+            'application/tools/tizen/xwalk_tizen_tools.gyp:xwalk-backendlib',
           ],
         }],
       ],

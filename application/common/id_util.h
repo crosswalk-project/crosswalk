@@ -27,9 +27,14 @@ std::string GenerateIdForPath(const base::FilePath& path);
 bool IsValidApplicationID(const std::string& id);
 
 #if defined(OS_TIZEN)
-std::string GetPackageIdFromAppId(const std::string& app_id);
 bool IsValidWGTID(const std::string& id);
 bool IsValidXPKID(const std::string& id);
+bool IsValidPkgID(const std::string& id);
+
+std::string AppIdToPkgId(const std::string& id);
+
+// Caution! This method fetches from database
+std::string PkgIdToAppId(const std::string& id);
 #endif
 
 }  // namespace application
