@@ -53,6 +53,12 @@ class RunningApplicationObject : public dbus::ManagedObject {
 #if defined(OS_TIZEN)
   void OnHide(dbus::MethodCall* method_call,
               dbus::ExportedObject::ResponseSender response_sender);
+
+  void OnSuspend(dbus::MethodCall* method_call,
+                 dbus::ExportedObject::ResponseSender response_sender);
+
+  void OnResume(dbus::MethodCall* method_call,
+                dbus::ExportedObject::ResponseSender response_sender);
 #endif
 
   void ListenForOwnerChange();
@@ -76,4 +82,3 @@ class RunningApplicationObject : public dbus::ManagedObject {
 }  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_BROWSER_LINUX_RUNNING_APPLICATION_OBJECT_H_
-

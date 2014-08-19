@@ -72,7 +72,8 @@ ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
     RuntimeContext* runtime_context,
     Application::Observer* observer)
-    : Application(data, runtime_context, observer) {
+    : Application(data, runtime_context, observer),
+      is_suspended_(false) {
 #if defined(USE_OZONE)
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
 #endif
@@ -109,6 +110,38 @@ base::FilePath ApplicationTizen::GetSplashScreenPath() {
     return data()->Path().Append(FILE_PATH_LITERAL(ss_info->src()));
   }
   return base::FilePath();
+}
+
+void ApplicationTizen::Suspend() {
+  if (is_suspended_)
+    return;
+
+  DCHECK(render_process_host_);
+  render_process_host_->Send(new ViewMsg_SuspendJSEngine(true));
+
+  DCHECK(!runtimes_.empty());
+  std::set<Runtime*>::iterator it = runtimes_.begin();
+  for (; it != runtimes_.end(); ++it) {
+    if ((*it)->web_contents())
+      (*it)->web_contents()->WasHidden();
+  }
+  is_suspended_ = true;
+}
+
+void ApplicationTizen::Resume() {
+  if (!is_suspended_)
+    return;
+
+  DCHECK(render_process_host_);
+  render_process_host_->Send(new ViewMsg_SuspendJSEngine(false));
+
+  DCHECK(!runtimes_.empty());
+  std::set<Runtime*>::iterator it = runtimes_.begin();
+  for (; it != runtimes_.end(); ++it) {
+    if ((*it)->web_contents())
+      (*it)->web_contents()->WasShown();
+  }
+  is_suspended_ = false;
 }
 
 #if defined(USE_OZONE)

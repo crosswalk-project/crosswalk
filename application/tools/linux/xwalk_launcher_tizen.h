@@ -5,7 +5,8 @@
 #ifndef XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_
 #define XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_
 
-int xwalk_appcore_init(int argc, char** argv, const char* name);
+int xwalk_appcore_init(int argc, char** argv,
+                       const char* name, GDBusProxy* app_proxy);
 
 int xwalk_change_cmdline(int argc, char** argv, const char* app_id);
 

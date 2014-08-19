@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <glib.h>
+#include <gio/gio.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -60,15 +61,42 @@ static const char* event2str(enum app_event event) {
 
 static void application_event_cb(enum app_event event, void* data, bundle* b) {
   fprintf(stderr, "event '%s'\n", event2str(event));
+  GDBusProxy* app_proxy = reinterpret_cast<GDBusProxy*>(data);
 
-  if (event == AE_TERMINATE) {
-    exit(0);
+  if (!app_proxy) {
+    fprintf(stderr, "Invalid DBus proxy.");
+    return;
+  }
+
+  switch (event) {
+    case AE_UNKNOWN:
+    case AE_CREATE:
+      break;
+    case AE_TERMINATE:
+      exit(0);
+      break;
+    case AE_PAUSE:
+      g_dbus_proxy_call(
+          app_proxy, "Suspend", NULL,
+          G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL, NULL);
+      break;
+    case AE_RESUME:
+      g_dbus_proxy_call(
+          app_proxy, "Resume", NULL,
+          G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL, NULL);
+      break;
+    case AE_RESET:
+    case AE_LOWMEM_POST:
+    case AE_MEM_FLUSH:
+    case AE_MAX:
+      break;
   }
 }
 
-int xwalk_appcore_init(int argc, char** argv, const char* name) {
+int xwalk_appcore_init(
+    int argc, char** argv, const char* name, GDBusProxy* app_proxy) {
   appcore_ops.cb_app = application_event_cb;
-  appcore_ops.data = NULL;
+  appcore_ops.data = app_proxy;
 
   return appcore_init(name, &appcore_ops, argc, argv);
 }
