@@ -105,7 +105,7 @@ class DeviceCapabilitiesStorage {
             JSONObject out = new JSONObject();
 
             try {
-                out.put("id", mId + 1); // Display from 1
+                out.put("id", Integer.toString(mId + 1)); // Display from 1
                 out.put("name", mName);
                 out.put("type", mType);
                 out.put("capacity", mCapacity);
