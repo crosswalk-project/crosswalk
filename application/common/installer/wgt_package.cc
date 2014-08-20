@@ -8,6 +8,7 @@
 #include "base/files/scoped_file.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/installer/tizen/signature_validator.h"
 
 namespace xwalk {
 namespace application {
@@ -54,20 +55,20 @@ WGTPackage::WGTPackage(const base::FilePath& path)
     }
   }
 
-  if (!value.empty())
+  if (!value.empty()) {
 #if defined(OS_TIZEN)
     id_ = value;
+    is_valid_ =
+      SignatureValidator::Check(extracted_path) != SignatureValidator::INVALID;
 #else
     id_ = GenerateId(value);
+    is_valid_ = true;
 #endif
-
-  is_valid_ = true;
-
+  }
   scoped_ptr<base::ScopedFILE> file(
         new base::ScopedFILE(base::OpenFile(path, "rb")));
 
   file_ = file.Pass();
 }
-
 }  // namespace application
 }  // namespace xwalk

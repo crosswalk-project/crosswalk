@@ -26,7 +26,7 @@ class SignatureData {
     return signature_file_name_;
   }
 
-  std::set<std::string>& reference_set() {
+  const std::set<std::string>& reference_set() const {
     return reference_set_;
   }
 
@@ -82,7 +82,7 @@ class SignatureData {
     signature_method_ = signature_method;
   }
 
-  std::list<std::string>& certificate_list() {
+  const std::list<std::string>& certificate_list() const {
     return certificate_list_;
   }
 
@@ -101,6 +101,8 @@ class SignatureData {
   bool isAuthorSignature() const {
     return signature_number_ == -1;
   }
+
+  base::FilePath GetExtractedWidgetPath() const;
 
  private:
   std::string signature_file_name_;
