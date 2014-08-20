@@ -84,7 +84,9 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
 
     @Override
     public void shutdown() {
-        unregisterReceiver();
+        if (!mExistNotificationIds.isEmpty()) {
+            unregisterReceiver();
+        }
         mBridge = null;
     }
 
@@ -257,6 +259,7 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         if (mExistNotificationIds.isEmpty()) {
             Log.i(TAG, "notifications are all cleared," +
                     "unregister broadcast receiver for close pending intent");
+            unregisterReceiver();
         } else {
             registerReceiver();
         }
@@ -275,15 +278,11 @@ public class XWalkNotificationServiceImpl implements XWalkNotificationService {
         } catch (AndroidRuntimeException e) {
             //FIXME(wang16): The exception will happen when there are multiple xwalkviews in one activity.
             //               Remove it after notification service supports multi-views.
-            mNotificationCloseReceiver = null;
             Log.w(TAG, e.getLocalizedMessage());
         }
     }
 
     private void unregisterReceiver() {
-        if (mNotificationCloseReceiver != null) {
-            mView.getActivity().unregisterReceiver(mNotificationCloseReceiver);
-            mNotificationCloseReceiver = null;
-        }
+        mView.getActivity().unregisterReceiver(mNotificationCloseReceiver);
     }
 }
