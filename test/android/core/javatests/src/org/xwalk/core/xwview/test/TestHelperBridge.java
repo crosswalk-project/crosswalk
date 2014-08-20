@@ -206,6 +206,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnRequestFocusHelper extends CallbackHelper {
+        private boolean mCalled = false;
+
+        public boolean getCalled() {
+            assert getCallCount() > 0;
+            return mCalled;
+        }
+
+        public void notifyCalled(boolean called) {
+            mCalled = called;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -220,6 +234,7 @@ class TestHelperBridge {
     private final OnProgressChangedHelper mOnProgressChangedHelper;
     private final ShouldOverrideUrlLoadingHelper mShouldOverrideUrlLoadingHelper;
     private final OnScaleChangedHelper mOnScaleChangedHelper;
+    private final OnRequestFocusHelper mOnRequestFocusHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -233,6 +248,7 @@ class TestHelperBridge {
         mOnProgressChangedHelper = new OnProgressChangedHelper();
         mShouldOverrideUrlLoadingHelper = new ShouldOverrideUrlLoadingHelper();
         mOnScaleChangedHelper = new OnScaleChangedHelper();
+        mOnRequestFocusHelper = new OnRequestFocusHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -277,6 +293,10 @@ class TestHelperBridge {
 
     public OnScaleChangedHelper getOnScaleChangedHelper() {
         return mOnScaleChangedHelper;
+    }
+
+    public OnRequestFocusHelper getOnRequestFocusHelper() {
+        return mOnRequestFocusHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -327,5 +347,9 @@ class TestHelperBridge {
 
     public void onScaleChanged(float scale) {
         mOnScaleChangedHelper.notifyCalled(scale);
+    }
+
+    public void onRequestFocus() {
+        mOnRequestFocusHelper.notifyCalled(true);
     }
 }

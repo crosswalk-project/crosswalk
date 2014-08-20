@@ -43,6 +43,10 @@
         'native_lib_target': 'libxwalkcore',
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_left_frame.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_main.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame.html',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/www/request_focus_right_frame1.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
         ],
         'conditions': [
@@ -59,6 +63,10 @@
           'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/www',
           'files': [
             'test/android/data/index.html',
+            'test/android/data/request_focus_left_frame.html',
+            'test/android/data/request_focus_main.html',
+            'test/android/data/request_focus_right_frame.html',
+            'test/android/data/request_focus_right_frame1.html',
           ],
         }
       ],
@@ -111,9 +119,9 @@
         'is_test_apk': 1,
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/add_js_interface.html',
-          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echo.html',
-          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/echoSync.html',
-          '<(PRODUCT_DIR)/xwalk_internal_xwview_test/assets/framesEcho.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echo.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/echoSync.html',
+          '<(PRODUCT_DIR)/xwalk_xwview_test/assets/framesEcho.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/fullscreen_enter_exit.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview_test/assets/scale_changed.html',

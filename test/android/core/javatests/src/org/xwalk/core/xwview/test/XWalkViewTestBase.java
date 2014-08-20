@@ -71,6 +71,11 @@ public class XWalkViewTestBase
         public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
             mInnerContentsClient.onScaleChanged(newScale);
         }
+
+        @Override
+        public void onRequestFocus(XWalkView view) {
+            mInnerContentsClient.onRequestFocus();
+        }
     }
 
     class TestXWalkUIClient extends TestXWalkUIClientBase {
@@ -486,13 +491,20 @@ public class XWalkViewTestBase
         });
     }
 
-    public void clickOnElementId(final String id) throws Exception {
+    public void clickOnElementId(final String id, String frameName) throws Exception {
+        String str;
+        if (frameName != null) {
+            str = "top.window." + "LeftFrame" + ".document.getElementById('" + id + "')";
+        } else {
+            str = "document.getElementById('" + id + "')";
+        }
+        final String script1 = str + " != null";
+        final String script2 = str + ".dispatchEvent(evObj);";
         Assert.assertTrue(CriteriaHelper.pollForCriteria(new Criteria() {
             @Override
             public boolean isSatisfied() {
                 try {
-                    String idIsNotNull = executeJavaScriptAndWaitForResult(
-                        "document.getElementById('" + id + "') != null");
+                    String idIsNotNull = executeJavaScriptAndWaitForResult(script1);
                     return idIsNotNull.equals("true");
                 } catch (Throwable t) {
                     t.printStackTrace();
@@ -506,7 +518,7 @@ public class XWalkViewTestBase
             String result = executeJavaScriptAndWaitForResult(
                 "var evObj = document.createEvent('Events'); " +
                 "evObj.initEvent('click', true, false); " +
-                "document.getElementById('" + id + "').dispatchEvent(evObj);" +
+                script2 +
                 "console.log('element with id [" + id + "] clicked');");
         } catch (Throwable t) {
             t.printStackTrace();
