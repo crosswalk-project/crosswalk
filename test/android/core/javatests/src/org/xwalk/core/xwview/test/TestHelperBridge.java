@@ -24,6 +24,7 @@ import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPage
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnPageStartedHelper;
 import org.chromium.content.browser.test.util.TestCallbackHelperContainer.OnReceivedErrorHelper;
 
+import org.xwalk.core.XWalkUIClient.LoadStatus;
 import org.xwalk.core.XWalkView;
 
 class TestHelperBridge {
@@ -279,6 +280,7 @@ class TestHelperBridge {
     }
 
     private String mChangedTitle;
+    private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
     private final OnReceivedErrorHelper mOnReceivedErrorHelper;
@@ -394,8 +396,13 @@ class TestHelperBridge {
         mOnPageStartedHelper.notifyCalled(url);
     }
 
-    public void onPageFinished(String url) {
+    public void onPageFinished(String url, LoadStatus status) {
+        mLoadStatus = status;
         mOnPageFinishedHelper.notifyCalled(url);
+    }
+
+    public LoadStatus getLoadStatus() {
+        return mLoadStatus;
     }
 
     public void onReceivedLoadError(int errorCode, String description, String failingUrl) {

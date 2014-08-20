@@ -58,7 +58,7 @@ public class XWalkViewTestBase
 
         @Override
         public void onPageLoadStopped(XWalkView view, String url, LoadStatus status) {
-            mInnerContentsClient.onPageFinished(url);
+            mInnerContentsClient.onPageFinished(url, status);
         }
 
         @Override
@@ -563,5 +563,14 @@ public class XWalkViewTestBase
                 }
             }
         }).start();
+    }
+
+    protected void stopLoading() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.stopLoading();
+            }
+        });
     }
 }
