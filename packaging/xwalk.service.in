@@ -4,4 +4,5 @@ Description=Crosswalk
 [Service]
 Type=dbus
 BusName=org.crosswalkproject.Runtime1
+Environment=OZONE_WAYLAND_USE_XDG_SHELL='defined'
 ExecStart=@LIB_INSTALL_DIR@/xwalk/xwalk --external-extensions-path=@LIB_INSTALL_DIR@/tizen-extensions-crosswalk
