@@ -405,6 +405,7 @@
                     '../components/nacl.gyp:nacl_common',
                     '../components/nacl.gyp:nacl_renderer',
                     '../components/nacl.gyp:nacl_helper',
+                    '../components/nacl.gyp:nacl_linux',
                     '../native_client/src/trusted/service_runtime/linux/nacl_bootstrap.gyp:nacl_helper_bootstrap',
                   ],
                 }],

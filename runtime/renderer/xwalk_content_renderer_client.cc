@@ -47,6 +47,10 @@
 #include "xwalk/runtime/renderer/tizen/xwalk_render_view_ext_tizen.h"
 #endif
 
+#if !defined(DISABLE_NACL)
+#include "components/nacl/renderer/nacl_helper.h"
+#endif
+
 namespace xwalk {
 
 namespace {
@@ -138,6 +142,10 @@ void XWalkContentRendererClient::RenderFrameCreated(
 
 #if defined(ENABLE_PLUGINS)
   new PepperHelper(render_frame);
+#endif
+
+#if !defined(DISABLE_NACL)
+  new nacl::NaClHelper(render_frame);
 #endif
 }
 
