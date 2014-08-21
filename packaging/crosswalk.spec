@@ -211,6 +211,7 @@ export GYP_GENERATORS='ninja'
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
+-Dclang=0 \
 -Dtizen=1 \
 -Dpython_ver=2.7 \
 -Duse_aura=1 \
