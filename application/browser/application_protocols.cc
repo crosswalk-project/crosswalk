@@ -220,7 +220,7 @@ void GetUserAgentLocales(const std::string& sys_locale,
   if (sys_locale.empty())
     return;
 
-  std::string locale = StringToLowerASCII(sys_locale);
+  std::string locale = base::StringToLowerASCII(sys_locale);
   size_t position;
   do {
     ua_locales.push_back(locale);
