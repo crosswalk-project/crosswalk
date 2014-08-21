@@ -34,24 +34,28 @@ using xwalk::application::PackageInstaller;
 static char* install_path;
 static char* uninstall_appid;
 
+static GDBusConnection* g_connection;
+static gint debugging_port = -1;
+
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed/updated", "PATH" },
   { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_appid,
     "Uninstall the application with this appid", "APPID" },
+  { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
+    "Enable remote debugging, port number 0 means to disable", NULL },
   { NULL }
 };
 
-#if defined(SHARED_PROCESS_MODE)
 namespace {
 
 const char xwalk_service_name[] = "org.crosswalkproject.Runtime1";
 const char xwalk_running_manager_iface[] =
     "org.crosswalkproject.Running.Manager1";
-const dbus::ObjectPath kRunningManagerDBusPath("/running1");
-
+const char xwalk_running_manager_path[] = "/running1";
 }  // namespace
 
+#if defined(SHARED_PROCESS_MODE)
 static void TerminateIfRunning(const std::string& app_id) {
   dbus::Bus::Options options;
 #if defined(OS_TIZEN_MOBILE)
@@ -60,7 +64,9 @@ static void TerminateIfRunning(const std::string& app_id) {
 #endif
   scoped_refptr<dbus::Bus> bus(new dbus::Bus(options));
   dbus::ObjectProxy* app_proxy =
-      bus->GetObjectProxy(xwalk_service_name, kRunningManagerDBusPath);
+      bus->GetObjectProxy(
+          xwalk_service_name,
+          dbus::ObjectPath(std::string(xwalk_running_manager_path)));
   if (!app_proxy)
     return;
 
@@ -72,6 +78,48 @@ static void TerminateIfRunning(const std::string& app_id) {
   app_proxy->CallMethodAndBlock(&method_call, 1000);
 }
 #endif
+
+static bool enable_remote_debugging(gint debugging_port) {
+  GError* error = NULL;
+  g_connection = get_session_bus_connection(&error);
+  if (!g_connection) {
+    fprintf(stderr, "Couldn't get the session bus connection: %s\n",
+            error->message);
+    exit(1);
+  }
+  GDBusProxy* running_proxy = g_dbus_proxy_new_sync(
+      g_connection,
+      G_DBUS_PROXY_FLAGS_NONE, NULL, xwalk_service_name,
+      xwalk_running_manager_path, xwalk_running_manager_iface, NULL, &error);
+  if (!running_proxy) {
+    g_print("Couldn't create proxy for '%s': %s\n", xwalk_running_manager_iface,
+            error->message);
+    g_error_free(error);
+    exit(1);
+  }
+
+  GVariant* result  = g_dbus_proxy_call_sync(
+      running_proxy,
+      "EnableRemoteDebugging",
+      g_variant_new("(u)", debugging_port),
+      G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
+  if (!result) {
+    fprintf(stderr, "Couldn't call 'EnableRemoteDebugging' method: %s\n",
+        error->message);
+    exit(1);
+  }
+
+  int port = -1;
+  g_variant_get(result, "(u)", &port);
+  if ((port < 0) || (port != debugging_port)) {
+    return false;
+  } else if (port > 0) {
+    fprintf(stderr, "Remote debugging enabled at port '%d'\n", port);
+  } else {
+    fprintf(stderr, "Remote debugging has been disabled\n");
+  }
+  return true;
+}
 
 bool list_applications(ApplicationStorage* storage) {
   std::vector<std::string> app_ids;
@@ -139,6 +187,9 @@ int main(int argc, char* argv[]) {
     TerminateIfRunning(uninstall_appid);
 #endif
     success = installer->Uninstall(uninstall_appid);
+  } else if (debugging_port >= 0) {
+    // Deal with the case "xwalkctl -d PORT_NUMBER"
+    success = enable_remote_debugging(debugging_port);
   } else {
     success = list_applications(storage.get());
   }

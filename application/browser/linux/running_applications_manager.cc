@@ -11,6 +11,7 @@
 
 #include "xwalk/application/browser/linux/running_application_object.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/runtime/browser/xwalk_runner.h"
 
 namespace {
 
@@ -59,6 +60,13 @@ RunningApplicationsManager::RunningApplicationsManager(
   application_service_->AddObserver(this);
 
   adaptor_.manager_object()->ExportMethod(
+      kRunningManagerDBusInterface, "EnableRemoteDebugging",
+      base::Bind(&RunningApplicationsManager::OnEnableRemoteDebugging,
+                 weak_factory_.GetWeakPtr()),
+      base::Bind(&RunningApplicationsManager::OnExported,
+                 weak_factory_.GetWeakPtr()));
+
+  adaptor_.manager_object()->ExportMethod(
       kRunningManagerDBusInterface, "Launch",
       base::Bind(&RunningApplicationsManager::OnLaunch,
                  weak_factory_.GetWeakPtr()),
@@ -94,6 +102,33 @@ scoped_ptr<dbus::Response> CreateError(dbus::MethodCall* method_call,
 }
 
 }  // namespace
+
+void RunningApplicationsManager::OnEnableRemoteDebugging(
+    dbus::MethodCall* method_call,
+    dbus::ExportedObject::ResponseSender response_sender) {
+  dbus::MessageReader reader(method_call);
+  unsigned int debugging_port;
+
+  if (!reader.PopUint32(&debugging_port)) {
+    scoped_ptr<dbus::Response> response =
+        CreateError(method_call,
+                    "Error parsing message. Missing arguments.");
+    response_sender.Run(response.Pass());
+    return;
+  }
+
+  if (debugging_port != 0) {
+    XWalkRunner::GetInstance()->EnableRemoteDebugging(true, debugging_port);
+  } else {
+    XWalkRunner::GetInstance()->EnableRemoteDebugging(false);
+  }
+
+  scoped_ptr<dbus::Response> response =
+      dbus::Response::FromMethodCall(method_call);
+  dbus::MessageWriter writer(response.get());
+  writer.AppendUint32(debugging_port);
+  response_sender.Run(response.Pass());
+}
 
 void RunningApplicationsManager::OnLaunch(
     dbus::MethodCall* method_call,

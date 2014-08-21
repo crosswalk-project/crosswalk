@@ -77,6 +77,8 @@ class XWalkRunner {
   virtual void PreMainMessageLoopRun();
   virtual void PostMainMessageLoopRun();
 
+  void EnableRemoteDebugging(bool enable, int port = 0);
+
  protected:
   XWalkRunner();
 

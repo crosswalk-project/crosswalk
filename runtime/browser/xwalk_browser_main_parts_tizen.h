@@ -20,6 +20,8 @@ class XWalkBrowserMainPartsTizen : public XWalkBrowserMainParts {
   virtual void PreMainMessageLoopStart() OVERRIDE;
   virtual void PreMainMessageLoopRun() OVERRIDE;
 
+  void EnableRemoteDebugging(bool enable, int port);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(XWalkBrowserMainPartsTizen);
 };
