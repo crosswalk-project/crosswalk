@@ -176,11 +176,6 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_fatal_linker_warnings=1"
 %endif
 
-# Temporarily disable Alsa support while snd_seq_* support is not enabled on
-# Tizen. See https://codereview.chromium.org/264973012 and
-# https://review.tizen.org/gerrit/#/c/24336/
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_alsa=0"
-
 # Temporarily disable WebRTC support because its build currently hardcodes
 # dependencies on X11 and OpenSSL. We are still trying to get some
 # clarifications as to whether this is really necessary. See XWALK-2160.
