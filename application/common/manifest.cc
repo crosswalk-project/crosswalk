@@ -41,7 +41,7 @@ typedef std::list<std::string> List;
 
 std::string GetLocalizedKey(const std::string& key,
                             const std::string& local) {
-  std::string lower_local = StringToLowerASCII(local);
+  std::string lower_local = base::StringToLowerASCII(local);
   if (lower_local.empty())
     lower_local = kLocaleUnlocalized;
   return key + kPathConnectSymbol + lower_local;
@@ -205,7 +205,7 @@ void Manifest::SetSystemLocale(const std::string& locale) {
 void Manifest::ParseWGTI18n() {
   data_->GetString(application_widget_keys::kDefaultLocaleKey,
                    &default_locale_);
-  default_locale_ = StringToLowerASCII(default_locale_);
+  default_locale_ = base::StringToLowerASCII(default_locale_);
 
   ParseWGTI18nEachPath(kWidgetNamePath);
   ParseWGTI18nEachPath(kWidgetDecriptionPath);
