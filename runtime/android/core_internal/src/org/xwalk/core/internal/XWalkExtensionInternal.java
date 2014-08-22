@@ -9,6 +9,7 @@ import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
 /**
  * This class represents an extension and could be implemented by callers.
  */
+@XWalkAPI
 public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
     /**
      * Constructor with name and javascript API.
@@ -16,6 +17,7 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      * @param jsApi the string of javascript API.
      * @since 2.1
      */
+    @XWalkAPI
     public XWalkExtensionInternal(String name, String jsApi) {
         super(name, jsApi);
     }
@@ -29,6 +31,7 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      *                    implicitly created using its name.
      * @since 2.1
      */
+    @XWalkAPI
     public XWalkExtensionInternal(String name, String jsApi, String[] entryPoints) {
         super(name, jsApi, entryPoints);
     }
@@ -46,6 +49,7 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      * @param message the message.
      * @since 2.1
      */
+    @XWalkAPI
     public void postMessage(int instanceID, String message) {
         super.postMessage(instanceID, message);
     }
@@ -55,6 +59,7 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      * @param message the message.
      * @since 2.1
      */
+    @XWalkAPI
     public void broadcastMessage(String message) {
         super.broadcastMessage(message);
     }
@@ -65,6 +70,7 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      * @param message the received message.
      * @since 2.1
      */
+    @XWalkAPI
     public abstract void onMessage(int instanceID, String message);
 
     /**
@@ -73,5 +79,6 @@ public abstract class XWalkExtensionInternal extends XWalkExtensionAndroid {
      * @param message the received message.
      * @since 2.1
      */
+    @XWalkAPI
     public abstract String onSyncMessage(int instanceID, String message);
 }

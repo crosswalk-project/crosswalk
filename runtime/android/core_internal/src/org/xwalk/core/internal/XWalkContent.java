@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 
 import org.chromium.base.CalledByNative;
 import org.chromium.base.JNINamespace;
@@ -38,8 +39,6 @@ import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
 
-import org.xwalk.core.JavascriptInterface;
-
 @JNINamespace("xwalk")
 /**
  * This class is the implementation class for XWalkViewInternal by calling internal
@@ -47,6 +46,8 @@ import org.xwalk.core.JavascriptInterface;
  */
 class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyValueChangeListener {
     private static String TAG = "XWalkContent";
+    private static Class<? extends Annotation> javascriptInterfaceClass = null;
+
     private ContentViewCore mContentViewCore;
     private ContentView mContentView;
     private ContentViewRenderView mContentViewRenderView;
@@ -62,6 +63,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     long mXWalkContent;
     long mWebContents;
+
+    static void setJavascriptInterfaceClass(Class<? extends Annotation> clazz) {
+      assert(javascriptInterfaceClass == null);
+      javascriptInterfaceClass = clazz;
+    }
 
     private static final class DestroyRunnable implements Runnable {
         private final long mXWalkContent;
@@ -209,7 +215,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     public void addJavascriptInterface(Object object, String name) {
         mContentViewCore.addPossiblyUnsafeJavascriptInterface(object, name,
-                JavascriptInterface.class);
+                javascriptInterfaceClass);
     }
 
     public void evaluateJavascript(String script, ValueCallback<String> callback) {

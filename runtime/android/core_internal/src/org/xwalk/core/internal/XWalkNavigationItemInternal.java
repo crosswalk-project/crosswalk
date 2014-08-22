@@ -9,14 +9,21 @@ import org.chromium.content.browser.NavigationEntry;
 /**
  * This class represents a navigation item and is managed in XWalkNavigationHistoryInternal.
  */
+@XWalkAPI(createInternally = true)
 public class XWalkNavigationItemInternal implements Cloneable {
     private NavigationEntry mEntry;
+
+    // Never use this constructor.
+    // It is only used in XWalkNavigationItemBridge.
+    XWalkNavigationItemInternal() {
+        mEntry = null;
+    }
 
     XWalkNavigationItemInternal(NavigationEntry entry) {
         mEntry = entry;
     }
 
-    public XWalkNavigationItemInternal(XWalkNavigationItemInternal item) {
+    XWalkNavigationItemInternal(XWalkNavigationItemInternal item) {
         mEntry = item.mEntry;
     }
 
@@ -25,6 +32,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
      * @return the string of the url.
      * @since 1.0
      */
+    @XWalkAPI
     public String getUrl() {
         return mEntry.getUrl();
     }
@@ -34,6 +42,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
      * @return the string of the original url.
      * @since 1.0
      */
+    @XWalkAPI
     public String getOriginalUrl() {
         return mEntry.getOriginalUrl();
     }
@@ -43,6 +52,7 @@ public class XWalkNavigationItemInternal implements Cloneable {
      * @return the string of the title.
      * @since 1.0
      */
+    @XWalkAPI
     public String getTitle() {
         return mEntry.getTitle();
     }

@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * Marks a method as being able to be exposed to JavaScript.  This is used for
  * safety purposes so that only explicitly marked methods get exposed instead
  * of every method in a class.
- * See the explanation for {@link XWalkViewInternal#addJavascriptInterface(Object, String)}
+ * See the explanation for {@link XWalkView#addJavascriptInterface(Object, String)}
  * about the usage.
  */
 @SuppressWarnings("javadoc")

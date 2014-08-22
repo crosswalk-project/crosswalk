@@ -12,23 +12,27 @@ package org.xwalk.core.internal;
  * the dialog, it must either callback with confirm() or cancel() to allow
  * processing to continue.
  */
+@XWalkAPI(instance = XWalkJavascriptResultHandlerInternal.class)
 public interface XWalkJavascriptResultInternal {
     /**
      * Handle a confirm with a result from caller.
      * @param result the result string from caller.
      * @since 1.0
      */
+    @XWalkAPI
     public void confirmWithResult(String result);
 
     /**
      * Handle a confirm without a result.
      * @since 1.0
      */
+    @XWalkAPI
     public void confirm();
 
     /**
      * Handle the result if the caller cancelled the dialog.
      * @since 1.0
      */
+    @XWalkAPI
     public void cancel();
 }

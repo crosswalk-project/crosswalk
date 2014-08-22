@@ -20,6 +20,7 @@ import android.widget.EditText;
 /**
  * This class notifies the embedder UI events/callbacks.
  */
+@XWalkAPI(createExternally = true)
 public class XWalkUIClientInternal {
 
     // Strings for displaying Dialog.
@@ -43,6 +44,7 @@ public class XWalkUIClientInternal {
      * @param view the owner XWalkViewInternal instance.
      * @since 1.0
      */
+    @XWalkAPI
     public XWalkUIClientInternal(XWalkViewInternal view) {
         mContext = view.getContext();
         mDecorView = view.getActivity().getWindow().getDecorView();
@@ -69,6 +71,7 @@ public class XWalkUIClientInternal {
      * @param view the owner XWalkViewInternal instance.
      * @since 1.0
      */
+    @XWalkAPI
     public void onRequestFocus(XWalkViewInternal view) {
     }
 
@@ -77,6 +80,7 @@ public class XWalkUIClientInternal {
      * @param view the owner XWalkViewInternal instance.
      * @since 1.0
      */
+    @XWalkAPI
     public void onJavascriptCloseWindow(XWalkViewInternal view) {
         if (view != null && view.getActivity() != null) {
             view.getActivity().finish();
@@ -87,6 +91,7 @@ public class XWalkUIClientInternal {
      * The type of JavaScript modal dialog.
      * @since 1.0
      */
+    @XWalkAPI
     public enum JavascriptMessageTypeInternal {
         /** JavaScript alert dialog. */
         JAVASCRIPT_ALERT,
@@ -108,6 +113,7 @@ public class XWalkUIClientInternal {
      * @param result the callback to handle the result from caller.
      * @since 1.0
      */
+    @XWalkAPI
     public boolean onJavascriptModalDialog(XWalkViewInternal view, JavascriptMessageTypeInternal type,
             String url, String message, String defaultValue, XWalkJavascriptResultInternal result) {
         switch(type) {
@@ -133,6 +139,7 @@ public class XWalkUIClientInternal {
      * @param enterFullscreen true if it has entered fullscreen mode.
      * @since 1.0
      */
+    @XWalkAPI
     public void onFullscreenToggled(XWalkViewInternal view, boolean enterFullscreen) {
         Activity activity = view.getActivity();
         if (enterFullscreen) {
@@ -190,6 +197,7 @@ public class XWalkUIClientInternal {
      *        with this file picker
      * @since 1.0
      */
+    @XWalkAPI
     public void openFileChooser(XWalkViewInternal view, ValueCallback<Uri> uploadFile,
             String acceptType, String capture) {
         uploadFile.onReceiveValue(null);
@@ -202,6 +210,7 @@ public class XWalkUIClientInternal {
      * @param newScale the current scale factor after scaling.
      * @since 1.0
      */
+    @XWalkAPI
     public void onScaleChanged(XWalkViewInternal view, float oldScale, float newScale) {
     }
 
@@ -219,6 +228,7 @@ public class XWalkUIClientInternal {
      *
      * @since 2.1
      */
+    @XWalkAPI
     public boolean shouldOverrideKeyEvent(XWalkViewInternal view, KeyEvent event) {
         return false;
     }
@@ -235,6 +245,7 @@ public class XWalkUIClientInternal {
      *
      * @since 2.1
      */
+    @XWalkAPI
     public void onUnhandledKeyEvent(XWalkViewInternal view, KeyEvent event) {
     }
 
@@ -244,6 +255,7 @@ public class XWalkUIClientInternal {
      * @param title A String containing the new title of the document.
      * @since 2.1
      */
+    @XWalkAPI
     public void onReceivedTitle(XWalkViewInternal view, String title) {
     }
 
@@ -252,6 +264,7 @@ public class XWalkUIClientInternal {
      * The status when a page stopped loading
      * @since 2.1
      */
+    @XWalkAPI
     public enum LoadStatusInternal {
         /** Loading finished. */
         FINISHED,
@@ -273,14 +286,14 @@ public class XWalkUIClientInternal {
      *
      * @since 2.1
      */
+    @XWalkAPI
     public void onPageLoadStarted(XWalkViewInternal view, String url) {
     }
 
     /**
      * Notify the host application that a page has stopped loading. This method
      * is called only for main frame. When onPageLoadStopped() is called, the
-     * rendering picture may not be updated yet. To get the notification for the
-     * new Picture, use {@link XWalkViewInternal.PictureListener#onNewPicture}.
+     * rendering picture may not be updated yet.
      *
      * @param view The XWalkViewInternal that is initiating the callback.
      * @param url The url of the page.
@@ -288,6 +301,7 @@ public class XWalkUIClientInternal {
      *
      * @since 2.1
      */
+    @XWalkAPI
     public void onPageLoadStopped(XWalkViewInternal view, String url, LoadStatusInternal status) {
     }
 
