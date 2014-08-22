@@ -243,6 +243,7 @@ void XWalkContentBrowserClient::AllowCertificateError(
     content::ResourceType resource_type,
     bool overridable,
     bool strict_enforcement,
+    bool expired_previous_decision,
     const base::Callback<void(bool)>& callback, // NOLINT
     content::CertificateRequestResultType* result) {
   // Currently only Android handles it.
@@ -284,13 +285,13 @@ XWalkContentBrowserClient::CheckDesktopNotificationPermission(
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
     content::RenderFrameHost* render_frame_host,
-    content::DesktopNotificationDelegate* delegate,
+    scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
       XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
   bridge->ShowNotification(params, render_frame_host,
-      delegate, cancel_callback);
+      delegate.get(), cancel_callback);
 #endif
 }
 
