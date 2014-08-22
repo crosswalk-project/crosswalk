@@ -19,6 +19,7 @@
 #include "xwalk/runtime/browser/sysapps_component.h"
 #include "xwalk/runtime/browser/xwalk_app_extension_bridge.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #include "xwalk/runtime/browser/xwalk_component.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
@@ -167,6 +168,14 @@ void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
   extension_service_->OnRenderProcessDied(host);
+}
+
+void XWalkRunner::EnableRemoteDebugging(bool enable, int port) {
+  XWalkBrowserMainPartsTizen* main_parts_tizen =
+      static_cast<XWalkBrowserMainPartsTizen*> (
+          content_browser_client_->main_parts());
+  if (main_parts_tizen)
+    main_parts_tizen->EnableRemoteDebugging(enable, port);
 }
 
 // static

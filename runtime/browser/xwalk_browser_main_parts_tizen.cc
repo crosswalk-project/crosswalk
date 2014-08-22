@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 
+#include <string>
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "content/public/browser/render_process_host.h"
@@ -12,6 +13,7 @@
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
+#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
 #include "ui/gl/gl_switches.h"
@@ -57,6 +59,19 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopRun() {
   }
 
   XWalkBrowserMainParts::PreMainMessageLoopRun();
+}
+
+void XWalkBrowserMainPartsTizen::EnableRemoteDebugging(bool enable, int port) {
+  if (enable) {
+    const char* local_ip = "0.0.0.0";
+    if (port > 0 && port < 65535) {
+      remote_debugging_server_.reset(
+          new RemoteDebuggingServer(xwalk_runner_->runtime_context(),
+              local_ip, port, std::string()));
+    }
+  } else {
+    remote_debugging_server_.reset();
+  }
 }
 
 }  // namespace xwalk
