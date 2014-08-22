@@ -89,7 +89,7 @@ class DeviceCapabilitiesDisplay {
 
         JSONObject out = new JSONObject();
         try {
-            out.put("id", disp.getDisplayId());
+            out.put("id", Integer.toString(disp.getDisplayId()));
             out.put("name", disp.getName());
             out.put("primary", disp.getDisplayId() == disp.DEFAULT_DISPLAY);
             out.put("external", disp.getDisplayId() != disp.DEFAULT_DISPLAY);
