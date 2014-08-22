@@ -62,7 +62,16 @@
             '../../build/system.gyp:tizen',
             '../../tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '../../../third_party/re2/re2.gyp:re2',
+            '../../../net/net.gyp:net',
           ],
+          'cflags': [
+            '<!@(pkg-config --cflags xmlsec1)',
+          ],
+          'link_settings': {
+            'libraries': [
+              '<!@(pkg-config --libs-only-l xmlsec1)',
+            ],
+          },
           'sources': [
             'application_storage_impl_tizen.cc',
             'application_storage_impl_tizen.h',
@@ -84,7 +93,8 @@
             'tizen/signature_parser.cc',
             'tizen/signature_validator.cc',
             'tizen/signature_validator.h',
-
+            'tizen/signature_xmlsec_adaptor.cc',
+            'tizen/signature_xmlsec_adaptor.h',
           ],
         }, {
         'sources': [

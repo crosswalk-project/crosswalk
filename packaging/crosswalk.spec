@@ -74,6 +74,8 @@ BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(vconf)
+BuildRequires:  pkgconfig(xmlsec1)
+BuildRequires:  ca-certificates-tizen
 %if %{with x}
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
