@@ -39,6 +39,7 @@ import org.chromium.content.browser.ContentViewStatics;
 import org.chromium.content.browser.LoadUrlParams;
 import org.chromium.content.browser.NavigationHistory;
 import org.chromium.content.common.CleanupReference;
+import org.chromium.content_public.browser.JavaScriptCallback;
 import org.chromium.media.MediaPlayerBridge;
 import org.chromium.ui.base.ActivityWindowAndroid;
 import org.chromium.ui.gfx.DeviceDisplayInfo;
@@ -224,9 +225,9 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
         final ValueCallback<String>  fCallback = callback;
-        ContentViewCore.JavaScriptCallback coreCallback = null;
+        JavaScriptCallback coreCallback = null;
         if (fCallback != null) {
-            coreCallback = new ContentViewCore.JavaScriptCallback() {
+            coreCallback = new JavaScriptCallback() {
                 @Override
                 public void handleJavaScriptResult(String jsonResult) {
                     fCallback.onReceiveValue(jsonResult);
