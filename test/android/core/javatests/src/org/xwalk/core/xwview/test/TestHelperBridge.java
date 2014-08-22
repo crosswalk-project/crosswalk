@@ -192,6 +192,20 @@ class TestHelperBridge {
         }
     }
 
+    public class OnScaleChangedHelper extends CallbackHelper {
+        private float mScale;
+
+        public float getScale() {
+            assert getCallCount() > 0;
+            return mScale;
+        }
+
+        public void notifyCalled(float scale) {
+            mScale = scale;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private final OnPageStartedHelper mOnPageStartedHelper;
     private final OnPageFinishedHelper mOnPageFinishedHelper;
@@ -205,6 +219,7 @@ class TestHelperBridge {
     private final OnJavascriptCloseWindowHelper mOnJavascriptCloseWindowHelper;
     private final OnProgressChangedHelper mOnProgressChangedHelper;
     private final ShouldOverrideUrlLoadingHelper mShouldOverrideUrlLoadingHelper;
+    private final OnScaleChangedHelper mOnScaleChangedHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -217,6 +232,7 @@ class TestHelperBridge {
         mOnJavascriptCloseWindowHelper = new OnJavascriptCloseWindowHelper();
         mOnProgressChangedHelper = new OnProgressChangedHelper();
         mShouldOverrideUrlLoadingHelper = new ShouldOverrideUrlLoadingHelper();
+        mOnScaleChangedHelper = new OnScaleChangedHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -257,6 +273,10 @@ class TestHelperBridge {
 
     public ShouldOverrideUrlLoadingHelper getShouldOverrideUrlLoadingHelper() {
         return mShouldOverrideUrlLoadingHelper;
+    }
+
+    public OnScaleChangedHelper getOnScaleChangedHelper() {
+        return mOnScaleChangedHelper;
     }
 
     public void onTitleChanged(String title) {
@@ -303,5 +323,9 @@ class TestHelperBridge {
             mShouldOverrideUrlLoadingHelper.getShouldOverrideUrlLoadingReturnValue();
         mShouldOverrideUrlLoadingHelper.notifyCalled(url);
         return returnValue;
+    }
+
+    public void onScaleChanged(float scale) {
+        mOnScaleChangedHelper.notifyCalled(scale);
     }
 }

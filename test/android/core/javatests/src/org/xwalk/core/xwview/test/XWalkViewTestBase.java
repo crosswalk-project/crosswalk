@@ -66,6 +66,11 @@ public class XWalkViewTestBase
         public void onJavascriptCloseWindow(XWalkView view) {
             mInnerContentsClient.onJavascriptCloseWindow();
         }
+
+        @Override
+        public void onScaleChanged(XWalkView view, float oldScale, float newScale) {
+            mInnerContentsClient.onScaleChanged(newScale);
+        }
     }
 
     class TestXWalkUIClient extends TestXWalkUIClientBase {
