@@ -487,7 +487,7 @@ bool RuntimeFileSelectHelper::IsAcceptTypeValid(
   // of an extension or a "/" in the case of a MIME type).
   std::string unused;
   if (accept_type.length() <= 1 ||
-      StringToLowerASCII(accept_type) != accept_type ||
+      base::StringToLowerASCII(accept_type) != accept_type ||
       base::TrimWhitespaceASCII(
         accept_type,
         base::TRIM_ALL, &unused) != base::TRIM_NONE) {
