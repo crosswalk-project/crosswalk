@@ -86,6 +86,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       content::ResourceType resource_type,
       bool overridable,
       bool strict_enforcement,
+      bool expired_previous_decision,
       const base::Callback<void(bool)>& callback, // NOLINT
       content::CertificateRequestResultType* result) OVERRIDE;
 
@@ -104,7 +105,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual void ShowDesktopNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
       content::RenderFrameHost* render_frame_host,
-      content::DesktopNotificationDelegate* delegate,
+      scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback) OVERRIDE;
   virtual void RequestGeolocationPermission(
       content::WebContents* web_contents,
