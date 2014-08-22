@@ -74,11 +74,10 @@ int XWalkMainDelegate::RunProcess(const std::string& process_type,
 }
 
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-content::ZygoteForkDelegate* XWalkMainDelegate::ZygoteStarting() {
-#if defined(DISABLE_NACL)
-  return NULL;
-#else
-  return new nacl::NaClForkDelegate(true);
+void XWalkMainDelegate::ZygoteStarting(
+    ScopedVector<content::ZygoteForkDelegate>* delegates) {
+#if !defined(DISABLE_NACL)
+  nacl::AddNaClZygoteForkDelegates(delegates);
 #endif
 }
 

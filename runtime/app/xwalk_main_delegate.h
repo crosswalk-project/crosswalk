@@ -27,7 +27,8 @@ class XWalkMainDelegate : public content::ContentMainDelegate {
   virtual int RunProcess(const std::string& process_type,
       const content::MainFunctionParams& main_function_params) OVERRIDE;
 #if defined(OS_POSIX) && !defined(OS_ANDROID)
-  virtual content::ZygoteForkDelegate* ZygoteStarting();
+  virtual void ZygoteStarting(
+      ScopedVector<content::ZygoteForkDelegate>* delegates) OVERRIDE;
 #endif
   virtual content::ContentBrowserClient* CreateContentBrowserClient() OVERRIDE;
   virtual content::ContentRendererClient*
