@@ -104,6 +104,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   // This also enables pinch on Tizen.
   command_line->AppendSwitch(switches::kEnableThreadedCompositing);
 
+  // Paint content on the compositor thread instead of the main thread.
+  command_line->AppendSwitch(cc::switches::kEnableImplSidePainting);
+
   // Show feedback on touch.
   command_line->AppendSwitch(switches::kEnableGestureTapHighlight);
 
