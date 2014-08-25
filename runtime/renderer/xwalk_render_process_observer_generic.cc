@@ -66,20 +66,15 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
 
 void XWalkRenderProcessObserver::WebKitInitialized() {
   is_webkit_initialized_ = true;
-}
-
-void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
-  is_webkit_initialized_ = false;
-}
-
-void XWalkRenderProcessObserver::DidCreateScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context,
-    int extension_group, int world_id) {
   for (std::vector<AccessWhitelistItem>::iterator it = access_whitelist.begin();
        it != access_whitelist.end(); ++it)
     AddAccessWhiteListEntry(it->source_, it->dest_, it->allow_subdomains_);
 
   access_whitelist.clear();
+}
+
+void XWalkRenderProcessObserver::OnRenderProcessShutdown() {
+  is_webkit_initialized_ = false;
 }
 
 void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,

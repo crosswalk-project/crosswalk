@@ -28,10 +28,6 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   XWalkRenderProcessObserver();
   virtual ~XWalkRenderProcessObserver();
 
-  void DidCreateScriptContext(
-      blink::WebFrame* frame,  v8::Handle<v8::Context> context,
-      int extension_group, int world_id);
-
   // content::RenderProcessObserver implementation.
   virtual bool OnControlMessageReceived(const IPC::Message& message) OVERRIDE;
   virtual void WebKitInitialized() OVERRIDE;

@@ -163,10 +163,6 @@ void XWalkContentRendererClient::DidCreateScriptContext(
     int extension_group, int world_id) {
   if (extension_controller_)
     extension_controller_->DidCreateScriptContext(frame, context);
-#if !defined(OS_ANDROID)
-  xwalk_render_process_observer_->DidCreateScriptContext(
-      frame, context, extension_group, world_id);
-#endif
 }
 
 void XWalkContentRendererClient::DidCreateModuleSystem(
