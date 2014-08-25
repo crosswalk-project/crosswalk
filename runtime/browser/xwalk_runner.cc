@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#include <string>
 #include <vector>
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -14,6 +15,7 @@
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/runtime/browser/application_component.h"
+#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/storage_component.h"
 #include "xwalk/runtime/browser/sysapps_component.h"
@@ -83,6 +85,7 @@ void XWalkRunner::PostMainMessageLoopRun() {
   DestroyComponents();
   extension_service_.reset();
   runtime_context_.reset();
+  DisableRemoteDebugging();
 }
 
 void XWalkRunner::CreateComponents() {
@@ -167,6 +170,19 @@ void XWalkRunner::OnRenderProcessHostGone(content::RenderProcessHost* host) {
   if (!extension_service_)
     return;
   extension_service_->OnRenderProcessDied(host);
+}
+
+void XWalkRunner::EnableRemoteDebugging(int port) {
+  const char* local_ip = "0.0.0.0";
+  if (port > 0 && port < 65535) {
+    remote_debugging_server_.reset(
+        new RemoteDebuggingServer(runtime_context(),
+            local_ip, port, std::string()));
+  }
+}
+
+void XWalkRunner::DisableRemoteDebugging() {
+  remote_debugging_server_.reset();
 }
 
 // static

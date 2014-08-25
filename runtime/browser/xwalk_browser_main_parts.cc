@@ -29,7 +29,6 @@
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
-#include "xwalk/runtime/browser/devtools/remote_debugging_server.h"
 #include "xwalk/runtime/browser/nacl_host/nacl_browser_delegate_impl.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -204,12 +203,8 @@ void XWalkBrowserMainParts::PreMainMessageLoopRun() {
     std::string port_str =
         command_line->GetSwitchValueASCII(switches::kRemoteDebuggingPort);
     int port;
-    const char* local_ip = "0.0.0.0";
-    if (base::StringToInt(port_str, &port) && port > 0 && port < 65535) {
-      remote_debugging_server_.reset(
-          new RemoteDebuggingServer(xwalk_runner_->runtime_context(),
-              local_ip, port, std::string()));
-    }
+    base::StringToInt(port_str, &port);
+    xwalk_runner_->EnableRemoteDebugging(port);
   }
 
   NativeAppWindow::Initialize();
