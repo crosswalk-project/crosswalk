@@ -117,7 +117,6 @@ class XWalkViewDelegate {
             }
         }
         loadLibrary(context);
-        DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
 
         if (sRunningOnIA && !nativeIsLibraryBuiltForIA()) {
             throw new UnsatisfiedLinkError();
@@ -185,6 +184,7 @@ class XWalkViewDelegate {
                 } catch (ProcessInitException e) {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
+                DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
                 try {
                     BrowserStartupController.get(context).startBrowserProcessesSync(
                         true);
