@@ -138,6 +138,32 @@
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OnActivityResultActivity"
+            android:label="OnActivityResult"
+            android:parentActivityName=".XWalkEmbeddedAPISample" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name="org.xwalk.core.sample.AuxiliaryActivity"
+            android:label="AuxiliaryActivity">
+        </activity>
+
+        <activity
+            android:name=".OnNewIntentActivity"
+            android:label="OnNewIntent"
+            android:parentActivityName=".XWalkEmbeddedAPISample"
+            android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name="org.xwalk.core.sample.AuxiliaryActivityForNewIntent"
+            android:label="AuxiliaryActivity" >
+        </activity>
     </application>
 
 </manifest>
