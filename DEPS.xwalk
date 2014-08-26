@@ -30,10 +30,6 @@ ozone_wayland_git = 'https://github.com/01org'
 # You do not need to worry about these most of the time.
 # ------------------------------------------------------
 
-# ------------------------------------------------------
-# gclient solutions.
-# You do not need to worry about these most of the time.
-# ------------------------------------------------------
 solutions = [
   { 'name': 'src',
     'url': crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
