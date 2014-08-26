@@ -34,11 +34,15 @@ using xwalk::application::PackageInstaller;
 static char* install_path;
 static char* uninstall_appid;
 
+static gint debugging_port = -1;
+
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed/updated", "PATH" },
   { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_appid,
     "Uninstall the application with this appid", "APPID" },
+  { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
+    "Enable remote debugging, port number 0 means to disable", NULL },
   { NULL }
 };
 
@@ -70,6 +74,35 @@ static void TerminateIfRunning(const std::string& app_id) {
   writer.AppendString(app_id);
 
   app_proxy->CallMethodAndBlock(&method_call, 1000);
+}
+
+static bool enable_remote_debugging(gint debugging_port) {
+  dbus::Bus::Options options;
+#if defined(OS_TIZEN_MOBILE)
+  options.bus_type = dbus::Bus::CUSTOM_ADDRESS;
+  options.address.assign("unix:path=/run/user/app/dbus/user_bus_socket");
+#endif
+  scoped_refptr<dbus::Bus> bus(new dbus::Bus(options));
+  dbus::ObjectProxy* app_proxy =
+      bus->GetObjectProxy(
+          xwalk_service_name,
+          kRunningManagerDBusPath);
+  if (!app_proxy)
+    return false;
+
+  dbus::MethodCall method_call(
+      xwalk_running_manager_iface, "EnableRemoteDebugging");
+  dbus::MessageWriter writer(&method_call);
+  writer.AppendUint32(debugging_port);
+
+  app_proxy->CallMethodAndBlock(&method_call, 1000);
+
+  if (debugging_port > 0) {
+    g_print("Remote debugging enabled at port '%d'\n", debugging_port);
+  } else {
+    g_print("Remote debugging has been disabled\n");
+  }
+  return true;
 }
 #endif
 
@@ -139,6 +172,13 @@ int main(int argc, char* argv[]) {
     TerminateIfRunning(uninstall_appid);
 #endif
     success = installer->Uninstall(uninstall_appid);
+  } else if (debugging_port >= 0) {
+#if defined(SHARED_PROCESS_MODE)
+    // Deal with the case "xwalkctl -d PORT_NUMBER"
+    success = enable_remote_debugging(debugging_port);
+#else
+    g_print("Couldn't enable remote debugging for no shared process mode!");
+#endif
   } else {
     success = list_applications(storage.get());
   }

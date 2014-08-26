@@ -24,6 +24,7 @@ namespace xwalk {
 
 class RuntimeContext;
 class ApplicationComponent;
+class RemoteDebuggingServer;
 class SysAppsComponent;
 class XWalkComponent;
 class XWalkContentBrowserClient;
@@ -76,6 +77,9 @@ class XWalkRunner {
   // Stages of main parts. See content/browser_main_parts.h for description.
   virtual void PreMainMessageLoopRun();
   virtual void PostMainMessageLoopRun();
+
+  void EnableRemoteDebugging(int port);
+  void DisableRemoteDebugging();
 
  protected:
   XWalkRunner();
@@ -131,6 +135,9 @@ class XWalkRunner {
   ScopedVector<XWalkComponent> components_;
 
   ApplicationComponent* app_component_;
+
+  // Remote debugger server.
+  scoped_ptr<RemoteDebuggingServer> remote_debugging_server_;
 
   // These variables are used to export some values from the browser process
   // side to the extension side, such as application IDs and whatnot.
