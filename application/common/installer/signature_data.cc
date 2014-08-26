@@ -4,6 +4,8 @@
 
 #include "xwalk/application/common/installer/signature_data.h"
 
+#include "base/strings/utf_string_conversions.h"
+
 namespace xwalk {
 namespace application {
 
@@ -24,7 +26,11 @@ base::FilePath SignatureData::GetExtractedWidgetPath() const {
   } else {
     widget_path.erase(pos + 1, std::string::npos);
   }
+#if defined (OS_WIN)
+  return base::FilePath(base::UTF8ToWide(widget_path));
+#else
   return base::FilePath(widget_path);
+#endif
 }
 
 }  // namespace application
