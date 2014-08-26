@@ -6,13 +6,13 @@
 #define XWALK_RUNTIME_BROWSER_UI_NATIVE_APP_WINDOW_TIZEN_H_
 
 #include "base/memory/scoped_ptr.h"
-#include "content/browser/screen_orientation/screen_orientation_provider.h"
+#include "third_party/WebKit/public/platform/WebScreenOrientationLockType.h"
+#include "ui/aura/window_observer.h"
 #include "xwalk/runtime/browser/ui/screen_orientation.h"
 #include "xwalk/runtime/browser/ui/native_app_window_views.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 #include "xwalk/tizen/mobile/ui/tizen_system_indicator_widget.h"
 #include "xwalk/tizen/mobile/ui/widget_container_view.h"
-#include "ui/aura/window_observer.h"
 
 namespace xwalk {
 
