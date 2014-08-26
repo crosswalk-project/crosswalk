@@ -30,53 +30,46 @@ ozone_wayland_git = 'https://github.com/01org'
 # You do not need to worry about these most of the time.
 # ------------------------------------------------------
 
-chromium_solution = {
-  'name': 'src',
-  'url': crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
-  'deps_file': '.DEPS.git',
-  'custom_deps': {
-    'src':
-      crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
-    'src/third_party/WebKit':
-      crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
-    'src/v8':
-      crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
+solutions = [
+  { 'name': 'src',
+    'url': crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
+    'deps_file': '.DEPS.git',
+    'custom_deps': {
+      'src':
+        crosswalk_git + '/chromium-crosswalk.git@' + chromium_crosswalk_rev,
+      'src/third_party/WebKit':
+        crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
+      'src/v8':
+        crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
+
+      # These directories are not relevant to Crosswalk and can be safely ignored
+      # in a checkout. It avoids creating additional directories outside src/ that
+      # are not used and also saves some bandwidth.
+      'build': None,
+      'build/scripts/command_wrapper/bin': None,
+      'build/scripts/gsd_generate_index': None,
+      'build/scripts/private/data/reliability': None,
+      'build/scripts/tools/deps2git': None,
+      'build/third_party/cbuildbot_chromite': None,
+      'build/third_party/gsutil': None,
+      'build/third_party/lighttpd': None,
+      'build/third_party/swarm_client': None,
+      'build/third_party/xvfb': None,
+      'build/xvfb': None,
+      'commit-queue': None,
+      'depot_tools': None,
+    },
+  },
+
+  # ozone-wayland is set as a separate solution because we gclient _not_ to read
+  # its .DEPS.git: it changes the recursion limit and tries to check Chromium
+  # upstream out itself, leading to URL conflicts and errors about duplicate
+  # entries.
+  { 'name': 'src/ozone',
+    'url': ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
+    'deps_file': '',
   }
-}
-
-# These directories are not relevant to Crosswalk and can be safely ignored
-# in a checkout. It avoids creating additional directories outside src/ that
-# are not used and also saves some bandwidth.
-ignored_directories = [
-  'build',
-  'build/scripts/command_wrapper/bin',
-  'build/scripts/gsd_generate_index',
-  'build/scripts/private/data/reliability',
-  'build/scripts/tools/deps2git',
-  'build/third_party/cbuildbot_chromite',
-  'build/third_party/gsutil',
-  'build/third_party/lighttpd',
-  'build/third_party/swarm_client',
-  'build/third_party/xvfb',
-  'build/xvfb',
-  'commit-queue',
-  'depot_tools',
 ]
-for ignored_directory in ignored_directories:
-  chromium_solution['custom_deps'][ignored_directory] = None
-
-# ozone-wayland is set as a separate solution because we gclient _not_ to read
-# its .DEPS.git: it changes the recursion limit and tries to check Chromium
-# upstream out itself, leading to URL conflicts and errors about duplicate
-# entries.
-ozone_wayland_solution = {
-  'name': 'src/ozone',
-  'url': ozone_wayland_git + '/ozone-wayland.git@' + ozone_wayland_rev,
-  'deps_file': '',
-}
-
-solutions = [chromium_solution,
-             ozone_wayland_solution]
 
 # -------------------------------------------------
 # This area is edited by generate_gclient-xwalk.py.
