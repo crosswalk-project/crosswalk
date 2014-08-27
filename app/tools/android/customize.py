@@ -155,7 +155,7 @@ def CustomizeStringXML(name, description):
 
 
 def CustomizeThemeXML(name, fullscreen, manifest):
-  theme_path = os.path.join(name, 'res', 'values-v17', 'theme.xml')
+  theme_path = os.path.join(name, 'res', 'values-v14', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
