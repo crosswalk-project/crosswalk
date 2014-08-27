@@ -4,13 +4,16 @@
 
 #include "xwalk/application/common/installer/tizen/signature_validator.h"
 
+#include <set>
 #include <string>
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
+#include "base/memory/scoped_ptr.h"
 #include "libxml/tree.h"
 #include "libxml/parser.h"
 #include "libxml/xmlschemas.h"
 #include "third_party/re2/re2/re2.h"
+#include "xwalk/application/common/installer/signature_data.h"
 #include "xwalk/application/common/installer/signature_parser.h"
 
 namespace {
@@ -24,7 +27,7 @@ const char kTokenRoleDistributor[] =
   "http://www.w3.org/ns/widgets-digsig#role-distributor";
 const char kTokenProfileURI[] =
   "http://www.w3.org/ns/widgets-digsig#profile";
-const char kSignatureSchemaPath[] = "/usr/share/xwalk/schema.xsd";
+const char kSignatureSchemaPath[] = "/usr/share/xwalk/signature_schema.xsd";
 
 //  A wrapper of LOG(ERROR) function, which  is used as parameter of function
 //  xmlSchemaSetValidErrors

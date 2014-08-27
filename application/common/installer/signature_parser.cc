@@ -150,12 +150,9 @@ bool ParseSignedInfoElement(
     return false;
   }
 
-  std::string uri, transform_algorithm, digest_method, digest_value;
-  xmlNodePtr refer_node, transforms_node, transform_node, digest_method_node,
-             digest_value_node;
-  ReferenceData reference_data;
+  std::string uri;
+  xmlNodePtr refer_node;
   std::set<std::string> reference_set;
-  ReferenceHashMap reference_hash_map;
   for (size_t i = 0; i < reference_vec.size(); ++i) {
     refer_node = reference_vec[i];
     uri = GetAttribute(refer_node, kTokenURI);
@@ -164,50 +161,8 @@ bool ParseSignedInfoElement(
       return false;
     }
     reference_set.insert(uri);
-
-    // Parse <Transforms>
-    transforms_node =
-      GetFirstChild(refer_node, signature_ns, kTokenTransforms);
-    if (!transforms_node) {
-      transform_node =
-        GetFirstChild(transforms_node, signature_ns, kTokenTransform);
-      if (!transforms_node) {
-        reference_data.transform_algorithm =
-          GetAttribute(transform_node, kTokenAlgorithm);
-      }
-    }
-
-    // Parse <DigestMethod>
-    digest_method_node =
-      GetFirstChild(refer_node, signature_ns, kTokenDigestMethod);
-    if (!digest_method_node) {
-      LOG(ERROR) << "Missing DigestMethod tag.";
-      return false;
-    }
-    reference_data.digest_method =
-      GetAttribute(digest_method_node, kTokenAlgorithm);
-    if (reference_data.digest_method.empty()) {
-      LOG(ERROR) << "Missing DigestMethod attribute.";
-      return false;
-    }
-
-    // Parser <DigestValue>
-    digest_value_node =
-      GetFirstChild(refer_node, signature_ns, kTokenDigestValue);
-    if (!digest_value_node) {
-      LOG(ERROR) << "Missing DigestValue tag.";
-      return false;
-    }
-    reference_data.digest_value =
-      XmlStringToStdString(xmlNodeGetContent(digest_value_node));
-    if (reference_data.digest_value.empty()) {
-      LOG(ERROR) << "Missing DigestValue.";
-      return false;
-    }
-    reference_hash_map.insert(make_pair(uri, reference_data));
   }
   data->set_reference_set(reference_set);
-  data->set_reference_hash_map(reference_hash_map);
 
   return true;
 }
