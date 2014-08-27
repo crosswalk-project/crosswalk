@@ -12,7 +12,11 @@
 # are not present.
 %define _disable_nacl 1
 %else
-%define _disable_nacl 0
+# FIXME: Currently, when enable nacl, there will be the following error:
+# out/Release/gen/sdk/linux_x86/pnacl_newlib/host_x86_32/bin/clang: error
+# while loading shared libraries: libLLVM-3.4svn.so: cannot open shared
+# object file: No such file or directory
+%define _disable_nacl 1
 %endif
 
 Name:           crosswalk
