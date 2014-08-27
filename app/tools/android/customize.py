@@ -134,6 +134,15 @@ def Prepare(app_info, compressor):
       CompressSourceFiles(assets_path, compressor)
 
 
+def EncodingUnicodeValue(value):
+  try:
+    if isinstance(value, unicode):
+      value = value.encode("utf-8")
+  except NameError:
+    pass
+  return value
+
+
 def CustomizeStringXML(name, description):
   strings_path = os.path.join(name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
@@ -142,6 +151,7 @@ def CustomizeStringXML(name, description):
     sys.exit(6)
 
   if description:
+    description = EncodingUnicodeValue(description)
     xmldoc = minidom.parse(strings_path)
     AddElementAttributeAndText(xmldoc, 'string', 'name', 'description',
                                description)
@@ -179,8 +189,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   app_name = app_info.app_name
   # Chinese character with unicode get from 'manifest.json' will cause
   # 'UnicodeEncodeError' when finally wrote to 'AndroidManifest.xml'.
-  if isinstance(app_name, unicode):
-    app_name = app_name.encode("utf-8")
+  app_name = EncodingUnicodeValue(app_name)
   # If string start with '@' or '?', it will be treated as Android resource,
   # which will cause 'No resource found' error,
   # append a space before '@' or '?' to fix that.

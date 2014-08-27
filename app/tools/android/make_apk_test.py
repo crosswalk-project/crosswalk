@@ -1022,28 +1022,47 @@ class TestMakeApk(unittest.TestCase):
     Clean(name, '1.0.0')
 
 
-  def VerifyResultForAppName(self, app_name):
-    android_manifest = 'Example/AndroidManifest.xml'
-    self.assertTrue(os.path.exists(android_manifest))
-    with open(android_manifest, 'r') as content_file:
+  def VerifyResultInXMLFile(self, xml_path, piece_content):
+    self.assertTrue(os.path.exists(xml_path))
+    with open(xml_path, 'r') as content_file:
       content = content_file.read()
-    label_name = 'android:label="%s"' % app_name
-    self.assertIn(label_name, content)
+
+    self.assertIn(piece_content, content)
     Clean('Example', '1.0.0')
 
 
-  def testAppNameWithNonASCII (self):
+  def testAppNameWithNonASCII(self):
+    xml_path = 'Example/AndroidManifest.xml'
+    piece_content = 'android:label="%s"' % '你好'
     cmd = ['python', 'make_apk.py', '--name=你好', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com']
     RunCommand(cmd)
-    self.VerifyResultForAppName('你好')
+    self.VerifyResultInXMLFile(xml_path, piece_content)
 
     manifest_path = os.path.join('test_data', 'manifest', 'invalidchars',
                                  'manifest_with_chinese_name.json')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path]
     RunCommand(cmd)
-    self.VerifyResultForAppName('你好')
+    self.VerifyResultInXMLFile(xml_path, piece_content)
+
+
+  def testDescriptionWithDBCS(self):
+    xml_path = 'Example/res/values/strings.xml'
+    piece_content = '<string name="description">%s</string>' % '你好'
+    cmd = ['python', 'make_apk.py', '--name=hello', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+           '--description=你好']
+    RunCommand(cmd)
+    self.VerifyResultInXMLFile(xml_path, piece_content)
+
+    manifest_path = os.path.join('test_data', 'manifest',
+                                 'manifest_description_dbcs.json')
+    cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path]
+    RunCommand(cmd)
+    piece_content = '"description">%s</string>' % '你好 a sample description'
+    self.VerifyResultInXMLFile(xml_path, piece_content)
 
 
 def SuiteWithModeOption():
@@ -1086,6 +1105,7 @@ def SuiteWithEmptyModeOption():
   test_suite.addTest(TestMakeApk('testAppNameWithNonASCII'))
   test_suite.addTest(TestMakeApk('testCompressor'))
   test_suite.addTest(TestMakeApk('testCustomizeFile'))
+  test_suite.addTest(TestMakeApk('testDescriptionWithDBCS'))
   test_suite.addTest(TestMakeApk('testEmptyMode'))
   test_suite.addTest(TestMakeApk('testToolVersion'))
   test_suite.addTest(TestMakeApk('testVerbose'))

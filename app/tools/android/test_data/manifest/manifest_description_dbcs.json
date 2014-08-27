@@ -1,0 +1,13 @@
+{
+  "name": "Example",
+  "xwalk_version": "1.0.0",
+  "start_url": "http://www.intel.com",
+  "xwalk_description": "你好 a sample description",
+  "icons": [],
+  "xwalk_permissions": [
+    "Contacts",
+    "Geolocation",
+    "Messaging"],
+  "orientation": "landscape",
+  "display": ["fullscreen"]
+}
