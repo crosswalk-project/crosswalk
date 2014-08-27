@@ -185,6 +185,9 @@ class XWalkViewDelegate {
                     throw new RuntimeException("Cannot initialize Crosswalk Core", e);
                 }
                 DeviceUtils.addDeviceSpecificUserAgentSwitch(context);
+                CommandLine.getInstance().appendSwitchWithValue(
+                        XWalkSwitches.PROFILE_NAME,
+                        XWalkPreferencesInternal.getStringValue(XWalkPreferencesInternal.PROFILE_NAME));
                 try {
                     BrowserStartupController.get(context).startBrowserProcessesSync(
                         true);

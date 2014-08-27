@@ -36,6 +36,7 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_runtime_features.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 
 namespace {
 
@@ -131,6 +132,10 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopRun() {
   if (!PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir)) {
     NOTREACHED() << "Failed to get app data directory for Crosswalk";
   }
+  CommandLine* command_line = CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(switches::kXWalkProfileName))
+    user_data_dir = user_data_dir.Append(
+        command_line->GetSwitchValuePath(switches::kXWalkProfileName));
 
   base::FilePath cookie_store_path = user_data_dir.Append(
       FILE_PATH_LITERAL("Cookies"));
