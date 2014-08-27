@@ -105,6 +105,8 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   scoped_ptr<Package> package;
   if (!base::DirectoryExists(path)) {
     package = Package::Create(path);
+    if (!package->IsValid())
+      return false;
     package->Extract(&unpacked_dir);
     app_id = package->Id();
   } else {

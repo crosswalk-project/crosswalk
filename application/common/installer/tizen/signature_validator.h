@@ -5,13 +5,7 @@
 #ifndef XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_SIGNATURE_VALIDATOR_H_
 #define XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_SIGNATURE_VALIDATOR_H_
 
-#include <set>
-#include <string>
-
 #include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
-#include "xwalk/application/common/installer/signature_data.h"
-#include "xwalk/application/common/signature_types.h"
 
 namespace xwalk {
 namespace application {
