@@ -28,4 +28,9 @@ const char kXWalkAllowExternalExtensionsForRemoteSources[] =
 // state, e.g. cache, localStorage etc.
 const char kXWalkDataPath[] = "data-path";
 
+#if defined(OS_ANDROID)
+// Specifies the separated folder to save user data on Android.
+const char kXWalkProfileName[] = "profile-name";
+#endif
+
 }  // namespace switches
