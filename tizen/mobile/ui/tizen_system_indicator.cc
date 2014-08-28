@@ -54,7 +54,7 @@ void TizenSystemIndicator::OnMouseReleased(const ui::MouseEvent& event) {
     watcher_->OnMouseUp();
 }
 
-void TizenSystemIndicator::OnTouchEvent(ui::TouchEvent* event) {
+void TizenSystemIndicator::OnGestureEvent(ui::GestureEvent* event) {
   if (!IsConnected())
     return;
 
