@@ -30,7 +30,7 @@ class TizenSystemIndicator : public views::ImageView {
   virtual bool OnMousePressed(const ui::MouseEvent& event) OVERRIDE;
   virtual void OnMouseReleased(const ui::MouseEvent& event) OVERRIDE;
   virtual void OnMouseMoved(const ui::MouseEvent& event) OVERRIDE;
-  virtual void OnTouchEvent(ui::TouchEvent* event) OVERRIDE;
+  virtual void OnGestureEvent(ui::GestureEvent* event) OVERRIDE;
 
   TizenSystemIndicatorWatcher* watcher_;
   friend class TizenSystemIndicatorWidget;
