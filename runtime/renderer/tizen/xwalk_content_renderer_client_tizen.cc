@@ -107,7 +107,7 @@ void XWalkContentRendererClientTizen::GetNavigationErrorStrings(
     *error_html =
         base::StringPrintf("<html><body style=\"text-align: center;\">"
                            "<h1>NET ERROR : %s</h1></body></html>",
-                           net::ErrorToString(error.reason));
+                           net::ErrorToString(error.reason).c_str());
   }
 }
 
