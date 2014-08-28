@@ -23,6 +23,7 @@
 #include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
+#include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -351,6 +352,20 @@ bool Application::SetPermission(PermissionType type,
     return data_->SetPermission(permission_name, perm);
 
   NOTREACHED();
+  return false;
+}
+
+bool Application::HasPermission(const std::string& permission_name) const {
+  DCHECK(data());
+  PermissionsInfo* info = static_cast<PermissionsInfo*>(
+      data()->GetManifestData(application_manifest_keys::kPermissionsKey));
+
+  if (info) {
+    const PermissionSet& permissions = info->GetAPIPermissions();
+    PermissionSet::const_iterator it =
+      std::find(permissions.begin(), permissions.end(), permission_name);
+    return (it != permissions.end());
+  }
   return false;
 }
 
