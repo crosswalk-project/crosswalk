@@ -237,7 +237,6 @@ install -p -D src/xwalk/application/common/installer/tizen/configuration/*.xsd %
 
 # PNaCl
 %if ! %{_disable_nacl}
-install -p -D src/out/Release/libppGoogleNaClPluginChrome.so %{buildroot}%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
 install -p -D src/out/Release/nacl_bootstrap_munge_phdr %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_munge_phdr
 install -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
 install -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
@@ -264,7 +263,6 @@ mkdir -p %{_manifestdir_ro}
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}
-%{_libdir}/xwalk/libppGoogleNaClPluginChrome.so
 %{_libdir}/xwalk/nacl_bootstrap_munge_phdr
 %{_libdir}/xwalk/nacl_bootstrap_raw
 %{_libdir}/xwalk/nacl_helper
