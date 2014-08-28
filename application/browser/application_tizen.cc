@@ -39,13 +39,16 @@ class ScreenOrientationProviderTizen :
     public content::ScreenOrientationProvider {
  public:
   explicit ScreenOrientationProviderTizen(const base::WeakPtr<Application>& app)
-      : app_(app) {
+      : app_(app),
+        request_id_(0) {
   }
 
   virtual void LockOrientation(
+      int request_id,
       blink::WebScreenOrientationLockType lock) OVERRIDE {
     if (!app_)
       return;
+    request_id_ = request_id;
     const std::set<Runtime*>& runtimes = app_->runtimes();
     DCHECK(!runtimes.empty());
     // FIXME: Probably need better alignment with
@@ -61,11 +64,14 @@ class ScreenOrientationProviderTizen :
   }
 
   virtual void UnlockOrientation() OVERRIDE {
-    LockOrientation(blink::WebScreenOrientationLockDefault);
+    LockOrientation(request_id_, blink::WebScreenOrientationLockDefault);
   }
+
+  virtual void OnOrientationChange() OVERRIDE {}
 
  private:
   base::WeakPtr<Application> app_;
+  int request_id_;
 };
 
 ApplicationTizen::ApplicationTizen(
@@ -97,8 +103,10 @@ void ApplicationTizen::Hide() {
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
     DCHECK(web_contents_);
-    web_contents_->GetScreenOrientationDispatcherHost()->
-        SetProviderForTests(new ScreenOrientationProviderTizen(GetWeakPtr()));
+    // TODO(qjia7): https://codereview.chromium.org/338373002 has removed
+    // SetProviderForTests. So currently, ScreenOrientationProviderTizen
+    // is never used.
+    web_contents_->GetScreenOrientationDispatcherHost();
     return true;
   }
   return false;
