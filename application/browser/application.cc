@@ -58,6 +58,7 @@ Application::Application(
       runtime_context_(runtime_context),
       observer_(observer),
       entry_point_used_(Default),
+      remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
   DCHECK(data_.get());
@@ -82,6 +83,8 @@ bool Application::Launch(const LaunchParams& launch_params) {
   GURL url = GetStartURL(launch_params, &entry_point_used_);
   if (!url.is_valid())
     return false;
+
+  remote_debugging_enabled_ = launch_params.remote_debugging;
 
   Runtime* runtime = Runtime::Create(
       runtime_context_,
@@ -226,6 +229,7 @@ int Application::GetRenderProcessHostID() const {
 
 void Application::OnRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);
+  runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
   runtimes_.insert(runtime);
 }
 

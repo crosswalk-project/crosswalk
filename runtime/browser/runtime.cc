@@ -74,6 +74,7 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
       window_(NULL),
       weak_ptr_factory_(this),
       fullscreen_options_(NO_FULLSCREEN),
+      remote_debugging_enabled_(false),
       observer_(observer) {
   web_contents_->SetDelegate(this);
   content::NotificationService::current()->Notify(

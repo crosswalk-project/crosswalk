@@ -78,6 +78,11 @@ class Runtime : public content::WebContentsDelegate,
 
   content::RenderProcessHost* GetRenderProcessHost();
 
+  void set_remote_debugging_enabled(bool enable) {
+    remote_debugging_enabled_ = enable;
+  }
+  bool remote_debugging_enabled() const { return remote_debugging_enabled_; }
+
 #if defined(OS_TIZEN_MOBILE)
   void CloseRootWindow();
 #endif
@@ -188,6 +193,7 @@ class Runtime : public content::WebContentsDelegate,
   };
 
   unsigned int fullscreen_options_;
+  bool remote_debugging_enabled_;
 
   Observer* observer_;
 };

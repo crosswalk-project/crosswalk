@@ -41,6 +41,7 @@ static int g_argc;
 static char** g_argv;
 static gboolean query_running = FALSE;
 static gboolean fullscreen = FALSE;
+static gboolean remote_debugging = FALSE;
 static gchar** cmd_appid_or_url;
 
 static GOptionEntry entries[] = {
@@ -48,6 +49,8 @@ static GOptionEntry entries[] = {
     "Check whether the application is running", NULL },
   { "fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen,
     "Run the application as fullscreen", NULL },
+  { "debugging_port", 'd', 0, G_OPTION_ARG_NONE, &remote_debugging,
+    "Enable remote debugging for the application", NULL },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &cmd_appid_or_url,
     "ID of the application to be launched or URL to open", NULL },
   { NULL }
@@ -172,7 +175,8 @@ static int query_application_running(const char* app_id) {
 }
 
 static void launch_application(const char* appid_or_url,
-                               gboolean fullscreen) {
+                               gboolean fullscreen,
+                               gboolean remote_debugging) {
   ep_launcher = new XWalkExtensionProcessLauncher();
   GError* error = NULL;
   g_signal_connect(g_running_apps_manager, "object-removed",
@@ -192,7 +196,8 @@ static void launch_application(const char* appid_or_url,
   unsigned int launcher_pid = getpid();
 
   GVariant* result  = g_dbus_proxy_call_sync(running_proxy, "Launch",
-      g_variant_new("(sub)", appid_or_url, launcher_pid, fullscreen),
+      g_variant_new("(subb)", appid_or_url, launcher_pid, fullscreen,
+                    remote_debugging),
       G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
   if (!result) {
     fprintf(stderr, "Couldn't call 'Launch' method: %s\n", error->message);
@@ -304,7 +309,7 @@ int main(int argc, char** argv) {
     return query_application_running(appid_or_url);
   }
 
-  launch_application(appid_or_url, fullscreen);
+  launch_application(appid_or_url, fullscreen, remote_debugging);
   free(appid_or_url);
   return 0;
 }

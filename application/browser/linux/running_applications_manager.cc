@@ -139,10 +139,12 @@ void RunningApplicationsManager::OnLaunch(
   // We might want to pass key-value pairs if have more parameters in future.
   unsigned int launcher_pid;
   bool fullscreen;
+  bool remote_debugging;
 
   if (!reader.PopString(&app_id_or_url) ||
       !reader.PopUint32(&launcher_pid) ||
-      !reader.PopBool(&fullscreen)) {
+      !reader.PopBool(&fullscreen) ||
+      !reader.PopBool(&remote_debugging)) {
     scoped_ptr<dbus::Response> response =
         CreateError(method_call,
                     "Error parsing message. Missing arguments.");
@@ -153,6 +155,7 @@ void RunningApplicationsManager::OnLaunch(
   Application::LaunchParams params;
   params.launcher_pid = launcher_pid;
   params.force_fullscreen = fullscreen;
+  params.remote_debugging = remote_debugging;
 
   Application* application;
   if (GURL(app_id_or_url).spec().empty()) {

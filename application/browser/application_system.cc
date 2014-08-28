@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "content/public/browser/render_process_host.h"
+#include "content/public/common/content_switches.h"
 #include "net/base/filename_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
@@ -53,6 +54,8 @@ bool ApplicationSystem::LaunchWithCommandLineParam(
     const T& param, const base::CommandLine& cmd_line) {
   Application::LaunchParams launch_params;
   launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
+  launch_params.remote_debugging =
+      cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
 
   return application_service_->Launch(param, launch_params);
 }
@@ -75,6 +78,8 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
   Application::LaunchParams launch_params;
   launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
   launch_params.entry_points = Application::StartURLKey;
+  launch_params.remote_debugging =
+      cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
 
   return !!application_service_->Launch(application_data, launch_params);
 }
