@@ -521,7 +521,7 @@
                 'pak_inputs+': [
                   # Add WebUI resources for Tizen.
                   '<(SHARED_INTERMEDIATE_DIR)/content/content_resources.pak',
-                  '<(SHARED_INTERMEDIATE_DIR)/ui/ui_resources/webui_resources.pak',
+                  '<(SHARED_INTERMEDIATE_DIR)/ui/resources/webui_resources.pak',
                 ],
               },
             }],
