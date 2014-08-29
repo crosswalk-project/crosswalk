@@ -26,9 +26,9 @@ UDPSocketObject::UDPSocketObject()
     : has_write_pending_(false),
       is_suspended_(false),
       is_reading_(false),
-      resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
       read_buffer_(new net::IOBuffer(kBufferSize)),
       write_buffer_(new net::IOBuffer(kBufferSize)),
+      resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
       single_resolver_(new net::SingleRequestHostResolver(resolver_.get())) {
   handler_.Register("init",
       base::Bind(&UDPSocketObject::OnInit, base::Unretained(this)));
