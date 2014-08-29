@@ -56,26 +56,6 @@ const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 
 }  // namespace
 
-static void TerminateIfRunning(const std::string& app_id) {
-  dbus::Bus::Options options;
-#if defined(OS_TIZEN_MOBILE)
-  options.bus_type = dbus::Bus::CUSTOM_ADDRESS;
-  options.address.assign("unix:path=/run/user/app/dbus/user_bus_socket");
-#endif
-  scoped_refptr<dbus::Bus> bus(new dbus::Bus(options));
-  dbus::ObjectProxy* app_proxy =
-      bus->GetObjectProxy(xwalk_service_name, kRunningManagerDBusPath);
-  if (!app_proxy)
-    return;
-
-  dbus::MethodCall method_call(
-      xwalk_running_manager_iface, "TerminateIfRunning");
-  dbus::MessageWriter writer(&method_call);
-  writer.AppendString(app_id);
-
-  app_proxy->CallMethodAndBlock(&method_call, 1000);
-}
-
 static bool enable_remote_debugging(gint debugging_port) {
   dbus::Bus::Options options;
 #if defined(OS_TIZEN_MOBILE)
@@ -168,9 +148,6 @@ int main(int argc, char* argv[]) {
       success = installer->Update(app_id, path);
     }
   } else if (uninstall_appid) {
-#if defined(SHARED_PROCESS_MODE)
-    TerminateIfRunning(uninstall_appid);
-#endif
     success = installer->Uninstall(uninstall_appid);
   } else if (debugging_port >= 0) {
 #if defined(SHARED_PROCESS_MODE)
