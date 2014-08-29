@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -37,9 +38,19 @@
 #include "xwalk/runtime/common/xwalk_system_locale.h"
 
 #if defined(OS_TIZEN)
-#include "xwalk/application/browser/application_encrypted_file_job_tizen.h"
-#include "xwalk/application/common/encryption_tizen.h"
+#include <ss_manager.h>
+
+#include "base/file_util.h"
+#include "base/task_runner.h"
+#include "net/base/file_stream.h"
+#include "net/base/io_buffer.h"
+#include "net/base/mime_util.h"
+#include "net/url_request/url_request.h"
+#include "net/url_request/url_request_job.h"
+#include "net/url_request/url_request_status.h"
+
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
+#include "xwalk/application/common/tizen/encryption.h"
 #endif
 
 using content::BrowserThread;
@@ -111,11 +122,11 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
       bool is_authority_match)
       : net::URLRequestFileJob(
           request, network_delegate, base::FilePath(), file_task_runner),
-        relative_path_(relative_path),
         content_security_policy_(content_security_policy),
-        is_authority_match_(is_authority_match),
-        resource_(application_id, directory_path, relative_path),
         locales_(locales),
+        resource_(application_id, directory_path, relative_path),
+        relative_path_(relative_path),
+        is_authority_match_(is_authority_match),
         weak_factory_(this) {
   }
 
@@ -144,9 +155,15 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
     DCHECK(posted);
   }
 
- private:
+ protected:
   virtual ~URLRequestApplicationJob() {}
 
+  std::string content_security_policy_;
+  std::list<std::string> locales_;
+  ApplicationResource resource_;
+  base::FilePath relative_path_;
+
+ private:
   void OnFilePathRead(base::FilePath* read_file_path) {
     file_path_ = *read_file_path;
     if (file_path_.empty())
@@ -156,13 +173,180 @@ class URLRequestApplicationJob : public net::URLRequestFileJob {
   }
 
   net::HttpResponseInfo response_info_;
-  base::FilePath relative_path_;
-  std::string content_security_policy_;
   bool is_authority_match_;
-  ApplicationResource resource_;
-  std::list<std::string> locales_;
   base::WeakPtrFactory<URLRequestApplicationJob> weak_factory_;
 };
+
+#if defined(OS_TIZEN)
+class URLRequestApplicationJobTizen : public URLRequestApplicationJob {
+ public:
+  URLRequestApplicationJobTizen(
+      net::URLRequest* request,
+      net::NetworkDelegate* network_delegate,
+      const scoped_refptr<base::TaskRunner>& file_task_runner,
+      const std::string& application_id,
+      const base::FilePath& directory_path,
+      const base::FilePath& relative_path,
+      const std::string& content_security_policy,
+      const std::list<std::string>& locales,
+      bool is_authority_match,
+      bool encrypted)
+      : URLRequestApplicationJob(request, network_delegate, file_task_runner,
+            application_id, directory_path, relative_path,
+            content_security_policy, locales, is_authority_match),
+        file_task_runner_(file_task_runner),
+        stream_(new net::FileStream(file_task_runner)),
+        encrypted_(encrypted),
+        weak_ptr_factory_(this) {
+  }
+
+  void Start() override {
+    if (!encrypted_)
+      return URLRequestApplicationJob::Start();
+    base::FilePath* read_file_path = new base::FilePath;
+    resource_.SetLocales(locales_);
+    bool posted = base::WorkerPool::PostTaskAndReply(
+        FROM_HERE,
+        base::Bind(&URLRequestApplicationJobTizen::ReadFilePath,
+            weak_ptr_factory_.GetWeakPtr(), resource_,
+            base::Unretained(read_file_path)),
+        base::Bind(&URLRequestApplicationJobTizen::DidReadFilePath,
+            weak_ptr_factory_.GetWeakPtr(), base::Owned(read_file_path)),
+            true /* task is slow */);
+    DCHECK(posted);
+  }
+
+  void Kill() override {
+    if (!encrypted_)
+      return URLRequestApplicationJob::Kill();
+    weak_ptr_factory_.InvalidateWeakPtrs();
+    URLRequestJob::Kill();
+  }
+
+  bool ReadRawData(net::IOBuffer* buf, int buf_size,
+      int* bytes_read) override {
+    if (!encrypted_)
+      return URLRequestApplicationJob::ReadRawData(buf, buf_size, bytes_read);
+    int remaining = plain_buffer_->size() - plain_buffer_offset_;
+    if (buf_size > remaining)
+      buf_size = remaining;
+    if (!buf_size) {
+      *bytes_read = 0;
+      return true;
+    }
+    memcpy(buf->data(), plain_buffer_->data() + plain_buffer_offset_, buf_size);
+    plain_buffer_offset_ += buf_size;
+    *bytes_read = buf_size;
+    return true;
+  }
+
+  bool GetMimeType(std::string* mime_type) const override {
+    DCHECK(mime_type);
+    if (!encrypted_)
+      return URLRequestApplicationJob::GetMimeType(mime_type);
+    if (!mime_type_.empty()) {
+      *mime_type = mime_type_;
+      return true;
+    }
+    return false;
+  }
+
+ private:
+  void ReadFilePath(const ApplicationResource& resource,
+      base::FilePath* file_path) {
+    *file_path = resource.GetFilePath();
+  }
+
+  void DidReadFilePath(
+      base::FilePath* read_file_path) {
+    file_path_ = *read_file_path;
+    if (file_path_.empty()) {
+      NotifyHeadersComplete();
+      return;
+    }
+    base::File::Info* file_info = new base::File::Info();
+    file_task_runner_->PostTaskAndReply(FROM_HERE,
+        base::Bind(&URLRequestApplicationJobTizen::FetchFileInfo,
+            weak_ptr_factory_.GetWeakPtr(), file_path_,
+            base::Unretained(file_info)),
+        base::Bind(&URLRequestApplicationJobTizen::DidFetchFileInfo,
+            weak_ptr_factory_.GetWeakPtr(), base::Owned(file_info)));
+  }
+
+  void FetchFileInfo(const base::FilePath& file_path,
+      base::File::Info* file_info) {
+    base::GetFileInfo(file_path, file_info);
+  }
+
+  void DidFetchFileInfo(const base::File::Info* file_info) {
+    if (!file_info->size) {
+      NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED,
+          net::ERR_FILE_NOT_FOUND));
+      return;
+    }
+
+    net::GetMimeTypeFromFile(file_path_, &mime_type_);
+    cipher_buffer_ = new net::IOBufferWithSize(file_info->size);
+    int flags = base::File::FLAG_OPEN |
+                base::File::FLAG_READ |
+                base::File::FLAG_ASYNC;
+    int rv = stream_->Open(file_path_, flags,
+        base::Bind(&URLRequestApplicationJobTizen::DidOpen,
+            weak_ptr_factory_.GetWeakPtr()));
+    if (rv != net::ERR_IO_PENDING)
+      DidOpen(rv);
+  }
+
+  void DidOpen(int result) {
+    if (result) {
+      NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED, result));
+      return;
+    }
+    int rv = stream_->Read(
+        cipher_buffer_.get(),
+        cipher_buffer_->size(),
+        base::Bind(&URLRequestApplicationJobTizen::DidReadEncryptedData,
+            weak_ptr_factory_.GetWeakPtr(), cipher_buffer_));
+    if (rv != net::ERR_IO_PENDING)
+      NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED, rv));
+  }
+
+  void DidReadEncryptedData(scoped_refptr<net::IOBufferWithSize> buf,
+      int result) {
+    stream_.reset();
+    std::string plain_text;
+    size_t read_len = 0;
+    const char* filename = resource_.application_id().c_str();
+    ssm_file_info_t sfi;
+    ssm_getinfo(filename, &sfi, SSM_FLAG_DATA, filename);
+    char* data = static_cast<char*>(
+        malloc(sizeof(char) * (sfi.originSize + 1)));
+    memset(data, 0x00, (sfi.originSize + 1));
+    int ret = ssm_read(filename, data, sfi.originSize, &read_len,
+        SSM_FLAG_SECRET_OPERATION, filename);
+    std::string key_str(data, read_len);
+    free(data);
+    if (!ret && !DecryptData(buf->data(), buf->size(), key_str, &plain_text)) {
+      NotifyDone(net::URLRequestStatus(net::URLRequestStatus::FAILED,
+          net::ERR_REQUEST_RANGE_NOT_SATISFIABLE));
+      return;
+    }
+    plain_buffer_ = new net::StringIOBuffer(plain_text);
+    set_expected_content_size(plain_buffer_->size());
+    plain_buffer_offset_ = 0;
+    NotifyHeadersComplete();
+  }
+
+  const scoped_refptr<base::TaskRunner> file_task_runner_;
+  scoped_ptr<net::FileStream> stream_;
+  bool encrypted_;
+  scoped_refptr<net::IOBufferWithSize> cipher_buffer_;
+  scoped_refptr<net::StringIOBuffer> plain_buffer_;
+  int plain_buffer_offset_;
+  std::string mime_type_;
+  base::WeakPtrFactory<URLRequestApplicationJobTizen> weak_ptr_factory_;
+};
+#endif
 
 // This class is a thread-safe cache of active application's data.
 // This class is used by ApplicationProtocolHandler as it lives on IO thread
@@ -277,8 +461,10 @@ ApplicationProtocolHandler::MaybeCreateJob(
 #if defined(OS_TIZEN)
   TizenSettingInfo* info = static_cast<TizenSettingInfo*>(
       application->GetManifestData(application_widget_keys::kTizenSettingKey));
-  if (info && info->encryption_enabled() && RequiresEncryption(relative_path)) {
-    return new URLRequestAppEncryptedFileJob(
+  bool encrypted = info &&
+                   info->encryption_enabled() &&
+                   RequiresEncryption(relative_path);
+  return new URLRequestApplicationJobTizen(
       request,
       network_delegate,
       content::BrowserThread::GetBlockingPool()->
@@ -288,9 +474,10 @@ ApplicationProtocolHandler::MaybeCreateJob(
       directory_path,
       relative_path,
       content_security_policy,
-      locales);
-  } else {
-#endif
+      locales,
+      application,
+      encrypted);
+#else
     return new URLRequestApplicationJob(
         request,
         network_delegate,
@@ -303,8 +490,6 @@ ApplicationProtocolHandler::MaybeCreateJob(
         content_security_policy,
         locales,
         application);
-#if defined(OS_TIZEN)
-  }
 #endif
 }
 
