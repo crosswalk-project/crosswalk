@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.runtime;
+package org.xwalk.app.runtime;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.xwalk.core.SharedXWalkExceptionHandler;
+import org.xwalk.core.SharedXWalkView;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkPreferences;
 
@@ -31,7 +33,13 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     private void init(Context context, Activity activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
-        mXWalkView = new XWalkView(context, activity);
+        mXWalkView = new SharedXWalkView(context, activity, new SharedXWalkExceptionHandler() {
+            @Override
+            public void onSharedLibraryNotFound() {
+                throw new RuntimeException(new XWalkRuntimeLibraryException(
+                        XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_INSTALLED));
+            }
+        });
     }
 
     @Override

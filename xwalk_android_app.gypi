@@ -29,33 +29,10 @@
       ],
     },
     {
-      'target_name': 'xwalk_app_runtime_client_java',
-      'type': 'none',
-      'dependencies': [
-        'generate_xwalk_runtime_client_version',
-      ],
-      'variables': {
-        'java_in_dir': 'app/android/runtime_client',
-        'generated_src_dirs': [ '<(SHARED_INTERMEDIATE_DIR)/version_java' ],
-      },
-      'includes': ['../build/java.gypi'],
-    },
-    {
-      'target_name': 'xwalk_app_runtime_activity_java',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_app_runtime_client_java',
-      ],
-      'variables': {
-        'java_in_dir': 'app/android/runtime_activity',
-      },
-      'includes': ['../build/java.gypi'],
-    },
-    {
       'target_name': 'xwalk_app_hello_world_apk',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_activity_java',
+        'xwalk_app_runtime_java',
       ],
       'variables': {
         'apk_name': 'XWalkAppHelloWorld',
@@ -84,7 +61,7 @@
       'target_name': 'xwalk_app_template_apk',
       'type': 'none',
       'dependencies': [
-        'xwalk_app_runtime_activity_java',
+        'xwalk_app_runtime_java',
       ],
       'variables': {
         'apk_name': 'XWalkAppTemplate',
@@ -113,6 +90,7 @@
       'type': 'none',
       'dependencies': [
         'generate_xwalk_runtime_client_version',
+        'xwalk_core_java',
       ],
       'variables': {
         'java_in_dir': 'app/android/runtime_activity',
@@ -129,7 +107,6 @@
       'dependencies': [
         'xwalk_app_runtime_java',
         'xwalk_app_template_apk',
-        'xwalk_runtime_java',
         'xwalk_core_library',
       ],
       'actions': [

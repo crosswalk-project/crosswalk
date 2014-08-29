@@ -91,7 +91,10 @@ def CopyReflectionHelperJava(helper_class, wrap_output):
     if line.startswith('package '):
       fo.write('package org.xwalk.core;\n')
     else:
-      fo.write(line + '\n')
+      if 'Wrapper Only' in line:
+        pass
+      else:
+        fo.write(line + '\n')
   fo.close()
   f.close()
 

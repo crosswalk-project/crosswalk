@@ -177,15 +177,17 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});"},
               postWrapperLines = {
+                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(convertContext(context), attrs);
 
         checkThreadSafety();
-        mContext = context;
-        init(context, attrs);
+        mActivity = (Activity) context;
+        mContext = getContext();
+        init(mContext, attrs);
     }
 
     /**
@@ -198,17 +200,31 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, null);"},
               postWrapperLines = {
+                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, Activity activity) {
-        super(context, null);
-        checkThreadSafety();
+        super(convertContext(context), null);
 
+        checkThreadSafety();
         // Make sure mActivity is initialized before calling 'init' method.
         mActivity = activity;
-        mContext = context;
-        init(context, null);
+        mContext = getContext();
+        init(mContext, null);
+    }
+
+    private static Context convertContext(Context context) {
+        Context ret = context;
+        Context bridgeContext = ReflectionHelper.getBridgeContext();
+        if (bridgeContext == null || context == null ||
+                bridgeContext.getPackageName().equals(context.getPackageName())) {
+            // Not acrossing package
+            ret = context;
+        } else {
+            ret = new MixedContext(bridgeContext, context);
+        }
+        return ret;
     }
 
     /**

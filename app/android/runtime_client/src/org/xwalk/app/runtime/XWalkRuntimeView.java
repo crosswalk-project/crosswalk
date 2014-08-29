@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.runtime;
+package org.xwalk.app.runtime;
 
 import android.app.Activity;
 import android.content.Context;
@@ -33,12 +33,12 @@ public class XWalkRuntimeView extends FrameLayout {
      * @param context a context when creating this package
      * @param attrs the attributes of the XML tag that is inflating the view
      */
-    public XWalkRuntimeView(Activity activity, Context libContext, AttributeSet attrs) {
-        super(libContext, attrs);
+    public XWalkRuntimeView(Activity activity, Context context, AttributeSet attrs) {
+        super(context, attrs);
 
         // MixedContext is needed for cross package because the application
         // context is different.
-        init(new MixedContext(libContext, activity), activity);
+        init(context, activity);
     }
 
     /**

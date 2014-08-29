@@ -33,25 +33,6 @@
       ],
     },
     {
-      'target_name': 'xwalk_core_internal_java',
-      'type': 'none',
-      'dependencies': [
-        '../components/components.gyp:navigation_interception_java',
-        '../components/components.gyp:web_contents_delegate_android_java',
-        '../content/content.gyp:content_java',
-        '../ui/android/ui_android.gyp:ui_java',
-        'xwalk_core_extensions_java',
-        'xwalk_core_strings',
-      ],
-      'variables': {
-        'java_in_dir': 'runtime/android/core_internal',
-        'has_java_resources': 1,
-        'R_package': 'org.xwalk.core.internal',
-        'R_package_relpath': 'org/xwalk/core/internal',
-      },
-      'includes': ['../build/java.gypi'],
-    },
-    {
       'target_name': 'xwalk_core_strings',
       'type': 'none',
       'variables': {
@@ -66,6 +47,10 @@
       'type': 'none',
       'variables': {
         'timestamp': '<(reflection_java_dir)/gen.timestamp',
+        'internal_src': 'runtime/android/core_internal/src/org/xwalk/core/internal',
+        'internal_java_sources': [
+          '>!@(find <(internal_src) -name "*.java")'
+        ],
       },
       'all_dependent_settings': {
         'variables': {
@@ -86,14 +71,14 @@
             'tools/reflection_generator/java_method.py',
             'tools/reflection_generator/reflection_generator.py',
             'tools/reflection_generator/wrapper_generator.py',
-            '<(PRODUCT_DIR)/gen/xwalk_core_internal_java/xwalk_core_internal_java.jar',
+            '>@(internal_java_sources)',
           ],
           'outputs': [
             '<(timestamp)',
           ],
           'action': [
             'python', 'tools/reflection_generator/reflection_generator.py',
-            '--input_dir', 'runtime/android/core_internal/src/org/xwalk/core/internal',
+            '--input_dir', '<(internal_src)',
             '--bridge_output', '<(reflection_java_dir)/bridge',
             '--wrap_output', '<(reflection_java_dir)/wrapper',
             '--helper_class', 'runtime/android/core_internal/src/org/xwalk/core/internal/ReflectionHelper.java',
@@ -103,34 +88,42 @@
       ],
     },
     {
-      #TODO(wang16): split it into internal and core.
+      'target_name': 'xwalk_core_internal_java',
+      'type': 'none',
+      'dependencies': [
+        '../components/components.gyp:navigation_interception_java',
+        '../components/components.gyp:web_contents_delegate_android_java',
+        '../content/content.gyp:content_java',
+        '../ui/android/ui_android.gyp:ui_java',
+        'xwalk_core_extensions_java',
+        'xwalk_core_strings',
+        'xwalk_core_reflection_layer_java_gen',
+      ],
+      'variables': {
+        'java_in_dir': 'runtime/android/core_internal',
+        'has_java_resources': 1,
+        'R_package': 'org.xwalk.core.internal',
+        'R_package_relpath': 'org/xwalk/core/internal',
+        'generated_src_dirs': [
+          '<(reflection_java_dir)/bridge',
+        ],
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
       'target_name': 'xwalk_core_java',
       'type': 'none',
       'dependencies': [
-        'xwalk_core_internal_java',
         'xwalk_core_reflection_layer_java_gen',
       ],
       'variables': {
         'java_in_dir': 'runtime/android/core',
         'additional_input_paths': [ '>(reflection_layer_gen_timestamp)' ],
         'generated_src_dirs': [
-          '<(reflection_java_dir)/bridge',
           '<(reflection_java_dir)/wrapper',
         ],
       },
       'includes': ['../build/java.gypi']
-    },
-    {
-      'target_name': 'xwalk_runtime_java',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_core_java',
-      ],
-      'variables': {
-        'java_in_dir': 'runtime/android/runtime',
-        'has_java_resources': 0,
-      },
-      'includes': ['../build/java.gypi'],
     },
     {
       'target_name': 'xwalk_core_jar_jni',
@@ -193,8 +186,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
-        'xwalk_core_extensions_java',
-        'xwalk_runtime_java',
+        'xwalk_core_internal_java',
         'xwalk_runtime_lib_apk_extension',
         'xwalk_runtime_lib_apk_pak',
       ],

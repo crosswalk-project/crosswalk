@@ -8,7 +8,6 @@ package org.xwalk.runtime.client.embedded.test;
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 
-import org.xwalk.app.runtime.XWalkRuntimeClient;
 import org.xwalk.runtime.client.embedded.shell.XWalkRuntimeClientEmbeddedShellActivity;
 import org.xwalk.test.util.XWalkRuntimeClientTestGeneric;
 import org.xwalk.test.util.XWalkRuntimeClientTestUtilBase;

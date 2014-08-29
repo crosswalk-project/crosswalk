@@ -77,6 +77,7 @@
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
+        'xwalk_core_internal_java',
         'xwalk_core_java',
       ],
       'variables': {
@@ -101,6 +102,7 @@
       'target_name': 'xwalk_core_library_java',
       'type': 'none',
       'dependencies': [
+        'xwalk_core_internal_java',
         'xwalk_core_java',
         'xwalk_core_library_empty_embedder_apk',
       ],

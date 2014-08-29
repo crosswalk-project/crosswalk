@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.chromium.content.browser.test.util.CallbackHelper;
-import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.app.runtime.XWalkRuntimeView;
 
-public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRuntimeClient> {
+public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRuntimeView> {
     public class PageStatusCallback {
         public void onPageStarted(String url) {
             mCallbackHelpers.onPageStarted(url);
@@ -35,7 +35,7 @@ public class XWalkRuntimeClientTestUtilBase extends XWalkTestUtilBase<XWalkRunti
         }
     }
 
-    public XWalkRuntimeClientTestUtilBase(XWalkRuntimeClient runtimeView,
+    public XWalkRuntimeClientTestUtilBase(XWalkRuntimeView runtimeView,
             Instrumentation instrumentation) {
         super(runtimeView, instrumentation);
     }

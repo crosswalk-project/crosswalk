@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public abstract class CrossPackageWrapper {
-    public final static String LIBRARY_APK_PACKAGE_NAME = "org.xwalk.runtime.lib";
+    public final static String LIBRARY_APK_PACKAGE_NAME = "org.xwalk.core";
     private Context mLibCtx;
     private Class<?> mTargetClass;
     private Constructor<?> mCreator;
@@ -35,11 +35,6 @@ public abstract class CrossPackageWrapper {
                 mLibCtx = ctx.createPackageContext(
                         LIBRARY_APK_PACKAGE_NAME,
                         Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
-                Context app = ctx.getApplicationContext();
-                assert(app instanceof XWalkRuntimeApplication);
-                XWalkRuntimeApplication xwalkApp = (XWalkRuntimeApplication) app;
-                xwalkApp.addResource(mLibCtx.getResources());
-
                 mTargetClass =
                         mLibCtx.getClassLoader().loadClass(className);
             }
