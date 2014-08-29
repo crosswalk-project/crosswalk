@@ -75,7 +75,7 @@ class SignatureFile {
 };
 typedef std::set<SignatureFile> SignatureFileSet;
 
-const SignatureFileSet& GetSignatureFiles(const base::FilePath& widget_path) {
+const SignatureFileSet GetSignatureFiles(const base::FilePath& widget_path) {
   SignatureFileSet signature_set;
   std::string file_name;
   int number;
@@ -186,7 +186,7 @@ bool CheckProfileURI(const xwalk::application::SignatureData& signature_data) {
 bool CheckReference(
     const xwalk::application::SignatureData& signature_data) {
   base::FilePath widget_path = signature_data.GetExtractedWidgetPath();
-  int prefix_length = widget_path.value().length() + 1;
+  int prefix_length = widget_path.value().length();
   std::string file_name;
   std::set<std::string> reference_set = signature_data.reference_set();
   base::FileEnumerator iter(widget_path, true, base::FileEnumerator::FILES);
@@ -217,7 +217,7 @@ SignatureValidator::Status SignatureValidator::Check(
   LOG(INFO) << "Verifying widget signature file.";
   // Process every signature files (author and distributor) according to
   // http://www.w3.org/TR/widgets-digsig/#signature-verification.
-  SignatureFileSet signature_set = GetSignatureFiles(widget_path);
+  const SignatureFileSet& signature_set = GetSignatureFiles(widget_path);
   if (signature_set.empty()) {
     LOG(INFO) << "No signed signature in the package.";
     return UNTRUSTED;
