@@ -186,7 +186,7 @@ bool CheckProfileURI(const xwalk::application::SignatureData& signature_data) {
 bool CheckReference(
     const xwalk::application::SignatureData& signature_data) {
   base::FilePath widget_path = signature_data.GetExtractedWidgetPath();
-  int prefix_length = widget_path.value().length() + 1;
+  int prefix_length = widget_path.value().length();
   std::string file_name;
   std::set<std::string> reference_set = signature_data.reference_set();
   base::FileEnumerator iter(widget_path, true, base::FileEnumerator::FILES);
