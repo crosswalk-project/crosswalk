@@ -71,7 +71,8 @@ class Application : public Runtime::Observer,
     LaunchParams() :
         entry_points(Default),
         launcher_pid(0),
-        force_fullscreen(false) {}
+        force_fullscreen(false),
+        remote_debugging(false) {}
 
     LaunchEntryPoints entry_points;
 
@@ -80,6 +81,7 @@ class Application : public Runtime::Observer,
     int32 launcher_pid;
 
     bool force_fullscreen;
+    bool remote_debugging;
   };
 
   // Closes all the application's runtimes (application pages).
@@ -180,6 +182,8 @@ class Application : public Runtime::Observer,
   StoredPermissionMap permission_map_;
   // Security policy.
   scoped_ptr<SecurityPolicy> security_policy_;
+  // Remote debugging enabled or not for this Application
+  bool remote_debugging_enabled_;
   // WeakPtrFactory should be always declared the last.
   base::WeakPtrFactory<Application> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(Application);

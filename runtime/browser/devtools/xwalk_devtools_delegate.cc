@@ -135,8 +135,12 @@ void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   for (std::vector<RenderViewHost*>::iterator it = rvh_list.begin();
        it != rvh_list.end(); ++it) {
     WebContents* web_contents = WebContents::FromRenderViewHost(*it);
-    if (web_contents)
-      targets.push_back(new Target(web_contents));
+    if (web_contents) {
+      Runtime* runtime = static_cast<Runtime*>(web_contents->GetDelegate());
+      if (runtime && runtime->remote_debugging_enabled()) {
+        targets.push_back(new Target(web_contents));
+      }
+    }
   }
   callback.Run(targets);
 }
