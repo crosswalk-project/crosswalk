@@ -23,6 +23,7 @@ namespace {
 char* install_option = NULL;
 char* update_option = NULL;
 char* uninstall_option = NULL;
+char* reinstall_option = NULL;
 char* operation_key = NULL;
 char* xml_path = NULL;
 char* icon_path = NULL;
@@ -35,6 +36,8 @@ GOptionEntry entries[] = {
     "Path of the application to be updated", "APPID" },
   { "uninstall", 'd', 0, G_OPTION_ARG_STRING, &uninstall_option,
     "Uninstall the application with this appid", "APPID" },
+  { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_option,
+    "Path of the application to be reinstalled", "APPID" },
   { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
     "Unique operation key", "KEY" },
   { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
@@ -86,8 +89,10 @@ int main(int argc, char *argv[]) {
     appId = uninstall_option;
   } else if (update_option) {
     appId = update_option;
+  } else if (reinstall_option) {
+    appId = reinstall_option;
   } else {
-    fprintf(stderr, "Use: --install, --uninstall or --update\n");
+    fprintf(stderr, "Use: --install, --uninstall, --update or --reinstall\n");
     exit(1);
   }
 
@@ -127,6 +132,14 @@ int main(int argc, char *argv[]) {
     }
 
     result = helper.UpdateApplication(xml_path, icon_path);
+  } else if (reinstall_option) {
+    if (operation_key) {
+      pkgmgr_argv[0] = "-r";
+      pkgmgr_argv[1] = reinstall_option;  // this value is ignored by pkgmgr
+      helper.InitializePkgmgrSignal((quiet ? 5 : 4), pkgmgr_argv);
+    }
+
+    result = helper.ReinstallApplication();
   }
 
   // Convention is to return 0 on success.

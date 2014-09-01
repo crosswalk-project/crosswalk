@@ -40,6 +40,9 @@ const char PKGMGR_START_UNINSTALL[] = "uninstall";
 // Value for update.
 const char PKGMGR_START_UPDATE[] = "update";
 
+// Value for update.
+const char PKGMGR_START_REINSTALL[] = "reinstall";
+
 // Notification about end of installation with status.
 const char PKGMGR_END_KEY[] = "end";
 
@@ -150,6 +153,13 @@ bool PackageInstallerHelper::UpdateApplication(
   bool ret = UpdateApplicationInternal(xmlpath, iconpath);
   SendSignal(PKGMGR_END_KEY, ToEndStatus(ret));
   return ret;
+}
+
+bool PackageInstallerHelper::ReinstallApplication() {
+  SendSignal(PKGMGR_START_KEY, PKGMGR_START_REINSTALL);
+  // FIXME not implemented, just send signal abotu failure
+  SendSignal(PKGMGR_END_KEY, ToEndStatus(false));
+  return false;
 }
 
 bool PackageInstallerHelper::InstallApplicationInternal(

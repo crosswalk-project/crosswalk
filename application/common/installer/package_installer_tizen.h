@@ -26,6 +26,8 @@ class PackageInstallerTizen : public PackageInstaller {
   virtual bool PlatformUninstall(ApplicationData* data) OVERRIDE;
   virtual bool PlatformUpdate(ApplicationData* data) OVERRIDE;
 
+  virtual bool PlatformReinstall(const base::FilePath& path) OVERRIDE;
+
  private:
   bool quiet_;
   std::string key_;

@@ -339,5 +339,31 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
   return true;
 }
 
+bool PackageInstallerTizen::PlatformReinstall(const base::FilePath& path) {
+  CommandLine cmdline(kPkgHelper);
+  cmdline.AppendSwitchPath("--reinstall", path);
+  if (quiet_)
+    cmdline.AppendSwitch("-q");
+  if (!key_.empty()) {
+    cmdline.AppendSwitchASCII("--key", key_);
+  }
+
+  int exit_code;
+  std::string output;
+
+  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
+    LOG(ERROR) << "Could not launch installer helper";
+    return false;
+  }
+
+  if (exit_code != 0) {
+    LOG(ERROR) << "Could not reinstall application: "
+               << output << " (" << exit_code << ")";
+    return false;
+  }
+
+  return true;
+}
+
 }  // namespace application
 }  // namespace xwalk
