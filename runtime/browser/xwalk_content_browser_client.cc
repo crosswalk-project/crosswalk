@@ -291,7 +291,7 @@ void XWalkContentBrowserClient::ShowDesktopNotification(
   XWalkContentsClientBridgeBase* bridge =
       XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
   bridge->ShowNotification(params, render_frame_host,
-      delegate.get(), cancel_callback);
+      delegate.Pass(), cancel_callback);
 #endif
 }
 

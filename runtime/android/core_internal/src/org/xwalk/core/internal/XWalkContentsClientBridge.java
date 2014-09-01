@@ -597,16 +597,14 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @CalledByNative
     private void showNotification(String title, String message, String replaceId,
-            int notificationId, long delegate) {
-        // FIXME(wang16): use replaceId to replace exist notification. It happens when
-        //                a notification with same name and tag fires.
+            int notificationId) {
         mNotificationService.showNotification(
-                title, message, replaceId, notificationId, delegate);
+                title, message, replaceId, notificationId);
     }
 
     @CalledByNative
-    private void cancelNotification(int notificationId, long delegate) {
-        mNotificationService.cancelNotification(notificationId, delegate);
+    private void cancelNotification(int notificationId) {
+        mNotificationService.cancelNotification(notificationId);
     }
 
     void confirmJsResult(int id, String prompt) {
@@ -624,24 +622,24 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         nativeExitFullscreen(mNativeContentsClientBridge, nativeWebContents);
     }
 
-    public void notificationDisplayed(long delegate) {
+    public void notificationDisplayed(int id) {
         if (mNativeContentsClientBridge == 0) return;
-        nativeNotificationDisplayed(mNativeContentsClientBridge, delegate);
+        nativeNotificationDisplayed(mNativeContentsClientBridge, id);
     }
 
-    public void notificationError(long delegate) {
+    public void notificationError(int id) {
         if (mNativeContentsClientBridge == 0) return;
-        nativeNotificationError(mNativeContentsClientBridge, delegate);
+        nativeNotificationError(mNativeContentsClientBridge, id);
     }
 
-    public void notificationClicked(int id, long delegate) {
+    public void notificationClicked(int id) {
         if (mNativeContentsClientBridge == 0) return;
-        nativeNotificationClicked(mNativeContentsClientBridge, id, delegate);
+        nativeNotificationClicked(mNativeContentsClientBridge, id);
     }
 
-    public void notificationClosed(int id, boolean byUser, long delegate) {
+    public void notificationClosed(int id, boolean byUser) {
         if (mNativeContentsClientBridge == 0) return;
-        nativeNotificationClosed(mNativeContentsClientBridge, id, byUser, delegate);
+        nativeNotificationClosed(mNativeContentsClientBridge, id, byUser);
     }
 
     void setDownloadListener(DownloadListener listener) {
@@ -681,10 +679,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             String prompt);
     private native void nativeCancelJsResult(long nativeXWalkContentsClientBridge, int id);
     private native void nativeExitFullscreen(long nativeXWalkContentsClientBridge, long nativeWebContents);
-    private native void nativeNotificationDisplayed(long nativeXWalkContentsClientBridge, long delegate);
-    private native void nativeNotificationError(long nativeXWalkContentsClientBridge, long delegate);
-    private native void nativeNotificationClicked(long nativeXWalkContentsClientBridge, int id, long delegate);
-    private native void nativeNotificationClosed(long nativeXWalkContentsClientBridge, int id, boolean byUser, long delegate);
+    private native void nativeNotificationDisplayed(long nativeXWalkContentsClientBridge, int id);
+    private native void nativeNotificationError(long nativeXWalkContentsClientBridge, int id);
+    private native void nativeNotificationClicked(long nativeXWalkContentsClientBridge, int id);
+    private native void nativeNotificationClosed(long nativeXWalkContentsClientBridge, int id, boolean byUser);
     private native void nativeOnFilesSelected(long nativeXWalkContentsClientBridge,
             int processId, int renderId, int mode_flags, String filepath, String displayName);
     private native void nativeOnFilesNotSelected(long nativeXWalkContentsClientBridge,
