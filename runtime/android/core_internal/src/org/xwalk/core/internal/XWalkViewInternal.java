@@ -747,6 +747,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      *
      * @hide
      */
+    @XWalkAPI
     public void setNetworkAvailable(boolean networkUp) {
         if (mContent == null) return;
         checkThreadSafety();
