@@ -29,7 +29,7 @@ const content::MediaStreamDevice* FindDefaultDeviceWithId(
   }
 
   return &(*devices.begin());
-};
+}
 
 }  // namespace
 

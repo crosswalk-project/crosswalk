@@ -5,8 +5,8 @@
 #ifndef XWALK_RUNTIME_BROWSER_ANDROID_XWALK_DEV_TOOLS_SERVER_H_
 #define XWALK_RUNTIME_BROWSER_ANDROID_XWALK_DEV_TOOLS_SERVER_H_
 
-#include <string>
 #include <jni.h>
+#include <string>
 #include "base/basictypes.h"
 
 namespace content {
