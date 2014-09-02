@@ -592,7 +592,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void onHide() {
         if (mContent == null || mIsHidden) return;
-        if (null != mExtensionManager) mExtensionManager.onPause();
         mContent.onPause();
         mIsHidden = true;
     }
@@ -608,7 +607,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void onShow() {
         if (mContent == null || !mIsHidden ) return;
-        if (null != mExtensionManager) mExtensionManager.onResume();
         mContent.onResume();
         mIsHidden = false;
     }
@@ -928,9 +926,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 break;
             case ActivityState.PAUSED:
                 pauseTimers();
+                if (null != mExtensionManager) mExtensionManager.onPause();
                 break;
             case ActivityState.RESUMED:
                 resumeTimers();
+                if (null != mExtensionManager) mExtensionManager.onResume();
                 break;
             case ActivityState.DESTROYED:
                 onDestroy();
