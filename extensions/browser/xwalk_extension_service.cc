@@ -265,7 +265,7 @@ void XWalkExtensionService::OnRenderProcessWillLaunch(
 
   if (!g_external_extensions_path_for_testing_.empty()) {
     (*runtime_variables)["runtime_name"] =
-        base::Value::CreateStringValue("xwalk");
+        new base::StringValue("xwalk");
     OnRenderProcessHostCreatedInternal(host, ui_thread_extensions,
         extension_thread_extensions, runtime_variables.Pass());
     return;

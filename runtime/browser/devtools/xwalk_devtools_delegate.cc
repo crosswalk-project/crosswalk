@@ -62,7 +62,7 @@ class Target : public content::DevToolsTarget {
 
 Target::Target(WebContents* web_contents) {
   agent_host_ =
-      DevToolsAgentHost::GetOrCreateFor(web_contents->GetRenderViewHost());
+      DevToolsAgentHost::GetOrCreateFor(web_contents);
   id_ = agent_host_->GetId();
   title_ = base::UTF16ToUTF8(web_contents->GetTitle());
   url_ = web_contents->GetURL();
@@ -74,10 +74,7 @@ Target::Target(WebContents* web_contents) {
 }
 
 bool Target::Activate() const {
-  RenderViewHost* rvh = agent_host_->GetRenderViewHost();
-  if (!rvh)
-    return false;
-  WebContents* web_contents = WebContents::FromRenderViewHost(rvh);
+  WebContents* web_contents = agent_host_->GetWebContents();
   if (!web_contents)
     return false;
   web_contents->GetDelegate()->ActivateContents(web_contents);
@@ -85,7 +82,7 @@ bool Target::Activate() const {
 }
 
 bool Target::Close() const {
-  RenderViewHost* rvh = agent_host_->GetRenderViewHost();
+  RenderViewHost* rvh = agent_host_->GetWebContents()->GetRenderViewHost();
   if (!rvh)
     return false;
   rvh->ClosePage();
@@ -130,17 +127,14 @@ XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
 
 void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
-  std::vector<RenderViewHost*> rvh_list =
-      content::DevToolsAgentHost::GetValidRenderViewHosts();
-  for (std::vector<RenderViewHost*>::iterator it = rvh_list.begin();
-       it != rvh_list.end(); ++it) {
-    WebContents* web_contents = WebContents::FromRenderViewHost(*it);
-    if (web_contents) {
-      Runtime* runtime = static_cast<Runtime*>(web_contents->GetDelegate());
-      if (runtime && runtime->remote_debugging_enabled()) {
-        targets.push_back(new Target(web_contents));
-      }
-    }
+  std::vector<WebContents*> web_contents_list =
+      content::DevToolsAgentHost::GetInspectableWebContents();
+  for (std::vector<WebContents*>::iterator it = web_contents_list.begin();
+       it != web_contents_list.end();
+       ++it) {
+    Runtime* runtime = static_cast<Runtime*>((*it)->GetDelegate());
+    if (runtime && runtime->remote_debugging_enabled())
+      targets.push_back(new Target(*it));
   }
   callback.Run(targets);
 }

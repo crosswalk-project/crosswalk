@@ -91,55 +91,18 @@
         ],
       },
       'includes': [ '../build/java_apk.gypi' ],
-    },
-    {
-      # pack classes compiled from the java files chromium generated into a
-      # jar file.
-      'target_name': 'chromium_generated_java',
-      'type': 'none',
-      'dependencies': [
-        'xwalk_core_library_empty_embedder_apk',
-      ],
-      'variables': {
-        'jar_name': '<(_target_name).jar',
-        'jar_final_path': '<(PRODUCT_DIR)/lib.java/<(jar_name)',
-        'jar_excluded_classes': [
-          '*org/xwalk/core/R*',
-        ],
-      },
       'all_dependent_settings': {
         'variables': {
-          'input_jars_paths': ['<(jar_final_path)'],
+          'input_jars_paths': ['<(javac_jar_path)'],
         },
       },
-      'actions': [
-        {
-          'action_name': 'jar_<(_target_name)',
-          'message': 'Creating <(_target_name) jar',
-          'inputs': [
-            '<(DEPTH)/build/android/gyp/util/build_utils.py',
-            '<(DEPTH)/build/android/gyp/util/md5_check.py',
-            '<(DEPTH)/build/android/gyp/jar.py',
-            '<(PRODUCT_DIR)/apks/<(core_library_empty_embedder_apk_name).apk',
-          ],
-          'outputs': [
-            '<(jar_final_path)',
-          ],
-          'action': [
-            'python', '<(DEPTH)/build/android/gyp/jar.py',
-            '--classes-dir=<(PRODUCT_DIR)/xwalk_core_library_empty_embedder_apk/classes',
-            '--jar-path=<(jar_final_path)',
-            '--excluded-classes=<(jar_excluded_classes)',
-          ],
-        },
-      ],
     },
     {
       'target_name': 'xwalk_core_library_java',
       'type': 'none',
       'dependencies': [
         'xwalk_core_java',
-        'chromium_generated_java',
+        'xwalk_core_library_empty_embedder_apk',
       ],
       'variables': {
         'classes_dir': '<(PRODUCT_DIR)/<(_target_name)/classes',

@@ -22,8 +22,7 @@ sys.path.insert(0, os.path.join(chrome_src, 'tools', 'gyp', 'pylib'))
 import gyp
 
 sys.path.insert(0, os.path.join(chrome_src, 'build'))
-import gyp_helper
-import landmine_utils
+import gyp_environment
 import vs_toolchain
 
 # Assume this file is in a one-level-deep subdirectory of the source root.
@@ -34,6 +33,7 @@ sys.path.insert(1, os.path.join(chrome_src, 'tools'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'generate_shim_headers'))
 sys.path.insert(1, os.path.join(chrome_src, 'tools', 'grit'))
 sys.path.insert(1, os.path.join(chrome_src, 'chrome', 'tools', 'build'))
+sys.path.insert(1, os.path.join(chrome_src, 'chromecast', 'tools', 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'native_client', 'build'))
 sys.path.insert(1, os.path.join(chrome_src, 'native_client_sdk', 'src',
     'build_tools'))
@@ -82,6 +82,7 @@ def ProcessGypDefinesItems(items):
       # you do 'foo=1' or 'foo'.
       result += [(tokens[0], '1')]
   return result
+
 
 def GetGypVars(supplemental_files):
   """Returns a dictionary of all GYP vars."""
@@ -138,6 +139,7 @@ def GetGypVars(supplemental_files):
   vars_dict = dict(supp_items + env_items + cmdline_items)
   return vars_dict
 
+
 def GetOutputDirectory():
   """Returns the output directory that GYP will use."""
   # GYP generator flags from the command line. We can't use optparse since we
@@ -193,11 +195,14 @@ def additional_include_files(supplemental_files, args=[]):
 if __name__ == '__main__':
   args = sys.argv[1:]
 
+  use_analyzer = len(args) and args[0] == '--analyzer'
+  if use_analyzer:
+    args.pop(0)
+    os.environ['GYP_GENERATORS'] = 'analyzer'
+    args.append('-Gconfig_path=' + args.pop(0))
+    args.append('-Ganalyzer_output_path=' + args.pop(0))
+
   if int(os.environ.get('GYP_CHROMIUM_NO_ACTION', 0)):
-    # Check for landmines (reasons to clobber the build) in any case.
-    print 'Running build/landmines.py...'
-    subprocess.check_call(
-        [sys.executable, os.path.join(script_dir, 'landmines.py')])
     print 'Skipping gyp_chromium due to GYP_CHROMIUM_NO_ACTION env var.'
     sys.exit(0)
 
@@ -241,8 +246,6 @@ if __name__ == '__main__':
     p.communicate()
     sys.exit(p.returncode)
 
-  gyp_helper.apply_chromium_gyp_env()
-
   # This could give false positives since it doesn't actually do real option
   # parsing.  Oh well.
   gyp_file_specified = False
@@ -250,6 +253,8 @@ if __name__ == '__main__':
     if arg.endswith('.gyp'):
       gyp_file_specified = True
       break
+
+  gyp_environment.SetEnvironment()
 
   # If we didn't get a file, check an env var, and then fall back to
   # assuming 'all.gyp' from the same directory as the script.
@@ -280,21 +285,6 @@ if __name__ == '__main__':
   if re.search(r'(^|,|\s)make($|,|\s)', os.environ.get('GYP_GENERATORS', '')):
     print 'Error: make gyp generator not supported (check GYP_GENERATORS).'
     sys.exit(1)
-
-  # Default to ninja on linux and windows, but only if no generator has
-  # explicitly been set.
-  # Also default to ninja on mac, but only when not building chrome/ios.
-  # . -f / --format has precedence over the env var, no need to check for it
-  # . set the env var only if it hasn't been set yet
-  # . chromium.gyp_env has been applied to os.environ at this point already
-  if sys.platform.startswith(('linux', 'win', 'freebsd')) and \
-      not os.environ.get('GYP_GENERATORS'):
-    os.environ['GYP_GENERATORS'] = 'ninja'
-  elif sys.platform == 'darwin' and not os.environ.get('GYP_GENERATORS') and \
-      not 'OS=ios' in os.environ.get('GYP_DEFINES', []):
-    os.environ['GYP_GENERATORS'] = 'ninja'
-
-  vs2013_runtime_dll_dirs = vs_toolchain.SetEnvironmentAndGetRuntimeDllDirs()
 
   # If CHROMIUM_GYP_SYNTAX_CHECK is set to 1, it will invoke gyp with --check
   # to enfore syntax checking.
@@ -343,22 +333,18 @@ if __name__ == '__main__':
     args.append('-Dnotifications=1')
     args.append('-Drelease_unwind_tables=0')
 
-  print 'Updating projects from gyp files...'
-  sys.stdout.flush()
+  if not use_analyzer:
+    print 'Updating projects from gyp files...'
+    sys.stdout.flush()
 
   # Off we go...
   gyp_rc = gyp.main(args)
 
-  # Check for landmines (reasons to clobber the build). This must be run here,
-  # rather than a separate runhooks step so that any environment modifications
-  # from above are picked up.
-  print 'Running build/landmines.py...'
-  subprocess.check_call(
-      [sys.executable, os.path.join(chrome_src, 'build/landmines.py')])
-
-  if vs2013_runtime_dll_dirs:
-    x64_runtime, x86_runtime = vs2013_runtime_dll_dirs
-    vs_toolchain.CopyVsRuntimeDlls(
+  if not use_analyzer:
+    vs2013_runtime_dll_dirs = vs_toolchain.SetEnvironmentAndGetRuntimeDllDirs()
+    if vs2013_runtime_dll_dirs:
+      x64_runtime, x86_runtime = vs2013_runtime_dll_dirs
+      vs_toolchain.CopyVsRuntimeDlls(
         os.path.join(chrome_src, GetOutputDirectory()),
         (x86_runtime, x64_runtime))
 

@@ -67,7 +67,7 @@ class XWalkContentsClientBridgeBase {
   virtual void ShowNotification(
       const content::ShowDesktopNotificationHostMsgParams& params,
       content::RenderFrameHost* render_frame_host,
-      content::DesktopNotificationDelegate* delegate,
+      scoped_ptr<content::DesktopNotificationDelegate> delegate,
       base::Closure* cancel_callback)
       = 0;
   virtual void UpdateNotificationIcon(

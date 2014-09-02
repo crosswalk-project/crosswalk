@@ -9,7 +9,7 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
-#include "base/platform_file.h"
+#include "base/files/file.h"
 #include "content/public/browser/browser_child_process_host.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/browser/browser_ppapi_host.h"
@@ -21,10 +21,6 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
 #include "content/public/common/show_desktop_notification_params.h"
-#include "components/nacl/browser/nacl_browser.h"
-#include "components/nacl/browser/nacl_host_message_filter.h"
-#include "components/nacl/browser/nacl_process_host.h"
-#include "components/nacl/common/nacl_process_type.h"
 #include "net/ssl/ssl_info.h"
 #include "net/url_request/url_request_context_getter.h"
 #include "ppapi/host/ppapi_host.h"
@@ -40,6 +36,13 @@
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+
+#if !defined(DISABLE_NACL)
+#include "components/nacl/browser/nacl_browser.h"
+#include "components/nacl/browser/nacl_host_message_filter.h"
+#include "components/nacl/browser/nacl_process_host.h"
+#include "components/nacl/common/nacl_process_type.h"
+#endif
 
 #if defined(OS_ANDROID)
 #include "base/android/path_utils.h"
@@ -66,8 +69,6 @@
 #include "xwalk/runtime/browser/runtime_platform_util.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
-
-using content::BrowserChildProcessHostIterator;
 
 namespace xwalk {
 
@@ -239,9 +240,10 @@ void XWalkContentBrowserClient::AllowCertificateError(
     int cert_error,
     const net::SSLInfo& ssl_info,
     const GURL& request_url,
-    ResourceType::Type resource_type,
+    content::ResourceType resource_type,
     bool overridable,
     bool strict_enforcement,
+    bool expired_previous_decision,
     const base::Callback<void(bool)>& callback, // NOLINT
     content::CertificateRequestResultType* result) {
   // Currently only Android handles it.
@@ -265,31 +267,31 @@ void XWalkContentBrowserClient::AllowCertificateError(
 void XWalkContentBrowserClient::RequestDesktopNotificationPermission(
     const GURL& source_origin,
     content::RenderFrameHost* render_frame_host,
-    const base::Closure& callback) {
+    const base::Callback<void(blink::WebNotificationPermission)>& callback) {
 }
 
-blink::WebNotificationPresenter::Permission
+blink::WebNotificationPermission
 XWalkContentBrowserClient::CheckDesktopNotificationPermission(
     const GURL& source_url,
     content::ResourceContext* context,
     int render_process_id) {
 #if defined(OS_ANDROID)
-  return blink::WebNotificationPresenter::PermissionAllowed;
+  return blink::WebNotificationPermissionAllowed;
 #else
-  return blink::WebNotificationPresenter::PermissionNotAllowed;
+  return blink::WebNotificationPermissionDenied;
 #endif
 }
 
 void XWalkContentBrowserClient::ShowDesktopNotification(
     const content::ShowDesktopNotificationHostMsgParams& params,
     content::RenderFrameHost* render_frame_host,
-    content::DesktopNotificationDelegate* delegate,
+    scoped_ptr<content::DesktopNotificationDelegate> delegate,
     base::Closure* cancel_callback) {
 #if defined(OS_ANDROID)
   XWalkContentsClientBridgeBase* bridge =
       XWalkContentsClientBridgeBase::FromRenderFrameHost(render_frame_host);
   bridge->ShowNotification(params, render_frame_host,
-      delegate, cancel_callback);
+      delegate.Pass(), cancel_callback);
 #endif
 }
 
@@ -328,7 +330,7 @@ content::BrowserPpapiHost*
     XWalkContentBrowserClient::GetExternalBrowserPpapiHost(
         int plugin_process_id) {
 #if !defined(DISABLE_NACL)
-  BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
+  content::BrowserChildProcessHostIterator iter(PROCESS_TYPE_NACL_LOADER);
   while (!iter.Done()) {
     nacl::NaClProcessHost* host = static_cast<nacl::NaClProcessHost*>(
         iter.GetDelegate());

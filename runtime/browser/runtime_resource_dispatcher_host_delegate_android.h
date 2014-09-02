@@ -36,8 +36,8 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   virtual void RequestBeginning(
       net::URLRequest* request,
       content::ResourceContext* resource_context,
-      appcache::AppCacheService* appcache_service,
-      ResourceType::Type resource_type,
+      content::AppCacheService* appcache_service,
+      content::ResourceType resource_type,
       int child_id,
       int route_id,
       ScopedVector<content::ResourceThrottle>* throttles) OVERRIDE;
@@ -56,8 +56,7 @@ class RuntimeResourceDispatcherHostDelegateAndroid
   virtual bool HandleExternalProtocol(
       const GURL& url,
       int child_id,
-      int route_id,
-      bool initiated_by_user_gesture) OVERRIDE;
+      int route_id) OVERRIDE;
   virtual void OnResponseStarted(
       net::URLRequest* request,
       content::ResourceContext* resource_context,

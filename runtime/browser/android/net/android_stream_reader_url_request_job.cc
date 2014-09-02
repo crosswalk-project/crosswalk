@@ -158,7 +158,7 @@ void AndroidStreamReaderURLRequestJob::Start() {
       // name, otherwise the resource request should be rejected.
       // TODO(Xingnan): More permission control policy will be added here,
       // if it's needed.
-      if (request()->url().host() != StringToLowerASCII(package_name)) {
+      if (request()->url().host() != base::StringToLowerASCII(package_name)) {
         HeadersComplete(kHTTPForbidden, kHTTPForbiddenText);
         return;
       }

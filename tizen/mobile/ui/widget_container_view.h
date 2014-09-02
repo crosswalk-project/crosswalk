@@ -19,7 +19,9 @@ class WidgetContainerView : public views::View, public views::WidgetObserver {
   virtual ~WidgetContainerView();
 
   // View implementation.
-  virtual gfx::Size GetPreferredSize() OVERRIDE { return preferred_size_; }
+  virtual gfx::Size GetPreferredSize() const OVERRIDE {
+    return preferred_size_;
+  }
 
   // views::WidgetObserver implementation.
   virtual void OnWidgetBoundsChanged(views::Widget* widget,

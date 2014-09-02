@@ -9,7 +9,7 @@
 
 #include "base/bind.h"
 #include "base/file_util.h"
-#include "base/platform_file.h"
+#include "base/files/file.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
@@ -487,7 +487,7 @@ bool RuntimeFileSelectHelper::IsAcceptTypeValid(
   // of an extension or a "/" in the case of a MIME type).
   std::string unused;
   if (accept_type.length() <= 1 ||
-      StringToLowerASCII(accept_type) != accept_type ||
+      base::StringToLowerASCII(accept_type) != accept_type ||
       base::TrimWhitespaceASCII(
         accept_type,
         base::TRIM_ALL, &unused) != base::TRIM_NONE) {
