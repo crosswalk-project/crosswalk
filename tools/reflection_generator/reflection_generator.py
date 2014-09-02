@@ -28,9 +28,18 @@ CLASSES_TO_BE_PROCESS = [
 ]
 
 
-def PerformSerialize(output_path, generator):
+WRAPPER_PACKAGE = 'org.xwalk.core'
+BRIDGE_PACKAGE = 'org.xwalk.core.internal'
+
+
+def FormatPackagePath(folder, package):
+  return os.path.join(folder, os.path.sep.join(package.split('.')))
+
+
+def PerformSerialize(output_path, generator, package):
   # Serialize the code.
-  file_name = os.path.join(output_path, generator.GetGeneratedClassFileName())
+  file_name = os.path.join(FormatPackagePath(output_path, package),
+                           generator.GetGeneratedClassFileName())
   if not os.path.isdir(os.path.dirname(file_name)):
     os.makedirs(os.path.dirname(file_name))
   file_handle = open(file_name, 'w')
@@ -44,17 +53,17 @@ def GenerateBindingForJavaClass(
   if java_data.class_type == 'interface':
     interface_generator = InterfaceGenerator(java_data, class_loader)
     interface_generator.RunTask()
-    PerformSerialize(wrap_output, interface_generator)
+    PerformSerialize(wrap_output, interface_generator, WRAPPER_PACKAGE)
   else:
     # Generate Bridge code.
     bridge_generator = BridgeGenerator(java_data, class_loader)
     bridge_generator.RunTask()
     # Serialize.
-    PerformSerialize(bridge_output, bridge_generator)
+    PerformSerialize(bridge_output, bridge_generator, BRIDGE_PACKAGE)
     # Generate Wrapper code.
     wrapper_generator = WrapperGenerator(java_data, class_loader)
     wrapper_generator.RunTask()
-    PerformSerialize(wrap_output, wrapper_generator)
+    PerformSerialize(wrap_output, wrapper_generator, WRAPPER_PACKAGE)
 
 
 def GenerateBindingForJavaDirectory(input_dir, bridge_output, wrap_output):
@@ -73,7 +82,8 @@ def CopyReflectionHelperJava(helper_class, wrap_output):
   if helper_class is None:
     return
   f = open(helper_class, 'r')
-  output = os.path.join(wrap_output, os.path.basename(helper_class))
+  output = os.path.join(FormatPackagePath(wrap_output, WRAPPER_PACKAGE),
+                        os.path.basename(helper_class))
   if not os.path.isdir(os.path.dirname(output)):
     os.makedirs(os.path.dirname(output))
   fo = open(output, 'w')
