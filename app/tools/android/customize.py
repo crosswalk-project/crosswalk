@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2013 Intel Corporation. All rights reserved.
+# Copyright (c) 2013,2014 Intel Corporation. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -13,6 +13,11 @@ import re
 import shutil
 import stat
 import sys
+import tempfile
+
+# get xwalk absolute path so we can run this script from any location
+xwalk_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(xwalk_dir)
 
 # get xwalk absolute path so we can run this script from any location
 xwalk_dir = os.path.dirname(os.path.abspath(__file__))
@@ -110,14 +115,28 @@ def CompressSourceFiles(app_root, compressor):
     css_list = GetFilesByExt(app_root, css_ext)
     compress_js_and_css.CompressCss(css_list)
 
+def SaveTemplateDir(options, name):
+  app_dir = os.path.join(tempfile.gettempdir(), name)
+  save_dir = os.path.join(options.template_dir, name)
+  try:
+    if not os.path.isdir(options.template_dir):
+      os.makedirs(options.template_dir)  # throws exception on error
+    if os.path.exists (save_dir):
+      shutil.rmtree(save_dir)
+    shutil.copytree(app_dir, save_dir)
+  except OSError:
+    print ("Error: The directory passed in the '--template-dir' option does "
+           "not exist and could not be created. The template directory will "
+           "not be saved.")
 
 def Prepare(app_info, compressor):
   """Copy the Android template project to a new app project
      named app_info.app_name
   """
-  # create new app_dir in xwalk_dir
+
+  # create new app_dir in temp dir
   app_name = app_info.android_name
-  app_dir = os.path.join(xwalk_dir, app_name)
+  app_dir = os.path.join(tempfile.gettempdir(), app_name)
   app_package = app_info.package
   app_root = app_info.app_root
   template_app_dir = os.path.join(xwalk_dir, TEMPLATE_DIR_NAME)
@@ -150,7 +169,7 @@ def Prepare(app_info, compressor):
 
   # 4) Copy all HTML source from app_root to app_dir
   if app_root:
-    app_assets_dir = os.path.join(xwalk_dir, app_name, 'assets', 'www')
+    app_assets_dir = os.path.join(app_dir, 'assets', 'www')
     if os.path.isdir(app_assets_dir):
       shutil.rmtree(app_assets_dir)
     shutil.copytree(app_root, app_assets_dir)
@@ -168,7 +187,8 @@ def EncodingUnicodeValue(value):
 
 
 def CustomizeStringXML(name, description):
-  strings_path = os.path.join(xwalk_dir, name, 'res', 'values', 'strings.xml')
+  strings_path = os.path.join(tempfile.gettempdir(), name, 'res', 'values',
+                              'strings.xml')
   if not os.path.isfile(strings_path):
     print ('Please make sure strings_xml'
            ' exists under template folder.')
@@ -185,7 +205,8 @@ def CustomizeStringXML(name, description):
 
 
 def CustomizeThemeXML(name, fullscreen, manifest):
-  theme_path = os.path.join(xwalk_dir, name, 'res', 'values-v14', 'theme.xml')
+  theme_path = os.path.join(tempfile.gettempdir(), name, 'res', 'values-v14',
+                            'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
@@ -211,6 +232,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   orientation = app_info.orientation
   package = app_info.package
   app_name = app_info.app_name
+  app_dir = os.path.join(tempfile.gettempdir(), name)
   # Chinese character with unicode get from 'manifest.json' will cause
   # 'UnicodeEncodeError' when finally wrote to 'AndroidManifest.xml'.
   app_name = EncodingUnicodeValue(app_name)
@@ -219,7 +241,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   # append a space before '@' or '?' to fix that.
   if app_name.startswith('@') or app_name.startswith('?'):
     app_name = ' ' + app_name
-  manifest_path = os.path.join(xwalk_dir, name, 'AndroidManifest.xml')
+  manifest_path = os.path.join(app_dir, 'AndroidManifest.xml')
   if not os.path.isfile(manifest_path):
     print ('Please make sure AndroidManifest.xml'
            ' exists under template folder.')
@@ -251,7 +273,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
     EditElementAttribute(xmldoc, 'application', 'android:icon',
                          '@drawable/%s' % icon_name)
 
-  file_handle = open(os.path.join(xwalk_dir, name, 'AndroidManifest.xml'), 'w')
+  file_handle = open(os.path.join(app_dir, 'AndroidManifest.xml'), 'w')
   xmldoc.writexml(file_handle, encoding='utf-8')
   file_handle.close()
 
@@ -282,12 +304,12 @@ def SetVariable(file_path, string_line, variable, value):
 def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
   name = app_info.android_name
   package = app_info.package
-  app_pkg_dir = os.path.join(xwalk_dir, name, 'src',
-                             package.replace('.', os.path.sep))
+  app_dir =  os.path.join(tempfile.gettempdir(), name)
+  app_pkg_dir = os.path.join(app_dir, 'src', package.replace('.', os.path.sep))
   dest_activity = os.path.join(app_pkg_dir, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
   ReplaceString(dest_activity, 'AppTemplate', name)
-  manifest_file = os.path.join(xwalk_dir, name, 'assets/www', 'manifest.json')
+  manifest_file = os.path.join(app_dir, 'assets', 'www', 'manifest.json')
   if os.path.isfile(manifest_file):
     ReplaceString(
         dest_activity,
@@ -299,8 +321,7 @@ def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       app_url)
     elif app_local_path:
-      if os.path.isfile(os.path.join(xwalk_dir, name, 'assets/www',
-                                     app_local_path)):
+      if os.path.isfile(os.path.join(app_dir, 'assets/www', app_local_path)):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       'app://' + package + '/' + app_local_path)
       else:
@@ -364,12 +385,12 @@ def CustomizeExtensions(app_info, extensions):
   if not extensions:
     return
   name = app_info.android_name
-  apk_path = os.path.join (xwalk_dir, name)
-  apk_assets_path = os.path.join(apk_path, 'assets')
+  app_dir = os.path.join (tempfile.gettempdir(), name)
+  apk_assets_path = os.path.join(app_dir, 'assets')
   extensions_string = 'xwalk-extensions'
 
   # Set up the target directories and files.
-  dest_jar_path = os.path.join(apk_path, extensions_string)
+  dest_jar_path = os.path.join(app_dir, extensions_string)
   os.mkdir(dest_jar_path)
   dest_js_path = os.path.join(apk_assets_path, extensions_string)
   os.mkdir(dest_js_path)
@@ -416,7 +437,7 @@ def CustomizeExtensions(app_info, extensions):
       json_output['jsapi'] = js_path_prefix + json_output['jsapi']
       extension_json_list.append(json_output)
       # Merge the permissions of extensions into AndroidManifest.xml.
-      manifest_path = os.path.join(xwalk_dir, name, 'AndroidManifest.xml')
+      manifest_path = os.path.join(app_dir, 'AndroidManifest.xml')
       xmldoc = minidom.parse(manifest_path)
       if ('permissions' in json_output):
         # Get used permission list to avoid repetition as "--permissions"
@@ -449,13 +470,15 @@ def CustomizeExtensions(app_info, extensions):
 def GenerateCommandLineFile(app_info, xwalk_command_line):
   if xwalk_command_line == '':
     return
-  assets_path = os.path.join(xwalk_dir, app_info.android_name, 'assets')
+  assets_path = os.path.join(tempfile.gettempdir(), app_info.android_name,
+                             'assets')
   file_path = os.path.join(assets_path, 'xwalk-command-line')
   command_line_file = open(file_path, 'w')
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
 def CustomizeIconByDict(name, app_root, icon_dict):
+  app_dir = os.path.join(tempfile.gettempdir(), name)
   icon_name = None
   drawable_dict = {'ldpi': [1, 37], 'mdpi': [37, 72], 'hdpi': [72, 96],
                    'xhdpi': [96, 120], 'xxhdpi': [120, 144],
@@ -473,7 +496,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
     for kd, vd in drawable_dict.items():
       for item in icon_list:
         if item[0] >= vd[0] and item[0] < vd[1]:
-          drawable_path = os.path.join(xwalk_dir, name, 'res', 'drawable-' + kd)
+          drawable_path = os.path.join(app_dir, 'res', 'drawable-' + kd)
           if not os.path.exists(drawable_path):
             os.makedirs(drawable_path)
           icon = os.path.join(app_root, item[1])
@@ -492,7 +515,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
 
 def CustomizeIconByOption(name, icon):
   if os.path.isfile(icon):
-    drawable_path = os.path.join(xwalk_dir, name, 'res', 'drawable')
+    drawable_path = os.path.join(tempfile.gettempdir(), name, 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(icon)
@@ -501,7 +524,7 @@ def CustomizeIconByOption(name, icon):
     icon_name = os.path.splitext(icon_file)[0]
     return icon_name
   else:
-    print('Error: "%s" does not exist.')
+    print('Error: icon file does not exist (%s).' % icon)
     sys.exit(6)
 
 
@@ -581,6 +604,8 @@ def main():
           'Crosswalk is powered by Chromium and supports Chromium command line.'
           'For example, '
           '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
+  info = ('Create an Android project directory at this location. ')
+  parser.add_option('--template-dir', help=info)
   parser.add_option('--xwalk-command-line', default='', help=info)
   info = ('Minify and obfuscate javascript and css.'
           '--compressor: compress javascript and css.'
@@ -618,9 +643,18 @@ def main():
                  options.permissions, options.app_url, options.app_local_path,
                  options.keep_screen_on, options.extensions, None,
                  options.xwalk_command_line, options.compressor)
+
+    # build project is now in /tmp/<name>. Copy to template_dir
+    if options.template_dir:
+      SaveTemplateDir(options, app_info.android_name)
+    
   except SystemExit as ec:
     print('Exiting with error code: %d' % ec.code)
     return ec.code
+  finally:
+    build_dir = os.path.join(tempfile.gettempdir(), app_info.android_name)
+    if os.path.exists(build_dir):
+      shutil.rmtree(build_dir)
   return 0
 
 

@@ -11,6 +11,12 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import textwrap
+
+# get xwalk absolute path so we can run this script from any location
+xwalk_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(xwalk_dir)
 
 # get xwalk absolute path so we can run this script from any location
 xwalk_dir = os.path.dirname(os.path.abspath(__file__))
@@ -222,8 +228,35 @@ def Customize(options, app_info, manifest):
                options.keep_screen_on, options.extensions, manifest,
                options.xwalk_command_line, options.compressor)
 
+def SaveTemplateDir(options, name):
+  app_dir = os.path.join(tempfile.gettempdir(), name)
+  save_dir = os.path.join(options.template_dir, name)
+  print ("Creating template directory %s..." % save_dir)
+  try:
+    if not os.path.isdir(options.template_dir):
+      os.makedirs(options.template_dir)  # throws exception on error
+    if os.path.exists (save_dir):
+      CleanDir(save_dir)
+    print ("Copying from: %s\n          to: %s" % (app_dir, save_dir))
+    shutil.copytree(app_dir, save_dir)
+
+    s = textwrap.wrap("To generate an APK manually, go to %s and run the "
+                      "following command:" % save_dir, width=79)
+    print ("")
+    for lines in s:
+      print (lines)
+    print ("  ant release -f build.xml")
+    print ("For more information, see\n"
+           " http://developer.android.com/tools/building/building-cmdline.html")
+   
+  except OSError:
+    print ("Error: The directory passed in the '--template-dir' option does "
+           "not exist and could not be created. The template directory will "
+           "not be saved.")
+
 
 def Execution(options, name):
+  app_dir = os.path.join(tempfile.gettempdir(), name)
   android_path = Which('android')
   if android_path is None:
     print('The "android" binary could not be found. Check your Android SDK '
@@ -269,27 +302,27 @@ def Execution(options, name):
 
   # Update android project for app and xwalk_core_library.
   update_project_cmd = ['android', 'update', 'project',
-                        '--path', os.path.join (xwalk_dir, name),
+                        '--path', app_dir,
                         '--target', target_string,
                         '--name', name]
   if options.mode == 'embedded':
     RunCommand(['android', 'update', 'lib-project',
-                '--path', os.path.join(xwalk_dir, name, 'xwalk_core_library'),
+                '--path', os.path.join(app_dir, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
   else:
     # Shared mode doesn't need xwalk_runtime_java.jar.
-    os.remove(os.path.join(xwalk_dir, name, 'libs', 'xwalk_runtime_java.jar'))
+    os.remove(os.path.join(app_dir, 'libs', 'xwalk_runtime_java.jar'))
 
   RunCommand(update_project_cmd)
 
   # Check whether external extensions are included.
   extensions_string = 'xwalk-extensions'
-  extensions_dir = os.path.join(xwalk_dir, name, extensions_string)
+  extensions_dir = os.path.join(app_dir, extensions_string)
   external_extension_jars = FindExtensionJars(extensions_dir)
   for external_extension_jar in external_extension_jars:
     shutil.copyfile(external_extension_jar,
-                    os.path.join(xwalk_dir, name, 'libs',
+                    os.path.join(app_dir, 'libs',
                                  os.path.basename(external_extension_jar)))
 
   if options.mode == 'embedded':
@@ -301,13 +334,12 @@ def Execution(options, name):
     if not arch:
       print ('Invalid CPU arch: %s.' % arch)
       sys.exit(10)
-    library_lib_path = os.path.join(xwalk_dir, name, 'xwalk_core_library',
-                                    'libs')
+    library_lib_path = os.path.join(app_dir, 'xwalk_core_library', 'libs')
     for dir_name in os.listdir(library_lib_path):
       lib_dir = os.path.join(library_lib_path, dir_name)
       if ContainsNativeLibrary(lib_dir):
         shutil.rmtree(lib_dir)
-    native_lib_path = os.path.join(xwalk_dir, name, 'native_libs', arch)
+    native_lib_path = os.path.join(app_dir, 'native_libs', arch)
     if ContainsNativeLibrary(native_lib_path):
       shutil.copytree(native_lib_path, os.path.join(library_lib_path, arch))
     else:
@@ -315,7 +347,14 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
-  ant_cmd = ['ant', 'release', '-f', os.path.join(xwalk_dir, name, 'build.xml')]
+  # if template_dir, save build directory
+  if options.template_dir:
+    SaveTemplateDir(options, name)
+  if options.template_only:
+    return
+  
+  # Build the APK
+  ant_cmd = ['ant', 'release', '-f', os.path.join(app_dir, 'build.xml')]
   if not options.verbose:
     ant_cmd.extend(['-quiet'])
   ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
@@ -330,7 +369,7 @@ def Execution(options, name):
           % (' '.join(ant_cmd), ant_result))
     sys.exit(ant_result)
 
-  src_file = os.path.join(xwalk_dir, name, 'bin', '%s-release.apk' % name)
+  src_file = os.path.join(app_dir, 'bin', '%s-release.apk' % name)
   package_name = name
   if options.app_version:
     package_name += ('_' + options.app_version)
@@ -382,6 +421,7 @@ def PrintPackageInfo(options, name, packaged_archs):
 def MakeApk(options, app_info, manifest):
   Customize(options, app_info, manifest)
   name = app_info.android_name
+  app_dir = os.path.join(tempfile.gettempdir(), name)
   packaged_archs = []
   if options.mode == 'shared':
     Execution(options, name)
@@ -390,11 +430,11 @@ def MakeApk(options, app_info, manifest):
     # out.
     # When making apk for specified CPU arch, will only include the
     # corresponding native library by copying it back into xwalk_core_library.
-    target_library_path = os.path.join(xwalk_dir, name, 'xwalk_core_library')
+    target_library_path = os.path.join(app_dir, 'xwalk_core_library')
     shutil.copytree(os.path.join(xwalk_dir, 'xwalk_core_library'),
                     target_library_path)
     library_lib_path = os.path.join(target_library_path, 'libs')
-    native_lib_path = os.path.join(xwalk_dir, name, 'native_libs')
+    native_lib_path = os.path.join(app_dir, 'native_libs')
     os.makedirs(native_lib_path)
     available_archs = []
     for dir_name in os.listdir(library_lib_path):
@@ -425,7 +465,8 @@ def MakeApk(options, app_info, manifest):
         print('No packages created, aborting')
         sys.exit(13)
 
-  PrintPackageInfo(options, name, packaged_archs)
+  if not options.template_only:
+    PrintPackageInfo(options, name, packaged_archs)
 
 def main(argv):
   parser = optparse.OptionParser()
@@ -470,6 +511,7 @@ def main(argv):
           'For example, --app-local-path=/relative/path/of/entry/file')
   group.add_option('--app-local-path', help=info)
   parser.add_option_group(group)
+  # Mandatory options group
   group = optparse.OptionGroup(parser, 'Mandatory arguments',
       'They are used for describing the APK information through '
       'command line options.')
@@ -479,6 +521,7 @@ def main(argv):
           '--package=com.example.YourPackage')
   group.add_option('--package', help=info)
   parser.add_option_group(group)
+  # Optional options group (alphabetical)
   group = optparse.OptionGroup(parser, 'Optional arguments',
       'They are used for various settings for applications through '
       'command line options.')
@@ -492,11 +535,6 @@ def main(argv):
           'be made by adding a prefix based on architecture to the version '
           'code base. For example, --app-versionCodeBase=24')
   group.add_option('--app-versionCodeBase', type='int', help=info)
-  info = ('Use command lines.'
-          'Crosswalk is powered by Chromium and supports Chromium command line.'
-          'For example, '
-          '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
-  group.add_option('--xwalk-command-line', default='', help=info)
   info = ('The description of the application. For example, '
           '--description=YourApplicationDescription')
   group.add_option('--description', help=info)
@@ -527,7 +565,21 @@ def main(argv):
   group.add_option('--permissions', help=info)
   info = ('Packaging tool will move the output APKS to the target directory')
   group.add_option('--target-dir', default=os.getcwd(), help=info)
+  info = ('Create an Android project directory at this location. '
+          '(See template-only option below)')
+  group.add_option('--template-dir', help=info)
+  info = ('Must be used with template-dir option. Create an Android project '
+          'template directory with the application source but do not build '
+          'the APK package')
+  group.add_option('--template-only', action='store_true', default=False,
+                   dest='template_only', help=info)
+  info = ('Use command lines.'
+          'Crosswalk is powered by Chromium and supports Chromium command line.'
+          'For example, '
+          '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
+  group.add_option('--xwalk-command-line', default='', help=info)
   parser.add_option_group(group)
+  # Keystore options group
   group = optparse.OptionGroup(parser, 'Keystore Options',
       'The keystore is a signature from web developer, it\'s used when '
       'developer wants to distribute the applications.')
@@ -565,7 +617,8 @@ def main(argv):
   xpk_temp_dir = ''
   if options.xpk:
     xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
-    xpk_temp_dir = os.path.join(xwalk_dir, xpk_name + '_xpk')
+    xpk_temp_dir = os.path.join(tempfile.gettempdir(), xpk_name + '_xpk')
+    CleanDir(xpk_temp_dir)
     ParseXPK(options, xpk_temp_dir)
 
   if options.app_root and not options.manifest:
@@ -632,13 +685,18 @@ def main(argv):
     if not os.path.isdir(target_dir):
       os.makedirs(target_dir)
 
+  if options.template_only and not options.template_dir:
+    print ('\nmake_apk.py error: Option --template-only must be used '
+           'with --template-dir')
+    sys.exit(8)  # todo: what do the error numbers mean?
+      
   try:
     MakeApk(options, app_info, manifest)
   except SystemExit as ec:
-    CleanDir(app_info.android_name)
-    CleanDir('out')
-    CleanDir(xpk_temp_dir)
     return ec.code
+  finally:
+    CleanDir(os.path.join(tempfile.gettempdir(), app_info.android_name))
+    CleanDir(xpk_temp_dir)
   return 0
 
 
