@@ -24,7 +24,7 @@
 
 
 namespace content {
-  class RenderProcessHost;
+class RenderProcessHost;
 }
 
 namespace xwalk {
