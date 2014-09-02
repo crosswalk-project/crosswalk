@@ -85,9 +85,13 @@ inline base::FilePath GetDestFilePath(const base::FilePath& DirPath,
 
 bool CopyFileToDst(const base::FilePath& file_src,
                    const base::FilePath& file_dst) {
+					   
+  base::FilePath dir = file_dst.DirName();
+  if(!base::PathExists(dir))
+	base::CreateDirectory(dir);
   if (!base::CopyFile(file_src, file_dst)) {
-    fprintf(stdout, "Couldn't copy application file to '%s'\n",
-            file_dst.value().c_str());
+    fprintf(stdout, "Couldn't copy application file from %s to '%s'\n",
+           file_src.value().c_str(),file_dst.value().c_str());
     return false;
   }
   return true;
@@ -141,10 +145,19 @@ bool PackageInstallerHelper::InstallApplicationInternal(
   if (xmlpath.empty() || iconpath.empty()) {
     fprintf(stdout, "Invalid xml path or icon path for installation\n");
   }
-
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
-
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES,"/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
+  
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
+  
+  if (!getuid()) { 
+    xml = global_xml;
+    icon = global_icon;
+    
+  }
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
   base::FilePath icon_dst = GetDestFilePath(icon, appid_, kPngFileExt);
@@ -156,11 +169,22 @@ bool PackageInstallerHelper::InstallApplicationInternal(
      || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
 
-  if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
-    return false;
+  fprintf(stdout, "uid for installation : '%d'\n", getuid());
+  if (getuid()) { 
+	  //For only the user that request installation
+	if (pkgmgr_parser_parse_usr_manifest_for_installation(xmlpath.c_str(),
+	   getuid(), NULL)) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
+		xmlpath.c_str(), getuid());
+      return false;
+	}
+  } else {  //For all users 
+    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(), NULL)) {
+	  fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n", 
+      xmlpath.c_str(), getuid());
+      return false;
+    }
   }
-
   xml_cleaner.Dismiss();
   icon_cleaner.Dismiss();
 
@@ -170,9 +194,19 @@ bool PackageInstallerHelper::InstallApplicationInternal(
 bool PackageInstallerHelper::UninstallApplicationInternal() {
   bool result = true;
 
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
-
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES,"/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
+  
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
+  
+  if (!getuid()) { 
+    xml = global_xml;
+    icon = global_icon;
+    
+  }
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath iconpath = GetDestFilePath(icon, appid_, kPngFileExt);
   base::FilePath xmlpath = GetDestFilePath(xml, appid_, kXmlFileExt);
@@ -181,12 +215,23 @@ bool PackageInstallerHelper::UninstallApplicationInternal() {
 
   std::string xmlpath_str = xmlpath.MaybeAsASCII();
   assert(!xmlpath_str.empty());
-  if (pkgmgr_parser_parse_manifest_for_uninstallation(
-        xmlpath_str.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath_str.c_str());
-    icon_cleaner.Dismiss();
-    xml_cleaner.Dismiss();
-    return false;
+
+  if(getuid()) { //For only the user that request installation
+	if (pkgmgr_parser_parse_usr_manifest_for_uninstallation(
+       xmlpath_str.c_str(), getuid(), NULL)) {
+   	  fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath_str.c_str());
+     icon_cleaner.Dismiss();
+     xml_cleaner.Dismiss();
+     return false;
+	}
+  } else { //For all users
+      if (pkgmgr_parser_parse_manifest_for_uninstallation(
+          xmlpath_str.c_str(), NULL)) {
+     fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath_str.c_str());
+     icon_cleaner.Dismiss();
+     xml_cleaner.Dismiss();
+     return false;
+    }
   }
   return true;
 }
@@ -198,8 +243,19 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for update\n");
   }
 
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES,"/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
+  
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
+  
+  if (!getuid()) { 
+    xml = global_xml;
+    icon = global_icon;
+    
+  }
 
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
@@ -212,11 +268,18 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
      || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
 
-  if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
-    return false;
+  if(getuid()) { //For only the user that request installation
+    if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.c_str(), getuid(), 
+	    NULL)) {
+	  fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+      return false;
+	}
+  } else { //For all users
+    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(), NULL)) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+      return false;
+    }
   }
-
   xml_cleaner.Dismiss();
   icon_cleaner.Dismiss();
 
