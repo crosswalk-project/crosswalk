@@ -57,19 +57,11 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     }
 
     @Override
-    public void onStart() {
-    }
-
-    @Override
     public void onResume() {
     }
 
     @Override
     public void onPause() {
-    }
-
-    @Override
-    public void onStop() {
     }
 
     @Override

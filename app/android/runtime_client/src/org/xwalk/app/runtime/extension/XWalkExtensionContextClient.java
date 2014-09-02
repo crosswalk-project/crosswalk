@@ -6,61 +6,51 @@ package org.xwalk.app.runtime.extension;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.util.AttributeSet;
-import android.widget.FrameLayout;
-
-import java.lang.reflect.Method;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.xwalk.app.runtime.CrossPackageWrapper;
 
 /**
- * This is the extension context used by external extensions. It'll be created
- * by runtime side.
+ * Interface for extension context
+ *
+ * It is responsible for maintaining all xwalk extensions and providing a way to
+ * post message to JavaScript side for each xwalk extension.
  */
-public final class XWalkExtensionContextClient extends CrossPackageWrapper {
-    private final static String EXTENSION_CLASS_NAME =
-            "org.xwalk.core.internal.extension.XWalkExtensionContextWrapper";
-    private Object mInstance;
-    private Method mGetContext;
-    private Method mGetActivity;
-
+public interface XWalkExtensionContextClient {
     /**
-     * It's called by runtime side.
+     * Register an xwalk extension into context.
      */
-    public XWalkExtensionContextClient(Activity activity, Object instance) {
-        super(activity, EXTENSION_CLASS_NAME, null, String.class, String.class,
-                instance.getClass());
-
-        mInstance = instance;
-        mGetActivity = lookupMethod("getActivity");
-        mGetContext = lookupMethod("getContext");
-    }
+    public void registerExtension(XWalkExtensionClient extension);
 
     /**
-     * Get the current Android Activity. Used by XWalkExtensionClient.
-     * @return the current Android Activity.
+     * Unregister an xwalk extension with the given unique name from context.
      */
-    public Activity getActivity() {
-        return (Activity) invokeMethod(mGetActivity, mInstance);
-    }
+    public void unregisterExtension(String name);
 
     /**
-     * Get the current Android Context. Used by XWalkExtensionClient.
+     * Post a message to the given extension instance.
+     *
+     * @param extension The xwalk extension
+     * @param instanceId The unique id to identify the extension instance as the
+     *                   message destination.
+     * @param message The message content to be posted.
+     */
+    public void postMessage(XWalkExtensionClient extension, int instanceId, String message);
+
+    /**
+     * Broadcast a message to all extension instances.
+     *
+     * @param extension The xwalk extension
+     * @param message The message content to be broadcasted.
+     */
+    public void broadcastMessage(XWalkExtensionClient extension, String message);
+
+    /**
+     * Get current Android Context.
      * @return the current Android Context.
      */
-    public Context getContext() {
-        return (Context) invokeMethod(mGetContext, mInstance);
-    }
+    public Context getContext();
 
     /**
-     * Get the object of the runtime side.
-     * @return the object of the runtime side.
+     * Get the current Android Activity.
+     * @return the current Android Activity.
      */
-    public Object getInstance() {
-        return mInstance;
-    }
+    public Activity getActivity();
 }

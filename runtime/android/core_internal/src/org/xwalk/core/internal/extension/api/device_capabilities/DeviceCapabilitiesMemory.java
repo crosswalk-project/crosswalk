@@ -15,7 +15,6 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesMemory {
     private static final String MEM_INFO_FILE = "/proc/meminfo";
@@ -28,9 +27,9 @@ class DeviceCapabilitiesMemory {
     private long mCapacity = 0;
 
     public DeviceCapabilitiesMemory(DeviceCapabilities instance,
-                                    XWalkExtensionContext context) {
+                                    Context context) {
         mDeviceCapabilities = instance;
-        mContext = context.getContext();
+        mContext = context;
     }
 
     public JSONObject getInfo() {

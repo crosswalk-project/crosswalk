@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.internal.extension;
+package org.xwalk.app.runtime.extension;
 
 /**
  * A factory used to create the extension bridge.
  */
-final class XWalkExtensionBridgeFactory {
+final class XWalkRuntimeExtensionBridgeFactory {
     /**
      * Return a XWalkExtensionBridge instance for the given extension.
      */
-    public static XWalkExtensionBridge createInstance(XWalkExtension extension) {
+    public static XWalkRuntimeExtensionBridge createInstance(XWalkExtensionClient extension) {
         return new XWalkCoreExtensionBridge(extension);
     }
 }

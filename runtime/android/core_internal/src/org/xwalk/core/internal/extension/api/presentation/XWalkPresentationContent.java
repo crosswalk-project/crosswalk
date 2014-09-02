@@ -4,6 +4,8 @@
 
 package org.xwalk.core.internal.extension.api.presentation;
 
+import java.lang.ref.WeakReference;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -22,19 +24,23 @@ public class XWalkPresentationContent {
     private int mPresentationId = INVALID_PRESENTATION_ID;
     private XWalkViewInternal mContentView;
     private Context mContext;
-    private Activity mActivity;
+    private WeakReference<Activity> mActivity;
     private PresentationDelegate mDelegate;
 
 
-    public XWalkPresentationContent(Context context, Activity activity, PresentationDelegate delegate) {
+    public XWalkPresentationContent(
+            Context context, WeakReference<Activity> activity, PresentationDelegate delegate) {
         mContext = context;
         mActivity = activity;
         mDelegate = delegate;
     }
 
     public void load(final String url) {
+        Activity activity = mActivity.get();
+        if (activity == null) return;
+
         if (mContentView == null) {
-            mContentView = new XWalkViewInternal(mContext, mActivity);
+            mContentView = new XWalkViewInternal(mContext, activity);
             final XWalkUIClientInternal xWalkUIClient = new XWalkUIClientInternal(mContentView) {
                 @Override
                 public void onJavascriptCloseWindow(XWalkViewInternal view) {

@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.internal.extension;
+package org.xwalk.app.runtime.extension;
 
 import android.content.Intent;
 
 /**
  * Interface for bridging XWalkExtension functionalities to its backend implementation.
  */
-interface XWalkExtensionBridge {
+interface XWalkRuntimeExtensionBridge {
     /**
      * Post a message from native to a specific receiver on JavaScript side.
      *

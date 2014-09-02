@@ -19,6 +19,7 @@ import android.telephony.TelephonyManager;
 import android.net.Uri; 
 import android.util.Log; 
 
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -34,7 +35,7 @@ public class MessagingSmsManager {
     private final static String EXTRA_MSGTO = "to";
     private final static String EXTRA_MSGINSTANCEID = "instanceid";
     private final static String DEFAULT_SERVICE_ID = "sim0";
-    private final Activity mMainActivity;
+    private final WeakReference<Activity> mActivity;
     private final Messaging mMessagingHandler;
     private BroadcastReceiver mSmsSentReceiver, mSmsDeliveredReceiver,
                               mSmsReceiveReceiver, mSmsServiceReceiver;
@@ -48,13 +49,15 @@ public class MessagingSmsManager {
     }
 
     MessagingSmsManager(Activity activity, Messaging messaging) {
-        mMainActivity = activity;
+        mActivity = new WeakReference<Activity>(activity);
         mMessagingHandler = messaging;
     }
 
     private boolean checkService(String serviceID) {
+        Activity activity = mActivity.get();
+        if (activity == null) return false;
         TelephonyManager tm = 
-            (TelephonyManager)mMainActivity.getSystemService(Context.TELEPHONY_SERVICE);
+            (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
         return (TelephonyManager.SIM_STATE_READY == tm.getSimState());
     }
 
@@ -62,6 +65,9 @@ public class MessagingSmsManager {
         if (!checkService(DEFAULT_SERVICE_ID)) {
             Log.e(TAG, "No Sim Card");
         }
+        Activity activity = mActivity.get();
+        if (activity == null) return;
+
         String asyncCallId = null;
         JSONObject eventBody = null;
         String phone = null;
@@ -84,7 +90,7 @@ public class MessagingSmsManager {
         String instanceIDString = Integer.toString(instanceID);
         intentSmsSent.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
         int promiseIdInt = Integer.valueOf(asyncCallId);
-        PendingIntent piSent = PendingIntent.getBroadcast(mMainActivity, 
+        PendingIntent piSent = PendingIntent.getBroadcast(activity, 
                                                           promiseIdInt, 
                                                           intentSmsSent, 
                                                           PendingIntent.FLAG_ONE_SHOT);
@@ -92,7 +98,7 @@ public class MessagingSmsManager {
         intentSmsDelivered.putExtra(EXTRA_MSGID, asyncCallId);
         intentSmsDelivered.putExtra(EXTRA_MSGTEXT, smsMessage);
         intentSmsDelivered.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
-        PendingIntent piDelivered = PendingIntent.getBroadcast(mMainActivity, 
+        PendingIntent piDelivered = PendingIntent.getBroadcast(activity, 
                                                                -promiseIdInt, 
                                                                intentSmsDelivered,
                                                                PendingIntent.FLAG_ONE_SHOT);
@@ -104,6 +110,9 @@ public class MessagingSmsManager {
     }
 
     public void onSmsClear(int instanceID, JSONObject jsonMsg) {
+        Activity activity = mActivity.get();
+        if (activity == null) return;
+
         String asyncCallId = null, cmd = null;
         JSONObject eventBody = null;
         String serviceID = null;
@@ -117,7 +126,7 @@ public class MessagingSmsManager {
             return;
         }
 
-        ContentResolver cr = mMainActivity.getContentResolver();
+        ContentResolver cr = activity.getContentResolver();
         cr.delete(Uri.parse("content://sms"), null, null);
 
         JSONObject jsonMsgRet = null;
@@ -180,6 +189,9 @@ public class MessagingSmsManager {
     }
 
     public void registerIntentFilters() {
+        Activity activity = mActivity.get();
+        if (activity == null) return;
+
         mSmsReceiveReceiver = new MessagingReceiver(mMessagingHandler) {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -221,6 +233,9 @@ public class MessagingSmsManager {
         mSmsSentReceiver = new MessagingReceiver(mMessagingHandler) {
             @Override
             public void onReceive(Context content, Intent intent) {
+                Activity activity = mActivity.get();
+                if (activity == null) return;
+
                 boolean error = getResultCode() != Activity.RESULT_OK;
                 String asyncCallId = intent.getStringExtra(EXTRA_MSGID);
                 String smsMessage = intent.getStringExtra(EXTRA_MSGTEXT);
@@ -261,7 +276,7 @@ public class MessagingSmsManager {
                 ContentValues values = new ContentValues();
                 values.put("address", to);
                 values.put("body", smsMessage);
-                mMainActivity.getContentResolver().insert(Uri.parse("content://sms/sent"), values);
+                activity.getContentResolver().insert(Uri.parse("content://sms/sent"), values);
             }
         };
 
@@ -314,21 +329,24 @@ public class MessagingSmsManager {
             }
         };
 
-        mMainActivity.registerReceiver(
+        activity.registerReceiver(
             mSmsReceiveReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
-        mMainActivity.registerReceiver(
+        activity.registerReceiver(
             mSmsSentReceiver, new IntentFilter("SMS_SENT"));
-        mMainActivity.registerReceiver(
+        activity.registerReceiver(
             mSmsDeliveredReceiver,new IntentFilter("SMS_DELIVERED"));
-        mMainActivity.registerReceiver(
+        activity.registerReceiver(
             mSmsServiceReceiver,new IntentFilter("android.intent.action.SIM_STATE_CHANGED"));
     }
 
     public void unregisterIntentFilters() {
-        mMainActivity.unregisterReceiver(mSmsReceiveReceiver);
-        mMainActivity.unregisterReceiver(mSmsSentReceiver);
-        mMainActivity.unregisterReceiver(mSmsDeliveredReceiver);
-        mMainActivity.unregisterReceiver(mSmsServiceReceiver);
+        Activity activity = mActivity.get();
+        if (activity == null) return;
+
+        activity.unregisterReceiver(mSmsReceiveReceiver);
+        activity.unregisterReceiver(mSmsSentReceiver);
+        activity.unregisterReceiver(mSmsDeliveredReceiver);
+        activity.unregisterReceiver(mSmsServiceReceiver);
     }
 
     public String getServiceIds() {

@@ -4,17 +4,17 @@
 
 package org.xwalk.core.internal.extension.api.launchscreen;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.xwalk.core.internal.XWalkExtensionInternal;
 import org.xwalk.core.internal.XWalkLaunchScreenManager;
-import org.xwalk.core.internal.extension.XWalkExtension;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 /**
  * A XWalk extension for LaunchScreen API implementation on Android.
  */
-public class LaunchScreenExtension extends XWalkExtension {
+public class LaunchScreenExtension extends XWalkExtensionInternal {
     public final static String JS_API_PATH = "jsapi/launch_screen_api.js";
 
     private final static String NAME = "xwalk.launchscreen";
@@ -25,8 +25,11 @@ public class LaunchScreenExtension extends XWalkExtension {
     // Command messages:
     private final static String CMD_HIDE_LAUNCH_SCREEN = "hideLaunchScreen";
 
-    public LaunchScreenExtension(String jsApi, XWalkExtensionContext context) {
-        super(NAME, jsApi, JS_ENTRY_POINTS, context);
+    private Context mContext;
+
+    public LaunchScreenExtension(String jsApi, Context context) {
+        super(NAME, jsApi, JS_ENTRY_POINTS);
+        mContext = context;
     }
 
     @Override
@@ -42,6 +45,11 @@ public class LaunchScreenExtension extends XWalkExtension {
         // Need to be well designed in the future.
         String filterStr = XWalkLaunchScreenManager.getHideLaunchScreenFilterStr();
         Intent intent = new Intent(filterStr);
-        mExtensionContext.getActivity().sendBroadcast(intent);
+        mContext.sendBroadcast(intent);
+    }
+
+    @Override
+    public String onSyncMessage(int instanceID, String message) {
+        return null;
     }
 }

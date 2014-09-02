@@ -44,6 +44,11 @@
         'additional_input_paths': [
           '<(PRODUCT_DIR)/xwalk_xwview/assets/www/index.html',
           '<(PRODUCT_DIR)/xwalk_xwview/assets/xwalk.pak',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/contacts_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/device_capabilities_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/launch_screen_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/messaging_api.js',
+          '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/presentation_api.js',
         ],
         'conditions': [
           ['icu_use_data_file_flag==1', {
@@ -60,7 +65,17 @@
           'files': [
             'test/android/data/index.html',
           ],
-        }
+        },
+        {
+          'destination': '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi',
+          'files': [
+            'experimental/launch_screen/launch_screen_api.js',
+            'experimental/presentation/presentation_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/contacts/contacts_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/device_capabilities/device_capabilities_api.js',
+            'runtime/android/core_internal/src/org/xwalk/core/internal/extension/api/messaging/messaging_api.js',
+          ],
+        },
       ],
       'includes': [ '../build/java_apk.gypi' ],
     },

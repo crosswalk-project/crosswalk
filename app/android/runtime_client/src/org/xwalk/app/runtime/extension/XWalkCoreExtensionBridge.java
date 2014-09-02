@@ -2,24 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.core.internal.extension;
+package org.xwalk.app.runtime.extension;
 
 import android.content.Context;
 import android.content.Intent;
 
-import org.chromium.base.CalledByNative;
-
-import org.xwalk.core.internal.extensions.XWalkExtensionAndroid;
-import org.xwalk.core.internal.extension.XWalkExtension;
+import org.xwalk.core.XWalkExtension;
 
 /**
  * The extension bridge for the implementation based on xwalk core.
  */
-class XWalkCoreExtensionBridge extends XWalkExtensionAndroid implements XWalkExtensionBridge {
-    private XWalkExtension mExtension;
+class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExtensionBridge {
+    private XWalkExtensionClient mExtension;
 
-    public XWalkCoreExtensionBridge(XWalkExtension extension) {
-        super(extension.getExtensionName(), extension.getJsApi(), extension.getEntryPoints());
+    public XWalkCoreExtensionBridge(XWalkExtensionClient extension) {
+        super(extension.getExtensionName(), extension.getJsApi(), null);
         mExtension = extension;
     }
 
@@ -36,7 +33,6 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid implements XWalkExt
 
     public void onDestroy() {
         mExtension.onDestroy();
-        destroyExtension();
     }
 
     public void onResume() {

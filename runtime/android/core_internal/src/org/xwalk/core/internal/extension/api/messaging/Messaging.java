@@ -16,19 +16,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.chromium.base.ActivityState;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xwalk.core.internal.extension.api.messaging.MessagingManager;
 import org.xwalk.core.internal.extension.api.messaging.MessagingSmsManager;
-import org.xwalk.core.internal.extension.XWalkExtension;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
+import org.xwalk.core.internal.extension.XWalkExtensionWithActivityStateListener;
 
 interface Command {
     void runCommand(int instanceID, JSONObject jsonMsg);
 }
 
-public class Messaging extends XWalkExtension {
+public class Messaging extends XWalkExtensionWithActivityStateListener {
     public static final String JS_API_PATH = "jsapi/messaging_api.js";
 
     private static final String NAME = "xwalk.experimental.messaging";
@@ -99,20 +99,13 @@ public class Messaging extends XWalkExtension {
         }
     }
 
-    public Messaging(String jsApiContent, XWalkExtensionContext context) {
-        super(NAME, jsApiContent, context);
-        mSmsManager = new MessagingSmsManager(mExtensionContext.getActivity(), this);
+    public Messaging(String jsApiContent, Activity activity) {
+        super(NAME, jsApiContent, activity);
+        mSmsManager = new MessagingSmsManager(activity, this);
+        mMessagingManager = new MessagingManager(activity, this);
         mSmsManager.registerIntentFilters();
-        //FIXME:(shawn) When onStart and OnStop are ready. This should be moved to onStart.
-        mMessagingManager = new MessagingManager(mExtensionContext.getActivity(), this);
 
         initMethodMap();
-    }
-
-    @Override
-    public void onDestroy() {
-        mSmsManager.unregisterIntentFilters();
-        //FIXME:(shawn) When onStart and OnStop are ready. This should be moved to onStop.
     }
 
     @Override
@@ -135,5 +128,11 @@ public class Messaging extends XWalkExtension {
             return mSmsManager.getServiceIds();
         }
         return "";
+    }
+
+    @Override
+    public void onActivityStateChange(Activity activity, int newState) {
+        if (newState == ActivityState.STOPPED) mSmsManager.unregisterIntentFilters();
+        else if (newState == ActivityState.STARTED) mSmsManager.registerIntentFilters();
     }
 }

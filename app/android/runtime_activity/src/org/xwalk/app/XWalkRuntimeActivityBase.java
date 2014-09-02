@@ -14,12 +14,11 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
+import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeLibraryException;
 import org.xwalk.app.runtime.XWalkRuntimeView;
 import org.xwalk.core.ReflectionHelper;
-import org.xwalk.core.SharedXWalkView;
 import org.xwalk.core.XWalkPreferences;
 
 public abstract class XWalkRuntimeActivityBase extends Activity {
@@ -35,6 +34,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     private boolean mRemoteDebugging = false;
 
     private AlertDialog mLibraryNotFoundDialog = null;
+
+    private XWalkRuntimeExtensionManager mExtensionManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,30 +68,33 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        if (mRuntimeView != null) mRuntimeView.onStart();
+        if (mExtensionManager != null) mExtensionManager.onStart();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         if (mRuntimeView != null) mRuntimeView.onPause();
+        if (mExtensionManager != null) mExtensionManager.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (mRuntimeView != null) mRuntimeView.onResume();
+        if (mExtensionManager != null) mExtensionManager.onResume();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mRuntimeView != null) mRuntimeView.onStop();
+        if (mExtensionManager != null) mExtensionManager.onStop();
     }
 
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
+        if (mExtensionManager != null) mExtensionManager.onDestroy();
         super.onDestroy();
     }
 
@@ -103,6 +107,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
+        if (mExtensionManager != null) mExtensionManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private String getLibraryApkDownloadUrl() {
@@ -126,6 +131,13 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
                 XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
             } else {
                 XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
+            }
+            // XWalkPreferences.ENABLE_EXTENSIONS
+            if (XWalkPreferences.getValue("enable-extensions")) {
+                // Enable xwalk extension mechanism and start load extensions here.
+                // Note that it has to be after above initialization.
+                mExtensionManager = new XWalkRuntimeExtensionManager(getApplicationContext(), this);
+                mExtensionManager.loadExtensions();
             }
         } catch (Exception e) {
             handleException(e);

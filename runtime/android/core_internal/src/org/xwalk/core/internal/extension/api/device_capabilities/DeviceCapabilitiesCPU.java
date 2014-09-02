@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesCPU {
     private static final String SYSTEM_INFO_STAT_FILE = "/proc/stat";
@@ -23,8 +22,7 @@ class DeviceCapabilitiesCPU {
     private String mCPUArch = "Unknown";
     private double mCPULoad = 0.0;
 
-    public DeviceCapabilitiesCPU(DeviceCapabilities instance,
-                                 XWalkExtensionContext context) {
+    public DeviceCapabilitiesCPU(DeviceCapabilities instance) {
         mDeviceCapabilities = instance;
 
         // Get arch and core number at constructor since they won't change time to time.

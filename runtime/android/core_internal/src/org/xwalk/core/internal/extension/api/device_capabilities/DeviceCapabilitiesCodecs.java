@@ -5,13 +5,11 @@
 package org.xwalk.core.internal.extension.api.device_capabilities;
 
 import org.json.JSONObject;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesCodecs {
     private XWalkMediaCodec mediaCodec;
 
-    public DeviceCapabilitiesCodecs(DeviceCapabilities instance,
-                                    XWalkExtensionContext context) {
+    public DeviceCapabilitiesCodecs(DeviceCapabilities instance) {
         mediaCodec = XWalkMediaCodec.Create(instance);
     }
 
