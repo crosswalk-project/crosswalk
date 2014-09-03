@@ -230,7 +230,8 @@ class AndroidProtocolHandler {
             if (uri.getScheme().equals(CONTENT_SCHEME)) {
                 return context.getContentResolver().getType(uri);
                 // Asset files may have a known extension.
-            } else if (uri.getScheme().equals(FILE_SCHEME) &&
+            } else if (uri.getScheme().equals(APP_SCHEME) ||
+                       uri.getScheme().equals(FILE_SCHEME) &&
                        path.startsWith(nativeGetAndroidAssetPath())) {
                 String mimeType = URLConnection.guessContentTypeFromName(path);
                 if (mimeType != null) {
