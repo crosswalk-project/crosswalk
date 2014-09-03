@@ -215,6 +215,14 @@ bool IsSingletonElement(const std::string& name) {
 namespace xwalk {
 namespace application {
 
+FileDeleter::FileDeleter(const base::FilePath& path, bool recursive)
+    : path_(path),
+      recursive_(recursive) {}
+
+FileDeleter::~FileDeleter() {
+  base::DeleteFile(path_, recursive_);
+}
+
 // Load XML node into Dictionary structure.
 // The keys for the XML node to Dictionary mapping are described below:
 // XML                                 Dictionary

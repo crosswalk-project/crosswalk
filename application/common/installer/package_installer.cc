@@ -53,6 +53,11 @@ bool CopyDirectoryContents(const base::FilePath& from,
 const base::FilePath::CharType kApplicationsDir[] =
     FILE_PATH_LITERAL("applications");
 
+const base::FilePath::CharType kInstallTempDir[] =
+    FILE_PATH_LITERAL("install_temp");
+
+const base::FilePath::CharType kUpdateTempDir[] =
+    FILE_PATH_LITERAL("update_temp");
 }  // namespace
 
 PackageInstaller::PackageInstaller(ApplicationStorage* storage)
@@ -89,8 +94,9 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   if (!base::PathExists(path))
     return false;
 
-  base::FilePath data_dir;
+  base::FilePath data_dir, install_temp_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
+  install_temp_dir = data_dir.Append(kInstallTempDir);
   data_dir = data_dir.Append(kApplicationsDir);
 
   // Make sure the kApplicationsDir exists under data_path, otherwise,
@@ -100,11 +106,19 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
       !base::CreateDirectory(data_dir))
     return false;
 
+  if (!base::DirectoryExists(install_temp_dir) &&
+      !base::CreateDirectory(install_temp_dir))
+    return false;
+
   std::string app_id;
   base::FilePath unpacked_dir;
   scoped_ptr<Package> package;
+  FileDeleter tmp_path(install_temp_dir.Append(path.BaseName()), false);
   if (!base::DirectoryExists(path)) {
-    package = Package::Create(path);
+    if (tmp_path.path() != path &&
+        !base::CopyFile(path, tmp_path.path()))
+      return false;
+    package = Package::Create(tmp_path.path());
     if (!package->IsValid())
       return false;
     package->Extract(&unpacked_dir);
@@ -193,8 +207,19 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  base::FilePath unpacked_dir;
-  scoped_ptr<Package> package = Package::Create(path);
+  base::FilePath unpacked_dir, update_temp_dir;
+  CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &update_temp_dir));
+  update_temp_dir = update_temp_dir.Append(kUpdateTempDir);
+  if (!base::DirectoryExists(update_temp_dir) &&
+      !base::CreateDirectory(update_temp_dir))
+    return false;
+
+  FileDeleter tmp_path(update_temp_dir.Append(path.BaseName()), false);
+  if (tmp_path.path() != path &&
+      !base::CopyFile(path, tmp_path.path()))
+    return false;
+
+  scoped_ptr<Package> package = Package::Create(tmp_path.path());
   if (!package) {
     LOG(ERROR) << "XPK/WGT file is invalid.";
     return false;
@@ -324,6 +349,39 @@ bool PackageInstaller::Uninstall(const std::string& app_id) {
     result = false;
 
   return result;
+}
+
+void PackageInstaller::ContinueUnfinishedTasks() {
+  base::FilePath config_dir;
+  CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &config_dir));
+
+  base::FilePath install_temp_dir = config_dir.Append(kInstallTempDir),
+      update_temp_dir = config_dir.Append(kUpdateTempDir);
+  FileDeleter install_cleaner(install_temp_dir, true),
+      update_cleaner(update_temp_dir, true);
+
+  if (base::DirectoryExists(install_temp_dir)) {
+    base::FileEnumerator install_iter(
+        install_temp_dir, false, base::FileEnumerator::FILES);
+    for (base::FilePath file = install_iter.Next();
+         !file.empty(); file = install_iter.Next()) {
+      std::string app_id;
+      Install(file, &app_id);
+    }
+  }
+
+  if (base::DirectoryExists(update_temp_dir)) {
+    base::FileEnumerator update_iter(
+        update_temp_dir, false, base::FileEnumerator::FILES);
+    for (base::FilePath file = update_iter.Next();
+         !file.empty(); file = update_iter.Next()) {
+      std::string app_id;
+      if (!Install(file, &app_id) && storage_->Contains(app_id)) {
+        LOG(INFO) << "trying to update %s" << app_id;
+        Update(app_id, file);
+      }
+    }
+  }
 }
 
 }  // namespace application

@@ -24,6 +24,7 @@ class PackageInstaller {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
+  void ContinueUnfinishedTasks();
 
  protected:
   explicit PackageInstaller(ApplicationStorage* storage);

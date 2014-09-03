@@ -20,6 +20,7 @@
 #include "base/process/launch.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
@@ -43,28 +44,6 @@ const base::FilePath kDefaultIcon(
 
 const std::string kServicePrefix("xwalk-service.");
 const std::string kAppIdPrefix("xwalk.");
-
-class FileDeleter {
- public:
-  FileDeleter(const base::FilePath& path, bool recursive)
-      : path_(path),
-        recursive_(recursive) {}
-
-  ~FileDeleter() {
-    if (path_.empty())
-      return;
-
-    base::DeleteFile(path_, recursive_);
-  }
-
-  void Dismiss() {
-    path_.clear();
-  }
-
- private:
-  base::FilePath path_;
-  bool recursive_;
-};
 
 void WriteMetaDataElement(
     XmlWriter& writer, // NOLINT

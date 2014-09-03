@@ -35,6 +35,7 @@ static char* install_path;
 static char* uninstall_appid;
 
 static gint debugging_port = -1;
+static gboolean continue_tasks = FALSE;
 
 static GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
@@ -43,6 +44,8 @@ static GOptionEntry entries[] = {
     "Uninstall the application with this appid", "APPID" },
   { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
     "Enable remote debugging, port number 0 means to disable", NULL },
+  { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
+    "Continue the previous unfinished tasks.", NULL},
   { NULL }
 };
 
@@ -139,6 +142,13 @@ int main(int argc, char* argv[]) {
   scoped_ptr<PackageInstaller> installer =
       PackageInstaller::Create(storage.get());
 
+  if (continue_tasks) {
+    g_print("trying to continue previous unfinished tasks.\n");
+    installer->ContinueUnfinishedTasks();
+    success = true;
+    g_print("Previous tasks have been finished.\n");
+  }
+
   if (install_path) {
     std::string app_id;
     const base::FilePath& path = base::FilePath(install_path);
@@ -156,7 +166,7 @@ int main(int argc, char* argv[]) {
 #else
     g_print("Couldn't enable remote debugging for no shared process mode!");
 #endif
-  } else {
+  } else if (!continue_tasks) {
     success = list_applications(storage.get());
   }
 
