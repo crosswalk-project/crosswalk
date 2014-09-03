@@ -58,7 +58,11 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
   }
 
   int count;
-  ret = ail_filter_count_appinfo(filter, &count);
+  uid_t uid = getuid();
+  if (uid != GLOBAL_USER)
+    ret = ail_filter_count_usr_appinfo(filter, &count, uid);
+  else
+    ret = ail_filter_count_appinfo(filter, &count);
   if (ret != AIL_ERROR_OK) {
     LOG(ERROR) << "Failed to count AIL app info.";
     ail_filter_destroy(filter);
@@ -73,7 +77,12 @@ base::FilePath GetApplicationPath(const std::string& app_id) {
   }
 
   std::string x_slp_exe_path;
-  ail_filter_list_appinfo_foreach(filter, appinfo_get_exec_cb, &x_slp_exe_path);
+  if (uid != GLOBAL_USER)
+    ail_filter_list_usr_appinfo_foreach(filter, appinfo_get_exec_cb,
+                                        &x_slp_exe_path, uid);
+  else
+    ail_filter_list_appinfo_foreach(filter,
+                                    appinfo_get_exec_cb, &x_slp_exe_path);
   ail_filter_destroy(filter);
 
   // x_slp_exe_path is <app_path>/bin/<app_id>, we need to
@@ -121,6 +130,9 @@ const char kXWalkPackageType[] = "wgt";
 bool ApplicationStorageImpl::GetInstalledApplicationIDs(
   std::vector<std::string>& app_ids) {  // NOLINT
   ail_filter_h filter;
+  int count;
+  uid_t uid = getuid();
+
   ail_error_e ret = ail_filter_new(&filter);
   if (ret != AIL_ERROR_OK) {
     LOG(ERROR) << "Failed to create AIL filter.";
@@ -135,16 +147,25 @@ bool ApplicationStorageImpl::GetInstalledApplicationIDs(
     return false;
   }
 
-  int count;
-  ret = ail_filter_count_appinfo(filter, &count);
+  if (uid != GLOBAL_USER)
+    ret = ail_filter_count_usr_appinfo(filter, &count, uid);
+  else
+    ret = ail_filter_count_appinfo(filter, &count);
+
   if (ret != AIL_ERROR_OK) {
     LOG(ERROR) << "Failed to count AIL app info.";
     ail_filter_destroy(filter);
     return false;
   }
 
-  if (count > 0)
-    ail_filter_list_appinfo_foreach(filter, appinfo_get_app_id_cb, &app_ids);
+  if (count > 0) {
+    if (uid != GLOBAL_USER)
+      ail_filter_list_usr_appinfo_foreach(filter, appinfo_get_app_id_cb,
+          &app_ids, uid);
+    else
+      ail_filter_list_appinfo_foreach(filter, appinfo_get_app_id_cb, &app_ids);
+  }
+
   ail_filter_destroy(filter);
   return true;
 }

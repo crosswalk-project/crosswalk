@@ -103,7 +103,8 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   if (icon_name.empty())
     xml_writer.WriteElement("icon", info::kDefaultIconName);
   else
-    xml_writer.WriteElement("icon", kServicePrefix + package_id + ".png");
+    xml_writer.WriteElement("icon",
+                            kServicePrefix + application->ID() + ".png");
   xml_writer.EndElement();  // Ends "ui-application"
 
   xml_writer.EndElement();  // Ends "manifest" element.
@@ -159,9 +160,10 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
       app_id + std::string(info::kXmlExtension));
 
   std::string icon_name;
-  if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
+  if (!app_data->GetManifest()->GetString(
+      GetIcon128Key(app_data->GetPackageType()), &icon_name))
     LOG(WARNING) << "'icon' not included in manifest";
-  }
+
   // This will clean everything inside '<data dir>/<app id>'.
   FileDeleter app_dir_cleaner(app_dir, true);
 
@@ -256,9 +258,10 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
       app_id + ".new" + std::string(info::kXmlExtension));
 
   std::string icon_name;
-  if (!app_data->GetManifest()->GetString(info::kIconKey, &icon_name)) {
+  if (!app_data->GetManifest()->GetString(
+      GetIcon128Key(app_data->GetPackageType()), &icon_name))
     LOG(WARNING) << "'icon' not included in manifest";
-  }
+
   // This will clean everything inside '<data dir>/<app id>' and the new XML.
   FileDeleter app_dir_cleaner(app_dir, true);
   FileDeleter new_xml_cleaner(new_xml_path, true);
