@@ -43,6 +43,29 @@ const char* kDefaultWidgetEntryPage[] = {
 "index.xhtml",
 "index.xht"};
 
+GURL GetDefaultWidgetEntryPage(
+    scoped_refptr<xwalk::application::ApplicationData> data) {
+  base::ThreadRestrictions::SetIOAllowed(true);
+  base::FileEnumerator iter(
+      data->Path(), true,
+      base::FileEnumerator::FILES,
+      FILE_PATH_LITERAL("index.*"));
+  size_t priority = arraysize(kDefaultWidgetEntryPage);
+  std::string source;
+
+  for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
+    for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
+      if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
+          i < priority) {
+        source = kDefaultWidgetEntryPage[i];
+        priority = i;
+      }
+    }
+  }
+
+  return source.empty() ? GURL() : data->GetResourceURL(source);
+}
+
 }  // namespace
 
 namespace application {
@@ -122,7 +145,18 @@ GURL Application::GetStartURL(const LaunchParams& params,
   if (params.entry_points & LaunchLocalPathKey) {
     GURL url = GetAbsoluteURLFromKey(
         GetLaunchLocalPathKey(data_->GetPackageType()));
+
+    if (!url.is_valid() && data_->GetPackageType() == Package::WGT)
+      url = GetDefaultWidgetEntryPage(data_);
+
     if (url.is_valid()) {
+#if defined(OS_TIZEN)
+      if (data_->IsHostedApp() && !url.SchemeIsHTTPOrHTTPS()) {
+        LOG(ERROR) << "Hosted application should use the url start with"
+                      "http or https as its entry page.";
+        return GURL();
+      }
+#endif
       *used = LaunchLocalPathKey;
       return url;
     }
@@ -184,31 +218,8 @@ GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
   const Manifest* manifest = data_->GetManifest();
   std::string source;
 
-  if (!manifest->GetString(key, &source) || source.empty()) {
-    if (data_->GetPackageType() == Package::XPK)
-      return GURL();
-
-    // FIXME: Refactor this Widget specific code out.
-    base::ThreadRestrictions::SetIOAllowed(true);
-    base::FileEnumerator iter(
-        data_->Path(), true,
-        base::FileEnumerator::FILES,
-        FILE_PATH_LITERAL("index.*"));
-    size_t priority = arraysize(kDefaultWidgetEntryPage);
-
-    for (base::FilePath file = iter.Next(); !file.empty(); file = iter.Next()) {
-      for (size_t i = 0; i < arraysize(kDefaultWidgetEntryPage); ++i) {
-        if (file.BaseName().MaybeAsASCII() == kDefaultWidgetEntryPage[i] &&
-            i < priority) {
-          source = kDefaultWidgetEntryPage[i];
-          priority = i;
-        }
-      }
-    }
-
-    if (source.empty())
-      return GURL();
-  }
+  if (!manifest->GetString(key, &source) || source.empty())
+    return GURL();
 
   std::size_t found = source.find_first_of("://");
   if (found == std::string::npos)
