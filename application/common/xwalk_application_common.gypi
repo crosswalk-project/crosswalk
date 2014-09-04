@@ -33,7 +33,6 @@
         'constants.h',
         'id_util.cc',
         'id_util.h',
-        'install_warning.h',
         'manifest.cc',
         'manifest.h',
         'manifest_handler.cc',

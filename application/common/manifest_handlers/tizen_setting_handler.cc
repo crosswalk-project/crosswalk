@@ -42,8 +42,7 @@ bool TizenSettingHandler::Parse(scoped_refptr<ApplicationData> application,
 
 bool TizenSettingHandler::Validate(
     scoped_refptr<const ApplicationData> application,
-    std::string* error,
-    std::vector<InstallWarning>* warnings) const {
+    std::string* error) const {
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
   std::string hwkey;

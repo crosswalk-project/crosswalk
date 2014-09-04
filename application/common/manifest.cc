@@ -92,8 +92,7 @@ Manifest::~Manifest() {
 }
 
 bool Manifest::ValidateManifest(
-    std::string* error,
-    std::vector<InstallWarning>* warnings) const {
+    std::string* error) const {
   // TODO(xiang): support features validation
   return true;
 }

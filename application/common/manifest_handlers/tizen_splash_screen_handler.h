@@ -36,8 +36,7 @@ class TizenSplashScreenHandler : public ManifestHandler {
   virtual bool Parse(scoped_refptr<ApplicationData> application,
                      base::string16* error) OVERRIDE;
   virtual bool Validate(scoped_refptr<const ApplicationData> application,
-                        std::string* error,
-                        std::vector<InstallWarning>* warnings) const OVERRIDE;
+                        std::string* error) const OVERRIDE;
   virtual std::vector<std::string> Keys() const OVERRIDE;
 
  private:

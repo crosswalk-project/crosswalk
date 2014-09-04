@@ -15,12 +15,9 @@
 #include "base/strings/string16.h"
 #include "base/values.h"
 #include "xwalk/application/common/installer/package.h"
-#include "xwalk/application/common/install_warning.h"
 
 namespace xwalk {
 namespace application {
-
-struct InstallWarning;
 
 // Wraps the DictionaryValue form of application's manifest. Enforces access to
 // properties of the manifest using ManifestFeatureProvider.
@@ -41,7 +38,7 @@ class Manifest {
   };
 
   Manifest(SourceType source_type, scoped_ptr<base::DictionaryValue> value);
-  virtual ~Manifest();
+  ~Manifest();
 
   const std::string& GetApplicationID() const { return application_id_; }
   void SetApplicationID(const std::string& id) { application_id_ = id; }
@@ -51,8 +48,7 @@ class Manifest {
   // Returns false and |error| will be non-empty if the manifest is malformed.
   // |warnings| will be populated if there are keys in the manifest that cannot
   // be specified by the application type.
-  bool ValidateManifest(std::string* error,
-                        std::vector<InstallWarning>* warnings) const;
+  bool ValidateManifest(std::string* error) const;
 
   // Returns the manifest type.
   Type GetType() const { return type_; }
