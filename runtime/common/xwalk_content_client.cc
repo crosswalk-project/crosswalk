@@ -14,7 +14,10 @@
 #include "content/public/common/content_switches.h"
 #include "content/public/common/user_agent.h"
 #include "content/public/common/pepper_plugin_info.h"
+#if !defined(DISABLE_NACL)
+#include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
+#endif
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "xwalk/application/common/constants.h"
@@ -25,6 +28,7 @@ const char* const xwalk::XWalkContentClient::kNaClPluginName = "Native Client";
 
 namespace {
 
+#if !defined(DISABLE_NACL)
 const char kNaClPluginMimeType[] = "application/x-nacl";
 const char kNaClPluginExtension[] = "";
 const char kNaClPluginDescription[] = "Native Client Executable";
@@ -34,6 +38,7 @@ const uint32 kNaClPluginPermissions = ppapi::PERMISSION_PRIVATE |
 const char kPnaclPluginMimeType[] = "application/x-pnacl";
 const char kPnaclPluginExtension[] = "";
 const char kPnaclPluginDescription[] = "Portable Native Client Executable";
+#endif
 
 }  // namespace
 
@@ -65,36 +70,40 @@ XWalkContentClient::~XWalkContentClient() {
 
 void XWalkContentClient::AddPepperPlugins(
     std::vector<content::PepperPluginInfo>* plugins) {
+#if !defined(DISABLE_NACL)
   // Handle Native Client just like the PDF plugin. This means that it is
   // enabled by default for the non-portable case.  This allows apps installed
   // from the Chrome Web Store to use NaCl even if the command line switch
   // isn't set.  For other uses of NaCl we check for the command line switch.
   // Specifically, Portable Native Client is only enabled by the command line
   // switch.
-  static bool skip_nacl_file_check = false;
   base::FilePath path;
   if (PathService::Get(xwalk::FILE_NACL_PLUGIN, &path)) {
-    if (skip_nacl_file_check || base::PathExists(path)) {
-      content::PepperPluginInfo nacl;
-      nacl.path = path;
-      nacl.name = XWalkContentClient::kNaClPluginName;
-      content::WebPluginMimeType nacl_mime_type(kNaClPluginMimeType,
-                                                kNaClPluginExtension,
-                                                kNaClPluginDescription);
-      nacl.mime_types.push_back(nacl_mime_type);
-      if (!CommandLine::ForCurrentProcess()->HasSwitch(
-              switches::kDisablePnacl)) {
-        content::WebPluginMimeType pnacl_mime_type(kPnaclPluginMimeType,
-                                                   kPnaclPluginExtension,
-                                                   kPnaclPluginDescription);
-        nacl.mime_types.push_back(pnacl_mime_type);
-      }
-      nacl.permissions = kNaClPluginPermissions;
-      plugins->push_back(nacl);
-
-      skip_nacl_file_check = true;
+    content::PepperPluginInfo nacl;
+    // The nacl plugin is now built into the Chromium binary.
+    nacl.is_internal = true;
+    nacl.path = path;
+    nacl.name = XWalkContentClient::kNaClPluginName;
+    content::WebPluginMimeType nacl_mime_type(kNaClPluginMimeType,
+                                              kNaClPluginExtension,
+                                              kNaClPluginDescription);
+    nacl.mime_types.push_back(nacl_mime_type);
+    if (!CommandLine::ForCurrentProcess()->HasSwitch(
+        switches::kDisablePnacl)) {
+      content::WebPluginMimeType pnacl_mime_type(kPnaclPluginMimeType,
+                                                 kPnaclPluginExtension,
+                                                 kPnaclPluginDescription);
+      nacl.mime_types.push_back(pnacl_mime_type);
     }
+    nacl.internal_entry_points.get_interface = nacl_plugin::PPP_GetInterface;
+    nacl.internal_entry_points.initialize_module =
+        nacl_plugin::PPP_InitializeModule;
+    nacl.internal_entry_points.shutdown_module =
+        nacl_plugin::PPP_ShutdownModule;
+    nacl.permissions = kNaClPluginPermissions;
+    plugins->push_back(nacl);
   }
+#endif
 }
 
 std::string XWalkContentClient::GetProduct() const {
