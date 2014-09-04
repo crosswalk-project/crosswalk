@@ -1,32 +1,12 @@
 {
   'targets': [
     {
-      'target_name': 'gio',
-      'type': 'none',
-      'variables': {
-        'glib_packages': 'glib-2.0 gio-unix-2.0',
-      },
-      'direct_dependent_settings': {
-        'cflags': [
-          '<!@(pkg-config --cflags <(glib_packages))',
-        ],
-      },
-      'link_settings': {
-        'ldflags': [
-          '<!@(pkg-config --libs-only-L --libs-only-other <(glib_packages))',
-        ],
-        'libraries': [
-          '<!@(pkg-config --libs-only-l <(glib_packages))',
-        ],
-      },
-    },
-    {
       'target_name': 'xwalkctl',
       'type': 'executable',
       'product_name': 'xwalkctl',
       'dependencies': [
-        'gio',
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
+        '../../../build/system.gyp:gio',
         '../../../../build/linux/system.gyp:dbus',
         '../../../../dbus/dbus.gyp:dbus',
       ],
@@ -37,6 +17,7 @@
         'dbus_connection.cc',
         'dbus_connection.h',
         'xwalkctl_main.cc',
+        # TODO(t.iwanek) fix me - this duplicates compilation of those files
         '../../../runtime/common/xwalk_paths.cc',
         '../../../runtime/common/xwalk_paths.h',
         '../../../runtime/common/xwalk_system_locale.cc',
@@ -76,12 +57,12 @@
       'conditions' : [
         ['OS=="linux"', {
           'dependencies': [
-            'gio',
+            '../../../build/system.gyp:gio',
           ],
         }],
         ['tizen==1', {
           'dependencies': [
-            'gio',
+            '../../../build/system.gyp:gio',
             '../../../build/system.gyp:tizen',
             '../../../build/system.gyp:tizen_appcore_common'
           ],

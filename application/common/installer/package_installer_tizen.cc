@@ -15,6 +15,7 @@
 #include "base/file_util.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
+#include "base/memory/ref_counted.h"
 #include "base/path_service.h"
 #include "base/command_line.h"
 #include "base/process/launch.h"
@@ -70,7 +71,7 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
     return false;
 
   std::string package_id =
-      xwalk::application::GetPackageIdFromAppId(application->ID());
+      xwalk::application::AppIdToPkgId(application->ID());
 
   base::FilePath execute_path =
       app_dir.AppendASCII("bin/").AppendASCII(application->ID());
@@ -149,6 +150,27 @@ PackageInstallerTizen::PackageInstallerTizen(ApplicationStorage* storage)
     : PackageInstaller(storage) {
 }
 
+void PackageInstallerTizen::SetQuiet(bool quiet) {
+  quiet_ = quiet;
+}
+
+void PackageInstallerTizen::SetInstallationKey(const std::string& key) {
+  key_ = key;
+}
+
+std::string PackageInstallerTizen::PrepareUninstallationID(
+    const std::string& id) {
+  // this function fix pkg_id to app_id
+  // if installer was launched with pkg_id
+  if (IsValidPkgID(id)) {
+    LOG(INFO) << "The package id is given " << id << " Will find app_id...";
+    std::string appid = PkgIdToAppId(id);
+    if (!appid.empty())
+      return appid;
+  }
+  return id;
+}
+
 bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
   std::string app_id(app_data->ID());
   base::FilePath data_dir;
@@ -182,10 +204,14 @@ bool PackageInstallerTizen::PlatformInstall(ApplicationData* app_data) {
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
   CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitch("--install");
-  cmdline.AppendArg(app_id);
-  cmdline.AppendArgPath(xml_path);
-  cmdline.AppendArgPath(icon);
+  cmdline.AppendSwitchASCII("--install", app_id);
+  cmdline.AppendSwitchPath("--xml", xml_path);
+  cmdline.AppendSwitchPath("--icon", icon);
+  if (quiet_)
+    cmdline.AppendSwitch("-q");
+  if (!key_.empty()) {
+    cmdline.AppendSwitchASCII("--key", key_);
+  }
 
   int exit_code;
   std::string output;
@@ -213,8 +239,12 @@ bool PackageInstallerTizen::PlatformUninstall(ApplicationData* app_data) {
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
   CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitch("--uninstall");
-  cmdline.AppendArg(app_id);
+  cmdline.AppendSwitchASCII("--uninstall", app_id);
+  if (quiet_)
+    cmdline.AppendSwitch("-q");
+  if (!key_.empty()) {
+    cmdline.AppendSwitchASCII("--key", key_);
+  }
 
   int exit_code;
   std::string output;
@@ -279,10 +309,14 @@ bool PackageInstallerTizen::PlatformUpdate(ApplicationData* app_data) {
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
   CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitch("--update");
-  cmdline.AppendArg(app_id);
-  cmdline.AppendArgPath(new_xml_path);
-  cmdline.AppendArgPath(icon);
+  cmdline.AppendSwitchASCII("--update", app_id);
+  cmdline.AppendSwitchPath("--xml", new_xml_path);
+  cmdline.AppendSwitchPath("--icon", icon);
+  if (quiet_)
+    cmdline.AppendSwitch("-q");
+  if (!key_.empty()) {
+    cmdline.AppendSwitchASCII("--key", key_);
+  }
 
   int exit_code;
   std::string output;

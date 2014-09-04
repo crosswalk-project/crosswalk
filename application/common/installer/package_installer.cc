@@ -76,6 +76,16 @@ scoped_ptr<PackageInstaller> PackageInstaller::Create(
 #endif
 }
 
+void PackageInstaller::SetQuiet(bool quiet) {
+}
+
+void PackageInstaller::SetInstallationKey(const std::string& key) {
+}
+
+std::string PackageInstaller::PrepareUninstallationID(const std::string& id) {
+  return id;
+}
+
 bool PackageInstaller::PlatformInstall(ApplicationData* data) {
   return true;
 }
@@ -314,7 +324,9 @@ bool PackageInstaller::Update(const std::string& app_id,
   return true;
 }
 
-bool PackageInstaller::Uninstall(const std::string& app_id) {
+bool PackageInstaller::Uninstall(const std::string& id) {
+  std::string app_id = PrepareUninstallationID(id);
+
   if (!IsValidApplicationID(app_id)) {
     LOG(ERROR) << "The given application id " << app_id << " is invalid.";
     return false;

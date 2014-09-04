@@ -90,6 +90,8 @@
             'installer/tizen/packageinfo_constants.h',
             'installer/tizen/signature_validator.cc',
             'installer/tizen/signature_validator.h',
+            'tizen/package_path.cc',
+            'tizen/package_path.h',
           ],
         }, {
         'sources': [
