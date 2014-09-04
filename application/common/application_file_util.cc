@@ -29,7 +29,6 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/application/common/install_warning.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
 
@@ -407,22 +406,16 @@ scoped_refptr<ApplicationData> LoadApplication(
                                                              *manifest,
                                                              application_id,
                                                              error);
-  if (!application.get())
+  if (!application)
     return NULL;
 
-  std::vector<InstallWarning> warnings;
   ManifestHandlerRegistry* registry =
       manifest->HasKey(widget_keys::kWidgetKey)
       ? ManifestHandlerRegistry::GetInstance(Package::WGT)
       : ManifestHandlerRegistry::GetInstance(Package::XPK);
 
-  if (!registry->ValidateAppManifest(application, error, &warnings))
+  if (!registry->ValidateAppManifest(application, error))
     return NULL;
-
-  if (!warnings.empty()) {
-    LOG(WARNING) << "There are some warnings when validating the application "
-                 << application->ID();
-  }
 
   return application;
 }

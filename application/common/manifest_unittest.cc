@@ -13,7 +13,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/install_warning.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace errors = xwalk::application_manifest_errors;
@@ -63,11 +62,9 @@ TEST_F(ManifestTest, ApplicationData) {
   scoped_ptr<Manifest> manifest(
       new Manifest(Manifest::COMMAND_LINE, manifest_value.Pass()));
   std::string error;
-  std::vector<InstallWarning> warnings;
-  EXPECT_TRUE(manifest->ValidateManifest(&error, &warnings));
+  EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());
   // TODO(xiang): warnings will not be empty after enable manifest features
-  ASSERT_EQ(0u, warnings.size());
   // AssertType(manifest.get(), Manifest::TYPE_HOSTED_AP);
 
   // The unknown key 'unknown_key' should be accesible.
@@ -93,10 +90,8 @@ TEST_F(ManifestTest, ApplicationTypes) {
   scoped_ptr<Manifest> manifest(
       new Manifest(Manifest::COMMAND_LINE, value.Pass()));
   std::string error;
-  std::vector<InstallWarning> warnings;
-  EXPECT_TRUE(manifest->ValidateManifest(&error, &warnings));
+  EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());
-  EXPECT_TRUE(warnings.empty());
 
   // Platform app.
   MutateManifest(

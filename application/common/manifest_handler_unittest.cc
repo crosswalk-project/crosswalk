@@ -11,7 +11,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/manifest_handler.h"
-#include "xwalk/application/common/install_warning.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace xwalk {
@@ -163,8 +162,7 @@ class ManifestHandlerTest : public testing::Test {
 
     virtual bool Validate(
         scoped_refptr<const ApplicationData> application,
-        std::string* error,
-        std::vector<InstallWarning>* warnings) const OVERRIDE {
+        std::string* error) const OVERRIDE {
       return return_value_;
     }
 
@@ -176,7 +174,7 @@ class ManifestHandlerTest : public testing::Test {
       return keys_;
     }
 
- protected:
+   protected:
     bool return_value_;
     bool always_validate_;
     std::vector<std::string> keys_;
@@ -295,21 +293,20 @@ TEST_F(ManifestHandlerTest, Validate) {
   EXPECT_TRUE(application.get());
 
   std::vector<ManifestHandler*> handlers;
-  std::vector<InstallWarning> warnings;
   // Always validates and fails.
   handlers.push_back(
       new TestManifestValidator(false, true, SingleKey("c")));
   registry.reset();
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
   EXPECT_FALSE(
-      registry->registry_->ValidateAppManifest(application, &error, &warnings));
+      registry->registry_->ValidateAppManifest(application, &error));
 
   handlers.push_back(
       new TestManifestValidator(false, false, SingleKey("c")));
   registry.reset();
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
   EXPECT_TRUE(
-      registry->registry_->ValidateAppManifest(application, &error, &warnings));
+      registry->registry_->ValidateAppManifest(application, &error));
 
   // Validates "a" and fails.
   handlers.push_back
@@ -317,7 +314,7 @@ TEST_F(ManifestHandlerTest, Validate) {
   registry.reset();
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
   EXPECT_FALSE(
-      registry->registry_->ValidateAppManifest(application, &error, &warnings));
+      registry->registry_->ValidateAppManifest(application, &error));
 }
 
 }  // namespace application

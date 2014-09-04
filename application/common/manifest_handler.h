@@ -29,8 +29,7 @@ class ManifestHandler {
   // Returns false in case of failure and sets writes error message
   // in |error| if present.
   virtual bool Validate(scoped_refptr<const ApplicationData> application,
-                        std::string* error,
-                        std::vector<InstallWarning>* warnings) const;
+                        std::string* error) const;
 
   // If false (the default), only parse the manifest if a registered
   // key is present in the manifest. If true, always attempt to parse
@@ -61,8 +60,7 @@ class ManifestHandlerRegistry {
   bool ParseAppManifest(
        scoped_refptr<ApplicationData> application, base::string16* error);
   bool ValidateAppManifest(scoped_refptr<const ApplicationData> application,
-                           std::string* error,
-                           std::vector<InstallWarning>* warnings);
+                           std::string* error);
 
  private:
   friend class ScopedTestingManifestHandlerRegistry;
