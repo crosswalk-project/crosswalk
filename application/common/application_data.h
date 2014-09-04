@@ -22,7 +22,6 @@
 #include "base/threading/thread_checker.h"
 #include "base/time/time.h"
 #include "url/gurl.h"
-#include "xwalk/application/common/install_warning.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/permission_types.h"
 
@@ -173,9 +172,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The absolute path to the directory the application is stored in.
   base::FilePath path_;
-
-  // Any warnings that occurred when trying to create/parse the application.
-  std::vector<InstallWarning> install_warnings_;
 
   // System events
   std::set<std::string> events_;

@@ -77,8 +77,7 @@ bool TizenApplicationHandler::Parse(scoped_refptr<ApplicationData> application,
 
 bool TizenApplicationHandler::Validate(
     scoped_refptr<const ApplicationData> application,
-    std::string* error,
-    std::vector<InstallWarning>* warnings) const {
+    std::string* error) const {
   const TizenApplicationInfo* app_info =
       static_cast<const TizenApplicationInfo*>(
           application->GetManifestData(keys::kTizenApplicationKey));

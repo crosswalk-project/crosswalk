@@ -78,6 +78,15 @@ Manifest::Manifest(SourceType source_type,
     } else if (data_->Get(keys::kLaunchLocalPathKey, NULL)) {
       type_ = TYPE_PACKAGED_APP;
     }
+#if defined(OS_TIZEN)
+  } else if (HasPath(widget_keys::kContentNamespace)) {
+    std::string ns;
+    if (data_->GetString(widget_keys::kContentNamespace, &ns) &&
+        ns == kTizenNamespacePrefix)
+      type_ = TYPE_HOSTED_APP;
+    else
+      type_ = TYPE_PACKAGED_APP;
+#endif
   }
 
   if (data_->HasKey(widget_keys::kWidgetKey) &&
@@ -92,8 +101,7 @@ Manifest::~Manifest() {
 }
 
 bool Manifest::ValidateManifest(
-    std::string* error,
-    std::vector<InstallWarning>* warnings) const {
+    std::string* error) const {
   // TODO(xiang): support features validation
   return true;
 }
