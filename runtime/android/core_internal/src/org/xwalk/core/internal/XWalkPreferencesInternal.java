@@ -18,7 +18,50 @@ import java.util.Map;
  */
 @XWalkAPI(noInstance = true)
 public class XWalkPreferencesInternal {
-    private static HashMap<String, Boolean> sPrefMap = new HashMap<String, Boolean>();
+    static class PreferenceValue {
+        static final int PREFERENCE_TYPE_BOOLEAN = 1;
+        static final int PREFERENCE_TYPE_INTEGER = 2;
+        static final int PREFERENCE_TYPE_STRING = 3;
+
+        int mType;
+        Object mValue;
+
+        PreferenceValue(boolean value) {
+            mType = PREFERENCE_TYPE_BOOLEAN;
+            mValue = value;
+        }
+
+        PreferenceValue(int value) {
+            mType = PREFERENCE_TYPE_INTEGER;
+            mValue = value;
+        }
+
+        PreferenceValue(String value) {
+            mType = PREFERENCE_TYPE_STRING;
+            mValue = value;
+        }
+
+        int getType() {
+            return mType;
+        }
+
+        boolean getBooleanValue() {
+            if (mType != PREFERENCE_TYPE_BOOLEAN) return false;
+            return (Boolean) mValue;
+        }
+
+        int getIntegerValue() {
+            if (mType != PREFERENCE_TYPE_INTEGER) return -1;
+            return (Integer) mValue;
+        }
+
+        String getStringValue() {
+            if (mType != PREFERENCE_TYPE_STRING) return null;
+            return (String) mValue;
+        }
+    }
+
+    private static HashMap<String, PreferenceValue> sPrefMap = new HashMap<String, PreferenceValue>();
     // Here we use WeakReference to make sure the KeyValueChangeListener instance
     // can be GC-ed to avoid memory leaking issue.
     private static ArrayList<WeakReference<KeyValueChangeListener> > sListeners =
@@ -61,42 +104,49 @@ public class XWalkPreferencesInternal {
     public static final String ANIMATABLE_XWALK_VIEW = "animatable-xwalk-view";
 
     /**
-     * The key string to enable/disable javascript.
-     */
-    static final String ENABLE_JAVASCRIPT = "enable-javascript";
-
-    /**
      * The key string to allow/disallow javascript to open
      * window automatically.
+     * @since 3.0
      */
-    static final String JAVASCRIPT_CAN_OPEN_WINDOW =
+    @XWalkAPI
+    public static final String JAVASCRIPT_CAN_OPEN_WINDOW =
             "javascript-can-open-window";
 
     /**
      * The key string to allow/disallow having universal access
      * from file origin.
+     * @since 3.0
      */
-    static final String ALLOW_UNIVERSAL_ACCESS_FROM_FILE =
+    @XWalkAPI
+    public static final String ALLOW_UNIVERSAL_ACCESS_FROM_FILE =
             "allow-universal-access-from-file";
 
-   /**
+    /**
      * The key string to enable/disable multiple windows.
+     * @since 3.0
      */
-    static final String SUPPORT_MULTIPLE_WINDOWS =
+    @XWalkAPI
+    public static final String SUPPORT_MULTIPLE_WINDOWS =
             "support-multiple-windows";
 
+    /**
+     * The key string to enable/disable javascript.
+     * TODO(wang16): Remove this after cordova removes its dependency.
+     */
+    static final String ENABLE_JAVASCRIPT = "enable-javascript";
+
     static {
-        sPrefMap.put(REMOTE_DEBUGGING, Boolean.FALSE);
-        sPrefMap.put(ANIMATABLE_XWALK_VIEW, Boolean.FALSE);
-        sPrefMap.put(ENABLE_JAVASCRIPT, Boolean.TRUE);
-        sPrefMap.put(JAVASCRIPT_CAN_OPEN_WINDOW, Boolean.TRUE);
+        sPrefMap.put(REMOTE_DEBUGGING, new PreferenceValue(false));
+        sPrefMap.put(ANIMATABLE_XWALK_VIEW, new PreferenceValue(false));
+        sPrefMap.put(ENABLE_JAVASCRIPT, new PreferenceValue(true));
+        sPrefMap.put(JAVASCRIPT_CAN_OPEN_WINDOW, new PreferenceValue(true));
         sPrefMap.put(
-                ALLOW_UNIVERSAL_ACCESS_FROM_FILE, Boolean.FALSE);
-        sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, Boolean.TRUE);
+                ALLOW_UNIVERSAL_ACCESS_FROM_FILE, new PreferenceValue(false));
+        sPrefMap.put(SUPPORT_MULTIPLE_WINDOWS, new PreferenceValue(true));
     }
 
     /**
-     * Set a preference value into Crosswalk. An exception will be thrown if
+     * Set a boolean preference value into Crosswalk. An exception will be thrown if
      * the key for the preference is not valid.
      * @param key the string name of the key.
      * @param enabled true if setting it as enabled.
@@ -111,32 +161,115 @@ public class XWalkPreferencesInternal {
             throw new RuntimeException("Warning: the preference key " + key +
                     " can not be set if the preference is already loaded by Crosswalk");
         }
-        if (sPrefMap.get(key) != enabled) {
-            sPrefMap.put(key, new Boolean(enabled));
-            onKeyValueChanged(key, enabled);
+        if (sPrefMap.get(key).getBooleanValue() != enabled) {
+            PreferenceValue v = new PreferenceValue(enabled);
+            sPrefMap.put(key, v);
+            onKeyValueChanged(key, v);
         }
     }
 
     /**
-     * Get a preference value from Crosswalk. An exception will be thrown if
+     * Set an integer preference value into Crosswalk. An exception will be thrown if
+     * the key for the preference is not valid.
+     * @param key the string name of the key.
+     * @param value the integer value.
+     * @since 3.0
+     */
+    @XWalkAPI
+    public static synchronized void setValue(String key, int value) throws RuntimeException {
+        checkKey(key);
+        // If the listener list is not empty, we consider the preference is
+        // loaded by Crosswalk and taken effect already.
+        if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
+            throw new RuntimeException("Warning: the preference key " + key +
+                    " can not be set if the preference is already loaded by Crosswalk");
+        }
+        if (sPrefMap.get(key).getIntegerValue() != value) {
+            PreferenceValue v = new PreferenceValue(value);
+            sPrefMap.put(key, v);
+            onKeyValueChanged(key, v);
+        }
+    }
+
+    /**
+     * Set a string preference value into Crosswalk. An exception will be thrown if
+     * the key for the preference is not valid.
+     * @param key the string name of the key.
+     * @param value the string value.
+     * @since 3.0
+     */
+    @XWalkAPI
+    public static synchronized void setValue(String key, String value) throws RuntimeException {
+        checkKey(key);
+        // If the listener list is not empty, we consider the preference is
+        // loaded by Crosswalk and taken effect already.
+        if (key == ANIMATABLE_XWALK_VIEW && !sListeners.isEmpty()) {
+            throw new RuntimeException("Warning: the preference key " + key +
+                    " can not be set if the preference is already loaded by Crosswalk");
+        }
+        if (value != null && !value.equals(sPrefMap.get(key).getStringValue())) {
+            PreferenceValue v = new PreferenceValue(value);
+            sPrefMap.put(key, v);
+            onKeyValueChanged(key, v);
+        }
+    }
+
+    /**
+     * Get a boolean preference value from Crosswalk. An exception will be thrown if
      * the key for the preference is not valid.
      * @param key the string name of the key.
      * @return true if it's enabled.
      * @since 1.0
+     * @deprecated
      */
     @XWalkAPI
     public static synchronized boolean getValue(String key) throws RuntimeException {
         checkKey(key);
-        return sPrefMap.get(key);
+        return sPrefMap.get(key).getBooleanValue();
     }
 
-    // TODO(yongsheng): I believe this is needed?
-    /*public static synchronized void setValue(String key, int value) throws RuntimeException {
-    }*/
+    /**
+     * Get a boolean preference value from Crosswalk. An exception will be thrown if
+     * the key for the preference is not valid.
+     * @param key the string name of the key.
+     * @return true if it's enabled.
+     * @since 3.0
+     */
+    @XWalkAPI
+    public static synchronized boolean getBooleanValue(String key) throws RuntimeException {
+        checkKey(key);
+        return sPrefMap.get(key).getBooleanValue();
+    }
+
+    /**
+     * Get a int preference value from Crosswalk. An exception will be thrown if
+     * the key for the preference is not valid.
+     * @param key the string name of the key.
+     * @return the integer value.
+     * @since 3.0
+     */
+    @XWalkAPI
+    public static synchronized int getIntegerValue(String key) throws RuntimeException {
+        checkKey(key);
+        return sPrefMap.get(key).getIntegerValue();
+    }
+
+    /**
+     * Get a string preference value from Crosswalk. An exception will be thrown if
+     * the key for the preference is not valid.
+     * @param key the string name of the key.
+     * @return the string value.
+     * @since 3.0
+     */
+    @XWalkAPI
+    public static synchronized String getStringValue(String key) throws RuntimeException {
+        checkKey(key);
+        return sPrefMap.get(key).getStringValue();
+    }
 
     static synchronized void load(KeyValueChangeListener listener) {
         // Load current settings for initialization of a listener implementor.
-        for (Map.Entry<String, Boolean> entry : sPrefMap.entrySet()) {
+        for (Map.Entry<String, PreferenceValue> entry : sPrefMap.entrySet()) {
             listener.onKeyValueChanged(entry.getKey(), entry.getValue());
         }
 
@@ -149,7 +282,7 @@ public class XWalkPreferencesInternal {
 
     // Listen to value changes.
     interface KeyValueChangeListener {
-        public void onKeyValueChanged(String key, boolean value);
+        public void onKeyValueChanged(String key, PreferenceValue value);
     }
 
     private static synchronized void registerListener(KeyValueChangeListener listener) {
@@ -169,10 +302,10 @@ public class XWalkPreferencesInternal {
         }
     }
 
-    private static void onKeyValueChanged(String key, boolean enabled) {
+    private static void onKeyValueChanged(String key, PreferenceValue value) {
         for (WeakReference<KeyValueChangeListener> weakListener : sListeners) {
             KeyValueChangeListener listener = weakListener.get();
-            if (listener != null) listener.onKeyValueChanged(key, enabled);
+            if (listener != null) listener.onKeyValueChanged(key, value);
         }
     }
 
