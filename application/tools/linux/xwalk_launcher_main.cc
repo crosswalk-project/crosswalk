@@ -11,6 +11,10 @@
 #include <pwd.h>
 #include <libgen.h>
 
+#if defined(OS_TIZEN)
+#include <security-manager.h>
+#endif
+
 #include <glib.h>
 #include <gio/gio.h>
 #include <gio/gunixfdlist.h>
@@ -285,6 +289,20 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  appid_or_url = strdup(cmd_appid_or_url[0]);
+
+#if defined(OS_TIZEN)
+  bool is_url = !GURL(appid_or_url).spec().empty();
+
+  if (!is_url) {
+    if (security_manager_prepare_app(appid_or_url)
+        != SECURITY_MANAGER_SUCCESS) {
+      fprintf(stderr, "Failed to set privileges for application.\n");
+      return 1;
+    }
+  }
+#endif
+
   connect_to_application_manager();
 
   // Launch app.
@@ -293,9 +311,9 @@ int main(int argc, char** argv) {
       fprintf(stderr, "No AppID informed, nothing to do.\n");
       return 0;
     }
-    appid_or_url = strdup(cmd_appid_or_url[0]);
+
 #if defined(OS_TIZEN)
-    if (GURL(appid_or_url).spec().empty()
+    if (!is_url
        && xwalk_change_cmdline(argc, argv, appid_or_url))
       exit(1);
 #endif

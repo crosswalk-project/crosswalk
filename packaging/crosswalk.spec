@@ -82,6 +82,7 @@ BuildRequires:  pkgconfig(secure-storage)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
+BuildRequires:  pkgconfig(security-manager)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xmlsec1)
 %if %{with x}
@@ -300,7 +301,8 @@ fi
 %manifest %{name}.manifest
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalkctl
-%{_bindir}/xwalk-launcher
+%caps(cap_mac_admin,cap_setgid=ei) %{_bindir}/xwalk-launcher
+
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}
