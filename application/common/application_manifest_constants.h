@@ -102,6 +102,7 @@ namespace application_widget_keys {
   extern const char kTizenSplashScreenKey[];
   extern const char kTizenSplashScreenSrcKey[];
   extern const char kContentNamespace[];
+  extern const char kTizenScreenOrientationKey[];
 #endif
 }  // namespace application_widget_keys
 
