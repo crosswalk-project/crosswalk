@@ -221,7 +221,7 @@ GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
   if (!manifest->GetString(key, &source) || source.empty())
     return GURL();
 
-  std::size_t found = source.find_first_of("://");
+  std::size_t found = source.find("://");
   if (found == std::string::npos)
     return data_->GetResourceURL(source);
   return GURL(source);
