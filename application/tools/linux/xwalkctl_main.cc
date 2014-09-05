@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -22,6 +23,7 @@
 #include "xwalk/application/common/installer/package_installer.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+
 #if defined(OS_TIZEN)
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/tools/linux/xwalk_tizen_user.h"
@@ -31,20 +33,37 @@ using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;
 using xwalk::application::PackageInstaller;
 
-static char* install_path;
-static char* uninstall_appid;
+namespace {
 
-static gint debugging_port = -1;
+char* install_path = NULL;
+char* uninstall_id = NULL;
+#if defined(OS_TIZEN)
+char* operation_key = NULL;
+int quiet = 0;
+#endif
 
-static GOptionEntry entries[] = {
+gint debugging_port = -1;
+gboolean continue_tasks = FALSE;
+
+GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed/updated", "PATH" },
-  { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_appid,
-    "Uninstall the application with this appid", "APPID" },
+  { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_id,
+    "Uninstall the application with this appid/pkgid", "ID" },
   { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
     "Enable remote debugging, port number 0 means to disable", NULL },
+  { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
+    "Continue the previous unfinished tasks.", NULL},
+#if defined(OS_TIZEN)
+  { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
+    "Unique operation key", "KEY" },
+  { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
+    "Quiet mode", NULL },
+#endif
   { NULL }
 };
+
+}  // namespace
 
 #if defined(SHARED_PROCESS_MODE)
 namespace {
@@ -54,9 +73,7 @@ const char xwalk_running_manager_iface[] =
     "org.crosswalkproject.Running.Manager1";
 const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 
-}  // namespace
-
-static bool enable_remote_debugging(gint debugging_port) {
+bool enable_remote_debugging(gint debugging_port) {
   dbus::Bus::Options options;
 #if defined(OS_TIZEN_MOBILE)
   options.bus_type = dbus::Bus::CUSTOM_ADDRESS;
@@ -84,6 +101,8 @@ static bool enable_remote_debugging(gint debugging_port) {
   }
   return true;
 }
+
+}  // namespace
 #endif
 
 bool list_applications(ApplicationStorage* storage) {
@@ -125,11 +144,18 @@ int main(int argc, char* argv[]) {
 #endif
 
   context = g_option_context_new("- Crosswalk Application Management");
+  if (!context) {
+    g_print("g_option_context_new failed\n");
+    exit(1);
+  }
   g_option_context_add_main_entries(context, entries, NULL);
   if (!g_option_context_parse(context, &argc, &argv, &error)) {
     g_print("option parsing failed: %s\n", error->message);
+    g_option_context_free(context);
     exit(1);
   }
+
+  g_option_context_free(context);
 
   base::AtExitManager at_exit;
   base::FilePath data_path;
@@ -139,6 +165,19 @@ int main(int argc, char* argv[]) {
   scoped_ptr<PackageInstaller> installer =
       PackageInstaller::Create(storage.get());
 
+#if defined(OS_TIZEN)
+  installer->SetQuiet(static_cast<bool>(quiet));
+  if (operation_key)
+    installer->SetInstallationKey(operation_key);
+#endif
+
+  if (continue_tasks) {
+    g_print("trying to continue previous unfinished tasks.\n");
+    installer->ContinueUnfinishedTasks();
+    success = true;
+    g_print("Previous tasks have been finished.\n");
+  }
+
   if (install_path) {
     std::string app_id;
     const base::FilePath& path = base::FilePath(install_path);
@@ -147,8 +186,8 @@ int main(int argc, char* argv[]) {
       g_print("trying to update %s\n", app_id.c_str());
       success = installer->Update(app_id, path);
     }
-  } else if (uninstall_appid) {
-    success = installer->Uninstall(uninstall_appid);
+  } else if (uninstall_id) {
+    success = installer->Uninstall(uninstall_id);
   } else if (debugging_port >= 0) {
 #if defined(SHARED_PROCESS_MODE)
     // Deal with the case "xwalkctl -d PORT_NUMBER"
@@ -156,7 +195,7 @@ int main(int argc, char* argv[]) {
 #else
     g_print("Couldn't enable remote debugging for no shared process mode!");
 #endif
-  } else {
+  } else if (!continue_tasks) {
     success = list_applications(storage.get());
   }
 

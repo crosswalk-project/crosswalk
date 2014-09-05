@@ -26,8 +26,7 @@ ManifestHandler::~ManifestHandler() {
 }
 
 bool ManifestHandler::Validate(scoped_refptr<const ApplicationData> application,
-                               std::string* error,
-                               std::vector<InstallWarning>* warnings) const {
+                               std::string* error) const {
   return true;
 }
 
@@ -130,14 +129,13 @@ bool ManifestHandlerRegistry::ParseAppManifest(
 
 bool ManifestHandlerRegistry::ValidateAppManifest(
     scoped_refptr<const ApplicationData> application,
-    std::string* error,
-    std::vector<InstallWarning>* warnings) {
+    std::string* error) {
   for (ManifestHandlerMap::iterator iter = handlers_.begin();
        iter != handlers_.end(); ++iter) {
     ManifestHandler* handler = iter->second;
     if ((application->GetManifest()->HasPath(iter->first) ||
          handler->AlwaysValidateForType(application->GetType())) &&
-        !handler->Validate(application, error, warnings))
+        !handler->Validate(application, error))
       return false;
   }
   return true;

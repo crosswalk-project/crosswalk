@@ -24,9 +24,16 @@ class PackageInstaller {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
+  void ContinueUnfinishedTasks();
+
+  virtual void SetQuiet(bool quiet);
+  virtual void SetInstallationKey(const std::string& key);
 
  protected:
   explicit PackageInstaller(ApplicationStorage* storage);
+
+  virtual std::string PrepareUninstallationID(const std::string& id);
+
   // Those to be overriden to implement platform specific logic.
   virtual bool PlatformInstall(ApplicationData* data);
   virtual bool PlatformUninstall(ApplicationData* data);

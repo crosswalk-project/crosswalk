@@ -29,7 +29,6 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/application/common/install_warning.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/manifest_handler.h"
 
@@ -45,6 +44,8 @@ namespace {
 const char kAttributePrefix[] = "@";
 const char kNamespaceKey[] = "@namespace";
 const char kTextKey[] = "#text";
+
+const char kContentKey[] = "content";
 
 const xmlChar kWidgetNodeKey[] = "widget";
 const xmlChar kNameNodeKey[] = "name";
@@ -63,7 +64,8 @@ const char kDirRLOKey[] = "rlo";
 const char* kSingletonElements[] = {
   "allow-navigation",
   "content-security-policy-report-only",
-  "content-security-policy"
+  "content-security-policy",
+  "content"
 };
 
 inline char* ToCharPointer(void* ptr) {
@@ -206,7 +208,14 @@ bool GetPackageType(const std::string& application_id,
 bool IsSingletonElement(const std::string& name) {
   for (int i = 0; i < arraysize(kSingletonElements); ++i)
     if (kSingletonElements[i] == name)
+#if defined(OS_TIZEN)
+      // On Tizen platform, need to check namespace of 'content'
+      // element further, a content element with tizen namespace
+      // will replace the one with widget namespace.
+      return name != kContentKey;
+#else
       return true;
+#endif
   return false;
 }
 
@@ -214,6 +223,14 @@ bool IsSingletonElement(const std::string& name) {
 
 namespace xwalk {
 namespace application {
+
+FileDeleter::FileDeleter(const base::FilePath& path, bool recursive)
+    : path_(path),
+      recursive_(recursive) {}
+
+FileDeleter::~FileDeleter() {
+  base::DeleteFile(path_, recursive_);
+}
 
 // Load XML node into Dictionary structure.
 // The keys for the XML node to Dictionary mapping are described below:
@@ -289,6 +306,19 @@ base::DictionaryValue* LoadXMLNode(
       continue;
     } else if (IsSingletonElement(sub_node_name)) {
       continue;
+#if defined(OS_TIZEN)
+    } else if (sub_node_name == kContentKey) {
+      std::string current_namespace, new_namespace;
+      base::DictionaryValue* current_value;
+      value->GetDictionary(sub_node_name, &current_value);
+
+      current_value->GetString(kNamespaceKey, &current_namespace);
+      sub_value->GetString(kNamespaceKey, &new_namespace);
+      if (current_namespace != new_namespace &&
+          new_namespace == kTizenNamespacePrefix)
+        value->Set(sub_node_name, sub_value);
+      continue;
+#endif
     }
 
     base::Value* temp;
@@ -376,22 +406,16 @@ scoped_refptr<ApplicationData> LoadApplication(
                                                              *manifest,
                                                              application_id,
                                                              error);
-  if (!application.get())
+  if (!application)
     return NULL;
 
-  std::vector<InstallWarning> warnings;
   ManifestHandlerRegistry* registry =
       manifest->HasKey(widget_keys::kWidgetKey)
       ? ManifestHandlerRegistry::GetInstance(Package::WGT)
       : ManifestHandlerRegistry::GetInstance(Package::XPK);
 
-  if (!registry->ValidateAppManifest(application, error, &warnings))
+  if (!registry->ValidateAppManifest(application, error))
     return NULL;
-
-  if (!warnings.empty()) {
-    LOG(WARNING) << "There are some warnings when validating the application "
-                 << application->ID();
-  }
 
   return application;
 }

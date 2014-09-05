@@ -33,7 +33,6 @@
         'constants.h',
         'id_util.cc',
         'id_util.h',
-        'install_warning.h',
         'manifest.cc',
         'manifest.h',
         'manifest_handler.cc',
@@ -90,6 +89,8 @@
             'installer/tizen/packageinfo_constants.h',
             'installer/tizen/signature_validator.cc',
             'installer/tizen/signature_validator.h',
+            'tizen/package_path.cc',
+            'tizen/package_path.h',
           ],
         }, {
         'sources': [

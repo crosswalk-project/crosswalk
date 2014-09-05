@@ -54,6 +54,12 @@ public class XWalkRuntimeShellActivity extends Activity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mRuntimeView.onStart();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         mRuntimeView.onPause();
@@ -63,6 +69,12 @@ public class XWalkRuntimeShellActivity extends Activity {
     protected void onResume() {
         super.onResume();
         mRuntimeView.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mRuntimeView.onStop();
     }
 
     @Override

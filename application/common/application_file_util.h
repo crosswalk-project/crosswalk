@@ -26,6 +26,19 @@ namespace application {
 
 class ApplicationData;
 
+class FileDeleter {
+ public:
+  FileDeleter(const base::FilePath& path, bool recursive);
+  ~FileDeleter();
+
+  void Dismiss() { path_.clear(); }
+  const base::FilePath& path() const { return path_; }
+
+ private:
+  base::FilePath path_;
+  bool recursive_;
+};
+
 // Loads and validates an application from the specified directory. Returns NULL
 // on failure, with a description of the error in |error|.
 scoped_refptr<ApplicationData> LoadApplication(

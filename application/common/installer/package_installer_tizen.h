@@ -16,10 +16,19 @@ class PackageInstallerTizen : public PackageInstaller {
  public:
   explicit PackageInstallerTizen(ApplicationStorage* storage);
 
- private:
+  void SetQuiet(bool quiet) OVERRIDE;
+  void SetInstallationKey(const std::string& key) OVERRIDE;
+
+ protected:
+  std::string PrepareUninstallationID(const std::string& id) OVERRIDE;
+
   virtual bool PlatformInstall(ApplicationData* data) OVERRIDE;
   virtual bool PlatformUninstall(ApplicationData* data) OVERRIDE;
   virtual bool PlatformUpdate(ApplicationData* data) OVERRIDE;
+
+ private:
+  bool quiet_;
+  std::string key_;
 };
 
 }  // namespace application

@@ -105,11 +105,17 @@ int xwalk_change_cmdline(int argc, char** argv, const char* app_id) {
   // Change /proc/<pid>/cmdline to app exec path. See XWALK-1722 for details.
   pkgmgrinfo_appinfo_h handle;
   char* exec_path = NULL;
-  if (pkgmgrinfo_appinfo_get_appinfo(app_id, &handle) != PMINFO_R_OK ||
+  // todo : add is_admin
+  if (pkgmgrinfo_appinfo_get_usr_appinfo(app_id,
+      getuid(), &handle) != PMINFO_R_OK ||
       pkgmgrinfo_appinfo_get_exec(handle, &exec_path) != PMINFO_R_OK ||
       !exec_path) {
-    fprintf(stderr, "Couldn't find exec path for application: %s\n", app_id);
-    return -1;
+    if (pkgmgrinfo_appinfo_get_appinfo(app_id, &handle) != PMINFO_R_OK ||
+        pkgmgrinfo_appinfo_get_exec(handle, &exec_path) != PMINFO_R_OK ||
+        !exec_path) {
+      fprintf(stderr, "Couldn't find exec path for application: %s\n", app_id);
+      return -1;
+    }
   }
 
   for (int i = 0; i < argc; ++i)

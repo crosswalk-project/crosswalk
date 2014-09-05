@@ -47,6 +47,14 @@ class XWalkCoreExtensionBridge extends XWalkExtensionAndroid implements XWalkExt
         mExtension.onPause();
     }
 
+    public void onStart() {
+        mExtension.onStart();
+    }
+
+    public void onStop() {
+        mExtension.onStop();
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mExtension.onActivityResult(requestCode, resultCode, data);
     }

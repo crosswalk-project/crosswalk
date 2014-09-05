@@ -37,7 +37,7 @@ ${ENUM_SECTION}
     private final static String BRIDGE_CLASS = "${BRIDGE_CLASS_FULL_NAME}";
     private Object bridge;
 
-    public Object getBridge() {
+    Object getBridge() {
         return bridge;
     }
 ${CREATE_INTERNALLY_CONSTRUCORS}

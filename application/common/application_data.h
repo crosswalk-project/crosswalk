@@ -22,7 +22,6 @@
 #include "base/threading/thread_checker.h"
 #include "base/time/time.h"
 #include "url/gurl.h"
-#include "xwalk/application/common/install_warning.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/permission_types.h"
 
@@ -100,6 +99,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const GURL& URL() const { return application_url_; }
   Manifest::SourceType GetSourceType() const;
   const std::string& ID() const;
+#if defined(OS_TIZEN)
+  std::string GetPackageID() const;
+#endif
   const base::Version* Version() const { return version_.get(); }
   const std::string VersionString() const;
   const std::string& Name() const { return name_; }
@@ -170,9 +172,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The absolute path to the directory the application is stored in.
   base::FilePath path_;
-
-  // Any warnings that occurred when trying to create/parse the application.
-  std::vector<InstallWarning> install_warnings_;
 
   // System events
   std::set<std::string> events_;

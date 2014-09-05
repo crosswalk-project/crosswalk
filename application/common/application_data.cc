@@ -54,15 +54,11 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
       new xwalk::application::Manifest(source_type,
                  scoped_ptr<base::DictionaryValue>(manifest_data.DeepCopy())));
 
-  std::vector<InstallWarning> install_warnings;
-  if (!manifest->ValidateManifest(error_message, &install_warnings)) {
+  if (!manifest->ValidateManifest(error_message))
     return NULL;
-  }
 
   scoped_refptr<ApplicationData> application = new ApplicationData(path,
                                                            manifest.Pass());
-  application->install_warnings_.swap(install_warnings);
-
   if (!application->Init(explicit_id, &error)) {
     *error_message = base::UTF16ToUTF8(error);
     return NULL;
@@ -121,6 +117,12 @@ Manifest::SourceType ApplicationData::GetSourceType() const {
 const std::string& ApplicationData::ID() const {
   return manifest_->GetApplicationID();
 }
+
+#if defined(OS_TIZEN)
+std::string ApplicationData::GetPackageID() const {
+  return AppIdToPkgId(manifest_->GetApplicationID());
+}
+#endif
 
 const std::string ApplicationData::VersionString() const {
   if (!version_->components().empty())

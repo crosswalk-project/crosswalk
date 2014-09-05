@@ -13,14 +13,14 @@
 #include <string>
 #include "base/files/file_path.h"
 #include "base/file_util.h"
+#include "xwalk/application/common/id_util.h"
 
 namespace {
 
 typedef int (*PkgParser)(const char*, char* const*);
 
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
-const char kIconDir[] = "icons/default/small/";
-const char kXmlDir[] = "packages/";
+const char kIconDir[] = "/default/small/";
 const std::string kServicePrefix("xwalk-service.");
 const std::string kXmlFileExt(".xml");
 const std::string kPngFileExt(".png");
@@ -48,6 +48,9 @@ const char PKGMGR_END_SUCCESS[] = "ok";
 
 // Failure value of end of installation.
 const char PKGMGR_END_FAILURE[] = "fail";
+
+// Tags for pkgmgr describing package
+const char* pkgmgr_tags[] = {"removable=true", NULL, };
 
 const std::string kAppIdPrefix("xwalk.");
 
@@ -85,9 +88,12 @@ inline base::FilePath GetDestFilePath(const base::FilePath& DirPath,
 
 bool CopyFileToDst(const base::FilePath& file_src,
                    const base::FilePath& file_dst) {
+  base::FilePath dir = file_dst.DirName();
+  if (!base::PathExists(dir))
+    base::CreateDirectory(dir);
   if (!base::CopyFile(file_src, file_dst)) {
-    fprintf(stdout, "Couldn't copy application file to '%s'\n",
-            file_dst.value().c_str());
+    fprintf(stdout, "Couldn't copy application file from %s to '%s'\n",
+         file_src.value().c_str(), file_dst.value().c_str());
     return false;
   }
   return true;
@@ -96,18 +102,29 @@ bool CopyFileToDst(const base::FilePath& file_src,
 }  // namespace
 
 PackageInstallerHelper::PackageInstallerHelper(const std::string& appid)
-    : appid_(appid) {
+    : handle_(NULL),
+      appid_(appid),
+      pkgid_(xwalk::application::AppIdToPkgId(appid)) {
   if (appid_.empty())
     fprintf(stdout, "Invalid app id is provided for pkg installer.\n");
-
-  handle_ = pkgmgr_installer_new();
-  if (!handle_)
-    fprintf(stdout, "Fail to get package manager installer handle.\n");
 }
 
 PackageInstallerHelper::~PackageInstallerHelper() {
   if (handle_)
     pkgmgr_installer_free(handle_);
+}
+
+bool PackageInstallerHelper::InitializePkgmgrSignal(int argc,
+                                                    const char** argv) {
+  handle_ = pkgmgr_installer_new();
+  if (!handle_) {
+    fprintf(stdout, "Fail to get package manager installer handle.\n");
+    return false;
+  }
+
+  return pkgmgr_installer_receive_request(handle_,
+                                          argc,
+                                          const_cast<char**>(argv));
 }
 
 bool PackageInstallerHelper::InstallApplication(
@@ -141,10 +158,19 @@ bool PackageInstallerHelper::InstallApplicationInternal(
   if (xmlpath.empty() || iconpath.empty()) {
     fprintf(stdout, "Invalid xml path or icon path for installation\n");
   }
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
 
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
 
+  uid_t uid = getuid();
+  if (uid == GLOBAL_USER) {
+    xml = global_xml;
+    icon = global_icon;
+  }
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
   base::FilePath icon_dst = GetDestFilePath(icon, appid_, kPngFileExt);
@@ -156,11 +182,22 @@ bool PackageInstallerHelper::InstallApplicationInternal(
      || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
 
-  if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
-    return false;
+  fprintf(stdout, "uid for installation : '%d'\n", uid);
+  if (uid != GLOBAL_USER) {  // For only the user that request installation
+    if (pkgmgr_parser_parse_usr_manifest_for_installation(xmlpath.c_str(),
+        uid, const_cast<char**>(pkgmgr_tags))) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
+              xmlpath.c_str(), uid);
+      return false;
+    }
+  } else {  // For all users
+    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(),
+                                            const_cast<char**>(pkgmgr_tags))) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
+           xmlpath.c_str(), uid);
+      return false;
+    }
   }
-
   xml_cleaner.Dismiss();
   icon_cleaner.Dismiss();
 
@@ -168,11 +205,19 @@ bool PackageInstallerHelper::InstallApplicationInternal(
 }
 
 bool PackageInstallerHelper::UninstallApplicationInternal() {
-  bool result = true;
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
 
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
 
+  uid_t uid = getuid();
+  if (uid == GLOBAL_USER) {
+    xml = global_xml;
+    icon = global_icon;
+  }
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath iconpath = GetDestFilePath(icon, appid_, kPngFileExt);
   base::FilePath xmlpath = GetDestFilePath(xml, appid_, kXmlFileExt);
@@ -181,12 +226,23 @@ bool PackageInstallerHelper::UninstallApplicationInternal() {
 
   std::string xmlpath_str = xmlpath.MaybeAsASCII();
   assert(!xmlpath_str.empty());
-  if (pkgmgr_parser_parse_manifest_for_uninstallation(
+
+  if (uid != GLOBAL_USER) {  // For only the user that request installation
+    if (pkgmgr_parser_parse_usr_manifest_for_uninstallation(
+        xmlpath_str.c_str(), uid, NULL)) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s'\n",
+              xmlpath_str.c_str());
+      icon_cleaner.Dismiss();
+      xml_cleaner.Dismiss();
+    }
+  } else {  // For all users
+    if (pkgmgr_parser_parse_manifest_for_uninstallation(
         xmlpath_str.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath_str.c_str());
-    icon_cleaner.Dismiss();
-    xml_cleaner.Dismiss();
-    return false;
+      fprintf(stdout, "Couldn't parse manifest XML '%s'\n",
+              xmlpath_str.c_str());
+      icon_cleaner.Dismiss();
+      xml_cleaner.Dismiss();
+    }
   }
   return true;
 }
@@ -198,8 +254,19 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
     fprintf(stdout, "Invalid xml path or icon path for update\n");
   }
 
-  base::FilePath xml(tzplatform_mkpath(TZ_SYS_SHARE, kXmlDir));
-  base::FilePath icon(tzplatform_mkpath(TZ_SYS_SHARE, kIconDir));
+  base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
+  base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
+  base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
+  base::FilePath user_icon(tzplatform_mkpath(TZ_USER_ICONS, "/"));
+
+  base::FilePath xml(user_xml);
+  base::FilePath icon(user_icon);
+
+  uid_t uid = getuid();
+  if (uid == GLOBAL_USER) {
+    xml = global_xml;
+    icon = global_icon;
+  }
 
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
@@ -212,9 +279,18 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
      || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
     return false;
 
-  if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(), NULL)) {
-    fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
-    return false;
+  if (uid != GLOBAL_USER) {  // For only the user that request installation
+    if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.c_str(), uid,
+        const_cast<char**>(pkgmgr_tags))) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+      return false;
+    }
+  } else {  // For all users
+    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(),
+                                            const_cast<char**>(pkgmgr_tags))) {
+      fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+      return false;
+     }
   }
 
   xml_cleaner.Dismiss();
@@ -227,8 +303,8 @@ bool PackageInstallerHelper::SendSignal(
     const std::string& key,
     const std::string& value) {
   if (!handle_) {
-    fprintf(stdout, "The package install manager is not initialized.\n");
-    return false;
+    // this is installation with xwalkctl not pkgmgr
+    return true;
   }
 
   if (key.empty() || value.empty()) {
@@ -237,7 +313,7 @@ bool PackageInstallerHelper::SendSignal(
   }
 
   if (pkgmgr_installer_send_signal(
-          handle_, PKGMGR_PKG_TYPE, appid_.c_str(),
+          handle_, PKGMGR_PKG_TYPE, pkgid_.c_str(),
           key.c_str(), value.c_str())) {
     fprintf(stdout, "Fail to send package manager signal.\n");
   }
