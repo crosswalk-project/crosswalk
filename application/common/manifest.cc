@@ -63,10 +63,8 @@ scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
 
 }  // namespace
 
-Manifest::Manifest(SourceType source_type,
-        scoped_ptr<base::DictionaryValue> value)
-    : source_type_(source_type),
-      data_(value.Pass()),
+Manifest::Manifest(scoped_ptr<base::DictionaryValue> value)
+    : data_(value.Pass()),
       i18n_data_(new base::DictionaryValue),
       type_(TYPE_UNKNOWN) {
   // FIXME: Hosted apps can contain start_url. Below is wrong.
@@ -183,7 +181,7 @@ bool Manifest::GetList(
 
 Manifest* Manifest::DeepCopy() const {
   Manifest* manifest = new Manifest(
-      source_type_, scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
+      scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
   manifest->SetApplicationID(application_id_);
   return manifest;
 }

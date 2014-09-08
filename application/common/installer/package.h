@@ -30,21 +30,26 @@ class Package {
   virtual ~Package();
   bool IsValid() const { return is_valid_; }
   const std::string& Id() const { return id_; }
+  const std::string& name() const { return name_; }
   Type type() const { return type_; }
   // Factory method for creating a package
   static scoped_ptr<Package> Create(const base::FilePath& path);
   // The function will unzip the XPK/WGT file and return the target path where
   // to decompress by the parameter |target_path|.
-  virtual bool Extract(base::FilePath* target_path);
+  virtual bool ExtractToTemporaryDir(base::FilePath* result_path);
+  // The function will unzip the XPK/WGT file to the given folder.
+  virtual bool ExtractTo(const base::FilePath& target_path);
 
  protected:
   explicit Package(const base::FilePath& source_path);
-  scoped_ptr<base::ScopedFILE> file_;
-  bool is_valid_;
-  std::string id_;
   // Unzipping of the zipped file happens in a temporary directory
   bool CreateTempDirectory();
+  scoped_ptr<base::ScopedFILE> file_;
+
+  bool is_valid_;
   base::FilePath source_path_;
+  std::string id_;
+  std::string name_;
   // Temporary directory for unpacking.
   base::ScopedTempDir temp_dir_;
   // Represent if the package has been extracted.

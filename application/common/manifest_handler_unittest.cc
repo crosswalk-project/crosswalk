@@ -220,7 +220,7 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);
@@ -248,7 +248,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest_a,
       "",
       &error);
@@ -265,7 +265,7 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
 
   application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest_a,
       "",
       &error);
@@ -286,7 +286,7 @@ TEST_F(ManifestHandlerTest, Validate) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::COMMAND_LINE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);
