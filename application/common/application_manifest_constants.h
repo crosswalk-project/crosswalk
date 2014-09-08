@@ -118,10 +118,7 @@ namespace application_manifest_errors {
 }  // namespace application_manifest_errors
 
 namespace application {
-
-typedef application::Manifest Manifest;
 const char* GetNameKey(Package::Type type);
-const char* GetLaunchLocalPathKey(Package::Type type);
 const char* GetCSPKey(Package::Type type);
 #if defined(OS_TIZEN)
 const char* GetTizenAppIdKey(Package::Type type);

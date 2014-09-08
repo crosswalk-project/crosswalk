@@ -77,7 +77,6 @@ bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
 
   Application::LaunchParams launch_params;
   launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
-  launch_params.entry_points = Application::StartURLKey;
   launch_params.remote_debugging =
       cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
 

@@ -161,13 +161,6 @@ const char* GetVersionKey(Package::Type package_type) {
   return application_manifest_keys::kXWalkVersionKey;
 }
 
-const char* GetLaunchLocalPathKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
-    return application_widget_keys::kLaunchLocalPathKey;
-
-  return application_manifest_keys::kLaunchLocalPathKey;
-}
-
 const char* GetCSPKey(Package::Type package_type) {
   if (package_type == Package::WGT)
     return application_widget_keys::kCSPKey;
