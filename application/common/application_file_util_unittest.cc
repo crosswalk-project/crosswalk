@@ -41,7 +41,7 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
   ASSERT_TRUE(application != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
 }
@@ -60,7 +60,7 @@ TEST_F(ApplicationFileUtilTest,
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest file is missing or unreadable.", error.c_str());
@@ -80,7 +80,7 @@ TEST_F(ApplicationFileUtilTest,
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, Manifest::COMMAND_LINE, &error));
+          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."
@@ -91,7 +91,7 @@ TEST_F(ApplicationFileUtilTest,
 static scoped_refptr<ApplicationData> LoadApplicationManifest(
     base::DictionaryValue* manifest,
     const base::FilePath& manifest_dir,
-    Manifest::SourceType location,
+    ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
@@ -102,7 +102,7 @@ static scoped_refptr<ApplicationData> LoadApplicationManifest(
 static scoped_refptr<ApplicationData> LoadApplicationManifest(
     const std::string& manifest_value,
     const base::FilePath& manifest_dir,
-    Manifest::SourceType location,
+    ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
   JSONStringValueSerializer serializer(manifest_value);
@@ -135,7 +135,7 @@ TEST_F(ApplicationFileUtilTest, ValidateThemeUTF8) {
           "}", non_ascii_file.c_str());
   std::string error;
   scoped_refptr<ApplicationData> application = LoadApplicationManifest(
-      kManifest, temp.path(), Manifest::COMMAND_LINE, 0, &error);
+      kManifest, temp.path(), ApplicationData::LOCAL_DIRECTORY, 0, &error);
   ASSERT_TRUE(application.get()) << error;
 }
 

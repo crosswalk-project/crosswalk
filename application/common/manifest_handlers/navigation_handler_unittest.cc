@@ -25,7 +25,8 @@ class NavigationHandlerTest: public testing::Test {
   scoped_refptr<ApplicationData> CreateApplication() {
     std::string error;
     scoped_refptr<ApplicationData> application = ApplicationData::Create(
-        base::FilePath(), Manifest::INVALID_TYPE, manifest, "", &error);
+        base::FilePath(), ApplicationData::LOCAL_DIRECTORY,
+        manifest, "", &error);
     return application;
   }
 

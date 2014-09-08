@@ -29,7 +29,8 @@ WGTPackage::WGTPackage(const base::FilePath& path)
     return;
   type_ = WGT;
   base::FilePath extracted_path;
-  if (!Extract(&extracted_path))
+  // FIXME : we should not call 'extract' here!
+  if (!ExtractToTemporaryDir(&extracted_path))
     return;
 
   XmlReader xml;

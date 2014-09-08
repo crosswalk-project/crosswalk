@@ -255,7 +255,6 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
     base::MessageLoop::current()->PostTask(FROM_HERE,
         base::Bind(&Application::NotifyTermination,
                    weak_factory_.GetWeakPtr()));
-    return;
   }
 }
 

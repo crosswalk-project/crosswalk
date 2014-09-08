@@ -65,7 +65,6 @@ XPKPackage::XPKPackage(const base::FilePath& path)
             std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
         id_ = GenerateId(public_key);
   }
-  return;
 }
 
 bool XPKPackage::VerifySignature() {
@@ -90,7 +89,7 @@ bool XPKPackage::VerifySignature() {
   return true;
 }
 
-bool XPKPackage::Extract(base::FilePath* target_path) {
+bool XPKPackage::ExtractToTemporaryDir(base::FilePath* target_path) {
   if (is_extracted_) {
     *target_path = temp_dir_.path();
     return true;
@@ -101,7 +100,7 @@ bool XPKPackage::Extract(base::FilePath* target_path) {
     return false;
   }
 
-  return Package::Extract(target_path);
+  return Package::ExtractToTemporaryDir(target_path);
 }
 
 }  // namespace application

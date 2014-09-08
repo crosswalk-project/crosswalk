@@ -131,7 +131,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     package = Package::Create(tmp_path.path());
     if (!package->IsValid())
       return false;
-    package->Extract(&unpacked_dir);
+    package->ExtractToTemporaryDir(&unpacked_dir);
     app_id = package->Id();
   } else {
     unpacked_dir = path;
@@ -139,7 +139,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
 
   std::string error;
   scoped_refptr<ApplicationData> app_data = LoadApplication(
-      unpacked_dir, app_id, Manifest::COMMAND_LINE,
+      unpacked_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
       package->type(), &error);
   if (!app_data) {
     LOG(ERROR) << "Error during application installation: " << error;
@@ -241,14 +241,14 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  if (!package->Extract(&unpacked_dir))
+  if (!package->ExtractToTemporaryDir(&unpacked_dir))
     return false;
 
   std::string error;
   scoped_refptr<ApplicationData> new_app_data =
       LoadApplication(unpacked_dir,
                       app_id,
-                      Manifest::COMMAND_LINE,
+                      ApplicationData::TEMP_DIRECTORY,
                       package->type(),
                       &error);
   if (!new_app_data) {
@@ -288,7 +288,7 @@ bool PackageInstaller::Update(const std::string& app_id,
 
   new_app_data = LoadApplication(app_dir,
                                     app_id,
-                                    Manifest::COMMAND_LINE,
+                                    ApplicationData::LOCAL_DIRECTORY,
                                     package->type(),
                                     &error);
   if (!new_app_data) {

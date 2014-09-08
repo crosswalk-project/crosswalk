@@ -243,7 +243,6 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
       manifest_dictionary_ptr(manifest_dictionary);
 
   xwalk::application::Manifest manifest(
-      xwalk::application::Manifest::INVALID_TYPE,
       manifest_dictionary_ptr.Pass());
 
   std::string url;

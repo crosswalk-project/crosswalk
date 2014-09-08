@@ -37,7 +37,7 @@ TEST_F(PackageTest, Good) {
   SetupPackage("good.xpk");
   EXPECT_FALSE(package_->Id().empty());
   base::FilePath path;
-  EXPECT_TRUE(package_->Extract(&path));
+  EXPECT_TRUE(package_->ExtractToTemporaryDir(&path));
   EXPECT_TRUE(base::DirectoryExists(path));
   EXPECT_TRUE(temp_dir_.Set(path));
 }
@@ -45,19 +45,19 @@ TEST_F(PackageTest, Good) {
 TEST_F(PackageTest, BadMagicString) {
   SetupPackage("bad_magic.xpk");
   base::FilePath path;
-  EXPECT_FALSE(package_->Extract(&path));
+  EXPECT_FALSE(package_->ExtractToTemporaryDir(&path));
 }
 
 TEST_F(PackageTest, BadSignature) {
   SetupPackage("bad_signature.xpk");
   base::FilePath path;
-  EXPECT_FALSE(package_->Extract(&path));
+  EXPECT_FALSE(package_->ExtractToTemporaryDir(&path));
 }
 
 TEST_F(PackageTest, NoMagicHeader) {
   SetupPackage("no_magic_header.xpk");
   base::FilePath path;
-  EXPECT_FALSE(package_->Extract(&path));
+  EXPECT_FALSE(package_->ExtractToTemporaryDir(&path));
 }
 
 TEST_F(PackageTest, BadXPKPackageExtension) {
@@ -69,7 +69,7 @@ TEST_F(PackageTest, BadXPKPackageExtension) {
 TEST_F(PackageTest, BadUnzipFile) {
   SetupPackage("bad_zip.xpk");
   base::FilePath path;
-  EXPECT_FALSE(package_->Extract(&path));
+  EXPECT_FALSE(package_->ExtractToTemporaryDir(&path));
 }
 
 }  // namespace application

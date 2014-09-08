@@ -45,8 +45,7 @@ class ManifestTest : public testing::Test {
       manifest_value->Set(key, value);
     else
       manifest_value->Remove(key, NULL);
-    manifest->reset(new Manifest(Manifest::COMMAND_LINE,
-            manifest_value.Pass()));
+    manifest->reset(new Manifest(manifest_value.Pass()));
   }
 
   std::string default_value_;
@@ -60,7 +59,7 @@ TEST_F(ManifestTest, ApplicationData) {
   manifest_value->SetString("unknown_key", "foo");
 
   scoped_ptr<Manifest> manifest(
-      new Manifest(Manifest::COMMAND_LINE, manifest_value.Pass()));
+      new Manifest(manifest_value.Pass()));
   std::string error;
   EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());
@@ -88,7 +87,7 @@ TEST_F(ManifestTest, ApplicationTypes) {
   value->SetString(keys::kXWalkVersionKey, "1");
 
   scoped_ptr<Manifest> manifest(
-      new Manifest(Manifest::COMMAND_LINE, value.Pass()));
+      new Manifest(value.Pass()));
   std::string error;
   EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());

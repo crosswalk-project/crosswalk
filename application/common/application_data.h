@@ -36,6 +36,14 @@ namespace application {
 
 class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
  public:
+  // Where an application was loaded from.
+  enum SourceType {
+    INTERNAL,         // From internal application registry.
+    LOCAL_DIRECTORY,  // From a persistently stored unpacked application
+    TEMP_DIRECTORY,   // From a temporary folder
+    EXTERNAL_URL      // From an arbitrary URL
+  };
+
   struct ManifestData;
 
   struct ApplicationIdCompare {
@@ -59,7 +67,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   };
 
   static scoped_refptr<ApplicationData> Create(const base::FilePath& path,
-      Manifest::SourceType source_type,
+      SourceType source_type,
       const base::DictionaryValue& manifest_data,
       const std::string& explicit_id,
       std::string* error_message);
@@ -97,7 +105,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const base::FilePath& Path() const { return path_; }
   void SetPath(const base::FilePath& path) { path_ = path; }
   const GURL& URL() const { return application_url_; }
-  Manifest::SourceType GetSourceType() const;
+  SourceType source_type() const { return source_type_; }
   const std::string& ID() const;
 #if defined(OS_TIZEN)
   std::string GetPackageID() const;
@@ -115,7 +123,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   const base::Time& install_time() const { return install_time_; }
 
   // App-related.
-  bool IsPlatformApp() const;
   bool IsHostedApp() const;
 
   // Permission related.
@@ -136,8 +143,8 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;
 
-  ApplicationData(const base::FilePath& path,
-            scoped_ptr<Manifest> manifest);
+  ApplicationData(const base::FilePath& path, SourceType source_type,
+                  scoped_ptr<Manifest> manifest);
   virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
@@ -210,6 +217,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // The package type, wgt or xpk.
   Package::Type package_type_;
+
+  // The source the application was loaded from.
+  SourceType source_type_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationData);
 };

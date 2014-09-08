@@ -104,7 +104,7 @@ bool ApplicationSystem::LaunchFromCommandLine(
   base::FilePath path;
   if (url.SchemeIsFile() &&
       net::FileURLToFilePath(url, &path) &&
-      base::DirectoryExists(path)) {  // Handles local directory.
+      base::PathExists(path)) {  // Handles local path.
     run_default_message_loop = LaunchWithCommandLineParam(path, cmd_line);
   } else {  // Handles external URL.
     run_default_message_loop = LaunchWithCommandLineParam(url, cmd_line);

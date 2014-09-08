@@ -52,10 +52,11 @@ const char* preferencesReadonly[] = {"true", "false", "false"};
 class WidgetHandlerTest: public testing::Test {
  public:
   scoped_refptr<ApplicationData> CreateApplication(
-    base::DictionaryValue &manifest) {
+    const base::DictionaryValue& manifest) {
     std::string error;
     scoped_refptr<ApplicationData> application = ApplicationData::Create(
-        base::FilePath(), Manifest::INVALID_TYPE, manifest, "", &error);
+        base::FilePath(), ApplicationData::LOCAL_DIRECTORY,
+        manifest, "", &error);
     return application;
   }
 

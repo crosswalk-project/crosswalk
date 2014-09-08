@@ -9,9 +9,8 @@
 #include <map>
 
 #include "base/memory/ref_counted.h"
+#include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/installer/package.h"
-#include "xwalk/application/common/manifest.h"
-
 
 class GURL;
 
@@ -43,20 +42,20 @@ class FileDeleter {
 // on failure, with a description of the error in |error|.
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     std::string* error);
 
 // The same as LoadApplication except use the provided |application_id|.
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     std::string* error);
 
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_root,
     const std::string& application_id,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     Package::Type package_type,
     std::string* error);
 
