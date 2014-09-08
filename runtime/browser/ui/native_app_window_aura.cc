@@ -4,6 +4,7 @@
 
 #include "xwalk/runtime/browser/ui/native_app_window_aura.h"
 
+#include "base/command_line.h"
 #include "content/public/browser/web_contents.h"
 #include "content/browser/web_contents/web_contents_view.h"
 #include "ui/aura/client/aura_constants.h"
@@ -30,6 +31,8 @@ namespace xwalk {
 
 const int kDefaultTestWindowWidthDip = 800;
 const int kDefaultTestWindowHeightDip = 600;
+
+const char kXwalkHostWindowBounds[] = "xwalk-host-window-bounds";
 
 namespace {
 
@@ -196,9 +199,21 @@ NativeAppWindowAura::NativeAppWindowAura(
     const NativeAppWindow::CreateParams& create_params)
     : web_contents_(create_params.web_contents) {
   aura::Env::CreateInstance(true);
-  const gfx::Size bounds =
-      gfx::Size(kDefaultTestWindowWidthDip, kDefaultTestWindowHeightDip);
-  host_.reset(aura::WindowTreeHost::Create(gfx::Rect(bounds)));
+  gfx::Size size;
+
+  base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->HasSwitch(kXwalkHostWindowBounds)) {
+    const std::string size_str =
+        command_line->GetSwitchValueASCII(kXwalkHostWindowBounds);
+    int width, height;
+    if (sscanf(size_str.c_str(), "%d,%d", &width, &height) == 2)
+      size = gfx::Size(width, height);
+  }
+
+  if (size.IsEmpty())
+    size = gfx::Size(kDefaultTestWindowWidthDip, kDefaultTestWindowHeightDip);
+
+  host_.reset(aura::WindowTreeHost::Create(gfx::Rect(size)));
   host_->InitHost();
   host_->window()->SetLayoutManager(new FillLayout(host_->window()));
 
