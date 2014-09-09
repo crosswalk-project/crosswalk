@@ -24,6 +24,8 @@ class PackageInstaller {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
+  bool Reinstall(const base::FilePath& path);
+
   void ContinueUnfinishedTasks();
 
   virtual void SetQuiet(bool quiet);
@@ -38,6 +40,8 @@ class PackageInstaller {
   virtual bool PlatformInstall(ApplicationData* data);
   virtual bool PlatformUninstall(ApplicationData* data);
   virtual bool PlatformUpdate(ApplicationData* updated_data);
+
+  virtual bool PlatformReinstall(const base::FilePath& path);
 
   ApplicationStorage* storage_;
 };

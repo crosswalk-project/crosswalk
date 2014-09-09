@@ -98,6 +98,10 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* updated_data) {
   return true;
 }
 
+bool PackageInstaller::PlatformReinstall(const base::FilePath& path) {
+  return false;
+}
+
 bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   // FIXME(leandro): Installation is not robust enough -- should any step
   // fail, it can't roll back to a consistent state.
@@ -361,6 +365,10 @@ bool PackageInstaller::Uninstall(const std::string& id) {
     result = false;
 
   return result;
+}
+
+bool PackageInstaller::Reinstall(const base::FilePath& path) {
+  return PlatformReinstall(path);
 }
 
 void PackageInstaller::ContinueUnfinishedTasks() {

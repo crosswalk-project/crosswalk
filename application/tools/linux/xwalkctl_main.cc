@@ -38,6 +38,7 @@ namespace {
 char* install_path = NULL;
 char* uninstall_id = NULL;
 #if defined(OS_TIZEN)
+char* reinstall_path = NULL;
 char* operation_key = NULL;
 int quiet = 0;
 #endif
@@ -55,6 +56,8 @@ GOptionEntry entries[] = {
   { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
     "Continue the previous unfinished tasks.", NULL},
 #if defined(OS_TIZEN)
+  { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_path,
+    "Reinstall the application with path", "PATH" },
   { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
     "Unique operation key", "KEY" },
   { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
@@ -188,6 +191,10 @@ int main(int argc, char* argv[]) {
     }
   } else if (uninstall_id) {
     success = installer->Uninstall(uninstall_id);
+#if defined(OS_TIZEN)
+  } else if (reinstall_path) {
+    success = installer->Reinstall(base::FilePath(reinstall_path));
+#endif
   } else if (debugging_port >= 0) {
 #if defined(SHARED_PROCESS_MODE)
     // Deal with the case "xwalkctl -d PORT_NUMBER"
