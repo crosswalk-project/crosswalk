@@ -20,7 +20,6 @@
 #include "base/strings/string_util.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/thread_checker.h"
-#include "base/time/time.h"
 #include "url/gurl.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/permission_types.h"
@@ -118,8 +117,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
     return manifest_.get();
   }
 
-  const base::Time& install_time() const { return install_time_; }
-
   // App-related.
   bool IsHostedApp() const;
 
@@ -202,8 +199,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Set to true at the end of InitValue when initialization is finished.
   bool finished_parsing_manifest_;
-
-  base::Time install_time_;
 
   // Ensures that any call to GetManifestData() prior to finishing
   // initialization happens from the same thread (this can happen when certain

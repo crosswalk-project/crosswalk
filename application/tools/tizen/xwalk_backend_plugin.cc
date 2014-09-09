@@ -11,11 +11,17 @@
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/files/scoped_temp_dir.h"
+#include "base/logging.h"
 #include "base/path_service.h"
+#include "base/time/time.h"
 #include "base/version.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
+#include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
+#include "xwalk/application/common/package/package.h"
+#include "xwalk/application/common/tizen/package_query.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 namespace {
@@ -24,6 +30,26 @@ enum PkgmgrPluginBool {
   kPkgmgrPluginTrue = 0,
   kPkgmgrPluginFalse = -1
 };
+
+// Whole app directory size in KB
+int64 CountAppTotalSize(
+    scoped_refptr<xwalk::application::ApplicationData> app_data) {
+  return base::ComputeDirectorySize(app_data->Path()) / 1024;
+}
+
+// Data directory size in KB
+int64 CountAppDataSize(
+    scoped_refptr<xwalk::application::ApplicationData> app_data) {
+  int64 size = 0;
+
+  base::FilePath private_path = app_data->Path().Append("private");
+  size += base::ComputeDirectorySize(private_path);
+
+  base::FilePath tmp_path = app_data->Path().Append("tmp");
+  size += base::ComputeDirectorySize(tmp_path);
+
+  return size / 1024;
+}
 
 }  // namespace
 
@@ -46,7 +72,7 @@ int PkgmgrBackendPlugin::DetailedInfo(
   if (!app_data)
     return kPkgmgrPluginFalse;
 
-  SaveDetailInfo(app_data.get(), pkg_detail_info);
+  SaveDetailInfo(app_data, pkg_detail_info);
   return kPkgmgrPluginTrue;
 }
 
@@ -57,13 +83,16 @@ int PkgmgrBackendPlugin::DetailedInfoPkg(
     return kPkgmgrPluginFalse;
   }
 
+
+  base::ScopedTempDir dir;
+  dir.CreateUniqueTempDir();
   scoped_refptr<xwalk::application::ApplicationData> app_data =
-      GetApplicationDataFromPkg(pkg_path);
+      GetApplicationDataFromPkg(pkg_path, &dir);
   if (app_data.get() == NULL) {
     return kPkgmgrPluginFalse;
   }
 
-  SaveDetailInfo(app_data.get(), pkg_detail_info);
+  SaveDetailInfo(app_data, pkg_detail_info);
   return kPkgmgrPluginTrue;
 }
 
@@ -90,7 +119,7 @@ int PkgmgrBackendPlugin::AppsList(package_manager_pkg_info_t** list,
           static_cast<package_manager_pkg_info_t*>(
               malloc(sizeof(package_manager_pkg_info_t)));
       memset(result, 0x00, sizeof(package_manager_pkg_info_t));
-      SaveInfo(app_data.get(), result);
+      SaveInfo(app_data, result);
       if (*list) {
         result->next = *list;
       }
@@ -109,10 +138,12 @@ PkgmgrBackendPlugin::PkgmgrBackendPlugin() {
 }
 
 void PkgmgrBackendPlugin::SaveInfo(
-    xwalk::application::ApplicationData* app_data,
+    scoped_refptr<xwalk::application::ApplicationData> app_data,
     package_manager_pkg_info_t* pkg_detail_info) {
   strncpy(pkg_detail_info->pkg_type, "xpk", PKG_TYPE_STRING_LEN_MAX - 1);
   strncpy(pkg_detail_info->pkg_name, app_data->GetPackageID().c_str(),
+          PKG_NAME_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkgid, app_data->GetPackageID().c_str(),
           PKG_NAME_STRING_LEN_MAX - 1);
   if (app_data->Version() != NULL) {
     strncpy(pkg_detail_info->version, app_data->Version()->GetString().c_str(),
@@ -121,10 +152,12 @@ void PkgmgrBackendPlugin::SaveInfo(
 }
 
 void PkgmgrBackendPlugin::SaveDetailInfo(
-    xwalk::application::ApplicationData* app_data,
+    scoped_refptr<xwalk::application::ApplicationData> app_data,
     package_manager_pkg_detail_info_t* pkg_detail_info) {
   strncpy(pkg_detail_info->pkg_type, "xpk", PKG_TYPE_STRING_LEN_MAX - 1);
   strncpy(pkg_detail_info->pkg_name, app_data->GetPackageID().c_str(),
+          PKG_NAME_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkgid, app_data->GetPackageID().c_str(),
           PKG_NAME_STRING_LEN_MAX - 1);
   if (app_data->Version() != NULL) {
     strncpy(pkg_detail_info->version, app_data->Version()->GetString().c_str(),
@@ -133,14 +166,28 @@ void PkgmgrBackendPlugin::SaveDetailInfo(
   strncpy(pkg_detail_info->pkg_description, app_data->Description().c_str(),
           PKG_VALUE_STRING_LEN_MAX - 1);
 
-  // TODO(t.iwanek) support this data in ApplicationStorage
-  // strncpy(pkg_detail_info.min_platform_version,
-  //         app_data->todo, PKG_VERSION_STRING_LEN_MAX -1);
-  // PKG_VERSION_STRING_LEN_MAX - 1);
-  // pkg_detail_info->installed_time = 0;
-  // pkg_detail_info->installed_size = -1;
-  // pkg_detail_info->app_size = -1;
-  // pkg_detail_info->data_size = -1;
+  // xpk do not have this key in manifest
+  if (app_data->GetPackageType() == xwalk::application::Package::WGT) {
+    const xwalk::application::TizenApplicationInfo* tizen_app_info =
+        static_cast<xwalk::application::TizenApplicationInfo*>(
+            app_data->GetManifestData(
+                xwalk::application_widget_keys::kTizenApplicationKey));
+    DCHECK(tizen_app_info);
+
+    strncpy(pkg_detail_info->min_platform_version,
+        tizen_app_info->required_version().c_str(),
+        PKG_VERSION_STRING_LEN_MAX -1);
+  }
+
+  pkg_detail_info->installed_time =
+      xwalk::application::GetApplicationInstallationTime(app_data->ID())
+          .ToTimeT();  // to seconds
+
+  int install_size = CountAppTotalSize(app_data);
+  int data_size = CountAppDataSize(app_data);
+  pkg_detail_info->installed_size = install_size;
+  pkg_detail_info->app_size = install_size - data_size;
+  pkg_detail_info->data_size = data_size;
 
   strncpy(pkg_detail_info->optional_id, app_data->GetPackageID().c_str(),
           PKG_NAME_STRING_LEN_MAX - 1);
@@ -148,10 +195,9 @@ void PkgmgrBackendPlugin::SaveDetailInfo(
 }
 
 scoped_refptr<xwalk::application::ApplicationData>
-PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path) {
-  base::ScopedTempDir dir;
-  dir.CreateUniqueTempDir();
-  base::FilePath unpacked_dir = dir.path();
+PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path,
+    base::ScopedTempDir* dir) {
+  base::FilePath unpacked_dir = dir->path();
 
   scoped_ptr<xwalk::application::Package> package =
       xwalk::application::Package::Create(base::FilePath(pkg_path));
@@ -162,5 +208,6 @@ PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path) {
   scoped_refptr<xwalk::application::ApplicationData> app_data = LoadApplication(
       unpacked_dir, app_id, xwalk::application::ApplicationData::TEMP_DIRECTORY,
       package->type(), &error);
+
   return app_data;
 }

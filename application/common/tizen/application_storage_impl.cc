@@ -15,7 +15,7 @@
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/tizen/application_storage.h"
-#include "xwalk/application/common/tizen/package_path.h"
+#include "xwalk/application/common/tizen/package_query.h"
 
 namespace {
 
