@@ -6,13 +6,13 @@
 #define XWALK_APPLICATION_BROWSER_APPLICATION_SERVICE_H_
 
 #include <string>
+
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "base/observer_list.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/permission_policy_manager.h"
-#include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/application/common/application_data.h"
 
 namespace xwalk {
@@ -21,15 +21,11 @@ class RuntimeContext;
 
 namespace application {
 
-class ApplicationStorage;
-class PackageInstaller;
-
-// The application service manages install, uninstall and updates of
-// applications.
+// The application service manages launch and termination of the applications.
 class ApplicationService : public Application::Observer {
  public:
   // Client code may use this class (and register with AddObserver below) to
-  // keep track of [un]installation of applications.
+  // keep track of applications life cycle.
   class Observer {
    public:
     virtual void DidLaunchApplication(Application* app) {}
@@ -38,20 +34,28 @@ class ApplicationService : public Application::Observer {
     virtual ~Observer() {}
   };
 
-  ApplicationService(RuntimeContext* runtime_context,
-                     ApplicationStorage* app_storage);
   virtual ~ApplicationService();
 
-  Application* Launch(scoped_refptr<ApplicationData> application_data,
-                      const Application::LaunchParams& launch_params);
-  // Launch an installed application using application id.
-  Application* Launch(
-      const std::string& id,
-      const Application::LaunchParams& params = Application::LaunchParams());
-  // Launch an unpacked application using path to a local directory which
-  // contains manifest file.
-  Application* Launch(
+  static scoped_ptr<ApplicationService> Create(
+    RuntimeContext* runtime_context);
+
+  // Launch an application using path to a local directory which
+  // contains manifest file of an unpacked application.
+  Application* LaunchFromUnpackedPath(
       const base::FilePath& path,
+      const Application::LaunchParams& params = Application::LaunchParams());
+
+  // Launch an application using path to its package file.
+  // Note: the given package is unpacked to a temporary folder,
+  // which is deleted after the application terminates.
+  Application* LaunchFromPackagePath(
+      const base::FilePath& path,
+      const Application::LaunchParams& params = Application::LaunchParams());
+
+  // Launch an application from an arbitrary URL.
+  // Creates a "dummy" application.
+  Application* LaunchHostedURL(
+      const GURL& url,
       const Application::LaunchParams& params = Application::LaunchParams());
 
   Application* GetApplicationByRenderHostID(int id) const;
@@ -76,12 +80,17 @@ class ApplicationService : public Application::Observer {
       const std::string& extension_name,
       const std::string& perm_table);
 
+ protected:
+  explicit ApplicationService(RuntimeContext* runtime_context);
+
+  Application* Launch(scoped_refptr<ApplicationData> application_data,
+                      const Application::LaunchParams& launch_params);
+
  private:
   // Implementation of Application::Observer.
   virtual void OnApplicationTerminated(Application* app) OVERRIDE;
 
-  xwalk::RuntimeContext* runtime_context_;
-  ApplicationStorage* application_storage_;
+  RuntimeContext* runtime_context_;
   ScopedVector<Application> applications_;
   ObserverList<Observer> observers_;
 

@@ -12,7 +12,6 @@
 #include "net/base/filename_util.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
-#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/extension/application_runtime_extension.h"
@@ -24,15 +23,17 @@
 #include "xwalk/application/browser/application_system_linux.h"
 #endif
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_service_tizen.h"
+#endif
+
 namespace xwalk {
 namespace application {
 
 ApplicationSystem::ApplicationSystem(RuntimeContext* runtime_context)
   : runtime_context_(runtime_context),
-    application_storage_(new ApplicationStorage(runtime_context->GetPath())),
-    application_service_(new ApplicationService(
-        runtime_context,
-        application_storage_.get())) {}
+    application_service_(ApplicationService::Create(
+        runtime_context)) {}
 
 ApplicationSystem::~ApplicationSystem() {
 }
@@ -49,67 +50,62 @@ scoped_ptr<ApplicationSystem> ApplicationSystem::Create(
   return app_system.Pass();
 }
 
-template <typename T>
-bool ApplicationSystem::LaunchWithCommandLineParam(
-    const T& param, const base::CommandLine& cmd_line) {
-  Application::LaunchParams launch_params;
-  launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
-  launch_params.remote_debugging =
-      cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
+namespace {
 
-  return application_service_->Launch(param, launch_params);
+Application::LaunchParams launch_params(
+    const base::CommandLine& cmd_line) {
+  Application::LaunchParams params;
+  params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
+  params.remote_debugging =
+      cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
+  return params;
 }
 
-// Launch an application created from arbitrary url.
-// FIXME: This application should have the same strict permissions
-// as common browser apps.
-template <>
-bool ApplicationSystem::LaunchWithCommandLineParam<GURL>(
-    const GURL& url, const base::CommandLine& cmd_line) {
-  std::string error;
-  scoped_refptr<ApplicationData> application_data =
-      ApplicationData::Create(url, &error);
-  if (!application_data) {
-    LOG(ERROR) << "Error occurred while trying to launch application: "
-               << error;
-    return false;
-  }
-
-  Application::LaunchParams launch_params;
-  launch_params.force_fullscreen = cmd_line.HasSwitch(switches::kFullscreen);
-  launch_params.remote_debugging =
-      cmd_line.HasSwitch(switches::kRemoteDebuggingPort);
-
-  return !!application_service_->Launch(application_data, launch_params);
-}
+}  // namespace
 
 bool ApplicationSystem::LaunchFromCommandLine(
     const base::CommandLine& cmd_line, const GURL& url,
     bool& run_default_message_loop) { // NOLINT
 
+#if defined(OS_TIZEN)
   // Handles raw app_id passed as first non-switch argument.
   const base::CommandLine::StringVector& args = cmd_line.GetArgs();
   if (!args.empty()) {
     std::string app_id = std::string(args[0].begin(), args[0].end());
     if (IsValidApplicationID(app_id)) {
-      run_default_message_loop = LaunchWithCommandLineParam(app_id, cmd_line);
+      ApplicationServiceTizen* app_service_tizen =
+          ToApplicationServiceTizen(application_service_.get());
+      run_default_message_loop = app_service_tizen->LaunchFromAppID(
+          app_id, launch_params(cmd_line));
       return true;
     }
   }
-
+#endif
   if (!url.is_valid())
     return false;
 
   base::FilePath path;
-  if (url.SchemeIsFile() &&
-      net::FileURLToFilePath(url, &path) &&
-      base::PathExists(path)) {  // Handles local path.
-    run_default_message_loop = LaunchWithCommandLineParam(path, cmd_line);
-  } else {  // Handles external URL.
-    run_default_message_loop = LaunchWithCommandLineParam(url, cmd_line);
+  bool is_local = url.SchemeIsFile() && net::FileURLToFilePath(url, &path);
+  if (!is_local) {  // Handles external URL.
+    run_default_message_loop = application_service_->LaunchHostedURL(
+        url, launch_params(cmd_line));
+    return true;
   }
 
-  return true;
+  if (base::DirectoryExists(path)) {  // Handles unpacked application.
+    run_default_message_loop = application_service_->LaunchFromUnpackedPath(
+        path, launch_params(cmd_line));
+    return true;
+  }
+
+  if (path.MatchesExtension(FILE_PATH_LITERAL(".xpk")) ||
+      path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
+    run_default_message_loop = application_service_->LaunchFromPackagePath(
+        path, launch_params(cmd_line));
+    return true;
+  }
+
+  return false;
 }
 
 void ApplicationSystem::CreateExtensions(

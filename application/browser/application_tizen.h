@@ -27,11 +27,9 @@ class ApplicationTizen :  // NOLINT
   void Resume();
 
  private:
-  // We enforce ApplicationService ownership.
-  friend class ApplicationService;
+  friend class Application;
   ApplicationTizen(scoped_refptr<ApplicationData> data,
-                   RuntimeContext* context,
-                   Application::Observer* observer);
+                   RuntimeContext* context);
   virtual bool Launch(const LaunchParams& launch_params) OVERRIDE;
 
   virtual base::FilePath GetSplashScreenPath() OVERRIDE;

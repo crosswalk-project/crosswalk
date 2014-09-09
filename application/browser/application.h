@@ -109,12 +109,10 @@ class Application : public Runtime::Observer,
                      StoredPermission perm);
   bool CanRequestURL(const GURL& url) const;
 
+  void set_observer(Observer* observer) { observer_ = observer; }
+
  protected:
-  // We enforce ApplicationService ownership.
-  friend class ApplicationService;
-  Application(scoped_refptr<ApplicationData> data,
-              RuntimeContext* context,
-              Observer* observer);
+  Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
 
@@ -134,6 +132,10 @@ class Application : public Runtime::Observer,
   }
 
  private:
+  // We enforce ApplicationService ownership.
+  friend class ApplicationService;
+  static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
+      RuntimeContext* context);
   // Runtime::Observer implementation.
   virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
   virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;

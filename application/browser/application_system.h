@@ -29,8 +29,6 @@ namespace xwalk {
 namespace application {
 
 class ApplicationService;
-class ApplicationServiceProvider;
-class ApplicationStorage;
 
 // The ApplicationSystem manages the creation and destruction of services which
 // related to applications' runtime model.
@@ -47,16 +45,13 @@ class ApplicationSystem {
     return application_service_.get();
   }
 
-  ApplicationStorage* application_storage() {
-    return application_storage_.get();
-  }
-
   // Launches an application based on the given command line, there are
   // different ways to inform which application should be launched
   //
   // (1) app_id from the binary name (used in Tizen);
-  // (2) app_id passed in the command line;
+  // (2) app_id passed in the command line (used in Tizen);
   // (3) launching a directory that contains an extracted package.
+  // (4) launching from the path to the packaged application file.
   //
   // The parameter `url` contains the current URL Crosswalk is considering to
   // load, and the output parameter `run_default_message_loop` controls whether
@@ -66,7 +61,7 @@ class ApplicationSystem {
   // line, so the caller shouldn't try to load the url by itself.
   bool LaunchFromCommandLine(const base::CommandLine& cmd_line,
                              const GURL& url,
-                             bool& run_default_message_loop_);
+                             bool& run_default_message_loop_);  // NOLINT
 
   void CreateExtensions(content::RenderProcessHost* host,
                         extensions::XWalkExtensionVector* extensions);
@@ -75,12 +70,8 @@ class ApplicationSystem {
   explicit ApplicationSystem(RuntimeContext* runtime_context);
 
  private:
-  template <typename T>
-  bool LaunchWithCommandLineParam(const T& param,
-                                  const base::CommandLine& cmd_line);
   // Note: initialization order matters.
-  xwalk::RuntimeContext* runtime_context_;
-  scoped_ptr<ApplicationStorage> application_storage_;
+  RuntimeContext* runtime_context_;
   scoped_ptr<ApplicationService> application_service_;
 
   DISALLOW_COPY_AND_ASSIGN(ApplicationSystem);

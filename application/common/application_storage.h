@@ -5,7 +5,6 @@
 #ifndef XWALK_APPLICATION_COMMON_APPLICATION_STORAGE_H_
 #define XWALK_APPLICATION_COMMON_APPLICATION_STORAGE_H_
 
-#include <map>
 #include <string>
 #include <vector>
 

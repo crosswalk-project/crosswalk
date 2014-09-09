@@ -13,6 +13,10 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_service_tizen.h"
+#endif
+
 namespace {
 
 // D-Bus Interface implemented by the manager object of running applications.
@@ -157,21 +161,16 @@ void RunningApplicationsManager::OnLaunch(
   params.force_fullscreen = fullscreen;
   params.remote_debugging = remote_debugging;
 
-  Application* application;
-  if (GURL(app_id_or_url).spec().empty()) {
-    application = application_service_->Launch(app_id_or_url, params);
-  } else {
-    std::string error;
-    scoped_refptr<ApplicationData> application_data =
-        ApplicationData::Create(GURL(app_id_or_url), &error);
-    if (!application_data) {
-      scoped_ptr<dbus::Response> response = CreateError(method_call, error);
-      response_sender.Run(response.Pass());
-      return;
-    }
+  Application* application = NULL;
+  GURL url(app_id_or_url);
+  if (!url.spec().empty())
+    application = application_service_->LaunchHostedURL(url, params);
 
-    application = application_service_->Launch(application_data, params);
-  }
+#if defined(OS_TIZEN)
+  if (!application)
+    application = ToApplicationServiceTizen(
+        application_service_)->LaunchFromAppID(app_id_or_url, params);
+#endif
 
   if (!application) {
     scoped_ptr<dbus::Response> response =
