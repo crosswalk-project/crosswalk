@@ -31,6 +31,8 @@
         'application_storage_constants.h',
         'constants.cc',
         'constants.h',
+        'encryption_tizen.cc',
+        'encryption_tizen.h',
         'id_util.cc',
         'id_util.h',
         'manifest.cc',

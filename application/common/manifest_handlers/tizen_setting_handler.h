@@ -23,8 +23,12 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
   void set_hwkey_enabled(bool enabled) { hwkey_enabled_ = enabled; }
   bool hwkey_enabled() const { return hwkey_enabled_; }
 
+  void set_encryption_enabled(bool enabled) { encryption_enabled_ = enabled; }
+  bool encryption_enabled() const { return encryption_enabled_; }
+
  private:
   bool hwkey_enabled_;
+  bool encryption_enabled_;
 };
 
 class TizenSettingHandler : public ManifestHandler {

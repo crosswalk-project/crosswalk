@@ -36,6 +36,12 @@
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #include "xwalk/runtime/common/xwalk_system_locale.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_encrypted_file_job_tizen.h"
+#include "xwalk/application/common/encryption_tizen.h"
+#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
+#endif
+
 using content::BrowserThread;
 using content::ResourceRequestInfo;
 
@@ -270,7 +276,11 @@ ApplicationProtocolHandler::MaybeCreateJob(
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
   }
 
-  return new URLRequestApplicationJob(
+#if defined(OS_TIZEN)
+  TizenSettingInfo* info = static_cast<TizenSettingInfo*>(
+      application->GetManifestData(application_widget_keys::kTizenSettingKey));
+  if (info && info->encryption_enabled() && RequiresEncryption(relative_path)) {
+    return new URLRequestAppEncryptedFileJob(
       request,
       network_delegate,
       content::BrowserThread::GetBlockingPool()->
@@ -280,8 +290,24 @@ ApplicationProtocolHandler::MaybeCreateJob(
       directory_path,
       relative_path,
       content_security_policy,
-      locales,
-      application);
+      locales);
+  } else {
+#endif
+    return new URLRequestApplicationJob(
+        request,
+        network_delegate,
+        content::BrowserThread::GetBlockingPool()->
+        GetTaskRunnerWithShutdownBehavior(
+            base::SequencedWorkerPool::SKIP_ON_SHUTDOWN),
+        application_id,
+        directory_path,
+        relative_path,
+        content_security_policy,
+        locales,
+        application);
+#if defined(OS_TIZEN)
+  }
+#endif
 }
 
 }  // namespace
