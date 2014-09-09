@@ -92,6 +92,36 @@ void NativeFileSystemInstance::HandleMessage(scoped_ptr<base::Value> msg) {
   checker->DoTask();
 }
 
+void NativeFileSystemInstance::HandleSyncMessage(
+    scoped_ptr<base::Value> msg) {
+  base::DictionaryValue* dict;
+  std::string command;
+
+  if (!msg->GetAsDictionary(&dict) || !dict->GetString("cmd", &command)) {
+    LOG(ERROR) << "Fail to handle command sync message.";
+    SendSyncReplyToJS(scoped_ptr<base::Value>(new base::StringValue("")));
+    return;
+  }
+
+  scoped_ptr<base::Value> result(new base::StringValue(""));
+  std::string virtual_root_string = "";
+  if ("getRealPath" ==  command &&
+      dict->GetString("path", &virtual_root_string)) {
+    std::transform(virtual_root_string.begin(),
+                   virtual_root_string.end(),
+                   virtual_root_string.begin(),
+                   ::toupper);
+    std::string real_path =
+        VirtualRootProvider::GetInstance()->GetRealPath(
+            virtual_root_string);
+    result.reset(new base::StringValue(real_path));
+  } else {
+    LOG(ERROR) << command << " ASSERT NOT REACHED.";
+  }
+
+  SendSyncReplyToJS(result.Pass());
+}
+
 FileSystemChecker::FileSystemChecker(
     int process_id,
     const std::string& path,

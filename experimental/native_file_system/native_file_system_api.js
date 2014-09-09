@@ -44,10 +44,19 @@ var getDirectoryList = function() {
   extension.internal.sendSyncMessage("get");
 }
 
+var getRealPath = function(virtual_root) {
+  var _msg = {
+    cmd : "getRealPath",
+    path : virtual_root
+  }
+  return extension.internal.sendSyncMessage(_msg);
+}
+
 NativeFileSystem.prototype = new Object();
 NativeFileSystem.prototype.constructor = NativeFileSystem;
 NativeFileSystem.prototype.requestNativeFileSystem = requestNativeFileSystem;
 NativeFileSystem.prototype.getDirectoryList = getDirectoryList;
+NativeFileSystem.prototype.getRealPath = getRealPath;
 
 exports = new NativeFileSystem();
 
