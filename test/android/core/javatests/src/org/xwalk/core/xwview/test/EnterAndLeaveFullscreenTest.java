@@ -31,13 +31,13 @@ public class EnterAndLeaveFullscreenTest extends XWalkViewTestBase {
             @Override
             public void run() {
                 try {
-                    clickOnElementId("enter_fullscreen");
+                    clickOnElementId("enter_fullscreen", null);
                     assertTrue(getXWalkView().hasEnteredFullscreen());
                     getXWalkView().leaveFullscreen();
                     assertFalse(getXWalkView().hasEnteredFullscreen());
 
-                    clickOnElementId("enter_fullscreen");
-                    clickOnElementId("exit_fullscreen");
+                    clickOnElementId("enter_fullscreen", null);
+                    clickOnElementId("exit_fullscreen", null);
                     assertFalse(getXWalkView().hasEnteredFullscreen());
                 } catch (Throwable e) {
                     e.printStackTrace();
