@@ -1,0 +1,6 @@
+{
+  "name": "loadAppFromManifest Test",
+  "version": "1.0.0",
+  "description": "Test for loadAppFromManifest",
+  "start_url": "file:///android_asset/www/index.html"
+}

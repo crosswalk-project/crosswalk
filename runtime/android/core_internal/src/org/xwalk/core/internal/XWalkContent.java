@@ -399,11 +399,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // TODO(yongsheng): It's from runtime side. Need to find a better way
         // to get base url.
         String baseUrl = url;
-        int position = url.lastIndexOf("/");
-        if (position != -1) {
-            baseUrl = url.substring(0, position + 1);
-        } else {
-            Log.w(TAG, "The url of manifest.json is probably not set correctly.");
+        if (url != null && !url.isEmpty()) {
+            int position = url.lastIndexOf("/");
+            if (position != -1) {
+                baseUrl = url.substring(0, position + 1);
+            } else {
+                Log.w(TAG, "The url of manifest.json is probably not set correctly.");
+            }
         }
 
         if (!nativeSetManifest(mXWalkContent, baseUrl, content)) {

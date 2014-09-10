@@ -248,16 +248,20 @@ jboolean XWalkContent::SetManifest(JNIEnv* env,
   std::string url;
   if (manifest.GetString(keys::kStartURLKey, &url)) {
     std::string scheme = GURL(url).scheme();
-    if (scheme.empty())
+    if (scheme.empty()) {
+      if (path_str.empty()) return false;
       url = path_str + url;
+    }
   } else if (manifest.GetString(keys::kLaunchLocalPathKey, &url)) {
     PrintManifestDeprecationWarning(keys::kLaunchLocalPathKey);
     // According to original proposal for "app:launch:local_path", the "http"
     // and "https" schemes are supported. So |url| should do nothing when it
     // already has "http" or "https" scheme.
     std::string scheme = GURL(url).scheme();
-    if (scheme != url::kHttpScheme && scheme != url::kHttpsScheme)
+    if (scheme != url::kHttpScheme && scheme != url::kHttpsScheme) {
+      if (path_str.empty()) return false;
       url = path_str + url;
+    }
   } else if (manifest.GetString(keys::kLaunchWebURLKey, &url)) {
     PrintManifestDeprecationWarning(keys::kLaunchWebURLKey);
   } else {
