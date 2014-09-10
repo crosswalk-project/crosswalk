@@ -20,8 +20,8 @@
 #include "dbus/object_proxy.h"
 
 #include "xwalk/application/common/application_storage.h"
-#include "xwalk/application/common/installer/package_installer.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
+#include "xwalk/application/tools/tizen/xwalk_package_installer.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #include "xwalk/application/common/id_util.h"
@@ -29,7 +29,6 @@
 
 using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;
-using xwalk::application::PackageInstaller;
 
 namespace {
 

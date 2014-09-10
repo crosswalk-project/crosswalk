@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
-#define XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
+#ifndef XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGEINFO_CONSTANTS_H_
+#define XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGEINFO_CONSTANTS_H_
 
 #include "base/files/file_path.h"
 #include "base/basictypes.h"
 
-namespace xwalk {
 namespace application_packageinfo_constants {
   extern const base::FilePath::CharType kAppDir[];
   extern const base::FilePath::CharType kAppDBPath[];
@@ -24,6 +23,5 @@ namespace application_packageinfo_constants {
   extern const char kXmlExtension[];
   extern const char kSeparator[];
 }  // namespace application_packageinfo_constants
-}  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_PACKAGEINFO_CONSTANTS_H_
+#endif  // XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGEINFO_CONSTANTS_H_

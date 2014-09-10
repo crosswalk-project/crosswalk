@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_INSTALLER_XPK_PACKAGE_H_
-#define XWALK_APPLICATION_COMMON_INSTALLER_XPK_PACKAGE_H_
+#ifndef XWALK_APPLICATION_COMMON_PACKAGE_XPK_PACKAGE_H_
+#define XWALK_APPLICATION_COMMON_PACKAGE_XPK_PACKAGE_H_
 
 #include <string>
 #include <vector>
 
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
-#include "xwalk/application/common/installer/package.h"
+#include "xwalk/application/common/package/package.h"
 
 namespace xwalk {
 namespace application {
@@ -45,4 +45,4 @@ class XPKPackage : public Package {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_INSTALLER_XPK_PACKAGE_H_
+#endif  // XWALK_APPLICATION_COMMON_PACKAGE_XPK_PACKAGE_H_

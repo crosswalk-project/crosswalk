@@ -2,13 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/installer/wgt_package.h"
+#include "xwalk/application/common/package/wgt_package.h"
 
 #include "base/file_util.h"
 #include "base/files/scoped_file.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/application/common/installer/tizen/signature_validator.h"
+
+#if defined(OS_TIZEN)
+#include "xwalk/application/common/tizen/signature_validator.h"
+#endif
 
 namespace xwalk {
 namespace application {

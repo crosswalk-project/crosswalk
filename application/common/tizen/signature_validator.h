@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_SIGNATURE_VALIDATOR_H_
-#define XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_SIGNATURE_VALIDATOR_H_
+#ifndef XWALK_APPLICATION_COMMON_TIZEN_SIGNATURE_VALIDATOR_H_
+#define XWALK_APPLICATION_COMMON_TIZEN_SIGNATURE_VALIDATOR_H_
 
 #include "base/files/file_path.h"
 
@@ -27,4 +27,4 @@ class SignatureValidator {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_INSTALLER_TIZEN_SIGNATURE_VALIDATOR_H_
+#endif  // XWALK_APPLICATION_COMMON_TIZEN_SIGNATURE_VALIDATOR_H_

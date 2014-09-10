@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/installer/signature_data.h"
+#include "xwalk/application/common/tizen/signature_data.h"
 
 #include "base/strings/utf_string_conversions.h"
 
