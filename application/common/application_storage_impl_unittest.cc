@@ -49,7 +49,7 @@ TEST_F(ApplicationStorageImplTest, DBInsert) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);
@@ -72,7 +72,7 @@ TEST_F(ApplicationStorageImplTest, DBDelete) {
   std::string error;
   scoped_refptr<ApplicationData> application =
       ApplicationData::Create(base::FilePath(),
-                              Manifest::INTERNAL,
+                              ApplicationData::INTERNAL,
                               manifest,
                               "",
                               &error);
@@ -127,7 +127,7 @@ TEST_F(ApplicationStorageImplTest, DBUpdate) {
   std::string error;
   scoped_refptr<ApplicationData> application =
       ApplicationData::Create(base::FilePath(),
-                              Manifest::INTERNAL,
+                              ApplicationData::INTERNAL,
                               manifest,
                               "",
                               &error);
@@ -139,7 +139,7 @@ TEST_F(ApplicationStorageImplTest, DBUpdate) {
   manifest.SetString("a", "c");
   scoped_refptr<ApplicationData> new_application =
       ApplicationData::Create(base::FilePath(),
-                              Manifest::INTERNAL,
+                              ApplicationData::INTERNAL,
                               manifest,
                               "",
                               &error);
@@ -167,7 +167,7 @@ TEST_F(ApplicationStorageImplTest, SetPermission) {
   std::string error;
   scoped_refptr<ApplicationData> application =
       ApplicationData::Create(base::FilePath(),
-                              Manifest::INTERNAL,
+                              ApplicationData::INTERNAL,
                               manifest,
                               "",
                               &error);

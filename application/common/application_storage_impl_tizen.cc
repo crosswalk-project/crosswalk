@@ -53,7 +53,8 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
   base::FilePath app_path = GetApplicationPath(app_id);
 
   std::string error_str;
-  return LoadApplication(app_path, app_id, Manifest::INTERNAL, &error_str);
+  return LoadApplication(
+      app_path, app_id, ApplicationData::INTERNAL, &error_str);
 }
 
 bool ApplicationStorageImpl::GetInstalledApplicationIDs(

@@ -44,27 +44,26 @@ namespace application {
 // static
 scoped_refptr<ApplicationData> ApplicationData::Create(
     const base::FilePath& path,
-    Manifest::SourceType source_type,
+    SourceType source_type,
     const base::DictionaryValue& manifest_data,
     const std::string& explicit_id,
     std::string* error_message) {
   DCHECK(error_message);
   base::string16 error;
-  scoped_ptr<xwalk::application::Manifest> manifest(
-      new xwalk::application::Manifest(source_type,
-                 scoped_ptr<base::DictionaryValue>(manifest_data.DeepCopy())));
+  scoped_ptr<Manifest> manifest(new Manifest(
+      scoped_ptr<base::DictionaryValue>(manifest_data.DeepCopy())));
 
   if (!manifest->ValidateManifest(error_message))
     return NULL;
 
-  scoped_refptr<ApplicationData> application = new ApplicationData(path,
-                                                           manifest.Pass());
-  if (!application->Init(explicit_id, &error)) {
+  scoped_refptr<ApplicationData> app_data =
+      new ApplicationData(path, source_type, manifest.Pass());
+  if (!app_data->Init(explicit_id, &error)) {
     *error_message = base::UTF16ToUTF8(error);
     return NULL;
   }
 
-  return application;
+  return app_data;
 }
 
 // static
@@ -82,7 +81,7 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
   manifest.SetString(application_manifest_keys::kNameKey, url_spec);
   manifest.SetString(application_manifest_keys::kXWalkVersionKey, "0");
   scoped_refptr<ApplicationData> application_data =
-      ApplicationData::Create(base::FilePath(), Manifest::COMMAND_LINE,
+      ApplicationData::Create(base::FilePath(), EXTERNAL_URL,
                               manifest, app_id, error_message);
 
   return application_data;
@@ -110,10 +109,6 @@ void ApplicationData::SetManifestData(const std::string& key,
   manifest_data_[key] = linked_ptr<ManifestData>(data);
 }
 
-Manifest::SourceType ApplicationData::GetSourceType() const {
-  return manifest_->GetSourceType();
-}
-
 const std::string& ApplicationData::ID() const {
   return manifest_->GetApplicationID();
 }
@@ -131,19 +126,16 @@ const std::string ApplicationData::VersionString() const {
   return "";
 }
 
-bool ApplicationData::IsPlatformApp() const {
-  return manifest_->IsPackaged();
-}
-
 bool ApplicationData::IsHostedApp() const {
   return GetManifest()->IsHosted();
 }
 
 ApplicationData::ApplicationData(const base::FilePath& path,
-                     scoped_ptr<xwalk::application::Manifest> manifest)
+    SourceType source_type, scoped_ptr<Manifest> manifest)
     : manifest_version_(0),
       manifest_(manifest.release()),
-      finished_parsing_manifest_(false) {
+      finished_parsing_manifest_(false),
+      source_type_(source_type) {
   DCHECK(path.empty() || path.IsAbsolute());
   path_ = path;
   if (manifest_->HasPath(widget_keys::kWidgetKey))
@@ -158,7 +150,7 @@ ApplicationData::~ApplicationData() {
 // static
 GURL ApplicationData::GetResourceURL(const GURL& application_url,
                                const std::string& relative_path) {
-  DCHECK(application_url.SchemeIs(xwalk::application::kApplicationScheme));
+  DCHECK(application_url.SchemeIs(kApplicationScheme));
   DCHECK_EQ("/", application_url.path());
 
   std::string path = relative_path;

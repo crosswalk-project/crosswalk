@@ -23,27 +23,17 @@ namespace application {
 // properties of the manifest using ManifestFeatureProvider.
 class Manifest {
  public:
-  // Where an application was loaded from.
-  enum SourceType {
-    INVALID_TYPE,
-    INTERNAL,           // Load from internal application registry.
-    COMMAND_LINE,       // Load from an unpacked application from command line.
-    NUM_TYPES
-  };
-
   enum Type {
     TYPE_UNKNOWN = 0,
     TYPE_HOSTED_APP,
     TYPE_PACKAGED_APP
   };
 
-  Manifest(SourceType source_type, scoped_ptr<base::DictionaryValue> value);
+  explicit Manifest(scoped_ptr<base::DictionaryValue> value);
   ~Manifest();
 
   const std::string& GetApplicationID() const { return application_id_; }
   void SetApplicationID(const std::string& id) { application_id_ = id; }
-
-  SourceType GetSourceType() const { return source_type_; }
 
   // Returns false and |error| will be non-empty if the manifest is malformed.
   // |warnings| will be populated if there are keys in the manifest that cannot
@@ -111,17 +101,13 @@ class Manifest {
 
   // A persistent, globally unique ID. An application's ID is used in things
   // like directory structures and URLs, and is expected to not change across
-  // versions. It is generated as a SHA-256 hash of the application's public
-  // key, or as a hash of the path in the case of unpacked applications.
+  // versions.
   std::string application_id_;
 
 #if defined(OS_TIZEN)
   // Unique package id for tizen platform
   std::string package_id_;
 #endif
-
-  // The source the application was loaded from.
-  SourceType source_type_;
 
   // The underlying dictionary representation of the manifest.
   scoped_ptr<base::DictionaryValue> data_;

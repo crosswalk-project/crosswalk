@@ -155,12 +155,12 @@ PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path) {
 
   scoped_ptr<xwalk::application::Package> package =
       xwalk::application::Package::Create(base::FilePath(pkg_path));
-  package->Extract(&unpacked_dir);
+  package->ExtractToTemporaryDir(&unpacked_dir);
   std::string app_id = package->Id();
 
   std::string error;
   scoped_refptr<xwalk::application::ApplicationData> app_data = LoadApplication(
-      unpacked_dir, app_id, xwalk::application::Manifest::COMMAND_LINE,
+      unpacked_dir, app_id, xwalk::application::ApplicationData::TEMP_DIRECTORY,
       package->type(), &error);
   return app_data;
 }

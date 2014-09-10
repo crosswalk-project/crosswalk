@@ -362,7 +362,7 @@ base::DictionaryValue* LoadXMLNode(
 
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     std::string* error) {
   Package::Type package_type;
   if (!GetPackageType(application_path, &package_type, error))
@@ -375,7 +375,7 @@ scoped_refptr<ApplicationData> LoadApplication(
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     std::string* error) {
   Package::Type package_type;
 #if defined(OS_TIZEN)
@@ -392,7 +392,7 @@ scoped_refptr<ApplicationData> LoadApplication(
 scoped_refptr<ApplicationData> LoadApplication(
     const base::FilePath& application_path,
     const std::string& application_id,
-    Manifest::SourceType source_type,
+    ApplicationData::SourceType source_type,
     Package::Type package_type,
     std::string* error) {
   scoped_ptr<base::DictionaryValue> manifest(

@@ -35,7 +35,7 @@ TEST_F(PermissionsHandlerTest, NonePermission) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);
@@ -52,7 +52,7 @@ TEST_F(PermissionsHandlerTest, EmptyPermission) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);
@@ -70,7 +70,7 @@ TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
       base::FilePath(),
-      Manifest::INVALID_TYPE,
+      ApplicationData::LOCAL_DIRECTORY,
       manifest,
       "",
       &error);

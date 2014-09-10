@@ -14,6 +14,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/message_loop/message_loop.h"
 #include "base/path_service.h"
+#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "xwalk/application/browser/application.h"
@@ -127,12 +128,30 @@ Application* ApplicationService::Launch(
 
 Application* ApplicationService::Launch(
     const base::FilePath& path, const Application::LaunchParams& params) {
-  if (!base::DirectoryExists(path))
-    return NULL;
-
   std::string error;
-  scoped_refptr<ApplicationData> application_data =
-      LoadApplication(path, Manifest::COMMAND_LINE, &error);
+  scoped_refptr<ApplicationData> application_data;
+  if (base::DirectoryExists(path)) {
+    application_data =
+        LoadApplication(path, ApplicationData::LOCAL_DIRECTORY, &error);
+    return Launch(application_data, params);
+  }
+
+  scoped_ptr<Package> package = Package::Create(path);
+  if (package && package->IsValid()) {
+    base::FilePath tmp_dir, target_dir;
+    if (!GetTempDir(&tmp_dir)) {
+      LOG(ERROR) << "Failed to obtain system temp directory.";
+      return NULL;
+    }
+
+    base::CreateTemporaryDirInDir(tmp_dir, package->name(), &target_dir);
+    if (package->ExtractTo(target_dir)) {
+      std::string id = tmp_dir.BaseName().AsUTF8Unsafe();
+      application_data =
+          LoadApplication(
+              target_dir, id, ApplicationData::TEMP_DIRECTORY, &error);
+    }
+  }
 
   if (!application_data) {
     LOG(ERROR) << "Error occurred while trying to launch application: "
@@ -198,7 +217,17 @@ void ApplicationService::OnApplicationTerminated(
   CHECK(found != applications_.end());
   FOR_EACH_OBSERVER(Observer, observers_,
                     WillDestroyApplication(application));
+  scoped_refptr<ApplicationData> app_data = application->data();
   applications_.erase(found);
+
+  if (app_data->source_type() == ApplicationData::TEMP_DIRECTORY) {
+      LOG(INFO) << "Deleting the app temporary directory "
+                << app_data->Path().AsUTF8Unsafe();
+      content::BrowserThread::PostTask(content::BrowserThread::FILE,
+          FROM_HERE, base::Bind(base::IgnoreResult(&base::DeleteFile),
+                                app_data->Path(), true /*recursive*/));
+  }
+
 #if !defined(SHARED_PROCESS_MODE)
   if (applications_.empty()) {
     base::MessageLoop::current()->PostTask(

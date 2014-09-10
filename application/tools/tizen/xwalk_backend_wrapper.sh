@@ -22,9 +22,9 @@ do
               keyvalue="$2"
               shift
               ;;
-        "-r") echo "Reinstall not supported"
-              exit 128 # ErrorNotSupportRDSUpdate == 128
-              ;; #TODO(t.iwanek) fix me - sending signals for reinstall option
+        "-r") option="-r"
+              id="$2"
+              ;;
     esac
     shift
 done

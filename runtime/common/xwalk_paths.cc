@@ -175,6 +175,11 @@ bool PathProvider(int key, base::FilePath* path) {
         return false;
       cur = cur.Append(FILE_PATH_LITERAL("Widget Storage"));
       break;
+    case xwalk::DIR_APPLICATION_PATH:
+      if (!GetXWalkDataPath(&cur))
+        return false;
+      cur = cur.Append(FILE_PATH_LITERAL("applications"));
+      break;
     default:
       return false;
   }

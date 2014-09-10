@@ -148,7 +148,7 @@ bool ApplicationStorageImpl::UpgradeToVersion1(const base::FilePath& v0_file) {
     std::string error;
     scoped_refptr<ApplicationData> application =
         ApplicationData::Create(base::FilePath::FromUTF8Unsafe(path),
-                                Manifest::INTERNAL,
+                                ApplicationData::INTERNAL,
                                 *manifest,
                                 it.key(),
                                 &error);
@@ -250,7 +250,7 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::ExtractApplicationData(
   scoped_refptr<ApplicationData> app_data =
       ApplicationData::Create(
           base::FilePath::FromUTF8Unsafe(path),
-          Manifest::INTERNAL,
+          ApplicationData::INTERNAL,
           *manifest,
           id,
           &error);

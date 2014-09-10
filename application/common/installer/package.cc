@@ -19,7 +19,8 @@ namespace application {
 Package::Package(const base::FilePath& source_path)
     : source_path_(source_path),
       is_extracted_(false),
-      is_valid_(false) {
+      is_valid_(false),
+      name_(source_path_.BaseName().AsUTF8Unsafe()) {
 }
 
 Package::~Package() {
@@ -28,20 +29,19 @@ Package::~Package() {
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
-      scoped_ptr<Package> package(new XPKPackage(source_path));
-      if (!package->IsValid())
-        LOG(ERROR) << "Package not valid";
-      return package.Pass();
-  } else if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
-     scoped_ptr<Package> package(new WGTPackage(source_path));
-     return package.Pass();
+    scoped_ptr<Package> package(new XPKPackage(source_path));
+    return package.Pass();
+  }
+  if (source_path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
+    scoped_ptr<Package> package(new WGTPackage(source_path));
+    return package.Pass();
   }
 
   LOG(ERROR) << "Invalid package type. Only .xpk/.wgt supported now";
   return scoped_ptr<Package>();
 }
 
-bool Package::Extract(base::FilePath* target_path) {
+bool Package::ExtractToTemporaryDir(base::FilePath* target_path) {
   if (is_extracted_) {
     *target_path = temp_dir_.path();
     return true;
@@ -61,6 +61,25 @@ bool Package::Extract(base::FilePath* target_path) {
   is_extracted_ = true;
 
   *target_path = temp_dir_.path();
+  return true;
+}
+
+bool Package::ExtractTo(const base::FilePath& target_path) {
+  if (!DirectoryExists(target_path)) {
+    LOG(ERROR) << "The directory " << target_path.MaybeAsASCII()
+               << "does not exist";
+    return false;
+  }
+  if (!IsDirectoryEmpty(target_path)) {
+    LOG(ERROR) << "The directory " << target_path.MaybeAsASCII()
+               << "is not empty.";
+    return false;
+  }
+  if (!zip::Unzip(source_path_, target_path)) {
+    LOG(ERROR) << "An error occurred during package extraction";
+    return false;
+  }
+
   return true;
 }
 
