@@ -1,40 +1,5 @@
 {
-  'targets': [
-    {
-      'target_name': 'xwalkctl',
-      'type': 'executable',
-      'product_name': 'xwalkctl',
-      'dependencies': [
-        '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
-        '../../../build/system.gyp:gio',
-        '../../../../build/linux/system.gyp:dbus',
-        '../../../../dbus/dbus.gyp:dbus',
-      ],
-      'include_dirs': [
-        '../../../..',
-      ],
-      'sources': [
-        'dbus_connection.cc',
-        'dbus_connection.h',
-        'xwalkctl_main.cc',
-        # TODO(t.iwanek) fix me - this duplicates compilation of those files
-        '../../../runtime/common/xwalk_paths.cc',
-        '../../../runtime/common/xwalk_paths.h',
-        '../../../runtime/common/xwalk_system_locale.cc',
-        '../../../runtime/common/xwalk_system_locale.h',
-      ],
-      'conditions' : [
-        ['tizen==1', {
-          'dependencies': [
-            '../../../build/system.gyp:tizen',
-          ],
-          'sources': [
-            'xwalk_tizen_user.cc',
-            'xwalk_tizen_user.h',
-          ],
-        }],
-      ],
-    },
+  'targets': [  
     {
       'target_name': 'xwalk_launcher',
       'type': 'executable',
@@ -69,8 +34,8 @@
           'sources': [
             'xwalk_launcher_tizen.cc',
             'xwalk_launcher_tizen.h',
-            'xwalk_tizen_user.cc',
-            'xwalk_tizen_user.h',
+            '../tizen/xwalk_tizen_user.cc',
+            '../tizen/xwalk_tizen_user.h',
           ],
         }],
       ],
