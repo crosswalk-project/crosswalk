@@ -4,6 +4,7 @@
 
 package org.xwalk.core.internal.extension.api.device_capabilities;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,17 +17,17 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
 
 class DeviceCapabilitiesStorage {
     private static final String TAG = "DeviceCapabilitiesStorage";
 
     private DeviceCapabilities mDeviceCapabilities;
-    private XWalkExtensionContext mExtensionContext;
+    private WeakReference<Activity> mActivity;
 
     private static int mStorageCount = 0;
     // Holds all available storages.
@@ -135,9 +136,9 @@ class DeviceCapabilitiesStorage {
     };
 
     public DeviceCapabilitiesStorage(DeviceCapabilities instance,
-                                     XWalkExtensionContext context) {
+                                     Activity activity) {
         mDeviceCapabilities = instance;
-        mExtensionContext = context;
+        mActivity = new WeakReference<Activity>(activity);
 
         registerIntentFilter();
 
@@ -222,7 +223,8 @@ class DeviceCapabilitiesStorage {
         }
 
         mIsListening = true;
-        mExtensionContext.getActivity().registerReceiver(mStorageListener, mIntentFilter);
+        Activity activity = mActivity.get();
+        if (activity != null) activity.registerReceiver(mStorageListener, mIntentFilter);
     }
 
     public void unregisterListener() {
@@ -231,7 +233,8 @@ class DeviceCapabilitiesStorage {
         }
 
         mIsListening = false;
-        mExtensionContext.getActivity().unregisterReceiver(mStorageListener);
+        Activity activity = mActivity.get();
+        if (activity != null) activity.unregisterReceiver(mStorageListener);
     }
 
     private void notifyAndSaveAttachedStorage() {

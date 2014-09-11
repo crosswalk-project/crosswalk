@@ -4,8 +4,10 @@
 
 package org.xwalk.core.internal.extension.api.contacts;
 
+import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -17,14 +19,14 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import org.chromium.base.ActivityState;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.xwalk.core.internal.extension.XWalkExtension;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
+import org.xwalk.core.internal.extension.XWalkExtensionWithActivityStateListener;
 
-public class Contacts extends XWalkExtension {
+public class Contacts extends XWalkExtensionWithActivityStateListener {
     public static final String JS_API_PATH = "jsapi/contacts_api.js";
 
     private static final String TAG = "Contacts";
@@ -33,11 +35,17 @@ public class Contacts extends XWalkExtension {
     private final ContactEventListener mObserver;
     private final ContentResolver mResolver;
 
-    public Contacts(String jsApiContent, XWalkExtensionContext context) {
-        super(NAME, jsApiContent, context);
-        mResolver = context.getContext().getContentResolver();
+    public Contacts(String jsApiContent, Activity activity) {
+        super(NAME, jsApiContent, activity);
+        mResolver = activity.getContentResolver();
         mObserver = new ContactEventListener(new Handler(), this, mResolver);
         mResolver.registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mObserver);
+    }
+
+
+    @Override
+    public String onSyncMessage(int instanceID, String message) {
+        return null;
     }
 
     @Override
@@ -89,22 +97,6 @@ public class Contacts extends XWalkExtension {
         }
     }
 
-    @Override
-    public void onResume() {
-        mObserver.onResume();
-        mResolver.registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mObserver);
-    }
-
-    @Override
-    public void onPause() {
-        mResolver.unregisterContentObserver(mObserver);
-    }
-
-    @Override
-    public void onDestroy() {
-        mResolver.unregisterContentObserver(mObserver);
-    }
-
     // Remove all contacts.
     private void handleClear() {
         Cursor c = null;
@@ -119,6 +111,23 @@ public class Contacts extends XWalkExtension {
             Log.e(TAG, "handleClear - failed to query: " + e.toString());
         } finally {
             if (c != null) c.close();
+        }
+    }
+
+
+    @Override
+    public void onActivityStateChange(Activity activity, int newState) {
+        switch (newState) {
+            case ActivityState.RESUMED:
+                mObserver.onResume();
+                mResolver.registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, mObserver);
+                break;
+            case ActivityState.PAUSED:
+            case ActivityState.DESTROYED:
+                mResolver.unregisterContentObserver(mObserver);
+                break;
+            default:
+                break;
         }
     }
 }

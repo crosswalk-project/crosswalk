@@ -14,18 +14,18 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
-import org.xwalk.app.runtime.CrossPackageWrapper;
-import org.xwalk.app.runtime.CrossPackageWrapperExceptionHandler;
-import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeLibraryException;
+import org.xwalk.app.runtime.XWalkRuntimeView;
+import org.xwalk.core.ReflectionHelper;
+import org.xwalk.core.XWalkPreferences;
 
-public abstract class XWalkRuntimeActivityBase extends Activity implements CrossPackageWrapperExceptionHandler {
+public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private static final String DEFAULT_LIBRARY_APK_URL = null;
 
-    private XWalkRuntimeClient mRuntimeView;
+    private XWalkRuntimeView mRuntimeView;
 
     private boolean mShownNotFoundDialog = false;
 
@@ -34,6 +34,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     private boolean mRemoteDebugging = false;
 
     private AlertDialog mLibraryNotFoundDialog = null;
+
+    private XWalkRuntimeExtensionManager mExtensionManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,10 +52,9 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                 if (bundle.containsKey("remotedebugging")) {
                     String extra = bundle.getString("remotedebugging");
                     if (extra.equals("true")) {
-                        String mPackageName = getApplicationContext().getPackageName();
-                        mRuntimeView.enableRemoteDebugging("", mPackageName);
+                        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
                     } else if (extra.equals("false")) {
-                        mRuntimeView.disableRemoteDebugging();
+                        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
                     }
                 }
             }
@@ -61,50 +62,52 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
         registerReceiver(mReceiver, intentFilter);
         super.onCreate(savedInstanceState);
         tryLoadRuntimeView();
-        mRuntimeView.onCreate();
+        if (mRuntimeView != null) mRuntimeView.onCreate();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        tryLoadRuntimeView();
-        mRuntimeView.onStart();
+        if (mExtensionManager != null) mExtensionManager.onStart();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mRuntimeView.onPause();
+        if (mRuntimeView != null) mRuntimeView.onPause();
+        if (mExtensionManager != null) mExtensionManager.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mRuntimeView.onResume();
+        if (mRuntimeView != null) mRuntimeView.onResume();
+        if (mExtensionManager != null) mExtensionManager.onResume();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mRuntimeView.onStop();
+        if (mExtensionManager != null) mExtensionManager.onStop();
     }
 
     @Override
     public void onDestroy() {
         unregisterReceiver(mReceiver);
+        if (mExtensionManager != null) mExtensionManager.onDestroy();
         super.onDestroy();
-        mRuntimeView.onDestroy();
     }
 
     @Override
     public void onNewIntent(Intent intent) {
-    	if (!mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
+        if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mRuntimeView.onActivityResult(requestCode, resultCode, data);
+        if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
+        if (mExtensionManager != null) mExtensionManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private String getLibraryApkDownloadUrl() {
@@ -120,30 +123,39 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
     }
 
     private void tryLoadRuntimeView() {
-        if (mRuntimeView == null || mRuntimeView.get() == null) {
-            mRuntimeView = new XWalkRuntimeClient(this, null, this);
-            if (mRuntimeView.get() != null) {
-                mShownNotFoundDialog = false;
-                if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
-            }
+        try {
+            mRuntimeView = new XWalkRuntimeView(this, this, null);
+            mShownNotFoundDialog = false;
+            if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
             if (mRemoteDebugging) {
-                String mPackageName = getApplicationContext().getPackageName();
-                mRuntimeView.enableRemoteDebugging("", mPackageName);
+                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
             } else {
-                mRuntimeView.disableRemoteDebugging();
+                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
             }
-
-            didTryLoadRuntimeView(mRuntimeView.get());
+            // XWalkPreferences.ENABLE_EXTENSIONS
+            if (XWalkPreferences.getValue("enable-extensions")) {
+                // Enable xwalk extension mechanism and start load extensions here.
+                // Note that it has to be after above initialization.
+                mExtensionManager = new XWalkRuntimeExtensionManager(getApplicationContext(), this);
+                mExtensionManager.loadExtensions();
+            }
+        } catch (Exception e) {
+            handleException(e);
         }
+        didTryLoadRuntimeView(mRuntimeView);
     }
 
-    public XWalkRuntimeClient getRuntimeView() {
+    public XWalkRuntimeView getRuntimeView() {
         return mRuntimeView;
     }
 
-    @Override
-    public void onException(Exception e) {
-        if (e.getClass() == XWalkRuntimeLibraryException.class) {
+    public void handleException(Throwable e) {
+        if (e instanceof RuntimeException) {
+            handleException(e.getCause());
+            return;
+        }
+
+        if (e instanceof XWalkRuntimeLibraryException) {
             String title = "";
             String message = "";
             XWalkRuntimeLibraryException runtimeException = (XWalkRuntimeLibraryException) e;
@@ -163,26 +175,20 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
             case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED:
             default:
                 Exception originException = runtimeException.getOriginException();
-                if (originException != null) onException(originException);
+                if (originException != null) handleException(originException);
                 return;
             }
             showRuntimeLibraryExceptionDialog(title, message);
         } else {
             e.printStackTrace();
-            onException(e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void onException(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
     private void showRuntimeLibraryExceptionDialog(String title, String message) {
         if (!mShownNotFoundDialog) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if (XWalkRuntimeClient.libraryIsEmbedded()) {
+            if (!ReflectionHelper.shouldUseLibrary()) {
                 builder.setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -212,7 +218,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity implements Cross
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent goToMarket = new Intent(Intent.ACTION_VIEW);
                                 goToMarket.setData(Uri.parse(
-                                        "market://details?id="+CrossPackageWrapper.LIBRARY_APK_PACKAGE_NAME));
+                                        "market://details?id=org.xwalk.core"));
                                 startActivity(goToMarket);
                             }
                         });

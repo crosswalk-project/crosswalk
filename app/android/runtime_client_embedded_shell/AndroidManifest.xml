@@ -9,7 +9,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xwalk.runtime.client.embedded.shell">
 
-    <application android:name="android.app.Application"
+    <application android:name="org.xwalk.core.XWalkApplication"
         android:label="XWalkRuntimeClientEmbeddedShell" android:hardwareAccelerated="true">
         <activity android:name="org.xwalk.runtime.client.embedded.shell.XWalkRuntimeClientEmbeddedShellActivity"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"

@@ -4,16 +4,7 @@
 
 package org.xwalk.app.runtime.extension;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-
-import java.lang.reflect.Method;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.xwalk.app.runtime.CrossPackageWrapper;
 
 /**
  * This class is to encapsulate the reflection detail of
@@ -23,41 +14,45 @@ import org.xwalk.app.runtime.CrossPackageWrapper;
  * below methods. It's created and registered by runtime side via the
  * configuration information in extensions-config.json.
  */
-public class XWalkExtensionClient extends CrossPackageWrapper {
+public class XWalkExtensionClient {
+    // The unique name for this extension.
+    protected String mName;
 
-    private final static String EXTENSION_CLASS_NAME = "org.xwalk.core.internal.extension.XWalkExtensionClientImpl";
-    private Object mInstance;
-    private Method mGetExtensionName;
-    private Method mGetJsApi;
-    private Method mPostMessage;
-    private Method mBroadcastMessage;
+    // The JavaScript code stub. Will be injected to JS engine.
+    protected String mJsApi;
 
-    protected XWalkExtensionContextClient mContext;
+    // The context used by extensions.
+    protected XWalkExtensionContextClient mExtensionContext;
 
+    /**
+     * Constructor with the information of an extension.
+     * @param name the extension name.
+     * @param apiVersion the version of API.
+     * @param jsApi the code stub of JavaScript for this extension.
+     * @param context the extension context.
+     */
     public XWalkExtensionClient(String name, String jsApi, XWalkExtensionContextClient context) {
-        super(context.getActivity(), EXTENSION_CLASS_NAME, null /* ExceptionHalder */, String.class, String.class,
-                context.getInstance().getClass(), Object.class);
-        mContext = context;
-        mInstance = this.createInstance(name, jsApi, context.getInstance(), this);
-
-        mGetExtensionName = lookupMethod("getExtensionName");
-        mGetJsApi = lookupMethod("getJsApi");
-        mPostMessage = lookupMethod("postMessage", int.class, String.class);
-        mBroadcastMessage = lookupMethod("broadcastMessage", String.class);
+        assert (context != null);
+        mName = name;
+        mJsApi = jsApi;
+        mExtensionContext = context;
+        mExtensionContext.registerExtension(this);
     }
 
     /**
-     * Get the extension name which is set when it's created.
+     * Get the unique name of extension.
+     * @return the name of extension set from constructor.
      */
     public final String getExtensionName() {
-        return (String)invokeMethod(mGetExtensionName, mInstance);
+        return mName;
     }
 
     /**
-     * Get the JavaScript stub code which is set when it's created.
+     * Get the JavaScript code stub.
+     * @return the JavaScript code stub.
      */
     public final String getJsApi() {
-        return (String)invokeMethod(mGetJsApi, mInstance);
+        return mJsApi;
     }
 
     /**
@@ -118,15 +113,16 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
         return "";
     }
 
+
     /**
      * Post messages to JavaScript via extension's context.
      * It's used by child classes to post message from Java side
      * to JavaScript side.
-     * @param extensionInstanceID the ID of extension instance where the message came from.
+     * @param instanceID the ID of target extension instance.
      * @param message the message to be passed to Javascript.
      */
-    public final void postMessage(int extensionInstanceID, String message) {
-        invokeMethod(mPostMessage, mInstance, extensionInstanceID, message);
+    public final void postMessage(int instanceID, String message) {
+        mExtensionContext.postMessage(this, instanceID, message);
     }
 
     /**
@@ -136,6 +132,6 @@ public class XWalkExtensionClient extends CrossPackageWrapper {
      * @param message the message to be passed to Javascript.
      */
     public final void broadcastMessage(String message) {
-        invokeMethod(mBroadcastMessage, mInstance, message);
+        mExtensionContext.broadcastMessage(this, message);
     }
 }

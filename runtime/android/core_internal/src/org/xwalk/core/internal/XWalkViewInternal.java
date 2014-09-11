@@ -30,9 +30,7 @@ import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatus.ActivityStateListener;
 import org.chromium.base.CommandLine;
-
-import org.xwalk.core.internal.extension.XWalkExtensionManager;
-import org.xwalk.core.internal.extension.XWalkPathHelper;
+import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
 /**
  * <p>XWalkViewInternal represents an Android view for web apps/pages. Thus most of attributes
@@ -151,7 +149,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     private XWalkContent mContent;
     private Activity mActivity;
     private Context mContext;
-    private XWalkExtensionManager mExtensionManager;
     private boolean mIsHidden;
     private XWalkActivityStateListener mActivityStateListener;
 
@@ -177,15 +174,17 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, ${param2});"},
               postWrapperLines = {
+                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(convertContext(context), attrs);
 
         checkThreadSafety();
-        mContext = context;
-        init(context, attrs);
+        mActivity = (Activity) context;
+        mContext = getContext();
+        init(mContext, attrs);
     }
 
     /**
@@ -198,17 +197,31 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI(preWrapperLines = {
                   "        super(${param1}, null);"},
               postWrapperLines = {
+                  "        if (bridge == null) return;",
                   "        addView((FrameLayout)bridge, new FrameLayout.LayoutParams(",
                   "                FrameLayout.LayoutParams.MATCH_PARENT,",
                   "                FrameLayout.LayoutParams.MATCH_PARENT));"})
     public XWalkViewInternal(Context context, Activity activity) {
-        super(context, null);
-        checkThreadSafety();
+        super(convertContext(context), null);
 
+        checkThreadSafety();
         // Make sure mActivity is initialized before calling 'init' method.
         mActivity = activity;
-        mContext = context;
-        init(context, null);
+        mContext = getContext();
+        init(mContext, null);
+    }
+
+    private static Context convertContext(Context context) {
+        Context ret = context;
+        Context bridgeContext = ReflectionHelper.getBridgeContext();
+        if (bridgeContext == null || context == null ||
+                bridgeContext.getPackageName().equals(context.getPackageName())) {
+            // Not acrossing package
+            ret = context;
+        } else {
+            ret = new MixedContext(bridgeContext, context);
+        }
+        return ret;
     }
 
     /**
@@ -347,10 +360,9 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         setNotificationService(new XWalkNotificationServiceImpl(context, this));
 
         if (!CommandLine.getInstance().hasSwitch("disable-xwalk-extensions")) {
-            // Enable xwalk extension mechanism and start load extensions here.
-            // Note that it has to be after above initialization.
-            mExtensionManager = new XWalkExtensionManager(context, getActivity());
-            mExtensionManager.loadExtensions();
+            BuiltinXWalkExtensions.load(context, getActivity());
+        } else {
+            XWalkPreferencesInternal.setValue(XWalkPreferencesInternal.ENABLE_EXTENSIONS, false);
         }
 
         XWalkPathHelper.initialize();
@@ -635,8 +647,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (mContent == null) return;
-        if (null != mExtensionManager)
-                mExtensionManager.onActivityResult(requestCode, resultCode, data);
         mContent.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -809,7 +819,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         ApplicationStatus.unregisterActivityStateListener(mActivityStateListener);
         mActivityStateListener = null;
-        if (null != mExtensionManager) mExtensionManager.onDestroy();
         mContent.destroy();
         disableRemoteDebugging();
     }
@@ -923,22 +932,18 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         switch (newState) {
             case ActivityState.STARTED:
                 onShow();
-                if (null != mExtensionManager) mExtensionManager.onStart();
                 break;
             case ActivityState.PAUSED:
                 pauseTimers();
-                if (null != mExtensionManager) mExtensionManager.onPause();
                 break;
             case ActivityState.RESUMED:
                 resumeTimers();
-                if (null != mExtensionManager) mExtensionManager.onResume();
                 break;
             case ActivityState.DESTROYED:
                 onDestroy();
                 break;
             case ActivityState.STOPPED:
                 onHide();
-                if (null != mExtensionManager) mExtensionManager.onStop();
                 break;
             default:
                 break;

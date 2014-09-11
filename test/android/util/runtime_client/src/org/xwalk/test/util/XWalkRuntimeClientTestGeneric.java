@@ -9,13 +9,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
 
-import org.xwalk.app.runtime.XWalkRuntimeClient;
+import org.xwalk.app.runtime.XWalkRuntimeView;
 import org.xwalk.app.XWalkRuntimeActivityBase;
 import org.xwalk.test.util.XWalkRuntimeClientTestUtilBase.PageStatusCallback;
 
 public class XWalkRuntimeClientTestGeneric<T extends XWalkRuntimeActivityBase>
         extends ActivityInstrumentationTestCase2<T> {
-    private XWalkRuntimeClient mRuntimeView;
+    private XWalkRuntimeView mRuntimeView;
     XWalkRuntimeClientTestUtilBase mTestUtil;
 
     @Override
@@ -26,7 +26,7 @@ public class XWalkRuntimeClientTestGeneric<T extends XWalkRuntimeActivityBase>
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                if (mRuntimeView == null || mRuntimeView.get() == null) {
+                if (mRuntimeView == null) {
                     mRuntimeView = activity.getRuntimeView();
                 }
                 mTestUtil = new XWalkRuntimeClientTestUtilBase(mRuntimeView,

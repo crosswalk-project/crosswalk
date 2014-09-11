@@ -4,9 +4,11 @@
 
 package org.xwalk.core.internal.extension.api.presentation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Log;
@@ -16,19 +18,20 @@ import android.view.ViewGroup;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.chromium.base.ActivityState;
 import org.chromium.base.ThreadUtils;
 
 import org.xwalk.core.internal.extension.api.XWalkDisplayManager;
-import org.xwalk.core.internal.extension.XWalkExtension;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
+import org.xwalk.core.internal.extension.XWalkExtensionWithActivityStateListener;
 
 /**
  * A XWalk extension for Presentation API implementation on Android.
  */
-public class PresentationExtension extends XWalkExtension {
+public class PresentationExtension extends XWalkExtensionWithActivityStateListener {
     public final static String JS_API_PATH = "jsapi/presentation_api.js";
 
     private final static String NAME = "navigator.presentation";
@@ -65,6 +68,8 @@ public class PresentationExtension extends XWalkExtension {
     private XWalkPresentationContent mPresentationContent;
     private XWalkPresentationContent.PresentationDelegate mPresentationDelegate;
     private PresentationView mPresentationView;
+    private Context mContext;
+    private WeakReference<Activity> mActivity;
 
     /**
      * Listens for the secondary display arrival and removal.
@@ -109,10 +114,12 @@ public class PresentationExtension extends XWalkExtension {
         }
     };
 
-    public PresentationExtension(String jsApi, XWalkExtensionContext context) {
-        super(NAME, jsApi, context);
+    public PresentationExtension(String jsApi, Activity activity) {
+        super(NAME, jsApi, activity);
 
-        mDisplayManager = XWalkDisplayManager.getInstance(context.getContext());
+        mContext = activity.getApplicationContext();
+        mActivity = new WeakReference<Activity>(activity);
+        mDisplayManager = XWalkDisplayManager.getInstance(activity.getApplicationContext());
         Display[] displays = mDisplayManager.getPresentationDisplays();
         mAvailableDisplayCount = displays.length;
     }
@@ -263,8 +270,8 @@ public class PresentationExtension extends XWalkExtension {
                 }
 
                 mPresentationContent = new XWalkPresentationContent(
-                        mExtensionContext.getContext(),
-                        mExtensionContext.getActivity(),
+                        mContext,
+                        mActivity,
                         new XWalkPresentationContent.PresentationDelegate() {
                     @Override
                     public void onContentLoaded(XWalkPresentationContent content) {
@@ -300,7 +307,6 @@ public class PresentationExtension extends XWalkExtension {
         }
     }
 
-    @Override
     public void onResume() {
         Display[] displays = mDisplayManager.getPresentationDisplays();
 
@@ -361,7 +367,7 @@ public class PresentationExtension extends XWalkExtension {
             ViewGroup parent = (ViewGroup)mPresentationContent.getContentView().getParent();
             if (parent != null) parent.removeView(mPresentationContent.getContentView());
 
-            mPresentationView = PresentationView.createInstance(mExtensionContext.getContext(), preferredDisplay);
+            mPresentationView = PresentationView.createInstance(mContext, preferredDisplay);
             mPresentationView.setContentView(mPresentationContent.getContentView());
             mPresentationView.setPresentationListener(new PresentationView.PresentationListener() {
                 @Override
@@ -389,22 +395,6 @@ public class PresentationExtension extends XWalkExtension {
         mPresentationView.show();
     }
 
-    @Override
-    public void onPause() {
-        dismissPresentationView();
-
-        if (mPresentationContent != null) mPresentationContent.onPause();
-
-        // No need to listen display changes when the activity is paused.
-        mDisplayManager.unregisterDisplayListener(mDisplayListener);
-    }
-
-    @Override
-    public void onDestroy() {
-        // close the presentation content if have.
-        closePresentationContent();
-    }
-
     private void dismissPresentationView() {
         if (mPresentationView == null) return;
 
@@ -417,5 +407,26 @@ public class PresentationExtension extends XWalkExtension {
 
         mPresentationContent.close();
         mPresentationContent = null;
+    }
+
+    @Override
+    public void onActivityStateChange(Activity activity, int newState) {
+        switch (newState) {
+            case ActivityState.RESUMED:
+                onResume();
+                break;
+            case ActivityState.PAUSED:
+                dismissPresentationView();
+                if (mPresentationContent != null) mPresentationContent.onPause();
+                // No need to listen display changes when the activity is paused.
+                mDisplayManager.unregisterDisplayListener(mDisplayListener);
+                break;
+            case ActivityState.DESTROYED:
+                // close the presentation content if have.
+                closePresentationContent();
+                break;
+            default:
+                break;
+        }
     }
 }

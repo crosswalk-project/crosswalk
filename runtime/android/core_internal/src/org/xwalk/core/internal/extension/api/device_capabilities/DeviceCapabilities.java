@@ -4,15 +4,18 @@
 
 package org.xwalk.core.internal.extension.api.device_capabilities;
 
+import android.app.Activity;
+import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 
-import org.xwalk.core.internal.extension.XWalkExtension;
-import org.xwalk.core.internal.extension.XWalkExtensionContext;
+import org.xwalk.core.internal.extension.XWalkExtensionWithActivityStateListener;
 
+import org.chromium.base.ActivityState;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DeviceCapabilities extends XWalkExtension {
+public class DeviceCapabilities extends XWalkExtensionWithActivityStateListener {
     public static final String JS_API_PATH = "jsapi/device_capabilities_api.js";
 
     private static final String TAG = "DeviceCapabilities";
@@ -24,14 +27,16 @@ public class DeviceCapabilities extends XWalkExtension {
     private DeviceCapabilitiesMemory mMemory;
     private DeviceCapabilitiesStorage mStorage;
 
-    public DeviceCapabilities(String jsApiContent, XWalkExtensionContext context) {
-        super(NAME, jsApiContent, context);
+    public DeviceCapabilities(String jsApiContent, Activity activity) {
+        super(NAME, jsApiContent, activity);
 
-        mCPU = new DeviceCapabilitiesCPU(this, context);
-        mCodecs = new DeviceCapabilitiesCodecs(this, context);
+        Context context = activity.getApplicationContext();
+
+        mCPU = new DeviceCapabilitiesCPU(this);
+        mCodecs = new DeviceCapabilitiesCodecs(this);
         mDisplay = new DeviceCapabilitiesDisplay(this, context);
         mMemory = new DeviceCapabilitiesMemory(this, context);
-        mStorage = new DeviceCapabilitiesStorage(this, context);
+        mStorage = new DeviceCapabilitiesStorage(this, activity);
     }
 
     private void handleMessage(int instanceID, String message) {
@@ -102,20 +107,27 @@ public class DeviceCapabilities extends XWalkExtension {
     }
 
     @Override
-    public void onResume() {
-        mDisplay.onResume();
-        mStorage.onResume();
+    public void onActivityStateChange(Activity activity, int newState) {
+        switch (newState) {
+            case ActivityState.RESUMED:
+                mDisplay.onResume();
+                mStorage.onResume();
+                break;
+            case ActivityState.PAUSED:
+                mDisplay.onPause();
+                mStorage.onPause();
+                break;
+            case ActivityState.DESTROYED:
+                mDisplay.onDestroy();
+                mStorage.onDestroy();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
-    public void onPause() {
-        mDisplay.onPause();
-        mStorage.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        mDisplay.onDestroy();
-        mStorage.onDestroy();
+    public String onSyncMessage(int instanceID, String message) {
+        return null;
     }
 }

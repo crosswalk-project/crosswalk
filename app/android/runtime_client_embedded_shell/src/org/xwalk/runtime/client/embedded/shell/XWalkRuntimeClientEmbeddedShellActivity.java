@@ -124,10 +124,10 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
 
     @Override
     protected void didTryLoadRuntimeView(View runtimeView) {
-        if (getRuntimeView().get() != null) {
+        if (runtimeView != null) {
             setContentView(R.layout.testshell_activity);
             LinearLayout container = (LinearLayout) findViewById(R.id.content_container);
-            container.addView(getRuntimeView().get(),
+            container.addView(runtimeView,
                               LayoutParams.MATCH_PARENT,
                               LayoutParams.MATCH_PARENT);
             initializeUrlField();

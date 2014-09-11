@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.app.runtime;
+package org.xwalk.core;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;

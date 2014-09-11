@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package org.xwalk.runtime;
+package org.xwalk.app.runtime;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,10 +17,8 @@ import android.view.View;
 interface XWalkRuntimeViewProvider {
     // For handling life cycle and activity result.
     public void onCreate();
-    public void onStart();
     public void onResume();
     public void onPause();
-    public void onStop();
     public void onDestroy();
     public void onActivityResult(int requestCode, int resultCode, Intent data);
     public boolean onNewIntent(Intent intent);
