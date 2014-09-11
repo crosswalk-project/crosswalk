@@ -9,6 +9,7 @@
 
 #include "base/command_line.h"
 #include "base/message_loop/message_loop.h"
+#include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/runtime_context.h"
@@ -22,6 +23,7 @@
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_source.h"
 #include "content/public/browser/notification_types.h"
+#include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
@@ -29,6 +31,13 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/native_widget_types.h"
+
+#if defined(OS_TIZEN)
+#include "content/public/browser/site_instance.h"
+#include "xwalk/application/browser/application.h"
+#include "xwalk/application/browser/application_system.h"
+#include "xwalk/application/browser/application_service.h"
+#endif
 
 using content::FaviconURL;
 using content::WebContents;
@@ -165,10 +174,24 @@ content::RenderProcessHost* Runtime::GetRenderProcessHost() {
 //////////////////////////////////////////////////////
 content::WebContents* Runtime::OpenURLFromTab(
     content::WebContents* source, const content::OpenURLParams& params) {
-  // The only one disposition we would take into consideration.
+#if defined(OS_ANDROID)
   DCHECK(params.disposition == CURRENT_TAB);
   source->GetController().LoadURL(
       params.url, params.referrer, params.transition, std::string());
+#else
+  if (params.disposition == CURRENT_TAB) {
+    source->GetController().LoadURL(
+        params.url, params.referrer, params.transition, std::string());
+  } else if (params.disposition == NEW_WINDOW ||
+             params.disposition == NEW_POPUP ||
+             params.disposition == NEW_FOREGROUND_TAB ||
+             params.disposition == NEW_BACKGROUND_TAB) {
+    // TODO(xinchao): Excecuting JaveScript code is a temporary solution,
+    // need to be implemented by creating a new runtime window instead.
+    web_contents()->GetFocusedFrame()->ExecuteJavaScript(
+        base::UTF8ToUTF16("window.open('" + params.url.spec() + "')"));
+  }
+#endif
   return source;
 }
 
@@ -236,7 +259,16 @@ void Runtime::WebContentsCreated(
 #if defined(OS_TIZEN_MOBILE)
   new_runtime->SetRootWindow(root_window_);
 #endif
-  new_runtime->AttachDefaultWindow();
+
+  NativeAppWindow::CreateParams params;
+#if defined(OS_TIZEN)
+  int render_process_id = new_runtime->GetRenderProcessHost()->GetID();
+  application::Application* app = XWalkRunner::GetInstance()->app_system()->
+      application_service()->GetApplicationByRenderHostID(render_process_id);
+  if (app)
+    params.state = app->window_show_state();
+#endif
+  new_runtime->AttachWindow(params);
 }
 
 void Runtime::DidNavigateMainFramePostCommit(

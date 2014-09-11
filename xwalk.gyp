@@ -301,6 +301,8 @@
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
+            '../components/components.gyp:web_modal',
+            '../components/components.gyp:renderer_context_menu',
           ],
           'cflags': [
             '<!@(pkg-config --cflags libtzplatform-config)',
@@ -314,9 +316,15 @@
             'experimental/native_file_system/virtual_root_provider_tizen.cc',
             'runtime/browser/tizen/tizen_locale_listener.cc',
             'runtime/browser/tizen/tizen_locale_listener.h',
+            'runtime/browser/tizen/xwalk_web_contents_view_delegate.cc',
+            'runtime/browser/tizen/xwalk_web_contents_view_delegate.h',
+            'runtime/browser/tizen/render_view_context_menu_impl.cc',
+            'runtime/browser/tizen/render_view_context_menu_impl.h',
           ],
           'sources!':[
             'runtime/browser/runtime_platform_util_linux.cc',
+            'runtime/browser/android/xwalk_web_contents_view_delegate.cc',
+            'runtime/browser/android/xwalk_web_contents_view_delegate.h',
           ],
         }],
         ['OS=="android"',{

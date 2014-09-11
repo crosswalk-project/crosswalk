@@ -38,10 +38,16 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
   void set_encryption_enabled(bool enabled) { encryption_enabled_ = enabled; }
   bool encryption_enabled() const { return encryption_enabled_; }
 
+  void set_context_menu_enabled(bool enabled) {
+    context_menu_enabled_ = enabled;
+  }
+  bool context_menu_enabled() const { return context_menu_enabled_; }
+
  private:
   bool hwkey_enabled_;
   ScreenOrientation screen_orientation_;
   bool encryption_enabled_;
+  bool context_menu_enabled_;
 };
 
 class TizenSettingHandler : public ManifestHandler {

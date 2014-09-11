@@ -68,6 +68,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/runtime/browser/runtime_platform_util.h"
+#include "xwalk/runtime/browser/tizen/xwalk_web_contents_view_delegate.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_tizen.h"
 #endif
 
@@ -168,6 +169,9 @@ XWalkContentBrowserClient::GetWebContentsViewDelegate(
     content::WebContents* web_contents) {
 #if defined(OS_ANDROID)
   return new XWalkWebContentsViewDelegate(web_contents);
+#elif defined(OS_TIZEN)
+  return new XWalkWebContentsViewDelegate(
+      web_contents, xwalk_runner_->app_system()->application_service());
 #else
   return NULL;
 #endif

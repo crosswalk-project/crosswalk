@@ -90,6 +90,7 @@ Application::Application(
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(NULL),
+      window_show_state_(ui::SHOW_STATE_DEFAULT),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
@@ -229,6 +230,7 @@ bool Application::Launch(const LaunchParams& launch_params) {
   params.state = is_wgt ?
       GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params):
       GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
+  window_show_state_ = params.state;
 
   params.splash_screen_path = GetSplashScreenPath();
 

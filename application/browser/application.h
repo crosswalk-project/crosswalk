@@ -112,6 +112,9 @@ class Application : public Runtime::Observer,
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
+  // FIXME(xinchao): This method will be deprecated soon.
+  ui::WindowShowState window_show_state() const { return window_show_state_; }
+
  protected:
   Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
   virtual bool Launch(const LaunchParams& launch_params);
@@ -162,6 +165,8 @@ class Application : public Runtime::Observer,
   void NotifyTermination();
 
   Observer* observer_;
+
+  ui::WindowShowState window_show_state_;
 
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.
