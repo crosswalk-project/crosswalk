@@ -66,6 +66,8 @@
           'sources': [
             'browser/application_tizen.cc',
             'browser/application_tizen.h',
+            'browser/application_service_tizen.cc',
+            'browser/application_service_tizen.h',
           ],
         }],
       ],

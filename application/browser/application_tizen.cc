@@ -76,9 +76,8 @@ class ScreenOrientationProviderTizen :
 
 ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
-    RuntimeContext* runtime_context,
-    Application::Observer* observer)
-    : Application(data, runtime_context, observer),
+    RuntimeContext* runtime_context)
+    : Application(data, runtime_context),
       is_suspended_(false) {
 #if defined(USE_OZONE)
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);

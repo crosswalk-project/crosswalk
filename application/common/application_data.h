@@ -72,9 +72,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
       const std::string& explicit_id,
       std::string* error_message);
 
-  static scoped_refptr<ApplicationData> Create(const GURL& url,
-                                               std::string* error_message);
-
   Manifest::Type GetType() const;
 
   // Returns an absolute url to a resource inside of an application. The

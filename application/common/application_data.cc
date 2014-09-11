@@ -67,27 +67,6 @@ scoped_refptr<ApplicationData> ApplicationData::Create(
 }
 
 // static
-scoped_refptr<ApplicationData> ApplicationData::Create(
-    const GURL& url,
-    std::string* error_message) {
-  const std::string& url_spec = url.spec();
-  DCHECK(!url_spec.empty());
-  const std::string& app_id = GenerateId(url_spec);
-
-  base::DictionaryValue manifest;
-  // FIXME: define permissions!
-  manifest.SetString(application_manifest_keys::kStartURLKey, url_spec);
-  // FIXME: Why use URL as name?
-  manifest.SetString(application_manifest_keys::kNameKey, url_spec);
-  manifest.SetString(application_manifest_keys::kXWalkVersionKey, "0");
-  scoped_refptr<ApplicationData> application_data =
-      ApplicationData::Create(base::FilePath(), EXTERNAL_URL,
-                              manifest, app_id, error_message);
-
-  return application_data;
-}
-
-// static
 GURL ApplicationData::GetBaseURLFromApplicationId(
     const std::string& application_id) {
   return GURL(std::string(xwalk::application::kApplicationScheme) +

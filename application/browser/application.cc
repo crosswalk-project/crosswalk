@@ -28,6 +28,10 @@
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
+#if defined(OS_TIZEN)
+#include "xwalk/application/browser/application_tizen.h"
+#endif
+
 using content::RenderProcessHost;
 
 namespace xwalk {
@@ -70,21 +74,29 @@ GURL GetDefaultWidgetEntryPage(
 
 namespace application {
 
+scoped_ptr<Application> Application::Create(
+    scoped_refptr<ApplicationData> data,
+    RuntimeContext* context) {
+#if defined(OS_TIZEN)
+  return make_scoped_ptr<Application>(new ApplicationTizen(data, context));
+#else
+  return make_scoped_ptr(new Application(data, context));
+#endif
+}
+
 Application::Application(
     scoped_refptr<ApplicationData> data,
-    RuntimeContext* runtime_context,
-    Observer* observer)
+    RuntimeContext* runtime_context)
     : data_(data),
       render_process_host_(NULL),
       web_contents_(NULL),
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
-      observer_(observer),
+      observer_(NULL),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
   DCHECK(data_);
-  DCHECK(observer_);
 }
 
 Application::~Application() {
@@ -278,7 +290,8 @@ void Application::RenderProcessHostDestroyed(RenderProcessHost* host) {
 
 void Application::NotifyTermination() {
   CHECK(!render_process_host_);
-  observer_->OnApplicationTerminated(this);
+  if (observer_)
+    observer_->OnApplicationTerminated(this);
 }
 
 bool Application::UseExtension(const std::string& extension_name) const {

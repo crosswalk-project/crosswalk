@@ -22,7 +22,7 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
   ApplicationService* service = application_sevice();
   const size_t currently_running_count = service->active_applications().size();
   // Launch the first app.
-  Application* app1 = service->Launch(
+  Application* app1 = service->LaunchFromUnpackedPath(
       test_data_dir_.Append(FILE_PATH_LITERAL("dummy_app1")));
   ASSERT_TRUE(app1);
   // Wait for app is fully loaded.
@@ -36,12 +36,12 @@ IN_PROC_BROWSER_TEST_F(ApplicationMultiAppTest, TestMultiApp) {
 
   // Verify that no new App instance was created, if one exists
   // with the same ID.
-  Application* failed_app1 = service->Launch(
+  Application* failed_app1 = service->LaunchFromUnpackedPath(
       test_data_dir_.Append(FILE_PATH_LITERAL("dummy_app1")));
   ASSERT_FALSE(failed_app1);
 
   // Launch the second app.
-  Application* app2 = service->Launch(
+  Application* app2 = service->LaunchFromUnpackedPath(
       test_data_dir_.Append(FILE_PATH_LITERAL("dummy_app2")));
   ASSERT_TRUE(app2);
   // Wait for app is fully loaded.
