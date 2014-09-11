@@ -175,7 +175,6 @@
           ],
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library_aar.py',
-            '-s',  '<(DEPTH)',
             '-t', '<(PRODUCT_DIR)',
           ],
         },
