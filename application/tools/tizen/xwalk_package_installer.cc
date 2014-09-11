@@ -24,11 +24,11 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
-#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 

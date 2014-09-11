@@ -19,7 +19,7 @@
 #include "dbus/message.h"
 #include "dbus/object_proxy.h"
 
-#include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/tizen/xwalk_package_installer.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
