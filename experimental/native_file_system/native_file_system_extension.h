@@ -38,6 +38,7 @@ class NativeFileSystemInstance : public XWalkExtensionInstance {
 
   // XWalkExtensionInstance implementation.
   virtual void HandleMessage(scoped_ptr<base::Value> msg) OVERRIDE;
+  virtual void HandleSyncMessage(scoped_ptr<base::Value> msg) OVERRIDE;
 
  private:
   XWalkExtensionFunctionHandler handler_;
