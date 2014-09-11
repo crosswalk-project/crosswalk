@@ -26,6 +26,7 @@ Source:         %{name}.tar
 Source1:        xwalk.in
 Source2:        org.crosswalkproject.Runtime1.service
 Source3:        xwalk.service.in
+Source4:        xwalk-wayland-ready.path
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
@@ -223,6 +224,7 @@ ninja %{?_smp_mflags} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg
 # Binaries.
 install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
+install -p -D %{SOURCE4} %{buildroot}%{_systemduserservicedir}/xwalk-wayland-ready.path
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
@@ -290,4 +292,5 @@ ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/wg
 %{_desktop_icondir}/%{name}.png
 %{_dbusservicedir}/org.crosswalkproject.Runtime1.service
 %{_systemduserservicedir}/xwalk.service
+%{_systemduserservicedir}/xwalk-wayland-ready.path
 %{_datadir}/xwalk/*

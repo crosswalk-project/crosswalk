@@ -1,0 +1,7 @@
+# Description=Path to activate xwalk after wayland is initialized
+[Path]
+PathExists=/run/user/%U/wayland-0
+Unit=xwalk.service
+
+[Install]
+WantedBy=weston.target
