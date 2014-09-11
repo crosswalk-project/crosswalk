@@ -24,10 +24,8 @@
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
-#if defined(OS_TIZEN)
 #include "xwalk/application/common/id_util.h"
-#include "xwalk/application/tools/linux/xwalk_tizen_user.h"
-#endif
+#include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
 
 using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;
@@ -37,11 +35,9 @@ namespace {
 
 char* install_path = NULL;
 char* uninstall_id = NULL;
-#if defined(OS_TIZEN)
 char* reinstall_path = NULL;
 char* operation_key = NULL;
 int quiet = 0;
-#endif
 
 gint debugging_port = -1;
 gboolean continue_tasks = FALSE;
@@ -55,14 +51,12 @@ GOptionEntry entries[] = {
     "Enable remote debugging, port number 0 means to disable", NULL },
   { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
     "Continue the previous unfinished tasks.", NULL},
-#if defined(OS_TIZEN)
   { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_path,
     "Reinstall the application with path", "PATH" },
   { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
     "Unique operation key", "KEY" },
   { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
     "Quiet mode", NULL },
-#endif
   { NULL }
 };
 
@@ -141,10 +135,8 @@ int main(int argc, char* argv[]) {
   g_type_init();
 #endif
 
-#if defined(OS_TIZEN)
   if (xwalk_tizen_check_user_app())
     exit(1);
-#endif
 
   context = g_option_context_new("- Crosswalk Application Management");
   if (!context) {
@@ -168,11 +160,9 @@ int main(int argc, char* argv[]) {
   scoped_ptr<PackageInstaller> installer =
       PackageInstaller::Create(storage.get());
 
-#if defined(OS_TIZEN)
   installer->SetQuiet(static_cast<bool>(quiet));
   if (operation_key)
     installer->SetInstallationKey(operation_key);
-#endif
 
   if (continue_tasks) {
     g_print("trying to continue previous unfinished tasks.\n");
@@ -191,10 +181,8 @@ int main(int argc, char* argv[]) {
     }
   } else if (uninstall_id) {
     success = installer->Uninstall(uninstall_id);
-#if defined(OS_TIZEN)
   } else if (reinstall_path) {
     success = installer->Reinstall(base::FilePath(reinstall_path));
-#endif
   } else if (debugging_port >= 0) {
 #if defined(SHARED_PROCESS_MODE)
     // Deal with the case "xwalkctl -d PORT_NUMBER"
