@@ -32,9 +32,6 @@ IPC_MESSAGE_ROUTED1(MediaPlayerMsg_MediaPlayerPause,  // NOLINT(*)
 IPC_MESSAGE_ROUTED1(MediaPlayerHostMsg_DestroyMediaPlayer,  // NOLINT(*)
                     int /* player_id */)
 
-// Destroy all the players.
-IPC_MESSAGE_ROUTED0(MediaPlayerHostMsg_DestroyAllMediaPlayers)  // NOLINT(*)
-
 // Initialize a media player object with the given player_id.
 IPC_MESSAGE_ROUTED3(MediaPlayerHostMsg_MediaPlayerInitialize,  // NOLINT(*)
                     int /* player_id */,

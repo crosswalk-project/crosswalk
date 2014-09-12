@@ -89,6 +89,11 @@ BuildRequires:  pkgconfig(xt)
 BuildRequires:  pkgconfig(xtst)
 %endif
 
+%if "%{profile}" == "ivi"
+BuildRequires:  pkgconfig(murphy-common)
+BuildRequires:  pkgconfig(murphy-resource)
+%endif
+
 %if %{with wayland}
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
@@ -193,6 +198,10 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Dsysroot= -Dlinux_use_gold_binary=0"
 export CFLAGS=`echo $CFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 export CXXFLAGS=`echo $CXXFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
+%endif
+
+%if "%{profile}" == "ivi"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_murphy=1"
 %endif
 
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
