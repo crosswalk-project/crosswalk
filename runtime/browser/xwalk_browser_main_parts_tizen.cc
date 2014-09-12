@@ -36,12 +36,14 @@ void XWalkBrowserMainPartsTizen::PreMainMessageLoopStart() {
   // Enable Accelerated 2D Canvas.
   command_line->AppendSwitch(switches::kGpuNoContextLost);
 
-  const char* gl_name;
-  if (base::PathExists(base::FilePath("/usr/lib/libGL.so")))
-    gl_name = gfx::kGLImplementationDesktopName;
-  else
-    gl_name = gfx::kGLImplementationEGLName;
-  command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
+  if (!command_line->HasSwitch(switches::kUseGL)) {
+    const char* gl_name;
+    if (base::PathExists(base::FilePath("/usr/lib/libGL.so")))
+      gl_name = gfx::kGLImplementationDesktopName;
+    else
+      gl_name = gfx::kGLImplementationEGLName;
+    command_line->AppendSwitchASCII(switches::kUseGL, gl_name);
+  }
 
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 }
