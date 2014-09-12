@@ -90,7 +90,7 @@
       'sources': [
         'application/test/application_browsertest.cc',
         'application/test/application_browsertest.h',
-        'application/test/application_multi_app_test.cc',
+        'application/test/application_test.cc',
         'application/test/application_testapi.cc',
         'application/test/application_testapi.h',
         'application/test/application_testapi_test.cc',

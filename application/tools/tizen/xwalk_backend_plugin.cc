@@ -36,7 +36,7 @@ enum PkgmgrPluginBool {
 // Whole app directory size in KB
 int64 CountAppTotalSize(
     scoped_refptr<xwalk::application::ApplicationData> app_data) {
-  return base::ComputeDirectorySize(app_data->Path()) / 1024;
+  return base::ComputeDirectorySize(app_data->path()) / 1024;
 }
 
 // Data directory size in KB
@@ -44,10 +44,10 @@ int64 CountAppDataSize(
     scoped_refptr<xwalk::application::ApplicationData> app_data) {
   int64 size = 0;
 
-  base::FilePath private_path = app_data->Path().Append("private");
+  base::FilePath private_path = app_data->path().Append("private");
   size += base::ComputeDirectorySize(private_path);
 
-  base::FilePath tmp_path = app_data->Path().Append("tmp");
+  base::FilePath tmp_path = app_data->path().Append("tmp");
   size += base::ComputeDirectorySize(tmp_path);
 
   return size / 1024;

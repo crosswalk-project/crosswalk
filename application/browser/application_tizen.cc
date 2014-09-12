@@ -112,7 +112,7 @@ bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
 base::FilePath ApplicationTizen::GetSplashScreenPath() {
   if (TizenSplashScreenInfo* ss_info = static_cast<TizenSplashScreenInfo*>(
       data()->GetManifestData(widget_keys::kTizenSplashScreenKey))) {
-    return data()->Path().Append(FILE_PATH_LITERAL(ss_info->src()));
+    return data()->path().Append(FILE_PATH_LITERAL(ss_info->src()));
   }
   return base::FilePath();
 }
