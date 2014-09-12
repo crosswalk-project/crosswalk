@@ -44,8 +44,9 @@ public class ProfileTest extends XWalkViewTestBase {
         super.setUp();
     }
 
-    @SmallTest
-    @Feature({"Profile"})
+    // @SmallTest
+    // @Feature({"Profile"})
+    @DisabledTest
     public void testCustomizeProfile() throws Throwable {
         final String url = "file:///android_asset/www/index.html";
         loadUrlSync(url);
