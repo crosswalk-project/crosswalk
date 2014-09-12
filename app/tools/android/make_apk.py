@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
+import json
 import optparse
 import os
 import re
@@ -15,21 +16,14 @@ import sys
 from app_info import AppInfo
 from customize import VerifyPackageName, CustomizeAll, \
                       ParseParameterForCompressor
+from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
+from util import AllArchitectures, CleanDir, GetVersion, RunCommand
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
 
 NATIVE_LIBRARY = 'libxwalkcore.so'
-
-
-def CleanDir(path):
-  if os.path.exists(path):
-    shutil.rmtree(path)
-
-
-def AllArchitectures():
-  return ("x86", "arm")
 
 
 def ConvertArchNameToArchFolder(arch):
@@ -48,22 +42,6 @@ def AddExeExtensions(name):
   for e in exts:
     result.append(name + e)
   return result
-
-
-def RunCommand(command, verbose=False, shell=False):
-  """Runs the command list, print the output, and propagate its result."""
-  proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT, shell=shell)
-  if not shell:
-    output = proc.communicate()[0]
-    result = proc.returncode
-    if verbose:
-      print(output.decode("utf-8").strip())
-    if result != 0:
-      print ('Command "%s" exited with non-zero exit code %d'
-             % (' '.join(command), result))
-      sys.exit(result)
-    return output.decode("utf-8")
 
 
 def Which(name):
@@ -87,17 +65,6 @@ def GetAndroidApiLevel():
   targets = [int(i) for i in target_regex.findall(target_output)]
   targets.extend([-1])
   return max(targets)
-
-
-def GetVersion(path):
-  """Get the version of this python tool."""
-  version_str = 'Crosswalk app packaging tool version is '
-  file_handle = open(path, 'r')
-  src_content = file_handle.read()
-  version_nums = re.findall(r'\d+', src_content)
-  version_str += ('.').join(version_nums)
-  file_handle.close()
-  return version_str
 
 
 def ContainsNativeLibrary(path):
@@ -194,6 +161,33 @@ def MakeVersionCode(options):
   return '%s%s' % (abi, b.zfill(7))
 
 
+def GetExtensionBinaryPathList():
+  local_extension_list = []
+  extensions_path = os.path.join(os.getcwd(), "extensions")
+  exist_extension_list = GetExtensionList(extensions_path)
+  for item in exist_extension_list:
+    build_json_path = os.path.join(extensions_path, item, "build.json")
+    with open(build_json_path) as fd:
+      data = json.load(fd)
+    if not GetExtensionStatus(item, extensions_path):
+      continue
+    else:
+      if data.get("binary_path", False):
+        extension_binary_path = os.path.join(extensions_path,
+                                             item,
+                                             data["binary_path"])
+      else:
+        print "The extension \"%s\" doesn't exists." % item
+        sys.exit(1)
+    if os.path.isdir(extension_binary_path):
+      local_extension_list.append(extension_binary_path)
+    else:
+      print "The extension \"%s\" doesn't exists." % item
+      sys.exit(1)
+
+  return local_extension_list
+
+
 def Customize(options, app_info, manifest):
   app_info.package = options.package
   app_info.app_name = options.name
@@ -213,6 +207,21 @@ def Customize(options, app_info, manifest):
     app_info.orientation = options.orientation
   if options.icon:
     app_info.icon = '%s' % os.path.expanduser(options.icon)
+
+  #Add local extensions to extension list.
+  extension_binary_path_list = GetExtensionBinaryPathList()
+  if len(extension_binary_path_list) > 0:
+    if options.extensions is None:
+      options.extensions = "" 
+    else:
+      options.extensions += os.pathsep
+
+    for item in extension_binary_path_list:
+      options.extensions += item
+      options.extensions += os.pathsep
+    #trim final path separator
+    options.extensions = options.extensions[0:-1]
+
   CustomizeAll(app_info, options.description, options.icon_dict,
                options.permissions, options.app_url, options.app_local_path,
                options.keep_screen_on, options.extensions, manifest,
