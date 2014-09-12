@@ -30,12 +30,12 @@ def RunCommand(command, verbose=False, shell=False):
     output = proc.communicate()[0]
     result = proc.returncode
     if verbose:
-      print(output.decode("utf-8").strip())
+      print(output.decode("utf-8", 'replace').strip())
     if result != 0:
       print ('Command "%s" exited with non-zero exit code %d'
              % (' '.join(command), result))
       sys.exit(result)
-    return output.decode("utf-8")
+    return output.decode("utf-8", 'replace')
   else:
     return None
 
