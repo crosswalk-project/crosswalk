@@ -49,3 +49,23 @@ def GetVersion(path):
   version_str += ('.').join(version_nums)
   file_handle.close()
   return version_str
+
+
+def CreateAndCopyDir(src_dir, dest_dir, delete_if_exists=False):
+  try:
+    if not os.path.isdir(src_dir):
+      return False
+    # create path, except last directory (handled by copytree)
+    pre_dest_dir = os.path.dirname(dest_dir)
+    if not os.path.isdir(pre_dest_dir):
+      os.makedirs(pre_dest_dir)  # throws exception on error
+    if os.path.exists(dest_dir):
+      if delete_if_exists:
+        shutil.rmtree(dest_dir)
+      else:
+        return False
+    shutil.copytree(src_dir, dest_dir)
+    return True
+  except OSError:
+    return False
+
