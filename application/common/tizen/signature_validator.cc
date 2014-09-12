@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/installer/tizen/signature_validator.h"
+#include "xwalk/application/common/tizen/signature_validator.h"
 
 #include <set>
 #include <string>
@@ -13,8 +13,8 @@
 #include "libxml/parser.h"
 #include "libxml/xmlschemas.h"
 #include "third_party/re2/re2/re2.h"
-#include "xwalk/application/common/installer/signature_data.h"
-#include "xwalk/application/common/installer/signature_parser.h"
+#include "xwalk/application/common/tizen/signature_data.h"
+#include "xwalk/application/common/tizen/signature_parser.h"
 
 namespace {
 

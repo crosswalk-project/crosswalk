@@ -24,6 +24,7 @@
 #include "url/gurl.h"
 #include "xwalk/application/common/manifest.h"
 #include "xwalk/application/common/permission_types.h"
+#include "xwalk/application/common/package/package.h"
 
 namespace base {
 class DictionaryValue;

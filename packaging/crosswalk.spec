@@ -236,7 +236,7 @@ install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
 install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
 mkdir -p %{buildroot}%{_datadir}/xwalk
-install -p -D src/xwalk/application/common/installer/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk/
+install -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk/
 
 # PNaCl
 %if ! %{_disable_nacl}

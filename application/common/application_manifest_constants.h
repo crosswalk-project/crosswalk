@@ -6,6 +6,7 @@
 #define XWALK_APPLICATION_COMMON_APPLICATION_MANIFEST_CONSTANTS_H_
 
 #include "xwalk/application/common/manifest.h"
+#include "xwalk/application/common/package/package.h"
 // Keys used in JSON representation of applications.
 namespace xwalk {
 namespace application_manifest_keys {

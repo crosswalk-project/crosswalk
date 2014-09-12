@@ -14,7 +14,6 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/strings/string16.h"
 #include "base/values.h"
-#include "xwalk/application/common/installer/package.h"
 
 namespace xwalk {
 namespace application {

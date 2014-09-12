@@ -16,6 +16,10 @@
       ],
       'sources': [
         'xwalkctl_main.cc',
+        'xwalk_package_installer.cc',
+        'xwalk_package_installer.h',
+        'xwalk_packageinfo_constants.cc',
+        'xwalk_packageinfo_constants.h',
         'xwalk_tizen_user.cc',
         'xwalk_tizen_user.h',
         # TODO(t.iwanek) fix me - this duplicates compilation of those files

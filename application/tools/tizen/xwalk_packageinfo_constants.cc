@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/installer/tizen/packageinfo_constants.h"
+#include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
 
-namespace xwalk {
 namespace application_packageinfo_constants {
 
 const base::FilePath::CharType kAppDir[] =
@@ -29,4 +28,3 @@ const char kXmlExtension[] = ".xml";
 const char kSeparator[] = ".";
 
 }  // namespace application_packageinfo_constants
-}  // namespace xwalk

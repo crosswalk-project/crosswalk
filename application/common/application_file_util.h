@@ -10,7 +10,6 @@
 
 #include "base/memory/ref_counted.h"
 #include "xwalk/application/common/application_data.h"
-#include "xwalk/application/common/installer/package.h"
 
 class GURL;
 
