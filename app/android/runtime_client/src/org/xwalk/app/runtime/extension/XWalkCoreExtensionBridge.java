@@ -51,6 +51,10 @@ class XWalkCoreExtensionBridge extends XWalkExtension implements XWalkRuntimeExt
         mExtension.onStop();
     }
 
+    public void onNewIntent(Intent intent) {
+        mExtension.onNewIntent(intent);
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mExtension.onActivityResult(requestCode, resultCode, data);
     }

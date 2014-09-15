@@ -84,6 +84,12 @@ interface XWalkRuntimeExtensionBridge {
     public void onDestroy();
 
     /**
+     * Called when the extension's activity is required to be invoked but
+     * without creating a new activity instance.
+     */
+    public void onNewIntent(Intent intent);
+
+    /**
      * Called when the extension exists if activity launched exists.
      * TODO(hmin): Figure out if it is necessary and how to use it.
      */

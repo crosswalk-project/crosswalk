@@ -103,6 +103,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     @Override
     public void onNewIntent(Intent intent) {
         if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
+        if (mExtensionManager != null) mExtensionManager.onNewIntent(intent);
     }
 
     @Override
