@@ -13,8 +13,8 @@ namespace application {
 
 class SignatureXmlSecAdaptor {
  public:
-  static bool ValidateFile(
-      const SignatureData& signature_data, const base::FilePath& widget_path);
+  static bool ValidateFile(const SignatureData& signature_data,
+                           const base::FilePath& widget_path);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(SignatureXmlSecAdaptor);

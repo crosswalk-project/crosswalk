@@ -75,7 +75,6 @@ BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xmlsec1)
-BuildRequires:  ca-certificates-tizen
 %if %{with x}
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
@@ -104,6 +103,7 @@ BuildRequires:  pkgconfig(xkbcommon)
 %else
 BuildRequires:  pkgconfig(scim)
 %endif
+Requires:  ca-certificates-tizen
 
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).

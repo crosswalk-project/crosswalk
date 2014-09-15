@@ -1,5 +1,6 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
 // Copyright (C) 2002-2003 Aleksey Sanin.  All Rights Reserved.
+//
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -72,67 +73,74 @@ class CertificateUtil {
 CertificateUtil::CertificatePath
     CertificateUtil::certificate_path = InitCertificatePath();
 
-base::FilePath GetCertFromStore(const std::string& subject) {
-  const char cert_prefix_path[] = "/usr/share/ca-certificates/tizen/";
-  std::map<std::string, std::string>::iterator iter =
-      CertificateUtil::certificate_path.find(subject);
+class XmlSecContext {
+ public:
+  static void GetExtractedPath(const xwalk::application::SignatureData& data);
+  static xmlSecKeysMngrPtr LoadTrustedCerts(
+      const xwalk::application::SignatureData& signature_data);
+  static int VerifyFile(
+      xmlSecKeysMngrPtr mngr, const xwalk::application::SignatureData& data);
 
-  if (iter == CertificateUtil::certificate_path.end()) {
-    LOG(ERROR) << "Failing to find root certificate.";
-    return base::FilePath("");
-  }
-  LOG(INFO) << "root cert path is " << cert_prefix_path + iter->second;
-  return base::FilePath(cert_prefix_path + iter->second);
+ private:
+  static std::string prefix_path;
+  static std::pair<void*, bool> file_wrapper;
+
+  static int FileMatchCallback(const char* file_name);
+  static void* FileOpenCallback(const char* file_name);
+  static int FileReadCallback(void* context, char* buffer, int len);
+  static int FileCloseCallback(void* context);
+  static void ConvertToPemCert(std::string* cert);
+  static base::FilePath GetCertFromStore(const std::string& subject);
+};
+
+std::string XmlSecContext::prefix_path;
+std::pair<void*, bool> XmlSecContext::file_wrapper;
+
+void XmlSecContext::GetExtractedPath(
+    const xwalk::application::SignatureData& data) {
+  XmlSecContext::prefix_path = data.GetExtractedWidgetPath().MaybeAsASCII();
 }
 
-void ConvertToPemCert(std::string* cert) {
-  *cert = "-----BEGIN CERTIFICATE-----" + *cert;
-  *cert = *cert + "-----END CERTIFICATE-----";
-}
-
-std::string prefix_path;
-std::pair <void*, bool> fw;
-void GetExtractedPath(const xwalk::application::SignatureData& data) {
-  prefix_path = data.GetExtractedWidgetPath().MaybeAsASCII();
-}
-
-int FileMatchCallback(const char* file_name) {
-  std::string path = prefix_path + std::string(file_name);
+int XmlSecContext::FileMatchCallback(const char* file_name) {
+  std::string path = XmlSecContext::prefix_path + std::string(file_name);
   return xmlFileMatch(path.c_str());
 }
 
-void* FileOpenCallback(const char* file_name) {
-  std::string path = prefix_path + std::string(file_name);
-  fw = std::make_pair(xmlFileOpen(path.c_str()), false);
-  return &fw;
+void* XmlSecContext::FileOpenCallback(const char* file_name) {
+  std::string path = XmlSecContext::prefix_path + std::string(file_name);
+  XmlSecContext::file_wrapper =
+      std::make_pair(xmlFileOpen(path.c_str()), false);
+  return &(XmlSecContext::file_wrapper);
 }
 
-int FileReadCallback(void* context, char* buffer, int len) {
-  std::pair <void*, bool>* pair = static_cast<std::pair<void*, bool>*>(context);
-  DCHECK(pair);
-  if (pair->second)
+int XmlSecContext::FileReadCallback(void* context, char* buffer, int len) {
+  std::pair<void*, bool>* file_wrapper =
+      static_cast<std::pair<void*, bool>*>(context);
+  DCHECK(file_wrapper);
+  if (file_wrapper->second)
     return 0;
 
-  int output = xmlFileRead(pair->first, buffer, len);
+  int output = xmlFileRead(file_wrapper->first, buffer, len);
   if (output == 0) {
-    pair->second = true;
-    xmlFileClose(pair->first);
+    file_wrapper->second = true;
+    xmlFileClose(file_wrapper->first);
   }
   return output;
 }
 
-int FileCloseCallback(void* context) {
-  std::pair <void*, bool>* pair = static_cast<std::pair<void*, bool>*>(context);
-  DCHECK(pair);
+int XmlSecContext::FileCloseCallback(void* context) {
+  std::pair<void*, bool>* file_wrapper =
+      static_cast<std::pair<void*, bool>*>(context);
+  DCHECK(file_wrapper);
   int output = 0;
-  if (!(pair->second))
-    output = xmlFileClose(pair->first);
+  if (!file_wrapper->second)
+    output = xmlFileClose(file_wrapper->first);
 
   return output;
 }
 
-xmlSecKeysMngrPtr
-LoadTrustedCerts(const xwalk::application::SignatureData& data) {
+xmlSecKeysMngrPtr XmlSecContext::LoadTrustedCerts(
+    const xwalk::application::SignatureData& signature_data) {
   xmlSecKeysMngrPtr mngr;
   // Create and initialize keys manager, we use a simple list based
   // keys manager
@@ -147,45 +155,40 @@ LoadTrustedCerts(const xwalk::application::SignatureData& data) {
     return NULL;
   }
 
-  std::list<std::string> certificate_list = data.certificate_list();
+  std::list<std::string> certificate_list = signature_data.certificate_list();
   std::string cert;
   std::string issuer;
   for (std::list<std::string>::iterator it = certificate_list.begin();
       it != certificate_list.end(); ++it) {
     cert = *it;
-    ConvertToPemCert(&cert);
+    XmlSecContext::ConvertToPemCert(&cert);
     net::CertificateList certs =
         net::X509Certificate::CreateCertificateListFromBytes(
             cert.data(), cert.length(), net::X509Certificate::FORMAT_AUTO);
     issuer = certs[0]->issuer().GetDisplayName();
-    unsigned char* data1 = new unsigned char[cert.size()];
-    strncpy(reinterpret_cast<char*>(data1), cert.c_str(), cert.size());
+    unsigned char* data = new unsigned char[cert.size()];
+    strncpy(reinterpret_cast<char*>(data), cert.c_str(), cert.size());
     // Load trusted cert
-    if (xmlSecCryptoAppKeysMngrCertLoadMemory(
-          mngr,
-          data1,
-          cert.size(),
-          xmlSecKeyDataFormatCertPem,
-          xmlSecKeyDataTypeTrusted) < 0) {
+    if (xmlSecCryptoAppKeysMngrCertLoadMemory(mngr, data, cert.size(),
+        xmlSecKeyDataFormatCertPem, xmlSecKeyDataTypeTrusted) < 0) {
       LOG(ERROR) << "Error: failed to load pem certificate.";
       xmlSecKeysMngrDestroy(mngr);
-      delete data1;
+      delete[] data;
       return NULL;
     }
-    delete data1;
+    delete[] data;
   }
 
-  const base::FilePath& root_cert_path = GetCertFromStore(issuer);
+  const base::FilePath& root_cert_path =
+      XmlSecContext::GetCertFromStore(issuer);
   if (!base::PathExists(root_cert_path)) {
     LOG(ERROR) << "Failed to find root certificate.";
     return NULL;
   }
 
-  if (xmlSecCryptoAppKeysMngrCertLoad(
-        mngr,
-        root_cert_path.MaybeAsASCII().c_str(),
-        xmlSecKeyDataFormatPem,
-        xmlSecKeyDataTypeTrusted) < 0) {
+  if (xmlSecCryptoAppKeysMngrCertLoad(mngr,
+      root_cert_path.MaybeAsASCII().c_str(), xmlSecKeyDataFormatPem,
+      xmlSecKeyDataTypeTrusted) < 0) {
     LOG(ERROR) << "Error: failed to load root certificate";
     xmlSecKeysMngrDestroy(mngr);
     return NULL;
@@ -196,16 +199,16 @@ LoadTrustedCerts(const xwalk::application::SignatureData& data) {
 
 // Verifies XML signature in #xml_file
 // Returns 0 on success or a negative value if an error occurs.
-int VerifyFile(xmlSecKeysMngrPtr mngr,
-               const xwalk::application::SignatureData& data) {
+int XmlSecContext::VerifyFile(
+    xmlSecKeysMngrPtr mngr, const xwalk::application::SignatureData& data) {
   LOG(INFO) << "Verify " << data.signature_file_name();
   xmlSecIOCleanupCallbacks();
-  GetExtractedPath(data);
+  XmlSecContext::GetExtractedPath(data);
   xmlSecIORegisterCallbacks(
-      FileMatchCallback,
-      FileOpenCallback,
-      FileReadCallback,
-      FileCloseCallback);
+      XmlSecContext::FileMatchCallback,
+      XmlSecContext::FileOpenCallback,
+      XmlSecContext::FileReadCallback,
+      XmlSecContext::FileCloseCallback);
 
   // Load file
   xmlDocPtr doc = xmlParseFile(data.signature_file_name().c_str());
@@ -258,6 +261,24 @@ int VerifyFile(xmlSecKeysMngrPtr mngr,
   return res;
 }
 
+void XmlSecContext::ConvertToPemCert(std::string* cert) {
+  *cert = "-----BEGIN CERTIFICATE-----" + *cert;
+  *cert = *cert + "-----END CERTIFICATE-----";
+}
+
+base::FilePath XmlSecContext::GetCertFromStore(const std::string& subject) {
+  const char cert_prefix_path[] = "/usr/share/ca-certificates/tizen/";
+  std::map<std::string, std::string>::iterator iter =
+      CertificateUtil::certificate_path.find(subject);
+
+  if (iter == CertificateUtil::certificate_path.end()) {
+    LOG(ERROR) << "Failing to find root certificate.";
+    return base::FilePath("");
+  }
+  LOG(INFO) << "root cert path is " << cert_prefix_path + iter->second;
+  return base::FilePath(cert_prefix_path + iter->second);
+}
+
 }  // anonymous namespace
 
 namespace xwalk {
@@ -268,11 +289,8 @@ bool SignatureXmlSecAdaptor::ValidateFile(
     const SignatureData& signature_data, const base::FilePath& widget_path) {
   xmlInitParser();
   xmlSecKeysMngrPtr mngr;
-  LIBXML_TEST_VERSION
-    xmlLoadExtDtdDefaultValue = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
   xmlSubstituteEntitiesDefault(1);
 #ifndef XMLSEC_NO_XSLT
-  // Init libxslt
   xsltSecurityPrefsPtr xsltSecPrefs = NULL;
   xmlIndentTreeOutput = 1;
   // Disable everything
@@ -290,13 +308,11 @@ bool SignatureXmlSecAdaptor::ValidateFile(
   xsltSetDefaultSecurityPrefs(xsltSecPrefs);
 #endif  // XMLSEC_NO_XSLT
 
-  // Init xmlsec library
   if (xmlSecInit() < 0) {
     LOG(ERROR) << "Error: xmlsec initialization failed.";
     return false;
   }
 
-  // Check loaded library version
   if (xmlSecCheckVersion() != 1) {
     LOG(ERROR) << "Error: loaded xmlsec library version is not compatible.";
     return false;
@@ -313,36 +329,30 @@ bool SignatureXmlSecAdaptor::ValidateFile(
   }
 #endif  // XMLSEC_CRYPTO_DYNAMIC_LOADING
 
-  // Init crypto library
   if (xmlSecCryptoAppInit(NULL) < 0) {
     LOG(ERROR) << "Error: crypto initialization failed.";
     return false;
   }
 
-  // Init xmlsec-crypto library
   if (xmlSecCryptoInit() < 0) {
     LOG(ERROR) << "Error: xmlsec-crypto initialization failed.";
     return false;
   }
 
-  // Create keys manager and load trusted certificates
-  mngr = LoadTrustedCerts(signature_data);
+  mngr = XmlSecContext::LoadTrustedCerts(signature_data);
   if (!mngr)
     return false;
 
-  // Verify file
-  if (VerifyFile(mngr, signature_data) < 0) {
+  if (XmlSecContext::VerifyFile(mngr, signature_data) < 0) {
     xmlSecKeysMngrDestroy(mngr);
     return false;
   }
 
-  // Clean up
   xmlSecKeysMngrDestroy(mngr);
   xmlSecCryptoShutdown();
   xmlSecCryptoAppShutdown();
   xmlSecShutdown();
 
-  // Shutdown libxslt/libxml
 #ifndef XMLSEC_NO_XSLT
   xsltFreeSecurityPrefs(xsltSecPrefs);
   xsltCleanupGlobals();
