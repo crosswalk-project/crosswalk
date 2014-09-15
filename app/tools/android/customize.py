@@ -312,6 +312,10 @@ def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
     SetVariable(dest_activity,
                 'public void onCreate(Bundle savedInstanceState)',
                 'RemoteDebugging', 'true')
+  if app_info.use_animatable_view:
+    SetVariable(dest_activity,
+                'public void onCreate(Bundle savedInstanceState)',
+                'UseAnimatableView', 'true')
   if app_info.fullscreen_flag:
     SetVariable(dest_activity,
                 'super.onCreate(savedInstanceState)',
@@ -561,6 +565,9 @@ def main():
   parser.add_option('--enable-remote-debugging', action='store_true',
                     dest='enable_remote_debugging', default=False,
                     help='Enable remote debugging.')
+  parser.add_option('--use-animatable-view', action='store_true',
+                    dest='use_animatable_view', default=False,
+                    help='Enable using animatable view (TextureView).')
   parser.add_option('-f', '--fullscreen', action='store_true',
                     dest='fullscreen', default=False,
                     help='Make application fullscreen.')

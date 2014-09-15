@@ -492,6 +492,31 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('setRemoteDebugging') != -1)
     self.checkApks('Example', '1.0.0')
 
+  def testUseAnimatableView(self):
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+           '--use-animatable-view', self._mode]
+    RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
+    activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
+    with open(activity, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(activity))
+    self.assertTrue(content.find('setUseAnimatableView') != -1)
+    self.checkApks('Example', '1.0.0')
+    Clean('Example', '1.0.0')
+    manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
+    cmd = ['python', 'make_apk.py', '--use-animatable-view',
+           '--package=org.xwalk.example',
+           '--manifest=%s' % manifest_path, self._mode]
+    RunCommand(cmd)
+    activity = 'Example/src/org/xwalk/example/ExampleActivity.java'
+    with open(activity, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(activity))
+    self.assertTrue(content.find('setUseAnimatableView') != -1)
+    self.checkApks('Example', '1.0.0')
+
   def testKeystore(self):
     keystore_path = os.path.join('test_data', 'keystore',
                                  'xwalk-test.keystore')

@@ -205,6 +205,8 @@ def Customize(options, app_info, manifest):
     app_info.app_root = os.path.expanduser(options.app_root)
   if options.enable_remote_debugging:
     app_info.remote_debugging = '--enable-remote-debugging'
+  if options.use_animatable_view:
+    app_info.use_animatable_view = '--use-animatable-view'
   if options.fullscreen:
     app_info.fullscreen_flag = '-f'
   if options.orientation:
@@ -512,6 +514,9 @@ def main(argv):
   group.add_option('--enable-remote-debugging', action='store_true',
                    dest='enable_remote_debugging', default=False,
                    help='Enable remote debugging.')
+  group.add_option('--use-animatable-view', action='store_true',
+                   dest='use_animatable_view', default=False,
+                   help='Enable using animatable view (TextureView).')
   info = ('The list of external extension paths splitted by OS separators. '
           'The separators are \':\' , \';\' and \':\' on Linux, Windows and '
           'Mac OS respectively. For example, '

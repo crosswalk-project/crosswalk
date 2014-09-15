@@ -22,3 +22,4 @@ class AppInfo:
     self.app_name = ''
     self.package = 'org.xwalk.app.template'
     self.remote_debugging = ''
+    self.use_animatable_view = ''
