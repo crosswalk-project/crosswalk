@@ -310,12 +310,12 @@ def Execution(options, name):
   ant_cmd = ['ant', 'release', '-f', os.path.join(name, 'build.xml')]
   if not options.verbose:
     ant_cmd.extend(['-quiet'])
-  ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
-  ant_cmd.extend(['-Dkey.alias="%s"' % key_alias])
+  ant_cmd.extend(['-Dkey.store=%s' % os.path.abspath(key_store)])
+  ant_cmd.extend(['-Dkey.alias=%s' % key_alias])
   if key_code:
-    ant_cmd.extend(['-Dkey.store.password="%s"' % key_code])
+    ant_cmd.extend(['-Dkey.store.password=%s' % key_code])
   if key_alias_code:
-    ant_cmd.extend(['-Dkey.alias.password="%s"' % key_alias_code])
+    ant_cmd.extend(['-Dkey.alias.password=%s' % key_alias_code])
   ant_result = subprocess.call(ant_cmd)
   if ant_result != 0:
     print('Command "%s" exited with non-zero exit code %d'
