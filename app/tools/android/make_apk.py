@@ -44,9 +44,9 @@ def AddExeExtensions(name):
   exts_str = os.environ.get('PATHEXT', '').lower()
   exts = [_f for _f in exts_str.split(os.pathsep) if _f]
   result = []
-  result.append(name)
   for e in exts:
     result.append(name + e)
+  result.append(name)
   return result
 
 
