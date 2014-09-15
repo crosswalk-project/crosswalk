@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "xwalk/application/browser/application.h"
-#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 
 namespace xwalk {

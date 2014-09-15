@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/application_storage_impl_tizen.h"
+#include "xwalk/application/common/tizen/application_storage_impl.h"
 
 #include <ail.h>
 #include <pkgmgr-info.h>
@@ -13,8 +13,8 @@
 #include "base/file_util.h"
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/application_file_util.h"
-#include "xwalk/application/common/application_storage.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/package_path.h"
 
 namespace {

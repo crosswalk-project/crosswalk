@@ -2,13 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 
-#if defined(OS_TIZEN)
-#include "xwalk/application/common/application_storage_impl_tizen.h"
-#else
-#include "xwalk/application/common/application_storage_impl.h"
-#endif
+#include "xwalk/application/common/tizen/application_storage_impl.h"
 
 namespace xwalk {
 namespace application {
