@@ -22,11 +22,11 @@ def AllArchitectures():
   return ("x86", "arm")
 
 
-def RunCommand(command, verbose=False, shell=False):
+def RunCommand(command, verbose=False, need_output=True, shell=False):
   """Runs the command list, print the output, and propagate its result."""
   proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT, shell=shell)
-  if not shell:
+  if need_output:
     output = proc.communicate()[0]
     result = proc.returncode
     if verbose:
@@ -49,3 +49,6 @@ def GetVersion(path):
   version_str += ('.').join(version_nums)
   file_handle.close()
   return version_str
+
+def IsWindows():
+  return sys.platform == 'cygwin' or sys.platform.startswith('win')
