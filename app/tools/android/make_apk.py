@@ -22,7 +22,7 @@ from customize import VerifyPackageName, CustomizeAll, \
                       ParseParameterForCompressor
 from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
-from util import AllArchitectures, CleanDir, GetVersion, RunCommand
+from util import AllArchitectures, CleanDir, GetVersion, RunCommand, IsWindows
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
@@ -64,7 +64,8 @@ def GetAndroidApiLevel():
   """Get Highest Android target level installed.
      return -1 if no targets have been found.
   """
-  target_output = RunCommand(['android', 'list', 'target', '-c'])
+  android_path = Which('android')
+  target_output = RunCommand([android_path, 'list', 'target', '-c'])
   target_regex = re.compile(r'android-(\d+)')
   targets = [int(i) for i in target_regex.findall(target_output)]
   targets.extend([-1])
@@ -273,18 +274,18 @@ def Execution(options, name):
   # Check whether ant is installed.
   try:
     cmd = ['ant', '-version']
-    RunCommand(cmd, shell=True)
+    RunCommand(cmd, need_output=False, shell = IsWindows())
   except EnvironmentError:
     print('Please install ant first.')
     sys.exit(4)
 
   # Update android project for app and xwalk_core_library.
-  update_project_cmd = ['android', 'update', 'project',
+  update_project_cmd = [android_path, 'update', 'project',
                         '--path', os.path.join (xwalk_dir, name),
                         '--target', target_string,
                         '--name', name]
   if options.mode == 'embedded':
-    RunCommand(['android', 'update', 'lib-project',
+    RunCommand([android_path, 'update', 'lib-project',
                 '--path', os.path.join(xwalk_dir, name, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
@@ -329,13 +330,17 @@ def Execution(options, name):
   ant_cmd = ['ant', 'release', '-f', os.path.join(xwalk_dir, name, 'build.xml')]
   if not options.verbose:
     ant_cmd.extend(['-quiet'])
-  ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
-  ant_cmd.extend(['-Dkey.alias="%s"' % key_alias])
+  ant_cmd.extend(['-Dkey.store'])
+  ant_cmd.extend([os.path.abspath(key_store)])
+  ant_cmd.extend(['-Dkey.alias'])
+  ant_cmd.extend([key_alias])
   if key_code:
-    ant_cmd.extend(['-Dkey.store.password="%s"' % key_code])
+    ant_cmd.extend(['-Dkey.store.password'])
+    ant_cmd.extend([ key_code])
   if key_alias_code:
-    ant_cmd.extend(['-Dkey.alias.password="%s"' % key_alias_code])
-  ant_result = subprocess.call(ant_cmd)
+    ant_cmd.extend(['-Dkey.alias.password'])
+    ant_cmd.extend([key_alias_code])
+  ant_result = subprocess.call(ant_cmd, shell = IsWindows())
   if ant_result != 0:
     print('Command "%s" exited with non-zero exit code %d'
           % (' '.join(ant_cmd), ant_result))
