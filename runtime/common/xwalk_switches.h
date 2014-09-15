@@ -5,6 +5,8 @@
 #ifndef XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
 #define XWALK_RUNTIME_COMMON_XWALK_SWITCHES_H_
 
+#include "build/build_config.h"
+
 // Defines all command line switches for XWalk.
 namespace switches {
 
@@ -15,6 +17,10 @@ extern const char kFullscreen[];
 extern const char kListFeaturesFlags[];
 extern const char kXWalkAllowExternalExtensionsForRemoteSources[];
 extern const char kXWalkDataPath[];
+
+#if defined(OS_ANDROID)
+extern const char kXWalkProfileName[];
+#endif
 
 }  // namespace switches
 
