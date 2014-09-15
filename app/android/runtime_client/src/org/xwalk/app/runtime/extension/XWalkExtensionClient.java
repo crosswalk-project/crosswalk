@@ -86,6 +86,12 @@ public class XWalkExtensionClient {
     }
 
     /**
+     * Called when this app is onNewIntent.
+     */
+    public void onNewIntent(Intent intent) {
+    }
+
+    /**
      * Tell extension that one activity exists so that it can know the result
      * of the exit code.
      */
