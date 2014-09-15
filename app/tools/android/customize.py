@@ -85,17 +85,6 @@ def GetFilesByExt(path, ext, sub_dir=True):
     return []
 
 
-def ParseParameterForCompressor(option, value, values, parser):
-  if ((not values or values.startswith('-'))
-      and value.find('--compressor') != -1):
-    values = 'all'
-  val = values
-  if parser.rargs and not parser.rargs[0].startswith('-'):
-    val = parser.rargs[0]
-    parser.rargs.pop(0)
-  setattr(parser.values, option.dest, val)
-
-
 def CompressSourceFiles(app_root, compressor):
   js_list = []
   css_list = []
@@ -589,13 +578,9 @@ def main():
           'For example, '
           '--xwalk-command-line=\'--chromium-command-1 --xwalk-command-2\'')
   parser.add_option('--xwalk-command-line', default='', help=info)
-  info = ('Minify and obfuscate javascript and css.'
-          '--compressor: compress javascript and css.'
-          '--compressor=js: compress javascript.'
-          '--compressor=css: compress css.')
-  parser.add_option('--compressor', dest='compressor', action='callback',
-                    callback=ParseParameterForCompressor,
-                    type='string', nargs=0, help=info)
+  info = ('Minify and obfuscate javascript and css. Supported values '
+          'are \'all\', \'css\' and \'js\'. Such as: --compressor=all')
+  parser.add_option('--compressor', choices=('all', 'css', 'js'), help=info)
   options, _ = parser.parse_args()
   try:
     icon_dict = {144: 'icons/icon_144.png',

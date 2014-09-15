@@ -18,8 +18,7 @@ xwalk_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(xwalk_dir)
 
 from app_info import AppInfo
-from customize import VerifyPackageName, CustomizeAll, \
-                      ParseParameterForCompressor
+from customize import VerifyPackageName, CustomizeAll
 from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
 from util import AllArchitectures, CleanDir, GetVersion, RunCommand
@@ -555,13 +554,9 @@ def main(argv):
   info = ('Passcode for alias\'s private key in the keystore, '
           'For example, --keystore-alias-passcode=alias-code')
   group.add_option('--keystore-alias-passcode', help=info)
-  info = ('Minify and obfuscate javascript and css.'
-          '--compressor: compress javascript and css.'
-          '--compressor=js: compress javascript.'
-          '--compressor=css: compress css.')
-  group.add_option('--compressor', dest='compressor', action='callback',
-                   callback=ParseParameterForCompressor, type='string',
-                   nargs=0, help=info)
+  info = ('Minify and obfuscate javascript and css. Supported values '
+          'are \'all\', \'css\' and \'js\'. Such as: --compressor=all')
+  parser.add_option('--compressor', choices=('all', 'css', 'js'), help=info)
   parser.add_option_group(group)
   options, _ = parser.parse_args()
   if len(argv) == 1:
