@@ -42,9 +42,9 @@ def AddExeExtensions(name):
   exts_str = os.environ.get('PATHEXT', '').lower()
   exts = [_f for _f in exts_str.split(os.pathsep) if _f]
   result = []
-  result.append(name)
   for e in exts:
     result.append(name + e)
+  result.append(name)
   return result
 
 
@@ -60,11 +60,11 @@ def Which(name):
   return None
 
 
-def GetAndroidApiLevel():
+def GetAndroidApiLevel(android_path):
   """Get Highest Android target level installed.
      return -1 if no targets have been found.
   """
-  target_output = RunCommand(['android', 'list', 'target', '-c'])
+  target_output = RunCommand([android_path, 'list', 'target', '-c'])
   target_regex = re.compile(r'android-(\d+)')
   targets = [int(i) for i in target_regex.findall(target_output)]
   targets.extend([-1])
@@ -241,7 +241,7 @@ def Execution(options, name):
           'installation and your PATH environment variable.')
     sys.exit(1)
 
-  api_level = GetAndroidApiLevel()
+  api_level = GetAndroidApiLevel(android_path)
   if api_level < 14:
     print('Please install Android API level (>=14) first.')
     sys.exit(3)
@@ -271,20 +271,18 @@ def Execution(options, name):
     key_alias_code = 'xwalkdebug'
 
   # Check whether ant is installed.
-  try:
-    cmd = ['ant', '-version']
-    RunCommand(cmd, shell=True)
-  except EnvironmentError:
-    print('Please install ant first.')
+  ant_path = Which('ant')
+  if ant_path is None:
+    print('Ant could not be found. Please make sure it is installed.')
     sys.exit(4)
 
   # Update android project for app and xwalk_core_library.
-  update_project_cmd = ['android', 'update', 'project',
+  update_project_cmd = [android_path, 'update', 'project',
                         '--path', os.path.join (xwalk_dir, name),
                         '--target', target_string,
                         '--name', name]
   if options.mode == 'embedded':
-    RunCommand(['android', 'update', 'lib-project',
+    RunCommand([android_path, 'update', 'lib-project',
                 '--path', os.path.join(xwalk_dir, name, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
@@ -326,15 +324,16 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
-  ant_cmd = ['ant', 'release', '-f', os.path.join(xwalk_dir, name, 'build.xml')]
+  ant_cmd = [ant_path, 'release', '-f',
+             os.path.join(xwalk_dir, name, 'build.xml')]
   if not options.verbose:
     ant_cmd.extend(['-quiet'])
-  ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
-  ant_cmd.extend(['-Dkey.alias="%s"' % key_alias])
+  ant_cmd.extend(['-Dkey.store=%s' % os.path.abspath(key_store)])
+  ant_cmd.extend(['-Dkey.alias=%s' % key_alias])
   if key_code:
-    ant_cmd.extend(['-Dkey.store.password="%s"' % key_code])
+    ant_cmd.extend(['-Dkey.store.password=%s' % key_code])
   if key_alias_code:
-    ant_cmd.extend(['-Dkey.alias.password="%s"' % key_alias_code])
+    ant_cmd.extend(['-Dkey.alias.password=%s' % key_alias_code])
   ant_result = subprocess.call(ant_cmd)
   if ant_result != 0:
     print('Command "%s" exited with non-zero exit code %d'
