@@ -16,9 +16,6 @@
         '../../../third_party/zlib/google/zip.gyp:zip',
       ],
       'sources': [
-        'application_storage.cc',
-        'application_storage.h',
-
         'application_data.cc',
         'application_data.h',
         'application_file_util.cc',
@@ -27,8 +24,6 @@
         'application_manifest_constants.h',
         'application_resource.cc',
         'application_resource.h',
-        'application_storage_constants.cc',
-        'application_storage_constants.h',
         'constants.cc',
         'constants.h',
         'id_util.cc',
@@ -64,8 +59,6 @@
             '../../../third_party/re2/re2.gyp:re2',
           ],
           'sources': [
-            'application_storage_impl_tizen.cc',
-            'application_storage_impl_tizen.h',
             'manifest_handlers/navigation_handler.cc',
             'manifest_handlers/navigation_handler.h',
             'manifest_handlers/tizen_application_handler.cc',
@@ -76,6 +69,10 @@
             'manifest_handlers/tizen_setting_handler.h',
             'manifest_handlers/tizen_splash_screen_handler.cc',
             'manifest_handlers/tizen_splash_screen_handler.h',
+            'tizen/application_storage.cc',
+            'tizen/application_storage.h',
+            'tizen/application_storage_impl.cc',
+            'tizen/application_storage_impl.h',
             'tizen/package_path.cc',
             'tizen/package_path.h',
             'tizen/signature_data.h',
@@ -86,11 +83,6 @@
             'tizen/signature_validator.h',
 
           ],
-        }, {
-        'sources': [
-            'application_storage_impl.cc',
-            'application_storage_impl.h',
-          ]
         }],
       ],
       'include_dirs': [

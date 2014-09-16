@@ -33,7 +33,6 @@
         'xwalk_runtime',
       ],
       'sources': [
-        'application/common/application_storage_impl_unittest.cc',
         'application/common/package/package_unittest.cc',
         'application/common/application_unittest.cc',
         'application/common/application_file_util_unittest.cc',

@@ -116,6 +116,12 @@ public class XWalkRuntimeExtensionManager implements XWalkExtensionContextClient
         mExtensions.clear();
     }
 
+    public void onNewIntent(Intent intent) {
+        for(XWalkRuntimeExtensionBridge extension: mExtensions.values()) {
+            extension.onNewIntent(intent);
+        }
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         for(XWalkRuntimeExtensionBridge extension: mExtensions.values()) {
             extension.onActivityResult(requestCode, resultCode, data);

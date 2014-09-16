@@ -15,7 +15,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/singleton.h"
-#include "xwalk/application/common/application_storage.h"
+#include "xwalk/application/common/tizen/application_storage.h"
 
 template <typename Type>
 struct PkgmgrBackendPluginTraits : DefaultSingletonTraits<Type> {

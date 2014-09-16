@@ -44,9 +44,9 @@ def AddExeExtensions(name):
   exts_str = os.environ.get('PATHEXT', '').lower()
   exts = [_f for _f in exts_str.split(os.pathsep) if _f]
   result = []
-  result.append(name)
   for e in exts:
     result.append(name + e)
+  result.append(name)
   return result
 
 
@@ -62,11 +62,11 @@ def Which(name):
   return None
 
 
-def GetAndroidApiLevel():
+def GetAndroidApiLevel(android_path):
   """Get Highest Android target level installed.
      return -1 if no targets have been found.
   """
-  target_output = RunCommand(['android', 'list', 'target', '-c'])
+  target_output = RunCommand([android_path, 'list', 'target', '-c'])
   target_regex = re.compile(r'android-(\d+)')
   targets = [int(i) for i in target_regex.findall(target_output)]
   targets.extend([-1])
@@ -183,12 +183,12 @@ def GetExtensionBinaryPathList():
                                              item,
                                              data["binary_path"])
       else:
-        print "The extension \"%s\" doesn't exists." % item
+        print("The extension \"%s\" doesn't exists." % item)
         sys.exit(1)
     if os.path.isdir(extension_binary_path):
       local_extension_list.append(extension_binary_path)
     else:
-      print "The extension \"%s\" doesn't exists." % item
+      print("The extension \"%s\" doesn't exists." % item)
       sys.exit(1)
 
   return local_extension_list
@@ -207,6 +207,8 @@ def Customize(options, app_info, manifest):
     app_info.app_root = os.path.expanduser(options.app_root)
   if options.enable_remote_debugging:
     app_info.remote_debugging = '--enable-remote-debugging'
+  if options.use_animatable_view:
+    app_info.use_animatable_view = '--use-animatable-view'
   if options.fullscreen:
     app_info.fullscreen_flag = '-f'
   if options.orientation:
@@ -242,7 +244,7 @@ def Execution(options, name):
           'installation and your PATH environment variable.')
     sys.exit(1)
 
-  api_level = GetAndroidApiLevel()
+  api_level = GetAndroidApiLevel(android_path)
   if api_level < 14:
     print('Please install Android API level (>=14) first.')
     sys.exit(3)
@@ -272,20 +274,18 @@ def Execution(options, name):
     key_alias_code = 'xwalkdebug'
 
   # Check whether ant is installed.
-  try:
-    cmd = ['ant', '-version']
-    RunCommand(cmd, shell=True)
-  except EnvironmentError:
-    print('Please install ant first.')
+  ant_path = Which('ant')
+  if ant_path is None:
+    print('Ant could not be found. Please make sure it is installed.')
     sys.exit(4)
 
   # Update android project for app and xwalk_core_library.
-  update_project_cmd = ['android', 'update', 'project',
+  update_project_cmd = [android_path, 'update', 'project',
                         '--path', app_dir,
                         '--target', target_string,
                         '--name', name]
   if options.mode == 'embedded':
-    RunCommand(['android', 'update', 'lib-project',
+    RunCommand([android_path, 'update', 'lib-project',
                 '--path', os.path.join(app_dir, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
@@ -326,6 +326,7 @@ def Execution(options, name):
             'embedded APK.' % arch)
       sys.exit(10)
 
+<<<<<<< HEAD
   # if project_dir, save build directory
   if options.project_dir:
     save_dir = os.path.join(options.project_dir, name)
@@ -344,15 +345,15 @@ def Execution(options, name):
     return
 
   # Build the APK
-  ant_cmd = ['ant', 'release', '-f', os.path.join(app_dir, 'build.xml')]
+  ant_cmd = [ant_path, 'release', '-f', os.path.join(app_dir, 'build.xml')]
   if not options.verbose:
     ant_cmd.extend(['-quiet'])
-  ant_cmd.extend(['-Dkey.store="%s"' % os.path.abspath(key_store)])
-  ant_cmd.extend(['-Dkey.alias="%s"' % key_alias])
+  ant_cmd.extend(['-Dkey.store=%s' % os.path.abspath(key_store)])
+  ant_cmd.extend(['-Dkey.alias=%s' % key_alias])
   if key_code:
-    ant_cmd.extend(['-Dkey.store.password="%s"' % key_code])
+    ant_cmd.extend(['-Dkey.store.password=%s' % key_code])
   if key_alias_code:
-    ant_cmd.extend(['-Dkey.alias.password="%s"' % key_alias_code])
+    ant_cmd.extend(['-Dkey.alias.password=%s' % key_alias_code])
   ant_result = subprocess.call(ant_cmd)
   if ant_result != 0:
     print('Command "%s" exited with non-zero exit code %d'
@@ -531,6 +532,9 @@ def main(argv):
   group.add_option('--enable-remote-debugging', action='store_true',
                    dest='enable_remote_debugging', default=False,
                    help='Enable remote debugging.')
+  group.add_option('--use-animatable-view', action='store_true',
+                   dest='use_animatable_view', default=False,
+                   help='Enable using animatable view (TextureView).')
   info = ('The list of external extension paths splitted by OS separators. '
           'The separators are \':\' , \';\' and \':\' on Linux, Windows and '
           'Mac OS respectively. For example, '

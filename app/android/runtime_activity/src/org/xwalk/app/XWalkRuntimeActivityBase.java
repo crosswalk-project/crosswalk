@@ -33,6 +33,8 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private boolean mRemoteDebugging = false;
 
+    private boolean mUseAnimatableView = false;
+
     private AlertDialog mLibraryNotFoundDialog = null;
 
     private XWalkRuntimeExtensionManager mExtensionManager;
@@ -101,6 +103,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     @Override
     public void onNewIntent(Intent intent) {
         if (mRuntimeView == null || !mRuntimeView.onNewIntent(intent)) super.onNewIntent(intent);
+        if (mExtensionManager != null) mExtensionManager.onNewIntent(intent);
     }
 
     @Override
@@ -124,6 +127,11 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private void tryLoadRuntimeView() {
         try {
+            if (mUseAnimatableView) {
+                XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
+            } else {
+                XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, false);
+            }
             mRuntimeView = new XWalkRuntimeView(this, this, null);
             mShownNotFoundDialog = false;
             if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
@@ -254,6 +262,10 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     public void setRemoteDebugging(boolean value) {
         mRemoteDebugging = value;
+    }
+
+    public void setUseAnimatableView(boolean value) {
+        mUseAnimatableView = value;
     }
 
 }
