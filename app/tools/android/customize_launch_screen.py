@@ -4,6 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import log
 import os
 import shutil
 import sys
@@ -15,7 +16,7 @@ def CopyToPathWithName(root, name, final_path, rename):
     return False
   origin_path = os.path.join(root, name)
   if not os.path.exists(origin_path):
-    print('Error: \'' + origin_path + '\' not found.')
+    log.Error('Error: \'' + origin_path + '\' not found.')
     sys.exit(6)
   if not os.path.exists(final_path):
     os.makedirs(final_path)
@@ -117,7 +118,7 @@ def CustomizeBackground(background_color,
   background_path = os.path.join(xwalk_dir, sanitized_name, 'res',
                                  'drawable', 'launchscreen_bg.xml')
   if not os.path.isfile(background_path):
-    print('Error: launchscreen_bg.xml is missing in the build tool.')
+    log.Error('Error: launchscreen_bg.xml is missing in the build tool.')
     sys.exit(6)
 
   has_background = False
