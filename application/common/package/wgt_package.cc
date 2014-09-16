@@ -30,7 +30,7 @@ WGTPackage::WGTPackage(const base::FilePath& path)
   : Package(path) {
   if (!base::PathExists(path))
     return;
-  type_ = WGT;
+  manifest_type_ = Manifest::TYPE_WIDGET;
   base::FilePath extracted_path;
   // FIXME : we should not call 'extract' here!
   if (!ExtractToTemporaryDir(&extracted_path))

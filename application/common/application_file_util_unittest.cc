@@ -41,7 +41,8 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
+          install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
+          Manifest::TYPE_MANIFEST, &error));
   ASSERT_TRUE(application != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
 }
@@ -60,7 +61,8 @@ TEST_F(ApplicationFileUtilTest,
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
+          install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
+          Manifest::TYPE_WIDGET, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest file is missing or unreadable.", error.c_str());
@@ -80,7 +82,8 @@ TEST_F(ApplicationFileUtilTest,
 
   std::string error;
   scoped_refptr<ApplicationData> application(LoadApplication(
-          install_dir, ApplicationData::LOCAL_DIRECTORY, &error));
+          install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
+          Manifest::TYPE_MANIFEST, &error));
   ASSERT_TRUE(application == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."
@@ -89,13 +92,15 @@ TEST_F(ApplicationFileUtilTest,
 }
 
 static scoped_refptr<ApplicationData> LoadApplicationManifest(
-    base::DictionaryValue* manifest,
+    base::DictionaryValue* values,
     const base::FilePath& manifest_dir,
     ApplicationData::SourceType location,
     int extra_flags,
     std::string* error) {
+  scoped_ptr<Manifest> manifest = make_scoped_ptr(
+      new Manifest(make_scoped_ptr(values->DeepCopy())));
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      manifest_dir, location, *manifest, std::string(), error);
+      manifest_dir, std::string(), location, manifest.Pass(), error);
   return application;
 }
 

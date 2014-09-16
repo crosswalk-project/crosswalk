@@ -66,13 +66,9 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
     virtual ~ManifestData() {}
   };
 
-  static scoped_refptr<ApplicationData> Create(const base::FilePath& path,
-      SourceType source_type,
-      const base::DictionaryValue& manifest_data,
-      const std::string& explicit_id,
-      std::string* error_message);
-
-  Manifest::Type GetType() const;
+  static scoped_refptr<ApplicationData> Create(const base::FilePath& app_path,
+      const std::string& explicit_id, SourceType source_type,
+          scoped_ptr<Manifest> manifest, std::string* error_message);
 
   // Returns an absolute url to a resource inside of an application. The
   // |application_url| argument should be the url() from an Application object.
@@ -103,7 +99,8 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   void SetPath(const base::FilePath& path) { path_ = path; }
   const GURL& URL() const { return application_url_; }
   SourceType source_type() const { return source_type_; }
-  const std::string& ID() const;
+  Manifest::Type manifest_type() const { return manifest_->type(); }
+  const std::string& ID() const { return application_id_; }
 #if defined(OS_TIZEN)
   std::string GetPackageID() const;
 #endif
@@ -128,8 +125,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   void ClearPermissions();
   PermissionSet GetManifestPermissions() const;
 
-  Package::Type GetPackageType() const { return package_type_; }
-
   bool HasCSPDefined() const;
 
   bool SetApplicationLocale(const std::string& locale, base::string16* error);
@@ -138,8 +133,8 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   friend class base::RefCountedThreadSafe<ApplicationData>;
   friend class ApplicationStorageImpl;
 
-  ApplicationData(const base::FilePath& path, SourceType source_type,
-                  scoped_ptr<Manifest> manifest);
+  ApplicationData(const base::FilePath& path,
+      SourceType source_type, scoped_ptr<Manifest> manifest);
   virtual ~ApplicationData();
 
   // Initialize the application from a parsed manifest.
@@ -175,12 +170,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // The absolute path to the directory the application is stored in.
   base::FilePath path_;
 
-  // System events
-  std::set<std::string> events_;
-
-  // If it's true, means the data have been changed,
-  // and need to save in database.
-  bool is_dirty_;
+  // A persistent, globally unique ID. An application's ID is used in things
+  // like directory structures and URLs, and is expected to not change across
+  // versions.
+  std::string application_id_;
 
   // The base application url for the application.
   GURL application_url_;
@@ -207,9 +200,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Application's persistent permissions.
   StoredPermissionMap permission_map_;
-
-  // The package type, wgt or xpk.
-  Package::Type package_type_;
 
   // The source the application was loaded from.
   SourceType source_type_;

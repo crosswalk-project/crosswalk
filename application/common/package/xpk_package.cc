@@ -26,7 +26,7 @@ XPKPackage::XPKPackage(const base::FilePath& path)
   : Package(path) {
   if (!base::PathExists(path))
     return;
-  type_ = XPK;
+  manifest_type_ = Manifest::TYPE_MANIFEST;
   scoped_ptr<base::ScopedFILE> file(
       new base::ScopedFILE(base::OpenFile(path, "rb")));
   file_ = file.Pass();

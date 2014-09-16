@@ -18,16 +18,17 @@ class CSPHandlerTest: public testing::Test {
  public:
   scoped_refptr<ApplicationData> CreateApplication() {
     std::string error;
-    scoped_refptr<ApplicationData> application = ApplicationData::Create(
-        base::FilePath(), ApplicationData::LOCAL_DIRECTORY,
-        manifest, "", &error);
-    return application;
+    scoped_refptr<ApplicationData> app_data = ApplicationData::Create(
+        base::FilePath(), std::string(), ApplicationData::LOCAL_DIRECTORY,
+        make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
+        &error);
+    return app_data;
   }
 
   const CSPInfo* GetCSPInfo(
       scoped_refptr<ApplicationData> application) {
     const CSPInfo* info = static_cast<CSPInfo*>(
-        application->GetManifestData(GetCSPKey(application->GetPackageType())));
+        application->GetManifestData(GetCSPKey(application->manifest_type())));
     return info;
   }
 

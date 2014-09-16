@@ -75,18 +75,22 @@ Application* ApplicationService::Launch(
   return application;
 }
 
-Application* ApplicationService::LaunchFromUnpackedPath(
-    const base::FilePath& path, const Application::LaunchParams& params) {
+Application* ApplicationService::LaunchFromManifestPath(
+    const base::FilePath& path, Manifest::Type manifest_type,
+        const Application::LaunchParams& params) {
   std::string error;
-  scoped_refptr<ApplicationData> application_data;
-  if (!base::DirectoryExists(path)) {
-    LOG(ERROR) << "Invalid input parameter: " << path.AsUTF8Unsafe();
+  scoped_ptr<Manifest> manifest = LoadManifest(path, manifest_type, &error);
+  if (!manifest) {
+    LOG(ERROR) << "Failed to load manifest.";
     return NULL;
   }
 
-  application_data =
-      LoadApplication(path, ApplicationData::LOCAL_DIRECTORY, &error);
+  base::FilePath app_path = path.DirName();
+  LOG(ERROR) << "Loading app from " << app_path.MaybeAsASCII();
 
+  scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
+      app_path, std::string(), ApplicationData::LOCAL_DIRECTORY,
+      manifest.Pass(), &error);
   if (!application_data) {
     LOG(ERROR) << "Error occurred while trying to load application: "
                << error;
@@ -111,17 +115,17 @@ Application* ApplicationService::LaunchFromPackagePath(
     return NULL;
   }
 
-  std::string error;
-  scoped_refptr<ApplicationData> application_data;
-
   base::CreateTemporaryDirInDir(tmp_dir, package->name(), &target_dir);
-  if (package->ExtractTo(target_dir)) {
-    std::string id = tmp_dir.BaseName().AsUTF8Unsafe();
-    application_data =
-        LoadApplication(
-            target_dir, id, ApplicationData::TEMP_DIRECTORY, &error);
+  if (!package->ExtractTo(target_dir)) {
+    LOG(ERROR) << "Failed to unpack to a temporary directory: "
+               << target_dir.MaybeAsASCII();
+    return NULL;
   }
 
+  std::string error;
+  scoped_refptr<ApplicationData> application_data = LoadApplication(
+      target_dir, std::string(), ApplicationData::TEMP_DIRECTORY,
+      package->manifest_type(), &error);
   if (!application_data) {
     LOG(ERROR) << "Error occurred while trying to load application: "
                << error;
@@ -144,17 +148,20 @@ Application* ApplicationService::LaunchHostedURL(
 
   const std::string& app_id = GenerateId(url_spec);
 
-  base::DictionaryValue manifest;
+  scoped_ptr<base::DictionaryValue> settings(new base::DictionaryValue());
   // FIXME: define permissions!
-  manifest.SetString(application_manifest_keys::kStartURLKey, url_spec);
+  settings->SetString(application_manifest_keys::kStartURLKey, url_spec);
   // FIXME: Why use URL as name?
-  manifest.SetString(application_manifest_keys::kNameKey, url_spec);
-  manifest.SetString(application_manifest_keys::kXWalkVersionKey, "0");
+  settings->SetString(application_manifest_keys::kNameKey, url_spec);
+  settings->SetString(application_manifest_keys::kXWalkVersionKey, "0");
+
+  scoped_ptr<Manifest> manifest(
+      new Manifest(settings.Pass(), Manifest::TYPE_MANIFEST));
 
   std::string error;
   scoped_refptr<ApplicationData> app_data =
-        ApplicationData::Create(base::FilePath(),
-            ApplicationData::EXTERNAL_URL, manifest, app_id, &error);
+        ApplicationData::Create(base::FilePath(), app_id,
+        ApplicationData::EXTERNAL_URL, manifest.Pass(), &error);
   DCHECK(app_data);
 
   return Launch(app_data, params);

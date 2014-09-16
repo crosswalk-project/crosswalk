@@ -168,11 +168,11 @@ SecurityPolicyCSP::~SecurityPolicyCSP() {
 }
 
 void SecurityPolicyCSP::Enforce() {
-  Package::Type package_type = app_->data()->GetPackageType();
-  const char* scp_key = GetCSPKey(package_type);
+  Manifest::Type manifest_type = app_->data()->manifest_type();
+  const char* scp_key = GetCSPKey(manifest_type);
   CSPInfo* csp_info =
       static_cast<CSPInfo*>(app_->data()->GetManifestData(scp_key));
-  if (package_type == Package::WGT) {
+  if (manifest_type == Manifest::TYPE_WIDGET) {
 #if defined(OS_TIZEN)
     if (!csp_info || csp_info->GetDirectives().empty())
        app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());

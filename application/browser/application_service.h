@@ -39,10 +39,10 @@ class ApplicationService : public Application::Observer {
   static scoped_ptr<ApplicationService> Create(
     RuntimeContext* runtime_context);
 
-  // Launch an application using path to a local directory which
-  // contains manifest file of an unpacked application.
-  Application* LaunchFromUnpackedPath(
-      const base::FilePath& path,
+  // Launch an unpacked application using path to the manifest file
+  // of an unpacked application.
+  Application* LaunchFromManifestPath(
+      const base::FilePath& path, Manifest::Type manifest_type,
       const Application::LaunchParams& params = Application::LaunchParams());
 
   // Launch an application using path to its package file.

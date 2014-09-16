@@ -37,6 +37,7 @@ namespace info = application_packageinfo_constants;
 using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;
 using xwalk::application::FileDeleter;
+using xwalk::application::Manifest;
 using xwalk::application::Package;
 
 namespace {
@@ -221,7 +222,7 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
 
   std::string icon_name;
   if (!app_data->GetManifest()->GetString(
-      GetIcon128Key(app_data->GetPackageType()), &icon_name))
+      GetIcon128Key(app_data->manifest_type()), &icon_name))
     LOG(WARNING) << "'icon' not included in manifest";
 
   // This will clean everything inside '<data dir>/<app id>'.
@@ -327,7 +328,7 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
 
   std::string icon_name;
   if (!app_data->GetManifest()->GetString(
-      GetIcon128Key(app_data->GetPackageType()), &icon_name))
+      GetIcon128Key(app_data->manifest_type()), &icon_name))
     LOG(WARNING) << "'icon' not included in manifest";
 
   // This will clean everything inside '<data dir>/<app id>' and the new XML.
@@ -445,7 +446,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   std::string error;
   scoped_refptr<ApplicationData> app_data = LoadApplication(
       unpacked_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
-      package->type(), &error);
+      package->manifest_type(), &error);
   if (!app_data) {
     LOG(ERROR) << "Error during application installation: " << error;
     return false;
@@ -551,11 +552,8 @@ bool PackageInstaller::Update(const std::string& app_id,
 
   std::string error;
   scoped_refptr<ApplicationData> new_app_data =
-      LoadApplication(unpacked_dir,
-                      app_id,
-                      ApplicationData::TEMP_DIRECTORY,
-                      package->type(),
-                      &error);
+      LoadApplication(unpacked_dir, app_id, ApplicationData::TEMP_DIRECTORY,
+                      package->manifest_type(), &error);
   if (!new_app_data) {
     LOG(ERROR) << "An error occurred during application updating: " << error;
     return false;
@@ -568,11 +566,10 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  if (
-      // For Tizen WGT package, downgrade to a lower version or reinstall
-      // is permitted when using Tizen WRT, Crosswalk runtime need to follow
-      // this behavior on Tizen platform.
-      package->type() != Package::WGT &&
+  // For Tizen WGT package, downgrade to a lower version or reinstall
+  // is permitted when using Tizen WRT, Crosswalk runtime need to follow
+  // this behavior on Tizen platform.
+  if (package->manifest_type() != Manifest::TYPE_WIDGET &&
       old_app_data->Version()->CompareTo(
           *(new_app_data->Version())) >= 0) {
     LOG(INFO) << "The version number of new XPK/WGT package "
@@ -589,11 +586,9 @@ bool PackageInstaller::Update(const std::string& app_id,
       !base::Move(unpacked_dir, app_dir))
     return false;
 
-  new_app_data = LoadApplication(app_dir,
-                                    app_id,
-                                    ApplicationData::LOCAL_DIRECTORY,
-                                    package->type(),
-                                    &error);
+  new_app_data = LoadApplication(
+      app_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
+      package->manifest_type(), &error);
   if (!new_app_data) {
     LOG(ERROR) << "Error during loading new package: " << error;
     base::DeleteFile(app_dir, true);

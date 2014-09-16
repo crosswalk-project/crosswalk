@@ -21,8 +21,8 @@ CSPInfo::CSPInfo() {
 CSPInfo::~CSPInfo() {
 }
 
-CSPHandler::CSPHandler(Package::Type type)
-    : package_type_(type) {
+CSPHandler::CSPHandler(Manifest::Type type)
+    : type_(type) {
 }
 
 CSPHandler::~CSPHandler() {
@@ -30,11 +30,11 @@ CSPHandler::~CSPHandler() {
 
 bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
                        base::string16* error) {
-  if (package_type_ != application->GetPackageType())
+  if (type_ != application->manifest_type())
     return false;
   scoped_ptr<CSPInfo> csp_info(new CSPInfo);
   std::string policies_str;
-  const char* csp_key = GetCSPKey(package_type_);
+  const char* csp_key = GetCSPKey(type_);
   if (application->GetManifest()->HasPath(csp_key) &&
       !application->GetManifest()->GetString(csp_key, &policies_str)) {
     *error = base::ASCIIToUTF16(
@@ -62,11 +62,11 @@ bool CSPHandler::Parse(scoped_refptr<ApplicationData> application,
 }
 
 bool CSPHandler::AlwaysParseForType(Manifest::Type type) const {
-  return package_type_ == Package::XPK;
+  return type_ == Manifest::TYPE_MANIFEST;
 }
 
 std::vector<std::string> CSPHandler::Keys() const {
-  return std::vector<std::string>(1, GetCSPKey(package_type_));
+  return std::vector<std::string>(1, GetCSPKey(type_));
 }
 
 }  // namespace application

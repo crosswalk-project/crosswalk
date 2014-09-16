@@ -9,6 +9,7 @@
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
+#include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/test/application_browsertest.h"
 #include "xwalk/application/test/application_testapi.h"
 #include "xwalk/extensions/browser/xwalk_extension_service.h"
@@ -16,6 +17,8 @@
 
 using xwalk::application::Application;
 using xwalk::application::ApplicationService;
+using xwalk::application::Manifest;
+using xwalk::application::GetManifestPath;
 using namespace xwalk::extensions;  // NOLINT
 
 ApplicationBrowserTest::ApplicationBrowserTest()
@@ -59,8 +62,11 @@ void ApplicationBrowserTest::CreateExtensions(
 }
 
 IN_PROC_BROWSER_TEST_F(ApplicationBrowserTest, ApiTest) {
-  Application* app = application_sevice()->LaunchFromUnpackedPath(
-      test_data_dir_.Append(FILE_PATH_LITERAL("api")));
+  base::FilePath manifest_path =
+      GetManifestPath(test_data_dir_.Append(FILE_PATH_LITERAL("api")),
+          Manifest::TYPE_MANIFEST);
+  Application* app = application_sevice()->LaunchFromManifestPath(
+      manifest_path, Manifest::TYPE_MANIFEST);
   ASSERT_TRUE(app);
   test_runner_->WaitForTestNotification();
   EXPECT_EQ(test_runner_->GetTestsResult(), ApiTestRunner::PASS);

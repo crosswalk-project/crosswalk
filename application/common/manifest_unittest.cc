@@ -26,13 +26,6 @@ class ManifestTest : public testing::Test {
   ManifestTest() : default_value_("test") {}
 
  protected:
-  void AssertType(Manifest* manifest, Manifest::Type type) {
-    EXPECT_EQ(type, manifest->GetType());
-    EXPECT_EQ(type == Manifest::TYPE_PACKAGED_APP,
-              manifest->IsPackaged());
-    EXPECT_EQ(type == Manifest::TYPE_HOSTED_APP, manifest->IsHosted());
-  }
-
   // Helper function that replaces the Manifest held by |manifest| with a copy
   // with its |key| changed to |value|. If |value| is NULL, then |key| will
   // instead be deleted.
@@ -63,8 +56,6 @@ TEST_F(ManifestTest, ApplicationData) {
   std::string error;
   EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());
-  // TODO(xiang): warnings will not be empty after enable manifest features
-  // AssertType(manifest.get(), Manifest::TYPE_HOSTED_AP);
 
   // The unknown key 'unknown_key' should be accesible.
   std::string value;
@@ -91,21 +82,6 @@ TEST_F(ManifestTest, ApplicationTypes) {
   std::string error;
   EXPECT_TRUE(manifest->ValidateManifest(&error));
   EXPECT_TRUE(error.empty());
-
-  // Platform app.
-  MutateManifest(
-      &manifest, keys::kStartURLKey,
-      new base::StringValue("main.html"));
-  AssertType(manifest.get(), Manifest::TYPE_PACKAGED_APP);
-  MutateManifest(
-      &manifest, keys::kStartURLKey, NULL);
-
-  // Hosted app.
-  MutateManifest(
-      &manifest, keys::kLaunchWebURLKey, new base::StringValue("foo"));
-  AssertType(manifest.get(), Manifest::TYPE_HOSTED_APP);
-  MutateManifest(
-      &manifest, keys::kLaunchWebURLKey, NULL);
 }
 
 }  // namespace application

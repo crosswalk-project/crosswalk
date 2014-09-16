@@ -247,7 +247,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   if (application) {
     directory_path = application->Path();
 
-    const char* csp_key = GetCSPKey(application->GetPackageType());
+    const char* csp_key = GetCSPKey(application->manifest_type());
     const CSPInfo* csp_info = static_cast<CSPInfo*>(
           application->GetManifestData(csp_key));
     if (csp_info) {
@@ -262,10 +262,8 @@ ApplicationProtocolHandler::MaybeCreateJob(
     }
   }
 
-  const std::string& path = request->url().path();
-
   std::list<std::string> locales;
-  if (application && application->GetPackageType() == Package::WGT) {
+  if (application && application->manifest_type() == Manifest::TYPE_WIDGET) {
     GetUserAgentLocales(GetSystemLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
   }

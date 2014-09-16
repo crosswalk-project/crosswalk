@@ -150,9 +150,9 @@ class Application : public Runtime::Observer,
 
   // Try to extract the URL from different possible keys for entry points in the
   // manifest, returns it and the entry point used.
-  template <Package::Type> GURL GetStartURL();
+  template <Manifest::Type> GURL GetStartURL();
 
-  template <Package::Type>
+  template <Manifest::Type>
   ui::WindowShowState GetWindowShowState(const LaunchParams& params);
 
   GURL GetAbsoluteURLFromKey(const std::string& key);

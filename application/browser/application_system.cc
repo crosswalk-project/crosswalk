@@ -92,16 +92,25 @@ bool ApplicationSystem::LaunchFromCommandLine(
     return true;
   }
 
-  if (base::DirectoryExists(path)) {  // Handles unpacked application.
-    run_default_message_loop = application_service_->LaunchFromUnpackedPath(
-        path, launch_params(cmd_line));
-    return true;
-  }
+  if (!base::PathExists(path))
+    return false;
 
   if (path.MatchesExtension(FILE_PATH_LITERAL(".xpk")) ||
       path.MatchesExtension(FILE_PATH_LITERAL(".wgt"))) {
     run_default_message_loop = application_service_->LaunchFromPackagePath(
         path, launch_params(cmd_line));
+    return true;
+  }
+
+  if (path.MatchesExtension(FILE_PATH_LITERAL(".json"))) {
+    run_default_message_loop = application_service_->LaunchFromManifestPath(
+        path, Manifest::TYPE_MANIFEST, launch_params(cmd_line));
+    return true;
+  }
+
+  if (path.MatchesExtension(FILE_PATH_LITERAL(".xml"))) {
+    run_default_message_loop = application_service_->LaunchFromManifestPath(
+        path, Manifest::TYPE_WIDGET, launch_params(cmd_line));
     return true;
   }
 

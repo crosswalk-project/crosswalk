@@ -31,14 +31,14 @@ class ScopedTestingManifestHandlerRegistry {
       : registry_(
           new ManifestHandlerRegistry(handlers)),
         prev_registry_(
-          ManifestHandlerRegistry::GetInstance(Package::XPK)) {
+          ManifestHandlerRegistry::GetInstance(Manifest::TYPE_MANIFEST)) {
     ManifestHandlerRegistry::SetInstanceForTesting(
-        registry_.get(), Package::XPK);
+        registry_.get(), Manifest::TYPE_MANIFEST);
   }
 
   ~ScopedTestingManifestHandlerRegistry() {
     ManifestHandlerRegistry::SetInstanceForTesting(
-        prev_registry_, Package::XPK);
+        prev_registry_, Manifest::TYPE_MANIFEST);
   }
 
   scoped_ptr<ManifestHandlerRegistry> registry_;
@@ -219,10 +219,9 @@ TEST_F(ManifestHandlerTest, DependentHandlers) {
   manifest.SetInteger("g", 6);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
   // A, B, C.EZ, C.D, K
@@ -247,10 +246,9 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   // Succeeds when "a" is not recognized.
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest_a,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
 
@@ -264,10 +262,9 @@ TEST_F(ManifestHandlerTest, FailingHandlers) {
   registry.reset(new ScopedTestingManifestHandlerRegistry(handlers));
 
   application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest_a,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest_a.DeepCopy()))),
       &error);
   EXPECT_FALSE(application.get());
   EXPECT_EQ("A", error);
@@ -285,10 +282,9 @@ TEST_F(ManifestHandlerTest, Validate) {
   manifest.SetInteger("b", 2);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
 
