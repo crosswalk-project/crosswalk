@@ -177,12 +177,12 @@ def GetExtensionBinaryPathList():
                                              item,
                                              data["binary_path"])
       else:
-        print "The extension \"%s\" doesn't exists." % item
+        print("The extension \"%s\" doesn't exists." % item)
         sys.exit(1)
     if os.path.isdir(extension_binary_path):
       local_extension_list.append(extension_binary_path)
     else:
-      print "The extension \"%s\" doesn't exists." % item
+      print("The extension \"%s\" doesn't exists." % item)
       sys.exit(1)
 
   return local_extension_list
