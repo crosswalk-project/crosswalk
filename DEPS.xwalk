@@ -50,6 +50,11 @@ solutions = [
         'https://chromium.googlesource.com/external/webrtc/trunk/webrtc.git@'
            'cdc312345fcdfc586a7c8cd720407449cc0bdcd2',
 
+      # Include OpenCL header files for WebCL support, target version 1.2.
+      'src/third_party/khronos/CL':
+        'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
+           '28150',
+
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
