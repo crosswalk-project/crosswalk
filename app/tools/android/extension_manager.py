@@ -96,13 +96,13 @@ def HandleAdd(git_url, extensions_path, name=None):
     name = git_url.split('/')[-1].split('.')[0]
   if not os.path.isdir(extensions_path):
     if os.path.isfile(extensions_path):
-      print "WARNING: Please remove file %s" % (extensions_path)
+      print("WARNING: Please remove file %s" % (extensions_path))
       sys.exit(1)
     else:
       os.mkdir(extensions_path)
   local_extension_path = os.path.join(extensions_path, name)
   if os.path.exists(local_extension_path):
-    print "ERROR: You already have a repo named \"%s\"." % name
+    print("ERROR: You already have a repo named \"%s\"." % name)
     return 
   os.mkdir(local_extension_path)
   #Only support git.
@@ -117,30 +117,30 @@ def HandleRemove(remove_name, extensions_path):
   if os.path.exists(extension_path):
     CleanDir(extension_path)
   else:
-    print "ERROR: Don't have extension \"%s\"" % (remove_name)
+    print("ERROR: Don't have extension \"%s\"" % (remove_name))
 
 
 def PrintExtensionInfo(extension_name, extensions_path):
-  print "{0} {1}".format(
+  print("{0} {1}".format(
       "+" if GetExtensionStatus(extension_name, extensions_path) else "-",
-      extension_name)
+      extension_name))
 
 
 def HandleList(extensions_path):
   extension_list = GetExtensionList(extensions_path)
-  print
+  print("")
   for extension_name in extension_list:
     PrintExtensionInfo(extension_name, extensions_path)
-  print
+  print("")
 
 
 def HandleSearch(key, extensions_path):
   extension_list = GetExtensionList(extensions_path)
   filtered_extensions = fnmatch.filter(extension_list, key)
-  print
+  print("")
   for extension_name in filtered_extensions:
     PrintExtensionInfo(extension_name, extensions_path)
-  print
+  print("")
 
 
 def HandleEnable(extension_name, extension_path):
