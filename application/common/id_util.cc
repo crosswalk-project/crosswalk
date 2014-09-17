@@ -12,7 +12,7 @@
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 
 #if defined(OS_TIZEN)
-#include "xwalk/application/common/tizen/package_path.h"
+#include "xwalk/application/common/tizen/package_query.h"
 
 #include "third_party/re2/re2/re2.h"
 #endif
