@@ -166,22 +166,25 @@ class TestMakeApk(unittest.TestCase):
       arch_list.append('arm')
     return arch_list
 
-  def checkApks(self, apk_name, app_version):
-    # Check whether some files are contained in the given APK.
+  def checkApks(self, apk_name, app_version, keystore_path=None):
+    apks = []
     if self._mode.find('shared') != -1:
       apk_path = '%s_%s.apk' % (apk_name, app_version)
-      self.checkApk(apk_path, '')
+      apks.append((apk_path, ''))
     elif self._mode.find('embedded') != -1:
       x86_apk_path = '%s_%s_x86.apk' % (apk_name, app_version)
       if os.path.exists(x86_apk_path):
-        self.checkApk(x86_apk_path, 'x86')
+        apks.append((x86_apk_path, 'x86'))
       arm_apk_path = '%s_%s_arm.apk' % (apk_name, app_version)
       if os.path.exists(arm_apk_path):
-        self.checkApk(arm_apk_path, 'arm')
+        apks.append((arm_apk_path, 'arm'))
 
-  def checkApk(self, apk_path, arch):
-    # Check whether some files are contained in the given apk
-    # for specified arch.
+    for apk, apk_arch in apks:
+      self.checkApk(apk, apk_arch, keystore_path)
+
+  def checkApk(self, apk_path, arch, keystore_path=None):
+    """Checks whether some files are contained in the given APK,
+    and optionally verifies its signature."""
     cmd = ['jar', 'tvf', apk_path]
     out = RunCommand(cmd)
     common_files = ['AndroidManifest.xml', 'classes.dex']
@@ -199,6 +202,12 @@ class TestMakeApk(unittest.TestCase):
       self.assertTrue(out.find('x86/libxwalkcore.so') != -1)
     elif arch == 'arm':
       self.assertTrue(out.find('armeabi-v7a/libxwalkcore.so') != -1)
+
+    if keystore_path:
+      cmd = ['jarsigner', '-verify', '-keystore', keystore_path,
+             '-verbose', apk_path]
+      out = RunCommand(cmd)
+      self.assertIn('smk', out)
 
   def testName(self):
     cmd = ['python', 'make_apk.py', '--app-version=1.0.0',
@@ -511,16 +520,25 @@ class TestMakeApk(unittest.TestCase):
            '--keystore-passcode=xwalk-test',
            '--keystore-alias-passcode=xwalk-test', self._mode]
     RunCommand(cmd)
-    self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertTrue(os.path.exists('Example'))
-    apk_list = ['Example.apk', 'Example_x86.apk', 'Example_arm.apk']
-    for apk in apk_list:
-      if os.path.isfile(apk):
-        cmd = ['jarsigner', '-verify', '-keystore',
-               keystore_path, '-verbose', apk]
-        out = RunCommand(cmd)
-        self.assertTrue(out.find('smk') != -1)
-    self.checkApks('Example', '1.0.0')
+    self.assertTrue(os.path.isdir('Example'))
+    self.checkApks('Example', '1.0.0', keystore_path)
+    Clean('Example', '1.0.0')
+
+    keystore_path_with_space = os.path.join(
+      'test_data', 'keystore', 'test keystore')
+    shutil.copy2(keystore_path, keystore_path_with_space)
+    keystore_path = os.path.join('test_data', 'keystore',
+                                 'xwalk-test.keystore')
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-url=http://www.intel.com',
+           '--keystore-path=%s' % keystore_path_with_space,
+           '--keystore-alias=xwalk test',
+           '--keystore-passcode=xwalk-test',
+           '--keystore-alias-passcode=xwalk test', self._mode]
+    RunCommand(cmd)
+    self.assertTrue(os.path.isdir('Example'))
+    self.checkApks('Example', '1.0.0', keystore_path_with_space)
+    Clean('Example', '1.0.0')
 
   def testManifest(self):
     manifest_path = os.path.join('test_data', 'manifest', 'manifest.json')
