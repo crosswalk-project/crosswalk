@@ -376,6 +376,9 @@ class InternalJavaFileData(object):
   def UseAsInstanceInBridgeOverrideCall(self, var):
     clazz = self._class_annotations.get('instance', self._class_name)
     clazz = clazz.replace('.class', '')
+    if self.LoadJavaClass(clazz).class_annotations.get(
+        'createInternally', False):
+      return self.UseAsReturnInBridgeSuperCall(var)
     return '(%s) %s' % (self.LoadJavaClass(clazz).bridge_name, var)
 
   def UseAsReturnInBridgeSuperCall(self, var):
@@ -437,3 +440,10 @@ class InternalJavaFileData(object):
       else:
         return "org.xwalk.core.%s$%s" % (self._wrapper_name,
                                          subclass.replace('Internal', ''))
+
+  def GetInstanceJavaData(self):
+    clazz = self._class_annotations.get('instance', None)
+    if clazz:
+      clazz = clazz.replace('.class', '')
+      return self.LoadJavaClass(clazz)
+    return None
