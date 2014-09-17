@@ -23,16 +23,13 @@ namespace application {
 class Manifest {
  public:
   enum Type {
-    TYPE_UNKNOWN = 0,
-    TYPE_HOSTED_APP,
-    TYPE_PACKAGED_APP
+    TYPE_MANIFEST,  // Corresponds to w3c.github.io/manifest
+    TYPE_WIDGET     // Corresponds to http://www.w3.org/TR/widgets
   };
 
-  explicit Manifest(scoped_ptr<base::DictionaryValue> value);
+  explicit Manifest(
+      scoped_ptr<base::DictionaryValue> value, Type type = TYPE_MANIFEST);
   ~Manifest();
-
-  const std::string& GetApplicationID() const { return application_id_; }
-  void SetApplicationID(const std::string& id) { application_id_ = id; }
 
   // Returns false and |error| will be non-empty if the manifest is malformed.
   // |warnings| will be populated if there are keys in the manifest that cannot
@@ -40,10 +37,7 @@ class Manifest {
   bool ValidateManifest(std::string* error) const;
 
   // Returns the manifest type.
-  Type GetType() const { return type_; }
-
-  bool IsPackaged() const { return type_ == TYPE_PACKAGED_APP; }
-  bool IsHosted() const { return type_ == TYPE_HOSTED_APP; }
+  Type type() const { return type_; }
 
   // These access the wrapped manifest value, returning false when the property
   // does not exist or if the manifest type can't access it.
@@ -97,11 +91,6 @@ class Manifest {
   // Returns true if the application can specify the given |path|.
   bool CanAccessPath(const std::string& path) const;
   bool CanAccessKey(const std::string& key) const;
-
-  // A persistent, globally unique ID. An application's ID is used in things
-  // like directory structures and URLs, and is expected to not change across
-  // versions.
-  std::string application_id_;
 
 #if defined(OS_TIZEN)
   // Unique package id for tizen platform

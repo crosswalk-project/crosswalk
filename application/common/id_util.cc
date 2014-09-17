@@ -101,10 +101,7 @@ std::string PkgIdToAppId(const std::string& id) {
 
 bool IsValidApplicationID(const std::string& id) {
 #if defined(OS_TIZEN)
-  if (IsValidWGTID(id) ||
-      IsValidXPKID(id))
-    return true;
-  return false;
+  return (IsValidWGTID(id) || IsValidXPKID(id));
 #endif
 
   std::string temp = base::StringToLowerASCII(id);

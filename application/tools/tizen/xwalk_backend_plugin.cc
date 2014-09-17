@@ -24,6 +24,8 @@
 #include "xwalk/application/common/tizen/package_query.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
+using xwalk::application::Manifest;
+
 namespace {
 
 enum PkgmgrPluginBool {
@@ -167,7 +169,7 @@ void PkgmgrBackendPlugin::SaveDetailInfo(
           PKG_VALUE_STRING_LEN_MAX - 1);
 
   // xpk do not have this key in manifest
-  if (app_data->GetPackageType() == xwalk::application::Package::WGT) {
+  if (app_data->manifest_type() == Manifest::TYPE_WIDGET) {
     const xwalk::application::TizenApplicationInfo* tizen_app_info =
         static_cast<xwalk::application::TizenApplicationInfo*>(
             app_data->GetManifestData(
@@ -207,7 +209,6 @@ PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path,
   std::string error;
   scoped_refptr<xwalk::application::ApplicationData> app_data = LoadApplication(
       unpacked_dir, app_id, xwalk::application::ApplicationData::TEMP_DIRECTORY,
-      package->type(), &error);
-
+      package->manifest_type(), &error);
   return app_data;
 }

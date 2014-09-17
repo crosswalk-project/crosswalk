@@ -34,10 +34,9 @@ TEST_F(PermissionsHandlerTest, NonePermission) {
   manifest.SetString(keys::kXWalkVersionKey, "0");
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetAPIPermissionsInfo(application).size(), 0);
@@ -51,10 +50,9 @@ TEST_F(PermissionsHandlerTest, EmptyPermission) {
   manifest.Set(keys::kPermissionsKey, permissions);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(GetAPIPermissionsInfo(application).size(), 0);
@@ -69,10 +67,9 @@ TEST_F(PermissionsHandlerTest, DeviceAPIPermission) {
   manifest.Set(keys::kPermissionsKey, permissions);
   std::string error;
   scoped_refptr<ApplicationData> application = ApplicationData::Create(
-      base::FilePath(),
+      base::FilePath(), std::string(),
       ApplicationData::LOCAL_DIRECTORY,
-      manifest,
-      "",
+      make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()))),
       &error);
   EXPECT_TRUE(application.get());
   const PermissionSet& permission_list =

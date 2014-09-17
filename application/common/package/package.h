@@ -12,6 +12,7 @@
 #include "base/files/scoped_file.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/memory/scoped_ptr.h"
+#include "xwalk/application/common/manifest.h"
 
 namespace xwalk {
 namespace application {
@@ -22,16 +23,12 @@ namespace application {
 //  XPKPackage::Validate()
 class Package {
  public:
-  enum Type {
-    WGT,
-    XPK
-  };
-
   virtual ~Package();
   bool IsValid() const { return is_valid_; }
   const std::string& Id() const { return id_; }
   const std::string& name() const { return name_; }
-  Type type() const { return type_; }
+  // Returns the type of the manifest which the package contains.
+  Manifest::Type manifest_type() const { return manifest_type_; }
   // Factory method for creating a package
   static scoped_ptr<Package> Create(const base::FilePath& path);
   // The function will unzip the XPK/WGT file and return the target path where
@@ -54,7 +51,7 @@ class Package {
   base::ScopedTempDir temp_dir_;
   // Represent if the package has been extracted.
   bool is_extracted_;
-  Type type_;
+  Manifest::Type manifest_type_;
 };
 
 }  // namespace application

@@ -63,29 +63,10 @@ scoped_ptr<List> ExpandUserAgentLocalesList(const scoped_ptr<List>& list) {
 
 }  // namespace
 
-Manifest::Manifest(scoped_ptr<base::DictionaryValue> value)
+Manifest::Manifest(scoped_ptr<base::DictionaryValue> value, Type type)
     : data_(value.Pass()),
       i18n_data_(new base::DictionaryValue),
-      type_(TYPE_UNKNOWN) {
-  // FIXME: Hosted apps can contain start_url. Below is wrong.
-  if (data_->Get(keys::kStartURLKey, NULL)) {
-    type_ = TYPE_PACKAGED_APP;
-  } else if (data_->HasKey(keys::kAppKey)) {
-    if (data_->Get(keys::kLaunchWebURLKey, NULL)) {
-      type_ = TYPE_HOSTED_APP;
-    } else if (data_->Get(keys::kLaunchLocalPathKey, NULL)) {
-      type_ = TYPE_PACKAGED_APP;
-    }
-#if defined(OS_TIZEN)
-  } else if (HasPath(widget_keys::kContentNamespace)) {
-    std::string ns;
-    if (data_->GetString(widget_keys::kContentNamespace, &ns) &&
-        ns == kTizenNamespacePrefix)
-      type_ = TYPE_HOSTED_APP;
-    else
-      type_ = TYPE_PACKAGED_APP;
-#endif
-  }
+      type_(type) {
 
   if (data_->HasKey(widget_keys::kWidgetKey) &&
       data_->Get(widget_keys::kWidgetKey, NULL))
@@ -181,8 +162,8 @@ bool Manifest::GetList(
 
 Manifest* Manifest::DeepCopy() const {
   Manifest* manifest = new Manifest(
-      scoped_ptr<base::DictionaryValue>(data_->DeepCopy()));
-  manifest->SetApplicationID(application_id_);
+      scoped_ptr<base::DictionaryValue>(data_->DeepCopy()),
+      type());
   return manifest;
 }
 

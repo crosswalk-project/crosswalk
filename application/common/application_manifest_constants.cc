@@ -147,37 +147,37 @@ const char kManifestUnreadable[] =
 
 namespace application {
 
-const char* GetNameKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
+const char* GetNameKey(Manifest::Type manifest_type) {
+  if (manifest_type == Manifest::TYPE_WIDGET)
     return application_widget_keys::kNameKey;
 
   return application_manifest_keys::kNameKey;
 }
 
-const char* GetVersionKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
+const char* GetVersionKey(Manifest::Type manifest_type) {
+  if (manifest_type == Manifest::TYPE_WIDGET)
     return application_widget_keys::kVersionKey;
 
   return application_manifest_keys::kXWalkVersionKey;
 }
 
-const char* GetCSPKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
+const char* GetCSPKey(Manifest::Type manifest_type) {
+  if (manifest_type == Manifest::TYPE_WIDGET)
     return application_widget_keys::kCSPKey;
 
   return application_manifest_keys::kCSPKey;
 }
 
 #if defined(OS_TIZEN)
-const char* GetTizenAppIdKey(Package::Type package_type) {
-  if (package_type == Package::WGT)
+const char* GetTizenAppIdKey(Manifest::Type manifest_type) {
+  if (manifest_type == Manifest::TYPE_WIDGET)
     return application_widget_keys::kTizenAppIdKey;
 
   return application_manifest_keys::kTizenAppIdKey;
 }
 
-const char* GetIcon128Key(Package::Type package_type) {
-  if (package_type == Package::WGT)
+const char* GetIcon128Key(Manifest::Type manifest_type) {
+  if (manifest_type == Manifest::TYPE_WIDGET)
     return application_widget_keys::kIcon128Key;
 
   return application_manifest_keys::kIcon128Key;

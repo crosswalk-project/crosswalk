@@ -103,7 +103,7 @@ Application::~Application() {
 }
 
 template<>
-GURL Application::GetStartURL<Package::WGT>() {
+GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
   GURL url = GetAbsoluteURLFromKey(widget_keys::kLaunchLocalPathKey);
   if (!url.is_valid()) {
     LOG(WARNING) << "Failed to find start URL from the 'config.xml'"
@@ -127,7 +127,7 @@ GURL Application::GetStartURL<Package::WGT>() {
 }
 
 template<>
-GURL Application::GetStartURL<Package::XPK>() {
+GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
   GURL url = GetAbsoluteURLFromKey(keys::kStartURLKey);
   if (url.is_valid())
     return url;
@@ -150,7 +150,7 @@ GURL Application::GetStartURL<Package::XPK>() {
 
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Package::WGT>(
+ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_WIDGET>(
     const LaunchParams& params) {
   if (params.force_fullscreen)
     return ui::SHOW_STATE_FULLSCREEN;
@@ -171,7 +171,7 @@ ui::WindowShowState Application::GetWindowShowState<Package::WGT>(
 }
 
 template<>
-ui::WindowShowState Application::GetWindowShowState<Package::XPK>(
+ui::WindowShowState Application::GetWindowShowState<Manifest::TYPE_MANIFEST>(
     const LaunchParams& params) {
   if (params.force_fullscreen)
     return ui::SHOW_STATE_FULLSCREEN;
@@ -196,10 +196,10 @@ bool Application::Launch(const LaunchParams& launch_params) {
   }
 
   CHECK(!render_process_host_);
-  bool is_wgt = data_->GetPackageType() == Package::WGT;
+  bool is_wgt = data_->manifest_type() == Manifest::TYPE_WIDGET;
 
-  GURL url = is_wgt ? GetStartURL<Package::WGT>():
-                      GetStartURL<Package::XPK>();
+  GURL url = is_wgt ? GetStartURL<Manifest::TYPE_WIDGET>() :
+                      GetStartURL<Manifest::TYPE_MANIFEST>();
   if (!url.is_valid())
     return false;
 
@@ -216,8 +216,9 @@ bool Application::Launch(const LaunchParams& launch_params) {
 
   NativeAppWindow::CreateParams params;
   params.net_wm_pid = launch_params.launcher_pid;
-  params.state = is_wgt ? GetWindowShowState<Package::WGT>(launch_params):
-                          GetWindowShowState<Package::XPK>(launch_params);
+  params.state = is_wgt ?
+      GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params):
+      GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
 
   params.splash_screen_path = GetSplashScreenPath();
 
@@ -385,7 +386,7 @@ void Application::InitSecurityPolicy() {
   // CSP policy takes precedence over WARP.
   if (data_->HasCSPDefined())
     security_policy_.reset(new SecurityPolicyCSP(this));
-  else if (data_->GetPackageType() == Package::WGT)
+  else if (data_->manifest_type() == Manifest::TYPE_WIDGET)
     security_policy_.reset(new SecurityPolicyWARP(this));
 
   if (security_policy_)

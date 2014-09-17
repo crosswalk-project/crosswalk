@@ -59,8 +59,8 @@ ManifestHandlerRegistry::~ManifestHandlerRegistry() {
 }
 
 ManifestHandlerRegistry*
-ManifestHandlerRegistry::GetInstance(Package::Type package_type) {
-  if (package_type == Package::WGT)
+ManifestHandlerRegistry::GetInstance(Manifest::Type type) {
+  if (type == Manifest::TYPE_WIDGET)
     return GetInstanceForWGT();
   return GetInstanceForXPK();
 }
@@ -75,7 +75,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new WidgetHandler);
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
-  handlers.push_back(new CSPHandler(Package::WGT));
+  handlers.push_back(new CSPHandler(Manifest::TYPE_WIDGET));
   handlers.push_back(new NavigationHandler);
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenSettingHandler);
@@ -94,7 +94,7 @@ ManifestHandlerRegistry::GetInstanceForXPK() {
   std::vector<ManifestHandler*> handlers;
   // FIXME: Add manifest handlers here like this:
   // handlers.push_back(new xxxHandler);
-  handlers.push_back(new CSPHandler(Package::XPK));
+  handlers.push_back(new CSPHandler(Manifest::TYPE_MANIFEST));
   handlers.push_back(new PermissionsHandler);
   xpk_registry_ = new ManifestHandlerRegistry(handlers);
   return xpk_registry_;
@@ -114,7 +114,7 @@ bool ManifestHandlerRegistry::ParseAppManifest(
        iter != handlers_.end(); ++iter) {
     ManifestHandler* handler = iter->second;
     if (application->GetManifest()->HasPath(iter->first) ||
-        handler->AlwaysParseForType(application->GetType())) {
+        handler->AlwaysParseForType(application->manifest_type())) {
       handlers_by_order[order_map_[handler]] = handler;
     }
   }
@@ -134,7 +134,7 @@ bool ManifestHandlerRegistry::ValidateAppManifest(
        iter != handlers_.end(); ++iter) {
     ManifestHandler* handler = iter->second;
     if ((application->GetManifest()->HasPath(iter->first) ||
-         handler->AlwaysValidateForType(application->GetType())) &&
+         handler->AlwaysValidateForType(application->manifest_type())) &&
         !handler->Validate(application, error))
       return false;
   }
@@ -143,8 +143,8 @@ bool ManifestHandlerRegistry::ValidateAppManifest(
 
 // static
 void ManifestHandlerRegistry::SetInstanceForTesting(
-    ManifestHandlerRegistry* registry, Package::Type package_type) {
-  if (package_type == Package::WGT) {
+    ManifestHandlerRegistry* registry, Manifest::Type type) {
+  if (type == Manifest::TYPE_WIDGET) {
     widget_registry_ = registry;
     return;
   }

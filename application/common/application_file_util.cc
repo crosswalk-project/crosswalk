@@ -163,47 +163,6 @@ inline bool IsElementSupportSpanAndDir(xmlNode* root) {
   return false;
 }
 
-// FIXME: This function is wrong and has to be re-implemented
-// further (see XWALK-2230)
-bool GetPackageType(const base::FilePath& path,
-                    xwalk::application::Package::Type* package_type,
-                    std::string* error) {
-  base::FilePath manifest_path;
-
-  manifest_path = path.Append(xwalk::application::kManifestXpkFilename);
-  if (base::PathExists(manifest_path)) {
-    *package_type = xwalk::application::Package::XPK;
-    return true;
-  }
-
-  manifest_path = path.Append(xwalk::application::kManifestWgtFilename);
-  if (base::PathExists(manifest_path)) {
-    *package_type = xwalk::application::Package::WGT;
-    return true;
-  }
-
-  *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-  return false;
-}
-
-#if defined(OS_TIZEN)
-bool GetPackageType(const std::string& application_id,
-                    xwalk::application::Package::Type* package_type,
-                    std::string* error) {
-  if (xwalk::application::IsValidWGTID(application_id)) {
-    *package_type = xwalk::application::Package::WGT;
-    return true;
-  } else if (xwalk::application::IsValidXPKID(application_id)) {
-    *package_type = xwalk::application::Package::XPK;
-    return true;
-  }
-
-  *error = base::StringPrintf("Invalid application id: %s",
-                              application_id.c_str());
-  return false;
-}
-#endif
-
 bool IsSingletonElement(const std::string& name) {
   for (int i = 0; i < arraysize(kSingletonElements); ++i)
     if (kSingletonElements[i] == name)
@@ -230,6 +189,8 @@ FileDeleter::FileDeleter(const base::FilePath& path, bool recursive)
 FileDeleter::~FileDeleter() {
   base::DeleteFile(path_, recursive_);
 }
+
+namespace {
 
 // Load XML node into Dictionary structure.
 // The keys for the XML node to Dictionary mapping are described below:
@@ -359,72 +320,18 @@ base::DictionaryValue* LoadXMLNode(
   return value.release();
 }
 
-scoped_refptr<ApplicationData> LoadApplication(
-    const base::FilePath& application_path,
-    ApplicationData::SourceType source_type,
-    std::string* error) {
-  Package::Type package_type;
-  if (!GetPackageType(application_path, &package_type, error))
-    return NULL;
+}  // namespace
 
-  return LoadApplication(application_path, std::string(),
-                         source_type, package_type, error);
-}
+template <Manifest::Type>
+scoped_ptr<Manifest> LoadManifest(
+    const base::FilePath& manifest_path, std::string* error);
 
-scoped_refptr<ApplicationData> LoadApplication(
-    const base::FilePath& application_path,
-    const std::string& application_id,
-    ApplicationData::SourceType source_type,
-    std::string* error) {
-  Package::Type package_type;
-#if defined(OS_TIZEN)
-  if (!GetPackageType(application_id, &package_type, error))
-#else
-  if (!GetPackageType(application_path, &package_type, error))
-#endif
-    return NULL;
-
-  return LoadApplication(application_path, application_id,
-                         source_type, package_type, error);
-}
-
-scoped_refptr<ApplicationData> LoadApplication(
-    const base::FilePath& application_path,
-    const std::string& application_id,
-    ApplicationData::SourceType source_type,
-    Package::Type package_type,
-    std::string* error) {
-  scoped_ptr<base::DictionaryValue> manifest(
-      LoadManifest(application_path, package_type, error));
-  if (!manifest.get())
-    return NULL;
-
-  scoped_refptr<ApplicationData> application = ApplicationData::Create(
-                                                             application_path,
-                                                             source_type,
-                                                             *manifest,
-                                                             application_id,
-                                                             error);
-  if (!application)
-    return NULL;
-
-  ManifestHandlerRegistry* registry =
-      manifest->HasKey(widget_keys::kWidgetKey)
-      ? ManifestHandlerRegistry::GetInstance(Package::WGT)
-      : ManifestHandlerRegistry::GetInstance(Package::XPK);
-
-  if (!registry->ValidateAppManifest(application, error))
-    return NULL;
-
-  return application;
-}
-
-static base::DictionaryValue* LoadManifestXpk(
-    const base::FilePath& manifest_path,
-    std::string* error) {
+template <>
+scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_MANIFEST>(
+    const base::FilePath& manifest_path, std::string* error) {
   JSONFileValueSerializer serializer(manifest_path);
   scoped_ptr<base::Value> root(serializer.Deserialize(NULL, error));
-  if (!root.get()) {
+  if (!root) {
     if (error->empty()) {
       // If |error| is empty, than the file could not be read.
       // It would be cleaner to have the JSON reader give a specific error
@@ -433,28 +340,28 @@ static base::DictionaryValue* LoadManifestXpk(
       *error = base::StringPrintf("%s", errors::kManifestUnreadable);
     } else {
       *error = base::StringPrintf("%s  %s",
-                                  errors::kManifestParseError,
-                                  error->c_str());
+          errors::kManifestParseError, error->c_str());
     }
-    return NULL;
+    return scoped_ptr<Manifest>();
   }
 
   if (!root->IsType(base::Value::TYPE_DICTIONARY)) {
     *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-    return NULL;
+    return scoped_ptr<Manifest>();
   }
 
-  base::DictionaryValue* dv =
-      static_cast<base::DictionaryValue*>(root.release());
+  scoped_ptr<base::DictionaryValue> dv = make_scoped_ptr(
+      static_cast<base::DictionaryValue*>(root.release()));
 #if defined(OS_TIZEN)
   // Ignore any Tizen application ID, as this is automatically generated.
   dv->Remove(keys::kTizenAppIdKey, NULL);
 #endif
 
-  return dv;
+  return make_scoped_ptr(new Manifest(dv.Pass(), Manifest::TYPE_MANIFEST));
 }
 
-static base::DictionaryValue* LoadManifestWgt(
+template <>
+scoped_ptr<Manifest> LoadManifest<Manifest::TYPE_WIDGET>(
     const base::FilePath& manifest_path,
     std::string* error) {
   xmlDoc * doc = NULL;
@@ -462,7 +369,7 @@ static base::DictionaryValue* LoadManifestWgt(
   doc = xmlReadFile(manifest_path.MaybeAsASCII().c_str(), NULL, 0);
   if (doc == NULL) {
     *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-    return NULL;
+    return scoped_ptr<Manifest>();
   }
   root_node = xmlDocGetRootElement(doc);
   base::DictionaryValue* dv = LoadXMLNode(root_node);
@@ -470,24 +377,51 @@ static base::DictionaryValue* LoadManifestWgt(
   if (dv)
     result->Set(ToConstCharPointer(root_node->name), dv);
 
-  return result.release();
+  return make_scoped_ptr(new Manifest(result.Pass(), Manifest::TYPE_WIDGET));
 }
 
-base::DictionaryValue* LoadManifest(const base::FilePath& application_path,
-                                    Package::Type package_type,
-                                    std::string* error) {
-  base::FilePath manifest_path;
+scoped_ptr<Manifest> LoadManifest(const base::FilePath& manifest_path,
+    Manifest::Type type, std::string* error) {
+  if (type == Manifest::TYPE_MANIFEST)
+    return LoadManifest<Manifest::TYPE_MANIFEST>(manifest_path, error);
 
-  manifest_path = application_path.Append(kManifestXpkFilename);
-  if (package_type == Package::XPK)
-    return LoadManifestXpk(manifest_path, error);
-
-  manifest_path = application_path.Append(kManifestWgtFilename);
-  if (package_type == Package::WGT)
-    return LoadManifestWgt(manifest_path, error);
+  if (type == Manifest::TYPE_WIDGET)
+    return LoadManifest<Manifest::TYPE_WIDGET>(manifest_path, error);
 
   *error = base::StringPrintf("%s", errors::kManifestUnreadable);
-  return NULL;
+  return scoped_ptr<Manifest>();
+}
+
+base::FilePath GetManifestPath(
+    const base::FilePath& app_directory, Manifest::Type type) {
+  base::FilePath manifest_path;
+  switch (type) {
+    case Manifest::TYPE_WIDGET:
+      manifest_path = app_directory.Append(kManifestWgtFilename);
+      break;
+    case Manifest::TYPE_MANIFEST:
+      manifest_path = app_directory.Append(kManifestXpkFilename);
+      break;
+    default:
+      NOTREACHED();
+  }
+
+  return manifest_path;
+}
+
+scoped_refptr<ApplicationData> LoadApplication(
+    const base::FilePath& app_root, const std::string& app_id,
+    ApplicationData::SourceType source_type, Manifest::Type manifest_type,
+    std::string* error) {
+  base::FilePath manifest_path = GetManifestPath(app_root, manifest_type);
+
+  scoped_ptr<Manifest> manifest = LoadManifest(
+      manifest_path, manifest_type, error);
+  if (!manifest)
+    return NULL;
+
+  return ApplicationData::Create(
+      app_root, app_id, source_type, manifest.Pass(), error);
 }
 
 base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {
