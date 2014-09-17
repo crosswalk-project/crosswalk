@@ -12,21 +12,34 @@ import android.util.AttributeSet;
  * The XWalkView that allows to use Crosswalk's shared library.
  */
 public class SharedXWalkView extends XWalkView {
+
+    private static boolean initialized = false;
+
     public SharedXWalkView(Context context, AttributeSet attrs,
             SharedXWalkExceptionHandler handler) {
-        super(verifyActivity(context, handler), attrs);
+        super(verifyActivity(context), attrs);
     }
 
-    public SharedXWalkView(Context context, Activity activity,
-            SharedXWalkExceptionHandler handler) {
-        super(context, verifyActivity(activity, handler));
+    public SharedXWalkView(Context context, Activity activity) {
+        super(context, verifyActivity(activity));
     }
 
-    private static Activity verifyActivity(Context context, SharedXWalkExceptionHandler handler) {
+    private static Activity verifyActivity(Context context) {
         assert context instanceof Activity;
+        if (!initialized) initialize(context, null);
+        return (Activity) context;
+    }
+
+    public static void initialize(Context context, SharedXWalkExceptionHandler handler) {
+        if (initialized) return;
+
         assert context.getApplicationContext() instanceof XWalkApplication;
         ReflectionHelper.allowCrossPackage();
-        ReflectionHelper.setExceptionHandler(handler);
-        return (Activity) context;
+        if (handler != null) ReflectionHelper.setExceptionHandler(handler);
+        initialized = true;
+    }
+
+    public static boolean usesLibraryOutOfPackage() {
+        return ReflectionHelper.shouldUseLibrary();
     }
 }

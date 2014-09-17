@@ -16,9 +16,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
-import org.xwalk.app.runtime.XWalkRuntimeLibraryException;
 import org.xwalk.app.runtime.XWalkRuntimeView;
-import org.xwalk.core.ReflectionHelper;
+import org.xwalk.core.SharedXWalkExceptionHandler;
+import org.xwalk.core.SharedXWalkView;
 import org.xwalk.core.XWalkPreferences;
 
 public abstract class XWalkRuntimeActivityBase extends Activity {
@@ -127,6 +127,14 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private void tryLoadRuntimeView() {
         try {
+            SharedXWalkView.initialize(this, new SharedXWalkExceptionHandler() {
+                @Override
+                public void onSharedLibraryNotFound() {
+                    String title = getString("dialog_title_install_runtime_lib");
+                    String message = getString("dialog_message_install_runtime_lib");
+                    showRuntimeLibraryExceptionDialog(title, message);
+                }
+            });
             if (mUseAnimatableView) {
                 XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, true);
             } else {
@@ -158,45 +166,18 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
     }
 
     public void handleException(Throwable e) {
-        if (e instanceof RuntimeException) {
+        if (e == null) return;
+        if (e instanceof RuntimeException && e.getCause() != null) {
             handleException(e.getCause());
             return;
         }
-
-        if (e instanceof XWalkRuntimeLibraryException) {
-            String title = "";
-            String message = "";
-            XWalkRuntimeLibraryException runtimeException = (XWalkRuntimeLibraryException) e;
-            switch (runtimeException.getType()) {
-            case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_CRITICAL:
-                title = getString("dialog_title_update_runtime_lib");
-                message = getString("dialog_message_update_runtime_lib");
-                break;
-            case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_UP_TO_DATE_WARNING:
-                title = getString("dialog_title_update_runtime_lib_warning");
-                message = getString("dialog_message_update_runtime_lib_warning");
-                break;
-            case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_NOT_INSTALLED:
-                title = getString("dialog_title_install_runtime_lib");
-                message = getString("dialog_message_install_runtime_lib");
-                break;
-            case XWalkRuntimeLibraryException.XWALK_RUNTIME_LIBRARY_INVOKE_FAILED:
-            default:
-                Exception originException = runtimeException.getOriginException();
-                if (originException != null) handleException(originException);
-                return;
-            }
-            showRuntimeLibraryExceptionDialog(title, message);
-        } else {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        throw new RuntimeException(e);
     }
 
     private void showRuntimeLibraryExceptionDialog(String title, String message) {
         if (!mShownNotFoundDialog) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if (!ReflectionHelper.shouldUseLibrary()) {
+            if (!SharedXWalkView.usesLibraryOutOfPackage()) {
                 builder.setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
