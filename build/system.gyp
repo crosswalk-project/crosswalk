@@ -56,6 +56,7 @@
           'type': 'none',
           'variables': {
             'packages': [
+              'libtzplatform-config',
               'ail',
               'dlog',
               'pkgmgr-parser',

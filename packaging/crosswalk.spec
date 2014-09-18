@@ -238,7 +238,7 @@ install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
 # xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
-install -m 06755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
+install -m 0755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
 install -p -D src/out/Release/lib/libxwalk-backendlib.so %{buildroot}%{_libdir}/xwalk/libxwalk-backendlib.so
 install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh %{buildroot}%{_libdir}/xwalk/xwalk_backend_wrapper.sh
 
