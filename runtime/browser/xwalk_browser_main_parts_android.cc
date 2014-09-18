@@ -106,6 +106,8 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(
       switches::kDisableOverlayFullscreenVideoSubtitle);
 
+  command_line->AppendSwitch(switches::kEnableViewportMeta);
+
   XWalkBrowserMainParts::PreMainMessageLoopStart();
 
   startup_url_ = GURL();

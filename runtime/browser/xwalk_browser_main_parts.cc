@@ -98,7 +98,6 @@ XWalkBrowserMainParts::~XWalkBrowserMainParts() {
 void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   CommandLine* command_line = CommandLine::ForCurrentProcess();
   command_line->AppendSwitch(switches::kEnableViewport);
-  command_line->AppendSwitch(switches::kEnableViewportMeta);
 
   command_line->AppendSwitch(xswitches::kEnableOverlayScrollbars);
 
