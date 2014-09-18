@@ -15,6 +15,7 @@
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/tizen/signature_data.h"
 #include "xwalk/application/common/tizen/signature_parser.h"
+#include "xwalk/application/common/tizen/signature_xmlsec_adaptor.h"
 
 namespace {
 
@@ -226,7 +227,6 @@ SignatureValidator::Status SignatureValidator::Check(
   SignatureFileSet::reverse_iterator iter = signature_set.rbegin();
   bool ret = false;
   for (; iter != signature_set.rend(); ++iter) {
-    LOG(INFO) << "Checking signature with id=" << iter->file_number();
     // Verify whether signature xml is a valid [XMLDSIG] document.
     if (!XMLSchemaValidate(*iter, widget_path)) {
       LOG(ERROR) << "Validating " << iter->file_name() << "schema failed.";
@@ -252,7 +252,8 @@ SignatureValidator::Status SignatureValidator::Check(
       return INVALID;
 
     // Perform reference validation and signature validation on signature
-    // TODO(XU): depends on root CA certificate installed on Tizen platform.
+    if (!SignatureXmlSecAdaptor::ValidateFile(*data.get(), widget_path))
+      return INVALID;
   }
   return VALID;
 }
