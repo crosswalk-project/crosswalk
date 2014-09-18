@@ -20,11 +20,24 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
   TizenSettingInfo();
   virtual ~TizenSettingInfo();
 
+  enum ScreenOrientation {
+    PORTRAIT,
+    LANDSCAPE,
+    AUTO
+  };
+
   void set_hwkey_enabled(bool enabled) { hwkey_enabled_ = enabled; }
   bool hwkey_enabled() const { return hwkey_enabled_; }
 
+  void set_screen_orientation(ScreenOrientation orientation) {
+    screen_orientation_ = orientation;
+  }
+
+  ScreenOrientation screen_orientation() const { return screen_orientation_; }
+
  private:
   bool hwkey_enabled_;
+  ScreenOrientation screen_orientation_;
 };
 
 class TizenSettingHandler : public ManifestHandler {

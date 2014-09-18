@@ -35,6 +35,25 @@ namespace widget_keys = application_widget_keys;
 
 namespace application {
 
+blink::WebScreenOrientationLockType GetDefaultOrientation(
+    const base::WeakPtr<Application>& app) {
+  TizenSettingInfo* info = static_cast<TizenSettingInfo*>(
+    app->data()->GetManifestData(widget_keys::kTizenSettingKey));
+  if (!info)
+    return blink::WebScreenOrientationLockDefault;
+  switch (info->screen_orientation()) {
+    case TizenSettingInfo::PORTRAIT:
+      return blink::WebScreenOrientationLockPortrait;
+    case TizenSettingInfo::LANDSCAPE:
+      return blink::WebScreenOrientationLockLandscape;
+    case TizenSettingInfo::AUTO:
+      return blink::WebScreenOrientationLockAny;
+    default:
+      NOTREACHED();
+      return blink::WebScreenOrientationLockDefault;
+  }
+}
+
 class ScreenOrientationProviderTizen :
     public content::ScreenOrientationProvider {
  public:
@@ -64,7 +83,7 @@ class ScreenOrientationProviderTizen :
   }
 
   virtual void UnlockOrientation() OVERRIDE {
-    LockOrientation(request_id_, blink::WebScreenOrientationLockDefault);
+    LockOrientation(request_id_, GetDefaultOrientation(app_));
   }
 
   virtual void OnOrientationChange() OVERRIDE {}
@@ -102,8 +121,11 @@ void ApplicationTizen::Hide() {
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
     DCHECK(web_contents_);
-    web_contents_->GetScreenOrientationDispatcherHost()->
-        SetProvider(new ScreenOrientationProviderTizen(GetWeakPtr()));
+    content::ScreenOrientationProvider *provider =
+        new ScreenOrientationProviderTizen(GetWeakPtr());
+    web_contents_->GetScreenOrientationDispatcherHost()->SetProvider(provider);
+
+    provider->LockOrientation(0, GetDefaultOrientation(GetWeakPtr()));
     return true;
   }
   return false;

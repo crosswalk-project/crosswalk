@@ -121,6 +121,7 @@ const char kTizenMetaDataValueKey[] = "@value";
 const char kTizenSplashScreenKey[] = "widget.splash-screen";
 const char kTizenSplashScreenSrcKey[] = "@src";
 const char kContentNamespace[] = "widget.content.@namespace";
+const char kTizenScreenOrientationKey[] = "widget.setting.@screen-orientation";
 #endif
 
 }  // namespace application_widget_keys
