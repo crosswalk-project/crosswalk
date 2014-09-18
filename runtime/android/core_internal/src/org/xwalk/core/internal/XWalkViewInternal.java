@@ -237,6 +237,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         return mContext;
     }
 
+    public void completeWindowCreation(XWalkViewInternal newXWalkView) {
+        mContent.supplyContentsForPopup(newXWalkView == null ? null : newXWalkView.mContent);
+    }
+
     private void init(Context context, AttributeSet attrs) {
         // Initialize chromium resources. Assign them the correct ids in
         // xwalk core.

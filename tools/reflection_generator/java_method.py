@@ -418,11 +418,48 @@ class Method(object):
     if return_is_internal:
       return_type_java_data = self.LoadJavaClass(self._method_return)
 
-    template = Template(
-        '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-        '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
-        '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
-        '    }\n\n')
+    match_obj = re.search(
+        r'ValueCallback<([A-Za-z]+)Internal> ([a-zA-Z0-9_$]+)(,|$)', 
+        self._bridge_params_declare)
+    if match_obj :
+      callback_type = match_obj.group(1)
+      callback = match_obj.group(2)
+
+      template = Template(
+          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
+          '        final ValueCallback<' + callback_type + 'Internal> ' + 
+          callback + '2 = ' +  callback + ';\n' +
+          '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
+          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
+          '    }\n\n')
+
+      params_passing = re.sub(
+          str(callback),
+          '\n            new ValueCallback<Object>() {\n' +
+          '                @Override\n' +
+          '                public void onReceiveValue(Object value) {\n' +
+          '                    ' + callback + '2.onReceiveValue((' + 
+          callback_type + 
+          'Bridge) ReflectionHelper.getBridgeOrWrapper(value));\n' +
+          '                }\n' +
+          '            }',
+          self._bridge_params_pass_to_wrapper)
+    elif return_is_internal:
+      template = Template(
+          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
+          '        ${RETURN}ReflectionHelper.getBridgeOrWrapper(' + 
+          'ReflectionHelper.invokeMethod(\n' +
+          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING}));\n' +
+          '    }\n\n')
+      params_passing = self._bridge_params_pass_to_wrapper
+    else :
+      template = Template(
+          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
+          '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
+          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
+          '    }\n\n')
+      params_passing = self._bridge_params_pass_to_wrapper
+
     if no_return_value:
       return_statement = ''
     elif return_is_internal:
@@ -435,7 +472,7 @@ class Method(object):
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS': self._bridge_params_declare,
              'RETURN': return_statement,
-             'PARAMS_PASSING': self._bridge_params_pass_to_wrapper}
+             'PARAMS_PASSING': params_passing}
     return template.substitute(value)
 
   def GenerateBridgeSuperMethod(self):
@@ -599,9 +636,11 @@ class Method(object):
              'RETURN': return_state,
              'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
-             'PARAMS': self._wrapper_params_declare,
+             'PARAMS': re.sub(r'ValueCallback<([A-Za-z]+)Internal>', 
+                  r'ValueCallback<\1>',self._wrapper_params_declare),
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS_PASSING': self._wrapper_params_pass_to_bridge}
+
     return template.substitute(value)
 
   def GenerateWrapperInterface(self):

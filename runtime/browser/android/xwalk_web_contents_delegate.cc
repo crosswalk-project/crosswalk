@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "xwalk/runtime/browser/android/xwalk_content.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_delegate.h"
 
 #include <string>
@@ -46,12 +47,26 @@ void XWalkWebContentsDelegate::AddNewContents(
     bool user_gesture,
     bool* was_blocked) {
   JNIEnv* env = AttachCurrentThread();
+
   bool is_dialog = disposition == NEW_POPUP;
   ScopedJavaLocalRef<jobject> java_delegate = GetJavaDelegate(env);
+  bool create_popup = false;
 
   if (java_delegate.obj()) {
-    Java_XWalkWebContentsDelegate_addNewContents(env,
+    create_popup = Java_XWalkWebContentsDelegate_addNewContents(env,
         java_delegate.obj(), is_dialog, user_gesture);
+  }
+
+  if (create_popup) {
+    XWalkContent::FromWebContents(source)->SetPendingWebContentsForPopup(
+        make_scoped_ptr(new_contents));
+    new_contents->WasHidden();
+  } else {
+    base::MessageLoop::current()->DeleteSoon(FROM_HERE, new_contents);
+  }
+
+  if (was_blocked) {
+    *was_blocked = !create_popup;
   }
 }
 

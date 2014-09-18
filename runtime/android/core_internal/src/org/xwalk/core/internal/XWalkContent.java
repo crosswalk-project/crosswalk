@@ -61,7 +61,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private XWalkGeolocationPermissions mGeolocationPermissions;
     private XWalkLaunchScreenManager mLaunchScreenManager;
 
-    long mXWalkContent;
+    long mNativeContent;
     long mWebContents;
 
     static void setJavascriptInterfaceClass(Class<? extends Annotation> clazz) {
@@ -70,18 +70,18 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     private static final class DestroyRunnable implements Runnable {
-        private final long mXWalkContent;
+        private final long mNativeContent;
         private DestroyRunnable(long nativeXWalkContent) {
-            mXWalkContent = nativeXWalkContent;
+            mNativeContent = nativeXWalkContent;
         }
 
         @Override
         public void run() {
-            nativeDestroy(mXWalkContent);
+            nativeDestroy(mNativeContent);
         }
     }
 
-    // Reference to the active mXWalkContent pointer while it is active use
+    // Reference to the active mNativeContent pointer while it is active use
     // (ie before it is destroyed).
     private CleanupReference mCleanupReference;
 
@@ -98,48 +98,66 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Initialize mWindow which is needed by content
         mWindow = new ActivityWindowAndroid(xwView.getActivity());
 
+        SharedPreferences sharedPreferences = new InMemorySharedPreferences();
+        mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
+
+        MediaPlayerBridge.setResourceLoadingFilter(
+                new XWalkMediaPlayerResourceLoadingFilter());
+
+        XWalkPreferencesInternal.load(this);
+
+        setNativeContent(nativeInit());
+    }
+
+    private void setNativeContent(long newNativeContent) {
+        if (mNativeContent != 0) {
+            destroy();
+            mContentViewCore = null;
+        }
+
+        assert mNativeContent == 0 && mCleanupReference == null && mContentViewCore == null;
+
         // Initialize ContentViewRenderView
-        boolean animated = XWalkPreferencesInternal.getValue(XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
+        boolean animated = XWalkPreferencesInternal.getValue(
+                XWalkPreferencesInternal.ANIMATABLE_XWALK_VIEW);
         CompositingSurfaceType surfaceType =
                 animated ? CompositingSurfaceType.TEXTURE_VIEW : CompositingSurfaceType.SURFACE_VIEW;
-        mContentViewRenderView = new ContentViewRenderView(context, surfaceType) {
+        mContentViewRenderView = new ContentViewRenderView(getContext(), surfaceType) {
             protected void onReadyToRender() {
                 // Anything depending on the underlying Surface readiness should
                 // be placed here.
             }
         };
         mContentViewRenderView.onNativeLibraryLoaded(mWindow);
-        mLaunchScreenManager = new XWalkLaunchScreenManager(context, mXWalkView);
+        mLaunchScreenManager = new XWalkLaunchScreenManager(getContext(), mXWalkView);
         mContentViewRenderView.registerFirstRenderedFrameListener(mLaunchScreenManager);
-        addView(mContentViewRenderView,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
+        addView(mContentViewRenderView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
 
-        mXWalkContent = nativeInit(mXWalkContentsDelegateAdapter, mContentsClientBridge);
+        mNativeContent = newNativeContent;
 
         // The native side object has been bound to this java instance, so now is the time to
         // bind all the native->java relationships.
-        mCleanupReference = new CleanupReference(this, new DestroyRunnable(mXWalkContent));
+        mCleanupReference = new CleanupReference(this, new DestroyRunnable(mNativeContent));
 
-        mWebContents = nativeGetWebContents(mXWalkContent, mIoThreadClient,
-                mContentsClientBridge.getInterceptNavigationDelegate());
+        mWebContents = nativeGetWebContents(mNativeContent);
+
 
         // Initialize ContentView.
         mContentViewCore = new ContentViewCore(getContext());
         mContentView = ContentView.newInstance(getContext(), mContentViewCore);
         mContentViewCore.initialize(mContentView, mContentView, mWebContents, mWindow);
-        addView(mContentView,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
+        addView(mContentView, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
         mContentViewCore.setContentViewClient(mContentsClientBridge);
         mContentViewRenderView.setCurrentContentViewCore(mContentViewCore);
         // For addJavascriptInterface
         mContentsClientBridge.installWebContentsObserver(mContentViewCore);
 
         // Set DIP scale.
-        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(context).getDIPScale());
+        mContentsClientBridge.setDIPScale(DeviceDisplayInfo.create(getContext()).getDIPScale());
 
         mContentViewCore.setDownloadDelegate(mContentsClientBridge);
 
@@ -151,14 +169,32 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         // Enable AllowFileAccessFromFileURLs, so that files under file:// path could be
         // loaded by XMLHttpRequest.
         mSettings.setAllowFileAccessFromFileURLs(true);
+        // Enable this by default to suppport new window creation
+        mSettings.setSupportMultipleWindows(true);
 
-        SharedPreferences sharedPreferences = new InMemorySharedPreferences();
-        mGeolocationPermissions = new XWalkGeolocationPermissions(sharedPreferences);
+        nativeSetJavaPeers(mNativeContent, this, mXWalkContentsDelegateAdapter, mContentsClientBridge,
+                mIoThreadClient, mContentsClientBridge.getInterceptNavigationDelegate());
+    }
 
-        MediaPlayerBridge.setResourceLoadingFilter(
-                new XWalkMediaPlayerResourceLoadingFilter());
+    public void supplyContentsForPopup(XWalkContent newContents) {
+        long popupNativeXWalkContent = nativeReleasePopupXWalkContent(mNativeContent);
+        if (popupNativeXWalkContent == 0) {
+            Log.w(TAG, "Popup XWalkView bind failed: no pending content.");
+            if (newContents != null) newContents.destroy();
+            return;
+        }
+        if (newContents == null) {
+            nativeDestroy(popupNativeXWalkContent);
+            return;
+        }
 
-        XWalkPreferencesInternal.load(this);
+        newContents.receivePopupContents(popupNativeXWalkContent);
+    }
+
+    private void receivePopupContents(long popupNativeXWalkContents) {
+        setNativeContent(popupNativeXWalkContents);
+
+        mContentViewCore.onShow();
     }
 
     void doLoadUrl(String url, String content) {
@@ -281,8 +317,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void clearCache(boolean includeDiskFiles) {
-        if (mXWalkContent == 0) return;
-        nativeClearCache(mXWalkContent, includeDiskFiles);
+        if (mNativeContent == 0) return;
+        nativeClearCache(mNativeContent, includeDiskFiles);
     }
 
     public void clearHistory() {
@@ -345,13 +381,13 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public String getXWalkVersion() {
-        if (mXWalkContent == 0) return "";
-        return nativeGetVersion(mXWalkContent);
+        if (mNativeContent == 0) return "";
+        return nativeGetVersion(mNativeContent);
     }
 
     public void setNetworkAvailable(boolean networkUp) {
-        if (mXWalkContent == 0) return;
-        nativeSetJsOnlineProperty(mXWalkContent, networkUp);
+        if (mNativeContent == 0) return;
+        nativeSetJsOnlineProperty(mNativeContent, networkUp);
     }
 
     // For instrumentation test.
@@ -365,8 +401,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public String devToolsAgentId() {
-        if (mXWalkContent == 0) return "";
-        return nativeDevToolsAgentId(mXWalkContent);
+        if (mNativeContent == 0) return "";
+        return nativeDevToolsAgentId(mNativeContent);
     }
 
     public XWalkSettings getSettings() {
@@ -374,7 +410,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void loadAppFromManifest(String url, String data) {
-        if (mXWalkContent == 0 ||
+        if (mNativeContent == 0 ||
                 ((url == null || url.isEmpty()) &&
                         (data == null || data.isEmpty()))) {
             return;
@@ -401,7 +437,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
             Log.w(TAG, "The url of manifest.json is probably not set correctly.");
         }
 
-        if (!nativeSetManifest(mXWalkContent, baseUrl, content)) {
+        if (!nativeSetManifest(mNativeContent, baseUrl, content)) {
             throw new RuntimeException("Failed to parse the manifest file: " + url);
         }
     }
@@ -415,7 +451,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     public XWalkNavigationHistoryInternal saveState(Bundle outState) {
         if (outState == null) return null;
 
-        byte[] state = nativeGetState(mXWalkContent);
+        byte[] state = nativeGetState(mNativeContent);
         if (state == null) return null;
 
         outState.putByteArray(SAVE_RESTORE_STATE_KEY, state);
@@ -428,7 +464,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         byte[] state = inState.getByteArray(SAVE_RESTORE_STATE_KEY);
         if (state == null) return null;
 
-        boolean result = nativeSetState(mXWalkContent, state);
+        boolean result = nativeSetState(mNativeContent, state);
 
         // The onUpdateTitle callback normally happens when a page is loaded,
         // but is optimized out in the restoreState case because the title is
@@ -472,7 +508,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void destroy() {
-        if (mXWalkContent == 0) return;
+        if (mNativeContent == 0) return;
 
         XWalkPreferencesInternal.unload(this);
         // Reset existing notification service in order to destruct it.
@@ -488,11 +524,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
         mCleanupReference.cleanupNow();
         mCleanupReference = null;
-        mXWalkContent = 0;
+        mNativeContent = 0;
     }
 
     public int getRoutingID() {
-        return nativeGetRoutingID(mXWalkContent);
+        return nativeGetRoutingID(mNativeContent);
     }
 
     //--------------------------------------------------------------------------------------------
@@ -573,7 +609,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
                             mGeolocationPermissions.deny(origin);
                         }
                     }
-                    nativeInvokeGeolocationCallback(mXWalkContent, allow, origin);
+                    nativeInvokeGeolocationCallback(mNativeContent, allow, origin);
                 }
             });
         }
@@ -583,12 +619,12 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     private void onGeolocationPermissionsShowPrompt(String origin) {
         // Reject if geolocation is disabled, or the origin has a retained deny.
         if (!mSettings.getGeolocationEnabled()) {
-            nativeInvokeGeolocationCallback(mXWalkContent, false, origin);
+            nativeInvokeGeolocationCallback(mNativeContent, false, origin);
             return;
         }
         // Allow if the origin has a retained allow.
         if (mGeolocationPermissions.hasOrigin(origin)) {
-            nativeInvokeGeolocationCallback(mXWalkContent,
+            nativeInvokeGeolocationCallback(mNativeContent,
                     mGeolocationPermissions.isOriginAllowed(origin),
                     origin);
             return;
@@ -654,12 +690,17 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         }
     }
 
-    private native long nativeInit(XWalkWebContentsDelegate webViewContentsDelegate,
-            XWalkContentsClientBridge bridge);
+    private native long nativeInit();
     private static native void nativeDestroy(long nativeXWalkContent);
-    private native long nativeGetWebContents(long nativeXWalkContent,
+    private native long nativeGetWebContents(long nativeXWalkContent);
+    private native long nativeReleasePopupXWalkContent(long nativeXWalkContent);
+    private native void nativeSetJavaPeers(
+            long nativeXWalkContent,
+            XWalkContent xwalkContent,
+            XWalkWebContentsDelegateAdapter xwalkContentsDelegate,
+            XWalkContentsClientBridge contentsClientBridge,
             XWalkContentsIoThreadClient ioThreadClient,
-            InterceptNavigationDelegate delegate);
+            InterceptNavigationDelegate navigationInterceptionDelegate);
     private native void nativeClearCache(long nativeXWalkContent, boolean includeDiskFiles);
     private native String nativeDevToolsAgentId(long nativeXWalkContent);
     private native String nativeGetVersion(long nativeXWalkContent);
