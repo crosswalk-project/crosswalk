@@ -49,10 +49,7 @@ def PrepareFromXwalk(src_dir, target_dir):
     (os.path.join(source_code_dir, 'xwalk/app/android/app_template'),
      app_target_dir),
 
-    # Shared mode uses xwalk_app_runtime_java.jar only.
-    # Embedded mode needs both.
     (os.path.join(jar_src_dir, 'xwalk_app_runtime_java.jar'), jar_target_dir),
-    (os.path.join(jar_src_dir, 'xwalk_runtime_java.jar'), jar_target_dir),
 
     # XWalk Core Library
     (xwalk_core_library_dir, os.path.join(target_dir, 'xwalk_core_library')),

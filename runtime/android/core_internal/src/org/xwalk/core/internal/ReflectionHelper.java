@@ -35,6 +35,7 @@ public class ReflectionHelper {
 
         Constructor<?> loadConstructor() {
             Class<?> clazz = loadClass(fullClassName);
+            if (clazz == null) return null;
             Class<?>[] params = new Class<?>[paramTypes.length];
             for (int i = 0; i < paramTypes.length; i++) {
                 Object type = paramTypes[i];

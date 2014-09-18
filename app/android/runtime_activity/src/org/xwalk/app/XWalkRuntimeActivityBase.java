@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
@@ -24,6 +25,8 @@ import org.xwalk.core.XWalkPreferences;
 public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private static final String DEFAULT_LIBRARY_APK_URL = null;
+
+    private static final String TAG = "XWalkRuntimeActivityBase";
 
     private XWalkRuntimeView mRuntimeView;
 
@@ -140,9 +143,9 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
             } else {
                 XWalkPreferences.setValue(XWalkPreferences.ANIMATABLE_XWALK_VIEW, false);
             }
-            mRuntimeView = new XWalkRuntimeView(this, this, null);
             mShownNotFoundDialog = false;
             if (mLibraryNotFoundDialog != null) mLibraryNotFoundDialog.cancel();
+            mRuntimeView = new XWalkRuntimeView(this, this, null);
             if (mRemoteDebugging) {
                 XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
             } else {
@@ -171,7 +174,7 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
             handleException(e.getCause());
             return;
         }
-        throw new RuntimeException(e);
+        Log.e(TAG, Log.getStackTraceString(e));
     }
 
     private void showRuntimeLibraryExceptionDialog(String title, String message) {
