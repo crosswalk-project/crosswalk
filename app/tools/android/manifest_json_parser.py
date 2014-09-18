@@ -58,9 +58,13 @@ def ParseLaunchScreen(ret_dict, launch_screen_dict, orientation):
           sub_dict['image_border'])
 
 
-def PrintDeprecationWarning(item):
-  print ('WARNING: %s is deprecated for Crosswalk. Please follow '
-         'https://www.crosswalk-project.org/#documentation/manifest.' % item)
+def PrintDeprecationWarning(deprecated_items):
+  if len(deprecated_items) > 0:
+    print ('  Warning: The following fields have been deprecated for '
+           'Crosswalk:\n   %s' %
+           ', '.join([str(item) for item in deprecated_items]))
+    print ('  Please follow: https://www.crosswalk-project.org/#documentation/'
+           'manifest.')
 
 
 class ManifestJsonParser(object):
@@ -108,7 +112,9 @@ class ManifestJsonParser(object):
     fullscreen:       The fullscreen flag of the application.
     launch_screen:    The launch screen configuration.
     """
+    print ("Checking manifest file")
     ret_dict = {}
+    deprecated_items = []
     if 'name' not in self.data_src:
       print('Error: no \'name\' field in manifest.json file.')
       sys.exit(1)
@@ -121,17 +127,17 @@ class ManifestJsonParser(object):
     elif 'xwalk_version' in self.data_src:
       ret_dict['version'] = self.data_src['xwalk_version']
     elif 'version' in self.data_src:
-      PrintDeprecationWarning('version')
+      deprecated_items.append('version')
       ret_dict['version'] = self.data_src['version']
     if 'start_url' in self.data_src:
       app_url = self.data_src['start_url']
     elif 'launch_path' in self.data_src:
-      PrintDeprecationWarning('launch_path')
+      deprecated_items.append('launch_path')
       app_url = self.data_src['launch_path']
     elif ('app' in self.data_src and
           'launch' in self.data_src['app'] and
           'local_path' in self.data_src['app']['launch']):
-      PrintDeprecationWarning('app.launch.local_path')
+      deprecated_items.append('app.launch.local_path')
       app_url = self.data_src['app']['launch']['local_path']
     else:
       app_url = ''
@@ -144,7 +150,7 @@ class ManifestJsonParser(object):
     if 'icons' in self.data_src:
       icons = self.data_src['icons']
       if type(icons) == dict:
-        PrintDeprecationWarning('icons defined as dictionary form')
+        deprecated_items.append('icons defined as index:value')
         ret_dict['icons'] = icons
       elif type(icons) == list:
         icons_dict = {}
@@ -165,7 +171,7 @@ class ManifestJsonParser(object):
     elif 'xwalk_description' in self.data_src:
       ret_dict['description'] = self.data_src['xwalk_description']
     elif 'description' in self.data_src:
-      PrintDeprecationWarning('description')
+      deprecated_items.append('description')
       ret_dict['description'] = self.data_src['description']
     ret_dict['app_url'] = app_url
     ret_dict['app_root'] = app_root
@@ -179,7 +185,7 @@ class ManifestJsonParser(object):
         print('\'Permissions\' field error in manifest.json file.')
         sys.exit(1)
     elif 'permissions' in self.data_src:
-      PrintDeprecationWarning('permissions')
+      deprecated_items.append('permissions')
       try:
         permission_list = self.data_src['permissions']
         ret_dict['permissions'] = HandlePermissionList(permission_list)
@@ -211,11 +217,13 @@ class ManifestJsonParser(object):
       ParseLaunchScreen(ret_dict, launch_screen_dict, 'portrait')
       ParseLaunchScreen(ret_dict, launch_screen_dict, 'landscape')
     elif 'launch_screen' in self.data_src:
-      PrintDeprecationWarning('launch_screen')
+      deprecated_items.append('launch_screen')
       launch_screen_dict = self.data_src['launch_screen']
       ParseLaunchScreen(ret_dict, launch_screen_dict, 'default')
       ParseLaunchScreen(ret_dict, launch_screen_dict, 'portrait')
       ParseLaunchScreen(ret_dict, launch_screen_dict, 'landscape')
+
+    PrintDeprecationWarning(deprecated_items)
     return ret_dict
 
   def ShowItems(self):
@@ -232,29 +240,29 @@ class ManifestJsonParser(object):
     print("orientation: %s" % self.GetOrientation())
     print("fullscreen: %s" % self.GetFullScreenFlag())
     print('launch_screen.default.background_color: %s' %
-        self.GetLaunchScreenBackgroundColor('default'))
+          self.GetLaunchScreenBackgroundColor('default'))
     print('launch_screen.default.background_image: %s' %
-        self.GetLaunchScreenBackgroundImage('default'))
+          self.GetLaunchScreenBackgroundImage('default'))
     print('launch_screen.default.image: %s' %
-        self.GetLaunchScreenImage('default'))
+          self.GetLaunchScreenImage('default'))
     print('launch_screen.default.image_border: %s' %
-        self.GetLaunchScreenImageBorder('default'))
+          self.GetLaunchScreenImageBorder('default'))
     print('launch_screen.portrait.background_color: %s' %
-        self.GetLaunchScreenBackgroundColor('portrait'))
+          self.GetLaunchScreenBackgroundColor('portrait'))
     print('launch_screen.portrait.background_image: %s' %
-        self.GetLaunchScreenBackgroundImage('portrait'))
+          self.GetLaunchScreenBackgroundImage('portrait'))
     print('launch_screen.portrait.image: %s' %
-        self.GetLaunchScreenImage('portrait'))
+          self.GetLaunchScreenImage('portrait'))
     print('launch_screen.portrait.image_border: %s' %
-        self.GetLaunchScreenImageBorder('portrait'))
+          self.GetLaunchScreenImageBorder('portrait'))
     print('launch_screen.landscape.background_color: %s' %
-        self.GetLaunchScreenBackgroundColor('landscape'))
+          self.GetLaunchScreenBackgroundColor('landscape'))
     print('launch_screen.landscape.background_image: %s' %
-        self.GetLaunchScreenBackgroundImage('landscape'))
+          self.GetLaunchScreenBackgroundImage('landscape'))
     print('launch_screen.landscape.image: %s' %
-        self.GetLaunchScreenImage('landscape'))
+          self.GetLaunchScreenImage('landscape'))
     print('launch_screen.landscape.image_border: %s' %
-        self.GetLaunchScreenImageBorder('landscape'))
+          self.GetLaunchScreenImageBorder('landscape'))
 
   def GetAppName(self):
     """Return the application name."""
