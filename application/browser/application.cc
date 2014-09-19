@@ -48,7 +48,7 @@ GURL GetDefaultWidgetEntryPage(
     scoped_refptr<xwalk::application::ApplicationData> data) {
   base::ThreadRestrictions::SetIOAllowed(true);
   base::FileEnumerator iter(
-      data->Path(), true,
+      data->path(), true,
       base::FileEnumerator::FILES,
       FILE_PATH_LITERAL("index.*"));
   size_t priority = arraysize(kDefaultWidgetEntryPage);
@@ -104,23 +104,26 @@ Application::~Application() {
 
 template<>
 GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
-  GURL url = GetAbsoluteURLFromKey(widget_keys::kLaunchLocalPathKey);
-  if (!url.is_valid()) {
-    LOG(WARNING) << "Failed to find start URL from the 'config.xml'"
-                 << "trying to find default entry page.";
-    url = GetDefaultWidgetEntryPage(data_);
-  }
-
-  if (url.is_valid()) {
 #if defined(OS_TIZEN)
-    if (data_->IsHostedApp() && !url.SchemeIsHTTPOrHTTPS()) {
-      LOG(ERROR) << "Hosted apps are only supported with"
-                    "http:// or https:// scheme.";
-      return GURL();
-    }
-#endif
-    return url;
+  if (data_->IsHostedApp()) {
+    std::string source;
+    data_->GetManifest()->GetString(widget_keys::kLaunchLocalPathKey, &source);
+    GURL url = GURL(source);
+
+    if (url.is_valid() && url.SchemeIsHTTPOrHTTPS())
+      return url;
   }
+#endif
+
+  GURL url = GetAbsoluteURLFromKey(widget_keys::kLaunchLocalPathKey);
+  if (url.is_valid())
+    return url;
+
+  LOG(WARNING) << "Failed to find start URL from the 'config.xml'"
+               << "trying to find default entry page.";
+  url = GetDefaultWidgetEntryPage(data_);
+  if (url.is_valid())
+    return url;
 
   LOG(WARNING) << "Failed to find a valid start URL in the manifest.";
   return GURL();
@@ -128,6 +131,13 @@ GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
 
 template<>
 GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
+  if (data_->IsHostedApp()) {
+    std::string source;
+    data_->GetManifest()->GetString(keys::kStartURLKey, &source);
+    // Not trying to get a relative path for the "fake" application.
+    return GURL(source);
+  }
+
   GURL url = GetAbsoluteURLFromKey(keys::kStartURLKey);
   if (url.is_valid())
     return url;
@@ -234,10 +244,7 @@ GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
   if (!manifest->GetString(key, &source) || source.empty())
     return GURL();
 
-  std::size_t found = source.find("://");
-  if (found == std::string::npos)
-    return data_->GetResourceURL(source);
-  return GURL(source);
+  return data_->GetResourceURL(source);
 }
 
 void Application::Terminate() {

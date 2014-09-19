@@ -148,6 +148,16 @@ GURL ApplicationData::GetResourceURL(const GURL& application_url,
   return ret_val;
 }
 
+GURL ApplicationData::GetResourceURL(const std::string& relative_path) const {
+  if (!base::PathExists(path_.Append(relative_path))) {
+    LOG(ERROR) << "The path does not exist in the application directory: "
+               << relative_path;
+    return GURL();
+  }
+
+  return GetResourceURL(URL(), relative_path);
+}
+
 bool ApplicationData::Init(const std::string& explicit_id,
                            base::string16* error) {
   DCHECK(error);

@@ -227,10 +227,10 @@ void ApplicationService::OnApplicationTerminated(
 
   if (app_data->source_type() == ApplicationData::TEMP_DIRECTORY) {
       LOG(INFO) << "Deleting the app temporary directory "
-                << app_data->Path().AsUTF8Unsafe();
+                << app_data->path().AsUTF8Unsafe();
       content::BrowserThread::PostTask(content::BrowserThread::FILE,
           FROM_HERE, base::Bind(base::IgnoreResult(&base::DeleteFile),
-                                app_data->Path(), true /*recursive*/));
+                                app_data->path(), true /*recursive*/));
       // FIXME: So far we simply clean up all the app persistent data,
       // further we need to add an appropriate logic to handle it.
       content::BrowserContext::GarbageCollectStoragePartitions(

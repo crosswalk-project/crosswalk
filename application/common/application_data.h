@@ -77,9 +77,7 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   // NOTE: Static so that it can be used from multiple threads.
   static GURL GetResourceURL(const GURL& application_url,
                              const std::string& relative_path);
-  GURL GetResourceURL(const std::string& relative_path) const {
-    return GetResourceURL(URL(), relative_path);
-  }
+  GURL GetResourceURL(const std::string& relative_path) const;
 
   // Returns the base application url for a given |application_id|.
   static GURL GetBaseURLFromApplicationId(const std::string& application_id);
@@ -94,9 +92,10 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
   void SetManifestData(const std::string& key, ManifestData* data);
 
   // Accessors:
-
-  const base::FilePath& Path() const { return path_; }
-  void SetPath(const base::FilePath& path) { path_ = path; }
+  const base::FilePath& path() const { return path_; }
+#if defined(OS_TIZEN)  // FIXME : This method should be removed.
+  void set_path(const base::FilePath& path) { path_ = path; }
+#endif
   const GURL& URL() const { return application_url_; }
   SourceType source_type() const { return source_type_; }
   Manifest::Type manifest_type() const { return manifest_->type(); }

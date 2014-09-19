@@ -245,7 +245,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   base::FilePath directory_path;
   std::string content_security_policy;
   if (application) {
-    directory_path = application->Path();
+    directory_path = application->path();
 
     const char* csp_key = GetCSPKey(application->manifest_type());
     const CSPInfo* csp_info = static_cast<CSPInfo*>(

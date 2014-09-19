@@ -482,7 +482,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
       return false;
   }
 
-  app_data->SetPath(app_dir);
+  app_data->set_path(app_dir);
 
   if (!storage_->AddApplication(app_data)) {
     LOG(ERROR) << "Application with id " << app_data->ID()
@@ -578,7 +578,7 @@ bool PackageInstaller::Update(const std::string& app_id,
     return false;
   }
 
-  const base::FilePath& app_dir = old_app_data->Path();
+  const base::FilePath& app_dir = old_app_data->path();
   const base::FilePath tmp_dir(app_dir.value()
                                + FILE_PATH_LITERAL(".tmp"));
 
