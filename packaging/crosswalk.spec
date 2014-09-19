@@ -228,7 +228,7 @@ ${GYP_EXTRA_FLAGS} \
 -Dshared_process_mode=1 \
 -Denable_hidpi=1
 
-ninja %{?_smp_mflags} -C src/out/Release xwalk xwalkctl xwalk_launcher xwalk-pkg-helper xwalk-backendlib
+ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
 
 %install
 # Binaries.
@@ -237,8 +237,6 @@ install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
-# xwalk-pkg-helper needs to be set-user-ID-root so it can finish the installation process.
-install -m 0755 -p -D src/out/Release/xwalk-pkg-helper %{buildroot}%{_bindir}/xwalk-pkg-helper
 install -p -D src/out/Release/lib/libxwalk-backendlib.so %{buildroot}%{_libdir}/xwalk/libxwalk-backendlib.so
 install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh %{buildroot}%{_libdir}/xwalk/xwalk_backend_wrapper.sh
 
@@ -283,7 +281,6 @@ ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/wg
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
 %{_bindir}/xwalkctl
 %{_bindir}/xwalk-launcher
-%{_bindir}/xwalk-pkg-helper
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
 %if ! %{_disable_nacl}

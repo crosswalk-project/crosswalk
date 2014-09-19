@@ -17,8 +17,6 @@
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/command_line.h"
-#include "base/process/launch.h"
 #include "base/version.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/application_data.h"
@@ -30,6 +28,7 @@
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
+#include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 namespace info = application_packageinfo_constants;
@@ -52,8 +51,6 @@ const base::FilePath::CharType kUpdateTempDir[] =
     FILE_PATH_LITERAL("update_temp");
 
 namespace widget_keys = xwalk::application_widget_keys;
-
-const base::FilePath kPkgHelper("/usr/bin/xwalk-pkg-helper");
 
 const base::FilePath kXWalkLauncherBinary("/usr/bin/xwalk-launcher");
 
@@ -242,29 +239,27 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
-  CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitchASCII("--install", app_id);
-  cmdline.AppendSwitchPath("--xml", xml_path);
-  cmdline.AppendSwitchPath("--icon", icon);
-  if (quiet_)
-    cmdline.AppendSwitch("-q");
+  // args for pkgmgr
+  const char* pkgmgr_argv[5];
+  pkgmgr_argv[2] = "-k";
+  pkgmgr_argv[3] = key_.c_str();
+  pkgmgr_argv[4] = "-q";
+
+  PlatformInstaller platform_installer(app_id);
+
+  if (xml_path.empty() || icon.empty()) {
+    LOG(ERROR) << "Xml or icon path is empty";
+    return false;
+  }
+
   if (!key_.empty()) {
-    cmdline.AppendSwitchASCII("--key", key_);
+    pkgmgr_argv[0] = "-i";
+    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
+    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
   }
 
-  int exit_code;
-  std::string output;
-
-  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
-    LOG(ERROR) << "Could not launch the installation helper process.";
+  if (!platform_installer.InstallApplication(xml_path, icon))
     return false;
-  }
-
-  if (exit_code != 0) {
-    LOG(ERROR) << "Could not install application: "
-               << output << " (" << exit_code << ")";
-    return false;
-  }
 
   app_dir_cleaner.Dismiss();
 
@@ -272,48 +267,25 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
 }
 
 bool PackageInstaller::PlatformUninstall(ApplicationData* app_data) {
-  bool result = true;
   std::string app_id(app_data->ID());
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
-  CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitchASCII("--uninstall", app_id);
-  if (quiet_)
-    cmdline.AppendSwitch("-q");
+  // args for pkgmgr
+  const char* pkgmgr_argv[5];
+  pkgmgr_argv[2] = "-k";
+  pkgmgr_argv[3] = key_.c_str();
+  pkgmgr_argv[4] = "-q";
+
+  PlatformInstaller platform_installer(app_id);
+
   if (!key_.empty()) {
-    cmdline.AppendSwitchASCII("--key", key_);
+    pkgmgr_argv[0] = "-d";
+    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
+    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
   }
 
-  int exit_code;
-  std::string output;
-
-  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
-    LOG(ERROR) << "Could not launch installer helper";
-    result = false;
-  }
-
-  if (exit_code != 0) {
-    LOG(ERROR) << "Could not uninstall application: "
-               << output << " (" << exit_code << ")";
-    result = false;
-  }
-
-  base::FilePath app_dir =
-      data_dir.AppendASCII(info::kAppDir).AppendASCII(app_id);
-  if (!base::DeleteFile(app_dir, true)) {
-    LOG(ERROR) << "Could not remove directory '" << app_dir.value() << "'";
-    result = false;
-  }
-
-  base::FilePath xml_path = data_dir.AppendASCII(
-      app_id + std::string(info::kXmlExtension));
-  if (!base::DeleteFile(xml_path, false)) {
-    LOG(ERROR) << "Could not remove file '" << xml_path.value() << "'";
-    result = false;
-  }
-
-  return result;
+  return platform_installer.UninstallApplication();
 }
 
 bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
@@ -347,61 +319,43 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
-  CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitchASCII("--update", app_id);
-  cmdline.AppendSwitchPath("--xml", new_xml_path);
-  cmdline.AppendSwitchPath("--icon", icon);
-  if (quiet_)
-    cmdline.AppendSwitch("-q");
+  // args for pkgmgr
+  const char* pkgmgr_argv[5];
+  pkgmgr_argv[2] = "-k";
+  pkgmgr_argv[3] = key_.c_str();
+  pkgmgr_argv[4] = "-q";
+
+  PlatformInstaller platform_installer(app_id);
+
   if (!key_.empty()) {
-    cmdline.AppendSwitchASCII("--key", key_);
+    pkgmgr_argv[0] = "-i";
+    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
+    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
   }
 
-  int exit_code;
-  std::string output;
-
-  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
-    LOG(ERROR) << "Could not launch installer helper";
+  if (!platform_installer.InstallApplication(new_xml_path, icon))
     return false;
-  }
 
-  if (exit_code != 0) {
-    LOG(ERROR) << "Could not update application: "
-               << output << " (" << exit_code << ")";
-    return false;
-  }
-
-  base::FilePath old_xml_path = data_dir.AppendASCII(info::kAppDir).AppendASCII(
-      app_id + std::string(info::kXmlExtension));
-  base::Move(new_xml_path, old_xml_path);
   app_dir_cleaner.Dismiss();
   return true;
 }
 
 bool PackageInstaller::PlatformReinstall(const base::FilePath& path) {
-  CommandLine cmdline(kPkgHelper);
-  cmdline.AppendSwitchPath("--reinstall", path);
-  if (quiet_)
-    cmdline.AppendSwitch("-q");
+  // args for pkgmgr
+  const char* pkgmgr_argv[5];
+  pkgmgr_argv[2] = "-k";
+  pkgmgr_argv[3] = key_.c_str();
+  pkgmgr_argv[4] = "-q";
+
+  PlatformInstaller platform_installer;
+
   if (!key_.empty()) {
-    cmdline.AppendSwitchASCII("--key", key_);
+    pkgmgr_argv[0] = "-r";
+    pkgmgr_argv[1] = path.value().c_str();  // this value is ignored by pkgmgr
+    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
   }
 
-  int exit_code;
-  std::string output;
-
-  if (!base::GetAppOutputWithExitCode(cmdline, &output, &exit_code)) {
-    LOG(ERROR) << "Could not launch installer helper";
-    return false;
-  }
-
-  if (exit_code != 0) {
-    LOG(ERROR) << "Could not reinstall application: "
-               << output << " (" << exit_code << ")";
-    return false;
-  }
-
-  return true;
+  return platform_installer.ReinstallApplication();
 }
 
 bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
