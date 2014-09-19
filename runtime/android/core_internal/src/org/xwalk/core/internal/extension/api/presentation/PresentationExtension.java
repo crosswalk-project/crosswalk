@@ -343,6 +343,8 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
     }
 
     private void updatePresentationView(Display preferredDisplay) {
+        Activity activity = mActivity.get();
+        if (activity == null) return;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 ||
                 preferredDisplay == null) {
             return;
@@ -367,7 +369,7 @@ public class PresentationExtension extends XWalkExtensionWithActivityStateListen
             ViewGroup parent = (ViewGroup)mPresentationContent.getContentView().getParent();
             if (parent != null) parent.removeView(mPresentationContent.getContentView());
 
-            mPresentationView = PresentationView.createInstance(mContext, preferredDisplay);
+            mPresentationView = PresentationView.createInstance(activity, preferredDisplay);
             mPresentationView.setContentView(mPresentationContent.getContentView());
             mPresentationView.setPresentationListener(new PresentationView.PresentationListener() {
                 @Override
