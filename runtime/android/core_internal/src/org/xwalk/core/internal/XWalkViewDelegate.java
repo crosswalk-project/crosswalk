@@ -125,34 +125,60 @@ class XWalkViewDelegate {
         ResourceExtractor.setMandatoryPaksToExtract(MANDATORY_PAKS);
         final int resourcesListResId = context.getResources().getIdentifier(
                 XWALK_RESOURCES_LIST_RES_NAME, "array", context.getPackageName());
-        if (resourcesListResId != 0) {
+        final AssetManager assets = context.getAssets();
+        if (!context.getPackageName().equals(context.getApplicationContext().getPackageName()) ||
+                resourcesListResId != 0) {
+            // For shared mode, assets are in library package.
+            // For embedding API usage, assets are in res/raw.
             ResourceExtractor.setResourceIntercepter(new ResourceIntercepter() {
 
                 @Override
                 public Set<String> getInterceptableResourceList() {
-                    try {
-                        Set<String> resourcesList = new HashSet<String>();
-                        String[] resources = context.getResources().getStringArray(resourcesListResId);
-                        for (String resource : resources) {
-                            resourcesList.add(resource);
-                        }
-                        return resourcesList;
-                    } catch (NotFoundException e) {
-                        Log.w(TAG, "R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+                    Set<String> resourcesList = new HashSet<String>();
+                    if (!context.getPackageName().equals(
+                            context.getApplicationContext().getPackageName())) {
+                        try {
+                            for (String resource : assets.list("")) {
+                                resourcesList.add(resource);
+                            }
+                        } catch (IOException e){}
                     }
-                    return null;
+                    if (resourcesListResId != 0) {
+                        try {
+                            String[] resources = context.getResources().getStringArray(resourcesListResId);
+                            for (String resource : resources) {
+                                resourcesList.add(resource);
+                            }
+                        } catch (NotFoundException e) {
+                            Log.w(TAG, "R.array." + XWALK_RESOURCES_LIST_RES_NAME + " can't be found.");
+                        }
+                    }
+                    return resourcesList;
                 }
 
                 @Override
                 public InputStream interceptLoadingForResource(String resource) {
-                    String resourceName = resource.split("\\.")[0];
-                    int resId = context.getResources().getIdentifier(
-                            resourceName, "raw", context.getPackageName());
-                    try {
-                        if (resId != 0) return context.getResources().openRawResource(resId);
-                    } catch (NotFoundException e) {
-                        Log.w(TAG, "R.raw." + resourceName + " can't be found.");
+                    if (!context.getPackageName().equals(
+                            context.getApplicationContext().getPackageName())) {
+                        try {
+                            InputStream fromAsset = context.getAssets().open(resource);
+                            if (fromAsset != null) return fromAsset;
+                        } catch (IOException e) {
+                            Log.w(TAG, resource + " can't be found in assets.");
+                        }
                     }
+
+                    if (resourcesListResId != 0) {
+                        String resourceName = resource.split("\\.")[0];
+                        int resId = context.getResources().getIdentifier(
+                                resourceName, "raw", context.getPackageName());
+                        try {
+                            if (resId != 0) return context.getResources().openRawResource(resId);
+                        } catch (NotFoundException e) {
+                            Log.w(TAG, "R.raw." + resourceName + " can't be found.");
+                        }
+                    }
+
                     return null;
                 }
             });
