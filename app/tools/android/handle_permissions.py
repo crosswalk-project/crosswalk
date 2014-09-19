@@ -15,6 +15,7 @@ python handle_permissions.py --jsonfile=/path/to/manifest.json
 --manifest=/path/to/AndroidManifest.xml
 """
 
+import log
 import optparse
 import os
 import sys
@@ -61,8 +62,8 @@ def HandlePermissions(permissions, xmldoc):
 
     for permission in permissions.split(':'):
       if permission.lower() not in list(permission_mapping_table.keys()):
-        print('Error: permission \'%s\' related API is not supported.'
-              % permission)
+        log.Error('Error: permission \'%s\' related API is not supported.'
+                  % permission)
         sys.exit(1)
       permission_item = permission_mapping_table.get(permission.lower())
       if permission_item:
@@ -89,17 +90,17 @@ def main(argv):
     parser.print_help()
     return 0
   if not options.jsonfile:
-    print('Please set the manifest.json file.')
+    log.Error('Please set the manifest.json file.')
     return 1
   if not options.manifest:
-    print('Please set the AndroidManifest.xml file.')
+    log.Error('Please set the AndroidManifest.xml file.')
     return 1
   try:
     json_parser = ManifestJsonParser(os.path.expanduser(options.jsonfile))
     if json_parser.GetPermissions():
       options.permissions = json_parser.GetPermissions()
   except SystemExit as ec:
-    print('Exiting with error code: %d' % ec.code)
+    log.Error('Exiting with error code: %d' % ec.code)
     return ec.code
   try:
     xmldoc = minidom.parse(options.manifest)
@@ -108,7 +109,7 @@ def main(argv):
     xmldoc.writexml(file_handle)
     file_handle.close()
   except (ExpatError, IOError):
-    print('There is an error in AndroidManifest.xml.')
+    log.Error('There is an error in AndroidManifest.xml.')
     return 1
   return 0
 

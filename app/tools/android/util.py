@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 # pylint: disable=F0401
 
-
+import log
 import os
 import re
 import shutil
@@ -30,10 +30,12 @@ def RunCommand(command, verbose=False, shell=False):
     output = proc.communicate()[0]
     result = proc.returncode
     if verbose:
-      print(output.decode("utf-8").strip())
+      log.VerboseCommand('Verbose: Command "%s" is running:'
+                          % ' '.join(command))
+      log.VerboseOutput(output.decode("utf-8").strip())
     if result != 0:
-      print ('Command "%s" exited with non-zero exit code %d'
-             % (' '.join(command), result))
+      log.Error('Command "%s" exited with non-zero exit code %d'
+                % (' '.join(command), result))
       sys.exit(result)
     return output.decode("utf-8")
   else:

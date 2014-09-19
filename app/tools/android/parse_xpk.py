@@ -17,6 +17,7 @@ https://github.com/crosswalk-project/crosswalk-website/wiki/Crosswalk-package-ma
 This file is used by make_apk.py.
 """
 
+import log
 import optparse
 import os
 import struct
@@ -45,7 +46,7 @@ errorMessageMap = {
 
 
 def HandleError(err_code):
-  print('Error: %s' % errorMessageMap[err_code])
+  log.Error('Error: %s' % errorMessageMap[err_code])
   sys.exit(err_code)
 
 

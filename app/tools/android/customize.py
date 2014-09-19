@@ -7,6 +7,7 @@
 import compress_js_and_css
 import fnmatch
 import json
+import log
 import optparse
 import os
 import re
@@ -35,16 +36,16 @@ def VerifyPackageName(value):
   sample = 'org.xwalk.example, org.xwalk.example_'
 
   if len(value) >= 128:
-    print('To be safe, the length of package name or app name '
-          'should be less than 128.')
+    log.Error('To be safe, the length of package name or app name '
+              'should be less than 128.')
     sys.exit(6)
 
   if not re.match(regex, value):
-    print('Error: %s name should be started with letters and should not '
-          'contain invalid characters.\n'
-          'It may contain lowercase letters, numbers, blank spaces and '
-          'underscores\n'
-          'Sample: %s' % (descrpt, sample))
+    log.Error('Error: %s name should be started with letters and should not '
+              'contain invalid characters.\n'
+              'It may contain lowercase letters, numbers, blank spaces and '
+              'underscores\n'
+              'Sample: %s' % (descrpt, sample))
     sys.exit(6)
 
 
@@ -64,7 +65,7 @@ def ReplaceInvalidChars(value, mode='default'):
     invalid_chars = '\/:.*?"<>|- '
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
-      print("Illegal character: '%s' is replaced with '_'" % c)
+      log.WarningInfo("Illegal character: '%s' is replaced with '_'" % c)
     value = value.replace(c, '_')
   return value
 
@@ -137,8 +138,8 @@ def Prepare(app_info, compressor):
   template_activity_file = os.path.join(template_src_root,
                                         'AppTemplateActivity.java')
   if not os.path.isfile(template_activity_file):
-    print ('Error: The template file %s was not found. '
-           'Please make sure this file exists.' % template_activity_file)
+    log.Error('Error: The template file %s was not found. '
+              'Please make sure this file exists.' % template_activity_file)
     sys.exit(7)
   app_pkg_dir = os.path.join(app_dir, 'src',
                              app_package.replace('.', os.path.sep))
@@ -170,8 +171,8 @@ def EncodingUnicodeValue(value):
 def CustomizeStringXML(name, description):
   strings_path = os.path.join(xwalk_dir, name, 'res', 'values', 'strings.xml')
   if not os.path.isfile(strings_path):
-    print ('Please make sure strings_xml'
-           ' exists under template folder.')
+    log.Error('Please make sure strings_xml'
+              ' exists under template folder.')
     sys.exit(6)
 
   if description:
@@ -187,7 +188,7 @@ def CustomizeStringXML(name, description):
 def CustomizeThemeXML(name, fullscreen, manifest):
   theme_path = os.path.join(xwalk_dir, name, 'res', 'values-v14', 'theme.xml')
   if not os.path.isfile(theme_path):
-    print('Error: theme.xml is missing in the build tool.')
+    log.Error('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
 
   theme_xmldoc = minidom.parse(theme_path)
@@ -304,8 +305,8 @@ def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
         ReplaceString(dest_activity, 'file:///android_asset/www/index.html',
                       'app://' + package + '/' + app_local_path)
       else:
-        print ('Please make sure that the relative path of entry file'
-               ' is correct.')
+        log.Error('Please make sure that the relative path of entry file'
+                  ' is correct.')
         sys.exit(8)
 
   if app_info.remote_debugging:
@@ -333,8 +334,8 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   dest_extension_path = os.path.join(dest_path, extension_name)
   if os.path.exists(dest_extension_path):
     # TODO: Refine it by renaming it internally.
-    print('Error: duplicated extension names "%s" are found. Please rename it.'
-          % extension_name)
+    log.Error('Error: duplicated extension names "%s" are found. Please '
+              'rename it.' % extension_name)
     sys.exit(9)
   else:
     os.mkdir(dest_extension_path)
@@ -343,7 +344,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   src_file = os.path.join(src_path, file_name)
   dest_file = os.path.join(dest_extension_path, file_name)
   if not os.path.isfile(src_file):
-    print('Error: %s was not found in %s.' % (file_name, src_path))
+    log.Error('Error: %s was not found in %s.' % (file_name, src_path))
     sys.exit(9)
   else:
     shutil.copyfile(src_file, dest_file)
@@ -385,7 +386,8 @@ def CustomizeExtensions(app_info, extensions):
   extension_json_list = []
   for source_path in extension_paths:
     if not os.path.exists(source_path):
-      print('Error: can\'t find the extension directory \'%s\'.' % source_path)
+      log.Error('Error: can\'t find the extension directory \'%s\'.'
+                % source_path)
       sys.exit(9)
     # Remove redundant separators to avoid empty basename.
     source_path = os.path.normpath(source_path)
@@ -401,7 +403,7 @@ def CustomizeExtensions(app_info, extensions):
     file_name = extension_name + '.json'
     src_file = os.path.join(source_path, file_name)
     if not os.path.isfile(src_file):
-      print('Error: %s is not found in %s.' % (file_name, source_path))
+      log.Error('Error: %s is not found in %s.' % (file_name, source_path))
       sys.exit(9)
     else:
       src_file_handle = open(src_file)
@@ -412,8 +414,8 @@ def CustomizeExtensions(app_info, extensions):
       if not ('name' in json_output and
               'class' in json_output and
               'jsapi' in json_output):
-        print ('Error: properties \'name\', \'class\' and \'jsapi\' in a json '
-               'file are mandatory.')
+        log.Error('Error: properties \'name\', \'class\' and \'jsapi\' in '
+                  'a json file are mandatory.')
         sys.exit(9)
       # Reset the path for JavaScript.
       js_path_prefix = extensions_string + '/' + extension_name + '/'
@@ -470,7 +472,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
   try:
     icon_dict = dict((int(k), v) for k, v in icon_dict.items())
   except ValueError:
-    print('The key of icon in the manifest file should be a number.')
+    log.Error('The key of icon in the manifest file should be a number.')
 
   if len(icon_dict) > 0:
     icon_list = sorted(icon_dict.items(), key=lambda d: d[0])
@@ -488,7 +490,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
                                                'icon.' + icon_suffix))
             icon_name = 'icon'
           elif icon and (not os.path.isfile(icon)):
-            print('Error: "%s" does not exist.' % icon)
+            log.Error('Error: "%s" does not exist.' % icon)
             sys.exit(6)
           break
   return icon_name
@@ -505,7 +507,7 @@ def CustomizeIconByOption(name, icon):
     icon_name = os.path.splitext(icon_file)[0]
     return icon_name
   else:
-    print('Error: "%s" does not exist.')
+    log.Error('Error: "%s" does not exist.')
     sys.exit(6)
 
 
@@ -528,7 +530,7 @@ def CustomizeAll(app_info, description, icon_dict, permissions, app_url,
     CustomizeExtensions(app_info, extensions)
     GenerateCommandLineFile(app_info, xwalk_command_line)
   except SystemExit as ec:
-    print('Exiting with error code: %d' % ec.code)
+    log.Error('Exiting with error code: %d' % ec.code)
     sys.exit(ec.code)
 
 
@@ -626,7 +628,7 @@ def main():
                  options.keep_screen_on, options.extensions, None,
                  options.xwalk_command_line, options.compressor)
   except SystemExit as ec:
-    print('Exiting with error code: %d' % ec.code)
+    log.Error('Exiting with error code: %d' % ec.code)
     return ec.code
   return 0
 

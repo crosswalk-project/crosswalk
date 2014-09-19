@@ -14,6 +14,7 @@ python manifest_json_parser.py --jsonfile=/path/to/manifest.json
 """
 
 import json
+import log
 import optparse
 import os
 import re
@@ -35,8 +36,8 @@ def HandlePermissionList(permission_list):
   reg_permission = re.compile(r'^[a-zA-Z\.]*$')
   for permission in permissions:
     if not reg_permission.match(permission):
-      print('\'Permissions\' field error, only alphabets and '
-            '\'.\' are allowed.')
+      log.Error('\'Permissions\' field error, only alphabets and '
+                '\'.\' are allowed.')
       sys.exit(1)
   return ':'.join(permissions)
 
@@ -59,8 +60,9 @@ def ParseLaunchScreen(ret_dict, launch_screen_dict, orientation):
 
 
 def PrintDeprecationWarning(item):
-  print ('WARNING: %s is deprecated for Crosswalk. Please follow '
-         'https://www.crosswalk-project.org/#documentation/manifest.' % item)
+  log.WarningInfo('WARNING: %s is deprecated for Crosswalk. Please follow '
+                  'https://www.crosswalk-project.org/#documentation/manifest.'
+                  % item)
 
 
 class ManifestJsonParser(object):
@@ -78,10 +80,10 @@ class ManifestJsonParser(object):
       self.data_src = json.JSONDecoder().decode(input_src)
       self.ret_dict = self._output_items()
     except (TypeError, ValueError, IOError) as error:
-      print('There is a parser error in manifest.json file: %s' % error)
+      log.Error('There is a parser error in manifest.json file: %s' % error)
       sys.exit(1)
     except KeyError as error:
-      print('There is a field error in manifest.json file: %s' % error)
+      log.Error('There is a field error in manifest.json file: %s' % error)
       sys.exit(1)
     finally:
       input_file.close()
@@ -110,13 +112,13 @@ class ManifestJsonParser(object):
     """
     ret_dict = {}
     if 'name' not in self.data_src:
-      print('Error: no \'name\' field in manifest.json file.')
+      log.Error('Error: no \'name\' field in manifest.json file.')
       sys.exit(1)
     ret_dict['app_name'] = self.data_src['name']
     ret_dict['version'] = ''
     if 'version' in self.data_src and 'xwalk_version' in self.data_src:
-      print('WARNING: the value in "version" will be ignored and support '
-            'for it will be removed in the future.')
+      log.WarningInfo('WARNING: the value in "version" will be ignored and '
+                      'support for it will be removed in the future.')
       ret_dict['version'] = self.data_src['xwalk_version']
     elif 'xwalk_version' in self.data_src:
       ret_dict['version'] = self.data_src['xwalk_version']
@@ -159,8 +161,8 @@ class ManifestJsonParser(object):
     app_root = file_path_prefix
     ret_dict['description'] = ''
     if 'description' in self.data_src and 'xwalk_description' in self.data_src:
-      print('WARNING: the value in "description" will be ignored and support '
-            'for it will be removed in the future.')
+      log.WarningInfo('WARNING: the value in "description" will be ignored '
+                      'and support for it will be removed in the future.')
       ret_dict['description'] = self.data_src['xwalk_description']
     elif 'xwalk_description' in self.data_src:
       ret_dict['description'] = self.data_src['xwalk_description']
@@ -176,7 +178,7 @@ class ManifestJsonParser(object):
         permission_list = self.data_src['xwalk_permissions']
         ret_dict['permissions'] = HandlePermissionList(permission_list)
       except (TypeError, ValueError, IOError):
-        print('\'Permissions\' field error in manifest.json file.')
+        log.Error('\'Permissions\' field error in manifest.json file.')
         sys.exit(1)
     elif 'permissions' in self.data_src:
       PrintDeprecationWarning('permissions')
@@ -184,7 +186,7 @@ class ManifestJsonParser(object):
         permission_list = self.data_src['permissions']
         ret_dict['permissions'] = HandlePermissionList(permission_list)
       except (TypeError, ValueError, IOError):
-        print('\'Permissions\' field error in manifest.json file.')
+        log.Error('\'Permissions\' field error in manifest.json file.')
         sys.exit(1)
     orientation = {'landscape':'landscape',
                    'landscape-primary':'landscape',

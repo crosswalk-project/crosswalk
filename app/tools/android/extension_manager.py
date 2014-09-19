@@ -7,6 +7,7 @@
 
 import fnmatch
 import json
+import log
 import optparse
 import os
 import sys
@@ -96,13 +97,13 @@ def HandleAdd(git_url, extensions_path, name=None):
     name = git_url.split('/')[-1].split('.')[0]
   if not os.path.isdir(extensions_path):
     if os.path.isfile(extensions_path):
-      print("WARNING: Please remove file %s" % (extensions_path))
+      log.WarningInfo("WARNING: Please remove file %s" % (extensions_path))
       sys.exit(1)
     else:
       os.mkdir(extensions_path)
   local_extension_path = os.path.join(extensions_path, name)
   if os.path.exists(local_extension_path):
-    print("ERROR: You already have a repo named \"%s\"." % name)
+    log.Error("ERROR: You already have a repo named \"%s\"." % name)
     return 
   os.mkdir(local_extension_path)
   #Only support git.
@@ -117,11 +118,11 @@ def HandleRemove(remove_name, extensions_path):
   if os.path.exists(extension_path):
     CleanDir(extension_path)
   else:
-    print("ERROR: Don't have extension \"%s\"" % (remove_name))
+    log.Error("ERROR: Don't have extension \"%s\"" % (remove_name))
 
 
 def PrintExtensionInfo(extension_name, extensions_path):
-  print("{0} {1}".format(
+  log.Info("{0} {1}".format(
       "+" if GetExtensionStatus(extension_name, extensions_path) else "-",
       extension_name))
 
@@ -155,10 +156,10 @@ def HandleVersion():
   version_path = \
       os.path.join(os.path.dirname(os.path.realpath(__file__)), "VERSION")
   if os.path.isfile(version_path):
-    print(GetVersion("VERSION"))
+    log.Info(GetVersion("VERSION"))
   else:
-    print ("ERROR: VERSION was not found, so Crosswalk\'s version could not"
-           "be determined.")
+    log.Error("ERROR: VERSION was not found, so Crosswalk\'s version could not"
+              "be determined.")
 
 
 def main(argv):
