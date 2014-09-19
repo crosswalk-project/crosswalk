@@ -31,15 +31,16 @@ def main():
      'R.txt'),
     (os.path.join(options.target, 'xwalk_core_library', 'AndroidManifest.xml'),
      'AndroidManifest.xml'),
-    (os.path.join(options.target, 'xwalk_core_library', 'libs',
-                  'xwalk_core_library_java.jar'),
+    (os.path.join(options.target, 'lib.java', 'xwalk_core_library_java.jar'),
      'classes.jar'),
   )
   # This is a list of files that will not be packaged: mostly a blacklist of
   # files within |dirs|.
   exclude_files = (
     os.path.join(options.target, 'xwalk_core_library', 'libs',
-                 'xwalk_core_library_java.jar'),
+                 'xwalk_core_library_java_app_part.jar'),
+    os.path.join(options.target, 'xwalk_core_library', 'libs',
+                 'xwalk_core_library_java_library_part.jar'),
   )
 
   aar_path = os.path.join(options.target, 'xwalk_core_library.aar')

@@ -136,7 +136,8 @@ def CopyBinaries(out_dir):
     os.mkdir(libs_dir)
 
   libs_to_copy = [
-      'xwalk_core_library_java.jar',
+      'xwalk_core_library_java_app_part.jar',
+      'xwalk_core_library_java_library_part.jar',
   ]
 
   for lib in libs_to_copy:

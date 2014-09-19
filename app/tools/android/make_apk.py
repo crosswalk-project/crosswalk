@@ -286,9 +286,6 @@ def Execution(options, name):
                 '--path', os.path.join(xwalk_dir, name, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
-  else:
-    # Shared mode doesn't need xwalk_runtime_java.jar.
-    os.remove(os.path.join(xwalk_dir, name, 'libs', 'xwalk_runtime_java.jar'))
 
   RunCommand(update_project_cmd)
 
@@ -394,6 +391,11 @@ def MakeApk(options, app_info, manifest):
   name = app_info.android_name
   packaged_archs = []
   if options.mode == 'shared':
+    # For shared mode, it's not necessary to use the whole xwalk core library,
+    # use xwalk_core_library_java_app_part.jar from it is enough.
+    java_app_part_jar = os.path.join(xwalk_dir, 'xwalk_core_library', 'libs',
+                                     'xwalk_core_library_java_app_part.jar')
+    shutil.copy(java_app_part_jar, os.path.join(xwalk_dir, name, 'libs'))
     Execution(options, name)
   elif options.mode == 'embedded':
     # Copy xwalk_core_library into app folder and move the native libraries
