@@ -114,7 +114,7 @@ void ApplicationTizen::Hide() {
   std::set<Runtime*>::iterator it = runtimes_.begin();
   for (; it != runtimes_.end(); ++it) {
     if ((*it)->window())
-      (*it)->window()->Hide();
+      (*it)->window()->Minimize();
   }
 }
 
