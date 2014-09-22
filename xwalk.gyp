@@ -306,10 +306,12 @@
           ],
           'cflags': [
             '<!@(pkg-config --cflags libtzplatform-config)',
+            '<!@(pkg-config --cflags cynara-client)',
           ],
           'link_settings': {
             'libraries': [
               '<!@(pkg-config --libs libtzplatform-config)',
+              '<!@(pkg-config --libs cynara-client)',
             ],
           },
           'sources': [

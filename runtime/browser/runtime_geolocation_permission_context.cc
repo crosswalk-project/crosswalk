@@ -6,6 +6,7 @@
 
 #include "base/bind.h"
 #include "base/callback.h"
+#include "base/logging.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_view_host.h"
@@ -15,12 +16,14 @@
 #endif
 
 #if defined(OS_TIZEN)
+#include <cynara-client.h>
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/manifest_handlers/permissions_handler.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
+#include "xwalk/runtime/browser/xwalk_runner_tizen.h"
 #endif
 
 namespace xwalk {
@@ -54,7 +57,32 @@ void CancelGeolocationPermissionRequest(
           requesting_frame));
 }
 
+#if defined(OS_TIZEN)
+void CheckCynara(base::Callback<void(bool)> result_callback) {
+  // check cynara synchrounously here
+
+  int ret;
+  XWalkRunnerTizen* runner_tizen;
+  runner_tizen = static_cast<XWalkRunnerTizen*>(XWalkRunner::GetInstance());
+
+  ret = cynara_check(runner_tizen->p_cynara, "client",
+      "client_session", "user", "location");
+  switch (ret) {
+    case CYNARA_API_SUCCESS:
+      result_callback.Run(true);
+      break;
+    case CYNARA_API_ACCESS_DENIED:
+      LOG(WARNING) << "cynara geolocation check denied";
+      break;
+    default:
+      LOG(WARNING) << "cynara geolocation check returned other reponse";
+  }
+}
+#endif
 RuntimeGeolocationPermissionContext::~RuntimeGeolocationPermissionContext() {
+}
+
+RuntimeGeolocationPermissionContext::RuntimeGeolocationPermissionContext() {
 }
 
 void
@@ -78,6 +106,7 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
 
   xwalk_content->ShowGeolocationPrompt(requesting_frame, result_callback);
 #elif defined(OS_TIZEN)
+#if !defined(CYNARA)
   bool has_geolocation_permission = false;
   XWalkRunner* runner = XWalkRunner::GetInstance();
   application::ApplicationSystem* app_system = runner->app_system();
@@ -102,6 +131,15 @@ RuntimeGeolocationPermissionContext::RequestGeolocationPermissionOnUIThread(
   }
 
   result_callback.Run(has_geolocation_permission);
+#else
+  if (!thread_.get()) {
+    thread_.reset(new base::Thread("cynara_geolocation"));
+  }
+  thread_->message_loop()->PostTask(
+      FROM_HERE, base::Bind(CheckCynara, result_callback));
+  thread_->Start();
+#endif
+
 #endif
 
   if (cancel_callback) {

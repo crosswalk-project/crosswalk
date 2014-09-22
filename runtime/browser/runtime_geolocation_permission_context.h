@@ -4,14 +4,16 @@
 
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
+#define CYNARA 1
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
+#include "base/threading/thread.h"
 
 class GURL;
 
 namespace content {
-  class WebContents;
+class WebContents;
 }
 
 namespace xwalk {
@@ -21,6 +23,7 @@ class RuntimeContext;
 class RuntimeGeolocationPermissionContext
     : public base::RefCountedThreadSafe<RuntimeGeolocationPermissionContext> {
  public:
+  RuntimeGeolocationPermissionContext();
   // content::GeolocationPermissionContext implementation.
   virtual void RequestGeolocationPermission(
     content::WebContents* web_contents,
@@ -38,6 +41,10 @@ class RuntimeGeolocationPermissionContext
     const GURL& requesting_frame,
     base::Callback<void(bool)> result_callback,
     base::Closure* cancel_callback);
+
+#if defined(CYNARA)
+  scoped_ptr<base::Thread> thread_;
+#endif
 };
 
 }  // namespace xwalk
