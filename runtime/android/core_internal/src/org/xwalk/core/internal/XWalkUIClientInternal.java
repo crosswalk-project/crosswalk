@@ -40,6 +40,16 @@ public class XWalkUIClientInternal {
     private boolean mOriginalForceNotFullscreen;
 
     /**
+     * Initiator
+     * @since 4.0
+     */
+    @XWalkAPI
+    public enum InitiateByInternal {
+        BY_USER_GESTURE,
+        BY_JAVASCRIPT
+    }
+
+    /**
      * Constructor.
      * @param view the owner XWalkViewInternal instance.
      * @since 1.0
@@ -64,6 +74,20 @@ public class XWalkUIClientInternal {
         mJSPromptTitle = mContext.getString(R.string.js_prompt_title);
         mOKButton = mContext.getString(android.R.string.ok);
         mCancelButton = mContext.getString(android.R.string.cancel);
+    }
+
+    /**
+     * Request the host application to create a new window
+     * @param view The XWalkView from which the request for a new window originated
+     * @param initiator The request was initiated by a user gesture of javascript
+     * @param callback Callback when once a new XWalkView has been created
+     * @return Return true if the host application will create a new window
+     * @since 4.0
+     */
+    @XWalkAPI
+    public boolean onCreateWindowRequested(XWalkViewInternal view, InitiateByInternal initiator,
+            ValueCallback<XWalkViewInternal> callback) {
+        return false;
     }
 
     /**

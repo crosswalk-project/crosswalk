@@ -32,8 +32,7 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public boolean addNewContents(boolean isDialog, boolean isUserGesture) {
-        // TODO: implement.
-        return false;
+        return mXWalkContentsClient.onCreateWindow(isDialog, isUserGesture);
     }
 
     @Override

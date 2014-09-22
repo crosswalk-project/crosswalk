@@ -28,15 +28,22 @@ class XWalkContentsClientBridge;
 
 class XWalkContent {
  public:
-  XWalkContent(JNIEnv* env, jobject obj, jobject web_contents_delegate,
-      jobject contents_client_bridge);
+  explicit XWalkContent(scoped_ptr<content::WebContents> web_contents);
   ~XWalkContent();
 
   static XWalkContent* FromID(int render_process_id, int render_view_id);
   static XWalkContent* FromWebContents(content::WebContents* web_contents);
 
-  jlong GetWebContents(JNIEnv* env, jobject obj, jobject io_thread_client,
-                      jobject delegate);
+  jlong GetWebContents(JNIEnv* env, jobject obj);
+  void SetPendingWebContentsForPopup(scoped_ptr<content::WebContents> pending);
+  jlong ReleasePopupXWalkContent(JNIEnv* env, jobject obj);
+  void SetJavaPeers(JNIEnv* env,
+                    jobject obj,
+                    jobject xwalk_content,
+                    jobject web_contents_delegate,
+                    jobject contents_client_bridge,
+                    jobject io_thread_client,
+                    jobject intercept_navigation_delegate);
   void ClearCache(JNIEnv* env, jobject obj, jboolean include_disk_files);
   ScopedJavaLocalRef<jstring> DevToolsAgentId(JNIEnv* env, jobject obj);
   void Destroy(JNIEnv* env, jobject obj);
@@ -70,9 +77,6 @@ class XWalkContent {
                                  jstring origin);
 
  private:
-  content::WebContents* CreateWebContents(JNIEnv* env, jobject io_thread_client,
-                                          jobject delegate);
-
   JavaObjectWeakGlobalRef java_ref_;
   // TODO(guangzhen): The WebContentsDelegate need to take ownership of
   // WebContents as chrome content design. For xwalk, XWalkContent owns
@@ -83,6 +87,7 @@ class XWalkContent {
   scoped_ptr<XWalkRenderViewHostExt> render_view_host_ext_;
   scoped_ptr<XWalkContentsClientBridge> contents_client_bridge_;
   scoped_ptr<content::WebContents> web_contents_;
+  scoped_ptr<XWalkContent> pending_contents_;
 
   // GURL is supplied by the content layer as requesting frame.
   // Callback is supplied by the content layer, and is invoked with the result

@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.Message;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,6 +40,7 @@ import org.xwalk.core.internal.XWalkUIClientInternal.LoadStatusInternal;
 class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
     private static final String TAG = XWalkContentsClientBridge.class.getName();
+    private static final int NEW_XWALKVIEW_CREATED = 100;
 
     private XWalkViewInternal mXWalkView;
     private XWalkUIClientInternal mXWalkUIClient;
@@ -51,6 +53,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     private PageLoadListener mPageLoadListener;
     private XWalkNavigationHandler mNavigationHandler;
     private XWalkNotificationService mNotificationService;
+    private Handler mUiThreadHandler;
 
     /** State recording variables */
     // For fullscreen state.
@@ -90,6 +93,29 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         mXWalkView = xwView;
 
         mInterceptNavigationDelegate = new InterceptNavigationDelegateImpl(this);
+
+        mUiThreadHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch(msg.what) {
+                    case NEW_XWALKVIEW_CREATED:
+                        XWalkViewInternal newXWalkView = (XWalkViewInternal) msg.obj;
+                        if (newXWalkView == mXWalkView) {
+                            throw new IllegalArgumentException("Parent XWalkView cannot host it's own popup window");
+                        }
+
+                        if (newXWalkView != null && newXWalkView.getNavigationHistory().size() != 0) {
+                            throw new IllegalArgumentException("New WebView for popup window must not have been previously navigated.");
+                        }
+
+                        mXWalkView.completeWindowCreation(newXWalkView);
+                        break;
+                    default:
+                        throw new IllegalStateException();
+                }
+            }
+        };
+
     }
 
     public void setUIClient(XWalkUIClientInternal client) {
@@ -346,7 +372,23 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public boolean onCreateWindow(boolean isDialog, boolean isUserGesture) {
-        return false;
+        if (isDialog) return false;
+        
+        XWalkUIClientInternal.InitiateByInternal initiator =
+                XWalkUIClientInternal.InitiateByInternal.BY_JAVASCRIPT;
+        if (isUserGesture) {
+            initiator = XWalkUIClientInternal.InitiateByInternal.BY_USER_GESTURE;
+        }
+
+        ValueCallback<XWalkViewInternal> callback = new ValueCallback<XWalkViewInternal>() {
+            @Override
+            public void onReceiveValue(XWalkViewInternal newXWalkView) {
+                Message m = mUiThreadHandler.obtainMessage(NEW_XWALKVIEW_CREATED, newXWalkView);
+                m.sendToTarget();
+            }
+        };
+
+        return mXWalkUIClient.onCreateWindowRequested(mXWalkView, initiator, callback);
     }
 
     @Override
