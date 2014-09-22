@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "base/file_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -115,7 +116,12 @@ Application* ApplicationService::LaunchFromPackagePath(
     return NULL;
   }
 
+#if defined (OS_WIN)
+  base::CreateTemporaryDirInDir(tmp_dir,
+      base::UTF8ToWide(package->name()), &target_dir);
+#else
   base::CreateTemporaryDirInDir(tmp_dir, package->name(), &target_dir);
+#endif
   if (!package->ExtractTo(target_dir)) {
     LOG(ERROR) << "Failed to unpack to a temporary directory: "
                << target_dir.MaybeAsASCII();

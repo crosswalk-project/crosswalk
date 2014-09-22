@@ -149,7 +149,11 @@ GURL ApplicationData::GetResourceURL(const GURL& application_url,
 }
 
 GURL ApplicationData::GetResourceURL(const std::string& relative_path) const {
+#if defined (OS_WIN)
+  if (!base::PathExists(path_.Append(base::UTF8ToWide(relative_path)))) {
+#else
   if (!base::PathExists(path_.Append(relative_path))) {
+#endif
     LOG(ERROR) << "The path does not exist in the application directory: "
                << relative_path;
     return GURL();
