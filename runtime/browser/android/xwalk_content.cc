@@ -142,10 +142,10 @@ void XWalkContent::SetJavaPeers(JNIEnv* env,
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::UI));
   java_ref_ = JavaObjectWeakGlobalRef(env, xwalk_content);
 
-  web_contents_delegate_.reset(
-      new XWalkWebContentsDelegate(env, web_contents_delegate));
-  contents_client_bridge_.reset(
-      new XWalkContentsClientBridge(env, contents_client_bridge));
+  web_contents_delegate_.reset(new XWalkWebContentsDelegate(
+      env, web_contents_delegate));
+  contents_client_bridge_.reset(new XWalkContentsClientBridge(
+      env, contents_client_bridge, web_contents_.get()));
 
   web_contents_->SetUserData(
       kXWalkContentUserDataKey, new XWalkContentUserData(this));

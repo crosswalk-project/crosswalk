@@ -130,6 +130,8 @@
         'runtime/browser/android/xwalk_login_delegate.h',
         'runtime/browser/android/xwalk_path_helper.cc',
         'runtime/browser/android/xwalk_path_helper.h',
+        'runtime/browser/android/xwalk_icon_helper.cc',
+        'runtime/browser/android/xwalk_icon_helper.h',
         'runtime/browser/android/xwalk_request_interceptor.cc',
         'runtime/browser/android/xwalk_request_interceptor.h',
         'runtime/browser/android/xwalk_settings.cc',
