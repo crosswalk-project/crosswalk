@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
   g_type_init();
 #endif
 
-  if (xwalk_tizen_check_user_app())
+  if (xwalk_tizen_check_user_for_xwalkctl())
     exit(1);
 
   context = g_option_context_new("- Crosswalk Application Management");
