@@ -17,24 +17,10 @@
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/package_query.h"
 
-// FIXME(tiwanek): Remove this hack once IVI's ail moves to 0.2.80-16.1
-// or later.
-#ifdef OPT_DESKTOP_DIRECTORY
-// This definition was removed in the same commit that changed
-// ail_list_appinfo_cb, so its presence means
-// this is an ail predating https://review.tizen.org/gerrit/#/c/27621/.
-#define AIL_IS_OLD 1
-#endif
-
 namespace {
 
-#ifdef AIL_IS_OLD
-ail_cb_ret_e appinfo_get_app_id_cb(
-    const ail_appinfo_h appinfo, void* user_data) {
-#else
 ail_cb_ret_e appinfo_get_app_id_cb(
     const ail_appinfo_h appinfo, void* user_data, uid_t /*uid*/) {
-#endif
   std::vector<std::string>* app_ids =
     static_cast<std::vector<std::string>*>(user_data);
   char* app_id;
