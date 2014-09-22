@@ -28,6 +28,14 @@ def ConvertPrimitiveTypeToObject(class_name):
   return primitive_map.get(class_name, class_name)
 
 
+def HasCreateInternally(java_data):
+  java_data_instance = java_data.GetInstanceJavaData()
+  if java_data_instance:
+    return java_data_instance.HasCreateInternallyAnnotation()
+  else:
+    return java_data.HasCreateInternallyAnnotation()
+
+
 class ParamStringType(object):
   INTERNAL_DECLARE = 1
   BRIDGE_DECLARE = 2
@@ -296,7 +304,7 @@ class Method(object):
       # the way bridge uses as the condition for whether call super or
       # call wrapper in override call
       #   XWalkViewInternal view => (view instanceof XWalkViewBridge)
-      if is_internal_class:
+      if is_internal_class and not HasCreateInternally(java_data):
         return'(%s instanceof %s)' % (
             param_name,
             java_data.UseAsTypeInBridgeAndBridgeSuperCall())
