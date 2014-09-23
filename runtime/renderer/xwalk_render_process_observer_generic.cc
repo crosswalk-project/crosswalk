@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -12,6 +13,7 @@
 #include "third_party/WebKit/public/web/WebSecurityPolicy.h"
 #include "third_party/WebKit/public/platform/WebString.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 
 namespace xwalk {
@@ -59,6 +61,9 @@ bool XWalkRenderProcessObserver::OnControlMessageReceived(
     IPC_MESSAGE_HANDLER(ViewMsg_SetAccessWhiteList, OnSetAccessWhiteList)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableSecurityMode, OnEnableSecurityMode)
     IPC_MESSAGE_HANDLER(ViewMsg_SuspendJSEngine, OnSuspendJSEngine)
+#if defined(OS_TIZEN)
+    IPC_MESSAGE_HANDLER(ViewMsg_UserAgentStringChanged, OnUserAgentChanged)
+#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -104,5 +109,16 @@ void XWalkRenderProcessObserver::OnSuspendJSEngine(bool is_suspend) {
     thread->webkit_platform_support()->ResumeSharedTimer();
   is_suspended_ = is_suspend;
 }
+
+#if defined(OS_TIZEN)
+void XWalkRenderProcessObserver::OnUserAgentChanged(
+    const std::string& userAgentString) {
+  overriden_user_agent_ = userAgentString;
+}
+
+std::string XWalkRenderProcessObserver::GetOverridenUserAgent() const {
+  return overriden_user_agent_;
+}
+#endif
 
 }  // namespace xwalk

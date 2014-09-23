@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -23,6 +24,10 @@
 #include "xwalk/application/common/constants.h"
 #include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
+#if (defined(OS_TIZEN))
+#include "xwalk/runtime/renderer/xwalk_content_renderer_client.h"
+#include "xwalk/runtime/renderer/tizen/xwalk_content_renderer_client_tizen.h"
+#endif
 
 const char* const xwalk::XWalkContentClient::kNaClPluginName = "Native Client";
 
@@ -111,6 +116,25 @@ std::string XWalkContentClient::GetProduct() const {
 }
 
 std::string XWalkContentClient::GetUserAgent() const {
+#if (defined(OS_TIZEN))
+  // TODO(jizydorczyk):
+  // const_cast below is required to invoke ContentClient::renderer() method,
+  // I think there is no reason for ContentClient::renderer() in content API
+  // to be non-const as it doesn't change any data, so it should be changed in
+  // chromium code later.
+  XWalkContentClient* content_client = const_cast<XWalkContentClient*>(this);
+  content::ContentRendererClient* content_renderer_client =
+      content_client->renderer();
+  if (content_renderer_client) {
+    XWalkContentRendererClientTizen* content_renderer_client_tizen =
+        static_cast<XWalkContentRendererClientTizen*>(
+            content_renderer_client);
+    const std::string& user_agent_string = content_renderer_client_tizen->
+        GetOverridenUserAgent();
+    if (!user_agent_string.empty())
+      return user_agent_string;
+  }
+#endif
   return xwalk::GetUserAgent();
 }
 

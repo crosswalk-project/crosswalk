@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -41,6 +42,9 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   }
 
   const GURL& app_url() const { return app_url_; }
+#if defined(OS_TIZEN)
+  std::string GetOverridenUserAgent() const;
+#endif
 
  private:
   void OnSetAccessWhiteList(
@@ -48,6 +52,10 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnEnableSecurityMode(
       const GURL& url, application::SecurityPolicy::SecurityMode mode);
   void OnSuspendJSEngine(bool is_pause);
+#if defined(OS_TIZEN)
+  void OnUserAgentChanged(const std::string& userAgentString);
+  std::string overriden_user_agent_;
+#endif
 
   bool is_webkit_initialized_;
   bool is_suspended_;

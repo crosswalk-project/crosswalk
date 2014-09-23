@@ -1,4 +1,5 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -109,6 +110,12 @@ void XWalkContentRendererClientTizen::GetNavigationErrorStrings(
                            "<h1>NET ERROR : %s</h1></body></html>",
                            net::ErrorToString(error.reason).c_str());
   }
+}
+
+std::string XWalkContentRendererClientTizen::GetOverridenUserAgent() const {
+  if (!xwalk_render_process_observer_)
+    return "";
+  return xwalk_render_process_observer_->GetOverridenUserAgent();
 }
 
 }  // namespace xwalk
