@@ -642,6 +642,7 @@ class Method(object):
   def GenerateWrapperStaticMethod(self):
     no_return_value = self._method_return == 'void'
     template = Template(
+        '${DOC}\n' +
         '    public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
         '       Class<?> clazz = ReflectionHelper.loadClass(' +
         '\"${FULL_BRIDGE_NAME}\");\n' +
@@ -656,6 +657,7 @@ class Method(object):
       return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(
           self.method_return)
     value = {'RETURN_TYPE': self.method_return,
+             'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
              'FULL_BRIDGE_NAME': self._class_java_data.GetFullBridgeName(),
              'PARAMS_DECLARE_FOR_BRIDGE':
