@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/tools/tizen/xwalk_package_installer_helper.h"
+#include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
 
 #include <assert.h>
-#include <stdio.h>
 #include <pkgmgr/pkgmgr_parser.h>
 #include <tzplatform_config.h>
 
-#undef LOG
 #include <string>
+
 #include "base/files/file_path.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "xwalk/application/common/id_util.h"
 
 namespace {
@@ -95,8 +95,8 @@ bool CopyFileToDst(const base::FilePath& file_src,
   if (!base::PathExists(dir))
     base::CreateDirectory(dir);
   if (!base::CopyFile(file_src, file_dst)) {
-    fprintf(stdout, "Couldn't copy application file from %s to '%s'\n",
-         file_src.value().c_str(), file_dst.value().c_str());
+    LOG(ERROR) << "Couldn't copy application file from "
+        << file_src.value() << " to " << file_dst.value();
     return false;
   }
   return true;
@@ -104,69 +104,72 @@ bool CopyFileToDst(const base::FilePath& file_src,
 
 }  // namespace
 
-PackageInstallerHelper::PackageInstallerHelper(const std::string& appid)
+PlatformInstaller::PlatformInstaller()
+    : handle_(NULL) {
+}
+
+PlatformInstaller::PlatformInstaller(const std::string& appid)
     : handle_(NULL),
       appid_(appid),
       pkgid_(xwalk::application::AppIdToPkgId(appid)) {
   if (appid_.empty())
-    fprintf(stdout, "Invalid app id is provided for pkg installer.\n");
+    LOG(ERROR) << "Invalid app id is provided for pkg installer";
 }
 
-PackageInstallerHelper::~PackageInstallerHelper() {
+PlatformInstaller::~PlatformInstaller() {
   if (handle_)
     pkgmgr_installer_free(handle_);
 }
 
-bool PackageInstallerHelper::InitializePkgmgrSignal(int argc,
-                                                    const char** argv) {
+bool PlatformInstaller::InitializePkgmgrSignal(int argc,
+    const char** argv) {
   handle_ = pkgmgr_installer_new();
   if (!handle_) {
-    fprintf(stdout, "Fail to get package manager installer handle.\n");
+    LOG(ERROR) << "Fail to get package manager installer handle";
     return false;
   }
 
+  LOG(INFO) << "Initializing pkgmgr request...";
   return pkgmgr_installer_receive_request(handle_,
                                           argc,
                                           const_cast<char**>(argv));
 }
 
-bool PackageInstallerHelper::InstallApplication(
-    const std::string& xmlpath,
-    const std::string& iconpath) {
+bool PlatformInstaller::InstallApplication(const base::FilePath& xmlpath,
+    const base::FilePath& iconpath) {
   SendSignal(PKGMGR_START_KEY, PKGMGR_START_INSTALL);
   bool ret = InstallApplicationInternal(xmlpath, iconpath);
   SendSignal(PKGMGR_END_KEY, ToEndStatus(ret));
   return ret;
 }
 
-bool PackageInstallerHelper::UninstallApplication() {
+bool PlatformInstaller::UninstallApplication() {
   SendSignal(PKGMGR_START_KEY, PKGMGR_START_UNINSTALL);
   bool ret = UninstallApplicationInternal();
   SendSignal(PKGMGR_END_KEY, ToEndStatus(ret));
   return ret;
 }
 
-bool PackageInstallerHelper::UpdateApplication(
-    const std::string& xmlpath,
-    const std::string& iconpath) {
+bool PlatformInstaller::UpdateApplication(const base::FilePath& xmlpath,
+    const base::FilePath& iconpath) {
   SendSignal(PKGMGR_START_KEY, PKGMGR_START_UPDATE);
   bool ret = UpdateApplicationInternal(xmlpath, iconpath);
   SendSignal(PKGMGR_END_KEY, ToEndStatus(ret));
   return ret;
 }
 
-bool PackageInstallerHelper::ReinstallApplication() {
+bool PlatformInstaller::ReinstallApplication() {
   SendSignal(PKGMGR_START_KEY, PKGMGR_START_REINSTALL);
   // FIXME not implemented, just send signal abotu failure
   SendSignal(PKGMGR_END_KEY, ToEndStatus(false));
   return false;
 }
 
-bool PackageInstallerHelper::InstallApplicationInternal(
-    const std::string& xmlpath,
-    const std::string& iconpath) {
+bool PlatformInstaller::InstallApplicationInternal(
+    const base::FilePath& xmlpath,
+    const base::FilePath& iconpath) {
   if (xmlpath.empty() || iconpath.empty()) {
-    fprintf(stdout, "Invalid xml path or icon path for installation\n");
+    LOG(ERROR) << "Invalid xml path or icon path for installation";
   }
   base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
   base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
@@ -187,24 +190,24 @@ bool PackageInstallerHelper::InstallApplicationInternal(
   FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
-
-  if (!CopyFileToDst(base::FilePath(xmlpath), xml_dst)
-     || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
+  if (!CopyFileToDst(xmlpath, xml_dst)
+     || !CopyFileToDst(iconpath, icon_dst))
     return false;
 
-  fprintf(stdout, "uid for installation : '%d'\n", uid);
+  LOG(INFO) << "UID of installation : " << uid;
   if (uid != GLOBAL_USER) {  // For only the user that request installation
-    if (pkgmgr_parser_parse_usr_manifest_for_installation(xmlpath.c_str(),
+    if (pkgmgr_parser_parse_usr_manifest_for_installation(
+        xmlpath.value().c_str(),
         uid, const_cast<char**>(pkgmgr_tags))) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
-              xmlpath.c_str(), uid);
+      LOG(ERROR) << "Couldn't parse manifest XML '"
+          << xmlpath.value().c_str() << "', uid : " << uid;
       return false;
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.c_str(),
-                                            const_cast<char**>(pkgmgr_tags))) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s', uid : '%d'\n",
-           xmlpath.c_str(), uid);
+    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.value().c_str(),
+        const_cast<char**>(pkgmgr_tags))) {
+      LOG(ERROR) << "Couldn't parse manifest XML '"
+          << xmlpath.value().c_str() << "' for global installation";
       return false;
     }
   }
@@ -214,7 +217,7 @@ bool PackageInstallerHelper::InstallApplicationInternal(
   return true;
 }
 
-bool PackageInstallerHelper::UninstallApplicationInternal() {
+bool PlatformInstaller::UninstallApplicationInternal() {
   base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
   base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
   base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
@@ -240,16 +243,16 @@ bool PackageInstallerHelper::UninstallApplicationInternal() {
   if (uid != GLOBAL_USER) {  // For only the user that request installation
     if (pkgmgr_parser_parse_usr_manifest_for_uninstallation(
         xmlpath_str.c_str(), uid, NULL)) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s'\n",
-              xmlpath_str.c_str());
+      LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath_str << "', uid"
+          << uid;
       icon_cleaner.Dismiss();
       xml_cleaner.Dismiss();
     }
   } else {  // For all users
     if (pkgmgr_parser_parse_manifest_for_uninstallation(
         xmlpath_str.c_str(), NULL)) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s'\n",
-              xmlpath_str.c_str());
+      LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath_str
+          << "' for global uninstallation";
       icon_cleaner.Dismiss();
       xml_cleaner.Dismiss();
     }
@@ -257,11 +260,10 @@ bool PackageInstallerHelper::UninstallApplicationInternal() {
   return true;
 }
 
-bool PackageInstallerHelper::UpdateApplicationInternal(
-    const std::string& xmlpath,
-    const std::string& iconpath) {
+bool PlatformInstaller::UpdateApplicationInternal(
+    const base::FilePath& xmlpath, const base::FilePath& iconpath) {
   if (xmlpath.empty() || iconpath.empty()) {
-    fprintf(stdout, "Invalid xml path or icon path for update\n");
+    LOG(ERROR) << "Invalid xml path or icon path for update";
   }
 
   base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
@@ -285,20 +287,22 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
   FileDeleter icon_cleaner(icon_dst, false);
 
 
-  if (!CopyFileToDst(base::FilePath(xmlpath), xml_dst)
-     || !CopyFileToDst(base::FilePath(iconpath), icon_dst))
+  if (!CopyFileToDst(xmlpath, xml_dst)
+     || !CopyFileToDst(iconpath, icon_dst))
     return false;
 
   if (uid != GLOBAL_USER) {  // For only the user that request installation
-    if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.c_str(), uid,
-        const_cast<char**>(pkgmgr_tags))) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+    if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.value().c_str(),
+        uid, const_cast<char**>(pkgmgr_tags))) {
+      LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath.value()
+          << "', uid: " << uid;
       return false;
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.c_str(),
-                                            const_cast<char**>(pkgmgr_tags))) {
-      fprintf(stdout, "Couldn't parse manifest XML '%s'\n", xmlpath.c_str());
+    if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.value().c_str(),
+        const_cast<char**>(pkgmgr_tags))) {
+      LOG(ERROR) << "Couldn't parse manifest XML '"
+          << xmlpath.value() << "' for global update installation";
       return false;
      }
   }
@@ -309,7 +313,7 @@ bool PackageInstallerHelper::UpdateApplicationInternal(
   return true;
 }
 
-bool PackageInstallerHelper::SendSignal(
+bool PlatformInstaller::SendSignal(
     const std::string& key,
     const std::string& value) {
   if (!handle_) {
@@ -318,14 +322,14 @@ bool PackageInstallerHelper::SendSignal(
   }
 
   if (key.empty() || value.empty()) {
-    fprintf(stdout, " Fail to send signal, key/value is empty.\n");
+    LOG(ERROR) << "Fail to send signal, key/value is empty";
     return false;
   }
 
   if (pkgmgr_installer_send_signal(
           handle_, PKGMGR_PKG_TYPE, pkgid_.c_str(),
           key.c_str(), value.c_str())) {
-    fprintf(stdout, "Fail to send package manager signal.\n");
+    LOG(ERROR) << "Fail to send package manager signal";
   }
 
   return true;
