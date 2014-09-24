@@ -26,10 +26,10 @@
 #include "ui/events/event_constants.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
 #include "ui/events/platform/platform_event_source.h"
-#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #endif
 
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_splash_screen_handler.h"
 
 namespace xwalk {
