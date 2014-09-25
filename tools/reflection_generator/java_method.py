@@ -36,6 +36,58 @@ def HasCreateInternally(java_data):
     return java_data.HasCreateInternallyAnnotation()
 
 
+class ParamType(object):
+  """Internal representation of the type of a parameter of a method."""
+  def __init__(self, expression, class_loader):
+    self._expression = expression
+    self._modifier = ''
+    self._generic_type = ''
+    self._generic_type_parameters = []
+    self._contains_internal_class = False
+    self.ParseType(class_loader)
+    self._contains_internal_class = self._contains_internal_class or\
+        class_loader.IsInternalClass(self._generic_type)
+
+  def ParseType(self, class_loader):
+    param_type_re = re.compile('(?P<modifier>(\w+ )*)'
+                               '(?P<generic>(\w+))(?P<type_params>(<.*>)?)')
+    for match in re.finditer(param_type_re, self._expression):
+      self._modifier = match.group('modifier')
+      self._generic_type = match.group('generic')
+      type_params = match.group('type_params')
+      if len(type_params) > 1:
+        type_params = type_params[1:-1]
+        self._generic_type_parameters = [ParamType(param.strip(),
+            class_loader) for param in type_params.split(',')]
+
+    for type_param in self._generic_type_parameters:
+      if self.generic_type == 'ValueCallback':
+        print 'value callback with %s' % type_param.generic_type
+      if type_param.contains_internal_class:
+        self._contains_internal_class = True
+        break
+
+  @property
+  def expression(self):
+    return self._expression
+
+  @property
+  def modifier(self):
+    return self._modifier
+
+  @property
+  def generic_type(self):
+    return self._generic_type
+
+  @property
+  def generic_type_parameters(self):
+    return self._generic_type_parameters
+
+  @property
+  def contains_internal_class(self):
+    return self._contains_internal_class
+
+
 class ParamStringType(object):
   INTERNAL_DECLARE = 1
   BRIDGE_DECLARE = 2
@@ -77,6 +129,7 @@ class Method(object):
     self._method_name = method_name
     self._method_return = method_return
     self._params = OrderedDict() # Use OrderedDict to avoid parameter misorder.
+    self._typed_params = OrderedDict()
     self._method_annotations = {}
     self._method_doc = doc
     self._class_java_data = ''
@@ -129,6 +182,10 @@ class Method(object):
     return self._params
 
   @property
+  def typed_params(self):
+    return self._typed_params
+
+  @property
   def method_annotations(self):
     return self._method_annotations
 
@@ -147,6 +204,7 @@ class Method(object):
       param_type = ' '.join(param_list[:-1]) # To handle modifiers
       param_name = param_list[-1]
       self._params[param_name] = param_type
+      self._typed_params[param_name] = ParamType(param_type, self._class_loader)
 
   def ParseMethodAnnotation(self, annotation):
     pre_wrapline_re = re.compile('preWrapperLines\s*=\s*\{\s*('
@@ -242,6 +300,7 @@ class Method(object):
     is_internal_class = self.IsInternalClass(param_type)
     if is_internal_class:
       java_data = self.LoadJavaClass(param_type)
+    typed_param = self._typed_params[param_name]
     if param_string_type == ParamStringType.INTERNAL_DECLARE:
       # the way internal declares its params, will be used in bridge's override
       # call.
@@ -285,6 +344,20 @@ class Method(object):
       #   DirectionInternal direction => ConvertDirectionInternal(direction)
       if is_internal_class:
         return java_data.UseAsInstanceInBridgeCall(param_name)
+      elif (typed_param.generic_type == 'ValueCallback' and
+          typed_param.contains_internal_class):
+        assert len(typed_param.generic_type_parameters) == 1
+        internal_generic_type_param = typed_param.generic_type_parameters[0]
+        internal_generic_type_class = self.LoadJavaClass(
+            internal_generic_type_param.generic_type)
+        return ('new ValueCallback<Object>() {\n' +
+          '                @Override\n' +
+          '                public void onReceiveValue(Object value) {\n' +
+          '                    %sFinal.onReceiveValue((%s) ' % (
+              param_name, internal_generic_type_class.bridge_name) +
+          'ReflectionHelper.getBridgeOrWrapper(value));\n' +
+          '                }\n' +
+          '            }')
       else:
         # TODO(wang16): Here only detects enum declared in the same class as
         # the method itself. Using enum across class is not supported.
@@ -426,47 +499,21 @@ class Method(object):
     if return_is_internal:
       return_type_java_data = self.LoadJavaClass(self._method_return)
 
-    match_obj = re.search(
-        r'ValueCallback<([A-Za-z]+)Internal> ([a-zA-Z0-9_$]+)(,|$)', 
-        self._bridge_params_declare)
-    if match_obj :
-      callback_type = match_obj.group(1)
-      callback = match_obj.group(2)
-
+    if return_is_internal:
       template = Template(
           '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
-          '        final ValueCallback<' + callback_type + 'Internal> ' + 
-          callback + '2 = ' +  callback + ';\n' +
-          '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
-          '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
-          '    }\n\n')
-
-      params_passing = re.sub(
-          str(callback),
-          '\n            new ValueCallback<Object>() {\n' +
-          '                @Override\n' +
-          '                public void onReceiveValue(Object value) {\n' +
-          '                    ' + callback + '2.onReceiveValue((' + 
-          callback_type + 
-          'Bridge) ReflectionHelper.getBridgeOrWrapper(value));\n' +
-          '                }\n' +
-          '            }',
-          self._bridge_params_pass_to_wrapper)
-    elif return_is_internal:
-      template = Template(
-          '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
+          '${GENERIC_TYPE_DECLARE}' +
           '        ${RETURN}ReflectionHelper.getBridgeOrWrapper(' + 
           'ReflectionHelper.invokeMethod(\n' +
           '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING}));\n' +
           '    }\n\n')
-      params_passing = self._bridge_params_pass_to_wrapper
     else :
       template = Template(
           '    public ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
+          '${GENERIC_TYPE_DECLARE}' +
           '        ${RETURN}ReflectionHelper.invokeMethod(\n' +
           '            ${METHOD_DECLARE_NAME}, wrapper${PARAMS_PASSING});\n' +
           '    }\n\n')
-      params_passing = self._bridge_params_pass_to_wrapper
 
     if no_return_value:
       return_statement = ''
@@ -475,12 +522,24 @@ class Method(object):
     else:
       return_statement = 'return (%s)' % (
           ConvertPrimitiveTypeToObject(self.method_return))
+
+    # Handling generic types, current only ValueCallback will be handled.
+    generic_type_declare = ''
+    for param_name in self._typed_params:
+      typed_param = self._typed_params[param_name]
+      if typed_param.generic_type != 'ValueCallback':
+        continue
+      if typed_param.contains_internal_class:
+        generic_type_declare += '        final %s %sFinal = %s;\n' % (
+            typed_param.expression, param_name, param_name)
+
     value = {'RETURN_TYPE': self.method_return,
              'NAME': self.method_name,
              'METHOD_DECLARE_NAME': self._method_declare_name,
              'PARAMS': self._bridge_params_declare,
              'RETURN': return_statement,
-             'PARAMS_PASSING': params_passing}
+             'GENERIC_TYPE_DECLARE': generic_type_declare,
+             'PARAMS_PASSING': self._bridge_params_pass_to_wrapper}
     return template.substitute(value)
 
   def GenerateBridgeSuperMethod(self):
@@ -583,6 +642,7 @@ class Method(object):
   def GenerateWrapperStaticMethod(self):
     no_return_value = self._method_return == 'void'
     template = Template(
+        '${DOC}\n' +
         '    public static ${RETURN_TYPE} ${NAME}(${PARAMS}) {\n' +
         '       Class<?> clazz = ReflectionHelper.loadClass(' +
         '\"${FULL_BRIDGE_NAME}\");\n' +
@@ -597,6 +657,7 @@ class Method(object):
       return_state = 'return (%s)' % ConvertPrimitiveTypeToObject(
           self.method_return)
     value = {'RETURN_TYPE': self.method_return,
+             'DOC': self.GenerateDoc(self.method_doc),
              'NAME': self.method_name,
              'FULL_BRIDGE_NAME': self._class_java_data.GetFullBridgeName(),
              'PARAMS_DECLARE_FOR_BRIDGE':
