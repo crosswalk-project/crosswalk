@@ -14,7 +14,6 @@ import zipfile
 from common_function import RemoveUnusedFilesInReleaseMode
 from xml.dom.minidom import Document
 
-LIBRARY_PROJECT_NAME = 'xwalk_core_library'
 XWALK_CORE_SHELL_APK = 'xwalk_core_shell_apk'
 
 def AddGeneratorOptions(option_parser):
@@ -24,20 +23,22 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('-t', dest='target',
                            help='Product out target directory.',
                            type='string')
+  option_parser.add_option('--src-package', action='store_true',
+                           default=False,
+                           help='Use java sources instead of java libs.')
 
 
-def CleanLibraryProject(out_dir):
-  out_project_path = os.path.join(out_dir, LIBRARY_PROJECT_NAME)
-  if os.path.exists(out_project_path):
-    for item in os.listdir(out_project_path):
-      sub_path = os.path.join(out_project_path, item)
+def CleanLibraryProject(out_project_dir):
+  if os.path.exists(out_project_dir):
+    for item in os.listdir(out_project_dir):
+      sub_path = os.path.join(out_project_dir, item)
       if os.path.isdir(sub_path):
         shutil.rmtree(sub_path)
       elif os.path.isfile(sub_path):
         os.remove(sub_path)
 
 
-def CopyProjectFiles(project_source, out_dir):
+def CopyProjectFiles(project_source, out_project_dir):
   """cp xwalk/build/android/xwalkcore_library_template/<file>
         out/Release/xwalk_core_library/<file>
   """
@@ -57,17 +58,14 @@ def CopyProjectFiles(project_source, out_dir):
   ]
   for f in files_to_copy:
     source_file = os.path.join(template_dir, f)
-    target_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, f)
+    target_file = os.path.join(out_project_dir, f)
 
     shutil.copy2(source_file, target_file)
 
 
-def CopyJSBindingFiles(project_source, out_dir):
+def CopyJSBindingFiles(project_source, out_project_dir):
   print 'Copying js binding files...'
-  jsapi_dir = os.path.join(out_dir,
-                           LIBRARY_PROJECT_NAME,
-                           'res',
-                           'raw')
+  jsapi_dir = os.path.join(out_project_dir, 'res', 'raw')
   if not os.path.exists(jsapi_dir):
     os.makedirs(jsapi_dir)
 
@@ -89,7 +87,7 @@ def CopyJSBindingFiles(project_source, out_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir):
+def CopyBinaries(out_dir, out_project_dir, src_package):
   """cp out/Release/<pak> out/Release/xwalk_core_library/res/raw/<pak>
      cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
      cp out/Release/xwalk_core_shell_apk/libs/*
@@ -98,10 +96,8 @@ def CopyBinaries(out_dir):
 
   print 'Copying binaries...'
   # Copy assets.
-  res_raw_dir = os.path.join(
-      out_dir, LIBRARY_PROJECT_NAME, 'res', 'raw')
-  res_value_dir = os.path.join(
-      out_dir, LIBRARY_PROJECT_NAME, 'res', 'values')
+  res_raw_dir = os.path.join(out_project_dir, 'res', 'raw')
+  res_value_dir = os.path.join(out_project_dir, 'res', 'values')
   if not os.path.exists(res_raw_dir):
     os.mkdir(res_raw_dir)
   if not os.path.exists(res_value_dir):
@@ -130,15 +126,21 @@ def CopyBinaries(out_dir):
   pak_list_xml.writexml(pak_list_file, newl='\n', encoding='utf-8')
   pak_list_file.close()
 
-  # Copy jar files to libs.
-  libs_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'libs')
+  libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
     os.mkdir(libs_dir)
 
-  libs_to_copy = [
-      'xwalk_core_library_java_app_part.jar',
-      'xwalk_core_library_java_library_part.jar',
-  ]
+  # Copy jar files to libs.
+  if src_package:
+    libs_to_copy = [
+        'eyesfree_java.jar',
+        'jsr_305_javalib.jar',
+    ]
+  else:
+    libs_to_copy = [
+        'xwalk_core_library_java_app_part.jar',
+        'xwalk_core_library_java_library_part.jar',
+    ]
 
   for lib in libs_to_copy:
     source_file = os.path.join(out_dir, 'lib.java', lib)
@@ -223,13 +225,13 @@ def ReplaceCrunchedImage(project_source, filename, filepath):
           source_file = os.path.abspath(os.path.join(dirname, filename))
           target_file = os.path.join(filepath, filename)
           shutil.copyfile(source_file, target_file)
-          return 
-        
+          return
 
-def CopyResources(project_source, out_dir):
+
+def CopyResources(project_source, out_dir, out_project_dir):
   print 'Copying resources...'
-  res_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'res')
-  temp_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'temp')
+  res_dir = os.path.join(out_project_dir, 'res')
+  temp_dir = os.path.join(out_project_dir, 'temp')
   if os.path.exists(res_dir):
     shutil.rmtree(res_dir)
   if os.path.exists(temp_dir):
@@ -273,18 +275,6 @@ def CopyResources(project_source, out_dir):
         ReplaceCrunchedImage(project_source, filename, dirname)
 
 
-def PostCopyLibraryProject(out_dir):
-  print 'Post Copy Library Project...'
-  aidls_to_remove = [
-      'org/chromium/content/common/common.aidl',
-      'org/chromium/net/IRemoteAndroidKeyStoreInterface.aidl',
-  ]
-  for aidl in aidls_to_remove:
-    aidl_file = os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'src', aidl)
-    if os.path.exists(aidl_file):
-      os.remove(aidl_file)
-
-
 def main(argv):
   print 'Generating XWalkCore Library Project...'
   option_parser = optparse.OptionParser()
@@ -295,27 +285,28 @@ def main(argv):
     print 'Source project does not exist, please provide correct directory.'
     sys.exit(1)
   out_dir = options.target
+  if options.src_package:
+    out_project_dir = os.path.join(out_dir, 'xwalk_core_library_src')
+  else:
+    out_project_dir = os.path.join(out_dir, 'xwalk_core_library')
 
   # Clean directory for project first.
-  CleanLibraryProject(out_dir)
+  CleanLibraryProject(out_project_dir)
 
-  out_project_dir = os.path.join(out_dir, LIBRARY_PROJECT_NAME)
   if not os.path.exists(out_project_dir):
     os.mkdir(out_project_dir)
 
   # Copy Eclipse project files of library project.
-  CopyProjectFiles(options.source, out_dir)
+  CopyProjectFiles(options.source, out_project_dir)
   # Copy binaries and resuorces.
-  CopyResources(options.source, out_dir)
-  CopyBinaries(out_dir)
+  CopyResources(options.source, out_dir, out_project_dir)
+  CopyBinaries(out_dir, out_project_dir, options.src_package)
   # Copy JS API binding files.
-  CopyJSBindingFiles(options.source, out_dir)
-  # Post copy library project.
-  PostCopyLibraryProject(out_dir)
+  CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
   mode = os.path.basename(os.path.normpath(out_dir))
   RemoveUnusedFilesInReleaseMode(mode,
-      os.path.join(out_dir, LIBRARY_PROJECT_NAME, 'libs'))
+      os.path.join(out_project_dir, 'libs'))
   # Create empty src directory
   src_dir = os.path.join(out_project_dir, 'src')
   if not os.path.isdir(src_dir):
