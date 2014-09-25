@@ -5,11 +5,11 @@
 #ifndef XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PLATFORM_INSTALLER_H_
 #define XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PLATFORM_INSTALLER_H_
 
-#include <pkgmgr_installer.h>
-
 #include <string>
 
 #include "base/files/file_path.h"
+
+struct pkgmgr_installer;
 
 class PlatformInstaller {
  public:

@@ -6,6 +6,12 @@
 
 #include <assert.h>
 #include <pkgmgr/pkgmgr_parser.h>
+
+#include <pkgmgr_installer.h>
+// logging and dlog uses same macro name
+// to avoid warnings we need to undefine dlog's one
+#undef LOG
+
 #include <tzplatform_config.h>
 
 #include <string>
