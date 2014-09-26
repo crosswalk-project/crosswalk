@@ -552,8 +552,8 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example', '1.0.0', keystore_path)
     Clean('Example', '1.0.0')
 
-    keystore_path_with_space = os.path.join(
-      'test_data', 'keystore', 'test keystore')
+    keystore_path_with_space = os.path.join('test_data', 'keystore',
+                                            'test keystore')
     shutil.copy2(keystore_path, keystore_path_with_space)
     keystore_path = os.path.join('test_data', 'keystore',
                                  'xwalk-test.keystore')
@@ -615,8 +615,8 @@ class TestMakeApk(unittest.TestCase):
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
     self.addCleanup(Clean, 'Example', '1.0.0')
-    self.assertIn('WARNING: app.launch.local_path is deprecated for Crosswalk',
-                  out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('app.launch.local_path', out)
     Clean('Example', '1.0.0')
 
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
@@ -624,7 +624,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertIn('WARNING: launch_path is deprecated for Crosswalk', out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('launch_path', out)
     Clean('Example', '1.0.0')
 
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
@@ -632,7 +633,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertIn('WARNING: permissions is deprecated for Crosswalk', out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('permissions', out)
     Clean('Example', '1.0.0')
 
     manifest_path = os.path.join('test_data', 'manifest',
@@ -640,8 +642,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertIn('WARNING: icons defined as dictionary form is deprecated',
-                  out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('icons', out)
     Clean('Example', '1.0.0')
 
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
@@ -649,7 +651,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertIn('WARNING: description is deprecated for Crosswalk', out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('description', out)
     Clean('Example', '1.0.0')
 
     manifest_path = os.path.join('test_data', 'manifest', 'deprecated',
@@ -657,7 +660,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertIn('WARNING: version is deprecated for Crosswalk', out)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertIn('version', out)
 
   def testManifestWithError(self):
     manifest_path = os.path.join('test_data', 'manifest',
@@ -715,14 +719,12 @@ class TestMakeApk(unittest.TestCase):
     self.checkApks('Example', '1.0.0')
 
   def testExtensionsWithNonExtension(self):
-    # Test with a non-existed extension.
+    # Test with a non-existing extension.
     extension_path = 'test_data/extensions/myextension'
     cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
            '--package=org.xwalk.example', '--app-url=http://www.intel.com',
            '--extensions=%s1' % extension_path, self._mode, '--verbose']
     out = RunCommand(cmd)
-    error_msg = 'Error: can\'t find the extension directory'
-    self.assertTrue(out.find(error_msg) != -1)
     self.assertTrue(out.find('Exiting with error code: 9') != -1)
 
   def testExtensionWithPermissions(self):
@@ -936,7 +938,7 @@ class TestMakeApk(unittest.TestCase):
         for img_type in img_types:
           name = orientation + '_' + img_type + '_' + dimension
           path_tmp = os.path.join(launch_screen_path, name)
-          _file = open(path_tmp,'w+')
+          _file = open(path_tmp, 'w+')
           _file.write(name)
           _file.close()
     # Run Test.
@@ -945,8 +947,8 @@ class TestMakeApk(unittest.TestCase):
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
            '--manifest=%s' % manifest_path, self._mode]
     out = RunCommand(cmd)
-    self.assertTrue(
-        out.find('WARNING: launch_screen is deprecated for Crosswalk') != -1)
+    self.assertIn('Warning: The following fields have been deprecated', out)
+    self.assertTrue(out.find('launch_screen') != -1)
     Clean('Example', '1.0.0')
     manifest_path = os.path.join('test_data', 'launchScreen', 'manifest.json')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',

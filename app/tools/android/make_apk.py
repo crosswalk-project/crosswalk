@@ -237,19 +237,14 @@ def Customize(options, app_info, manifest):
 
 
 def Execution(options, name):
+  arch_string = (' ('+options.arch+')' if options.arch else '')
+  print('\nStarting application build' + arch_string)
   app_dir = os.path.join(tempfile.gettempdir(), name)
   android_path = Which('android')
-  if android_path is None:
-    print('The "android" binary could not be found. Check your Android SDK '
-          'installation and your PATH environment variable.')
-    sys.exit(1)
-
   api_level = GetAndroidApiLevel(android_path)
-  if api_level < 14:
-    print('Please install Android API level (>=14) first.')
-    sys.exit(3)
   target_string = 'android-%d' % api_level
 
+  print (' * Checking keystore for signing')
   if options.keystore_path:
     key_store = os.path.expanduser(options.keystore_path)
     if options.keystore_alias:
@@ -266,18 +261,13 @@ def Execution(options, name):
     else:
       key_alias_code = None
   else:
-    print ('Use xwalk\'s keystore by default for debugging. '
-           'Please switch to your keystore when distributing it to app market.')
+    print('   No keystore provided for signing. Using xwalk\'s keystore '
+          'for debugging.\n   Please use a valid keystore when '
+          'distributing to the app market.')
     key_store = os.path.join(xwalk_dir, 'xwalk-debug.keystore')
     key_alias = 'xwalkdebugkey'
     key_code = 'xwalkdebug'
     key_alias_code = 'xwalkdebug'
-
-  # Check whether ant is installed.
-  ant_path = Which('ant')
-  if ant_path is None:
-    print('Ant could not be found. Please make sure it is installed.')
-    sys.exit(4)
 
   # Update android project for app and xwalk_core_library.
   update_project_cmd = [android_path, 'update', 'project',
@@ -285,14 +275,17 @@ def Execution(options, name):
                         '--target', target_string,
                         '--name', name]
   if options.mode == 'embedded':
+    print(' * Updating project with xwalk_core_library')
     RunCommand([android_path, 'update', 'lib-project',
                 '--path', os.path.join(app_dir, 'xwalk_core_library'),
                 '--target', target_string])
     update_project_cmd.extend(['-l', 'xwalk_core_library'])
-
+  else:
+    print(' * Updating project')
   RunCommand(update_project_cmd)
 
   # Check whether external extensions are included.
+  print(' * Checking for external extensions')
   extensions_string = 'xwalk-extensions'
   extensions_dir = os.path.join(app_dir, extensions_string)
   external_extension_jars = FindExtensionJars(extensions_dir)
@@ -302,6 +295,7 @@ def Execution(options, name):
                                  os.path.basename(external_extension_jar)))
 
   if options.mode == 'embedded':
+    print (' * Copying native libraries for %s' % options.arch)
     # Remove existing native libraries in xwalk_core_library, they are probably
     # for the last execution to make apk for another CPU arch.
     # And then copy the native libraries for the specified arch into
@@ -324,22 +318,33 @@ def Execution(options, name):
       sys.exit(10)
 
   if options.project_only:
+    print (' (Skipping apk package creation)')
     return
 
   # Build the APK
+  if options.mode == 'embedded':
+    print(' * Building Android apk package with Crosswalk embedded' +
+          arch_string)
+  else:
+    print(' * Building Android apk package')
+  ant_path = Which('ant')
   ant_cmd = [ant_path, 'release', '-f', os.path.join(app_dir, 'build.xml')]
-  if not options.verbose:
-    ant_cmd.extend(['-quiet'])
   ant_cmd.extend(['-Dkey.store=%s' % os.path.abspath(key_store)])
   ant_cmd.extend(['-Dkey.alias=%s' % key_alias])
   if key_code:
     ant_cmd.extend(['-Dkey.store.password=%s' % key_code])
   if key_alias_code:
     ant_cmd.extend(['-Dkey.alias.password=%s' % key_alias_code])
+
+  cmd_display = ' '.join([str(item) for item in ant_cmd])
+  if options.verbose:
+    print('Executing:\n %s\n' % cmd_display)
+  else:
+    ant_cmd.extend(['-quiet'])
   ant_result = subprocess.call(ant_cmd)
   if ant_result != 0:
     print('Command "%s" exited with non-zero exit code %d'
-          % (' '.join(ant_cmd), ant_result))
+          % (cmd_display, ant_result))
     sys.exit(ant_result)
 
   src_file = os.path.join(app_dir, 'bin', '%s-release.apk' % name)
@@ -352,7 +357,7 @@ def Execution(options, name):
     dst_file = os.path.join(options.target_dir,
                             '%s_%s.apk' % (package_name, options.arch))
   shutil.copyfile(src_file, dst_file)
-
+  print(' (Location: %s)' % dst_file)
 
 def PrintPackageInfo(options, name, packaged_archs):
   package_name_version = os.path.join(options.target_dir, name)
@@ -360,38 +365,55 @@ def PrintPackageInfo(options, name, packaged_archs):
     package_name_version += '_' + options.app_version
 
   if len(packaged_archs) == 0:
-    print ('A non-platform specific APK for the web application "%s" was '
-           'generated successfully at\n%s.apk. It requires a shared Crosswalk '
-           'Runtime to be present.'
+    print ('\nA non-platform specific APK for the web application "%s" was '
+           'generated successfully at:\n %s.apk.\nIt requires a shared '
+           'Crosswalk Runtime to be present.'
            % (name, package_name_version))
     return
-
-  for arch in packaged_archs:
-    print ('An APK for the web application "%s" including the Crosswalk '
-           'Runtime built for %s was generated successfully, which can be '
-           'found at\n%s_%s.apk.'
-           % (name, arch, package_name_version, arch))
 
   all_archs = set(AllArchitectures())
 
   if len(packaged_archs) != len(all_archs):
     missed_archs = all_archs - set(packaged_archs)
-    print ('\n\nWARNING: ')
-    print ('This APK will only work on %s based Android devices. Consider '
-           'building for %s as well.' %
+    print ('\nNote: This APK will only work on %s-based Android devices.'
+           ' Consider building\nfor %s as well.' %
            (', '.join(packaged_archs), ', '.join(missed_archs)))
   else:
-    print ('\n\n%d APKs were created for %s devices. '
-           % (len(all_archs), ', '.join(all_archs)))
-    print ('Please install the one that matches the processor architecture '
-           'of your device.\n\n')
-    print ('If you are going to submit this application to an application '
-           'store, please make sure you submit both packages.\nInstructions '
-           'for submitting multiple APKs to Google Play Store are available '
-           'here:\nhttps://software.intel.com/en-us/html5/articles/submitting'
+    print ("\nApplication apk's were created for %d architectures (%s)." %
+           (len(all_archs), (','.join(all_archs))))
+    print ('If you submit this application to an application '
+           'store, please submit both\npackages. Instructions '
+           'for submitting multiple APKs to Google Play Store are\navailable '
+           'here:')
+    print (' https://software.intel.com/en-us/html5/articles/submitting'
            '-multiple-crosswalk-apk-to-google-play-store')
 
+
+def CheckSystemRequirements():
+  ''' Check for android, ant, template dir '''
+  sys.stdout.write('Checking system requirements...')
+  sys.stdout.flush()
+  # check android install
+  android_path = Which('android')
+  if android_path is None:
+    print('failed\nThe "android" binary could not be found. Check your Android '
+          'SDK installation and your PATH environment variable.')
+    sys.exit(1)
+  if GetAndroidApiLevel(android_path) < 14:
+    print('failed\nPlease install Android API level (>=14) first.')
+    sys.exit(3)
+
+  # Check ant install
+  ant_path = Which('ant')
+  if ant_path is None:
+    print('failed\nAnt could not be found. Please make sure it is installed.')
+    sys.exit(4)
+
+  print('ok')
+
+
 def MakeApk(options, app_info, manifest):
+  CheckSystemRequirements()
   Customize(options, app_info, manifest)
   name = app_info.android_name
   app_dir = os.path.join(tempfile.gettempdir(), name)
@@ -445,15 +467,16 @@ def MakeApk(options, app_info, manifest):
 
   # if project_dir, save build directory
   if options.project_dir:
+    print ('\nCreating project directory')
     save_dir = os.path.join(options.project_dir, name)
     if CreateAndCopyDir(app_dir, save_dir, True):
-      print ('\nA project directory was created successfully in %s' %
-             save_dir)
-      print ('To generate an APK manually, go to %s and run the '
-             'following command:' % save_dir)
-      print ('  ant release -f build.xml')
-      print ('For more information, see\n'
-             ' http://developer.android.com/tools/building/'
+      print ('  A project directory was created successfully in:\n   %s' %
+             os.path.abspath(save_dir))
+      print ('  To manually generate an APK, run the following in that '
+             'directory:')
+      print ('   ant release -f build.xml')
+      print ('  For more information, see:\n'
+             '   http://developer.android.com/tools/building/'
              'building-cmdline.html')
     else:
       print ('Error: Unable to create a project directory during the build. '
@@ -703,4 +726,8 @@ def main(argv):
 
 
 if __name__ == '__main__':
-  sys.exit(main(sys.argv))
+  try:
+    sys.exit(main(sys.argv))
+  except KeyboardInterrupt:
+    print('')
+

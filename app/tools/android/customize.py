@@ -66,7 +66,7 @@ def ReplaceInvalidChars(value, mode='default'):
     invalid_chars = '\/:.*?"<>|- '
   for c in invalid_chars:
     if mode == 'apkname' and c in value:
-      print("Illegal character: '%s' is replaced with '_'" % c)
+      print('Illegal character: "%s" replaced with "_"' % c)
     value = value.replace(c, '_')
   return value
 
@@ -126,6 +126,10 @@ def Prepare(app_info, compressor):
 
   # 1) copy template project to app_dir
   CleanDir(app_dir)
+  if not os.path.isdir(template_app_dir):
+    print('Error: The template directory could not be found (%s).' %
+          template_app_dir)
+    sys.exit(7)
   shutil.copytree(template_app_dir, app_dir)
 
   # 2) replace app_dir 'src' dir with template 'src' dir
@@ -271,7 +275,7 @@ def ReplaceString(file_path, src, dest):
 
 def SetVariable(file_path, string_line, variable, value):
   function_string = ('%sset%s(%s);\n' %
-                    ('        ', variable, value))
+                     ('        ', variable, value))
   temp_file_path = file_path + '.backup'
   file_handle = open(temp_file_path, 'w+')
   for line in open(file_path):
@@ -335,7 +339,7 @@ def CopyExtensionFile(extension_name, suffix, src_path, dest_path):
   dest_extension_path = os.path.join(dest_path, extension_name)
   if os.path.exists(dest_extension_path):
     # TODO: Refine it by renaming it internally.
-    print('Error: duplicated extension names "%s" are found. Please rename it.'
+    print('Error: duplicate extension names were found (%s). Please rename it.'
           % extension_name)
     sys.exit(9)
   else:
@@ -387,7 +391,7 @@ def CustomizeExtensions(app_info, extensions):
   extension_json_list = []
   for source_path in extension_paths:
     if not os.path.exists(source_path):
-      print('Error: can\'t find the extension directory \'%s\'.' % source_path)
+      print('Error: can not find the extension directory \'%s\'.' % source_path)
       sys.exit(9)
     # Remove redundant separators to avoid empty basename.
     source_path = os.path.normpath(source_path)
@@ -403,7 +407,7 @@ def CustomizeExtensions(app_info, extensions):
     file_name = extension_name + '.json'
     src_file = os.path.join(source_path, file_name)
     if not os.path.isfile(src_file):
-      print('Error: %s is not found in %s.' % (file_name, source_path))
+      print('Error: %s was not found in %s.' % (file_name, source_path))
       sys.exit(9)
     else:
       src_file_handle = open(src_file)
