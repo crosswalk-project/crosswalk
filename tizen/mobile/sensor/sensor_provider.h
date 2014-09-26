@@ -8,6 +8,7 @@
 #include <set>
 
 #include "base/memory/scoped_ptr.h"
+#include "base/synchronization/lock.h"
 #include "ui/gfx/display.h"
 #include "third_party/WebKit/public/platform/WebScreenOrientationType.h"
 
@@ -17,6 +18,8 @@ class SensorProvider {
  public:
   static SensorProvider* GetInstance();
   virtual ~SensorProvider();
+
+  bool connected() const;
 
   class Observer {
    public:
@@ -29,6 +32,8 @@ class SensorProvider {
     virtual void OnAccelerationChanged(float raw_x, float raw_y, float raw_z,
                                        float x, float y, float z) {}
     virtual void OnRotationRateChanged(float alpha, float beta, float gamma) {}
+
+    virtual void OnSensorConnected() {}
   };
 
   virtual void AddObserver(Observer* observer);
@@ -54,8 +59,13 @@ class SensorProvider {
                                      float x, float y, float z);
   virtual void OnRotationRateChanged(float alpha, float beta, float gamma);
 
+  virtual void OnSensorConnected();
+
   std::set<Observer*> observers_;
   blink::WebScreenOrientationType last_orientation_;
+
+  mutable base::Lock lock_;
+  mutable bool connected_;
 
  private:
   static scoped_ptr<SensorProvider> instance_;

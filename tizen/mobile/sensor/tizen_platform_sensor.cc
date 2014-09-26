@@ -7,6 +7,7 @@
 #include <math.h>
 #include <string>
 
+#include "base/bind.h"
 #include "base/files/file_path.h"
 #include "base/logging.h"
 
@@ -50,18 +51,26 @@ TizenPlatformSensor::TizenPlatformSensor()
     : auto_rotation_enabled_(true),
       accel_handle_(-1),
       gyro_handle_(-1) {
+  sensor_thread_.reset(new base::Thread("Crosswalk Sensor Thread"));
+  base::Thread::Options thread_options;
+  thread_options.message_loop_type = base::MessageLoop::TYPE_IO;
+  CHECK(sensor_thread_->StartWithOptions(thread_options));;
 }
 
 TizenPlatformSensor::~TizenPlatformSensor() {
 }
 
 bool TizenPlatformSensor::Initialize() {
-  // If the sensors couldn't be able to connect normally for the first time,
-  // it indicates that the platform doesn't support these sensors.
-  // Set |initialized_| true to make this function is called only
-  // once and avoid connecting to platform sensors repeatedly.
-  initialized_ = true;
+  // Initialize sensor provider could be time costing. Therefore, we'd better
+  // not run it inside browser UI thread.
+  sensor_thread_->message_loop_proxy()->PostTask(
+      FROM_HERE,
+      base::Bind(&TizenPlatformSensor::ConnectSensor,
+                 base::Unretained(this)));
+  return true;
+}
 
+void TizenPlatformSensor::ConnectSensor() {
   unsigned long rotation;  // NOLINT
   if (!sf_check_rotation(&rotation)) {
     last_orientation_ = ToScreenOrientation(static_cast<int>(rotation));
@@ -109,7 +118,14 @@ bool TizenPlatformSensor::Initialize() {
     LOG(ERROR) << "Connection to gyroscope sensor failed";
   }
 
-  return (accel_handle_ >= 0 || gyro_handle_ >= 0);
+  base::AutoLock lock(lock_);
+  if (accel_handle_ < 0 && gyro_handle_ < 0) {
+    connected_ = false;
+    return;
+  }
+
+  connected_ = true;
+  OnSensorConnected();
 }
 
 void TizenPlatformSensor::Finish() {

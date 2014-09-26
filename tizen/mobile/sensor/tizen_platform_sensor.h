@@ -20,6 +20,7 @@
 #include <vconf.h>
 
 #include "base/native_library.h"
+#include "base/threading/thread.h"
 #include "xwalk/tizen/mobile/sensor/sensor_provider.h"
 
 namespace xwalk {
@@ -40,6 +41,10 @@ class TizenPlatformSensor : public SensorProvider {
   static void OnEventReceived(unsigned int event_type,
       sensor_event_data_t* event_data, void* udata);
   static void OnAutoRotationEnabledChanged(keynode_t* node, void* udata);
+
+  void ConnectSensor();
+
+  scoped_ptr<base::Thread> sensor_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(TizenPlatformSensor);
 };
