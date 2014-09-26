@@ -17,6 +17,7 @@
 #include "base/id_map.h"
 #include "content/public/browser/javascript_dialog_manager.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge_base.h"
+#include "xwalk/runtime/browser/android/xwalk_icon_helper.h"
 
 namespace gfx {
 class Size;
@@ -24,6 +25,10 @@ class Size;
 
 namespace net {
 class X509Certificate;
+}
+
+namespace content {
+class WebContents;
 }
 
 class SkBitmap;
@@ -37,9 +42,11 @@ namespace xwalk {
 // indirect refs from the Application (via callbacks) and so can outlive
 // XWalkView, this class notifies it before being destroyed and to nullify
 // any references.
-class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
+class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase ,
+                                  public XWalkIconHelper::Listener {
  public:
-  XWalkContentsClientBridge(JNIEnv* env, jobject obj);
+  XWalkContentsClientBridge(JNIEnv* env, jobject obj,
+                            content::WebContents* web_contents);
   virtual ~XWalkContentsClientBridge();
 
   // XWalkContentsClientBridgeBase implementation
@@ -100,6 +107,11 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
       int mode, jstring filepath, jstring display_name);
   void OnFilesNotSelected(
       JNIEnv*, jobject, int process_id, int render_id, int mode);
+  void DownloadIcon(JNIEnv* env, jobject obj, jstring url);
+
+  // XWalkIconHelper::Listener Interface
+  virtual void OnIconAvailable(const GURL& icon_url);
+  virtual void OnReceivedIcon(const GURL& icon_url, const SkBitmap& bitmap);
 
  private:
   JavaObjectWeakGlobalRef java_ref_;
@@ -114,6 +126,8 @@ class XWalkContentsClientBridge : public XWalkContentsClientBridgeBase {
   typedef std::map<int, NotificationDownloadRequestInfos >
     NotificationDownloadRequestIdMap;
   NotificationDownloadRequestIdMap downloading_icon_notifications_;
+
+  scoped_ptr<XWalkIconHelper> icon_helper_;
 };
 
 bool RegisterXWalkContentsClientBridge(JNIEnv* env);

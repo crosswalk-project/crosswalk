@@ -41,6 +41,7 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         implements ContentViewDownloadDelegate {
     private static final String TAG = XWalkContentsClientBridge.class.getName();
     private static final int NEW_XWALKVIEW_CREATED = 100;
+    private static final int NEW_ICON_DOWNLOAD     = 101;
 
     private XWalkViewInternal mXWalkView;
     private XWalkUIClientInternal mXWalkUIClient;
@@ -109,6 +110,10 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                         }
 
                         mXWalkView.completeWindowCreation(newXWalkView);
+                        break;
+                    case NEW_ICON_DOWNLOAD:
+                        String url = (String) msg.obj;
+                        nativeDownloadIcon(mNativeContentsClientBridge, url);
                         break;
                     default:
                         throw new IllegalStateException();
@@ -711,6 +716,17 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         onScaleChanged(oldPageScaleFactor, mPageScaleFactor);
     }
 
+    @CalledByNative
+    public void onIconAvailable(String url) {
+        Message m = mUiThreadHandler.obtainMessage(NEW_ICON_DOWNLOAD, url);
+        mXWalkUIClient.onIconAvailable(mXWalkView, url, m);
+    }
+
+    @CalledByNative
+    public void onReceivedIcon(String url, Bitmap icon) {
+        mXWalkUIClient.onReceivedIcon(mXWalkView, url, icon);
+    }
+
     //--------------------------------------------------------------------------------------------
     //  Native methods
     //--------------------------------------------------------------------------------------------
@@ -729,4 +745,5 @@ class XWalkContentsClientBridge extends XWalkContentsClient
             int processId, int renderId, int mode_flags, String filepath, String displayName);
     private native void nativeOnFilesNotSelected(long nativeXWalkContentsClientBridge,
             int processId, int renderId, int mode_flags);
+    private native void nativeDownloadIcon(long nativeXWalkContentsClientBridge, String url);
 }

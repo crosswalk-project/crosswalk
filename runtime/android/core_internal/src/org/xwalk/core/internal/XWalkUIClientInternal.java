@@ -8,9 +8,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -78,8 +80,8 @@ public class XWalkUIClientInternal {
 
     /**
      * Request the host application to create a new window
-     * @param view The XWalkView from which the request for a new window originated
-     * @param initiator The request was initiated by a user gesture of javascript
+     * @param view The XWalkView which initiate the request for a new window
+     * @param initiator How the request was initiated
      * @param callback Callback when once a new XWalkView has been created
      * @return Return true if the host application will create a new window
      * @since 4.0
@@ -88,6 +90,28 @@ public class XWalkUIClientInternal {
     public boolean onCreateWindowRequested(XWalkViewInternal view, InitiateByInternal initiator,
             ValueCallback<XWalkViewInternal> callback) {
         return false;
+    }
+
+    /**
+     * Notify the host application that an icon is available, send the message to start the downloading
+     * @param view The XWalkView that icon belongs to
+     * @param url The icon url
+     * @param startDownload Message to initiate icon download
+     * @since 4.0
+     */
+    @XWalkAPI
+    public void onIconAvailable(XWalkViewInternal view, String url, Message startDownload) {
+    }
+
+    /**
+     * Notify the host application of a new icon has been downloaded
+     * @param view The XWalkView that icon belongs to
+     * @param url The icon url
+     * @param icon The icon image
+     * @since 4.0
+     */
+    @XWalkAPI
+    public void onReceivedIcon(XWalkViewInternal view, String url, Bitmap icon) {
     }
 
     /**
