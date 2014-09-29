@@ -87,8 +87,8 @@ class Application : public Runtime::Observer,
   content::RenderProcessHost* render_process_host() {
     return render_process_host_; }
 
-  const ApplicationData* data() const { return data_; }
-  ApplicationData* data() { return data_; }
+  const ApplicationData* data() const { return data_.get(); }
+  ApplicationData* data() { return data_.get(); }
 
   // Tells whether the application use the specified extension.
   bool UseExtension(const std::string& extension_name) const;

@@ -56,9 +56,6 @@ class RuntimeContext::RuntimeResourceContext : public content::ResourceContext {
     return getter_->GetURLRequestContext();
   }
 
-  virtual bool AllowMicAccess(const GURL& origin) OVERRIDE { return false; }
-  virtual bool AllowCameraAccess(const GURL& origin) OVERRIDE { return false; }
-
   void set_url_request_context_getter(RuntimeURLRequestContextGetter* getter) {
     getter_ = getter;
   }
@@ -186,7 +183,7 @@ RuntimeContext::GetGuestManager() {
   return NULL;
 }
 
-quota::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
+storage::SpecialStoragePolicy* RuntimeContext::GetSpecialStoragePolicy() {
   return NULL;
 }
 

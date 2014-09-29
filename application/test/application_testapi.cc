@@ -83,7 +83,7 @@ ApiTestRunner::~ApiTestRunner() {
 }
 
 bool ApiTestRunner::WaitForTestNotification() {
-  if (result_ != NOT_SET || message_loop_runner_)
+  if (result_ != NOT_SET || message_loop_runner_.get())
     return false;
 
   message_loop_runner_ = new content::MessageLoopRunner;
@@ -109,7 +109,7 @@ void ApiTestRunner::OnTestNotificationReceived(
   CHECK(result != NOT_SET);
   result_ = result;
   // It may be notified before wait really happens.
-  if (!message_loop_runner_)
+  if (!message_loop_runner_.get())
     return;
 
   message_loop_runner_->Quit();
@@ -126,6 +126,6 @@ ApiTestRunner::Result ApiTestRunner::GetTestsResult() const {
 }
 
 void ApiTestRunner::ResetResult() {
-  CHECK(!message_loop_runner_);
+  CHECK(!message_loop_runner_.get());
   result_ = NOT_SET;
 }

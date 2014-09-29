@@ -27,14 +27,28 @@ using content::WebContents;
 namespace {
 
 const char kTargetTypePage[] = "page";
+const char kTargetTypeServiceWorker[] = "service_worker";
+const char kTargetTypeOther[] = "other";
 
 class Target : public content::DevToolsTarget {
  public:
-  explicit Target(WebContents* web_contents);
+  explicit Target(scoped_refptr<content::DevToolsAgentHost> agent_host);
 
-  virtual std::string GetId() const OVERRIDE { return id_; }
-  virtual std::string GetType() const OVERRIDE { return kTargetTypePage; }
-  virtual std::string GetTitle() const OVERRIDE { return title_; }
+  virtual std::string GetId() const OVERRIDE { return agent_host_->GetId(); }
+  virtual std::string GetType() const OVERRIDE {
+      switch (agent_host_->GetType()) {
+        case content::DevToolsAgentHost::TYPE_WEB_CONTENTS:
+           return kTargetTypePage;
+         case content::DevToolsAgentHost::TYPE_SERVICE_WORKER:
+           return kTargetTypeServiceWorker;
+         default:
+           break;
+       }
+       return kTargetTypeOther;
+     }
+  virtual std::string GetTitle() const OVERRIDE {
+    return agent_host_->GetTitle();
+  }
   virtual std::string GetDescription() const OVERRIDE { return std::string(); }
   virtual GURL GetURL() const OVERRIDE { return url_; }
   virtual GURL GetFaviconURL() const OVERRIDE { return favicon_url_; }
@@ -60,17 +74,15 @@ class Target : public content::DevToolsTarget {
   base::TimeTicks last_activity_time_;
 };
 
-Target::Target(WebContents* web_contents) {
-  agent_host_ =
-      DevToolsAgentHost::GetOrCreateFor(web_contents);
-  id_ = agent_host_->GetId();
-  title_ = base::UTF16ToUTF8(web_contents->GetTitle());
-  url_ = web_contents->GetURL();
-  content::NavigationController& controller = web_contents->GetController();
-  content::NavigationEntry* entry = controller.GetActiveEntry();
-  if (entry != NULL && entry->GetURL().is_valid())
-    favicon_url_ = entry->GetFavicon().url;
-  last_activity_time_ = web_contents->GetLastActiveTime();
+Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
+    : agent_host_(agent_host) {
+  if (content::WebContents* web_contents = agent_host_->GetWebContents()) {
+    content::NavigationController& controller = web_contents->GetController();
+    content::NavigationEntry* entry = controller.GetActiveEntry();
+    if (entry != NULL && entry->GetURL().is_valid())
+      favicon_url_ = entry->GetFavicon().url;
+    last_activity_time_ = web_contents->GetLastActiveTime();
+  }
 }
 
 bool Target::Activate() const {
@@ -122,17 +134,16 @@ XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = Runtime::CreateWithDefaultWindow(
       runtime_context_, GURL(url::kAboutBlankURL));
   return scoped_ptr<content::DevToolsTarget>(
-      new Target(runtime->web_contents()));
+      new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
 
 void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
   TargetList targets;
-  std::vector<WebContents*> web_contents_list =
-      content::DevToolsAgentHost::GetInspectableWebContents();
-  for (std::vector<WebContents*>::iterator it = web_contents_list.begin();
-       it != web_contents_list.end();
-       ++it) {
-    Runtime* runtime = static_cast<Runtime*>((*it)->GetDelegate());
+    content::DevToolsAgentHost::List agents =
+        content::DevToolsAgentHost::GetOrCreateAll();
+    for (content::DevToolsAgentHost::List::iterator it = agents.begin();
+         it != agents.end(); ++it) {
+    Runtime* runtime = static_cast<Runtime*>((*it)->GetWebContents()->GetDelegate());
     if (runtime && runtime->remote_debugging_enabled())
       targets.push_back(new Target(*it));
   }

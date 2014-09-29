@@ -12,8 +12,9 @@
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/child_process_security_policy.h"
 #include "grit/xwalk_resources.h"
+#include "storage/browser/fileapi/file_system_url.h"
+#include "storage/browser/fileapi/isolated_context.h"
 #include "ui/base/resource/resource_bundle.h"
-#include "webkit/browser/fileapi/isolated_context.h"
 #include "xwalk/experimental/native_file_system/virtual_root_provider.h"
 
 namespace xwalk {
@@ -144,12 +145,12 @@ void FileSystemChecker::DoTask() {
 
 void FileSystemChecker::RegisterFileSystemsAndSendResponse() {
   CHECK(content::BrowserThread::CurrentlyOn(content::BrowserThread::UI));
-  fileapi::IsolatedContext* isolated_context =
-      fileapi::IsolatedContext::GetInstance();
+  storage::IsolatedContext* isolated_context =
+      storage::IsolatedContext::GetInstance();
   CHECK(isolated_context);
 
   std::string filesystem_id = isolated_context->RegisterFileSystemForPath(
-      fileapi::kFileSystemTypeNativeForPlatformApp,
+      storage::kFileSystemTypeNativeForPlatformApp,
       std::string(),
       base::FilePath::FromUTF8Unsafe(path_),
       &root_name_);
