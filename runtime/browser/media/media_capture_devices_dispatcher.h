@@ -79,15 +79,6 @@ class XWalkMediaCaptureDevicesDispatcher : public content::MediaObserver {
       content::MediaRequestState state) OVERRIDE;
   virtual void OnCreatingAudioStream(int render_process_id,
                                      int render_view_id) OVERRIDE {}
-  virtual void OnAudioStreamPlaying(
-      int render_process_id,
-      int render_frame_id,
-      int stream_id,
-      const ReadPowerAndClipCallback& power_read_callback) OVERRIDE {}
-  virtual void OnAudioStreamStopped(
-      int render_process_id,
-      int render_frame_id,
-      int stream_id) OVERRIDE {}
 
   // Only for testing.
   void SetTestAudioCaptureDevices(const content::MediaStreamDevices& devices);

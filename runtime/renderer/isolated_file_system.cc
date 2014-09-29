@@ -9,6 +9,8 @@
 #include "base/logging.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/v8_value_converter.h"
+#include "storage/common/fileapi/file_system_types.h"
+#include "storage/common/fileapi/file_system_util.h"
 #include "third_party/WebKit/public/platform/WebFileSystem.h"
 #include "third_party/WebKit/public/platform/WebFileSystemType.h"
 #include "third_party/WebKit/public/platform/WebString.h"
@@ -19,8 +21,6 @@
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "v8/include/v8.h"
-#include "webkit/common/fileapi/file_system_types.h"
-#include "webkit/common/fileapi/file_system_util.h"
 #include "xwalk/extensions/renderer/xwalk_module_system.h"
 
 using content::RenderView;
@@ -60,13 +60,13 @@ void IsolatedFileSystem::GetIsolatedFileSystem(
       !context_url.GetOrigin().is_empty()) {
     origin = context_url.GetOrigin();
   }
-  std::string name(fileapi::GetIsolatedFileSystemName(origin, file_system_id));
+  std::string name(storage::GetIsolatedFileSystemName(origin, file_system_id));
 
   // The optional second argument is the subfolder within the isolated file
   // system at which to root the DOMFileSystem we're returning to the caller.
   std::string optional_root_name = "";
 
-  blink::WebURL root(GURL(fileapi::GetIsolatedFileSystemRootURIString(
+  blink::WebURL root(GURL(storage::GetIsolatedFileSystemRootURIString(
       origin,
       file_system_id,
       optional_root_name)));

@@ -236,7 +236,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   scoped_refptr<ApplicationData> application =
       cache_.GetApplicationData(application_id);
 
-  if (!application)
+  if (!application.get())
     return new net::URLRequestErrorJob(
         request, network_delegate, net::ERR_FILE_NOT_FOUND);
 
@@ -244,7 +244,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
       ApplicationURLToRelativeFilePath(request->url());
   base::FilePath directory_path;
   std::string content_security_policy;
-  if (application) {
+  if (application.get()) {
     directory_path = application->path();
 
     const char* csp_key = GetCSPKey(application->manifest_type());
@@ -263,7 +263,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
   }
 
   std::list<std::string> locales;
-  if (application && application->manifest_type() == Manifest::TYPE_WIDGET) {
+  if (application.get() && application->manifest_type() == Manifest::TYPE_WIDGET) {
     GetUserAgentLocales(GetSystemLocale(), locales);
     GetUserAgentLocales(application->GetManifest()->default_locale(), locales);
   }
@@ -279,7 +279,7 @@ ApplicationProtocolHandler::MaybeCreateJob(
       relative_path,
       content_security_policy,
       locales,
-      application);
+      application.get());
 }
 
 }  // namespace
