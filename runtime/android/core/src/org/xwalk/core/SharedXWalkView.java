@@ -39,7 +39,11 @@ public class SharedXWalkView extends XWalkView {
         initialized = true;
     }
 
-    public static boolean usesLibraryOutOfPackage() {
-        return ReflectionHelper.shouldUseLibrary();
+    public static boolean containsLibrary() {
+        return !ReflectionHelper.shouldUseLibrary();
+    }
+
+    public static boolean isUsingLibrary() {
+        return ReflectionHelper.isUsingLibrary();
     }
 }
