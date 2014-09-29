@@ -179,8 +179,9 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
 
     private void showRuntimeLibraryExceptionDialog(String title, String message) {
         if (!mShownNotFoundDialog) {
+            if (SharedXWalkView.isUsingLibrary()) return;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if (!SharedXWalkView.usesLibraryOutOfPackage()) {
+            if (SharedXWalkView.containsLibrary()) {
                 builder.setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {

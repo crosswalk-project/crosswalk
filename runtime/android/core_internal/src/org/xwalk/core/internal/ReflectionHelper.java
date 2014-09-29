@@ -73,24 +73,49 @@ public class ReflectionHelper {
     private final static String LIBRARY_APK_PACKAGE = "org.xwalk.core";
     /* Wrapper Only
     private static boolean sAllowCrossPackage = false;
+    private static boolean sAlreadyUsingLibrary = false;
     private static SharedXWalkExceptionHandler sExceptionHandler = null;
 
     static void setExceptionHandler(SharedXWalkExceptionHandler handler) {
         sExceptionHandler = handler;
     }
 
-    public static boolean shouldUseLibrary() {
+    static boolean isUsingLibrary() {
+        return sAlreadyUsingLibrary;
+    }
+
+    static boolean shouldUseLibrary() {
+        if (sAlreadyUsingLibrary) return true;
+
         // TODO(wang16): There are many other conditions here.
         // e.g. Whether application uses the ApplicationClass we provided,
         //      Whether native library arch is correct.
         assert isWrapper();
+        Class<?> delegateClass = null;
         try {
-            ReflectionHelper.class.getClassLoader().loadClass(
-                    INTERNAL_PACKAGE + "." + "ReflectionHelper");
-            return false;
+            ClassLoader classLoader = ReflectionHelper.class.getClassLoader();
+            delegateClass = classLoader.loadClass(
+                    INTERNAL_PACKAGE + "." + "XWalkViewDelegate");
         } catch (ClassNotFoundException e) {
             return true;
         }
+        if (delegateClass == null) return true;
+        try {
+            Method loadXWalkLibrary = delegateClass.getDeclaredMethod(
+                    "loadXWalkLibrary", Context.class);
+            loadXWalkLibrary.invoke(null, (Context)null);
+        } catch (NoSuchMethodException e) {
+            return true;
+        } catch (IllegalArgumentException e) {
+            return true;
+        } catch (IllegalAccessException e) {
+            return true;
+        } catch (InvocationTargetException e) {
+            return true;
+        } catch (UnsatisfiedLinkError e) {
+            return true;
+        }
+        return false;
     }
     Wrapper Only */
 
@@ -121,6 +146,7 @@ public class ReflectionHelper {
                 sBridgeContext = app.createPackageContext(
                         LIBRARY_APK_PACKAGE,
                         Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+                sAlreadyUsingLibrary = true;
             } catch (PackageManager.NameNotFoundException e) {
                 handleException(e);
             }
