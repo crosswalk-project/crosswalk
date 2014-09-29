@@ -16,7 +16,7 @@
 %endif
 
 Name:           crosswalk
-Version:        9.38.208.1
+Version:        9.38.208.2
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
