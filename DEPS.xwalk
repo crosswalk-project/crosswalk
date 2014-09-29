@@ -42,14 +42,6 @@ solutions = [
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
 
-      # Temporarily switch to a more recent WebRTC version that includes its
-      # r6909, which, together with r6853, fixes the problems described in
-      # XWALK-2160.
-      # See also: https://code.google.com/p/webrtc/issues/detail?id=3625
-      'src/third_party/webrtc':
-        'https://chromium.googlesource.com/external/webrtc/trunk/webrtc.git@'
-           'cdc312345fcdfc586a7c8cd720407449cc0bdcd2',
-
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':
         'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
