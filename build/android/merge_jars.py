@@ -48,6 +48,12 @@ def DoJar(classes_dir, jar_path):
   GetCommandOutput(jar_cmd, classes_dir)
 
 
+def AddDoubleQuotesToRawString(raw_str):
+  if (raw_str[0] != raw_str[-1]):
+    raw_str = '"' + raw_str + '"'
+  return raw_str
+
+
 def main():
   parser = optparse.OptionParser()
   info = ('The folder to place unzipped classes')
@@ -63,6 +69,7 @@ def main():
   os.makedirs(options.classes_dir)
 
   for jar in options.jars.split(' '):
+    jar = AddDoubleQuotesToRawString(jar)
     UnpackJar(eval(jar), options.classes_dir)
 
   DoJar(options.classes_dir, options.jar_path)

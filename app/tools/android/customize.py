@@ -250,6 +250,8 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   activity_name = package + '.' + name + 'Activity'
   EditElementAttribute(xmldoc, 'activity', 'android:name', activity_name)
   EditElementAttribute(xmldoc, 'activity', 'android:label', app_name)
+  authorities = package + '.FileProvider'
+  EditElementAttribute(xmldoc, 'provider', 'android:authorities', authorities)
   if orientation:
     EditElementAttribute(xmldoc, 'activity', 'android:screenOrientation',
                          orientation)

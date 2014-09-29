@@ -94,6 +94,7 @@
         '../components/components.gyp:navigation_interception_java',
         '../components/components.gyp:web_contents_delegate_android_java',
         '../content/content.gyp:content_java',
+        '../third_party/android_tools/android_tools.gyp:android_support_v13_javalib',
         '../ui/android/ui_android.gyp:ui_java',
         'xwalk_core_extensions_java',
         'xwalk_core_strings',
