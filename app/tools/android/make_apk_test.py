@@ -98,6 +98,23 @@ class TestMakeApk(unittest.TestCase):
       test_des_dir = os.path.join(target_dir, 'test_data')
       if not os.path.exists(test_des_dir):
         shutil.copytree(test_src_dir, test_des_dir)
+        # get jar files of external extensions
+        if not options.external_extensions:
+          options.external_extensions = os.path.join(target_dir,
+                                                     os.pardir, "lib.java")
+
+        extensions_dir = os.path.join(test_des_dir, "extensions")
+        for e_name in os.listdir(extensions_dir):
+          e_dir = os.path.join(extensions_dir, e_name)
+          src_file = os.path.join(options.external_extensions,
+                                  "%s.jar" % e_name)
+          if os.path.isfile(src_file):
+            dst_file = os.path.join(e_dir, "%s.jar" % e_name)
+            shutil.copyfile(src_file, dst_file)
+          else:
+            print('Failed to get jar file of %s,'
+                   'related cases may fail.' % e_name)
+
       os.chdir(target_dir)
     else:
       unittest.SkipTest('xwalk_app_template folder doesn\'t exist. '
@@ -1199,6 +1216,10 @@ if __name__ == '__main__':
   info = ('The packaging mode for xwalk. Such as: --mode=embedded.'
           'Please refer the detail to the option of make_apk.py.')
   parser.add_option('--mode', help=info)
+  info = ('The directory of jar files of external extensions.'
+          'Such as: --external-extensions=src/out/Release/lib.java')
+  parser.add_option('--external-extensions', help=info)
+
   options, dummy = parser.parse_args()
   if len(sys.argv) == 1:
     parser.print_help()
