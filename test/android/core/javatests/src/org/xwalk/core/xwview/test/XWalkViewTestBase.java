@@ -7,8 +7,11 @@ package org.xwalk.core.xwview.test;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 import java.io.InputStream;
@@ -25,6 +28,7 @@ import org.chromium.content.browser.test.util.CallbackHelper;
 import org.chromium.content.browser.test.util.Criteria;
 import org.chromium.content.browser.test.util.CriteriaHelper;
 
+import org.xwalk.core.XWalkJavascriptResult;
 import org.xwalk.core.XWalkNavigationHistory;
 import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkResourceClient;
@@ -54,7 +58,7 @@ public class XWalkViewTestBase
 
         @Override
         public void onPageLoadStopped(XWalkView view, String url, LoadStatus status) {
-            mInnerContentsClient.onPageFinished(url);
+            mInnerContentsClient.onPageFinished(url, status);
         }
 
         @Override
@@ -75,6 +79,29 @@ public class XWalkViewTestBase
         @Override
         public void onRequestFocus(XWalkView view) {
             mInnerContentsClient.onRequestFocus();
+        }
+
+        @Override
+        public boolean onJavascriptModalDialog(XWalkView view,
+                XWalkUIClient.JavascriptMessageType type, String url, String message,
+                        String defaultValue, XWalkJavascriptResult result) {
+            return mInnerContentsClient.onJavascriptModalDialog(message);
+        }
+
+        @Override
+        public void openFileChooser(XWalkView view, ValueCallback<Uri> uploadFile,
+                String acceptType, String capture) {
+            mInnerContentsClient.openFileChooser(uploadFile);
+        }
+
+        @Override
+        public void onFullscreenToggled(XWalkView view, boolean enterFullscreen) {
+            mInnerContentsClient.onFullscreenToggled(enterFullscreen);
+        }
+
+        @Override
+        public boolean shouldOverrideKeyEvent(XWalkView view, KeyEvent event) {
+            return mInnerContentsClient.overrideOrUnhandledKeyEvent(event);
         }
     }
 
@@ -523,5 +550,27 @@ public class XWalkViewTestBase
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public void simulateKeyAction(final int action) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    getInstrumentation().sendKeySync(new KeyEvent(action,
+                            KeyEvent.KEYCODE_DPAD_CENTER));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    protected void stopLoading() throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.stopLoading();
+            }
+        });
     }
 }
