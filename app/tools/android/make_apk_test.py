@@ -7,6 +7,7 @@
 
 import optparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -80,6 +81,106 @@ def GetResultWithOption(mode=None, manifest=None, name=None, package=None):
          '%s' % mode]
   return RunCommand(cmd)
 
+def GetAndroidApiLevel(android_path):
+  """Get Highest Android target level installed.
+     return -1 if no targets have been found.
+  """
+  target_output = RunCommand([android_path, 'list', 'target', '-c'])
+  target_regex = re.compile(r'android-(\d+)')
+  targets = [int(i) for i in target_regex.findall(target_output)]
+  targets.extend([-1])
+  return max(targets)
+
+def AddExeExtensions(name):
+  exts_str = os.environ.get('PATHEXT', '').lower()
+  exts = [_f for _f in exts_str.split(os.pathsep) if _f]
+  result = []
+  for e in exts:
+    result.append(name + e)
+  result.append(name)
+  return result
+
+def Which(name):
+  """Searches PATH for executable files with the given name, also taking
+  PATHEXT into account. Returns the first existing match, or None if no matches
+  are found."""
+  for path in os.environ.get('PATH', '').split(os.pathsep):
+    for filename in AddExeExtensions(name):
+      full_path = os.path.join(path, filename)
+      if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+        return full_path
+  return None
+
+def CompileExternalExtensions(target_dir):
+  """Compile the source code of external extensions and package them to jar.
+     return -1 if error encounterred or 0.
+  """
+  test_des_dir = os.path.join(target_dir, 'test_data')
+  extensions_dir = os.path.join(test_des_dir, "extensions")
+
+  # get android target and tools
+  android_path = Which('android')
+  if android_path is None:
+    print('The "android" binary could not be found. Check your Android SDK '
+            'installation and your PATH environment variable.')
+    return -1
+
+  api_level = GetAndroidApiLevel(android_path)
+  if api_level < 14:
+    print('Please install Android API level (>=14) first.')
+    return -1
+  target_string = 'android-%d' % api_level
+
+  # get needed jar files
+  runtime_jar = "xwalk_app_runtime_java.jar"
+  runtime_jar_dir = ""
+  print os.path.basename(test_des_dir)
+  for root, dirs, files in os.walk(target_dir):
+    if runtime_jar in files:
+      runtime_jar_dir = os.path.join(root, runtime_jar)
+  if not runtime_jar_dir:
+    print("Can not find needed runtime lib: %s." % runtime_jar)
+    return -1
+
+  # Check whether ant is installed.
+  ant_path = Which('ant')
+  if ant_path is None:
+    print('Ant could not be found. Please make sure it is installed.')
+    return -1
+
+  example_package = "com.example.extension"
+  # create lib project for each external extenions
+  for e_name in os.listdir(extensions_dir):
+    e_dir = os.path.join(extensions_dir, e_name)
+    tmp_lib_dir = os.path.join(e_dir, "tmp_lib_dir")
+    create_lib_cmd = [android_path, 'create', 'lib-project',
+      '--path', tmp_lib_dir,
+      '--target', target_string,
+      '--package', example_package,
+      '--name', e_name]
+    RunCommand(create_lib_cmd)
+
+    # copy needed runtime lib to libs
+    shutil.copy2(runtime_jar_dir, os.path.join(tmp_lib_dir, "libs"))
+
+    # copy extension src to lib src
+    shutil.rmtree(os.path.join(tmp_lib_dir, "src"))
+    shutil.copytree(os.path.join(e_dir, "src"), os.path.join(tmp_lib_dir, "src"))
+
+    # build lib jar
+    ant_cmd = [ant_path, 'release', '-f', os.path.join(tmp_lib_dir, 'build.xml')]
+    RunCommand(ant_cmd)
+
+    # copy dist jar to the write position
+    src_file = os.path.join(tmp_lib_dir, 'bin', "classes.jar")
+    dst_file = os.path.join(e_dir, "%s.jar" % e_name)
+    shutil.copyfile(src_file, dst_file)
+
+    # remove tmp dir
+    shutil.rmtree(tmp_lib_dir)
+  # end of compiling
+
+  return 0
 
 class TestMakeApk(unittest.TestCase):
   @classmethod
@@ -98,6 +199,10 @@ class TestMakeApk(unittest.TestCase):
       test_des_dir = os.path.join(target_dir, 'test_data')
       if not os.path.exists(test_des_dir):
         shutil.copytree(test_src_dir, test_des_dir)
+        # compile and package the external extension java file to jar
+        if (CompileExternalExtensions(target_dir) < 0):
+          print("Failed to compile external extensions, related tests may fail.")
+
       os.chdir(target_dir)
     else:
       unittest.SkipTest('xwalk_app_template folder doesn\'t exist. '
