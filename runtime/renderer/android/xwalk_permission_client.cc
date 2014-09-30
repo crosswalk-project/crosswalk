@@ -7,7 +7,7 @@
 #include "content/public/common/url_constants.h"
 #include "content/public/renderer/render_frame.h"
 #include "third_party/WebKit/public/platform/WebURL.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "url/gurl.h"
 
 namespace xwalk {

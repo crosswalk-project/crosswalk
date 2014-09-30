@@ -33,13 +33,14 @@ RemoteDebuggingServer::RemoteDebuggingServer(
     const std::string& ip,
     int port,
     const std::string& frontend_url) {
+  base::FilePath output_dir;
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
       new TCPServerSocketFactory(ip, port, 1));
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
       factory.Pass(),
       frontend_url,
-      new XWalkDevToolsDelegate(runtime_context),
-      base::FilePath());
+      new XWalkDevToolsHttpHandlerDelegate(),
+      output_dir);
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {

@@ -105,6 +105,32 @@ bool Target::Close() const {
 
 namespace xwalk {
 
+XWalkDevToolsHttpHandlerDelegate::XWalkDevToolsHttpHandlerDelegate() {
+}
+
+XWalkDevToolsHttpHandlerDelegate::~XWalkDevToolsHttpHandlerDelegate() {
+}
+
+std::string XWalkDevToolsHttpHandlerDelegate::GetDiscoveryPageHTML() {
+  return ResourceBundle::GetSharedInstance().GetRawDataResource(
+      IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
+}
+
+bool XWalkDevToolsHttpHandlerDelegate::BundlesFrontendResources() {
+  return true;
+}
+
+base::FilePath XWalkDevToolsHttpHandlerDelegate::GetDebugFrontendDir() {
+  return base::FilePath();
+}
+
+scoped_ptr<net::StreamListenSocket>
+XWalkDevToolsHttpHandlerDelegate::CreateSocketForTethering(
+    net::StreamListenSocket::Delegate* delegate,
+    std::string* name) {
+  return scoped_ptr<net::StreamListenSocket>();
+}
+
 XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
     : runtime_context_(runtime_context) {
 }
@@ -112,17 +138,10 @@ XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
 XWalkDevToolsDelegate::~XWalkDevToolsDelegate() {
 }
 
-std::string XWalkDevToolsDelegate::GetDiscoveryPageHTML() {
-  return ResourceBundle::GetSharedInstance().GetRawDataResource(
-      IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
-}
-
-bool XWalkDevToolsDelegate::BundlesFrontendResources() {
-  return true;
-}
-
-base::FilePath XWalkDevToolsDelegate::GetDebugFrontendDir() {
-  return base::FilePath();
+base::DictionaryValue* XWalkDevToolsDelegate::HandleCommand(
+    content::DevToolsAgentHost* agent_host,
+    base::DictionaryValue* command_dict) {
+  return NULL;
 }
 
 std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
@@ -148,13 +167,6 @@ void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
       targets.push_back(new Target(*it));
   }
   callback.Run(targets);
-}
-
-scoped_ptr<net::StreamListenSocket>
-XWalkDevToolsDelegate::CreateSocketForTethering(
-      net::StreamListenSocket::Delegate* delegate,
-      std::string* name) {
-  return scoped_ptr<net::StreamListenSocket>();
 }
 
 }  // namespace xwalk

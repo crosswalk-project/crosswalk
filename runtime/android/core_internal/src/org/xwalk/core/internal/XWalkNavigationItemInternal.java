@@ -4,7 +4,7 @@
 
 package org.xwalk.core.internal;
 
-import org.chromium.content.browser.NavigationEntry;
+import org.chromium.content_public.browser.NavigationEntry;
 
 /**
  * This class represents a navigation item and is managed in XWalkNavigationHistoryInternal.

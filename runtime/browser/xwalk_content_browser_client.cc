@@ -26,13 +26,14 @@
 #include "ppapi/host/ppapi_host.h"
 #include "xwalk/extensions/common/xwalk_extension_switches.h"
 #include "xwalk/application/common/constants.h"
-#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
+#include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
 #include "xwalk/runtime/browser/geolocation/xwalk_access_token_store.h"
 #include "xwalk/runtime/browser/media/media_capture_devices_dispatcher.h"
 #include "xwalk/runtime/browser/renderer_host/pepper/xwalk_browser_pepper_host_factory.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_quota_permission_context.h"
 #include "xwalk/runtime/browser/speech/speech_recognition_manager_delegate.h"
+#include "xwalk/runtime/browser/xwalk_browser_main_parts.h"
 #include "xwalk/runtime/browser/xwalk_render_message_filter.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -88,7 +89,8 @@ XWalkContentBrowserClient* XWalkContentBrowserClient::Get() {
 XWalkContentBrowserClient::XWalkContentBrowserClient(XWalkRunner* xwalk_runner)
     : xwalk_runner_(xwalk_runner),
       url_request_context_getter_(NULL),
-      main_parts_(NULL) {
+      main_parts_(NULL),
+      runtime_context_(NULL) {
   DCHECK(!g_browser_client);
   g_browser_client = this;
 }
@@ -117,7 +119,8 @@ net::URLRequestContextGetter* XWalkContentBrowserClient::CreateRequestContext(
     content::BrowserContext* browser_context,
     content::ProtocolHandlerMap* protocol_handlers,
     content::URLRequestInterceptorScopedVector request_interceptors) {
-  url_request_context_getter_ = static_cast<RuntimeContext*>(browser_context)->
+  runtime_context_ = static_cast<RuntimeContext*>(browser_context);
+  url_request_context_getter_ = runtime_context_->
       CreateRequestContext(protocol_handlers, request_interceptors.Pass());
   return url_request_context_getter_;
 }
@@ -408,6 +411,11 @@ void XWalkContentBrowserClient::GetStoragePartitionConfigForSite(
   if (site.SchemeIs(application::kApplicationScheme))
     *partition_domain = site.host();
 #endif
+}
+
+content::DevToolsManagerDelegate*
+  XWalkContentBrowserClient::GetDevToolsManagerDelegate() {
+  return new XWalkDevToolsDelegate(runtime_context_);
 }
 
 }  // namespace xwalk

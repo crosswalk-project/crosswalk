@@ -6,7 +6,7 @@ package org.xwalk.core.internal;
 
 import java.io.Serializable;
 
-import org.chromium.content.browser.NavigationHistory;
+import org.chromium.content_public.browser.NavigationHistory;
 
 /**
  * This class represents a navigation history for a XWalkViewInternal instance.

@@ -148,6 +148,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
       std::string* partition_name,
       bool* in_memory) OVERRIDE;
 
+  virtual content::DevToolsManagerDelegate*
+      GetDevToolsManagerDelegate() OVERRIDE;
 
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 
@@ -157,6 +159,7 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   scoped_refptr<RuntimeGeolocationPermissionContext>
     geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
+  RuntimeContext* runtime_context_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };

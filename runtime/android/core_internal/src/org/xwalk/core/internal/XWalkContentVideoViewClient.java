@@ -27,11 +27,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
 
     @Override
     public boolean onShowCustomView(View view) {
-        if (!CommandLine.getInstance().hasSwitch(
-                ContentSwitches.DISABLE_OVERLAY_FULLSCREEN_VIDEO_SUBTITLE)) {
-            mView.setOverlayVideoMode(true);
-        }
-
+        mView.setOverlayVideoMode(true);
         CustomViewCallback cb = new CustomViewCallback() {
             @Override
             public void onCustomViewHidden() {
@@ -43,10 +39,7 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
 
     @Override
     public void onDestroyContentVideoView() {
-        if (!CommandLine.getInstance().hasSwitch(
-                ContentSwitches.DISABLE_OVERLAY_FULLSCREEN_VIDEO_SUBTITLE)) {
-            mView.setOverlayVideoMode(false);
-        }
+        mView.setOverlayVideoMode(false);
         mContentsClient.onHideCustomView();
     }
 
