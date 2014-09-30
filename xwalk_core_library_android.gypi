@@ -85,8 +85,6 @@
         'native_lib_target': 'libxwalkcore',
         'is_test_apk': 1,
         'additional_src_dirs': [
-           '<(DEPTH)/ui/android/java/resource_map',
-           '<(DEPTH)/content/public/android/java/resource_map',
            '<(DEPTH)/xwalk/runtime/android/core_internal/resource_map',
         ],
       },
