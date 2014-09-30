@@ -11,30 +11,12 @@
 #include "base/logging.h"
 #include "xwalk/application/common/tizen/package_query.h"
 
-// FIXME(tiwanek): Remove this hack once IVI's ail moves to 0.2.80-16.1
-// or later.
-#ifdef OPT_DESKTOP_DIRECTORY
-// This definition was removed in the same commit
-// that changed ail_list_appinfo_cb, so its presence means \
-// this is an ail predating https://review.tizen.org/gerrit/#/c/27621/.
-#define AIL_IS_OLD 1
-#endif
-
 namespace {
 
-#ifdef  AIL_IS_OLD
-typedef ail_cb_ret_e (*PropertyCallback)(const ail_appinfo_h, void*);
-#else
 typedef ail_cb_ret_e (*PropertyCallback)(const ail_appinfo_h, void*, uid_t);
-#endif
 
-#ifdef AIL_IS_OLD
-ail_cb_ret_e callback_x_slp_exe_path(const ail_appinfo_h appinfo,
-    void* user_data) {
-#else
 ail_cb_ret_e callback_x_slp_exe_path(const ail_appinfo_h appinfo,
     void* user_data, uid_t /*uid*/) {
-#endif
   char* package_exec;
   ail_appinfo_get_str(appinfo, AIL_PROP_X_SLP_EXE_PATH, &package_exec);
   if (!package_exec)
@@ -45,13 +27,8 @@ ail_cb_ret_e callback_x_slp_exe_path(const ail_appinfo_h appinfo,
   return AIL_CB_RET_CANCEL;
 }
 
-#ifdef AIL_IS_OLD
-ail_cb_ret_e callback_installed_time(const ail_appinfo_h appinfo,
-    void* user_data) {
-#else
 ail_cb_ret_e callback_installed_time(const ail_appinfo_h appinfo,
     void* user_data, uid_t /*uid*/) {
-#endif
   int* installed_time = static_cast<int*>(user_data);
   ail_appinfo_get_int(appinfo, AIL_PROP_X_SLP_INSTALLEDTIME_INT,
       installed_time);
