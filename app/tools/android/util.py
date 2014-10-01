@@ -11,6 +11,15 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
+
+build_dir = None
+
+def GetBuildDir(name):
+  global build_dir
+  if not build_dir:
+    build_dir = tempfile.mkdtemp(prefix="%s-" % name)
+  return build_dir
 
 
 def CleanDir(path):

@@ -13,7 +13,6 @@ import re
 import shutil
 import stat
 import sys
-import tempfile
 
 # get xwalk absolute path so we can run this script from any location
 xwalk_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,10 +25,12 @@ from handle_xml import AddElementAttributeAndText
 from handle_xml import EditElementAttribute
 from handle_xml import EditElementValueByNodeName
 from handle_permissions import HandlePermissions
-from util import CleanDir, CreateAndCopyDir
+from util import CleanDir, CreateAndCopyDir, GetBuildDir
 from xml.dom import minidom
 
+
 TEMPLATE_DIR_NAME = 'template'
+
 
 def VerifyPackageName(value):
   regex = r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$'
@@ -119,7 +120,7 @@ def Prepare(app_info, compressor):
   """
   # create new app_dir in temp dir
   app_name = app_info.android_name
-  app_dir = os.path.join(tempfile.gettempdir(), app_name)
+  app_dir = GetBuildDir(app_name)
   app_package = app_info.package
   app_root = app_info.app_root
   template_app_dir = os.path.join(xwalk_dir, TEMPLATE_DIR_NAME)
@@ -172,7 +173,7 @@ def EncodingUnicodeValue(value):
 
 
 def CustomizeStringXML(name, description):
-  strings_path = os.path.join(tempfile.gettempdir(), name, 'res', 'values',
+  strings_path = os.path.join(GetBuildDir(name), 'res', 'values',
                               'strings.xml')
   if not os.path.isfile(strings_path):
     print ('Please make sure strings_xml'
@@ -190,8 +191,7 @@ def CustomizeStringXML(name, description):
 
 
 def CustomizeThemeXML(name, fullscreen, manifest):
-  theme_path = os.path.join(tempfile.gettempdir(), name, 'res', 'values-v14',
-                            'theme.xml')
+  theme_path = os.path.join(GetBuildDir(name), 'res', 'values-v14', 'theme.xml')
   if not os.path.isfile(theme_path):
     print('Error: theme.xml is missing in the build tool.')
     sys.exit(6)
@@ -217,7 +217,7 @@ def CustomizeXML(app_info, description, icon_dict, manifest, permissions):
   orientation = app_info.orientation
   package = app_info.package
   app_name = app_info.app_name
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   # Chinese character with unicode get from 'manifest.json' will cause
   # 'UnicodeEncodeError' when finally wrote to 'AndroidManifest.xml'.
   app_name = EncodingUnicodeValue(app_name)
@@ -289,7 +289,7 @@ def SetVariable(file_path, string_line, variable, value):
 def CustomizeJava(app_info, app_url, app_local_path, keep_screen_on):
   name = app_info.android_name
   package = app_info.package
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   app_pkg_dir = os.path.join(app_dir, 'src', package.replace('.', os.path.sep))
   dest_activity = os.path.join(app_pkg_dir, name + 'Activity.java')
   ReplaceString(dest_activity, 'org.xwalk.app.template', package)
@@ -374,7 +374,7 @@ def CustomizeExtensions(app_info, extensions):
   if not extensions:
     return
   name = app_info.android_name
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   apk_assets_path = os.path.join(app_dir, 'assets')
   extensions_string = 'xwalk-extensions'
 
@@ -459,15 +459,14 @@ def CustomizeExtensions(app_info, extensions):
 def GenerateCommandLineFile(app_info, xwalk_command_line):
   if xwalk_command_line == '':
     return
-  assets_path = os.path.join(tempfile.gettempdir(), app_info.android_name,
-                             'assets')
+  assets_path = os.path.join(GetBuildDir(app_info.android_name), 'assets')
   file_path = os.path.join(assets_path, 'xwalk-command-line')
   command_line_file = open(file_path, 'w')
   command_line_file.write('xwalk ' + xwalk_command_line)
 
 
 def CustomizeIconByDict(name, app_root, icon_dict):
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   icon_name = None
   drawable_dict = {'ldpi': [1, 37], 'mdpi': [37, 72], 'hdpi': [72, 96],
                    'xhdpi': [96, 120], 'xxhdpi': [120, 144],
@@ -504,7 +503,7 @@ def CustomizeIconByDict(name, app_root, icon_dict):
 
 def CustomizeIconByOption(name, icon):
   if os.path.isfile(icon):
-    drawable_path = os.path.join(tempfile.gettempdir(), name, 'res', 'drawable')
+    drawable_path = os.path.join(GetBuildDir(name), 'res', 'drawable')
     if not os.path.exists(drawable_path):
       os.makedirs(drawable_path)
     icon_file = os.path.basename(icon)
@@ -638,7 +637,7 @@ def main():
 
     # build project is now in /tmp/<name>. Copy to project_dir
     if options.project_dir:
-      src_dir = os.path.join(tempfile.gettempdir(), app_info.android_name)
+      src_dir = GetBuildDir(app_info.android_name)
       dest_dir = os.path.join(options.project_dir, app_info.android_name)
       CreateAndCopyDir(src_dir, dest_dir, True)
 
@@ -646,7 +645,7 @@ def main():
     print('Exiting with error code: %d' % ec.code)
     return ec.code
   finally:
-    CleanDir(os.path.join(tempfile.gettempdir(), app_info.android_name))
+    CleanDir(GetBuildDir(app_info.android_name))
   return 0
 
 
