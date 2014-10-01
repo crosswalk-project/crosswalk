@@ -123,6 +123,14 @@ void ApplicationTizen::Hide() {
   }
 }
 
+void ApplicationTizen::Show() {
+  DCHECK(!runtimes_.empty());
+  for (Runtime* runtime : runtimes_) {
+    if (auto window = runtime->window())
+      window->Restore();
+  }
+}
+
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
     DCHECK(web_contents_);
