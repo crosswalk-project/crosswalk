@@ -27,6 +27,7 @@ class ApplicationTizen :  // NOLINT
  public:
   virtual ~ApplicationTizen();
   void Hide();
+  void Show();
   void Suspend();
   void Resume();
 

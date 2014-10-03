@@ -269,6 +269,7 @@ void RunningApplicationObject::OnResume(
   }
 
   ToApplicationTizen(application_)->Resume();
+  ToApplicationTizen(application_)->Show();
 
   scoped_ptr<dbus::Response> response =
       dbus::Response::FromMethodCall(method_call);
