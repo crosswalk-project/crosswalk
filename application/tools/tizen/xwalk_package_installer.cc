@@ -28,6 +28,7 @@
 #include "xwalk/application/common/application_file_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/manifest_handlers/tizen_app_control_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
@@ -135,6 +136,39 @@ bool GeneratePkgInfoXml(xwalk::application::ApplicationData* application,
   xml_writer.AddAttribute("exec", execute_path.MaybeAsASCII());
   xml_writer.AddAttribute("type", "webapp");
   xml_writer.AddAttribute("taskmanage", "true");
+
+  const xwalk::application::AppControlInfoList* aplist =
+      static_cast<const xwalk::application::AppControlInfoList*>(
+          application->GetManifestData(
+              widget_keys::kTizenApplicationAppControlsKey));
+  if (aplist) {
+    for (const auto& item : aplist->controls) {
+      xml_writer.StartElement("app-control");
+
+      xml_writer.StartElement("operation");
+      xml_writer.AddAttribute("name", item.operation());
+      xml_writer.EndElement();
+
+      xml_writer.StartElement("uri");
+      if (!item.uri().empty()) {
+        xml_writer.AddAttribute("name", item.uri());
+      } else {
+        xml_writer.AddAttribute("name", "*/*");
+      }
+      xml_writer.EndElement();
+
+      xml_writer.StartElement("mime");
+      if (!item.mime().empty()) {
+        xml_writer.AddAttribute("name", item.mime());
+      } else {
+        xml_writer.AddAttribute("name", "*/*");
+      }
+      xml_writer.EndElement();
+
+      xml_writer.EndElement();
+    }
+  }
+
   xml_writer.WriteElement("label", application->Name());
 
   xwalk::application::TizenMetaDataInfo* info =

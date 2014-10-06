@@ -150,6 +150,13 @@ const char kTizenAppWidgetBoxContentDropViewKey[] = "pd";
 const char kTizenAppWidgetBoxContentDropViewSrcKey[] = "@src";
 const char kTizenAppWidgetBoxContentDropViewWidthKey[] = "@width";
 const char kTizenAppWidgetBoxContentDropViewHeightKey[] = "@height";
+// App control
+const char kTizenApplicationAppControlsKey[] = "widget.app-control";
+const char kTizenApplicationAppControlSrcKey[] = "src";
+const char kTizenApplicationAppControlOperationKey[] = "operation";
+const char kTizenApplicationAppControlUriKey[] = "uri";
+const char kTizenApplicationAppControlMimeKey[] = "mime";
+const char kTizenApplicationAppControlChildNameAttrKey[] = "@name";
 #endif
 
 }  // namespace application_widget_keys

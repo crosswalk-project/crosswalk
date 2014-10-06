@@ -9,6 +9,7 @@
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #if defined(OS_TIZEN)
+#include "xwalk/application/common/manifest_handlers/tizen_app_control_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_appwidget_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
@@ -77,6 +78,7 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
   handlers.push_back(new CSPHandler(Manifest::TYPE_WIDGET));
+  handlers.push_back(new TizenAppControlHandler);
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenAppWidgetHandler);
   handlers.push_back(new TizenMetaDataHandler);
