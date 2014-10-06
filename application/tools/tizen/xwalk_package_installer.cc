@@ -389,7 +389,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
         !base::CopyFile(path, tmp_path.path()))
       return false;
     package = Package::Create(tmp_path.path());
-    if (!package->IsValid())
+    if (!package || !package->IsValid())
       return false;
     package->ExtractToTemporaryDir(&unpacked_dir);
     app_id = package->Id();
