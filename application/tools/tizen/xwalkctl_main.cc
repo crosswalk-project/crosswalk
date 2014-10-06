@@ -12,6 +12,7 @@
 #include <locale.h>
 
 #include "base/at_exit.h"
+#include "base/files/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
 
@@ -172,7 +173,8 @@ int main(int argc, char* argv[]) {
 
   if (install_path) {
     std::string app_id;
-    const base::FilePath& path = base::FilePath(install_path);
+    const base::FilePath& path =
+        base::MakeAbsoluteFilePath(base::FilePath(install_path));
     success = installer->Install(path, &app_id);
     if (!success && storage->Contains(app_id)) {
       g_print("trying to update %s\n", app_id.c_str());
@@ -181,7 +183,8 @@ int main(int argc, char* argv[]) {
   } else if (uninstall_id) {
     success = installer->Uninstall(uninstall_id);
   } else if (reinstall_path) {
-    success = installer->Reinstall(base::FilePath(reinstall_path));
+    success = installer->Reinstall(
+        base::MakeAbsoluteFilePath(base::FilePath(reinstall_path)));
   } else if (debugging_port >= 0) {
 #if defined(SHARED_PROCESS_MODE)
     // Deal with the case "xwalkctl -d PORT_NUMBER"
