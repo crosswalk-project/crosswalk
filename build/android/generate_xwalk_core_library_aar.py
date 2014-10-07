@@ -44,7 +44,7 @@ def main():
   )
 
   aar_path = os.path.join(options.target, 'xwalk_core_library.aar')
-  with zipfile.ZipFile(aar_path, 'w') as aar_file:
+  with zipfile.ZipFile(aar_path, 'w', zipfile.ZIP_DEFLATED) as aar_file:
     for src, dest in files:
       aar_file.write(src, dest)
     for src, dest in dirs:
