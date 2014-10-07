@@ -1,4 +1,5 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,10 +7,12 @@
 
 #include <sys/types.h>
 #include <pwd.h>
+#include <ss_manager.h>
 #include <unistd.h>
 #include <pkgmgr/pkgmgr_parser.h>
 
 #include <algorithm>
+#include <cctype>
 #include <map>
 #include <string>
 
@@ -18,6 +21,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/version.h"
+#include "crypto/symmetric_key.h"
 #include "third_party/libxml/chromium/libxml_utils.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -25,8 +29,10 @@
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/tizen/application_storage.h"
+#include "xwalk/application/common/tizen/encryption.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
 #include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
@@ -434,6 +440,55 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   } else {
     if (!base::Move(unpacked_dir, app_dir))
       return false;
+  }
+
+  xwalk::application::TizenSettingInfo* info =
+      static_cast<xwalk::application::TizenSettingInfo*>(
+          app_data->GetManifestData(widget_keys::kTizenSettingKey));
+  if (info && info->encryption_enabled()) {
+    // Generate encryption key.
+    scoped_ptr<crypto::SymmetricKey> key(
+        crypto::SymmetricKey::GenerateRandomKey(
+            crypto::SymmetricKey::AES, 256));
+
+    std::string str_key;
+    key->GetRawKey(&str_key);
+
+    std::string appId = app_data->ID();
+    std::transform(appId.begin(), appId.end(), appId.begin(), tolower);
+    scoped_ptr<char[], base::FreeDeleter> buffer =
+        scoped_ptr<char[], base::FreeDeleter>(strdup(str_key.c_str()));
+    const char* filename = appId.c_str();
+    int ret = ssm_write_buffer(
+        buffer.get(), str_key.size(),
+        filename,
+        SSM_FLAG_SECRET_OPERATION,
+        filename);
+    // Encrypt the resources if needed.
+    base::FileEnumerator iter(app_dir, true, base::FileEnumerator::FILES);
+    for (base::FilePath file_path = iter.Next();
+         !file_path.empty();
+         file_path = iter.Next()) {
+      if (!ret && xwalk::application::RequiresEncryption(file_path) &&
+          base::PathIsWritable(file_path)) {
+        std::string content;
+        std::string encrypted;
+        if (!base::ReadFileToString(file_path, &content)) {
+          LOG(ERROR) << "Failed to read " << file_path.MaybeAsASCII();
+          return false;
+        }
+        if (!xwalk::application::EncryptData(content.data(),
+                                             content.size(),
+                                             str_key,
+                                             &encrypted)
+            || !base::WriteFile(file_path,
+                                encrypted.data(),
+                                encrypted.size())) {
+          LOG(ERROR) << "Failed to encrypt " << file_path.MaybeAsASCII();
+          return false;
+        }
+      }
+    }
   }
 
   app_data->set_path(app_dir);

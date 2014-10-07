@@ -35,9 +35,13 @@ class TizenSettingInfo : public ApplicationData::ManifestData {
 
   ScreenOrientation screen_orientation() const { return screen_orientation_; }
 
+  void set_encryption_enabled(bool enabled) { encryption_enabled_ = enabled; }
+  bool encryption_enabled() const { return encryption_enabled_; }
+
  private:
   bool hwkey_enabled_;
   ScreenOrientation screen_orientation_;
+  bool encryption_enabled_;
 };
 
 class TizenSettingHandler : public ManifestHandler {

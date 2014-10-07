@@ -84,6 +84,8 @@
             'tizen/application_storage_impl.h',
             'tizen/cookie_manager.cc',
             'tizen/cookie_manager.h',
+            'tizen/encryption.cc',
+            'tizen/encryption.h',
             'tizen/package_query.cc',
             'tizen/package_query.h',
             'tizen/signature_data.h',
