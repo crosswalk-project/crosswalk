@@ -85,7 +85,6 @@ int PkgmgrBackendPlugin::DetailedInfoPkg(
     return kPkgmgrPluginFalse;
   }
 
-
   base::ScopedTempDir dir;
   dir.CreateUniqueTempDir();
   scoped_refptr<xwalk::application::ApplicationData> app_data =
@@ -203,6 +202,8 @@ PkgmgrBackendPlugin::GetApplicationDataFromPkg(const std::string& pkg_path,
 
   scoped_ptr<xwalk::application::Package> package =
       xwalk::application::Package::Create(base::FilePath(pkg_path));
+  if (!package)
+    return nullptr;
   package->ExtractToTemporaryDir(&unpacked_dir);
   std::string app_id = package->Id();
 
