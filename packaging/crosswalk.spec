@@ -15,6 +15,12 @@
 %define _disable_nacl 0
 %endif
 
+# adjust compression algorithm to speed up RPMS creation
+# source RPM and debug RPMS are big and take too much time
+# when using standard (lzma) compression
+%define _source_payload w3.gzdio
+%define _binary_payload w3.gzdio
+
 Name:           crosswalk
 Version:        10.38.220.0
 Release:        0
