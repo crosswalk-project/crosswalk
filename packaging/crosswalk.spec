@@ -279,10 +279,13 @@ ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/xp
 ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/wgt
 
 %preun
+if [ $1 -eq 0 ] ; then
+ # don't remove if we are upgrade the rpm package
 [ -L /etc/package-manager/backendlib/libxpk.so ] && rm /etc/package-manager/backendlib/libxpk.so
 [ -L /etc/package-manager/backendlib/libwgt.so ] && rm /etc/package-manager/backendlib/libwgt.so
 [ -L /etc/package-manager/backend/xpk ] && rm /etc/package-manager/backend/xpk
 [ -L /etc/package-manager/backend/wgt ] && rm /etc/package-manager/backend/wgt
+fi
 
 %files
 %manifest %{name}.manifest
