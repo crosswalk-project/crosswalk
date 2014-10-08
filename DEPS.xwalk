@@ -55,6 +55,11 @@ solutions = [
         'https://cvs.khronos.org/svn/repos/registry/trunk/public/cl/api/1.2@'
            '28150',
 
+      # Include WebCL conformance test suite.
+      'src/third_party/webcl/src':
+        'https://github.com/KhronosGroup/WebCL-conformance.git@'
+           'bb9d6426ae0b89f800627abafa0d3a6a614286d0',
+
       # These directories are not relevant to Crosswalk and can be safely ignored
       # in a checkout. It avoids creating additional directories outside src/ that
       # are not used and also saves some bandwidth.
