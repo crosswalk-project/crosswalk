@@ -767,13 +767,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
-     * Enables remote debugging and returns the URL at which the dev tools server is listening
-     * for commands. The allowedUid argument can be used to specify the uid of the process that is
-     * permitted to connect.
-     * TODO(yongsheng): how to enable this in XWalkPreferencesInternal?
+     * Enables remote debugging and returns the URL at which the dev tools
+     * server is listening for commands.
+     * The allowedUid argument can be used to specify the uid of the process
+     * that is permitted to connect.
+     * TODO(wang16): Hide or remove this API after new API for getting remote
+     *               debugging url available.
      *
      * @hide
      */
+    @XWalkAPI
     public String enableRemoteDebugging(int allowedUid) {
         if (mContent == null) return null;
         checkThreadSafety();
