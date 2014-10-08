@@ -509,7 +509,7 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   }
 
   LOG(INFO) << "Installed application with id: " << app_data->ID()
-            << "to" << app_dir.MaybeAsASCII() << " successfully.";
+            << " to " << app_dir.MaybeAsASCII() << " successfully.";
   *id = app_data->ID();
 
   return true;
