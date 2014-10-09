@@ -37,6 +37,7 @@ public class Messaging extends XWalkExtensionWithActivityStateListener {
 
     private MessagingSmsManager mSmsManager;
     private MessagingManager mMessagingManager;
+    private boolean isIntentFiltersRegistered = false;
 
     private void initMethodMap() {
         sMethodMap.put("msg_smsSend", new Command() {
@@ -103,7 +104,10 @@ public class Messaging extends XWalkExtensionWithActivityStateListener {
         super(NAME, jsApiContent, activity);
         mSmsManager = new MessagingSmsManager(activity, this);
         mMessagingManager = new MessagingManager(activity, this);
-        mSmsManager.registerIntentFilters();
+        if (!isIntentFiltersRegistered) {
+            mSmsManager.registerIntentFilters();
+            isIntentFiltersRegistered = true;
+        }
 
         initMethodMap();
     }
@@ -132,7 +136,12 @@ public class Messaging extends XWalkExtensionWithActivityStateListener {
 
     @Override
     public void onActivityStateChange(Activity activity, int newState) {
-        if (newState == ActivityState.STOPPED) mSmsManager.unregisterIntentFilters();
-        else if (newState == ActivityState.STARTED) mSmsManager.registerIntentFilters();
+        if (newState == ActivityState.STOPPED && isIntentFiltersRegistered) {
+            mSmsManager.unregisterIntentFilters();
+            isIntentFiltersRegistered = false;
+        } else if (newState == ActivityState.STARTED && !isIntentFiltersRegistered) {
+            mSmsManager.registerIntentFilters();
+            isIntentFiltersRegistered = true;
+        }
     }
 }
