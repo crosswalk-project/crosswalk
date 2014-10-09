@@ -12,10 +12,11 @@
         '../../../build/system.gyp:gio',
         '../../../extensions/extensions.gyp:xwalk_extensions',
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
+        '../../../dbus/xwalk_dbus.gyp:xwalk_dbus'
       ],
       'sources': [
-        'dbus_connection.cc',
-        'dbus_connection.h',
+        'dbus_object_manager.cc',
+        'dbus_object_manager.h',
         'xwalk_extension_process_launcher.cc',
         'xwalk_extension_process_launcher.h',
         'xwalk_launcher_main.cc',
@@ -27,6 +28,8 @@
             '../../../build/system.gyp:tizen_appcore_common'
           ],
           'sources': [
+            'xwalk_launcher.cc',
+            'xwalk_launcher.h',
             'xwalk_launcher_tizen.cc',
             'xwalk_launcher_tizen.h',
             '../tizen/xwalk_tizen_user.cc',
