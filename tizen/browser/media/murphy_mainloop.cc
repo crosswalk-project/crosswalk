@@ -174,8 +174,6 @@ class IoWatch : public base::MessagePumpLibevent::Watcher {
   void Delete() {
     if (dead_)
       return;
-    else
-      dead_ = true;
 
     content::BrowserThread::PostTask(content::BrowserThread::IO, FROM_HERE,
         base::Bind(&IoWatch::StopWatch,
@@ -205,6 +203,8 @@ class IoWatch : public base::MessagePumpLibevent::Watcher {
   void StopWatch() {
     if (dead_)
       return;
+    dead_ = true;
+
     w_.StopWatchingFileDescriptor();
 
     content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
