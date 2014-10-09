@@ -10,4 +10,5 @@ int xwalk_appcore_init(int argc, char** argv,
 
 int xwalk_change_cmdline(int argc, char** argv, const char* app_id);
 
+int xwalk_is_debugging_port_request_by_env();
 #endif  // XWALK_APPLICATION_TOOLS_LINUX_XWALK_LAUNCHER_TIZEN_H_

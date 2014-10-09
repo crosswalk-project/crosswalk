@@ -308,7 +308,10 @@ int main(int argc, char** argv) {
   if (query_running) {
     return query_application_running(appid_or_url);
   }
-
+#if defined(OS_TIZEN)
+  if (xwalk_is_debugging_port_request_by_env())
+    remote_debugging = TRUE;
+#endif
   launch_application(appid_or_url, fullscreen, remote_debugging);
   free(appid_or_url);
   return 0;
