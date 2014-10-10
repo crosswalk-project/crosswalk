@@ -272,8 +272,7 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
   return true;
 }
 
-bool PackageInstaller::PlatformUninstall(ApplicationData* app_data) {
-  std::string app_id(app_data->ID());
+bool PackageInstaller::PlatformUninstall(const std::string& app_id) {
   base::FilePath data_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
 
@@ -640,14 +639,6 @@ bool PackageInstaller::Uninstall(const std::string& id) {
   }
 
   bool result = true;
-  scoped_refptr<ApplicationData> app_data =
-      storage_->GetApplicationData(app_id);
-  if (!app_data) {
-    LOG(ERROR) << "Failed to find application with id " << app_id
-               << " among the installed ones.";
-    result = false;
-  }
-
   if (!storage_->RemoveApplication(app_id)) {
     LOG(ERROR) << "Cannot uninstall application with id " << app_id
                << "; application is not installed.";
@@ -664,7 +655,7 @@ bool PackageInstaller::Uninstall(const std::string& id) {
     result = false;
   }
 
-  if (!PlatformUninstall(app_data))
+  if (!PlatformUninstall(app_id))
     result = false;
 
   return result;
