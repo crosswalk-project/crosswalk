@@ -86,6 +86,7 @@ namespace application_widget_keys {
   extern const char kPreferencesValueKey[];
   extern const char kPreferencesReadonlyKey[];
 #if defined(OS_TIZEN)
+  extern const char kTizenWidgetKey[];
   extern const char kTizenApplicationKey[];
   extern const char kTizenApplicationIdKey[];
   extern const char kTizenApplicationPackageKey[];
@@ -103,6 +104,29 @@ namespace application_widget_keys {
   extern const char kTizenSplashScreenSrcKey[];
   extern const char kContentNamespace[];
   extern const char kTizenScreenOrientationKey[];
+  extern const char kTizenAppWidgetFullKey[];
+  extern const char kTizenAppWidgetKey[];
+  extern const char kTizenAppWidgetIdKey[];
+  extern const char kTizenAppWidgetPrimaryKey[];
+  extern const char kTizenAppWidgetUpdatePeriodKey[];
+  extern const char kTizenAppWidgetAutoLaunchKey[];
+  extern const char kTizenAppWidgetBoxLabelKey[];
+  extern const char kTizenAppWidgetBoxLabelLangKey[];
+  extern const char kTizenAppWidgetBoxLabelTextKey[];
+  extern const char kTizenAppWidgetBoxIconKey[];
+  extern const char kTizenAppWidgetBoxIconSrcKey[];
+  extern const char kTizenAppWidgetBoxContentKey[];
+  extern const char kTizenAppWidgetBoxContentSrcKey[];
+  extern const char kTizenAppWidgetBoxContentMouseEventKey[];
+  extern const char kTizenAppWidgetBoxContentTouchEffectKey[];
+  extern const char kTizenAppWidgetBoxContentSizeKey[];
+  extern const char kTizenAppWidgetBoxContentSizeTextKey[];
+  extern const char kTizenAppWidgetBoxContentSizePreviewKey[];
+  extern const char kTizenAppWidgetBoxContentSizeUseDecorationKey[];
+  extern const char kTizenAppWidgetBoxContentDropViewKey[];
+  extern const char kTizenAppWidgetBoxContentDropViewSrcKey[];
+  extern const char kTizenAppWidgetBoxContentDropViewWidthKey[];
+  extern const char kTizenAppWidgetBoxContentDropViewHeightKey[];
 #endif
 }  // namespace application_widget_keys
 
