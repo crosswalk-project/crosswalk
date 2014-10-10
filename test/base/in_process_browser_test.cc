@@ -43,7 +43,7 @@ namespace {
 
 // Used when running in single-process mode.
 #if defined(OS_TIZEN)
-base::LazyInstance<XWalkContentRendererClientTizen>::Leaky
+base::LazyInstance<xwalk::XWalkContentRendererClientTizen>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #else
 base::LazyInstance<XWalkContentRendererClient>::Leaky
