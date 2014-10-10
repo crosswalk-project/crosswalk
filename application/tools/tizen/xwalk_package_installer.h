@@ -41,7 +41,7 @@ class PackageInstaller {
   std::string PrepareUninstallationID(const std::string& id);
 
   bool PlatformInstall(xwalk::application::ApplicationData* data);
-  bool PlatformUninstall(xwalk::application::ApplicationData* data);
+  bool PlatformUninstall(const std::string& app_id);
   bool PlatformUpdate(xwalk::application::ApplicationData* updated_data);
   bool PlatformReinstall(const base::FilePath& path);
 
