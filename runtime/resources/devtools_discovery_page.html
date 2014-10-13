@@ -2,14 +2,87 @@
 <head>
 <title>XWalk Remote Debugging</title>
 <style>
-  a div {
-    background: no-repeat 0;
-    background-size: 16px;
-    padding: 2px 0px 0px 20px;
-  }
+body {
+  background-color: rgb(245, 245, 245);
+  font-family: Helvetica, Arial, sans-serif;
+  text-shadow: rgba(255, 255, 255, 0.496094) 0px 1px 0px;
+}
+
+#caption {
+  color: black;
+  font-size: 16px;
+  margin-top: 30px;
+  margin-bottom: 0px;
+  margin-left: 70px;
+  height: 20px;
+  text-align: left;
+}
+
+#items {
+  display: -webkit-box;
+  margin-left: 60px;
+  margin-right: 60px;
+  -webkit-box-orient: horizontal;
+  -webkit-box-lines: multiple;
+}
+
+.frontend_ref {
+  color: black;
+  text-decoration: initial;
+}
+
+.thumbnail {
+  background-attachment: scroll;
+  background-origin: padding-box;
+  background-repeat: no-repeat;
+  border: 4px solid rgba(184, 184, 184, 1);
+  border-radius: 5px;
+  height: 132px;
+  width: 212px;
+  -webkit-transition-property: background-color, border-color;
+  -webkit-transition: background-color 0.15s, 0.15s;
+  -webkit-transition-delay: 0, 0;
+}
+
+.thumbnail:hover {
+  background-color: rgba(242, 242, 242, 1);
+  border-color: rgba(110, 116, 128, 1);
+  color: black;
+}
+
+.thumbnail.connected {
+  opacity: 0.5;
+}
+
+.thumbnail.connected:hover {
+  border-color: rgba(184, 184, 184, 1);
+  color: rgb(110, 116, 128);
+}
+
+.item {
+  display: inline-block;
+  margin: 5px;
+  margin-top: 15px;
+  height: 162px;
+  vertical-align: top;
+  width: 222px;
+}
+
+.text {
+  background: no-repeat 0;
+  background-size: 16px;
+  font-size: 12px;
+  margin: 4px 0px 0px 4px;
+  overflow: hidden;
+  padding: 2px 0px 0px 20px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
 
 <script>
+
 function onLoad() {
   var appListRequest = new XMLHttpRequest();
   appListRequest.open("GET", "/json/list?t=" + new Date().getTime(), true);
@@ -36,8 +109,18 @@ function appendItem(itemObject) {
     frontendRef = document.createElement("div");
     frontendRef.title = "The app already has active debugging session";
   }
+  frontendRef.className = 'frontend_ref';
+
+  var thumbnail = document.createElement('div');
+  thumbnail.className = itemObject.devtoolsFrontendUrl ?
+                        'thumbnail' : 'thumbnail connected';
+  thumbnail.style.cssText = 'background-image:url(' +
+                        itemObject.thumbnailUrl +
+                        ')';
+  frontendRef.appendChild(thumbnail);
 
   var text = document.createElement("div");
+  text.className = 'text';
   if (frontendRef.title)
     text.innerText = frontendRef.title;
   else
@@ -46,6 +129,7 @@ function appendItem(itemObject) {
   frontendRef.appendChild(text);
 
   var item = document.createElement("p");
+  item.className = 'item';
   item.appendChild(frontendRef);
 
   document.getElementById("items").appendChild(item);
@@ -55,5 +139,6 @@ function appendItem(itemObject) {
 <body onload='onLoad()'>
   <div id='caption'>Inspectable App</div>
   <div id='items'></div>
+  <hr>
 </body>
 </html>
