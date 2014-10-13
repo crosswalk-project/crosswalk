@@ -100,7 +100,7 @@ bool TizenDataFetcherSharedMemory::Start(content::ConsumerType type,
       return false;
   }
 
-  if (!started && SensorProvider::GetInstance())
+  if (!started && SensorProvider::GetInstance()->connected())
     SensorProvider::GetInstance()->AddObserver(this);
 
   return true;
@@ -130,7 +130,7 @@ bool TizenDataFetcherSharedMemory::Stop(content::ConsumerType type) {
   }
 
   if (!motion_buffer_ && !orientation_buffer_ &&
-      SensorProvider::GetInstance())
+      SensorProvider::GetInstance()->connected())
     SensorProvider::GetInstance()->RemoveObserver(this);
 
   return true;

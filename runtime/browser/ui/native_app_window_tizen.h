@@ -40,6 +40,7 @@ class NativeAppWindowTizen
   // SensorProvider::Observer overrides:
   virtual void OnScreenOrientationChanged(
       blink::WebScreenOrientationType orientation) OVERRIDE;
+  virtual void OnSensorConnected() OVERRIDE;
 
   // NativeAppWindowViews overrides:
   virtual void Initialize() OVERRIDE;

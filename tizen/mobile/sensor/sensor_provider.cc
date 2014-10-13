@@ -9,24 +9,27 @@
 
 namespace xwalk {
 
-// static
-bool SensorProvider::initialized_ = false;
-
 SensorProvider* SensorProvider::GetInstance() {
-  if (!initialized_) {
+  if (instance_.get() == NULL) {
     instance_.reset(new TizenPlatformSensor());
-    if (!instance_->Initialize())
-      instance_.reset();
+    instance_->Initialize();
   }
   return instance_.get();
 }
 
 SensorProvider::SensorProvider()
-    : last_orientation_(blink::WebScreenOrientationUndefined) {
+    : last_orientation_(blink::WebScreenOrientationUndefined),
+      connected_(false) {
 }
 
 SensorProvider::~SensorProvider() {
   Finish();
+}
+
+// Whether the platform sensors are connected.
+bool SensorProvider::connected() const {
+  base::AutoLock lock(lock_);
+  return connected_;
 }
 
 void SensorProvider::AddObserver(Observer* observer) {
@@ -70,6 +73,10 @@ void SensorProvider::OnRotationRateChanged(float alpha,
     (*it)->OnRotationRateChanged(alpha, beta, gamma);
 }
 
-scoped_ptr<SensorProvider> SensorProvider::instance_;
+void SensorProvider::OnSensorConnected() {
+  for (auto observer : observers_)
+    observer->OnSensorConnected();
+}
 
+scoped_ptr<SensorProvider> SensorProvider::instance_;
 }  // namespace xwalk
