@@ -68,6 +68,10 @@ XWalkBrowserMainPartsAndroid::~XWalkBrowserMainPartsAndroid() {
 void XWalkBrowserMainPartsAndroid::PreEarlyInitialization() {
   net::NetworkChangeNotifier::SetFactory(
       new net::NetworkChangeNotifierFactoryAndroid());
+  // As Crosswalk uses in-process mode, that's easier than Chromium
+  // to reach the default limit(1024) of open files per process on
+  // Android. So increase the limit to 4096 explicitly.
+  base::SetFdLimit(4096);
 
   CommandLine::ForCurrentProcess()->AppendSwitch(
       cc::switches::kCompositeToMailbox);
