@@ -152,5 +152,35 @@
         },
       ],
     },
+    {
+      'target_name': 'contactextension',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_java',
+      ],
+      'variables': {
+        'java_in_dir': 'app/tools/android/test_data/extensions/contactextension/',
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
+      'target_name': 'myextension',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_app_runtime_java',
+      ],
+      'variables': {
+        'java_in_dir': 'app/tools/android/test_data/extensions/myextension/',
+      },
+      'includes': ['../build/java.gypi'],
+    },
+    {
+      'target_name': 'xwalk_packaging_tool_test',
+      'type': 'none',
+      'dependencies': [
+        'contactextension',
+        'myextension',
+      ],
+    },
   ],
 }
