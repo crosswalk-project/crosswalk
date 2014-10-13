@@ -47,14 +47,6 @@ class RunningApplicationObject : public dbus::ManagedObject {
   void OnTerminate(dbus::MethodCall* method_call,
                    dbus::ExportedObject::ResponseSender response_sender);
 
-  void SetUserAgentStringOnIOThread(const std::string& user_agent_string);
-
-  void OnRemoveAllCookies(dbus::MethodCall* method_call,
-                   dbus::ExportedObject::ResponseSender response_sender);
-
-  void OnSetUserAgentString(dbus::MethodCall* method_call,
-                   dbus::ExportedObject::ResponseSender response_sender);
-
   void OnGetExtensionProcessChannel(
       dbus::MethodCall* method_call,
       dbus::ExportedObject::ResponseSender response_sender);
@@ -68,6 +60,13 @@ class RunningApplicationObject : public dbus::ManagedObject {
 
   void OnResume(dbus::MethodCall* method_call,
                 dbus::ExportedObject::ResponseSender response_sender);
+
+  void OnRemoveAllCookies(dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender);
+
+  void SetUserAgentStringOnIOThread(const std::string& user_agent_string);
+  void OnSetUserAgentString(dbus::MethodCall* method_call,
+                   dbus::ExportedObject::ResponseSender response_sender);
 #endif
 
   void ListenForOwnerChange();
