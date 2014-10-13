@@ -252,8 +252,8 @@ install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
 install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
 install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
-install -p -D src/out/Release/lib/libxwalk-backendlib.so %{buildroot}%{_libdir}/xwalk/libxwalk-backendlib.so
-install -p -D src/xwalk/application/tools/tizen/xwalk_backend_wrapper.sh %{buildroot}%{_libdir}/xwalk/xwalk_backend_wrapper.sh
+install -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
+install -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
 
 # Supporting libraries and resources.
 install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
@@ -280,10 +280,10 @@ install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 mkdir -p %{_desktop_icondir_ro}
 mkdir -p %{_manifestdir_ro}
 
-ln -sf %{_libdir}/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libxpk.so
-ln -sf %{_libdir}/xwalk/libxwalk-backendlib.so /etc/package-manager/backendlib/libwgt.so
-ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/xpk
-ln -sf %{_libdir}/xwalk/xwalk_backend_wrapper.sh /etc/package-manager/backend/wgt
+ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libxpk.so
+ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libwgt.so
+ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/xpk
+ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/wgt
 
 %preun
 if [ $1 -eq 0 ] ; then
@@ -310,8 +310,8 @@ fi
 %endif
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
-%{_libdir}/xwalk/libxwalk-backendlib.so
-%{_libdir}/xwalk/xwalk_backend_wrapper.sh
+%{_libdir}/xwalk/libxwalk_backend_lib.so
+%{_libdir}/xwalk/xwalk_backend
 %{_manifestdir}/%{name}.xml
 %{_desktop_icondir}/%{name}.png
 %{_dbusservicedir}/org.crosswalkproject.Runtime1.service
