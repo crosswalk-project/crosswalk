@@ -139,9 +139,9 @@ void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
 
 void Runtime::LoadURL(const GURL& url) {
   content::NavigationController::LoadURLParams params(url);
-  params.transition_type = content::PageTransitionFromInt(
-      content::PAGE_TRANSITION_TYPED |
-      content::PAGE_TRANSITION_FROM_ADDRESS_BAR);
+  params.transition_type = ui::PageTransitionFromInt(
+      ui::PAGE_TRANSITION_TYPED |
+      ui::PAGE_TRANSITION_FROM_ADDRESS_BAR);
   web_contents_->GetController().LoadURLWithParams(params);
   web_contents_->Focus();
 }

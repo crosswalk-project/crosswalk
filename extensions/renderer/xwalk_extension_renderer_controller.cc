@@ -131,7 +131,7 @@ void XWalkExtensionRendererController::DidCreateScriptContext(
 }
 
 void XWalkExtensionRendererController::WillReleaseScriptContext(
-    blink::WebFrame* frame, v8::Handle<v8::Context> context) {
+    blink::WebLocalFrame* frame, v8::Handle<v8::Context> context) {
   v8::Context::Scope contextScope(context);
   XWalkModuleSystem::ResetModuleSystemFromContext(context);
 }

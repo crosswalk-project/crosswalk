@@ -12,6 +12,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/waitable_event.h"
 #include "content/public/renderer/render_process_observer.h"
+#include "third_party/WebKit/public/web/WebFrame.h"
 #include "v8/include/v8.h"
 
 namespace content {
@@ -53,7 +54,7 @@ class XWalkExtensionRendererController : public content::RenderProcessObserver {
   // destroy extensions contexts appropriatedly.
   void DidCreateScriptContext(blink::WebFrame* frame,
                               v8::Handle<v8::Context> context);
-  void WillReleaseScriptContext(blink::WebFrame* frame,
+  void WillReleaseScriptContext(blink::WebLocalFrame* frame,
                                 v8::Handle<v8::Context> context);
 
   // RenderProcessObserver implementation.

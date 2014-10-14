@@ -4,7 +4,11 @@
 
 #include "xwalk/application/browser/application_service.h"
 
+#if defined(OS_MACOSX)
+#include <ext/hash_set>
+#else
 #include <hash_set>
+#endif
 #include <set>
 #include <string>
 #include <vector>
@@ -92,7 +96,7 @@ Application* ApplicationService::LaunchFromManifestPath(
   scoped_refptr<ApplicationData> application_data = ApplicationData::Create(
       app_path, std::string(), ApplicationData::LOCAL_DIRECTORY,
       manifest.Pass(), &error);
-  if (!application_data) {
+  if (!application_data.get()) {
     LOG(ERROR) << "Error occurred while trying to load application: "
                << error;
     return NULL;
@@ -132,7 +136,7 @@ Application* ApplicationService::LaunchFromPackagePath(
   scoped_refptr<ApplicationData> application_data = LoadApplication(
       target_dir, std::string(), ApplicationData::TEMP_DIRECTORY,
       package->manifest_type(), &error);
-  if (!application_data) {
+  if (!application_data.get()) {
     LOG(ERROR) << "Error occurred while trying to load application: "
                << error;
     return NULL;
@@ -168,7 +172,7 @@ Application* ApplicationService::LaunchHostedURL(
   scoped_refptr<ApplicationData> app_data =
         ApplicationData::Create(base::FilePath(), app_id,
         ApplicationData::EXTERNAL_URL, manifest.Pass(), &error);
-  DCHECK(app_data);
+  DCHECK(app_data.get());
 
   return Launch(app_data, params);
 }

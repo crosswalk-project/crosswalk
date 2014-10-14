@@ -15,12 +15,12 @@ namespace xwalk {
 DBusManager::DBusManager() {}
 
 DBusManager::~DBusManager() {
-  if (session_bus_)
+  if (session_bus_.get())
     session_bus_->ShutdownOnDBusThreadAndBlock();
 }
 
 scoped_refptr<dbus::Bus> DBusManager::session_bus() {
-  if (!session_bus_) {
+  if (!session_bus_.get()) {
     base::Thread::Options thread_options;
     thread_options.message_loop_type = base::MessageLoop::TYPE_IO;
     std::string thread_name = "Crosswalk D-Bus thread";

@@ -65,7 +65,7 @@ Application* ApplicationServiceTizen::LaunchFromAppID(
 
   scoped_refptr<ApplicationData> app_data =
     application_storage_->GetApplicationData(id);
-  if (!app_data) {
+  if (!app_data.get()) {
     LOG(ERROR) << "Application with id " << id << " is not installed.";
     return NULL;
   }

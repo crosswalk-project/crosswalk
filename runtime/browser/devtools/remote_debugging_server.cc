@@ -7,20 +7,40 @@
 #include "xwalk/runtime/browser/devtools/xwalk_devtools_delegate.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "content/public/browser/devtools_http_handler.h"
-#include "net/socket/tcp_listen_socket.h"
+#include "net/socket/tcp_server_socket.h"
 
 namespace xwalk {
+
+class TCPServerSocketFactory
+    : public content::DevToolsHttpHandler::ServerSocketFactory {
+ public:
+  TCPServerSocketFactory(const std::string& address, int port, int backlog)
+      : content::DevToolsHttpHandler::ServerSocketFactory(
+            address, port, backlog) {}
+
+ private:
+  // content::DevToolsHttpHandler::ServerSocketFactory.
+  virtual scoped_ptr<net::ServerSocket> Create() const OVERRIDE {
+    return scoped_ptr<net::ServerSocket>(
+        new net::TCPServerSocket(NULL, net::NetLog::Source()));
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(TCPServerSocketFactory);
+};
 
 RemoteDebuggingServer::RemoteDebuggingServer(
     RuntimeContext* runtime_context,
     const std::string& ip,
     int port,
     const std::string& frontend_url) {
+  base::FilePath output_dir;
+  scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
+      new TCPServerSocketFactory(ip, port, 1));
   devtools_http_handler_ = content::DevToolsHttpHandler::Start(
-      new net::TCPListenSocketFactory(ip, port),
+      factory.Pass(),
       frontend_url,
-      new XWalkDevToolsDelegate(runtime_context),
-      base::FilePath());
+      new XWalkDevToolsHttpHandlerDelegate(),
+      output_dir);
 }
 
 RemoteDebuggingServer::~RemoteDebuggingServer() {

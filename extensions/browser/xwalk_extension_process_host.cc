@@ -122,7 +122,8 @@ XWalkExtensionProcessHost::XWalkExtensionProcessHost(
       is_extension_process_channel_ready_(false),
       delegate_(delegate),
       runtime_variables_(runtime_variables.Pass()) {
-  render_process_host_->GetChannel()->AddFilter(render_process_message_filter_);
+  render_process_host_->GetChannel()->AddFilter(
+      render_process_message_filter_.get());
   BrowserThread::PostTask(BrowserThread::IO, FROM_HERE,
       base::Bind(&XWalkExtensionProcessHost::StartProcess,
       base::Unretained(this)));

@@ -64,7 +64,7 @@ void TCPSocketObject::DoRead() {
   if (!socket_->IsConnected())
     return;
 
-  int ret = socket_->Read(read_buffer_,
+  int ret = socket_->Read(read_buffer_.get(),
                           kBufferSize,
                           base::Bind(&TCPSocketObject::OnRead,
                                      base::Unretained(this)));
@@ -147,7 +147,7 @@ void TCPSocketObject::OnSendString(
 
   memcpy(write_buffer_->data(), params->data.data(), params->data.size());
 
-  int ret = socket_->Write(write_buffer_,
+  int ret = socket_->Write(write_buffer_.get(),
                            params->data.size(),
                            base::Bind(&TCPSocketObject::OnWrite,
                                       base::Unretained(this)));

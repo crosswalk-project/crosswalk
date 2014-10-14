@@ -54,7 +54,7 @@ void UDPSocketObject::DoRead() {
 
   is_reading_ = true;
 
-  int ret = socket_->RecvFrom(read_buffer_,
+  int ret = socket_->RecvFrom(read_buffer_.get(),
                               kBufferSize,
                               &from_,
                               base::Bind(&UDPSocketObject::OnRead,
@@ -252,7 +252,7 @@ void UDPSocketObject::OnSend(int status) {
   }
 
   int ret = socket_->SendTo(
-      write_buffer_,
+      write_buffer_.get(),
       write_buffer_size_,
       addresses_[0],
       base::Bind(&UDPSocketObject::OnWrite, base::Unretained(this)));

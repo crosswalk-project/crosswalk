@@ -11,8 +11,8 @@
 
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
-#include "content/browser/screen_orientation/screen_orientation_dispatcher_host.h"
-#include "content/browser/screen_orientation/screen_orientation_provider.h"
+#include "content/public/browser/screen_orientation_dispatcher_host.h"
+#include "content/public/browser/screen_orientation_provider.h"
 
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime_url_request_context_getter.h"

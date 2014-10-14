@@ -50,7 +50,7 @@ bool URLHasAppOrFileScheme(const GURL& url) {
 };  // namespace
 
 bool XWalkContentRendererClientTizen::WillSendRequest(
-    blink::WebFrame* frame, content::PageTransition transition_type,
+    blink::WebFrame* frame, ui::PageTransition transition_type,
     const GURL& url, const GURL& first_party_for_cookies, GURL* new_url) {
   DCHECK(new_url);
 

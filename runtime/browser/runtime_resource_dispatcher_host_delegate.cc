@@ -44,8 +44,6 @@ void RuntimeResourceDispatcherHostDelegate::RequestBeginning(
     content::ResourceContext* resource_context,
     content::AppCacheService* appcache_service,
     content::ResourceType resource_type,
-    int child_id,
-    int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
 }
 

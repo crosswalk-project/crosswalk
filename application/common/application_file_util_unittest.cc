@@ -43,7 +43,7 @@ TEST_F(ApplicationFileUtilTest, LoadApplicationWithValidPath) {
   scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
           Manifest::TYPE_MANIFEST, &error));
-  ASSERT_TRUE(application != NULL);
+  ASSERT_TRUE(application.get() != NULL);
   EXPECT_EQ("The first application that I made.", application->Description());
 }
 
@@ -63,7 +63,7 @@ TEST_F(ApplicationFileUtilTest,
   scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
           Manifest::TYPE_WIDGET, &error));
-  ASSERT_TRUE(application == NULL);
+  ASSERT_TRUE(application.get() == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest file is missing or unreadable.", error.c_str());
 }
@@ -84,7 +84,7 @@ TEST_F(ApplicationFileUtilTest,
   scoped_refptr<ApplicationData> application(LoadApplication(
           install_dir, std::string(), ApplicationData::LOCAL_DIRECTORY,
           Manifest::TYPE_MANIFEST, &error));
-  ASSERT_TRUE(application == NULL);
+  ASSERT_TRUE(application.get() == NULL);
   ASSERT_FALSE(error.empty());
   ASSERT_STREQ("Manifest is not valid JSON."
                "  Line: 2, column: 16, Syntax error.",

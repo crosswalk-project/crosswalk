@@ -11,7 +11,7 @@
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_view.h"
 #include "third_party/WebKit/public/web/WebDocument.h"
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebView.h"
 #include "ui/events/keycodes/keyboard_codes_posix.h"
@@ -81,7 +81,7 @@ void XWalkRenderViewExtTizen::OnHWKeyPressed(int keycode) {
   }
 
   content::RenderFrame* render_frame = render_view_->GetMainRenderFrame();
-  blink::WebFrame* web_frame = render_frame->GetWebFrame();
+  blink::WebLocalFrame* web_frame = render_frame->GetWebFrame();
   blink::WebScriptSource source =
       blink::WebScriptSource(base::ASCIIToUTF16(GenerateEventJs(event_name)));
   web_frame->executeScript(source);

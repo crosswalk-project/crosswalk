@@ -22,13 +22,13 @@ import org.chromium.base.ApplicationStatusManager;
 import org.chromium.base.CommandLine;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.PathUtils;
+import org.chromium.base.ResourceExtractor;
+import org.chromium.base.ResourceExtractor.ResourceIntercepter;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.base.library_loader.ProcessInitException;
 import org.chromium.content.browser.BrowserStartupController;
 import org.chromium.content.browser.DeviceUtils;
-import org.chromium.content.browser.ResourceExtractor;
-import org.chromium.content.browser.ResourceExtractor.ResourceIntercepter;
 import org.chromium.net.NetworkChangeNotifier;
 
 @JNINamespace("xwalk")

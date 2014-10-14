@@ -26,6 +26,12 @@ deps = {
 
 hooks = [
   {
+    # Remove separate src/third_party/speex checkout from M39 on.
+    "name": "fix-speex-checkout",
+    "pattern": ".",
+    "action": ["python", "src/xwalk/tools/fix-speex-checkout.py"],
+  },
+  {
     # Generate .gclient-xwalk for Crosswalk's dependencies.
     "name": "generate-gclient-xwalk",
     "pattern": ".",

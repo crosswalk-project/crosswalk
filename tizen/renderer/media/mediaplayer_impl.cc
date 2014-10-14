@@ -13,9 +13,9 @@ namespace tizen {
 MediaPlayerImpl::MediaPlayerImpl(
     blink::WebLocalFrame* frame,
     blink::WebMediaPlayerClient* client,
-    base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
+    base::WeakPtr<media::WebMediaPlayerDelegate> delegate,
     RendererMediaPlayerManager* manager,
-    const content::WebMediaPlayerParams& params)
+    const media::WebMediaPlayerParams& params)
     : WebMediaPlayerImpl(frame, client, delegate, params),
       client_(client),
       manager_(manager) {

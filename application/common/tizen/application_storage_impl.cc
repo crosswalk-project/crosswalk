@@ -96,7 +96,7 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
   scoped_refptr<ApplicationData> app_data =
      LoadApplication(
          app_path, app_id, ApplicationData::INTERNAL, manifest_type, &error);
-  if (!app_data)
+  if (!app_data.get())
     LOG(ERROR) << "Error occurred while trying to load application: " << error;
 
   return app_data;
