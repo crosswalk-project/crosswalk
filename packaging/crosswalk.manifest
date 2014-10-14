@@ -6,5 +6,6 @@
     <filesystem path="/usr/bin/xwalk" exec_label="User" />
     <filesystem path="/usr/bin/xwalkctl" exec_label="User" />
     <filesystem path="/usr/bin/xwalk-launcher" exec_label="User" />
+    <filesystem path="/usr/lib64/xwalk/xwalk_backend" exec_label="User" />
  </assign>
 </manifest>

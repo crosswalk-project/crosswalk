@@ -6,19 +6,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-
 #include <glib.h>
 #include <gio/gio.h>
-#include <locale.h>
 
 #include "base/at_exit.h"
 #include "base/files/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
-
-#include "dbus/bus.h"
-#include "dbus/message.h"
-#include "dbus/object_proxy.h"
 
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
@@ -39,16 +33,13 @@ char* reinstall_path = NULL;
 char* operation_key = NULL;
 int quiet = 0;
 
-gint debugging_port = -1;
 gboolean continue_tasks = FALSE;
 
 GOptionEntry entries[] = {
   { "install", 'i', 0, G_OPTION_ARG_STRING, &install_path,
     "Path of the application to be installed/updated", "PATH" },
-  { "uninstall", 'u', 0, G_OPTION_ARG_STRING, &uninstall_id,
+  { "uninstall", 'd', 0, G_OPTION_ARG_STRING, &uninstall_id,
     "Uninstall the application with this appid/pkgid", "ID" },
-  { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
-    "Enable remote debugging, port number 0 means to disable", NULL },
   { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
     "Continue the previous unfinished tasks.", NULL},
   { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_path,
@@ -62,70 +53,7 @@ GOptionEntry entries[] = {
 
 }  // namespace
 
-#if defined(SHARED_PROCESS_MODE)
-namespace {
-
-const char xwalk_service_name[] = "org.crosswalkproject.Runtime1";
-const char xwalk_running_manager_iface[] =
-    "org.crosswalkproject.Running.Manager1";
-const dbus::ObjectPath kRunningManagerDBusPath("/running1");
-
-bool enable_remote_debugging(gint debugging_port) {
-  dbus::Bus::Options options;
-#if defined(OS_TIZEN_MOBILE)
-  options.bus_type = dbus::Bus::CUSTOM_ADDRESS;
-  options.address.assign("unix:path=/run/user/app/dbus/user_bus_socket");
-#endif
-  scoped_refptr<dbus::Bus> bus(new dbus::Bus(options));
-  dbus::ObjectProxy* app_proxy =
-      bus->GetObjectProxy(
-          xwalk_service_name,
-          kRunningManagerDBusPath);
-  if (!app_proxy)
-    return false;
-
-  dbus::MethodCall method_call(
-      xwalk_running_manager_iface, "EnableRemoteDebugging");
-  dbus::MessageWriter writer(&method_call);
-  writer.AppendUint32(debugging_port);
-
-  app_proxy->CallMethodAndBlock(&method_call, 1000);
-
-  if (debugging_port > 0) {
-    g_print("Remote debugging enabled at port '%d'\n", debugging_port);
-  } else {
-    g_print("Remote debugging has been disabled\n");
-  }
-  return true;
-}
-
-}  // namespace
-#endif
-
-bool list_applications(ApplicationStorage* storage) {
-  std::vector<std::string> app_ids;
-  if (!storage->GetInstalledApplicationIDs(app_ids))
-    return false;
-
-  g_print("Application ID                       Application Name\n");
-  g_print("-----------------------------------------------------\n");
-  for (unsigned i = 0; i < app_ids.size(); ++i) {
-    scoped_refptr<ApplicationData> app_data =
-        storage->GetApplicationData(app_ids.at(i));
-    if (!app_data) {
-      g_print("Failed to obtain app data for xwalk id: %s\n",
-              app_ids.at(i).c_str());
-      continue;
-    }
-    g_print("%s  %s\n", app_ids.at(i).c_str(), app_data->Name().c_str());
-  }
-  g_print("-----------------------------------------------------\n");
-
-  return true;
-}
-
 int main(int argc, char* argv[]) {
-  setlocale(LC_ALL, "");
   GError* error = NULL;
   GOptionContext* context;
   bool success = false;
@@ -185,16 +113,6 @@ int main(int argc, char* argv[]) {
   } else if (reinstall_path) {
     success = installer->Reinstall(
         base::MakeAbsoluteFilePath(base::FilePath(reinstall_path)));
-  } else if (debugging_port >= 0) {
-#if defined(SHARED_PROCESS_MODE)
-    // Deal with the case "xwalkctl -d PORT_NUMBER"
-    success = enable_remote_debugging(debugging_port);
-#else
-    g_print("Couldn't enable remote debugging for no shared process mode!");
-#endif
-  } else if (!continue_tasks) {
-    success = list_applications(storage.get());
   }
-
   return success ? 0 : 1;
 }

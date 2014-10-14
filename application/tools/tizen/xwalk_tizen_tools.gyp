@@ -1,21 +1,19 @@
 {
   'targets': [
     {
-      'target_name': 'xwalkctl',
+      'target_name': 'xwalk_backend',
       'type': 'executable',
-      'product_name': 'xwalkctl',
+      'product_name': 'xwalk_backend',
       'dependencies': [
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
         '../../../build/system.gyp:gio',
-        '../../../../build/linux/system.gyp:dbus',
-        '../../../../dbus/dbus.gyp:dbus',
         '../../../build/system.gyp:tizen',
       ],
       'include_dirs': [
         '../../../..',
       ],
       'sources': [
-        'xwalkctl_main.cc',
+        'xwalk_backend.cc',
         'xwalk_package_installer.cc',
         'xwalk_package_installer.h',
         'xwalk_packageinfo_constants.cc',
@@ -32,9 +30,9 @@
       ],
     },
     {
-      'target_name': 'xwalk-backendlib',
+      'target_name': 'xwalk_backend_lib',
       'type': 'shared_library',
-      'product_name': 'xwalk-backendlib',
+      'product_name': 'xwalk_backend_lib',
       'dependencies': [
         '../../../build/system.gyp:tizen',
         '../../../../base/base.gyp:base',
