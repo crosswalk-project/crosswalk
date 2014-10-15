@@ -32,7 +32,7 @@ public class XWalkApplication extends Application {
         mRes = new XWalkMixedResources(super.getResources(), res);
     }
 
-    static XWalkApplication getApplication() {
+    public static XWalkApplication getApplication() {
         return gApp;
     }
 }
