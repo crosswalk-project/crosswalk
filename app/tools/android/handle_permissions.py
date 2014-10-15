@@ -38,6 +38,7 @@ permission_mapping_table = {
     'devicecapabilities': [],
     'fullscreen': [],
     'iap': ['com.android.vending.BILLING'],
+    'nfc': ['android.permission.NFC'],
     'presentation': [],
     'rawsockets': [],
     'screenorientation': [],
