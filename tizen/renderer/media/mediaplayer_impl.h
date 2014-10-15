@@ -9,20 +9,20 @@
 
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
-#include "content/renderer/media/webmediaplayer_impl.h"
+#include "media/blink/webmediaplayer_impl.h"
 #include "xwalk/tizen/renderer/media/renderer_mediaplayer_manager.h"
 
 namespace tizen {
 
 // Substitute for WebMediaPlayerImpl to be used in Tizen.
-class MediaPlayerImpl : public content::WebMediaPlayerImpl {
+class MediaPlayerImpl : public media::WebMediaPlayerImpl {
  public:
   MediaPlayerImpl(
       blink::WebLocalFrame* frame,
       blink::WebMediaPlayerClient* client,
-      base::WeakPtr<content::WebMediaPlayerDelegate> delegate,
+      base::WeakPtr<media::WebMediaPlayerDelegate> delegate,
       RendererMediaPlayerManager* manager,
-      const content::WebMediaPlayerParams& params);
+      const media::WebMediaPlayerParams& params);
   virtual ~MediaPlayerImpl();
 
   // WebMediaPlayerImpl method.

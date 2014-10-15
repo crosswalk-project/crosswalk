@@ -71,7 +71,7 @@ int PkgmgrBackendPlugin::DetailedInfo(
 
   scoped_refptr<xwalk::application::ApplicationData> app_data =
       storage_->GetApplicationData(app_id);
-  if (!app_data)
+  if (!app_data.get())
     return kPkgmgrPluginFalse;
 
   SaveDetailInfo(app_data, pkg_detail_info);

@@ -12,7 +12,9 @@
 # are not present.
 %define _disable_nacl 1
 %else
-%define _disable_nacl 0
+# Since M39, Google has stopped shipping a 32-bit PNaCl toolchain, so we cannot
+# build NaCl on a fully 32-bit host anymore. See XWALK-2679.
+%define _disable_nacl 1
 %endif
 
 # adjust compression algorithm to speed up RPMS creation
@@ -22,7 +24,7 @@
 %define _binary_payload w3.gzdio
 
 Name:           crosswalk
-Version:        10.38.225.0
+Version:        10.39.225.0
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
@@ -189,7 +191,7 @@ if [ -n "${BUILDDIR_NAME}" ]; then
 fi
 
 %if %{with wayland}
-GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1 -Denable_ozone_wayland_vkb=1 -Denable_xdg_shell=1"
+GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Duse_ozone=1"
 %endif
 
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Ddisable_nacl=%{_disable_nacl}"

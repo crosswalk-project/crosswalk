@@ -14,8 +14,8 @@
 #include "components/nacl/common/nacl_process_type.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/user_agent.h"
-#include "content/public/common/pepper_plugin_info.h"
 #if !defined(DISABLE_NACL)
+#include "content/public/common/pepper_plugin_info.h"
 #include "ppapi/native_client/src/trusted/plugin/ppapi_entrypoints.h"
 #include "ppapi/shared_impl/ppapi_permissions.h"
 #endif

@@ -32,7 +32,7 @@ class ObjectManagerAdaptor {
   ManagedObject* GetManagedObject(const ObjectPath& path);
 
   ExportedObject* manager_object() const { return manager_object_; }
-  Bus* bus() const { return bus_; }
+  Bus* bus() const { return bus_.get(); }
 
  private:
   void OnGetManagedObjects(

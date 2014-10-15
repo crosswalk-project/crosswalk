@@ -218,8 +218,6 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
     content::ResourceContext* resource_context,
     content::AppCacheService* appcache_service,
     content::ResourceType resource_type,
-    int child_id,
-    int route_id,
     ScopedVector<content::ResourceThrottle>* throttles) {
   const content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
@@ -238,12 +236,12 @@ void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
   // be non-NULL but PopupPendingAssociation() will be set.
   scoped_ptr<XWalkContentsIoThreadClient> io_client =
       XWalkContentsIoThreadClient::FromID(
-          child_id, request_info->GetRenderFrameID());
+          request_info->GetChildID(), request_info->GetRenderFrameID());
   if (!io_client)
     return;
 
   throttles->push_back(new IoThreadClientThrottle(
-      child_id, request_info->GetRenderFrameID(), request));
+      request_info->GetChildID(), request_info->GetRenderFrameID(), request));
 }
 
 void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(

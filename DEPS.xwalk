@@ -17,10 +17,10 @@
 # Edit these when rolling DEPS.xwalk.
 # -----------------------------------
 
-chromium_crosswalk_rev = '3fabef582131e8316b4ec54c2c470201e420b20a'
-blink_crosswalk_rev = 'ff1bd917dd26c41235d166ed2205fb935460149e'
-v8_crosswalk_rev = '5b096777487fa2509db474ff338db84178085574'
-ozone_wayland_rev = '0f8b830730d9b696a667c331c50ac6333bb85c13'
+chromium_crosswalk_rev = '4e78cd026ad6b9158f6a29bc15606c6a25d5cb2e'
+blink_crosswalk_rev = 'ed2bae8ced284782cbd55f1597e02d6ee621621b'
+v8_crosswalk_rev = '83372d40b7585fbbce96bca7866c7a96a5e3a74f'
+ozone_wayland_rev = '6f1674ee4d554444cd5c48a3665b61d20be210b8'
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
@@ -41,14 +41,6 @@ solutions = [
         crosswalk_git + '/blink-crosswalk.git@' + blink_crosswalk_rev,
       'src/v8':
         crosswalk_git + '/v8-crosswalk.git@' + v8_crosswalk_rev,
-
-      # Temporarily switch to a more recent WebRTC version that includes its
-      # r6909, which, together with r6853, fixes the problems described in
-      # XWALK-2160.
-      # See also: https://code.google.com/p/webrtc/issues/detail?id=3625
-      'src/third_party/webrtc':
-        'https://chromium.googlesource.com/external/webrtc/trunk/webrtc.git@'
-           'cdc312345fcdfc586a7c8cd720407449cc0bdcd2',
 
       # Include OpenCL header files for WebCL support, target version 1.2.
       'src/third_party/khronos/CL':

@@ -13,8 +13,8 @@ import android.util.Log;
 import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 import org.chromium.content.browser.ContentViewCore;
-import org.chromium.content.browser.NavigationEntry;
-import org.chromium.content.browser.NavigationHistory;
+import org.chromium.content_public.browser.NavigationEntry;
+import org.chromium.content_public.browser.NavigationHistory;
 import org.chromium.net.test.util.TestWebServer;
 
 import org.xwalk.core.XWalkNavigationHistory;

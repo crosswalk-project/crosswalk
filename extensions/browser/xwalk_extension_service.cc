@@ -106,7 +106,7 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
 
     if (ContainsKey(extension_thread_instances_ids_, id)) {
       server = extension_thread_server_;
-      task_runner = task_runner_;
+      task_runner = task_runner_.get();
     } else {
       server = ui_thread_server_;
       task_runner_ref =
@@ -129,7 +129,7 @@ class ExtensionServerMessageFilter : public IPC::MessageFilter,
     if (extension_thread_server_->ContainsExtension(name)) {
       extension_thread_instances_ids_.insert(instance_id);
       server = extension_thread_server_;
-      task_runner = task_runner_;
+      task_runner = task_runner_.get();
     } else {
       server = ui_thread_server_;
       task_runner_ref =

@@ -93,7 +93,7 @@ Application::Application(
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
-  DCHECK(data_);
+  DCHECK(data_.get());
 }
 
 Application::~Application() {

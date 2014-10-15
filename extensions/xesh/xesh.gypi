@@ -14,7 +14,6 @@
         '../third_party/WebKit/public/blink.gyp:blink',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
-        '../webkit/child/webkit_child.gyp:webkit_child',
         'extensions/extensions.gyp:xwalk_extensions',
       ],
       'include_dirs': [

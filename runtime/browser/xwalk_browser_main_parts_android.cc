@@ -19,13 +19,13 @@
 #include "content/public/browser/cookie_store_factory.h"
 #include "content/public/common/content_switches.h"
 #include "content/public/common/result_codes.h"
-#include "grit/net_resources.h"
 #include "net/android/network_change_notifier_factory_android.h"
 #include "net/base/network_change_notifier.h"
 #include "net/base/net_module.h"
 #include "net/base/net_util.h"
 #include "net/cookies/cookie_monster.h"
 #include "net/cookies/cookie_store.h"
+#include "net/grit/net_resources.h"
 #include "ui/base/layout.h"
 #include "ui/base/l10n/l10n_util_android.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -103,12 +103,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kDisableWebRtcHWDecoding);
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 #endif
-
-  // For fullscreen video playback, the ContentVideoView is still buggy, so
-  // we switch back to ContentVideoViewLegacy for temp.
-  // TODO(shouqun): Remove this flag when ContentVideoView is ready.
-  command_line->AppendSwitch(
-      switches::kDisableOverlayFullscreenVideoSubtitle);
 
   command_line->AppendSwitch(switches::kEnableViewportMeta);
 

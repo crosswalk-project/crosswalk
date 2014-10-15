@@ -32,7 +32,7 @@
 #include "xwalk/runtime/renderer/android/xwalk_render_process_observer.h"
 #include "xwalk/runtime/renderer/android/xwalk_render_view_ext.h"
 #else
-#include "third_party/WebKit/public/web/WebFrame.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 #endif
 
 #if defined(OS_TIZEN)
@@ -79,7 +79,7 @@ class XWalkFrameHelper
 
 #if defined(OS_TIZEN)
   virtual void DidCommitProvisionalLoad(bool is_new_navigation) OVERRIDE {
-    blink::WebFrame* frame = render_frame()->GetWebFrame();
+    blink::WebLocalFrame* frame = render_frame()->GetWebFrame();
     GURL url(frame->document().url());
     if (url.SchemeIs(application::kApplicationScheme)) {
       blink::WebSecurityOrigin origin = frame->document().securityOrigin();
@@ -213,7 +213,7 @@ bool XWalkContentRendererClient::IsLinkVisited(unsigned long long link_hash) { /
 #endif
 
 bool XWalkContentRendererClient::WillSendRequest(blink::WebFrame* frame,
-                     content::PageTransition transition_type,
+                     ui::PageTransition transition_type,
                      const GURL& url,
                      const GURL& first_party_for_cookies,
                      GURL* new_url) {

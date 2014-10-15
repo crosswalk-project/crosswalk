@@ -127,7 +127,7 @@ TEST_F(WidgetHandlerTest, ParseManifestWithOnlyNameAndVersion) {
   manifest.SetString(keys::kVersionKey, "0");
 
   scoped_refptr<ApplicationData> application = CreateApplication(manifest);
-  EXPECT_TRUE(application);
+  EXPECT_TRUE(application.get());
 
   WidgetInfo* info = GetWidgetInfo(application);
   int size = info->GetWidgetInfo()->size();
@@ -163,7 +163,7 @@ TEST_F(WidgetHandlerTest,
   // Create an application use this manifest.
   scoped_refptr<ApplicationData> application;
   application = CreateApplication(*(manifest.get()));
-  EXPECT_TRUE(application);
+  EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   // Get widget info from this application.
   WidgetInfo* info = GetWidgetInfo(application);
