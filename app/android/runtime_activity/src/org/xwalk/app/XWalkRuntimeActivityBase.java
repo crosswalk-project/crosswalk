@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeView;
 import org.xwalk.core.SharedXWalkExceptionHandler;
 import org.xwalk.core.SharedXWalkView;
+import org.xwalk.core.XWalkApplication;
 import org.xwalk.core.XWalkPreferences;
 
 public abstract class XWalkRuntimeActivityBase extends Activity {
@@ -114,6 +116,11 @@ public abstract class XWalkRuntimeActivityBase extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (mRuntimeView != null) mRuntimeView.onActivityResult(requestCode, resultCode, data);
         if (mExtensionManager != null) mExtensionManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public Resources getResources() {
+        return XWalkApplication.getApplication().getResources();
     }
 
     private String getLibraryApkDownloadUrl() {
