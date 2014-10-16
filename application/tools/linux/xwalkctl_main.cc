@@ -5,6 +5,8 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include <limits>
+
 #include "base/at_exit.h"
 #include "base/logging.h"
 #include "base/memory/scoped_ptr.h"
@@ -22,7 +24,9 @@ using xwalk::application::ApplicationStorage;
 
 namespace {
 
-gint debugging_port = -1;
+const gint debugging_port_not_set = std::numeric_limits<gint>::min();
+
+gint debugging_port = debugging_port_not_set;
 GOptionEntry entries[] = {
   { "debugging_port", 'd', 0, G_OPTION_ARG_INT, &debugging_port,
     "Enable remote debugging, port number 0 means to disable", NULL },
@@ -35,7 +39,10 @@ const char kRunningManagerIface[] =
 const dbus::ObjectPath kRunningManagerDBusPath("/running1");
 
 bool EnableRemoteDebugging(int port) {
-  DCHECK_GE(port, 0);
+  if (port < 0) {
+    g_print("Remote debugging port cannot be negative\n");
+    return false;
+  }
   if (port >= 65535) {
     DLOG(ERROR) << "Invalid http debugger port number " << port;
     return false;
@@ -105,7 +112,7 @@ int main(int argc, char* argv[]) {
   g_option_context_free(context);
   base::AtExitManager at_exit;
 
-  if (debugging_port >= 0) {
+  if (debugging_port != debugging_port_not_set) {
     if (!EnableRemoteDebugging(static_cast<int>(debugging_port)))
       exit(1);
   } else {
