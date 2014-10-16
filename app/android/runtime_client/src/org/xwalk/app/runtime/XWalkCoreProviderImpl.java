@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.xwalk.app.XWalkRuntimeActivityBase;
 import org.xwalk.core.SharedXWalkView;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkPreferences;
@@ -26,10 +27,10 @@ class XWalkCoreProviderImpl implements XWalkRuntimeViewProvider {
     public XWalkCoreProviderImpl(Context context, Activity activity) {
         mContext = context;
         mActivity = activity;
-        init(context, activity);
+        init(context, (XWalkRuntimeActivityBase)activity);
     }
 
-    private void init(Context context, Activity activity) {
+    private void init(Context context, XWalkRuntimeActivityBase activity) {
         // TODO(yongsheng): do customizations for XWalkView. There will
         // be many callback classes which are needed to be implemented.
         mXWalkView = new SharedXWalkView(context, activity);
