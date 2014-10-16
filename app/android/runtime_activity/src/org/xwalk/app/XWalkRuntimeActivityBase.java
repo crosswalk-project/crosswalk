@@ -20,9 +20,10 @@ import org.xwalk.app.runtime.extension.XWalkRuntimeExtensionManager;
 import org.xwalk.app.runtime.XWalkRuntimeView;
 import org.xwalk.core.SharedXWalkExceptionHandler;
 import org.xwalk.core.SharedXWalkView;
+import org.xwalk.core.XWalkActivity;
 import org.xwalk.core.XWalkPreferences;
 
-public abstract class XWalkRuntimeActivityBase extends Activity {
+public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
 
     private static final String DEFAULT_LIBRARY_APK_URL = null;
 

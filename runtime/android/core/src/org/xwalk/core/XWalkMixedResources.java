@@ -4,9 +4,11 @@
 
 package org.xwalk.core;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
 /**
@@ -33,53 +35,98 @@ import android.util.TypedValue;
  */
 public class XWalkMixedResources extends Resources {
 
-    private Resources mExtend;
+    private Resources mLibraryResource;
 
-    XWalkMixedResources(Resources base, Resources extend) {
+    private boolean isCalledInLibrary() {
+        StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stack : stacks) {
+            String className = stack.getClassName();
+            if (className.startsWith("org.chromium") ||
+                    className.startsWith("org.xwalk.core.internal")) {
+                return true;
+            } else if (className.startsWith("org.xwalk.core") &&
+                    !className.endsWith("XWalkMixedResources")) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    XWalkMixedResources(Resources base, Resources libraryResources) {
         super(base.getAssets(), base.getDisplayMetrics(),
                 base.getConfiguration());
-        mExtend = extend;
+        mLibraryResource = libraryResources;
     }
 
     @Override
     public CharSequence getText(int id) throws NotFoundException {
+        boolean calledInLibrary = isCalledInLibrary();
         try {
-            return mExtend.getText(id);
+            if (calledInLibrary) return mLibraryResource.getText(id);
+            else return super.getText(id);
         } catch (NotFoundException e) {
-            return super.getText(id);
+            if (calledInLibrary) return super.getText(id);
+            else return mLibraryResource.getText(id);
         }
     }
 
     @Override
     public XmlResourceParser getLayout(int id) throws NotFoundException {
+        boolean calledInLibrary = isCalledInLibrary();
         try {
-            return mExtend.getLayout(id);
+            if (calledInLibrary) return mLibraryResource.getLayout(id);
+            else return super.getLayout(id);
         } catch (NotFoundException e) {
-            return super.getLayout(id);
+            if (calledInLibrary) return super.getLayout(id);
+            else return mLibraryResource.getLayout(id);
         }
     }
 
     @Override
     public void getValue(int id, TypedValue outValue, boolean resolveRefs) {
+        boolean calledInLibrary = isCalledInLibrary();
         try {
-            mExtend.getValue(id, outValue, resolveRefs);
+            if (calledInLibrary) mLibraryResource.getValue(id, outValue, resolveRefs);
+            else super.getValue(id, outValue, resolveRefs);
         } catch (NotFoundException e) {
-            super.getValue(id, outValue, resolveRefs);
+            if (calledInLibrary) super.getValue(id, outValue, resolveRefs);
+            else mLibraryResource.getValue(id, outValue, resolveRefs);
         }
     }
 
     @Override
     public void getValueForDensity(int id, int density, TypedValue outValue, boolean resolveRefs) {
+        boolean calledInLibrary = isCalledInLibrary();
         try {
-            mExtend.getValueForDensity(id, density, outValue, resolveRefs);
+            if (calledInLibrary) mLibraryResource.getValueForDensity(id, density, outValue, resolveRefs);
+            else super.getValueForDensity(id, density, outValue, resolveRefs);
         } catch (NotFoundException e) {
-            super.getValueForDensity(id, density, outValue, resolveRefs);
+            if (calledInLibrary) super.getValueForDensity(id, density, outValue, resolveRefs);
+            else mLibraryResource.getValueForDensity(id, density, outValue, resolveRefs);
         }
     }
 
     @Override
     public int getIdentifier(String name, String defType, String defPackage) {
-        int id = mExtend.getIdentifier(name, defType, defPackage);
-        return id != 0 ? id : super.getIdentifier(name, defType, defPackage);
+        boolean calledInLibrary = isCalledInLibrary();
+        if (calledInLibrary) {
+            int id = mLibraryResource.getIdentifier(name, defType, defPackage);
+            return id != 0 ? id : super.getIdentifier(name, defType, defPackage);
+        } else {
+            int id = super.getIdentifier(name, defType, defPackage);
+            return id != 0 ? id : mLibraryResource.getIdentifier(name, defType, defPackage);
+        }
+    }
+
+    @Override
+    public Drawable getDrawable(int id) {
+        boolean calledInLibrary = isCalledInLibrary();
+        try {
+            if (calledInLibrary) return mLibraryResource.getDrawable(id);
+            else return super.getDrawable(id);
+        } catch (NotFoundException e) {
+            if (calledInLibrary) return super.getDrawable(id);
+            else return mLibraryResource.getDrawable(id);
+        }
     }
 }
