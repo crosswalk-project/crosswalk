@@ -302,13 +302,26 @@ public class ReflectionHelper {
                 methodName = "getWrapper";
             }
             try {
-                method = clazz.getMethod(methodName);
+                method = clazz.getDeclaredMethod(methodName);
             } catch (NoSuchMethodException e) {
                 handleException(e);
             }
-            if (method != null) sBridgeWrapperMap.put(clazz, method);
+
+            if (method == null)  {
+                return invokeMethod(method, instance);
+            } else {
+                sBridgeWrapperMap.put(clazz, method);
+            }
         }
-        return invokeMethod(method, instance);
+
+        if (method.isAccessible()) return invokeMethod(method, instance);
+
+        // This is to enable the accessibility of getBridge temporarily.
+        // It's not public for documentation generating.
+        method.setAccessible(true);
+        Object ret = invokeMethod(method, instance);
+        method.setAccessible(false);
+        return ret;
     }
 
     private static boolean isWrapper() {
