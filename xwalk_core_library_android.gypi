@@ -73,19 +73,43 @@
       ],
     },
     {
+      'target_name': 'generate_resource_maps',
+      'type': 'none',
+      'dependencies': [
+        'xwalk_core_internal_java',
+      ],
+      'actions': [
+        {
+          'action_name': 'generate_resource_maps',
+          'message': 'Generating Resource Maps.',
+          'inputs': [
+            'build/android/generate_resource_map.py',
+          ],
+          'outputs': [
+            '<(PRODUCT_DIR)/generate_resource_maps_intermediate/always_run',
+          ],
+          'action': [
+            'python', 'build/android/generate_resource_map.py',
+            '--gen-dir', '<(PRODUCT_DIR)/gen',
+            '--resource-map-dir', '<(PRODUCT_DIR)/resource_map',
+          ],
+        },
+      ]
+    },
+    {
       'target_name': 'xwalk_core_internal_empty_embedder_apk',
       'type': 'none',
       'dependencies': [
         'libxwalkcore',
-        'xwalk_core_internal_java',
+        'generate_resource_maps',
       ],
       'variables': {
         'apk_name': '<(core_internal_empty_embedder_apk_name)',
         'java_in_dir': 'runtime/android/core_internal_empty',
         'native_lib_target': 'libxwalkcore',
         'is_test_apk': 1,
-        'additional_src_dirs': [
-           '<(DEPTH)/xwalk/runtime/android/core_internal/resource_map',
+        'generated_src_dirs': [
+           '<(PRODUCT_DIR)/resource_map',
         ],
       },
       'includes': [ '../build/java_apk.gypi' ],
