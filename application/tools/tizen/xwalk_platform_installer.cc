@@ -164,11 +164,11 @@ bool PlatformInstaller::UpdateApplication(const base::FilePath& xmlpath,
   return ret;
 }
 
-bool PlatformInstaller::ReinstallApplication() {
+bool PlatformInstaller::ReinstallApplication(const std::string& pkgid) {
   SendSignal(PKGMGR_START_KEY, PKGMGR_START_REINSTALL);
-  // FIXME not implemented, just send signal abotu failure
-  SendSignal(PKGMGR_END_KEY, ToEndStatus(false));
-  return false;
+  bool ret = ReinstallApplicationInternal(pkgid);
+  SendSignal(PKGMGR_END_KEY, ToEndStatus(ret));
+  return ret;
 }
 
 bool PlatformInstaller::InstallApplicationInternal(
@@ -315,6 +315,15 @@ bool PlatformInstaller::UpdateApplicationInternal(
 
   xml_cleaner.Dismiss();
   icon_cleaner.Dismiss();
+
+  return true;
+}
+
+bool PlatformInstaller::ReinstallApplicationInternal(const std::string& pkgid) {
+  if (pkgid.empty()) {
+    LOG(ERROR) << "Invalid package ID for reinstallation!";
+    return false;
+  }
 
   return true;
 }

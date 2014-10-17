@@ -31,7 +31,7 @@ class PackageInstaller {
   bool Install(const base::FilePath& path, std::string* id);
   bool Uninstall(const std::string& id);
   bool Update(const std::string& id, const base::FilePath& path);
-  bool Reinstall(const base::FilePath& path);
+  bool Reinstall(const std::string& pkgid);
 
   void ContinueUnfinishedTasks();
 
@@ -46,7 +46,7 @@ class PackageInstaller {
   bool PlatformInstall(xwalk::application::ApplicationData* data);
   bool PlatformUninstall(const std::string& app_id);
   bool PlatformUpdate(xwalk::application::ApplicationData* updated_data);
-  bool PlatformReinstall(const base::FilePath& path);
+  bool PlatformReinstall(const std::string& pkgid);
 
   xwalk::application::ApplicationStorage* storage_;
   bool quiet_;

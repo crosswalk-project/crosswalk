@@ -29,7 +29,7 @@ namespace {
 
 char* install_path = NULL;
 char* uninstall_id = NULL;
-char* reinstall_path = NULL;
+char* reinstall_id = NULL;
 char* operation_key = NULL;
 int quiet = 0;
 
@@ -42,8 +42,10 @@ GOptionEntry entries[] = {
     "Uninstall the application with this appid/pkgid", "ID" },
   { "continue", 'c' , 0, G_OPTION_ARG_NONE, &continue_tasks,
     "Continue the previous unfinished tasks.", NULL},
-  { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_path,
-    "Reinstall the application with path", "PATH" },
+  { "reinstall", 'r', 0, G_OPTION_ARG_STRING, &reinstall_id,
+    "Reinstall the application with this pkgid "
+    "(This option is ONLY for SDK to support RDS mode"
+    " (Rapid Development Support).", "ID" },
   { "key", 'k', 0, G_OPTION_ARG_STRING, &operation_key,
     "Unique operation key", "KEY" },
   { "quiet", 'q', 0, G_OPTION_ARG_NONE, &quiet,
@@ -110,9 +112,8 @@ int main(int argc, char* argv[]) {
     }
   } else if (uninstall_id) {
     success = installer->Uninstall(uninstall_id);
-  } else if (reinstall_path) {
-    success = installer->Reinstall(
-        base::MakeAbsoluteFilePath(base::FilePath(reinstall_path)));
+  } else if (reinstall_id) {
+    success = installer->Reinstall(reinstall_id);
   }
   return success ? 0 : 1;
 }
