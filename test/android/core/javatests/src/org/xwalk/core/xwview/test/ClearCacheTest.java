@@ -24,14 +24,12 @@ public class ClearCacheTest extends XWalkViewTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override
     public void tearDown() throws Exception {
-        if (mWebServer != null) {
-            mWebServer.shutdown();
-        }
+        mWebServer.shutdown();
         super.tearDown();
     }
 

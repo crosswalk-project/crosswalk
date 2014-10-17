@@ -25,14 +25,12 @@ public class ReloadTest extends XWalkViewTestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override
     public void tearDown() throws Exception {
-        if (mWebServer != null) {
-            mWebServer.shutdown();
-        }
+        mWebServer.shutdown();
         super.tearDown();
     }
 

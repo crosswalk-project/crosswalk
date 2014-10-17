@@ -49,9 +49,8 @@ public class ProfileTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"Profile"})
     public void testCustomizeProfile() throws Throwable {
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
             final String testHtml = getFileContent("profile.html");
             final String testPath = "/profile.html";
             final String testUrl = webServer.setResponse(testPath, testHtml, null);
@@ -70,7 +69,7 @@ public class ProfileTest extends XWalkViewTestBase {
             assertTrue(userDataDir.isDirectory());
             assertFalse(defaultUserDataDir.exists());
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 }

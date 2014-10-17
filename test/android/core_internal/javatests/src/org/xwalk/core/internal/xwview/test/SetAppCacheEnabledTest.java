@@ -115,9 +115,8 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
         settings.setJavaScriptEnabled(true);
         settings.setAppCacheEnabled(false);
 
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
             ManifestTestHelper helper = new ManifestTestHelper(
                     webServer, "testAppCache.html", "appcache.manifest");
             loadUrlSyncByContent(
@@ -137,7 +136,7 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
                     helper.getHtmlUrl());
             helper.waitUntilManifestIsRequested(0);
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 
@@ -164,9 +163,8 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
         // AppCachePath setting is global, no need to set it for the second view.
         settings1.setAppCacheEnabled(true);
 
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
             ManifestTestHelper helper0 = new ManifestTestHelper(
                     webServer, "testAppCache_0.html", "appcache.manifest_0");
             mContentClient = views.getClient0();
@@ -205,7 +203,7 @@ public class SetAppCacheEnabledTest extends XWalkViewInternalTestBase {
             assertEquals(
                     prevManifestRequestCount, webServer.getRequestCount(helper1.getManifestPath()));
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 }
