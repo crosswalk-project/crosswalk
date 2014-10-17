@@ -215,7 +215,7 @@ public class RuntimeClientApiTestBase<T extends Activity> {
 
     // For Cross-Origin XHR.
     public void testCrossOriginXhr() throws Throwable {
-        TestWebServer webServer = TestWebServer.start();
+        TestWebServer webServer = TestWebServer.start(4444);
         try {
             // The server will be accessed by XMLHttpRequest from js.
             final String path = "/cross_origin_xhr_test.html";
