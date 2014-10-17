@@ -23,7 +23,7 @@ class PlatformInstaller {
   bool UninstallApplication();
   bool UpdateApplication(const base::FilePath& xmlpath,
                          const base::FilePath& iconpath);
-  bool ReinstallApplication();
+  bool ReinstallApplication(const std::string& pkgid);
 
  private:
   bool InstallApplicationInternal(const base::FilePath& xmlpath,
@@ -31,6 +31,7 @@ class PlatformInstaller {
   bool UninstallApplicationInternal();
   bool UpdateApplicationInternal(const base::FilePath& xmlpath,
                                  const base::FilePath& iconpath);
+  bool ReinstallApplicationInternal(const std::string& pkgid);
 
   bool SendSignal(const std::string& key, const std::string& value);
 

@@ -20,6 +20,8 @@
         'xwalk_packageinfo_constants.h',
         'xwalk_platform_installer.cc',
         'xwalk_platform_installer.h',
+        'xwalk_rds_delta_parser.cc',
+        'xwalk_rds_delta_parser.h',
         'xwalk_tizen_user.cc',
         'xwalk_tizen_user.h',
         # TODO(t.iwanek) fix me - this duplicates compilation of those files
