@@ -273,9 +273,6 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
 }
 
 bool PackageInstaller::PlatformUninstall(const std::string& app_id) {
-  base::FilePath data_dir;
-  CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
-
   // args for pkgmgr
   const char* pkgmgr_argv[5];
   pkgmgr_argv[2] = "-k";
