@@ -4,6 +4,8 @@
 
 #include "xwalk/application/common/package/xpk_package.h"
 
+#include <string>
+
 #include "base/file_util.h"
 #include "base/files/scoped_file.h"
 #include "crypto/signature_verifier.h"
@@ -23,7 +25,7 @@ XPKPackage::~XPKPackage() {
 }
 
 XPKPackage::XPKPackage(const base::FilePath& path)
-  : Package(path) {
+    : Package(path) {
   if (!base::PathExists(path))
     return;
   manifest_type_ = Manifest::TYPE_MANIFEST;
@@ -34,36 +36,33 @@ XPKPackage::XPKPackage(const base::FilePath& path)
   is_valid_ = false;
   if (len < sizeof(header_))
     return;
-  if (!strncmp(XPKPackage::kXPKPackageHeaderMagic,
-               header_.magic,
+  if (!strncmp(XPKPackage::kXPKPackageHeaderMagic, header_.magic,
                sizeof(header_.magic)) &&
       header_.key_size > 0 &&
       header_.key_size <= XPKPackage::kMaxPublicKeySize &&
       header_.signature_size > 0 &&
       header_.signature_size <= XPKPackage::kMaxSignatureKeySize) {
-      is_valid_ = true;
-      zip_addr_ = sizeof(header_) + header_.key_size + header_.signature_size;
-        fseek(file_->get(), sizeof(header_), SEEK_SET);
-        key_.resize(header_.key_size);
-        size_t len = fread(
-            &key_.front(), sizeof(uint8), header_.key_size, file_->get());
-        if (len < header_.key_size)
-          is_valid_ = false;
+    is_valid_ = true;
+    zip_addr_ = sizeof(header_) + header_.key_size + header_.signature_size;
+    fseek(file_->get(), sizeof(header_), SEEK_SET);
+    key_.resize(header_.key_size);
+    size_t len = fread(&key_.front(), sizeof(uint8), header_.key_size,
+        file_->get());
+    if (len < header_.key_size)
+      is_valid_ = false;
 
-        signature_.resize(header_.signature_size);
-        len = fread(&signature_.front(),
-                    sizeof(uint8),
-                    header_.signature_size,
-                    file_->get());
-        if (len < header_.signature_size)
-          is_valid_ = false;
+    signature_.resize(header_.signature_size);
+    len = fread(&signature_.front(), sizeof(uint8), header_.signature_size,
+        file_->get());
+    if (len < header_.signature_size)
+      is_valid_ = false;
 
-        if (!VerifySignature())
-          is_valid_ = false;
+    if (!VerifySignature())
+      is_valid_ = false;
 
-        std::string public_key =
-            std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
-        id_ = GenerateId(public_key);
+    std::string public_key =
+        std::string(reinterpret_cast<char*>(&key_.front()), key_.size());
+    id_ = GenerateId(public_key);
   }
 }
 
