@@ -5,6 +5,7 @@
 
 package org.xwalk.core.xwview.test;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -279,6 +280,34 @@ class TestHelperBridge {
         }
     }
 
+    public class OnCreateWindowRequestedHelper extends CallbackHelper {
+        private XWalkView mXWalkView;
+
+        public XWalkView getXWalkView() {
+            assert getCallCount() > 0;
+            return mXWalkView;
+        }
+
+        public void notifyCalled(XWalkView view) {
+            mXWalkView = view;
+            notifyCalled();
+        }
+    }
+
+    public class OnReceivedIconHelper extends CallbackHelper {
+        private Bitmap mIcon;
+
+        public Bitmap getIcon() {
+            assert getCallCount() > 0;
+            return mIcon;
+        }
+
+        public void notifyCalled(Bitmap icon) {
+            mIcon = icon;
+            notifyCalled();
+        }
+    }
+
     private String mChangedTitle;
     private LoadStatus mLoadStatus;
     private final OnPageStartedHelper mOnPageStartedHelper;
@@ -299,6 +328,8 @@ class TestHelperBridge {
     private final OpenFileChooserHelper mOpenFileChooserHelper;
     private final OnFullscreenToggledHelper mOnFullscreenToggledHelper;
     private final OverrideOrUnhandledKeyEventHelper mOverrideOrUnhandledKeyEventHelper;
+    private final OnCreateWindowRequestedHelper mOnCreateWindowRequestedHelper;
+    private final OnReceivedIconHelper mOnReceivedIconHelper;
 
     public TestHelperBridge() {
         mOnPageStartedHelper = new OnPageStartedHelper();
@@ -317,6 +348,8 @@ class TestHelperBridge {
         mOpenFileChooserHelper = new OpenFileChooserHelper();
         mOnFullscreenToggledHelper = new OnFullscreenToggledHelper();
         mOverrideOrUnhandledKeyEventHelper = new OverrideOrUnhandledKeyEventHelper();
+        mOnCreateWindowRequestedHelper = new OnCreateWindowRequestedHelper();
+        mOnReceivedIconHelper = new OnReceivedIconHelper();
     }
 
     public OnPageStartedHelper getOnPageStartedHelper() {
@@ -381,6 +414,14 @@ class TestHelperBridge {
 
     public OverrideOrUnhandledKeyEventHelper getOverrideOrUnhandledKeyEventHelper() {
         return mOverrideOrUnhandledKeyEventHelper;
+    }
+
+    public OnCreateWindowRequestedHelper getOnCreateWindowRequestedHelper() {
+        return mOnCreateWindowRequestedHelper;
+    }
+
+    public OnReceivedIconHelper getOnReceivedIconHelper() {
+        return mOnReceivedIconHelper;
     }
 
     public void onTitleChanged(String title) {
