@@ -5,11 +5,7 @@
 #ifndef XWALK_APPLICATION_COMMON_PACKAGE_WGT_PACKAGE_H_
 #define XWALK_APPLICATION_COMMON_PACKAGE_WGT_PACKAGE_H_
 
-#include <string>
-#include <vector>
-
 #include "base/files/file_path.h"
-#include "base/memory/scoped_ptr.h"
 #include "xwalk/application/common/package/package.h"
 
 namespace xwalk {

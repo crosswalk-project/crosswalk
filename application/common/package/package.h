@@ -6,7 +6,6 @@
 #define XWALK_APPLICATION_COMMON_PACKAGE_PACKAGE_H_
 
 #include <string>
-#include <vector>
 
 #include "base/files/file_path.h"
 #include "base/files/scoped_file.h"
