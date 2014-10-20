@@ -70,10 +70,9 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
         final String customUserAgentString =
                 "testUserAgentWithTestServerUserAgent";
 
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         String fileName = null;
         try {
-            webServer = new TestWebServer(false);
             final String httpPath = "/testUserAgentWithTestServer.html";
             final String url = webServer.setResponse(httpPath, "foo", null);
 
@@ -88,7 +87,7 @@ public class UserAgentTest extends XWalkViewInternalTestBase {
             Header header = matchingHeaders[0];
             assertEquals(customUserAgentString, header.getValue());
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 }

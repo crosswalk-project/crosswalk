@@ -35,9 +35,8 @@ public class OnPageLoadStartedTest extends XWalkViewTestBase {
     @MediumTest
     @Feature({"OnPageLoadStarted"})
     public void testOnPageLoadStartedWithServer() throws Throwable {
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
             final String testHtml = "<html><head>Header</head><body>Body</body></html>";
             final String testPath = "/test.html";
 
@@ -48,7 +47,7 @@ public class OnPageLoadStartedTest extends XWalkViewTestBase {
             mOnPageStartedHelper.waitForCallback(currentCallCount);
             assertEquals(testUrl, mOnPageStartedHelper.getUrl());
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 

@@ -21,14 +21,14 @@ import static org.chromium.base.test.util.ScalableTimeout.scaleTimeout;
  */
 public class OnPageLoadStoppedTest extends XWalkViewTestBase {
     private static final long WAIT_TIMEOUT_MS = scaleTimeout(2000);
-    TestWebServer mWebServer = null;
+    TestWebServer mWebServer;
     TestCallbackHelperContainer.OnPageFinishedHelper mOnPageFinishedHelper;
     TestCallbackHelperContainer.OnReceivedErrorHelper mOnReceivedErrorHelper;
     TestCallbackHelperContainer.OnPageStartedHelper mOnPageStartedHelper;
 
     public void setUp() throws Exception {
         super.setUp();
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
         mOnPageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         mOnReceivedErrorHelper = mTestHelperBridge.getOnReceivedErrorHelper();
         mOnPageStartedHelper = mTestHelperBridge.getOnPageStartedHelper();

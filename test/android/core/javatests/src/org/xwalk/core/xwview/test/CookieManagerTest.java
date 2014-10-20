@@ -54,9 +54,8 @@ public class CookieManagerTest extends XWalkViewTestBase {
     @MediumTest
     @Feature({"AcceptCookie"})
     public void testAcceptCookie() throws Throwable {
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
             String path = "/cookie_test.html";
             String responseStr =
                     "<html><head><title>TEST!</title></head><body>HELLO!</body></html>";
@@ -103,7 +102,7 @@ public class CookieManagerTest extends XWalkViewTestBase {
             // Clean up all cookies.
             mCookieManager.removeAllCookie();
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 

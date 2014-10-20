@@ -28,7 +28,7 @@ public class OnReceivedTitleTest extends XWalkViewTestBase {
         super.setUp();
 
         mOnTitleUpdatedHelper = mTestHelperBridge.getOnTitleUpdatedHelper();
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override

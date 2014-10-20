@@ -74,9 +74,8 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
         TestCallbackHelperContainer.OnPageFinishedHelper onPageFinishedHelper =
                 mTestHelperBridge.getOnPageFinishedHelper();
 
-        TestWebServer webServer = null;
+        TestWebServer webServer = TestWebServer.start();
         try {
-            webServer = new TestWebServer(false);
 
             final String testHtml = "<html><head>Header</head><body>Body</body></html>";
             final String testPath = "/test.html";
@@ -104,7 +103,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
             assertEquals(syncUrl, onPageFinishedHelper.getUrl());
             assertEquals(2, onPageFinishedHelper.getCallCount());
         } finally {
-            if (webServer != null) webServer.shutdown();
+            webServer.shutdown();
         }
     }
 

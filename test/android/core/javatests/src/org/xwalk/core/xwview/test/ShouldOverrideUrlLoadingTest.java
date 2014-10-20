@@ -38,7 +38,7 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
     protected void setUp() throws Exception {
         super.setUp();
         mShouldOverrideUrlLoadingHelper = mTestHelperBridge.getShouldOverrideUrlLoadingHelper();
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override

@@ -60,14 +60,12 @@ public class SaveRestoreStateTest extends XWalkViewTestBase {
         });
 
         mUrls = new String[NUM_NAVIGATIONS];
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override
     public void tearDown() throws Exception {
-        if (mWebServer != null) {
-            mWebServer.shutdown();
-        }
+        mWebServer.shutdown();
         super.tearDown();
     }
 

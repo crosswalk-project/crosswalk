@@ -84,7 +84,7 @@ public class ShouldInterceptLoadRequestTest extends XWalkViewTestBase {
             }
         });
 
-        mWebServer = new TestWebServer(false);
+        mWebServer = TestWebServer.start();
     }
 
     @Override
