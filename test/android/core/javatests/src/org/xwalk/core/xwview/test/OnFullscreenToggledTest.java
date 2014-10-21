@@ -6,6 +6,7 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
+import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 /**
@@ -20,8 +21,12 @@ public class OnFullscreenToggledTest extends XWalkViewTestBase {
         mOnFullscreenToggledHelper = mTestHelperBridge.getOnFullscreenToggledHelper();
     }
 
+    /*
     @SmallTest
     @Feature({"OnFullscreenToggled"})
+    See XWALK-2755.
+    */
+    @DisabledTest
     public void testOnFullscreenToggled() throws Throwable {
         final String name = "fullscreen_togged.html";
         String fileContent = getFileContent(name);
