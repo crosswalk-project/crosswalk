@@ -335,7 +335,7 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
     platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
   }
 
-  if (!platform_installer.InstallApplication(new_xml_path, icon))
+  if (!platform_installer.UpdateApplication(new_xml_path, icon))
     return false;
 
   app_dir_cleaner.Dismiss();
