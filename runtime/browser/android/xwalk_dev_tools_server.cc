@@ -229,7 +229,8 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission) {
   net::UnixDomainServerSocket::AuthCallback auth_callback =
       allow_debug_permission ?
           base::Bind(&AuthorizeSocketAccessWithDebugPermission) :
-          base::Bind(&content::CanUserConnectToDevTools);
+          base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
+              base::Unretained(this));
 
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
       new UnixDomainServerSocketFactory(socket_name_));
