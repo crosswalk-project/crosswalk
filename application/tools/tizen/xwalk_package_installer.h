@@ -1,4 +1,5 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,6 +18,8 @@ class ApplicationStorage;
 
 }  // namespace application
 }  // namespace xwalk
+
+class PlatformInstaller;
 
 class PackageInstaller {
  public:
@@ -48,8 +51,10 @@ class PackageInstaller {
   xwalk::application::ApplicationStorage* storage_;
   bool quiet_;
   std::string key_;
+
+ private:
+  void InitializePkgmgrSignal(PlatformInstaller* platform_installer,
+      const std::string& action, const std::string& action_arg);
 };
-
-
 
 #endif  // XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGE_INSTALLER_H_

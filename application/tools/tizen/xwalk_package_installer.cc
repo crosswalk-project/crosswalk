@@ -245,24 +245,14 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
-  // args for pkgmgr
-  const char* pkgmgr_argv[5];
-  pkgmgr_argv[2] = "-k";
-  pkgmgr_argv[3] = key_.c_str();
-  pkgmgr_argv[4] = "-q";
-
-  PlatformInstaller platform_installer(app_id);
-
   if (xml_path.empty() || icon.empty()) {
     LOG(ERROR) << "Xml or icon path is empty";
     return false;
   }
 
-  if (!key_.empty()) {
-    pkgmgr_argv[0] = "-i";
-    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
-    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
-  }
+  PlatformInstaller platform_installer(app_id);
+
+  InitializePkgmgrSignal(&platform_installer, "-i", app_id);
 
   if (!platform_installer.InstallApplication(xml_path, icon))
     return false;
@@ -273,19 +263,9 @@ bool PackageInstaller::PlatformInstall(ApplicationData* app_data) {
 }
 
 bool PackageInstaller::PlatformUninstall(const std::string& app_id) {
-  // args for pkgmgr
-  const char* pkgmgr_argv[5];
-  pkgmgr_argv[2] = "-k";
-  pkgmgr_argv[3] = key_.c_str();
-  pkgmgr_argv[4] = "-q";
-
   PlatformInstaller platform_installer(app_id);
 
-  if (!key_.empty()) {
-    pkgmgr_argv[0] = "-d";
-    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
-    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
-  }
+  InitializePkgmgrSignal(&platform_installer, "-d", app_id);
 
   return platform_installer.UninstallApplication();
 }
@@ -321,19 +301,9 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
   base::FilePath icon =
       icon_name.empty() ? kDefaultIcon : app_dir.AppendASCII(icon_name);
 
-  // args for pkgmgr
-  const char* pkgmgr_argv[5];
-  pkgmgr_argv[2] = "-k";
-  pkgmgr_argv[3] = key_.c_str();
-  pkgmgr_argv[4] = "-q";
-
   PlatformInstaller platform_installer(app_id);
 
-  if (!key_.empty()) {
-    pkgmgr_argv[0] = "-i";
-    pkgmgr_argv[1] = app_id.c_str();  // this value is ignored by pkgmgr
-    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
-  }
+  InitializePkgmgrSignal(&platform_installer, "-i", app_id);
 
   if (!platform_installer.UpdateApplication(new_xml_path, icon))
     return false;
@@ -343,19 +313,9 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
 }
 
 bool PackageInstaller::PlatformReinstall(const base::FilePath& path) {
-  // args for pkgmgr
-  const char* pkgmgr_argv[5];
-  pkgmgr_argv[2] = "-k";
-  pkgmgr_argv[3] = key_.c_str();
-  pkgmgr_argv[4] = "-q";
-
   PlatformInstaller platform_installer;
 
-  if (!key_.empty()) {
-    pkgmgr_argv[0] = "-r";
-    pkgmgr_argv[1] = path.value().c_str();  // this value is ignored by pkgmgr
-    platform_installer.InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
-  }
+  InitializePkgmgrSignal(&platform_installer, "-r", path.value());
 
   return platform_installer.ReinstallApplication();
 }
@@ -693,4 +653,24 @@ void PackageInstaller::ContinueUnfinishedTasks() {
       }
     }
   }
+}
+
+void PackageInstaller::InitializePkgmgrSignal(
+    PlatformInstaller* platform_installer, const std::string& action,
+    const std::string& action_arg) {
+  DCHECK(platform_installer);
+  DCHECK(!action.empty());
+  DCHECK(!action_arg.empty());
+
+  if (key_.empty())
+    return;
+
+  const char* pkgmgr_argv[5];
+  pkgmgr_argv[0] = action.c_str();
+  pkgmgr_argv[1] = action_arg.c_str();  // this value is ignored by pkgmgr
+  pkgmgr_argv[2] = "-k";
+  pkgmgr_argv[3] = key_.c_str();
+  pkgmgr_argv[4] = "-q";
+
+  platform_installer->InitializePkgmgrSignal((quiet_ ? 5 : 4), pkgmgr_argv);
 }
