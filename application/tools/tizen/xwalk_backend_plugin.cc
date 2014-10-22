@@ -81,7 +81,8 @@ int PkgmgrBackendPlugin::DetailedInfo(
 int PkgmgrBackendPlugin::DetailedInfoPkg(
     const std::string& pkg_path,
     package_manager_pkg_detail_info_t* pkg_detail_info) {
-  if (!base::PathExists(base::FilePath(pkg_path))) {
+  base::FilePath path(pkg_path);
+  if (!base::PathExists(path)) {
     return kPkgmgrPluginFalse;
   }
 
@@ -93,14 +94,23 @@ int PkgmgrBackendPlugin::DetailedInfoPkg(
     return kPkgmgrPluginFalse;
   }
 
-  SaveDetailInfo(app_data, pkg_detail_info);
+  SaveDetailInfo(app_data, pkg_detail_info,
+      !path.Extension().empty() ? path.Extension() : std::string("unknown"));
   return kPkgmgrPluginTrue;
 }
 
 int PkgmgrBackendPlugin::IsAppInstalled(const std::string& pkgid) {
   // this will fetch app_id if exists
   std::string app_id = xwalk::application::PkgIdToAppId(pkgid);
-  return app_id.empty() ? kPkgmgrPluginFalse : kPkgmgrPluginTrue;
+
+  if (app_id.empty())
+    return kPkgmgrPluginFalse;
+
+  // backendlib handles both xpk and wgt
+  // check if plugin was loaded for given type of package
+  std::string type_from_db = xwalk::application::GetPackageType(pkgid);
+
+  return type() == type_from_db ? kPkgmgrPluginTrue : kPkgmgrPluginFalse;
 }
 
 int PkgmgrBackendPlugin::AppsList(package_manager_pkg_info_t** list,
@@ -131,6 +141,14 @@ int PkgmgrBackendPlugin::AppsList(package_manager_pkg_info_t** list,
   return kPkgmgrPluginTrue;
 }
 
+void PkgmgrBackendPlugin::SetLoadSet(pkg_plugin_set* set) {
+  set_ = set;
+}
+
+std::string PkgmgrBackendPlugin::type() const {
+  return std::string(set_->pkg_type);
+}
+
 PkgmgrBackendPlugin::PkgmgrBackendPlugin() {
   base::FilePath data_path;
   xwalk::RegisterPathProvider();
@@ -140,12 +158,21 @@ PkgmgrBackendPlugin::PkgmgrBackendPlugin() {
 
 void PkgmgrBackendPlugin::SaveInfo(
     scoped_refptr<xwalk::application::ApplicationData> app_data,
-    package_manager_pkg_info_t* pkg_detail_info) {
-  strncpy(pkg_detail_info->pkg_type, "xpk", PKG_TYPE_STRING_LEN_MAX - 1);
-  strncpy(pkg_detail_info->pkg_name, app_data->GetPackageID().c_str(),
-          PKG_NAME_STRING_LEN_MAX - 1);
-  strncpy(pkg_detail_info->pkgid, app_data->GetPackageID().c_str(),
-          PKG_NAME_STRING_LEN_MAX - 1);
+    package_manager_pkg_info_t* pkg_detail_info,
+    const std::string& force_type) {
+  std::string pkg_id = app_data->GetPackageID();
+  if (force_type.empty())
+    strncpy(pkg_detail_info->pkg_type,
+        xwalk::application::GetPackageType(pkg_id).c_str(),
+        PKG_TYPE_STRING_LEN_MAX - 1);
+  else  // force package type
+    strncpy(pkg_detail_info->pkg_type,
+        force_type.c_str(),
+        PKG_TYPE_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkg_name, pkg_id.c_str(),
+      PKG_NAME_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkgid, pkg_id.c_str(),
+      PKG_NAME_STRING_LEN_MAX - 1);
   if (app_data->Version() != NULL) {
     strncpy(pkg_detail_info->version, app_data->Version()->GetString().c_str(),
             PKG_VERSION_STRING_LEN_MAX - 1);
@@ -154,18 +181,27 @@ void PkgmgrBackendPlugin::SaveInfo(
 
 void PkgmgrBackendPlugin::SaveDetailInfo(
     scoped_refptr<xwalk::application::ApplicationData> app_data,
-    package_manager_pkg_detail_info_t* pkg_detail_info) {
-  strncpy(pkg_detail_info->pkg_type, "xpk", PKG_TYPE_STRING_LEN_MAX - 1);
-  strncpy(pkg_detail_info->pkg_name, app_data->GetPackageID().c_str(),
-          PKG_NAME_STRING_LEN_MAX - 1);
-  strncpy(pkg_detail_info->pkgid, app_data->GetPackageID().c_str(),
-          PKG_NAME_STRING_LEN_MAX - 1);
+    package_manager_pkg_detail_info_t* pkg_detail_info,
+    const std::string& force_type) {
+  std::string pkg_id = app_data->GetPackageID();
+  if (force_type.empty())
+    strncpy(pkg_detail_info->pkg_type,
+        xwalk::application::GetPackageType(pkg_id).c_str(),
+        PKG_TYPE_STRING_LEN_MAX - 1);
+  else  // force package type
+    strncpy(pkg_detail_info->pkg_type,
+        force_type.c_str(),
+        PKG_TYPE_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkg_name, pkg_id.c_str(),
+      PKG_NAME_STRING_LEN_MAX - 1);
+  strncpy(pkg_detail_info->pkgid, pkg_id.c_str(),
+      PKG_NAME_STRING_LEN_MAX - 1);
   if (app_data->Version() != NULL) {
     strncpy(pkg_detail_info->version, app_data->Version()->GetString().c_str(),
             PKG_VERSION_STRING_LEN_MAX - 1);
   }
   strncpy(pkg_detail_info->pkg_description, app_data->Description().c_str(),
-          PKG_VALUE_STRING_LEN_MAX - 1);
+      PKG_VALUE_STRING_LEN_MAX - 1);
 
   // xpk do not have this key in manifest
   if (app_data->manifest_type() == Manifest::TYPE_WIDGET) {
@@ -191,7 +227,7 @@ void PkgmgrBackendPlugin::SaveDetailInfo(
   pkg_detail_info->data_size = data_size;
 
   strncpy(pkg_detail_info->optional_id, app_data->GetPackageID().c_str(),
-          PKG_NAME_STRING_LEN_MAX - 1);
+      PKG_NAME_STRING_LEN_MAX - 1);
   pkg_detail_info->pkg_optional_info = NULL;
 }
 

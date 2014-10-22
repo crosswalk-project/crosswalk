@@ -42,16 +42,26 @@ int pkg_plugin_on_load(pkg_plugin_set* set) {
   set->get_pkg_detail_info_from_package =
       pkg_plugin_get_app_detail_info_from_package;
 
+  // FIXME: store load set which contains
+  // pkgmgr sets pkg_type after calling 'pkg_plugin_on_load'
+  // we need to store load set to recover type of package
+  // for which backendlib was loaded - wgt or xpk
+  PkgmgrBackendPlugin::GetInstance()->SetLoadSet(set);
+
   return 0;
 }
 
 void pkg_plugin_on_unload() {
-  LOG(INFO) << "Crosswalk backend plugin - unload";
+  LOG(INFO) << "Crosswalk backend plugin ("
+            << PkgmgrBackendPlugin::GetInstance()->type()
+            << ") - unload";
 }
 
 int pkg_plugin_get_app_detail_info(
     const char *pkg_name, package_manager_pkg_detail_info_t *pkg_detail_info) {
-  LOG(INFO) << "Crosswalk backend plugin - pkg_plugin_get_app_detail_info";
+  LOG(INFO) << "Crosswalk backend plugin ("
+            << PkgmgrBackendPlugin::GetInstance()->type()
+            << ") - pkg_plugin_get_app_detail_info";
 
   return PkgmgrBackendPlugin::GetInstance()->DetailedInfo(pkg_name,
                                                           pkg_detail_info);
@@ -59,15 +69,18 @@ int pkg_plugin_get_app_detail_info(
 
 int pkg_plugin_get_app_detail_info_from_package(
     const char *pkg_path, package_manager_pkg_detail_info_t *pkg_detail_info) {
-  LOG(INFO)
-    << "Crosswalk backend plugin - pkg_plugin_get_app_detail_info_from_package";
+  LOG(INFO) << "Crosswalk backend plugin ("
+            << PkgmgrBackendPlugin::GetInstance()->type()
+            << ") - pkg_plugin_get_app_detail_info_from_package";
 
   return PkgmgrBackendPlugin::GetInstance()->DetailedInfoPkg(pkg_path,
                                                              pkg_detail_info);
 }
 
 int pkg_plugin_app_is_installed(const char *pkg_name) {
-  LOG(INFO) << "Crosswalk backend plugin - pkg_plugin_app_is_installed";
+  LOG(INFO) << "Crosswalk backend plugin ("
+            << PkgmgrBackendPlugin::GetInstance()->type()
+            << ") - pkg_plugin_app_is_installed";
 
   return PkgmgrBackendPlugin::GetInstance()->IsAppInstalled(pkg_name);
 }
@@ -76,7 +89,9 @@ int pkg_plugin_get_installed_apps_list(const char* category,
                                        const char* option,
                                        package_manager_pkg_info_t** list,
                                        int* count) {
-  LOG(INFO) << "Crosswalk backend plugin - pkg_plugin_get_installed_apps_list";
+  LOG(INFO) << "Crosswalk backend plugin ("
+            << PkgmgrBackendPlugin::GetInstance()->type()
+            << ") - pkg_plugin_get_installed_apps_list";
 
   return PkgmgrBackendPlugin::GetInstance()->AppsList(list, count);
 }
