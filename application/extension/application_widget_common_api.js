@@ -43,31 +43,30 @@ var CustomDOMException = function(code, message) {
     }
   }
 
-  var props = {};
   var newException;
 
   try {
-    document.removeChild({})
+    document.removeChild(document.createTextNode(""));
   } catch (e) {
-    newException = Object.create(e)
+    newException = Object.create(Object.getPrototypeOf(e));
   }
 
-  var proto = newException.__proto__;
+  var props = {
+    value: null,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  };
 
-  props = Object.getOwnPropertyDescriptor(proto, "name");
   props.value = _name;
   Object.defineProperty(newException, "name", props);
-
-  props = Object.getOwnPropertyDescriptor(proto, "code");
   props.value = _code;
   Object.defineProperty(newException, "code", props);
-
-  props = Object.getOwnPropertyDescriptor(proto, "message");
   props.value = _message;
   Object.defineProperty(newException, "message", props);
 
   props.value = function() {
-    return _name + ": " + _message;
+    return this.name + ": " + this.code;
   }
   Object.defineProperty(newException, "toString", props);
 
