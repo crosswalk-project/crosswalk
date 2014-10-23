@@ -73,7 +73,7 @@ TEST_F(CSPHandlerTest, CSP) {
 #if defined(OS_TIZEN)
 TEST_F(CSPHandlerTest, WGTEmptyCSP) {
   manifest.SetString(widget_keys::kNameKey, "no name");
-  manifest.SetString(widget_keys::kXWalkVersionKey, "0");
+  manifest.SetString(widget_keys::kVersionKey, "0");
   manifest.SetString(widget_keys::kCSPKey, "");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
@@ -83,7 +83,7 @@ TEST_F(CSPHandlerTest, WGTEmptyCSP) {
 
 TEST_F(CSPHandlerTest, WGTCSP) {
   manifest.SetString(widget_keys::kNameKey, "no name");
-  manifest.SetString(widget_keys::kXWalkVersionKey, "0");
+  manifest.SetString(widget_keys::kVersionKey, "0");
   manifest.SetString(widget_keys::kCSPKey, "default-src    'self'   ");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
