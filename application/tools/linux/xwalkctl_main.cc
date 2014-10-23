@@ -13,6 +13,7 @@
 #include "base/path_service.h"
 
 #include "xwalk/application/common/tizen/application_storage.h"
+#include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #include "dbus/bus.h"
@@ -101,6 +102,10 @@ bool list_applications(ApplicationStorage* storage) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
+#if defined(OS_TIZEN)
+  if (xwalk_tizen_check_user_for_xwalkctl())
+    exit(1);
+#endif
   GOptionContext* context = g_option_context_new("- Crosswalk Setter");
   g_option_context_add_main_entries(context, entries, NULL);
   GError* error = nullptr;
