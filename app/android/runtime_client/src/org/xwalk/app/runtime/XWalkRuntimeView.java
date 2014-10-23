@@ -8,7 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * This class is to provide public APIs which are called by web application
@@ -21,7 +21,7 @@ import android.widget.FrameLayout;
 // Implementation notes.
 // Please be careful to change any public APIs for the backward compatibility
 // is very important to us. Don't change any of them without permisson.
-public class XWalkRuntimeView extends FrameLayout {
+public class XWalkRuntimeView extends LinearLayout {
     // The actual implementation to hide the internals to API users.
     private XWalkRuntimeViewProvider mProvider;
 
@@ -54,10 +54,11 @@ public class XWalkRuntimeView extends FrameLayout {
 
     private void init(Context context, Activity activity) {
         mProvider = XWalkRuntimeViewProviderFactory.getProvider(context, activity);
+        setOrientation(LinearLayout.VERTICAL);
         this.addView(mProvider.getView(),
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT));
     }
 
     /**
