@@ -24,7 +24,7 @@ from customize import VerifyPackageName, CustomizeAll, \
 from extension_manager import GetExtensionList, GetExtensionStatus
 from handle_permissions import permission_mapping_table
 from util import AllArchitectures, CleanDir, GetVersion, RunCommand, \
-                 CreateAndCopyDir
+                 CreateAndCopyDir, GetBuildDir
 from manifest_json_parser import HandlePermissionList
 from manifest_json_parser import ManifestJsonParser
 
@@ -96,6 +96,7 @@ def ParseManifest(options):
   else:
     print('Error: there is no app launch path defined in manifest.json.')
     sys.exit(9)
+  options.icon_dict = {}
   if parser.GetAppRoot():
     options.app_root = parser.GetAppRoot()
     options.icon_dict = parser.GetIcons()
@@ -239,7 +240,7 @@ def Customize(options, app_info, manifest):
 def Execution(options, name):
   arch_string = (' ('+options.arch+')' if options.arch else '')
   print('\nStarting application build' + arch_string)
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   android_path = Which('android')
   api_level = GetAndroidApiLevel(android_path)
   target_string = 'android-%d' % api_level
@@ -416,7 +417,7 @@ def MakeApk(options, app_info, manifest):
   CheckSystemRequirements()
   Customize(options, app_info, manifest)
   name = app_info.android_name
-  app_dir = os.path.join(tempfile.gettempdir(), name)
+  app_dir = GetBuildDir(name)
   packaged_archs = []
   if options.mode == 'shared':
     # For shared mode, it's not necessary to use the whole xwalk core library,
@@ -637,9 +638,15 @@ def main(argv):
   xpk_temp_dir = ''
   if options.xpk:
     xpk_name = os.path.splitext(os.path.basename(options.xpk))[0]
-    xpk_temp_dir = os.path.join(tempfile.gettempdir(), xpk_name + '_xpk')
+    xpk_temp_dir = tempfile.mkdtemp(prefix="%s-" % xpk_name + '_xpk')
     CleanDir(xpk_temp_dir)
     ParseXPK(options, xpk_temp_dir)
+
+  if options.manifest:
+    options.manifest = os.path.abspath(options.manifest)
+    if not os.path.isfile(options.manifest):
+      print('Error: The manifest file does not exist.')
+      sys.exit(8)
 
   if options.app_root and not options.manifest:
     manifest_path = os.path.join(options.app_root, 'manifest.json')
@@ -705,11 +712,6 @@ def main(argv):
     if not os.path.isdir(target_dir):
       os.makedirs(target_dir)
 
-  if options.project_dir:
-    if options.project_dir == tempfile.gettempdir():
-      print('\nmake_apk.py error: Option --project-dir can not be '
-            'the system temporary\ndirectory.')
-      sys.exit(8)
   if options.project_only and not options.project_dir:
     print('\nmake_apk.py error: Option --project-only must be used '
           'with --project-dir')
@@ -720,7 +722,7 @@ def main(argv):
   except SystemExit as ec:
     return ec.code
   finally:
-    CleanDir(os.path.join(tempfile.gettempdir(), app_info.android_name))
+    CleanDir(GetBuildDir(app_info.android_name))
     CleanDir(xpk_temp_dir)
   return 0
 

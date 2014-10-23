@@ -7,7 +7,8 @@
 import os
 import shutil
 import sys
-import tempfile
+
+from util import GetBuildDir
 
 def CopyToPathWithName(root, name, final_path, rename):
   if name == '':
@@ -29,7 +30,7 @@ def CopyToPathWithName(root, name, final_path, rename):
 
 
 def CopyDrawables(image_dict, orientation, sanitized_name, name, app_root):
-  drawable = os.path.join(tempfile.gettempdir(), sanitized_name, 'res',
+  drawable = os.path.join(GetBuildDir(sanitized_name), 'res',
                           'drawable')
   if orientation == 'landscape':
     drawable = drawable + '-land'
@@ -114,7 +115,7 @@ def CustomizeBackground(background_color,
                         orientation,
                         sanitized_name,
                         app_root):
-  background_path = os.path.join(tempfile.gettempdir(), sanitized_name, 'res',
+  background_path = os.path.join(GetBuildDir(sanitized_name), 'res',
                                  'drawable', 'launchscreen_bg.xml')
   if not os.path.isfile(background_path):
     print('Error: launchscreen_bg.xml is missing in the build tool.')
