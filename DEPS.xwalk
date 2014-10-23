@@ -18,7 +18,7 @@
 # -----------------------------------
 
 chromium_crosswalk_rev = '26a9f8c9201c5360dd636856677eaaab3207f246'
-blink_crosswalk_rev = '21e3333be45e4af38a7d730c5a6383760af1e525'
+blink_crosswalk_rev = 'ab756348cf6f0102ca79351af1bf5753e26f51f0'
 v8_crosswalk_rev = 'a8c040dc83614c44ed5870dc119397abfc69ca3b'
 ozone_wayland_rev = '9595d59e35e37675587523590e21397addf78446'
 
