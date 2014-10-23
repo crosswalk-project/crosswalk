@@ -101,7 +101,8 @@ var WidgetStorage = function() {
   }
 
   this.getItem = function(itemKey) {
-    return _itemStorage[String(itemKey)];
+    var item = _itemStorage[String(itemKey)];
+    return item !== undefined ? item : null;
   }
 
   this.setItem = function(itemKey, itemValue) {
