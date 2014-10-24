@@ -17,6 +17,7 @@ class XWalkDevToolsServer {
     private static final String DEBUG_PERMISSION_SIFFIX = ".permission.DEBUG";
 
     private long mNativeDevToolsServer = 0;
+    private String mSocketName = null;
 
     // Defines what processes may access to the socket.
     public enum Security {
@@ -30,6 +31,7 @@ class XWalkDevToolsServer {
 
     public XWalkDevToolsServer(String socketName) {
         mNativeDevToolsServer = nativeInitRemoteDebugging(socketName);
+        mSocketName = socketName;
     }
 
     public void destroy() {
@@ -52,6 +54,10 @@ class XWalkDevToolsServer {
 
     public void allowConnectionFromUid(int uid) {
         nativeAllowConnectionFromUid(mNativeDevToolsServer, uid);
+    }
+
+    public String getSocketName() {
+        return mSocketName;
     }
 
     private native long nativeInitRemoteDebugging(String socketName);
