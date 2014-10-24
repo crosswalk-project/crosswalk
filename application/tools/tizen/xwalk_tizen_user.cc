@@ -16,7 +16,7 @@
 
 #include <tzplatform_config.h>
 
-int xwalk_tizen_check_user_app(void) {
+int xwalk_tizen_check_group_users(void) {
   char* buffer = NULL;
   int err = 0;
   struct group grp;
@@ -35,19 +35,19 @@ int xwalk_tizen_check_user_app(void) {
     free(buffer);
     return -EINVAL;
   }
+
   if ((!current_g) ||
-      (strcmp(current_g->gr_name, "users") &&
-       strcmp(current_g->gr_name, "app"))) {
-    fprintf(stderr, "group '%s' is not allowed :",
-            current_g ? current_g->gr_name : "<NULL>");
-    fprintf(stderr, "launching an application will not work\n");
-    free(buffer);
-    return -EINVAL;
+      strcmp(current_g->gr_name, "users")) {
+      fprintf(stderr, "group '%s' is not allowed :",
+              current_g ? current_g->gr_name : "<NULL>");
+      fprintf(stderr, "launching an application will not work\n");
+      free(buffer);
+      return -EINVAL;
   }
   return 0;
 }
 
-int xwalk_tizen_check_user_for_xwalkctl(void) {
+int xwalk_tizen_check_user_for_xwalk_backend(void) {
   char* buffer = NULL;
   int err = 0;
   struct group grp;
@@ -66,11 +66,10 @@ int xwalk_tizen_check_user_for_xwalkctl(void) {
     free(buffer);
     return -EINVAL;
   }
-  if ((!current_g) ||
-      (strcmp(current_g->gr_name, "users") &&
-       strcmp(current_g->gr_name, "app") &&
-      (strcmp(current_g->gr_name, "root") &&
-       getuid() == tzplatform_getuid(TZ_SYS_GLOBALAPP_USER)))) {
+
+  if ((!current_g) || (
+      strcmp(current_g->gr_name, "users") &&
+      getuid() != tzplatform_getuid(TZ_SYS_GLOBALAPP_USER))) {
     fprintf(stderr, "group '%s' is not allowed :",
             current_g ? current_g->gr_name : "<NULL>");
     fprintf(stderr, "launching an application will not work\n");
