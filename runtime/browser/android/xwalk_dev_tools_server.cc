@@ -17,6 +17,7 @@
 #include "base/logging.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "blink_upstream_version.h"  // NOLINT
 #include "content/public/browser/android/devtools_auth.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
@@ -28,7 +29,6 @@
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_delegate.h"
-#include "content/public/common/user_agent.h"
 #include "grit/xwalk_resources.h"
 #include "jni/XWalkDevToolsServer_jni.h"
 #include "net/socket/unix_domain_listen_socket_posix.h"
@@ -146,7 +146,7 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission) {
       new UnixDomainServerSocketFactory(socket_name_, auth_callback));
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       factory.Pass(),
-      base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),
+      base::StringPrintf(kFrontEndURL, BLINK_UPSTREAM_REVISION),
       new XWalkAndroidDevToolsHttpHandlerDelegate(), base::FilePath());
 }
 

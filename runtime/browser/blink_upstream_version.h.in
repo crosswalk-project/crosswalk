@@ -1,0 +1,7 @@
+// Copyright 2014 Intel Corp. All rights reserved.
+// Use of this source is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// upstream_blink_version.h is generated from upstream_blink_version.h.in.  Edit the source!
+
+#define BLINK_UPSTREAM_REVISION "@@UPSTREAM_REVISION@"
