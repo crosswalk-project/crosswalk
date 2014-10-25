@@ -7,12 +7,11 @@
 #include <limits>
 #include <set>
 
-#include "base/macros.h"
-#include "base/strings/utf_string_conversions.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/manifest_handlers_util.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 
 namespace xwalk {
@@ -23,14 +22,6 @@ namespace application {
 
 namespace {
 
-const char kErrMsgInvalidDictionary[] =
-    "Cannot get key value as a dictionary. Key name: ";
-const char kErrMsgInvalidList[] =
-    "Cannot get key value as a list. Key name: ";
-const char kErrMsgNoMandatoryKey[] =
-    "Cannot find mandatory key. Key name: ";
-const char kErrMsgInvalidKeyValue[] =
-    "Invalid key value. Key name: ";
 const char kErrMsgMultipleKeys[] =
     "Too many keys found. Key name: ";
 const char kErrMsgAppWidgetInfoNotFound[] =
@@ -69,167 +60,6 @@ const char kErrMsgContentDropViewHeightOutOfDomain[] =
     "Value of a height attribute in box-content element out of domain."
     " The value: ";
 
-void SetError(const std::string& message,
-    const std::string& arg, std::string* error) {
-  if (error)
-    *error = message + arg;
-}
-
-void SetError(const std::string& message,
-    const std::string& arg, base::string16* error) {
-  if (error)
-    *error = base::ASCIIToUTF16(message + arg);
-}
-
-// Converts given text value to a value of specific type. Returns true
-// if convertion is successful or false otherwise.
-template <typename ValueType>
-bool ConvertValue(const std::string& str_value, ValueType* value) {
-  NOTREACHED() << "Use one of already defined template specializations"
-                  " or define a new one.";
-  return false;
-}
-
-// Converts given text value to a string value. Returns true
-// if convertion is successful or false otherwise.
-template <>
-bool ConvertValue(const std::string& str_value, std::string* value) {
-  DCHECK(value);
-  *value = str_value;
-  return true;
-}
-
-// Converts given text value to a boolean value. Returns true
-// if convertion is successful or false otherwise.
-template <>
-bool ConvertValue(const std::string& str_value, bool* value) {
-  DCHECK(value);
-  if (str_value == "true") {
-    *value = true;
-    return true;
-  }
-  if (str_value == "false") {
-    *value = false;
-    return true;
-  }
-  return false;
-}
-
-// Converts given text value to an integer value. Returns true
-// if convertion is successful or false otherwise.
-template <>
-bool ConvertValue(const std::string& str_value, int* value) {
-  DCHECK(value);
-  return base::StringToInt(str_value, value);
-}
-
-// Converts given text value to a floating point value. Returns true
-// if convertion is successful or false otherwise.
-template <>
-bool ConvertValue(const std::string& str_value, double* value) {
-  DCHECK(value);
-  return base::StringToDouble(str_value, value);
-}
-
-// Retrieves a mandatory value from specified dictionary and specified key.
-// Returns true if the value is found or false otherwise. If the error parameter
-// is specified it is also filled with proper message.
-template <typename ValueType>
-bool GetMandatoryValue(const base::DictionaryValue& dict,
-    const std::string& key, ValueType* value, base::string16* error) {
-  DCHECK(value);
-
-  std::string tmp;
-  if (!dict.GetString(key, &tmp)) {
-    SetError(kErrMsgNoMandatoryKey, key, error);
-    return false;
-  }
-
-  bool result = ConvertValue(tmp, value);
-  if (!result)
-    SetError(kErrMsgInvalidKeyValue, key, error);
-  return result;
-}
-
-// Retrieves an optional value from specified dictionary and specified key.
-// If the value is found the function returns true and fills value
-// parameter. If the value is not found the function returns true and fills
-// value parameter with default value. If an error occurs it returns false
-// and fills error parameter if it is set.
-template <typename ValueType>
-bool GetOptionalValue(const base::DictionaryValue& dict,
-    const std::string& key, ValueType default_value, ValueType* value,
-    base::string16* error) {
-  DCHECK(value);
-
-  std::string tmp;
-  if (!dict.GetString(key, &tmp)) {
-    *value = default_value;
-    return true;
-  }
-
-  bool result = ConvertValue(tmp, value);
-  if (!result)
-    SetError(kErrMsgInvalidKeyValue, key, error);
-  return result;
-}
-
-// Helper function for ParseEach. Do not use directly.
-template <typename ParseSingleType, typename DataContainerType>
-bool ParseEachInternal(const base::Value& value, const std::string& key,
-    ParseSingleType parse_single, DataContainerType* data_container,
-    base::string16* error) {
-  DCHECK(data_container);
-
-  const base::DictionaryValue* inner_dict;
-  if (!value.GetAsDictionary(&inner_dict)) {
-    SetError(kErrMsgInvalidDictionary, key, error);
-    return false;
-  }
-  if (!parse_single(*inner_dict, key, data_container, error))
-    return false;
-
-  return true;
-}
-
-// Parsing helper function calling 'parse_single' for each dictionary contained
-// in 'dict' under a 'key'. This helper function takes two template arguments:
-//  - a function with following prototype:
-//    bool ParseSingleExample(const base::Value& value, const std::string& key,
-//        DataContainerType* data_container, base::string16* error);
-//  - a DataContainerType object where the above function stores data
-template <typename ParseSingleType, typename DataContainerType>
-bool ParseEach(const base::DictionaryValue& dict, const std::string& key,
-    bool mandatory, ParseSingleType parse_single,
-    DataContainerType* data_container, base::string16* error) {
-  DCHECK(data_container);
-
-  const base::Value* value = nullptr;
-  if (!dict.Get(key, &value) || !value) {
-    if (mandatory) {
-      SetError(kErrMsgNoMandatoryKey, key, error);
-      return false;
-    }
-    return true;
-  }
-
-  if (value->IsType(base::Value::TYPE_DICTIONARY)) {
-    if (!ParseEachInternal(*value, key, parse_single, data_container, error))
-      return false;
-  } else if (value->IsType(base::Value::TYPE_LIST)) {
-    const base::ListValue* list;
-    if (!value->GetAsList(&list)) {
-      SetError(kErrMsgInvalidList, key, error);
-      return false;
-    }
-    for (const base::Value* value : *list)
-      if (!ParseEachInternal(*value, key, parse_single, data_container, error))
-        return false;
-  }
-
-  return true;
-}
-
 // Parses box-label part
 bool ParseLabel(const base::DictionaryValue& dict,
     const std::string& key, TizenAppWidget* app_widget, base::string16* error) {
@@ -264,7 +94,7 @@ bool ParseIcon(const base::DictionaryValue& dict,
   DCHECK(app_widget);
 
   if (!app_widget->icon_src.empty()) {
-    SetError(kErrMsgMultipleKeys, key, error);
+    SafeSetError(kErrMsgMultipleKeys, key, error);
     return false;
   }
   if (!GetMandatoryValue(dict, keys::kTizenAppWidgetBoxIconSrcKey,
@@ -307,7 +137,7 @@ bool ParseContentSizes(const base::DictionaryValue& dict,
 
   TizenAppWidgetSizeType type;
   if (!StringToSizeType(str_type, &type)) {
-    SetError(kErrMsgInvalidKeyValue,
+    SafeSetError(kErrMsgInvalidKeyValue,
         keys::kTizenAppWidgetBoxContentSizeTextKey, error);
     return false;
   }
@@ -333,7 +163,7 @@ bool ParseContentDropView(const base::DictionaryValue& dict,
   DCHECK(app_widget);
 
   if (!app_widget->content_drop_view.empty()) {
-    SetError(kErrMsgMultipleKeys, key, error);
+    SafeSetError(kErrMsgMultipleKeys, key, error);
     return false;
   }
 
@@ -364,7 +194,7 @@ bool ParseContent(const base::DictionaryValue& dict,
   DCHECK(app_widget);
 
   if (!app_widget->content_src.empty()) {
-    SetError(kErrMsgMultipleKeys, key, error);
+    SafeSetError(kErrMsgMultipleKeys, key, error);
     return false;
   }
   if (!GetMandatoryValue(dict, keys::kTizenAppWidgetBoxContentSrcKey,
@@ -379,12 +209,12 @@ bool ParseContent(const base::DictionaryValue& dict,
       true, &app_widget->content_touch_effect, error))
     return false;
 
-  if (!ParseEach(dict, keys::kTizenAppWidgetBoxContentSizeKey,
-      true, ParseContentSizes, app_widget, error))
+  if (!ForEachDictionaryCall(dict, keys::kTizenAppWidgetBoxContentSizeKey,
+      ValidCount::Min(1), ParseContentSizes, app_widget, error))
     return false;
 
-  if (!ParseEach(dict, keys::kTizenAppWidgetBoxContentDropViewKey,
-      false, ParseContentDropView, app_widget, error))
+  if (!ForEachDictionaryCall(dict, keys::kTizenAppWidgetBoxContentDropViewKey,
+      ValidCount::Max(1), ParseContentDropView, app_widget, error))
     return false;
 
   return true;
@@ -418,16 +248,16 @@ bool ParseAppWidget(const base::DictionaryValue& dict,
       false, &app_widget.auto_launch, error))
     return false;
 
-  if (!ParseEach(dict, keys::kTizenAppWidgetBoxLabelKey,
-      true, ParseLabel, &app_widget, error))
+  if (!ForEachDictionaryCall(dict, keys::kTizenAppWidgetBoxLabelKey,
+      ValidCount::Min(1), ParseLabel, &app_widget, error))
     return false;
 
-  if (!ParseEach(dict, keys::kTizenAppWidgetBoxIconKey,
-      true, ParseIcon, &app_widget, error))
+  if (!ForEachDictionaryCall(dict, keys::kTizenAppWidgetBoxIconKey,
+      ValidCount::Max(1), ParseIcon, &app_widget, error))
     return false;
 
-  if (!ParseEach(dict, keys::kTizenAppWidgetBoxContentKey,
-      true, ParseContent, &app_widget, error))
+  if (!ForEachDictionaryCall(dict, keys::kTizenAppWidgetBoxContentKey,
+      ValidCount::Exactly(1), ParseContent, &app_widget, error))
     return false;
 
   app_widgets->push_back(app_widget);
@@ -442,20 +272,20 @@ bool ValidateEachId(const TizenAppWidgetVector& app_widgets,
 
   for (const TizenAppWidget& app_widget : app_widgets) {
     if (!unique_values.insert(app_widget.id).second) {
-      SetError(kErrMsgDuplicatedAppWidgetId, app_widget.id, error);
+      SafeSetError(kErrMsgDuplicatedAppWidgetId, app_widget.id, error);
       return false;
     }
 
     const size_t app_id_len = app_id.length();
 
     if (app_widget.id.find(app_id) != 0) {
-      SetError(kErrMsgInvalidAppWidgetIdBeginning, app_widget.id, error);
+      SafeSetError(kErrMsgInvalidAppWidgetIdBeginning, app_widget.id, error);
       return false;
     }
 
     const char kStringPattern[] = "[.][0-9a-zA-Z]+";
     if (!RE2::FullMatch(app_widget.id.substr(app_id_len), kStringPattern)) {
-      SetError(kErrMsgInvalidAppWidgetIdFormat, app_widget.id, error);
+      SafeSetError(kErrMsgInvalidAppWidgetIdFormat, app_widget.id, error);
       return false;
     }
   }
@@ -473,12 +303,12 @@ bool ValidateEachPrimary(const TizenAppWidgetVector& app_widgets,
       ++primary_count;
 
   if (!primary_count) {
-    SetError(kErrMsgNoPrimaryAppWidget, "", error);
+    SafeSetError(kErrMsgNoPrimaryAppWidget, error);
     return false;
   }
 
   if (primary_count > 1) {
-    SetError(kErrMsgToManyPrimaryAppWidgets, "", error);
+    SafeSetError(kErrMsgToManyPrimaryAppWidgets, error);
     return false;
   }
 
@@ -511,13 +341,13 @@ bool ValidateContentSize(const TizenAppWidgetSizeVector& content_size,
     mandatory_1x1_found |= size.type == TizenAppWidgetSizeType::k1x1;
 
     if (!size.preview.empty() && !IsValidPath(size.preview)) {
-      SetError(kErrMsgInvalidContentSizePreview, size.preview, error);
+      SafeSetError(kErrMsgInvalidContentSizePreview, size.preview, error);
       return false;
     }
   }
 
   if (!mandatory_1x1_found) {
-    SetError(kErrMsgNoMandatoryContentSize1x1, "", error);
+    SafeSetError(kErrMsgNoMandatoryContentSize1x1, error);
     return false;
   }
 
@@ -544,21 +374,14 @@ bool TizenAppWidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   const Manifest* manifest = application->GetManifest();
   DCHECK(manifest);
 
-  if (!manifest->HasPath(keys::kTizenWidgetKey)) {
-    SetError(kErrMsgNoMandatoryKey, keys::kTizenWidgetKey, error);
-    return false;
-  }
-
   const base::DictionaryValue* dict = nullptr;
-  if (!manifest->GetDictionary(keys::kTizenWidgetKey, &dict) || !dict) {
-    SetError(kErrMsgInvalidDictionary, keys::kTizenWidgetKey, error);
+  if (!GetMandatoryDictionary(*manifest, keys::kTizenWidgetKey, &dict, error))
     return false;
-  }
 
   TizenAppWidgetVector app_widgets;
 
-  if (!ParseEach(*dict, keys::kTizenAppWidgetKey,
-      false, ParseAppWidget, &app_widgets, error))
+  if (!ForEachDictionaryCall(*dict, keys::kTizenAppWidgetKey,
+      ValidCount::Any(), ParseAppWidget, &app_widgets, error))
     return false;
 
   scoped_ptr<TizenAppWidgetInfo> info(new TizenAppWidgetInfo(app_widgets));
@@ -578,11 +401,11 @@ bool TizenAppWidgetHandler::Validate(
           application->GetManifestData(keys::kTizenApplicationKey));
 
   if (!app_widget_info) {
-    SetError(kErrMsgAppWidgetInfoNotFound, "", error);
+    SafeSetError(kErrMsgAppWidgetInfoNotFound, error);
     return false;
   }
   if (!app_info) {
-    SetError(kErrMsgApplicationInfoNotFound, "", error);
+    SafeSetError(kErrMsgApplicationInfoNotFound, error);
     return false;
   }
 
@@ -597,25 +420,25 @@ bool TizenAppWidgetHandler::Validate(
   for (const TizenAppWidget& app_widget : app_widgets) {
     if (!app_widget.update_period.empty()
         && app_widget.update_period.front() < 1800) {
-      SetError(kErrMsgUpdatePeriodOutOfDomain,
+      SafeSetError(kErrMsgUpdatePeriodOutOfDomain,
           base::DoubleToString(app_widget.update_period.front()), error);
       return false;
     }
 
     if (app_widget.label.default_value.empty()
         && app_widget.label.lang_value_map.empty()) {
-      SetError(kErrMsgNoLabel, "", error);
+      SafeSetError(kErrMsgNoLabel, error);
       return false;
     }
 
     if (!app_widget.icon_src.empty()
         && !IsValidPathOrUrl(app_widget.icon_src)) {
-      SetError(kErrMsgInvalidIconSrc, app_widget.icon_src, error);
+      SafeSetError(kErrMsgInvalidIconSrc, app_widget.icon_src, error);
       return false;
     }
 
     if (!IsValidPathOrUrl(app_widget.content_src)) {
-      SetError(kErrMsgInvalidContentSrc, app_widget.content_src, error);
+      SafeSetError(kErrMsgInvalidContentSrc, app_widget.content_src, error);
       return false;
     }
 
@@ -627,12 +450,12 @@ bool TizenAppWidgetHandler::Validate(
           = app_widget.content_drop_view.front();
 
       if (!IsValidPathOrUrl(drop_view.src)) {
-        SetError(kErrMsgInvalidContentDropViewSrc, drop_view.src, error);
+        SafeSetError(kErrMsgInvalidContentDropViewSrc, drop_view.src, error);
         return false;
       }
 
       if (drop_view.height < 1 || drop_view.height > 380) {
-        SetError(kErrMsgContentDropViewHeightOutOfDomain,
+        SafeSetError(kErrMsgContentDropViewHeightOutOfDomain,
             base::IntToString(drop_view.height), error);
         return false;
       }
