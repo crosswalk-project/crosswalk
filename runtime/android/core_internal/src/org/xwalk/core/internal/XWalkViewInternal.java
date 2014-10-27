@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
@@ -771,16 +773,31 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * server is listening for commands.
      * The allowedUid argument can be used to specify the uid of the process
      * that is permitted to connect.
-     * TODO(wang16): Hide or remove this API after new API for getting remote
-     *               debugging url available.
-     *
-     * @hide
+     */
+    public void enableRemoteDebugging(int allowedUid) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.enableRemoteDebugging(allowedUid);
+    }
+
+    /**
+     * Get the websocket url for remote debugging.
+     * @return the web socket url to remote debug this xwalk view.
+     * null will be returned if remote debugging is not enabled.
+     * @since 4.0
      */
     @XWalkAPI
-    public String enableRemoteDebugging(int allowedUid) {
+    public URL getRemoteDebuggingUrl() {
         if (mContent == null) return null;
         checkThreadSafety();
-        return mContent.enableRemoteDebugging(allowedUid);
+        String wsUrl = mContent.getRemoteDebuggingUrl();
+        if (wsUrl == null || wsUrl.isEmpty()) return null;
+
+        try {
+            return new URL(wsUrl);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
     /**
@@ -832,8 +849,8 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
 
     // Enables remote debugging and returns the URL at which the dev tools server is listening
     // for commands. Only the current process is allowed to connect to the server.
-    String enableRemoteDebugging() {
-        return enableRemoteDebugging(mContext.getApplicationInfo().uid);
+    void enableRemoteDebugging() {
+        enableRemoteDebugging(mContext.getApplicationInfo().uid);
     }
 
     void disableRemoteDebugging() {
