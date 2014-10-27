@@ -764,6 +764,26 @@ class TestMakeApk(unittest.TestCase):
     self.assertTrue(content.find('android.permission.READ_CONTACTS') != -1)
     self.checkApks('Example', '1.0.0')
 
+  def testExtensionWithAndroidManifest(self):
+    test_entry_root = 'test_data/entry'
+    # Add redundant separators for test.
+    extension_path = 'test_data//extensions/adextension/'
+    cmd = ['python', 'make_apk.py', '--name=Example', '--app-version=1.0.0',
+           '--package=org.xwalk.example', '--app-root=%s' % test_entry_root,
+           '--app-local-path=contactextension.html',
+           '--extensions=%s' % extension_path,
+           '--project-dir=.', self._mode]
+    RunCommand(cmd)
+    self.addCleanup(Clean, 'Example', '1.0.0')
+    self.assertTrue(os.path.exists('Example'))
+    manifest = 'Example/AndroidManifest.xml'
+    with open(manifest, 'r') as content_file:
+      content = content_file.read()
+    self.assertTrue(os.path.exists(manifest))
+    self.assertTrue(content.find('_GOOGLE_PLAY_SERVICES_LIB_VERSION_') != -1)
+    self.checkApks('Example', '1.0.0')
+
+
   def testXPK(self):
     xpk_file = os.path.join('test_data', 'xpk', 'example.xpk')
     cmd = ['python', 'make_apk.py', '--package=org.xwalk.example',
@@ -1164,6 +1184,7 @@ def SuiteWithModeOption():
   test_suite.addTest(TestMakeApk('testEntryWithErrors'))
   test_suite.addTest(TestMakeApk('testExtensionsWithOneExtension'))
   test_suite.addTest(TestMakeApk('testExtensionsWithNonExtension'))
+  test_suite.addTest(TestMakeApk('testExtensionWithAndroidManifest'))
   test_suite.addTest(TestMakeApk('testExtensionWithPermissions'))
   test_suite.addTest(TestMakeApk('testFullscreen'))
   test_suite.addTest(TestMakeApk('testIconByOption'))

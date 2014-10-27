@@ -1,0 +1,6 @@
+{
+  "name":  "Ad",
+  "class": "com.example.extension.AdExtension",
+  "jsapi": "adextension.js",
+  "manifest": "AndroidManifest.xml"
+}
