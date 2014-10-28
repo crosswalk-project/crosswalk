@@ -6,7 +6,6 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 /**
@@ -21,12 +20,8 @@ public class OnRequestFocusTest extends XWalkViewTestBase {
         mOnRequestFocusHelper = mTestHelperBridge.getOnRequestFocusHelper();
     }
 
-    /*
     @SmallTest
     @Feature({"OnRequestFocus"})
-    See XWALK-2755.
-    */
-    @DisabledTest
     public void testOnRequestFocus() throws Throwable {
         final String url = "file:///android_asset/www/request_focus_main.html";
         int count = mOnRequestFocusHelper.getCallCount();

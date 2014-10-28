@@ -6,7 +6,6 @@ package org.xwalk.core.xwview.test;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.chromium.base.test.util.DisabledTest;
 import org.chromium.base.test.util.Feature;
 
 /**
@@ -21,12 +20,8 @@ public class OpenFileChooserTest extends XWalkViewTestBase {
         mOpenFileChooserHelper = mTestHelperBridge.getOpenFileChooserHelper();
     }
 
-    /*
     @SmallTest
     @Feature({"OpenFileChooser"})
-    See XWALK-2755.
-    */
-    @DisabledTest
     public void testOpenFileChooser() throws Throwable {
         final String name = "file_chooser.html";
         String fileContent = getFileContent(name);
