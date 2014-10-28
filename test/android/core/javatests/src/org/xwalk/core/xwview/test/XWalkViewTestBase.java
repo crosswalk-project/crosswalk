@@ -521,7 +521,7 @@ public class XWalkViewTestBase
     public void clickOnElementId(final String id, String frameName) throws Exception {
         String str;
         if (frameName != null) {
-            str = "top.window." + "LeftFrame" + ".document.getElementById('" + id + "')";
+            str = "top.window." + frameName + ".document.getElementById('" + id + "')";
         } else {
             str = "document.getElementById('" + id + "')";
         }
@@ -542,8 +542,7 @@ public class XWalkViewTestBase
         }, WAIT_TIMEOUT_MS, CHECK_INTERVAL));
 
         try {
-            String result = executeJavaScriptAndWaitForResult(
-                "var evObj = document.createEvent('Events'); " +
+            loadJavaScriptUrl("javascript:var evObj = document.createEvent('Events'); " +
                 "evObj.initEvent('click', true, false); " +
                 script2 +
                 "console.log('element with id [" + id + "] clicked');");
