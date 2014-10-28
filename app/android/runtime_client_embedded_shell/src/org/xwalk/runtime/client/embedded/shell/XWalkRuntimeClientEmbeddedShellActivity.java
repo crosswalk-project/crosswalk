@@ -4,7 +4,10 @@
 
 package org.xwalk.runtime.client.embedded.shell;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.MessageQueue;
@@ -23,12 +26,14 @@ import android.widget.TextView.OnEditorActionListener;
 import org.chromium.base.library_loader.LibraryLoader;
 import org.chromium.content.browser.TracingControllerAndroid;
 import org.xwalk.app.XWalkRuntimeActivityBase;
+import org.xwalk.core.XWalkPreferences;
 
 public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivityBase {
     // TODO(yongsheng): Add one flag to hide the url bar.
     private static final String TAG = XWalkRuntimeClientEmbeddedShellActivity.class.getName();
 
     private EditText mUrlTextView;
+    private BroadcastReceiver mReceiver;
     private TracingControllerAndroid mTracingController;
 
     TracingControllerAndroid getTracingController() {
@@ -40,12 +45,27 @@ public class XWalkRuntimeClientEmbeddedShellActivity extends XWalkRuntimeActivit
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE");
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null) return;
+
+                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING,
+                        Boolean.parseBoolean(bundle.getString("remotedebugging", "false")));
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
         super.onCreate(savedInstanceState);
         registerTracingReceiverWhenIdle();
     }
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(mReceiver);
         super.onDestroy();
         unregisterTracingReceiver();
     }

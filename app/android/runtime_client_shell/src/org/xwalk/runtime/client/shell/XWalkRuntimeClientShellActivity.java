@@ -4,7 +4,10 @@
 
 package org.xwalk.runtime.client.shell;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,16 +21,38 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import org.xwalk.app.XWalkRuntimeActivityBase;
+import org.xwalk.core.XWalkPreferences;
 
 public class XWalkRuntimeClientShellActivity extends XWalkRuntimeActivityBase {
     // TODO(yongsheng): Add one flag to hide the url bar.
     private static final String TAG = XWalkRuntimeClientShellActivity.class.getName();
 
     private EditText mUrlTextView;
+    private BroadcastReceiver mReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE");
+        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE");
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null) return;
+
+                XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING,
+                        Boolean.parseBoolean(bundle.getString("remotedebugging", "false")));
+            }
+        };
+        registerReceiver(mReceiver, intentFilter);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 
     private static String sanitizeUrl(String url) {
