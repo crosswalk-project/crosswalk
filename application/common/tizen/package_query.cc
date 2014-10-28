@@ -15,25 +15,32 @@ namespace {
 
 typedef ail_cb_ret_e (*PropertyCallback)(const ail_appinfo_h, void*, uid_t);
 
-ail_cb_ret_e callback_x_slp_exe_path(const ail_appinfo_h appinfo,
-    void* user_data, uid_t /*uid*/) {
-  char* package_exec;
-  ail_appinfo_get_str(appinfo, AIL_PROP_X_SLP_EXE_PATH, &package_exec);
-  if (!package_exec)
-    return AIL_CB_RET_CONTINUE;
+char kFieldInstalledTime[] = AIL_PROP_X_SLP_INSTALLEDTIME_INT;
+char kFieldPackageType[] = AIL_PROP_X_SLP_PACKAGETYPE_STR;
+char kFieldExePath[] = AIL_PROP_X_SLP_EXE_PATH;
 
-  std::string* x_slp_exe_path = static_cast<std::string*>(user_data);
-  *x_slp_exe_path = package_exec;
-  return AIL_CB_RET_CANCEL;
-}
+template<const char* field> struct CallbackForStr {
+  static ail_cb_ret_e callback(const ail_appinfo_h appinfo,
+      void* user_data, uid_t /*uid*/) {
+    char* str_name;
+    ail_appinfo_get_str(appinfo, field, &str_name);
+    if (!str_name)
+      return AIL_CB_RET_CONTINUE;
 
-ail_cb_ret_e callback_installed_time(const ail_appinfo_h appinfo,
-    void* user_data, uid_t /*uid*/) {
-  int* installed_time = static_cast<int*>(user_data);
-  ail_appinfo_get_int(appinfo, AIL_PROP_X_SLP_INSTALLEDTIME_INT,
-      installed_time);
-  return AIL_CB_RET_CANCEL;
-}
+    std::string* data = static_cast<std::string*>(user_data);
+    *data = str_name;
+    return AIL_CB_RET_CANCEL;
+  }
+};
+
+template<const char* field> struct CallbackForInt {
+  static ail_cb_ret_e callback(const ail_appinfo_h appinfo,
+      void* user_data, uid_t /*uid*/) {
+    int* data = static_cast<int*>(user_data);
+    ail_appinfo_get_int(appinfo, field, data);
+    return AIL_CB_RET_CANCEL;
+  }
+};
 
 void GetProperty(const std::string& id,
     const char* type,
@@ -72,7 +79,6 @@ void GetProperty(const std::string& id,
     return;
   }
 
-
   if (uid != GLOBAL_USER)
     ail_filter_list_usr_appinfo_foreach(filter, callback,
                                         user_data, uid);
@@ -86,8 +92,8 @@ base::FilePath GetPath(const std::string& app_id, const char* type) {
   std::string x_slp_exe_path;
   GetProperty(app_id,
       type,
-      callback_x_slp_exe_path,
-      static_cast<void*>(&x_slp_exe_path));
+      CallbackForStr<kFieldExePath>::callback,
+      &x_slp_exe_path);
 
   if (x_slp_exe_path.empty()) {
     return base::FilePath();
@@ -111,12 +117,21 @@ base::FilePath GetPackagePath(const std::string& pkg_id) {
   return GetPath(pkg_id, AIL_PROP_X_SLP_PKGID_STR);
 }
 
+std::string GetPackageType(const std::string& pkg_id) {
+  std::string type;
+  GetProperty(pkg_id,
+      AIL_PROP_X_SLP_PKGID_STR,
+      CallbackForStr<kFieldPackageType>::callback,
+      &type);
+  return type;
+}
+
 base::Time GetApplicationInstallationTime(const std::string& app_id) {
   int installed_time = 0;  // seconds since epoch
   GetProperty(app_id,
       AIL_PROP_X_SLP_APPID_STR,
-      callback_installed_time,
-      static_cast<void*>(&installed_time));
+      CallbackForInt<kFieldInstalledTime>::callback,
+      &installed_time);
   return base::Time::FromTimeT(installed_time);
 }
 

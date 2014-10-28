@@ -17,9 +17,11 @@ namespace application {
 base::FilePath GetApplicationPath(const std::string& app_id);
 base::FilePath GetPackagePath(const std::string& pkg_id);
 
+std::string GetPackageType(const std::string& pkg_id);
+
 base::Time GetApplicationInstallationTime(const std::string& app_id);
 
-}  // application
-}  // xwalk
+}  // namespace application
+}  // namespace xwalk
 
 #endif  // XWALK_APPLICATION_COMMON_TIZEN_PACKAGE_QUERY_H_
