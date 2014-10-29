@@ -334,6 +334,7 @@
             '../components/components.gyp:cdm_browser',
             'xwalk_core_jar_jni',
             'xwalk_core_native_jni',
+            '<(DEPTH)/base/base.gyp:base_icu_alternatives',
           ],
           'sources': [
             'experimental/native_file_system/virtual_root_provider_android.cc',

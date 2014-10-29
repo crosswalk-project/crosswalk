@@ -55,7 +55,7 @@
           '<(PRODUCT_DIR)/xwalk_xwview/assets/jsapi/wifidirect_api.js',
         ],
         'conditions': [
-          ['icu_use_data_file_flag==1', {
+          ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/xwalk_xwview/assets/icudtl.dat',
             ],
@@ -101,7 +101,7 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [
-            ['icu_use_data_file_flag==1', {
+            ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
               ],
@@ -349,7 +349,7 @@
           '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/www/manifest_xwalk_hosts.json',
         ],
         'conditions': [
-          ['icu_use_data_file_flag==1', {
+          ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/runtime_client_embedded_shell/assets/icudtl.dat',
             ],
@@ -413,7 +413,7 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [
-            ['icu_use_data_file_flag==1', {
+            ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
               ],
@@ -568,7 +568,7 @@
           '<(PRODUCT_DIR)/sample/assets/xwalk.pak',
         ],
         'conditions': [
-          ['icu_use_data_file_flag==1', {
+          ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
             'additional_input_paths': [
               '<(PRODUCT_DIR)/sample/assets/icudtl.dat',
             ],
@@ -600,7 +600,7 @@
             '<(PRODUCT_DIR)/xwalk.pak',
           ],
           'conditions': [
-            ['icu_use_data_file_flag==1', {
+            ['icu_use_data_file_flag==1 and use_icu_alternatives_on_android!=1', {
               'files': [
                 '<(PRODUCT_DIR)/icudtl.dat',
               ],
