@@ -5,7 +5,6 @@
 
 #include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
 
-#include "base/lazy_instance.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/scoped_vector.h"
 #include "content/public/browser/browser_thread.h"
@@ -18,25 +17,31 @@
 #include "net/base/load_flags.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request.h"
+#include "xwalk/runtime/browser/runtime_platform_util.h"
 
-namespace {
-base::LazyInstance<xwalk::RuntimeResourceDispatcherHostDelegate>
-    g_runtime_resource_dispatcher_host_delegate = LAZY_INSTANCE_INITIALIZER;
-}
+#if defined(OS_ANDROID)
+#include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
+#endif
 
 namespace xwalk {
+
+// static
+scoped_ptr<RuntimeResourceDispatcherHostDelegate>
+RuntimeResourceDispatcherHostDelegate::Create() {
+#if defined(OS_ANDROID)
+  return make_scoped_ptr(
+      static_cast<RuntimeResourceDispatcherHostDelegate*>(
+            new RuntimeResourceDispatcherHostDelegateAndroid()));
+#else
+  return make_scoped_ptr(new RuntimeResourceDispatcherHostDelegate());
+#endif
+}
 
 RuntimeResourceDispatcherHostDelegate::RuntimeResourceDispatcherHostDelegate() {
 }
 
 RuntimeResourceDispatcherHostDelegate::
 ~RuntimeResourceDispatcherHostDelegate() {
-}
-
-// static
-void RuntimeResourceDispatcherHostDelegate::ResourceDispatcherHostCreated() {
-  content::ResourceDispatcherHost::Get()->SetDelegate(
-      &g_runtime_resource_dispatcher_host_delegate.Get());
 }
 
 void RuntimeResourceDispatcherHostDelegate::RequestBeginning(
@@ -62,6 +67,7 @@ bool RuntimeResourceDispatcherHostDelegate::HandleExternalProtocol(
     const GURL& url,
     int child_id,
     int route_id) {
+  platform_util::OpenExternal(url);
   return true;
 }
 

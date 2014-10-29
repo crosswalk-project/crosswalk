@@ -12,6 +12,7 @@
 #include "content/public/browser/content_browser_client.h"
 #include "content/public/common/main_function_params.h"
 #include "xwalk/runtime/browser/runtime_geolocation_permission_context.h"
+#include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate.h"
 
 namespace content {
 class BrowserContext;
@@ -136,8 +137,8 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
   virtual content::BrowserPpapiHost* GetExternalBrowserPpapiHost(
       int plugin_process_id) OVERRIDE;
 
-#if defined(OS_ANDROID)
-  virtual void ResourceDispatcherHostCreated();
+#if defined(OS_ANDROID) || defined(OS_TIZEN)  || defined(OS_LINUX)
+  virtual void ResourceDispatcherHostCreated() OVERRIDE;
 #endif
 
   virtual void GetStoragePartitionConfigForSite(
@@ -153,6 +154,12 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
 
   XWalkBrowserMainParts* main_parts() { return main_parts_; }
 
+#if defined(OS_ANDROID)
+  RuntimeResourceDispatcherHostDelegate* resource_dispatcher_host_delegate() {
+    return resource_dispatcher_host_delegate_.get();
+  }
+#endif
+
  private:
   XWalkRunner* xwalk_runner_;
   net::URLRequestContextGetter* url_request_context_getter_;
@@ -160,6 +167,9 @@ class XWalkContentBrowserClient : public content::ContentBrowserClient {
     geolocation_permission_context_;
   XWalkBrowserMainParts* main_parts_;
   RuntimeContext* runtime_context_;
+
+  scoped_ptr<RuntimeResourceDispatcherHostDelegate>
+      resource_dispatcher_host_delegate_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkContentBrowserClient);
 };

@@ -30,4 +30,8 @@ bool IsVisible(gfx::NativeView view) {
   return true;
 }
 
+void OpenExternal(const GURL& url) {
+  NOTIMPLEMENTED();
+}
+
 }  // namespace platform_util
