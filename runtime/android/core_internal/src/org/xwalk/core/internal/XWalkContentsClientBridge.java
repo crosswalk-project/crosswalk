@@ -272,8 +272,8 @@ class XWalkContentsClientBridge extends XWalkContentsClient
 
     @Override
     public void onReceivedSslError(ValueCallback<Boolean> callback, SslError error) {
-        if (mXWalkClient != null && isOwnerActivityRunning()) {
-            mXWalkClient.onReceivedSslError(mXWalkView, callback, error);
+        if (mXWalkResourceClient != null && isOwnerActivityRunning()) {
+            mXWalkResourceClient.onReceivedSslError(mXWalkView, callback, error);
         }
     }
 
