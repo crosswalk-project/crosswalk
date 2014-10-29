@@ -28,7 +28,11 @@ ozone_wayland_rev = '9a04e61a2c373bc02dce2b6dfac6f56d99981598'
 # assets from Chromium's servers with a revision that exists there. We need an
 # SVN revision while Blink is still in SVN.
 blink_crosswalk_rev = 'ed2bae8ced284782cbd55f1597e02d6ee621621b'
-blink_upstream_rev = '183270'
+blink_upstream_rev = '184144'  # FIXME(wang16): Specify a later revision than
+                               # the one we actually have in blink-crosswalk
+                               # because of crbug.com/425155.
+                               # This will not be needed in M40 or M39 past
+                               # Blink r184144.
 
 crosswalk_git = 'https://github.com/crosswalk-project'
 ozone_wayland_git = 'https://github.com/01org'
