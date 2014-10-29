@@ -104,12 +104,6 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   command_line->AppendSwitch(switches::kDisableWebRtcHWEncoding);
 #endif
 
-  // For fullscreen video playback, the ContentVideoView is still buggy, so
-  // we switch back to ContentVideoViewLegacy for temp.
-  // TODO(shouqun): Remove this flag when ContentVideoView is ready.
-  command_line->AppendSwitch(
-      switches::kDisableOverlayFullscreenVideoSubtitle);
-
   command_line->AppendSwitch(switches::kEnableViewportMeta);
 
   XWalkBrowserMainParts::PreMainMessageLoopStart();
