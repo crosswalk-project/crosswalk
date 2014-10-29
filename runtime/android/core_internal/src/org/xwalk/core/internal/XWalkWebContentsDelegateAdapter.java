@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
+import org.chromium.content.browser.ContentVideoView;
 
 class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
@@ -64,6 +65,10 @@ class XWalkWebContentsDelegateAdapter extends XWalkWebContentsDelegate {
 
     @Override
     public void toggleFullscreen(boolean enterFullscreen) {
+        if (!enterFullscreen) {
+            ContentVideoView videoView = ContentVideoView.getContentVideoView();
+            if (videoView != null) videoView.exitFullscreen(false);
+        }
         if (mXWalkContentsClient != null) mXWalkContentsClient.onToggleFullscreen(enterFullscreen);
     }
 
