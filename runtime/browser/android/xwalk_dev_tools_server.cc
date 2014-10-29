@@ -183,17 +183,28 @@ class XWalkDevToolsDelegate
 class UnixDomainServerSocketFactory
     : public content::DevToolsHttpHandler::ServerSocketFactory {
  public:
-  explicit UnixDomainServerSocketFactory(const std::string& socket_name)
-      : content::DevToolsHttpHandler::ServerSocketFactory(socket_name, 0, 1) {}
+  UnixDomainServerSocketFactory(
+      const std::string& socket_name,
+      xwalk::XWalkDevToolsServer* xwalk_devtools_server)
+      : content::DevToolsHttpHandler::ServerSocketFactory(socket_name, 0, 1),
+        xwalk_devtools_server_(xwalk_devtools_server) {}
 
  private:
   // content::DevToolsHttpHandler::ServerSocketFactory.
   virtual scoped_ptr<net::ServerSocket> Create() const OVERRIDE {
+    net::UnixDomainServerSocket::AuthCallback auth_callback =
+        base::Bind(&xwalk::XWalkDevToolsServer::CanUserConnectToDevTools,
+        base::Unretained(xwalk_devtools_server_));
+
     return scoped_ptr<net::ServerSocket>(
         new net::UnixDomainServerSocket(
-            base::Bind(&content::CanUserConnectToDevTools),
+            auth_callback,
             true /* use_abstract_namespace */));
   }
+
+  // Need here for redirecting authentication to custom
+  // XWalkDevToolsServer::CanUserConnectToDevTools instead only Chromium one.
+  xwalk::XWalkDevToolsServer* xwalk_devtools_server_;
 
   DISALLOW_COPY_AND_ASSIGN(UnixDomainServerSocketFactory);
 };
@@ -233,7 +244,7 @@ void XWalkDevToolsServer::Start(bool allow_debug_permission) {
               base::Unretained(this));
 
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
-      new UnixDomainServerSocketFactory(socket_name_));
+      new UnixDomainServerSocketFactory(socket_name_, this));
   protocol_handler_ = content::DevToolsHttpHandler::Start(
       factory.Pass(),
       base::StringPrintf(kFrontEndURL, content::GetWebKitRevision().c_str()),

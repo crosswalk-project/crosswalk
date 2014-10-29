@@ -32,10 +32,10 @@ class XWalkDevToolsServer {
 
   void AllowConnectionFromUid(uid_t uid);
 
- private:
   bool CanUserConnectToDevTools(
     const net::UnixDomainServerSocket::Credentials& credentials);
 
+ private:
   std::string socket_name_;
   content::DevToolsHttpHandler* protocol_handler_;
   uid_t allowed_uid_;
