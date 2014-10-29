@@ -349,6 +349,10 @@ if __name__ == '__main__':
   if gyp_vars_dict.get('OS') == 'android':
     args.append('-Dnotifications=1')
     args.append('-Drelease_unwind_tables=0')
+    # LZMA is disalbed by default.
+    args.append('-Duse_lzma=0')
+    # Enable flags for crosswalk mini by default
+    args.append('-Duse_icu_alternatives_on_android=1')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
