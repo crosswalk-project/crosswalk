@@ -40,7 +40,6 @@ import android.widget.TextView;
 public class XWalkClient {
 
     private Context mContext;
-    private AlertDialog mDialog;
     private XWalkViewInternal mXWalkView;
 
     public XWalkClient(XWalkViewInternal view) {
@@ -105,41 +104,6 @@ public class XWalkClient {
      */
     public void doUpdateVisitedHistory(XWalkViewInternal view, String url,
             boolean isReload) {
-    }
-
-    /**
-     * Notify the host application that an SSL error occurred while loading a
-     * resource. The host application must call either handler.cancel() or
-     * handler.proceed(). Note that the decision may be retained for use in
-     * response to future SSL errors. The default behavior is to cancel the
-     * load.
-     *
-     * @param view The XWalkViewInternal that is initiating the callback.
-     * @param callback The callback class. Passing 'true' means accepting the
-     *                 ssl error and continue to load. Passing 'false' means
-     *                 forbidding to load the web page.
-     * @param error The SSL error object.
-     */
-    public void onReceivedSslError(XWalkViewInternal view, ValueCallback<Boolean> callback,
-            SslError error) {
-        final ValueCallback<Boolean> valueCallback = callback;
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
-        // Don't use setOnDismissListener as it requires API level 17.
-        dialogBuilder.setTitle(R.string.ssl_alert_title)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        valueCallback.onReceiveValue(true);
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton(android.R.string.cancel, null)
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog) {
-                        valueCallback.onReceiveValue(false);
-                    }
-                });
-        mDialog = dialogBuilder.create();
-        mDialog.show();
     }
 
     /**

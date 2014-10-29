@@ -7,7 +7,9 @@ package org.xwalk.core.internal;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.http.SslError;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceResponse;
 
 /**
@@ -217,5 +219,43 @@ public class XWalkResourceClientInternal {
     @XWalkAPI
     public boolean shouldOverrideUrlLoading(XWalkViewInternal view, String url) {
         return false;
+    }
+
+    /**
+      * Notify the host application that an SSL error occurred while loading a
+      * resource. The host application must call either callback.onReceivedValue(true)
+      * or callback.onReceivedValue(false) . Note that the decision may be retained for
+      * use in response to future SSL errors. The default behavior is to pop up a dialog
+      * @param view the xwalkview that is initiating the callback
+      * @param callback passing 'true' means accepting the ssl error and continue to load.
+      *                 passing 'false' means forbidding to load the web page.
+      * @param error the SSL error object
+      * @since 4.0
+      */
+    @XWalkAPI
+    public void onReceivedSslError(XWalkViewInternal view, ValueCallback<Boolean> callback,
+            SslError error) {
+        final ValueCallback<Boolean> valueCallback = callback;
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(view.getContext());
+        dialogBuilder.setTitle(R.string.ssl_alert_title)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        valueCallback.onReceiveValue(true);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        valueCallback.onReceiveValue(false);
+                        dialog.dismiss();
+                    }
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        valueCallback.onReceiveValue(false);
+                    }
+                });
+        dialogBuilder.create().show();
     }
 }
