@@ -56,6 +56,7 @@
         '../ui/shell_dialogs/shell_dialogs.gyp:shell_dialogs',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
+        'generate_upstream_blink_version',
         'xwalk_application_lib',
         'xwalk_resources',
         'extensions/extensions.gyp:xwalk_extensions',
@@ -423,6 +424,34 @@
             ['exclude', '^runtime/renderer/pepper/'],
           ],
         }],
+      ],
+    },
+    {
+      'target_name': 'generate_upstream_blink_version',
+      'type': 'none',
+      'actions': [
+        {
+          'action_name': 'generate_blink_upstream_version',
+          'inputs': [
+            '<(script)',
+            '<(upstream)',
+            '<(template)',
+          ],
+          'outputs': [
+            '<(SHARED_INTERMEDIATE_DIR)/blink_upstream_version.h',
+          ],
+          'action': ['python',
+                     '<(script)',
+                     '-f', '<(upstream)',
+                     '<(template)',
+                     '<@(_outputs)',
+          ],
+          'variables': {
+            'script': '<(DEPTH)/build/util/version.py',
+            'upstream': '<(DEPTH)/xwalk/build/UPSTREAM.blink',
+            'template': 'runtime/browser/blink_upstream_version.h.in',
+          },
+        },
       ],
     },
     {
