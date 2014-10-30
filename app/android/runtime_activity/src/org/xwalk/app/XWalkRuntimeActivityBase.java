@@ -6,11 +6,9 @@ package org.xwalk.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,8 +31,6 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
 
     private boolean mShownNotFoundDialog = false;
 
-    private BroadcastReceiver mReceiver;
-
     private boolean mRemoteDebugging = false;
 
     private boolean mUseAnimatableView = false;
@@ -45,27 +41,6 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        IntentFilter intentFilter = new IntentFilter("org.xwalk.intent");
-        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_AVAILABLE");
-        intentFilter.addAction("android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE");
-        mReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Bundle bundle = intent.getExtras();
-                if (bundle == null)
-                    return;
-
-                if (bundle.containsKey("remotedebugging")) {
-                    String extra = bundle.getString("remotedebugging");
-                    if (extra.equals("true")) {
-                        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
-                    } else if (extra.equals("false")) {
-                        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, false);
-                    }
-                }
-            }
-        };
-        registerReceiver(mReceiver, intentFilter);
         super.onCreate(savedInstanceState);
         tryLoadRuntimeView();
         if (mRuntimeView != null) mRuntimeView.onCreate();
@@ -99,7 +74,6 @@ public abstract class XWalkRuntimeActivityBase extends XWalkActivity {
 
     @Override
     public void onDestroy() {
-        unregisterReceiver(mReceiver);
         if (mExtensionManager != null) mExtensionManager.onDestroy();
         super.onDestroy();
     }
