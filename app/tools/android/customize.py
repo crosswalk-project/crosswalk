@@ -24,6 +24,7 @@ from handle_xml import AddElementAttribute
 from handle_xml import AddElementAttributeAndText
 from handle_xml import EditElementAttribute
 from handle_xml import EditElementValueByNodeName
+from handle_xml import MergeNodes
 from handle_permissions import HandlePermissions
 from util import CleanDir, CreateAndCopyDir, GetBuildDir
 from xml.dom import minidom
@@ -447,6 +448,25 @@ def CustomizeExtensions(app_info, extensions):
         file_handle = open(manifest_path, 'w')
         xmldoc.writexml(file_handle, encoding='utf-8')
         file_handle.close()
+      if 'manifest' in json_output:
+        manifest_merge_path = os.path.join(source_path, json_output['manifest'])
+        if not os.path.isfile(manifest_merge_path):
+          print('Error: %s specified in the extension\'s JSON '
+                'could not be found.' % manifest_merge_path)
+          sys.exit(9)
+        xmldoc_merge = minidom.parse(manifest_merge_path)
+        manifest_nodes = xmldoc.getElementsByTagName('manifest')
+        manifest_nodes_merge = xmldoc_merge.getElementsByTagName('manifest')
+        if not manifest_nodes:
+          print('Error: %s does not have a <manifest> node.' % manifest_path)
+          sys.exit(9)
+        if not manifest_nodes_merge:
+          print('Error: %s does not have a <manifest> node.'
+                % manifest_merge_path)
+          sys.exit(9)
+        MergeNodes(manifest_nodes[0], manifest_nodes_merge[0])
+        with open(manifest_path, 'w') as file_handle:
+          xmldoc.writexml(file_handle, encoding='utf-8')
 
   # Write configuration of extensions into the target extensions-config.json.
   if extension_json_list:
