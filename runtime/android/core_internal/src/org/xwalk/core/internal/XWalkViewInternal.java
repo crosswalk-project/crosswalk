@@ -529,6 +529,17 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     /**
+     * Evaluate a fragment of JavaScript code.
+     * @param script the JavaScript string.
+     */
+    @XWalkAPI
+    public void evaluateJavascriptForTests(String script) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.evaluateJavascriptForTests(script);
+    }
+
+    /**
      * Clear the resource cache. Note that the cache is per-application, so this
      * will clear the cache for all XWalkViews used.
      * @param includeDiskFiles indicate whether to clear disk files for cache.

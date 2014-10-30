@@ -482,6 +482,15 @@ public class XWalkViewTestBase
         return helper.getJsonResultAndClear();
     }
 
+    protected void executeJavaScript(final String code) throws Exception {
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mXWalkView.evaluateJavascriptForTests(code);
+            }
+        });
+    }
+
     protected String getUrlOnUiThread() throws Exception {
         return runTestOnUiThreadAndGetResult(new Callable<String>() {
             @Override
