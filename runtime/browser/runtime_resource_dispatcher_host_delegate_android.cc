@@ -14,8 +14,6 @@
 #include "components/navigation_interception/intercept_navigation_delegate.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/resource_controller.h"
-#include "content/public/browser/resource_dispatcher_host.h"
-#include "content/public/browser/resource_dispatcher_host_login_delegate.h"
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/browser/resource_throttle.h"
 #include "content/public/common/url_constants.h"
@@ -27,16 +25,13 @@
 #include "xwalk/runtime/browser/android/xwalk_contents_io_thread_client.h"
 #include "xwalk/runtime/browser/android/xwalk_download_resource_throttle.h"
 #include "xwalk/runtime/browser/android/xwalk_login_delegate.h"
+#include "xwalk/runtime/browser/xwalk_content_browser_client.h"
 
 using content::BrowserThread;
 using navigation_interception::InterceptNavigationDelegate;
 using xwalk::XWalkContentsIoThreadClient;
 
 namespace {
-base::LazyInstance<xwalk::RuntimeResourceDispatcherHostDelegateAndroid>
-    g_runtime_resource_dispatcher_host_delegate_android =
-        LAZY_INSTANCE_INITIALIZER;
-
 void SetCacheControlFlag(
     net::URLRequest* request, int flag) {
   const int all_cache_control_flags = net::LOAD_BYPASS_CACHE |
@@ -93,7 +88,8 @@ IoThreadClientThrottle::IoThreadClientThrottle(int render_process_id,
 
 IoThreadClientThrottle::~IoThreadClientThrottle() {
   DCHECK(BrowserThread::CurrentlyOn(BrowserThread::IO));
-  g_runtime_resource_dispatcher_host_delegate_android.Get().
+  static_cast<RuntimeResourceDispatcherHostDelegateAndroid*>(
+      XWalkContentBrowserClient::Get()->resource_dispatcher_host_delegate())->
       RemovePendingThrottleOnIoThread(this);
 }
 
@@ -204,13 +200,6 @@ RuntimeResourceDispatcherHostDelegateAndroid::
 
 RuntimeResourceDispatcherHostDelegateAndroid::
     ~RuntimeResourceDispatcherHostDelegateAndroid() {
-}
-
-// static
-void RuntimeResourceDispatcherHostDelegateAndroid::
-ResourceDispatcherHostCreated() {
-  content::ResourceDispatcherHost::Get()->SetDelegate(
-      &g_runtime_resource_dispatcher_host_delegate_android.Get());
 }
 
 void RuntimeResourceDispatcherHostDelegateAndroid::RequestBeginning(
@@ -358,7 +347,9 @@ void RuntimeResourceDispatcherHostDelegateAndroid::OnIoThreadClientReady(
           &RuntimeResourceDispatcherHostDelegateAndroid::
           OnIoThreadClientReadyInternal,
           base::Unretained(
-              g_runtime_resource_dispatcher_host_delegate_android.Pointer()),
+              static_cast<RuntimeResourceDispatcherHostDelegateAndroid*>(
+                  XWalkContentBrowserClient::Get()->
+                      resource_dispatcher_host_delegate())),
           new_render_process_id, new_render_frame_id));
 }
 
@@ -372,7 +363,9 @@ void RuntimeResourceDispatcherHostDelegateAndroid::AddPendingThrottle(
           &RuntimeResourceDispatcherHostDelegateAndroid::
               AddPendingThrottleOnIoThread,
           base::Unretained(
-              g_runtime_resource_dispatcher_host_delegate_android.Pointer()),
+              static_cast<RuntimeResourceDispatcherHostDelegateAndroid*>(
+                  XWalkContentBrowserClient::Get()->
+                      resource_dispatcher_host_delegate())),
           render_process_id, render_frame_id, pending_throttle));
 }
 

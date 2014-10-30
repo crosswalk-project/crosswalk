@@ -16,6 +16,7 @@ class RuntimeResourceDispatcherHostDelegate
   virtual ~RuntimeResourceDispatcherHostDelegate();
 
   static void ResourceDispatcherHostCreated();
+  static scoped_ptr<RuntimeResourceDispatcherHostDelegate> Create();
 
   virtual void RequestBeginning(
       net::URLRequest* request,

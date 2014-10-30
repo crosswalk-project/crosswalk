@@ -17,6 +17,7 @@
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/resource_context.h"
+#include "content/public/browser/resource_dispatcher_host.h"
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/main_function_params.h"
@@ -51,7 +52,6 @@
 #include "xwalk/runtime/browser/android/xwalk_cookie_access_policy.h"
 #include "xwalk/runtime/browser/android/xwalk_contents_client_bridge.h"
 #include "xwalk/runtime/browser/android/xwalk_web_contents_view_delegate.h"
-#include "xwalk/runtime/browser/runtime_resource_dispatcher_host_delegate_android.h"
 #include "xwalk/runtime/browser/xwalk_browser_main_parts_android.h"
 #include "xwalk/runtime/common/android/xwalk_globals_android.h"
 #else
@@ -348,12 +348,12 @@ content::BrowserPpapiHost*
   return NULL;
 }
 
-#if defined(OS_ANDROID)
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
-  RuntimeResourceDispatcherHostDelegateAndroid::
-  ResourceDispatcherHostCreated();
+  resource_dispatcher_host_delegate_ =
+      (RuntimeResourceDispatcherHostDelegate::Create()).Pass();
+  content::ResourceDispatcherHost::Get()->SetDelegate(
+      resource_dispatcher_host_delegate_.get());
 }
-#endif
 
 content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
