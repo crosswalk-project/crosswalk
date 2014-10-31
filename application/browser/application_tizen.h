@@ -42,11 +42,18 @@ class ApplicationTizen :  // NOLINT
 
   virtual base::FilePath GetSplashScreenPath() OVERRIDE;
 
+  // Runtime::Observer implementation.
+  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
+
 #if defined(USE_OZONE)
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
 
+#if defined(OS_TIZEN_MOBILE)
+  NativeAppWindow* root_window_;
+#endif
   scoped_ptr<CookieManager> cookie_manager_;
   bool is_suspended_;
 };

@@ -16,6 +16,21 @@ using xwalk::NativeAppWindow;
 using xwalk::Runtime;
 using xwalk::extensions::XWalkExtensionVector;
 
+namespace {
+Runtime* CreateWithDefaultWindow(
+    xwalk::RuntimeContext* runtime_context, const GURL& url,
+    Runtime::Observer* observer = NULL) {
+  Runtime* runtime = Runtime::Create(runtime_context, observer);
+  runtime->LoadURL(url);
+#if !defined(OS_ANDROID)
+  xwalk::RuntimeUIStrategy ui_strategy;
+  xwalk::NativeAppWindow::CreateParams params;
+  ui_strategy.Show(runtime, params);
+#endif
+  return runtime;
+}
+}  // namespace
+
 class ExternalExtensionMultiProcessTest : public XWalkExtensionsTestBase {
  public:
   ExternalExtensionMultiProcessTest()
@@ -124,7 +139,7 @@ IN_PROC_BROWSER_TEST_F(ExternalExtensionMultiProcessTest,
   WaitForLoadStop(runtime()->web_contents());
   EXPECT_EQ(1, CountRegisterExtensions());
 
-  Runtime* new_runtime = Runtime::CreateWithDefaultWindow(
+  Runtime* new_runtime = CreateWithDefaultWindow(
       GetRuntimeContext(), url, runtime_registry());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   EXPECT_NE(runtime(), new_runtime);

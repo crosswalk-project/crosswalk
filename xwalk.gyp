@@ -183,6 +183,8 @@
         'runtime/browser/runtime_resource_dispatcher_host_delegate_android.h',
         'runtime/browser/runtime_select_file_policy.cc',
         'runtime/browser/runtime_select_file_policy.h',
+        'runtime/browser/runtime_ui_strategy.cc',
+        'runtime/browser/runtime_ui_strategy.h',
         'runtime/browser/runtime_url_request_context_getter.cc',
         'runtime/browser/runtime_url_request_context_getter.h',
         'runtime/browser/speech/speech_recognition_manager_delegate.cc',
