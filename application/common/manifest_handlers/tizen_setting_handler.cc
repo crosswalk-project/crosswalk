@@ -49,6 +49,10 @@ bool TizenSettingHandler::Parse(scoped_refptr<ApplicationData> application,
   manifest->GetString(keys::kTizenEncryptionKey, &encryption);
   app_info->set_encryption_enabled(encryption == "enable");
 
+  std::string context_menu;
+  manifest->GetString(keys::kTizenContextMenuKey, &context_menu);
+  app_info->set_context_menu_enabled(context_menu != "disable");
+
   application->SetManifestData(keys::kTizenSettingKey,
                                app_info.release());
   return true;
@@ -82,6 +86,15 @@ bool TizenSettingHandler::Validate(
   if (!encryption.empty() && encryption != "enable" &&
       encryption != "disable") {
     *error = std::string("The encryption value must be 'enable'/'disable', "
+                         "or not specified in configuration file.");
+    return false;
+  }
+  std::string context_menu;
+  manifest->GetString(keys::kTizenContextMenuKey, &context_menu);
+  if (!context_menu.empty() &&
+      context_menu != "enable" &&
+      context_menu != "disable") {
+    *error = std::string("The context-menu value must be 'enable'/'disable', "
                          "or not specified in configuration file.");
     return false;
   }
