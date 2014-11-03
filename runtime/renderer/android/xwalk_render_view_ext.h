@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_view_observer.h"
+#include "third_party/skia/include/core/SkColor.h"
 #include "third_party/WebKit/public/web/WebPermissionClient.h"
 
 namespace blink {
@@ -15,7 +16,7 @@ namespace blink {
 class WebNode;
 class WebURL;
 
-}  // namespace WebKit
+}  // namespace blink
 
 namespace xwalk {
 
@@ -48,6 +49,8 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
   void OnSetInitialPageScale(double page_scale_factor);
 
   void UpdatePageScaleFactor();
+
+  void OnSetBackgroundColor(SkColor c);
 
   bool capture_picture_enabled_;
 

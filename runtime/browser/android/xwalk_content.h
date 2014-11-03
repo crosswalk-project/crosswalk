@@ -66,6 +66,7 @@ class XWalkContent {
                        jobject obj,
                        jstring path,
                        jstring manifest);
+  void SetBackgroundColor(JNIEnv* env, jobject obj, jint color);
 
   // Geolocation API support
   void ShowGeolocationPrompt(const GURL& origin,

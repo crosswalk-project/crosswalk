@@ -62,6 +62,7 @@ class XWalkRenderViewHostExt : public content::WebContentsObserver,
   // the meta viewport tag.
   void SetInitialPageScale(double page_scale_factor);
   void SetJsOnlineProperty(bool network_up);
+  void SetBackgroundColor(SkColor c);
 
   // Sets the white list for Cross-Origin access.
   void SetOriginAccessWhitelist(const std::string& base_url,
