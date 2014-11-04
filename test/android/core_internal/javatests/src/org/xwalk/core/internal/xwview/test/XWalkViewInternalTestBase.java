@@ -181,14 +181,6 @@ public class XWalkViewInternalTestBase
         });
     }
 
-    protected void loadJavaScriptUrl(final String url) throws Exception {
-        if (!url.startsWith("javascript:")) {
-            Log.w(TAG, "loadJavascriptUrl only accepts javascript: url");
-            return;
-        }
-        loadUrlAsync(url);
-    }
-
     protected void loadUrlSync(final String url) throws Exception {
         CallbackHelper pageFinishedHelper = mTestHelperBridge.getOnPageFinishedHelper();
         int currentCallCount = pageFinishedHelper.getCallCount();

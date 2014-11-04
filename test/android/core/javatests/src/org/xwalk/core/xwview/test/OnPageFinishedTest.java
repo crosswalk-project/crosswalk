@@ -118,7 +118,7 @@ public class OnPageFinishedTest extends XWalkViewTestBase {
         assertEquals(0, currentCallCount);
 
         loadDataAsync(null, html, "text/html", false);
-        loadJavaScriptUrl("javascript: try { console.log('foo'); } catch(e) {};");
+        executeJavaScript("try { console.log('foo'); } catch(e) {};");
 
         onPageFinishedHelper.waitForCallback(currentCallCount);
         assertEquals("about:blank", onPageFinishedHelper.getUrl());

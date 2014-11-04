@@ -561,13 +561,13 @@ public class ShouldOverrideUrlLoadingTest extends XWalkViewTestBase {
     @SmallTest
     @Feature({"XWalkView", "Navigation"})
     public void testDoubleNavigateDoesNotSuppressInitialNavigate() throws Throwable {
-        final String jsUrl = "javascript:try{console.log('processed js loadUrl');}catch(e){};";
+        final String jsUrl = "try{console.log('processed js loadUrl');}catch(e){};";
 
         // Do a double navigagtion, the second being an effective no-op, in quick succession (i.e.
         // without yielding the main thread inbetween).
         loadDataSync(null,
                 CommonResources.makeHtmlPageWithSimpleLinkTo(DATA_URL), "text/html", false);
-        loadJavaScriptUrl(jsUrl);
+        executeJavaScript(jsUrl);
         assertEquals(0, mShouldOverrideUrlLoadingHelper.getCallCount());
     }
 }
