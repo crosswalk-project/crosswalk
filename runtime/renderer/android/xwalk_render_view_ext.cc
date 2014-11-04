@@ -149,6 +149,7 @@ bool XWalkRenderViewExt::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(XWalkViewMsg_ResetScrollAndScaleState,
                         OnResetScrollAndScaleState)
     IPC_MESSAGE_HANDLER(XWalkViewMsg_SetInitialPageScale, OnSetInitialPageScale)
+    IPC_MESSAGE_HANDLER(XWalkViewMsg_SetBackgroundColor, OnSetBackgroundColor)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -259,6 +260,12 @@ void XWalkRenderViewExt::OnSetInitialPageScale(double page_scale_factor) {
     return;
   render_view()->GetWebView()->setInitialPageScaleOverride(
       page_scale_factor);
+}
+
+void XWalkRenderViewExt::OnSetBackgroundColor(SkColor c) {
+  if (!render_view() || !render_view()->GetWebView())
+    return;
+  render_view()->GetWebView()->setBaseBackgroundColor(c);
 }
 
 }  // namespace xwalk

@@ -396,6 +396,11 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         return nativeGetVersion(mNativeContent);
     }
 
+    public void setBackgroundColor(int color) {
+        if (mNativeContent == 0) return;
+        nativeSetBackgroundColor(mNativeContent, color);
+    }
+
     public void setNetworkAvailable(boolean networkUp) {
         if (mNativeContent == 0) return;
         nativeSetJsOnlineProperty(mNativeContent, networkUp);
@@ -747,4 +752,5 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
             long nativeXWalkContent, boolean value, String requestingFrame);
     private native byte[] nativeGetState(long nativeXWalkContent);
     private native boolean nativeSetState(long nativeXWalkContent, byte[] state);
+    private native void nativeSetBackgroundColor(long nativeXWalkContent, int color);
 }

@@ -10,6 +10,7 @@
 #include "ipc/ipc_channel_handle.h"
 #include "ipc/ipc_message_macros.h"
 #include "ipc/ipc_platform_file.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 // Singly-included section for enums and custom IPC traits.
 #ifndef XWALK_RUNTIME_COMMON_ANDROID_XWALK_RENDER_VIEW_MESSAGES_H_
@@ -83,6 +84,10 @@ IPC_MESSAGE_CONTROL1(XWalkViewMsg_SetJsOnlineProperty, bool /* network_up */) //
 IPC_MESSAGE_CONTROL2(XWalkViewMsg_SetOriginAccessWhitelist, // NOLINT(*)
                      std::string /* base url */,
                      std::string /* match pattern content*/)
+
+// Set the background  color
+IPC_MESSAGE_ROUTED1(XWalkViewMsg_SetBackgroundColor, // NOLINT(*)
+                    SkColor)
 
 //-----------------------------------------------------------------------------
 // RenderView messages
