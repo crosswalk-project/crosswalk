@@ -49,8 +49,6 @@ class XWalkRenderViewExt : public content::RenderViewObserver {
 
   void UpdatePageScaleFactor();
 
-  bool capture_picture_enabled_;
-
   float page_scale_factor_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkRenderViewExt);
