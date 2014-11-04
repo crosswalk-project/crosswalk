@@ -54,7 +54,7 @@ SmsManager.prototype.send = function(to, text, serviceID) {
       serviceID: serviceID
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 SmsManager.prototype.clear = function(serviceID) {
@@ -64,7 +64,7 @@ SmsManager.prototype.clear = function(serviceID) {
       serviceID: serviceID
     }
   }  
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 SmsManager.prototype.segmentInfo = function(text, serviceID) {
@@ -75,7 +75,7 @@ SmsManager.prototype.segmentInfo = function(text, serviceID) {
       serviceID: serviceID
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 var sms = new SmsManager();
@@ -292,7 +292,7 @@ exports.findMessages = function(filter, options) {
       options: options
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 exports.findConversations = function(groupBy, filter, options) {
@@ -307,7 +307,7 @@ exports.getMessage = function(type, messageID) {
       messageID: messageID
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 exports.deleteMessage = function(type, messageID) {
@@ -318,7 +318,7 @@ exports.deleteMessage = function(type, messageID) {
       messageID: messageID
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 exports.deleteConversation = function(type, conversationID) {
@@ -329,7 +329,7 @@ exports.deleteConversation = function(type, conversationID) {
       conversationID: conversationID
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 exports.markMessageRead = function(type, messageID, value) {
@@ -342,7 +342,7 @@ exports.markMessageRead = function(type, messageID, value) {
       value: value
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
 
 exports.markConversationRead = function(type, conversationID, value) {
@@ -355,5 +355,5 @@ exports.markConversationRead = function(type, conversationID, value) {
       value: value
     }
   }
-  return postMessage(_msg);
+  return createPromise(_msg);
 }
