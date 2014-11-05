@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import org.chromium.base.CommandLine;
+import org.chromium.content.browser.ContentVideoView;
 import org.chromium.content.browser.ContentVideoViewClient;
 import org.chromium.content.common.ContentSwitches;
 import org.xwalk.core.internal.XWalkWebChromeClient.CustomViewCallback;
@@ -31,6 +32,8 @@ class XWalkContentVideoViewClient implements ContentVideoViewClient {
         CustomViewCallback cb = new CustomViewCallback() {
             @Override
             public void onCustomViewHidden() {
+                ContentVideoView contentVideoView = ContentVideoView.getContentVideoView();
+                if (contentVideoView != null) contentVideoView.exitFullscreen(false);
             }
         };
         mContentsClient.onShowCustomView(view, cb);

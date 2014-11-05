@@ -44,6 +44,8 @@ public class XWalkWebChromeClient {
     private XWalkWebChromeClient.CustomViewCallback mCustomViewCallback;
     private XWalkContentsClient mContentsClient = null;
     private long XWALK_MAX_QUOTA = 1024 * 1024 * 100;
+    private final int INVALID_ORIENTATION = -2;
+    private int mPreOrientation = INVALID_ORIENTATION;
 
     public XWalkWebChromeClient(XWalkViewInternal view) {
         mContext = view.getContext();
@@ -73,19 +75,12 @@ public class XWalkWebChromeClient {
         public void onCustomViewHidden();
     }
 
-    /**
-     * Notify the host application that the current page would
-     * like to show a custom View.
-     * @param view is the View object to be shown.
-     * @param callback is the callback to be invoked if and when the view
-     * is dismissed.
-     */
-    public void onShowCustomView(View view, CustomViewCallback callback) {
+    private Activity addContentView(View view, CustomViewCallback callback) {
         Activity activity = mXWalkView.getActivity();
 
         if (mCustomXWalkView != null || activity == null) {
             callback.onCustomViewHidden();
-            return;
+            return null;
         }
 
         mCustomXWalkView = view;
@@ -101,6 +96,18 @@ public class XWalkWebChromeClient {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         Gravity.CENTER));
+        return activity;
+    }
+
+    /**
+     * Notify the host application that the current page would
+     * like to show a custom View.
+     * @param view is the View object to be shown.
+     * @param callback is the callback to be invoked if and when the view
+     * is dismissed.
+     */
+    public void onShowCustomView(View view, CustomViewCallback callback) {
+        addContentView(view, callback);
     }
 
     /**
@@ -113,7 +120,19 @@ public class XWalkWebChromeClient {
      * is dismissed.
      */
     public void onShowCustomView(View view, int requestedOrientation,
-            CustomViewCallback callback) {};
+            CustomViewCallback callback) {
+        Activity activity = addContentView(view, callback);
+        if (activity == null) return;
+
+        final int orientation = activity.getResources().getConfiguration().orientation;
+
+        if (requestedOrientation != orientation &&
+                requestedOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
+                requestedOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
+            mPreOrientation = orientation;
+            activity.setRequestedOrientation(requestedOrientation);
+        }
+    };
 
     /**
      * Notify the host application that the current page would
@@ -132,6 +151,13 @@ public class XWalkWebChromeClient {
         FrameLayout decor = (FrameLayout) activity.getWindow().getDecorView();
         decor.removeView(mCustomXWalkView);
         mCustomViewCallback.onCustomViewHidden();
+
+        if (mPreOrientation != INVALID_ORIENTATION &&
+                mPreOrientation >= ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED &&
+                mPreOrientation <= ActivityInfo.SCREEN_ORIENTATION_LOCKED) {
+            activity.setRequestedOrientation(mPreOrientation);
+            mPreOrientation = INVALID_ORIENTATION;
+        }
 
         mCustomXWalkView = null;
         mCustomViewCallback = null;
