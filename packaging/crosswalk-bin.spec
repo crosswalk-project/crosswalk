@@ -1,9 +1,6 @@
 %bcond_with x
 %bcond_with wayland
 
-%define debug_package %{nil}
-%define __debug_install_post %{nil}
-
 %ifarch x86_64 %{arm}
 ### x86_64
 # NaCl build on 64bit system require libc 32bit to build the 32 IRT.
@@ -26,19 +23,23 @@
 %define _source_payload w3.gzdio
 %define _binary_payload w3.gzdio
 
-Name:           crosswalk-thirdparty
+Name:           crosswalk
 Version:        11.39.237.0
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
-Source:         crosswalk.tar
-Source1001:     crosswalk-thirdparty.manifest
-Source1002:     xwalk-thirdparty.gyp
+Source:         %{name}.tar
+Source1:        xwalk.in
+Source2:        org.crosswalkproject.Runtime1.service
+Source3:        xwalk.service.in
+Source1001:     crosswalk.manifest
+Source1002:     %{name}.xml.in
+Source1003:     %{name}.png
+Source1004:		changedate.py
 Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
-NoSource:       0
 
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
@@ -53,18 +54,37 @@ BuildRequires:  python
 BuildRequires:  python-xml
 BuildRequires:  perl
 BuildRequires:  which
+BuildRequires:  pkgconfig(ail)
 BuildRequires:  pkgconfig(alsa)
+BuildRequires:  pkgconfig(appcore-common)
 BuildRequires:  pkgconfig(cairo)
+BuildRequires:  pkgconfig(capi-location-manager)
 BuildRequires:  pkgconfig(dbus-1)
 BuildRequires:  pkgconfig(fontconfig)
+BuildRequires:  pkgconfig(freetype2)
+BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(glib-2.0)
+BuildRequires:  pkgconfig(haptic)
+BuildRequires:  pkgconfig(icu-i18n)
+BuildRequires:  pkgconfig(libdrm)
+BuildRequires:  pkgconfig(libexif)
 BuildRequires:  pkgconfig(libpci)
 BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libxslt)
 BuildRequires:  pkgconfig(pango)
+BuildRequires:  pkgconfig(pkgmgr)
+BuildRequires:  pkgconfig(pkgmgr-info)
+BuildRequires:  pkgconfig(pkgmgr-installer)
+BuildRequires:  pkgconfig(pkgmgr-parser)
+BuildRequires:  pkgconfig(secure-storage)
+BuildRequires:  pkgconfig(sensor)
+BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
+BuildRequires:  pkgconfig(vconf)
+BuildRequires:  pkgconfig(xmlsec1)
 %if %{with x}
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
@@ -95,21 +115,34 @@ BuildRequires:  pkgconfig(scim)
 %endif
 Requires:  ca-certificates-tizen
 Requires:  ss-server
-AutoProv:       0
-Provides:       crosswalk-thirdparty
+BuildRequires:  crosswalk-thirdparty
 
 %description
-libraries and binaries of crosswalk project  
+Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
 
+%define _manifestdir %TZ_SYS_RO_PACKAGES
+%define _manifestdir_ro %TZ_SYS_RO_PACKAGE
+%define _desktop_icondir %TZ_SYS_RW_ICONS/default/small
+%define _desktop_icondir_ro %TZ_SYS_RO_ICONS/default/small
 %define _dbusservicedir /usr/share/dbus-1/services
 %define _systemduserservicedir /usr/lib/systemd/user
 
 %prep
 %setup -q -n crosswalk
 
+cp %{SOURCE1} .
+cp %{SOURCE3} .
 cp %{SOURCE1001} .
-cp %{SOURCE1002} src/xwalk/
+cp %{SOURCE1002} .
+cp %{SOURCE1003} .
+cp %{SOURCE1004} .
+sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
+sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.in > xwalk
+sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.service.in > xwalk.service
 
+cp -a src/AUTHORS AUTHORS.chromium
+cp -a src/LICENSE LICENSE.chromium
+cp -a src/xwalk/LICENSE LICENSE.xwalk
 
 %patch9
 
@@ -119,6 +152,12 @@ cp %{SOURCE1002} src/xwalk/
 %endif
 
 %build
+
+mkdir -p src/out
+if [ -f %{_datadir}/crosswalk-thirdparty/out.tgz ]; then
+  tar -zxvf %{_datadir}/crosswalk-thirdparty/out.tgz
+fi
+python ./changedate.py
 
 # Stop unconditionally passing -Wall to the compiler. Chromium has its own
 # mechanisms for deciding which parts of the code need -Wall and which need it
@@ -196,7 +235,7 @@ GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_murphy=1"
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
 export GYP_GENERATORS='ninja'
-./src/xwalk/gyp_xwalk src/xwalk/xwalk-thirdparty.gyp \
+./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
@@ -215,15 +254,77 @@ ${GYP_EXTRA_FLAGS} \
 -Dshared_process_mode=1 \
 -Denable_hidpi=1
 
-ninja %{?_smp_mflags} -C src/out/Release xwalk-thirdparty
+ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_tools
 
 %install
+# Binaries.
+install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
+install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
+install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
+install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
+install -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
+install -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
 
-mkdir  -p %{buildroot}/%{_datadir}/crosswalk-thirdparty/
-tar -zcvf out.tgz src/out
-cp -ar out.tgz %{buildroot}/%{_datadir}/crosswalk-thirdparty/
+# Supporting libraries and resources.
+install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
+install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+mkdir -p %{buildroot}%{_datadir}/xwalk
+install -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk/
+
+# PNaCl
+%if ! %{_disable_nacl}
+install -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
+install -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
+install -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
+install -p -D src/out/Release/nacl_irt_*.nexe %{buildroot}%{_libdir}/xwalk
+install -p -d %{buildroot}%{_libdir}/xwalk/pnacl
+install -m 0664 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
+%endif
+
+# Register xwalk to the package manager.
+install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
+install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+
+%post
+mkdir -p %{_desktop_icondir_ro}
+mkdir -p %{_manifestdir_ro}
+
+ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libxpk.so
+ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libwgt.so
+ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/xpk
+ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/wgt
+
+%preun
+if [ $1 -eq 0 ] ; then
+ # don't remove if we are upgrade the rpm package
+[ -L /etc/package-manager/backendlib/libxpk.so ] && rm /etc/package-manager/backendlib/libxpk.so
+[ -L /etc/package-manager/backendlib/libwgt.so ] && rm /etc/package-manager/backendlib/libwgt.so
+[ -L /etc/package-manager/backend/xpk ] && rm /etc/package-manager/backend/xpk
+[ -L /etc/package-manager/backend/wgt ] && rm /etc/package-manager/backend/wgt
+fi
 
 %files
 %manifest %{name}.manifest
-%{_datadir}/crosswalk-thirdparty/*
-
+%license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
+%{_bindir}/xwalkctl
+%{_bindir}/xwalk-launcher
+%{_libdir}/xwalk/icudtl.dat
+%{_libdir}/xwalk/libffmpegsumo.so
+%if ! %{_disable_nacl}
+%{_libdir}/xwalk/nacl_bootstrap_raw
+%{_libdir}/xwalk/nacl_helper
+%{_libdir}/xwalk/nacl_helper_bootstrap
+%{_libdir}/xwalk/nacl_irt_*.nexe
+%{_libdir}/xwalk/pnacl/*
+%endif
+%{_libdir}/xwalk/xwalk
+%{_libdir}/xwalk/xwalk.pak
+%{_libdir}/xwalk/libxwalk_backend_lib.so
+%{_libdir}/xwalk/xwalk_backend
+%{_manifestdir}/%{name}.xml
+%{_desktop_icondir}/%{name}.png
+%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
+%{_systemduserservicedir}/xwalk.service
+%{_datadir}/xwalk/*
