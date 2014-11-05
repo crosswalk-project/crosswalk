@@ -19,7 +19,7 @@ jboolean IsLibraryBuiltForIA(JNIEnv* env, jclass jcaller) {
 }
 
 bool RegisterXWalkViewDelegate(JNIEnv* env) {
-  return RegisterNativesImpl(env) >= 0;
+  return RegisterNativesImpl(env);
 }
 
 }  // namespace xwalk

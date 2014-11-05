@@ -413,7 +413,7 @@ static jlong Init(JNIEnv* env, jobject obj) {
 }
 
 bool RegisterXWalkContent(JNIEnv* env) {
-  return RegisterNativesImpl(env) >= 0;
+  return RegisterNativesImpl(env);
 }
 
 namespace {
