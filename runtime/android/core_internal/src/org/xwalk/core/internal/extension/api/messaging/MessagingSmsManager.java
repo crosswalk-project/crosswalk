@@ -22,6 +22,7 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +35,13 @@ public class MessagingSmsManager {
     private final static String EXTRA_MSGTEXT = "message";
     private final static String EXTRA_MSGTO = "to";
     private final static String EXTRA_MSGINSTANCEID = "instanceid";
+    private final static String EXTRA_UUID= "UUID";
     private final static String DEFAULT_SERVICE_ID = "sim0";
     private final WeakReference<Activity> mActivity;
     private final Messaging mMessagingHandler;
     private BroadcastReceiver mSmsSentReceiver, mSmsDeliveredReceiver,
                               mSmsReceiveReceiver, mSmsServiceReceiver;
+    private String mUUID;
 
     private abstract class MessagingReceiver extends BroadcastReceiver {
         protected Messaging mMessaging;
@@ -51,6 +54,7 @@ public class MessagingSmsManager {
     MessagingSmsManager(Activity activity, Messaging messaging) {
         mActivity = new WeakReference<Activity>(activity);
         mMessagingHandler = messaging;
+        mUUID = UUID.randomUUID().toString();
     }
 
     private boolean checkService(String serviceID) {
@@ -89,6 +93,7 @@ public class MessagingSmsManager {
         intentSmsSent.putExtra(EXTRA_MSGTO, phone);
         String instanceIDString = Integer.toString(instanceID);
         intentSmsSent.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
+        intentSmsSent.putExtra(EXTRA_UUID, mUUID);
         int promiseIdInt = Integer.valueOf(asyncCallId);
         PendingIntent piSent = PendingIntent.getBroadcast(activity, 
                                                           promiseIdInt, 
@@ -98,6 +103,7 @@ public class MessagingSmsManager {
         intentSmsDelivered.putExtra(EXTRA_MSGID, asyncCallId);
         intentSmsDelivered.putExtra(EXTRA_MSGTEXT, smsMessage);
         intentSmsDelivered.putExtra(EXTRA_MSGINSTANCEID, instanceIDString);
+        intentSmsDelivered.putExtra(EXTRA_UUID, mUUID);
         PendingIntent piDelivered = PendingIntent.getBroadcast(activity, 
                                                                -promiseIdInt, 
                                                                intentSmsDelivered,
@@ -235,6 +241,8 @@ public class MessagingSmsManager {
             public void onReceive(Context content, Intent intent) {
                 Activity activity = mActivity.get();
                 if (activity == null) return;
+                String uuid = intent.getStringExtra(EXTRA_UUID);
+                if (null == uuid || !uuid.equals(mUUID)) return;
 
                 boolean error = getResultCode() != Activity.RESULT_OK;
                 String asyncCallId = intent.getStringExtra(EXTRA_MSGID);
@@ -283,6 +291,9 @@ public class MessagingSmsManager {
         mSmsDeliveredReceiver = new MessagingReceiver(mMessagingHandler) {
             @Override
             public void onReceive(Context content, Intent intent) {
+                String uuid = intent.getStringExtra(EXTRA_UUID);
+                if (null == uuid || !uuid.equals(mUUID)) return;
+
                 boolean error = getResultCode() != Activity.RESULT_OK;
                 String asyncCallId = intent.getStringExtra(EXTRA_MSGID);
                 int instanceID = Integer.valueOf(intent.getStringExtra(EXTRA_MSGINSTANCEID));
