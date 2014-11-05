@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "base/base64.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
@@ -66,6 +68,8 @@ class Target : public content::DevToolsTarget {
   virtual bool Close() const OVERRIDE;
 
  private:
+  GURL GetFaviconDataURL(WebContents* web_contents) const;
+
   scoped_refptr<DevToolsAgentHost> agent_host_;
   std::string id_;
   std::string title_;
@@ -80,8 +84,26 @@ Target::Target(scoped_refptr<content::DevToolsAgentHost> agent_host)
     content::NavigationEntry* entry = controller.GetActiveEntry();
     if (entry != NULL && entry->GetURL().is_valid())
       favicon_url_ = entry->GetFavicon().url;
+    if (favicon_url_.is_empty())
+      favicon_url_ = GetFaviconDataURL(web_contents);
     last_activity_time_ = web_contents->GetLastActiveTime();
   }
+}
+
+GURL Target::GetFaviconDataURL(WebContents* web_contents) const {
+  // Convert icon image to "data:" url.
+  xwalk::Runtime* runtime =
+      static_cast<xwalk::Runtime*>(web_contents->GetDelegate());
+  if (!runtime)
+    return GURL();
+  scoped_refptr<base::RefCountedMemory> icon_bytes =
+      runtime->app_icon().Copy1xPNGBytes();
+  std::string str_url;
+  str_url.append(reinterpret_cast<const char*>(icon_bytes->front()),
+                 icon_bytes->size());
+  base::Base64Encode(str_url, &str_url);
+  str_url.insert(0, "data:image/png;base64,");
+  return GURL(str_url);
 }
 
 bool Target::Activate() const {
