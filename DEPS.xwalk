@@ -76,6 +76,15 @@ solutions = [
       'commit-queue': None,
       'depot_tools': None,
     },
+
+    'custom_hooks': [
+      # Disable Chromium's "gyp" hooks, which runs the gyp_chromium script. We
+      # are not interested in running it as we use gyp_xwalk instead (and it is
+      # run at a later stage as a hook in Crosswalk's own DEPS).
+      {
+        'name': 'gyp',
+      },
+    ],
   },
 
   # ozone-wayland is set as a separate solution because we gclient _not_ to read
