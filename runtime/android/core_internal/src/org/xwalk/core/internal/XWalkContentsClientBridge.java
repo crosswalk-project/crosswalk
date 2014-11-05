@@ -515,11 +515,11 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                 if (completed) {
                     throw new IllegalStateException("Duplicate openFileChooser result");
                 }
-                completed = true;
                 if (value == null && !syncCallFinished) {
                     syncNullReceived = true;
                     return;
                 }
+                completed = true;
                 if (value == null) {
                     nativeOnFilesNotSelected(mNativeContentsClientBridge,
                             processId, renderId, modeFlags);
@@ -549,6 +549,9 @@ class XWalkContentsClientBridge extends XWalkContentsClient
         // File chooser requires user interaction, valid derives should handle it in async process.
         // If the ValueCallback receive a sync result with null value, it is considered the
         // file chooser is not overridden.
+        if (uploadFile.syncNullReceived) {
+            return mXWalkView.showFileChooser(uploadFile, acceptTypes, Boolean.toString(capture));
+        }
         return !uploadFile.syncNullReceived;
     }
 

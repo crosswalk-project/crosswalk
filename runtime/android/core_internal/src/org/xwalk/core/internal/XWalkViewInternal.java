@@ -15,18 +15,24 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
@@ -147,12 +153,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     }
 
     static final String PLAYSTORE_DETAIL_URI = "market://details?id=";
+    public static final int INPUT_FILE_REQUEST_CODE = 1;
+    private static final String TAG = XWalkViewInternal.class.getSimpleName();
 
     private XWalkContent mContent;
     private Activity mActivity;
     private Context mContext;
     private boolean mIsHidden;
     private XWalkActivityStateListener mActivityStateListener;
+    private ValueCallback<Uri> mFilePathCallback;
+    private String mCameraPhotoPath;
 
     /**
      * Normal reload mode as default.
@@ -653,6 +663,28 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     @XWalkAPI
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (mContent == null) return;
+        if(requestCode == INPUT_FILE_REQUEST_CODE && mFilePathCallback != null) {
+            Uri results = null;
+
+            // Check that the response is a good one
+            if(Activity.RESULT_OK == resultCode) {
+                if(data == null) {
+                    // If there is not data, then we may have taken a photo
+                    if(mCameraPhotoPath != null) {
+                        results = Uri.parse(mCameraPhotoPath);
+                    }
+                } else {
+                    String dataString = data.getDataString();
+                    if (dataString != null) {
+                        results = Uri.parse(dataString);
+                    }
+                }
+            }
+
+            mFilePathCallback.onReceiveValue(results);
+            mFilePathCallback = null;
+            return;
+        }
         mContent.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -972,5 +1004,76 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
             default:
                 break;
         }
+    }
+
+    /**
+     * Tell the client to show a file chooser.
+     * @param uploadFile the callback class to handle the result from caller. It MUST
+     *        be invoked in all cases. Leave it not invoked will block all following
+     *        requests to open file chooser.
+     * @param acceptType value of the 'accept' attribute of the input tag associated
+     *        with this file picker.
+     * @param capture value of the 'capture' attribute of the input tag associated
+     *        with this file picker
+     */
+    public boolean showFileChooser(ValueCallback<Uri> uploadFile, String acceptType,
+            String capture) {
+        mFilePathCallback = uploadFile;
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+                takePictureIntent.putExtra("PhotoPath", mCameraPhotoPath);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e(TAG, "Unable to create Image File", ex);
+            }
+
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                mCameraPhotoPath = "file:" + photoFile.getAbsolutePath();
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(photoFile));
+            } else {
+                takePictureIntent = null;
+            }
+        }
+
+        Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        contentSelectionIntent.setType("*/*");
+
+        Intent camcorder = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        Intent soundRecorder = new Intent(
+                MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+        ArrayList<Intent> extraIntents = new ArrayList<Intent>();
+        extraIntents.add(takePictureIntent);
+        extraIntents.add(camcorder);
+        extraIntents.add(soundRecorder);
+
+        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+        chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+        chooserIntent.putExtra(Intent.EXTRA_TITLE, "Choose an action");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
+                extraIntents.toArray(new Intent[] { }));
+        getActivity().startActivityForResult(chooserIntent, INPUT_FILE_REQUEST_CODE);
+        return true;
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File imageFile = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return imageFile;
     }
 }
