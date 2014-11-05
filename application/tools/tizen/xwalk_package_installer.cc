@@ -33,8 +33,10 @@
 #include "xwalk/application/common/permission_policy_manager.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/common/tizen/encryption.h"
+#include "xwalk/application/common/tizen/package_query.h"
 #include "xwalk/application/tools/tizen/xwalk_packageinfo_constants.h"
 #include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
+#include "xwalk/application/tools/tizen/xwalk_rds_delta_parser.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 namespace info = application_packageinfo_constants;
@@ -314,12 +316,11 @@ bool PackageInstaller::PlatformUpdate(ApplicationData* app_data) {
   return true;
 }
 
-bool PackageInstaller::PlatformReinstall(const base::FilePath& path) {
+bool PackageInstaller::PlatformReinstall(const std::string& pkgid) {
   PlatformInstaller platform_installer;
+  InitializePkgmgrSignal(&platform_installer, "-r", pkgid);
 
-  InitializePkgmgrSignal(&platform_installer, "-r", path.value());
-
-  return platform_installer.ReinstallApplication();
+  return platform_installer.ReinstallApplication(pkgid);
 }
 
 bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
@@ -620,8 +621,30 @@ bool PackageInstaller::Uninstall(const std::string& id) {
   return result;
 }
 
-bool PackageInstaller::Reinstall(const base::FilePath& path) {
-  return PlatformReinstall(path);
+bool PackageInstaller::Reinstall(const std::string& pkgid) {
+  base::FilePath app_dir = xwalk::application::GetPackagePath(pkgid);
+
+  if (!base::DirectoryExists(app_dir)) {
+    LOG(ERROR) << "Application directory " << app_dir.value()
+               << " does not exist!";
+    return false;
+  }
+
+  RDSDeltaParser rds_parser(app_dir, pkgid);
+  if (!rds_parser.Parse())
+    return false;
+
+  if (!rds_parser.ApplyParsedData())
+    return false;
+
+  if (!PlatformReinstall(pkgid)) {
+    LOG(ERROR) << "Reinstallation of package " << pkgid
+               << " has failed due to a platform error!";
+    return false;
+  }
+
+  LOG(INFO) << "Package " << pkgid << " has been reinstalled successfully";
+  return true;
 }
 
 void PackageInstaller::ContinueUnfinishedTasks() {
