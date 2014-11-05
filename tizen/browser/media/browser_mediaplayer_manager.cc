@@ -5,6 +5,8 @@
 
 #include "xwalk/tizen/browser/media/browser_mediaplayer_manager.h"
 
+#include "content/browser/renderer_host/media/audio_renderer_host.h"
+#include "content/browser/renderer_host/render_process_host_impl.h"
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/web_contents.h"
 #include "xwalk/tizen/common/media/media_player_messages.h"
@@ -80,10 +82,15 @@ void BrowserMediaPlayerManager::OnInitialize(
     MediaPlayerID player_id,
     int process_id,
     const GURL& url) {
+  scoped_refptr<content::AudioRendererHost> audio_host =
+      static_cast<content::RenderProcessHostImpl*>(
+          render_frame_host_->GetProcess())->audio_renderer_host();
+
   // Create murphy resource for the given player id.
   if (resource_manager_ && resource_manager_->IsConnected()) {
-    MurphyResource* resource = new MurphyResource(this,
-        player_id, resource_manager_);
+    MurphyResource* resource = new MurphyResource(
+        this, player_id, audio_host->app_id(),
+        audio_host->app_class(), resource_manager_);
     RemoveMurphyResource(player_id);
     AddMurphyResource(resource);
   }

@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "content/browser/renderer_host/media/audio_renderer_host.h"
+#include "content/browser/renderer_host/render_process_host_impl.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/screen_orientation_dispatcher_host.h"
@@ -34,9 +36,12 @@
 
 namespace xwalk {
 
+namespace keys = application_manifest_keys;
 namespace widget_keys = application_widget_keys;
 
 namespace application {
+
+const char kDefaultMediaAppClass[] = "player";
 
 blink::WebScreenOrientationLockType GetDefaultOrientation(
     const base::WeakPtr<Application>& app) {
@@ -134,6 +139,22 @@ void ApplicationTizen::Show() {
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
     DCHECK(web_contents_);
+
+    // Get media class of application.
+    const Manifest* manifest = data_->GetManifest();
+    std::string app_class;
+    manifest->GetString(keys::kXWalkMediaAppClass, &app_class);
+    if (app_class.empty())
+      app_class = kDefaultMediaAppClass;
+
+    // Set an application ID and class, which are needed to tag audio
+    // streams in pulseaudio/Murphy.
+    scoped_refptr<content::AudioRendererHost> audio_host =
+        static_cast<content::RenderProcessHostImpl*>(render_process_host_)
+            ->audio_renderer_host();
+    if (audio_host.get())
+      audio_host->SetMediaStreamProperties(id(), app_class);
+
     content::ScreenOrientationProvider *provider =
         new ScreenOrientationProviderTizen(GetWeakPtr());
     web_contents_->GetScreenOrientationDispatcherHost()->SetProvider(provider);

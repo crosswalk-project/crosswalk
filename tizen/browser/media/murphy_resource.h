@@ -5,6 +5,8 @@
 #ifndef XWALK_TIZEN_BROWSER_MEDIA_MURPHY_RESOURCE_H_
 #define XWALK_TIZEN_BROWSER_MEDIA_MURPHY_RESOURCE_H_
 
+#include <string>
+
 #include "xwalk/tizen/browser/media/murphy_resource_manager.h"
 
 namespace tizen {
@@ -15,6 +17,8 @@ class MurphyResource {
  public:
   MurphyResource(BrowserMediaPlayerManager* manager,
       MediaPlayerID player_id,
+      const std::string& app_id,
+      const std::string& app_calss,
       MurphyResourceManager* resource_manager);
   ~MurphyResource();
 
