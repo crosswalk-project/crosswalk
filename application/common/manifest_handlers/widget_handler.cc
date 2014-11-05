@@ -11,6 +11,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "xwalk/application/common/application_manifest_constants.h"
 
 namespace xwalk {
@@ -126,6 +127,13 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   for (KeyMapIterator iter = map.begin(); iter != map.end(); ++iter) {
     std::string string;
     manifest->GetString(iter->first, &string);
+    if (iter->first == keys::kAuthorKey
+        || iter->first == keys::kNameKey
+        || iter->first == keys::kAuthorEmailKey
+        || iter->first == keys::kAuthorHrefKey
+        || iter->first == keys::kVersionKey
+        || iter->first == keys::kShortNameKey)
+      string = base::CollapseWhitespaceASCII(string, false);
     widget_info->SetString(iter->second, string);
   }
 
