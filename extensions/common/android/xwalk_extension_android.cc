@@ -219,7 +219,7 @@ static jlong GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
 }
 
 bool RegisterXWalkExtensionAndroid(JNIEnv* env) {
-  return RegisterNativesImpl(env) >= 0;
+  return RegisterNativesImpl(env);
 }
 
 }  // namespace extensions

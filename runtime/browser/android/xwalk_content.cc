@@ -404,7 +404,7 @@ static jlong Init(JNIEnv* env, jobject obj, jobject web_contents_delegate,
 }
 
 bool RegisterXWalkContent(JNIEnv* env) {
-  return RegisterNativesImpl(env) >= 0;
+  return RegisterNativesImpl(env);
 }
 
 namespace {
