@@ -164,7 +164,7 @@ void RuntimeDownloadManagerDelegate::ChooseDownloadPath(
   if (GetSaveFileName(&save_as))
     result = base::FilePath(std::wstring(save_as.lpstrFile));
 #else
-  NOTIMPLEMENTED();
+  result = suggested_path;
 #endif
 
   callback.Run(result, content::DownloadItem::TARGET_DISPOSITION_PROMPT,

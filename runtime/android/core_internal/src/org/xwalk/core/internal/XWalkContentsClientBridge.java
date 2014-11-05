@@ -373,12 +373,16 @@ class XWalkContentsClientBridge extends XWalkContentsClient
                                 String contentDisposition,
                                 String mimeType,
                                 long contentLength) {
+       if (mDownloadListener != null) {
+           mDownloadListener.onDownloadStart(url, userAgent, contentDisposition,
+                                             mimeType, contentLength);
+       }
     }
 
     @Override
     public boolean onCreateWindow(boolean isDialog, boolean isUserGesture) {
         if (isDialog) return false;
-        
+
         XWalkUIClientInternal.InitiateByInternal initiator =
                 XWalkUIClientInternal.InitiateByInternal.BY_JAVASCRIPT;
         if (isUserGesture) {

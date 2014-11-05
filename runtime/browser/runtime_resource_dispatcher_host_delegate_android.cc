@@ -259,8 +259,6 @@ void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
     response_headers->GetMimeType(&mime_type);
   }
 
-  request->Cancel();
-
   const content::ResourceRequestInfo* request_info =
       content::ResourceRequestInfo::ForRequest(request);
 
