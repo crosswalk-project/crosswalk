@@ -39,6 +39,7 @@ body {
   border-radius: 5px;
   height: 132px;
   width: 212px;
+  -webkit-background-size: cover;
   -webkit-transition-property: background-color, border-color;
   -webkit-transition: background-color 0.15s, 0.15s;
   -webkit-transition-delay: 0, 0;
@@ -114,6 +115,8 @@ function appendItem(itemObject) {
   var thumbnail = document.createElement('div');
   thumbnail.className = itemObject.devtoolsFrontendUrl ?
                         'thumbnail' : 'thumbnail connected';
+  if (itemObject.thumbnailUrl === undefined)
+    itemObject.thumbnailUrl = "/thumb/" + itemObject.id;
   thumbnail.style.cssText = 'background-image:url(' +
                         itemObject.thumbnailUrl +
                         ')';
