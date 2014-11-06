@@ -38,7 +38,7 @@ static void SetDirectory(JNIEnv* env, jclass clazz,
 }
 
 bool RegisterXWalkPathHelper(JNIEnv* env) {
-  return RegisterNativesImpl(env) >= 0;
+  return RegisterNativesImpl(env);
 }
 
 }  // namespace xwalk
