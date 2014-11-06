@@ -316,6 +316,15 @@
             'use_lzma_param': '',
           },
         }],
+        ['use_icu_alternatives_on_android==1', {
+          'variables': {
+            'icu_data_param': '--no-icu-data',
+          },
+        }, {
+          'variables': {
+            'icu_data_param': '',
+          },
+        }],
       ],
       'actions': [
         {
@@ -332,7 +341,8 @@
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
             '<(use_lzma_param)',
             '-s', '<(DEPTH)',
-            '-t', '<(PRODUCT_DIR)'
+            '-t', '<(PRODUCT_DIR)',
+            '<(icu_data_param)'
           ],
         },
       ],
