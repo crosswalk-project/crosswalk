@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -736,7 +734,7 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     // TODO(yongsheng): make it static?
     @XWalkAPI
     public String getAPIVersion() {
-        return "4.0";
+        return "4.1";
     }
 
     /**
@@ -816,20 +814,16 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
      * Get the websocket url for remote debugging.
      * @return the web socket url to remote debug this xwalk view.
      * null will be returned if remote debugging is not enabled.
-     * @since 4.0
+     * @since 4.1
      */
     @XWalkAPI
-    public URL getRemoteDebuggingUrl() {
+    public Uri getRemoteDebuggingUrl() {
         if (mContent == null) return null;
         checkThreadSafety();
         String wsUrl = mContent.getRemoteDebuggingUrl();
         if (wsUrl == null || wsUrl.isEmpty()) return null;
 
-        try {
-            return new URL(wsUrl);
-        } catch (MalformedURLException e) {
-            return null;
-        }
+        return Uri.parse(wsUrl);
     }
 
     /**
