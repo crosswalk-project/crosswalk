@@ -29,6 +29,10 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('--src-package', action='store_true',
                            default=False,
                            help='Use java sources instead of java libs.')
+  option_parser.add_option('--no-icu-data', action='store_true',
+                           default=False,
+                           help='Exclude icudtl.dat when specified')
+
 
 def CleanLibraryProject(out_project_dir):
   if os.path.exists(out_project_dir):
@@ -91,7 +95,7 @@ def CopyJSBindingFiles(project_source, out_project_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir, out_project_dir, src_package, shared):
+def CopyBinaries(out_dir, out_project_dir, src_package, shared, no_icu_data):
   # Copy jar files to libs.
   libs_dir = os.path.join(out_project_dir, 'libs')
   if not os.path.exists(libs_dir):
@@ -121,14 +125,11 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared):
   if not os.path.exists(res_value_dir):
     os.mkdir(res_value_dir)
 
-  paks_to_copy = [
-      'icudtl.dat',
-      # Please refer to XWALK-3516, disable v8 use external startup data,
-      # reopen it if needed later.
-      # 'natives_blob.bin',
-      # 'snapshot_blob.bin',
+  paks = [
       'xwalk.pak',
   ]
+  if not no_icu_data:
+    paks.append('icudtl.dat')
 
   pak_list_xml = Document()
   resources_node = pak_list_xml.createElement('resources')
@@ -321,7 +322,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_project_dir, options.shared)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir, out_project_dir, options.shared)
-  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared)
+  CopyBinaries(out_dir, out_project_dir, options.src_package, options.shared, options.no_icu_data)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_project_dir)
   # Remove unused files.
