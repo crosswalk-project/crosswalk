@@ -56,6 +56,7 @@ namespace application_manifest_keys {
 #if defined(OS_TIZEN)
   extern const char kTizenAppIdKey[];
   extern const char kIcon128Key[];
+  extern const char kXWalkMediaAppClass[];
 #endif
 }  // namespace application_manifest_keys
 
