@@ -24,6 +24,9 @@ def AddGeneratorOptions(option_parser):
   option_parser.add_option('-t', dest='target',
                            help='Product out target directory.',
                            type='string')
+  option_parser.add_option('--no-icu-data', action='store_true',
+                           default=False,
+                           help='Exclude icudtl.dat when specified')
 
 
 def CleanLibraryProject(out_dir):
@@ -89,7 +92,7 @@ def CopyJSBindingFiles(project_source, out_dir):
     shutil.copyfile(source_file, target_file)
 
 
-def CopyBinaries(out_dir):
+def CopyBinaries(out_dir, no_icu_data):
   """cp out/Release/<pak> out/Release/xwalk_core_library/res/raw/<pak>
      cp out/Release/lib.java/<lib> out/Release/xwalk_core_library/libs/<lib>
      cp out/Release/xwalk_core_shell_apk/libs/*
@@ -108,9 +111,10 @@ def CopyBinaries(out_dir):
     os.mkdir(res_value_dir)
 
   paks_to_copy = [
-      'icudtl.dat',
       'xwalk.pak',
   ]
+  if not no_icu_data:
+    paks.append('icudtl.dat')
 
   pak_list_xml = Document()
   resources_node = pak_list_xml.createElement('resources')
@@ -223,8 +227,8 @@ def ReplaceCrunchedImage(project_source, filename, filepath):
           source_file = os.path.abspath(os.path.join(dirname, filename))
           target_file = os.path.join(filepath, filename)
           shutil.copyfile(source_file, target_file)
-          return 
-        
+          return
+
 
 def CopyResources(project_source, out_dir):
   print 'Copying resources...'
@@ -307,7 +311,7 @@ def main(argv):
   CopyProjectFiles(options.source, out_dir)
   # Copy binaries and resuorces.
   CopyResources(options.source, out_dir)
-  CopyBinaries(out_dir)
+  CopyBinaries(out_dir, options.no_icu_data)
   # Copy JS API binding files.
   CopyJSBindingFiles(options.source, out_dir)
   # Post copy library project.
