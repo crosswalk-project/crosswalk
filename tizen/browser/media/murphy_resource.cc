@@ -8,9 +8,7 @@
 
 namespace {
 
-const char kMediaApplicationClass[] = "player";
 const char kMediaStreamName[] = "audio_playback";
-const char kMediaRole[] = "browser";
 
 static void NotifyCallback(mrp_res_context_t* context,
     const mrp_res_resource_set_t* resource_set,
@@ -32,6 +30,8 @@ namespace tizen {
 MurphyResource::MurphyResource(
     BrowserMediaPlayerManager* manager,
     MediaPlayerID player_id,
+    const std::string& app_id,
+    const std::string& app_class,
     MurphyResourceManager* resource_manager)
     : manager_(manager),
       player_id_(player_id),
@@ -42,17 +42,20 @@ MurphyResource::MurphyResource(
     return;
 
   resource_set_ = mrp_res_create_resource_set(context,
-      kMediaApplicationClass, NotifyCallback, this);
+      app_class.c_str(), NotifyCallback, this);
   if (!resource_set_)
     return;
 
   mrp_res_resource_t* resource = mrp_res_create_resource(
       resource_set_, kMediaStreamName, true, true);
 
-  mrp_res_attribute_t* attr = mrp_res_get_attribute_by_name(
-      resource, "role");
+  mrp_res_attribute_t* attr = mrp_res_get_attribute_by_name(resource, "role");
   if (attr)
-    mrp_res_set_attribute_string(attr, kMediaRole);
+    mrp_res_set_attribute_string(attr, app_class.c_str());
+
+  attr = mrp_res_get_attribute_by_name(resource, "resource.set.appid");
+  if (attr)
+    mrp_res_set_attribute_string(attr, app_id.c_str());
 
   mrp_res_release_resource_set(resource_set_);
 }

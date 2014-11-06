@@ -63,6 +63,7 @@ const char kXWalkLaunchScreenReadyWhen[] =
 #if defined(OS_TIZEN)
 const char kTizenAppIdKey[] = "tizen_app_id";
 const char kIcon128Key[] = "icons.128";
+const char kXWalkMediaAppClass[] = "xwalk_media_app_class";
 #endif
 
 }  // namespace application_manifest_keys
