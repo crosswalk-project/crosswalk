@@ -9,21 +9,25 @@
 #include "base/base64.h"
 #include "base/memory/ref_counted_memory.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/thread_task_runner_handle.h"
 #include "content/public/browser/devtools_agent_host.h"
 #include "content/public/browser/devtools_http_handler.h"
 #include "content/public/browser/devtools_target.h"
 #include "content/public/browser/favicon_status.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/render_view_host.h"
+#include "content/public/browser/render_widget_host_view.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
 #include "grit/xwalk_resources.h"
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
+#include "ui/snapshot/snapshot.h"
 #include "xwalk/runtime/browser/runtime.h"
 
 using content::DevToolsAgentHost;
 using content::RenderViewHost;
+using content::RenderWidgetHostView;
 using content::WebContents;
 
 namespace {
@@ -129,6 +133,15 @@ std::string XWalkDevToolsHttpHandlerDelegate::GetDiscoveryPageHTML() {
       IDR_DEVTOOLS_FRONTEND_PAGE_HTML).as_string();
 }
 
+void XWalkDevToolsDelegate::ProcessAndSaveThumbnail(
+    const GURL& url,
+    scoped_refptr<base::RefCountedBytes> png) {
+  const std::vector<unsigned char>& png_data = png->data();
+  std::string png_string_data(reinterpret_cast<const char*>(&png_data[0]),
+                              png_data.size());
+  thumbnail_map_[url] = png_string_data;
+}
+
 bool XWalkDevToolsHttpHandlerDelegate::BundlesFrontendResources() {
   return true;
 }
@@ -145,7 +158,8 @@ XWalkDevToolsHttpHandlerDelegate::CreateSocketForTethering(
 }
 
 XWalkDevToolsDelegate::XWalkDevToolsDelegate(RuntimeContext* runtime_context)
-    : runtime_context_(runtime_context) {
+    : runtime_context_(runtime_context),
+      weak_factory_(this) {
 }
 
 XWalkDevToolsDelegate::~XWalkDevToolsDelegate() {
@@ -158,6 +172,30 @@ base::DictionaryValue* XWalkDevToolsDelegate::HandleCommand(
 }
 
 std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
+  if (thumbnail_map_.find(url) != thumbnail_map_.end())
+    return thumbnail_map_[url];
+  // TODO(YangangHan): Support real time thumbnail.
+  content::DevToolsAgentHost::List agents =
+      content::DevToolsAgentHost::GetOrCreateAll();
+//  for (content::DevToolsAgentHost::List::iterator it = agents.begin();
+//       it != agents.end(); ++it) {
+  for (auto& it : agents) {
+    WebContents* web_contents = it.get()->GetWebContents();
+    if (web_contents && web_contents->GetURL() == url) {
+      RenderWidgetHostView* render_widget_host_view =
+          web_contents->GetRenderViewHost()->GetView();
+      gfx::Rect snapshot_bounds(
+        render_widget_host_view->GetViewBounds().size());
+      ui::GrabViewSnapshotAsync(
+        render_widget_host_view->GetNativeView(),
+        snapshot_bounds,
+        base::ThreadTaskRunnerHandle::Get(),
+        base::Bind(&XWalkDevToolsDelegate::ProcessAndSaveThumbnail,
+                   weak_factory_.GetWeakPtr(),
+                   url));
+        break;
+    }
+  }
   return std::string();
 }
 

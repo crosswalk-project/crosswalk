@@ -5,11 +5,14 @@
 #ifndef XWALK_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_
 #define XWALK_RUNTIME_BROWSER_DEVTOOLS_XWALK_DEVTOOLS_DELEGATE_H_
 
+#include <map>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/memory/ref_counted_memory.h"
+#include "base/memory/weak_ptr.h"
 #include "content/public/browser/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "url/gurl.h"
@@ -58,9 +61,14 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate {
       const GURL& url) OVERRIDE;
   virtual void EnumerateTargets(TargetCallback callback) OVERRIDE;
   virtual std::string GetPageThumbnailData(const GURL& url) OVERRIDE;
+  void ProcessAndSaveThumbnail(const GURL& url,
+                               scoped_refptr<base::RefCountedBytes> png);
 
  private:
+  using ThumbnailMap = std::map<GURL, std::string>;
+  ThumbnailMap thumbnail_map_;
   RuntimeContext* runtime_context_;
+  base::WeakPtrFactory<XWalkDevToolsDelegate> weak_factory_;
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsDelegate);
 };
 
