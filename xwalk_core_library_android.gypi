@@ -221,6 +221,17 @@
         'xwalk_core_library_java_app_part',
         'xwalk_core_library_java_library_part',
       ],
+      'conditions': [
+        ['use_icu_alternatives_on_android==1', {
+          'variables': {
+            'icu_data_param': '--no-icu-data',
+          },
+        }, {
+          'variables': {
+            'icu_data_param': '',
+          },
+        }],
+      ],
       'actions': [
         {
           'action_name': 'generate_xwalk_core_library',
@@ -235,7 +246,8 @@
           'action': [
             'python', '<(DEPTH)/xwalk/build/android/generate_xwalk_core_library.py',
             '-s',  '<(DEPTH)',
-            '-t', '<(PRODUCT_DIR)'
+            '-t', '<(PRODUCT_DIR)',
+            '<(icu_data_param)',
           ],
         },
       ],
