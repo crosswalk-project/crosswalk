@@ -883,6 +883,9 @@
             ['android_app_abi=="armeabi"', {
               'version_code_shift%': 3,
             }],
+            ['android_app_abi=="x86_64"', {
+              'version_code_shift%': 4,
+            }],
           ], # conditions
         },
         'version_code_shift%': '<(version_code_shift)',

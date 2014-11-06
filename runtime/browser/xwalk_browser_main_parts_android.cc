@@ -90,7 +90,7 @@ void XWalkBrowserMainPartsAndroid::PreMainMessageLoopStart() {
   // Only force to enable WebGL for Android for IA platforms because
   // we've tested the WebGL conformance test. For other platforms, just
   // follow up the behavior defined by Chromium upstream.
-#if defined(ARCH_CPU_X86)
+#if defined(ARCH_CPU_X86) || defined(ARCH_CPU_X86_64)
   command_line->AppendSwitch(switches::kIgnoreGpuBlacklist);
 #endif
 

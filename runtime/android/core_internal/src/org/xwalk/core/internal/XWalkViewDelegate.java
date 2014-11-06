@@ -243,7 +243,7 @@ class XWalkViewDelegate {
     private static native boolean nativeIsLibraryBuiltForIA();
 
     static {
-        sRunningOnIA = Build.CPU_ABI.equalsIgnoreCase("x86");
+        sRunningOnIA = Build.CPU_ABI.equalsIgnoreCase("x86") || Build.CPU_ABI.equalsIgnoreCase("x86_64");
         if (!sRunningOnIA) {
             // This is not the final decision yet.
             // With latest Houdini, an app with ARM binary will see system abi as if it's running on
