@@ -10,6 +10,7 @@ import android.app.ApplicationErrorReport;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -775,6 +776,30 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         if (mContent == null) return;
         checkThreadSafety();
         mContent.setResourceClient(client);
+    }
+
+    /**
+     * Set Background color of the view
+     */
+    @Override
+    @XWalkAPI
+    public void setBackgroundColor(int color) {
+        if (mContent == null) return;
+        checkThreadSafety();
+        mContent.setBackgroundColor(color);
+    }
+
+    /**
+     * override setLayerType
+     */
+    @Override
+    @XWalkAPI
+    public void setLayerType(int layerType, Paint paint) {
+        if (layerType != LAYER_TYPE_SOFTWARE) {
+           super.setLayerType(layerType, paint);
+        } else {
+            Log.w(TAG, "LAYER_TYPE_SOFTWARE is not supported by XwalkView");
+        }
     }
 
     // TODO(yongsheng): this is not public.
