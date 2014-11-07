@@ -169,4 +169,9 @@ void XWalkRenderViewHostExt::OnPageScaleFactorChanged(float page_scale_factor) {
     client_bridge->OnWebLayoutPageScaleFactorChanged(page_scale_factor);
 }
 
+void XWalkRenderViewHostExt::SetBackgroundColor(SkColor c) {
+  DCHECK(CalledOnValidThread());
+  Send(new XWalkViewMsg_SetBackgroundColor(web_contents()->GetRoutingID(), c));
+}
+
 }  // namespace xwalk
