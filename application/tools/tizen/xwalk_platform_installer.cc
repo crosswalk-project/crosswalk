@@ -5,9 +5,9 @@
 #include "xwalk/application/tools/tizen/xwalk_platform_installer.h"
 
 #include <assert.h>
+#include <pkgmgr_installer.h>
 #include <pkgmgr/pkgmgr_parser.h>
 
-#include <pkgmgr_installer.h>
 // logging and dlog uses same macro name
 // to avoid warnings we need to undefine dlog's one
 #undef LOG
@@ -102,7 +102,7 @@ bool CopyFileToDst(const base::FilePath& file_src,
     base::CreateDirectory(dir);
   if (!base::CopyFile(file_src, file_dst)) {
     LOG(ERROR) << "Couldn't copy application file from "
-        << file_src.value() << " to " << file_dst.value();
+               << file_src.value() << " to " << file_dst.value();
     return false;
   }
   return true;
@@ -203,17 +203,16 @@ bool PlatformInstaller::InstallApplicationInternal(
   LOG(INFO) << "UID of installation : " << uid;
   if (uid != GLOBAL_USER) {  // For only the user that request installation
     if (pkgmgr_parser_parse_usr_manifest_for_installation(
-        xmlpath.value().c_str(),
-        uid, const_cast<char**>(pkgmgr_tags))) {
+        xmlpath.value().c_str(), uid, const_cast<char**>(pkgmgr_tags))) {
       LOG(ERROR) << "Couldn't parse manifest XML '"
-          << xmlpath.value().c_str() << "', uid : " << uid;
+                 << xmlpath.value().c_str() << "', uid : " << uid;
       return false;
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_installation(xmlpath.value().c_str(),
-        const_cast<char**>(pkgmgr_tags))) {
+    if (pkgmgr_parser_parse_manifest_for_installation(
+        xmlpath.value().c_str(), const_cast<char**>(pkgmgr_tags))) {
       LOG(ERROR) << "Couldn't parse manifest XML '"
-          << xmlpath.value().c_str() << "' for global installation";
+                 << xmlpath.value().c_str() << "' for global installation";
       return false;
     }
   }
@@ -247,18 +246,18 @@ bool PlatformInstaller::UninstallApplicationInternal() {
   assert(!xmlpath_str.empty());
 
   if (uid != GLOBAL_USER) {  // For only the user that request installation
-    if (pkgmgr_parser_parse_usr_manifest_for_uninstallation(
-        xmlpath_str.c_str(), uid, NULL)) {
+    if (pkgmgr_parser_parse_usr_manifest_for_uninstallation(xmlpath_str.c_str(),
+        uid, NULL)) {
       LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath_str << "', uid"
-          << uid;
+                 << uid;
       icon_cleaner.Dismiss();
       xml_cleaner.Dismiss();
     }
   } else {  // For all users
-    if (pkgmgr_parser_parse_manifest_for_uninstallation(
-        xmlpath_str.c_str(), NULL)) {
+    if (pkgmgr_parser_parse_manifest_for_uninstallation(xmlpath_str.c_str(),
+        NULL)) {
       LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath_str
-          << "' for global uninstallation";
+                 << "' for global uninstallation";
       icon_cleaner.Dismiss();
       xml_cleaner.Dismiss();
     }
@@ -271,7 +270,6 @@ bool PlatformInstaller::UpdateApplicationInternal(
   if (xmlpath.empty() || iconpath.empty()) {
     LOG(ERROR) << "Invalid xml path or icon path for update";
   }
-
   base::FilePath global_xml(tzplatform_mkpath(TZ_SYS_RO_PACKAGES, "/"));
   base::FilePath global_icon(tzplatform_mkpath(TZ_SYS_RO_ICONS, kIconDir));
   base::FilePath user_xml(tzplatform_mkpath(TZ_USER_PACKAGES, "/"));
@@ -285,34 +283,30 @@ bool PlatformInstaller::UpdateApplicationInternal(
     xml = global_xml;
     icon = global_icon;
   }
-
   // FIXME(vcgomes): Add support for more icon types
   base::FilePath xml_dst = GetDestFilePath(xml, appid_, kXmlFileExt);
   base::FilePath icon_dst = GetDestFilePath(icon, appid_, kPngFileExt);
   FileDeleter xml_cleaner(xml_dst, false);
   FileDeleter icon_cleaner(icon_dst, false);
 
-
-  if (!CopyFileToDst(xmlpath, xml_dst)
-     || !CopyFileToDst(iconpath, icon_dst))
+  if (!CopyFileToDst(xmlpath, xml_dst) || !CopyFileToDst(iconpath, icon_dst))
     return false;
 
   if (uid != GLOBAL_USER) {  // For only the user that request installation
     if (pkgmgr_parser_parse_usr_manifest_for_upgrade(xmlpath.value().c_str(),
         uid, const_cast<char**>(pkgmgr_tags))) {
       LOG(ERROR) << "Couldn't parse manifest XML '" << xmlpath.value()
-          << "', uid: " << uid;
+                 << "', uid: " << uid;
       return false;
     }
   } else {  // For all users
     if (pkgmgr_parser_parse_manifest_for_upgrade(xmlpath.value().c_str(),
         const_cast<char**>(pkgmgr_tags))) {
       LOG(ERROR) << "Couldn't parse manifest XML '"
-          << xmlpath.value() << "' for global update installation";
+                 << xmlpath.value() << "' for global update installation";
       return false;
      }
   }
-
   xml_cleaner.Dismiss();
   icon_cleaner.Dismiss();
 
@@ -324,13 +318,11 @@ bool PlatformInstaller::ReinstallApplicationInternal(const std::string& pkgid) {
     LOG(ERROR) << "Invalid package ID for reinstallation!";
     return false;
   }
-
   return true;
 }
 
-bool PlatformInstaller::SendSignal(
-    const std::string& key,
-    const std::string& value) {
+bool PlatformInstaller::SendSignal(const std::string& key,
+                                   const std::string& value) {
   if (!handle_) {
     // this is installation with xwalkctl not pkgmgr
     return true;
@@ -341,11 +333,9 @@ bool PlatformInstaller::SendSignal(
     return false;
   }
 
-  if (pkgmgr_installer_send_signal(
-          handle_, PKGMGR_PKG_TYPE, pkgid_.c_str(),
-          key.c_str(), value.c_str())) {
+  if (pkgmgr_installer_send_signal(handle_, PKGMGR_PKG_TYPE, pkgid_.c_str(),
+      key.c_str(), value.c_str())) {
     LOG(ERROR) << "Fail to send package manager signal";
   }
-
   return true;
 }

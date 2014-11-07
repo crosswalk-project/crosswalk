@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 #include <package-manager.h>
-#include <package-manager-types.h>
 #include <package-manager-plugin.h>
+#include <package-manager-types.h>
 
 #include "base/logging.h"
 #include "xwalk/application/tools/tizen/xwalk_backend_plugin.h"

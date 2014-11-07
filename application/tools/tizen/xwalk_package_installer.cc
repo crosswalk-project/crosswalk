@@ -5,10 +5,11 @@
 
 #include "xwalk/application/tools/tizen/xwalk_package_installer.h"
 
-#include <sys/types.h>
 #include <pwd.h>
 #include <ss_manager.h>
+#include <sys/types.h>
 #include <unistd.h>
+
 #include <pkgmgr/pkgmgr_parser.h>
 
 #include <algorithm>

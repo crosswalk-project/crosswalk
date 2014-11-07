@@ -2,15 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <string.h>
+#include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
+
+#include <errno.h>
+#include <grp.h>
+#include <pwd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <pwd.h>
-#include <grp.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <tzplatform_config.h>
 
 int xwalk_tizen_check_user_app(void) {
@@ -27,20 +30,19 @@ int xwalk_tizen_check_user_app(void) {
 
   err = getgrgid_r(getgid(), &grp, buffer, len, &current_g);
   if (err) {
-  fprintf(stderr, "group can't be determined");
+    fprintf(stderr, "group can't be determined");
     fprintf(stderr, "launching an application will not work\n");
     free(buffer);
     return -EINVAL;
-  } else {
-    if ( (!current_g) || (
-        strcmp(current_g->gr_name, "users") &&
-        strcmp(current_g->gr_name, "app") )) {
-      fprintf(stderr, "group '%s' is not allowed :",
-          current_g ? current_g->gr_name : "<NULL>");
-      fprintf(stderr, "launching an application will not work\n");
-      free(buffer);
-      return -EINVAL;
-    }
+  }
+  if ((!current_g) ||
+      (strcmp(current_g->gr_name, "users") &&
+       strcmp(current_g->gr_name, "app"))) {
+    fprintf(stderr, "group '%s' is not allowed :",
+            current_g ? current_g->gr_name : "<NULL>");
+    fprintf(stderr, "launching an application will not work\n");
+    free(buffer);
+    return -EINVAL;
   }
   return 0;
 }
@@ -59,22 +61,21 @@ int xwalk_tizen_check_user_for_xwalkctl(void) {
 
   err = getgrgid_r(getgid(), &grp, buffer, len, &current_g);
   if (err) {
-  fprintf(stderr, "group can't be determined");
+    fprintf(stderr, "group can't be determined");
     fprintf(stderr, "launching an application will not work\n");
     free(buffer);
     return -EINVAL;
-  } else {
-    if ( (!current_g) || (
-        strcmp(current_g->gr_name, "users") &&
-        strcmp(current_g->gr_name, "app") &&
-        (strcmp(current_g->gr_name, "root") &&
-         getuid() == tzplatform_getuid(TZ_SYS_GLOBALAPP_USER)))) {
-      fprintf(stderr, "group '%s' is not allowed :",
+  }
+  if ((!current_g) ||
+      (strcmp(current_g->gr_name, "users") &&
+       strcmp(current_g->gr_name, "app") &&
+      (strcmp(current_g->gr_name, "root") &&
+       getuid() == tzplatform_getuid(TZ_SYS_GLOBALAPP_USER)))) {
+    fprintf(stderr, "group '%s' is not allowed :",
             current_g ? current_g->gr_name : "<NULL>");
-      fprintf(stderr, "launching an application will not work\n");
-      free(buffer);
-      return -EINVAL;
-    }
+    fprintf(stderr, "launching an application will not work\n");
+    free(buffer);
+    return -EINVAL;
   }
   return 0;
 }
