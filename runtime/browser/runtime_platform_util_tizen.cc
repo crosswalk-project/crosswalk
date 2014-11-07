@@ -102,13 +102,10 @@ bool HandleExternalProtocol(const GURL& url) {
       return CallDbusService(info, url);
     }
   }
-  return true;
+  return false;
 }
 
 void OpenExternal(const GURL& url) {
-  if (HandleExternalProtocol(url))
-    return;
-
   if (url.SchemeIsHTTPOrHTTPS()) {
     LOG(INFO) << "Open in WebBrowser.";
     std::vector<std::string> argv;
@@ -121,6 +118,8 @@ void OpenExternal(const GURL& url) {
 
     if (base::LaunchProcess(argv, base::LaunchOptions(), &handle))
       base::EnsureProcessGetsReaped(handle);
+  } else if (!HandleExternalProtocol(url)) {
+    LOG(ERROR) << "Can not handle url: " << url.spec();
   }
 }
 
