@@ -39,6 +39,8 @@
         'application/common/id_util_unittest.cc',
         'application/common/manifest_handlers/csp_handler_unittest.cc',
         'application/common/manifest_handlers/permissions_handler_unittest.cc',
+        'application/common/manifest_handlers/unittest_util.cc',
+        'application/common/manifest_handlers/unittest_util.h',
         'application/common/manifest_handlers/warp_handler_unittest.cc',
         'application/common/manifest_handlers/widget_handler_unittest.cc',
         'application/common/manifest_handler_unittest.cc',
