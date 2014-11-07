@@ -693,21 +693,15 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         mContentsClientBridge.onGeolocationPermissionsHidePrompt();
     }
 
-    public void enableRemoteDebugging(int allowedUid) {
+    public void enableRemoteDebugging() {
         // Chrome looks for "devtools_remote" pattern in the name of a unix domain socket
         // to identify a debugging page
         final String socketName = getContext().getApplicationContext().getPackageName() + "_devtools_remote";
         if (mDevToolsServer == null) {
             mDevToolsServer = new XWalkDevToolsServer(socketName);
-            mDevToolsServer.allowConnectionFromUid(allowedUid);
-            mDevToolsServer.setRemoteDebuggingEnabled(true);
+            mDevToolsServer.setRemoteDebuggingEnabled(
+                    true, XWalkDevToolsServer.Security.ALLOW_SOCKET_ACCESS);
         }
-    }
-
-    // Enables remote debugging and returns the URL at which the dev tools server is listening
-    // for commands. Only the current process is allowed to connect to the server.
-    void enableRemoteDebugging() {
-        enableRemoteDebugging(getContext().getApplicationInfo().uid);
     }
 
     void disableRemoteDebugging() {
