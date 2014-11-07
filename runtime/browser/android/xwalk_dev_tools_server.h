@@ -23,7 +23,7 @@ class XWalkDevToolsServer {
   ~XWalkDevToolsServer();
 
   // Opens linux abstract socket to be ready for remote debugging.
-  void Start(bool allow_debug_permission);
+  void Start(bool allow_debug_permission, bool allow_socket_access);
 
   // Closes debugging socket, stops debugging.
   void Stop();
@@ -38,7 +38,8 @@ class XWalkDevToolsServer {
 
   std::string socket_name_;
   content::DevToolsHttpHandler* protocol_handler_;
-  uid_t allowed_uid_;
+  bool allow_debug_permission_;
+  bool allow_socket_access_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsServer);
 };

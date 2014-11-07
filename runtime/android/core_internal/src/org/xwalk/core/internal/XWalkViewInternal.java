@@ -826,13 +826,11 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
     /**
      * Enables remote debugging and returns the URL at which the dev tools
      * server is listening for commands.
-     * The allowedUid argument can be used to specify the uid of the process
-     * that is permitted to connect.
      */
-    public void enableRemoteDebugging(int allowedUid) {
+    public void enableRemoteDebugging() {
         if (mContent == null) return;
         checkThreadSafety();
-        mContent.enableRemoteDebugging(allowedUid);
+        mContent.enableRemoteDebugging();
     }
 
     /**
@@ -896,12 +894,6 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
         mActivityStateListener = null;
         mContent.destroy();
         disableRemoteDebugging();
-    }
-
-    // Enables remote debugging and returns the URL at which the dev tools server is listening
-    // for commands. Only the current process is allowed to connect to the server.
-    void enableRemoteDebugging() {
-        enableRemoteDebugging(mContext.getApplicationInfo().uid);
     }
 
     void disableRemoteDebugging() {

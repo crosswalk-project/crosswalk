@@ -115,7 +115,8 @@ namespace xwalk {
 XWalkDevToolsServer::XWalkDevToolsServer(const std::string& socket_name)
     : socket_name_(socket_name),
       protocol_handler_(NULL),
-      allowed_uid_(0) {
+      allow_debug_permission_(false),
+      allow_socket_access_(false) {
 }
 
 XWalkDevToolsServer::~XWalkDevToolsServer() {
@@ -127,20 +128,23 @@ XWalkDevToolsServer::~XWalkDevToolsServer() {
 // process and connects to the devtools server.
 bool XWalkDevToolsServer::CanUserConnectToDevTools(
     const net::UnixDomainServerSocket::Credentials& credentials) {
-  if (credentials.user_id == allowed_uid_)
+  if (allow_socket_access_)
     return true;
+  if (allow_debug_permission_)
+    return AuthorizeSocketAccessWithDebugPermission(credentials);
   return content::CanUserConnectToDevTools(credentials);
 }
 
-void XWalkDevToolsServer::Start(bool allow_debug_permission) {
+void XWalkDevToolsServer::Start(bool allow_debug_permission,
+                                bool allow_socket_access) {
+  allow_debug_permission_ = allow_debug_permission;
+  allow_socket_access_ = allow_socket_access;
   if (protocol_handler_)
     return;
 
   net::UnixDomainServerSocket::AuthCallback auth_callback =
-      allow_debug_permission ?
-          base::Bind(&AuthorizeSocketAccessWithDebugPermission) :
-          base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
-              base::Unretained(this));
+      base::Bind(&XWalkDevToolsServer::CanUserConnectToDevTools,
+                 base::Unretained(this));
 
   scoped_ptr<content::DevToolsHttpHandler::ServerSocketFactory> factory(
       new UnixDomainServerSocketFactory(socket_name_, auth_callback));
@@ -157,14 +161,12 @@ void XWalkDevToolsServer::Stop() {
   // deletion.
   protocol_handler_->Stop();
   protocol_handler_ = NULL;
+  allow_socket_access_ = false;
+  allow_debug_permission_ = false;
 }
 
 bool XWalkDevToolsServer::IsStarted() const {
   return protocol_handler_;
-}
-
-void XWalkDevToolsServer::AllowConnectionFromUid(uid_t uid) {
-  allowed_uid_ = uid;
 }
 
 bool RegisterXWalkDevToolsServer(JNIEnv* env) {
@@ -193,23 +195,16 @@ static void SetRemoteDebuggingEnabled(JNIEnv* env,
                                       jobject obj,
                                       jlong server,
                                       jboolean enabled,
-                                      jboolean allow_debug_permission) {
+                                      jboolean allow_debug_permission,
+                                      jboolean allow_socket_access) {
   XWalkDevToolsServer* devtools_server =
       reinterpret_cast<XWalkDevToolsServer*>(server);
-  if (enabled) {
-    devtools_server->Start(allow_debug_permission);
+  if (enabled == JNI_TRUE) {
+    devtools_server->Start(allow_debug_permission == JNI_TRUE,
+                           allow_socket_access == JNI_TRUE);
   } else {
     devtools_server->Stop();
   }
-}
-
-static void AllowConnectionFromUid(JNIEnv* env,
-                                    jobject obj,
-                                    jlong server,
-                                    jint uid) {
-  XWalkDevToolsServer* devtools_server =
-      reinterpret_cast<XWalkDevToolsServer*>(server);
-  devtools_server->AllowConnectionFromUid((uid_t) uid);
 }
 
 }  // namespace xwalk
