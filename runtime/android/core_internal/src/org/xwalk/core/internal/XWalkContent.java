@@ -188,6 +188,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void supplyContentsForPopup(XWalkContent newContents) {
+        if (mNativeContent == 0) return;
+
         long popupNativeXWalkContent = nativeReleasePopupXWalkContent(mNativeContent);
         if (popupNativeXWalkContent == 0) {
             Log.w(TAG, "Popup XWalkView bind failed: no pending content.");
@@ -229,6 +231,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void loadUrl(String url, String data) {
+        if (mNativeContent == 0) return;
+
         if ((url == null || url.isEmpty()) &&
                 (data == null || data.isEmpty())) {
             return;
@@ -238,6 +242,8 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void reload(int mode) {
+        if (mNativeContent == 0) return;
+
         switch (mode) {
             case XWalkViewInternal.RELOAD_IGNORE_CACHE:
                 mNavigationController.reloadIgnoringCache(true);
@@ -249,23 +255,27 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public String getUrl() {
+        if (mNativeContent == 0) return null;
         String url = mWebContents.getUrl();
         if (url == null || url.trim().isEmpty()) return null;
         return url;
     }
 
     public String getTitle() {
+        if (mNativeContent == 0) return null;
         String title = mWebContents.getTitle().trim();
         if (title == null) title = "";
         return title;
     }
 
     public void addJavascriptInterface(Object object, String name) {
+        if (mNativeContent == 0) return;
         mContentViewCore.addPossiblyUnsafeJavascriptInterface(object, name,
                 javascriptInterfaceClass);
     }
 
     public void evaluateJavascript(String script, ValueCallback<String> callback) {
+        if (mNativeContent == 0) return;
         final ValueCallback<String>  fCallback = callback;
         JavaScriptCallback coreCallback = null;
         if (fCallback != null) {
@@ -280,50 +290,62 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void setUIClient(XWalkUIClientInternal client) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setUIClient(client);
     }
 
     public void setResourceClient(XWalkResourceClientInternal client) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setResourceClient(client);
     }
 
     public void setXWalkWebChromeClient(XWalkWebChromeClient client) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setXWalkWebChromeClient(client);
     }
 
     public XWalkWebChromeClient getXWalkWebChromeClient() {
+        if (mNativeContent == 0) return null;
         return mContentsClientBridge.getXWalkWebChromeClient();
     }
 
     public void setXWalkClient(XWalkClient client) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setXWalkClient(client);
     }
 
     public void setDownloadListener(DownloadListener listener) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setDownloadListener(listener);
     }
 
     public void setNavigationHandler(XWalkNavigationHandler handler) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setNavigationHandler(handler);
     }
 
     public void setNotificationService(XWalkNotificationService service) {
+        if (mNativeContent == 0) return;
         mContentsClientBridge.setNotificationService(service);
     }
 
     public void onPause() {
+        if (mNativeContent == 0) return;
         mContentViewCore.onHide();
     }
 
     public void onResume() {
+        if (mNativeContent == 0) return;
         mContentViewCore.onShow();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (mNativeContent == 0) return;
         mWindow.onActivityResult(requestCode, resultCode, data);
     }
 
     public boolean onNewIntent(Intent intent) {
+        if (mNativeContent == 0) return false;
         return mContentsClientBridge.onNewIntent(intent);
     }
 
@@ -333,22 +355,25 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void clearHistory() {
+        if (mNativeContent == 0) return;
         mNavigationController.clearHistory();
     }
 
     public boolean canGoBack() {
-        return mNavigationController.canGoBack();
+        return (mNativeContent == 0) ? false : mNavigationController.canGoBack();
     }
 
     public void goBack() {
+        if (mNativeContent == 0) return;
         mNavigationController.goBack();
     }
 
     public boolean canGoForward() {
-        return mNavigationController.canGoForward();
+        return (mNativeContent == 0) ? false : mNavigationController.canGoForward();
     }
 
     public void goForward() {
+        if (mNativeContent == 0) return;
         mNavigationController.goForward();
     }
 
@@ -357,6 +382,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public void stopLoading() {
+        if (mNativeContent == 0) return;
         mWebContents.stop();
         mContentsClientBridge.onStopLoading();
     }
@@ -371,18 +397,19 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     // details in content_view_statics.cc.
     // We need follow up after upstream updates that.
     public void pauseTimers() {
-        if (timerPaused) return;
+        if (timerPaused || (mNativeContent == 0)) return;
         ContentViewStatics.setWebKitSharedTimersSuspended(true);
         timerPaused = true;
     }
 
     public void resumeTimers() {
-        if (!timerPaused) return;
+        if (!timerPaused || (mNativeContent == 0)) return;
         ContentViewStatics.setWebKitSharedTimersSuspended(false);
         timerPaused = false;
     }
 
     public String getOriginalUrl() {
+        if (mNativeContent == 0) return null;
         NavigationHistory history = mNavigationController.getNavigationHistory();
         int currentIndex = history.getCurrentEntryIndex();
         if (currentIndex >= 0 && currentIndex < history.getEntryCount()) {
@@ -408,6 +435,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     // For instrumentation test.
     public void installWebContentsObserverForTest(XWalkContentsClient contentClient) {
+        if (mNativeContent == 0) return;
         contentClient.installWebContentsObserver(mContentViewCore.getWebContents());
     }
 
@@ -454,13 +482,15 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public XWalkNavigationHistoryInternal getNavigationHistory() {
+        if (mNativeContent == 0) return null;
+
         return new XWalkNavigationHistoryInternal(mXWalkView, mNavigationController.getNavigationHistory());
     }
 
     public static final String SAVE_RESTORE_STATE_KEY = "XWALKVIEW_STATE";
 
     public XWalkNavigationHistoryInternal saveState(Bundle outState) {
-        if (outState == null) return null;
+        if (mNativeContent == 0 || outState == null) return null;
 
         byte[] state = nativeGetState(mNativeContent);
         if (state == null) return null;
@@ -470,7 +500,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
     }
 
     public XWalkNavigationHistoryInternal restoreState(Bundle inState) {
-        if (inState == null) return null;
+        if (mNativeContent == 0 || inState == null) return null;
 
         byte[] state = inState.getByteArray(SAVE_RESTORE_STATE_KEY);
         if (state == null) return null;
@@ -641,6 +671,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
 
     @CalledByNative
     private void onGeolocationPermissionsShowPrompt(String origin) {
+        if (mNativeContent == 0) return;
         // Reject if geolocation is disabled, or the origin has a retained deny.
         if (!mSettings.getGeolocationEnabled()) {
             nativeInvokeGeolocationCallback(mNativeContent, false, origin);
