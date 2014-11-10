@@ -209,8 +209,16 @@ base::FilePath ApplicationTizen::GetSplashScreenPath() {
   return base::FilePath();
 }
 
+bool ApplicationTizen::CanBeSuspended() const {
+  if (TizenSettingInfo* setting = static_cast<TizenSettingInfo*>(
+          data()->GetManifestData(widget_keys::kTizenSettingKey))) {
+    return !setting->background_support_enabled();
+  }
+  return true;
+}
+
 void ApplicationTizen::Suspend() {
-  if (is_suspended_)
+  if (is_suspended_ || !CanBeSuspended())
     return;
 
   DCHECK(render_process_host_);
@@ -226,7 +234,7 @@ void ApplicationTizen::Suspend() {
 }
 
 void ApplicationTizen::Resume() {
-  if (!is_suspended_)
+  if (!is_suspended_ || !CanBeSuspended())
     return;
 
   DCHECK(render_process_host_);

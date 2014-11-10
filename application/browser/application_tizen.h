@@ -50,6 +50,7 @@ class ApplicationTizen :  // NOLINT
   virtual void WillProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
   virtual void DidProcessEvent(const ui::PlatformEvent& event) OVERRIDE;
 #endif
+  bool CanBeSuspended() const;
 
 #if defined(OS_TIZEN_MOBILE)
   NativeAppWindow* root_window_;
