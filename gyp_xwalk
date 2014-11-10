@@ -353,6 +353,7 @@ if __name__ == '__main__':
     args.append('-Duse_lzma=0')
     # Enable flags for crosswalk mini by default
     args.append('-Duse_icu_alternatives_on_android=1')
+    args.append('-Denable_webrtc=0')
 
   if not use_analyzer:
     print 'Updating projects from gyp files...'
