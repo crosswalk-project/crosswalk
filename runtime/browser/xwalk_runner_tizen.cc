@@ -18,7 +18,7 @@ namespace xwalk {
 
 XWalkRunnerTizen::XWalkRunnerTizen() {
   // Initialize Cynara
-  if (cynara_initialize(&p_cynara, p_conf) != CYNARA_API_SUCCESS) {
+  if (cynara_initialize(&cynara_, cynara_conf_) != CYNARA_API_SUCCESS) {
     // TODO(terriko): Handle degrading/exit-with-error if cynara fails
     //       to initialize.
     //       For now, log an error.
@@ -28,7 +28,11 @@ XWalkRunnerTizen::XWalkRunnerTizen() {
 
 XWalkRunnerTizen::~XWalkRunnerTizen() {
   // Finish with cynara
-  cynara_finish(p_cynara);
+  cynara_finish(cynara_);
+}
+
+cynara* XWalkRunnerTizen::GetCynara() {
+  return cynara_;
 }
 
 // static

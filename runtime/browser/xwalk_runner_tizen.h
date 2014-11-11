@@ -26,12 +26,14 @@ class XWalkRunnerTizen : public XWalkRunner {
 
   virtual void PreMainMessageLoopRun() OVERRIDE;
 
-  cynara* p_cynara = NULL;
-  cynara_configuration* p_conf = NULL;
+  cynara* GetCynara();
 
  private:
   friend class XWalkRunner;
   XWalkRunnerTizen();
+
+  cynara* cynara_;
+  cynara_configuration* cynara_conf_;
 
   TizenLocaleListener tizen_locale_listener_;
 };

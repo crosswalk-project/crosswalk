@@ -17,6 +17,8 @@
 
 #if defined(OS_TIZEN)
 #include <cynara-client.h>
+#include <cynara-creds-socket.h>
+// #include <sockets/SocketManager.h>
 #include "xwalk/application/browser/application_system.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application.h"
@@ -60,14 +62,36 @@ void CancelGeolocationPermissionRequest(
 #if defined(OS_TIZEN)
 void CheckCynara(base::Callback<void(bool)> result_callback) {
   // check cynara synchrounously here
+  char* client_id;
+  char* user_id;
+  int socket_fd = 1;  // FIXME: to be replaced with appropriate socket
+  // int socket_fd = SocketManager::getSocketFromSystemD(
+  //        PathConfig::SocketPath::client);
 
-  int ret;
-  XWalkRunnerTizen* runner_tizen;
-  runner_tizen = static_cast<XWalkRunnerTizen*>(XWalkRunner::GetInstance());
+  int ret_client  = cynara_creds_socket_get_client(socket_fd,
+          CLIENT_METHOD_SMACK, &client_id);
+  if (ret_client != CYNARA_API_SUCCESS) {
+    LOG(ERROR) << "cynara failed to get client_id, error_code " + ret_client;
+    return;
+  }
+  int ret_user = cynara_creds_socket_get_user(socket_fd,
+          USER_METHOD_UID, &user_id);
+  if (ret_user != CYNARA_API_SUCCESS) {
+    LOG(ERROR) << "cynara failed to get user_id, error code " + ret_user;
+    free(client_id);
+    return;
+  }
 
-  ret = cynara_check(runner_tizen->p_cynara, "client",
-      "client_session", "user", "location");
+
+  XWalkRunnerTizen* runner_tizen = XWalkRunnerTizen::GetInstance();
+  int ret = cynara_check(runner_tizen->GetCynara(),
+      client_id, "", user_id,
+      "http://tizen.org/privilege/location");
+  // Note: empty string here is client_session, currently not used
+
   switch (ret) {
+    // TODO(terriko): CYNARA_API_SUCCESS will be changed to
+    //                CYNARA_API_ACCESS_ALLOWED in new cynara
     case CYNARA_API_SUCCESS:
       result_callback.Run(true);
       break;
@@ -75,8 +99,10 @@ void CheckCynara(base::Callback<void(bool)> result_callback) {
       LOG(WARNING) << "cynara geolocation check denied";
       break;
     default:
-      LOG(WARNING) << "cynara geolocation check returned other reponse";
+      LOG(ERROR) << "cynara geolocation check returned unexpected reponse";
   }
+  free(client_id);
+  free(user_id);
 }
 #endif
 RuntimeGeolocationPermissionContext::~RuntimeGeolocationPermissionContext() {

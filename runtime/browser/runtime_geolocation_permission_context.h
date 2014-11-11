@@ -4,7 +4,6 @@
 
 #ifndef XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
 #define XWALK_RUNTIME_BROWSER_RUNTIME_GEOLOCATION_PERMISSION_CONTEXT_H_
-#define CYNARA 1
 
 #include "base/callback.h"
 #include "base/memory/ref_counted.h"
@@ -42,7 +41,9 @@ class RuntimeGeolocationPermissionContext
     base::Callback<void(bool)> result_callback,
     base::Closure* cancel_callback);
 
-#if defined(CYNARA)
+#if defined(OS_TIZEN)
+  // FIXME(terriko): we may wish to refactor this for a generic cynara
+  //                 thread when more cynara checks are added.
   scoped_ptr<base::Thread> thread_;
 #endif
 };

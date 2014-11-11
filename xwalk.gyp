@@ -307,11 +307,13 @@
           'cflags': [
             '<!@(pkg-config --cflags libtzplatform-config)',
             '<!@(pkg-config --cflags cynara-client)',
+            '<!@(pkg-config --cflags cynara-creds-socket)',
           ],
           'link_settings': {
             'libraries': [
               '<!@(pkg-config --libs libtzplatform-config)',
               '<!@(pkg-config --libs cynara-client)',
+              '<!@(pkg-config --libs cynara-creds-socket)',
             ],
           },
           'sources': [
