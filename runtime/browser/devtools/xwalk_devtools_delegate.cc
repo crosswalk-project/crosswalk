@@ -118,6 +118,21 @@ bool Target::Close() const {
 
 namespace xwalk {
 
+namespace {
+Runtime* CreateWithDefaultWindow(
+    RuntimeContext* runtime_context, const GURL& url,
+    Runtime::Observer* observer = NULL) {
+  Runtime* runtime = Runtime::Create(runtime_context, observer);
+  runtime->LoadURL(url);
+#if !defined(OS_ANDROID)
+  RuntimeUIStrategy ui_strategy;
+  NativeAppWindow::CreateParams params;
+  ui_strategy.Show(runtime, params);
+#endif
+  return runtime;
+}
+}  // namespace
+
 XWalkDevToolsHttpHandlerDelegate::XWalkDevToolsHttpHandlerDelegate() {
 }
 
@@ -163,7 +178,7 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
-  Runtime* runtime = Runtime::CreateWithDefaultWindow(
+  Runtime* runtime = CreateWithDefaultWindow(
       runtime_context_, GURL(url::kAboutBlankURL));
   return scoped_ptr<content::DevToolsTarget>(
       new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));

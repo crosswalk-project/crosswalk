@@ -39,27 +39,14 @@
 #include "xwalk/application/browser/application_service.h"
 #endif
 
+#if !defined(OS_ANDROID)
+#include "xwalk/runtime/browser/runtime_ui_strategy.h"
+#endif
+
 using content::FaviconURL;
 using content::WebContents;
 
 namespace xwalk {
-
-namespace {
-
-// The default size for web content area size.
-const int kDefaultWidth = 840;
-const int kDefaultHeight = 600;
-
-}  // namespace
-
-// static
-Runtime* Runtime::CreateWithDefaultWindow(
-    RuntimeContext* runtime_context, const GURL& url, Observer* observer) {
-  Runtime* runtime = Runtime::Create(runtime_context, observer);
-  runtime->LoadURL(url);
-  runtime->AttachDefaultWindow();
-  return runtime;
-}
 
 // static
 Runtime* Runtime::Create(RuntimeContext* runtime_context,
@@ -69,12 +56,7 @@ Runtime* Runtime::Create(RuntimeContext* runtime_context,
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 
-  Runtime* runtime = new Runtime(web_contents, observer);
-#if defined(OS_TIZEN_MOBILE)
-  runtime->InitRootWindow();
-#endif
-
-  return runtime;
+  return new Runtime(web_contents, observer);
 }
 
 Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
@@ -90,9 +72,6 @@ Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),
        content::NotificationService::NoDetails());
-#if defined(OS_TIZEN_MOBILE)
-  root_window_ = NULL;
-#endif
   if (observer_)
     observer_->OnRuntimeAdded(this);
 }
@@ -106,44 +85,16 @@ Runtime::~Runtime() {
     observer_->OnRuntimeRemoved(this);
 }
 
-void Runtime::AttachDefaultWindow() {
-  NativeAppWindow::CreateParams params;
-  AttachWindow(params);
+void Runtime::EnableTitleUpdatedNotification() {
+  registrar_.Add(this,
+                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+                 content::Source<content::WebContents>(web_contents_.get()));
 }
 
-void Runtime::AttachWindow(const NativeAppWindow::CreateParams& params) {
-#if defined(OS_ANDROID)
-  NOTIMPLEMENTED();
-#else
-  CHECK(!window_);
-  NativeAppWindow::CreateParams effective_params(params);
-  ApplyWindowDefaultParams(&effective_params);
-
-  // Set the app icon if it is passed from command line.
-  CommandLine* command_line = CommandLine::ForCurrentProcess();
-  if (command_line->HasSwitch(switches::kAppIcon)) {
-    base::FilePath icon_file =
-        command_line->GetSwitchValuePath(switches::kAppIcon);
-    app_icon_ = xwalk_utils::LoadImageFromFilePath(icon_file);
-  } else {
-    // Otherwise, use the default icon for Crosswalk app.
-    ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
-    app_icon_ = rb.GetNativeImageNamed(IDR_XWALK_ICON_48);
-  }
-
-  registrar_.Add(this,
-        content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-        content::Source<content::WebContents>(web_contents_.get()));
-
-  window_ = NativeAppWindow::Create(effective_params);
-  if (!app_icon_.IsEmpty())
+void Runtime::set_app_icon(const gfx::Image& app_icon) {
+  app_icon_ = app_icon;
+  if (window_ && !app_icon_.IsEmpty())
     window_->UpdateIcon(app_icon_);
-  window_->Show();
-#if defined(OS_TIZEN_MOBILE)
-  if (root_window_)
-    root_window_->Show();
-#endif
-#endif
 }
 
 void Runtime::LoadURL(const GURL& url) {
@@ -255,20 +206,7 @@ void Runtime::WebContentsCreated(
     const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  Runtime* new_runtime = new Runtime(new_contents, observer_);
-#if defined(OS_TIZEN_MOBILE)
-  new_runtime->SetRootWindow(root_window_);
-#endif
-
-  NativeAppWindow::CreateParams params;
-#if defined(OS_TIZEN)
-  int render_process_id = new_runtime->GetRenderProcessHost()->GetID();
-  application::Application* app = XWalkRunner::GetInstance()->app_system()->
-      application_service()->GetApplicationByRenderHostID(render_process_id);
-  if (app)
-    params.state = app->window_show_state();
-#endif
-  new_runtime->AttachWindow(params);
+  new Runtime(new_contents, observer_);
 }
 
 void Runtime::DidNavigateMainFramePostCommit(
@@ -376,57 +314,4 @@ void Runtime::RequestMediaAccessPermission(
   XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
       web_contents, request, callback);
 }
-
-void Runtime::ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params) {
-  if (!params->delegate)
-    params->delegate = this;
-  if (!params->web_contents)
-    params->web_contents = web_contents_.get();
-  if (params->bounds.IsEmpty())
-    params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
-#if defined(OS_TIZEN_MOBILE)
-  if (root_window_)
-    params->parent = root_window_->GetNativeWindow();
-#endif
-  ApplyFullScreenParam(params);
-}
-
-void Runtime::ApplyFullScreenParam(NativeAppWindow::CreateParams* params) {
-  DCHECK(params);
-  if (params->state == ui::SHOW_STATE_FULLSCREEN)
-    fullscreen_options_ |= FULLSCREEN_FOR_LAUNCH;
-  else
-    fullscreen_options_ &= ~FULLSCREEN_FOR_LAUNCH;
-}
-
-#if defined(OS_TIZEN_MOBILE)
-void Runtime::CloseRootWindow() {
-  if (root_window_) {
-    root_window_->Close();
-    root_window_ = NULL;
-  }
-}
-
-void Runtime::ApplyRootWindowParams(NativeAppWindow::CreateParams* params) {
-  if (!params->delegate)
-    params->delegate = this;
-  if (params->bounds.IsEmpty())
-    params->bounds = gfx::Rect(0, 0, kDefaultWidth, kDefaultHeight);
-  ApplyFullScreenParam(params);
-}
-
-void Runtime::InitRootWindow() {
-  if (root_window_)
-    return;
-
-  NativeAppWindow::CreateParams params;
-  ApplyRootWindowParams(&params);
-  root_window_ = NativeAppWindow::Create(params);
-}
-
-void Runtime::SetRootWindow(NativeAppWindow* window) {
-  root_window_= window;
-}
-
-#endif
 }  // namespace xwalk

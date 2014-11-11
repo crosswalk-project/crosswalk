@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "xwalk/runtime/browser/runtime_ui_strategy.h"
 #include "xwalk/runtime/browser/ui/native_app_window.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
@@ -55,26 +56,34 @@ class Runtime : public content::WebContentsDelegate,
       virtual ~Observer() {}
   };
 
+  // Fullscreen options.
+  enum FullscreenOptions {
+    NO_FULLSCREEN = 0,
+    // Fullscreen entered by launch with "--fullscreen".
+    FULLSCREEN_FOR_LAUNCH = 1,
+    // Fullscreen entered by HTML requestFullscreen.
+    FULLSCREEN_FOR_TAB = 1 << 1,
+  };
+
   void SetObserver(Observer* observer) { observer_ = observer; }
 
-  // Create a new Runtime instance which binds to a default app window.
-  static Runtime* CreateWithDefaultWindow(RuntimeContext*,
-                                          const GURL&, Observer* = NULL);
   // Create a new Runtime instance with the given browsing context.
   static Runtime* Create(RuntimeContext*,
                          Observer* = NULL, content::SiteInstance* = NULL);
-
-  // Attach to a default app window.
-  void AttachDefaultWindow();
-  // Attach to a app window created with 'params'.
-  void AttachWindow(const NativeAppWindow::CreateParams& params);
 
   void LoadURL(const GURL& url);
   void Close();
 
   content::WebContents* web_contents() const { return web_contents_.get(); }
   NativeAppWindow* window() const { return window_; }
+  void set_window(NativeAppWindow* window) { window_ = window; }
   gfx::Image app_icon() const { return app_icon_; }
+  void set_app_icon(const gfx::Image& app_icon);
+  void EnableTitleUpdatedNotification();
+  unsigned int fullscreen_options() { return fullscreen_options_; }
+  void set_fullscreen_options(unsigned int options) {
+    fullscreen_options_ = options;
+  }
 
   content::RenderProcessHost* GetRenderProcessHost();
 
@@ -82,10 +91,6 @@ class Runtime : public content::WebContentsDelegate,
     remote_debugging_enabled_ = enable;
   }
   bool remote_debugging_enabled() const { return remote_debugging_enabled_; }
-
-#if defined(OS_TIZEN_MOBILE)
-  void CloseRootWindow();
-#endif
 
  protected:
   Runtime(content::WebContents* web_contents, Observer* observer);
@@ -158,15 +163,6 @@ class Runtime : public content::WebContentsDelegate,
   // NativeAppWindowDelegate implementation.
   virtual void OnWindowDestroyed() OVERRIDE;
 
-  void ApplyWindowDefaultParams(NativeAppWindow::CreateParams* params);
-  void ApplyFullScreenParam(NativeAppWindow::CreateParams* params);
-
-#if defined(OS_TIZEN_MOBILE)
-  void ApplyRootWindowParams(NativeAppWindow::CreateParams* params);
-  void SetRootWindow(NativeAppWindow* window);
-  void InitRootWindow();
-#endif
-
   // Notification manager.
   content::NotificationRegistrar registrar_;
 
@@ -175,22 +171,9 @@ class Runtime : public content::WebContentsDelegate,
 
   NativeAppWindow* window_;
 
-#if defined(OS_TIZEN_MOBILE)
-  NativeAppWindow* root_window_;
-#endif
-
   gfx::Image app_icon_;
 
   base::WeakPtrFactory<Runtime> weak_ptr_factory_;
-
-  // Fullscreen options.
-  enum FullscreenOptions {
-    NO_FULLSCREEN = 0,
-    // Fullscreen entered by launch with "--fullscreen".
-    FULLSCREEN_FOR_LAUNCH = 1,
-    // Fullscreen entered by HTML requestFullscreen.
-    FULLSCREEN_FOR_TAB = 1 << 1,
-  };
 
   unsigned int fullscreen_options_;
   bool remote_debugging_enabled_;

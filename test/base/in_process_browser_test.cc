@@ -50,6 +50,19 @@ base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #endif
 
+Runtime* CreateWithDefaultWindow(
+    xwalk::RuntimeContext* runtime_context, const GURL& url,
+    Runtime::Observer* observer = NULL) {
+  Runtime* runtime = Runtime::Create(runtime_context, observer);
+  runtime->LoadURL(url);
+#if !defined(OS_ANDROID)
+  xwalk::RuntimeUIStrategy ui_strategy;
+  xwalk::NativeAppWindow::CreateParams params;
+  ui_strategy.Show(runtime, params);
+#endif
+  return runtime;
+}
+
 }  // namespace
 
 RuntimeRegistry::RuntimeRegistry() {
@@ -148,7 +161,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // method, instead they should just create runtimes themselves
   // when needed and thus the 'runtime()' method should be removed
   // as well as 'runtime_' initialization below.
-  runtime_ = Runtime::CreateWithDefaultWindow(
+  runtime_ = CreateWithDefaultWindow(
           GetRuntimeContext(),
           GURL(), runtime_registry_.get());
   content::WaitForLoadStop(runtime_->web_contents());

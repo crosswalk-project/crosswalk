@@ -42,6 +42,31 @@ namespace widget_keys = application_widget_keys;
 namespace application {
 
 const char kDefaultMediaAppClass[] = "player";
+namespace {
+#if defined(OS_TIZEN_MOBILE)
+void ApplyRootWindowParams(Runtime* runtime,
+                           NativeAppWindow::CreateParams* params) {
+  if (!params->delegate)
+    params->delegate = runtime;
+  if (params->bounds.IsEmpty())
+    params->bounds = gfx::Rect(0, 0, 840, 600);
+
+  unsigned int fullscreen_options = runtime->fullscreen_options();
+  if (params->state == ui::SHOW_STATE_FULLSCREEN)
+    fullscreen_options |= Runtime::FULLSCREEN_FOR_LAUNCH;
+  else
+    fullscreen_options &= ~Runtime::FULLSCREEN_FOR_LAUNCH;
+  runtime->set_fullscreen_options(fullscreen_options);
+}
+
+NativeAppWindow* CreateRootWindow(Runtime* runtime,
+                                  const NativeAppWindow::CreateParams& params) {
+  NativeAppWindow::CreateParams effective_params(params);
+  ApplyRootWindowParams(runtime, &effective_params);
+  return NativeAppWindow::Create(effective_params);
+}
+#endif
+}  // namespace
 
 blink::WebScreenOrientationLockType GetDefaultOrientation(
     const base::WeakPtr<Application>& app) {
@@ -105,6 +130,9 @@ ApplicationTizen::ApplicationTizen(
     scoped_refptr<ApplicationData> data,
     RuntimeContext* runtime_context)
     : Application(data, runtime_context),
+#if defined(OS_TIZEN_MOBILE)
+      root_window_(NULL),
+#endif
       is_suspended_(false) {
 #if defined(USE_OZONE)
   ui::PlatformEventSource::GetInstance()->AddPlatformEventObserver(this);
@@ -138,6 +166,14 @@ void ApplicationTizen::Show() {
 
 bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
   if (Application::Launch(launch_params)) {
+#if defined(OS_TIZEN_MOBILE)
+    if (!runtimes_.empty()) {
+      root_window_ = CreateRootWindow(*(runtimes_.begin()),
+                                      window_show_params_);
+      window_show_params_.parent = root_window_->GetNativeWindow();
+      root_window_->Show();
+    }
+#endif
     DCHECK(web_contents_);
 
     // Get media class of application.
@@ -245,6 +281,26 @@ void ApplicationTizen::RemoveAllCookies() {
 void ApplicationTizen::SetUserAgentString(
     const std::string& user_agent_string) {
   cookie_manager_->SetUserAgentString(render_process_host_, user_agent_string);
+}
+
+void ApplicationTizen::OnRuntimeAdded(Runtime* runtime) {
+  DCHECK(runtime);
+  Application::OnRuntimeAdded(runtime);
+#if defined(OS_TIZEN_MOBILE)
+  if (root_window_ && runtimes_.size() > 1)
+      root_window_->Show();
+#endif
+}
+
+void ApplicationTizen::OnRuntimeRemoved(Runtime* runtime) {
+  DCHECK(runtime);
+  Application::OnRuntimeRemoved(runtime);
+#if defined(OS_TIZEN_MOBILE)
+  if (runtimes_.empty() && root_window_) {
+    root_window_->Close();
+    root_window_ = NULL;
+  }
+#endif
 }
 
 }  // namespace application

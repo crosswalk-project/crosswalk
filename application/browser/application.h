@@ -22,6 +22,7 @@
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/application/common/security_policy.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/browser/runtime_ui_strategy.h"
 
 
 namespace content {
@@ -112,13 +113,14 @@ class Application : public Runtime::Observer,
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
-  // FIXME(xinchao): This method will be deprecated soon.
-  ui::WindowShowState window_show_state() const { return window_show_state_; }
-
  protected:
   Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
   virtual bool Launch(const LaunchParams& launch_params);
   virtual void InitSecurityPolicy();
+
+  // Runtime::Observer implementation.
+  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
+  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
 
   // Get the path of splash screen image. Return empty path by default.
   // Sub class can override it to return a specific path.
@@ -132,6 +134,9 @@ class Application : public Runtime::Observer,
   content::WebContents* web_contents_;
   bool security_mode_enabled_;
 
+  scoped_ptr<RuntimeUIStrategy> ui_strategy_;
+  xwalk::NativeAppWindow::CreateParams window_show_params_;
+
   base::WeakPtr<Application> GetWeakPtr() {
     return weak_factory_.GetWeakPtr();
   }
@@ -141,9 +146,6 @@ class Application : public Runtime::Observer,
   friend class ApplicationService;
   static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
       RuntimeContext* context);
-  // Runtime::Observer implementation.
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
 
   // content::RenderProcessHostObserver implementation.
   virtual void RenderProcessExited(content::RenderProcessHost* host,
@@ -165,8 +167,6 @@ class Application : public Runtime::Observer,
   void NotifyTermination();
 
   Observer* observer_;
-
-  ui::WindowShowState window_show_state_;
 
   std::map<std::string, std::string> name_perm_map_;
   // Application's session permissions.

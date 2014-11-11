@@ -90,7 +90,7 @@ Application::Application(
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(NULL),
-      window_show_state_(ui::SHOW_STATE_DEFAULT),
+      ui_strategy_(new RuntimeUIStrategy),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
@@ -230,11 +230,11 @@ bool Application::Launch(const LaunchParams& launch_params) {
   params.state = is_wgt ?
       GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params):
       GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
-  window_show_state_ = params.state;
+  window_show_params_.state = params.state;
 
   params.splash_screen_path = GetSplashScreenPath();
 
-  runtime->AttachWindow(params);
+  ui_strategy_->Show(runtime, params);
 
   return true;
 }
@@ -263,6 +263,8 @@ int Application::GetRenderProcessHostID() const {
 void Application::OnRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);
   runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
+  if (!runtimes_.empty())
+    ui_strategy_->Show(runtime, window_show_params_);
   runtimes_.insert(runtime);
 }
 
@@ -270,14 +272,10 @@ void Application::OnRuntimeRemoved(Runtime* runtime) {
   DCHECK(runtime);
   runtimes_.erase(runtime);
 
-  if (runtimes_.empty()) {
-#if defined(OS_TIZEN_MOBILE)
-    runtime->CloseRootWindow();
-#endif
+  if (runtimes_.empty())
     base::MessageLoop::current()->PostTask(FROM_HERE,
         base::Bind(&Application::NotifyTermination,
                    weak_factory_.GetWeakPtr()));
-  }
 }
 
 void Application::RenderProcessExited(RenderProcessHost* host,
