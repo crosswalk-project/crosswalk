@@ -113,6 +113,8 @@ class Application : public Runtime::Observer,
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
+  RuntimeUIStrategy* ui_strategy() { return ui_strategy_.get(); }
+
  protected:
   Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
   virtual bool Launch(const LaunchParams& launch_params);

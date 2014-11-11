@@ -42,6 +42,7 @@ class XWalkAppExtensionBridge
   virtual void ExtensionProcessCreated(
       int render_process_id,
       const IPC::ChannelHandle& channel_handle) OVERRIDE;
+  virtual void RenderChannelCreated(int render_process_id) OVERRIDE;
 
  private:
   application::ApplicationSystem* app_system_;
