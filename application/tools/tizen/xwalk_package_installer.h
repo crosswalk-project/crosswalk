@@ -7,6 +7,7 @@
 #define XWALK_APPLICATION_TOOLS_TIZEN_XWALK_PACKAGE_INSTALLER_H_
 
 #include <string>
+
 #include "base/files/file_path.h"
 #include "base/memory/scoped_ptr.h"
 
@@ -24,7 +25,7 @@ class PlatformInstaller;
 class PackageInstaller {
  public:
   static scoped_ptr<PackageInstaller> Create(
-    xwalk::application::ApplicationStorage* storage);
+      xwalk::application::ApplicationStorage* storage);
 
   ~PackageInstaller();
 

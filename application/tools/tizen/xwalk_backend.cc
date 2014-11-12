@@ -3,24 +3,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <glib.h>
+#include <stdlib.h>
+
 #include <gio/gio.h>
+#include <glib.h>
 
 #include "base/at_exit.h"
 #include "base/files/file_util.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/path_service.h"
-
+#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/common/tizen/application_storage.h"
 #include "xwalk/application/tools/linux/dbus_connection.h"
 #include "xwalk/application/tools/tizen/xwalk_package_installer.h"
-#include "xwalk/runtime/common/xwalk_paths.h"
-
-#include "xwalk/application/common/id_util.h"
 #include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
+#include "xwalk/runtime/common/xwalk_paths.h"
 
 using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;

@@ -6,8 +6,8 @@
 #define XWALK_APPLICATION_TOOLS_TIZEN_XWALK_BACKEND_PLUGIN_H_
 
 #include <package-manager.h>
-#include <package-manager-types.h>
 #include <package-manager-plugin.h>
+#include <package-manager-types.h>
 
 #include <string>
 

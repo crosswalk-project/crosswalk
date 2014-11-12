@@ -15,8 +15,8 @@ namespace application_packageinfo_constants {
   extern const base::FilePath::CharType kIconDir[];
   extern const base::FilePath::CharType kXmlDir[];
   extern const base::FilePath::CharType kXwalkPath[];
-
   extern const base::FilePath::CharType kExecDir[];
+
   extern const char kDefaultIconName[];
   extern const char kOwner[];
 
