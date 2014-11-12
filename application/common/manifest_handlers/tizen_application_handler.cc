@@ -1,4 +1,5 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,8 +10,10 @@
 
 #include "base/strings/utf_string_conversions.h"
 #include "base/strings/string_split.h"
+#include "base/version.h"
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/constants.h"
 
 namespace xwalk {
 
@@ -99,11 +102,16 @@ bool TizenApplicationHandler::Validate(
                          " does not start with package.\n");
     return false;
   }
-  // TODO(hongzhang): We need a version map (Tizen API version
-  // to Crosswalk API version) for checking required_version
   if (app_info->required_version().empty()) {
     *error = std::string("The required_version property of application"
                          " element does not exist.\n");
+    return false;
+  }
+
+  const base::Version supported_version = Version(kTizenWebAPIVersion);
+  if (supported_version.IsOlderThan(app_info->required_version())) {
+    *error = std::string("The required_version of Tizen Web API"
+                         " is not supported.\n");
     return false;
   }
 
