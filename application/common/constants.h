@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -27,6 +28,9 @@ extern const char kGeneratedMainDocumentFilename[];
 
 // The name of cookies database file.
 extern const base::FilePath::CharType kCookieDatabaseFilename[];
+
+// The Tizen Web API version is supported
+extern const char kTizenWebAPIVersion[];
 
 }  // namespace application
 }  // namespace xwalk

@@ -1,4 +1,5 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,6 +20,7 @@ const char kGeneratedMainDocumentFilename[] =
     "_generated_main_document.html";
 const base::FilePath::CharType kCookieDatabaseFilename[] =
     FILE_PATH_LITERAL("ApplicationCookies");
+const char kTizenWebAPIVersion[] = "2.2";
 
 }  // namespace application
 }  // namespace xwalk
