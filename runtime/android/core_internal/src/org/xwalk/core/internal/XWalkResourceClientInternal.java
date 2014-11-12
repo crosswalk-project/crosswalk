@@ -223,8 +223,8 @@ public class XWalkResourceClientInternal {
 
     /**
       * Notify the host application that an SSL error occurred while loading a
-      * resource. The host application must call either callback.onReceivedValue(true)
-      * or callback.onReceivedValue(false) . Note that the decision may be retained for
+      * resource. The host application must call either callback.onReceiveValue(true)
+      * or callback.onReceiveValue(false) . Note that the decision may be retained for
       * use in response to future SSL errors. The default behavior is to pop up a dialog
       * @param view the xwalkview that is initiating the callback
       * @param callback passing 'true' means accepting the ssl error and continue to load.
