@@ -98,7 +98,7 @@ GURL Target::GetFaviconDataURL(WebContents* web_contents) const {
   // Convert icon image to "data:" url.
   xwalk::Runtime* runtime =
       static_cast<xwalk::Runtime*>(web_contents->GetDelegate());
-  if (!runtime)
+  if (!runtime || runtime->app_icon().IsEmpty())
     return GURL();
   scoped_refptr<base::RefCountedMemory> icon_bytes =
       runtime->app_icon().Copy1xPNGBytes();
