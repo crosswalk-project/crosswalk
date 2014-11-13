@@ -12,7 +12,7 @@
 #include "xwalk/application/common/application_manifest_constants.h"
 #include "xwalk/application/common/constants.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
-#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/common/xwalk_common_messages.h"
 
@@ -178,7 +178,7 @@ void SecurityPolicyCSP::Enforce() {
        app_->data()->SetManifestData(scp_key, GetDefaultCSPInfo());
     // Always enable security mode when under CSP mode.
     enabled_ = true;
-    NavigationInfo* info = static_cast<NavigationInfo*>(
+    TizenNavigationInfo* info = static_cast<TizenNavigationInfo*>(
         app_->data()->GetManifestData(widget_keys::kAllowNavigationKey));
     if (info) {
       const std::vector<std::string>& allowed_list = info->GetAllowedDomains();

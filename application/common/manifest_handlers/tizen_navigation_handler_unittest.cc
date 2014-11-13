@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_navigation_handler.h"
 
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@ namespace keys = application_widget_keys;
 
 namespace application {
 
-class NavigationHandlerTest: public testing::Test {
+class TizenNavigationHandlerTest: public testing::Test {
  public:
   virtual void SetUp() OVERRIDE {
     manifest.SetString(keys::kNameKey, "no name");
@@ -32,9 +32,9 @@ class NavigationHandlerTest: public testing::Test {
     return application;
   }
 
-  const NavigationInfo* GetNavigationInfo(
+  const TizenNavigationInfo* GetNavigationInfo(
       scoped_refptr<ApplicationData> application) {
-    const NavigationInfo* info = static_cast<NavigationInfo*>(
+    const TizenNavigationInfo* info = static_cast<TizenNavigationInfo*>(
         application->GetManifestData(keys::kAllowNavigationKey));
     return info;
   }
@@ -42,30 +42,30 @@ class NavigationHandlerTest: public testing::Test {
   base::DictionaryValue manifest;
 };
 
-TEST_F(NavigationHandlerTest, NoNavigation) {
+TEST_F(TizenNavigationHandlerTest, NoNavigation) {
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
   EXPECT_FALSE(GetNavigationInfo(application));
 }
 
-TEST_F(NavigationHandlerTest, OneNavigation) {
+TEST_F(TizenNavigationHandlerTest, OneNavigation) {
   manifest.SetString(keys::kAllowNavigationKey, "http://www.sample.com");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->GetManifest()->type(), Manifest::TYPE_WIDGET);
-  const NavigationInfo* info = GetNavigationInfo(application);
+  const TizenNavigationInfo* info = GetNavigationInfo(application);
   EXPECT_TRUE(info);
   const std::vector<std::string>& list = info->GetAllowedDomains();
   EXPECT_TRUE(list.size() == 1 && list[0] == "http://www.sample.com");
 }
 
-TEST_F(NavigationHandlerTest, Navigations) {
+TEST_F(TizenNavigationHandlerTest, Navigations) {
   manifest.SetString(keys::kAllowNavigationKey,
                      "http://www.sample1.com www.sample2.com");
   scoped_refptr<ApplicationData> application = CreateApplication();
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->GetManifest()->type(), Manifest::TYPE_WIDGET);
-  const NavigationInfo* info = GetNavigationInfo(application);
+  const TizenNavigationInfo* info = GetNavigationInfo(application);
   EXPECT_TRUE(info);
   const std::vector<std::string>& list = info->GetAllowedDomains();
   EXPECT_TRUE(list.size() == 2 &&
