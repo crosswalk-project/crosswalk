@@ -4,11 +4,6 @@
     'xwalk_version': '<!(python ../build/util/version.py -f VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'chrome_version': '<!(python ../build/util/version.py -f ../chrome/VERSION -t "@MAJOR@.@MINOR@.@BUILD@.@PATCH@")',
     'conditions': [
-      ['OS=="linux"', {
-       'use_custom_freetype%': 1,
-      }, {
-       'use_custom_freetype%': 0,
-      }],
       ['OS=="win" or OS=="mac"', {
         'disable_nacl': 1,
       }],
@@ -378,11 +373,6 @@
             '../base/allocator/allocator.gyp:allocator',
           ],
         }],  # os_posix==1 and OS != "mac" and use_allocator=="tcmalloc"
-        ['use_custom_freetype==1', {
-          'dependencies': [
-             '../third_party/freetype2/freetype2.gyp:freetype2',
-          ],
-        }],  # use_custom_freetype==1
         ['toolkit_views==1', {
           'dependencies': [
             '../ui/strings/ui_strings.gyp:ui_strings',
