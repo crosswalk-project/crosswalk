@@ -54,6 +54,7 @@
         '../ui/base/ui_base.gyp:ui_base',
         '../ui/gl/gl.gyp:gl',
         '../ui/shell_dialogs/shell_dialogs.gyp:shell_dialogs',
+        '../ui/snapshot/snapshot.gyp:snapshot',
         '../url/url.gyp:url_lib',
         '../v8/tools/gyp/v8.gyp:v8',
         'generate_upstream_blink_version',
