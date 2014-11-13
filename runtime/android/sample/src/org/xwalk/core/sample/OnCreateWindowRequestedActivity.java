@@ -34,7 +34,7 @@ public class OnCreateWindowRequestedActivity extends XWalkBaseActivity {
         mParent.addView(mXWalkView);
         mXWalkViewHistory.add(mXWalkView);
 
-        mXWalkView.load("file:///android_asset/create_window_by_script.html", null);
+        mXWalkView.load("file:///android_asset/create_window_1.html", null);
     }
 
     private void setClient(XWalkView view) {
