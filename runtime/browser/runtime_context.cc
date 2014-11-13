@@ -258,6 +258,12 @@ net::URLRequestContextGetter*
 
   context_getters_.insert(
       std::make_pair(partition_path.value(), context_getter));
+  // Make sure that the default url request getter has been initialized,
+  // please refer to https://crosswalk-project.org/jira/browse/XWALK-2890
+  // for more details.
+  if (!url_request_getter_.get())
+    CreateRequestContext(protocol_handlers, request_interceptors.Pass());
+
   return context_getter.get();
 #endif
 }
