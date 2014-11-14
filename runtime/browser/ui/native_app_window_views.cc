@@ -231,6 +231,10 @@ bool NativeAppWindowViews::CanMaximize() const {
   return resizable_ && maximum_size_.IsEmpty();
 }
 
+bool NativeAppWindowViews::CanMinimize() const {
+  return true;
+}
+
 #if defined(OS_WIN)
 views::NonClientFrameView* NativeAppWindowViews::CreateNonClientFrameView(
     views::Widget* widget) {
