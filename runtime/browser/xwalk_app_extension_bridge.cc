@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "content/public/browser/browser_thread.h"
 #include "xwalk/application/browser/application.h"
 #include "xwalk/application/browser/application_service.h"
 #include "xwalk/application/browser/application_system.h"
@@ -15,6 +16,7 @@
 #include "xwalk/application/browser/application_service_provider_linux.h"
 #include "xwalk/application/browser/linux/running_application_object.h"
 #endif
+#include "xwalk/runtime/browser/runtime_defered_ui_strategy.h"
 
 namespace xwalk {
 
@@ -79,4 +81,21 @@ void XWalkAppExtensionBridge::ExtensionProcessCreated(
 #endif
 }
 
+void XWalkAppExtensionBridge::RenderChannelCreated(
+    int render_process_id) {
+  CHECK(app_system_);
+  application::ApplicationService *service =
+      app_system_->application_service();
+  application::Application *app =
+      service->GetApplicationByRenderHostID(render_process_id);
+  if (!app)
+    return;
+
+  content::BrowserThread::PostTask(
+      content::BrowserThread::UI,
+      FROM_HERE,
+      base::Bind(
+          &RuntimeDeferedUIStrategy::ShowStoredRuntimes,
+          base::Unretained(ToRuntimeDeferedUIStrategy(app->ui_strategy()))));
+}
 }  // namespace xwalk

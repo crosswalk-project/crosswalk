@@ -23,6 +23,7 @@
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
+#include "xwalk/runtime/browser/runtime_defered_ui_strategy.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_TIZEN)
@@ -90,7 +91,7 @@ Application::Application(
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(NULL),
-      ui_strategy_(new RuntimeUIStrategy),
+      ui_strategy_(new RuntimeDeferedUIStrategy),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);

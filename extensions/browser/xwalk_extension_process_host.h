@@ -45,6 +45,8 @@ class XWalkExtensionProcessHost
     virtual bool OnRegisterPermissions(int render_process_id,
                                        const std::string& extension_name,
                                        const std::string& perm_table);
+    virtual void OnRenderChannelCreated(int render_process_id) {}
+
    protected:
     ~Delegate() {}
   };

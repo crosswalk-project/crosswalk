@@ -269,6 +269,8 @@ void XWalkExtensionProcessHost::OnRenderChannelCreated(
   is_extension_process_channel_ready_ = true;
   ep_rp_channel_handle_ = handle;
   ReplyChannelHandleToRenderProcess();
+  if (delegate_)
+    delegate_->OnRenderChannelCreated(render_process_host_->GetID());
 }
 
 void XWalkExtensionProcessHost::ReplyChannelHandleToRenderProcess() {
