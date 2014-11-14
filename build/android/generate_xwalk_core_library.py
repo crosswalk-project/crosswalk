@@ -140,7 +140,7 @@ def CopyBinaries(out_dir, out_project_dir, src_package, shared, use_lzma, no_icu
   string_array_node.setAttribute('name', 'xwalk_resources_list')
   pak_list_xml.appendChild(resources_node)
   resources_node.appendChild(string_array_node)
-  for pak in paks_to_copy:
+  for pak in paks:
     source_file = os.path.join(out_dir, pak)
     target_file = os.path.join(res_raw_dir, pak)
     shutil.copyfile(source_file, target_file)
