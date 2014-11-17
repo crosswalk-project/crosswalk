@@ -37,7 +37,6 @@ Source3:        xwalk.service.in
 Source1001:     crosswalk.manifest
 Source1002:     %{name}.xml.in
 Source1003:     %{name}.png
-Patch9:         Blink-Add-GCC-flag-Wno-narrowing-fix-64bits-build.patch
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
 
 BuildRequires:  bison
@@ -141,8 +140,6 @@ sed "s|@LIB_INSTALL_DIR@|%{_libdir}|g" xwalk.service.in > xwalk.service
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
 cp -a src/xwalk/LICENSE LICENSE.xwalk
-
-%patch9
 
 # The profiles using Wayland (and thus Ozone) do not need this patch.
 %if !%{with wayland}
