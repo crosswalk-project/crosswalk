@@ -9,10 +9,10 @@
 #include "base/stl_util.h"
 #include "xwalk/application/common/manifest_handlers/csp_handler.h"
 #if defined(OS_TIZEN)
-#include "xwalk/application/common/manifest_handlers/navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_application_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_appwidget_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_metadata_handler.h"
+#include "xwalk/application/common/manifest_handlers/tizen_navigation_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_setting_handler.h"
 #include "xwalk/application/common/manifest_handlers/tizen_splash_screen_handler.h"
 #endif
@@ -77,11 +77,11 @@ ManifestHandlerRegistry::GetInstanceForWGT() {
   handlers.push_back(new WARPHandler);
 #if defined(OS_TIZEN)
   handlers.push_back(new CSPHandler(Manifest::TYPE_WIDGET));
-  handlers.push_back(new NavigationHandler);
   handlers.push_back(new TizenApplicationHandler);
   handlers.push_back(new TizenAppWidgetHandler);
-  handlers.push_back(new TizenSettingHandler);
   handlers.push_back(new TizenMetaDataHandler);
+  handlers.push_back(new TizenNavigationHandler);
+  handlers.push_back(new TizenSettingHandler);
   handlers.push_back(new TizenSplashScreenHandler);
 #endif
   widget_registry_ = new ManifestHandlerRegistry(handlers);
