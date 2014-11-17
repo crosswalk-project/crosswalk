@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/files/file_enumerator.h"
 #include "base/files/file_path.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/file_util.h"
@@ -452,6 +453,22 @@ base::FilePath ApplicationURLToRelativeFilePath(const GURL& url) {
     return base::FilePath();
 
   return path;
+}
+
+bool CopyDirectoryContents(const base::FilePath& from,
+    const base::FilePath& to) {
+  base::FileEnumerator iter(from, false,
+      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
+  for (base::FilePath path = iter.Next(); !path.empty(); path = iter.Next()) {
+    if (iter.GetInfo().IsDirectory()) {
+      if (!base::CopyDirectory(path, to, true))
+        return false;
+    } else if (!base::CopyFile(path, to.Append(path.BaseName()))) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace application

@@ -10,6 +10,7 @@
 #include "base/path_service.h"
 #include "third_party/zlib/google/zip.h"
 #include "xwalk/application/common/id_util.h"
+#include "xwalk/application/common/package/unpacked_wgt_package.h"
 #include "xwalk/application/common/package/wgt_package.h"
 #include "xwalk/application/common/package/xpk_package.h"
 
@@ -28,6 +29,10 @@ Package::~Package() {
 
 // static
 scoped_ptr<Package> Package::Create(const base::FilePath& source_path) {
+  if (base::DirectoryExists(source_path)) {
+    scoped_ptr<Package> package(new UnpackedWGTPackage(source_path));
+    return package.Pass();
+  }
   if (source_path.MatchesExtension(FILE_PATH_LITERAL(".xpk"))) {
     scoped_ptr<Package> package(new XPKPackage(source_path));
     return package.Pass();

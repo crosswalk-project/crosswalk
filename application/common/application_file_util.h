@@ -53,6 +53,10 @@ scoped_refptr<ApplicationData> LoadApplication(
 // Get a relative file path from an app:// URL.
 base::FilePath ApplicationURLToRelativeFilePath(const GURL& url);
 
+// Makes copy of directory content from one directory to another.
+bool CopyDirectoryContents(const base::FilePath& from,
+    const base::FilePath& to);
+
 }  // namespace application
 }  // namespace xwalk
 

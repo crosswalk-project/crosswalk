@@ -69,22 +69,6 @@ const base::FilePath kDefaultIcon(
 const std::string kServicePrefix("xwalk-service.");
 const std::string kAppIdPrefix("xwalk.");
 
-bool CopyDirectoryContents(const base::FilePath& from,
-    const base::FilePath& to) {
-  base::FileEnumerator iter(from, false,
-      base::FileEnumerator::FILES | base::FileEnumerator::DIRECTORIES);
-  for (base::FilePath path = iter.Next(); !path.empty(); path = iter.Next()) {
-    if (iter.GetInfo().IsDirectory()) {
-      if (!base::CopyDirectory(path, to, true))
-        return false;
-    } else if (!base::CopyFile(path, to.Append(path.BaseName()))) {
-        return false;
-    }
-  }
-
-  return true;
-}
-
 void WriteMetaDataElement(
     XmlWriter& writer, // NOLINT
     xwalk::application::TizenMetaDataInfo* info) {
@@ -346,26 +330,16 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
       !base::CreateDirectory(install_temp_dir))
     return false;
 
-  std::string app_id;
+  scoped_ptr<Package> package = Package::Create(path);
+  if (!package || !package->IsValid())
+    return false;
+
   base::FilePath unpacked_dir;
-  scoped_ptr<Package> package;
-  FileDeleter tmp_path(install_temp_dir.Append(path.BaseName()), false);
-  if (!base::DirectoryExists(path)) {
-    if (tmp_path.path() != path &&
-        !base::CopyFile(path, tmp_path.path()))
-      return false;
-    package = Package::Create(tmp_path.path());
-    if (!package || !package->IsValid())
-      return false;
-    package->ExtractToTemporaryDir(&unpacked_dir);
-    app_id = package->Id();
-  } else {
-    unpacked_dir = path;
-  }
+  package->ExtractToTemporaryDir(&unpacked_dir);
 
   std::string error;
   scoped_refptr<ApplicationData> app_data = LoadApplication(
-      unpacked_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
+      unpacked_dir, package->Id(), ApplicationData::LOCAL_DIRECTORY,
       package->manifest_type(), &error);
   if (!app_data.get()) {
     LOG(ERROR) << "Error during application installation: " << error;
@@ -392,15 +366,10 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     if (!base::DeleteFile(app_dir, true))
       return false;
   }
-  if (!package) {
-    if (!base::CreateDirectory(app_dir))
-      return false;
-    if (!CopyDirectoryContents(unpacked_dir, app_dir))
-      return false;
-  } else {
-    if (!base::Move(unpacked_dir, app_dir))
-      return false;
-  }
+  if (!base::CreateDirectory(app_dir))
+    return false;
+  if (!xwalk::application::CopyDirectoryContents(unpacked_dir, app_dir))
+    return false;
 
   xwalk::application::TizenSettingInfo* info =
       static_cast<xwalk::application::TizenSettingInfo*>(

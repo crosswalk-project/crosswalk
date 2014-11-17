@@ -46,6 +46,8 @@
         'signature_types.h',
         'package/package.h',
         'package/package.cc',
+        'package/unpacked_wgt_package.cc',
+        'package/unpacked_wgt_package.h',
         'package/wgt_package.h',
         'package/wgt_package.cc',
         'package/xpk_package.cc',
