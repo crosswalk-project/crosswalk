@@ -90,16 +90,24 @@ blink::WebScreenOrientationLockType GetDefaultOrientation(
 class ScreenOrientationProviderTizen :
     public content::ScreenOrientationProvider {
  public:
-  explicit ScreenOrientationProviderTizen(const base::WeakPtr<Application>& app)
+  ScreenOrientationProviderTizen(
+      const base::WeakPtr<Application>& app,
+      content::ScreenOrientationDispatcherHost* dispatcher)
       : app_(app),
+        dispatcher_(dispatcher),
         request_id_(0) {
+    DCHECK(dispatcher_);
   }
 
   virtual void LockOrientation(
       int request_id,
       blink::WebScreenOrientationLockType lock) OVERRIDE {
-    if (!app_)
+    if (!app_) {
+      dispatcher_->NotifyLockError(
+          request_id,
+          blink::WebLockOrientationError::WebLockOrientationErrorNotAvailable);
       return;
+    }
     request_id_ = request_id;
     const std::set<Runtime*>& runtimes = app_->runtimes();
     DCHECK(!runtimes.empty());
@@ -113,6 +121,7 @@ class ScreenOrientationProviderTizen :
         break;
       }
     }
+    dispatcher_->NotifyLockSuccess(request_id);
   }
 
   virtual void UnlockOrientation() OVERRIDE {
@@ -123,6 +132,7 @@ class ScreenOrientationProviderTizen :
 
  private:
   base::WeakPtr<Application> app_;
+  content::ScreenOrientationDispatcherHost* dispatcher_;
   int request_id_;
 };
 
@@ -191,9 +201,11 @@ bool ApplicationTizen::Launch(const LaunchParams& launch_params) {
     if (audio_host.get())
       audio_host->SetMediaStreamProperties(id(), app_class);
 
-    content::ScreenOrientationProvider *provider =
-        new ScreenOrientationProviderTizen(GetWeakPtr());
-    web_contents_->GetScreenOrientationDispatcherHost()->SetProvider(provider);
+    content::ScreenOrientationDispatcherHost* host =
+        web_contents_->GetScreenOrientationDispatcherHost();
+    content::ScreenOrientationProvider* provider =
+        new ScreenOrientationProviderTizen(GetWeakPtr(), host);
+    host->SetProvider(provider);
 
     provider->LockOrientation(0, GetDefaultOrientation(GetWeakPtr()));
     return true;
