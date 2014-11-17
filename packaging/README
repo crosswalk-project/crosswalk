@@ -15,13 +15,15 @@ gbs' configuration file, please consult gbs' documentation.
 A very important thing to notice is that, due to the way the integration with
 gbs is implemented, _anything_ currently present in your source tree will be
 built, regardless of whether "--include-all" is passed to `gbs build' or not.
+The only exception is the packaging/ directory: if "--include-all" is not
+passed, uncommitted changes will not be used when calling `gbs build'.
 
 INCREMENTAL BUILDS
 ------------------
 
-By default, Crosswalk is built inside src/out/Release inside the Chromium's
-directory. Also by default, each call to `gbs build' will erase the RPM build
-root in the Tizen chroot, which means your previous build will be lost.
+By default, Crosswalk is built inside src/out/Release. Also by default, each
+call to `gbs build' will erase the RPM build root in the Tizen chroot, which
+means your previous build will be lost.
 
 To avoid that, you need to specify a different build directory, one located
 outside the build root. The new directory should be passed as a macro called
@@ -48,8 +50,8 @@ being triggered if:
 - Some problem happens in the `gbs build' call and the whole chroot (not only
   the RPM build root) ends up being erased.
 
-- You use `gbs chroot' to call `make' yourself, as a simple change in the
-  original CFLAGS or CXXFLAGS triggers a rebuild of all files.
+- You use `gbs chroot' to call `ninja' yourself, as a simple change to the
+  original CFLAGS/CXXFLAGS triggers a rebuild of all files.
 
 - You change your source directory name for some reason. This is why
   the generated source tarball does not contain a version number, for
