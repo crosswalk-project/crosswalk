@@ -68,6 +68,8 @@
             ],
           },
           'sources': [
+            'manifest_handlers/manifest_handlers_util.cc',
+            'manifest_handlers/manifest_handlers_util.h',
             'manifest_handlers/navigation_handler.cc',
             'manifest_handlers/navigation_handler.h',
             'manifest_handlers/tizen_application_handler.cc',
