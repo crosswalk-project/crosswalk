@@ -115,6 +115,7 @@ const char kAllowNavigationKey[] = "widget.allow-navigation.#text";
 const char kCSPReportOnlyKey[] =
     "widget.content-security-policy-report-only.#text";
 const char kTizenSettingKey[] = "widget.setting";
+const char kTizenBackgroundSupportKey[] = "widget.setting.@background-support";
 const char kTizenContextMenuKey[] = "widget.setting.@context-menu";
 const char kTizenHardwareKey[] = "widget.setting.@hwkey-event";
 const char kTizenEncryptionKey[] = "widget.setting.@encryption";

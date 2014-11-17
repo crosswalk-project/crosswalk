@@ -19,7 +19,8 @@ namespace application {
 
 TizenSettingInfo::TizenSettingInfo()
     : hwkey_enabled_(true),
-      screen_orientation_(PORTRAIT) {}
+      screen_orientation_(PORTRAIT),
+      background_support_enabled_(false) {}
 
 TizenSettingInfo::~TizenSettingInfo() {}
 
@@ -52,6 +53,10 @@ bool TizenSettingHandler::Parse(scoped_refptr<ApplicationData> application,
   std::string context_menu;
   manifest->GetString(keys::kTizenContextMenuKey, &context_menu);
   app_info->set_context_menu_enabled(context_menu != "disable");
+
+  std::string background_support;
+  manifest->GetString(keys::kTizenBackgroundSupportKey, &background_support);
+  app_info->set_background_support_enabled(background_support == "enable");
 
   application->SetManifestData(keys::kTizenSettingKey,
                                app_info.release());
@@ -97,6 +102,15 @@ bool TizenSettingHandler::Validate(
     *error = std::string("The context-menu value must be 'enable'/'disable', "
                          "or not specified in configuration file.");
     return false;
+  }
+  std::string background_support;
+  manifest->GetString(keys::kTizenBackgroundSupportKey, &background_support);
+  if (!background_support.empty() &&
+      background_support != "enable" &&
+      background_support != "disable") {
+    *error = std::string("The background-support value must be"
+                         "'enable'/'disable', or not specified in configuration"
+                         "file.");
   }
   return true;
 }

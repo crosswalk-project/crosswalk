@@ -97,6 +97,7 @@ namespace application_widget_keys {
   extern const char kAllowNavigationKey[];
   extern const char kCSPReportOnlyKey[];
   extern const char kTizenSettingKey[];
+  extern const char kTizenBackgroundSupportKey[];
   extern const char kTizenContextMenuKey[];
   extern const char kTizenHardwareKey[];
   extern const char kTizenEncryptionKey[];
