@@ -134,6 +134,7 @@ namespace application_widget_keys {
 #endif
 }  // namespace application_widget_keys
 
+extern const char kW3CNamespacePrefix[];
 #if defined(OS_TIZEN)
 extern const char kTizenNamespacePrefix[];
 #endif
