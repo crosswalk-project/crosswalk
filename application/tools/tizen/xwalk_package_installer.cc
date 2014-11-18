@@ -363,9 +363,22 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     unpacked_dir = path;
   }
 
+  base::FilePath app_dir = data_dir.AppendASCII(app_id);
+  base::FilePath manifest_path =
+      xwalk::application::GetManifestPath(app_dir, package->manifest_type());
+  if (!base::PathExists(manifest_path)) {
+    if (!base::DirectoryExists(app_dir))
+      if (!base::CreateDirectory(app_dir))
+        return false;
+    if (!base::CopyFile(
+        xwalk::application::GetManifestPath(
+            unpacked_dir, package->manifest_type()), manifest_path))
+      return false;
+  }
+
   std::string error;
   scoped_refptr<ApplicationData> app_data = LoadApplication(
-      unpacked_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
+      app_dir, app_id, ApplicationData::LOCAL_DIRECTORY,
       package->manifest_type(), &error);
   if (!app_data.get()) {
     LOG(ERROR) << "Error during application installation: " << error;
@@ -387,7 +400,6 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
     return false;
   }
 
-  base::FilePath app_dir = data_dir.AppendASCII(app_data->ID());
   if (base::DirectoryExists(app_dir)) {
     if (!base::DeleteFile(app_dir, true))
       return false;
@@ -450,8 +462,6 @@ bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
       }
     }
   }
-
-  app_data->set_path(app_dir);
 
   if (!storage_->AddApplication(app_data)) {
     LOG(ERROR) << "Application with id " << app_data->ID()

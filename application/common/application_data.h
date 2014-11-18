@@ -93,9 +93,6 @@ class ApplicationData : public base::RefCountedThreadSafe<ApplicationData> {
 
   // Accessors:
   const base::FilePath& path() const { return path_; }
-#if defined(OS_TIZEN)  // FIXME : This method should be removed.
-  void set_path(const base::FilePath& path) { path_ = path; }
-#endif
   const GURL& URL() const { return application_url_; }
   SourceType source_type() const { return source_type_; }
   Manifest::Type manifest_type() const { return manifest_->type(); }
