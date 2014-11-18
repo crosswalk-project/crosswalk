@@ -196,7 +196,9 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
     WebContents* web_contents = it.get()->GetWebContents();
     if (web_contents && web_contents->GetURL() == url) {
       RenderWidgetHostView* render_widget_host_view =
-          web_contents->GetRenderViewHost()->GetView();
+          web_contents->GetRenderWidgetHostView();
+      if (!render_widget_host_view)
+        continue;
       gfx::Rect snapshot_bounds(
         render_widget_host_view->GetViewBounds().size());
       ui::GrabViewSnapshotAsync(
