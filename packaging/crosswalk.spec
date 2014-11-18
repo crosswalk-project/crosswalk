@@ -81,7 +81,6 @@ BuildRequires:  pkgconfig(pkgmgr-installer)
 BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(secure-storage)
 BuildRequires:  pkgconfig(sensor)
-BuildRequires:  pkgconfig(nspr)
 BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xmlsec1)
@@ -242,7 +241,6 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_bzip2=1 \
 -Duse_system_libexif=1 \
 -Duse_system_libxml=1 \
--Duse_system_nspr=1 \
 -Duse_system_yasm=1 \
 -Dshared_process_mode=1 \
 -Denable_hidpi=1
