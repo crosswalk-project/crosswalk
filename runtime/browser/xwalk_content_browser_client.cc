@@ -351,12 +351,14 @@ content::BrowserPpapiHost*
   return NULL;
 }
 
+#if defined(OS_ANDROID) || defined(OS_TIZEN)  || defined(OS_LINUX)
 void XWalkContentBrowserClient::ResourceDispatcherHostCreated() {
   resource_dispatcher_host_delegate_ =
       (RuntimeResourceDispatcherHostDelegate::Create()).Pass();
   content::ResourceDispatcherHost::Get()->SetDelegate(
       resource_dispatcher_host_delegate_.get());
 }
+#endif
 
 content::SpeechRecognitionManagerDelegate*
     XWalkContentBrowserClient::GetSpeechRecognitionManagerDelegate() {
