@@ -84,7 +84,18 @@ BuildRequires:  pkgconfig(sensor)
 BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xmlsec1)
+Requires:  ca-certificates-tizen
+Requires:  ss-server
+
+%if %{with wayland}
+BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  pkgconfig(wayland-cursor)
+BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(xkbcommon)
+%endif
+
 %if %{with x}
+BuildRequires:  pkgconfig(scim)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcomposite)
 BuildRequires:  pkgconfig(xcursor)
@@ -103,17 +114,6 @@ BuildRequires:  pkgconfig(xtst)
 BuildRequires:  pkgconfig(murphy-common)
 BuildRequires:  pkgconfig(murphy-resource)
 %endif
-
-%if %{with wayland}
-BuildRequires:  pkgconfig(wayland-client)
-BuildRequires:  pkgconfig(wayland-cursor)
-BuildRequires:  pkgconfig(wayland-egl)
-BuildRequires:  pkgconfig(xkbcommon)
-%else
-BuildRequires:  pkgconfig(scim)
-%endif
-Requires:  ca-certificates-tizen
-Requires:  ss-server
 
 %description
 Crosswalk is an app runtime based on Chromium. It is an open source project started by the Intel Open Source Technology Center (http://www.01.org).
