@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The attributes in this XML file provide configuration information -->
+<!-- for the ContentProvider. -->
+
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="images" path="images/"/>
+</paths>

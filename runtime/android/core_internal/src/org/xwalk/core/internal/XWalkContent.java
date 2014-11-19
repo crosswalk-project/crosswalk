@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 
 import org.chromium.base.CalledByNative;
+import org.chromium.base.ContentUriUtils;
 import org.chromium.base.JNINamespace;
 import org.chromium.base.ThreadUtils;
 import org.chromium.components.navigation_interception.InterceptNavigationDelegate;
@@ -116,6 +117,7 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         XWalkPreferencesInternal.load(this);
 
         setNativeContent(nativeInit());
+        ContentUriUtils.setFileProviderUtil(new FileProviderHelper());
     }
 
     private void setNativeContent(long newNativeContent) {
