@@ -12,6 +12,9 @@ const char kAppIcon[] = "app-icon";
 // Disables the usage of Portable Native Client.
 const char kDisablePnacl[] = "disable-pnacl";
 
+// Disables the shared process mode
+const char kXWalkDisableSharedProcessMode[] = "disable-shared-process-mode";
+
 // Enable all the experimental features in XWalk.
 const char kExperimentalFeatures[] = "enable-xwalk-experimental-features";
 

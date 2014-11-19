@@ -14,11 +14,11 @@ namespace application {
 
 ApplicationSystemLinux::ApplicationSystemLinux(XWalkBrowserContext* context)
     : ApplicationSystem(context) {
-#if defined(SHARED_PROCESS_MODE)
+  if (XWalkRunner::GetInstance()->shared_process_mode_enabled()) {
     service_provider_.reset(
         new ApplicationServiceProviderLinux(application_service(),
                                             dbus_manager().session_bus()));
-#endif
+  }
 }
 
 ApplicationSystemLinux::~ApplicationSystemLinux() {}
