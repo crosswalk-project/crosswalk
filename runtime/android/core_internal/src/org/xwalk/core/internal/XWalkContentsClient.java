@@ -191,9 +191,8 @@ abstract class XWalkContentsClient extends ContentViewClient {
 
     // TODO (michaelbai): Remove this method once the same method remove from
     // XWalkContentsClientAdapter.
-    public void onShowCustomView(View view,
-           int requestedOrientation, XWalkWebChromeClient.CustomViewCallback callback) {
-    }
+    public abstract void onShowCustomView(View view,
+           int requestedOrientation, XWalkWebChromeClient.CustomViewCallback callback);
 
     // TODO (michaelbai): This method should be abstract, having empty body here
     // makes the merge to the Android easy.

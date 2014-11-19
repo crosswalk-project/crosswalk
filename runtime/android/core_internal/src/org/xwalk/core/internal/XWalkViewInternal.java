@@ -37,6 +37,7 @@ import org.chromium.base.ActivityState;
 import org.chromium.base.ApplicationStatus;
 import org.chromium.base.ApplicationStatus.ActivityStateListener;
 import org.chromium.base.CommandLine;
+import org.chromium.content.browser.ContentViewCore;
 import org.xwalk.core.internal.extension.BuiltinXWalkExtensions;
 
 /**
@@ -1086,5 +1087,10 @@ public class XWalkViewInternal extends android.widget.FrameLayout {
                 storageDir      /* directory */
         );
         return imageFile;
+    }
+
+    // For instrumentation test.
+    public ContentViewCore getXWalkContentForTest() {
+        return mContent.getContentViewCoreForTest();
     }
 }

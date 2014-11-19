@@ -426,6 +426,14 @@ class XWalkContentsClientBridge extends XWalkContentsClient
     }
 
     @Override
+    public void onShowCustomView(View view, int requestedOrientation,
+            XWalkWebChromeClient.CustomViewCallback callback) {
+        if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
+            mXWalkWebChromeClient.onShowCustomView(view, requestedOrientation, callback);
+        }
+    }
+
+    @Override
     public void onHideCustomView() {
         if (mXWalkWebChromeClient != null && isOwnerActivityRunning()) {
             mXWalkWebChromeClient.onHideCustomView();
