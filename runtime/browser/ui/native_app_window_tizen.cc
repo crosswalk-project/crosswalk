@@ -41,7 +41,7 @@ static gfx::Display::Rotation ToDisplayRotation(gfx::Display display,
 
   if (display.bounds().width() > display.bounds().height()) {
     // Landscape devices have landscape-primary as default.
-    rot = static_cast<gfx::Display::Rotation>((rot - 1) % 4);
+    rot = static_cast<gfx::Display::Rotation>((rot + 1) % 4);
   }
 
   return rot;
@@ -131,9 +131,21 @@ NativeAppWindowTizen::~NativeAppWindowTizen() {
 void NativeAppWindowTizen::LockOrientation(
       blink::WebScreenOrientationLockType lock) {
   orientation_lock_ = lock;
-  if (SensorProvider::GetInstance()->connected())
-    OnScreenOrientationChanged(
-        SensorProvider::GetInstance()->GetScreenOrientation());
+  blink::WebScreenOrientationType orientation =
+      blink::WebScreenOrientationUndefined;
+  if (lock == blink::WebScreenOrientationLockLandscape ||
+      lock == blink::WebScreenOrientationLockLandscapePrimary)
+    orientation = blink::WebScreenOrientationLandscapePrimary;
+  else if (lock == blink::WebScreenOrientationLockLandscapeSecondary)
+    orientation = blink::WebScreenOrientationLandscapeSecondary;
+  else if (lock == blink::WebScreenOrientationLockPortrait ||
+      lock == blink::WebScreenOrientationLockPortraitPrimary)
+    orientation = blink::WebScreenOrientationPortraitPrimary;
+  else if (lock == blink::WebScreenOrientationLockPortraitSecondary)
+    orientation = blink::WebScreenOrientationPortraitSecondary;
+
+  if (orientation != blink::WebScreenOrientationUndefined)
+    OnScreenOrientationChanged(orientation);
 }
 
 void NativeAppWindowTizen::ViewHierarchyChanged(
