@@ -169,11 +169,11 @@ void XWalkExtensionAndroidInstance::HandleMessage(
 
 void XWalkExtensionAndroidInstance::HandleSyncMessage(
     scoped_ptr<base::Value> msg) {
-  base::StringValue* ret_val = new base::StringValue("");
+  scoped_ptr<base::Value> ret_val(new base::StringValue(""));
 
   std::string value;
   if (!msg->GetAsString(&value)) {
-    SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
+    SendSyncReplyToJS(ret_val.Pass());
     return;
   }
 
@@ -181,7 +181,7 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
   ScopedJavaLocalRef<jobject> obj = java_ref_.get(env);
   if (obj.is_null()) {
     LOG(ERROR) << "No valid Java object is referenced for sync message routing";
-    SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
+    SendSyncReplyToJS(ret_val.Pass());
     return;
   }
 
@@ -191,10 +191,10 @@ void XWalkExtensionAndroidInstance::HandleSyncMessage(
               env, obj.obj(), getID(), buffer.obj());
 
   const char *str = env->GetStringUTFChars(ret.obj(), 0);
-  ret_val = new base::StringValue(str);
+  ret_val.reset(new base::StringValue(str));
   env->ReleaseStringUTFChars(ret.obj(), str);
 
-  SendSyncReplyToJS(scoped_ptr<base::Value>(ret_val));
+  SendSyncReplyToJS(ret_val.Pass());
 }
 
 static jlong GetOrCreateExtension(JNIEnv* env, jobject obj, jstring name,
