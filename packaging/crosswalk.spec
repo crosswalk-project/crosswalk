@@ -223,6 +223,7 @@ export GYP_GENERATORS='ninja'
 ${GYP_EXTRA_FLAGS} \
 -Dchromeos=0 \
 -Dclang=0 \
+-Dcomponent=shared_library \
 -Dlinux_use_bundled_binutils=0 \
 -Dlinux_use_bundled_gold=0 \
 -Dlinux_use_gold_flags=1 \
@@ -252,6 +253,8 @@ install -m 0644 -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{
 install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
 install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
 install -m 0644 -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -d %{buildroot}%{_libdir}/xwalk/lib
+install -m 0644 -p -D src/out/Release/lib/*.so %{buildroot}%{_libdir}/xwalk/lib/
 install -d %{buildroot}%{_datadir}/xwalk
 install -m 0644 -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk
 
@@ -292,6 +295,7 @@ fi
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
 %{_libdir}/xwalk/icudtl.dat
 %{_libdir}/xwalk/libffmpegsumo.so
+%{_libdir}/xwalk/lib/*.so
 %if ! %{_disable_nacl}
 %{_libdir}/xwalk/nacl_bootstrap_raw
 %{_libdir}/xwalk/nacl_helper
