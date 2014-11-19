@@ -25,7 +25,8 @@ XPKPackage::~XPKPackage() {
 }
 
 XPKPackage::XPKPackage(const base::FilePath& path)
-    : Package(path, Manifest::TYPE_MANIFEST) {
+    : Package(path, Manifest::TYPE_MANIFEST),
+      zip_addr_(0) {
   if (!base::PathExists(path))
     return;
   scoped_ptr<base::ScopedFILE> file(
@@ -43,7 +44,10 @@ XPKPackage::XPKPackage(const base::FilePath& path)
       header_.signature_size <= XPKPackage::kMaxSignatureKeySize) {
     is_valid_ = true;
     zip_addr_ = sizeof(header_) + header_.key_size + header_.signature_size;
-    fseek(file_->get(), sizeof(header_), SEEK_SET);
+    if (fseek(file_->get(), sizeof(header_), SEEK_SET)) {
+      is_valid_ = false;
+      return;
+    }
     key_.resize(header_.key_size);
     size_t len = fread(&key_.front(), sizeof(uint8), header_.key_size,
         file_->get());
@@ -68,7 +72,8 @@ XPKPackage::XPKPackage(const base::FilePath& path)
 bool XPKPackage::VerifySignature() {
 // Set the file read position to the beginning of compressed resource file,
 // which is behind the magic header, public key and signature key.
-  fseek(file_->get(), zip_addr_, SEEK_SET);
+  if (fseek(file_->get(), zip_addr_, SEEK_SET))
+    return false;
   crypto::SignatureVerifier verifier;
   if (!verifier.VerifyInit(kSignatureAlgorithm,
                            sizeof(kSignatureAlgorithm),
