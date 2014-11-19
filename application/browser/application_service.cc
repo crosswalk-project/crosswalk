@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "content/public/browser/browser_thread.h"
@@ -24,6 +25,7 @@
 #include "xwalk/application/common/id_util.h"
 #include "xwalk/runtime/browser/runtime_context.h"
 #include "xwalk/runtime/browser/runtime.h"
+#include "xwalk/runtime/common/xwalk_switches.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #if defined(OS_TIZEN)
@@ -249,12 +251,13 @@ void ApplicationService::OnApplicationTerminated(
           base::Bind(&base::DoNothing));
   }
 
-#if !defined(SHARED_PROCESS_MODE)
-  if (applications_.empty()) {
-    base::MessageLoop::current()->PostTask(
+  CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (cmd_line->HasSwitch(switches::kXWalkDisableSharedProcessMode)) {
+    if (applications_.empty()) {
+      base::MessageLoop::current()->PostTask(
             FROM_HERE, base::MessageLoop::QuitClosure());
+    }
   }
-#endif
 }
 
 void ApplicationService::CheckAPIAccessControl(const std::string& app_id,
