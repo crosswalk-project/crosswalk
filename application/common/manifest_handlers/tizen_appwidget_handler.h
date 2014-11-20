@@ -60,7 +60,8 @@ struct TizenAppWidget {
   // separated with dot, the label can contain only 0-9, a-z, A-Z
   std::string id;
 
-  // mandatory, only one may contain true
+  // mandatory, if 2 or more app widgets have the primary attribute set to true,
+  // the default icon and title of the parent web app can be used
   bool primary;
 
   // optional(0-1), min: 1800.0, default: no update
