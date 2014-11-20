@@ -327,8 +327,14 @@ bool PackageInstaller::PlatformReinstall(const std::string& pkgid) {
 bool PackageInstaller::Install(const base::FilePath& path, std::string* id) {
   // FIXME(leandro): Installation is not robust enough -- should any step
   // fail, it can't roll back to a consistent state.
-  if (!base::PathExists(path))
+  if (!base::PathExists(path)) {
+    LOG(ERROR) << "The specified XPK/WGT package file is invalid.";
     return false;
+  }
+  if (base::DirectoryExists(path)) {
+    LOG(WARNING) << "Cannot install from directory.";
+    return false;
+  }
 
   base::FilePath data_dir, install_temp_dir;
   CHECK(PathService::Get(xwalk::DIR_DATA_PATH, &data_dir));
@@ -493,12 +499,12 @@ bool PackageInstaller::Update(const std::string& app_id,
   }
 
   if (!base::PathExists(path)) {
-    LOG(ERROR) << "The XPK/WGT package file " << path.value() << " is invalid.";
+    LOG(ERROR) << "The specified XPK/WGT package file is invalid.";
     return false;
   }
 
   if (base::DirectoryExists(path)) {
-    LOG(WARNING) << "Cannot update an unpacked XPK/WGT package.";
+    LOG(WARNING) << "Cannot update from directory.";
     return false;
   }
 
