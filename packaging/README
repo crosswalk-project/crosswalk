@@ -4,9 +4,21 @@ build Crosswalk RPMs for Tizen.
 BUILD INSTRUCTIONS
 ------------------
 
-In the simplest case, a call to `gbs build' from the xwalk/ directory suffices.
-It should create a Tizen chroot and launch a build from there, requiring no
-further interaction and producing a few RPMs at the end of the process.
+Crosswalk is packaged as two separate RPMs on Tizen (along with their source,
+debuginfo and debugsource packages):
+
+* crosswalk-bin: Crosswalk binaries and support files. This is the actual web
+  runtime package. It depends on crosswalk-libs.
+
+* crosswalk-libs: Private libraries required by crosswalk-bin. This package has
+  no dependency on any Tizen-specific packages.
+
+One then needs to specify which package should be built by passing the "--spec"
+argument to GBS:
+
+  $ gbs build --spec crosswalk-bin.spec
+  or
+  $ gbs build --spec crosswalk-libs.spec
 
 For more information on which other parameters one is normally expected to pass
 to `gbs build' (including "-A" to specify the Tizen architecture) and also on
@@ -30,7 +42,8 @@ outside the build root. The new directory should be passed as a macro called
 BUILDDIR_NAME:
 
   $ cd /path/to/src/xwalk
-  $ gbs build -A i586 --define 'BUILDDIR_NAME /var/tmp/xwalk-build'
+  $ gbs build -A i586 --define 'BUILDDIR_NAME /var/tmp/xwalk-build' \
+              --spec crosswalk-XXX.spec
 
   (Note `/var/tmp/xwalk-build` is still a directory inside the chroot, so to
   the host system this is actually something like

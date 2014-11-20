@@ -23,22 +23,27 @@
 %define _source_payload w3.gzdio
 %define _binary_payload w3.gzdio
 
-Name:           crosswalk
+Name:           crosswalk-bin
 Version:        12.40.281.0
 Release:        0
 Summary:        Chromium-based app runtime
 License:        (BSD-3-Clause and LGPL-2.1+)
 Group:          Web Framework/Web Run Time
 Url:            https://github.com/otcshare/crosswalk
-Source:         %{name}.tar
-Source1001:     crosswalk.manifest
-Source1002:     %{name}.xml.in
-Source1003:     %{name}.png
+Source:         crosswalk.tar
+Source1001:     crosswalk-bin.manifest
+Source1002:     crosswalk.xml.in
+Source1003:     crosswalk.png
 Patch10:        crosswalk-do-not-look-for-gtk-dependencies-on-x11.patch
+Patch1000:      crosswalk-do-not-build-several-chromium-dependencies.patch
+
+# Provided for compatibility for a while.
+Provides:       crosswalk
 
 BuildRequires:  binutils-gold
 BuildRequires:  bison
 BuildRequires:  bzip2-devel
+BuildRequires:  crosswalk-libs
 BuildRequires:  elfutils
 BuildRequires:  expat-devel
 BuildRequires:  flex
@@ -46,11 +51,7 @@ BuildRequires:  gperf
 BuildRequires:  libcap-devel
 BuildRequires:  libelf-devel
 BuildRequires:  ninja
-BuildRequires:  python
-BuildRequires:  python-xml
 BuildRequires:  perl
-BuildRequires:  which
-BuildRequires:  yasm
 BuildRequires:  pkgconfig(ail)
 BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(appcore-common)
@@ -71,6 +72,7 @@ BuildRequires:  pkgconfig(libtzplatform-config)
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libxslt)
+BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(pango)
 BuildRequires:  pkgconfig(pkgmgr)
 BuildRequires:  pkgconfig(pkgmgr-info)
@@ -79,11 +81,14 @@ BuildRequires:  pkgconfig(pkgmgr-parser)
 BuildRequires:  pkgconfig(protobuf)
 BuildRequires:  pkgconfig(secure-storage)
 BuildRequires:  pkgconfig(sensor)
-BuildRequires:  pkgconfig(nss)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xmlsec1)
-Requires:  ca-certificates-tizen
-Requires:  ss-server
+BuildRequires:  python
+BuildRequires:  python-xml
+BuildRequires:  which
+BuildRequires:  yasm
+Requires:       ca-certificates-tizen
+Requires:       ss-server
 
 %if %{with wayland}
 BuildRequires:  pkgconfig(wayland-client)
@@ -129,7 +134,7 @@ Crosswalk is an app runtime based on Chromium. It is an open source project star
 cp %{SOURCE1001} .
 cp %{SOURCE1002} .
 cp %{SOURCE1003} .
-sed "s/@VERSION@/%{version}/g" %{name}.xml.in > %{name}.xml
+sed "s/@VERSION@/%{version}/g" crosswalk.xml.in > crosswalk.xml
 
 cp -a src/AUTHORS AUTHORS.chromium
 cp -a src/LICENSE LICENSE.chromium
@@ -139,6 +144,8 @@ cp -a src/xwalk/LICENSE LICENSE.xwalk
 %if !%{with wayland}
 %patch10
 %endif
+
+%patch1000
 
 %build
 
@@ -215,9 +222,15 @@ export FFLAGS=`echo $FFLAGS | sed s,-mfpu=vfpv3,-mfpu=neon,g`
 GYP_EXTRA_FLAGS="${GYP_EXTRA_FLAGS} -Denable_murphy=1"
 %endif
 
+# We are relying on our libraries already being installed, we need to pass -L
+# to avoid libraries with the same name from being picked up instead (and also
+# to tell GCC/ld where to look for them).
+export LDFLAGS="${LDFLAGS} -L%{_libdir}/xwalk/lib"
+
+export GYP_GENERATORS="ninja"
+
 # --no-parallel is added because chroot does not mount a /dev/shm, this will
 # cause python multiprocessing.SemLock error.
-export GYP_GENERATORS='ninja'
 ./src/xwalk/gyp_xwalk src/xwalk/xwalk.gyp \
 --no-parallel \
 ${GYP_EXTRA_FLAGS} \
@@ -241,7 +254,8 @@ ${GYP_EXTRA_FLAGS} \
 -Duse_system_yasm=1 \
 -Denable_hidpi=1
 
-ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_application_tools
+NINJA_TARGETS="xwalk xwalk_application_tools"
+ninja %{?_smp_mflags} -C src/out/Release ${NINJA_TARGETS}
 
 %install
 # Binaries.
@@ -249,35 +263,21 @@ install -m 0755 -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
 install -m 0755 -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
 
 # Supporting libraries and resources.
-install -m 0644 -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
-install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
-install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -m 0644 -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/lib/libxwalk_backend_lib.so
 install -m 0644 -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
-install -d %{buildroot}%{_libdir}/xwalk/lib
-install -m 0644 -p -D src/out/Release/lib/*.so %{buildroot}%{_libdir}/xwalk/lib/
 install -d %{buildroot}%{_datadir}/xwalk
 install -m 0644 -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk
 
-# PNaCl
-%if ! %{_disable_nacl}
-install -m 0755 -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
-install -m 0755 -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
-install -m 0755 -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
-install -m 0644 -p -D src/out/Release/nacl_irt_*.nexe %{buildroot}%{_libdir}/xwalk
-install -d %{buildroot}%{_libdir}/xwalk/pnacl
-install -m 0644 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
-%endif
-
 # Register xwalk to the package manager.
-install -m 0644 -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
-install -m 0644 -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+install -m 0644 -p -D crosswalk.xml %{buildroot}%{_manifestdir}/crosswalk.xml
+install -m 0644 -p -D crosswalk.png %{buildroot}%{_desktop_icondir}/crosswalk.png
 
 %post
 mkdir -p %{_desktop_icondir_ro}
 mkdir -p %{_manifestdir_ro}
 
-ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libxpk.so
-ln -sf %{_libdir}/xwalk/libxwalk_backend_lib.so /etc/package-manager/backendlib/libwgt.so
+ln -sf %{_libdir}/xwalk/lib/libxwalk_backend_lib.so /etc/package-manager/backendlib/libxpk.so
+ln -sf %{_libdir}/xwalk/lib/libxwalk_backend_lib.so /etc/package-manager/backendlib/libwgt.so
 ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/xpk
 ln -sf %{_libdir}/xwalk/xwalk_backend /etc/package-manager/backend/wgt
 
@@ -291,22 +291,12 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %files
-%manifest %{name}.manifest
+%manifest crosswalk-bin.manifest
 %license AUTHORS.chromium LICENSE.chromium LICENSE.xwalk
-%{_libdir}/xwalk/icudtl.dat
-%{_libdir}/xwalk/libffmpegsumo.so
-%{_libdir}/xwalk/lib/*.so
-%if ! %{_disable_nacl}
-%{_libdir}/xwalk/nacl_bootstrap_raw
-%{_libdir}/xwalk/nacl_helper
-%{_libdir}/xwalk/nacl_helper_bootstrap
-%{_libdir}/xwalk/nacl_irt_*.nexe
-%{_libdir}/xwalk/pnacl/*
-%endif
+%{_libdir}/xwalk/lib/libxwalk_backend_lib.so
 %{_libdir}/xwalk/xwalk
 %{_libdir}/xwalk/xwalk.pak
-%{_libdir}/xwalk/libxwalk_backend_lib.so
 %{_libdir}/xwalk/xwalk_backend
-%{_manifestdir}/%{name}.xml
-%{_desktop_icondir}/%{name}.png
+%{_manifestdir}/crosswalk.xml
+%{_desktop_icondir}/crosswalk.png
 %{_datadir}/xwalk/*
