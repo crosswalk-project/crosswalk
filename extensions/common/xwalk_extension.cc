@@ -4,8 +4,6 @@
 
 #include "xwalk/extensions/common/xwalk_extension.h"
 
-#include <string.h>
-
 #include "base/logging.h"
 
 namespace xwalk {
@@ -25,7 +23,7 @@ XWalkExtension::XWalkExtension() : permissions_delegate_(NULL) {}
 
 XWalkExtension::~XWalkExtension() {}
 
-const base::ListValue& XWalkExtension::entry_points() const {
+const std::vector<std::string>& XWalkExtension::entry_points() const {
   return entry_points_;
 }
 

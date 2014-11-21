@@ -54,7 +54,7 @@ class XWalkExtension {
   // Returns a list of entry points for which the extension should be loaded
   // when accessed. Entry points are used when the extension needs to have
   // objects outside the namespace that is implicitly created using its name.
-  virtual const base::ListValue& entry_points() const;
+  virtual const std::vector<std::string>& entry_points() const;
 
   void set_permissions_delegate(XWalkExtension::PermissionsDelegate* delegate) {
     permissions_delegate_ = delegate;
@@ -70,7 +70,8 @@ class XWalkExtension {
     javascript_api_ = javascript_api;
   }
   void set_entry_points(const std::vector<std::string>& entry_points) {
-    entry_points_.AppendStrings(entry_points);
+    entry_points_.insert(entry_points_.end(), entry_points.begin(),
+                         entry_points.end());
   }
 
  private:
@@ -82,9 +83,7 @@ class XWalkExtension {
   // message passing.
   std::string javascript_api_;
 
-  // FIXME(jeez): convert this to std::vector<std::string> to avoid
-  // extra conversions later on.
-  base::ListValue entry_points_;
+  std::vector<std::string> entry_points_;
 
   // Permission check delegate for both in and out of process extensions.
   PermissionsDelegate* permissions_delegate_;
