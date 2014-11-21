@@ -118,6 +118,9 @@ void XWalkBrowserMainParts::PreMainMessageLoopStart() {
   command_line->AppendSwitchASCII(switches::kJavaScriptFlags, js_flags);
 
   startup_url_ = GetURLFromCommandLine(*command_line);
+
+  command_line->AppendSwitchASCII(switches::kEnableSeccompFilterSandbox,
+      startup_url_.spec());
 }
 
 void XWalkBrowserMainParts::PostMainMessageLoopStart() {
