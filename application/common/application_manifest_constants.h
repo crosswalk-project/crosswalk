@@ -131,6 +131,12 @@ namespace application_widget_keys {
   extern const char kTizenAppWidgetBoxContentDropViewSrcKey[];
   extern const char kTizenAppWidgetBoxContentDropViewWidthKey[];
   extern const char kTizenAppWidgetBoxContentDropViewHeightKey[];
+  extern const char kTizenApplicationAppControlsKey[];
+  extern const char kTizenApplicationAppControlSrcKey[];
+  extern const char kTizenApplicationAppControlOperationKey[];
+  extern const char kTizenApplicationAppControlUriKey[];
+  extern const char kTizenApplicationAppControlMimeKey[];
+  extern const char kTizenApplicationAppControlChildNameAttrKey[];
 #endif
 }  // namespace application_widget_keys
 

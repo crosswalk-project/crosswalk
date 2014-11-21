@@ -6,6 +6,7 @@
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../base/base.gyp:base_i18n',
+        '../../../base/base.gyp:xdg_mime',
         '../../../content/content.gyp:content_common',
         '../../../crypto/crypto.gyp:crypto',
         '../../../net/net.gyp:net',
@@ -68,6 +69,8 @@
             ],
           },
           'sources': [
+            'manifest_handlers/tizen_app_control_handler.cc',
+            'manifest_handlers/tizen_app_control_handler.h',
             'manifest_handlers/tizen_application_handler.cc',
             'manifest_handlers/tizen_application_handler.h',
             'manifest_handlers/tizen_appwidget_handler.cc',
