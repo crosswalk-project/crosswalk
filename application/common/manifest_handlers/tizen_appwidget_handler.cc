@@ -49,10 +49,6 @@ const char kErrMsgInvalidAppWidgetIdBeginning[] =
 const char kErrMsgInvalidAppWidgetIdFormat[] =
     "Invalid format of an id attribute value in app-widget element."
     " The value: ";
-const char kErrMsgNoPrimaryAppWidget[] =
-    "No primary app-widget element (primary='true').";
-const char kErrMsgToManyPrimaryAppWidgets[] =
-    "Too many primary app-widget elements (primary='true').";
 const char kErrMsgUpdatePeriodOutOfDomain[] =
     "Value of an update-period attribute in app-widget element out of domain."
     " The value: ";
@@ -501,7 +497,7 @@ bool ParseAppWidget(const base::DictionaryValue& dict,
     return false;
 
   if (!ParseEach(dict, keys::kTizenAppWidgetBoxIconKey,
-      true, ParseIcon, &app_widget, error))
+      false, ParseIcon, &app_widget, error))
     return false;
 
   if (!ParseEach(dict, keys::kTizenAppWidgetBoxContentKey,
@@ -536,28 +532,6 @@ bool ValidateEachId(const TizenAppWidgetVector& app_widgets,
       SetError(kErrMsgInvalidAppWidgetIdFormat, app_widget.id, error);
       return false;
     }
-  }
-
-  return true;
-}
-
-// Validates all app-widget primary attributes
-bool ValidateEachPrimary(const TizenAppWidgetVector& app_widgets,
-    std::string* error) {
-  int primary_count = 0;
-
-  for (const TizenAppWidget& app_widget : app_widgets)
-    if (app_widget.primary)
-      ++primary_count;
-
-  if (!primary_count) {
-    SetError(kErrMsgNoPrimaryAppWidget, error);
-    return false;
-  }
-
-  if (primary_count > 1) {
-    SetError(kErrMsgToManyPrimaryAppWidgets, error);
-    return false;
   }
 
   return true;
@@ -660,9 +634,6 @@ bool TizenAppWidgetHandler::Validate(
   const TizenAppWidgetVector& app_widgets = app_widget_info->app_widgets();
 
   if (!ValidateEachId(app_widgets, app_info->id(), error))
-    return false;
-
-  if (!ValidateEachPrimary(app_widgets, error))
     return false;
 
   for (const TizenAppWidget& app_widget : app_widgets) {
