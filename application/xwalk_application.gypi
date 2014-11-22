@@ -62,6 +62,7 @@
             'build/system.gyp:tizen',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '../third_party/re2/re2.gyp:re2',
+            '<(DEPTH)/ui/events/platform/events_platform.gyp:events_platform',
           ],
           'sources': [
             'browser/application_tizen.cc',

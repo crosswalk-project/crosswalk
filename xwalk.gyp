@@ -297,6 +297,7 @@
         ['tizen==1', {
           'dependencies': [
             '../content/app/resources/content_resources.gyp:content_resources',
+            '../ui/compositor/compositor.gyp:compositor',
             'build/system.gyp:tizen_geolocation',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
