@@ -106,6 +106,7 @@ void SetError(const std::string& message,
 // parameter is specified, it is also filled with proper message.
 bool GetMandatoryDictionary(const Manifest& manifest, const std::string& key,
     const base::DictionaryValue** dict, base::string16* error) {
+  DCHECK(dict);
   if (!manifest.HasPath(key)) {
     SetError(kErrMsgNoMandatoryKey, key, error);
     return false;
@@ -174,13 +175,11 @@ template <typename ValueType>
 bool GetMandatoryValue(const base::DictionaryValue& dict,
     const std::string& key, ValueType* value, base::string16* error) {
   DCHECK(value);
-
   std::string tmp;
   if (!dict.GetString(key, &tmp)) {
     SetError(kErrMsgNoMandatoryKey, key, error);
     return false;
   }
-
   bool result = ConvertValue(tmp, value);
   if (!result)
     SetError(kErrMsgInvalidKeyValue, key, error);
@@ -197,13 +196,11 @@ bool GetOptionalValue(const base::DictionaryValue& dict,
     const std::string& key, ValueType default_value, ValueType* value,
     base::string16* error) {
   DCHECK(value);
-
   std::string tmp;
   if (!dict.GetString(key, &tmp)) {
     *value = default_value;
     return true;
   }
-
   bool result = ConvertValue(tmp, value);
   if (!result)
     SetError(kErrMsgInvalidKeyValue, key, error);
@@ -216,7 +213,6 @@ bool ParseEachInternal(const base::Value& value, const std::string& key,
     ParseSingleType parse_single, DataContainerType* data_container,
     base::string16* error) {
   DCHECK(data_container);
-
   const base::DictionaryValue* inner_dict;
   if (!value.GetAsDictionary(&inner_dict)) {
     SetError(kErrMsgInvalidDictionary, key, error);
@@ -224,7 +220,6 @@ bool ParseEachInternal(const base::Value& value, const std::string& key,
   }
   if (!parse_single(*inner_dict, key, data_container, error))
     return false;
-
   return true;
 }
 
