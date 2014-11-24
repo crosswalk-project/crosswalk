@@ -246,34 +246,34 @@ ninja %{?_smp_mflags} -C src/out/Release xwalk xwalk_launcher xwalk_application_
 
 %install
 # Binaries.
-install -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
-install -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
-install -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
-install -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
-install -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
-install -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
-install -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
+install -m 0755 -p -D src/out/Release/xwalk %{buildroot}%{_libdir}/xwalk/xwalk
+install -m 0755 -p -D src/out/Release/xwalkctl %{buildroot}%{_bindir}/xwalkctl
+install -m 0755 -p -D src/out/Release/xwalk-launcher %{buildroot}%{_bindir}/xwalk-launcher
+install -m 0755 -p -D src/out/Release/xwalk_backend %{buildroot}%{_libdir}/xwalk/xwalk_backend
 
 # Supporting libraries and resources.
-install -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
-install -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
-install -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
-mkdir -p %{buildroot}%{_datadir}/xwalk
-install -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk/
+install -m 0644 -p -D %{SOURCE2} %{buildroot}%{_dbusservicedir}/org.crosswalkproject.Runtime1.service
+install -m 0644 -p -D xwalk.service %{buildroot}%{_systemduserservicedir}/xwalk.service
+install -m 0644 -p -D src/out/Release/lib/libxwalk_backend_lib.so %{buildroot}%{_libdir}/xwalk/libxwalk_backend_lib.so
+install -m 0644 -p -D src/out/Release/icudtl.dat %{buildroot}%{_libdir}/xwalk/icudtl.dat
+install -m 0644 -p -D src/out/Release/libffmpegsumo.so %{buildroot}%{_libdir}/xwalk/libffmpegsumo.so
+install -m 0644 -p -D src/out/Release/xwalk.pak %{buildroot}%{_libdir}/xwalk/xwalk.pak
+install -d %{buildroot}%{_datadir}/xwalk
+install -m 0644 -p -D src/xwalk/application/common/tizen/configuration/*.xsd %{buildroot}%{_datadir}/xwalk
 
 # PNaCl
 %if ! %{_disable_nacl}
-install -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
-install -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
-install -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
-install -p -D src/out/Release/nacl_irt_*.nexe %{buildroot}%{_libdir}/xwalk
-install -p -d %{buildroot}%{_libdir}/xwalk/pnacl
-install -m 0664 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
+install -m 0755 -p -D src/out/Release/nacl_bootstrap_raw %{buildroot}%{_libdir}/xwalk/nacl_bootstrap_raw
+install -m 0755 -p -D src/out/Release/nacl_helper %{buildroot}%{_libdir}/xwalk/nacl_helper
+install -m 0755 -p -D src/out/Release/nacl_helper_bootstrap %{buildroot}%{_libdir}/xwalk/nacl_helper_bootstrap
+install -m 0644 -p -D src/out/Release/nacl_irt_*.nexe %{buildroot}%{_libdir}/xwalk
+install -d %{buildroot}%{_libdir}/xwalk/pnacl
+install -m 0644 -p -D src/out/Release/pnacl/* %{buildroot}%{_libdir}/xwalk/pnacl
 %endif
 
 # Register xwalk to the package manager.
-install -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
-install -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
+install -m 0644 -p -D %{name}.xml %{buildroot}%{_manifestdir}/%{name}.xml
+install -m 0644 -p -D %{name}.png %{buildroot}%{_desktop_icondir}/%{name}.png
 
 %post
 mkdir -p %{_desktop_icondir_ro}
