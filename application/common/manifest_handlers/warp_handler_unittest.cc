@@ -1,10 +1,12 @@
 // Copyright (c) 2013 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/manifest_handlers/warp_handler.h"
-
+#include "base/memory/scoped_ptr.h"
 #include "xwalk/application/common/application_manifest_constants.h"
+#include "xwalk/application/common/manifest_handlers/unittest_util.h"
+#include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace xwalk {
@@ -13,37 +15,33 @@ namespace keys = application_widget_keys;
 
 namespace application {
 
+namespace {
+
+const WARPInfo* GetWARPInfo(
+    scoped_refptr<ApplicationData> application) {
+  const WARPInfo* info = static_cast<WARPInfo*>(
+      application->GetManifestData(keys::kAccessKey));
+  return info;
+}
+
+scoped_ptr<base::DictionaryValue> CreateManifest() {
+#if defined(OS_TIZEN)
+  return CreateDefaultWGTManifest();
+#else
+  return CreateDefaultW3CManifest();
+#endif
+}
+
+}  // namespace
+
 class WARPHandlerTest: public testing::Test {
- public:
-  virtual void SetUp() OVERRIDE {
-    manifest.SetString(keys::kNameKey, "no name");
-    manifest.SetString(keys::kVersionKey, "0");
-  }
-
-  scoped_refptr<ApplicationData> CreateApplication() {
-    std::string error;
-    scoped_refptr<ApplicationData> application = ApplicationData::Create(
-        base::FilePath(), std::string(), ApplicationData::LOCAL_DIRECTORY,
-        make_scoped_ptr(new Manifest(make_scoped_ptr(manifest.DeepCopy()),
-                                     Manifest::TYPE_WIDGET)),
-        &error);
-    return application;
-  }
-
-  const WARPInfo* GetWARPInfo(
-      scoped_refptr<ApplicationData> application) {
-    const WARPInfo* info = static_cast<WARPInfo*>(
-        application->GetManifestData(keys::kAccessKey));
-    return info;
-  }
-
-  base::DictionaryValue manifest;
 };
 
 // FIXME: the default WARP policy settings in WARP manifest handler
 // are temporally removed, since they had affected some tests and legacy apps.
 TEST_F(WARPHandlerTest, NoWARP) {
-  scoped_refptr<ApplicationData> application = CreateApplication();
+  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
+  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
   EXPECT_TRUE(application.get());
   EXPECT_FALSE(GetWARPInfo(application));
 }
@@ -52,8 +50,9 @@ TEST_F(WARPHandlerTest, OneWARP) {
   base::DictionaryValue* warp = new base::DictionaryValue;
   warp->SetString(keys::kAccessOriginKey, "http://www.sample.com");
   warp->SetBoolean(keys::kAccessSubdomainsKey, true);
-  manifest.Set(keys::kAccessKey, warp);
-  scoped_refptr<ApplicationData> application = CreateApplication();
+  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
+  manifest->Set(keys::kAccessKey, warp);
+  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   const WARPInfo* info = GetWARPInfo(application);
@@ -75,9 +74,10 @@ TEST_F(WARPHandlerTest, WARPs) {
   base::ListValue* warp_list = new base::ListValue;
   warp_list->Append(warp1);
   warp_list->Append(warp2);
-  manifest.Set(keys::kAccessKey, warp_list);
 
-  scoped_refptr<ApplicationData> application = CreateApplication();
+  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
+  manifest->Set(keys::kAccessKey, warp_list);
+  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
   EXPECT_TRUE(application.get());
   EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
 
