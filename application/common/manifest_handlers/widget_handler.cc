@@ -126,6 +126,10 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
   for (KeyMapIterator iter = map.begin(); iter != map.end(); ++iter) {
     std::string string;
     bool result = manifest->GetString(iter->first, &string);
+    if (result && !string.empty() && iter->first == keys::kAuthorHrefKey &&
+        !GURL(string).is_valid())
+      // When authorhref is an invalid URI, reset it an empty string.
+      string.clear();
     widget_info->SetString(iter->second, result ? string : "");
   }
 
