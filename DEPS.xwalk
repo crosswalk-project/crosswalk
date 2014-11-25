@@ -18,7 +18,7 @@
 # -----------------------------------
 
 chromium_crosswalk_rev = '35b73bc7d43d8dcab600c2afedcdcf21de0651ee'
-v8_crosswalk_rev = '5b2efeab77f1cda6d70f98f20b393fe40ea6898a'
+v8_crosswalk_rev = '69921d6ecd8c1a32422433f466c128fc754db672'
 ozone_wayland_rev = '8f3a1b59dd183087269400208947031cac5fcfcd'
 
 # |blink_crosswalk_rev| specifies the SHA1 hash of the blink-crosswalk commit
