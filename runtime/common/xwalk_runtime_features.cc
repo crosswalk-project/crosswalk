@@ -30,8 +30,9 @@ XWalkRuntimeFeatures* XWalkRuntimeFeatures::GetInstance() {
 }
 
 XWalkRuntimeFeatures::XWalkRuntimeFeatures()
-  : command_line_(0)
-  , initialized_(false) {}
+  : command_line_(0),
+    initialized_(false),
+    experimental_features_enabled_(false) {}
 
 void XWalkRuntimeFeatures::Initialize(const CommandLine* cmd) {
   command_line_ = cmd;
@@ -72,6 +73,7 @@ void XWalkRuntimeFeatures::AddFeature(const char* name,
   feature.description = description;
   feature.command_line_switch = command_line_switch;
   feature.status = status;
+  feature.enabled = false;
 
   if (experimental_features_enabled_) {
     feature.enabled = true;

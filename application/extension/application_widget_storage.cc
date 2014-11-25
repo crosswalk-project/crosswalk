@@ -97,10 +97,11 @@ bool AppWidgetStorage::SaveConfigInfoItem(base::DictionaryValue* dict) {
   std::string key;
   std::string value;
   bool read_only = false;
-  dict->GetString(kPreferencesName, &key);
-  dict->GetString(kPreferencesValue, &value);
-  dict->GetBoolean(kPreferencesReadonly, &read_only);
-  return AddEntry(key, value, read_only);
+  if (dict->GetString(kPreferencesName, &key) &&
+      dict->GetString(kPreferencesValue, &value) &&
+      dict->GetBoolean(kPreferencesReadonly, &read_only))
+    return AddEntry(key, value, read_only);
+  return false;
 }
 
 bool AppWidgetStorage::SaveConfigInfoInDB() {
