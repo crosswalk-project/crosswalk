@@ -1,8 +1,9 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "xwalk/application/common/security_policy.h"
+#include "xwalk/application/browser/application_security_policy.h"
 
 #include <map>
 #include <string>
@@ -57,20 +58,21 @@ CSPInfo* GetDefaultCSPInfo() {
 
 }  // namespace
 
-SecurityPolicy::WhitelistEntry::WhitelistEntry(const GURL& url, bool subdomains)
-  : url(url),
-    subdomains(subdomains) {
+ApplicationSecurityPolicy::WhitelistEntry::WhitelistEntry(
+    const GURL& url, bool subdomains)
+    : url(url),
+      subdomains(subdomains) {
 }
 
-SecurityPolicy::SecurityPolicy(Application* app)
-  : app_(app),
-    enabled_(false) {
+ApplicationSecurityPolicy::ApplicationSecurityPolicy(Application* app)
+    : app_(app),
+      enabled_(false) {
 }
 
-SecurityPolicy::~SecurityPolicy() {
+ApplicationSecurityPolicy::~ApplicationSecurityPolicy() {
 }
 
-bool SecurityPolicy::IsAccessAllowed(const GURL& url) const {
+bool ApplicationSecurityPolicy::IsAccessAllowed(const GURL& url) const {
   if (!enabled_)
     return true;
 
@@ -91,10 +93,11 @@ bool SecurityPolicy::IsAccessAllowed(const GURL& url) const {
   return false;
 }
 
-void SecurityPolicy::Enforce() {
+void ApplicationSecurityPolicy::Enforce() {
 }
 
-void SecurityPolicy::AddWhitelistEntry(const GURL& url, bool subdomains) {
+void ApplicationSecurityPolicy::AddWhitelistEntry(
+    const GURL& url, bool subdomains) {
   GURL app_url = app_->data()->URL();
   DCHECK(app_->render_process_host());
   WhitelistEntry entry = WhitelistEntry(url, subdomains);
@@ -109,14 +112,14 @@ void SecurityPolicy::AddWhitelistEntry(const GURL& url, bool subdomains) {
   whitelist_entries_.push_back(entry);
 }
 
-SecurityPolicyWARP::SecurityPolicyWARP(Application* app)
-  : SecurityPolicy(app) {
+ApplicationSecurityPolicyWARP::ApplicationSecurityPolicyWARP(Application* app)
+    : ApplicationSecurityPolicy(app) {
 }
 
-SecurityPolicyWARP::~SecurityPolicyWARP() {
+ApplicationSecurityPolicyWARP::~ApplicationSecurityPolicyWARP() {
 }
 
-void SecurityPolicyWARP::Enforce() {
+void ApplicationSecurityPolicyWARP::Enforce() {
   const WARPInfo* info = static_cast<WARPInfo*>(
       app_->data()->GetManifestData(widget_keys::kAccessKey));
   if (!info) {
@@ -125,7 +128,7 @@ void SecurityPolicyWARP::Enforce() {
     app_->render_process_host()->Send(
         new ViewMsg_EnableSecurityMode(
             ApplicationData::GetBaseURLFromApplicationId(app_->id()),
-            SecurityPolicy::WARP));
+            ApplicationSecurityPolicy::WARP));
     return;
   }
 
@@ -156,18 +159,18 @@ void SecurityPolicyWARP::Enforce() {
     app_->render_process_host()->Send(
         new ViewMsg_EnableSecurityMode(
             ApplicationData::GetBaseURLFromApplicationId(app_->id()),
-            SecurityPolicy::WARP));
+            ApplicationSecurityPolicy::WARP));
   }
 }
 
-SecurityPolicyCSP::SecurityPolicyCSP(Application* app)
-  : SecurityPolicy(app) {
+ApplicationSecurityPolicyCSP::ApplicationSecurityPolicyCSP(Application* app)
+    : ApplicationSecurityPolicy(app) {
 }
 
-SecurityPolicyCSP::~SecurityPolicyCSP() {
+ApplicationSecurityPolicyCSP::~ApplicationSecurityPolicyCSP() {
 }
 
-void SecurityPolicyCSP::Enforce() {
+void ApplicationSecurityPolicyCSP::Enforce() {
   Manifest::Type manifest_type = app_->data()->manifest_type();
   const char* scp_key = GetCSPKey(manifest_type);
   CSPInfo* csp_info =
@@ -228,7 +231,7 @@ void SecurityPolicyCSP::Enforce() {
     app_->render_process_host()->Send(
         new ViewMsg_EnableSecurityMode(
             ApplicationData::GetBaseURLFromApplicationId(app_->id()),
-            SecurityPolicy::CSP));
+            ApplicationSecurityPolicy::CSP));
   }
 }
 

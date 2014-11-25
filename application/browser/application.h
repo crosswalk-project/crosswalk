@@ -19,8 +19,8 @@
 #include "base/observer_list.h"
 #include "content/public/browser/render_process_host_observer.h"
 #include "ui/base/ui_base_types.h"
+#include "xwalk/application/browser/application_security_policy.h"
 #include "xwalk/application/common/application_data.h"
-#include "xwalk/application/common/security_policy.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_ui_strategy.h"
 
@@ -37,7 +37,7 @@ namespace application {
 
 class ApplicationHost;
 class Manifest;
-class SecurityPolicy;
+class ApplicationSecurityPolicy;
 
 // The Application class is representing an active (running) application.
 // Application instances are owned by ApplicationService.
@@ -174,7 +174,7 @@ class Application : public Runtime::Observer,
   // Application's session permissions.
   StoredPermissionMap permission_map_;
   // Security policy.
-  scoped_ptr<SecurityPolicy> security_policy_;
+  scoped_ptr<ApplicationSecurityPolicy> security_policy_;
   // Remote debugging enabled or not for this Application
   bool remote_debugging_enabled_;
   // WeakPtrFactory should be always declared the last.

@@ -12,7 +12,7 @@
 #include "content/public/renderer/render_process_observer.h"
 #include "url/gurl.h"
 #include "v8/include/v8.h"
-#include "xwalk/application/common/security_policy.h"
+#include "xwalk/application/browser/application_security_policy.h"
 
 namespace blink {
 class WebFrame;
@@ -35,10 +35,10 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   virtual void OnRenderProcessShutdown() OVERRIDE;
 
   bool IsWarpMode() const {
-    return security_mode_ == application::SecurityPolicy::WARP;
+    return security_mode_ == application::ApplicationSecurityPolicy::WARP;
   }
   bool IsCSPMode() const {
-    return security_mode_ == application::SecurityPolicy::CSP;
+    return security_mode_ == application::ApplicationSecurityPolicy::CSP;
   }
 
   const GURL& app_url() const { return app_url_; }
@@ -50,7 +50,8 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
   void OnSetAccessWhiteList(
       const GURL& source, const GURL& dest, bool allow_subdomains);
   void OnEnableSecurityMode(
-      const GURL& url, application::SecurityPolicy::SecurityMode mode);
+      const GURL& url,
+      application::ApplicationSecurityPolicy::SecurityMode mode);
   void OnSuspendJSEngine(bool is_pause);
 #if defined(OS_TIZEN)
   void OnUserAgentChanged(const std::string& userAgentString);
@@ -59,7 +60,7 @@ class XWalkRenderProcessObserver : public content::RenderProcessObserver {
 
   bool is_webkit_initialized_;
   bool is_suspended_;
-  application::SecurityPolicy::SecurityMode security_mode_;
+  application::ApplicationSecurityPolicy::SecurityMode security_mode_;
   GURL app_url_;
 };
 }  // namespace xwalk
