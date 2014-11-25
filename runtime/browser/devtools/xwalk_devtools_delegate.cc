@@ -23,7 +23,6 @@
 #include "net/socket/tcp_listen_socket.h"
 #include "ui/base/resource/resource_bundle.h"
 #include "ui/snapshot/snapshot.h"
-#include "xwalk/runtime/browser/runtime.h"
 
 using content::DevToolsAgentHost;
 using content::RenderViewHost;
@@ -125,13 +124,13 @@ namespace xwalk {
 namespace {
 Runtime* CreateWithDefaultWindow(
     RuntimeContext* runtime_context, const GURL& url,
-    Runtime::Observer* observer = NULL) {
-  Runtime* runtime = Runtime::Create(runtime_context, observer);
+    Runtime::Observer* observer) {
+  Runtime* runtime = Runtime::Create(runtime_context);
+  runtime->set_observer(observer);
   runtime->LoadURL(url);
 #if !defined(OS_ANDROID)
-  RuntimeUIStrategy ui_strategy;
-  NativeAppWindow::CreateParams params;
-  ui_strategy.Show(runtime, params);
+  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime));
+  runtime->Show();
 #endif
   return runtime;
 }
@@ -217,7 +216,7 @@ std::string XWalkDevToolsDelegate::GetPageThumbnailData(const GURL& url) {
 scoped_ptr<content::DevToolsTarget>
 XWalkDevToolsDelegate::CreateNewTarget(const GURL& url) {
   Runtime* runtime = CreateWithDefaultWindow(
-      runtime_context_, GURL(url::kAboutBlankURL));
+      runtime_context_, GURL(url::kAboutBlankURL), this);
   return scoped_ptr<content::DevToolsTarget>(
       new Target(DevToolsAgentHost::GetOrCreateFor(runtime->web_contents())));
 }
@@ -236,6 +235,16 @@ void XWalkDevToolsDelegate::EnumerateTargets(TargetCallback callback) {
       targets.push_back(new Target(*it));
   }
   callback.Run(targets);
+}
+
+void XWalkDevToolsDelegate::OnNewRuntimeAdded(Runtime* runtime) {
+  runtime->set_observer(this);
+  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime));
+  runtime->Show();
+}
+
+void XWalkDevToolsDelegate::OnRuntimeClosed(Runtime* runtime) {
+  delete runtime;
 }
 
 }  // namespace xwalk

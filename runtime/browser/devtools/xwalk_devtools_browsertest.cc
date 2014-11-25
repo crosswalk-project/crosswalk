@@ -16,20 +16,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 
 using xwalk::Runtime;
-namespace {
-Runtime* CreateWithDefaultWindow(
-    xwalk::RuntimeContext* runtime_context, const GURL& url,
-    Runtime::Observer* observer = NULL) {
-  Runtime* runtime = Runtime::Create(runtime_context, observer);
-  runtime->LoadURL(url);
-#if !defined(OS_ANDROID)
-  xwalk::RuntimeUIStrategy ui_strategy;
-  xwalk::NativeAppWindow::CreateParams params;
-  ui_strategy.Show(runtime, params);
-#endif
-  return runtime;
-}
-}  // namespace
 
 class XWalkDevToolsTest : public InProcessBrowserTest {
  public:
@@ -44,8 +30,7 @@ class XWalkDevToolsTest : public InProcessBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(XWalkDevToolsTest, RemoteDebugging) {
   GURL localhost_url("http://127.0.0.1:9222");
-  Runtime* debugging_host = CreateWithDefaultWindow(
-      GetRuntimeContext(), localhost_url, runtime_registry());
+  Runtime* debugging_host = CreateRuntime(localhost_url);
   content::WaitForLoadStop(debugging_host->web_contents());
   base::string16 real_title = debugging_host->web_contents()->GetTitle();
   base::string16 expected_title = base::ASCIIToUTF16("XWalk Remote Debugging");

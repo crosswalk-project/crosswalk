@@ -12,7 +12,7 @@
 #include "base/strings/utf_string_conversions.h"
 #include "xwalk/runtime/browser/image_util.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_ui_strategy.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "xwalk/runtime/common/xwalk_notification_types.h"
 #include "xwalk/test/base/in_process_browser_test.h"
 #include "xwalk/test/base/xwalk_test_utils.h"
@@ -38,21 +38,6 @@ using xwalk::NativeAppWindow;
 using xwalk::Runtime;
 using content::WebContents;
 using testing::_;
-
-namespace {
-Runtime* CreateWithDefaultWindow(
-    xwalk::RuntimeContext* runtime_context, const GURL& url,
-    Runtime::Observer* observer = NULL) {
-  Runtime* runtime = Runtime::Create(runtime_context, observer);
-  runtime->LoadURL(url);
-#if !defined(OS_ANDROID)
-  xwalk::RuntimeUIStrategy ui_strategy;
-  xwalk::NativeAppWindow::CreateParams params;
-  ui_strategy.Show(runtime, params);
-#endif
-  return runtime;
-}
-}  // namespace
 
 // Observer for NOTIFICATION_FULLSCREEN_CHANGED notifications.
 class FullscreenNotificationObserver
@@ -125,8 +110,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CreateAndCloseRuntime) {
 
   // Create a new Runtime instance.
   GURL url(test_server()->GetURL("test.html"));
-  Runtime* new_runtime = CreateWithDefaultWindow(
-      GetRuntimeContext(), url, runtime_registry());
+  Runtime* new_runtime = CreateRuntime(url);
   EXPECT_TRUE(url == new_runtime->web_contents()->GetURL());
   EXPECT_EQ(new_runtime, WaitForSingleNewRuntime());
   content::RunAllPendingInMessageLoop();
@@ -151,8 +135,7 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LoadURLAndClose) {
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
   GURL url(test_server()->GetURL("test.html"));
-  Runtime* new_runtime = CreateWithDefaultWindow(
-      GetRuntimeContext(), url, runtime_registry());
+  Runtime* new_runtime = CreateRuntime(url);
   size_t len = runtimes().size();
   new_runtime->window()->Close();
   content::RunAllPendingInMessageLoop();
@@ -162,15 +145,9 @@ IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, CloseNativeWindow) {
 
 IN_PROC_BROWSER_TEST_F(XWalkRuntimeTest, LaunchWithFullscreenWindow) {
   GURL url(test_server()->GetURL("test.html"));
-  Runtime* new_runtime = Runtime::Create(
-      GetRuntimeContext(), runtime_registry());
-
   NativeAppWindow::CreateParams params;
   params.state = ui::SHOW_STATE_FULLSCREEN;
-  scoped_ptr<xwalk::RuntimeUIStrategy> ui_strategy(
-      new xwalk::RuntimeUIStrategy);
-  ui_strategy->Show(new_runtime, params);
-  xwalk_test_utils::NavigateToURL(new_runtime, url);
+  Runtime* new_runtime = CreateRuntime(url, params);
 
   EXPECT_TRUE(new_runtime->window()->IsFullscreen());
 }

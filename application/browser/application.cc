@@ -23,7 +23,7 @@
 #include "xwalk/application/common/manifest_handlers/warp_handler.h"
 #include "xwalk/runtime/browser/runtime.h"
 #include "xwalk/runtime/browser/runtime_context.h"
-#include "xwalk/runtime/browser/runtime_defered_ui_strategy.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "xwalk/runtime/browser/xwalk_runner.h"
 
 #if defined(OS_TIZEN)
@@ -91,7 +91,6 @@ Application::Application(
       security_mode_enabled_(false),
       runtime_context_(runtime_context),
       observer_(NULL),
-      ui_strategy_(new RuntimeDeferedUIStrategy),
       remote_debugging_enabled_(false),
       weak_factory_(this) {
   DCHECK(runtime_context_);
@@ -220,10 +219,10 @@ bool Application::Launch(const LaunchParams& launch_params) {
     return false;
 
   remote_debugging_enabled_ = launch_params.remote_debugging;
-
-  Runtime* runtime = Runtime::Create(
-      runtime_context_,
-      this, content::SiteInstance::CreateForURL(runtime_context_, url));
+  auto site = content::SiteInstance::CreateForURL(runtime_context_, url);
+  Runtime* runtime = Runtime::Create(runtime_context_, site);
+  runtime->set_observer(this);
+  runtimes_.push_back(runtime);
   render_process_host_ = runtime->GetRenderProcessHost();
   render_process_host_->AddObserver(this);
   web_contents_ = runtime->web_contents();
@@ -233,13 +232,15 @@ bool Application::Launch(const LaunchParams& launch_params) {
   NativeAppWindow::CreateParams params;
   params.net_wm_pid = launch_params.launcher_pid;
   params.state = is_wgt ?
-      GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params):
+      GetWindowShowState<Manifest::TYPE_WIDGET>(launch_params) :
       GetWindowShowState<Manifest::TYPE_MANIFEST>(launch_params);
-  window_show_params_.state = params.state;
 
+  window_show_params_ = params;
+  // Only the first runtime can have a launch screen.
   params.splash_screen_path = GetSplashScreenPath();
-
-  ui_strategy_->Show(runtime, params);
+  runtime->set_ui_delegate(DefaultRuntimeUIDelegate::Create(runtime, params));
+  // We call "Show" after RP is initialized to reduce
+  // the application start up time.
 
   return true;
 }
@@ -255,9 +256,9 @@ GURL Application::GetAbsoluteURLFromKey(const std::string& key) {
 }
 
 void Application::Terminate() {
-  std::set<Runtime*> to_be_closed(runtimes_);
-  std::for_each(to_be_closed.begin(), to_be_closed.end(),
-                std::mem_fun(&Runtime::Close));
+  std::vector<Runtime*> to_be_closed(runtimes_.get());
+  for (Runtime* runtime : to_be_closed)
+    runtime->Close();
 }
 
 int Application::GetRenderProcessHostID() const {
@@ -265,17 +266,20 @@ int Application::GetRenderProcessHostID() const {
   return render_process_host_->GetID();
 }
 
-void Application::OnRuntimeAdded(Runtime* runtime) {
-  DCHECK(runtime);
+void Application::OnNewRuntimeAdded(Runtime* runtime) {
   runtime->set_remote_debugging_enabled(remote_debugging_enabled_);
-  if (!runtimes_.empty())
-    ui_strategy_->Show(runtime, window_show_params_);
-  runtimes_.insert(runtime);
+  runtime->set_observer(this);
+  runtime->set_ui_delegate(
+      DefaultRuntimeUIDelegate::Create(runtime, window_show_params_));
+  runtime->Show();
+  runtimes_.push_back(runtime);
 }
 
-void Application::OnRuntimeRemoved(Runtime* runtime) {
-  DCHECK(runtime);
-  runtimes_.erase(runtime);
+void Application::OnRuntimeClosed(Runtime* runtime) {
+  auto found = std::find(runtimes_.begin(), runtimes_.end(), runtime);
+  CHECK(found != runtimes_.end());
+  LOG(INFO) << "Application::OnRuntimeClosed " << runtime;
+  runtimes_.erase(found);
 
   if (runtimes_.empty())
     base::MessageLoop::current()->PostTask(FROM_HERE,
@@ -302,6 +306,11 @@ void Application::NotifyTermination() {
   CHECK(!render_process_host_);
   if (observer_)
     observer_->OnApplicationTerminated(this);
+}
+
+void Application::RenderChannelCreated() {
+  CHECK(!runtimes_.empty());
+  runtimes_.front()->Show();
 }
 
 bool Application::UseExtension(const std::string& extension_name) const {

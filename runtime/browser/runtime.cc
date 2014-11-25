@@ -40,7 +40,7 @@
 #endif
 
 #if !defined(OS_ANDROID)
-#include "xwalk/runtime/browser/runtime_ui_strategy.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #endif
 
 using content::FaviconURL;
@@ -50,30 +50,30 @@ namespace xwalk {
 
 // static
 Runtime* Runtime::Create(RuntimeContext* runtime_context,
-                         Observer* observer,
                          content::SiteInstance* site) {
   WebContents::CreateParams params(runtime_context, site);
   params.routing_id = MSG_ROUTING_NONE;
   WebContents* web_contents = WebContents::Create(params);
 
-  return new Runtime(web_contents, observer);
+  return new Runtime(web_contents);
 }
 
-Runtime::Runtime(content::WebContents* web_contents, Observer* observer)
+Runtime::Runtime(content::WebContents* web_contents)
     : WebContentsObserver(web_contents),
       web_contents_(web_contents),
-      window_(NULL),
-      weak_ptr_factory_(this),
       fullscreen_options_(NO_FULLSCREEN),
       remote_debugging_enabled_(false),
-      observer_(observer) {
+      ui_delegate_(nullptr),
+      observer_(nullptr),
+      weak_ptr_factory_(this) {
   web_contents_->SetDelegate(this);
   content::NotificationService::current()->Notify(
        xwalk::NOTIFICATION_RUNTIME_OPENED,
        content::Source<Runtime>(this),
        content::NotificationService::NoDetails());
-  if (observer_)
-    observer_->OnRuntimeAdded(this);
+  registrar_.Add(this,
+                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
+                 content::Source<content::WebContents>(web_contents_.get()));
 }
 
 Runtime::~Runtime() {
@@ -81,20 +81,8 @@ Runtime::~Runtime() {
           xwalk::NOTIFICATION_RUNTIME_CLOSED,
           content::Source<Runtime>(this),
           content::NotificationService::NoDetails());
-  if (observer_)
-    observer_->OnRuntimeRemoved(this);
-}
-
-void Runtime::EnableTitleUpdatedNotification() {
-  registrar_.Add(this,
-                 content::NOTIFICATION_WEB_CONTENTS_TITLE_UPDATED,
-                 content::Source<content::WebContents>(web_contents_.get()));
-}
-
-void Runtime::set_app_icon(const gfx::Image& app_icon) {
-  app_icon_ = app_icon;
-  if (window_ && !app_icon_.IsEmpty())
-    window_->UpdateIcon(app_icon_);
+  if (ui_delegate_)
+    ui_delegate_->DeleteDelegate();
 }
 
 void Runtime::LoadURL(const GURL& url) {
@@ -106,14 +94,19 @@ void Runtime::LoadURL(const GURL& url) {
   web_contents_->Focus();
 }
 
+void Runtime::Show() {
+  if (ui_delegate_)
+    ui_delegate_->Show();
+}
+
 void Runtime::Close() {
-  if (window_) {
-    window_->Close();
-    return;
-  }
-  // Runtime should not free itself on Close but be owned
-  // by Application.
-  delete this;
+  web_contents_->Close();
+}
+
+NativeAppWindow* Runtime::window() {
+  if (ui_delegate_)
+    return static_cast<DefaultRuntimeUIDelegate*>(ui_delegate_)->window();
+  return nullptr;
 }
 
 content::RenderProcessHost* Runtime::GetRenderProcessHost() {
@@ -156,12 +149,9 @@ void Runtime::ToggleFullscreenModeForTab(content::WebContents* web_contents,
     fullscreen_options_ |= FULLSCREEN_FOR_TAB;
   else
     fullscreen_options_ &= ~FULLSCREEN_FOR_TAB;
-
-  if (enter_fullscreen) {
-    window_->SetFullscreen(true);
-  } else if (!fullscreen_options_ & FULLSCREEN_FOR_LAUNCH) {
-    window_->SetFullscreen(false);
-  }
+  if (ui_delegate_)
+    ui_delegate_->SetFullscreen(
+        enter_fullscreen || (fullscreen_options_ & FULLSCREEN_FOR_LAUNCH));
 }
 
 bool Runtime::IsFullscreenForTabOrPending(
@@ -176,7 +166,11 @@ void Runtime::RequestToLockMouse(content::WebContents* web_contents,
 }
 
 void Runtime::CloseContents(content::WebContents* source) {
-  window_->Close();
+  if (ui_delegate_)
+    ui_delegate_->Close();
+
+  if (observer_)
+    observer_->OnRuntimeClosed(this);
 }
 
 bool Runtime::CanOverscrollContent() const {
@@ -206,7 +200,10 @@ void Runtime::WebContentsCreated(
     const base::string16& frame_name,
     const GURL& target_url,
     content::WebContents* new_contents) {
-  new Runtime(new_contents, observer_);
+  if (observer_)
+    observer_->OnNewRuntimeAdded(new Runtime(new_contents));
+  else
+    LOG(WARNING) << "New web contents is left unhandled.";
 }
 
 void Runtime::DidNavigateMainFramePostCommit(
@@ -283,7 +280,8 @@ void Runtime::DidDownloadFavicon(int id,
   if (bitmaps.empty())
     return;
   app_icon_ = gfx::Image::CreateFrom1xBitmap(bitmaps[0]);
-  window_->UpdateIcon(app_icon_);
+  if (ui_delegate_)
+    ui_delegate_->UpdateIcon(app_icon_);
 }
 
 void Runtime::Observe(int type,
@@ -294,17 +292,9 @@ void Runtime::Observe(int type,
         content::Details<std::pair<content::NavigationEntry*, bool> >(
             details).ptr();
 
-    if (title->first) {
-      base::string16 text = title->first->GetTitle();
-      window_->UpdateTitle(text);
-    }
+    if (title->first && ui_delegate_)
+      ui_delegate_->UpdateTitle(title->first->GetTitle());
   }
-}
-
-void Runtime::OnWindowDestroyed() {
-  // Runtime should not free itself on Close but be owned
-  // by Application.
-  delete this;
 }
 
 void Runtime::RequestMediaAccessPermission(
@@ -314,4 +304,5 @@ void Runtime::RequestMediaAccessPermission(
   XWalkMediaCaptureDevicesDispatcher::RunRequestMediaAccessPermission(
       web_contents, request, callback);
 }
+
 }  // namespace xwalk

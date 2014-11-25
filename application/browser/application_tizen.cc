@@ -109,12 +109,11 @@ class ScreenOrientationProviderTizen :
       return;
     }
     request_id_ = request_id;
-    const std::set<Runtime*>& runtimes = app_->runtimes();
+    const std::vector<Runtime*>& runtimes = app_->runtimes();
     DCHECK(!runtimes.empty());
     // FIXME: Probably need better alignment with
     // https://w3c.github.io/screen-orientation/#screen-orientation-lock-lifetime
-    std::set<Runtime*>::iterator it = runtimes.begin();
-    for (; it != runtimes.end(); ++it) {
+    for (auto it = runtimes.begin(); it != runtimes.end(); ++it) {
       NativeAppWindow* window = (*it)->window();
       if (window && window->IsActive()) {
         ToNativeAppWindowTizen(window)->LockOrientation(lock);
@@ -159,8 +158,7 @@ ApplicationTizen::~ApplicationTizen() {
 
 void ApplicationTizen::Hide() {
   DCHECK(!runtimes_.empty());
-  std::set<Runtime*>::iterator it = runtimes_.begin();
-  for (; it != runtimes_.end(); ++it) {
+  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
     if ((*it)->window())
       (*it)->window()->Minimize();
   }
@@ -237,8 +235,7 @@ void ApplicationTizen::Suspend() {
   render_process_host_->Send(new ViewMsg_SuspendJSEngine(true));
 
   DCHECK(!runtimes_.empty());
-  std::set<Runtime*>::iterator it = runtimes_.begin();
-  for (; it != runtimes_.end(); ++it) {
+  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
     if ((*it)->web_contents())
       (*it)->web_contents()->WasHidden();
   }
@@ -253,8 +250,7 @@ void ApplicationTizen::Resume() {
   render_process_host_->Send(new ViewMsg_SuspendJSEngine(false));
 
   DCHECK(!runtimes_.empty());
-  std::set<Runtime*>::iterator it = runtimes_.begin();
-  for (; it != runtimes_.end(); ++it) {
+  for (auto it = runtimes_.begin(); it != runtimes_.end(); ++it) {
     if ((*it)->web_contents())
       (*it)->web_contents()->WasShown();
   }
@@ -286,7 +282,7 @@ void ApplicationTizen::DidProcessEvent(
   if (info && !info->hwkey_enabled())
     return;
 
-  for (std::set<xwalk::Runtime*>::iterator it = runtimes_.begin();
+  for (auto it = runtimes_.begin();
       it != runtimes_.end(); ++it) {
     (*it)->web_contents()->GetRenderViewHost()->Send(new ViewMsg_HWKeyPressed(
         (*it)->web_contents()->GetRoutingID(), key_event->key_code()));
@@ -303,18 +299,18 @@ void ApplicationTizen::SetUserAgentString(
   cookie_manager_->SetUserAgentString(render_process_host_, user_agent_string);
 }
 
-void ApplicationTizen::OnRuntimeAdded(Runtime* runtime) {
+void ApplicationTizen::OnNewRuntimeAdded(Runtime* runtime) {
   DCHECK(runtime);
-  Application::OnRuntimeAdded(runtime);
+  Application::OnNewRuntimeAdded(runtime);
 #if defined(OS_TIZEN_MOBILE)
   if (root_window_ && runtimes_.size() > 1)
       root_window_->Show();
 #endif
 }
 
-void ApplicationTizen::OnRuntimeRemoved(Runtime* runtime) {
+void ApplicationTizen::OnRuntimeClosed(Runtime* runtime) {
   DCHECK(runtime);
-  Application::OnRuntimeRemoved(runtime);
+  Application::OnRuntimeClosed(runtime);
 #if defined(OS_TIZEN_MOBILE)
   if (runtimes_.empty() && root_window_) {
     root_window_->Close();
