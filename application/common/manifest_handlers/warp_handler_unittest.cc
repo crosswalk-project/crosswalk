@@ -24,14 +24,6 @@ const WARPInfo* GetWARPInfo(
   return info;
 }
 
-scoped_ptr<base::DictionaryValue> CreateManifest() {
-#if defined(OS_TIZEN)
-  return CreateDefaultWGTManifest();
-#else
-  return CreateDefaultW3CManifest();
-#endif
-}
-
 }  // namespace
 
 class WARPHandlerTest: public testing::Test {
@@ -40,8 +32,9 @@ class WARPHandlerTest: public testing::Test {
 // FIXME: the default WARP policy settings in WARP manifest handler
 // are temporally removed, since they had affected some tests and legacy apps.
 TEST_F(WARPHandlerTest, NoWARP) {
-  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
-  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
   EXPECT_FALSE(GetWARPInfo(application));
 }
@@ -50,11 +43,11 @@ TEST_F(WARPHandlerTest, OneWARP) {
   base::DictionaryValue* warp = new base::DictionaryValue;
   warp->SetString(keys::kAccessOriginKey, "http://www.sample.com");
   warp->SetBoolean(keys::kAccessSubdomainsKey, true);
-  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   manifest->Set(keys::kAccessKey, warp);
-  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);
   scoped_ptr<base::ListValue> list(info->GetWARP()->DeepCopy());
@@ -75,11 +68,11 @@ TEST_F(WARPHandlerTest, WARPs) {
   warp_list->Append(warp1);
   warp_list->Append(warp2);
 
-  scoped_ptr<base::DictionaryValue> manifest = CreateManifest();
+  scoped_ptr<base::DictionaryValue> manifest = CreateDefaultWidgetConfig();
   manifest->Set(keys::kAccessKey, warp_list);
-  scoped_refptr<ApplicationData> application = CreateApplication(*manifest);
+  scoped_refptr<ApplicationData> application =
+      CreateApplication(Manifest::TYPE_WIDGET, *manifest);
   EXPECT_TRUE(application.get());
-  EXPECT_EQ(application->manifest_type(), Manifest::TYPE_WIDGET);
 
   const WARPInfo* info = GetWARPInfo(application);
   EXPECT_TRUE(info);
