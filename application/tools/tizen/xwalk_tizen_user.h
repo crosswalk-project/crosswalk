@@ -11,7 +11,7 @@
 // causes applications connecting to the session D-Bus bus to fail, for example.
 // This is a Tizen specific workaround.
 
-int xwalk_tizen_check_user_app(void);
-int xwalk_tizen_check_user_for_xwalkctl(void);
+int xwalk_tizen_check_group_users(void);
+int xwalk_tizen_check_user_for_xwalk_backend(void);
 
 #endif  // XWALK_APPLICATION_TOOLS_TIZEN_XWALK_TIZEN_USER_H_

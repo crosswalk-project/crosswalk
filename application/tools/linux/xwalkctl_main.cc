@@ -13,12 +13,15 @@
 #include "base/path_service.h"
 
 #include "xwalk/application/common/tizen/application_storage.h"
-#include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
 #include "xwalk/runtime/common/xwalk_paths.h"
 
 #include "dbus/bus.h"
 #include "dbus/message.h"
 #include "dbus/object_proxy.h"
+
+#if defined(OS_TIZEN)
+#include "xwalk/application/tools/tizen/xwalk_tizen_user.h"
+#endif
 
 using xwalk::application::ApplicationData;
 using xwalk::application::ApplicationStorage;
@@ -103,8 +106,8 @@ bool list_applications(ApplicationStorage* storage) {
 
 int main(int argc, char* argv[]) {
 #if defined(OS_TIZEN)
-  if (xwalk_tizen_check_user_for_xwalkctl())
-    exit(1);
+  if (xwalk_tizen_check_group_users())
+    return 1;
 #endif
   GOptionContext* context = g_option_context_new("- Crosswalk Setter");
   g_option_context_add_main_entries(context, entries, NULL);
@@ -112,14 +115,14 @@ int main(int argc, char* argv[]) {
   if (!g_option_context_parse(context, &argc, &argv, &error)) {
     g_print("option parsing failed: %s\n", error->message);
     g_option_context_free(context);
-    exit(1);
+    return 1;
   }
   g_option_context_free(context);
   base::AtExitManager at_exit;
 
   if (debugging_port != debugging_port_not_set) {
     if (!EnableRemoteDebugging(static_cast<int>(debugging_port)))
-      exit(1);
+      return 1;
   } else {
     // FIXME : there should be a way to get application Id from platform, so
     // the below code should not be needed.
@@ -128,7 +131,7 @@ int main(int argc, char* argv[]) {
     PathService::Get(xwalk::DIR_DATA_PATH, &data_path);
     scoped_ptr<ApplicationStorage> storage(new ApplicationStorage(data_path));
     if (!list_applications(storage.get()))
-      exit(1);
+      return 1;
   }
 
   return 0;
