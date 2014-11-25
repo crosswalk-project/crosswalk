@@ -74,7 +74,8 @@ void XWalkExtensionClient::OnPostMessageToJS(int64_t instance_id,
     return;
 
   const base::Value* value;
-  msg.Get(0, &value);
+  if (!msg.Get(0, &value))
+    return;
   it->second->HandleMessageFromNative(*value);
 }
 
@@ -83,7 +84,8 @@ void XWalkExtensionClient::OnPostOutOfLineMessageToJS(
   CHECK(base::SharedMemory::IsHandleValid(handle));
 
   base::SharedMemory shared_memory(handle, true);
-  shared_memory.Map(size);
+  if (!shared_memory.Map(size))
+    return;
 
   IPC::Message message(static_cast<char*>(shared_memory.memory()), size);
   OnMessageReceived(message);

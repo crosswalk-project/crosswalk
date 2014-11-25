@@ -109,8 +109,11 @@ GURL Application::GetStartURL<Manifest::TYPE_WIDGET>() {
 #if defined(OS_TIZEN)
   if (data_->IsHostedApp()) {
     std::string source;
-    data_->GetManifest()->GetString(widget_keys::kLaunchLocalPathKey, &source);
-    GURL url = GURL(source);
+    GURL url;
+    if (data_->GetManifest()->GetString(
+        widget_keys::kLaunchLocalPathKey, &source)) {
+      url = GURL(source);
+    }
 
     if (url.is_valid() && url.SchemeIsHTTPOrHTTPS())
       return url;
@@ -135,9 +138,10 @@ template<>
 GURL Application::GetStartURL<Manifest::TYPE_MANIFEST>() {
   if (data_->IsHostedApp()) {
     std::string source;
-    data_->GetManifest()->GetString(keys::kStartURLKey, &source);
     // Not trying to get a relative path for the "fake" application.
-    return GURL(source);
+    if (data_->GetManifest()->GetString(keys::kStartURLKey, &source))
+      return GURL(source);
+    return GURL();
   }
 
   GURL url = GetAbsoluteURLFromKey(keys::kStartURLKey);
