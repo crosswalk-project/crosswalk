@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
 #endif
 
 #if defined(OS_TIZEN)
-  if (xwalk_tizen_check_user_app())
+  if (xwalk_tizen_check_group_users())
     exit(1);
 #endif
 

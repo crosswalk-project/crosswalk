@@ -64,19 +64,19 @@ int main(int argc, char* argv[]) {
   g_type_init();
 #endif
 
-  if (xwalk_tizen_check_user_for_xwalkctl())
-    exit(1);
+  if (xwalk_tizen_check_user_for_xwalk_backend())
+    return 1;
 
   context = g_option_context_new("- Crosswalk Application Management");
   if (!context) {
     g_print("g_option_context_new failed\n");
-    exit(1);
+    return 1;
   }
   g_option_context_add_main_entries(context, entries, NULL);
   if (!g_option_context_parse(context, &argc, &argv, &error)) {
     g_print("option parsing failed: %s\n", error->message);
     g_option_context_free(context);
-    exit(1);
+    return 1;
   }
 
   g_option_context_free(context);
