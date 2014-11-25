@@ -7,7 +7,6 @@
 
 #include <string>
 
-#include "xwalk/extensions/browser/xwalk_extension_function_handler.h"
 #include "xwalk/extensions/common/xwalk_extension.h"
 
 namespace xwalk {
@@ -15,8 +14,6 @@ namespace application {
 class Application;
 
 using extensions::XWalkExtension;
-using extensions::XWalkExtensionFunctionHandler;
-using extensions::XWalkExtensionFunctionInfo;
 using extensions::XWalkExtensionInstance;
 
 class ApplicationWidgetExtension : public XWalkExtension {
@@ -46,12 +43,13 @@ class AppWidgetExtensionInstance : public XWalkExtensionInstance {
       scoped_ptr<base::Value> mgs);
   scoped_ptr<base::FundamentalValue> ClearAllItems(scoped_ptr<base::Value> mgs);
   scoped_ptr<base::DictionaryValue> GetAllItems(scoped_ptr<base::Value> mgs);
+  scoped_ptr<base::StringValue> GetItemValueByKey(scoped_ptr<base::Value> mgs);
   scoped_ptr<base::FundamentalValue> KeyExists(
       scoped_ptr<base::Value> mgs) const;
+  void PostMessageToOtherFrames(scoped_ptr<base::DictionaryValue> msg);
 
   Application* application_;
   scoped_ptr<class AppWidgetStorage> widget_storage_;
-  XWalkExtensionFunctionHandler handler_;
 };
 
 }  // namespace application

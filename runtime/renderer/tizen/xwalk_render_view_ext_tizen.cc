@@ -68,6 +68,25 @@ bool XWalkRenderViewExtTizen::OnMessageReceived(const IPC::Message& message) {
   return handled;
 }
 
+void XWalkRenderViewExtTizen::DidStartProvisionalLoad(
+    blink::WebLocalFrame* frame) {
+  std::string code =
+      "(function() {"
+      "  window.eventListenerList = [];"
+      "  window._addEventListener = window.addEventListener;"
+      "  window.addEventListener = function(event, callback, useCapture) {"
+      "    if (event == 'storage') {"
+      "      window.eventListenerList.push(callback);"
+      "    }"
+      "    window._addEventListener(event, callback, useCapture);"
+      "  }"
+      "})();";
+
+  blink::WebScriptSource source =
+      blink::WebScriptSource(base::ASCIIToUTF16(code));
+  frame->executeScript(source);
+}
+
 void XWalkRenderViewExtTizen::OnHWKeyPressed(int keycode) {
   std::string event_name;
   if (keycode == ui::VKEY_BACK) {

@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "content/public/renderer/render_view_observer.h"
+#include "third_party/WebKit/public/web/WebLocalFrame.h"
 
 namespace xwalk {
 
@@ -21,6 +22,7 @@ class XWalkRenderViewExtTizen : public content::RenderViewObserver {
 
   // RenderView::Observer:
   virtual bool OnMessageReceived(const IPC::Message& message) OVERRIDE;
+  virtual void DidStartProvisionalLoad(blink::WebLocalFrame* frame) OVERRIDE;
 
   void OnHWKeyPressed(int keycode);
 

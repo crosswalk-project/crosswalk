@@ -54,6 +54,10 @@ const char kSelectCountWithBindOp[] =
 const char kSelectAllItem[] =
     "SELECT key, value FROM widget_storage ";
 
+const char kSelectValueWithBindOp[] =
+    "SELECT value FROM widget_storage "
+    "WHERE key = ?";
+
 const char kSelectReadOnlyWithBindOp[] =
     "SELECT read_only FROM widget_storage "
     "WHERE key = ?";
@@ -167,7 +171,7 @@ bool AppWidgetStorage::EntryExists(const std::string& key) const {
       kSelectCountWithBindOp));
   stmt.BindString(0, key);
   if (!stmt.Step()) {
-    LOG(ERROR) << "An error occured when selecting count from DB.";
+    LOG(ERROR) << "There is no item in current DB.";
     return false;
   }
 
@@ -181,18 +185,18 @@ bool AppWidgetStorage::EntryExists(const std::string& key) const {
 bool AppWidgetStorage::IsReadOnly(const std::string& key) {
   sql::Transaction transaction(sqlite_db_.get());
   if (!transaction.Begin())
-    return true;
+    return false;
 
   sql::Statement stmt(sqlite_db_->GetUniqueStatement(
       kSelectReadOnlyWithBindOp));
   stmt.BindString(0, key);
   if (!stmt.Step()) {
-    LOG(ERROR) << "An error occured when selecting count from DB.";
-    return true;
+    LOG(WARNING) << "The key doesn't exist or there is an error in current DB.";
+    return false;
   }
 
   if (!transaction.Commit())
-    return true;
+    return false;
 
   return stmt.ColumnBool(0);
 }
@@ -230,12 +234,36 @@ bool AppWidgetStorage::AddEntry(const std::string& key,
   return transaction.Commit();
 }
 
+bool AppWidgetStorage::GetValueByKey(const std::string& key,
+                                     std::string* value) {
+  if (!db_initialized_ && !Init())
+    return false;
+
+  sql::Transaction transaction(sqlite_db_.get());
+  if (!transaction.Begin())
+    return false;
+
+  sql::Statement stmt(sqlite_db_->GetUniqueStatement(
+      kSelectValueWithBindOp));
+  stmt.BindString(0, key);
+  if (!stmt.Step()) {
+    LOG(WARNING) << "The key doesn't exit or there is an error in current DB.";
+    return false;
+  }
+
+  if (!transaction.Commit())
+    return false;
+
+  *value = stmt.ColumnString(0);
+  return true;
+}
+
 bool AppWidgetStorage::RemoveEntry(const std::string& key) {
   if (!db_initialized_ && !Init())
     return false;
 
   if (IsReadOnly(key)) {
-    LOG(ERROR) << "Could not remove read only item " << key;
+    LOG(ERROR) << "The key is readonly or it doesn't exist." << key;
     return false;
   }
 
