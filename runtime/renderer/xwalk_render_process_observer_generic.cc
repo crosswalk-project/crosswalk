@@ -48,7 +48,7 @@ void AddAccessWhiteListEntry(
 XWalkRenderProcessObserver::XWalkRenderProcessObserver()
     : is_webkit_initialized_(false),
       is_suspended_(false),
-      security_mode_(application::SecurityPolicy::NoSecurity) {
+      security_mode_(application::ApplicationSecurityPolicy::NoSecurity) {
 }
 
 XWalkRenderProcessObserver::~XWalkRenderProcessObserver() {
@@ -93,7 +93,8 @@ void XWalkRenderProcessObserver::OnSetAccessWhiteList(const GURL& source,
 }
 
 void XWalkRenderProcessObserver::OnEnableSecurityMode(
-    const GURL& url, application::SecurityPolicy::SecurityMode mode) {
+    const GURL& url,
+    application::ApplicationSecurityPolicy::SecurityMode mode) {
   app_url_ = url;
   security_mode_ = mode;
 }

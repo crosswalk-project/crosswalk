@@ -1,9 +1,10 @@
 // Copyright (c) 2014 Intel Corporation. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef XWALK_APPLICATION_COMMON_SECURITY_POLICY_H_
-#define XWALK_APPLICATION_COMMON_SECURITY_POLICY_H_
+#ifndef XWALK_APPLICATION_BROWSER_APPLICATION_SECURITY_POLICY_H_
+#define XWALK_APPLICATION_BROWSER_APPLICATION_SECURITY_POLICY_H_
 
 #include <vector>
 
@@ -14,9 +15,7 @@ namespace application {
 
 class Application;
 
-// FIXME(Mikhail): Move to application/browser folder.
-// Rename to ApplicationSecurityPolicy.
-class SecurityPolicy {
+class ApplicationSecurityPolicy {
  public:
   enum SecurityMode {
     NoSecurity,
@@ -24,8 +23,8 @@ class SecurityPolicy {
     WARP
   };
 
-  explicit SecurityPolicy(Application* app);
-  virtual ~SecurityPolicy();
+  explicit ApplicationSecurityPolicy(Application* app);
+  virtual ~ApplicationSecurityPolicy();
 
   bool IsAccessAllowed(const GURL& url) const;
 
@@ -49,18 +48,18 @@ class SecurityPolicy {
   bool enabled_;
 };
 
-class SecurityPolicyWARP : public SecurityPolicy {
+class ApplicationSecurityPolicyWARP : public ApplicationSecurityPolicy {
  public:
-  explicit SecurityPolicyWARP(Application* app);
-  virtual ~SecurityPolicyWARP();
+  explicit ApplicationSecurityPolicyWARP(Application* app);
+  virtual ~ApplicationSecurityPolicyWARP();
 
   virtual void Enforce() OVERRIDE;
 };
 
-class SecurityPolicyCSP : public SecurityPolicy {
+class ApplicationSecurityPolicyCSP : public ApplicationSecurityPolicy {
  public:
-  explicit SecurityPolicyCSP(Application* app);
-  virtual ~SecurityPolicyCSP();
+  explicit ApplicationSecurityPolicyCSP(Application* app);
+  virtual ~ApplicationSecurityPolicyCSP();
 
   virtual void Enforce() OVERRIDE;
 };
@@ -68,4 +67,4 @@ class SecurityPolicyCSP : public SecurityPolicy {
 }  // namespace application
 }  // namespace xwalk
 
-#endif  // XWALK_APPLICATION_COMMON_SECURITY_POLICY_H_
+#endif  // XWALK_APPLICATION_BROWSER_APPLICATION_SECURITY_POLICY_H_

@@ -393,9 +393,9 @@ bool Application::SetPermission(PermissionType type,
 void Application::InitSecurityPolicy() {
   // CSP policy takes precedence over WARP.
   if (data_->HasCSPDefined())
-    security_policy_.reset(new SecurityPolicyCSP(this));
+    security_policy_.reset(new ApplicationSecurityPolicyCSP(this));
   else if (data_->manifest_type() == Manifest::TYPE_WIDGET)
-    security_policy_.reset(new SecurityPolicyWARP(this));
+    security_policy_.reset(new ApplicationSecurityPolicyWARP(this));
 
   if (security_policy_)
     security_policy_->Enforce();

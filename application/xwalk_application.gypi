@@ -21,13 +21,12 @@
         'browser/application.h',
         'browser/application_protocols.cc',
         'browser/application_protocols.h',
+        'browser/application_security_policy.cc',
+        'browser/application_security_policy.h',
         'browser/application_service.cc',
         'browser/application_service.h',
         'browser/application_system.cc',
         'browser/application_system.h',
-
-        'common/security_policy.cc',
-        'common/security_policy.h',
 
         'extension/application_runtime_extension.cc',
         'extension/application_runtime_extension.h',
