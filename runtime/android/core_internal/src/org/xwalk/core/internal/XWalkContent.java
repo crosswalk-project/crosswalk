@@ -113,9 +113,9 @@ class XWalkContent extends FrameLayout implements XWalkPreferencesInternal.KeyVa
         MediaPlayerBridge.setResourceLoadingFilter(
                 new XWalkMediaPlayerResourceLoadingFilter());
 
-        XWalkPreferencesInternal.load(this);
-
         setNativeContent(nativeInit());
+
+        XWalkPreferencesInternal.load(this);
     }
 
     private void setNativeContent(long newNativeContent) {
