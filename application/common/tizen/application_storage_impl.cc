@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "base/macros.h"
 #include "base/file_util.h"
 #include "third_party/re2/re2/re2.h"
 #include "xwalk/application/common/application_file_util.h"
@@ -31,7 +32,7 @@ ail_cb_ret_e appinfo_get_app_id_cb(
   return AIL_CB_RET_CONTINUE;
 }
 
-const char kXWalkPackageType[] = "wgt";
+const char* kXWalkPackageTypes[] = {"wgt", "xpk"};
 
 bool GetPackageType(const std::string& application_id,
                     xwalk::application::Manifest::Type* package_type) {
@@ -104,44 +105,48 @@ scoped_refptr<ApplicationData> ApplicationStorageImpl::GetApplicationData(
 
 bool ApplicationStorageImpl::GetInstalledApplicationIDs(
   std::vector<std::string>& app_ids) {  // NOLINT
-  ail_filter_h filter;
-  int count;
   uid_t uid = getuid();
 
-  ail_error_e ret = ail_filter_new(&filter);
-  if (ret != AIL_ERROR_OK) {
-    LOG(ERROR) << "Failed to create AIL filter.";
-    return false;
-  }
-  // Filters out web apps (installed from WGT and XPK packages).
-  ret = ail_filter_add_str(
-      filter, AIL_PROP_X_SLP_PACKAGETYPE_STR, kXWalkPackageType);
-  if (ret != AIL_ERROR_OK) {
-    LOG(ERROR) << "Failed to init AIL filter.";
-    ail_filter_destroy(filter);
-    return false;
-  }
+  for (size_t i = 0; i < arraysize(kXWalkPackageTypes); ++i) {
+    int count = 0;
+    ail_filter_h filter;
+    ail_error_e ret = ail_filter_new(&filter);
+    if (ret != AIL_ERROR_OK) {
+      LOG(ERROR) << "Failed to create AIL filter.";
+      return false;
+    }
+    // Filters out web apps (installed from WGT and XPK packages).
+    ret = ail_filter_add_str(
+        filter, AIL_PROP_X_SLP_PACKAGETYPE_STR, kXWalkPackageTypes[i]);
+    if (ret != AIL_ERROR_OK) {
+      LOG(ERROR) << "Failed to init AIL filter.";
+      ail_filter_destroy(filter);
+      return false;
+    }
 
-  if (uid != GLOBAL_USER)
-    ret = ail_filter_count_usr_appinfo(filter, &count, uid);
-  else
-    ret = ail_filter_count_appinfo(filter, &count);
-
-  if (ret != AIL_ERROR_OK) {
-    LOG(ERROR) << "Failed to count AIL app info.";
-    ail_filter_destroy(filter);
-    return false;
-  }
-
-  if (count > 0) {
     if (uid != GLOBAL_USER)
-      ail_filter_list_usr_appinfo_foreach(filter, appinfo_get_app_id_cb,
-          &app_ids, uid);
+      ret = ail_filter_count_usr_appinfo(filter, &count, uid);
     else
-      ail_filter_list_appinfo_foreach(filter, appinfo_get_app_id_cb, &app_ids);
+      ret = ail_filter_count_appinfo(filter, &count);
+
+    if (ret != AIL_ERROR_OK) {
+      LOG(ERROR) << "Failed to count AIL app info.";
+      ail_filter_destroy(filter);
+      return false;
+    }
+
+    if (count > 0) {
+      if (uid != GLOBAL_USER)
+        ail_filter_list_usr_appinfo_foreach(filter, appinfo_get_app_id_cb,
+            &app_ids, uid);
+      else
+        ail_filter_list_appinfo_foreach(
+            filter, appinfo_get_app_id_cb, &app_ids);
+    }
+
+    ail_filter_destroy(filter);
   }
 
-  ail_filter_destroy(filter);
   return true;
 }
 
