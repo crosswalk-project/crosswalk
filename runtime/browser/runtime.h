@@ -10,8 +10,7 @@
 #include "base/basictypes.h"
 #include "base/memory/scoped_ptr.h"
 #include "base/memory/weak_ptr.h"
-#include "xwalk/runtime/browser/runtime_ui_strategy.h"
-#include "xwalk/runtime/browser/ui/native_app_window.h"
+#include "xwalk/runtime/browser/runtime_ui_delegate.h"
 #include "content/public/browser/notification_observer.h"
 #include "content/public/browser/notification_registrar.h"
 #include "content/public/browser/web_contents_delegate.h"
@@ -30,16 +29,14 @@ class WebContents;
 
 namespace xwalk {
 
-class NativeAppWindow;
 class RuntimeContext;
+class RuntimeUIDelegate;
 
 // Runtime represents the running environment for a web page. It is responsible
-// for maintaning its owned WebContents and handling any communication between
-// WebContents and native app window.
+// for maintaning its owned WebContents.
 class Runtime : public content::WebContentsDelegate,
                 public content::WebContentsObserver,
-                public content::NotificationObserver,
-                public NativeAppWindowDelegate {
+                public content::NotificationObserver {
  public:
   // New "Runtimes" are also created from Runtime::WebContentsCreated which
   // is overridden WebContentsDelegate method. The "observer" is needed to
@@ -47,10 +44,10 @@ class Runtime : public content::WebContentsDelegate,
   class Observer {
    public:
       // Called when a new Runtime instance is added.
-      virtual void OnRuntimeAdded(Runtime* runtime) = 0;
+      virtual void OnNewRuntimeAdded(Runtime* new_runtime) = 0;
 
       // Called when a Runtime instance is removed.
-      virtual void OnRuntimeRemoved(Runtime* runtime) = 0;
+      virtual void OnRuntimeClosed(Runtime* runtime) = 0;
 
    protected:
       virtual ~Observer() {}
@@ -64,22 +61,25 @@ class Runtime : public content::WebContentsDelegate,
     // Fullscreen entered by HTML requestFullscreen.
     FULLSCREEN_FOR_TAB = 1 << 1,
   };
+  virtual ~Runtime();
 
-  void SetObserver(Observer* observer) { observer_ = observer; }
+  void set_ui_delegate(RuntimeUIDelegate* ui_delegate) {
+    ui_delegate_ = ui_delegate;
+  }
+  void set_observer(Observer* observer) { observer_ = observer; }
 
   // Create a new Runtime instance with the given browsing context.
-  static Runtime* Create(RuntimeContext*,
-                         Observer* = NULL, content::SiteInstance* = NULL);
+  static Runtime* Create(RuntimeContext* context,
+                         content::SiteInstance* site = nullptr);
 
   void LoadURL(const GURL& url);
+  void Show();
   void Close();
 
   content::WebContents* web_contents() const { return web_contents_.get(); }
-  NativeAppWindow* window() const { return window_; }
-  void set_window(NativeAppWindow* window) { window_ = window; }
+  // FIXME : This method should be removed.
+  NativeAppWindow* window();
   gfx::Image app_icon() const { return app_icon_; }
-  void set_app_icon(const gfx::Image& app_icon);
-  void EnableTitleUpdatedNotification();
   unsigned int fullscreen_options() { return fullscreen_options_; }
   void set_fullscreen_options(unsigned int options) {
     fullscreen_options_ = options;
@@ -93,8 +93,7 @@ class Runtime : public content::WebContentsDelegate,
   bool remote_debugging_enabled() const { return remote_debugging_enabled_; }
 
  protected:
-  Runtime(content::WebContents* web_contents, Observer* observer);
-  virtual ~Runtime();
+  explicit Runtime(content::WebContents* web_contents);
 
     // Overridden from content::WebContentsDelegate:
   virtual content::WebContents* OpenURLFromTab(
@@ -160,25 +159,19 @@ class Runtime : public content::WebContentsDelegate,
                        const content::NotificationSource& source,
                        const content::NotificationDetails& details) OVERRIDE;
 
-  // NativeAppWindowDelegate implementation.
-  virtual void OnWindowDestroyed() OVERRIDE;
-
   // Notification manager.
   content::NotificationRegistrar registrar_;
 
   // The WebContents owned by this runtime.
   scoped_ptr<content::WebContents> web_contents_;
 
-  NativeAppWindow* window_;
-
   gfx::Image app_icon_;
-
-  base::WeakPtrFactory<Runtime> weak_ptr_factory_;
 
   unsigned int fullscreen_options_;
   bool remote_debugging_enabled_;
-
+  RuntimeUIDelegate* ui_delegate_;
   Observer* observer_;
+  base::WeakPtrFactory<Runtime> weak_ptr_factory_;
 };
 
 }  // namespace xwalk

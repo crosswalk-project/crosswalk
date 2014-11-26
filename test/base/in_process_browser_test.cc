@@ -38,6 +38,7 @@
 using xwalk::Runtime;
 using xwalk::XWalkContentRendererClient;
 using xwalk::XWalkRunner;
+using xwalk::NativeAppWindow;
 
 namespace {
 
@@ -50,58 +51,10 @@ base::LazyInstance<XWalkContentRendererClient>::Leaky
         g_xwalk_content_renderer_client = LAZY_INSTANCE_INITIALIZER;
 #endif
 
-Runtime* CreateWithDefaultWindow(
-    xwalk::RuntimeContext* runtime_context, const GURL& url,
-    Runtime::Observer* observer = NULL) {
-  Runtime* runtime = Runtime::Create(runtime_context, observer);
-  runtime->LoadURL(url);
-#if !defined(OS_ANDROID)
-  xwalk::RuntimeUIStrategy ui_strategy;
-  xwalk::NativeAppWindow::CreateParams params;
-  ui_strategy.Show(runtime, params);
-#endif
-  return runtime;
-}
-
 }  // namespace
 
-RuntimeRegistry::RuntimeRegistry() {
-}
-
-RuntimeRegistry::~RuntimeRegistry() {
-}
-
-void RuntimeRegistry::CloseAll() {
-  if (runtimes_.empty())
-    return;
-
-  RuntimeList cached(runtimes_);
-  std::for_each(cached.begin(), cached.end(), std::mem_fun(&Runtime::Close));
-  // Wait until all windows are closed.
-  content::RunAllPendingInMessageLoop();
-  DCHECK(runtimes_.empty()) << runtimes_.size();
-}
-
-void RuntimeRegistry::OnRuntimeAdded(Runtime* runtime) {
-  DCHECK(runtime);
-  runtimes_.push_back(runtime);
-}
-
-void RuntimeRegistry::OnRuntimeRemoved(Runtime* runtime) {
-  DCHECK(runtime);
-  RuntimeList::iterator it =
-       std::find(runtimes_.begin(), runtimes_.end(), runtime);
-  DCHECK(it != runtimes_.end());
-  runtimes_.erase(it);
-
-  if (runtimes_.empty())
-    base::MessageLoop::current()->PostTask(
-        FROM_HERE, base::MessageLoop::QuitClosure());
-}
-
 InProcessBrowserTest::InProcessBrowserTest()
-    : runtime_registry_(new RuntimeRegistry),
-      runtime_(NULL) {
+    : runtime_(NULL) {
   CreateTestServer(base::FilePath(FILE_PATH_LITERAL("xwalk/test/data")));
 }
 
@@ -139,19 +92,24 @@ void InProcessBrowserTest::SetUp() {
   BrowserTestBase::SetUp();
 }
 
-xwalk::RuntimeContext* InProcessBrowserTest::GetRuntimeContext() const {
-  return XWalkRunner::GetInstance()->runtime_context();
+Runtime* InProcessBrowserTest::CreateRuntime(
+    const GURL& url, const NativeAppWindow::CreateParams& params) {
+  Runtime* runtime = Runtime::Create(
+      XWalkRunner::GetInstance()->runtime_context());
+  runtime->set_observer(this);
+  runtimes_.push_back(runtime);
+  runtime->LoadURL(url);
+  content::WaitForLoadStop(runtime->web_contents());
+  runtime->set_ui_delegate(
+      xwalk::DefaultRuntimeUIDelegate::Create(runtime, params));
+  runtime->Show();
+  return runtime;
 }
 
 void InProcessBrowserTest::PrepareTestCommandLine(
     base::CommandLine* command_line) {
   // Propagate commandline settings from test_launcher_utils.
   xwalk_test_utils::PrepareBrowserCommandLineForTests(command_line);
-}
-
-const InProcessBrowserTest::RuntimeList& InProcessBrowserTest::runtimes()
-                                                               const {
-  return runtime_registry_->runtimes();
 }
 
 void InProcessBrowserTest::RunTestOnMainThreadLoop() {
@@ -161,10 +119,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // method, instead they should just create runtimes themselves
   // when needed and thus the 'runtime()' method should be removed
   // as well as 'runtime_' initialization below.
-  runtime_ = CreateWithDefaultWindow(
-          GetRuntimeContext(),
-          GURL(), runtime_registry_.get());
-  content::WaitForLoadStop(runtime_->web_contents());
+  runtime_ = CreateRuntime(GURL());
   content::RunAllPendingInMessageLoop();
 
   SetUpOnMainThread();
@@ -176,7 +131,39 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // gtest in that it invokes TearDown even if Setup fails.
   ProperMainThreadCleanup();
 
-  runtime_registry_->CloseAll();
+  CloseAll();
+}
+
+void InProcessBrowserTest::OnNewRuntimeAdded(Runtime* runtime) {
+  DCHECK(runtime);
+  runtimes_.push_back(runtime);
+  runtime->set_observer(this);
+  runtime->set_ui_delegate(
+      xwalk::DefaultRuntimeUIDelegate::Create(runtime));
+  runtime->Show();
+}
+
+void InProcessBrowserTest::OnRuntimeClosed(Runtime* runtime) {
+  DCHECK(runtime);
+  auto it = std::find(runtimes_.begin(), runtimes_.end(), runtime);
+  DCHECK(it != runtimes_.end());
+  runtimes_.erase(it);
+
+  if (runtimes_.empty())
+    base::MessageLoop::current()->PostTask(
+        FROM_HERE, base::MessageLoop::QuitClosure());
+}
+
+void InProcessBrowserTest::CloseAll() {
+  if (runtimes_.empty())
+    return;
+
+  RuntimeList to_be_closed(runtimes_.get());
+  for (Runtime* runtime : to_be_closed)
+    runtime->Close();
+  // Wait until all windows are closed.
+  content::RunAllPendingInMessageLoop();
+  DCHECK(runtimes_.empty()) << runtimes_.size();
 }
 
 bool InProcessBrowserTest::CreateDataPathDir() {
@@ -195,3 +182,4 @@ bool InProcessBrowserTest::CreateDataPathDir() {
   }
   return xwalk_test_utils::OverrideDataPathDir(data_path_dir);
 }
+

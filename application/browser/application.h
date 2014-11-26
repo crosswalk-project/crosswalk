@@ -22,8 +22,6 @@
 #include "xwalk/application/browser/application_security_policy.h"
 #include "xwalk/application/common/application_data.h"
 #include "xwalk/runtime/browser/runtime.h"
-#include "xwalk/runtime/browser/runtime_ui_strategy.h"
-
 
 namespace content {
 class RenderProcessHost;
@@ -32,6 +30,7 @@ class RenderProcessHost;
 namespace xwalk {
 
 class RuntimeContext;
+class XWalkAppExtensionBridge;
 
 namespace application {
 
@@ -78,7 +77,7 @@ class Application : public Runtime::Observer,
   // immediately after its termination.
   void Terminate();
 
-  const std::set<Runtime*>& runtimes() const { return runtimes_; }
+  const std::vector<Runtime*>& runtimes() const { return runtimes_.get(); }
 
   // Returns the unique application id which is used to distinguish the
   // application amoung both running applications and installed ones
@@ -113,7 +112,9 @@ class Application : public Runtime::Observer,
 
   void set_observer(Observer* observer) { observer_ = observer; }
 
-  RuntimeUIStrategy* ui_strategy() { return ui_strategy_.get(); }
+  base::WeakPtr<Application> GetWeakPtr() {
+    return weak_factory_.GetWeakPtr();
+  }
 
  protected:
   Application(scoped_refptr<ApplicationData> data, RuntimeContext* context);
@@ -121,31 +122,28 @@ class Application : public Runtime::Observer,
   virtual void InitSecurityPolicy();
 
   // Runtime::Observer implementation.
-  virtual void OnRuntimeAdded(Runtime* runtime) OVERRIDE;
-  virtual void OnRuntimeRemoved(Runtime* runtime) OVERRIDE;
+  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
+  virtual void OnRuntimeClosed(Runtime* runtime) override;
 
   // Get the path of splash screen image. Return empty path by default.
   // Sub class can override it to return a specific path.
   virtual base::FilePath GetSplashScreenPath();
 
-  std::set<Runtime*> runtimes_;
   RuntimeContext* runtime_context_;
+  ScopedVector<Runtime> runtimes_;
   scoped_refptr<ApplicationData> const data_;
   // The application's render process host.
   content::RenderProcessHost* render_process_host_;
   content::WebContents* web_contents_;
   bool security_mode_enabled_;
 
-  scoped_ptr<RuntimeUIStrategy> ui_strategy_;
-  xwalk::NativeAppWindow::CreateParams window_show_params_;
-
-  base::WeakPtr<Application> GetWeakPtr() {
-    return weak_factory_.GetWeakPtr();
-  }
+  NativeAppWindow::CreateParams window_show_params_;
 
  private:
   // We enforce ApplicationService ownership.
   friend class ApplicationService;
+  // XWalkAppExtensionBridge gives notifications.
+  friend class xwalk::XWalkAppExtensionBridge;
   static scoped_ptr<Application> Create(scoped_refptr<ApplicationData> data,
       RuntimeContext* context);
 
@@ -167,6 +165,8 @@ class Application : public Runtime::Observer,
   GURL GetAbsoluteURLFromKey(const std::string& key);
 
   void NotifyTermination();
+  // Notification from XWalkAppExtensionBridge.
+  void RenderChannelCreated();
 
   Observer* observer_;
 

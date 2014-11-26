@@ -13,6 +13,10 @@
 
 namespace xwalk {
 
+namespace application {
+class Application;
+}
+
 // The class is the main interface for co-operations between the two major
 // xwalk components -- the application subsystem and the extension subsystem.
 // Because of the dependency requirements two components cound not include
@@ -45,6 +49,7 @@ class XWalkAppExtensionBridge
   virtual void RenderChannelCreated(int render_process_id) OVERRIDE;
 
  private:
+  application::Application* GetApplication(int render_process_id);
   application::ApplicationSystem* app_system_;
 
   DISALLOW_COPY_AND_ASSIGN(XWalkAppExtensionBridge);

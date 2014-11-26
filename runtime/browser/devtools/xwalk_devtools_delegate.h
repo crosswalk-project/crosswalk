@@ -16,6 +16,7 @@
 #include "content/public/browser/devtools_http_handler_delegate.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "url/gurl.h"
+#include "xwalk/runtime/browser/runtime.h"
 
 namespace content {
 class DevToolsHttpHandler;
@@ -43,7 +44,8 @@ class XWalkDevToolsHttpHandlerDelegate :
   DISALLOW_COPY_AND_ASSIGN(XWalkDevToolsHttpHandlerDelegate);
 };
 
-class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate {
+class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate,
+                              public Runtime::Observer {
  public:
   explicit XWalkDevToolsDelegate(RuntimeContext* runtime_context);
   virtual ~XWalkDevToolsDelegate();
@@ -65,6 +67,10 @@ class XWalkDevToolsDelegate : public content::DevToolsManagerDelegate {
                                scoped_refptr<base::RefCountedBytes> png);
 
  private:
+  // Runtime::Observer
+  virtual void OnNewRuntimeAdded(Runtime* runtime) override;
+  virtual void OnRuntimeClosed(Runtime* runtime) override;
+
   using ThumbnailMap = std::map<GURL, std::string>;
   ThumbnailMap thumbnail_map_;
   RuntimeContext* runtime_context_;
