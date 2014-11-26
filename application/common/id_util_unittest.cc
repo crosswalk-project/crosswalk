@@ -1,13 +1,27 @@
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
+// Copyright (c) 2014 Samsung Electronics Co., Ltd All Rights Reserved
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <string>
 #include "base/basictypes.h"
 #include "xwalk/application/common/id_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace xwalk {
 namespace application {
+
+namespace {
+
+std::string MakePlatformId(const std::string& arg) {
+#if defined(OS_TIZEN)
+  return "xwalk." + arg;
+#else
+  return arg;
+#endif
+}
+
+}  // namespace
 
 TEST(IDUtilTest, GenerateID) {
   const uint8 public_key_info[] = {
@@ -29,27 +43,51 @@ TEST(IDUtilTest, GenerateID) {
   std::string application_id = GenerateId(
       std::string(reinterpret_cast<const char*>(&public_key_info[0]),
                   arraysize(public_key_info)));
-  EXPECT_EQ("melddjfinppjdikinhbgehiennejpfhp", application_id);
 
-  EXPECT_EQ("jpignaibiiemhngfjkcpokkamffknabf", GenerateId("test"));
+  EXPECT_EQ(MakePlatformId("melddjfinppjdikinhbgehiennejpfhp"),
+      application_id);
 
-  EXPECT_EQ("ncocknphbhhlhkikpnnlmbcnbgdempcd", GenerateId("_"));
+  EXPECT_EQ(MakePlatformId("jpignaibiiemhngfjkcpokkamffknabf"),
+      GenerateId("test"));
 
-  EXPECT_EQ("jimneklojkjdibfkgiiophfhjhbdgcfi",
-            GenerateId(
-                "this_string_is_longer_than_a_single_sha256_hash_digest"));
+  EXPECT_EQ(MakePlatformId("ncocknphbhhlhkikpnnlmbcnbgdempcd"),
+      GenerateId("_"));
+
+  EXPECT_EQ(MakePlatformId("jimneklojkjdibfkgiiophfhjhbdgcfi"),
+      GenerateId("this_string_is_longer_than_a_single_sha256_hash_digest"));
 }
 
 TEST(IDUtilTest, IsValidApplicationID) {
-  EXPECT_TRUE(IsValidApplicationID("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
-  EXPECT_TRUE(IsValidApplicationID("pppppppppppppppppppppppppppppppp"));
-  EXPECT_TRUE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnop"));
-  EXPECT_TRUE(IsValidApplicationID("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
-  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmno"));
-  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnopa"));
-  EXPECT_FALSE(IsValidApplicationID("0123456789abcdef0123456789abcdef"));
-  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnoq"));
-  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmno0"));
+  EXPECT_TRUE(IsValidApplicationID(
+      MakePlatformId("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")));
+  EXPECT_TRUE(IsValidApplicationID(
+      MakePlatformId("pppppppppppppppppppppppppppppppp")));
+  EXPECT_TRUE(IsValidApplicationID(
+      MakePlatformId("abcdefghijklmnopabcdefghijklmnop")));
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("abcdefghijklmnopabcdefghijklmno")));
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("abcdefghijklmnopabcdefghijklmnopa")));
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("0123456789abcdef0123456789abcdef")));
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("abcdefghijklmnopabcdefghijklmnoq")));
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("abcdefghijklmnopabcdefghijklmno0")));
+
+// For Tizen platform upper case letters in application id are not allowed
+// so we expect false unlike in the other platforms that accept them.
+#if defined(OS_TIZEN)
+  EXPECT_FALSE(IsValidApplicationID(
+      MakePlatformId("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP")));
+#else
+  EXPECT_TRUE(IsValidApplicationID(
+      MakePlatformId("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP")));
+#endif
+
+#if defined(OS_TIZEN)
+  EXPECT_FALSE(IsValidApplicationID("abcdefghijklmnopabcdefghijklmnop"));
+#endif
 }
 
 }  // namespace application
