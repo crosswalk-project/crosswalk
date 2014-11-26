@@ -41,7 +41,7 @@ static gfx::Display::Rotation ToDisplayRotation(gfx::Display display,
 
   if (display.bounds().width() > display.bounds().height()) {
     // Landscape devices have landscape-primary as default.
-    rot = static_cast<gfx::Display::Rotation>((rot - 1) % 4);
+    rot = static_cast<gfx::Display::Rotation>((rot + 3) % 4);
   }
 
   return rot;
