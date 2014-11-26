@@ -125,8 +125,8 @@ bool WidgetHandler::Parse(scoped_refptr<ApplicationData> application,
 
   for (KeyMapIterator iter = map.begin(); iter != map.end(); ++iter) {
     std::string string;
-    manifest->GetString(iter->first, &string);
-    widget_info->SetString(iter->second, string);
+    bool result = manifest->GetString(iter->first, &string);
+    widget_info->SetString(iter->second, result ? string : "");
   }
 
   base::Value* pref_value = NULL;

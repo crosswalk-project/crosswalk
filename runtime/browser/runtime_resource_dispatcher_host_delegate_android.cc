@@ -26,6 +26,7 @@
 #include "xwalk/runtime/browser/android/xwalk_download_resource_throttle.h"
 #include "xwalk/runtime/browser/android/xwalk_login_delegate.h"
 #include "xwalk/runtime/browser/xwalk_content_browser_client.h"
+#include "xwalk/runtime/common/xwalk_content_client.h"
 
 using content::BrowserThread;
 using navigation_interception::InterceptNavigationDelegate;
@@ -248,9 +249,9 @@ void RuntimeResourceDispatcherHostDelegateAndroid::DownloadStarting(
   std::string mime_type;
   int64 content_length = request->GetExpectedContentSize();
 
-  request->extra_request_headers().GetHeader(
-      net::HttpRequestHeaders::kUserAgent, &user_agent);
-
+  if (!request->extra_request_headers().GetHeader(
+      net::HttpRequestHeaders::kUserAgent, &user_agent))
+    user_agent = xwalk::GetUserAgent();
 
   net::HttpResponseHeaders* response_headers = request->response_headers();
   if (response_headers) {
