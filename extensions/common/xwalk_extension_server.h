@@ -101,7 +101,8 @@ class XWalkExtensionServer : public IPC::Listener,
 
   void DeleteInstanceMap();
 
-  bool ValidateExtensionEntryPoints(const base::ListValue& entry_points);
+  bool ValidateExtensionEntryPoints(
+      const std::vector<std::string>& entry_points);
 
   base::Lock sender_lock_;
   IPC::Sender* sender_;

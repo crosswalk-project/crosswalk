@@ -177,12 +177,9 @@ bool XWalkExtensionServer::RegisterExtension(
     return false;
   }
 
-  const base::ListValue& entry_points = extension->entry_points();
-  base::ListValue::const_iterator it = entry_points.begin();
+  const std::vector<std::string>& entry_points = extension->entry_points();
 
-  for (; it != entry_points.end(); ++it) {
-    std::string entry_point;
-    (*it)->GetAsString(&entry_point);
+  for (const std::string& entry_point : entry_points) {
     extension_symbols_.insert(entry_point);
   }
 
@@ -280,14 +277,8 @@ void XWalkExtensionServer::DeleteInstanceMap() {
 }
 
 bool XWalkExtensionServer::ValidateExtensionEntryPoints(
-    const base::ListValue& entry_points) {
-  base::ListValue::const_iterator it = entry_points.begin();
-
-  for (; it != entry_points.end(); ++it) {
-    std::string entry_point;
-
-    (*it)->GetAsString(&entry_point);
-
+    const std::vector<std::string>& entry_points) {
+  for (const std::string& entry_point : entry_points) {
     if (!ValidateExtensionIdentifier(entry_point))
       return false;
 
@@ -357,11 +348,8 @@ void XWalkExtensionServer::OnGetExtensions(
     extension_parameters.name = extension->name();
     extension_parameters.js_api = extension->javascript_api();
 
-    const base::ListValue& entry_points = extension->entry_points();
-    base::ListValue::const_iterator entry_it = entry_points.begin();
-    for (; entry_it != entry_points.end(); ++entry_it) {
-      std::string entry_point;
-      (*entry_it)->GetAsString(&entry_point);
+    const std::vector<std::string>& entry_points = extension->entry_points();
+    for (const std::string& entry_point : entry_points) {
       extension_parameters.entry_points.push_back(entry_point);
     }
 
