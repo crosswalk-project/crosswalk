@@ -39,10 +39,15 @@ static DownloadManagerImpl* DownloadManagerForXWalk(Runtime* runtime) {
 
 class XWalkDownloadBrowserTest : public InProcessBrowserTest {
  public:
+  XWalkDownloadBrowserTest()
+    : InProcessBrowserTest(),
+      runtime_(nullptr) {}
+
   virtual void SetUpOnMainThread() OVERRIDE {
     ASSERT_TRUE(downloads_directory_.CreateUniqueTempDir());
+    runtime_ = CreateRuntime(GURL());
 
-    DownloadManagerImpl* manager = DownloadManagerForXWalk(runtime());
+    DownloadManagerImpl* manager = DownloadManagerForXWalk(runtime_);
     RuntimeDownloadManagerDelegate* delegate =
         static_cast<RuntimeDownloadManagerDelegate*>(manager->GetDelegate());
     delegate->SetDownloadBehaviorForTesting(downloads_directory_.path());
@@ -56,6 +61,9 @@ class XWalkDownloadBrowserTest : public InProcessBrowserTest {
         DownloadTestObserver::ON_DANGEROUS_DOWNLOAD_FAIL);
   }
 
+ protected:
+  Runtime* runtime_;
+
  private:
   // Location of the downloads directory for these tests
   base::ScopedTempDir downloads_directory_;
@@ -65,12 +73,12 @@ IN_PROC_BROWSER_TEST_F(XWalkDownloadBrowserTest, FileDownload) {
   GURL url = xwalk_test_utils::GetTestURL(
       base::FilePath().AppendASCII("download"),
       base::FilePath().AppendASCII("test.lib"));
-  scoped_ptr<DownloadTestObserver> observer(CreateWaiter(runtime(), 1));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  scoped_ptr<DownloadTestObserver> observer(CreateWaiter(runtime_, 1));
+  xwalk_test_utils::NavigateToURL(runtime_, url);
   observer->WaitForFinished();
   EXPECT_EQ(1u, observer->NumDownloadsSeenInState(DownloadItem::COMPLETE));
   std::vector<DownloadItem*> downloads;
-  DownloadManagerForXWalk(runtime())->GetAllDownloads(&downloads);
+  DownloadManagerForXWalk(runtime_)->GetAllDownloads(&downloads);
   ASSERT_EQ(1u, downloads.size());
   ASSERT_EQ(DownloadItem::COMPLETE, downloads[0]->GetState());
   base::FilePath file(downloads[0]->GetFullPath());

@@ -69,6 +69,7 @@
         'experimental/native_file_system/native_file_system_extension.cc',
         'experimental/native_file_system/native_file_system_extension.h',
         'experimental/native_file_system/virtual_root_provider_mac.cc',
+        'experimental/native_file_system/virtual_root_provider_tizen.cc',
         'experimental/native_file_system/virtual_root_provider_win.cc',
         'experimental/native_file_system/virtual_root_provider.cc',
         'experimental/native_file_system/virtual_root_provider.h',
@@ -314,7 +315,6 @@
             ],
           },
           'sources': [
-            'experimental/native_file_system/virtual_root_provider_tizen.cc',
             'runtime/browser/tizen/tizen_locale_listener.cc',
             'runtime/browser/tizen/tizen_locale_listener.h',
             'runtime/browser/tizen/xwalk_web_contents_view_delegate.cc',

@@ -46,15 +46,13 @@ class InProcessBrowserTest : public content::BrowserTestBase,
 
   // Configures everything for an in process browser test, then invokes
   // BrowserMain. BrowserMain ends up invoking RunTestOnMainThreadLoop.
-  virtual void SetUp() OVERRIDE;
+  virtual void SetUp() override;
 
  protected:
-  // FIXME : Two following methods should be removed!
-  xwalk::Runtime* runtime() const { return runtime_; }
   const RuntimeList& runtimes() const { return runtimes_.get(); }
 
   xwalk::Runtime* CreateRuntime(
-      const GURL& url,
+      const GURL& url = GURL(),
       const xwalk::NativeAppWindow::CreateParams& params =
         xwalk::NativeAppWindow::CreateParams());
 
@@ -63,11 +61,7 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   virtual void ProperMainThreadCleanup() {}
 
   // BrowserTestBase:
-  virtual void RunTestOnMainThreadLoop() OVERRIDE;
-
-  // Return a CommandLine object that is used to relaunch the browser_test
-  // binary as a browser process.
-  base::CommandLine GetCommandLineForRelaunch();
+  virtual void RunTestOnMainThreadLoop() override;
 
  private:
   // xwalk::Runtime::Observer
@@ -79,13 +73,7 @@ class InProcessBrowserTest : public content::BrowserTestBase,
   // data path. Return true if success.
   bool CreateDataPathDir();
 
-  // Prepare command line that will be used to launch the child browser process
-  // with an in-process test.
-  void PrepareTestCommandLine(base::CommandLine* command_line);
-
   ScopedVector<xwalk::Runtime> runtimes_;
-  // FIXME : Should be removed.
-  xwalk::Runtime* runtime_;
 
   // Temporary data path directory. Used only when a data path directory is not
   // specified in the command line.

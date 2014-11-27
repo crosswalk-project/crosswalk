@@ -9,19 +9,15 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/values.h"
 #include "xwalk/application/common/application_data.h"
+#include "xwalk/application/common/manifest.h"
 
 namespace xwalk {
 namespace application {
 
-scoped_ptr<base::DictionaryValue> CreateDefaultW3CManifest();
+scoped_ptr<base::DictionaryValue> CreateDefaultManifestConfig();
+scoped_ptr<base::DictionaryValue> CreateDefaultWidgetConfig();
 
-#if defined(OS_TIZEN)
-
-scoped_ptr<base::DictionaryValue> CreateDefaultWGTManifest();
-
-#endif  // defined(OS_TIZEN)
-
-scoped_refptr<ApplicationData> CreateApplication(
+scoped_refptr<ApplicationData> CreateApplication(Manifest::Type type,
     const base::DictionaryValue& manifest);
 
 }  // namespace application

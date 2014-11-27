@@ -11,6 +11,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 const char kInProcessExtensionThread[] = "in_process_extension_thread";
 const char kInProcessUIThread[] = "in_process_ui_thread";
@@ -77,14 +78,13 @@ class InProcessThreadsTest : public XWalkExtensionsTestBase {
 };
 
 IN_PROC_BROWSER_TEST_F(InProcessThreadsTest, InProcessThreads) {
-  content::RunAllPendingInMessageLoop();
-
-  content::TitleWatcher title_watcher(runtime()->web_contents(), kPassString);
+  Runtime* runtime = CreateRuntime();
+  content::TitleWatcher title_watcher(runtime->web_contents(), kPassString);
   title_watcher.AlsoWaitForTitle(kFailString);
 
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("in_process_threads.html"));
-  xwalk_test_utils::NavigateToURL(runtime(), url);
+  xwalk_test_utils::NavigateToURL(runtime, url);
 
   EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
 }

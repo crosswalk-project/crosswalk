@@ -15,6 +15,7 @@
 #include "xwalk/test/base/xwalk_test_utils.h"
 
 using namespace xwalk::extensions;  // NOLINT
+using xwalk::Runtime;
 
 namespace {
 
@@ -85,21 +86,21 @@ class XWalkExtensionsContextDestructionTest : public XWalkExtensionsTestBase {
 
 IN_PROC_BROWSER_TEST_F(XWalkExtensionsContextDestructionTest,
                        ContextIsDestroyedWhenNavigating) {
-  content::RunAllPendingInMessageLoop();
+  Runtime* runtime = CreateRuntime();
   GURL url = GetExtensionsTestURL(base::FilePath(),
       base::FilePath().AppendASCII("context_destruction.html"));
 
   {
-    content::TitleWatcher title_watcher(runtime()->web_contents(), kFailString);
+    content::TitleWatcher title_watcher(runtime->web_contents(), kFailString);
     title_watcher.AlsoWaitForTitle(kPassString);
-    xwalk_test_utils::NavigateToURL(runtime(), url);
+    xwalk_test_utils::NavigateToURL(runtime, url);
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 
   {
-    content::TitleWatcher title_watcher(runtime()->web_contents(), kFailString);
+    content::TitleWatcher title_watcher(runtime->web_contents(), kFailString);
     title_watcher.AlsoWaitForTitle(kPassString);
-    xwalk_test_utils::NavigateToURL(runtime(), url);
+    xwalk_test_utils::NavigateToURL(runtime, url);
     EXPECT_EQ(kPassString, title_watcher.WaitAndGetTitle());
   }
 
