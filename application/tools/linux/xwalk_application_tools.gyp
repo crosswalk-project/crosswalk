@@ -9,6 +9,7 @@
       ],
       'dependencies': [
         '../../../../base/third_party/dynamic_annotations/dynamic_annotations.gyp:dynamic_annotations',
+        '../../../build/system.gyp:gio',
         '../../../extensions/extensions.gyp:xwalk_extensions',
         '../../../application/common/xwalk_application_common.gypi:xwalk_application_common_lib',
       ],
@@ -20,14 +21,8 @@
         'xwalk_launcher_main.cc',
       ],
       'conditions' : [
-        ['OS=="linux"', {
-          'dependencies': [
-            '../../../build/system.gyp:gio',
-          ],
-        }],
         ['tizen==1', {
           'dependencies': [
-            '../../../build/system.gyp:gio',
             '../../../build/system.gyp:tizen',
             '../../../build/system.gyp:tizen_appcore_common'
           ],
