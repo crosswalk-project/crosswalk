@@ -28,6 +28,7 @@ UDPSocketObject::UDPSocketObject()
       is_reading_(false),
       read_buffer_(new net::IOBuffer(kBufferSize)),
       write_buffer_(new net::IOBuffer(kBufferSize)),
+      write_buffer_size_(0),
       resolver_(net::HostResolver::CreateDefaultResolver(NULL)),
       single_resolver_(new net::SingleRequestHostResolver(resolver_.get())) {
   handler_.Register("init",
