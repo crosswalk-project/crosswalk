@@ -299,20 +299,13 @@
             '../content/app/resources/content_resources.gyp:content_resources',
             '../ui/compositor/compositor.gyp:compositor',
             'build/system.gyp:tizen_geolocation',
+            'build/system.gyp:tizen_tzplatform_config',
             'sysapps/sysapps_resources.gyp:xwalk_sysapps_resources',
             'tizen/xwalk_tizen.gypi:xwalk_tizen_lib',
             '<(DEPTH)/third_party/jsoncpp/jsoncpp.gyp:jsoncpp',
             '../components/components.gyp:web_modal',
             '../components/components.gyp:renderer_context_menu',
           ],
-          'cflags': [
-            '<!@(pkg-config --cflags libtzplatform-config)',
-          ],
-          'link_settings': {
-            'libraries': [
-              '<!@(pkg-config --libs libtzplatform-config)',
-            ],
-          },
           'sources': [
             'experimental/native_file_system/virtual_root_provider_tizen.cc',
             'runtime/browser/tizen/tizen_locale_listener.cc',

@@ -29,6 +29,28 @@
     ['tizen==1', {
       'targets': [
         {
+          'target_name': 'tizen_tzplatform_config',
+          'type': 'none',
+          'variables': {
+            'packages': [
+              'libtzplatform-config',
+            ],
+          },
+          'direct_dependent_settings': {
+            'cflags': [
+              '<!@(pkg-config --cflags <@(packages))',
+            ],
+          },
+          'link_settings': {
+            'ldflags': [
+              '<!@(pkg-config --libs-only-L --libs-only-other <@(packages))',
+            ],
+            'libraries': [
+              '<!@(pkg-config --libs-only-l <@(packages))',
+            ],
+          },
+        },
+        {
           'target_name': 'tizen_geolocation',
           'type': 'none',
           'variables': {
@@ -56,7 +78,6 @@
           'type': 'none',
           'variables': {
             'packages': [
-              'libtzplatform-config',
               'ail',
               'dlog',
               'nss',
